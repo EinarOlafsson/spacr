@@ -1,16 +1,16 @@
 {
   "lesson": "82_toxoplasma",
-  "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
+  "english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Direct AI technical/context review, no native-speaker signoff",
+    "translator": "AI technical/context review from the exact current English source",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "fr",
-  "title": "Toxoplasma : explorer la page et choisir un essai",
+  "title": "Organisme Toxoplasma : guide, diagramme et essais",
   "description": "Ouvrez la page de l’organisme, explorez le schéma cellulaire et choisissez un essai disponible.",
   "objectives": [
     "Ouvrir la page depuis Home et trouver ses principales commandes.",
@@ -19,12 +19,12 @@
   ],
   "prerequisite": "Ouvrez Home dans spaCR. Le guide de l’organisme ne nécessite aucun fichier d’entrée. Chaque essai a ses propres entrées et son parcours lié.",
   "scenes": [
-    "Toute expérience sur Toxoplasma peut partir d’une seule page. Depuis Home, choisissez Toxoplasma : le guide de l’organisme, un schéma cellulaire et les essais disponibles sont côte à côte, prêts à être explorés avant de charger la moindre image.",
+    "Dans Home, choisissez la catégorie Organism, puis Toxoplasma. Cette page combine un guide sur l’organisme, un diagramme cellulaire interactif et les parcours d’essais Toxoplasma disponibles. Explorez-la avant de choisir une analyse.",
     "Commencez par l’introduction dans le panneau d’information. Chaque panneau défile indépendamment, et faire glisser le séparateur donne plus de place au guide ou aux tuiles des essais.",
     "Le schéma est fait pour être exploré. Survolez un composant cellulaire et sa description apparaît. Sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise l’image.",
-    "Choisissez la tuile qui correspond à votre question. Plaque Assay compte les plages de lyse et mesure leurs aires ; Invasion Assay cherche combien de parasites sont entrés. Recruitment mesure l’accumulation d’un marqueur à la vacuole, Replication Assay le nombre de parasites par vacuole, et Host–Pathogen relie les vacuoles à leurs cellules hôtes. Chacun a sa propre leçon.",
-    "Suivons-en un. Cliquez sur Host–Pathogen et son écran d’analyse s’ouvre. Load test data charge l’exemple de microscopie fourni, puis le tutoriel Host–Pathogen vous guide dans les paramètres, l’aperçu et Run.",
-    "De retour sur la page Toxoplasma, Starplast ouvre une carte de connaissances dans sa propre application ; la première fois, il propose des étapes d’installation à suivre. Les liens de référence, eux, ouvrent des ressources sur l’organisme dans votre navigateur.",
-    "Le guide n’écrit aucun fichier d’analyse ; le vrai travail se fait donc ailleurs. Si vos images doivent encore être segmentées ou mesurées, revenez d’abord à Home ; une fois les images ou les tables prêtes, les pages des essais prennent le relais."
+    "Plaque Assay compte les plages de lyse et mesure leurs aires. Recruitment mesure l’enrichissement du marqueur au niveau de la vacuole contenant le parasite, et Replication Assay compte les parasites par vacuole. Choisissez un essai selon la grandeur à mesurer et les données d’entrée qu’il nécessite.",
+    "Cliquez sur Plaque Assay pour ouvrir son écran d’analyse. Le panneau de paramètres indique la source des images, les masques et les options de détection. Load test data fournit un exemple. Vérifiez les données d’entrée et l’aperçu avant de lancer Run ; le tutoriel Plaque Analysis décrit le déroulement complet.",
+    "Revenez au guide Toxoplasma et faites défiler le panneau d’information jusqu’aux références. ToxoDB, l’atlas hyperLOPIT de Toxoplasma, UniProt et NCBI Taxonomy renvoient à des ressources sur l’organisme. Ces liens s’ouvrent dans votre navigateur ; le guide ne recherche pas dans une base de données et ne prédit pas la localisation des protéines.",
+    "Le guide sur l’organisme ne produit pas de tables d’analyse. Revenez à Home pour préparer les images, les segmenter ou les mesurer, puis choisissez l’essai adapté à vos entrées préparées. Chaque essai a ses propres exigences et une procédure guidée liée."
   ]
 }

@@ -16,6 +16,7 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
+from sentence_audio_cache import cached_sentence
 
 from narration_audio import (
     SAMPLE_RATE,
@@ -237,9 +238,37 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
         # Home-only reviewed speech forms. Keep visible captions unchanged,
         # and leave the existing global Home/Cellpose/UMAP forms in place.
         forms = [
+            ('Import settings', 'インポート セッティングス', '导入设置'),
+            ('Align & Stitch', 'アライン アンド スティッチ', '对齐与拼接'),
+            ('Organism', 'オーガニズム', '生物'),
+            ('Spaceout', 'スペースアウト', '空间模式'),
+            ('Stop', 'ストップ', '停止'),
             ('Tabular Machine Learning', 'タビュラー マシン ラーニング', '表格机器学习'),
             ('Classifier Evaluation', 'クラシファイア エバリュエーション', '分类器评估'),
             ('Pipeline overviews', 'パイプライン オーバービューズ', '流程概览'),
+            ('Settings backdrop darkness', 'セッティングス バックドロップ ダークネス', '设置背景暗度'),
+            ('Settings animation speed', 'セッティングス アニメーション スピード', '设置动画速度'),
+            ('Settings animation size', 'セッティングス アニメーション サイズ', '设置动画大小'),
+            ('Settings animation detail', 'セッティングス アニメーション ディテール', '设置动画细节'),
+            ('Settings animation density', 'セッティングス アニメーション デンシティ', '设置动画密度'),
+            ('Settings backdrop', 'セッティングス バックドロップ', '设置背景'),
+            ('Animation colours', 'アニメーション カラーズ', '动画颜色'),
+            ('Custom colours', 'カスタム カラーズ', '自定义颜色'),
+            ('Animation background', 'アニメーション バックグラウンド', '动画背景'),
+            ('Theme colour', 'テーマ カラー', '主题颜色'),
+            ('Mouse gravity radius', 'マウス グラビティ レイディアス', '鼠标引力半径'),
+            ('Dot blinking', 'ドット ブリンキング', '光点闪烁'),
+            ('Popup wave frequency', 'ポップアップ ウェーブ フリークエンシー', '弹窗波纹频率'),
+            ('Field ripples', 'フィールド リップルズ', '场波纹'),
+            ('Detail', 'ディテール', '细节'),
+            ('Speed', 'スピード', '速度'),
+            ('Size', 'サイズ', '大小'),
+            ('Density', 'デンシティ', '密度'),
+            ('Apply', 'アプライ', '应用'),
+            ('Keep', 'キープ', '保留'),
+            ('Revert', 'リバート', '还原'),
+            ('Save', 'セーブ', '保存'),
+            ('field', 'フィールド', '场'),
             # The re-recorded Home lesson (column, palette, Preferences pages).
             ('Tooltip delay', 'ツールチップ ディレイ', '工具提示延迟'),
             ('Certificate bundle', 'サーティフィケート バンドル', '证书包'),
@@ -719,28 +748,30 @@ def render_track(
         sentence_audio = []
         sentence_phonemes = []
         for sentence_number, sentence in enumerate(plan["sentences"], start=1):
-            chunks = []
-            phonemes = []
-            for result in pipeline(
-                sentence["speech_text"],
-                voice=synthesis_voice,
-                speed=plan["effective_speed"],
-            ):
-                if result.audio is not None:
-                    chunks.append(
-                        result.audio.detach().cpu().numpy().astype(np.float32)
-                    )
-                if result.phonemes:
-                    phonemes.append(str(result.phonemes))
-            if not chunks:
-                raise RuntimeError(
-                    f"No audio for {language}/{voice}/{lesson['id']}/"
-                    f"{index}/{sentence_number}"
-                )
-            sentence_audio.append(
-                np.concatenate(chunks).astype(np.float32, copy=False)
+            def synthesize_sentence():
+                chunks, phonemes = [], []
+                for result in pipeline(sentence['speech_text'], voice=synthesis_voice,
+                                       speed=plan['effective_speed']):
+                    if result.audio is not None:
+                        chunks.append(result.audio.detach().cpu().numpy().astype(np.float32))
+                    if result.phonemes:
+                        phonemes.append(str(result.phonemes))
+                if not chunks:
+                    raise RuntimeError(f"No audio for {language}/{voice}/{lesson['id']}/"
+                                       f"{index}/{sentence_number}")
+                return np.concatenate(chunks).astype(np.float32, copy=False), ' '.join(phonemes)
+
+            raw, phonemes, reused = cached_sentence(
+                Path(os.environ.get('SPACR_TUTORIAL_SENTENCE_CACHE',
+                                    str(PRODUCTION.parent / 'sentence-audio-cache'))),
+                {'schema': 1, 'speech_text': sentence['speech_text'],
+                 'speed': plan['effective_speed'], 'language': language,
+                 'lang_code': lang_code, 'dialect': dialect, 'voice': voice,
+                 'sample_rate': SAMPLE_RATE, 'synthesis_runtime': runtime_identity},
+                synthesize_sentence, np,
             )
-            sentence_phonemes.append(" ".join(phonemes))
+            sentence_audio.append(raw)
+            sentence_phonemes.append(phonemes)
         speech, sentence_segments = assemble_sentence_audio(sentence_audio, np)
         peak = float(np.max(np.abs(speech)))
         if peak > 0.98:
@@ -994,7 +1025,7 @@ def main() -> int:
             runtime_identity = synthesis_runtime_identity(
                 SNAPSHOT, voice, args.device
             )
-            synthesis_voice = pipeline.load_voice(voice)
+            synthesis_voice = pipeline.load_voice(str(SNAPSHOT / "voices" / f"{voice}.pt"))
             runtime_identity["voice_pack"] = dict(
                 runtime_identity["voice_pack"]
             )

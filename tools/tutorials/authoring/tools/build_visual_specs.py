@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get('SPACR_TUTORIAL_WORKSPACE', Path(__file__).resolve().parents[1])).resolve()
 PRODUCTION = ROOT / "production"
 CATALOG = ROOT / "catalog" / "lessons_en.json"
 
@@ -360,6 +361,28 @@ def build_intro_lesson(lesson: dict) -> None:
     }, indent=2, ensure_ascii=False) + "\n")
 
 
+def build_staged_lesson(lesson: dict) -> None:
+    """Preserve verified staged footage instead of returning to old keyframes."""
+    import hashlib
+    lesson_root = PRODUCTION / lesson['id']
+    authored = {key: value for key, value in lesson.items() if key != 'narration_voices'}
+    if json.loads((lesson_root / 'lesson.en.json').read_text()) != authored:
+        raise ValueError('Staged visuals and current English lesson disagree')
+    visual = json.loads((lesson_root / 'visual.json').read_text())
+    expected = hashlib.sha256(json.dumps(authored, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    if visual.get('english_sha256') != expected or len(visual['scenes']) != len(authored['scenes']):
+        raise ValueError('Staged visual geometry is not bound to current English')
+    scenes = [dict(geometry, narration=source['narration'],
+                   speech_text=source.get('speech_text', source['narration']),
+                   hold_after=source.get('hold_after', .45))
+              for geometry, source in zip(visual['scenes'], authored['scenes'])]
+    (lesson_root / 'scenes.json').write_text(json.dumps({
+        'schema': 1, 'fps': visual['fps'], 'size': visual['size'],
+        'lesson': authored['id'], 'english_sha256': expected,
+        'capture_source': visual['capture_source'], 'scenes': scenes,
+    }, ensure_ascii=False, indent=2) + '\n')
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -372,7 +395,9 @@ def main() -> int:
     for lesson in catalog["lessons"]:
         if lesson["id"] not in wanted:
             continue
-        if lesson["number"] <= 4:
+        if (PRODUCTION / lesson['id'] / 'visual.json').exists():
+            build_staged_lesson(lesson)
+        elif lesson["number"] <= 4:
             build_intro_lesson(lesson)
         elif lesson["number"] == 5:
             build_home_lesson(lesson)

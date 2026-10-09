@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 
 
-PRONUNCIATION_VERSION = "2026-08-28-pype-v11"
+PRONUNCIATION_VERSION = "2026-10-08-live-tv-v12"
 
 
 BRAND_SPEECH = {
@@ -96,6 +96,7 @@ _REJECTED_PYPI_ALIAS = re.compile(
 ENGLISH_DIALECT_SPEECH = {
     "us": {
         "github": "/ɡˈɪthˌʌb/",
+        "live": "/lˈIv/",
         "xgboost": "/ˌɛksʤˌibˈust/",
         "pytorch": "/pˈItˌɔɹʧ/",
         "cellpose": "/sˈɛlpˌOz/",
@@ -118,6 +119,7 @@ ENGLISH_DIALECT_SPEECH = {
     },
     "uk": {
         "github": "/ɡˈɪthˌʌb/",
+        "live": "/lˈIv/",
         "xgboost": "/ˌɛksʤˌiːbˈuːst/",
         "pytorch": "/pˈItˌɔːʧ/",
         "cellpose": "/sˈɛlpˌQz/",

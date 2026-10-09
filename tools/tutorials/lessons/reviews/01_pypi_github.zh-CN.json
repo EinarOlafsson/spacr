@@ -1,13 +1,24 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Technical source-bound editorial review; no native-speaker signoff",
+    "date": "2026-10-08",
+    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
+    "previous_review_sha256": "f464db1356cb9c90a9e0d6326935f97e2e03a09e374f9aee8a3d1e81058c3891",
+    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "zh-CN",
   "title": "在GitHub、PyPI和conda-forge上找到spaCR",
@@ -23,9 +34,9 @@
     "在PyPI上找到spaCR，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。pip教程介绍了如何先创建并激活这个环境。",
     "使用Project links打开文档、源代码仓库或问题跟踪器。把文档加入书签，这样在使用spaCR时可以随时回到各模块的演示。",
     "在GitHub上打开spaCR仓库。main包含发布版本的源代码，nightly包含最新的开发工作。如需打包好的桌面安装，请打开Releases并选择一个版本。",
-    "展开Assets，下载适用于Windows、macOS或Linux的安装程序。如果要验证下载，请保留同一版本中的校验和文件。Platform installers课程介绍了如何运行安装程序并打开spaCR。",
+    "展开 Assets，下载适用于 Windows、macOS 或 Linux 的安装程序。Platform installers 教程说明每种操作系统上的安装、启动 spaCR 和卸载步骤。",
     "在conda-forge上打开spaCR软件包页面，查看可用的版本。不同的软件包渠道可能在不同时间更新，所以请选择您所用方式中可用的版本。",
-    "conda-forge命令会把spaCR安装到当前激活的Conda环境中。请按照Conda课程创建该环境、安装软件包并启动应用程序。",
-    "接下来选择pip、Conda或Platform installers。spaCR打开后，进入Home课程，再查看流程概览，为您的数据选择合适的工作流程。"
+    "conda-forge 命令将 spaCR 安装到当前激活的 Conda 环境中。按照 Install spaCR 教程创建环境、安装软件包并启动应用。该教程也说明如何移除软件包和环境。",
+    "使用 pip 或 conda-forge 时继续查看 Install spaCR，使用桌面安装程序时查看 Platform installers。两个教程都包含卸载说明。打开 spaCR 后进入 Home，再查看流程概览，为数据选择工作流程。"
   ]
 }

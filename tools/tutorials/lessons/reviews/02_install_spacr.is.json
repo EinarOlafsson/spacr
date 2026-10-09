@@ -1,0 +1,41 @@
+{
+  "lesson": "02_install_spacr",
+  "english_sha256": "ebd31960772d2090c7c0e9442bafffdcb0d34bbf1905dc562a1829bf87c0f051",
+  "review": {
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+  },
+  "language": "is",
+  "title": "Settu upp spaCR",
+  "description": "Settu upp með pip í sýndarumhverfi Python, pip í Conda-umhverfi eða conda-forge í Conda-umhverfi; ræstu, uppfærðu og fjarlægðu.",
+  "objectives": [
+    "Veldu eina af þremur aðskildum uppsetningarleiðum.",
+    "Virkjaðu rétt umhverfi fyrir uppsetningu eða ræsingu.",
+    "Athugaðu uppsetta útgáfu, uppfærðu og fjarlægðu á öruggan hátt."
+  ],
+  "prerequisite": "Notaðu Python 3.12 fyrir sýndarumhverfisleiðina eða settu upp Conda/Miniforge fyrir aðra hvora Conda-leiðina. Opnaðu skipanalínu. Veldu önnur nöfn en þau sem núverandi umhverfi nota.",
+  "scenes": [
+    "Veldu uppsetningarleið. Pip setur spaCR upp annaðhvort í sýndarumhverfi Python eða Conda-umhverfi. Conda-forge setur upp í Conda-umhverfi; það getur ekki sett pakka upp í sýndarumhverfi Python. Leiðirnar þrjár hér að neðan eru valkostir, svo þú þarft aðeins eina.",
+    "Fyrir pip með sýndarumhverfi skaltu búa til sérstaka möppu og keyra Python 3.12 með -m venv til að búa til .venv. Notaðu aðra möppu ef hún inniheldur þegar umhverfi.",
+    "Virkjaðu .venv fyrir hverja uppsetningu, uppfærslu eða ræsingu. Í Linux og macOS skaltu hlaða bin/activate-skriftunni með source. Í Windows PowerShell skaltu keyra .venv\\Scripts\\Activate.ps1. Skipanalínukvaðning umhverfisins og Python-slóðin staðfesta hvaða túlkur er notaður.",
+    "Með umhverfið virkt skaltu uppfæra pip og síðan keyra pip install spacr. Uppsetning pakkans inniheldur Qt-hugbúnaðarsöfn sem skjáborðsforritið notar. Bíddu þar til uppsetningu vísindapakka og skjáborðsháðra pakka er lokið.",
+    "Athugaðu uppsetta útgáfu og slóð pakkans og keyrðu síðan python -m pip check. Geymdu útgáfuna með greiningarnótunum þínum. Þessi leið setur upp útgefna PyPI-pakkann; afrit af frumkóða eða nightly-útgáfa getur haft nýrri viðmótsaðgerðir.",
+    "Keyrðu spacr-doctor og fylgdu leiðbeiningum um háð sem vantar og skipta máli fyrir vinnuna þína. Sláðu síðan inn spacr til að ræsa uppsetta forritið. Lokaðu forritinu áður en umhverfi þess er breytt.",
+    "Fyrir pip innan Conda skaltu búa til umhverfi sem heitir spacr-pip með Python 3.12 og pip og virkja það. Conda útvegar túlkinn; pip útvegar spaCR. Veldu annað nafn ef spacr-pip er þegar til.",
+    "Með spacr-pip virkt skaltu uppfæra pip og keyra pip install spacr. Uppsetning pakkans inniheldur Qt-hugbúnaðarsöfn fyrir skjáborðsviðmótið. Athugaðu útgáfu pakkans og keyrðu pip check, eins og í sýndarumhverfisleiðinni. Ræstu spacr úr sama virka umhverfi.",
+    "Fyrir conda-forge skaltu með einni skipun búa til nýtt umhverfi sem heitir spacr-conda með Python 3.12 og spacr úr conda-forge-rásinni. Með því að leysa túlkinn og spaCR saman er komið í veg fyrir að pakkanum sé bætt í ótengt umhverfi.",
+    "Conda sýnir pakkaáætlun sína fyrir uppsetningu. Farðu yfir hana, samþykktu hana og leyfðu niðurhali og uppsetningu að ljúka. Tiltæk conda-forge-útgáfa getur verið önnur en nýjasta PyPI- eða nightly-útgáfan.",
+    "Virkjaðu spacr-conda. Athugaðu slóð Python-umhverfisins og keyrðu conda list spacr til að staðfesta uppsetta útgáfu og rás. Keyrðu síðan spacr-doctor og ræstu spacr úr þessu umhverfi.",
+    "Þetta fylgiefni sýnir Home í núverandi nightly-viðmóti. Uppsetta útgáfan þín getur litið öðruvísi út. Umhverfisskipanirnar setja upp útgefna pakkann úr valinni rás; þessi sýn á núverandi frumkóða fullyrðir ekki að allar nightly-aðgerðir séu þegar útgefnar.",
+    "Til að uppfæra pip-uppsetningu skaltu loka spaCR, virkja umhverfi þess og keyra pip install --upgrade spacr. Athugaðu útgáfuna á eftir. Notaðu pip til að uppfæra spaCR í báðum pip-leiðunum, einnig Conda-umhverfinu sem var búið til fyrir pip.",
+    "Fyrir conda-forge-leiðina skaltu loka spaCR, virkja spacr-conda og keyra conda update -c conda-forge spacr. Ef nýrri útgáfa er ekki tiltæk segir Conda að umbeðnir pakkar séu þegar uppsettir. Athugaðu uppsettu útgáfuna frekar en að gera ráð fyrir að viðmótið hafi breyst.",
+    "Til að fjarlægja pip-uppsetningu skaltu virkja umhverfi hennar og keyra python -m pip uninstall spacr og síðan samþykkja fjarlæginguna. Þetta fjarlægir spaCR-pakkann. Það fjarlægir hvorki smásjárverkefnin þín né sjálfkrafa alla pakka sem það er háð.",
+    "Ef .venv var aðeins búið til fyrir spaCR skaltu óvirkja það og fjarlægja þessa sérstöku .venv-möppu. Fyrir sérstaka Conda-umhverfið spacr-pip skaltu keyra conda deactivate og síðan conda env remove -n spacr-pip. Fjarlægðu aðeins umhverfið sem þú bjóst til fyrir þessa kennslu.",
+    "Í conda-forge-umhverfinu fjarlægir conda remove spacr pakkann eftir að þú hefur farið yfir fjarlægingaráætlunina. Til að fjarlægja í staðinn allt sérstaka umhverfið skaltu óvirkja það og keyra conda env remove -n spacr-conda. Geymdu verkefnamöppur aðskildar; að fjarlægja umhverfið er ekki að eyða greiningargögnunum þínum."
+  ]
+}

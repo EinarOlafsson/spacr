@@ -1,16 +1,16 @@
 {
   "lesson": "82_toxoplasma",
-  "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
+  "english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Direct AI technical/context review, no native-speaker signoff",
+    "translator": "AI technical/context review from the exact current English source",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "zh-CN",
-  "title": "Toxoplasma：浏览页面并选择检测",
+  "title": "Toxoplasma 生物体：指南、示意图和实验分析",
   "description": "打开该生物的页面，探索细胞示意图，并选择一个可用的检测。",
   "objectives": [
     "从Home打开页面并找到主要控件。",
@@ -19,12 +19,12 @@
   ],
   "prerequisite": "打开spaCR的Home。生物指南不需要任何输入文件。每种检测都有各自的输入和链接的演示。",
   "scenes": [
-    "每个Toxoplasma实验都可以从同一个页面开始。在Home中选择Toxoplasma：生物指南、细胞示意图和可用的检测并排显示，在加载任何图像之前就可以浏览。",
+    "在 Home 中选择 Organism 类别，再选择 Toxoplasma。本页面结合了生物体指南、交互式细胞示意图，以及可用的 Toxoplasma 实验分析流程。请先探索页面，再选择分析。",
     "先从信息面板中的简介开始。每个面板都可以单独滚动，拖动分隔条可以给指南或检测磁贴留出更多空间。",
     "示意图可以随意探索。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。",
-    "选择与您的问题相符的磁贴。Plaque Assay统计噬斑并测量其面积；Invasion Assay考察有多少寄生虫进入了细胞。Recruitment测量有多少标记物聚集在液泡上，Replication Assay测量每个液泡中有多少寄生虫，Host–Pathogen则把液泡与其宿主细胞关联起来。每一项都有自己的课程。",
-    "我们来跟随其中一项。点击Host–Pathogen，它的分析界面就会打开。Load test data会加载提供的显微示例，之后由Host–Pathogen教程带您完成设置、预览和Run。",
-    "回到Toxoplasma页面，Starplast会在它自己的应用程序中打开一张知识图谱；第一次使用时，它会给出需要按步骤完成的安装说明。参考链接则会在浏览器中打开关于该生物的资源。",
-    "指南不会写出分析文件，所以真正的工作在别处进行。如果您的图像还需要分割或测量，请先回到Home；当图像或表格准备好后，就交给各检测页面处理。"
+    "Plaque Assay统计蚀斑数量并测量其面积。Recruitment测量标记物在含寄生虫液泡处的富集程度，Replication Assay统计每个液泡中的寄生虫数量。请根据要测量的量及所需输入选择分析方法。",
+    "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Analysis教程介绍完整流程。",
+    "返回Toxoplasma指南，将信息面板滚动到参考资料。ToxoDB、Toxoplasma的hyperLOPIT图谱、UniProt和NCBI Taxonomy链接到相关生物资源。这些链接在浏览器中打开；指南本身不执行数据库搜索，也不预测蛋白质定位。",
+    "生物体指南不会生成分析表。请返回 Home 准备图像、进行分割或测量，然后选择与已准备输入相匹配的实验分析。每项分析都有各自的要求和链接的操作教程。"
   ]
 }

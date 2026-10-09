@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
+  "english_sha256": "8a8a2d3adae812475a9731d196357380bf772eeff3052f0e89798416bbbfd824",
   "review": {
-    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
-    "translator": "Codex AI, explicit direct translations of current English changes",
-    "date": "2026-10-06",
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
   },
   "language": "da",
   "title": "Installer spaCR med et installationsprogram",
@@ -16,11 +16,12 @@
   "objectives": [
     "Downloade og køre installationsprogrammet til dit styresystem.",
     "Vælge en accelerationsindstilling og indstillinger for første opstart.",
-    "Åbne spaCR og finde installationslogfilerne, hvis opsætningen kræver opmærksomhed."
+    "Åbne spaCR og finde installationslogfilerne, hvis opsætningen kræver opmærksomhed.",
+    "Afinstaller programmet via styresystemets muligheder eller den medfølgende afinstallationsfunktion."
   ],
   "prerequisite": "Download det officielle installationsprogram til dit styresystem, og sørg for plads til programmet og dets videnskabelige afhængigheder.",
   "scenes": [
-    "Åbn den officielle spaCR-udgivelse på GitHub, og download installationsprogrammet til dit styresystem under Assets. Disse onlineinstallationsprogrammer downloader Python-kørselsmiljøet og de videnskabelige pakker under opsætningen. Gem SHA256SUMS.txt fra samme udgivelse, hvis du vil verificere downloaden.",
+    "Åbn den officielle spaCR-udgivelse på GitHub, og download installationsprogrammet til dit styresystem under Assets. Disse onlineinstallationsprogrammer downloader Python-kørselsmiljøet og de videnskabelige pakker under opsætningen.",
     "På Windows kører du installationsprogrammet og følger anvisningerne. Lad automatisk acceleration være valgt for at bruge den understøttede hardware, der findes på computeren, eller vælg kun CPU, hvis det er det, du har brug for.",
     "På macOS åbner du universalpakken og følger installationsprogrammet. Start spaCR fra programstarteren, og lad downloadene ved første opstart blive færdige. Læs eventuelle sikkerhedsmeddelelser, og bekræft, at pakken kommer fra den officielle udgivelse.",
     "På Linux gør du det downloadede installationsprogram eksekverbart og kører det derefter fra en terminal. Automatisk acceleration vælger en understøttet backend. Hjælpen viser --torch-backend cpu til kørsel kun på CPU og --skip-system-deps til computere, der allerede har Qt-grafikbibliotekerne.",
@@ -28,8 +29,11 @@
     "Kontrollér den installerede spaCR-version. Gem den sammen med dine analysenoter, især når du opdaterer programmet senere.",
     "Opsætningen spørger om valgfri deling af diagnosticering og om kontoopsætning. Svar kun y til de muligheder, du ønsker; n, standardvalget, holder hver mulighed slået fra. Installationsprogrammet til Windows viser de samme valg som afkrydsningsfelter.",
     "Åbn Preferences i den aktuelle nightly-grænseflade, og vælg Performance. Vælg en profil til din computer. Laptop bruger færre ressourcer; højere profiler tillader mere caching og baggrundsarbejde. Start med en beskeden profil, hvis hukommelsen er begrænset.",
-    "Denne optagelse installerer spaCR version et punkt fem punkt et punkt tre. Udgivne versioner kan vise et ældre Home-layout. Her vises Home i den aktuelle nightly-version med Core, Data, Tools og Assays. Fortsæt med Home screen and navigation for de aktuelle moduler.",
+    "Denne optagelse installerer spaCR version et punkt fem punkt et punkt tre. Udgivne versioner kan vise et ældre Home-layout. Her vises Home i den aktuelle nightly-version med Core, Data, Tools og Organism. Fortsæt med Home screen and navigation for de aktuelle moduler.",
     "Kør spacr-doctor fra den installerede runtime, hvis opstart eller et filformat kræver opmærksomhed. I denne optagede CPU-installation består backend-kontrollen, og GPU-kontrollen springes over. Advarslen siger, at den valgfrie CZI-læser mangler; installer kun denne ekstra pakke, hvis du har brug for CZI-filer.",
-    "Ved installationsproblemer finder du install.log og install-profile.json i installationsmappen. Gennemgå logfilerne, før du deler dem i en supportanmodning. Angiv dit styresystem og din spaCR-version, så problemet bliver lettere at diagnosticere."
+    "Ved installationsproblemer finder du install.log og install-profile.json i installationsmappen. Gennemgå logfilerne, før du deler dem i en supportanmodning. Angiv dit styresystem og din spaCR-version, så problemet bliver lettere at diagnosticere.",
+    "På Windows skal du lukke spaCR og åbne Settings, derefter Apps og Installed apps. Vælg spaCR og Uninstall. Den installerede Uninstall-fil starter også samme afinstallation. Hold dine projektmapper adskilt.",
+    "På macOS skal du lukke spaCR og køre det medfølgende uninstall-spacr-script i Library/Application Support/spaCR. Det fjerner programmet og dets systemstartere. Det brugerspecifikke kørselsmiljø i din egen Library/Application Support/spaCR er separat; fjern det kun, hvis du også vil kassere dette kørselsmiljø.",
+    "På Linux skal du lukke spaCR og køre uninstall-spacr-scriptet under din hjemmemappe i .local/share/spacr. Det fjerner det administrerede kørselsmiljø og programstarterne. Afinstallation kræver ikke, at du sletter dine mikroskopiprojekter eller deres analyseresultater."
   ]
 }

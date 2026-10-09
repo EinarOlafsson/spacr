@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import time
 from pathlib import Path
 
@@ -15,7 +16,7 @@ def record_overview(app, window, captures, capture, settle, write_json,
                     lesson_id='78_spacr_screens', *, browser=None):
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QAbstractButton, QDialog, QTableView, QTextBrowser
+    from PySide6.QtWidgets import QAbstractButton, QDialog, QTableView, QTextBrowser, QLineEdit, QFileDialog, QDialogButtonBox, QApplication
     from spacr.qt.widgets.fold_strip import FoldButton
 
     root = Path(__file__).resolve().parents[2]
@@ -28,6 +29,9 @@ def record_overview(app, window, captures, capture, settle, write_json,
     lesson = json.loads(lesson_path.read_text())
     keys = data['tutorials'][lesson['id']]['modules']
     expected = ['home', *('module_' + key for key in keys), 'home_summary']
+    if lesson_id == '80_image_analysis_pathways':
+        keys = [scene['visual'].removeprefix('module_') for scene in lesson['scenes'][1:-1]]
+        expected = ['00_home', *('module_' + key for key in keys), 'home_summary']
     if [scene['visual'] for scene in lesson['scenes']] != expected:
         raise ValueError('The workflow lesson and map disagree')
 
@@ -86,7 +90,7 @@ def record_overview(app, window, captures, capture, settle, write_json,
         return screen
 
     home()
-    capture('home')
+    capture(expected[0])
     routes = []
     for key in keys:
         home()
@@ -408,8 +412,87 @@ def record_overview(app, window, captures, capture, settle, write_json,
             settle(.6)
             if screen.side_tabs.width() < 800:
                 raise ValueError('The Gate Editor filter pane did not widen')
+        if key == 'map_barcodes':
+            prepared = captures.parent.parent / 'example_data' / 'barcode_templates'
+            prepared.mkdir(parents=True, exist_ok=True)
+            copied = []
+            for field in screen.findChildren(QLineEdit):
+                original = Path(field.text())
+                if not field.isVisible() or not original.is_file() or not original.resolve().is_relative_to(
+                        (root / 'spacr/resources/data').resolve()):
+                    continue
+                target = prepared / original.name
+                shutil.copyfile(original, target)
+                digest = hashlib.sha256(original.read_bytes()).hexdigest()
+                if hashlib.sha256(target.read_bytes()).hexdigest() != digest:
+                    raise ValueError('Bundled barcode template changed during copying')
+                picker_errors = []
+                picker_selection = []
+                timers = []
+                def choose_template():
+                    dialog = app.activeModalWidget()
+                    try:
+                        if not isinstance(dialog, QFileDialog):
+                            raise ValueError('The actual barcode file picker did not open')
+                        timer = QTimer(dialog)
+                        timer.setSingleShot(True)
+                        timer.timeout.connect(dialog.reject)
+                        timer.start(12000)
+                        timers.append(timer)
+                        dialog.raise_()
+                        dialog.activateWindow()
+                        QApplication.setActiveWindow(dialog)
+                        editor = dialog.findChild(QLineEdit, 'fileNameEdit')
+                        QTest.mouseClick(editor, Qt.LeftButton, pos=editor.rect().center())
+                        editor.setFocus()
+                        QTest.keyClick(editor, Qt.Key_A, Qt.ControlModifier)
+                        if editor.text() and editor.selectedText() != editor.text():
+                            raise ValueError('The actual file picker did not select its existing filename')
+                        QTest.keyClicks(editor, str(target))
+                        if editor.text() != str(target):
+                            raise ValueError('The actual file picker did not retain the typed filename')
+                        buttons = dialog.findChild(QDialogButtonBox)
+                        QTest.keyClick(editor, Qt.Key_Tab)
+                        settle(.15)
+                        picker_selection.extend(dialog.selectedFiles())
+                        click(buttons.button(QDialogButtonBox.Open))
+                    except Exception as error:
+                        picker_errors.append(str(error))
+                        if isinstance(dialog, QFileDialog):
+                            dialog.reject()
+                QTimer.singleShot(250, choose_template)
+                click(field.parentWidget()._add_files_button)
+                if picker_errors:
+                    raise ValueError('; '.join(picker_errors))
+                settle(.2)
+                if field.text() != str(target):
+                    write_json(captures / 'barcode_picker_rejected_selection.json', {
+                        'wanted': str(target), 'picker_selection': picker_selection,
+                        'displayed': field.text(), 'read_only': field.isReadOnly()})
+                    raise ValueError('The visible barcode editor did not select its private template')
+                copied.append({'resource': str(original.relative_to(root)),
+                               'prepared_path': str(target), 'sha256': digest})
+            if not copied:
+                raise ValueError('No bundled barcode templates were selected through their editors')
+            write_json(captures / 'neutral_barcode_templates.json', copied)
         if not scene_captured:
-            capture('module_' + key)
+            if key in ('mask', 'make_masks'):
+                from spacr.qt import preferences as prefs
+                backdrop, density = prefs.get_ambient_animation(), prefs.get_ambient_density()
+                prefs.set_ambient_animation('blobs')
+                prefs.set_ambient_density(2.0)
+                prefs.apply_preferences_to_app(app)
+                window.setProperty('tutorialMaskBlobs', True)
+                settle(.8)
+                try:
+                    capture('module_' + key)
+                finally:
+                    prefs.set_ambient_animation(backdrop)
+                    prefs.set_ambient_density(density)
+                    prefs.apply_preferences_to_app(app)
+                    window.setProperty('tutorialMaskBlobs', False)
+            else:
+                capture('module_' + key)
         routes.append({'module': key, 'home_host': host_key, 'parent': module['parent'],
                        'tile_text': tile.text() if tile is not None else None,
                        'screen_class': type(screen).__name__,

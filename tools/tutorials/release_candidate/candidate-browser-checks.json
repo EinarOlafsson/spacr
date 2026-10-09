@@ -1,21 +1,21 @@
 {
   "scope": "Candidate browser checks, not native-language listening or deployment",
-  "manifest_sha256": "4a1cc06446204604c2912cd2f694d5f100376185dd6551a924a1e7dfcfb357c1",
+  "manifest_sha256": "fece6863b147babec9bebc411dcfb62a426ef135d6e496a6d0b357d87d07007f",
   "placeholder_cases": [],
   "ready_playback_cases": [
     {
       "lesson": "01_pypi_github",
-      "audio_sha256": "d07367b454da6294eca05c393ea5fa3268827b12d736a124de6dedd945b146b0",
+      "audio_sha256": "38617826a9b1638eed9fccfdc5c8bd0fdd91757716ce99fd0cd85bc5be4f500c",
       "clocks": {
-        "audio": 29.680452,
-        "video": 29.748975,
-        "expected": 29.67747830477908,
+        "audio": 29.600827,
+        "video": 29.74813,
+        "expected": 29.596685672713704,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 28.279999999999998,
-        "seek_elapsed_seconds": 1.5051677199662663,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/01_pypi_github/web/01_pypi_github_silent.mp4"
+        "seek_elapsed_seconds": 1.5148217419628054,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/01_pypi_github/web/01_pypi_github_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -23,37 +23,18 @@
       "passed": true
     },
     {
-      "lesson": "02_conda_install",
-      "audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+      "lesson": "02_install_spacr",
+      "audio_sha256": "8dc31a4b1fb3255b47ab50fd0a4d3be075ffec775b632dad8f103a6e092b1669",
       "clocks": {
-        "audio": 24.175562,
-        "video": 24.318597,
-        "expected": 24.175562,
+        "audio": 33.320311,
+        "video": 46.619695,
+        "expected": 46.38163686368483,
         "width": 2560,
         "height": 1440,
         "error": null,
-        "requested_audio_time": 22.855,
-        "seek_elapsed_seconds": 1.5071788189816289,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/02_conda_install/web/02_conda_install_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "03_pip_install",
-      "audio_sha256": "0a3b94f18bad4634bb6a12dd0f642e1ceecbea7c8e99c50c3df0505f3acb58af",
-      "clocks": {
-        "audio": 23.925402,
-        "video": 24.041331,
-        "expected": 23.924422293927353,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 22.584999999999997,
-        "seek_elapsed_seconds": 1.5052719140076078,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/03_pip_install/web/03_pip_install_silent.mp4"
+        "requested_audio_time": 32.01,
+        "seek_elapsed_seconds": 1.505440616980195,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/02_install_spacr/web/02_install_spacr_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -62,17 +43,17 @@
     },
     {
       "lesson": "04_platform_installers",
-      "audio_sha256": "6113aa10ab6e0b64f35b735728c7a847baad13ef0fd94d0cfe105d614b26cfc5",
+      "audio_sha256": "f77ee89b0b05efb673f44b31303eee7789e6b15a68a52fcff9ad189556a7ee10",
       "clocks": {
-        "audio": 36.255207,
-        "video": 36.389425,
-        "expected": 36.251645163660065,
+        "audio": 29.252576,
+        "video": 41.470491,
+        "expected": 41.19729879714933,
         "width": 2560,
         "height": 1440,
         "error": null,
-        "requested_audio_time": 34.915,
-        "seek_elapsed_seconds": 1.5051981410360895,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/04_platform_installers/web/04_platform_installers_silent.mp4"
+        "requested_audio_time": 27.965,
+        "seek_elapsed_seconds": 1.5076005359878764,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/04_platform_installers/web/04_platform_installers_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -81,319 +62,409 @@
           "requested_audio_time": 3.5475,
           "text": "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system.",
           "audio": 3.5475,
-          "video": 3.547151,
+          "video": 5.085652,
           "cues": [
             "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 10.2275,
+          "requested_audio_time": 10.23,
           "text": "These online installers download the Python runtime and scientific packages during setup.",
-          "audio": 10.2275,
-          "video": 10.226495,
+          "audio": 10.23,
+          "video": 14.665601,
           "cues": [
             "These online installers download the Python runtime and scientific packages during setup."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 16.7825,
-          "text": "Keep SHA256SUMS dot txt from the same release if you want to verify the download.",
-          "audio": 16.7825,
-          "video": 16.780851,
-          "cues": [
-            "Keep SHA256SUMS dot txt from the same release if you want to verify the download."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 22.5875,
+          "requested_audio_time": 15.627499999999998,
           "text": "On Windows, run the setup executable and follow its prompts.",
-          "audio": 22.5875,
-          "video": 22.58528,
+          "audio": 15.627499,
+          "video": 22.260387,
           "cues": [
             "On Windows, run the setup executable and follow its prompts."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 29.482499999999995,
+          "requested_audio_time": 22.5275,
           "text": "Leave automatic acceleration selected to use the supported hardware detected on your computer, or choose CPU-only operation if that is what you need.",
-          "audio": 29.482499,
-          "video": 29.479603,
+          "audio": 22.5275,
+          "video": 31.622359,
           "cues": [
             "Leave automatic acceleration selected to use the supported hardware detected on your computer, or choose CPU-only operation if that is what you need."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 36.8725,
+          "requested_audio_time": 29.92,
           "text": "On macOS, open the universal package and follow the installer.",
-          "audio": 36.8725,
-          "video": 36.868877,
+          "audio": 29.92,
+          "video": 42.336283,
           "cues": [
             "On macOS, open the universal package and follow the installer."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 41.46,
+          "requested_audio_time": 34.505,
           "text": "Start spaCR from its application launcher, and allow the first-run downloads to finish.",
-          "audio": 41.46,
-          "video": 41.455926,
+          "audio": 34.505,
+          "video": 50.160765,
           "cues": [
             "Start spaCR from its application launcher, and allow the first-run downloads to finish."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 46.56,
+          "requested_audio_time": 39.605000000000004,
           "text": "Read any security prompt and confirm that the package came from the official release.",
-          "audio": 46.56,
-          "video": 46.555425,
+          "audio": 39.605,
+          "video": 58.864114,
           "cues": [
             "Read any security prompt and confirm that the package came from the official release."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 51.932500000000005,
+          "requested_audio_time": 44.977500000000006,
           "text": "On Linux, make the downloaded installer executable, then run it from a terminal.",
-          "audio": 51.9325,
-          "video": 51.927397,
+          "audio": 44.9775,
+          "video": 67.331372,
           "cues": [
             "On Linux, make the downloaded installer executable, then run it from a terminal."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 56.2175,
+          "requested_audio_time": 49.2625,
           "text": "Automatic acceleration selects a supported backend.",
-          "audio": 56.2175,
-          "video": 56.211976,
+          "audio": 49.2625,
+          "video": 73.3829,
           "cues": [
             "Automatic acceleration selects a supported backend."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 63.5,
+          "requested_audio_time": 56.545,
           "text": "The help lists dash dash torch-backend cpu for CPU-only operation, and dash dash skip-system-deps for computers that already have the Qt graphics libraries.",
-          "audio": 63.5,
-          "video": 63.493761,
+          "audio": 56.545,
+          "video": 83.667674,
           "cues": [
             "The help lists dash dash torch-backend cpu for CPU-only operation, and dash dash skip-system-deps for computers that already have the Qt graphics libraries."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 71.585,
+          "requested_audio_time": 64.63000000000001,
           "text": "After setup, the installation profile records the selected backend.",
-          "audio": 71.585,
-          "video": 71.577967,
+          "audio": 64.629999,
+          "video": 95.209948,
           "cues": [
             "After setup, the installation profile records the selected backend."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 76.76249999999999,
+          "requested_audio_time": 69.8075,
           "text": "Check this when you want to confirm whether the runtime uses CPU or a supported accelerator.",
-          "audio": 76.762499,
-          "video": 76.754958,
+          "audio": 69.8075,
+          "video": 102.816132,
           "cues": [
             "Check this when you want to confirm whether the runtime uses CPU or a supported accelerator."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 81.1925,
+          "requested_audio_time": 74.24000000000001,
           "text": "Check the installed spaCR version.",
-          "audio": 81.1925,
-          "video": 81.184523,
+          "audio": 74.24,
+          "video": 109.552174,
           "cues": [
             "Check the installed spaCR version."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 84.66999999999999,
+          "requested_audio_time": 77.72,
           "text": "Keep it with your analysis notes, especially when you update the application later.",
-          "audio": 84.669999,
-          "video": 84.661681,
+          "audio": 77.72,
+          "video": 115.415217,
           "cues": [
             "Keep it with your analysis notes, especially when you update the application later."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 89.59999999999997,
+          "requested_audio_time": 82.65,
           "text": "Setup asks about optional diagnostic sharing and account setup.",
-          "audio": 89.599999,
-          "video": 89.591197,
+          "audio": 82.65,
+          "video": 123.762411,
           "cues": [
             "Setup asks about optional diagnostic sharing and account setup."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 94.22749999999998,
+          "requested_audio_time": 87.2775,
           "text": "Answer y only for the options you want; n, the default, keeps each one off.",
-          "audio": 94.227499,
-          "video": 94.218242,
+          "audio": 87.2775,
+          "video": 131.65,
           "cues": [
             "Answer y only for the options you want; n, the default, keeps each one off."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 98.59499999999997,
+          "requested_audio_time": 91.645,
           "text": "The Windows installer shows the same choices as checkboxes.",
-          "audio": 98.594999,
-          "video": 98.585313,
+          "audio": 91.645,
+          "video": 139.094417,
           "cues": [
             "The Windows installer shows the same choices as checkboxes."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 103.05749999999998,
+          "requested_audio_time": 96.10749999999999,
           "text": "In the current nightly interface, open Preferences and choose Performance.",
-          "audio": 103.057499,
-          "video": 103.047375,
+          "audio": 96.107499,
+          "video": 145.2125,
           "cues": [
             "In the current nightly interface, open Preferences and choose Performance."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 106.36499999999998,
+          "requested_audio_time": 99.4125,
           "text": "Select a profile for your computer.",
-          "audio": 106.364999,
-          "video": 106.35455,
+          "audio": 99.4125,
+          "video": 148.5175,
           "cues": [
             "Select a profile for your computer."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 110.28249999999997,
+          "requested_audio_time": 103.32749999999999,
           "text": "Laptop uses fewer resources; higher profiles allow more caching and background work.",
-          "audio": 110.282499,
-          "video": 110.271665,
+          "audio": 103.327499,
+          "video": 152.4325,
           "cues": [
             "Laptop uses fewer resources; higher profiles allow more caching and background work."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 114.69249999999997,
+          "requested_audio_time": 107.73749999999998,
           "text": "Start with a modest profile if memory is limited.",
-          "audio": 114.692499,
-          "video": 114.681232,
+          "audio": 107.737499,
+          "video": 156.8425,
           "cues": [
             "Start with a modest profile if memory is limited."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 119.08999999999997,
+          "requested_audio_time": 112.13499999999999,
           "text": "This recording installs spaCR version one point five point one point three.",
-          "audio": 119.089999,
-          "video": 119.0783,
+          "audio": 112.134999,
+          "video": 172.676666,
           "cues": [
             "This recording installs spaCR version one point five point one point three."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 122.88249999999996,
+          "requested_audio_time": 115.92499999999998,
           "text": "Released builds can show an older Home layout.",
-          "audio": 122.882499,
-          "video": 122.870427,
+          "audio": 115.924999,
+          "video": 176.466666,
           "cues": [
             "Released builds can show an older Home layout."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 126.72749999999996,
-          "text": "Here is Home in the current nightly build, with Core, Data, Tools and Assays.",
-          "audio": 126.727499,
-          "video": 126.715049,
+          "requested_audio_time": 119.87249999999999,
+          "text": "Here is Home in the current nightly build, with Core, Data, Tools and Organism.",
+          "audio": 119.872499,
+          "video": 180.414166,
           "cues": [
-            "Here is Home in the current nightly build, with Core, Data, Tools and Assays."
+            "Here is Home in the current nightly build, with Core, Data, Tools and Organism."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 131.09499999999997,
+          "requested_audio_time": 124.345,
           "text": "Continue to Home screen and navigation for the current modules.",
-          "audio": 131.094999,
-          "video": 131.08212,
+          "audio": 124.345,
+          "video": 184.886666,
           "cues": [
             "Continue to Home screen and navigation for the current modules."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 136.45999999999998,
+          "requested_audio_time": 129.70999999999998,
           "text": "Run spacr-doctor from the installed runtime if startup or a file format needs attention.",
-          "audio": 136.459999,
-          "video": 136.446593,
+          "audio": 129.709999,
+          "video": 202.83603,
           "cues": [
             "Run spacr-doctor from the installed runtime if startup or a file format needs attention."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 142.60999999999996,
+          "requested_audio_time": 135.85999999999999,
           "text": "In this recorded CPU installation, the backend check passes and the GPU probe is skipped.",
-          "audio": 142.609999,
-          "video": 142.595989,
+          "audio": 135.86,
+          "video": 212.122039,
           "cues": [
             "In this recorded CPU installation, the backend check passes and the GPU probe is skipped."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 149.09249999999997,
+          "requested_audio_time": 142.34249999999997,
           "text": "The warning says the optional CZI reader is missing; install that extra only if you need CZI files.",
-          "audio": 149.092499,
-          "video": 149.077852,
+          "audio": 142.342499,
+          "video": 221.910096,
           "cues": [
             "The warning says the optional CZI reader is missing; install that extra only if you need CZI files."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 156.52499999999998,
+          "requested_audio_time": 149.775,
           "text": "For installation problems, find install dot log and install-profile dot json in the installation directory.",
-          "audio": 156.524999,
-          "video": 156.509622,
+          "audio": 149.775,
+          "video": 233.04244,
           "cues": [
             "For installation problems, find install dot log and install-profile dot json in the installation directory."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 161.8775,
+          "requested_audio_time": 155.1275,
           "text": "Review the logs before sharing them with a support request.",
-          "audio": 161.8775,
-          "video": 161.861596,
+          "audio": 155.1275,
+          "video": 240.991012,
           "cues": [
             "Review the logs before sharing them with a support request."
           ],
           "seek_attempts": 1
         },
         {
-          "requested_audio_time": 166.36999999999998,
+          "requested_audio_time": 159.62,
           "text": "Include your operating system and spaCR version so the problem is easier to diagnose.",
-          "audio": 166.369999,
-          "video": 166.353655,
+          "audio": 159.62,
+          "video": 247.662466,
           "cues": [
             "Include your operating system and spaCR version so the problem is easier to diagnose."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 165.1125,
+          "text": "On Windows, close spaCR, open Settings, then Apps and Installed apps.",
+          "audio": 165.1125,
+          "video": 256.102545,
+          "cues": [
+            "On Windows, close spaCR, open Settings, then Apps and Installed apps."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 168.3375,
+          "text": "Choose spaCR and Uninstall.",
+          "audio": 168.3375,
+          "video": 261.305124,
+          "cues": [
+            "Choose spaCR and Uninstall."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 171.95,
+          "text": "The installed Uninstall executable is another route to the same removal process.",
+          "audio": 171.95,
+          "video": 267.132821,
+          "cues": [
+            "The installed Uninstall executable is another route to the same removal process."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 175.695,
+          "text": "Keep your project folders separately.",
+          "audio": 175.695,
+          "video": 273.174268,
+          "cues": [
+            "Keep your project folders separately."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 181.23000000000002,
+          "text": "On macOS, close spaCR and run the bundled uninstall-spacr script in Library slash Application Support slash spaCR.",
+          "audio": 181.23,
+          "video": 281.496547,
+          "cues": [
+            "On macOS, close spaCR and run the bundled uninstall-spacr script in Library slash Application Support slash spaCR."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 186.94,
+          "text": "It removes the application and its system launchers.",
+          "audio": 186.94,
+          "video": 289.839558,
+          "cues": [
+            "It removes the application and its system launchers."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 193.33249999999998,
+          "text": "The per-user runtime in your own Library slash Application Support slash spaCR is separate; remove it only if you also want to discard that runtime.",
+          "audio": 193.332499,
+          "video": 299.179786,
+          "cues": [
+            "The per-user runtime in your own Library slash Application Support slash spaCR is separate; remove it only if you also want to discard that runtime."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 202.1125,
+          "text": "On Linux, close spaCR and run the uninstall-spacr script under your home folder, dot local slash share slash spacr.",
+          "audio": 202.1125,
+          "video": 312.254395,
+          "cues": [
+            "On Linux, close spaCR and run the uninstall-spacr script under your home folder, dot local slash share slash spacr."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 207.5375,
+          "text": "It removes the managed runtime and application launchers.",
+          "audio": 207.5375,
+          "video": 320.552911,
+          "cues": [
+            "It removes the managed runtime and application launchers."
+          ],
+          "seek_attempts": 1
+        },
+        {
+          "requested_audio_time": 212.45,
+          "text": "Uninstallation does not require deleting your microscopy projects or their analysis results.",
+          "audio": 212.45,
+          "video": 328.067466,
+          "cues": [
+            "Uninstallation does not require deleting your microscopy projects or their analysis results."
           ],
           "seek_attempts": 1
         }
@@ -402,17 +473,17 @@
     },
     {
       "lesson": "05_home",
-      "audio_sha256": "27b949c20219dbf19252e799dfa3ab2251273325ad2fa4975f747a6b39df3079",
+      "audio_sha256": "7fbbcfdfd6488e424736b70a92dbc60b82061cfa8c69d08d5e21d29a7a9a1150",
       "clocks": {
-        "audio": 36.781422,
-        "video": 36.899249,
-        "expected": 36.78126952724713,
+        "audio": 23.958129,
+        "video": 35.04113,
+        "expected": 34.876462333333336,
         "width": 2560,
         "height": 1440,
         "error": null,
-        "requested_audio_time": 35.42,
-        "seek_elapsed_seconds": 1.5053105569677427,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/05_home/web/05_home_silent.mp4"
+        "requested_audio_time": 22.715,
+        "seek_elapsed_seconds": 1.5038197330432013,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/05_home/web/05_home_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -423,15 +494,15 @@
       "lesson": "06_api",
       "audio_sha256": "8b0f2c263ca48c0cb2b4a24d6d29ec44dfe291df85d123cf0a418061ed48f339",
       "clocks": {
-        "audio": 32.430997,
-        "video": 32.553581,
-        "expected": 32.427839469379805,
+        "audio": 32.420441,
+        "video": 32.555081,
+        "expected": 32.41728449712784,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 31.069999999999997,
-        "seek_elapsed_seconds": 1.5045940260170028,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/06_api/web/06_api_silent.mp4"
+        "seek_elapsed_seconds": 1.505652058054693,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/06_api/web/06_api_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -442,15 +513,15 @@
       "lesson": "07_mask",
       "audio_sha256": "d7af5da17a827c984ccca5c133acfa3de2114d89962a0fcb367ac5ad0d88cc5f",
       "clocks": {
-        "audio": 40.437223,
-        "video": 40.554299,
-        "expected": 40.437223,
+        "audio": 40.407158,
+        "video": 40.551642,
+        "expected": 40.407158,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 39.075,
-        "seek_elapsed_seconds": 1.5059673360083252,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/07_mask/web/07_mask_silent.mp4"
+        "seek_elapsed_seconds": 1.5058565760264173,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/07_mask/web/07_mask_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -461,15 +532,15 @@
       "lesson": "08_measure",
       "audio_sha256": "10fe8d2a4c15d88a40e9b21d578e827cfc8c7ed56032dbbbb7f37420714dad91",
       "clocks": {
-        "audio": 49.840628,
-        "video": 49.968604,
-        "expected": 49.842890444141105,
+        "audio": 49.84804,
+        "video": 49.987663,
+        "expected": 49.850302780598255,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 48.52,
-        "seek_elapsed_seconds": 1.5055466320482083,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/08_measure/web/08_measure_silent.mp4"
+        "seek_elapsed_seconds": 1.5055831590434536,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/08_measure/web/08_measure_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -480,15 +551,15 @@
       "lesson": "09_annotate",
       "audio_sha256": "123c3b25fa09b5a0854d81f8a898da51b13e63ab9ad111b86b2c283144c88702",
       "clocks": {
-        "audio": 19.939546,
-        "video": 20.085847,
-        "expected": 19.938698626492712,
+        "audio": 19.933698,
+        "video": 20.08527,
+        "expected": 19.932850875015937,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.619999999999997,
-        "seek_elapsed_seconds": 1.5059623239794746,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/09_annotate/web/09_annotate_silent.mp4"
+        "seek_elapsed_seconds": 1.5081001500366256,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/09_annotate/web/09_annotate_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -499,15 +570,15 @@
       "lesson": "10_classify_cv",
       "audio_sha256": "aebedbd21e43e6ac24ac432b41d4de469cf4e8a858fdc78cfe32e8ce2d58ccff",
       "clocks": {
-        "audio": 29.435555,
-        "video": 29.578231,
-        "expected": 29.433037921500446,
+        "audio": 29.406307,
+        "video": 29.580437,
+        "expected": 29.403792422540832,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 28.12,
-        "seek_elapsed_seconds": 1.5034312730422243,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/10_classify_cv/web/10_classify_cv_silent.mp4"
+        "seek_elapsed_seconds": 1.5061999979661778,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/10_classify_cv/web/10_classify_cv_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -518,15 +589,15 @@
       "lesson": "11_classify_ml",
       "audio_sha256": "9947dd7fe1848119e3307d6c2ba29fac6044da43320ae40f49ac834423cdfac9",
       "clocks": {
-        "audio": 25.78845,
-        "video": 25.915997,
-        "expected": 25.788739949388937,
+        "audio": 25.757822,
+        "video": 25.912783,
+        "expected": 25.75811160502664,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.47,
-        "seek_elapsed_seconds": 1.5084503469988704,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/11_classify_ml/web/11_classify_ml_silent.mp4"
+        "seek_elapsed_seconds": 1.5072636280674487,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/11_classify_ml/web/11_classify_ml_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -537,15 +608,15 @@
       "lesson": "12_map_barcodes",
       "audio_sha256": "3732e86bdcf7f6b58aeb84213bba4045eb7cd96a85700ee9bd92e853499a8df8",
       "clocks": {
-        "audio": 27.192351,
-        "video": 27.344668,
-        "expected": 27.192885608068675,
+        "audio": 27.162287,
+        "video": 27.325174,
+        "expected": 27.16282101700331,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 25.895,
-        "seek_elapsed_seconds": 1.5049152679857798,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/12_map_barcodes/web/12_map_barcodes_silent.mp4"
+        "seek_elapsed_seconds": 1.5059536120388657,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/12_map_barcodes/web/12_map_barcodes_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -907,15 +978,15 @@
       "lesson": "13_regression",
       "audio_sha256": "906875a42f785bfec00fd271775bc0f057b8b6c2c99011a14dc2258e2fec1491",
       "clocks": {
-        "audio": 22.791196,
-        "video": 22.941411,
-        "expected": 22.792147855838955,
+        "audio": 22.734859,
+        "video": 22.912797,
+        "expected": 22.73580850296979,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.49,
-        "seek_elapsed_seconds": 1.5049755100044422,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/13_regression/web/13_regression_silent.mp4"
+        "seek_elapsed_seconds": 1.5055353450588882,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/13_regression/web/13_regression_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -926,15 +997,15 @@
       "lesson": "14_make_masks",
       "audio_sha256": "fadb3fa090b8ace83c700df5413c5387e0ca7325708572e05c9500beb780978b",
       "clocks": {
-        "audio": 38.937436,
-        "video": 39.053422,
-        "expected": 38.937436,
+        "audio": 38.90305,
+        "video": 39.055037,
+        "expected": 38.90305,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 37.575,
-        "seek_elapsed_seconds": 1.5046537610469386,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/14_make_masks/web/14_make_masks_silent.mp4"
+        "seek_elapsed_seconds": 1.5048919139662758,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/14_make_masks/web/14_make_masks_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -945,15 +1016,15 @@
       "lesson": "15_image_umap",
       "audio_sha256": "92374fb9c3109b0e2e4a1524335a3e2da1475129314340c4c0e804d8da01615d",
       "clocks": {
-        "audio": 29.304717,
-        "video": 29.427137,
-        "expected": 29.306956451588253,
+        "audio": 29.229769,
+        "video": 29.39565,
+        "expected": 29.232002724100166,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.985,
-        "seek_elapsed_seconds": 1.5067377440282144,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/15_image_umap/web/15_image_umap_silent.mp4"
+        "seek_elapsed_seconds": 1.5053638919489458,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/15_image_umap/web/15_image_umap_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -964,15 +1035,15 @@
       "lesson": "16_activation",
       "audio_sha256": "8689be1521d2f36867690d703d56e818f14930a67d2de20609ed2fd158523ce8",
       "clocks": {
-        "audio": 30.993654,
-        "video": 31.125148,
-        "expected": 30.993339219963946,
+        "audio": 30.963168,
+        "video": 31.109104,
+        "expected": 30.962853529588106,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 29.675,
-        "seek_elapsed_seconds": 1.5048543470329605,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/16_activation/web/16_activation_silent.mp4"
+        "seek_elapsed_seconds": 1.5072888541035354,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/16_activation/web/16_activation_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -983,15 +1054,15 @@
       "lesson": "17_timelapse",
       "audio_sha256": "f83d5ebde1947fa160a15c7c9e70d55641ba7c6fee224c582fde2c92330ab1b0",
       "clocks": {
-        "audio": 34.378066,
-        "video": 34.528965,
-        "expected": 34.37557462727482,
+        "audio": 34.367679,
+        "video": 34.527613,
+        "expected": 34.36518838001899,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 33.06,
-        "seek_elapsed_seconds": 1.5039043619763106,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/17_timelapse/web/17_timelapse_silent.mp4"
+        "seek_elapsed_seconds": 1.5074071859708056,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/17_timelapse/web/17_timelapse_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1002,15 +1073,15 @@
       "lesson": "18_motility",
       "audio_sha256": "72e7ccefd6841cde295a2bcb26f30d41c79352b93db1b3abd874ed39f514c74d",
       "clocks": {
-        "audio": 24.630271,
-        "video": 24.799002,
-        "expected": 24.630270999999997,
+        "audio": 24.612785,
+        "video": 24.789832,
+        "expected": 24.612785,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.325,
-        "seek_elapsed_seconds": 1.5068504320224747,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/18_motility/web/18_motility_silent.mp4"
+        "seek_elapsed_seconds": 1.504720418015495,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/18_motility/web/18_motility_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1021,15 +1092,15 @@
       "lesson": "19_train_cellpose",
       "audio_sha256": "a088ab43ac6c945ab043838cf6fdc9fd5531c6635901b9f6108d06826a0f7ab5",
       "clocks": {
-        "audio": 33.83882,
-        "video": 33.968164,
-        "expected": 33.840719389059394,
+        "audio": 33.805706,
+        "video": 33.959192,
+        "expected": 33.80760353035483,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 32.5,
-        "seek_elapsed_seconds": 1.5056205010041595,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/19_train_cellpose/web/19_train_cellpose_silent.mp4"
+        "seek_elapsed_seconds": 1.504966602078639,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/19_train_cellpose/web/19_train_cellpose_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1040,15 +1111,15 @@
       "lesson": "20_cellpose_masks",
       "audio_sha256": "efb383f6e32fce2312fb9c7c9592b43b981c3d61e7150293992ae4bb6ee9bdde",
       "clocks": {
-        "audio": 29.142955,
-        "video": 29.289423,
-        "expected": 29.142955,
+        "audio": 29.089965,
+        "video": 29.264103,
+        "expected": 29.089964999999996,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.845,
-        "seek_elapsed_seconds": 1.5053844099747948,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/20_cellpose_masks/web/20_cellpose_masks_silent.mp4"
+        "seek_elapsed_seconds": 1.5052758809179068,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/20_cellpose_masks/web/20_cellpose_masks_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1059,15 +1130,15 @@
       "lesson": "21_model_compare",
       "audio_sha256": "98b3505d4d968aefda9436c2683d12c640537da84f989757e40b98d60006736e",
       "clocks": {
-        "audio": 28.129847,
-        "video": 28.271689,
-        "expected": 28.131285204765067,
+        "audio": 28.087922,
+        "video": 28.268944,
+        "expected": 28.08935806125057,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.825,
-        "seek_elapsed_seconds": 1.5051742069772445,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/21_model_compare/web/21_model_compare_silent.mp4"
+        "seek_elapsed_seconds": 1.5037269580643624,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/21_model_compare/web/21_model_compare_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1269,15 +1340,15 @@
       "lesson": "22_model_zoo",
       "audio_sha256": "253dd1c01d203cdd2d9166734ac3e834cbe39b1381493e890e88e0f3aea846df",
       "clocks": {
-        "audio": 25.581132,
-        "video": 25.696387,
-        "expected": 25.581644915315863,
+        "audio": 25.550003,
+        "video": 25.689694,
+        "expected": 25.55051529116284,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.259999999999998,
-        "seek_elapsed_seconds": 1.5026778359897435,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/22_model_zoo/web/22_model_zoo_silent.mp4"
+        "seek_elapsed_seconds": 1.505828846944496,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/22_model_zoo/web/22_model_zoo_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1619,15 +1690,15 @@
       "lesson": "23_agreement",
       "audio_sha256": "9823c77567ddb8e42f400e5946d3472bcdc4332fc84552e27f9b37f003cc4e10",
       "clocks": {
-        "audio": 28.61625,
-        "video": 28.768857,
-        "expected": 28.61453539125472,
+        "audio": 28.585503,
+        "video": 28.755513,
+        "expected": 28.583790233532277,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.319999999999997,
-        "seek_elapsed_seconds": 1.5039459289982915,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/23_agreement/web/23_agreement_silent.mp4"
+        "seek_elapsed_seconds": 1.5044707799097523,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/23_agreement/web/23_agreement_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1638,15 +1709,15 @@
       "lesson": "24_plaque",
       "audio_sha256": "7c84eb284b9aec41d2b41ea354bdac42c7b78883cab9a3f8a61cc227587fff3c",
       "clocks": {
-        "audio": 28.189798,
-        "video": 28.337569,
-        "expected": 28.1901251127554,
+        "audio": 28.161927,
+        "video": 28.311546,
+        "expected": 28.16225378934196,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.87,
-        "seek_elapsed_seconds": 1.5047378350282088,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/24_plaque/web/24_plaque_silent.mp4"
+        "seek_elapsed_seconds": 1.5080553239677101,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/24_plaque/web/24_plaque_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1657,15 +1728,15 @@
       "lesson": "25_recruitment",
       "audio_sha256": "af58acb17ec2abd1fb8ab214a13f23189197cc556a284dbcd179d5d39d20d696",
       "clocks": {
-        "audio": 31.328538,
-        "video": 31.458489,
-        "expected": 31.328538,
+        "audio": 31.296663,
+        "video": 31.43806,
+        "expected": 31.296663,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 30.009999999999998,
-        "seek_elapsed_seconds": 1.504583392990753,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/25_recruitment/web/25_recruitment_silent.mp4"
+        "seek_elapsed_seconds": 1.5070715170586482,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/25_recruitment/web/25_recruitment_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1676,15 +1747,15 @@
       "lesson": "26_invasion",
       "audio_sha256": "66b3d4bf7cd08618c0f04539f62e82589568813a4fc0abcbd12e6bcc3f103a01",
       "clocks": {
-        "audio": 33.797935,
-        "video": 33.949398,
-        "expected": 33.79558699719797,
+        "audio": 33.789178,
+        "video": 33.943447,
+        "expected": 33.78683060556237,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 32.480000000000004,
-        "seek_elapsed_seconds": 1.5040710119646974,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/26_invasion/web/26_invasion_silent.mp4"
+        "seek_elapsed_seconds": 1.5087331420509145,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/26_invasion/web/26_invasion_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1695,15 +1766,15 @@
       "lesson": "27_replication",
       "audio_sha256": "bc1b89b7671a0f945b6c14ba50f0c336bc1e6f0a74e8fc55581d923219285aa3",
       "clocks": {
-        "audio": 32.65749,
-        "video": 32.810155,
-        "expected": 32.65626639942773,
+        "audio": 32.629318,
+        "video": 32.784327,
+        "expected": 32.628095454967365,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 31.36,
-        "seek_elapsed_seconds": 1.5048950480413623,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/27_replication/web/27_replication_silent.mp4"
+        "seek_elapsed_seconds": 1.5061647690599784,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/27_replication/web/27_replication_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1714,15 +1785,15 @@
       "lesson": "28_training_runs",
       "audio_sha256": "0475b4344f95bfc3251cb68027f5b9a033bffce8e9bad115d439742c11041757",
       "clocks": {
-        "audio": 26.232282,
-        "video": 26.370661,
-        "expected": 26.233729362484187,
+        "audio": 26.197423,
+        "video": 26.342655,
+        "expected": 26.198868439143745,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.93,
-        "seek_elapsed_seconds": 1.5050714379758574,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/28_training_runs/web/28_training_runs_silent.mp4"
+        "seek_elapsed_seconds": 1.5068819229491055,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/28_training_runs/web/28_training_runs_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1733,15 +1804,15 @@
       "lesson": "29_report",
       "audio_sha256": "b429963738fc14a84bfec719fdde342af3584bfae7549e4f6ae3ac9b5666d2ab",
       "clocks": {
-        "audio": 20.122447,
-        "video": 20.257686,
-        "expected": 20.12218864039628,
+        "audio": 20.061243,
+        "video": 20.23206,
+        "expected": 20.060985426217268,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.794999999999998,
-        "seek_elapsed_seconds": 1.5059584529954009,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/29_report/web/29_report_silent.mp4"
+        "seek_elapsed_seconds": 1.5032850930001587,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/29_report/web/29_report_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1752,15 +1823,15 @@
       "lesson": "30_plate_queue",
       "audio_sha256": "a0635d6f4dee07bcf73fd8785e8307c0331c326cd9fecc74ce537d9a83fd7d65",
       "clocks": {
-        "audio": 23.492744,
-        "video": 23.635414,
-        "expected": 23.492744,
+        "audio": 23.457422,
+        "video": 23.625928,
+        "expected": 23.457422,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.15,
-        "seek_elapsed_seconds": 1.505278418015223,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/30_plate_queue/web/30_plate_queue_silent.mp4"
+        "seek_elapsed_seconds": 1.5053821440087631,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/30_plate_queue/web/30_plate_queue_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1771,15 +1842,15 @@
       "lesson": "31_external_masks",
       "audio_sha256": "7f8179c8398b5cb637ea105efcb6e149e3616c87224346649d21c2799ee94b18",
       "clocks": {
-        "audio": 25.633381,
-        "video": 25.797881,
-        "expected": 25.634068978233454,
+        "audio": 25.618183,
+        "video": 25.785655,
+        "expected": 25.618870570332003,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.33,
-        "seek_elapsed_seconds": 1.50366359698819,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/31_external_masks/web/31_external_masks_silent.mp4"
+        "seek_elapsed_seconds": 1.505316758994013,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/31_external_masks/web/31_external_masks_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1790,15 +1861,15 @@
       "lesson": "32_align_stitch",
       "audio_sha256": "77d99917c1109a12199c1c5d124e836c3bc4b901f13daf9d2198b1acaa1dfdf4",
       "clocks": {
-        "audio": 24.938297,
-        "video": 25.077767,
-        "expected": 24.94064650758833,
+        "audio": 24.865902,
+        "video": 25.04684,
+        "expected": 24.86824468705035,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.62,
-        "seek_elapsed_seconds": 1.5056626709992997,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/32_align_stitch/web/32_align_stitch_silent.mp4"
+        "seek_elapsed_seconds": 1.5053276960970834,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/32_align_stitch/web/32_align_stitch_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1809,15 +1880,15 @@
       "lesson": "33_plate_viewer",
       "audio_sha256": "04f4becbaa496e53736f8c5618b0a790a88ba8e69d4ca60201a5dc9ca6a6900b",
       "clocks": {
-        "audio": 23.047436,
-        "video": 23.198206,
-        "expected": 23.047436,
+        "audio": 22.9941,
+        "video": 23.161003,
+        "expected": 22.9941,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.75,
-        "seek_elapsed_seconds": 1.5050586690194905,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/33_plate_viewer/web/33_plate_viewer_silent.mp4"
+        "seek_elapsed_seconds": 1.5042189059313387,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/33_plate_viewer/web/33_plate_viewer_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1828,15 +1899,15 @@
       "lesson": "34_database",
       "audio_sha256": "d66fdc9d831ae77605c523fdee537b0753d660a5f3d7cd162e0411ccecb797f3",
       "clocks": {
-        "audio": 12.537916,
-        "video": 12.703248,
-        "expected": 12.539767634098856,
+        "audio": 12.524687,
+        "video": 12.697672,
+        "expected": 12.526536680403563,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 11.215,
-        "seek_elapsed_seconds": 1.5038765689823776,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/34_database/web/34_database_silent.mp4"
+        "seek_elapsed_seconds": 1.5051990300416946,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/34_database/web/34_database_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1847,15 +1918,15 @@
       "lesson": "35_converter",
       "audio_sha256": "de173bd78ea0a606c49e7779260abf996a698bdcca662bc5634e416220553422",
       "clocks": {
-        "audio": 23.318791,
-        "video": 23.451468,
-        "expected": 23.319597348456032,
+        "audio": 23.276136,
+        "video": 23.444033,
+        "expected": 23.276940873474185,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.97,
-        "seek_elapsed_seconds": 1.5060664429911412,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/35_converter/web/35_converter_silent.mp4"
+        "seek_elapsed_seconds": 1.504114874987863,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/35_converter/web/35_converter_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1866,15 +1937,15 @@
       "lesson": "36_import",
       "audio_sha256": "62b030f6e377a9e3ab8e258e832c9d124ee96353f2eb5d9982c3faaee50b3932",
       "clocks": {
-        "audio": 24.074803,
-        "video": 24.189287,
-        "expected": 24.0762808918029,
+        "audio": 24.026048,
+        "video": 24.18855,
+        "expected": 24.027522898855675,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.715,
-        "seek_elapsed_seconds": 1.5036748739657924,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/36_import/web/36_import_silent.mp4"
+        "seek_elapsed_seconds": 1.5060246910434216,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/36_import/web/36_import_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1885,15 +1956,15 @@
       "lesson": "37_batch",
       "audio_sha256": "ca7e9a93efe269b0276e97b3191def0ad7bf6b7f50676a4f77e257016fc03dce",
       "clocks": {
-        "audio": 17.865127,
-        "video": 18.021031,
-        "expected": 17.86672964839267,
+        "audio": 17.811271,
+        "video": 17.965187,
+        "expected": 17.812868817067834,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.544999999999998,
-        "seek_elapsed_seconds": 1.5063455909839831,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/37_batch/web/37_batch_silent.mp4"
+        "seek_elapsed_seconds": 1.5060618789866567,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/37_batch/web/37_batch_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1904,15 +1975,15 @@
       "lesson": "38_distributed_jobs",
       "audio_sha256": "d3e25288a8c256a591af64d5721db196a8700a7f5ce534f8a4989f1dcde41c64",
       "clocks": {
-        "audio": 20.904879,
-        "video": 21.030737,
-        "expected": 20.90452170842987,
+        "audio": 20.851921,
+        "video": 21.020054,
+        "expected": 20.851564613550963,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.544999999999998,
-        "seek_elapsed_seconds": 1.5032417129841633,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/38_distributed_jobs/web/38_distributed_jobs_silent.mp4"
+        "seek_elapsed_seconds": 1.5052284429548308,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/38_distributed_jobs/web/38_distributed_jobs_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1923,15 +1994,15 @@
       "lesson": "39_classifier_evaluation",
       "audio_sha256": "f7012ce9f8a4c8c13bd3a0c4ff3c166fd821dd1302b2cafb55592728ffd948b8",
       "clocks": {
-        "audio": 18.624658,
-        "video": 18.763061,
-        "expected": 18.62617589238857,
+        "audio": 18.589826,
+        "video": 18.766036,
+        "expected": 18.59134105361281,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 17.279999999999998,
-        "seek_elapsed_seconds": 1.5055748679442331,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/39_classifier_evaluation/web/39_classifier_evaluation_silent.mp4"
+        "seek_elapsed_seconds": 1.50871174398344,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/39_classifier_evaluation/web/39_classifier_evaluation_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1942,15 +2013,15 @@
       "lesson": "40_run_history",
       "audio_sha256": "8af909821a422f3af2afe79bead223debc0531b0a2145003fcdab2d76c105128",
       "clocks": {
-        "audio": 14.824635,
-        "video": 14.978207,
-        "expected": 14.824853570437757,
+        "audio": 14.806746,
+        "video": 14.978853,
+        "expected": 14.806964306687146,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 13.5,
-        "seek_elapsed_seconds": 1.5043473539990373,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/40_run_history/web/40_run_history_silent.mp4"
+        "seek_elapsed_seconds": 1.5052115690195933,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/40_run_history/web/40_run_history_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1961,15 +2032,15 @@
       "lesson": "41_classify",
       "audio_sha256": "2471ec462e71629746788e6317ddbc06bacabe7f52f3e6cd63d1cf37623ed93b",
       "clocks": {
-        "audio": 23.120896,
-        "video": 23.253655,
-        "expected": 23.120081338923928,
+        "audio": 23.060618,
+        "video": 23.239284,
+        "expected": 23.059805462809628,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.779999999999998,
-        "seek_elapsed_seconds": 1.5058641060022637,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/41_classify/web/41_classify_silent.mp4"
+        "seek_elapsed_seconds": 1.5056215790100396,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/41_classify/web/41_classify_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1980,15 +2051,15 @@
       "lesson": "42_curate",
       "audio_sha256": "9d49cf6b867ef13914f549c52f657f43dc12a04ce54793beff84acd556ec2f82",
       "clocks": {
-        "audio": 20.018535,
-        "video": 20.159683,
-        "expected": 20.020465613848973,
+        "audio": 20.004992,
+        "video": 20.150757,
+        "expected": 20.00692130774424,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.694999999999997,
-        "seek_elapsed_seconds": 1.504712984955404,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/42_curate/web/42_curate_silent.mp4"
+        "seek_elapsed_seconds": 1.5064091669628397,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/42_curate/web/42_curate_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1999,15 +2070,15 @@
       "lesson": "43_illumination",
       "audio_sha256": "13949cf7d521057a49dceaa27b97a58ed225ebf7243643302eebcb10d2076a22",
       "clocks": {
-        "audio": 17.656182,
-        "video": 17.81333,
-        "expected": 17.656383919908034,
+        "audio": 17.638542,
+        "video": 17.808462,
+        "expected": 17.63874371817319,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.330000000000002,
-        "seek_elapsed_seconds": 1.5052828240441158,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/43_illumination/web/43_illumination_silent.mp4"
+        "seek_elapsed_seconds": 1.5053344919579104,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/43_illumination/web/43_illumination_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2018,15 +2089,15 @@
       "lesson": "44_data_manager",
       "audio_sha256": "df800cb5cf137c04b233e1cfbca29a6f8af101bf9ed51c1162f10d477ef35b41",
       "clocks": {
-        "audio": 16.557364,
-        "video": 16.7092,
-        "expected": 16.559255358243764,
+        "audio": 16.496597,
+        "video": 16.678193,
+        "expected": 16.49848141679062,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 15.254999999999999,
-        "seek_elapsed_seconds": 1.5041560950339772,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/44_data_manager/web/44_data_manager_silent.mp4"
+        "seek_elapsed_seconds": 1.503900198964402,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/44_data_manager/web/44_data_manager_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2037,15 +2108,15 @@
       "lesson": "45_project_browser",
       "audio_sha256": "4ad1808bfba19450d91305909dd6d5f99417a34e161b908a6ba45d3d5d689d8a",
       "clocks": {
-        "audio": 16.535034,
-        "video": 16.66637,
-        "expected": 16.53705711616253,
+        "audio": 16.505036,
+        "video": 16.65463,
+        "expected": 16.507055445807897,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 15.195,
-        "seek_elapsed_seconds": 1.5051944980514236,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/45_project_browser/web/45_project_browser_silent.mp4"
+        "seek_elapsed_seconds": 1.5060942060081288,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/45_project_browser/web/45_project_browser_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2056,15 +2127,15 @@
       "lesson": "46_napari_bridge",
       "audio_sha256": "fa59541c3acdb28fbd1af926bf5766987aca6391f0e35e36a2791776623470fa",
       "clocks": {
-        "audio": 20.388876,
-        "video": 20.530155,
-        "expected": 20.388050989392887,
+        "audio": 20.354684,
+        "video": 20.522852,
+        "expected": 20.3538603729298,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.044999999999998,
-        "seek_elapsed_seconds": 1.5051502319984138,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/46_napari_bridge/web/46_napari_bridge_silent.mp4"
+        "seek_elapsed_seconds": 1.5066435020416975,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/46_napari_bridge/web/46_napari_bridge_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2075,15 +2146,15 @@
       "lesson": "47_barcode_qc",
       "audio_sha256": "d7a0843eca895a82739a0d6682a9aa27a1b3edfe7f6fb18ca4f685ebb1edf18a",
       "clocks": {
-        "audio": 18.853151,
-        "video": 19.002248,
-        "expected": 18.851500255669382,
+        "audio": 18.800368,
+        "video": 18.972781,
+        "expected": 18.798721877243675,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 17.555,
-        "seek_elapsed_seconds": 1.5056773310061544,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/47_barcode_qc/web/47_barcode_qc_silent.mp4"
+        "seek_elapsed_seconds": 1.5085575650446117,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/47_barcode_qc/web/47_barcode_qc_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2094,15 +2165,15 @@
       "lesson": "48_hit_list",
       "audio_sha256": "fa3ba8eadee55fe27fd7d91fefcbf4477e063cb5db2631b72aaca643bed315a9",
       "clocks": {
-        "audio": 22.307243,
-        "video": 22.425519,
-        "expected": 22.30535904760157,
+        "audio": 22.252411,
+        "video": 22.412671,
+        "expected": 22.250531678423847,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.944999999999997,
-        "seek_elapsed_seconds": 1.5053010489791632,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/48_hit_list/web/48_hit_list_silent.mp4"
+        "seek_elapsed_seconds": 1.5047180260298774,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/48_hit_list/web/48_hit_list_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2113,15 +2184,15 @@
       "lesson": "49_methods_results",
       "audio_sha256": "e43f36a6d43952a1c621483a47a323ed97eb00badc67350f41a30b0740cf0787",
       "clocks": {
-        "audio": 26.613935,
-        "video": 26.745526,
-        "expected": 26.610962612704352,
+        "audio": 26.557864,
+        "video": 26.740613,
+        "expected": 26.554897875014976,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 25.27,
-        "seek_elapsed_seconds": 1.5043798650149256,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/49_methods_results/web/49_methods_results_silent.mp4"
+        "seek_elapsed_seconds": 1.5059829819947481,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/49_methods_results/web/49_methods_results_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2132,15 +2203,15 @@
       "lesson": "50_run_compare",
       "audio_sha256": "b608b79055349ad2a0838ba68290f32f15eeccbd5f52617534531ee4b11fce24",
       "clocks": {
-        "audio": 16.140163,
-        "video": 16.303785,
-        "expected": 16.14255709168802,
+        "audio": 16.121019,
+        "video": 16.284248,
+        "expected": 16.12341025203322,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 14.835,
-        "seek_elapsed_seconds": 1.5063664560439065,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/50_run_compare/web/50_run_compare_silent.mp4"
+        "seek_elapsed_seconds": 1.5042223619529977,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/50_run_compare/web/50_run_compare_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2151,15 +2222,15 @@
       "lesson": "51_control_charts",
       "audio_sha256": "989aecf65017ba4015b7aaa342f999293efd363dccff916bba4c6dd53a660ae3",
       "clocks": {
-        "audio": 21.948627,
-        "video": 22.099822,
-        "expected": 21.948985832552435,
+        "audio": 21.940219,
+        "video": 22.08697,
+        "expected": 21.940577695092166,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.63,
-        "seek_elapsed_seconds": 1.5048576809931546,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/51_control_charts/web/51_control_charts_silent.mp4"
+        "seek_elapsed_seconds": 1.5069393130252138,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/51_control_charts/web/51_control_charts_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2170,15 +2241,15 @@
       "lesson": "52_pipeline_graph",
       "audio_sha256": "7a0a27b1af12752e6cdef70094a7d08ae41e6cea4ad718aa6ea799cc2beff7e6",
       "clocks": {
-        "audio": 17.93977,
-        "video": 18.091129,
-        "expected": 17.93977,
+        "audio": 17.907681,
+        "video": 18.084801,
+        "expected": 17.907681,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.62,
-        "seek_elapsed_seconds": 1.505114773986861,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/52_pipeline_graph/web/52_pipeline_graph_silent.mp4"
+        "seek_elapsed_seconds": 1.5074053308926523,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/52_pipeline_graph/web/52_pipeline_graph_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2189,15 +2260,15 @@
       "lesson": "53_prediction_profiler",
       "audio_sha256": "4dae5eff5cc6487ae855ccef93953702487b6d5c79b8300b570aa548d591b6a0",
       "clocks": {
-        "audio": 20.710891,
-        "video": 20.852843,
-        "expected": 20.710514232877205,
+        "audio": 20.658966,
+        "video": 20.844426,
+        "expected": 20.65859017748325,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.37,
-        "seek_elapsed_seconds": 1.5058726540300995,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/53_prediction_profiler/web/53_prediction_profiler_silent.mp4"
+        "seek_elapsed_seconds": 1.5064982040785253,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/53_prediction_profiler/web/53_prediction_profiler_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2208,15 +2279,15 @@
       "lesson": "54_qc_dashboard",
       "audio_sha256": "3b15e7ed8aca5825432c35a79e9837a612a9a5f93ad38982ab86bdc7f91cc9b3",
       "clocks": {
-        "audio": 16.135429,
-        "video": 16.297418,
-        "expected": 16.137202369602402,
+        "audio": 16.11732,
+        "video": 16.288162,
+        "expected": 16.119091379326832,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 14.83,
-        "seek_elapsed_seconds": 1.5037576910108328,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/54_qc_dashboard/web/54_qc_dashboard_silent.mp4"
+        "seek_elapsed_seconds": 1.5071164489490911,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/54_qc_dashboard/web/54_qc_dashboard_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2227,15 +2298,15 @@
       "lesson": "55_image_scatter",
       "audio_sha256": "8384fa21f9ab74af32e730ad13a7fb086ee9cf9a9e46227ebb8bc180a96c97e7",
       "clocks": {
-        "audio": 20.167749,
-        "video": 20.303166,
-        "expected": 20.167102475931355,
+        "audio": 20.136101,
+        "video": 20.279238,
+        "expected": 20.135455490481554,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.849999999999998,
-        "seek_elapsed_seconds": 1.5041265850304626,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/55_image_scatter/web/55_image_scatter_silent.mp4"
+        "seek_elapsed_seconds": 1.5045603760518134,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/55_image_scatter/web/55_image_scatter_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2246,15 +2317,15 @@
       "lesson": "56_lineage",
       "audio_sha256": "af27d4b89f2d0bbc6c16424eadfad9df3e0e9368c8f0c155721b794be44bf0f3",
       "clocks": {
-        "audio": 22.619129,
-        "video": 22.767504,
-        "expected": 22.619612483338404,
+        "audio": 22.601759,
+        "video": 22.748102,
+        "expected": 22.602242112055073,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.315,
-        "seek_elapsed_seconds": 1.5052953589474782,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/56_lineage/web/56_lineage_silent.mp4"
+        "seek_elapsed_seconds": 1.506846306961961,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/56_lineage/web/56_lineage_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2265,15 +2336,15 @@
       "lesson": "57_layer_viewer",
       "audio_sha256": "b0118caaa482410fb62fc86fb837a7a0e37c72302d6aac8a73ca2a782a4f7a0d",
       "clocks": {
-        "audio": 21.028811,
-        "video": 21.182146,
-        "expected": 21.028456603341947,
+        "audio": 21.033431,
+        "video": 21.176717,
+        "expected": 21.033076525481505,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.705,
-        "seek_elapsed_seconds": 1.504997330950573,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/57_layer_viewer/web/57_layer_viewer_silent.mp4"
+        "seek_elapsed_seconds": 1.5051578730344772,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/57_layer_viewer/web/57_layer_viewer_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2284,15 +2355,15 @@
       "lesson": "58_graph_builder",
       "audio_sha256": "84bb964cd288ee3f5dc69edd3cb50778fc24da6ace474d5c1386c02e7fe96e46",
       "clocks": {
-        "audio": 28.147828,
-        "video": 28.287245,
-        "expected": 28.148177579950076,
+        "audio": 28.115871,
+        "video": 28.28254,
+        "expected": 28.116220183062378,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.830000000000002,
-        "seek_elapsed_seconds": 1.504233605985064,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/58_graph_builder/web/58_graph_builder_silent.mp4"
+        "seek_elapsed_seconds": 1.5052183780353516,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/58_graph_builder/web/58_graph_builder_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2303,15 +2374,15 @@
       "lesson": "59_anndata_export",
       "audio_sha256": "4011ec9598edca07936b04c19b49e20882520793c27f8d71f7edd3b4d61f49b5",
       "clocks": {
-        "audio": 23.070211,
-        "video": 23.231112,
-        "expected": 23.06866691252259,
+        "audio": 23.055796,
+        "video": 23.210792,
+        "expected": 23.054252877317452,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.764999999999997,
-        "seek_elapsed_seconds": 1.5058095940039493,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/59_anndata_export/web/59_anndata_export_silent.mp4"
+        "seek_elapsed_seconds": 1.5075754160061479,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/59_anndata_export/web/59_anndata_export_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2322,15 +2393,15 @@
       "lesson": "60_pca",
       "audio_sha256": "c8bc0090577690a40dd1164471a9e31055f63e8ea64172c7e3f6a99cbce08858",
       "clocks": {
-        "audio": 26.264489,
-        "video": 26.398762,
-        "expected": 26.26467549672295,
+        "audio": 26.230896,
+        "video": 26.387734,
+        "expected": 26.23108225818854,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.925,
-        "seek_elapsed_seconds": 1.504225289041642,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/60_pca/web/60_pca_silent.mp4"
+        "seek_elapsed_seconds": 1.504937896039337,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/60_pca/web/60_pca_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2341,15 +2412,15 @@
       "lesson": "61_tabulate",
       "audio_sha256": "8369d5cb62ad2ecd4ed19a7dab5ab226f4e5bc423684b704cd872fad78ee28f3",
       "clocks": {
-        "audio": 28.659626,
-        "video": 28.781309,
-        "expected": 28.659626,
+        "audio": 28.60788,
+        "video": 28.781349,
+        "expected": 28.60788,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.3,
-        "seek_elapsed_seconds": 1.5052287920261733,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/61_tabulate/web/61_tabulate_silent.mp4"
+        "seek_elapsed_seconds": 1.5057666829088703,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/61_tabulate/web/61_tabulate_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2360,15 +2431,15 @@
       "lesson": "62_feature_dictionary",
       "audio_sha256": "1b1db71171219ecef32a12f7b6893aa382a8f01807a2d5885e2d3c0a0d032c44",
       "clocks": {
-        "audio": 18.228889,
-        "video": 18.349575,
-        "expected": 18.226634758143376,
+        "audio": 18.169044,
+        "video": 18.337101,
+        "expected": 18.16679715876466,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.900000000000002,
-        "seek_elapsed_seconds": 1.5059124060207978,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/62_feature_dictionary/web/62_feature_dictionary_silent.mp4"
+        "seek_elapsed_seconds": 1.5059360869927332,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/62_feature_dictionary/web/62_feature_dictionary_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2379,15 +2450,15 @@
       "lesson": "63_small_multiples",
       "audio_sha256": "4ff44d668ee85a59a8ea416bac3e336452c959483d3bd20a639a9714c778e025",
       "clocks": {
-        "audio": 27.862006,
-        "video": 27.992419,
-        "expected": 27.860109894517162,
+        "audio": 27.844874,
+        "video": 27.984795,
+        "expected": 27.842979060408776,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.514999999999997,
-        "seek_elapsed_seconds": 1.5058024440077133,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/63_small_multiples/web/63_small_multiples_silent.mp4"
+        "seek_elapsed_seconds": 1.5060195869300514,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/63_small_multiples/web/63_small_multiples_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2398,15 +2469,15 @@
       "lesson": "64_gate_editor",
       "audio_sha256": "0b45480a48da299cee829b6e14547f59f395bdc5ece17dc11543b0d3d17e9ef7",
       "clocks": {
-        "audio": 36.784952,
-        "video": 36.920111,
-        "expected": 36.78414271648962,
+        "audio": 36.713395,
+        "video": 36.885233,
+        "expected": 36.712587290771964,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 35.465,
-        "seek_elapsed_seconds": 1.506029749987647,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/64_gate_editor/web/64_gate_editor_silent.mp4"
+        "seek_elapsed_seconds": 1.5061589520191774,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/64_gate_editor/web/64_gate_editor_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2417,15 +2488,15 @@
       "lesson": "65_feature_explorer",
       "audio_sha256": "3ea68fb66b7772a0740dd19e8beec2f2ac5ed3e4eb6acc68d5f3631f54f81492",
       "clocks": {
-        "audio": 23.748498,
-        "video": 23.89456,
-        "expected": 23.746609648832095,
+        "audio": 23.695316,
+        "video": 23.868418,
+        "expected": 23.693431877574973,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.43,
-        "seek_elapsed_seconds": 1.5049069470260292,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/65_feature_explorer/web/65_feature_explorer_silent.mp4"
+        "seek_elapsed_seconds": 1.5057378619676456,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/65_feature_explorer/web/65_feature_explorer_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2436,15 +2507,15 @@
       "lesson": "66_outliers",
       "audio_sha256": "ed1e45220518aa83c482b1be075ec641e3da1b6cac653c67f92ca202ce1ee8a9",
       "clocks": {
-        "audio": 21.517807,
-        "video": 21.661425,
-        "expected": 21.518503877583157,
+        "audio": 21.443294,
+        "video": 21.62425,
+        "expected": 21.44398846439861,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.22,
-        "seek_elapsed_seconds": 1.50536024896428,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/66_outliers/web/66_outliers_silent.mp4"
+        "seek_elapsed_seconds": 1.505834224051796,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/66_outliers/web/66_outliers_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2455,15 +2526,15 @@
       "lesson": "67_experiment_design",
       "audio_sha256": "7938a13eb438e4ea992ac554f38117a8d8bbb987456113fc5c0d839b1970b8fc",
       "clocks": {
-        "audio": 20.712439,
-        "video": 20.840427,
-        "expected": 20.71153432343545,
+        "audio": 20.655531,
+        "video": 20.822599,
+        "expected": 20.654628809059375,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.389999999999997,
-        "seek_elapsed_seconds": 1.5029943470144644,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/67_experiment_design/web/67_experiment_design_silent.mp4"
+        "seek_elapsed_seconds": 1.5068331790389493,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/67_experiment_design/web/67_experiment_design_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2474,15 +2545,15 @@
       "lesson": "68_power_design",
       "audio_sha256": "78d7affac6ec54cd32ee472104a8316c6b8712e07b472854868969b55318da5e",
       "clocks": {
-        "audio": 24.947962,
-        "video": 25.097335,
-        "expected": 24.94709517945867,
+        "audio": 24.894072,
+        "video": 25.060569,
+        "expected": 24.8932070518745,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.65,
-        "seek_elapsed_seconds": 1.505352200998459,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/68_power_design/web/68_power_design_silent.mp4"
+        "seek_elapsed_seconds": 1.5066548390313983,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/68_power_design/web/68_power_design_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2493,15 +2564,15 @@
       "lesson": "69_dose_response",
       "audio_sha256": "98e20dc5e519af9ec729a4a0650d27eccb23af1c615b1c475f946f9b8f55f203",
       "clocks": {
-        "audio": 20.482464,
-        "video": 20.633236,
-        "expected": 20.48196662344285,
+        "audio": 20.428078,
+        "video": 20.603407,
+        "expected": 20.427581944100435,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.185,
-        "seek_elapsed_seconds": 1.5050720270373859,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/69_dose_response/web/69_dose_response_silent.mp4"
+        "seek_elapsed_seconds": 1.5050871359417215,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/69_dose_response/web/69_dose_response_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2512,15 +2583,15 @@
       "lesson": "70_explain_cv",
       "audio_sha256": "39464df5fd2c1bcf05a36c5f9f1b0e03e63bbeb3c873b2f699170b114cf26c8a",
       "clocks": {
-        "audio": 24.079951,
-        "video": 24.211353,
-        "expected": 24.08301818030812,
+        "audio": 24.052292,
+        "video": 24.192832,
+        "expected": 24.05535565724696,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.74,
-        "seek_elapsed_seconds": 1.5049487910000607,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/70_explain_cv/web/70_explain_cv_silent.mp4"
+        "seek_elapsed_seconds": 1.506909727002494,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/70_explain_cv/web/70_explain_cv_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2531,15 +2602,15 @@
       "lesson": "71_investigate_hit",
       "audio_sha256": "d9e3f995b36e94d6aafe789495008284d79d36385a4ac6c0b05f8674ba3f8112",
       "clocks": {
-        "audio": 28.719444,
-        "video": 28.882071,
-        "expected": 28.719791032254836,
+        "audio": 28.726323,
+        "video": 28.858928,
+        "expected": 28.726670115377438,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.415,
-        "seek_elapsed_seconds": 1.504857687978074,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/71_investigate_hit/web/71_investigate_hit_silent.mp4"
+        "seek_elapsed_seconds": 1.505372460000217,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/71_investigate_hit/web/71_investigate_hit_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2550,15 +2621,15 @@
       "lesson": "72_volcano_explorer",
       "audio_sha256": "34d0a15b6e6269d793fe50cfd9c05eb6ea2594eeaf3cc95791d3b954c5f9232f",
       "clocks": {
-        "audio": 22.08694,
-        "video": 22.242592,
-        "expected": 22.085512365070127,
+        "audio": 22.057923,
+        "video": 22.213351,
+        "expected": 22.056497240643782,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.79,
-        "seek_elapsed_seconds": 1.507828783011064,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/72_volcano_explorer/web/72_volcano_explorer_silent.mp4"
+        "seek_elapsed_seconds": 1.5068420099560171,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/72_volcano_explorer/web/72_volcano_explorer_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2569,15 +2640,15 @@
       "lesson": "73_parameter_sweep",
       "audio_sha256": "dd9f403d1b718e263b1375e55325ffd6837f9121fda36677131b019d678427d3",
       "clocks": {
-        "audio": 23.163553,
-        "video": 23.308678,
-        "expected": 23.164829714681307,
+        "audio": 23.132644,
+        "video": 23.296974,
+        "expected": 23.13391901105777,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.845,
-        "seek_elapsed_seconds": 1.5048737460165285,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/73_parameter_sweep/web/73_parameter_sweep_silent.mp4"
+        "seek_elapsed_seconds": 1.5058549520326778,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/73_parameter_sweep/web/73_parameter_sweep_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2588,15 +2659,15 @@
       "lesson": "74_import_images",
       "audio_sha256": "1d82b46a94cfe9ea654d6bbd92d0a391d56ffde1c1df2ee4e7da8c7a8cf2c162",
       "clocks": {
-        "audio": 34.056373,
-        "video": 34.200715,
-        "expected": 34.06006715045016,
+        "audio": 33.978113,
+        "video": 34.149066,
+        "expected": 33.98179866146003,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 32.755,
-        "seek_elapsed_seconds": 1.5056540840305388,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/74_import_images/web/74_import_images_silent.mp4"
+        "seek_elapsed_seconds": 1.50787221302744,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/74_import_images/web/74_import_images_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2607,15 +2678,15 @@
       "lesson": "75_regression_diagnostics",
       "audio_sha256": "c9310013e936814c8b32426932800515481d1b7d951afd9c12a0b0b07368b7ca",
       "clocks": {
-        "audio": 27.295398,
-        "video": 27.419256,
-        "expected": 27.294348217376253,
+        "audio": 27.223576,
+        "video": 27.407493,
+        "expected": 27.22252897965463,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 25.935,
-        "seek_elapsed_seconds": 1.5040740330005065,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/75_regression_diagnostics/web/75_regression_diagnostics_silent.mp4"
+        "seek_elapsed_seconds": 1.504083973937668,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/75_regression_diagnostics/web/75_regression_diagnostics_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2626,15 +2697,15 @@
       "lesson": "77_embeddings",
       "audio_sha256": "7a008bb3cadd684328becdfb9e9ea62997c53de5bbad02c67f9711e705400a58",
       "clocks": {
-        "audio": 24.757293,
-        "video": 24.908082,
-        "expected": 24.75904690029814,
+        "audio": 24.699892,
+        "video": 24.873139,
+        "expected": 24.70164183379414,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.455,
-        "seek_elapsed_seconds": 1.5060212039970793,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/77_embeddings/web/77_embeddings_silent.mp4"
+        "seek_elapsed_seconds": 1.5054852419998497,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/77_embeddings/web/77_embeddings_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2906,15 +2977,15 @@
       "lesson": "76_ops",
       "audio_sha256": "5257b1e4e70fd290402ac8863345f774529f702027a4597085be35cef204d77c",
       "clocks": {
-        "audio": 24.238929,
-        "video": 24.372762,
-        "expected": 24.237286224522098,
+        "audio": 24.163158,
+        "video": 24.326842,
+        "expected": 24.161520359845557,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.919999999999998,
-        "seek_elapsed_seconds": 1.5050763260223903,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/76_ops/web/76_ops_silent.mp4"
+        "seek_elapsed_seconds": 1.505686411052011,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/76_ops/web/76_ops_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3276,15 +3347,15 @@
       "lesson": "78_spacr_screens",
       "audio_sha256": "52398feb9996c00f7e66d549961fe7572b802a48253af8f051955577ebcf3ad8",
       "clocks": {
-        "audio": 54.097133,
-        "video": 54.234887,
-        "expected": 54.09676102433349,
+        "audio": 54.082913,
+        "video": 54.229966,
+        "expected": 54.082541122111195,
         "width": 1920,
         "height": 1080,
         "error": null,
         "requested_audio_time": 52.75,
-        "seek_elapsed_seconds": 1.5044443430379033,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/78_spacr_screens/web/78_spacr_screens_silent.mp4"
+        "seek_elapsed_seconds": 1.507968572084792,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/78_spacr_screens/web/78_spacr_screens_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3295,15 +3366,15 @@
       "lesson": "79_module_inputs_outputs",
       "audio_sha256": "1f4046f4e72ed7287ea7395f21b3df133c5b7ac6ed23802e97090b66b5f966ab",
       "clocks": {
-        "audio": 139.137039,
-        "video": 139.26224,
-        "expected": 139.13732154079574,
+        "audio": 139.083541,
+        "video": 139.255075,
+        "expected": 139.08382343215922,
         "width": 1920,
         "height": 1080,
         "error": null,
         "requested_audio_time": 137.775,
-        "seek_elapsed_seconds": 1.5056524249957874,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/79_module_inputs_outputs/web/79_module_inputs_outputs_silent.mp4"
+        "seek_elapsed_seconds": 1.5057949048932642,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/79_module_inputs_outputs/web/79_module_inputs_outputs_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3312,17 +3383,17 @@
     },
     {
       "lesson": "80_image_analysis_pathways",
-      "audio_sha256": "d53cdd9da70875089741a73d0b30a500ae36063ef3818529099e77449f19c117",
+      "audio_sha256": "35ce19ce9868741e063631fb0025978802e657c89deb556c29a3d5ea2e932464",
       "clocks": {
-        "audio": 53.054955,
-        "video": 53.194577,
-        "expected": 53.05358796446628,
+        "audio": 33.218952,
+        "video": 47.379844,
+        "expected": 47.22895200000001,
         "width": 1920,
         "height": 1080,
         "error": null,
-        "requested_audio_time": 51.71,
-        "seek_elapsed_seconds": 1.5044051629956812,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/80_image_analysis_pathways/web/80_image_analysis_pathways_silent.mp4"
+        "requested_audio_time": 31.89,
+        "seek_elapsed_seconds": 1.5420538530452177,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/80_image_analysis_pathways/web/80_image_analysis_pathways_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3333,15 +3404,15 @@
       "lesson": "81_sequencing_pathways",
       "audio_sha256": "3fe7eec0a2f821c92cac4aec4aba013eaa1a00cd01d7b5c3d3963b0615ad447c",
       "clocks": {
-        "audio": 63.199495,
-        "video": 63.325553,
-        "expected": 63.19981594057595,
+        "audio": 63.146894,
+        "video": 63.317053,
+        "expected": 63.14721467345681,
         "width": 1920,
         "height": 1080,
         "error": null,
         "requested_audio_time": 61.86000000000001,
-        "seek_elapsed_seconds": 1.5040180680225603,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/81_sequencing_pathways/web/81_sequencing_pathways_silent.mp4"
+        "seek_elapsed_seconds": 1.5065756150288507,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/81_sequencing_pathways/web/81_sequencing_pathways_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3350,17 +3421,17 @@
     },
     {
       "lesson": "82_toxoplasma",
-      "audio_sha256": "6540878a1e27baa63293d3c7a7bc00dd1d6465f2f042dfe8d395f85b2b584c97",
+      "audio_sha256": "9854175ea146547268d949fe77894a11a1c8abf9adc1c1d0836f499bd24fbff8",
       "clocks": {
-        "audio": 25.182851,
-        "video": 25.335047,
-        "expected": 25.18242711134834,
+        "audio": 24.916882,
+        "video": 36.695509,
+        "expected": 36.57021541281652,
         "width": 2560,
         "height": 1440,
         "error": null,
-        "requested_audio_time": 23.885,
-        "seek_elapsed_seconds": 1.5051868780283257,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/82_toxoplasma/web/82_toxoplasma_silent.mp4"
+        "requested_audio_time": 23.779999999999998,
+        "seek_elapsed_seconds": 1.5068285879679024,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/82_toxoplasma/web/82_toxoplasma_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3371,15 +3442,15 @@
       "lesson": "85_host_pathogen",
       "audio_sha256": "4abe49ef26f9ed312bf575d2ef7cd569b0b88ee5c458123f7e5f94a2791f68ad",
       "clocks": {
-        "audio": 28.89643,
-        "video": 29.03965,
-        "expected": 28.89857063486184,
+        "audio": 28.841729,
+        "video": 29.020022,
+        "expected": 28.84386558263575,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.554999999999996,
-        "seek_elapsed_seconds": 1.505200449959375,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/85_host_pathogen/web/85_host_pathogen_silent.mp4"
+        "seek_elapsed_seconds": 1.5043788679176942,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/85_host_pathogen/web/85_host_pathogen_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3390,15 +3461,15 @@
       "lesson": "86_alpha_organism_modules",
       "audio_sha256": "b6ed45411108e7ba131e40439aa4f2fa78adb8d8342f7323aaeeab60e9f5ba90",
       "clocks": {
-        "audio": 25.906603,
-        "video": 26.04758,
-        "expected": 25.905540862203274,
+        "audio": 25.870879,
+        "video": 26.044677,
+        "expected": 25.869818326841866,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.565,
-        "seek_elapsed_seconds": 1.505729008000344,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/86_alpha_organism_modules/web/86_alpha_organism_modules_silent.mp4"
+        "seek_elapsed_seconds": 1.5051247089868411,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/86_alpha_organism_modules/web/86_alpha_organism_modules_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3409,15 +3480,15 @@
       "lesson": "87_alpha_features",
       "audio_sha256": "9f17a4b3701a45226a15c91a0ab97979cfb74e11cdbe38d0b4645b5716a871c5",
       "clocks": {
-        "audio": 39.534255,
-        "video": 39.650629,
-        "expected": 39.53529350247274,
+        "audio": 39.463874,
+        "video": 39.620852,
+        "expected": 39.46491065367496,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 38.195,
-        "seek_elapsed_seconds": 1.50418400100898,
-        "hosted_web_copy": "http://127.0.0.1:39249/media_host/87_alpha_features/web/87_alpha_features_silent.mp4"
+        "seek_elapsed_seconds": 1.506033341982402,
+        "hosted_web_copy": "http://127.0.0.1:33327/media_host/87_alpha_features/web/87_alpha_features_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,

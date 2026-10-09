@@ -48,6 +48,23 @@ def test_promotes_only_reviewed_lesson_and_preserves_scene_links(project, langua
     assert reviewer.read(root / 'catalog/lessons_en.json')['lessons'][0] == english
 
 
+def test_authored_source_review_accepts_generated_voice_selection(project):
+    root, english, retained, review = project
+    selected = dict(english, narration_voices={'en': ['af_heart']})
+    result = reviewer.translated_lesson(review, selected, {})
+    assert result['narration_voices'] == selected['narration_voices']
+    assert result['scenes'][0]['narration'] == 'Abra Home.'
+
+
+@pytest.mark.parametrize('field', ['title', 'scenes', 'number'])
+def test_voice_selection_does_not_relax_authored_source_binding(project, field):
+    root, english, retained, review = project
+    selected = dict(english, narration_voices={'en': ['af_heart']})
+    selected[field] = 'changed'
+    with pytest.raises(ValueError, match='English changed'):
+        reviewer.translated_lesson(review, selected, {})
+
+
 @pytest.mark.parametrize('defect', ['changed_source', 'missing_scene', 'blank_scene', 'invalid_language'])
 def test_rejects_invalid_review_before_overwriting_an_existing_catalog(project, defect):
     root, english, retained, review = project

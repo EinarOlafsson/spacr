@@ -6,7 +6,7 @@
   "series": 1,
   "app_key": null,
   "section": "Workflows",
-  "description": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
+  "description": "Follow the current image-to-measurement routes and choose exploration, labeling, comparison or organism-specific analyses.",
   "objectives": [
     "Choose a starting module from the data you already have.",
     "Identify what each module reads and writes.",
@@ -15,189 +15,102 @@
   "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
   "scenes": [
     {
-      "visual": "home",
-      "narration": "Image analysis in spaCR follows your pictures from pixels to answers. Raw images start in Mask, which finds the objects. If you want to correct masks by hand, use Make Masks, or import masks you already have. Measure then turns images and masks into numbers, and crops if you want them. From there you choose the road: classification, image exploration, gating or an assay. Stitch tiles first when the analysis needs one coordinate system.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "05_home"
-      ]
+      "visual": "00_home",
+      "narration": "Start with the question and the data you already have. The current Home rows separate Core analysis, Data preparation and comparison, Tools, and the Toxoplasma Organism page. A module is one step; its output becomes another module’s input.",
+      "hold_after": 0.7
     },
     {
-      "visual": "module_mask",
-      "narration": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
+      "visual": "module_foreign",
+      "narration": "Import organizes incoming microscopy files and metadata. If your acquisition contains overlapping tiles, Align & Stitch can prepare a mosaic with its coordinate records. Keep channel identities and source metadata with the project.",
       "hold_after": 0.7,
       "related_lessons": [
-        "07_mask",
-        "08_measure"
-      ]
-    },
-    {
-      "visual": "module_make_masks",
-      "narration": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "14_make_masks",
-        "24_plaque"
-      ]
-    },
-    {
-      "visual": "module_measure",
-      "narration": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "07_mask",
-        "08_measure",
-        "09_annotate",
-        "14_make_masks",
-        "15_image_umap",
-        "25_recruitment",
-        "26_invasion",
-        "27_replication",
-        "41_classify",
-        "54_qc_dashboard",
-        "64_gate_editor",
-        "77_embeddings",
-        "85_host_pathogen"
-      ]
-    },
-    {
-      "visual": "module_annotate",
-      "narration": "With measurements in hand, Annotate is where you teach by example. Open it from Home and it shows the object crops Measure saved or streams from the project. Label representative objects; each label goes into an annotation column of the png_list table, tied to that object's identity. You don't have to start from nothing: gates saved in Gate Editor can propose candidate labels for you to review. Use a separate column for each question, keep training and evaluation objects apart, and that column is what Classify trains on next.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "09_annotate",
-        "41_classify",
-        "64_gate_editor"
-      ]
-    },
-    {
-      "visual": "module_classify_merged",
-      "narration": "Open Classify from Home to turn labels into predictions. It has two families, and your data decides between them. Computer Vision learns from object crops, saved or streamed by Measure; Tabular Machine Learning learns from the measured feature columns. The labels can come from three places. Most often they come from Annotate. Gate Editor can write reviewed gate selections to an annotation column, and Image UMAP can do the same with reviewed lasso selections; either way, select that same column and object population here. An embedding cluster is not ground truth, so inspect the crops, validate the labels and keep validation objects apart from training. Classify then saves its scores, the trained model and an evaluation bundle of held-out predictions. In a screen, pick the CV or ML score column you mean and carry it, plate and well identity intact, into Regression.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "09_annotate",
-        "13_regression",
-        "15_image_umap",
-        "41_classify",
-        "64_gate_editor"
-      ]
-    },
-    {
-      "visual": "module_umap",
-      "narration": "Image UMAP is for looking before you label. Open it from Home and it projects the measured features from Measure, or encoder features from Embeddings with matching object IDs, into a map where similar objects sit close together. Open representative crops to see what a region really holds. A cluster is only a candidate grouping, not a validated phenotype. When a region does look meaningful, draw a lasso around it, review what you caught, and write the selection to an annotation column in the matching measurement database. Classify can then train on that column. The projection can also go to Gate Editor, if you would rather define the selection there with the matching coordinate and feature columns. Not every GUI route saves encoder features for you, and a shape on a plot alone does not establish a biological phenotype.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "15_image_umap",
-        "41_classify",
-        "64_gate_editor",
-        "77_embeddings"
-      ]
-    },
-    {
-      "visual": "module_gate_editor",
-      "narration": "Gate Editor lets you choose objects by rule rather than by eye. Open it from Home and draw threshold or polygon gates on real columns: measured features from Measure, in their actual units, or the coordinates of an Image UMAP projection. Save a gate and you can apply it again to any compatible objects. Its Annotate button writes the displayed gates to an annotation column, once you have reviewed the selected objects and chosen binary or multiclass labels. Saved gates can also propose candidate labels inside Annotate. Then select that same column and object population in Classify, keeping validation objects separate from the training labels.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "09_annotate",
-        "15_image_umap",
-        "41_classify",
-        "64_gate_editor"
-      ]
-    },
-    {
-      "visual": "module_align",
-      "narration": "Some analyses need tiles stitched into one picture first. Open Align & Stitch from Home, check the tile geometry, overlap and channel mapping, and save the mosaic with its coordinate records. For OPS, keep the original cycle and site identities as well.",
-      "hold_after": 0.7,
-      "related_lessons": [
+        "36_import",
         "32_align_stitch"
       ]
     },
     {
-      "visual": "module_analyze_plaques",
-      "narration": "Now the Toxoplasma assays. Open Toxoplasma from Home and choose Plaque Assay. This one skips Measure: it reads plaque images, or masks you already have, and runs the configured plaque model. Masks from Make Masks work here if they are plaque masks with matching source images; cell masks are not plaque labels. It saves plaque results and masks, and the plaque example lesson shows a full run.",
+      "visual": "module_mask",
+      "narration": "Mask produces object labels from microscopy images. Make Masks lets you create or review masks manually. Image-mask pairs must keep the same field identity; a loose mask file is not automatically the combined project arrays Measure needs.",
       "hold_after": 0.7,
       "related_lessons": [
-        "14_make_masks",
-        "24_plaque"
+        "07_mask",
+        "14_make_masks"
       ]
     },
     {
-      "visual": "module_recruitment",
-      "narration": "Recruitment asks how much of a marker gathers at the parasite. Open Toxoplasma from Home, then choose Recruitment. It reads compartment intensities from Measure, with matching host and pathogen identities, and computes recruitment ratios that keep each well and condition.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "25_recruitment"
-      ]
-    },
-    {
-      "visual": "module_host_pathogen",
-      "narration": "Host–Pathogen Analysis looks at infection from both sides. Open Toxoplasma from Home, then choose it. It reads measurements from Measure that include whole vacuoles, host reference compartments and the uninfected host cells, which form the infection denominator. Select the marker channels and set ratio thresholds calibrated on your controls. If you segmented individual parasites, it can count them per vacuole from explicit links or a measured count column. You then get vacuole, host and well tables, joint marker states, replication distributions and any parasite links it could not match. Unknown measurements stay unknown, and host identity alone never defines a vacuole.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "85_host_pathogen"
-      ]
-    },
-    {
-      "visual": "module_invasion",
-      "narration": "To tell parasites that merely attached from those that got inside, open Toxoplasma from Home and choose Invasion Assay. It relies on two-colour differential-staining measurements from Measure, together with stain-baseline controls, and saves assay results with each well and condition intact.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "26_invasion"
-      ]
-    },
-    {
-      "visual": "module_replication",
-      "narration": "The Replication Assay, also under Toxoplasma on Home, counts parasites in each vacuole and compares those distributions between conditions. It reads objects from Measure, but it needs explicit parasite-to-vacuole identities; host identity alone does not define a vacuole.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "27_replication"
-      ]
-    },
-    {
-      "visual": "module_qc_dashboard",
-      "narration": "Any time after Measure, open QC from Home to check your work. It reads the stored checks for segmentation, units, leakage and plate effects, and its nested viewers let you look closer. A missing check is not a passing one. QC saves its results with exportable figures and tables.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "54_qc_dashboard"
-      ]
-    },
-    {
-      "visual": "module_embeddings",
-      "narration": "Embeddings describes objects by what a model sees rather than by hand-picked features. Open it from Home, choose a model and a channel policy, and it encodes the object crops Measure produced into one feature vector per object. Record the object identities, the encoder and the channel policy with those features, because Image UMAP needs a feature table with matching object IDs, and not every route saves one for you.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "08_measure",
-        "15_image_umap",
-        "77_embeddings"
-      ]
-    },
-    {
-      "visual": "module_endodyogeny",
-      "narration": "Two tools in this map live only in Python. The first is the endodyogeny size proxy, spacr.submodules.analyze_endodyogeny; it has no Home tile or menu entry. It reads measured compartment areas from your Measure projects, labels them by condition, and bins area to the power of one and a half into log2 size doublings. By default it sums pathogen area per host cell, not per vacuole, so several vacuoles in one cell are combined. That makes it an area-derived size proxy, not a measured volume or a parasite count; for parasites per vacuole, use the Replication Assay. Set the compartment, area filters, calibration, conditions and grouping before you call it, and check aggregation and area units before reading the bins. The Mask counts database alone is not enough.",
+      "visual": "module_measure",
+      "narration": "Measure reads the prepared images and mask planes together. It writes measurements.db with object identities and feature columns, and can save object crops. Keep the source project and channel mapping with those tables.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure"
       ]
     },
     {
-      "visual": "module_cellpose_masks",
-      "narration": "The second is direct Cellpose mask generation, spacr.spacr_cellpose.identify_masks_finetune, again with no Home tile or menu entry. Despite that name, it runs inference, not training: it applies a stock or custom Cellpose model to the TIFF fields in a folder. Check normalization, channels, resizing and model settings first, and enable saving, because masks are written only when save is on. What you get are label TIFFs, not a Measure-ready project. To carry on, import the image and mask pairs through External Masks before Measure, or curate them for training.",
+      "visual": "module_annotate",
+      "narration": "Annotate displays object crops so you can add reviewed labels. Classify learns from the selected label column, using crop images or measured features. Keep evaluation objects separate from training objects and carry the score column and object identities into later analyses.",
       "hold_after": 0.7,
-      "related_lessons": []
+      "related_lessons": [
+        "09_annotate",
+        "41_classify"
+      ]
+    },
+    {
+      "visual": "module_embeddings",
+      "narration": "Embeddings encodes crops into numerical features. Image UMAP projects compatible features for exploration. Inspect representative crops before assigning meaning to a cluster; a cluster alone is not a validated phenotype.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "77_embeddings",
+        "15_image_umap"
+      ]
+    },
+    {
+      "visual": "module_gate_editor",
+      "narration": "Gate Editor selects objects using real feature columns or compatible projection coordinates. Review the selected objects before writing labels. Those labels can become reviewed examples for Annotate or Classify.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "64_gate_editor"
+      ]
+    },
+    {
+      "visual": "module_qc_dashboard",
+      "narration": "QC reports the quality checks that are present and the evidence that is missing. Run Compare inspects saved runs side by side. Graph Builder plots measurement tables with the columns and grouping you choose.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "54_qc_dashboard",
+        "50_run_compare",
+        "58_graph_builder"
+      ]
+    },
+    {
+      "visual": "module_experiment_design",
+      "narration": "Experiment Design plans conditions and sample identities. Power / Design explores statistical planning assumptions. Dose-Response analyzes an endpoint across concentrations. Keep the measurement endpoint, controls and experimental unit explicit.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "67_experiment_design",
+        "68_power_design",
+        "69_dose_response"
+      ]
+    },
+    {
+      "visual": "module_toxoplasma",
+      "narration": "The Toxoplasma page groups organism-specific assays. Their inputs differ: a plaque image, compartment measurements or explicit parasite-to-vacuole links are not interchangeable. Choose the matching assay and follow its own input requirements.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "82_toxoplasma"
+      ]
+    },
+    {
+      "visual": "module_map_barcodes",
+      "narration": "For pooled screens, Map Barcodes produces guide counts from sequencing reads. Regression combines those counts with compatible phenotype scores. Preserve plate, well and guide identity when joining the two routes.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "12_map_barcodes",
+        "13_regression"
+      ]
     },
     {
       "visual": "home_summary",
-      "narration": "So the image route nearly always runs Mask into Measure, then branches toward your question. To train your own segmentation model, prepare image-mask pairs in Make Masks, train them in Cellpose Workbench and open the saved model back in Mask. With compatible outputs in hand, step in later. Wherever you go, keep channel identities, units and object keys with each result.",
+      "narration": "Return Home and choose the next step from the output you actually have. Use the linked module lessons for a complete run. Keep the input identity, settings, installed version and output location together so the workflow can be checked later.",
       "hold_after": 0.7
     }
   ]

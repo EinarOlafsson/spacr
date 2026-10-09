@@ -12,7 +12,7 @@ import os
 import sys
 from pathlib import Path
 
-from stage_lesson import DEFAULT_STAGE, read, write
+from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 
 def main():
@@ -25,12 +25,11 @@ def main():
     args = parser.parse_args()
     os.environ['SPACR_TUTORIAL_WORKSPACE'] = str(args.stage.resolve())
     os.environ.setdefault('USE_TF', '0')
-    sys.path.insert(0, str(DEFAULT_STAGE.parent / 'tools'))
+    sys.path.insert(0, str(REPO / 'tools/tutorials/authoring/tools'))
     import verify_audio_release as verify
 
     if args.retained_narration:
         from retain_narration import retained_sources
-        from stage_lesson import REPO
         retained_sources(args.stage, DEFAULT_STAGE.parent,
                          REPO / 'docs/source/_extra/tutorials/catalog', args.lesson,
                          {lang: values[1] for lang, values in verify.LANGUAGES.items()},

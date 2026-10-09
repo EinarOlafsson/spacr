@@ -28,6 +28,49 @@ def check_related_links(actual, expected):
         raise ValueError(f'Related lesson links differ: {actual!r} != {expected!r}')
 
 
+def check_native_boundary_playback(page, visual, spoken):
+    """Measure actual media clocks across a recorded scene boundary at normal speed."""
+    candidates = [i for i in range(len(visual['scenes']) - 1)
+                  if visual['scenes'][i].get('native_live_video')
+                  and visual['scenes'][i + 1].get('native_live_video')]
+    if not candidates:
+        raise ValueError('Boundary verification needs two consecutive recorded scenes')
+    index = max(candidates, key=lambda i: visual['scenes'][i]['duration'] - spoken['scenes'][i]['duration'])
+    target = float(spoken['scenes'][index]['scene_end']) - .7
+    page.evaluate('(target) => seekTo(target)', target)
+    page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.paused', timeout=15000)
+    page.evaluate('''() => {
+        window.__actualNativeTrace=[];
+        window.__actualNativeTimer=setInterval(()=>window.__actualNativeTrace.push({
+            audio:elements.audio.currentTime, video:elements.video.currentTime,
+            rate:elements.video.playbackRate, audioRate:elements.audio.playbackRate,
+            seeking:elements.video.seeking, correcting:videoClockCorrectionPending,
+            error:elements.video.error?.message || elements.audio.error?.message || null}),50);
+    }''')
+    page.wait_for_timeout(3500)
+    trace=page.evaluate('window.__actualNativeTrace')
+    page.evaluate('clearInterval(window.__actualNativeTimer)')
+    settled=[]
+    for row in trace:
+        if row['seeking'] or row['correcting']:
+            continue
+        scene=next((i for i, source in enumerate(spoken['scenes'])
+                    if row['audio'] < float(source['scene_end'])), len(spoken['scenes'])-1)
+        expected=float(visual['scenes'][scene]['speech_start']) + row['audio'] - float(spoken['scenes'][scene]['speech_start'])
+        if (row['rate'] != 1 or row['audioRate'] != 1 or row['error']
+                or abs(row['video']-expected) >= .5):
+            raise AssertionError({'scene':scene+1,'expected_from_staged_timing':expected,'actual':row})
+        settled.append(dict(row,scene=scene+1,expected_from_staged_timing=expected))
+    if len(settled)<20 or len({row['scene'] for row in settled})<2:
+        raise AssertionError('Playback did not traverse two native scenes with settled clocks')
+    pairs=[(a,b) for a,b in zip(settled,settled[1:])
+           if a['scene']==b['scene'] and b['audio']-a['audio']>.02]
+    if not pairs or any(abs((b['video']-a['video'])-(b['audio']-a['audio']))>=.2 for a,b in pairs):
+        raise AssertionError('Recorded elapsed motion differs from narration elapsed time')
+    return {'checked_boundary_after_scene':index+1,'trace':settled,'actual_video_speed':1,
+            'independent_staged_timing_comparison':True,'native_animation_stretched_or_looped':False}
+
+
 def find_host_lesson(lessons, navigation, host_key):
     """Allow an absent parent lesson only when navigation records that gap."""
     hosts = [item for item in lessons
@@ -42,6 +85,7 @@ def find_host_lesson(lessons, navigation, host_key):
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     web_lesson = None
+    player_source = None
 
     def log_message(self, *args):
         pass
@@ -50,6 +94,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         candidate = Path(super().translate_path(path))
         player = WORKSPACE / 'web'
         if candidate.is_relative_to(player):
+            if candidate == player / 'app_v2.js' and self.player_source is not None:
+                return str(self.player_source)
             return str(REPO / 'docs/source/_extra/tutorials' / candidate.relative_to(player))
         staged_media = DEFAULT_STAGE / 'production'
         if self.web_lesson:
@@ -120,6 +166,10 @@ def main():
                         help='Require unchanged original catalogs and media, with no staged override')
     parser.add_argument('--web-rendition', action='store_true',
                         help='Check the verified private 1440p copy, preserving original browser reports')
+    parser.add_argument('--candidate-player', action='store_true',
+                        help='Serve the exact private authoring player source, including native timing and lesson redirects; no publication')
+    parser.add_argument('--native-boundary-clocks', action='store_true',
+                        help='Measure actual normal-speed media clocks across a recorded scene boundary')
     args = parser.parse_args()
     if args.sentence_cues and (args.language != 'en' or args.caption_language):
         parser.error('--sentence-cues requires English narration and its native captions')
@@ -133,6 +183,9 @@ def main():
             DEFAULT_STAGE, WORKSPACE, REPO / 'docs/source/_extra/tutorials/catalog',
             args.lesson, voice_matrix(WORKSPACE / 'tools/render_all_voices.py'))
     english = read(DEFAULT_STAGE / 'catalog/lessons_en.json')
+    player_path = (REPO / 'tools/tutorials/authoring/web/app_v2.js' if args.candidate_player
+                   else REPO / 'docs/source/_extra/tutorials/app_v2.js')
+    player_bytes = player_path.read_bytes()
     lesson = next(item for item in english['lessons'] if item['id'] == args.lesson)
     if args.caption_language:
         from catalog_preflight import validate_caption_structure
@@ -146,6 +199,13 @@ def main():
     for item in english['lessons']:
         item['poster'] = f"{item['id']}/poster.jpg"
         item['silent'] = f"{item['id']}/video/{item['id']}_silent.mp4"
+        if item['id'] == args.lesson:
+            from native_live_timing import checked_native_timing
+            native_timings = checked_native_timing(DEFAULT_STAGE, item['id'])
+            if native_timings is not None:
+                if not args.candidate_player:
+                    raise ValueError('Native footage acceptance requires the source-bound candidate player')
+                item['visual_timings'] = f"{item['id']}/video/{native_timings.name}"
     source = (REPO / 'docs/source/_extra/tutorials/index.html').read_text(encoding='utf-8')
     production = '/' + str(DEFAULT_STAGE.relative_to(WORKSPACE)) + '/production'
     for attribute in ('production-root', 'audio-root', 'video4k-root'):
@@ -167,7 +227,9 @@ def main():
     output = DEFAULT_STAGE / ('browser-web' if args.web_rendition else 'browser') / args.lesson / tag
     output.mkdir(parents=True, exist_ok=True)
     errors = []
-    handler = type('WebRenditionHandler', (Handler,), {'web_lesson': args.lesson}) if args.web_rendition else Handler
+    handler = type('StagedPlayerHandler', (Handler,), {
+        'web_lesson': args.lesson if args.web_rendition else None,
+        'player_source': player_path})
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),
                 functools.partial(handler, directory=str(WORKSPACE)))
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -205,9 +267,10 @@ def main():
             page.goto(base + '/web/#lesson=' + args.lesson, wait_until='domcontentloaded')
             player_response = context.request.get(base + '/web/app_v2.js')
             assert player_response.ok
-            player_bytes = (REPO / 'docs/source/_extra/tutorials/app_v2.js').read_bytes()
             assert player_response.body() == player_bytes
             evidence['repository_player_sha256'] = hashlib.sha256(player_bytes).hexdigest()
+            evidence['repository_player_source'] = str(player_path)
+            evidence['candidate_player'] = args.candidate_player
             page.wait_for_function('document.querySelectorAll(".chapter-button").length === ' + str(len(lesson['scenes'])), timeout=60000)
             evidence['navigation_contains_staged_lesson'] = args.lesson in navigation['preserved_lesson_ids']
             assert evidence['navigation_contains_staged_lesson']
@@ -326,6 +389,12 @@ def main():
             assert not clock['mediaError'], clock
             assert abs(clock['video'] - clock['expectedVideo']) < 0.5, clock
             evidence['seek_playback_clocks'] = clock
+            if args.native_boundary_clocks:
+                native_path=DEFAULT_STAGE/'production'/args.lesson/'video/native-live-timings.json'
+                if not args.candidate_player or not native_path.exists():
+                    raise ValueError('Native boundary verification needs its accepted sidecar and candidate player')
+                spoken=read(DEFAULT_STAGE/'production'/args.lesson/'audio'/args.language/(args.voice+'.json'))
+                evidence['native_boundary_clock_checks']=check_native_boundary_playback(page,read(native_path),spoken)
             if rendition:
                 video = page.evaluate('''async () => {
                     const bytes = await (await fetch(elements.video.currentSrc)).arrayBuffer();

@@ -1,0 +1,110 @@
+{
+  "id": "02_install_spacr",
+  "number": 2,
+  "slug": "install_spacr",
+  "title": "Install spaCR",
+  "series": 1,
+  "app_key": null,
+  "section": "spaCR",
+  "description": "Install with pip in a Python virtual environment, pip in a Conda environment, or conda-forge in a Conda environment; launch, update and uninstall.",
+  "objectives": [
+    "Choose one of three isolated installation routes.",
+    "Activate the correct environment before installing or launching.",
+    "Check the installed version, update and uninstall safely."
+  ],
+  "prerequisite": "Use Python 3.12 for the virtual-environment route, or install Conda/Miniforge for either Conda route. Open a terminal. Existing environments need distinct names.",
+  "scenes": [
+    {
+      "visual": "00_install_routes",
+      "narration": "Choose one installation route. Pip installs spaCR inside either a Python virtual environment or a Conda environment. Conda-forge installs into a Conda environment; it cannot install packages into a Python virtual environment. The three routes below are alternatives, so you need only one.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "pip_01_create_venv",
+      "narration": "For pip with a virtual environment, create a dedicated folder and run Python three point twelve with dash m venv to create dot venv. Use a different folder if it already contains an environment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "pip_02_activate_venv",
+      "narration": "Activate dot venv before every install, update or launch. On Linux and macOS, source its bin slash activate script. In Windows PowerShell, run dot venv backslash Scripts backslash Activate dot ps one. The environment prompt and Python path confirm which interpreter you are using.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "pip_03_install",
+      "narration": "With the environment active, upgrade pip, then run pip install spacr. The package installation includes the Qt dependencies used by the desktop application. Wait for the scientific and desktop dependencies to finish installing.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "pip_04_check",
+      "narration": "Check the installed version and package path, then run python dash m pip check. Keep the version with your analysis notes. This route installs the published PyPI package; a source checkout or nightly build can have newer interface features.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "pip_05_launch",
+      "narration": "Run spacr-doctor and follow any missing-dependency guidance relevant to your work. Then enter spacr to launch the installed application. Close the application before changing its environment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "pip_conda_01_create",
+      "narration": "For pip inside Conda, create an environment named spacr-pip with Python three point twelve and pip, then activate it. Conda supplies the interpreter; pip will supply spaCR. Choose a distinct name if spacr-pip already exists.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "pip_conda_02_install",
+      "narration": "With spacr-pip active, upgrade pip and run pip install spacr. The package installation includes its Qt desktop dependencies. Check the package version and run pip check, just as in the virtual-environment route. Launch spacr from this same active environment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "conda_01_create",
+      "narration": "For conda-forge, create a new environment named spacr-conda with Python three point twelve and spacr from the conda-forge channel in one command. Solving the interpreter and spaCR together avoids adding the package into an unrelated environment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "conda_02_plan",
+      "narration": "Conda shows its package plan before installing. Review it, accept the plan and let the downloads and installation finish. The available conda-forge release may differ from the latest PyPI or nightly version.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "conda_03_activate",
+      "narration": "Activate spacr-conda. Check the Python environment path and run conda list spacr to confirm the installed version and channel. Then run spacr-doctor and launch spacr from this environment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_current_home",
+      "narration": "This companion shows the current nightly Home interface. Your installed release may look different. The environment commands install the published package from the selected channel; this current-source view does not claim that all nightly features are already published.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "05_home"
+      ]
+    },
+    {
+      "visual": "pip_06_update",
+      "narration": "To update a pip installation, close spaCR, activate its environment and run pip install dash dash upgrade spacr. Check the version afterwards. Use pip for spaCR updates in both pip routes, including the Conda environment created for pip.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "conda_04_update",
+      "narration": "For the conda-forge route, close spaCR, activate spacr-conda and run conda update dash c conda-forge spacr. If no newer build is available, Conda reports that the requested packages are already installed. Check the installed version rather than assuming the interface has changed.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "pip_07_uninstall",
+      "narration": "To remove a pip installation, activate its environment and run python dash m pip uninstall spacr, then accept the removal prompt. This removes the spaCR package. It does not remove your microscopy projects or automatically remove every dependency.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "pip_08_remove_environment",
+      "narration": "If dot venv was created only for spaCR, deactivate it and remove that dedicated dot venv folder. For the dedicated spacr-pip Conda environment, run conda deactivate, then conda env remove dash n spacr-pip. Remove only the environment you created for this tutorial.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "conda_05_uninstall",
+      "narration": "In the conda-forge environment, conda remove spacr removes the package after you review its removal plan. To remove the entire dedicated environment instead, deactivate it and run conda env remove dash n spacr-conda. Keep your project folders separately; uninstalling the environment is not deleting your analysis data.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "04_platform_installers",
+        "05_home"
+      ]
+    }
+  ]
+}

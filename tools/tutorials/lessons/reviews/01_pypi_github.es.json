@@ -1,13 +1,24 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Technical source-bound editorial review; no native-speaker signoff",
+    "date": "2026-10-08",
+    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
+    "previous_review_sha256": "755618c429d36e0aa34c1ab3a314bcdd4c7a2461352c65d988f25ba385eb4b82",
+    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "es",
   "title": "Encontrar spaCR en GitHub, PyPI y conda-forge",
@@ -23,9 +34,9 @@
     "En PyPI, busca spaCR y lee el comando de instalación junto a la versión actual. Copia ese comando cuando estés listo para instalar en tu entorno de Python. El tutorial de pip muestra cómo crear y activar antes ese entorno.",
     "Usa Project links para abrir la documentación, el repositorio de código fuente o el gestor de incidencias. Guarda la documentación en marcadores para volver a los recorridos de los módulos mientras trabajas en spaCR.",
     "En GitHub, abre el repositorio de spaCR. Main contiene el código de la versión publicada, y nightly contiene el trabajo de desarrollo más reciente. Para una instalación de escritorio empaquetada, abre Releases y elige una versión.",
-    "Despliega Assets y descarga el instalador para Windows, macOS o Linux. Guarda el archivo de sumas de comprobación de la misma versión si quieres verificar la descarga. La lección de Platform installers explica cómo iniciar el instalador y abrir spaCR.",
+    "Expande Assets y descarga el instalador para Windows, macOS o Linux. La lección Platform installers explica la instalación, cómo abrir spaCR y cómo desinstalarlo en cada sistema operativo.",
     "En conda-forge, abre la página del paquete spaCR y comprueba la versión disponible. Los canales de paquetes pueden actualizarse en momentos distintos, así que elige la versión disponible por la vía que prefieras.",
-    "El comando de conda-forge instala spaCR en tu entorno Conda activo. Sigue la lección de Conda para crear ese entorno, instalar el paquete y abrir la aplicación.",
-    "Continúa con pip, Conda o Platform installers. Cuando spaCR se abra, pasa a la lección de Home y después a las vistas generales de los flujos de trabajo para elegir uno para tus datos."
+    "El comando de conda-forge instala spaCR en tu entorno Conda activo. Sigue Install spaCR para crear ese entorno, instalar el paquete y abrir la aplicación. Esa lección también explica cómo eliminar el paquete y el entorno.",
+    "Continúa con Install spaCR para pip o conda-forge, o con Platform installers para un instalador de escritorio. Ambas lecciones incluyen instrucciones de desinstalación. Cuando spaCR se abra, pasa a Home y después a las vistas generales de las canalizaciones para elegir un flujo de trabajo para tus datos."
   ]
 }

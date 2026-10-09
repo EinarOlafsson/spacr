@@ -1,13 +1,24 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Technical source-bound editorial review; no native-speaker signoff",
+    "date": "2026-10-08",
+    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
+    "previous_review_sha256": "3570e2e41e868783342b7dc585381a4379c2b61a1dbc725e42df1ba80ed74275",
+    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "da",
   "title": "Find spaCR på GitHub, PyPI og conda-forge",
@@ -23,9 +34,9 @@
     "På PyPI finder du spaCR og læser installationskommandoen ved siden af den aktuelle version. Kopiér kommandoen, når du er klar til at installere i dit Python-miljø. Vejledningen til pip viser, hvordan du først opretter og aktiverer miljøet.",
     "Brug Project links til at åbne dokumentationen, kildekodearkivet eller fejlsporingen. Bogmærk dokumentationen, så du kan vende tilbage til modulgennemgangene, mens du arbejder i spaCR.",
     "På GitHub åbner du spaCR-arkivet. main indeholder kildekoden til udgivelsen, og nightly indeholder det nyeste udviklingsarbejde. Til en pakket skrivebordsinstallation åbner du Releases og vælger en udgivelse.",
-    "Fold Assets ud, og download installationsprogrammet til Windows, macOS eller Linux. Gem tjeksumfilen fra samme udgivelse, hvis du vil verificere downloaden. Lektionen Platform installers viser, hvordan du starter installationsprogrammet og åbner spaCR.",
+    "Udvid Assets, og hent installationsprogrammet til Windows, macOS eller Linux. Lektionen Platform installers forklarer installationen, hvordan spaCR startes, og hvordan det afinstalleres på hvert operativsystem.",
     "På conda-forge åbner du pakkesiden for spaCR og kontrollerer, hvilken version der findes. Pakkekanaler kan opdateres på forskellige tidspunkter, så vælg den version, der findes via den vej, du vælger.",
-    "Kommandoen til conda-forge installerer spaCR i dit aktive Conda-miljø. Følg Conda-lektionen for at oprette miljøet, installere pakken og starte programmet.",
-    "Fortsæt med pip, Conda eller Platform installers. Når spaCR åbner, går du videre til Home-lektionen og derefter til pipelineoversigterne for at vælge et workflow til dine data."
+    "Kommandoen fra conda-forge installerer spaCR i dit aktive Conda-miljø. Følg Install spaCR for at oprette miljøet, installere pakken og starte programmet. Lektionen forklarer også, hvordan pakken og miljøet fjernes.",
+    "Fortsæt med Install spaCR for pip eller conda-forge, eller med Platform installers for et installationsprogram til skrivebordet. Begge lektioner beskriver afinstallation. Når spaCR er åbnet, skal du gå til Home og derefter til pipelineoversigterne for at vælge en arbejdsgang til dine data."
   ]
 }

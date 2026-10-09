@@ -1,0 +1,41 @@
+{
+  "lesson": "02_install_spacr",
+  "english_sha256": "ebd31960772d2090c7c0e9442bafffdcb0d34bbf1905dc562a1829bf87c0f051",
+  "review": {
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+  },
+  "language": "ja",
+  "title": "spaCRをインストールする",
+  "description": "Python仮想環境でpipを使う方法、Conda環境でpipを使う方法、またはConda環境でconda-forgeを使う方法でインストールし、起動、更新、アンインストールします。",
+  "objectives": [
+    "分離された三つのインストール方法から一つを選びます。",
+    "インストールや起動の前に正しい環境を有効にします。",
+    "インストール済みのバージョンを確認し、安全に更新、アンインストールします。"
+  ],
+  "prerequisite": "仮想環境の方法にはPython 3.12を使用し、二つのCondaの方法にはConda/Miniforgeをインストールしてください。ターミナルを開きます。既存の環境とは異なる名前が必要です。",
+  "scenes": [
+    "インストール方法を一つ選びます。PipはPython仮想環境またはConda環境にspaCRをインストールします。Conda-forgeはConda環境にインストールし、Python仮想環境にはパッケージをインストールできません。以下の三つは代替の方法なので、一つだけで十分です。",
+    "仮想環境でpipを使う場合は専用フォルダーを作り、Python三点十二をダッシュm venvとともに実行してドットvenvを作成します。そのフォルダーにすでに環境がある場合は別のフォルダーを使ってください。",
+    "インストール、更新、起動の前に毎回ドットvenvを有効にします。LinuxとmacOSでは、binスラッシュactivateスクリプトをsourceで読み込みます。Windows PowerShellでは、ドットvenvバックスラッシュScriptsバックスラッシュActivateドットps一を実行します。環境のプロンプトとPythonのパスで、使用中のインタープリターを確認できます。",
+    "環境を有効にした状態でpipを更新し、pip install spacrを実行します。パッケージのインストールには、デスクトップアプリケーションが使うQtの依存パッケージが含まれます。科学計算とデスクトップの依存パッケージのインストールが終わるまで待ってください。",
+    "インストール済みのバージョンとパッケージのパスを確認し、pythonダッシュm pip checkを実行します。解析のメモとともにバージョンを保存してください。この方法でインストールされるのはPyPIで公開されたパッケージです。ソースコードのチェックアウトやナイトリービルドには、より新しいインターフェース機能がある場合があります。",
+    "spacr-doctorを実行し、自分の作業に関係する不足した依存パッケージの案内に従います。次にspacrと入力してインストール済みのアプリケーションを起動します。環境を変更する前にアプリケーションを閉じてください。",
+    "Conda内でpipを使う場合は、Python三点十二とpipを含むspacr-pipという環境を作成し、有効にします。Condaがインタープリターを提供し、pipがspaCRを提供します。spacr-pipがすでにある場合は別の名前を選んでください。",
+    "spacr-pipを有効にした状態でpipを更新し、pip install spacrを実行します。パッケージのインストールにはQtデスクトップの依存パッケージが含まれます。仮想環境の方法と同様にパッケージのバージョンを確認し、pip checkを実行します。同じ有効な環境からspacrを起動してください。",
+    "conda-forgeの場合は、一つのコマンドでPython三点十二とconda-forgeチャネルのspacrを含むspacr-condaという新しい環境を作ります。インタープリターとspaCRをまとめて解決することで、関係のない環境にパッケージを追加することを避けられます。",
+    "Condaはインストール前にパッケージ計画を表示します。計画を確認して承認し、ダウンロードとインストールの完了を待ちます。利用できるconda-forgeのリリースは、最新のPyPI版やナイトリー版とは異なる場合があります。",
+    "spacr-condaを有効にします。Python環境のパスを確認し、conda list spacrを実行してインストール済みのバージョンとチャネルを確認します。次にspacr-doctorを実行し、この環境からspacrを起動します。",
+    "この補足資料は現在のナイトリービルドのHomeインターフェースを示しています。インストールしたリリースの見た目は異なる場合があります。環境のコマンドは選んだチャネルで公開されたパッケージをインストールします。この現在のソースコードの画面は、ナイトリー版の全機能がすでに公開済みだと主張するものではありません。",
+    "pipでのインストールを更新するには、spaCRを閉じてその環境を有効にし、pip installダッシュダッシュupgrade spacrを実行します。その後バージョンを確認します。pip用に作ったConda環境も含め、二つのpipの方法ではspaCRの更新にpipを使ってください。",
+    "conda-forgeの方法では、spaCRを閉じ、spacr-condaを有効にし、conda updateダッシュc conda-forge spacrを実行します。新しいビルドがない場合、Condaは要求したパッケージがすでにインストールされていると報告します。インターフェースが変わったと推測せず、インストール済みのバージョンを確認してください。",
+    "pipでのインストールを削除するには、環境を有効にし、pythonダッシュm pip uninstall spacrを実行して削除を承認します。spaCRパッケージが削除されますが、顕微鏡画像のプロジェクトや、すべての依存パッケージが自動的に削除されるわけではありません。",
+    "ドットvenvをspaCR専用に作った場合は、無効にしてその専用のドットvenvフォルダーを削除します。専用のspacr-pip Conda環境の場合は、conda deactivateを実行し、次にconda env removeダッシュn spacr-pipを実行します。このチュートリアルのために作った環境だけを削除してください。",
+    "conda-forge環境では、削除計画を確認した後にconda remove spacrでパッケージを削除します。代わりに専用環境全体を削除するには、無効にしてconda env removeダッシュn spacr-condaを実行します。プロジェクトのフォルダーは別に保管してください。環境のアンインストールは解析データの削除ではありません。"
+  ]
+}

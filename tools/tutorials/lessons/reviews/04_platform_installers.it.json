@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
+  "english_sha256": "8a8a2d3adae812475a9731d196357380bf772eeff3052f0e89798416bbbfd824",
   "review": {
-    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
-    "translator": "Codex AI, explicit direct translations of current English changes",
-    "date": "2026-10-06",
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
   },
   "language": "it",
   "title": "Installare spaCR con un installer desktop",
@@ -16,11 +16,12 @@
   "objectives": [
     "Scaricare ed eseguire l’installer per il tuo sistema operativo.",
     "Scegliere un’opzione di accelerazione e le preferenze del primo avvio.",
-    "Aprire spaCR e trovare i log di installazione se la configurazione richiede attenzione."
+    "Aprire spaCR e trovare i log di installazione se la configurazione richiede attenzione.",
+    "Disinstallare l’applicazione tramite le opzioni del sistema operativo o lo strumento di rimozione incluso."
   ],
   "prerequisite": "Scarica l’installer ufficiale per il tuo sistema operativo e lascia spazio per l’applicazione e le sue dipendenze scientifiche.",
   "scenes": [
-    "Apri la release ufficiale di spaCR su GitHub e, sotto Assets, scarica l’installer per il tuo sistema operativo. Questi installer online scaricano il runtime Python e i pacchetti scientifici durante la configurazione. Conserva SHA256SUMS punto txt della stessa release se vuoi verificare il download.",
+    "Apri la release ufficiale di spaCR su GitHub e, sotto Assets, scarica l’installer per il tuo sistema operativo. Questi installer online scaricano il runtime Python e i pacchetti scientifici durante la configurazione.",
     "Su Windows, esegui il programma di installazione e segui le richieste. Lascia selezionata l’accelerazione automatica per usare l’hardware compatibile rilevato sul computer, oppure scegli il funzionamento solo CPU se è ciò che ti serve.",
     "Su macOS, apri il pacchetto universale e segui l’installer. Avvia spaCR dal suo launcher e lascia terminare i download del primo avvio. Leggi ogni avviso di sicurezza e conferma che il pacchetto provenga dalla release ufficiale.",
     "Su Linux, rendi eseguibile l’installer scaricato, poi avvialo da un terminale. L’accelerazione automatica seleziona un backend compatibile. L’aiuto elenca trattino trattino torch-backend cpu per il funzionamento solo CPU, e trattino trattino skip-system-deps per i computer che hanno già le librerie grafiche di Qt.",
@@ -28,8 +29,11 @@
     "Controlla la versione installata di spaCR. Conservala con le note di analisi, soprattutto quando aggiornerai l’applicazione in seguito.",
     "La configurazione chiede della condivisione facoltativa dei dati diagnostici e della configurazione di un account. Rispondi y solo per le opzioni che vuoi; n, il valore predefinito, lascia ciascuna disattivata. L’installer di Windows mostra le stesse scelte come caselle di controllo.",
     "Nell’interfaccia nightly attuale, apri Preferences e scegli Performance. Seleziona un profilo per il tuo computer. Laptop usa meno risorse; i profili superiori consentono più cache e lavoro in background. Inizia con un profilo moderato se la memoria è limitata.",
-    "Questa registrazione installa spaCR versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Assays. Prosegui con Home screen and navigation per conoscere i moduli attuali.",
+    "Questa registrazione installa spaCR versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Organism. Prosegui con Home screen and navigation per conoscere i moduli attuali.",
     "Esegui spacr-doctor dall’ambiente installato se l’avvio o un formato di file richiede attenzione. In questa installazione CPU registrata, il controllo del backend passa e la verifica della GPU viene saltata. L’avviso segnala che manca il lettore CZI opzionale; installa questo extra solo se ti servono file CZI.",
-    "Per i problemi di installazione, cerca install punto log e install-profile punto json nella cartella di installazione. Rivedi i log prima di condividerli in una richiesta di assistenza. Indica il sistema operativo e la versione di spaCR, così il problema è più facile da diagnosticare."
+    "Per i problemi di installazione, cerca install punto log e install-profile punto json nella cartella di installazione. Rivedi i log prima di condividerli in una richiesta di assistenza. Indica il sistema operativo e la versione di spaCR, così il problema è più facile da diagnosticare.",
+    "Su Windows, chiudi spaCR, apri Settings, poi Apps e Installed apps. Scegli spaCR e Uninstall. Anche l’eseguibile Uninstall installato avvia la stessa procedura di rimozione. Conserva separatamente le cartelle dei progetti.",
+    "Su macOS, chiudi spaCR ed esegui lo script uninstall-spacr incluso in Library barra Application Support barra spaCR. Rimuove l’applicazione e i suoi launcher di sistema. Il runtime per utente nella tua Library barra Application Support barra spaCR è separato; rimuovilo solo se vuoi eliminare anche quel runtime.",
+    "Su Linux, chiudi spaCR ed esegui lo script uninstall-spacr nella tua cartella personale, sotto punto local barra share barra spacr. Rimuove il runtime gestito e i launcher dell’applicazione. La disinstallazione non richiede di eliminare i progetti di microscopia né i risultati delle analisi."
   ]
 }

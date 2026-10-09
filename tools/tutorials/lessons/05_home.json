@@ -6,139 +6,248 @@
   "series": 1,
   "app_key": null,
   "section": "spaCR",
-  "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+  "description": "Tour every current Home module from left to right, then learn the shared module controls using Mask and adjust navigation, help and appearance.",
   "objectives": [
-    "Choose a starting module for images, measurements or sequencing reads.",
-    "Find related tools and organism-specific assays.",
-    "Arrange the Home column and module panels to suit your screen.",
-    "Load an example, find help with search or Control-K, and set Preferences."
+    "Identify every module in the current Core, Data, Tools and Organism rows.",
+    "Use Mask to recognize shared settings, previews, actions and outputs.",
+    "Return Home, use search and arrange panels.",
+    "Choose appearance and performance settings."
   ],
   "prerequisite": "Install spaCR and open the desktop application.",
   "scenes": [
     {
       "visual": "00_home",
-      "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+      "narration": "Home is the starting point. Read each row from left to right: Core, Data, Tools and Organism. Every tile opens its named module. The sidebar provides the same routes, and Home returns to this overview.",
       "hold_after": 0.7
     },
     {
-      "visual": "01_core  (6)",
-      "narration": "Read the Core tiles from left to right. Mask outlines objects in microscope images. Measure extracts object features and crops. Annotate lets you label example objects. Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines phenotype scores and guide counts to find associations.",
+      "visual": "home_module_mask",
+      "narration": "Mask generates object masks from microscopy images. We will open it briefly later to learn the controls shared by analysis modules.",
       "hold_after": 0.7,
       "focus_modules": [
-        "mask",
-        "measure",
-        "annotate",
-        "classify_merged",
-        "map_barcodes",
+        "mask"
+      ],
+      "related_lessons": [
+        "07_mask"
+      ]
+    },
+    {
+      "visual": "home_module_measure",
+      "narration": "Measure combines images and masks to extract object measurements and crops. Its measurement tables connect images to later analyses.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "measure"
+      ],
+      "related_lessons": [
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "home_module_annotate",
+      "narration": "Annotate lets you inspect object crops and record reviewed labels for examples.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "annotate"
+      ],
+      "related_lessons": [
+        "09_annotate"
+      ]
+    },
+    {
+      "visual": "home_module_classify_merged",
+      "narration": "Classify learns from reviewed labels and scores other objects, using image-based or tabular approaches.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "classify_merged"
+      ],
+      "related_lessons": [
+        "41_classify"
+      ]
+    },
+    {
+      "visual": "home_module_map_barcodes",
+      "narration": "Map Barcodes reads sequencing data to count and identify guides or barcodes.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "map_barcodes"
+      ],
+      "related_lessons": [
+        "12_map_barcodes"
+      ]
+    },
+    {
+      "visual": "home_module_regression",
+      "narration": "Regression relates phenotype scores to sequencing guide counts, preserving the experimental grouping.",
+      "hold_after": 0.7,
+      "focus_modules": [
         "regression"
       ],
       "related_lessons": [
-        "07_mask",
-        "08_measure",
-        "09_annotate",
-        "41_classify",
-        "12_map_barcodes",
         "13_regression"
       ]
     },
     {
-      "visual": "02_data  (7)",
-      "narration": "Read the Data tiles from left to right. Import brings existing images, masks or measurement tables into a project. Embeddings turns object crops into numerical feature vectors for comparison. Run Compare sets two runs side by side. Experiment Design lays out your plates. Power / Design simulates detection under different cell-count and well-count assumptions to help plan an experiment. Dose-Response fits concentration-response curves and shows their estimates, intervals and fit warnings. QC shows the recorded quality checks. Open each module’s tutorial for its inputs and next steps.",
+      "visual": "home_module_foreign",
+      "narration": "Import prepares incoming microscopy files and metadata for the project structure.",
       "hold_after": 0.7,
       "focus_modules": [
-        "foreign",
-        "embeddings",
-        "run_compare",
-        "experiment_design",
-        "power",
-        "dose_response",
+        "foreign"
+      ],
+      "related_lessons": [
+        "36_import"
+      ]
+    },
+    {
+      "visual": "home_module_embeddings",
+      "narration": "Embeddings encodes object crops into numerical features for exploration and comparison.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "embeddings"
+      ],
+      "related_lessons": [
+        "77_embeddings"
+      ]
+    },
+    {
+      "visual": "home_module_run_compare",
+      "narration": "Run Compare brings saved run results together so you can inspect differences.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "run_compare"
+      ],
+      "related_lessons": [
+        "50_run_compare"
+      ]
+    },
+    {
+      "visual": "home_module_experiment_design",
+      "narration": "Experiment Design lays out conditions, wells and sample identities before an experiment.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "experiment_design"
+      ],
+      "related_lessons": [
+        "67_experiment_design"
+      ]
+    },
+    {
+      "visual": "home_module_power",
+      "narration": "Power / Design explores sample-size and power assumptions when planning comparisons.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "power"
+      ],
+      "related_lessons": [
+        "68_power_design"
+      ]
+    },
+    {
+      "visual": "home_module_dose_response",
+      "narration": "Dose-Response fits responses across concentrations, keeping the chosen endpoint and controls explicit.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "dose_response"
+      ],
+      "related_lessons": [
+        "69_dose_response"
+      ]
+    },
+    {
+      "visual": "home_module_qc_dashboard",
+      "narration": "QC brings together quality checks and identifies evidence that is available or missing.",
+      "hold_after": 0.7,
+      "focus_modules": [
         "qc_dashboard"
       ],
       "related_lessons": [
-        "36_import",
-        "77_embeddings",
-        "50_run_compare",
-        "67_experiment_design",
-        "68_power_design",
-        "69_dose_response",
         "54_qc_dashboard"
       ]
     },
     {
-      "visual": "03_tools  (5)",
-      "narration": "Read the Tools tiles from left to right. Make Masks lets you edit masks and opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles. Image UMAP explores object crops in a reduced-dimensional view. Gate Editor selects groups using measured feature ranges. Graph Builder plots measured results. Each module’s toolbar opens its related tools.",
+      "visual": "home_module_make_masks",
+      "narration": "Make Masks lets you draw and review masks by hand, or prepare image-mask pairs.",
       "hold_after": 0.7,
       "focus_modules": [
-        "make_masks",
-        "align",
-        "umap",
-        "gate_editor",
+        "make_masks"
+      ],
+      "related_lessons": [
+        "14_make_masks"
+      ]
+    },
+    {
+      "visual": "home_module_align",
+      "narration": "Align & Stitch joins compatible image tiles and records their geometry.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "align"
+      ],
+      "related_lessons": [
+        "32_align_stitch"
+      ]
+    },
+    {
+      "visual": "home_module_umap",
+      "narration": "Image UMAP projects object features so you can explore similar objects and inspect representative crops.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "umap"
+      ],
+      "related_lessons": [
+        "15_image_umap"
+      ]
+    },
+    {
+      "visual": "home_module_gate_editor",
+      "narration": "Gate Editor defines selections on real data columns. Review selected objects before turning a gate into labels.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "gate_editor"
+      ],
+      "related_lessons": [
+        "64_gate_editor"
+      ]
+    },
+    {
+      "visual": "home_module_graph_builder",
+      "narration": "Graph Builder creates plots from measurement tables with configurable columns and grouping.",
+      "hold_after": 0.7,
+      "focus_modules": [
         "graph_builder"
       ],
       "related_lessons": [
-        "14_make_masks",
-        "32_align_stitch",
-        "15_image_umap",
-        "64_gate_editor",
         "58_graph_builder"
       ]
     },
     {
-      "visual": "04_assays  (1)",
-      "narration": "Open Assays for organism-specific workflows. Toxoplasma opens its assay menu: for example, plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+      "visual": "home_module_toxoplasma",
+      "narration": "The Organism row contains Toxoplasma. It opens an organism guide, an interactive diagram and the available Toxoplasma assay routes. The separate Toxoplasma tutorial explores this page.",
       "hold_after": 0.7,
       "focus_modules": [
         "toxoplasma"
       ],
       "related_lessons": [
-        "24_plaque",
-        "25_recruitment",
-        "26_invasion",
-        "27_replication"
-      ]
-    },
-    {
-      "visual": "05_classify_host",
-      "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "41_classify",
-        "10_classify_cv",
-        "11_classify_ml"
-      ]
-    },
-    {
-      "visual": "05_classify_host",
-      "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
-      "hold_after": 0.7,
-      "focus_buttons": "FoldButton",
-      "related_lessons": [
-        "39_classifier_evaluation",
-        "70_explain_cv",
-        "16_activation",
-        "28_training_runs",
-        "65_feature_explorer"
+        "82_toxoplasma"
       ]
     },
     {
       "visual": "06_mask_host",
-      "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "07_mask",
-        "17_timelapse"
-      ]
+      "narration": "Open Mask as a generic example of an analysis module. Here we are learning the screen layout, rather than completing a segmentation workflow. Settings sit on the left, the console and progress panels on the right, and actions along the bottom. Live opens the module’s preview when input data is available.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06b_mask_settings",
+      "narration": "Settings are grouped into sections. Expand a section to see its controls. Choose your own input folder or use Load test data when a supplied example is available. Labels and help explain what each setting expects.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06c_mask_actions",
+      "narration": "Import settings brings a saved configuration into this form. Run starts the chosen work and Stop asks a running job to stop. The console reports progress and messages. Check the module-specific tutorial before starting an analysis.",
+      "hold_after": 0.7
     },
     {
       "visual": "14_resize_panels",
-      "narration": "Every module screen can be arranged to suit your screen. Drag the handle between the settings and the right-hand panels to give either side more room, or click its arrow to fold the settings away. Hold Control and scroll over the right-hand panels to make their text larger or smaller, and press Control-0 to reset it.",
-      "hold_after": 0.7,
-      "focus": [
-        1800,
-        171,
-        300,
-        1950
-      ]
+      "narration": "Drag the divider to give the settings or preview more space. Control plus the mouse wheel changes the text size in a column. These layout controls help you read the settings without changing the analysis itself.",
+      "hold_after": 0.7
     },
     {
       "visual": "10_home_column",
@@ -196,7 +305,7 @@
     },
     {
       "visual": "13b_preferences_appearance",
-      "narration": "Appearance decides how help appears as you work. Tooltip delay is how long the pointer rests on a control before its tip appears: two seconds by default, and zero shows tips at once. Show tooltips turns them off entirely, and the Theme and Animation sections fold open below for the window's look.",
+      "narration": "Appearance decides how help appears as you work. Tooltip delay sets how long the pointer rests before a floating tip appears: two seconds by default, or zero for immediate tips. Show tooltips controls those floating tips. The dedicated help areas on Home and in Preferences show their text immediately. Theme and Animation fold open below to set the window's appearance.",
       "hold_after": 0.7,
       "focus": [
         1310,
@@ -218,7 +327,7 @@
     },
     {
       "visual": "13d_appearance_animation",
-      "narration": "Click Animation to open it instead. It chooses the animated backdrop and its palette, with sliders for detail, blur, speed, size and density, whether setting tooltips animate, and the backdrop shown behind settings.",
+      "narration": "Click Animation to choose the main backdrop and its palette. Animation colours sets the primary and accent colours for Custom colours; Animation background chooses an independent background, and Theme colour restores the page theme. Detail controls rendering resolution. Speed, Size and Density change motion and population. Mouse gravity radius sets mouse influence; zero disables it. Dot blinking controls white flashes. Field ripples enables waves from clicks, container changes and window snapping independently of mouse gravity. Popup wave frequency sets automatic waves in spaCR field while ripples are on. Settings animation speed, Settings animation size, Settings animation detail and Settings animation density change only the Settings backdrop. Settings backdrop darkness controls the form’s readability.",
       "hold_after": 0.7,
       "focus": [
         1310,
@@ -226,6 +335,16 @@
         1200,
         1500
       ]
+    },
+    {
+      "visual": "13h_preferences_apply",
+      "narration": "Click Apply to preview your changes while Preferences stays open. A separate question asks whether to Keep or Revert the applied settings. Revert restores the previous settings; your edited controls remain available so you can adjust them or apply again.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13i_preferences_kept",
+      "narration": "Keep accepts the applied settings and leaves Preferences open. Continue adjusting another tab, or click Save when you are ready to keep the current values and close the window.",
+      "hold_after": 0.7
     },
     {
       "visual": "13e_session_updates",
@@ -261,20 +380,9 @@
       ]
     },
     {
-      "visual": "00_home",
-      "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "78_spacr_screens",
-        "80_image_analysis_pathways",
-        "81_sequencing_pathways"
-      ],
-      "focus": [
-        3150,
-        205,
-        666,
-        46
-      ]
+      "visual": "24_spaceout_field",
+      "narration": "In Spaceout mode, Preferences includes spaCR field controls for eight independent effects. Turn each effect on or off separately. Ordinary appearance and settings-window animation controls remain available; Apply previews a change, Keep accepts it and Revert restores the previous choice.",
+      "hold_after": 0.7
     }
   ]
 }

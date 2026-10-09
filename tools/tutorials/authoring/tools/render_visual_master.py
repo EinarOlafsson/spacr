@@ -7,6 +7,7 @@ movement is rendered as an image sequence; ffmpeg loops every other frame.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import subprocess
@@ -108,6 +109,32 @@ def encode_still(image: Path, duration: float, output: Path, fps: int, crf: int 
         "-threads", "2", "-crf", str(crf),
         "-pix_fmt", "yuv420p", "-r", str(fps),
         "-video_track_timescale", TRACK_TIMESCALE, str(output),
+    ])
+
+
+def encode_live_clip(clip: dict, root: Path, duration: float, output: Path,
+                     fps: int, crf: int = 18) -> None:
+    """Trim real footage at its original speed; reject missing capture time."""
+    source = root / clip['video']
+    if hashlib.sha256(source.read_bytes()).hexdigest() != clip['sha256']:
+        raise ValueError(f'Application clip changed after capture: {source}')
+    receipt_path = root / clip['receipt']
+    if hashlib.sha256(receipt_path.read_bytes()).hexdigest() != clip['receipt_sha256']:
+        raise ValueError(f'Capture receipt changed after staging: {receipt_path}')
+    receipt = json.loads(receipt_path.read_text())
+    if (receipt.get('sha256') != clip['sha256']
+            or not receipt.get('full_decode_passed')
+            or receipt.get('audio_streams') != 0):
+        raise ValueError(f'Unverified application clip: {source}')
+    if float(receipt['duration']) + 1 / fps < duration:
+        raise ValueError(f'Capture {source} is too short for {duration:.3f}s narration; '
+                         'record a longer genuine hold instead of looping actions')
+    run([
+        'ffmpeg', '-y', '-loglevel', 'error', '-filter_threads', '2',
+        '-i', str(source), '-t', f'{duration:.6f}', '-an',
+        '-vf', f'fps={fps}', '-c:v', 'libx264', '-preset', 'veryfast',
+        '-threads', '2', '-crf', str(crf), '-pix_fmt', 'yuv420p',
+        '-video_track_timescale', TRACK_TIMESCALE, str(output),
     ])
 
 
@@ -214,10 +241,19 @@ def main() -> int:
 
     spec = json.loads(args.scenes.read_text())
     timing = json.loads(args.timings.read_text())
+    if timing.get('native_live_video') and not timing.get('coverage', {}).get('accepted'):
+        raise ValueError('Native footage does not cover every offered narration track')
     if len(spec["scenes"]) != len(timing["scenes"]):
         raise ValueError("scene and timing counts differ")
     fps = int(spec.get("fps", 30))
     root = args.scenes.parent
+    if any(scene.get('clip') for scene in spec['scenes']):
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+        from native_live_timing import checked_native_timing
+        checked = checked_native_timing(root.parent.parent, root.name)
+        if args.timings.resolve() != checked.resolve():
+            raise ValueError('Native rendering requires the verified visual timeline')
     validate_geometry(spec, root)
     durations = frame_aligned_durations(timing["scenes"], fps)
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -234,10 +270,14 @@ def main() -> int:
             for index, (scene, duration) in enumerate(
                 zip(spec["scenes"], durations), start=1
             ):
+                part = work / f"scene_{index:02d}.mp4"
+                if scene.get('clip'):
+                    encode_live_clip(scene['clip'], root, duration, part, fps, args.crf)
+                    parts.append(part)
+                    continue
                 base = Image.open(root / scene["image"]).convert("RGBA")
                 if scene.get("focus"):
                     spotlight(base, [int(v) for v in scene["focus"]])
-                part = work / f"scene_{index:02d}.mp4"
                 if scene.get("pointer") and scene.get("target"):
                     target = tuple(float(v) for v in scene["target"])
                     encode_pointer_scene(

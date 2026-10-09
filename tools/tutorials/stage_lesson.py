@@ -70,6 +70,9 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_
     catalog_path = stage / 'catalog/lessons_en.json'
     baseline = REPO / 'docs/source/_extra/tutorials/catalog'
     catalog = read(catalog_path if catalog_path.exists() else baseline / 'lessons_en.json')
+    from lesson_redirects import INSTALL_ID, installation_placeholder
+    if lesson['id'] == INSTALL_ID:
+        catalog = installation_placeholder(catalog, catalog)
     identities = {item['id'] for item in catalog['lessons']}
     capture = stage / 'captures' / capture_module
     provenance = read(capture / 'provenance.json')
@@ -97,6 +100,24 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_
                 raise ValueError(f'Not a native 4K capture: {path}')
         visual = {'image': os.path.relpath(path, destination), 'pointer': False,
                   'capture_sha256': frame['sha256']}
+        if frame.get('clip'):
+            clip = frame['clip']
+            video = capture / clip['video']
+            receipt_path = capture / clip['receipt']
+            receipt = read(receipt_path)
+            if (hashlib.sha256(video.read_bytes()).hexdigest() != clip['sha256']
+                    or hashlib.sha256(receipt_path.read_bytes()).hexdigest() != clip['receipt_sha256']
+                    or receipt.get('sha256') != clip['sha256']
+                    or not receipt.get('full_decode_passed')
+                    or receipt.get('audio_streams') != 0
+                    or receipt.get('size') != [3840, 2160]
+                    or not receipt.get('frames')):
+                raise ValueError(f'Unverified actual application clip: {video}')
+            visual['clip'] = {'video': os.path.relpath(video, destination),
+                              'sha256': clip['sha256'],
+                              'receipt': os.path.relpath(receipt_path, destination),
+                              'receipt_sha256': clip['receipt_sha256'],
+                              'duration': receipt['duration']}
         if 'focus' in scene:
             visual['focus'] = scene['focus']
         if 'focus_modules' in scene:
@@ -143,6 +164,8 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_
         return
     write(catalog_path, catalog)
     write(destination / 'visual.json', {'size': [3840, 2160], 'fps': 30,
+          'english_sha256': hashlib.sha256(json.dumps(lesson, sort_keys=True,
+                                                     ensure_ascii=False).encode()).hexdigest(),
           'capture_source': provenance, 'scenes': scenes})
     write(destination / 'lesson.en.json', lesson)
     write(destination / 'refresh-status.json', {

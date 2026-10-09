@@ -47,7 +47,7 @@ ORIENTATION_LABELS = {
     'is': 'Heim og verkferlar', 'ko': '홈 및 워크플로',
     'nb': 'Hjem og arbeidsflyter', 'sv': 'Hem och arbetsflöden',
 }
-SETUP_ORDER = ('01_pypi_github', '03_pip_install', '02_conda_install',
+SETUP_ORDER = ('01_pypi_github', '02_install_spacr',
                '04_platform_installers')
 ORIENTATION_ORDER = ('05_home', '78_spacr_screens', '80_image_analysis_pathways',
                      '81_sequencing_pathways', '79_module_inputs_outputs')

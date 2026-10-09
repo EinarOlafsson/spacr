@@ -136,6 +136,7 @@ const VIDEO_CLOCK_DRIFT_SECONDS = 0.4;
 const VIDEO_END_PARK_SECONDS = 0.10;
 const VIDEO_END_PARK_RATE = 0.0625;
 let videoClockCorrectionPending = false;
+let nativeFrameSyncHandle = null;
 // A localized narration can outlast the silent visual master. The video stays
 // genuinely playing at a browser-safe minimum rate near its final frame so
 // native phone controls still offer a truthful Pause button while audio ends.
@@ -740,6 +741,11 @@ function defaultTimingSource(lesson = activeLesson) {
   return `${narrationRoot()}/${lesson.id}/audio/${DEFAULT_LANGUAGE}/${DEFAULT_VOICE}.json`;
 }
 
+function visualTimingSource(lesson = activeLesson) {
+  return lesson.visual_timings
+    ? `${narrationRoot()}/${lesson.visual_timings}` : defaultTimingSource(lesson);
+}
+
 function populateVoiceSelector(preferredVoice = "") {
   const language = languageById(elements.language.value);
   const voices = lessonVoices(language);
@@ -900,6 +906,7 @@ function makeLessonLink(base) {
 }
 
 async function selectLesson(id, options = {}) {
+  id = BASE_CATALOG.lesson_aliases?.[id] || id;
   const lesson = baseLesson(id) || LESSONS[0];
   if (activeLesson?.id === lesson.id && !options.force) {
     closeSidebar();
@@ -1298,6 +1305,12 @@ function mapTiming(seconds, fromTimings, toTimings) {
   const sourceEnd = Number(located.scene.scene_end) || sourceStart;
   const targetStart = Number(target.speech_start) || 0;
   const targetEnd = Number(target.scene_end) || targetStart;
+  if (located.scene.native_live_video || target.native_live_video) {
+    // Native footage retains its recorded elapsed time. A shorter narration
+    // skips the unused end of the scene at the next chapter boundary.
+    const elapsed = Math.max(0, seconds - sourceStart);
+    return targetStart + Math.min(elapsed, Math.max(0, targetEnd - targetStart - 0.001));
+  }
   const progress = sourceEnd > sourceStart
     ? clamp((seconds - sourceStart) / (sourceEnd - sourceStart), 0, 1) : 0;
   return targetStart + progress * (targetEnd - targetStart);
@@ -1327,7 +1340,8 @@ function updateSceneSyncRate(audioSeconds) {
   const referenceDuration = Number(reference.scene_end) - Number(reference.speech_start);
   const referenceTotal = timingDuration(visualTimings, elements.video.duration);
   if (selectedDuration <= 0 || referenceDuration <= 0 || referenceTotal <= 0) return;
-  syncRate = elements.video.duration / referenceTotal * referenceDuration / selectedDuration;
+  syncRate = reference.native_live_video ? 1
+    : elements.video.duration / referenceTotal * referenceDuration / selectedDuration;
   programmedVideoRate = clamp(syncRate, 0.0625, 16);
   elements.video.defaultPlaybackRate = programmedVideoRate;
   if (Math.abs(elements.video.playbackRate - programmedVideoRate) > 0.001) {
@@ -1416,6 +1430,20 @@ function syncVideoToNarration(force = false) {
   }
 }
 
+function startNativeFrameSync() {
+  if (nativeFrameSyncHandle !== null || !visualTimings?.native_live_video ||
+      elements.video.paused || elements.video.ended) return;
+  const tick = () => {
+    nativeFrameSyncHandle = null;
+    if (!visualTimings?.native_live_video || elements.video.paused ||
+        elements.video.ended) return;
+    syncVideoToNarration(false);
+    updateNarrationHold();
+    nativeFrameSyncHandle = requestAnimationFrame(tick);
+  };
+  nativeFrameSyncHandle = requestAnimationFrame(tick);
+}
+
 async function loadLessonDetail(isCurrent = () => true) {
   if (!isCurrent()) return;
   elements.chapters.innerHTML = `<div class="detail-empty">Loading chapters…</div>`;
@@ -1428,14 +1456,22 @@ async function loadLessonDetail(isCurrent = () => true) {
     if (!response.ok) throw new Error("timings unavailable");
     const timings = await response.json();
     let referenceTimings = timings;
-    if (requestedSource !== defaultTimingSource()) {
-      const referenceResponse = await fetch(defaultTimingSource());
+    if (requestedSource !== visualTimingSource()) {
+      const referenceResponse = await fetch(visualTimingSource());
       if (referenceResponse.ok) referenceTimings = await referenceResponse.json();
+      else if (activeLesson.visual_timings) throw new Error("native visual timings unavailable");
+    }
+    if (activeLesson.visual_timings &&
+        (referenceTimings.kind !== "native_visual_timing" ||
+         !referenceTimings.coverage?.accepted ||
+         referenceTimings.scenes?.length !== timings.scenes?.length)) {
+      throw new Error("native visual timings are incomplete");
     }
     if (!isCurrent()) return;
     audioTimings = timings;
     visualTimings = referenceTimings;
     configureMediaSync();
+    startNativeFrameSync();
     rebuildChapterData();
     renderCaptions();
     renderChapters();
@@ -1902,6 +1938,7 @@ function resetCaptionAppearance() {
 
 elements.search.addEventListener("input", event => renderCurriculum(event.target.value));
 elements.video.addEventListener("play", () => {
+  startNativeFrameSync();
   const action = narratedVideoPlayAction(
     programmaticVideoPlayPending,
     narratedPlaybackCompleted,

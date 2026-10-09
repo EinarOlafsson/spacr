@@ -41,7 +41,7 @@
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Fäll ut Assets och ladda ned installationsprogrammet för Windows, macOS eller Linux. Spara kontrollsummefilen från samma version om du vill verifiera nedladdningen. Lektionen Platform installers visar hur du startar installationsprogrammet och öppnar spaCR.",
+          "narration": "Expandera Assets och hämta installationsprogrammet för Windows, macOS eller Linux. Lektionen Platform installers förklarar installation, start av spaCR och avinstallation på varje operativsystem.",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
@@ -54,19 +54,18 @@
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "Kommandot för conda-forge installerar spaCR i din aktiva Conda-miljö. Följ Conda-lektionen för att skapa miljön, installera paketet och starta programmet.",
+          "narration": "Kommandot från conda-forge installerar spaCR i din aktiva Conda-miljö. Följ Install spaCR för att skapa miljön, installera paketet och starta programmet. Lektionen förklarar också hur paketet och miljön tas bort.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install"
+            "02_install_spacr"
           ]
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Fortsätt med pip, Conda eller Platform installers. När spaCR öppnas går du vidare till Home-lektionen och sedan till pipelineöversikterna för att välja ett arbetsflöde för dina data.",
+          "narration": "Fortsätt med Install spaCR för pip eller conda-forge, eller med Platform installers för ett installationsprogram för skrivbordet. Båda lektionerna innehåller anvisningar för avinstallation. När spaCR har öppnats går du till Home och sedan till pipelineöversikterna för att välja ett arbetsflöde för dina data.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
           ]
         }
@@ -141,201 +140,112 @@
       }
     },
     {
-      "id": "02_conda_install",
+      "id": "02_install_spacr",
       "number": 2,
-      "slug": "conda_install",
-      "title": "Installera spaCR med Conda",
+      "slug": "install_spacr",
+      "title": "Installera spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Skapa en Conda-miljö, installera spaCR från conda-forge och starta programmet.",
+      "description": "Installera med pip i en virtuell Python-miljö, pip i en Conda-miljö eller conda-forge i en Conda-miljö; starta, uppdatera och avinstallera.",
       "objectives": [
-        "Skapa och aktivera en egen Conda-miljö.",
-        "Installera spaCR från conda-forge.",
-        "Öppna spaCR och uppdatera samma miljö vid behov."
+        "Välj en av tre separata installationsvägar.",
+        "Aktivera rätt miljö före installation eller start.",
+        "Kontrollera den installerade versionen, uppdatera och avinstallera säkert."
       ],
-      "prerequisite": "Installera Conda eller Miniforge och öppna sedan en terminal där kommandot conda är tillgängligt.",
+      "prerequisite": "Använd Python 3.12 för den virtuella miljön, eller installera Conda/Miniforge för någon av Conda-vägarna. Öppna en terminal. Välj andra namn än befintliga miljöers.",
       "scenes": [
         {
-          "visual": "02_conda_environment",
-          "narration": "Öppna en terminal med Conda. Du skapar en miljö för spaCR, installerar conda-forge-paketet och startar programmet från den miljön.",
+          "visual": "00_install_routes",
+          "narration": "Välj en installationsväg. Pip installerar spaCR i antingen en virtuell Python-miljö eller en Conda-miljö. Conda-forge installerar i en Conda-miljö; det kan inte installera paket i en virtuell Python-miljö. De tre vägarna nedan är alternativ, så du behöver bara en.",
           "hold_after": 0.7
         },
         {
-          "visual": "07_create_conda_command",
-          "narration": "Skapa en miljö som heter spacr-conda med Python 3.12 och spaCR från conda-forge med det visade kommandot. Välj ett annat namn om du redan använder det namnet för en annan miljö.",
+          "visual": "pip_01_create_venv",
+          "narration": "För pip med en virtuell miljö skapar du en särskild mapp och kör Python 3.12 med -m venv för att skapa .venv. Använd en annan mapp om den redan innehåller en miljö.",
           "hold_after": 0.7
         },
         {
-          "visual": "07_create_conda",
-          "narration": "Conda löser miljön och listar paketplanen. Granska den, skriv y för att godkänna och vänta sedan tills nedladdningen och installationen är klar.",
+          "visual": "pip_02_activate_venv",
+          "narration": "Aktivera .venv före varje installation, uppdatering eller start. I Linux och macOS laddar du skriptet bin/activate med source. I Windows PowerShell kör du .venv\\Scripts\\Activate.ps1. Miljöns kommandoprompt och Python-sökvägen bekräftar vilken tolk du använder.",
           "hold_after": 0.7
         },
         {
-          "visual": "08_activate_conda",
-          "narration": "Aktivera spacr-conda. Kör det visade Python-kommandot för att se miljöns sökväg och kontrollera att det är miljön du just skapade.",
+          "visual": "pip_03_install",
+          "narration": "Med miljön aktiv uppdaterar du pip och kör sedan pip install spacr. Paketinstallationen innehåller Qt-beroendena som skrivbordsprogrammet använder. Vänta tills installationen av vetenskapliga beroenden och skrivbordsberoenden är klar.",
           "hold_after": 0.7
         },
         {
-          "visual": "09_install_conda",
-          "narration": "Kör conda list spacr för att se den installerade versionen och bekräfta att den kommer från conda-forge. När Python och spaCR installeras med ett enda kommando kan Conda lösa alla paket tillsammans, vilket går mycket snabbare än att lägga till spaCR i en befintlig miljö.",
+          "visual": "pip_04_check",
+          "narration": "Kontrollera den installerade versionen och paketets sökväg och kör sedan python -m pip check. Spara versionen med dina analysanteckningar. Den här vägen installerar det publicerade PyPI-paketet; en utcheckning av källkoden eller ett nightly-bygge kan ha nyare gränssnittsfunktioner.",
           "hold_after": 0.7
         },
         {
-          "visual": "03_installed_versions",
-          "narration": "Kontrollera den installerade spaCR-versionen och paketets plats. Spara versionen med dina analysanteckningar så att du kan återvända till samma miljö senare.",
+          "visual": "pip_05_launch",
+          "narration": "Kör spacr-doctor och följ vägledningen om saknade beroenden som är relevanta för ditt arbete. Skriv sedan spacr för att starta det installerade programmet. Stäng programmet innan du ändrar dess miljö.",
           "hold_after": 0.7
         },
         {
-          "visual": "05_doctor",
-          "narration": "Kör spacr-doctor för att kontrollera installationen. Här rapporterar det att vispy, ett centralt beroende, saknas och visar kommandot som installerar det. Kör det kommandot och kör sedan spacr-doctor igen. Följ andra föreslagna steg bara för de filformat eller funktioner du behöver.",
+          "visual": "pip_conda_01_create",
+          "narration": "För pip i Conda skapar du en miljö som heter spacr-pip med Python 3.12 och pip och aktiverar den. Conda tillhandahåller tolken, pip tillhandahåller spaCR. Välj ett annat namn om spacr-pip redan finns.",
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Skriv spacr för att starta programmet. Gör valen vid första starten och fortsätt sedan med Home-handledningen för att hitta moduler och deras exempeldata.",
+          "visual": "pip_conda_02_install",
+          "narration": "Med spacr-pip aktivt uppdaterar du pip och kör pip install spacr. Paketinstallationen innehåller dess Qt-beroenden för skrivbordet. Kontrollera paketversionen och kör pip check, precis som för den virtuella miljön. Starta spacr från samma aktiva miljö.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_01_create",
+          "narration": "För conda-forge skapar du i ett enda kommando en ny miljö som heter spacr-conda med Python 3.12 och spacr från kanalen conda-forge. Att lösa tolken och spaCR tillsammans undviker att lägga paketet i en orelaterad miljö.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_02_plan",
+          "narration": "Conda visar sin paketplan före installationen. Granska och godkänn planen och låt nedladdningar och installation slutföras. Den tillgängliga conda-forge-versionen kan skilja sig från den senaste PyPI- eller nightly-versionen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_03_activate",
+          "narration": "Aktivera spacr-conda. Kontrollera Python-miljöns sökväg och kör conda list spacr för att bekräfta installerad version och kanal. Kör sedan spacr-doctor och starta spacr från den här miljön.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_current_home",
+          "narration": "Det här komplementet visar Home i det aktuella nightly-gränssnittet. Din installerade version kan se annorlunda ut. Miljökommandona installerar det publicerade paketet från den valda kanalen; denna vy av aktuell källkod påstår inte att alla nightly-funktioner redan är publicerade.",
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
+          "related_lessons": [
+            "05_home"
           ]
         },
         {
-          "visual": "10_current_release_choice",
-          "narration": "För att uppdatera senare stänger du spaCR, aktiverar den här miljön och uppdaterar conda-forge-paketet. När conda-forge inte har någon nyare version rapporterar Conda att alla begärda paket redan är installerade. Kontrollera sedan den installerade versionen; lektionerna om pip och installationsprogrammet beskriver de andra installationsvägarna.",
+          "visual": "pip_06_update",
+          "narration": "För att uppdatera en pip-installation stänger du spaCR, aktiverar dess miljö och kör pip install --upgrade spacr. Kontrollera sedan versionen. Använd pip för spaCR-uppdateringar i båda pip-vägarna, även Conda-miljön som skapades för pip.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_04_update",
+          "narration": "För conda-forge-vägen stänger du spaCR, aktiverar spacr-conda och kör conda update -c conda-forge spacr. Om inget nyare bygge finns meddelar Conda att de begärda paketen redan är installerade. Kontrollera den installerade versionen i stället för att anta att gränssnittet har ändrats.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "pip_07_uninstall",
+          "narration": "För att ta bort en pip-installation aktiverar du dess miljö och kör python -m pip uninstall spacr och godkänner sedan borttagningen. Det tar bort spaCR-paketet. Det tar inte bort dina mikroskopiprojekt eller automatiskt alla beroenden.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "pip_08_remove_environment",
+          "narration": "Om .venv skapades enbart för spaCR avaktiverar du miljön och tar bort den särskilda .venv-mappen. För den särskilda Conda-miljön spacr-pip kör du conda deactivate och sedan conda env remove -n spacr-pip. Ta bara bort miljön du skapade för den här handledningen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_05_uninstall",
+          "narration": "I conda-forge-miljön tar conda remove spacr bort paketet efter att du granskat borttagningsplanen. För att i stället ta bort hela den särskilda miljön avaktiverar du den och kör conda env remove -n spacr-conda. Håll projektmappar separat; att avinstallera miljön är inte att radera analysdata.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "01_pypi_github",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "03_pip_install",
-      "number": 3,
-      "slug": "pip_install",
-      "title": "Installera spaCR med pip",
-      "series": 1,
-      "app_key": null,
-      "section": "spaCR",
-      "description": "Skapa en isolerad Python-miljö, installera det publika paketet, kontrollera dess beroenden och starta det installerade Qt-programmet.",
-      "objectives": [
-        "Skapa och aktivera en virtuell Python-miljö.",
-        "Installera spaCR och kontrollera dess beroenden.",
-        "Starta programmet och uppdatera den avsedda miljön."
-      ],
-      "prerequisite": "Installera Python 3.12 och öppna en terminal. Använd aktiveringskommandot för ditt operativsystem och ditt skal.",
-      "scenes": [
-        {
-          "visual": "01_python_version",
-          "narration": "Öppna en terminal och kontrollera din Python-version. Den här genomgången använder Python 3.12. Håll spaCR i en egen virtuell miljö så att paketen blir lätta att hantera.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "07_create_environment",
-          "narration": "Skapa en virtuell miljö som heter .venv med kommandot för ditt operativsystem. Då skapas en mapp med den Python-miljö som du ska använda för spaCR.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "08_activate_environment",
-          "narration": "Aktivera .venv med kommandot för ditt skal. Windows PowerShell och Kommandotolken har olika aktiveringskommandon; macOS och Linux använder oftast skalkommandot som visas här.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_pip_environment",
-          "narration": "Kör python -m pip --version. Kontrollera att den visade sökvägen hör till .venv. Använd python -m pip för installationskommandona så att pip använder den här tolken.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "09_install_package",
-          "narration": "Uppgradera pip och installera sedan spacr. Vänta tills de vetenskapliga paketen har laddats ned och installerats. Det aktuella paketet innehåller de skrivbordskomponenter som behövs för att öppna programmet.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_installed_versions",
-          "narration": "Kontrollera den installerade spaCR-versionen och paketets plats med det visade kommandot. Spara versionen tillsammans med dina analysanteckningar.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_dependency_check",
-          "narration": "Kör python -m pip check. Om det rapporterar motstridiga krav ska du lösa dem innan du använder miljön.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "05_doctor",
-          "narration": "Kör spacr-doctor för att granska installationen och se eventuella saknade valfria funktioner. Följ den föreslagna reparationen bara för de format eller funktioner du behöver.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "10_launch_commands",
-          "narration": "Starta spacr från den aktiverade miljön. Vid första starten följer du installationsanvisningarna och väljer dina inställningar.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "13_current_nightly_home",
-          "narration": "Den här inspelningen installerar spaCR version ett punkt fem punkt ett punkt tre. Publicerade versioner kan visa en äldre Home-layout. Här visas Home i den aktuella nightly-versionen, med Core, Data, Tools och Assays. Fortsätt till Home screen and navigation för de aktuella modulerna.",
-          "related_lessons": [
+            "04_platform_installers",
             "05_home"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "11_update_intentionally",
-          "narration": "För att uppdatera stänger du spaCR och aktiverar den här miljön. Uppgradera paketet och kontrollera sedan version och beroenden igen. Behåll den tidigare miljön om du behöver den för en pågående analys.",
-          "related_lessons": [
-            "01_pypi_github",
-            "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -419,13 +329,14 @@
       "objectives": [
         "Ladda ned och kör installationsprogrammet för ditt operativsystem.",
         "Välj ett accelerationsalternativ och inställningar för första starten.",
-        "Öppna spaCR och hitta installationsloggarna om installationen behöver åtgärdas."
+        "Öppna spaCR och hitta installationsloggarna om installationen behöver åtgärdas.",
+        "Avinstallera programmet med operativsystemets funktion eller det medföljande avinstallationsverktyget."
       ],
       "prerequisite": "Ladda ned det officiella installationsprogrammet för ditt operativsystem och se till att det finns plats för programmet och dess vetenskapliga beroenden.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Öppna den officiella spaCR-versionen på GitHub och ladda ned installationsprogrammet för ditt operativsystem under Assets. Dessa onlineinstallationsprogram laddar ned Python-körmiljön och de vetenskapliga paketen under installationen. Spara SHA256SUMS.txt från samma version om du vill verifiera nedladdningen.",
+          "narration": "Öppna den officiella spaCR-versionen på GitHub och ladda ned installationsprogrammet för ditt operativsystem under Assets. Dessa onlineinstallationsprogram laddar ned Python-körmiljön och de vetenskapliga paketen under installationen.",
           "hold_after": 0.7
         },
         {
@@ -465,7 +376,7 @@
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Den här inspelningen installerar spaCR version ett punkt fem punkt ett punkt tre. Publicerade versioner kan visa en äldre Home-layout. Här visas Home i den aktuella nightly-versionen, med Core, Data, Tools och Assays. Fortsätt till Home screen and navigation för de aktuella modulerna.",
+          "narration": "Den här inspelningen installerar spaCR version ett punkt fem punkt ett punkt tre. Publicerade versioner kan visa en äldre Home-layout. Här visas Home i den aktuella nightly-versionen, med Core, Data, Tools och Organism. Fortsätt till Home screen and navigation för de aktuella modulerna.",
           "related_lessons": [
             "05_home"
           ],
@@ -481,9 +392,23 @@
           "narration": "Vid installationsproblem hittar du install.log och install-profile.json i installationskatalogen. Granska loggarna innan du delar dem i en supportbegäran. Ange ditt operativsystem och din spaCR-version så att problemet blir lättare att felsöka.",
           "related_lessons": [
             "01_pypi_github",
-            "02_conda_install",
-            "03_pip_install"
+            "02_install_spacr"
           ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_uninstall_windows",
+          "narration": "I Windows stänger du spaCR och öppnar Settings, sedan Apps och Installed apps. Välj spaCR och Uninstall. Den installerade körbara Uninstall-filen startar också samma borttagning. Förvara dina projektmappar separat.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_uninstall_macos",
+          "narration": "I macOS stänger du spaCR och kör det medföljande skriptet uninstall-spacr i Library/Application Support/spaCR. Det tar bort programmet och dess systemstartare. Användarens körmiljö i din egen Library/Application Support/spaCR är separat; ta bara bort den om du också vill radera den körmiljön.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_uninstall_linux",
+          "narration": "I Linux stänger du spaCR och kör skriptet uninstall-spacr i .local/share/spacr under din hemkatalog. Det tar bort den hanterade körmiljön och programstartarna. Avinstallationen kräver inte att du raderar dina mikroskopiprojekt eller deras analysresultat.",
           "hold_after": 0.7
         }
       ],
@@ -564,139 +489,248 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Öppna en modul från Home, hitta dess relaterade verktyg och exempeldata och välj sedan en pipeline att följa.",
+      "description": "Gå igenom alla aktuella moduler på Home från vänster till höger. Lär dig sedan de gemensamma kontrollerna med Mask och anpassa navigering, hjälp och utseende.",
       "objectives": [
-        "Välja en startmodul för bilder, mätvärden eller sekvensläsningar.",
-        "Hitta relaterade verktyg och organismspecifika analyser.",
-        "Anpassa Home-kolumnen och modulpanelerna efter din skärm.",
-        "Läsa in ett exempel, hitta hjälp med sökning eller Control-K och ställa in Preferences."
+        "Identifiera alla moduler i de aktuella raderna Core, Data, Tools och Organism.",
+        "Använda Mask för att känna igen gemensamma inställningar, förhandsvisningar, åtgärder och resultat.",
+        "Återgå till Home, använda sökningen och ordna panelerna.",
+        "Välja inställningar för utseende och prestanda."
       ],
       "prerequisite": "Installera spaCR och öppna skrivbordsprogrammet.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home är din startpunkt. Klicka på en ruta för att öppna en modul, eller använd sidofältet till vänster. Klicka på Home i sidofältet för att komma tillbaka hit. Flikarna Core, Data, Tools och Assays hjälper dig att hitta uppgiften du vill utföra.",
+          "narration": "Home är utgångspunkten. Läs varje rad från vänster till höger: Core, Data, Tools och Organism. Varje ruta öppnar sin modul. Sidopanelen ger samma ingångar och Home återgår till översikten.",
           "hold_after": 0.7
         },
         {
-          "visual": "01_core  (6)",
-          "narration": "Läs Core-rutorna från vänster till höger. För mikroskopbilder börjar du med Mask för att avgränsa objekt och fortsätter med Measure för att ta fram deras egenskaper och utsnitt. Med Annotate märker du exempelobjekt, och Classify lär sig av märkningarna för att poängsätta fler objekt. Map Barcodes läser sekvensdata. Regression kombinerar de resulterande fenotyppoängen med guideräkningarna för att hitta samband.",
+          "visual": "home_module_mask",
+          "narration": "Mask skapar objektmasker från mikroskopibilder. Vi öppnar det kort senare för att se analysmodulernas gemensamma kontroller.",
           "hold_after": 0.7,
           "focus_modules": [
-            "mask",
-            "measure",
-            "annotate",
-            "classify_merged",
-            "map_barcodes",
+            "mask"
+          ],
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "home_module_measure",
+          "narration": "Measure kombinerar bilder och masker för att ta fram objektmått och bildutsnitt. Mättabellerna kopplar bilderna till senare analyser.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "measure"
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "home_module_annotate",
+          "narration": "Annotate visar objektutsnitt och låter dig registrera granskade etiketter för exempel.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "annotate"
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ]
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify lär sig från granskade etiketter och ger andra objekt poäng med bildbaserade eller tabellbaserade metoder.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "home_module_map_barcodes",
+          "narration": "Map Barcodes läser sekvensdata för att räkna och identifiera guider eller streckkoder.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "map_barcodes"
+          ],
+          "related_lessons": [
+            "12_map_barcodes"
+          ]
+        },
+        {
+          "visual": "home_module_regression",
+          "narration": "Regression kopplar fenotyppoäng till guideräkningar och bevarar experimentets gruppering.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "regression"
           ],
           "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "12_map_barcodes",
             "13_regression"
           ]
         },
         {
-          "visual": "02_data  (7)",
-          "narration": "Läs Data-rutorna från vänster till höger. Import tar in befintliga bilder, masker eller mättabeller i ett projekt. Embeddings omvandlar objektutsnitt till numeriska egenskapsvektorer för jämförelse. Run Compare visar två körningar sida vid sida. Experiment Design planerar dina plattor. Power / Design simulerar detektion med olika antaganden om antalet celler och brunnar för att hjälpa till med försöksplaneringen. Dose-Response anpassar koncentrations-responskurvor och visar skattningar, intervall och varningar om anpassningen. QC visar de registrerade kvalitetskontrollerna. Öppna varje moduls handledning för dess indata och nästa steg.",
+          "visual": "home_module_foreign",
+          "narration": "Import förbereder inkommande mikroskopifiler och metadata för projektstrukturen.",
           "hold_after": 0.7,
           "focus_modules": [
-            "foreign",
-            "embeddings",
-            "run_compare",
-            "experiment_design",
-            "power",
-            "dose_response",
+            "foreign"
+          ],
+          "related_lessons": [
+            "36_import"
+          ]
+        },
+        {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings kodar objektutsnitt som numeriska egenskaper för utforskning och jämförelse.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "home_module_run_compare",
+          "narration": "Run Compare samlar sparade körningsresultat så att du kan undersöka skillnader.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "run_compare"
+          ],
+          "related_lessons": [
+            "50_run_compare"
+          ]
+        },
+        {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design placerar villkor, brunnar och providentiteter före ett experiment.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
+          "visual": "home_module_power",
+          "narration": "Power / Design undersöker antaganden om stickprovsstorlek och statistisk styrka när jämförelser planeras.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "power"
+          ],
+          "related_lessons": [
+            "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose-Response anpassar svar över koncentrationer och håller det valda utfallsmåttet och kontrollerna tydliga.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC samlar kvalitetskontroller och visar vilka underlag som finns eller saknas.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "qc_dashboard"
           ],
           "related_lessons": [
-            "36_import",
-            "77_embeddings",
-            "50_run_compare",
-            "67_experiment_design",
-            "68_power_design",
-            "69_dose_response",
             "54_qc_dashboard"
           ]
         },
         {
-          "visual": "03_tools  (5)",
-          "narration": "Läs Tools-rutorna från vänster till höger. Make Masks låter dig redigera masker och öppnar Cellpose Workbench. Align and Stitch fogar samman överlappande bildrutor. Image UMAP utforskar objektutsnitt i en vy med reducerad dimensionalitet. Gate Editor väljer grupper utifrån intervall av uppmätta egenskaper. Graph Builder ritar upp mätresultat. Varje moduls verktygsfält öppnar dess tillhörande verktyg.",
+          "visual": "home_module_make_masks",
+          "narration": "Make Masks låter dig rita och granska masker manuellt eller förbereda bild-mask-par.",
           "hold_after": 0.7,
           "focus_modules": [
-            "make_masks",
-            "align",
-            "umap",
-            "gate_editor",
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "home_module_align",
+          "narration": "Align & Stitch sammanfogar kompatibla bildrutor och registrerar deras geometri.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "align"
+          ],
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "home_module_umap",
+          "narration": "Image UMAP projicerar objektegenskaper för att utforska liknande objekt och granska representativa utsnitt.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "umap"
+          ],
+          "related_lessons": [
+            "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor definierar urval med verkliga datakolumner. Granska de valda objekten innan ett urval omvandlas till etiketter.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "home_module_graph_builder",
+          "narration": "Graph Builder skapar diagram från mättabeller med valbara kolumner och grupperingar.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "graph_builder"
           ],
           "related_lessons": [
-            "14_make_masks",
-            "32_align_stitch",
-            "15_image_umap",
-            "64_gate_editor",
             "58_graph_builder"
           ]
         },
         {
-          "visual": "04_assays  (1)",
-          "narration": "Öppna Assays för arbetsflöden som är knutna till en organism. Toxoplasma öppnar sin analysmeny, till exempel plackanalys eller värd–patogen-mätningar. Följ handledningen för den valda analysen för att förbereda dess bilder, masker och mätdata.",
+          "visual": "home_module_toxoplasma",
+          "narration": "Raden Organism innehåller Toxoplasma. Den öppnar en organismguide, en interaktiv teckning och tillgängliga Toxoplasma-analyser. Den separata Toxoplasma-handledningen går igenom sidan.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma"
           ],
           "related_lessons": [
-            "24_plaque",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication"
-          ]
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "Öppna Classify och välj indata med Classifier family. Välj Computer Vision för objektbilder eller Tabular Machine Learning för kolumner med uppmätta egenskaper. De länkade handledningarna tar dig igenom träning, utvärdering och poängsättning för varje familj.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "41_classify",
-            "10_classify_cv",
-            "11_classify_ml"
-          ]
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "När en modell är tränad hjälper verktygsfältet i Classify dig att granska den. Classifier Evaluation visar hur den presterade på undanhållna data, Explain CV Model och Activation visar vad som styr dess beslut, Training Runs jämför träningshistorik och Feature Explorer rangordnar egenskaperna som skiljer dina grupper åt. Håll pekaren över en ikon för att se dess namn.",
-          "hold_after": 0.7,
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "39_classifier_evaluation",
-            "70_explain_cv",
-            "16_activation",
-            "28_training_runs",
-            "65_feature_explorer"
+            "82_toxoplasma"
           ]
         },
         {
           "visual": "06_mask_host",
-          "narration": "För att prova en modul klickar du på Load test data när det finns. Vänta tills nedladdningen är klar och granska sedan de ifyllda indata och inställningarna. I Mask klickar du på Live för att granska ett synfält innan du trycker på Run. Slå på Time för en tidsserie eller 3D för en volymbild.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "17_timelapse"
-          ]
+          "narration": "Öppna Mask som ett allmänt exempel på en analysmodul. Här lär vi oss skärmens upplägg utan att genomföra segmentering. Inställningar finns till vänster, konsol och förlopp till höger och åtgärder längst ned. Live öppnar förhandsvisningen när indata finns.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06b_mask_settings",
+          "narration": "Inställningarna är grupperade i avsnitt. Öppna ett avsnitt för att se kontrollerna. Välj din indatamapp eller använd Load test data när ett exempel finns. Etiketter och hjälp förklarar vad varje inställning förväntar sig.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06c_mask_actions",
+          "narration": "Import settings hämtar en sparad konfiguration till formuläret. Run startar den valda uppgiften och Stop begär att en pågående uppgift ska stanna. Konsolen visar förlopp och meddelanden. Läs modulens handledning innan du startar en analys.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_resize_panels",
-          "narration": "Varje modulskärm kan anpassas efter din skärm. Dra i handtaget mellan inställningarna och panelerna till höger för att ge ena sidan mer plats, eller klicka på dess pil för att fälla undan inställningarna. Håll ned Control och skrolla över panelerna till höger för att göra deras text större eller mindre, och tryck Control-0 för att återställa den.",
-          "hold_after": 0.7,
-          "focus": [
-            1800,
-            171,
-            300,
-            1950
-          ]
+          "narration": "Dra avdelaren för att ge inställningarna eller förhandsvisningen mer plats. Control och mushjulet ändrar textstorleken i en kolumn. Dessa kontroller underlättar läsningen utan att ändra analysen.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_home_column",
@@ -754,7 +788,7 @@
         },
         {
           "visual": "13b_preferences_appearance",
-          "narration": "Appearance bestämmer hur hjälpen visas medan du arbetar. Tooltip delay är hur länge pekaren vilar på en kontroll innan tipset visas: två sekunder som standard, och noll visar tips direkt. Show tooltips stänger av dem helt, och avsnitten Theme och Animation kan fällas ut nedanför för fönstrets utseende.",
+          "narration": "Appearance bestämmer hur hjälpen visas medan du arbetar. Tooltip delay anger hur länge pekaren vilar innan ett flytande tips visas: två sekunder som standard, eller noll för omedelbara tips. Show tooltips styr dessa flytande tips. De särskilda hjälpområdena på Home och i Preferences visar texten omedelbart. Theme och Animation kan fällas ut nedanför för att ställa in fönstrets utseende.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -776,7 +810,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Klicka i stället på Animation för att öppna det. Det väljer den animerade bakgrunden och dess palett, med reglage för detalj, oskärpa, hastighet, storlek och täthet, om verktygstips för inställningar animeras, och bakgrunden bakom inställningarna.",
+          "narration": "Klicka på Animation för att välja huvudbakgrunden och dess palett. Animation colours ställer in huvud- och accentfärgerna för Custom colours; Animation background väljer en oberoende bakgrund, och Theme colour återställer sidans tema. Detail styr renderingsupplösningen. Speed, Size och Density ändrar rörelse och antal element. Mouse gravity radius anger musens påverkansområde; noll stänger av det. Dot blinking styr vita blinkningar, och Popup wave frequency startar vågor från öppna popupfönster i spaCR field. Field ripples styr vågor från klick, öppning eller stängning av behållare och placering av fönstret vid skärmkanten, oberoende av musens dragningskraft. När det stängs av stoppas även de automatiska popupvågorna. Settings animation speed, Settings animation size, Settings animation detail och Settings animation density ändrar bara Settings backdrop. Settings backdrop darkness styr formulärets läsbarhet.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -784,6 +818,16 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "13h_preferences_apply",
+          "narration": "Klicka på Apply för att förhandsvisa ändringarna medan Preferences förblir öppet. En separat fråga låter dig välja Keep eller Revert för de tillämpade inställningarna. Revert återställer de tidigare inställningarna; dina ändrade kontroller är fortfarande tillgängliga så att du kan justera dem eller tillämpa dem igen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13i_preferences_kept",
+          "narration": "Keep accepterar de tillämpade inställningarna och lämnar Preferences öppet. Fortsätt att ändra en annan flik, eller klicka på Save när du är redo att behålla de aktuella värdena och stänga fönstret.",
+          "hold_after": 0.7
         },
         {
           "visual": "13e_session_updates",
@@ -819,20 +863,9 @@
           ]
         },
         {
-          "visual": "00_home",
-          "narration": "Gå tillbaka till Home och klicka på Pipeline overviews för att välja ett arbetsflöde. Börja med spaCR screens för en poolad bildbaserad screening, eller välj en väg för bildanalys eller sekvensering för dina data. Nästa handledningar visar hur modulerna hänger ihop, och modullektionerna går sedan igenom varje uppgift.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "78_spacr_screens",
-            "80_image_analysis_pathways",
-            "81_sequencing_pathways"
-          ],
-          "focus": [
-            3150,
-            205,
-            666,
-            46
-          ]
+          "visual": "24_spaceout_field",
+          "narration": "I Spaceout-läge innehåller Preferences spaCR field-kontroller för åtta oberoende effekter. Slå på eller av varje effekt separat. Vanliga kontroller för utseende och animation i inställningsfönstret finns kvar. Apply förhandsvisar, Keep godtar och Revert återställer föregående val.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -15018,7 +15051,7 @@
       "series": 1,
       "app_key": null,
       "section": "Arbetsflöden",
-      "description": "Välj en bildanalysväg genom segmentering, mätning, annotering, klassificering, projektioner, urvalsgrindar, bildregistrering, kvalitetskontroll och analyser.",
+      "description": "Följ de aktuella vägarna från bilder till mätningar och välj utforskning, märkning, jämförelse eller organismspecifika analyser.",
       "objectives": [
         "Välj startmodul utifrån de data du redan har.",
         "Identifiera vad varje modul läser och skriver.",
@@ -15027,195 +15060,131 @@
       "prerequisite": "Installera spaCR och öppna Home. Välj startdata för ditt arbetsflöde och följ sedan de länkade modullektionerna för kontroller och exempeldata.",
       "scenes": [
         {
-          "visual": "home",
-          "narration": "Bildanalys i spaCR följer dina bilder från pixlar till svar. Råbilder börjar i Mask, som hittar objekten. Om du vill rätta masker för hand använder du Make Masks, eller importerar masker du redan har. Measure gör sedan bilder och masker till siffror, och till utsnitt om du vill. Därifrån väljer du väg: klassificering, bildutforskning, grindning eller en analys. Foga ihop rutorna först när analysen behöver ett enda koordinatsystem.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "05_home"
-          ]
+          "visual": "00_home",
+          "narration": "Börja med frågan och de data du redan har. De aktuella raderna på Home skiljer mellan Core analysis, Data preparation and comparison, Tools och Toxoplasmas Organism-sida. En modul är ett steg; dess utdata blir en annan moduls indata.",
+          "hold_after": 0.7
         },
         {
-          "visual": "module_mask",
-          "narration": "Råa mikroskopbilder börjar i Mask. Öppna den från Home, välj kanaler och segmenteringsmodeller och kontrollera förhandsvisningen innan du kör. Mask skriver varje synfält som en sammanslagen array, bildkanalerna och deras heltalsetikettplan tillsammans, och det är den sammanslagna arrayen som Measure läser därefter. Mask sparar också en liten räkningsdatabas, men den är bara en sammanräkning, inte en egenskapstabell.",
+          "visual": "module_foreign",
+          "narration": "Import organiserar inkommande mikroskopifiler och metadata. Om bildinsamlingen innehåller överlappande bildrutor kan Align & Stitch skapa en mosaik med tillhörande koordinatposter. Behåll kanalernas identiteter och källans metadata med projektet.",
           "hold_after": 0.7,
           "related_lessons": [
-            "07_mask",
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "module_make_masks",
-          "narration": "Ibland behöver masker en mänsklig hand. Öppna Make Masks från Home för att rätta dem synfält för synfält. Det du sparar här kan gå två vägar. För att träna segmentering granskar du bild- och maskpar och håller ihop dem som träningsfält. För att mäta använder du Organize for Measure, som flyttar varje bild och dess masker till kanalmappar och slår samman dem till de arrayer som Measure läser; en fristående mask är ingen sammanslagen array. Plackmasker som ritas här kan också föras till Plaque Assay tillsammans med sina matchande källbilder. Att spara en mask tränar ingen klassificerare.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "14_make_masks",
-            "24_plaque"
-          ]
-        },
-        {
-          "visual": "module_measure",
-          "narration": "Measure är navet i hela kartan. Öppna den från Home och peka den mot projektet som Mask byggde, med bild- och maskkanalindexen rätt inställda; masker som parats i Make Masks kommer också hit. Measure läser bilder och etikettplan tillsammans och skriver varje cell, kärna eller parasit som en rad i measurements.db. Slå på sparande av utsnitt om du vill ha en PNG av varje objekt, och behåll databasen med dess källprojekt om du i stället strömmar utsnitt. Nästan allt annat utgår från de här raderna. Annotate och Classify använder mätningarna och utsnitten för att lära sig fenotyper. Image UMAP projicerar dem så att du kan leta efter grupperingar, och Embeddings kodar utsnitten med en modell och registrerar kodaren och kanalpolicyn. Gate Editor sätter trösklar på de verkliga uppmätta egenskaperna, i deras verkliga enheter, och QC visar vilka kontroller som finns och vilka som saknas. Toxoplasma-analyserna utgår också härifrån: Recruitment behöver rätt kompartimentintensiteter, Invasion Assay tvåfärgade färgningsmätningar med baslinjekontroller och Replication Assay uttryckliga kopplingar mellan parasit och vakuol. Host–Pathogen Analysis kräver masker av hela vakuoler och värdens referensintensiteter, med de oinfekterade cellerna kvar. Och storleksmåttet för endodyogeni läser det uppmätta projektet från Python, när du har kontrollerat aggregeringen per värdcell och areaenheterna; räkningsdatabasen från Mask räcker inte ensam.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "14_make_masks",
-            "15_image_umap",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication",
-            "41_classify",
-            "54_qc_dashboard",
-            "64_gate_editor",
-            "77_embeddings",
-            "85_host_pathogen"
-          ]
-        },
-        {
-          "visual": "module_annotate",
-          "narration": "Med mätningar i handen är Annotate platsen där du lär ut med exempel. Öppna den från Home så visar den objektutsnitten som Measure sparat eller strömmar från projektet. Märk representativa objekt; varje etikett hamnar i en annoteringskolumn i tabellen png_list, kopplad till objektets identitet. Du behöver inte börja från noll: grindar som sparats i Gate Editor kan föreslå kandidatetiketter för dig att granska. Använd en separat kolumn för varje fråga, håll isär tränings- och utvärderingsobjekt, och det är den kolumnen som Classify tränar på därefter.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_classify_merged",
-          "narration": "Öppna Classify från Home för att göra etiketter till prediktioner. Den har två familjer, och dina data avgör vilken. Computer Vision lär sig av objektutsnitt som Measure sparar eller strömmar; Tabular Machine Learning lär sig av de uppmätta egenskapskolumnerna. Etiketterna kan komma från tre ställen. Oftast kommer de från Annotate. Gate Editor kan skriva granskade grindurval till en annoteringskolumn, och Image UMAP kan göra samma sak med granskade lassourval; välj i båda fallen samma kolumn och objektpopulation här. Ett inbäddningskluster är ingen facitsanning, så granska utsnitten, validera etiketterna och håll valideringsobjekten borta från träningen. Classify sparar sedan sina poäng, den tränade modellen och ett utvärderingspaket med prediktioner på undanhållna data. I en screening väljer du den CV- eller ML-poängkolumn du menar och tar med den till Regression med platt- och brunnsidentiteten intakt.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "13_regression",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_umap",
-          "narration": "Image UMAP är till för att titta innan du märker. Öppna den från Home så projicerar den de uppmätta egenskaperna från Measure, eller kodaregenskaper från Embeddings med matchande objekt-ID:n, på en karta där liknande objekt hamnar nära varandra. Öppna representativa utsnitt för att se vad ett område verkligen innehåller. Ett kluster är bara en kandidatgruppering, inte en validerad fenotyp. När ett område ser meningsfullt ut ritar du en lasso runt det, granskar vad du fångat och skriver urvalet till en annoteringskolumn i den matchande mätdatabasen. Classify kan sedan träna på den kolumnen. Projektionen kan också gå till Gate Editor om du hellre definierar urvalet där med matchande koordinat- och egenskapskolumner. Alla GUI-vägar sparar inte kodaregenskaper åt dig, och en form i ett diagram belägger inte ensam en biologisk fenotyp.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor",
-            "77_embeddings"
-          ]
-        },
-        {
-          "visual": "module_gate_editor",
-          "narration": "Med Gate Editor väljer du objekt efter regler i stället för med ögat. Öppna den från Home och rita tröskel- eller polygongrindar på verkliga kolumner: uppmätta egenskaper från Measure, i sina faktiska enheter, eller koordinaterna från en Image UMAP-projektion. Spara en grind så kan du tillämpa den igen på alla kompatibla objekt. Dess Annotate-knapp skriver de visade grindarna till en annoteringskolumn, när du har granskat de valda objekten och valt binära eller flerklassiga etiketter. Sparade grindar kan också föreslå kandidatetiketter i Annotate. Välj sedan samma kolumn och objektpopulation i Classify, och håll valideringsobjekten åtskilda från träningsetiketterna.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_align",
-          "narration": "Vissa analyser kräver först att rutorna fogas ihop till en bild. Öppna Align & Stitch från Home, kontrollera rutornas geometri, överlapp och kanalmappning och spara mosaiken med dess koordinatposter. För OPS behåller du också de ursprungliga cykel- och positionsidentiteterna.",
-          "hold_after": 0.7,
-          "related_lessons": [
+            "36_import",
             "32_align_stitch"
           ]
         },
         {
-          "visual": "module_analyze_plaques",
-          "narration": "Nu till Toxoplasma-analyserna. Öppna Toxoplasma från Home och välj Plaque Assay. Den hoppar över Measure: den läser plackbilder, eller masker du redan har, och kör den konfigurerade plackmodellen. Masker från Make Masks fungerar här om de är plackmasker med matchande källbilder; cellmasker är inte placketiketter. Den sparar plackresultat och masker, och lektionen om plackexemplet visar en fullständig körning.",
+          "visual": "module_mask",
+          "narration": "Mask skapar objektetiketter från mikroskopibilder. Make Masks låter dig skapa eller granska masker manuellt. Bild–mask-par måste behålla samma fältidentitet; en fristående maskfil är inte automatiskt de kombinerade projektarrayer som Measure behöver.",
           "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
-            "24_plaque"
+            "07_mask",
+            "14_make_masks"
           ]
         },
         {
-          "visual": "module_recruitment",
-          "narration": "Recruitment frågar hur mycket av en markör som samlas vid parasiten. Öppna Toxoplasma från Home och välj sedan Recruitment. Den läser kompartimentintensiteter från Measure, med matchande värd- och patogenidentiteter, och beräknar rekryteringskvoter som behåller varje brunn och varje villkor.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "25_recruitment"
-          ]
-        },
-        {
-          "visual": "module_host_pathogen",
-          "narration": "Host–Pathogen Analysis ser på infektionen från båda håll. Öppna Toxoplasma från Home och välj den sedan. Den läser mätningar från Measure som omfattar hela vakuoler, värdens referenskompartiment och de oinfekterade värdcellerna, som utgör infektionens nämnare. Välj markörkanalerna och ange kvottrösklar kalibrerade mot dina kontroller. Om du har segmenterat enskilda parasiter kan den räkna dem per vakuol utifrån uttryckliga kopplingar eller en uppmätt räkningskolumn. Du får sedan tabeller för vakuoler, värdar och brunnar, kombinerade markörtillstånd, replikationsfördelningar och de parasitkopplingar den inte kunde matcha. Okända mätningar förblir okända, och värdidentiteten ensam definierar aldrig en vakuol.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "85_host_pathogen"
-          ]
-        },
-        {
-          "visual": "module_invasion",
-          "narration": "För att skilja parasiter som bara fäst från dem som tagit sig in öppnar du Toxoplasma från Home och väljer Invasion Assay. Den bygger på tvåfärgade differentialfärgningsmätningar från Measure tillsammans med baslinjekontroller för färgningen, och sparar analysresultaten med varje brunn och villkor intakta.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "26_invasion"
-          ]
-        },
-        {
-          "visual": "module_replication",
-          "narration": "Replication Assay, också under Toxoplasma på Home, räknar parasiterna i varje vakuol och jämför fördelningarna mellan villkor. Den läser objekt från Measure men kräver uttryckliga kopplingar mellan parasit och vakuol; värdidentiteten ensam definierar ingen vakuol.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "27_replication"
-          ]
-        },
-        {
-          "visual": "module_qc_dashboard",
-          "narration": "När som helst efter Measure kan du öppna QC från Home för att kontrollera ditt arbete. Den läser de sparade kontrollerna av segmentering, enheter, läckage och platteffekter, och de inbyggda visarna låter dig titta närmare. En kontroll som saknas är inte en godkänd kontroll. QC sparar sina resultat med exporterbara figurer och tabeller.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ]
-        },
-        {
-          "visual": "module_embeddings",
-          "narration": "Embeddings beskriver objekt utifrån vad en modell ser i stället för handplockade egenskaper. Öppna den från Home, välj en modell och en kanalpolicy, så kodar den objektutsnitten från Measure till en egenskapsvektor per objekt. Registrera objektidentiteter, kodare och kanalpolicy tillsammans med egenskaperna, eftersom Image UMAP behöver en egenskapstabell med matchande objekt-ID:n, och alla vägar sparar den inte åt dig.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "77_embeddings"
-          ]
-        },
-        {
-          "visual": "module_endodyogeny",
-          "narration": "Två verktyg i den här kartan finns bara i Python. Det första är storleksmåttet för endodyogeni, spacr.submodules.analyze_endodyogeny; det saknar ruta på Home och menyval. Det läser uppmätta kompartimentareor från dina Measure-projekt, märker dem efter villkor och delar in arean upphöjd till 1,5 i log2-storleksfördubblingar. Som standard summerar det patogenarean per värdcell, inte per vakuol, så flera vakuoler i samma cell slås ihop. Därför är det ett areabaserat storleksmått, inte en uppmätt volym eller ett parasitantal; för parasiter per vakuol använder du Replication Assay. Ange kompartiment, areafilter, kalibrering, villkor och gruppering innan du anropar det, och kontrollera aggregering och areaenheter innan du läser klasserna. Räkningsdatabasen från Mask räcker inte ensam.",
+          "visual": "module_measure",
+          "narration": "Measure läser de förberedda bilderna tillsammans med maskplanen. Det skriver measurements.db med objektidentiteter och egenskapskolumner och kan spara objektutsnitt. Behåll källprojektet och kanalmappningen med dessa tabeller.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
           ]
         },
         {
-          "visual": "module_cellpose_masks",
-          "narration": "Det andra är direkt maskgenerering med Cellpose, spacr.spacr_cellpose.identify_masks_finetune, också utan ruta på Home eller menyval. Trots namnet kör den inferens, inte träning: den tillämpar en standard- eller egen Cellpose-modell på TIFF-synfälten i en mapp. Kontrollera först normalisering, kanaler, storleksändring och modellinställningar, och slå på sparande, eftersom masker bara skrivs när save är på. Det du får är etikett-TIFF:ar, inte ett projekt redo för Measure. För att gå vidare importerar du bild- och maskparen via External Masks före Measure, eller granskar dem för träning.",
+          "visual": "module_annotate",
+          "narration": "Annotate visar objektutsnitt så att du kan lägga till granskade etiketter. Classify lär sig från den valda etikettkolumnen med hjälp av utsnittsbilder eller uppmätta egenskaper. Håll utvärderingsobjekt åtskilda från träningsobjekt och för vidare poängkolumnen och objektidentiteterna till senare analyser.",
           "hold_after": 0.7,
-          "related_lessons": []
+          "related_lessons": [
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Embeddings kodar utsnitt till numeriska egenskaper. Image UMAP projicerar kompatibla egenskaper för utforskning. Granska representativa utsnitt innan du ger ett kluster en innebörd; ett kluster i sig är inte en validerad fenotyp.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "77_embeddings",
+            "15_image_umap"
+          ]
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Gate Editor väljer objekt med hjälp av faktiska egenskapskolumner eller kompatibla projektionskoordinater. Granska de valda objekten innan du skriver etiketter. Dessa etiketter kan bli granskade exempel för Annotate eller Classify.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "QC redovisar vilka kvalitetskontroller som finns och vilken evidens som saknas. Run Compare granskar sparade körningar sida vid sida. Graph Builder ritar diagram från mättabeller med de kolumner och den gruppering du väljer.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "54_qc_dashboard",
+            "50_run_compare",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Experiment Design planerar betingelser och providentiteter. Power / Design utforskar antaganden för statistisk planering. Dose-Response analyserar ett utfall över olika koncentrationer. Ange mätutfall, kontroller och experimentell enhet uttryckligen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "module_toxoplasma",
+          "narration": "Toxoplasma-sidan samlar organismspecifika analyser. Deras indata skiljer sig: en plackbild, kompartmentmätningar och explicita parasit–vakuol-kopplingar är inte utbytbara. Välj rätt analys och följ dess egna indatakrav.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "82_toxoplasma"
+          ]
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "För poolade screeningar producerar Map Barcodes guideantal från sekvenseringsläsningar. Regression kombinerar dessa antal med kompatibla fenotyppoäng. Bevara plattans, brunnens och guidens identitet när du sammanfogar de två vägarna.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ]
         },
         {
           "visual": "home_summary",
-          "narration": "Bildvägen går alltså nästan alltid från Mask till Measure och förgrenar sig sedan mot din fråga. För att träna en egen segmenteringsmodell förbereder du bild- och maskpar i Make Masks, tränar dem i Cellpose Workbench och öppnar den sparade modellen i Mask igen. Med kompatibla utdata till hands kan du kliva in senare. Vart du än går behåller du kanalidentiteter, enheter och objektnycklar med varje resultat.",
+          "narration": "Återvänd till Home och välj nästa steg utifrån de utdata du faktiskt har. Använd de länkade modullektionerna för en fullständig körning. Håll indataidentitet, inställningar, installerad version och utdataplats tillsammans så att arbetsflödet kan kontrolleras senare.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15422,7 +15391,7 @@
       "id": "82_toxoplasma",
       "number": 82,
       "slug": "toxoplasma",
-      "title": "Toxoplasma: utforska sidan och välj en analys",
+      "title": "Organismen Toxoplasma: guide, diagram och analyser",
       "series": 3,
       "app_key": "toxoplasma",
       "section": "Organisms and assays",
@@ -15436,7 +15405,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Varje Toxoplasma-experiment kan börja från en och samma sida. Från Home väljer du Toxoplasma: organismguiden, ett celldiagram och de tillgängliga analyserna ligger sida vid sida, redo att utforskas innan du läser in några bilder.",
+          "narration": "Välj kategorin Organism på Home och sedan Toxoplasma. Den här sidan kombinerar en organismguide, ett interaktivt celldiagram och de tillgängliga analysvägarna för Toxoplasma. Utforska den innan du väljer en analys.",
           "hold_after": 0.7
         },
         {
@@ -15451,28 +15420,51 @@
         },
         {
           "visual": "03_assays",
-          "narration": "Välj den ruta som passar din fråga. Plaque Assay räknar plack och mäter deras area; Invasion Assay frågar hur många parasiter som tog sig in. Recruitment mäter hur mycket markör som samlas vid vakuolen, Replication Assay hur många parasiter varje vakuol rymmer, och Host–Pathogen kopplar vakuoler till deras värdceller. Var och en har sin egen lektion.",
+          "narration": "Plaque Assay räknar plack och mäter deras areor. Recruitment mäter anrikningen av markören vid den parasitinnehållande vakuolen, och Replication Assay räknar parasiter per vakuol. Välj en analys utifrån den storhet du behöver mäta och de indata som krävs.",
           "hold_after": 0.7
         },
         {
-          "visual": "04_host_pathogen",
-          "narration": "Låt oss följa en av dem. Klicka på Host–Pathogen så öppnas dess analysskärm. Load test data läser in det medföljande mikroskopiexemplet, och därifrån tar Host–Pathogen-handledningen dig genom inställningar, förhandsvisning och Run.",
+          "visual": "04_plaque_assay",
+          "narration": "Klicka på Plaque Assay för att öppna analysskärmen. Inställningspanelen anger bildkälla, masker och detektionsalternativ. Load test data ger ett exempel. Kontrollera indata och förhandsvisning innan du startar Run; handledningen Plaque Analysis beskriver hela arbetsflödet.",
           "hold_after": 0.7
         },
         {
-          "visual": "05_starplast",
-          "narration": "Tillbaka på Toxoplasma-sidan öppnar Starplast en kunskapskarta i ett eget program; första gången erbjuder det installationssteg att följa. Referenslänkarna öppnar i stället resurser om organismen i din webbläsare.",
+          "visual": "05_references",
+          "narration": "Återvänd till Toxoplasma-guiden och skrolla informationspanelen till referenserna. ToxoDB, Toxoplasmas hyperLOPIT-atlas, UniProt och NCBI Taxonomy länkar till resurser om organismen. Länkarna öppnas i webbläsaren; guiden söker inte i databaser och förutsäger inte proteiners lokalisering.",
           "hold_after": 0.7
         },
         {
           "visual": "06_home_return",
-          "narration": "Guiden skriver inga analysfiler, så det egentliga arbetet sker på annat håll. Om dina bilder fortfarande behöver segmenteras eller mätas går du först tillbaka till Home; när bilderna eller tabellerna är klara tar analyssidorna över.",
+          "narration": "Organismguiden producerar inga analystabeller. Återvänd till Home för bildförberedelse, segmentering eller mätning och välj sedan den analys som passar dina förberedda indata. Varje analys har egna krav och en länkad genomgång.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16168,5 +16160,9 @@
         ]
       }
     }
-  ]
+  ],
+  "lesson_aliases": {
+    "02_conda_install": "02_install_spacr",
+    "03_pip_install": "02_install_spacr"
+  }
 }

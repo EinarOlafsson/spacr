@@ -63,7 +63,13 @@ def promote_many(reviews, stage):
 def translated_lesson(review, english, previous):
     """Bind prose to the exact English lesson and retain its scene structure."""
     digest = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-    if digest != review['english_sha256']:
+    # append_catalogs records the planned narration matrix separately from
+    # authored prose. A source review remains bound to every authored field
+    # when that generated track-selection field is present in the catalog.
+    source = {key: value for key, value in english.items()
+              if key != 'narration_voices'}
+    source_digest = hashlib.sha256(json.dumps(source, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    if review['english_sha256'] not in (digest, source_digest):
         raise ValueError('English changed after the translation review')
     if len(review['scenes']) != len(english['scenes']) or not all(
             isinstance(text, str) and text.strip() for text in review['scenes']):

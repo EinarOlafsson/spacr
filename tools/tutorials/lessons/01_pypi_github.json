@@ -36,7 +36,7 @@
     },
     {
       "visual": "04_github_current_assets",
-      "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
+      "narration": "Expand Assets and download the installer for Windows, macOS or Linux. The Platform installers lesson explains installation, launching spaCR and uninstalling it on each operating system.",
       "hold_after": 0.7,
       "related_lessons": [
         "04_platform_installers"
@@ -49,19 +49,18 @@
     },
     {
       "visual": "05_conda_current_package",
-      "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
+      "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow Install spaCR to create that environment, install the package and launch the application. That lesson also explains package and environment removal.",
       "hold_after": 0.7,
       "related_lessons": [
-        "02_conda_install"
+        "02_install_spacr"
       ]
     },
     {
       "visual": "01_pypi_current_release",
-      "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+      "narration": "Continue with Install spaCR for pip or conda-forge, or Platform installers for a desktop installer. Both lessons include uninstall guidance. Once spaCR opens, move to Home, then the pipeline overviews to choose a workflow for your data.",
       "hold_after": 0.7,
       "related_lessons": [
-        "02_conda_install",
-        "03_pip_install",
+        "02_install_spacr",
         "04_platform_installers"
       ]
     }

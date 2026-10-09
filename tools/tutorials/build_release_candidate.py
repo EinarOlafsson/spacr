@@ -20,6 +20,7 @@ from build_navigation import build as navigation
 from check_completed_matrix import digest, voice_matrix
 from coming_soon import EMBEDDINGS, OPS, HELD, release_catalog
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
+from native_live_timing import checked_native_timing
 from verify_library_checkpoint import verify
 
 
@@ -120,6 +121,9 @@ def write_catalogs(stage, web, *, model_promotions=(), barcode_promotion=False):
             identity = lesson['id']
             lesson['poster'] = f'{identity}/poster.jpg'
             lesson['silent'] = f'{identity}/video/{identity}_silent.mp4'
+            native_timings = checked_native_timing(stage, identity)
+            if native_timings is not None:
+                lesson['visual_timings'] = f'{identity}/video/{native_timings.name}'
     for name, variable, data in [('lesson_catalog.js', 'SPACR_LESSON_CATALOG', js_catalog),
                                  ('module_navigation.js', 'SPACR_TUTORIAL_NAVIGATION', nav)]:
         (web / name).write_text('"use strict";\nwindow.' + variable + ' = Object.freeze('
@@ -219,6 +223,9 @@ def build(stage=DEFAULT_STAGE, *, baseline=None, model_promotions=(), barcode_pr
         copy_checked(source / 'poster.jpg', web / 'production' / identity / 'poster.jpg', records, root)
         copy_checked(source / 'video' / video.name, media / identity / 'video' / video.name,
                      records, root, receipt['master_sha256'])
+        native_timing = checked_native_timing(stage, identity)
+        if native_timing is not None:
+            copy_checked(native_timing, media / identity / 'video' / native_timing.name, records, root)
         for language, names in voices.items():
             for voice in names:
                 for suffix in ('.m4a', '.json'):

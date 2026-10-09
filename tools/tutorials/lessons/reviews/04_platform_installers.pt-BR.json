@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
+  "english_sha256": "8a8a2d3adae812475a9731d196357380bf772eeff3052f0e89798416bbbfd824",
   "review": {
-    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
-    "translator": "Codex AI, explicit direct translations of current English changes",
-    "date": "2026-10-06",
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
   },
   "language": "pt-BR",
   "title": "Instalar o spaCR com um instalador de desktop",
@@ -16,11 +16,12 @@
   "objectives": [
     "Baixar e executar o instalador do seu sistema operacional.",
     "Escolher uma opção de aceleração e as preferências da primeira inicialização.",
-    "Abrir o spaCR e encontrar os logs de instalação se a configuração precisar de atenção."
+    "Abrir o spaCR e encontrar os logs de instalação se a configuração precisar de atenção.",
+    "Desinstalar o aplicativo pelas opções do sistema operacional ou pelo desinstalador incluído."
   ],
   "prerequisite": "Baixe o instalador oficial do seu sistema operacional e reserve espaço para o aplicativo e suas dependências científicas.",
   "scenes": [
-    "Abra a versão oficial do spaCR no GitHub e, em Assets, baixe o instalador do seu sistema operacional. Esses instaladores on-line baixam o runtime do Python e os pacotes científicos durante a configuração. Guarde o SHA256SUMS ponto txt da mesma versão se quiser verificar o download.",
+    "Abra a versão oficial do spaCR no GitHub e, em Assets, baixe o instalador do seu sistema operacional. Esses instaladores on-line baixam o runtime do Python e os pacotes científicos durante a configuração.",
     "No Windows, execute o programa de instalação e siga as instruções. Deixe a aceleração automática selecionada para usar o hardware compatível detectado no seu computador, ou escolha o funcionamento só com CPU se for isso que você precisa.",
     "No macOS, abra o pacote universal e siga o instalador. Inicie o spaCR pelo inicializador do aplicativo e deixe os downloads da primeira execução terminarem. Leia qualquer aviso de segurança e confirme que o pacote veio da versão oficial.",
     "No Linux, torne o instalador baixado executável e depois execute-o em um terminal. A aceleração automática seleciona um backend compatível. A ajuda lista hífen hífen torch-backend cpu para funcionar só com CPU, e hífen hífen skip-system-deps para computadores que já têm as bibliotecas gráficas do Qt.",
@@ -28,8 +29,11 @@
     "Confira a versão instalada do spaCR. Guarde-a com suas anotações de análise, principalmente quando atualizar o aplicativo mais tarde.",
     "A configuração pergunta sobre o compartilhamento opcional de diagnósticos e a configuração de conta. Responda y apenas para as opções que você quer; n, o padrão, mantém cada uma desativada. O instalador do Windows mostra as mesmas escolhas como caixas de seleção.",
     "Na interface nightly atual, abra Preferences e escolha Performance. Selecione um perfil para o seu computador. Laptop usa menos recursos; os perfis superiores permitem mais cache e trabalho em segundo plano. Comece com um perfil moderado se houver pouca memória.",
-    "Esta gravação instala o spaCR versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Assays. Continue em Home screen and navigation para conhecer os módulos atuais.",
+    "Esta gravação instala o spaCR versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Organism. Continue em Home screen and navigation para conhecer os módulos atuais.",
     "Execute spacr-doctor a partir do ambiente instalado se a inicialização ou um formato de arquivo precisar de atenção. Nesta instalação de CPU gravada, a verificação do backend passa e a verificação da GPU é ignorada. O aviso informa que o leitor CZI opcional está ausente; instale esse extra apenas se precisar de arquivos CZI.",
-    "Em caso de problemas de instalação, procure install ponto log e install-profile ponto json na pasta de instalação. Revise os logs antes de compartilhá-los em um pedido de suporte. Informe seu sistema operacional e a versão do spaCR para facilitar o diagnóstico do problema."
+    "Em caso de problemas de instalação, procure install ponto log e install-profile ponto json na pasta de instalação. Revise os logs antes de compartilhá-los em um pedido de suporte. Informe seu sistema operacional e a versão do spaCR para facilitar o diagnóstico do problema.",
+    "No Windows, feche o spaCR, abra Settings e depois Apps e Installed apps. Escolha spaCR e Uninstall. O executável Uninstall instalado também inicia o mesmo processo de remoção. Mantenha suas pastas de projetos separadas.",
+    "No macOS, feche o spaCR e execute o script uninstall-spacr incluído em Library barra Application Support barra spaCR. Ele remove o aplicativo e seus inicializadores do sistema. O runtime por usuário na sua própria Library barra Application Support barra spaCR é separado; remova-o apenas se também quiser descartar esse runtime.",
+    "No Linux, feche o spaCR e execute o script uninstall-spacr na sua pasta pessoal, em ponto local barra share barra spacr. Ele remove o runtime gerenciado e os inicializadores do aplicativo. A desinstalação não exige apagar seus projetos de microscopia nem os resultados das análises."
   ]
 }

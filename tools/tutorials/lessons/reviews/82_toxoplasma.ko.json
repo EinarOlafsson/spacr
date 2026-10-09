@@ -1,16 +1,16 @@
 {
   "lesson": "82_toxoplasma",
-  "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
+  "english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Direct AI technical/context review, no native-speaker signoff",
+    "translator": "AI technical/context review from the exact current English source",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "ko",
-  "title": "Toxoplasma: 페이지 둘러보기와 분석 선택",
+  "title": "생물체 Toxoplasma: 가이드, 도식, 어세이",
   "description": "생물 페이지를 열고 세포 도식을 살펴본 뒤 사용할 수 있는 분석을 고릅니다.",
   "objectives": [
     "Home에서 페이지를 열고 주요 조작 요소를 찾습니다.",
@@ -19,12 +19,12 @@
   ],
   "prerequisite": "spaCR의 Home을 여세요. 생물 가이드에는 입력 파일이 필요 없습니다. 각 분석에는 고유한 입력과 연결된 안내가 있습니다.",
   "scenes": [
-    "모든 Toxoplasma 실험은 한 페이지에서 시작할 수 있습니다. Home에서 Toxoplasma를 고르면 생물 가이드, 세포 도식, 사용 가능한 분석이 나란히 표시되어 이미지를 불러오기 전에 둘러볼 수 있습니다.",
+    "Home에서 Organism 카테고리를 선택한 다음 Toxoplasma를 선택하세요. 이 페이지에는 생물체 가이드, 대화형 세포 도식, 사용 가능한 Toxoplasma 어세이 경로가 함께 있습니다. 분석을 선택하기 전에 둘러보세요.",
     "먼저 정보 창의 소개부터 읽으세요. 각 창은 따로 스크롤되며, 구분선을 드래그하면 가이드나 분석 타일에 더 많은 공간을 줄 수 있습니다.",
     "도식은 직접 살펴보라고 있는 것입니다. 세포 구성 요소에 포인터를 올리면 설명이 나타납니다. 여러 개를 선택하면 강조 표시가 유지되고, Clear components를 누르면 그림이 초기화됩니다.",
-    "질문에 맞는 타일을 고르세요. Plaque Assay는 플라크를 세고 면적을 측정하며, Invasion Assay는 기생충이 몇 마리나 안으로 들어갔는지 봅니다. Recruitment는 액포에 표지자가 얼마나 모이는지, Replication Assay는 액포마다 기생충이 몇 마리 있는지 측정하고, Host–Pathogen은 액포를 숙주 세포와 연결합니다. 각각 전용 강의가 있습니다.",
-    "그중 하나를 따라가 봅시다. Host–Pathogen을 클릭하면 분석 화면이 열립니다. Load test data가 제공된 현미경 예제를 불러오고, 그다음부터는 Host–Pathogen 튜토리얼이 설정, 미리 보기, Run까지 안내합니다.",
-    "Toxoplasma 페이지로 돌아오면 Starplast가 별도 애플리케이션에서 지식 지도를 엽니다. 처음에는 따라 할 설치 단계를 안내합니다. 참고 링크는 브라우저에서 생물 관련 자료를 엽니다.",
-    "가이드는 분석 파일을 쓰지 않으므로 실제 작업은 다른 곳에서 이루어집니다. 이미지를 아직 분할하거나 측정해야 한다면 먼저 Home으로 돌아가세요. 이미지나 표가 준비되면 분석 페이지가 이어받습니다."
+    "Plaque Assay는 플라크를 세고 면적을 측정합니다. Recruitment는 기생충을 포함한 액포에서 마커의 농축을 측정하며, Replication Assay는 액포당 기생충 수를 셉니다. 측정하려는 양과 필요한 입력에 따라 분석법을 선택하세요.",
+    "Plaque Assay를 클릭하여 분석 화면을 엽니다. 설정 패널에서 이미지 원본, 마스크 및 검출 옵션을 지정합니다. Load test data는 예제를 제공합니다. Run을 시작하기 전에 입력과 미리보기를 확인하세요. Plaque Analysis 튜토리얼에서 전체 작업 흐름을 설명합니다.",
+    "Toxoplasma 안내로 돌아가 정보 패널을 참고 자료까지 스크롤합니다. ToxoDB, Toxoplasma의 hyperLOPIT 아틀라스, UniProt 및 NCBI Taxonomy는 생물 관련 자료로 연결됩니다. 링크는 브라우저에서 열립니다. 안내 자체는 데이터베이스 검색이나 단백질 위치 예측을 수행하지 않습니다.",
+    "생물체 가이드는 분석 테이블을 생성하지 않습니다. 이미지 준비, 분할 또는 측정을 위해 Home으로 돌아간 다음 준비된 입력에 맞는 어세이를 선택하세요. 각 어세이에는 자체 요구 사항과 연결된 단계별 설명이 있습니다."
   ]
 }

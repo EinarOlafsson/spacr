@@ -24,8 +24,7 @@
       ],
       "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
       "related_lessons": [
-        "02_conda_install",
-        "03_pip_install",
+        "02_install_spacr",
         "04_platform_installers"
       ],
       "hold_after": 0.7

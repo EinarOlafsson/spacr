@@ -129,14 +129,21 @@ def record_resize_panels(app, window, capture, settle, key="mask"):
         raise RuntimeError("The Ctrl + wheel column text filter is not installed")
     scale = column.scale()
     try:
-        body.moveSplitter(sizes[0] + 420, 1)
-        column.set_scale(1.25)
-        settle(1.2)
+        def resize():
+            body.moveSplitter(sizes[0] + 420, 1)
+            column.set_scale(1.25)
+        live = getattr(capture, 'supports_live_actions', False)
+        if not live:
+            resize()
+            settle(1.2)
         handle = body.handle(1)
         runtime = getattr(screen, "_runtime_wrap", None)
         regions = {"handle": capture_rect(handle, window),
                    "column": capture_rect(runtime, window) if runtime is not None else None}
-        capture("14_resize_panels")
+        if live:
+            capture("14_resize_panels", actions=[(1.0, 'Resize actual settings splitter and column text', resize)])
+        else:
+            capture("14_resize_panels")
     finally:
         column.set_scale(scale)
         body.setSizes(sizes)
@@ -209,6 +216,110 @@ def record_command_palette(window, capture, settle, text="Meas"):
     return region
 
 
+def record_home_navigation(app, window, capture, settle):
+    """Refresh Home lesson chrome using actual tabs, dock rows and Ctrl+K."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QAbstractButton
+    from spacr.qt import app as gui
+    from spacr.qt.command_palette import CommandPalette
+
+    home = window._startup
+    tabs = home._tabs
+    for index in range(1, tabs.count()):
+        QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
+                         pos=tabs.tabBar().tabRect(index).center())
+        settle()
+        capture(f'{index:02d}_{tabs.tabText(index).lower()}')
+
+    def select(key):
+        rows = [row for row in window._sidebar._rows if row.key == key and row.isVisible()]
+        if len(rows) != 1:
+            raise RuntimeError(f"No unique visible sidebar route for {key}")
+        QTest.mouseClick(rows[0], Qt.LeftButton, pos=rows[0].rect().center())
+        settle(3)
+        if key != '__home__' and window._stack.currentWidget() is not window._screens[key]:
+            raise RuntimeError(f"Sidebar click did not open {key}")
+
+    for key, _, _, _ in gui.tiled_apps():
+        tiles = [button for button in home.findChildren(QAbstractButton)
+                 if button.property('moduleAppKey') == key]
+        for index in range(tabs.count()):
+            choices = [tile for tile in tiles if tabs.widget(index).isAncestorOf(tile)]
+            if choices:
+                QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
+                                 pos=tabs.tabBar().tabRect(index).center())
+                tile = max(choices, key=lambda button: button.width() * button.height())
+                QTest.mouseMove(tile, tile.rect().center())
+                settle(.4)
+                capture('home_module_' + key)
+                break
+        else:
+            raise RuntimeError('Current Home has no visible tile for ' + key)
+    from spacr.qt import preferences as prefs
+    previous_backdrop, previous_density = prefs.get_ambient_animation(), prefs.get_ambient_density()
+    prefs.set_ambient_animation('blobs')
+    prefs.set_ambient_density(2.0)
+    prefs.apply_preferences_to_app(app)
+    window.setProperty('tutorialMaskBlobs', True)
+    select('mask')
+    capture('06_mask_host')
+    capture('06b_mask_settings')
+    capture('06c_mask_actions')
+    focus = {'14_resize_panels': record_resize_panels(app, window, capture, settle)}
+    prefs.set_ambient_animation(previous_backdrop)
+    prefs.set_ambient_density(previous_density)
+    prefs.apply_preferences_to_app(app)
+    window.setProperty('tutorialMaskBlobs', False)
+    select('__home__')
+    focus.update(record_home_column(window, capture, settle))
+    focus['08_help_search'] = record_help_search(app, window, capture, settle)
+    errors = []
+
+    def record_palette():
+        visible = [widget for widget in app.topLevelWidgets()
+                   if isinstance(widget, CommandPalette) and widget.isVisible()]
+        palette = visible[0] if len(visible) == 1 else None
+        try:
+            if palette is None:
+                raise RuntimeError("Actual Ctrl+K route did not open the command palette")
+            QTest.keyClicks(palette._input, 'Meas')
+            settle(1)
+            if palette._list.count() == 0:
+                raise RuntimeError("Actual command palette has no Measure result")
+            from capture_geometry import capture_rect
+            focus['12_command_palette'] = capture_rect(palette, window)
+            capture('12_command_palette')
+            QTest.keyClick(palette, Qt.Key_Escape)
+            settle()
+            if palette.isVisible():
+                raise RuntimeError("Escape did not close the actual command palette")
+        except Exception as exc:
+            errors.append(str(exc))
+        finally:
+            if palette is not None and palette.isVisible():
+                palette.reject()
+
+    from PySide6.QtCore import QTimer
+    watchdog = QTimer(window)
+    watchdog.setSingleShot(True)
+    watchdog.timeout.connect(lambda: [widget.reject() for widget in app.topLevelWidgets()
+                                     if isinstance(widget, CommandPalette) and widget.isVisible()])
+    window.raise_()
+    window.activateWindow()
+    from PySide6.QtWidgets import QApplication
+    QApplication.setActiveWindow(window)
+    window.setFocus()
+    settle(.4)
+    QTimer.singleShot(350, record_palette)
+    watchdog.start(max(12000, int(getattr(capture, 'maximum_live_clip_seconds', 0)*1000)+8000))
+    QTest.keyClick(window, Qt.Key_K, Qt.ControlModifier)
+    watchdog.stop()
+    if errors or '12_command_palette' not in focus:
+        raise RuntimeError('; '.join(errors) or "No actual Ctrl+K capture")
+    return focus
+
+
 def record_preferences_page(window, capture, settle, object_name="PreferencesTabGeneral",
                             name="13_preferences_general"):
     """Show one Preferences tab; never the Modules tab with the alpha toggle."""
@@ -244,12 +355,13 @@ def record_appearance_sections(window, capture, settle):
     """Open Appearance's folded Theme and Animation sections, one at a time (601)."""
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QScrollArea, QTabWidget, QWidget
+    from PySide6.QtWidgets import QComboBox, QScrollArea, QTabWidget, QWidget
 
     from spacr.qt.preferences import PreferencesDialog
     from spacr.qt.widgets.section import Section
 
     dialog = PreferencesDialog(window)
+    proof = {}
     try:
         tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
         page = dialog.findChild(QWidget, "PreferencesTabAppearance")
@@ -257,7 +369,7 @@ def record_appearance_sections(window, capture, settle):
             if tabs.widget(index).isAncestorOf(page):
                 tabs.setCurrentIndex(index)
                 break
-        dialog.resize(1200, 1500)
+        dialog.resize(1200, 1800)
         dialog.show()
         settle()
         sections = {s.title().lower(): s for s in page.findChildren(Section)}
@@ -281,6 +393,48 @@ def record_appearance_sections(window, capture, settle):
             if scroll is not None:
                 scroll.ensureWidgetVisible(section.header(), 0, 0)
             settle(1)
+            if key == "animation":
+                names = ("AmbientSpeed", "AmbientSize", "AmbientResolution",
+                         "AmbientDensity", "AmbientGravityRadius", "FieldRipplesEnabled",
+                         "FieldPopupWaveFrequency", "PopupBackdrop", "PopupBackdropSpeed",
+                         "PopupBackdropSize", "PopupBackdropResolution", "PopupBackdropDensity",
+                         "PopupBackdropDarkness")
+                viewport = scroll.viewport()
+                controls = {name: dialog.findChild(QWidget, name) for name in names}
+                for control_name, control in controls.items():
+                    if control is None or not control.isVisible():
+                        raise RuntimeError(f"Animation control is not visible: {control_name}")
+                    origin = control.mapTo(viewport, control.rect().topLeft())
+                    if not viewport.rect().contains(origin) or not viewport.rect().contains(
+                            control.mapTo(viewport, control.rect().bottomRight())):
+                        raise RuntimeError(f"Animation control leaves the viewport: {control_name}")
+                from spacr.qt.widgets.ambient import SPACEOUT_ONLY_THEMES
+                choices = {}
+                for control_name in ("AmbientTheme", "PopupBackdrop"):
+                    box = dialog.findChild(QComboBox, control_name)
+                    values = [box.itemData(i) for i in range(box.count())]
+                    if set(values) & set(SPACEOUT_ONLY_THEMES):
+                        raise RuntimeError("Ordinary tutorial includes a Spaceout-only backdrop")
+                    choices[control_name] = values
+                pairs = (("PopupBackdropSpeed", "AmbientSpeed"),
+                         ("PopupBackdropSize", "AmbientSize"),
+                         ("PopupBackdropResolution", "AmbientResolution"),
+                         ("PopupBackdropDensity", "AmbientDensity"))
+                independence = {}
+                for settings_name, main_name in pairs:
+                    settings, main = controls[settings_name], controls[main_name]
+                    before, main_before = settings.value(), main.value()
+                    settings.setFocus()
+                    QTest.keyClick(settings, Qt.Key_Right)
+                    if settings.value() == before or main.value() != main_before:
+                        raise RuntimeError(f"Settings animation is not independent: {settings_name}")
+                    independence[settings_name] = {"before": before, "edited": settings.value(),
+                                                   "main_unchanged": main.value()}
+                    settings.setValue(before)
+                proof = {"all_named_controls_visible": list(names), "ordinary_choices": choices,
+                         "settings_controls_independent": independence,
+                         "field_ripples_separate_control": controls["FieldRipplesEnabled"].isChecked()}
+                settle(.5)
             capture(name)
         for section in sections.values():
             if section.is_expanded():
@@ -290,6 +444,7 @@ def record_appearance_sections(window, capture, settle):
         dialog.close()
         dialog.deleteLater()
         settle()
+    return proof
 
 
 def _open_preferences_tab(window, settle, object_name, height=1200):
@@ -312,6 +467,68 @@ def _open_preferences_tab(window, settle, object_name, height=1200):
     dialog.show()
     settle()
     return dialog, page
+
+
+def record_spaceout_effects(window, capture, settle):
+    """Capture all eight actual Spaceout switches and their reversible Apply path."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QDialogButtonBox, QScrollArea, QWidget
+    from spacr.qt import preferences
+    from spacr.qt.widgets.section import Section
+
+    names = {"attractors": "SpaceoutFieldAttractors", "relaxation": "SpaceoutFieldRelaxation",
+             "elastic_release": "SpaceoutFieldElasticRelease", "vortex": "SpaceoutFieldVortex",
+             "density_pulses": "SpaceoutFieldDensityPulses", "density_waves": "SpaceoutFieldDensityWaves",
+             "color_waves": "SpaceoutFieldColorWaves", "spirals": "SpaceoutFieldSpirals"}
+    dialog, page = _open_preferences_tab(window, settle, "PreferencesTabAppearance", 1500)
+    proof = {"saved_defaults": preferences._spaceout_field_effects(), "independent_controls": {}}
+    try:
+        sections = {section.title().casefold(): section for section in page.findChildren(Section)}
+        section = sections["spacr field"]
+        QTest.mouseClick(section.header(), Qt.LeftButton)
+        settle(.5)
+        if not section.is_expanded():
+            raise RuntimeError("The Spaceout field section did not open through its header")
+        scroll = page.parentWidget()
+        while scroll is not None and not isinstance(scroll, QScrollArea):
+            scroll = scroll.parentWidget()
+        scroll.ensureWidgetVisible(section.header(), 0, 0)
+        settle(.5)
+        controls = {key: dialog.findChild(QWidget, name) for key, name in names.items()}
+        for key, control in controls.items():
+            if control is None or not control.isVisible() or not control.isChecked():
+                raise RuntimeError(f"The default Spaceout effect is not visible and on: {key}")
+            viewport = scroll.viewport()
+            if not viewport.rect().contains(control.mapTo(viewport, control.rect().bottomRight())):
+                raise RuntimeError(f"Spaceout effect leaves the actual viewport: {key}")
+        capture("02_spaceout_field_effects")
+        for key, control in controls.items():
+            QTest.mouseClick(control, Qt.LeftButton)
+            if control.isChecked() or any(not other.isChecked()
+                                         for other_key, other in controls.items() if other_key != key):
+                raise RuntimeError(f"Spaceout effect control is not independent: {key}")
+            proof["independent_controls"][key] = {"off": True, "other_seven_unchanged": True}
+            QTest.mouseClick(control, Qt.LeftButton)
+        QTest.mouseClick(controls["vortex"], Qt.LeftButton)
+        dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Apply).click()
+        settle(.6)
+        question = dialog._apply_confirmation
+        if question is None or not question.isVisible() or preferences._spaceout_field_effects()["vortex"]:
+            raise RuntimeError("Spaceout Vortices edit was not previewed through real Apply")
+        capture("03_spaceout_effect_apply_revert")
+        next(button for button in question.buttons() if button.text() == "Revert").click()
+        settle(.5)
+        if preferences._spaceout_field_effects() != proof["saved_defaults"] or not dialog.isVisible():
+            raise RuntimeError("Spaceout Revert failed to restore the exact eight-effect state")
+        proof["apply_revert_verified"] = True
+        proof["published"] = False
+        proof["scope"] = "Current Spaceout companion; ordinary Home lesson stays alpha-off"
+        return proof
+    finally:
+        dialog.reject()
+        dialog.deleteLater()
+        settle()
 
 
 def record_session_and_updates(window, capture, settle, name="13e_session_updates"):

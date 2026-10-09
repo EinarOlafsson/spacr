@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import sys
 import re
 import subprocess
 from fractions import Fraction
@@ -15,7 +17,7 @@ from render_all_voices import LANGUAGES
 from render_visual_master import validate_geometry
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get("SPACR_TUTORIAL_WORKSPACE", Path(__file__).resolve().parents[1]))
 CATALOG = ROOT / "catalog"
 PRODUCTION = ROOT / "production"
 WEB = ROOT / "web"
@@ -88,6 +90,7 @@ def main() -> int:
     if ids:
         for lesson_id in ids:
             root = PRODUCTION / lesson_id
+            spec = {"scenes": []}
             scenes_path = root / "scenes.json"
             video = root / "video" / f"{lesson_id}_silent.mp4"
             poster = root / "poster.jpg"
@@ -118,6 +121,12 @@ def main() -> int:
                         (root / "audio" / "en" / "af_heart.json").read_text()
                     )
                     expected_duration = float(heart_timing["total_duration"])
+                    native_timing_path = root / 'video' / 'native-live-timings.json'
+                    if native_timing_path.exists() or any(scene.get('clip') for scene in spec['scenes']):
+                        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+                        from native_live_timing import checked_native_timing
+                        checked = checked_native_timing(PRODUCTION.parent, lesson_id)
+                        expected_duration = float(json.loads(checked.read_text())['total_duration'])
                     if (
                         (width, height) != (3840, 2160)
                         or duration < 20

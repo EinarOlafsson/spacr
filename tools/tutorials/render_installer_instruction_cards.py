@@ -22,6 +22,8 @@ def main():
                         help='Comma-separated subset of cards to render')
     parser.add_argument('--release-capture', default='installation_sources_centred_elements',
                         help='Capture folder holding the genuine 04_github_current_assets frame')
+    parser.add_argument('--skip-release-frame', action='store_true',
+                        help='Append reference cards while retaining an already verified release frame')
     args = parser.parse_args()
     if Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}:
         parser.error('Choose one private capture directory name')
@@ -62,23 +64,49 @@ def main():
             ('Diagnostic command from the installed runtime', 'spacr-doctor')],
          'Review logs for private paths or data before sharing. Keep the version used for an ongoing analysis.'),
     ]
+    cards += [
+        ('18_download_desktop', 'Download a desktop installer', [
+            ('Open the official spaCR release and expand Assets',
+             f'github.com/EinarOlafsson/spacr/releases/tag/v{version}'),
+            ('Windows', f'spaCR-{version}-Windows-Online-Setup.exe'),
+            ('macOS', f'spaCR-{version}-macOS-Universal-Online.pkg'),
+            ('Linux x86-64', f'spaCR-{version}-Linux-x86_64-Online.run')],
+         'Reference guidance to the official download; the online installer downloads its private runtime.'),
+        ('15_uninstall_windows', 'Windows: uninstall spaCR', [
+            ('Close spaCR, then open Windows Settings', 'Apps → Installed apps → spaCR → Uninstall'),
+            ('Alternative: run the uninstaller in the installation directory', 'Uninstall.exe')],
+         'Reference guidance from installer source; Windows removal was not executed on this Linux host.'),
+        ('16_uninstall_macos', 'macOS: uninstall spaCR', [
+            ('Close spaCR, then run the bundled system uninstaller',
+             'sudo "/Library/Application Support/spaCR/uninstall-spacr.sh"'),
+            ('The separate per-user runtime is kept by this command',
+             '~/Library/Application Support/spaCR')],
+         'Reference guidance; keep microscopy projects separately. macOS removal was not executed on this host.'),
+        ('17_uninstall_linux', 'Linux: uninstall spaCR', [
+            ('Close spaCR, then run its bundled uninstaller',
+             '~/.local/share/spacr/uninstall-spacr.sh'),
+            ('This removes the managed runtime and application launchers',
+             'Keep microscopy projects and analysis results separately')],
+         'Reference guidance from installer source; this card does not claim an executed removal.'),
+    ]
     selected = set(args.cards.split(','))
     if not selected or selected - {card[0] for card in cards}:
         parser.error('Unknown card name')
     cards = [card for card in cards if card[0] in selected]
     frames = read(capture / 'frames.json')
-    source = stage / 'captures' / args.release_capture
-    name = '04_github_current_assets'
-    original = read(source / 'frames.json')[name]
-    incoming = source / original['image']
-    if hashlib.sha256(incoming.read_bytes()).hexdigest() != original['sha256']:
-        raise ValueError('Previously recorded official release screenshot changed')
-    target = capture / '08_official_release.png'
-    if target.exists():
-        raise FileExistsError('Earlier release frames are retained')
-    shutil.copyfile(incoming, target)
-    frames['08_official_release'] = dict(original, image=target.name,
-        reused_native_capture=str(incoming))
+    if not args.skip_release_frame:
+        source = stage / 'captures' / args.release_capture
+        name = '04_github_current_assets'
+        original = read(source / 'frames.json')[name]
+        incoming = source / original['image']
+        if hashlib.sha256(incoming.read_bytes()).hexdigest() != original['sha256']:
+            raise ValueError('Previously recorded official release screenshot changed')
+        target = capture / '08_official_release.png'
+        if target.exists():
+            raise FileExistsError('Earlier release frames are retained')
+        shutil.copyfile(incoming, target)
+        frames['08_official_release'] = dict(original, image=target.name,
+            reused_native_capture=str(incoming))
     for name, title, rows, note in cards:
         target = capture / (name + '.png')
         if target.exists():
@@ -90,7 +118,9 @@ def main():
             if (draw.textlength(command, font=style.COMMAND) > style.scaled(1500)
                     or draw.textlength(label, font=style.SMALL) > style.scaled(1500)):
                 raise ValueError('Installer instruction would be clipped')
-            top = 235 + index * 168
+            top = 235 + index * (136 if len(rows) > 3 else 168)
+            if top + 53 + style.COMMAND.size / style.SCALE > 810:
+                raise ValueError('Installer instruction would overlap the guidance note')
             style.draw_text(draw, (200, top), label, style.SMALL, style.MUTED)
             style.draw_text(draw, (200, top + 53), command, style.COMMAND, style.TEXT)
         if draw.textlength(note, font=style.SMALL) > style.scaled(1430):
@@ -101,14 +131,15 @@ def main():
                             buttons=[], kind='generated_reference_not_platform_recording')
     write(capture / 'frames.json', frames)
     provenance['generated_instruction_cards'] = [row[0] for row in cards]
-    provenance['reused_official_release_capture'] = dict(path=str(incoming), sha256=original['sha256'])
+    if not args.skip_release_frame:
+        provenance['reused_official_release_capture'] = dict(path=str(incoming), sha256=original['sha256'])
     provenance['platform_guidance_source_files'] = [dict(path=name,
         sha256=hashlib.sha256((REPO / name).read_bytes()).hexdigest()) for name in [
             'packaging/online/spacr_online_installer.nsi',
             'packaging/online/build_macos_online.sh',
             'packaging/online/install_spacr_unix.sh']]
     write(capture / 'provenance.json', provenance)
-    print(f'{len(cards)} reference cards and one reused genuine release-page screenshot; native frames unchanged.')
+    print(f'{len(cards)} reference cards; accepted native frames retained unchanged.')
 
 
 if __name__ == '__main__':

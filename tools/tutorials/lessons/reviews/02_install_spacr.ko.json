@@ -1,0 +1,41 @@
+{
+  "lesson": "02_install_spacr",
+  "english_sha256": "ebd31960772d2090c7c0e9442bafffdcb0d34bbf1905dc562a1829bf87c0f051",
+  "review": {
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+  },
+  "language": "ko",
+  "title": "spaCR 설치",
+  "description": "Python 가상 환경에서 pip로, Conda 환경에서 pip로, 또는 Conda 환경에서 conda-forge로 설치하고 실행, 업데이트 및 제거합니다.",
+  "objectives": [
+    "세 가지 격리된 설치 방법 중 하나를 선택합니다.",
+    "설치하거나 실행하기 전에 올바른 환경을 활성화합니다.",
+    "설치된 버전을 확인하고 안전하게 업데이트하고 제거합니다."
+  ],
+  "prerequisite": "가상 환경 방법에는 Python 3.12를 사용하고, 두 Conda 방법에는 Conda/Miniforge를 설치하세요. 터미널을 여세요. 기존 환경과 다른 이름을 사용해야 합니다.",
+  "scenes": [
+    "설치 방법 하나를 선택하세요. Pip는 Python 가상 환경이나 Conda 환경 안에 spaCR을 설치합니다. Conda-forge는 Conda 환경에 설치하며 Python 가상 환경에는 패키지를 설치할 수 없습니다. 아래 세 방법은 대안이므로 하나만 선택하면 됩니다.",
+    "가상 환경에서 pip를 사용하려면 전용 폴더를 만들고 Python 3.12를 -m venv와 함께 실행하여 .venv를 만드세요. 이미 환경이 들어 있는 폴더라면 다른 폴더를 사용하세요.",
+    "설치, 업데이트 또는 실행 전에 매번 .venv를 활성화하세요. Linux와 macOS에서는 bin/activate 스크립트를 source로 불러오세요. Windows PowerShell에서는 .venv\\Scripts\\Activate.ps1을 실행하세요. 환경 프롬프트와 Python 경로로 사용 중인 인터프리터를 확인할 수 있습니다.",
+    "환경을 활성화한 상태에서 pip를 업그레이드한 다음 pip install spacr를 실행하세요. 패키지 설치에는 데스크톱 애플리케이션이 사용하는 Qt 의존성이 포함됩니다. 과학 계산 및 데스크톱 의존성이 모두 설치될 때까지 기다리세요.",
+    "설치된 버전과 패키지 경로를 확인한 다음 python -m pip check를 실행하세요. 분석 기록에 버전을 함께 보관하세요. 이 방법은 배포된 PyPI 패키지를 설치합니다. 소스 코드 체크아웃이나 nightly 빌드에는 더 새로운 인터페이스 기능이 있을 수 있습니다.",
+    "spacr-doctor를 실행하고 작업과 관련된 누락된 의존성 안내를 따르세요. 그런 다음 spacr를 입력하여 설치된 애플리케이션을 실행하세요. 환경을 변경하기 전에 애플리케이션을 닫으세요.",
+    "Conda 안에서 pip를 사용하려면 Python 3.12와 pip가 포함된 spacr-pip 환경을 만들고 활성화하세요. Conda는 인터프리터를, pip는 spaCR을 제공합니다. spacr-pip가 이미 있다면 다른 이름을 선택하세요.",
+    "spacr-pip를 활성화한 상태에서 pip를 업그레이드하고 pip install spacr를 실행하세요. 패키지 설치에는 Qt 데스크톱 의존성이 포함됩니다. 가상 환경 방법과 마찬가지로 패키지 버전을 확인하고 pip check를 실행하세요. 같은 활성 환경에서 spacr를 실행하세요.",
+    "conda-forge 방법에서는 한 명령으로 Python 3.12와 conda-forge 채널의 spacr가 포함된 새 spacr-conda 환경을 만드세요. 인터프리터와 spaCR을 함께 해결하면 관련 없는 환경에 패키지를 추가하는 일을 피할 수 있습니다.",
+    "Conda는 설치 전에 패키지 계획을 보여 줍니다. 계획을 검토하고 승인한 다음 다운로드와 설치가 끝날 때까지 기다리세요. 사용 가능한 conda-forge 버전은 최신 PyPI 또는 nightly 버전과 다를 수 있습니다.",
+    "spacr-conda를 활성화하세요. Python 환경 경로를 확인하고 conda list spacr를 실행하여 설치된 버전과 채널을 확인하세요. 그런 다음 spacr-doctor를 실행하고 이 환경에서 spacr를 실행하세요.",
+    "이 보조 자료는 현재 nightly의 Home 인터페이스를 보여 줍니다. 설치된 배포 버전은 다르게 보일 수 있습니다. 환경 명령은 선택한 채널에서 배포된 패키지를 설치합니다. 이 현재 소스 화면은 모든 nightly 기능이 이미 배포되었다고 주장하지 않습니다.",
+    "pip 설치를 업데이트하려면 spaCR을 닫고 해당 환경을 활성화한 다음 pip install --upgrade spacr를 실행하세요. 이후 버전을 확인하세요. pip용으로 만든 Conda 환경을 포함하여 두 pip 방법 모두에서 spaCR 업데이트에는 pip를 사용하세요.",
+    "conda-forge 방법에서는 spaCR을 닫고 spacr-conda를 활성화한 다음 conda update -c conda-forge spacr를 실행하세요. 더 새로운 빌드가 없으면 Conda는 요청한 패키지가 이미 설치되어 있다고 알려 줍니다. 인터페이스가 바뀌었다고 가정하지 말고 설치된 버전을 확인하세요.",
+    "pip 설치를 제거하려면 해당 환경을 활성화하고 python -m pip uninstall spacr를 실행한 다음 제거를 승인하세요. spaCR 패키지가 제거됩니다. 현미경 프로젝트를 삭제하거나 모든 의존성을 자동으로 제거하지는 않습니다.",
+    ".venv를 spaCR만을 위해 만들었다면 비활성화하고 해당 전용 .venv 폴더를 제거하세요. 전용 spacr-pip Conda 환경에서는 conda deactivate를 실행한 다음 conda env remove -n spacr-pip를 실행하세요. 이 튜토리얼에서 만든 환경만 제거하세요.",
+    "conda-forge 환경에서는 제거 계획을 검토한 후 conda remove spacr로 패키지를 제거합니다. 대신 전용 환경 전체를 제거하려면 비활성화한 다음 conda env remove -n spacr-conda를 실행하세요. 프로젝트 폴더는 별도로 보관하세요. 환경 제거는 분석 데이터 삭제를 뜻하지 않습니다."
+  ]
+}

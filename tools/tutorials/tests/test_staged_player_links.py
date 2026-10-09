@@ -64,6 +64,23 @@ def test_web_rendition_mode_changes_only_the_selected_video(tmp_path, monkeypatc
     assert Path(handler.translate_path('/refresh/production/other/video/other_silent.mp4')).read_bytes() == b'OTHER'
 
 
+def test_explicit_candidate_player_changes_only_the_javascript_source(tmp_path, monkeypatch):
+    workspace, repo = tmp_path/'stage', tmp_path/'repo'
+    published = repo/'docs/source/_extra/tutorials'
+    published.mkdir(parents=True)
+    (published/'app_v2.js').write_bytes(b'published player')
+    (published/'app.css').write_bytes(b'published style')
+    candidate = repo/'tools/tutorials/authoring/web/app_v2.js'
+    candidate.parent.mkdir(parents=True); candidate.write_bytes(b'candidate native player')
+    monkeypatch.setattr(staged,'WORKSPACE',workspace)
+    monkeypatch.setattr(staged,'REPO',repo)
+    handler=staged.Handler.__new__(staged.Handler);handler.directory=str(workspace)
+    handler.player_source=candidate
+    assert Path(handler.translate_path('/web/app_v2.js?v=frozen')).read_bytes()==b'candidate native player'
+    assert Path(handler.translate_path('/web/app.css')).read_bytes()==b'published style'
+    assert (published/'app_v2.js').read_bytes()==b'published player'
+
+
 @pytest.mark.parametrize('actual,expected', [([], []), (['a'], ['a']),
     (['b', 'a', 'a'], ['a', 'b'])])
 def test_exact_authored_link_set_passes(actual, expected):

@@ -41,7 +41,7 @@
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Klappen Sie Assets auf und laden Sie den Installer für Windows, macOS oder Linux herunter. Bewahren Sie die Prüfsummendatei aus derselben Version auf, wenn Sie den Download prüfen möchten. Die Lektion Platform installers zeigt, wie Sie den Installer starten und spaCR öffnen.",
+          "narration": "Klappen Sie Assets auf und laden Sie das Installationsprogramm für Windows, macOS oder Linux herunter. Die Lektion Platform installers erklärt die Installation, den Start von spaCR und die Deinstallation auf jedem Betriebssystem.",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
@@ -54,19 +54,18 @@
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "Der conda-forge-Befehl installiert spaCR in Ihre aktive Conda-Umgebung. Folgen Sie der Conda-Lektion, um diese Umgebung zu erstellen, das Paket zu installieren und die Anwendung zu starten.",
+          "narration": "Der conda-forge-Befehl installiert spaCR in Ihrer aktiven Conda-Umgebung. Folgen Sie Install spaCR, um die Umgebung anzulegen, das Paket zu installieren und die Anwendung zu starten. Diese Lektion erklärt auch das Entfernen des Pakets und der Umgebung.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install"
+            "02_install_spacr"
           ]
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Fahren Sie mit pip, Conda oder Platform installers fort. Sobald spaCR geöffnet ist, gehen Sie zur Home-Lektion und dann zu den Pipeline-Übersichten, um einen Workflow für Ihre Daten zu wählen.",
+          "narration": "Fahren Sie mit Install spaCR für pip oder conda-forge fort, oder mit Platform installers für ein Desktop-Installationsprogramm. Beide Lektionen enthalten Anleitungen zur Deinstallation. Wechseln Sie nach dem Öffnen von spaCR zu Home und anschließend zu den Pipeline-Übersichten, um einen Arbeitsablauf für Ihre Daten auszuwählen.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
           ]
         }
@@ -141,201 +140,112 @@
       }
     },
     {
-      "id": "02_conda_install",
+      "id": "02_install_spacr",
       "number": 2,
-      "slug": "conda_install",
-      "title": "spaCR mit Conda installieren",
+      "slug": "install_spacr",
+      "title": "spaCR installieren",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Erstellen Sie eine Conda-Umgebung, installieren Sie spaCR aus conda-forge und starten Sie die Anwendung.",
+      "description": "Mit pip in einer virtuellen Python-Umgebung, mit pip in einer Conda-Umgebung oder mit conda-forge in einer Conda-Umgebung installieren; starten, aktualisieren und deinstallieren.",
       "objectives": [
-        "Eine eigene Conda-Umgebung erstellen und aktivieren.",
-        "spaCR aus conda-forge installieren.",
-        "spaCR öffnen und bei Bedarf dieselbe Umgebung aktualisieren."
+        "Einen von drei isolierten Installationswegen wählen.",
+        "Vor der Installation oder dem Start die richtige Umgebung aktivieren.",
+        "Die installierte Version prüfen, sicher aktualisieren und deinstallieren."
       ],
-      "prerequisite": "Installieren Sie Conda oder Miniforge und öffnen Sie ein Terminal, in dem der Befehl conda verfügbar ist.",
+      "prerequisite": "Verwenden Sie Python 3.12 für die virtuelle Umgebung oder installieren Sie Conda/Miniforge für einen der beiden Conda-Wege. Öffnen Sie ein Terminal. Wählen Sie andere Namen als die vorhandener Umgebungen.",
       "scenes": [
         {
-          "visual": "02_conda_environment",
-          "narration": "Öffnen Sie ein Terminal mit Conda. Sie erstellen eine Umgebung für spaCR, installieren das conda-forge-Paket und starten die Anwendung aus dieser Umgebung.",
+          "visual": "00_install_routes",
+          "narration": "Wählen Sie einen Installationsweg. Pip installiert spaCR in einer virtuellen Python-Umgebung oder in einer Conda-Umgebung. Conda-forge installiert in eine Conda-Umgebung; es kann keine Pakete in eine virtuelle Python-Umgebung installieren. Die drei folgenden Wege sind Alternativen, Sie benötigen also nur einen.",
           "hold_after": 0.7
         },
         {
-          "visual": "07_create_conda_command",
-          "narration": "Erstellen Sie mit dem angezeigten Befehl eine Umgebung namens spacr-conda mit Python 3.12 und spaCR aus conda-forge. Wählen Sie einen anderen Namen, wenn Sie diesen bereits für eine andere Umgebung verwenden.",
+          "visual": "pip_01_create_venv",
+          "narration": "Erstellen Sie für pip mit einer virtuellen Umgebung einen eigenen Ordner und führen Sie Python 3.12 mit -m venv aus, um .venv anzulegen. Verwenden Sie einen anderen Ordner, falls er bereits eine Umgebung enthält.",
           "hold_after": 0.7
         },
         {
-          "visual": "07_create_conda",
-          "narration": "Conda löst die Umgebung auf und listet den Paketplan auf. Prüfen Sie ihn, geben Sie y ein, um zuzustimmen, und warten Sie, bis Download und Installation abgeschlossen sind.",
+          "visual": "pip_02_activate_venv",
+          "narration": "Aktivieren Sie .venv vor jeder Installation, Aktualisierung oder jedem Start. Laden Sie unter Linux und macOS das Skript bin/activate mit source. Führen Sie in Windows PowerShell .venv\\Scripts\\Activate.ps1 aus. Die Umgebungsanzeige und der Python-Pfad bestätigen, welcher Interpreter verwendet wird.",
           "hold_after": 0.7
         },
         {
-          "visual": "08_activate_conda",
-          "narration": "Aktivieren Sie spacr-conda. Führen Sie den angezeigten Python-Befehl aus, um den Pfad der Umgebung zu sehen, und prüfen Sie, dass es die soeben erstellte Umgebung ist.",
+          "visual": "pip_03_install",
+          "narration": "Aktualisieren Sie bei aktiver Umgebung pip und führen Sie dann pip install spacr aus. Die Paketinstallation umfasst die Qt-Abhängigkeiten der Desktop-Anwendung. Warten Sie, bis die wissenschaftlichen und Desktop-Abhängigkeiten installiert sind.",
           "hold_after": 0.7
         },
         {
-          "visual": "09_install_conda",
-          "narration": "Führen Sie conda list spacr aus, um die installierte Version zu sehen und zu bestätigen, dass sie aus conda-forge stammt. Werden Python und spaCR mit einem Befehl installiert, kann Conda alle Pakete gemeinsam auflösen – das geht viel schneller, als spaCR zu einer bestehenden Umgebung hinzuzufügen.",
+          "visual": "pip_04_check",
+          "narration": "Prüfen Sie die installierte Version und den Paketpfad und führen Sie anschließend python -m pip check aus. Bewahren Sie die Version mit Ihren Analysenotizen auf. Dieser Weg installiert das veröffentlichte PyPI-Paket; ein Quellcode-Checkout oder ein Nightly-Build kann neuere Oberflächenfunktionen enthalten.",
           "hold_after": 0.7
         },
         {
-          "visual": "03_installed_versions",
-          "narration": "Prüfen Sie die installierte spaCR-Version und den Speicherort des Pakets. Notieren Sie diese Version bei Ihren Analysenotizen, damit Sie später zur selben Umgebung zurückkehren können.",
+          "visual": "pip_05_launch",
+          "narration": "Führen Sie spacr-doctor aus und folgen Sie den Hinweisen zu fehlenden Abhängigkeiten, die für Ihre Arbeit relevant sind. Geben Sie dann spacr ein, um die installierte Anwendung zu starten. Schließen Sie die Anwendung, bevor Sie ihre Umgebung ändern.",
           "hold_after": 0.7
         },
         {
-          "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus, um die Installation zu prüfen. Hier meldet es, dass vispy, eine Kernabhängigkeit, fehlt, und zeigt den Befehl an, der es installiert. Führen Sie diesen Befehl aus und starten Sie spacr-doctor dann erneut. Folgen Sie weiteren vorgeschlagenen Schritten nur für die Dateiformate oder Funktionen, die Sie benötigen.",
+          "visual": "pip_conda_01_create",
+          "narration": "Erstellen Sie für pip innerhalb von Conda eine Umgebung namens spacr-pip mit Python 3.12 und pip und aktivieren Sie sie. Conda liefert den Interpreter, pip liefert spaCR. Wählen Sie einen anderen Namen, falls spacr-pip bereits existiert.",
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Geben Sie spacr ein, um die Anwendung zu starten. Treffen Sie die Auswahl beim ersten Start und fahren Sie dann mit dem Home-Tutorial fort, um Module und ihre Beispieldaten zu finden.",
+          "visual": "pip_conda_02_install",
+          "narration": "Aktualisieren Sie bei aktivem spacr-pip pip und führen Sie pip install spacr aus. Die Paketinstallation umfasst die Qt-Desktop-Abhängigkeiten. Prüfen Sie die Paketversion und führen Sie pip check aus, genau wie bei der virtuellen Umgebung. Starten Sie spacr aus derselben aktiven Umgebung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_01_create",
+          "narration": "Erstellen Sie für conda-forge mit einem einzigen Befehl eine neue Umgebung namens spacr-conda mit Python 3.12 und spacr aus dem Kanal conda-forge. Wenn Interpreter und spaCR gemeinsam aufgelöst werden, wird das Paket nicht zu einer unpassenden Umgebung hinzugefügt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_02_plan",
+          "narration": "Conda zeigt vor der Installation seinen Paketplan. Prüfen und bestätigen Sie ihn und warten Sie, bis Download und Installation abgeschlossen sind. Die verfügbare conda-forge-Version kann von der neuesten PyPI- oder Nightly-Version abweichen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_03_activate",
+          "narration": "Aktivieren Sie spacr-conda. Prüfen Sie den Pfad der Python-Umgebung und bestätigen Sie Version und Kanal mit conda list spacr. Führen Sie dann spacr-doctor aus und starten Sie spacr aus dieser Umgebung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_current_home",
+          "narration": "Diese Ergänzung zeigt die aktuelle Nightly-Oberfläche von Home. Ihre installierte Version kann anders aussehen. Die Umgebungsbefehle installieren das veröffentlichte Paket aus dem gewählten Kanal; diese Ansicht des aktuellen Quellcodes behauptet nicht, dass alle Nightly-Funktionen bereits veröffentlicht wurden.",
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
+          "related_lessons": [
+            "05_home"
           ]
         },
         {
-          "visual": "10_current_release_choice",
-          "narration": "Um später zu aktualisieren, schließen Sie spaCR, aktivieren diese Umgebung und aktualisieren das conda-forge-Paket. Gibt es in conda-forge keinen neueren Build, meldet Conda, dass alle angeforderten Pakete bereits installiert sind. Prüfen Sie anschließend die installierte Version; die Lektionen zu pip und zum Installer behandeln die anderen Installationswege.",
+          "visual": "pip_06_update",
+          "narration": "Schließen Sie zum Aktualisieren einer pip-Installation spaCR, aktivieren Sie die Umgebung und führen Sie pip install --upgrade spacr aus. Prüfen Sie danach die Version. Verwenden Sie pip für spaCR-Updates bei beiden pip-Wegen, auch in der für pip erstellten Conda-Umgebung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_04_update",
+          "narration": "Schließen Sie beim conda-forge-Weg spaCR, aktivieren Sie spacr-conda und führen Sie conda update -c conda-forge spacr aus. Gibt es keinen neueren Build, meldet Conda, dass die angeforderten Pakete bereits installiert sind. Prüfen Sie die installierte Version, statt eine geänderte Oberfläche anzunehmen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "pip_07_uninstall",
+          "narration": "Aktivieren Sie zum Entfernen einer pip-Installation deren Umgebung, führen Sie python -m pip uninstall spacr aus und bestätigen Sie die Entfernung. Dies entfernt das spaCR-Paket, aber weder Ihre Mikroskopieprojekte noch automatisch jede Abhängigkeit.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "pip_08_remove_environment",
+          "narration": "Wenn .venv nur für spaCR erstellt wurde, deaktivieren Sie die Umgebung und löschen Sie diesen eigenen .venv-Ordner. Führen Sie für die eigene Conda-Umgebung spacr-pip conda deactivate und danach conda env remove -n spacr-pip aus. Entfernen Sie nur die für dieses Tutorial erstellte Umgebung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_05_uninstall",
+          "narration": "In der conda-forge-Umgebung entfernt conda remove spacr das Paket, nachdem Sie den Entfernungsplan geprüft haben. Um stattdessen die gesamte eigene Umgebung zu entfernen, deaktivieren Sie sie und führen Sie conda env remove -n spacr-conda aus. Bewahren Sie Projektordner separat auf; eine deinstallierte Umgebung bedeutet nicht, dass Ihre Analysedaten gelöscht werden.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "01_pypi_github",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "03_pip_install",
-      "number": 3,
-      "slug": "pip_install",
-      "title": "spaCR mit pip installieren",
-      "series": 1,
-      "app_key": null,
-      "section": "spaCR",
-      "description": "Erstellen Sie eine isolierte Python-Umgebung, installieren Sie das öffentliche Paket, prüfen Sie seine Abhängigkeiten und starten Sie die installierte Qt-Anwendung.",
-      "objectives": [
-        "Eine virtuelle Python-Umgebung erstellen und aktivieren.",
-        "spaCR installieren und seine Abhängigkeiten prüfen.",
-        "Die Anwendung starten und die vorgesehene Umgebung aktualisieren."
-      ],
-      "prerequisite": "Installieren Sie Python 3.12 und öffnen Sie ein Terminal. Verwenden Sie den Aktivierungsbefehl für Ihr Betriebssystem und Ihre Shell.",
-      "scenes": [
-        {
-          "visual": "01_python_version",
-          "narration": "Öffnen Sie ein Terminal und prüfen Sie Ihre Python-Version. Diese Anleitung verwendet Python 3.12. Halten Sie spaCR in einer eigenen virtuellen Umgebung, damit sich seine Pakete leicht verwalten lassen.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "07_create_environment",
-          "narration": "Erstellen Sie mit dem Befehl für Ihr Betriebssystem eine virtuelle Umgebung namens .venv. Dadurch entsteht ein Ordner mit der Python-Umgebung, die Sie für spaCR verwenden.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "08_activate_environment",
-          "narration": "Aktivieren Sie .venv mit dem Befehl für Ihre Shell. Windows PowerShell und die Eingabeaufforderung haben unterschiedliche Aktivierungsbefehle; macOS und Linux verwenden meist den hier gezeigten Shell-Befehl.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_pip_environment",
-          "narration": "Führen Sie python -m pip --version aus. Prüfen Sie, dass der angezeigte Pfad zu .venv gehört. Verwenden Sie python -m pip für die Installationsbefehle, damit pip diesen Interpreter nutzt.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "09_install_package",
-          "narration": "Aktualisieren Sie pip und installieren Sie dann spacr. Warten Sie, bis die wissenschaftlichen Pakete heruntergeladen und installiert sind. Das aktuelle Paket enthält die Desktop-Komponenten, die zum Öffnen der Anwendung nötig sind.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_installed_versions",
-          "narration": "Prüfen Sie mit dem angezeigten Befehl die installierte spaCR-Version und den Speicherort des Pakets. Speichern Sie die Version bei Ihren Analysenotizen.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_dependency_check",
-          "narration": "Führen Sie python -m pip check aus. Meldet es widersprüchliche Anforderungen, lösen Sie diese Konflikte, bevor Sie die Umgebung verwenden.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus, um die Installation zu prüfen und fehlende optionale Funktionen zu sehen. Folgen Sie der vorgeschlagenen Reparatur nur für die Formate oder Fähigkeiten, die Sie benötigen.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "10_launch_commands",
-          "narration": "Starten Sie spacr aus der aktivierten Umgebung. Folgen Sie beim ersten Start den Einrichtungsaufforderungen und wählen Sie Ihre Einstellungen.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "13_current_nightly_home",
-          "narration": "Diese Aufnahme installiert spaCR Version eins Punkt fünf Punkt eins Punkt drei. Veröffentlichte Versionen können ein älteres Home-Layout zeigen. Hier sehen Sie Home im aktuellen Nightly-Build mit Core, Data, Tools und Assays. Die aktuellen Module erklärt Home screen and navigation.",
-          "related_lessons": [
+            "04_platform_installers",
             "05_home"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "11_update_intentionally",
-          "narration": "Zum Aktualisieren schließen Sie spaCR und aktivieren diese Umgebung. Aktualisieren Sie das Paket und prüfen Sie dann Version und Abhängigkeiten erneut. Behalten Sie die vorherige Umgebung, wenn Sie sie für eine laufende Analyse brauchen.",
-          "related_lessons": [
-            "01_pypi_github",
-            "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -419,13 +329,14 @@
       "objectives": [
         "Den Installer für Ihr Betriebssystem herunterladen und ausführen.",
         "Eine Beschleunigungsoption und die Einstellungen für den ersten Start wählen.",
-        "spaCR öffnen und Installationsprotokolle finden, wenn die Einrichtung Aufmerksamkeit braucht."
+        "spaCR öffnen und Installationsprotokolle finden, wenn die Einrichtung Aufmerksamkeit braucht.",
+        "Die Anwendung mit der Funktion des Betriebssystems oder dem mitgelieferten Deinstallationswerkzeug entfernen."
       ],
       "prerequisite": "Laden Sie den offiziellen Installer für Ihr Betriebssystem herunter und planen Sie Speicherplatz für die Anwendung und ihre wissenschaftlichen Abhängigkeiten ein.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Öffnen Sie das offizielle spaCR-Release auf GitHub und laden Sie unter Assets den Installer für Ihr Betriebssystem herunter. Diese Online-Installer laden während der Einrichtung die Python-Laufzeit und die wissenschaftlichen Pakete herunter. Bewahren Sie SHA256SUMS.txt aus demselben Release auf, wenn Sie den Download prüfen möchten.",
+          "narration": "Öffnen Sie das offizielle spaCR-Release auf GitHub und laden Sie unter Assets den Installer für Ihr Betriebssystem herunter. Diese Online-Installer laden während der Einrichtung die Python-Laufzeit und die wissenschaftlichen Pakete herunter.",
           "hold_after": 0.7
         },
         {
@@ -465,7 +376,7 @@
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Diese Aufnahme installiert spaCR Version eins Punkt fünf Punkt eins Punkt drei. Veröffentlichte Versionen können ein älteres Home-Layout zeigen. Hier sehen Sie Home im aktuellen Nightly-Build mit Core, Data, Tools und Assays. Die aktuellen Module erklärt Home screen and navigation.",
+          "narration": "Diese Aufnahme installiert spaCR Version eins Punkt fünf Punkt eins Punkt drei. Veröffentlichte Versionen können ein älteres Home-Layout zeigen. Hier sehen Sie Home im aktuellen Nightly-Build mit Core, Data, Tools und Organism. Die aktuellen Module erklärt Home screen and navigation.",
           "related_lessons": [
             "05_home"
           ],
@@ -481,9 +392,23 @@
           "narration": "Bei Installationsproblemen finden Sie install.log und install-profile.json im Installationsverzeichnis. Prüfen Sie die Protokolle, bevor Sie sie mit einer Supportanfrage teilen. Geben Sie Ihr Betriebssystem und Ihre spaCR-Version an, damit sich das Problem leichter diagnostizieren lässt.",
           "related_lessons": [
             "01_pypi_github",
-            "02_conda_install",
-            "03_pip_install"
+            "02_install_spacr"
           ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_uninstall_windows",
+          "narration": "Schließen Sie unter Windows spaCR und öffnen Sie Settings, dann Apps und Installed apps. Wählen Sie spaCR und Uninstall. Die installierte ausführbare Uninstall-Datei startet denselben Entfernungsvorgang. Bewahren Sie Ihre Projektordner separat auf.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_uninstall_macos",
+          "narration": "Schließen Sie unter macOS spaCR und führen Sie das mitgelieferte Skript uninstall-spacr in Library/Application Support/spaCR aus. Es entfernt die Anwendung und ihre systemweiten Starter. Die benutzereigene Laufzeit in Ihrer eigenen Library/Application Support/spaCR ist separat; entfernen Sie sie nur, wenn Sie auch diese Laufzeit löschen möchten.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_uninstall_linux",
+          "narration": "Schließen Sie unter Linux spaCR und führen Sie das Skript uninstall-spacr im Unterordner .local/share/spacr Ihres Benutzerordners aus. Es entfernt die verwaltete Laufzeit und die Anwendungsstarter. Dafür müssen Sie weder Ihre Mikroskopieprojekte noch deren Analyseergebnisse löschen.",
           "hold_after": 0.7
         }
       ],
@@ -564,139 +489,248 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Öffnen Sie ein Modul über Home, finden Sie die zugehörigen Werkzeuge und Beispieldaten und wählen Sie dann eine Pipeline aus.",
+      "description": "Gehen Sie alle aktuellen Home-Module von links nach rechts durch. Lernen Sie anschließend mit Mask die gemeinsamen Bedienelemente kennen und passen Sie Navigation, Hilfe und Darstellung an.",
       "objectives": [
-        "Ein Startmodul für Bilder, Messwerte oder Sequenzier-Reads wählen.",
-        "Zugehörige Werkzeuge und organismusspezifische Assays finden.",
-        "Die Home-Spalte und die Modulbereiche an Ihren Bildschirm anpassen.",
-        "Ein Beispiel laden, Hilfe über die Suche oder Control-K finden und Preferences einstellen."
+        "Alle Module in den aktuellen Reihen Core, Data, Tools und Organism erkennen.",
+        "Mit Mask die gemeinsamen Einstellungen, Vorschauen, Aktionen und Ausgaben kennenlernen.",
+        "Zu Home zurückkehren, die Suche verwenden und die Bereiche anordnen.",
+        "Einstellungen für Darstellung und Leistung auswählen."
       ],
       "prerequisite": "Installieren Sie spaCR und öffnen Sie die Desktop-Anwendung.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home ist Ihr Ausgangspunkt. Klicken Sie auf eine Kachel, um ein Modul zu öffnen, oder verwenden Sie die Seitenleiste links. Mit Home in der Seitenleiste kehren Sie hierher zurück. Die Registerkarten Core, Data, Tools und Assays helfen Ihnen, die gewünschte Aufgabe zu finden.",
+          "narration": "Home ist der Ausgangspunkt. Lesen Sie jede Reihe von links nach rechts: Core, Data, Tools und Organism. Jede Kachel öffnet ihr Modul. Die Seitenleiste bietet dieselben Zugänge; Home führt zurück zur Übersicht.",
           "hold_after": 0.7
         },
         {
-          "visual": "01_core  (6)",
-          "narration": "Lesen Sie die Core-Kacheln von links nach rechts. Beginnen Sie bei Mikroskopbildern mit Mask, um Objekte zu umranden, und extrahieren Sie dann mit Measure deren Merkmale und Ausschnitte. Mit Annotate beschriften Sie Beispielobjekte, und Classify lernt aus diesen Labels, um weitere Objekte zu bewerten. Map Barcodes liest Sequenzierdaten. Regression kombiniert die entstandenen Phänotyp-Scores mit den Guide-Zählungen, um Zusammenhänge zu finden.",
+          "visual": "home_module_mask",
+          "narration": "Mask erzeugt Objektmasken aus Mikroskopiebildern. Wir öffnen es später kurz, um die gemeinsamen Bedienelemente der Analysemodule kennenzulernen.",
           "hold_after": 0.7,
           "focus_modules": [
-            "mask",
-            "measure",
-            "annotate",
-            "classify_merged",
-            "map_barcodes",
+            "mask"
+          ],
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "home_module_measure",
+          "narration": "Measure kombiniert Bilder und Masken, um Objektmessungen und Bildausschnitte zu erstellen. Die Messtabellen verbinden Bilder mit weiteren Analysen.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "measure"
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "home_module_annotate",
+          "narration": "Annotate zeigt Objektausschnitte und ermöglicht geprüfte Beschriftungen für Beispiele.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "annotate"
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ]
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify lernt aus geprüften Beschriftungen und bewertet weitere Objekte anhand von Bildern oder Tabellenmerkmalen.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "home_module_map_barcodes",
+          "narration": "Map Barcodes liest Sequenzierungsdaten, um Guides oder Barcodes zu zählen und zu identifizieren.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "map_barcodes"
+          ],
+          "related_lessons": [
+            "12_map_barcodes"
+          ]
+        },
+        {
+          "visual": "home_module_regression",
+          "narration": "Regression verknüpft Phänotypwerte mit Guide-Zählungen und erhält dabei die experimentelle Gruppierung.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "regression"
           ],
           "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "12_map_barcodes",
             "13_regression"
           ]
         },
         {
-          "visual": "02_data  (7)",
-          "narration": "Lesen Sie die Data-Kacheln von links nach rechts. Import übernimmt vorhandene Bilder, Masken oder Messtabellen in ein Projekt. Embeddings wandelt Objektausschnitte in numerische Merkmalsvektoren für Vergleiche um. Run Compare stellt zwei Läufe nebeneinander. Experiment Design plant die Belegung Ihrer Platten. Power / Design simuliert die Erkennung unter verschiedenen Annahmen zur Zell- und Well-Zahl und hilft so bei der Versuchsplanung. Dose-Response passt Konzentrations-Wirkungs-Kurven an und zeigt Schätzwerte, Intervalle und Warnungen zur Anpassung. QC zeigt die aufgezeichneten Qualitätsprüfungen. Öffnen Sie das Tutorial des jeweiligen Moduls für seine Eingaben und die nächsten Schritte.",
+          "visual": "home_module_foreign",
+          "narration": "Import bereitet eingehende Mikroskopiedateien und Metadaten für die Projektstruktur vor.",
           "hold_after": 0.7,
           "focus_modules": [
-            "foreign",
-            "embeddings",
-            "run_compare",
-            "experiment_design",
-            "power",
-            "dose_response",
+            "foreign"
+          ],
+          "related_lessons": [
+            "36_import"
+          ]
+        },
+        {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings kodiert Objektausschnitte als numerische Merkmale zur Untersuchung und zum Vergleich.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "home_module_run_compare",
+          "narration": "Run Compare führt gespeicherte Ergebnisse mehrerer Läufe zusammen, damit Sie Unterschiede prüfen können.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "run_compare"
+          ],
+          "related_lessons": [
+            "50_run_compare"
+          ]
+        },
+        {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design ordnet Bedingungen, Wells und Probenidentitäten vor einem Experiment an.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
+          "visual": "home_module_power",
+          "narration": "Power / Design untersucht Annahmen zu Stichprobengröße und Teststärke bei geplanten Vergleichen.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "power"
+          ],
+          "related_lessons": [
+            "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose-Response passt Antworten über Konzentrationen hinweg an und hält den gewählten Endpunkt und die Kontrollen ausdrücklich fest.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC führt Qualitätsprüfungen zusammen und zeigt vorhandene und fehlende Nachweise.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "qc_dashboard"
           ],
           "related_lessons": [
-            "36_import",
-            "77_embeddings",
-            "50_run_compare",
-            "67_experiment_design",
-            "68_power_design",
-            "69_dose_response",
             "54_qc_dashboard"
           ]
         },
         {
-          "visual": "03_tools  (5)",
-          "narration": "Lesen Sie die Tools-Kacheln von links nach rechts. Make Masks ermöglicht das Bearbeiten von Masken und öffnet die Cellpose Workbench. Align and Stitch fügt überlappende Bildkacheln zusammen. Image UMAP erkundet Objektausschnitte in einer Ansicht mit reduzierter Dimension. Gate Editor wählt Gruppen anhand von Wertebereichen gemessener Merkmale aus. Graph Builder stellt Messergebnisse grafisch dar. Die Werkzeugleiste jedes Moduls öffnet die zugehörigen Werkzeuge.",
+          "visual": "home_module_make_masks",
+          "narration": "Make Masks ermöglicht das manuelle Zeichnen und Prüfen von Masken oder das Vorbereiten von Bild-Masken-Paaren.",
           "hold_after": 0.7,
           "focus_modules": [
-            "make_masks",
-            "align",
-            "umap",
-            "gate_editor",
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "home_module_align",
+          "narration": "Align & Stitch verbindet kompatible Bildkacheln und zeichnet deren Geometrie auf.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "align"
+          ],
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "home_module_umap",
+          "narration": "Image UMAP projiziert Objektmerkmale, um ähnliche Objekte zu untersuchen und repräsentative Bildausschnitte zu prüfen.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "umap"
+          ],
+          "related_lessons": [
+            "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor definiert Auswahlen anhand realer Datenspalten. Prüfen Sie die ausgewählten Objekte, bevor Sie aus einem Gate Beschriftungen erzeugen.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "home_module_graph_builder",
+          "narration": "Graph Builder erstellt Diagramme aus Messtabellen mit einstellbaren Spalten und Gruppierungen.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "graph_builder"
           ],
           "related_lessons": [
-            "14_make_masks",
-            "32_align_stitch",
-            "15_image_umap",
-            "64_gate_editor",
             "58_graph_builder"
           ]
         },
         {
-          "visual": "04_assays  (1)",
-          "narration": "Öffnen Sie Assays für organismusspezifische Workflows. Toxoplasma öffnet sein Assay-Menü, zum Beispiel für die Plaque-Analyse oder Wirt-Pathogen-Messungen. Folgen Sie dem Tutorial des gewählten Assays, um seine Bilder, Masken und Messeingaben vorzubereiten.",
+          "visual": "home_module_toxoplasma",
+          "narration": "Die Reihe Organism enthält Toxoplasma. Sie öffnet einen Organismusleitfaden, eine interaktive Zeichnung und die verfügbaren Toxoplasma-Assays. Ein eigener Toxoplasma-Kurs erklärt diese Seite.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma"
           ],
           "related_lessons": [
-            "24_plaque",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication"
-          ]
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "Öffnen Sie Classify und wählen Sie über Classifier family Ihre Eingabe. Wählen Sie Computer Vision für Objektbilder oder Tabular Machine Learning für gemessene Merkmalsspalten. Die verlinkten Tutorials führen Sie für jede Familie durch Training, Bewertung und Scoring.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "41_classify",
-            "10_classify_cv",
-            "11_classify_ml"
-          ]
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "Ist ein Modell trainiert, hilft Ihnen die Werkzeugleiste von Classify, es zu hinterfragen. Classifier Evaluation zeigt seine Leistung auf zurückgehaltenen Daten, Explain CV Model und Activation zeigen, was seine Entscheidungen bestimmt, Training Runs vergleicht Trainingsverläufe, und Feature Explorer ordnet die Merkmale, die Ihre Gruppen trennen. Fahren Sie mit der Maus über ein Symbol, um seinen Namen zu sehen.",
-          "hold_after": 0.7,
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "39_classifier_evaluation",
-            "70_explain_cv",
-            "16_activation",
-            "28_training_runs",
-            "65_feature_explorer"
+            "82_toxoplasma"
           ]
         },
         {
           "visual": "06_mask_host",
-          "narration": "Um ein Modul auszuprobieren, klicken Sie auf Load test data, sofern vorhanden. Warten Sie, bis der Download abgeschlossen ist, und prüfen Sie dann die ausgefüllten Eingaben und Einstellungen. Klicken Sie in Mask auf Live, um ein Bildfeld zu prüfen, bevor Sie Run drücken. Schalten Sie Time für eine Zeitreihe oder 3D für ein Volumenbild ein.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "17_timelapse"
-          ]
+          "narration": "Öffnen Sie Mask als allgemeines Beispiel für ein Analysemodul. Hier lernen wir den Bildschirmaufbau, ohne eine Segmentierung durchzuführen. Links stehen Einstellungen, rechts Konsole und Fortschritt, unten die Aktionen. Live öffnet die Vorschau, wenn Eingabedaten vorhanden sind.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06b_mask_settings",
+          "narration": "Einstellungen sind in Abschnitte gegliedert. Klappen Sie einen Abschnitt auf, um seine Bedienelemente zu sehen. Wählen Sie Ihren Eingabeordner oder Load test data, wenn ein Beispiel bereitsteht. Beschriftungen und Hilfe erklären die erwarteten Eingaben.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06c_mask_actions",
+          "narration": "Import settings lädt eine gespeicherte Konfiguration in das Formular. Run startet die gewählte Arbeit, Stop fordert einen laufenden Auftrag zum Anhalten auf. Die Konsole zeigt Fortschritt und Meldungen. Lesen Sie vor der Analyse den Kurs zum jeweiligen Modul.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_resize_panels",
-          "narration": "Jeder Modulbildschirm lässt sich an Ihren Bildschirm anpassen. Ziehen Sie den Griff zwischen den Einstellungen und den rechten Bereichen, um einer Seite mehr Platz zu geben, oder klicken Sie auf seinen Pfeil, um die Einstellungen einzuklappen. Halten Sie Control gedrückt und scrollen Sie über den rechten Bereichen, um deren Text zu vergrößern oder zu verkleinern; mit Control-0 setzen Sie ihn zurück.",
-          "hold_after": 0.7,
-          "focus": [
-            1800,
-            171,
-            300,
-            1950
-          ]
+          "narration": "Ziehen Sie den Trenner, um Einstellungen oder Vorschau mehr Platz zu geben. Control und das Mausrad ändern die Textgröße einer Spalte. Diese Layoutkontrollen verbessern die Lesbarkeit, ohne die Analyse zu verändern.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_home_column",
@@ -754,7 +788,7 @@
         },
         {
           "visual": "13b_preferences_appearance",
-          "narration": "Appearance legt fest, wie Hilfe während der Arbeit erscheint. Tooltip delay ist die Zeit, die der Mauszeiger auf einem Element ruhen muss, bevor der Hinweis erscheint: standardmäßig zwei Sekunden, und null zeigt Hinweise sofort. Show tooltips schaltet sie ganz ab, und darunter lassen sich die Abschnitte Theme und Animation für das Aussehen des Fensters aufklappen.",
+          "narration": "Appearance legt fest, wie die Hilfe während der Arbeit erscheint. Tooltip delay bestimmt, wie lange der Zeiger ruht, bevor ein schwebender Hinweis erscheint: standardmäßig zwei Sekunden oder null für sofortige Hinweise. Show tooltips steuert diese schwebenden Hinweise. Die eigenen Hilfebereiche auf Home und in Preferences zeigen ihren Text sofort. Darunter lassen sich Theme und Animation aufklappen, um das Aussehen des Fensters einzustellen.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -776,7 +810,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Klicken Sie stattdessen auf Animation, um diesen Abschnitt zu öffnen. Er wählt den animierten Hintergrund und seine Palette, mit Reglern für Detail, Unschärfe, Tempo, Größe und Dichte, ob Einstellungs-Tooltips animiert werden, und den Hintergrund hinter den Einstellungen.",
+          "narration": "Klicken Sie auf Animation, um den Haupthintergrund und seine Palette zu wählen. Animation colours legt die Haupt- und Akzentfarben für Custom colours fest; Animation background wählt einen unabhängigen Hintergrund, und Theme colour stellt das Seitendesign wieder her. Detail steuert die Darstellungsauflösung. Speed, Size und Density ändern Bewegung und Anzahl der Elemente. Mouse gravity radius legt den Einflussbereich der Maus fest; null deaktiviert ihn. Dot blinking steuert weiße Lichtblitze, und Popup wave frequency lässt in spaCR field Wellen von geöffneten Dialogfenstern ausgehen. Field ripples steuert Wellen durch Klicks, das Öffnen oder Schließen von Bereichen und das Einrasten des Fensters, unabhängig von der Mausanziehung. Beim Ausschalten enden auch die automatischen Dialogwellen. Settings animation speed, Settings animation size, Settings animation detail und Settings animation density ändern nur Settings backdrop. Settings backdrop darkness steuert die Lesbarkeit des Formulars.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -784,6 +818,16 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "13h_preferences_apply",
+          "narration": "Klicken Sie auf Apply, um die Änderungen zu erproben, während Preferences geöffnet bleibt. Eine separate Frage bietet Keep oder Revert für die angewendeten Einstellungen an. Revert stellt die vorherigen Einstellungen wieder her; Ihre bearbeiteten Steuerelemente bleiben verfügbar, sodass Sie sie anpassen oder erneut anwenden können.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13i_preferences_kept",
+          "narration": "Keep übernimmt die angewendeten Einstellungen und lässt Preferences geöffnet. Bearbeiten Sie eine weitere Registerkarte, oder klicken Sie auf Save, wenn Sie die aktuellen Werte behalten und das Fenster schließen möchten.",
+          "hold_after": 0.7
         },
         {
           "visual": "13e_session_updates",
@@ -819,20 +863,9 @@
           ]
         },
         {
-          "visual": "00_home",
-          "narration": "Kehren Sie zu Home zurück und klicken Sie auf Pipeline overviews, um einen Workflow zu wählen. Beginnen Sie mit spaCR screens für einen gepoolten bildbasierten Screen, oder wählen Sie einen Bildanalyse- oder Sequenzierpfad für Ihre Daten. Die nächsten Tutorials zeigen, wie diese Module zusammenhängen, und die Modul-Lektionen führen anschließend durch jede Aufgabe.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "78_spacr_screens",
-            "80_image_analysis_pathways",
-            "81_sequencing_pathways"
-          ],
-          "focus": [
-            3150,
-            205,
-            666,
-            46
-          ]
+          "visual": "24_spaceout_field",
+          "narration": "Im Modus Spaceout enthält Preferences die spaCR field-Bedienelemente für acht unabhängige Effekte. Schalten Sie jeden Effekt einzeln ein oder aus. Die üblichen Einstellungen für Erscheinungsbild und Animation des Einstellungsfensters bleiben verfügbar. Apply zeigt eine Vorschau, Keep übernimmt die Änderung und Revert stellt die vorherige Wahl wieder her.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -15018,7 +15051,7 @@
       "series": 1,
       "app_key": null,
       "section": "Arbeitsabläufe",
-      "description": "Wählen Sie einen Bildanalyseweg über Segmentierung, Messung, Annotation, Klassifikation, Projektionen, Gates, Bildregistrierung, Qualitätskontrolle und Assays.",
+      "description": "Folgen Sie den aktuellen Wegen vom Bild zur Messung und wählen Sie Exploration, Beschriftung, Vergleich oder organismusspezifische Analysen.",
       "objectives": [
         "Wählen Sie ein Startmodul anhand der Daten, die Sie bereits haben.",
         "Ermitteln Sie, was jedes Modul liest und schreibt.",
@@ -15027,195 +15060,131 @@
       "prerequisite": "Installieren Sie spaCR und öffnen Sie Home. Wählen Sie die Ausgangsdaten für Ihren Workflow und folgen Sie dann den verlinkten Modul-Lektionen für Bedienelemente und Beispieldaten.",
       "scenes": [
         {
-          "visual": "home",
-          "narration": "Die Bildanalyse in spaCR folgt Ihren Bildern von den Pixeln bis zu den Antworten. Rohbilder beginnen in Mask, das die Objekte findet. Wenn Sie Masken von Hand korrigieren möchten, verwenden Sie Make Masks, oder importieren Sie vorhandene Masken. Measure macht dann aus Bildern und Masken Zahlen, auf Wunsch auch Bildausschnitte. Von dort wählen Sie den Weg: Klassifikation, Bilderkundung, Gating oder ein Assay. Fügen Sie Kacheln zuerst zusammen, wenn die Analyse ein einziges Koordinatensystem braucht.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "05_home"
-          ]
+          "visual": "00_home",
+          "narration": "Beginnen Sie mit der Frage und den bereits vorhandenen Daten. Die aktuellen Zeilen auf Home trennen Core analysis, Data preparation and comparison, Tools und die Organism-Seite für Toxoplasma. Ein Modul ist ein Schritt; seine Ausgabe wird zur Eingabe eines anderen Moduls.",
+          "hold_after": 0.7
         },
         {
-          "visual": "module_mask",
-          "narration": "Rohe Mikroskopbilder beginnen in Mask. Öffnen Sie es von Home aus, wählen Sie Kanäle und Segmentierungsmodelle und prüfen Sie die Vorschau, bevor Sie starten. Mask schreibt jedes Bildfeld als zusammengeführtes Array, Bildkanäle und ganzzahlige Labelebenen gemeinsam, und dieses zusammengeführte Array liest Measure als Nächstes. Mask behält außerdem eine kleine Zähldatenbank, doch das ist nur eine Strichliste, keine Merkmalstabelle.",
+          "visual": "module_foreign",
+          "narration": "Import organisiert eingehende Mikroskopiedateien und Metadaten. Enthält Ihre Aufnahme überlappende Bildkacheln, kann Align & Stitch ein Mosaik mit seinen Koordinatendatensätzen vorbereiten. Bewahren Sie Kanalidentitäten und Quellmetadaten zusammen mit dem Projekt auf.",
           "hold_after": 0.7,
           "related_lessons": [
-            "07_mask",
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "module_make_masks",
-          "narration": "Manchmal brauchen Masken eine menschliche Hand. Öffnen Sie Make Masks von Home aus, um sie Bildfeld für Bildfeld zu korrigieren. Was Sie hier speichern, kann zwei Wege gehen. Für das Segmentierungstraining kuratieren Sie Bild-Masken-Paare und halten sie als Trainingsbildfelder zusammen. Zum Messen verwenden Sie Organize for Measure, das jedes Bild und seine Masken in Kanalordner verschiebt und sie zu den Arrays zusammenführt, die Measure liest; eine einzelne Maske ist kein zusammengeführtes Array. Hier gezeichnete Plaque-Masken können mit ihren passenden Quellbildern auch in Plaque Assay einfließen. Das Speichern einer Maske trainiert keinen Klassifikator.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "14_make_masks",
-            "24_plaque"
-          ]
-        },
-        {
-          "visual": "module_measure",
-          "narration": "Measure ist der Knotenpunkt dieser ganzen Karte. Öffnen Sie es von Home aus und richten Sie es auf das Projekt, das Mask erstellt hat, mit korrekt gesetzten Bild- und Maskenkanalindizes; in Make Masks gepaarte Masken kommen ebenfalls hier an. Measure liest Bilder und Labelebenen gemeinsam und schreibt jede Zelle, jeden Kern oder Parasiten als Zeile in measurements.db. Schalten Sie das Speichern von Ausschnitten ein, wenn Sie ein PNG jedes Objekts möchten, und bewahren Sie die Datenbank bei ihrem Quellprojekt auf, wenn Sie Ausschnitte stattdessen streamen. Fast alles andere beginnt bei diesen Zeilen. Annotate und Classify nutzen Messwerte und Ausschnitte, um Phänotypen zu lernen. Image UMAP projiziert sie, damit Sie nach Gruppierungen suchen können, und Embeddings kodiert die Ausschnitte mit einem Modell und hält Encoder und Kanalregel fest. Gate Editor setzt Schwellenwerte auf den echten gemessenen Merkmalen in ihren echten Einheiten, und QC zeigt, welche Prüfungen existieren und welche fehlen. Auch die Toxoplasma-Assays setzen hier an: Recruitment braucht die richtigen Kompartimentintensitäten, Invasion Assay zweifarbige Färbungsmessungen mit Baseline-Kontrollen und Replication Assay explizite Verknüpfungen von Parasit zu Vakuole. Host–Pathogen Analysis verlangt Masken ganzer Vakuolen und Wirts-Referenzintensitäten, wobei die nicht infizierten Zellen erhalten bleiben. Und das Größenmaß der Endodyogenie liest das gemessene Projekt aus Python, nachdem Sie Wirtszell-Aggregation und Flächeneinheiten geprüft haben; die Zähldatenbank von Mask allein reicht nicht aus.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "14_make_masks",
-            "15_image_umap",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication",
-            "41_classify",
-            "54_qc_dashboard",
-            "64_gate_editor",
-            "77_embeddings",
-            "85_host_pathogen"
-          ]
-        },
-        {
-          "visual": "module_annotate",
-          "narration": "Mit Messwerten in der Hand ist Annotate der Ort, an dem Sie anhand von Beispielen lehren. Öffnen Sie es von Home aus; es zeigt die Objekt-Bildausschnitte, die Measure gespeichert hat oder aus dem Projekt streamt. Beschriften Sie repräsentative Objekte; jedes Label kommt in eine Annotationsspalte der Tabelle png_list, gebunden an die Identität des Objekts. Sie müssen nicht bei null anfangen: In Gate Editor gespeicherte Gates können Kandidatenlabels zur Prüfung vorschlagen. Verwenden Sie für jede Frage eine eigene Spalte, halten Sie Trainings- und Evaluierungsobjekte getrennt, und auf dieser Spalte trainiert Classify als Nächstes.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_classify_merged",
-          "narration": "Öffnen Sie Classify von Home aus, um Labels in Vorhersagen zu verwandeln. Es hat zwei Familien, und Ihre Daten entscheiden zwischen ihnen. Computer Vision lernt aus Objekt-Bildausschnitten, die Measure speichert oder streamt; Tabular Machine Learning lernt aus den gemessenen Merkmalsspalten. Die Labels können aus drei Quellen stammen. Meist kommen sie aus Annotate. Gate Editor kann geprüfte Gate-Auswahlen in eine Annotationsspalte schreiben, und Image UMAP kann dasselbe mit geprüften Lasso-Auswahlen tun; wählen Sie in beiden Fällen hier dieselbe Spalte und Objektpopulation. Ein Embedding-Cluster ist keine Referenzwahrheit; prüfen Sie also die Ausschnitte, validieren Sie die Labels und halten Sie Validierungsobjekte vom Training fern. Classify speichert dann seine Scores, das trainierte Modell und ein Evaluierungspaket mit Vorhersagen auf den zurückgehaltenen Daten. Wählen Sie in einem Screen die gemeinte CV- oder ML-Score-Spalte und bringen Sie sie mit intakter Platten- und Well-Identität in Regression.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "13_regression",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_umap",
-          "narration": "Image UMAP dient zum Hinsehen, bevor Sie beschriften. Öffnen Sie es von Home aus; es projiziert die gemessenen Merkmale aus Measure oder Encoder-Merkmale aus Embeddings mit passenden Objekt-IDs auf eine Karte, auf der ähnliche Objekte nahe beieinander liegen. Öffnen Sie repräsentative Bildausschnitte, um zu sehen, was eine Region wirklich enthält. Ein Cluster ist nur eine Kandidatengruppe, kein validierter Phänotyp. Wenn eine Region wirklich bedeutsam aussieht, ziehen Sie ein Lasso darum, prüfen Sie, was Sie erfasst haben, und schreiben Sie die Auswahl in eine Annotationsspalte der passenden Messdatenbank. Classify kann dann auf dieser Spalte trainieren. Die Projektion kann auch an Gate Editor gehen, wenn Sie die Auswahl lieber dort mit den passenden Koordinaten- und Merkmalsspalten festlegen. Nicht jeder GUI-Weg speichert Encoder-Merkmale für Sie, und eine Form in einem Diagramm allein belegt keinen biologischen Phänotyp.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor",
-            "77_embeddings"
-          ]
-        },
-        {
-          "visual": "module_gate_editor",
-          "narration": "Mit Gate Editor wählen Sie Objekte nach Regeln statt nach Augenmaß. Öffnen Sie es von Home aus und zeichnen Sie Schwellenwert- oder Polygon-Gates auf echten Spalten: gemessenen Merkmalen aus Measure in ihren tatsächlichen Einheiten oder den Koordinaten einer Image-UMAP-Projektion. Speichern Sie ein Gate, und Sie können es erneut auf beliebige kompatible Objekte anwenden. Seine Schaltfläche Annotate schreibt die angezeigten Gates in eine Annotationsspalte, sobald Sie die ausgewählten Objekte geprüft und binäre oder Mehrklassen-Labels gewählt haben. Gespeicherte Gates können auch in Annotate Kandidatenlabels vorschlagen. Wählen Sie dann dieselbe Spalte und Objektpopulation in Classify und halten Sie Validierungsobjekte von den Trainingslabels getrennt.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_align",
-          "narration": "Manche Analysen brauchen zuerst ein aus Kacheln zusammengesetztes Bild. Öffnen Sie Align & Stitch von Home aus, prüfen Sie Kachelgeometrie, Überlappung und Kanalzuordnung und speichern Sie das Mosaik mit seinen Koordinatenaufzeichnungen. Behalten Sie für OPS auch die ursprünglichen Zyklus- und Positionsidentitäten.",
-          "hold_after": 0.7,
-          "related_lessons": [
+            "36_import",
             "32_align_stitch"
           ]
         },
         {
-          "visual": "module_analyze_plaques",
-          "narration": "Nun zu den Toxoplasma-Assays. Öffnen Sie Toxoplasma von Home aus und wählen Sie Plaque Assay. Dieses überspringt Measure: Es liest Plaque-Bilder oder bereits vorhandene Masken und führt das konfigurierte Plaque-Modell aus. Masken aus Make Masks funktionieren hier, wenn es Plaque-Masken mit passenden Quellbildern sind; Zellmasken sind keine Plaque-Labels. Es speichert Plaque-Ergebnisse und Masken, und die Lektion zum Plaque-Beispiel zeigt einen vollständigen Lauf.",
+          "visual": "module_mask",
+          "narration": "Mask erzeugt Objektlabels aus Mikroskopiebildern. Mit Make Masks erstellen oder prüfen Sie Masken manuell. Bild-Masken-Paare müssen dieselbe Feldidentität behalten; eine einzelne Maskendatei ist nicht automatisch das kombinierte Projektarray, das Measure benötigt.",
           "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
-            "24_plaque"
+            "07_mask",
+            "14_make_masks"
           ]
         },
         {
-          "visual": "module_recruitment",
-          "narration": "Recruitment fragt, wie viel eines Markers sich am Parasiten sammelt. Öffnen Sie Toxoplasma von Home aus und wählen Sie Recruitment. Es liest Kompartimentintensitäten aus Measure mit zueinander passenden Wirts- und Pathogenidentitäten und berechnet Rekrutierungsverhältnisse, die jedes Well und jede Bedingung erhalten.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "25_recruitment"
-          ]
-        },
-        {
-          "visual": "module_host_pathogen",
-          "narration": "Host–Pathogen Analysis betrachtet die Infektion von beiden Seiten. Öffnen Sie Toxoplasma von Home aus und wählen Sie es dann. Es liest Messungen aus Measure, die ganze Vakuolen, Wirts-Referenzkompartimente und die nicht infizierten Wirtszellen umfassen, die den Infektionsnenner bilden. Wählen Sie die Markerkanäle und legen Sie an Ihren Kontrollen kalibrierte Verhältnis-Schwellenwerte fest. Haben Sie einzelne Parasiten segmentiert, kann es sie pro Vakuole aus expliziten Verknüpfungen oder einer gemessenen Zählspalte zählen. Sie erhalten dann Vakuolen-, Wirts- und Well-Tabellen, kombinierte Markerzustände, Replikationsverteilungen und alle Parasitenverknüpfungen, die es nicht zuordnen konnte. Unbekannte Messwerte bleiben unbekannt, und die Wirtsidentität allein definiert nie eine Vakuole.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "85_host_pathogen"
-          ]
-        },
-        {
-          "visual": "module_invasion",
-          "narration": "Um Parasiten, die nur anhaften, von denen zu unterscheiden, die eingedrungen sind, öffnen Sie Toxoplasma von Home aus und wählen Invasion Assay. Es stützt sich auf zweifarbige Differentialfärbungsmessungen aus Measure zusammen mit Färbe-Baseline-Kontrollen und speichert die Assay-Ergebnisse mit intakten Wells und Bedingungen.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "26_invasion"
-          ]
-        },
-        {
-          "visual": "module_replication",
-          "narration": "Replication Assay, ebenfalls unter Toxoplasma auf Home, zählt die Parasiten in jeder Vakuole und vergleicht diese Verteilungen zwischen Bedingungen. Es liest Objekte aus Measure, braucht aber explizite Zuordnungen von Parasit zu Vakuole; die Wirtsidentität allein definiert keine Vakuole.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "27_replication"
-          ]
-        },
-        {
-          "visual": "module_qc_dashboard",
-          "narration": "Öffnen Sie jederzeit nach Measure QC von Home aus, um Ihre Arbeit zu prüfen. Es liest die gespeicherten Prüfungen zu Segmentierung, Einheiten, Übersprechen und Platteneffekten, und seine eingebetteten Betrachter lassen Sie genauer hinsehen. Eine fehlende Prüfung ist keine bestandene Prüfung. QC speichert seine Ergebnisse mit exportierbaren Abbildungen und Tabellen.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ]
-        },
-        {
-          "visual": "module_embeddings",
-          "narration": "Embeddings beschreibt Objekte danach, was ein Modell sieht, statt nach handverlesenen Merkmalen. Öffnen Sie es von Home aus, wählen Sie ein Modell und eine Kanalregel, und es kodiert die von Measure erzeugten Objekt-Bildausschnitte in einen Merkmalsvektor pro Objekt. Halten Sie Objektidentitäten, Encoder und Kanalregel zusammen mit diesen Merkmalen fest, denn Image UMAP braucht eine Merkmalstabelle mit passenden Objekt-IDs, und nicht jeder Weg speichert sie für Sie.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "77_embeddings"
-          ]
-        },
-        {
-          "visual": "module_endodyogeny",
-          "narration": "Zwei Werkzeuge dieser Karte gibt es nur in Python. Das erste ist das Größenmaß der Endodyogenie, spacr.submodules.analyze_endodyogeny; es hat weder Home-Kachel noch Menüeintrag. Es liest gemessene Kompartimentflächen aus Ihren Measure-Projekten, beschriftet sie nach Bedingung und teilt die Fläche hoch 1,5 in log2-Größenverdopplungen ein. Standardmäßig summiert es die Pathogenfläche pro Wirtszelle, nicht pro Vakuole, sodass mehrere Vakuolen in einer Zelle zusammengefasst werden. Deshalb ist es ein flächenbasiertes Größenmaß, kein gemessenes Volumen und keine Parasitenzahl; für Parasiten pro Vakuole verwenden Sie Replication Assay. Legen Sie Kompartiment, Flächenfilter, Kalibrierung, Bedingungen und Gruppierung fest, bevor Sie es aufrufen, und prüfen Sie Aggregation und Flächeneinheiten, bevor Sie die Klassen lesen. Die Zähldatenbank von Mask allein reicht nicht aus.",
+          "visual": "module_measure",
+          "narration": "Measure liest die vorbereiteten Bilder und Maskenebenen gemeinsam. Es schreibt measurements.db mit Objektidentitäten und Merkmalsspalten und kann Objektausschnitte speichern. Bewahren Sie das Quellprojekt und die Kanalzuordnung zusammen mit diesen Tabellen auf.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
           ]
         },
         {
-          "visual": "module_cellpose_masks",
-          "narration": "Das zweite ist die direkte Maskenerzeugung mit Cellpose, spacr.spacr_cellpose.identify_masks_finetune, ebenfalls ohne Home-Kachel oder Menüeintrag. Trotz des Namens führt es Inferenz aus, kein Training: Es wendet ein Standard- oder eigenes Cellpose-Modell auf die TIFF-Bildfelder eines Ordners an. Prüfen Sie zuerst Normalisierung, Kanäle, Größenanpassung und Modelleinstellungen und aktivieren Sie das Speichern, denn Masken werden nur geschrieben, wenn save eingeschaltet ist. Sie erhalten Label-TIFFs, kein Measure-fertiges Projekt. Um weiterzumachen, importieren Sie die Bild-Masken-Paare vor Measure über External Masks oder kuratieren Sie sie für das Training.",
+          "visual": "module_annotate",
+          "narration": "Annotate zeigt Objektausschnitte, damit Sie geprüfte Labels hinzufügen können. Classify lernt anhand der ausgewählten Labelspalte und verwendet Ausschnittbilder oder gemessene Merkmale. Trennen Sie Evaluierungsobjekte von Trainingsobjekten und übernehmen Sie die Score-Spalte und Objektidentitäten in spätere Analysen.",
           "hold_after": 0.7,
-          "related_lessons": []
+          "related_lessons": [
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Embeddings codiert Ausschnitte in numerische Merkmale. Image UMAP projiziert kompatible Merkmale zur Exploration. Prüfen Sie repräsentative Ausschnitte, bevor Sie einem Cluster eine Bedeutung zuweisen; ein Cluster allein ist kein validierter Phänotyp.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "77_embeddings",
+            "15_image_umap"
+          ]
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Gate Editor wählt Objekte anhand tatsächlicher Merkmalsspalten oder kompatibler Projektionskoordinaten aus. Prüfen Sie die ausgewählten Objekte, bevor Sie Labels schreiben. Diese Labels können zu geprüften Beispielen für Annotate oder Classify werden.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "QC berichtet über vorhandene Qualitätsprüfungen und fehlende Evidenz. Run Compare betrachtet gespeicherte Läufe nebeneinander. Graph Builder stellt Messtabellen mit den von Ihnen gewählten Spalten und Gruppierungen grafisch dar.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "54_qc_dashboard",
+            "50_run_compare",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Experiment Design plant Bedingungen und Probenidentitäten. Power / Design untersucht Annahmen für die statistische Planung. Dose-Response analysiert einen Endpunkt über verschiedene Konzentrationen. Benennen Sie den Messendpunkt, die Kontrollen und die experimentelle Einheit ausdrücklich.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "module_toxoplasma",
+          "narration": "Die Toxoplasma-Seite bündelt organismusspezifische Assays. Ihre Eingaben unterscheiden sich: ein Plaquebild, Kompartimentmessungen und explizite Parasiten-Vakuolen-Verknüpfungen sind nicht austauschbar. Wählen Sie den passenden Assay und beachten Sie seine eigenen Eingabeanforderungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "82_toxoplasma"
+          ]
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Bei gepoolten Screens erzeugt Map Barcodes Guide-Zählwerte aus Sequenzierungsreads. Regression kombiniert diese Zählwerte mit kompatiblen Phänotyp-Scores. Bewahren Sie die Identität von Platte, Well und Guide, wenn Sie die beiden Wege zusammenführen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ]
         },
         {
           "visual": "home_summary",
-          "narration": "Der Bildweg führt also fast immer von Mask zu Measure und verzweigt sich dann je nach Ihrer Frage. Um Ihr eigenes Segmentierungsmodell zu trainieren, bereiten Sie in Make Masks Bild-Masken-Paare vor, trainieren sie in Cellpose Workbench und öffnen das gespeicherte Modell wieder in Mask. Mit kompatiblen Ausgaben können Sie auch später einsteigen. Wohin Sie auch gehen, bewahren Sie Kanalidentitäten, Einheiten und Objektschlüssel bei jedem Ergebnis auf.",
+          "narration": "Kehren Sie zu Home zurück und wählen Sie den nächsten Schritt anhand der tatsächlich vorhandenen Ausgabe. Nutzen Sie die verknüpften Modullektionen für einen vollständigen Lauf. Bewahren Sie Eingabeidentität, Einstellungen, installierte Version und Ausgabeort zusammen auf, damit der Arbeitsablauf später geprüft werden kann.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15422,7 +15391,7 @@
       "id": "82_toxoplasma",
       "number": 82,
       "slug": "toxoplasma",
-      "title": "Toxoplasma: die Seite erkunden und einen Assay wählen",
+      "title": "Organismus Toxoplasma: Leitfaden, Diagramm und Assays",
       "series": 3,
       "app_key": "toxoplasma",
       "section": "Organisms and assays",
@@ -15436,7 +15405,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Jedes Toxoplasma-Experiment kann auf einer einzigen Seite beginnen. Wählen Sie auf Home Toxoplasma: Organismusleitfaden, Zelldiagramm und verfügbare Assays stehen nebeneinander und lassen sich erkunden, bevor Sie Bilder laden.",
+          "narration": "Wählen Sie auf Home die Kategorie Organism und dann Toxoplasma. Diese Seite verbindet einen Organismusleitfaden, ein interaktives Zelldiagramm und die verfügbaren Toxoplasma-Assays. Erkunden Sie sie, bevor Sie eine Analyse auswählen.",
           "hold_after": 0.7
         },
         {
@@ -15451,28 +15420,51 @@
         },
         {
           "visual": "03_assays",
-          "narration": "Wählen Sie die Kachel, die zu Ihrer Frage passt. Plaque Assay zählt Plaques und misst ihre Flächen; Invasion Assay fragt, wie viele Parasiten eingedrungen sind. Recruitment misst, wie viel Marker sich an der Vakuole sammelt, Replication Assay, wie viele Parasiten jede Vakuole enthält, und Host–Pathogen verknüpft Vakuolen mit ihren Wirtszellen. Jeder hat seine eigene Lektion.",
+          "narration": "Plaque Assay zählt Plaques und misst ihre Flächen. Recruitment misst die Anreicherung des Markers an der parasitenhaltigen Vakuole, und Replication Assay zählt Parasiten pro Vakuole. Wählen Sie einen Assay nach der zu messenden Größe und den dafür benötigten Eingaben.",
           "hold_after": 0.7
         },
         {
-          "visual": "04_host_pathogen",
-          "narration": "Folgen wir einem davon. Klicken Sie auf Host–Pathogen, und sein Analysebildschirm öffnet sich. Load test data lädt das mitgelieferte Mikroskopiebeispiel, und von dort führt Sie das Host–Pathogen-Tutorial durch Einstellungen, Vorschau und Run.",
+          "visual": "04_plaque_assay",
+          "narration": "Klicken Sie auf Plaque Assay, um den Analysebildschirm zu öffnen. Das Einstellungspanel legt Bildquelle, Masken und Erkennungsoptionen fest. Load test data stellt ein Beispiel bereit. Prüfen Sie Eingaben und Vorschau, bevor Sie Run starten; das Tutorial Plaque Analysis beschreibt den vollständigen Ablauf.",
           "hold_after": 0.7
         },
         {
-          "visual": "05_starplast",
-          "narration": "Zurück auf der Toxoplasma-Seite öffnet Starplast eine Wissenskarte in einer eigenen Anwendung; beim ersten Mal bietet es Installationsschritte an. Die Referenzlinks öffnen dagegen Ressourcen zum Organismus in Ihrem Browser.",
+          "visual": "05_references",
+          "narration": "Kehren Sie zum Toxoplasma-Leitfaden zurück und scrollen Sie im Informationsbereich zu den Referenzen. ToxoDB, der hyperLOPIT-Atlas von Toxoplasma, UniProt und NCBI Taxonomy verlinken Ressourcen zum Organismus. Diese Links öffnen sich im Browser; der Leitfaden durchsucht keine Datenbanken und sagt keine Proteinlokalisierung vorher.",
           "hold_after": 0.7
         },
         {
           "visual": "06_home_return",
-          "narration": "Der Leitfaden schreibt keine Analysedateien; die eigentliche Arbeit findet also anderswo statt. Wenn Ihre Bilder noch segmentiert oder gemessen werden müssen, kehren Sie zuerst zu Home zurück; sobald Bilder oder Tabellen bereit sind, übernehmen die Assay-Seiten.",
+          "narration": "Der Organismusleitfaden erzeugt keine Analysetabellen. Kehren Sie zur Bildvorbereitung, Segmentierung oder Messung zu Home zurück und wählen Sie anschließend den Assay, der zu Ihren vorbereiteten Eingaben passt. Jeder Assay hat eigene Anforderungen und eine verknüpfte Anleitung.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16168,5 +16160,9 @@
         ]
       }
     }
-  ]
+  ],
+  "lesson_aliases": {
+    "02_conda_install": "02_install_spacr",
+    "03_pip_install": "02_install_spacr"
+  }
 }

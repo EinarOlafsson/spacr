@@ -2,7 +2,7 @@
   "id": "82_toxoplasma",
   "number": 82,
   "slug": "toxoplasma",
-  "title": "Toxoplasma: explore the page and choose an assay",
+  "title": "Toxoplasma organism: guide, diagram and assays",
   "series": 3,
   "app_key": "toxoplasma",
   "section": "Organisms and assays",
@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "00_home",
-      "narration": "Every Toxoplasma experiment can start from one page. From Home, choose Toxoplasma: the organism guide, a cell diagram and the available assays sit side by side, ready to explore before you load any images.",
+      "narration": "From Home, choose the Organism category, then Toxoplasma. This page combines an organism guide, an interactive cell diagram and the available Toxoplasma assay routes. Explore it before choosing an analysis.",
       "hold_after": 0.7
     },
     {
@@ -31,22 +31,22 @@
     },
     {
       "visual": "03_assays",
-      "narration": "Pick the tile that matches your question. Plaque Assay counts plaques and measures their areas; Invasion Assay asks how many parasites got inside. Recruitment measures how much marker gathers at the vacuole, Replication Assay how many parasites each vacuole holds, and Host–Pathogen ties vacuoles to their host cells. Each has its own lesson.",
+      "narration": "Plaque Assay counts plaques and measures their areas. Recruitment measures marker enrichment at the parasite-containing vacuole, and Replication Assay counts parasites per vacuole. Select an assay according to the quantity you need to measure and its required input.",
       "hold_after": 0.7
     },
     {
-      "visual": "04_host_pathogen",
-      "narration": "Let's follow one of them. Click Host–Pathogen and its analysis screen opens. Load test data brings in the supplied microscopy example, and from there the Host–Pathogen tutorial walks you through the settings, preview and Run.",
+      "visual": "04_plaque_assay",
+      "narration": "Click Plaque Assay to open its analysis screen. The settings panel specifies the image source, masks and detection options. Load test data provides an example. Review the inputs and preview before starting Run; the Plaque Analysis tutorial describes the complete workflow.",
       "hold_after": 0.7
     },
     {
-      "visual": "05_starplast",
-      "narration": "Back on the Toxoplasma page, Starplast opens a knowledge map in its own application; the first time, it offers installation steps to follow. The reference links, meanwhile, open organism resources in your browser.",
+      "visual": "05_references",
+      "narration": "Return to the Toxoplasma guide and scroll the information pane to its references. ToxoDB, the Toxoplasma hyperLOPIT atlas, UniProt and NCBI Taxonomy link to organism resources. These links open in your browser; the guide does not perform a database search or predict protein localization.",
       "hold_after": 0.7
     },
     {
       "visual": "06_home_return",
-      "narration": "The guide writes no analysis files, so the real work happens elsewhere. If your images still need segmenting or measuring, return Home first; once the images or tables are ready, the assay pages take over.",
+      "narration": "The organism guide does not produce analysis tables. Return Home for image preparation, segmentation or measurement, then choose the assay that matches your prepared input. Each assay has its own requirements and linked walkthrough.",
       "hold_after": 0.7
     }
   ]

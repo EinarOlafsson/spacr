@@ -18,7 +18,7 @@ from pronunciation import (
 
 
 def test_pronunciation_profile_has_a_stable_version() -> None:
-    assert PRONUNCIATION_VERSION == "2026-08-28-pype-v11"
+    assert PRONUNCIATION_VERSION == "2026-10-08-live-tv-v12"
 
 
 def test_english_hardware_terms_stay_cohesive() -> None:
@@ -296,3 +296,12 @@ def test_spacr_cli_entry_point_does_not_retain_a_spoken_hyphen() -> None:
     speech = spoken_form("Run spacr-run with --upgrade.", "en")
 
     assert speech == "Run spacer run with dash dash upgrade."
+
+
+def test_live_tv_pronunciation_in_both_english_dialects():
+    display = "Watch the live preview. Live animation continues."
+    for dialect in ("us", "uk"):
+        speech = spoken_form(display, "en", dialect=dialect)
+        assert speech.count("(/lˈIv/)") == 2
+        assert display == "Watch the live preview. Live animation continues."
+        assert_pronunciation_safe(display, speech)

@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
+  "english_sha256": "8a8a2d3adae812475a9731d196357380bf772eeff3052f0e89798416bbbfd824",
   "review": {
-    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
-    "translator": "Codex AI, explicit direct translations of current English changes",
-    "date": "2026-10-06",
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
   },
   "language": "zh-CN",
   "title": "使用桌面安装程序安装spaCR",
@@ -16,11 +16,12 @@
   "objectives": [
     "下载并运行适合您操作系统的安装程序。",
     "选择加速选项和首次启动偏好。",
-    "打开spaCR，并在设置出现问题时找到安装日志。"
+    "打开spaCR，并在设置出现问题时找到安装日志。",
+    "通过操作系统的卸载功能或随附的卸载工具删除应用程序。"
   ],
   "prerequisite": "下载适合您操作系统的官方安装程序，并为应用程序及其科学计算依赖项预留空间。",
   "scenes": [
-    "在GitHub上打开spaCR的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。如果要验证下载，请保留同一发布中的SHA256SUMS点txt文件。",
+    "在GitHub上打开spaCR的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。",
     "在Windows上，运行安装程序并按照提示操作。保持选中自动加速，以使用在您电脑上检测到的受支持硬件；如果您需要，也可以选择仅使用CPU运行。",
     "在macOS上，打开通用安装包并按照安装程序操作。从应用程序启动器启动spaCR，并等待首次运行的下载完成。阅读任何安全提示，并确认安装包来自官方发布。",
     "在Linux上，先为下载的安装程序添加可执行权限，然后在终端中运行它。自动加速会选择受支持的后端。帮助中列出了用于仅CPU运行的横杠横杠 torch-backend cpu，以及适用于已安装Qt图形库的电脑的横杠横杠 skip-system-deps。",
@@ -28,8 +29,11 @@
     "检查已安装的spaCR版本。把它记在分析笔记中，尤其是在以后更新应用程序时。",
     "设置过程会询问是否可选地共享诊断信息以及是否设置账户。只对您想要的选项回答y；默认的n会让每一项保持关闭。Windows安装程序以复选框形式显示同样的选项。",
     "在当前每夜开发版界面中，打开 Preferences 并选择 Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。",
-    "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。",
+    "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Organism。请继续观看主页与导航教程，了解当前的模块。",
     "如果启动或文件格式需要处理，请从安装的运行环境执行 spacr-doctor。在这段录像的 CPU 安装中，后端检查通过，GPU 检查被跳过。警告说明缺少可选的 CZI 读取器；只有需要 CZI 文件时，才安装这个额外组件。",
-    "遇到安装问题时，请在安装目录中找到install点log和install-profile点json。在提交支持请求并共享日志之前，请先检查日志内容。请注明您的操作系统和spaCR版本，以便更容易诊断问题。"
+    "遇到安装问题时，请在安装目录中找到install点log和install-profile点json。在提交支持请求并共享日志之前，请先检查日志内容。请注明您的操作系统和spaCR版本，以便更容易诊断问题。",
+    "在Windows上，关闭spaCR，打开Settings，然后进入Apps和Installed apps。选择spaCR和Uninstall。已安装的Uninstall可执行文件也能启动相同的卸载过程。请将项目文件夹单独保存。",
+    "在macOS上，关闭spaCR，运行Library斜杠Application Support斜杠spaCR中随附的uninstall-spacr脚本。它会删除应用程序及其系统启动器。您自己的Library斜杠Application Support斜杠spaCR中的用户运行时是独立的；只有也想删除该运行时时才移除它。",
+    "在Linux上，关闭spaCR，运行主文件夹下点local斜杠share斜杠spacr中的uninstall-spacr脚本。它会删除托管运行时及应用程序启动器。卸载不需要删除显微成像项目或其分析结果。"
   ]
 }

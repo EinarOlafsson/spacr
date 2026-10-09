@@ -66,12 +66,12 @@
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "展开Assets，下载适用于Windows、macOS或Linux的安装程序。如果要验证下载，请保留同一版本中的校验和文件。Platform installers课程介绍了如何运行安装程序并打开spaCR。",
+          "narration": "展开 Assets，下载适用于 Windows、macOS 或 Linux 的安装程序。Platform installers 教程说明每种操作系统上的安装、启动 spaCR 和卸载步骤。",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
           ],
-          "speech_text": "展开Assets，下载适用于Windows、macOS或Linux的安装程序。如果要验证下载，请保留同一版本中的校验和文件。Platform installers课程介绍了如何运行安装程序并打开斯佩克尔。"
+          "speech_text": "展开 Assets，下载适用于 Windows、macOS 或 Linux 的安装程序。Platform installers 教程说明每种操作系统上的安装、启动 斯佩克尔 和卸载步骤。"
         },
         {
           "visual": "05_conda_current_package",
@@ -81,23 +81,22 @@
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "conda-forge命令会把spaCR安装到当前激活的Conda环境中。请按照Conda课程创建该环境、安装软件包并启动应用程序。",
+          "narration": "conda-forge 命令将 spaCR 安装到当前激活的 Conda 环境中。按照 Install spaCR 教程创建环境、安装软件包并启动应用。该教程也说明如何移除软件包和环境。",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install"
+            "02_install_spacr"
           ],
-          "speech_text": "conda-forge命令会把斯佩克尔安装到当前激活的Conda环境中。请按照Conda课程创建该环境、安装软件包并启动应用程序。"
+          "speech_text": "Conda Forge 命令将 斯佩克尔 安装到当前激活的 Conda 环境中。按照 Install 斯佩克尔 教程创建环境、安装软件包并启动应用。该教程也说明如何移除软件包和环境。"
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "接下来选择pip、Conda或Platform installers。spaCR打开后，进入Home课程，再查看流程概览，为您的数据选择合适的工作流程。",
+          "narration": "使用 pip 或 conda-forge 时继续查看 Install spaCR，使用桌面安装程序时查看 Platform installers。两个教程都包含卸载说明。打开 spaCR 后进入 Home，再查看流程概览，为数据选择工作流程。",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
           ],
-          "speech_text": "接下来选择pip、Conda或Platform installers。斯佩克尔打开后，进入主页课程，再查看流程概览，为您的数据选择合适的工作流程。"
+          "speech_text": "使用 pip 或 Conda Forge 时继续查看 Install 斯佩克尔，使用桌面安装程序时查看 Platform installers。两个教程都包含卸载说明。打开 斯佩克尔 后进入 主页，再查看流程概览，为数据选择工作流程。"
         }
       ],
       "narration_voices": {
@@ -170,221 +169,129 @@
       }
     },
     {
-      "id": "02_conda_install",
+      "id": "02_install_spacr",
       "number": 2,
-      "slug": "conda_install",
-      "title": "使用Conda安装spaCR",
+      "slug": "install_spacr",
+      "title": "安装spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "创建Conda环境，从conda-forge安装spaCR并启动应用程序。",
+      "description": "在Python虚拟环境中用pip安装，在Conda环境中用pip安装，或在Conda环境中通过conda-forge安装；启动、更新和卸载。",
       "objectives": [
-        "创建并激活专用的Conda环境。",
-        "从conda-forge安装spaCR。",
-        "打开spaCR，并在需要时更新同一环境。"
+        "选择三种隔离安装方式中的一种。",
+        "安装或启动前激活正确的环境。",
+        "检查已安装版本，安全更新和卸载。"
       ],
-      "prerequisite": "安装Conda或Miniforge，然后打开可以使用conda命令的终端。",
+      "prerequisite": "虚拟环境方式使用Python 3.12；两种Conda方式均需先安装Conda/Miniforge。打开终端。不要与现有环境使用相同名称。",
       "scenes": [
         {
-          "visual": "02_conda_environment",
-          "narration": "打开已启用Conda的终端。您将为spaCR创建一个环境，安装conda-forge软件包，并从该环境启动应用程序。",
+          "visual": "00_install_routes",
+          "narration": "选择一种安装方式。Pip可将spaCR安装到Python虚拟环境或Conda环境中。Conda-forge安装到Conda环境中，不能向Python虚拟环境安装软件包。以下三种方式是备选方案，只需选择一种。",
           "hold_after": 0.7,
-          "speech_text": "打开已启用Conda的终端。您将为斯佩克尔创建一个环境，安装conda-forge软件包，并从该环境启动应用程序。"
+          "speech_text": "选择一种安装方式。Pip可将斯佩克尔安装到Python虚拟环境或Conda环境中。Conda-forge安装到Conda环境中，不能向Python虚拟环境安装软件包。以下三种方式是备选方案，只需选择一种。"
         },
         {
-          "visual": "07_create_conda_command",
-          "narration": "使用显示的命令，创建名为spacr-conda的环境，其中包含Python三点十二和来自conda-forge的spaCR。如果这个名称已被其他环境使用，请另选一个名称。",
+          "visual": "pip_01_create_venv",
+          "narration": "要在虚拟环境中使用pip，请创建专用文件夹，并用Python三点十二运行横杠m venv来创建点venv。如果文件夹中已有环境，请换一个文件夹。",
           "hold_after": 0.7,
-          "speech_text": "使用显示的命令，创建名为斯佩克尔-conda的环境，其中包含Python三点十二和来自conda-forge的斯佩克尔。如果这个名称已被其他环境使用，请另选一个名称。"
+          "speech_text": "要在虚拟环境中使用pip，请创建专用文件夹，并用Python三点十二运行横杠m venv来创建点venv。如果文件夹中已有环境，请换一个文件夹。"
         },
         {
-          "visual": "07_create_conda",
-          "narration": "Conda会求解环境并列出软件包计划。检查后输入字母y接受，然后等待下载和安装完成。",
+          "visual": "pip_02_activate_venv",
+          "narration": "每次安装、更新或启动前都要激活点venv。在Linux和macOS上，用source加载其bin斜杠activate脚本。在Windows PowerShell中，运行点venv反斜杠Scripts反斜杠Activate点ps一。环境提示符和Python路径可确认正在使用的解释器。",
           "hold_after": 0.7,
-          "speech_text": "Conda会求解环境并列出软件包计划。检查后输入字母y接受，然后等待下载和安装完成。"
+          "speech_text": "每次安装、更新或启动前都要激活点venv。在Linux和macOS上，用source加载其bin斜杠activate脚本。在Windows PowerShell中，运行点venv反斜杠Scripts反斜杠Activate点ps一。环境提示符和Python路径可确认正在使用的解释器。"
         },
         {
-          "visual": "08_activate_conda",
-          "narration": "激活spacr-conda。运行显示的Python命令查看环境路径，并确认它就是您刚创建的环境。",
+          "visual": "pip_03_install",
+          "narration": "激活环境后，先升级pip，再运行pip install spacr。软件包安装会包含桌面应用使用的Qt依赖项。等待科学计算和桌面依赖项安装完成。",
           "hold_after": 0.7,
-          "speech_text": "激活斯佩克尔-conda。运行显示的Python命令查看环境路径，并确认它就是您刚创建的环境。"
+          "speech_text": "激活环境后，先升级pip，再运行pip install 斯佩克尔。软件包安装会包含桌面应用使用的Qt依赖项。等待科学计算和桌面依赖项安装完成。"
         },
         {
-          "visual": "09_install_conda",
-          "narration": "运行conda list spacr查看已安装的版本，并确认它来自conda-forge。用一条命令同时安装Python和spaCR，可以让Conda一起求解所有软件包，这比向现有环境添加spaCR快得多。",
+          "visual": "pip_04_check",
+          "narration": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。此方式安装的是PyPI上已发布的软件包；源代码检出版本或每夜开发版可能有更新的界面功能。",
           "hold_after": 0.7,
-          "speech_text": "运行conda list 斯佩克尔查看已安装的版本，并确认它来自conda-forge。用一条命令同时安装Python和斯佩克尔，可以让Conda一起求解所有软件包，这比向现有环境添加斯佩克尔快得多。"
+          "speech_text": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。此方式安装的是派普上已发布的软件包；源代码检出版本或每夜开发版可能有更新的界面功能。"
         },
         {
-          "visual": "03_installed_versions",
-          "narration": "检查已安装的spaCR版本和软件包位置。把这个版本记在分析笔记中，以便以后回到同一环境。",
+          "visual": "pip_05_launch",
+          "narration": "运行spacr-doctor，并遵照与您的工作相关的缺失依赖项提示操作。然后输入spacr，启动已安装的应用。更改环境前先关闭应用。",
           "hold_after": 0.7,
-          "speech_text": "检查已安装的斯佩克尔版本和软件包位置。把这个版本记在分析笔记中，以便以后回到同一环境。"
+          "speech_text": "运行斯佩克尔-doctor，并遵照与您的工作相关的缺失依赖项提示操作。然后输入斯佩克尔，启动已安装的应用。更改环境前先关闭应用。"
         },
         {
-          "visual": "05_doctor",
-          "narration": "运行spacr-doctor检查安装情况。这里它报告缺少核心依赖vispy，并显示安装它的命令。运行该命令，然后再次运行spacr-doctor。其他建议步骤只需针对您需要的文件格式或功能执行。",
+          "visual": "pip_conda_01_create",
+          "narration": "要在Conda中使用pip，请创建名为spacr-pip、含Python三点十二和pip的环境，然后激活。Conda提供解释器，pip提供spaCR。如果spacr-pip已存在，请另选名称。",
           "hold_after": 0.7,
-          "speech_text": "运行斯佩克尔-doctor检查安装情况。这里它报告缺少核心依赖vispy，并显示安装它的命令。运行该命令，然后再次运行斯佩克尔-doctor。其他建议步骤只需针对您需要的文件格式或功能执行。"
+          "speech_text": "要在Conda中使用pip，请创建名为斯佩克尔-pip、含Python三点十二和pip的环境，然后激活。Conda提供解释器，pip提供斯佩克尔。如果斯佩克尔-pip已存在，请另选名称。"
         },
         {
-          "visual": "06_installed_home",
-          "narration": "输入spacr启动应用程序。完成首次启动时的选项，然后继续学习Home教程，查找模块及其示例数据。",
+          "visual": "pip_conda_02_install",
+          "narration": "激活spacr-pip后，升级pip并运行pip install spacr。软件包安装包含其Qt桌面依赖项。与虚拟环境方式一样，检查软件包版本并运行pip check。从这个已激活的环境启动spacr。",
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ],
-          "speech_text": "输入斯佩克尔启动应用程序。完成首次启动时的选项，然后继续学习主页教程，查找模块及其示例数据。"
+          "speech_text": "激活斯佩克尔-pip后，升级pip并运行pip install 斯佩克尔。软件包安装包含其Qt桌面依赖项。与虚拟环境方式一样，检查软件包版本并运行pip check。从这个已激活的环境启动斯佩克尔。"
         },
         {
-          "visual": "10_current_release_choice",
-          "narration": "以后要更新时，关闭spaCR，激活此环境并更新conda-forge软件包。如果conda-forge没有更新的构建，Conda会报告所有请求的软件包都已安装。之后检查已安装的版本；pip和安装程序课程介绍了其他安装方式。",
-          "related_lessons": [
-            "01_pypi_github",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
+          "visual": "conda_01_create",
+          "narration": "使用conda-forge时，用一条命令创建名为spacr-conda的新环境，包含Python三点十二和来自conda-forge频道的spacr。将解释器与spaCR一起解析，可避免把软件包添加到无关环境中。",
           "hold_after": 0.7,
-          "speech_text": "以后要更新时，关闭斯佩克尔，激活此环境并更新conda-forge软件包。如果conda-forge没有更新的构建，Conda会报告所有请求的软件包都已安装。之后检查已安装的版本；pip和安装程序课程介绍了其他安装方式。"
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "03_pip_install",
-      "number": 3,
-      "slug": "pip_install",
-      "title": "使用pip安装spaCR",
-      "series": 1,
-      "app_key": null,
-      "section": "spaCR",
-      "description": "创建独立的Python环境，安装公开软件包，检查其依赖项，并启动已安装的Qt应用程序。",
-      "objectives": [
-        "创建并激活Python虚拟环境。",
-        "安装spaCR并检查其依赖项。",
-        "启动应用程序并更新目标环境。"
-      ],
-      "prerequisite": "安装Python 3.12并打开终端。使用适合您的操作系统和shell的激活命令。",
-      "scenes": [
-        {
-          "visual": "01_python_version",
-          "narration": "打开终端并检查Python版本。本演示使用Python三点十二。请把spaCR放在专用的虚拟环境中，便于管理它的软件包。",
-          "hold_after": 0.7,
-          "speech_text": "打开终端并检查Python版本。本演示使用Python三点十二。请把斯佩克尔放在专用的虚拟环境中，便于管理它的软件包。"
+          "speech_text": "使用conda-forge时，用一条命令创建名为斯佩克尔-conda的新环境，包含Python三点十二和来自conda-forge频道的斯佩克尔。将解释器与斯佩克尔一起解析，可避免把软件包添加到无关环境中。"
         },
         {
-          "visual": "07_create_environment",
-          "narration": "使用适合您操作系统的命令，创建名为点venv的虚拟环境。这会创建一个文件夹，其中包含您将用于spaCR的Python环境。",
+          "visual": "conda_02_plan",
+          "narration": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。conda-forge上可用的版本可能与最新PyPI版本或每夜开发版不同。",
           "hold_after": 0.7,
-          "speech_text": "使用适合您操作系统的命令，创建名为点venv的虚拟环境。这会创建一个文件夹，其中包含您将用于斯佩克尔的Python环境。"
+          "speech_text": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。conda-forge上可用的版本可能与最新派普版本或每夜开发版不同。"
         },
         {
-          "visual": "08_activate_environment",
-          "narration": "使用适合您shell的命令激活点venv。Windows PowerShell和命令提示符的激活命令不同；macOS和Linux通常使用这里显示的shell命令。",
+          "visual": "conda_03_activate",
+          "narration": "激活spacr-conda。检查Python环境路径，并运行conda list spacr确认已安装版本及频道。然后运行spacr-doctor，从此环境启动spacr。",
           "hold_after": 0.7,
-          "speech_text": "使用适合您shell的命令激活点venv。Windows PowerShell和命令提示符的激活命令不同；macOS和Linux通常使用这里显示的shell命令。"
+          "speech_text": "激活斯佩克尔-conda。检查Python环境路径，并运行conda list 斯佩克尔确认已安装版本及频道。然后运行斯佩克尔-doctor，从此环境启动斯佩克尔。"
         },
         {
-          "visual": "02_pip_environment",
-          "narration": "运行python 横杠 m pip 横杠横杠 version。确认显示的路径属于点venv。安装命令请使用python 横杠 m pip，让pip使用这个解释器。",
+          "visual": "06_current_home",
+          "narration": "这份补充材料展示当前每夜开发版的Home界面。您已安装的发布版本可能外观不同。环境命令安装的是所选频道中已发布的软件包；此当前源代码视图并不意味着每夜开发版的所有功能都已发布。",
           "hold_after": 0.7,
-          "speech_text": "运行python 横杠 m pip 横杠横杠 version。确认显示的路径属于点venv。安装命令请使用python 横杠 m pip，让pip使用这个解释器。"
-        },
-        {
-          "visual": "09_install_package",
-          "narration": "升级pip，然后安装spacr。等待科学计算软件包下载并安装完成。当前软件包包含打开应用程序所需的桌面组件。",
-          "hold_after": 0.7,
-          "speech_text": "升级pip，然后安装斯佩克尔。等待科学计算软件包下载并安装完成。当前软件包包含打开应用程序所需的桌面组件。"
-        },
-        {
-          "visual": "03_installed_versions",
-          "narration": "使用显示的命令检查已安装的spaCR版本和软件包位置。把版本号与分析笔记一起保存。",
-          "hold_after": 0.7,
-          "speech_text": "使用显示的命令检查已安装的斯佩克尔版本和软件包位置。把版本号与分析笔记一起保存。"
-        },
-        {
-          "visual": "04_dependency_check",
-          "narration": "运行python 横杠 m pip check。如果它报告依赖要求冲突，请在使用该环境之前解决这些冲突。",
-          "hold_after": 0.7,
-          "speech_text": "运行python 横杠 m pip check。如果它报告依赖要求冲突，请在使用该环境之前解决这些冲突。"
-        },
-        {
-          "visual": "05_doctor",
-          "narration": "运行spacr-doctor检查安装情况，并查看缺少哪些可选功能。只针对您需要的格式或功能执行建议的修复。",
-          "hold_after": 0.7,
-          "speech_text": "运行斯佩克尔-doctor检查安装情况，并查看缺少哪些可选功能。只针对您需要的格式或功能执行建议的修复。"
-        },
-        {
-          "visual": "10_launch_commands",
-          "narration": "从已激活的环境启动spacr。首次启动时，按照设置提示选择您的偏好。",
-          "hold_after": 0.7,
-          "speech_text": "从已激活的环境启动斯佩克尔。首次启动时，按照设置提示选择您的偏好。"
-        },
-        {
-          "visual": "13_current_nightly_home",
-          "narration": "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "speech_text": "这段录像安装的是 斯佩克尔 一点五点一点三版。已发布的版本可能显示较旧的 主页 布局。这里展示的是当前每夜开发版的 主页，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。"
+          "speech_text": "这份补充材料展示当前每夜开发版的主页界面。您已安装的发布版本可能外观不同。环境命令安装的是所选频道中已发布的软件包；此当前源代码视图并不意味着每夜开发版的所有功能都已发布。"
         },
         {
-          "visual": "11_update_intentionally",
-          "narration": "要更新时，关闭spaCR并激活此环境。升级软件包，然后再次检查版本和依赖项。如果进行中的分析还需要之前的环境，请保留它。",
-          "related_lessons": [
-            "01_pypi_github",
-            "04_platform_installers"
-          ],
+          "visual": "pip_06_update",
+          "narration": "更新pip安装时，先关闭spaCR，激活对应环境，然后运行pip install横杠横杠upgrade spacr。之后检查版本。两种pip方式都使用pip更新spaCR，包括专为pip创建的Conda环境。",
           "hold_after": 0.7,
-          "speech_text": "要更新时，关闭斯佩克尔并激活此环境。升级软件包，然后再次检查版本和依赖项。如果进行中的分析还需要之前的环境，请保留它。"
+          "speech_text": "更新pip安装时，先关闭斯佩克尔，激活对应环境，然后运行pip install横杠横杠upgrade 斯佩克尔。之后检查版本。两种pip方式都使用pip更新斯佩克尔，包括专为pip创建的Conda环境。"
+        },
+        {
+          "visual": "conda_04_update",
+          "narration": "对于conda-forge方式，关闭spaCR，激活spacr-conda，然后运行conda update横杠c conda-forge spacr。如果没有更新的构建，Conda会报告请求的软件包已安装。请检查已安装版本，不要假定界面已改变。",
+          "hold_after": 0.7,
+          "speech_text": "对于conda-forge方式，关闭斯佩克尔，激活斯佩克尔-conda，然后运行conda update横杠c Conda Forge 斯佩克尔。如果没有更新的构建，Conda会报告请求的软件包已安装。请检查已安装版本，不要假定界面已改变。"
+        },
+        {
+          "visual": "pip_07_uninstall",
+          "narration": "卸载pip安装时，激活对应环境，运行python横杠m pip uninstall spacr，然后确认卸载。这会删除spaCR软件包，但不会删除显微成像项目，也不会自动删除每个依赖项。",
+          "hold_after": 0.7,
+          "speech_text": "卸载pip安装时，激活对应环境，运行python横杠m pip uninstall 斯佩克尔，然后确认卸载。这会删除斯佩克尔软件包，但不会删除显微成像项目，也不会自动删除每个依赖项。"
+        },
+        {
+          "visual": "pip_08_remove_environment",
+          "narration": "如果点venv仅为spaCR创建，请先停用环境，再删除这个专用的点venv文件夹。对于专用的spacr-pip Conda环境，运行conda deactivate，然后运行conda env remove横杠n spacr-pip。只删除本教程创建的环境。",
+          "hold_after": 0.7,
+          "speech_text": "如果点venv仅为斯佩克尔创建，请先停用环境，再删除这个专用的点venv文件夹。对于专用的斯佩克尔-pip Conda环境，运行conda deactivate，然后运行conda env remove横杠n 斯佩克尔-pip。只删除本教程创建的环境。"
+        },
+        {
+          "visual": "conda_05_uninstall",
+          "narration": "在conda-forge环境中，检查卸载计划后，conda remove spacr会删除软件包。如果要改为删除整个专用环境，请先停用它，再运行conda env remove横杠n spacr-conda。将项目文件夹单独保存；卸载环境不等于删除分析数据。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "04_platform_installers",
+            "05_home"
+          ],
+          "speech_text": "在conda-forge环境中，检查卸载计划后，conda remove 斯佩克尔会删除软件包。如果要改为删除整个专用环境，请先停用它，再运行conda env remove横杠n 斯佩克尔-conda。将项目文件夹单独保存；卸载环境不等于删除分析数据。"
         }
       ],
       "narration_voices": {
@@ -468,15 +375,16 @@
       "objectives": [
         "下载并运行适合您操作系统的安装程序。",
         "选择加速选项和首次启动偏好。",
-        "打开spaCR，并在设置出现问题时找到安装日志。"
+        "打开spaCR，并在设置出现问题时找到安装日志。",
+        "通过操作系统的卸载功能或随附的卸载工具删除应用程序。"
       ],
       "prerequisite": "下载适合您操作系统的官方安装程序，并为应用程序及其科学计算依赖项预留空间。",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "在GitHub上打开spaCR的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。如果要验证下载，请保留同一发布中的SHA256SUMS点txt文件。",
+          "narration": "在GitHub上打开spaCR的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。",
           "hold_after": 0.7,
-          "speech_text": "在GitHub上打开斯佩克尔的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。如果要验证下载，请保留同一发布中的SHA256SUMS点txt文件。"
+          "speech_text": "在GitHub上打开斯佩克尔的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。"
         },
         {
           "visual": "09_windows_guidance",
@@ -522,12 +430,12 @@
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。",
+          "narration": "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Organism。请继续观看主页与导航教程，了解当前的模块。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "这段录像安装的是 斯佩克尔 一点五点一点三版。已发布的版本可能显示较旧的 主页 布局。这里展示的是当前每夜开发版的 主页，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。"
+          "speech_text": "这段录像安装的是 斯佩克尔 一点五点一点三版。已发布的版本可能显示较旧的 主页 布局。这里展示的是当前每夜开发版的 主页，包含 Core、Data、Tools 和 Organism。请继续观看主页与导航教程，了解当前的模块。"
         },
         {
           "visual": "05_doctor",
@@ -540,11 +448,28 @@
           "narration": "遇到安装问题时，请在安装目录中找到install点log和install-profile点json。在提交支持请求并共享日志之前，请先检查日志内容。请注明您的操作系统和spaCR版本，以便更容易诊断问题。",
           "related_lessons": [
             "01_pypi_github",
-            "02_conda_install",
-            "03_pip_install"
+            "02_install_spacr"
           ],
           "hold_after": 0.7,
           "speech_text": "遇到安装问题时，请在安装目录中找到install点log和install-profile点json。在提交支持请求并共享日志之前，请先检查日志内容。请注明您的操作系统和斯佩克尔版本，以便更容易诊断问题。"
+        },
+        {
+          "visual": "15_uninstall_windows",
+          "narration": "在Windows上，关闭spaCR，打开Settings，然后进入Apps和Installed apps。选择spaCR和Uninstall。已安装的Uninstall可执行文件也能启动相同的卸载过程。请将项目文件夹单独保存。",
+          "hold_after": 0.7,
+          "speech_text": "在Windows上，关闭斯佩克尔，打开Settings，然后进入Apps和Installed apps。选择斯佩克尔和Uninstall。已安装的Uninstall可执行文件也能启动相同的卸载过程。请将项目文件夹单独保存。"
+        },
+        {
+          "visual": "16_uninstall_macos",
+          "narration": "在macOS上，关闭spaCR，运行Library斜杠Application Support斜杠spaCR中随附的uninstall-spacr脚本。它会删除应用程序及其系统启动器。您自己的Library斜杠Application Support斜杠spaCR中的用户运行时是独立的；只有也想删除该运行时时才移除它。",
+          "hold_after": 0.7,
+          "speech_text": "在macOS上，关闭斯佩克尔，运行Library斜杠Application Support斜杠斯佩克尔中随附的uninstall-斯佩克尔脚本。它会删除应用程序及其系统启动器。您自己的Library斜杠Application Support斜杠斯佩克尔中的用户运行时是独立的；只有也想删除该运行时时才移除它。"
+        },
+        {
+          "visual": "17_uninstall_linux",
+          "narration": "在Linux上，关闭spaCR，运行主文件夹下点local斜杠share斜杠spacr中的uninstall-spacr脚本。它会删除托管运行时及应用程序启动器。卸载不需要删除显微成像项目或其分析结果。",
+          "hold_after": 0.7,
+          "speech_text": "在Linux上，关闭斯佩克尔，运行主文件夹下点local斜杠share斜杠斯佩克尔中的uninstall-斯佩克尔脚本。它会删除托管运行时及应用程序启动器。卸载不需要删除显微成像项目或其分析结果。"
         }
       ],
       "narration_voices": {
@@ -624,148 +549,272 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "从Home打开模块，找到相关工具和示例数据，然后选择要遵循的流程。",
+      "description": "从左到右浏览 Home 中所有当前模块，然后通过 Mask 学习通用控件，并调整导航、帮助和外观。",
       "objectives": [
-        "为图像、测量数据或测序读段选择起始模块。",
-        "找到相关工具和特定生物的检测。",
-        "按屏幕调整 Home 右侧栏和模块面板。",
-        "加载示例，用搜索或 Control-K 查找帮助，并设置 Preferences。"
+        "识别当前 Core、Data、Tools 和 Organism 各行中的所有模块。",
+        "通过 Mask 认识通用设置、预览、操作和输出。",
+        "返回 Home，使用搜索并排列面板。",
+        "选择外观和性能设置。"
       ],
       "prerequisite": "安装spaCR并打开桌面应用程序。",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home是您的起点。点击一个磁贴打开模块，或使用左侧的侧边栏。点击侧边栏中的Home即可回到这里。Core、Data、Tools和Assays选项卡帮助您找到想要完成的任务。",
+          "narration": "Home 是起点。每行从左往右查看，依次为 Core、Data、Tools 和 Organism。每个磁贴打开对应模块。左侧栏提供相同入口，Home 返回此概览。",
           "hold_after": 0.7,
-          "speech_text": "主页是您的起点。点击一个磁贴打开模块，或使用左侧的侧边栏。点击侧边栏中的主页即可回到这里。Core、Data、Tools和Assays选项卡帮助您找到想要完成的任务。"
+          "speech_text": "主页 是起点。每行从左往右查看，依次为 Core、Data、Tools 和 Organism。每个磁贴打开对应模块。左侧栏提供相同入口，主页 返回此概览。"
         },
         {
-          "visual": "01_core  (6)",
-          "narration": "从左到右查看 Core 磁贴。 对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。",
+          "visual": "home_module_mask",
+          "narration": "Mask 从显微镜图像生成对象掩膜。稍后会简要打开它，了解分析模块共有的控件。",
           "hold_after": 0.7,
           "focus_modules": [
-            "mask",
-            "measure",
-            "annotate",
-            "classify_merged",
-            "map_barcodes",
+            "mask"
+          ],
+          "related_lessons": [
+            "07_mask"
+          ],
+          "speech_text": "Mask 从显微镜图像生成对象掩膜。稍后会简要打开它，了解分析模块共有的控件。"
+        },
+        {
+          "visual": "home_module_measure",
+          "narration": "Measure 结合图像和掩膜，提取对象测量值和裁剪图像。测量表连接图像与后续分析。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "measure"
+          ],
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "Measure 结合图像和掩膜，提取对象测量值和裁剪图像。测量表连接图像与后续分析。"
+        },
+        {
+          "visual": "home_module_annotate",
+          "narration": "Annotate 可检查对象裁剪图像，并为示例记录经过审核的标签。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "annotate"
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "speech_text": "Annotate 可检查对象裁剪图像，并为示例记录经过审核的标签。"
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify 从审核过的标签学习，使用图像或表格方法为其他对象评分。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify 从审核过的标签学习，使用图像或表格方法为其他对象评分。"
+        },
+        {
+          "visual": "home_module_map_barcodes",
+          "narration": "Map Barcodes 读取测序数据，计数并识别导向序列或条形码。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "map_barcodes"
+          ],
+          "related_lessons": [
+            "12_map_barcodes"
+          ],
+          "speech_text": "Map Barcodes 读取测序数据，计数并识别导向序列或条形码。"
+        },
+        {
+          "visual": "home_module_regression",
+          "narration": "Regression 将表型评分与导向序列计数关联，同时保留实验分组。",
+          "hold_after": 0.7,
+          "focus_modules": [
             "regression"
           ],
           "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "12_map_barcodes",
             "13_regression"
           ],
-          "speech_text": "从左到右查看 Core 磁贴。 对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。"
+          "speech_text": "Regression 将表型评分与导向序列计数关联，同时保留实验分组。"
         },
         {
-          "visual": "02_data  (7)",
-          "narration": "从左到右查看 Data 磁贴。Import 将现有图像、掩膜或测量表导入项目。Embeddings 将对象裁剪图像转换为用于比较的数值特征向量。Run Compare 并排显示两次运行。Experiment Design 规划孔板布局。Power / Design 在不同细胞数和孔数假设下模拟检出情况，帮助规划实验。Dose-Response 拟合浓度与响应曲线，并显示估计值、区间和拟合警告。QC 显示已记录的质量检查。打开各模块的教程，了解其输入和后续步骤。",
+          "visual": "home_module_foreign",
+          "narration": "Import 为项目结构准备输入的显微镜文件及其元数据。",
           "hold_after": 0.7,
           "focus_modules": [
-            "foreign",
-            "embeddings",
-            "run_compare",
-            "experiment_design",
-            "power",
-            "dose_response",
+            "foreign"
+          ],
+          "related_lessons": [
+            "36_import"
+          ],
+          "speech_text": "Import 为项目结构准备输入的显微镜文件及其元数据。"
+        },
+        {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings 将对象裁剪图像编码为数值特征，用于探索和比较。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ],
+          "speech_text": "Embeddings 将对象裁剪图像编码为数值特征，用于探索和比较。"
+        },
+        {
+          "visual": "home_module_run_compare",
+          "narration": "Run Compare 汇集保存的运行结果，便于检查差异。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "run_compare"
+          ],
+          "related_lessons": [
+            "50_run_compare"
+          ],
+          "speech_text": "Run Compare 汇集保存的运行结果，便于检查差异。"
+        },
+        {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design 在实验前安排条件、孔位和样本标识。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ],
+          "speech_text": "Experiment Design 在实验前安排条件、孔位和样本标识。"
+        },
+        {
+          "visual": "home_module_power",
+          "narration": "Power / Design 在规划比较时探索样本量和统计功效假设。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "power"
+          ],
+          "related_lessons": [
+            "68_power_design"
+          ],
+          "speech_text": "Power / Design 在规划比较时探索样本量和统计功效假设。"
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose-Response 拟合不同浓度下的响应，同时明确选定的测量终点和对照。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ],
+          "speech_text": "Dose-Response 拟合不同浓度下的响应，同时明确选定的测量终点和对照。"
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC 汇集质量检查，指出已有和缺失的证据。",
+          "hold_after": 0.7,
+          "focus_modules": [
             "qc_dashboard"
           ],
           "related_lessons": [
-            "36_import",
-            "77_embeddings",
-            "50_run_compare",
-            "67_experiment_design",
-            "68_power_design",
-            "69_dose_response",
             "54_qc_dashboard"
           ],
-          "speech_text": "从左到右查看 Data 磁贴。Import 将现有图像、掩膜或测量表导入项目。Embeddings 将对象裁剪图像转换为用于比较的数值特征向量。Run Compare 并排显示两次运行。Experiment Design 规划孔板布局。Power / Design 在不同细胞数和孔数假设下模拟检出情况，帮助规划实验。Dose-Response 拟合浓度与响应曲线，并显示估计值、区间和拟合警告。QC 显示已记录的质量检查。打开各模块的教程，了解其输入和后续步骤。"
+          "speech_text": "QC 汇集质量检查，指出已有和缺失的证据。"
         },
         {
-          "visual": "03_tools  (5)",
-          "narration": "从左到右查看 Tools 磁贴。Make Masks 可编辑掩膜并打开 Cellpose Workbench。Align and Stitch 拼接相互重叠的图像块。Image UMAP 在降维视图中探索对象裁剪图像。Gate Editor 根据测量特征的数值范围选择组。Graph Builder 绘制测量结果。各模块的工具栏可打开其相关工具。",
+          "visual": "home_module_make_masks",
+          "narration": "Make Masks 可手工绘制和审核掩膜，或准备图像与掩膜配对。",
           "hold_after": 0.7,
           "focus_modules": [
-            "make_masks",
-            "align",
-            "umap",
-            "gate_editor",
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "speech_text": "Make Masks 可手工绘制和审核掩膜，或准备图像与掩膜配对。"
+        },
+        {
+          "visual": "home_module_align",
+          "narration": "Align & Stitch 拼接兼容的图像块并记录几何位置。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "align"
+          ],
+          "related_lessons": [
+            "32_align_stitch"
+          ],
+          "speech_text": "Align & Stitch 拼接兼容的图像块并记录几何位置。"
+        },
+        {
+          "visual": "home_module_umap",
+          "narration": "Image UMAP 投影对象特征，以探索相似对象并检查代表性裁剪图像。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "umap"
+          ],
+          "related_lessons": [
+            "15_image_umap"
+          ],
+          "speech_text": "Image 优麦普 投影对象特征，以探索相似对象并检查代表性裁剪图像。"
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor 在真实数据列上定义筛选范围。将筛选范围转成标签前，请审核选中的对象。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "门控编辑器 在真实数据列上定义筛选范围。将筛选范围转成标签前，请审核选中的对象。"
+        },
+        {
+          "visual": "home_module_graph_builder",
+          "narration": "Graph Builder 从测量表创建图表，可配置列和分组。",
+          "hold_after": 0.7,
+          "focus_modules": [
             "graph_builder"
           ],
           "related_lessons": [
-            "14_make_masks",
-            "32_align_stitch",
-            "15_image_umap",
-            "64_gate_editor",
             "58_graph_builder"
           ],
-          "speech_text": "从左到右查看 Tools 磁贴。Make Masks 可编辑掩膜并打开 塞尔波斯 Workbench。Align and Stitch 拼接相互重叠的图像块。Image 优麦普 在降维视图中探索对象裁剪图像。门控编辑器 根据测量特征的数值范围选择组。Graph Builder 绘制测量结果。各模块的工具栏可打开其相关工具。"
+          "speech_text": "Graph Builder 从测量表创建图表，可配置列和分组。"
         },
         {
-          "visual": "04_assays  (1)",
-          "narration": "打开 Assays 查找特定生物的工作流程。Toxoplasma 会打开它的检测菜单，例如噬斑分析或宿主–病原体测量。按照所选检测的教程准备其图像、掩膜和测量输入。",
+          "visual": "home_module_toxoplasma",
+          "narration": "Organism 行包含 Toxoplasma。它打开生物指南、交互图和可用的弓形虫检测入口。单独的 Toxoplasma 教程介绍此页面。",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma"
           ],
           "related_lessons": [
-            "24_plaque",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication"
+            "82_toxoplasma"
           ],
-          "speech_text": "打开 Assays 查找特定生物的工作流程。Toxoplasma 会打开它的检测菜单，例如噬斑分析或宿主–病原体测量。按照所选检测的教程准备其图像、掩膜和测量输入。"
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "打开Classify，使用Classifier family选择输入类型。对象图像请选择Computer Vision，已测量的特征列请选择Tabular Machine Learning。链接的教程会带您完成每一类方法的训练、评估和打分。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "41_classify",
-            "10_classify_cv",
-            "11_classify_ml"
-          ],
-          "speech_text": "打开Classify，使用Classifier family选择输入类型。对象图像请选择Computer Vision，已测量的特征列请选择Tabular Machine Learning。链接的教程会带您完成每一类方法的训练、评估和打分。"
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "模型训练好之后，Classify的工具栏可以帮助您审视它。Classifier Evaluation显示模型在预留数据上的表现，Explain CV Model和Activation显示是什么驱动了它的判断，Training Runs比较训练历史，Feature Explorer则对区分各组的特征进行排序。把指针悬停在图标上即可看到名称。",
-          "hold_after": 0.7,
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "39_classifier_evaluation",
-            "70_explain_cv",
-            "16_activation",
-            "28_training_runs",
-            "65_feature_explorer"
-          ],
-          "speech_text": "模型训练好之后，Classify的工具栏可以帮助您审视它。Classifier Evaluation显示模型在预留数据上的表现，Explain CV Model和Activation显示是什么驱动了它的判断，Training Runs比较训练历史，Feature Explorer则对区分各组的特征进行排序。把指针悬停在图标上即可看到名称。"
+          "speech_text": "Organism 行包含 Toxoplasma。它打开生物指南、交互图和可用的弓形虫检测入口。单独的 Toxoplasma 教程介绍此页面。"
         },
         {
           "visual": "06_mask_host",
-          "narration": "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开3D。",
+          "narration": "打开 Mask 作为分析模块的通用示例。这里学习屏幕布局，不完成分割流程。设置在左侧，控制台和进度面板在右侧，操作位于底部。有输入数据时，Live 打开模块预览。",
           "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "17_timelapse"
-          ],
-          "speech_text": "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开三维。"
+          "speech_text": "打开 Mask 作为分析模块的通用示例。这里学习屏幕布局，不完成分割流程。设置在左侧，控制台和进度面板在右侧，操作位于底部。有输入数据时，Live 打开模块预览。"
+        },
+        {
+          "visual": "06b_mask_settings",
+          "narration": "设置按分区排列。展开分区查看控件。选择自己的输入文件夹，或在提供示例时使用 Load test data。标签和帮助说明每项设置所需的输入。",
+          "hold_after": 0.7,
+          "speech_text": "设置按分区排列。展开分区查看控件。选择自己的输入文件夹，或在提供示例时使用 Load test data。标签和帮助说明每项设置所需的输入。"
+        },
+        {
+          "visual": "06c_mask_actions",
+          "narration": "Import settings 将保存的配置导入此表单。Run 开始所选任务，Stop 请求停止正在运行的任务。控制台报告进度和消息。开始分析前请查看该模块的教程。",
+          "hold_after": 0.7,
+          "speech_text": "Import settings 将保存的配置导入此表单。Run 开始所选任务，Stop 请求停止正在运行的任务。控制台报告进度和消息。开始分析前请查看该模块的教程。"
         },
         {
           "visual": "14_resize_panels",
-          "narration": "每个模块界面都可以按您的屏幕来调整。拖动设置与右侧面板之间的把手，可以让任一侧获得更多空间；点击把手上的箭头可以把设置折叠起来。按住 Control 在右侧面板上滚动，可放大或缩小其中的文字；按 Control-0 可恢复原样。",
+          "narration": "拖动分隔条，为设置或预览分配更多空间。Control 加鼠标滚轮改变一列的文字大小。这些布局控件便于阅读设置，不改变分析本身。",
           "hold_after": 0.7,
-          "focus": [
-            1800,
-            171,
-            300,
-            1950
-          ],
-          "speech_text": "每个模块界面都可以按您的屏幕来调整。拖动设置与右侧面板之间的把手，可以让任一侧获得更多空间；点击把手上的箭头可以把设置折叠起来。按住 Control 在右侧面板上滚动，可放大或缩小其中的文字；按 Control-0 可恢复原样。"
+          "speech_text": "拖动分隔条，为设置或预览分配更多空间。Control 加鼠标滚轮改变一列的文字大小。这些布局控件便于阅读设置，不改变分析本身。"
         },
         {
           "visual": "10_home_column",
@@ -829,7 +878,7 @@
         },
         {
           "visual": "13b_preferences_appearance",
-          "narration": "Appearance 决定工作时帮助信息如何出现。Tooltip delay 是指针停在控件上多久后才显示提示：默认两秒，设为零则立即显示。Show tooltips 可以完全关闭提示，下方的 Theme 和 Animation 部分可以展开，用来设置窗口外观。",
+          "narration": "Appearance 设置您工作时帮助信息的显示方式。Tooltip delay 决定指针停留多久后显示浮动提示：默认两秒，设为零则立即显示。Show tooltips 控制这些浮动提示。Home 和 Preferences 底部的专用帮助区域会立即显示说明。下方的 Theme 和 Animation 可以展开，用于设置窗口外观。",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -837,7 +886,7 @@
             1200,
             1200
           ],
-          "speech_text": "Appearance 决定工作时帮助信息如何出现。Tooltip delay 是指针停在控件上多久后才显示提示：默认两秒，设为零则立即显示。Show tooltips 可以完全关闭提示，下方的 Theme 和 Animation 部分可以展开，用来设置窗口外观。"
+          "speech_text": "Appearance 设置您工作时帮助信息的显示方式。Tooltip delay 决定指针停留多久后显示浮动提示：默认两秒，设为零则立即显示。Show tooltips 控制这些浮动提示。主页 和 Preferences 底部的专用帮助区域会立即显示说明。下方的 Theme 和 Animation 可以展开，用于设置窗口外观。"
         },
         {
           "visual": "13c_appearance_theme",
@@ -853,7 +902,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "改为点击 Animation 将其展开。它选择动画背景及其配色，提供细节、模糊、速度、大小和密度滑块，并设置设置项提示是否带动画，以及设置项背后显示的背景。",
+          "narration": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁，Popup wave frequency 则在 spaCR field 中从打开的弹窗发出波纹。Field ripples 独立于鼠标引力，控制点击、打开或关闭容器以及窗口贴靠屏幕边缘时产生的波纹。关闭它也会停止弹窗的自动波纹。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -861,7 +910,19 @@
             1200,
             1500
           ],
-          "speech_text": "改为点击 Animation 将其展开。它选择动画背景及其配色，提供细节、模糊、速度、大小和密度滑块，并设置设置项提示是否带动画，以及设置项背后显示的背景。"
+          "speech_text": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁，Popup wave frequency 则在 斯佩克尔 field 中从打开的弹窗发出波纹。Field ripples 独立于鼠标引力，控制点击、打开或关闭容器以及窗口贴靠屏幕边缘时产生的波纹。关闭它也会停止弹窗的自动波纹。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。"
+        },
+        {
+          "visual": "13h_preferences_apply",
+          "narration": "点击 Apply 预览修改，同时保持 Preferences 打开。另一个确认窗口会询问您要 Keep 还是 Revert 已应用的设置。Revert 恢复之前的设置；您编辑过的控件值仍然保留，方便继续调整或再次应用。",
+          "hold_after": 0.7,
+          "speech_text": "点击 Apply 预览修改，同时保持 Preferences 打开。另一个确认窗口会询问您要 Keep 还是 Revert 已应用的设置。Revert 恢复之前的设置；您编辑过的控件值仍然保留，方便继续调整或再次应用。"
+        },
+        {
+          "visual": "13i_preferences_kept",
+          "narration": "Keep 接受已应用的设置，并保持 Preferences 打开。您可以继续调整其他选项卡，或在准备保留当前值并关闭窗口时点击 Save。",
+          "hold_after": 0.7,
+          "speech_text": "Keep 接受已应用的设置，并保持 Preferences 打开。您可以继续调整其他选项卡，或在准备保留当前值并关闭窗口时点击 Save。"
         },
         {
           "visual": "13e_session_updates",
@@ -900,21 +961,10 @@
           "speech_text": "Prune now 绝不会不经询问就删除。为运行文件夹设置一个较短的示例上限后，它会列出每个文件夹中将要删除的内容并等待回答。点击 Cancel，则不会删除任何内容。"
         },
         {
-          "visual": "00_home",
-          "narration": "回到Home，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从spaCR screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。",
+          "visual": "24_spaceout_field",
+          "narration": "在 Spaceout 模式下，Preferences 提供 spaCR field 的八个独立效果控件。可分别开启或关闭各效果。常规外观和设置窗口动画控件仍可使用。Apply 预览修改，Keep 接受修改，Revert 恢复之前的选择。",
           "hold_after": 0.7,
-          "related_lessons": [
-            "78_spacr_screens",
-            "80_image_analysis_pathways",
-            "81_sequencing_pathways"
-          ],
-          "focus": [
-            3150,
-            205,
-            666,
-            46
-          ],
-          "speech_text": "回到主页，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从斯佩克尔 screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。"
+          "speech_text": "在 Spaceout 模式下，Preferences 提供 斯佩克尔 field 的八个独立效果控件。可分别开启或关闭各效果。常规外观和设置窗口动画控件仍可使用。Apply 预览修改，Keep 接受修改，Revert 恢复之前的选择。"
         }
       ],
       "narration_voices": {
@@ -16163,7 +16213,7 @@
       "series": 1,
       "app_key": null,
       "section": "工作流程",
-      "description": "选择一条图像分析路径，涵盖分割、测量、标注、分类、投影、门控、图像配准、质量控制和专项实验分析。",
+      "description": "沿着当前从图像到测量的流程，选择探索、标注、比较或生物体特定分析。",
       "objectives": [
         "根据已有数据选择起始模块。",
         "明确每个模块读取和写入的内容。",
@@ -16172,214 +16222,143 @@
       "prerequisite": "安装 spaCR 并打开 Home。选择工作流程的起始数据，然后按照链接的模块课程了解控件和示例数据。",
       "scenes": [
         {
-          "visual": "home",
-          "narration": "spaCR 中的图像分析跟随您的图像，从像素一直走到答案。原始图像从 Mask 开始，由它找出对象。如果想手动修正掩膜，请使用 Make Masks，或者导入已有的掩膜。然后 Measure 把图像和掩膜变成数字，需要的话也生成裁剪图像。从那里起，您可以选择方向：分类、图像探索、门控或某项检测。当分析需要统一的坐标系时，请先拼接图块。",
+          "visual": "00_home",
+          "narration": "从研究问题和已有数据开始。当前 Home 的各行区分 Core analysis、Data preparation and comparison、Tools，以及 Toxoplasma 的 Organism 页面。每个模块代表一个步骤；它的输出会成为另一个模块的输入。",
+          "hold_after": 0.7,
+          "speech_text": "从研究问题和已有数据开始。当前 主页 的各行区分 Core analysis、Data preparation and comparison、Tools，以及 Toxoplasma 的 Organism 页面。每个模块代表一个步骤；它的输出会成为另一个模块的输入。"
+        },
+        {
+          "visual": "module_foreign",
+          "narration": "Import 整理传入的显微图像文件和元数据。如果采集结果包含重叠的图块，Align & Stitch 可以准备拼接图及其坐标记录。请将通道标识和源元数据与项目一起保留。",
           "hold_after": 0.7,
           "related_lessons": [
-            "05_home"
+            "36_import",
+            "32_align_stitch"
           ],
-          "speech_text": "斯佩克尔 中的图像分析跟随您的图像，从像素一直走到答案。原始图像从 Mask 开始，由它找出对象。如果想手动修正掩膜，请使用 Make Masks，或者导入已有的掩膜。然后 Measure 把图像和掩膜变成数字，需要的话也生成裁剪图像。从那里起，您可以选择方向：分类、图像探索、门控或某项检测。当分析需要统一的坐标系时，请先拼接图块。"
+          "speech_text": "Import 整理传入的显微图像文件和元数据。如果采集结果包含重叠的图块，Align & Stitch 可以准备拼接图及其坐标记录。请将通道标识和源元数据与项目一起保留。"
         },
         {
           "visual": "module_mask",
-          "narration": "原始显微图像从 Mask 开始。从 Home 打开它，选择通道和分割模型，并在运行前检查预览。Mask 把每个视野写成一个合并数组，其中图像通道和整数标签平面放在一起，接下来由 Measure 读取的正是这个合并数组。Mask 还会保留一个小型计数数据库，但那只是计数，不是特征表。",
+          "narration": "Mask 从显微图像生成对象标签。Make Masks 可用于手动创建或检查掩膜。图像与掩膜配对必须保留相同的视野标识；单独的掩膜文件并不会自动成为 Measure 所需的项目合并数组。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
-            "08_measure"
+            "14_make_masks"
           ],
-          "speech_text": "原始显微图像从 Mask 开始。从 主页 打开它，选择通道和分割模型，并在运行前检查预览。Mask 把每个视野写成一个合并数组，其中图像通道和整数标签平面放在一起，接下来由 Measure 读取的正是这个合并数组。Mask 还会保留一个小型计数数据库，但那只是计数，不是特征表。"
-        },
-        {
-          "visual": "module_make_masks",
-          "narration": "有时掩膜需要人工修正。从 Home 打开 Make Masks，逐个视野修正。您在这里保存的内容可以有两个去向。要训练分割模型，请整理图像与掩膜对，并把它们作为训练视野放在一起。要进行测量，请使用 Organize for Measure，它会把每张图像及其掩膜移入通道文件夹，并合并为 Measure 读取的数组；单独的掩膜并不是合并数组。在这里绘制的噬斑掩膜也可以连同对应的源图像用于 Plaque Assay。保存掩膜并不会训练分类器。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "14_make_masks",
-            "24_plaque"
-          ],
-          "speech_text": "有时掩膜需要人工修正。从 主页 打开 Make Masks，逐个视野修正。您在这里保存的内容可以有两个去向。要训练分割模型，请整理图像与掩膜对，并把它们作为训练视野放在一起。要进行测量，请使用 Organize for Measure，它会把每张图像及其掩膜移入通道文件夹，并合并为 Measure 读取的数组；单独的掩膜并不是合并数组。在这里绘制的噬斑掩膜也可以连同对应的源图像用于 Plaque Assay。保存掩膜并不会训练分类器。"
+          "speech_text": "Mask 从显微图像生成对象标签。Make Masks 可用于手动创建或检查掩膜。图像与掩膜配对必须保留相同的视野标识；单独的掩膜文件并不会自动成为 Measure 所需的项目合并数组。"
         },
         {
           "visual": "module_measure",
-          "narration": "Measure 是整张地图的中心。从 Home 打开它，指向 Mask 构建的项目，并正确设置图像和掩膜的通道索引；在 Make Masks 中配对的掩膜也会来到这里。Measure 把图像和标签平面放在一起读取，并把每个细胞、细胞核或寄生虫写成 measurements.db 中的一行。如果想为每个对象得到一张 PNG，请开启裁剪保存；如果改为流式提供裁剪图像，请把数据库与其源项目放在一起。几乎其他所有内容都从这些行开始。Annotate 和 Classify 使用测量数据和裁剪图像来学习表型。Image UMAP 对它们进行投影，方便您寻找分组；Embeddings 用模型对裁剪图像进行编码，并记录编码器和通道策略。Gate Editor 在真实测得的特征及其真实单位上设置阈值，QC 则显示哪些检查存在、哪些缺失。Toxoplasma 检测也从这里开始：Recruitment 需要合适的区室强度，Invasion Assay 需要带基线对照的双色染色测量，Replication Assay 需要明确的寄生虫与液泡关联。Host–Pathogen Analysis 需要完整液泡掩膜和宿主参考强度，并保留未感染的细胞。内出芽大小替代指标则在您检查过按宿主细胞的汇总方式和面积单位之后，从 Python 读取已测量的项目；仅有 Mask 的计数数据库是不够的。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "14_make_masks",
-            "15_image_umap",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication",
-            "41_classify",
-            "54_qc_dashboard",
-            "64_gate_editor",
-            "77_embeddings",
-            "85_host_pathogen"
-          ],
-          "speech_text": "Measure 是整张地图的中心。从 主页 打开它，指向 Mask 构建的项目，并正确设置图像和掩膜的通道索引；在 Make Masks 中配对的掩膜也会来到这里。Measure 把图像和标签平面放在一起读取，并把每个细胞、细胞核或寄生虫写成 测量数据库文件 中的一行。如果想为每个对象得到一张 PNG，请开启裁剪保存；如果改为流式提供裁剪图像，请把数据库与其源项目放在一起。几乎其他所有内容都从这些行开始。Annotate 和 Classify 使用测量数据和裁剪图像来学习表型。Image 优麦普 对它们进行投影，方便您寻找分组；Embeddings 用模型对裁剪图像进行编码，并记录编码器和通道策略。门控编辑器 在真实测得的特征及其真实单位上设置阈值，QC 则显示哪些检查存在、哪些缺失。Toxoplasma 检测也从这里开始：Recruitment 需要合适的区室强度，Invasion Assay 需要带基线对照的双色染色测量，Replication Assay 需要明确的寄生虫与液泡关联。Host–Pathogen Analysis 需要完整液泡掩膜和宿主参考强度，并保留未感染的细胞。内出芽大小替代指标则在您检查过按宿主细胞的汇总方式和面积单位之后，从 Python 读取已测量的项目；仅有 Mask 的计数数据库是不够的。"
-        },
-        {
-          "visual": "module_annotate",
-          "narration": "有了测量数据，Annotate 就是用示例进行教学的地方。从 Home 打开它，它会显示 Measure 保存的、或从项目中流式提供的对象裁剪图像。为有代表性的对象加标签；每个标签都会进入 png_list 表中的一个注释列，并与该对象的标识关联。您不必从零开始：Gate Editor 中保存的门控可以提出候选标签供您审阅。每个问题使用单独的一列，把训练对象和评估对象分开，接下来 Classify 训练使用的就是这一列。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "64_gate_editor"
-          ],
-          "speech_text": "有了测量数据，Annotate 就是用示例进行教学的地方。从 主页 打开它，它会显示 Measure 保存的、或从项目中流式提供的对象裁剪图像。为有代表性的对象加标签；每个标签都会进入 png_list 表中的一个注释列，并与该对象的标识关联。您不必从零开始：门控编辑器 中保存的门控可以提出候选标签供您审阅。每个问题使用单独的一列，把训练对象和评估对象分开，接下来 Classify 训练使用的就是这一列。"
-        },
-        {
-          "visual": "module_classify_merged",
-          "narration": "从 Home 打开 Classify，把标签变成预测。它有两类方法，由您的数据决定用哪一类。Computer Vision 从 Measure 保存或流式提供的对象裁剪图像中学习；Tabular Machine Learning 从测量得到的特征列中学习。标签可以来自三个地方。最常见的是来自 Annotate。Gate Editor 可以把审阅过的门控选择写入注释列，Image UMAP 也可以对审阅过的套索选择做同样的事；无论哪种情况，都请在这里选择同一列和同一对象群体。嵌入聚类不是真实参考，所以请检查裁剪图像、验证标签，并让验证对象远离训练。随后 Classify 会保存分数、训练好的模型，以及一个包含预留数据预测结果的评估包。在筛选中，请选择您要使用的 CV 或 ML 分数列，并在保持板和孔标识完整的情况下把它带入 Regression。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "13_regression",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ],
-          "speech_text": "从 主页 打开 Classify，把标签变成预测。它有两类方法，由您的数据决定用哪一类。Computer Vision 从 Measure 保存或流式提供的对象裁剪图像中学习；Tabular Machine Learning 从测量得到的特征列中学习。标签可以来自三个地方。最常见的是来自 Annotate。门控编辑器 可以把审阅过的门控选择写入注释列，Image 优麦普 也可以对审阅过的套索选择做同样的事；无论哪种情况，都请在这里选择同一列和同一对象群体。嵌入聚类不是真实参考，所以请检查裁剪图像、验证标签，并让验证对象远离训练。随后 Classify 会保存分数、训练好的模型，以及一个包含预留数据预测结果的评估包。在筛选中，请选择您要使用的 CV 或 ML 分数列，并在保持板和孔标识完整的情况下把它带入 Regression。"
-        },
-        {
-          "visual": "module_umap",
-          "narration": "Image UMAP 用于在加标签之前先观察。从 Home 打开它，它会把 Measure 测得的特征，或对象 ID 相匹配的 Embeddings 编码器特征，投影到一张相似对象彼此靠近的地图上。打开有代表性的裁剪图像，看看某个区域里到底有什么。聚类只是候选分组，并不是经过验证的表型。当某个区域确实看起来有意义时，用套索圈出它，检查圈中的内容，并把选择写入对应测量数据库中的一个注释列。然后 Classify 就可以用这一列进行训练。如果您更愿意用对应的坐标列和特征列来定义选择，也可以把投影交给 Gate Editor。并不是每条界面路径都会替您保存编码器特征，而且图上的一个形状本身并不能确立生物学表型。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor",
-            "77_embeddings"
-          ],
-          "speech_text": "Image 优麦普 用于在加标签之前先观察。从 主页 打开它，它会把 Measure 测得的特征，或对象 ID 相匹配的 Embeddings 编码器特征，投影到一张相似对象彼此靠近的地图上。打开有代表性的裁剪图像，看看某个区域里到底有什么。聚类只是候选分组，并不是经过验证的表型。当某个区域确实看起来有意义时，用套索圈出它，检查圈中的内容，并把选择写入对应测量数据库中的一个注释列。然后 Classify 就可以用这一列进行训练。如果您更愿意用对应的坐标列和特征列来定义选择，也可以把投影交给 门控编辑器。并不是每条界面路径都会替您保存编码器特征，而且图上的一个形状本身并不能确立生物学表型。"
-        },
-        {
-          "visual": "module_gate_editor",
-          "narration": "Gate Editor 让您按规则而不是凭肉眼选择对象。从 Home 打开它，在真实的列上绘制阈值门控或多边形门控：可以是 Measure 测得的特征及其真实单位，也可以是 Image UMAP 投影的坐标。保存门控后，就可以把它再次应用到任何兼容的对象上。在您检查所选对象并选定二分类或多分类标签之后，它的 Annotate 按钮会把显示的门控写入一个注释列。保存的门控也可以在 Annotate 中提出候选标签。随后在 Classify 中选择同一列和同一对象群体，并把验证对象与训练标签分开。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ],
-          "speech_text": "门控编辑器 让您按规则而不是凭肉眼选择对象。从 主页 打开它，在真实的列上绘制阈值门控或多边形门控：可以是 Measure 测得的特征及其真实单位，也可以是 Image 优麦普 投影的坐标。保存门控后，就可以把它再次应用到任何兼容的对象上。在您检查所选对象并选定二分类或多分类标签之后，它的 Annotate 按钮会把显示的门控写入一个注释列。保存的门控也可以在 Annotate 中提出候选标签。随后在 Classify 中选择同一列和同一对象群体，并把验证对象与训练标签分开。"
-        },
-        {
-          "visual": "module_align",
-          "narration": "有些分析需要先把图块拼接成一张图。从 Home 打开 Align & Stitch，检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图。对于 OPS，还要保留原始的循环和位点标识。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "32_align_stitch"
-          ],
-          "speech_text": "有些分析需要先把图块拼接成一张图。从 主页 打开 Align & Stitch，检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图。对于 OPS，还要保留原始的循环和位点标识。"
-        },
-        {
-          "visual": "module_analyze_plaques",
-          "narration": "接下来是 Toxoplasma 检测。从 Home 打开 Toxoplasma，选择 Plaque Assay。这项检测跳过 Measure：它读取噬斑图像或您已有的掩膜，并运行配置好的噬斑模型。只要是带有对应源图像的噬斑掩膜，Make Masks 生成的掩膜也可以在这里使用；细胞掩膜不是噬斑标签。它会保存噬斑结果和掩膜，噬斑示例课程展示了完整的运行过程。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "14_make_masks",
-            "24_plaque"
-          ],
-          "speech_text": "接下来是 Toxoplasma 检测。从 主页 打开 Toxoplasma，选择 Plaque Assay。这项检测跳过 Measure：它读取噬斑图像或您已有的掩膜，并运行配置好的噬斑模型。只要是带有对应源图像的噬斑掩膜，Make Masks 生成的掩膜也可以在这里使用；细胞掩膜不是噬斑标签。它会保存噬斑结果和掩膜，噬斑示例课程展示了完整的运行过程。"
-        },
-        {
-          "visual": "module_recruitment",
-          "narration": "Recruitment 考察有多少标记物聚集在寄生虫处。从 Home 打开 Toxoplasma，然后选择 Recruitment。它读取来自 Measure 的区室强度，其中宿主和病原体的标识相互匹配，并计算保留每个孔和每个条件的募集比值。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "25_recruitment"
-          ],
-          "speech_text": "Recruitment 考察有多少标记物聚集在寄生虫处。从 主页 打开 Toxoplasma，然后选择 Recruitment。它读取来自 Measure 的区室强度，其中宿主和病原体的标识相互匹配，并计算保留每个孔和每个条件的募集比值。"
-        },
-        {
-          "visual": "module_host_pathogen",
-          "narration": "Host–Pathogen Analysis 从两个方面观察感染。从 Home 打开 Toxoplasma，然后选择它。它读取来自 Measure 的测量数据，其中包括完整的液泡、宿主参考区室以及未感染的宿主细胞，后者构成感染的分母。选择标记物通道，并设置经对照校准的比值阈值。如果您分割了单个寄生虫，它可以根据明确的关联或测得的计数列统计每个液泡中的寄生虫。随后您会得到液泡、宿主和孔的表格、标记物联合状态、复制分布，以及无法匹配的寄生虫关联。未知的测量值保持未知，仅凭宿主标识永远不能确定一个液泡。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "85_host_pathogen"
-          ],
-          "speech_text": "Host–Pathogen Analysis 从两个方面观察感染。从 主页 打开 Toxoplasma，然后选择它。它读取来自 Measure 的测量数据，其中包括完整的液泡、宿主参考区室以及未感染的宿主细胞，后者构成感染的分母。选择标记物通道，并设置经对照校准的比值阈值。如果您分割了单个寄生虫，它可以根据明确的关联或测得的计数列统计每个液泡中的寄生虫。随后您会得到液泡、宿主和孔的表格、标记物联合状态、复制分布，以及无法匹配的寄生虫关联。未知的测量值保持未知，仅凭宿主标识永远不能确定一个液泡。"
-        },
-        {
-          "visual": "module_invasion",
-          "narration": "要区分只是附着的寄生虫和已经进入的寄生虫，请从 Home 打开 Toxoplasma 并选择 Invasion Assay。它依靠来自 Measure 的双色差异染色测量数据以及染色基线对照，并在保留每个孔和每个条件的前提下保存检测结果。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "26_invasion"
-          ],
-          "speech_text": "要区分只是附着的寄生虫和已经进入的寄生虫，请从 主页 打开 Toxoplasma 并选择 Invasion Assay。它依靠来自 Measure 的双色差异染色测量数据以及染色基线对照，并在保留每个孔和每个条件的前提下保存检测结果。"
-        },
-        {
-          "visual": "module_replication",
-          "narration": "Replication Assay 同样位于 Home 的 Toxoplasma 之下，它统计每个液泡中的寄生虫数量，并在不同条件之间比较这些分布。它读取来自 Measure 的对象，但需要明确的寄生虫与液泡对应关系；仅凭宿主标识无法确定一个液泡。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "27_replication"
-          ],
-          "speech_text": "Replication Assay 同样位于 主页 的 Toxoplasma 之下，它统计每个液泡中的寄生虫数量，并在不同条件之间比较这些分布。它读取来自 Measure 的对象，但需要明确的寄生虫与液泡对应关系；仅凭宿主标识无法确定一个液泡。"
-        },
-        {
-          "visual": "module_qc_dashboard",
-          "narration": "在 Measure 之后的任何时候，都可以从 Home 打开 QC 检查您的工作。它读取已保存的分割、单位、泄漏和板效应检查结果，内嵌的查看器让您可以看得更仔细。缺失的检查并不等于通过的检查。QC 会把结果连同可导出的图和表一起保存。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ],
-          "speech_text": "在 Measure 之后的任何时候，都可以从 主页 打开 QC 检查您的工作。它读取已保存的分割、单位、泄漏和板效应检查结果，内嵌的查看器让您可以看得更仔细。缺失的检查并不等于通过的检查。QC 会把结果连同可导出的图和表一起保存。"
-        },
-        {
-          "visual": "module_embeddings",
-          "narration": "Embeddings 根据模型看到的内容来描述对象，而不是依靠人工挑选的特征。从 Home 打开它，选择一个模型和一种通道策略，它会把 Measure 生成的对象裁剪图像编码为每个对象一个特征向量。请把对象标识、编码器和通道策略与这些特征一起记录下来，因为 Image UMAP 需要对象 ID 相匹配的特征表，而并不是每条路径都会替您保存它。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings 根据模型看到的内容来描述对象，而不是依靠人工挑选的特征。从 主页 打开它，选择一个模型和一种通道策略，它会把 Measure 生成的对象裁剪图像编码为每个对象一个特征向量。请把对象标识、编码器和通道策略与这些特征一起记录下来，因为 Image 优麦普 需要对象 ID 相匹配的特征表，而并不是每条路径都会替您保存它。"
-        },
-        {
-          "visual": "module_endodyogeny",
-          "narration": "这张地图中有两个工具只能在 Python 中使用。第一个是内出芽大小替代指标，即 spacr.submodules.analyze_endodyogeny；它没有 Home 磁贴或菜单项。它从您的 Measure 项目中读取测得的区室面积，按条件加标签，并把面积的一点五次方分箱为 log2 尺度的大小倍增。默认情况下，它按宿主细胞而不是按液泡汇总病原体面积，因此同一细胞中的多个液泡会被合并。所以它是基于面积的大小替代指标，而不是测得的体积或寄生虫数量；要统计每个液泡中的寄生虫，请使用 Replication Assay。调用之前请设置区室、面积过滤、校准、条件和分组，并在读取分箱结果之前检查汇总方式和面积单位。仅有 Mask 的计数数据库是不够的。",
+          "narration": "Measure 同时读取准备好的图像和掩膜平面。它会写入含对象标识和特征列的 measurements.db，还可以保存对象裁剪图。请将源项目和通道映射与这些表一起保留。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
           ],
-          "speech_text": "这张地图中有两个工具只能在 Python 中使用。第一个是内出芽大小替代指标，即 斯佩克尔.submodules.analyze_endodyogeny；它没有 主页 磁贴或菜单项。它从您的 Measure 项目中读取测得的区室面积，按条件加标签，并把面积的一点五次方分箱为 log2 尺度的大小倍增。默认情况下，它按宿主细胞而不是按液泡汇总病原体面积，因此同一细胞中的多个液泡会被合并。所以它是基于面积的大小替代指标，而不是测得的体积或寄生虫数量；要统计每个液泡中的寄生虫，请使用 Replication Assay。调用之前请设置区室、面积过滤、校准、条件和分组，并在读取分箱结果之前检查汇总方式和面积单位。仅有 Mask 的计数数据库是不够的。"
+          "speech_text": "Measure 同时读取准备好的图像和掩膜平面。它会写入含对象标识和特征列的 测量数据库文件，还可以保存对象裁剪图。请将源项目和通道映射与这些表一起保留。"
         },
         {
-          "visual": "module_cellpose_masks",
-          "narration": "第二个是用 Cellpose 直接生成掩膜，即 spacr.spacr_cellpose.identify_masks_finetune，同样没有 Home 磁贴或菜单项。尽管名字如此，它执行的是推断而不是训练：它把标准或自定义的 Cellpose 模型应用到一个文件夹中的 TIFF 视野上。请先检查归一化、通道、缩放和模型设置，并开启保存，因为只有在 save 开启时才会写出掩膜。您得到的是标签 TIFF，而不是可以直接用于 Measure 的项目。要继续，请在 Measure 之前通过 External Masks 导入图像与掩膜对，或者把它们整理成训练数据。",
+          "visual": "module_annotate",
+          "narration": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，从所选标签列中学习。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。",
           "hold_after": 0.7,
-          "related_lessons": [],
-          "speech_text": "第二个是用 塞尔波斯 直接生成掩膜，即 斯佩克尔.斯佩克尔_塞尔波斯.identify_masks_finetune，同样没有 主页 磁贴或菜单项。尽管名字如此，它执行的是推断而不是训练：它把标准或自定义的 塞尔波斯 模型应用到一个文件夹中的 TIFF 视野上。请先检查归一化、通道、缩放和模型设置，并开启保存，因为只有在 save 开启时才会写出掩膜。您得到的是标签 TIFF，而不是可以直接用于 Measure 的项目。要继续，请在 Measure 之前通过 External Masks 导入图像与掩膜对，或者把它们整理成训练数据。"
+          "related_lessons": [
+            "09_annotate",
+            "41_classify"
+          ],
+          "speech_text": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，从所选标签列中学习。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。"
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Embeddings 将裁剪图编码为数值特征。Image UMAP 对兼容特征进行投影，供探索使用。为聚类赋予含义之前，请检查有代表性的裁剪图；单凭聚类本身不能认定为经过验证的表型。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "77_embeddings",
+            "15_image_umap"
+          ],
+          "speech_text": "Embeddings 将裁剪图编码为数值特征。Image 优麦普 对兼容特征进行投影，供探索使用。为聚类赋予含义之前，请检查有代表性的裁剪图；单凭聚类本身不能认定为经过验证的表型。"
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Gate Editor 使用实际特征列或兼容的投影坐标选择对象。写入标签之前，请检查所选对象。这些标签可以成为 Annotate 或 Classify 的已审核示例。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "门控编辑器 使用实际特征列或兼容的投影坐标选择对象。写入标签之前，请检查所选对象。这些标签可以成为 Annotate 或 Classify 的已审核示例。"
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "QC 报告现有的质量检查和缺失的证据。Run Compare 并排检查保存的运行结果。Graph Builder 使用您选择的列和分组，对测量表绘图。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "54_qc_dashboard",
+            "50_run_compare",
+            "58_graph_builder"
+          ],
+          "speech_text": "QC 报告现有的质量检查和缺失的证据。Run Compare 并排检查保存的运行结果。Graph Builder 使用您选择的列和分组，对测量表绘图。"
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Experiment Design 规划条件和样本标识。Power / Design 探索统计规划的假设。Dose-Response 分析不同浓度下的终点指标。请明确测量终点、对照和实验单位。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ],
+          "speech_text": "Experiment Design 规划条件和样本标识。Power / Design 探索统计规划的假设。Dose-Response 分析不同浓度下的终点指标。请明确测量终点、对照和实验单位。"
+        },
+        {
+          "visual": "module_toxoplasma",
+          "narration": "Toxoplasma 页面汇集该生物体特定的实验分析。各分析的输入不同：斑块图像、细胞区室测量，或明确的寄生虫与液泡关联不能互相替代。请选择相应的分析，并遵循其输入要求。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "Toxoplasma 页面汇集该生物体特定的实验分析。各分析的输入不同：斑块图像、细胞区室测量，或明确的寄生虫与液泡关联不能互相替代。请选择相应的分析，并遵循其输入要求。"
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "对于混池筛选，Map Barcodes 从测序读段生成向导序列计数。Regression 将这些计数与兼容的表型评分结合。合并两条流程时，请保留板、孔和向导序列的标识。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ],
+          "speech_text": "对于混池筛选，Map Barcodes 从测序读段生成向导序列计数。Regression 将这些计数与兼容的表型评分结合。合并两条流程时，请保留板、孔和向导序列的标识。"
         },
         {
           "visual": "home_summary",
-          "narration": "所以，图像路线几乎总是从 Mask 到 Measure，然后根据您的问题分叉。要训练自己的分割模型，请在 Make Masks 中准备图像与掩膜对，在 Cellpose Workbench 中训练，再把保存的模型在 Mask 中打开。如果手头已有兼容的输出，也可以从后面的步骤开始。无论走到哪里，都要为每个结果保留通道标识、单位和对象键。",
+          "narration": "返回 Home，根据实际已有的输出选择下一步。使用链接的模块教程完成一次完整运行。请将输入标识、设置、安装版本和输出位置一起保留，以便之后检查整个流程。",
           "hold_after": 0.7,
-          "speech_text": "所以，图像路线几乎总是从 Mask 到 Measure，然后根据您的问题分叉。要训练自己的分割模型，请在 Make Masks 中准备图像与掩膜对，在 塞尔波斯 Workbench 中训练，再把保存的模型在 Mask 中打开。如果手头已有兼容的输出，也可以从后面的步骤开始。无论走到哪里，都要为每个结果保留通道标识、单位和对象键。"
+          "speech_text": "返回 主页，根据实际已有的输出选择下一步。使用链接的模块教程完成一次完整运行。请将输入标识、设置、安装版本和输出位置一起保留，以便之后检查整个流程。"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16597,7 +16576,7 @@
       "id": "82_toxoplasma",
       "number": 82,
       "slug": "toxoplasma",
-      "title": "Toxoplasma：浏览页面并选择检测",
+      "title": "Toxoplasma 生物体：指南、示意图和实验分析",
       "series": 3,
       "app_key": "toxoplasma",
       "section": "Organisms and assays",
@@ -16611,9 +16590,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "每个Toxoplasma实验都可以从同一个页面开始。在Home中选择Toxoplasma：生物指南、细胞示意图和可用的检测并排显示，在加载任何图像之前就可以浏览。",
+          "narration": "在 Home 中选择 Organism 类别，再选择 Toxoplasma。本页面结合了生物体指南、交互式细胞示意图，以及可用的 Toxoplasma 实验分析流程。请先探索页面，再选择分析。",
           "hold_after": 0.7,
-          "speech_text": "每个Toxoplasma实验都可以从同一个页面开始。在主页中选择Toxoplasma：生物指南、细胞示意图和可用的检测并排显示，在加载任何图像之前就可以浏览。"
+          "speech_text": "在 主页 中选择 Organism 类别，再选择 Toxoplasma。本页面结合了生物体指南、交互式细胞示意图，以及可用的 Toxoplasma 实验分析流程。请先探索页面，再选择分析。"
         },
         {
           "visual": "01_organism",
@@ -16629,32 +16608,55 @@
         },
         {
           "visual": "03_assays",
-          "narration": "选择与您的问题相符的磁贴。Plaque Assay统计噬斑并测量其面积；Invasion Assay考察有多少寄生虫进入了细胞。Recruitment测量有多少标记物聚集在液泡上，Replication Assay测量每个液泡中有多少寄生虫，Host–Pathogen则把液泡与其宿主细胞关联起来。每一项都有自己的课程。",
+          "narration": "Plaque Assay统计蚀斑数量并测量其面积。Recruitment测量标记物在含寄生虫液泡处的富集程度，Replication Assay统计每个液泡中的寄生虫数量。请根据要测量的量及所需输入选择分析方法。",
           "hold_after": 0.7,
-          "speech_text": "选择与您的问题相符的磁贴。Plaque Assay统计噬斑并测量其面积；Invasion Assay考察有多少寄生虫进入了细胞。Recruitment测量有多少标记物聚集在液泡上，Replication Assay测量每个液泡中有多少寄生虫，Host–Pathogen则把液泡与其宿主细胞关联起来。每一项都有自己的课程。"
+          "speech_text": "Plaque Assay统计蚀斑数量并测量其面积。Recruitment测量标记物在含寄生虫液泡处的富集程度，Replication Assay统计每个液泡中的寄生虫数量。请根据要测量的量及所需输入选择分析方法。"
         },
         {
-          "visual": "04_host_pathogen",
-          "narration": "我们来跟随其中一项。点击Host–Pathogen，它的分析界面就会打开。Load test data会加载提供的显微示例，之后由Host–Pathogen教程带您完成设置、预览和Run。",
+          "visual": "04_plaque_assay",
+          "narration": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Analysis教程介绍完整流程。",
           "hold_after": 0.7,
-          "speech_text": "我们来跟随其中一项。点击Host–Pathogen，它的分析界面就会打开。Load test data会加载提供的显微示例，之后由Host–Pathogen教程带您完成设置、预览和Run。"
+          "speech_text": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Analysis教程介绍完整流程。"
         },
         {
-          "visual": "05_starplast",
-          "narration": "回到Toxoplasma页面，Starplast会在它自己的应用程序中打开一张知识图谱；第一次使用时，它会给出需要按步骤完成的安装说明。参考链接则会在浏览器中打开关于该生物的资源。",
+          "visual": "05_references",
+          "narration": "返回Toxoplasma指南，将信息面板滚动到参考资料。ToxoDB、Toxoplasma的hyperLOPIT图谱、UniProt和NCBI Taxonomy链接到相关生物资源。这些链接在浏览器中打开；指南本身不执行数据库搜索，也不预测蛋白质定位。",
           "hold_after": 0.7,
-          "speech_text": "回到Toxoplasma页面，Starplast会在它自己的应用程序中打开一张知识图谱；第一次使用时，它会给出需要按步骤完成的安装说明。参考链接则会在浏览器中打开关于该生物的资源。"
+          "speech_text": "返回Toxoplasma指南，将信息面板滚动到参考资料。ToxoDB、Toxoplasma的hyperLOPIT图谱、UniProt和NCBI Taxonomy链接到相关生物资源。这些链接在浏览器中打开；指南本身不执行数据库搜索，也不预测蛋白质定位。"
         },
         {
           "visual": "06_home_return",
-          "narration": "指南不会写出分析文件，所以真正的工作在别处进行。如果您的图像还需要分割或测量，请先回到Home；当图像或表格准备好后，就交给各检测页面处理。",
+          "narration": "生物体指南不会生成分析表。请返回 Home 准备图像、进行分割或测量，然后选择与已准备输入相匹配的实验分析。每项分析都有各自的要求和链接的操作教程。",
           "hold_after": 0.7,
-          "speech_text": "指南不会写出分析文件，所以真正的工作在别处进行。如果您的图像还需要分割或测量，请先回到主页；当图像或表格准备好后，就交给各检测页面处理。"
+          "speech_text": "生物体指南不会生成分析表。请返回 主页 准备图像、进行分割或测量，然后选择与已准备输入相匹配的实验分析。每项分析都有各自的要求和链接的操作教程。"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -17407,5 +17409,9 @@
       }
     }
   ],
-  "language": "zh-CN"
+  "language": "zh-CN",
+  "lesson_aliases": {
+    "02_conda_install": "02_install_spacr",
+    "03_pip_install": "02_install_spacr"
+  }
 }

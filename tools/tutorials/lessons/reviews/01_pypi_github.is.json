@@ -1,13 +1,24 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Technical source-bound editorial review; no native-speaker signoff",
+    "date": "2026-10-08",
+    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
+    "previous_review_sha256": "16b0eb170c3b7acf00e3bb5183ce3951a7dc4bcc955a83b3abdd17dc22ad0194",
+    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "is",
   "title": "Finndu spaCR á GitHub, PyPI og conda-forge",
@@ -23,9 +34,9 @@
     "Á PyPI finnurðu spaCR og lest uppsetningarskipunina við hlið núverandi útgáfu. Afritaðu skipunina þegar þú ert tilbúinn að setja upp í Python-umhverfið þitt. Kennslan um pip sýnir hvernig þú býrð fyrst til og virkjar það umhverfi.",
     "Notaðu Project links til að opna skjölunina, frumkóðageymsluna eða villuskráninguna. Settu bókamerki á skjölunina svo þú getir farið aftur í yfirferðir eininganna meðan þú vinnur í spaCR.",
     "Á GitHub opnarðu spaCR-geymsluna. main inniheldur frumkóða útgáfunnar og nightly nýjustu þróunarvinnuna. Fyrir pakkaða skjáborðsuppsetningu opnarðu Releases og velur útgáfu.",
-    "Opnaðu Assets og sæktu uppsetningarforritið fyrir Windows, macOS eða Linux. Geymdu gátsummuskrána úr sömu útgáfu ef þú vilt staðfesta niðurhalið. Kennslan Platform installers sýnir hvernig á að ræsa uppsetningarforritið og opna spaCR.",
+    "Opnaðu Assets og sæktu uppsetningarforritið fyrir Windows, macOS eða Linux. Kennsluefnið Platform installers útskýrir uppsetningu, ræsingu spaCR og hvernig því er eytt af hverju stýrikerfi.",
     "Á conda-forge opnarðu pakkasíðu spaCR og athugar hvaða útgáfa er í boði. Pakkarásir geta uppfærst á ólíkum tímum, svo veldu útgáfuna sem er í boði eftir leiðinni sem þú velur.",
-    "Skipunin fyrir conda-forge setur spaCR upp í virka Conda-umhverfinu þínu. Fylgdu Conda-kennslunni til að búa til það umhverfi, setja pakkann upp og ræsa forritið.",
-    "Haltu áfram með pip, Conda eða Platform installers. Þegar spaCR opnast ferðu í Home-kennsluna og síðan í yfirlit greiningarferla til að velja verkferli fyrir gögnin þín."
+    "Skipunin frá conda-forge setur spaCR upp í virka Conda-umhverfinu þínu. Fylgdu Install spaCR til að búa til umhverfið, setja pakkann upp og ræsa forritið. Þar er einnig útskýrt hvernig pakkinn og umhverfið eru fjarlægð.",
+    "Haltu áfram í Install spaCR fyrir pip eða conda-forge, eða í Platform installers fyrir uppsetningarforrit fyrir skjáborð. Bæði kennsluefnin útskýra hvernig uppsetningin er fjarlægð. Þegar spaCR hefur opnast skaltu fara á Home og síðan í yfirlit vinnsluferla til að velja vinnuflæði fyrir gögnin þín."
   ]
 }

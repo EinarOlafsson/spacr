@@ -1,16 +1,16 @@
 {
   "lesson": "82_toxoplasma",
-  "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
+  "english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Direct AI technical/context review, no native-speaker signoff",
+    "translator": "AI technical/context review from the exact current English source",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "de",
-  "title": "Toxoplasma: die Seite erkunden und einen Assay wählen",
+  "title": "Organismus Toxoplasma: Leitfaden, Diagramm und Assays",
   "description": "Öffnen Sie die Organismusseite, erkunden Sie das Zelldiagramm und wählen Sie einen verfügbaren Assay.",
   "objectives": [
     "Die Seite über Home öffnen und ihre wichtigsten Bedienelemente finden.",
@@ -19,12 +19,12 @@
   ],
   "prerequisite": "Öffnen Sie Home in spaCR. Der Organismusleitfaden braucht keine Eingabedateien. Jeder Assay hat eigene Eingaben und eine verlinkte Anleitung.",
   "scenes": [
-    "Jedes Toxoplasma-Experiment kann auf einer einzigen Seite beginnen. Wählen Sie auf Home Toxoplasma: Organismusleitfaden, Zelldiagramm und verfügbare Assays stehen nebeneinander und lassen sich erkunden, bevor Sie Bilder laden.",
+    "Wählen Sie auf Home die Kategorie Organism und dann Toxoplasma. Diese Seite verbindet einen Organismusleitfaden, ein interaktives Zelldiagramm und die verfügbaren Toxoplasma-Assays. Erkunden Sie sie, bevor Sie eine Analyse auswählen.",
     "Beginnen Sie mit der Einführung im Informationsbereich. Jeder Bereich scrollt für sich, und durch Ziehen des Trenners geben Sie dem Leitfaden oder den Assay-Kacheln mehr Platz.",
     "Das Diagramm ist zum Erkunden da. Fahren Sie mit der Maus über einen Zellbestandteil, und seine Beschreibung erscheint. Wählen Sie mehrere aus, damit sie hervorgehoben bleiben; Clear components setzt das Bild zurück.",
-    "Wählen Sie die Kachel, die zu Ihrer Frage passt. Plaque Assay zählt Plaques und misst ihre Flächen; Invasion Assay fragt, wie viele Parasiten eingedrungen sind. Recruitment misst, wie viel Marker sich an der Vakuole sammelt, Replication Assay, wie viele Parasiten jede Vakuole enthält, und Host–Pathogen verknüpft Vakuolen mit ihren Wirtszellen. Jeder hat seine eigene Lektion.",
-    "Folgen wir einem davon. Klicken Sie auf Host–Pathogen, und sein Analysebildschirm öffnet sich. Load test data lädt das mitgelieferte Mikroskopiebeispiel, und von dort führt Sie das Host–Pathogen-Tutorial durch Einstellungen, Vorschau und Run.",
-    "Zurück auf der Toxoplasma-Seite öffnet Starplast eine Wissenskarte in einer eigenen Anwendung; beim ersten Mal bietet es Installationsschritte an. Die Referenzlinks öffnen dagegen Ressourcen zum Organismus in Ihrem Browser.",
-    "Der Leitfaden schreibt keine Analysedateien; die eigentliche Arbeit findet also anderswo statt. Wenn Ihre Bilder noch segmentiert oder gemessen werden müssen, kehren Sie zuerst zu Home zurück; sobald Bilder oder Tabellen bereit sind, übernehmen die Assay-Seiten."
+    "Plaque Assay zählt Plaques und misst ihre Flächen. Recruitment misst die Anreicherung des Markers an der parasitenhaltigen Vakuole, und Replication Assay zählt Parasiten pro Vakuole. Wählen Sie einen Assay nach der zu messenden Größe und den dafür benötigten Eingaben.",
+    "Klicken Sie auf Plaque Assay, um den Analysebildschirm zu öffnen. Das Einstellungspanel legt Bildquelle, Masken und Erkennungsoptionen fest. Load test data stellt ein Beispiel bereit. Prüfen Sie Eingaben und Vorschau, bevor Sie Run starten; das Tutorial Plaque Analysis beschreibt den vollständigen Ablauf.",
+    "Kehren Sie zum Toxoplasma-Leitfaden zurück und scrollen Sie im Informationsbereich zu den Referenzen. ToxoDB, der hyperLOPIT-Atlas von Toxoplasma, UniProt und NCBI Taxonomy verlinken Ressourcen zum Organismus. Diese Links öffnen sich im Browser; der Leitfaden durchsucht keine Datenbanken und sagt keine Proteinlokalisierung vorher.",
+    "Der Organismusleitfaden erzeugt keine Analysetabellen. Kehren Sie zur Bildvorbereitung, Segmentierung oder Messung zu Home zurück und wählen Sie anschließend den Assay, der zu Ihren vorbereiteten Eingaben passt. Jeder Assay hat eigene Anforderungen und eine verknüpfte Anleitung."
   ]
 }

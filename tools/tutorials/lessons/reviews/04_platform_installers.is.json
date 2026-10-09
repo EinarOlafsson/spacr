@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
+  "english_sha256": "8a8a2d3adae812475a9731d196357380bf772eeff3052f0e89798416bbbfd824",
   "review": {
-    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
-    "translator": "Codex AI, explicit direct translations of current English changes",
-    "date": "2026-10-06",
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
   },
   "language": "is",
   "title": "Settu upp spaCR með uppsetningarforriti",
@@ -16,11 +16,12 @@
   "objectives": [
     "Sækja og keyra uppsetningarforritið fyrir stýrikerfið þitt.",
     "Velja hröðunarkost og stillingar fyrir fyrstu ræsingu.",
-    "Opna spaCR og finna uppsetningarannála ef uppsetningin þarfnast athygli."
+    "Opna spaCR og finna uppsetningarannála ef uppsetningin þarfnast athygli.",
+    "Fjarlægðu forritið með aðgerð stýrikerfisins eða meðfylgjandi fjarlægingarverkfæri."
   ],
   "prerequisite": "Sæktu opinbera uppsetningarforritið fyrir stýrikerfið þitt og gerðu ráð fyrir plássi fyrir forritið og vísindapakkana sem það þarfnast.",
   "scenes": [
-    "Opnaðu opinberu spaCR-útgáfuna á GitHub og sæktu uppsetningarforritið fyrir stýrikerfið þitt undir Assets. Þessi netuppsetningarforrit sækja Python-keyrsluumhverfið og vísindapakkana meðan á uppsetningu stendur. Geymdu SHA256SUMS.txt úr sömu útgáfu ef þú vilt staðfesta niðurhalið.",
+    "Opnaðu opinberu spaCR-útgáfuna á GitHub og sæktu uppsetningarforritið fyrir stýrikerfið þitt undir Assets. Þessi netuppsetningarforrit sækja Python-keyrsluumhverfið og vísindapakkana meðan á uppsetningu stendur.",
     "Í Windows keyrirðu uppsetningarforritið og fylgir leiðbeiningunum. Hafðu sjálfvirka hröðun valda til að nota studdan vélbúnað sem finnst í tölvunni, eða veldu aðeins CPU ef það er það sem þú þarft.",
     "Í macOS opnarðu alhliða pakkann og fylgir uppsetningarforritinu. Ræstu spaCR úr forritaræsinum og leyfðu niðurhali við fyrstu ræsingu að klárast. Lestu allar öryggisfyrirspurnir og staðfestu að pakkinn komi úr opinberu útgáfunni.",
     "Í Linux gerirðu niðurhalaða uppsetningarforritið keyranlegt og keyrir það svo úr skipanaglugga. Sjálfvirk hröðun velur studdan bakenda. Hjálpin sýnir --torch-backend cpu fyrir keyrslu eingöngu á CPU og --skip-system-deps fyrir tölvur sem þegar hafa grafíksöfn Qt.",
@@ -28,8 +29,11 @@
     "Athugaðu uppsettu spaCR-útgáfuna. Geymdu hana með greiningarglósunum þínum, sérstaklega þegar þú uppfærir forritið síðar.",
     "Uppsetningin spyr um valfrjálsa deilingu greiningargagna og uppsetningu aðgangs. Svaraðu y aðeins fyrir þá valkosti sem þú vilt; n, sjálfgefna svarið, heldur hverjum valkosti óvirkum. Uppsetningarforritið fyrir Windows sýnir sömu valkosti sem gátreiti.",
     "Opnaðu Preferences í núverandi nightly-viðmóti og veldu Performance. Veldu snið fyrir tölvuna þína. Laptop notar færri tilföng; hærri snið leyfa meira skyndiminni og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað.",
-    "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Assays. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
+    "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Organism. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
     "Keyrðu spacr-doctor úr uppsetta keyrsluumhverfinu ef ræsing eða skráarsnið þarfnast athugunar. Í þessari upptöku af CPU-uppsetningu stenst bakendaprófunin og GPU-prófuninni er sleppt. Viðvörunin segir að valfrjálsan CZI-lesara vanti; settu aðeins upp þá viðbót ef þú þarft CZI-skrár.",
-    "Ef vandamál koma upp við uppsetningu finnurðu install.log og install-profile.json í uppsetningarmöppunni. Farðu yfir annálana áður en þú deilir þeim í beiðni um aðstoð. Tilgreindu stýrikerfið og spaCR-útgáfuna svo auðveldara sé að greina vandann."
+    "Ef vandamál koma upp við uppsetningu finnurðu install.log og install-profile.json í uppsetningarmöppunni. Farðu yfir annálana áður en þú deilir þeim í beiðni um aðstoð. Tilgreindu stýrikerfið og spaCR-útgáfuna svo auðveldara sé að greina vandann.",
+    "Í Windows skaltu loka spaCR, opna Settings og síðan Apps og Installed apps. Veldu spaCR og Uninstall. Uppsetta keyrsluskráin Uninstall ræsir sömu fjarlægingu. Geymdu verkefnamöppurnar þínar aðskildar.",
+    "Í macOS skaltu loka spaCR og keyra meðfylgjandi uninstall-spacr-skriftu í Library/Application Support/spaCR. Hún fjarlægir forritið og ræsiforrit þess á kerfisstigi. Keyrsluumhverfi notandans í þinni eigin Library/Application Support/spaCR er aðskilið; fjarlægðu það aðeins ef þú vilt einnig losna við það keyrsluumhverfi.",
+    "Í Linux skaltu loka spaCR og keyra uninstall-spacr-skriftuna í .local/share/spacr undir heimamöppunni þinni. Hún fjarlægir stýrða keyrsluumhverfið og ræsiforritin. Fjarlæging krefst þess ekki að þú eyðir smásjárverkefnum eða niðurstöðum greininga þeirra."
   ]
 }

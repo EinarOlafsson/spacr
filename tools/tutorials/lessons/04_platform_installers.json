@@ -10,13 +10,14 @@
   "objectives": [
     "Download and run the installer for your operating system.",
     "Choose an acceleration option and first-launch preferences.",
-    "Open spaCR and find installation logs if setup needs attention."
+    "Open spaCR and find installation logs if setup needs attention.",
+    "Uninstall the application using the operating-system or bundled removal route."
   ],
   "prerequisite": "Download the official installer for your operating system and allow space for the application and its scientific dependencies.",
   "scenes": [
     {
       "visual": "08_official_release",
-      "narration": "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system. These online installers download the Python runtime and scientific packages during setup. Keep SHA256SUMS dot txt from the same release if you want to verify the download.",
+      "narration": "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system. These online installers download the Python runtime and scientific packages during setup.",
       "hold_after": 0.7
     },
     {
@@ -56,7 +57,7 @@
     },
     {
       "visual": "13_current_nightly_home",
-      "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Assays. Continue to Home screen and navigation for the current modules.",
+      "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Organism. Continue to Home screen and navigation for the current modules.",
       "related_lessons": [
         "05_home"
       ],
@@ -72,9 +73,23 @@
       "narration": "For installation problems, find install dot log and install-profile dot json in the installation directory. Review the logs before sharing them with a support request. Include your operating system and spaCR version so the problem is easier to diagnose.",
       "related_lessons": [
         "01_pypi_github",
-        "02_conda_install",
-        "03_pip_install"
+        "02_install_spacr"
       ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_uninstall_windows",
+      "narration": "On Windows, close spaCR, open Settings, then Apps and Installed apps. Choose spaCR and Uninstall. The installed Uninstall executable is another route to the same removal process. Keep your project folders separately.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_uninstall_macos",
+      "narration": "On macOS, close spaCR and run the bundled uninstall-spacr script in Library slash Application Support slash spaCR. It removes the application and its system launchers. The per-user runtime in your own Library slash Application Support slash spaCR is separate; remove it only if you also want to discard that runtime.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_uninstall_linux",
+      "narration": "On Linux, close spaCR and run the uninstall-spacr script under your home folder, dot local slash share slash spacr. It removes the managed runtime and application launchers. Uninstallation does not require deleting your microscopy projects or their analysis results.",
       "hold_after": 0.7
     }
   ]

@@ -1,0 +1,41 @@
+{
+  "lesson": "02_install_spacr",
+  "english_sha256": "ebd31960772d2090c7c0e9442bafffdcb0d34bbf1905dc562a1829bf87c0f051",
+  "review": {
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+  },
+  "language": "de",
+  "title": "spaCR installieren",
+  "description": "Mit pip in einer virtuellen Python-Umgebung, mit pip in einer Conda-Umgebung oder mit conda-forge in einer Conda-Umgebung installieren; starten, aktualisieren und deinstallieren.",
+  "objectives": [
+    "Einen von drei isolierten Installationswegen wählen.",
+    "Vor der Installation oder dem Start die richtige Umgebung aktivieren.",
+    "Die installierte Version prüfen, sicher aktualisieren und deinstallieren."
+  ],
+  "prerequisite": "Verwenden Sie Python 3.12 für die virtuelle Umgebung oder installieren Sie Conda/Miniforge für einen der beiden Conda-Wege. Öffnen Sie ein Terminal. Wählen Sie andere Namen als die vorhandener Umgebungen.",
+  "scenes": [
+    "Wählen Sie einen Installationsweg. Pip installiert spaCR in einer virtuellen Python-Umgebung oder in einer Conda-Umgebung. Conda-forge installiert in eine Conda-Umgebung; es kann keine Pakete in eine virtuelle Python-Umgebung installieren. Die drei folgenden Wege sind Alternativen, Sie benötigen also nur einen.",
+    "Erstellen Sie für pip mit einer virtuellen Umgebung einen eigenen Ordner und führen Sie Python 3.12 mit -m venv aus, um .venv anzulegen. Verwenden Sie einen anderen Ordner, falls er bereits eine Umgebung enthält.",
+    "Aktivieren Sie .venv vor jeder Installation, Aktualisierung oder jedem Start. Laden Sie unter Linux und macOS das Skript bin/activate mit source. Führen Sie in Windows PowerShell .venv\\Scripts\\Activate.ps1 aus. Die Umgebungsanzeige und der Python-Pfad bestätigen, welcher Interpreter verwendet wird.",
+    "Aktualisieren Sie bei aktiver Umgebung pip und führen Sie dann pip install spacr aus. Die Paketinstallation umfasst die Qt-Abhängigkeiten der Desktop-Anwendung. Warten Sie, bis die wissenschaftlichen und Desktop-Abhängigkeiten installiert sind.",
+    "Prüfen Sie die installierte Version und den Paketpfad und führen Sie anschließend python -m pip check aus. Bewahren Sie die Version mit Ihren Analysenotizen auf. Dieser Weg installiert das veröffentlichte PyPI-Paket; ein Quellcode-Checkout oder ein Nightly-Build kann neuere Oberflächenfunktionen enthalten.",
+    "Führen Sie spacr-doctor aus und folgen Sie den Hinweisen zu fehlenden Abhängigkeiten, die für Ihre Arbeit relevant sind. Geben Sie dann spacr ein, um die installierte Anwendung zu starten. Schließen Sie die Anwendung, bevor Sie ihre Umgebung ändern.",
+    "Erstellen Sie für pip innerhalb von Conda eine Umgebung namens spacr-pip mit Python 3.12 und pip und aktivieren Sie sie. Conda liefert den Interpreter, pip liefert spaCR. Wählen Sie einen anderen Namen, falls spacr-pip bereits existiert.",
+    "Aktualisieren Sie bei aktivem spacr-pip pip und führen Sie pip install spacr aus. Die Paketinstallation umfasst die Qt-Desktop-Abhängigkeiten. Prüfen Sie die Paketversion und führen Sie pip check aus, genau wie bei der virtuellen Umgebung. Starten Sie spacr aus derselben aktiven Umgebung.",
+    "Erstellen Sie für conda-forge mit einem einzigen Befehl eine neue Umgebung namens spacr-conda mit Python 3.12 und spacr aus dem Kanal conda-forge. Wenn Interpreter und spaCR gemeinsam aufgelöst werden, wird das Paket nicht zu einer unpassenden Umgebung hinzugefügt.",
+    "Conda zeigt vor der Installation seinen Paketplan. Prüfen und bestätigen Sie ihn und warten Sie, bis Download und Installation abgeschlossen sind. Die verfügbare conda-forge-Version kann von der neuesten PyPI- oder Nightly-Version abweichen.",
+    "Aktivieren Sie spacr-conda. Prüfen Sie den Pfad der Python-Umgebung und bestätigen Sie Version und Kanal mit conda list spacr. Führen Sie dann spacr-doctor aus und starten Sie spacr aus dieser Umgebung.",
+    "Diese Ergänzung zeigt die aktuelle Nightly-Oberfläche von Home. Ihre installierte Version kann anders aussehen. Die Umgebungsbefehle installieren das veröffentlichte Paket aus dem gewählten Kanal; diese Ansicht des aktuellen Quellcodes behauptet nicht, dass alle Nightly-Funktionen bereits veröffentlicht wurden.",
+    "Schließen Sie zum Aktualisieren einer pip-Installation spaCR, aktivieren Sie die Umgebung und führen Sie pip install --upgrade spacr aus. Prüfen Sie danach die Version. Verwenden Sie pip für spaCR-Updates bei beiden pip-Wegen, auch in der für pip erstellten Conda-Umgebung.",
+    "Schließen Sie beim conda-forge-Weg spaCR, aktivieren Sie spacr-conda und führen Sie conda update -c conda-forge spacr aus. Gibt es keinen neueren Build, meldet Conda, dass die angeforderten Pakete bereits installiert sind. Prüfen Sie die installierte Version, statt eine geänderte Oberfläche anzunehmen.",
+    "Aktivieren Sie zum Entfernen einer pip-Installation deren Umgebung, führen Sie python -m pip uninstall spacr aus und bestätigen Sie die Entfernung. Dies entfernt das spaCR-Paket, aber weder Ihre Mikroskopieprojekte noch automatisch jede Abhängigkeit.",
+    "Wenn .venv nur für spaCR erstellt wurde, deaktivieren Sie die Umgebung und löschen Sie diesen eigenen .venv-Ordner. Führen Sie für die eigene Conda-Umgebung spacr-pip conda deactivate und danach conda env remove -n spacr-pip aus. Entfernen Sie nur die für dieses Tutorial erstellte Umgebung.",
+    "In der conda-forge-Umgebung entfernt conda remove spacr das Paket, nachdem Sie den Entfernungsplan geprüft haben. Um stattdessen die gesamte eigene Umgebung zu entfernen, deaktivieren Sie sie und führen Sie conda env remove -n spacr-conda aus. Bewahren Sie Projektordner separat auf; eine deinstallierte Umgebung bedeutet nicht, dass Ihre Analysedaten gelöscht werden."
+  ]
+}

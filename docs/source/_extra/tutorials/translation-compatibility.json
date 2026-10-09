@@ -80,157 +80,79 @@
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "da",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "de",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "es",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "fr",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "hi",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "is",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "it",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "ja",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "ko",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "nb",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "pt-BR",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
+      "lesson": "02_install_spacr",
       "language": "sv",
       "status": "source_bound_review",
       "reason": null
     },
     {
-      "lesson": "02_conda_install",
-      "language": "zh-CN",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "da",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "de",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "es",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "fr",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "hi",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "is",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "it",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "ja",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "ko",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "nb",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "pt-BR",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
-      "language": "sv",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "03_pip_install",
+      "lesson": "02_install_spacr",
       "language": "zh-CN",
       "status": "source_bound_review",
       "reason": null

@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from PIL import Image
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get('SPACR_TUTORIAL_WORKSPACE', Path(__file__).resolve().parents[1])).resolve()
 PRODUCTION = ROOT / "production"
 
 

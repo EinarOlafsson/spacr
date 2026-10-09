@@ -1,13 +1,24 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Technical source-bound editorial review; no native-speaker signoff",
+    "date": "2026-10-08",
+    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
+    "previous_review_sha256": "f2362b6e9d4546a123206f59bf62ccf0f21d589a1688f413dc119db60ac1e122",
+    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "ja",
   "title": "GitHub、PyPI、conda-forgeでspaCRを見つける",
@@ -23,9 +34,9 @@
     "PyPIでspaCRを探し、現在のリリースの横にあるインストールコマンドを読みます。Python環境にインストールする準備ができたら、そのコマンドをコピーします。pipのチュートリアルでは、先にその環境を作成して有効にする方法を説明しています。",
     "Project linksを使うと、ドキュメント、ソースリポジトリ、課題トラッカーを開けます。spaCRで作業しながらモジュールの手順に戻れるよう、ドキュメントをブックマークしておきましょう。",
     "GitHubでspaCRのリポジトリを開きます。mainにはリリースのソースが、nightlyには最新の開発作業が入っています。パッケージ化されたデスクトップ版をインストールするには、Releasesを開いてリリースを選びます。",
-    "Assetsを展開し、Windows、macOS、Linux用のインストーラーをダウンロードします。ダウンロードを検証したい場合は、同じリリースのチェックサムファイルも保存しておきます。Platform installersのレッスンで、インストーラーの起動とspaCRの開き方を説明しています。",
+    "Assets を展開し、Windows、macOS、Linux 用のインストーラーをダウンロードします。Platform installers のレッスンでは、各オペレーティングシステムでのインストール、spaCR の起動、アンインストールを説明します。",
     "conda-forgeでspaCRのパッケージページを開き、入手できるバージョンを確認します。パッケージのチャネルは更新の時期が異なることがあるので、選んだ方法で入手できるバージョンを選んでください。",
-    "conda-forgeのコマンドは、有効なConda環境にspaCRをインストールします。Condaのレッスンに従って、その環境を作成し、パッケージをインストールして、アプリケーションを起動します。",
-    "pip、Conda、Platform installersのいずれかに進みます。spaCRが開いたら、Homeのレッスン、続いてパイプラインの概要に進み、データに合ったワークフローを選びましょう。"
+    "conda-forge のコマンドは、現在有効な Conda 環境に spaCR をインストールします。Install spaCR のレッスンで、環境の作成、パッケージのインストール、アプリケーションの起動を確認してください。パッケージと環境の削除方法も説明しています。",
+    "pip または conda-forge を使う場合は Install spaCR、デスクトップインストーラーを使う場合は Platform installers に進みます。どちらもアンインストールの手順を説明しています。spaCR が開いたら Home に進み、パイプラインの概要からデータに合ったワークフローを選びます。"
   ]
 }

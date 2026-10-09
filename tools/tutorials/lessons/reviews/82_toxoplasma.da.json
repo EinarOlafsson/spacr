@@ -1,16 +1,16 @@
 {
   "lesson": "82_toxoplasma",
-  "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
+  "english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "Direct AI technical/context review, no native-speaker signoff",
+    "translator": "AI technical/context review from the exact current English source",
+    "date": "2026-10-08",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "da",
-  "title": "Toxoplasma: udforsk siden, og vælg en analyse",
+  "title": "Organismen Toxoplasma: guide, diagram og assays",
   "description": "Åbn organismesiden, udforsk celldiagrammet, og vælg en tilgængelig analyse.",
   "objectives": [
     "Åbne siden fra Home og finde dens vigtigste kontroller.",
@@ -19,12 +19,12 @@
   ],
   "prerequisite": "Åbn Home i spaCR. Organismeguiden kræver ingen inputfiler. Hver analyse har sine egne input og en linket gennemgang.",
   "scenes": [
-    "Ethvert Toxoplasma-eksperiment kan begynde på én side. Fra Home vælger du Toxoplasma: organismeguiden, et celldiagram og de tilgængelige analyser står side om side, klar til at blive udforsket, før du indlæser billeder.",
+    "Vælg kategorien Organism på Home og derefter Toxoplasma. Denne side kombinerer en organismeguide, et interaktivt cellediagram og de tilgængelige Toxoplasma-assays. Udforsk den, før du vælger en analyse.",
     "Begynd med introduktionen i informationsruden. Hver rude ruller for sig, og når du trækker i skillelinjen, får guiden eller analysefliserne mere plads.",
     "Diagrammet er til at udforske. Hold markøren over en cellekomponent, så vises dens beskrivelse. Vælg flere for at holde dem fremhævet, og Clear components nulstiller billedet.",
-    "Vælg den flise, der passer til dit spørgsmål. Plaque Assay tæller plaques og måler deres areal; Invasion Assay spørger, hvor mange parasitter der kom ind. Recruitment måler, hvor meget markør der samler sig ved vakuolen, Replication Assay hvor mange parasitter hver vakuole rummer, og Host–Pathogen forbinder vakuoler med deres værtsceller. Hver har sin egen lektion.",
-    "Lad os følge en af dem. Klik på Host–Pathogen, og dens analyseskærm åbner. Load test data henter det medfølgende mikroskopieksempel, og derfra fører Host–Pathogen-vejledningen dig gennem indstillinger, forhåndsvisning og Run.",
-    "Tilbage på Toxoplasma-siden åbner Starplast et vidensatlas i sit eget program; første gang tilbyder det installationstrin at følge. Referencelinkene åbner derimod ressourcer om organismen i din browser.",
-    "Guiden skriver ingen analysefiler, så det egentlige arbejde foregår et andet sted. Hvis dine billeder stadig skal segmenteres eller måles, vender du først tilbage til Home; når billederne eller tabellerne er klar, tager analysesiderne over."
+    "Plaque Assay tæller plaques og måler deres arealer. Recruitment måler berigelsen af markøren ved den parasitholdige vakuole, og Replication Assay tæller parasitter pr. vakuole. Vælg et assay ud fra den størrelse, du vil måle, og dets nødvendige input.",
+    "Klik på Plaque Assay for at åbne analyseskærmen. Indstillingspanelet angiver billedkilden, masker og detektionsmuligheder. Load test data giver et eksempel. Kontrollér input og forhåndsvisning, før du starter Run; vejledningen Plaque Analysis beskriver hele arbejdsgangen.",
+    "Gå tilbage til Toxoplasma-vejledningen, og rul informationspanelet til referencerne. ToxoDB, Toxoplasmas hyperLOPIT-atlas, UniProt og NCBI Taxonomy linker til ressourcer om organismen. Disse links åbnes i din browser; vejledningen søger ikke i databaser og forudsiger ikke proteiners lokalisering.",
+    "Organismeguiden fremstiller ikke analysetabeller. Gå tilbage til Home for billedforberedelse, segmentering eller måling, og vælg derefter det assay, der passer til dit forberedte input. Hvert assay har egne krav og en tilknyttet gennemgang."
   ]
 }

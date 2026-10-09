@@ -62,7 +62,7 @@
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
+          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. The Platform installers lesson explains installation, launching spaCR and uninstalling it on each operating system.",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
@@ -75,19 +75,18 @@
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
+          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow Install spaCR to create that environment, install the package and launch the application. That lesson also explains package and environment removal.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install"
+            "02_install_spacr"
           ]
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+          "narration": "Continue with Install spaCR for pip or conda-forge, or Platform installers for a desktop installer. Both lessons include uninstall guidance. Once spaCR opens, move to Home, then the pipeline overviews to choose a workflow for your data.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
           ]
         }
@@ -162,201 +161,112 @@
       }
     },
     {
-      "id": "02_conda_install",
+      "id": "02_install_spacr",
       "number": 2,
-      "slug": "conda_install",
-      "title": "Install spaCR with Conda",
+      "slug": "install_spacr",
+      "title": "Install spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Create a Conda environment, install spaCR from conda-forge and launch the application.",
+      "description": "Install with pip in a Python virtual environment, pip in a Conda environment, or conda-forge in a Conda environment; launch, update and uninstall.",
       "objectives": [
-        "Create and activate a dedicated Conda environment.",
-        "Install spaCR from conda-forge.",
-        "Open spaCR and update the same environment when needed."
+        "Choose one of three isolated installation routes.",
+        "Activate the correct environment before installing or launching.",
+        "Check the installed version, update and uninstall safely."
       ],
-      "prerequisite": "Install Conda or Miniforge, then open a terminal where the conda command is available.",
+      "prerequisite": "Use Python 3.12 for the virtual-environment route, or install Conda/Miniforge for either Conda route. Open a terminal. Existing environments need distinct names.",
       "scenes": [
         {
-          "visual": "02_conda_environment",
-          "narration": "Open a Conda-enabled terminal. You will create an environment for spaCR, install the conda-forge package and launch the application from that environment.",
+          "visual": "00_install_routes",
+          "narration": "Choose one installation route. Pip installs spaCR inside either a Python virtual environment or a Conda environment. Conda-forge installs into a Conda environment; it cannot install packages into a Python virtual environment. The three routes below are alternatives, so you need only one.",
           "hold_after": 0.7
         },
         {
-          "visual": "07_create_conda_command",
-          "narration": "Create an environment named spacr-conda with Python three point twelve and spaCR from conda-forge, using the displayed command. Choose another name if you already use that name for a different environment.",
+          "visual": "pip_01_create_venv",
+          "narration": "For pip with a virtual environment, create a dedicated folder and run Python three point twelve with dash m venv to create dot venv. Use a different folder if it already contains an environment.",
           "hold_after": 0.7
         },
         {
-          "visual": "07_create_conda",
-          "narration": "Conda solves the environment and lists its package plan. Review it, type y to accept, then wait for the download and installation to finish.",
+          "visual": "pip_02_activate_venv",
+          "narration": "Activate dot venv before every install, update or launch. On Linux and macOS, source its bin slash activate script. In Windows PowerShell, run dot venv backslash Scripts backslash Activate dot ps one. The environment prompt and Python path confirm which interpreter you are using.",
           "hold_after": 0.7
         },
         {
-          "visual": "08_activate_conda",
-          "narration": "Activate spacr-conda. Run the displayed Python command to see the environment path, and check that it is the environment you just created.",
+          "visual": "pip_03_install",
+          "narration": "With the environment active, upgrade pip, then run pip install spacr. The package installation includes the Qt dependencies used by the desktop application. Wait for the scientific and desktop dependencies to finish installing.",
           "hold_after": 0.7
         },
         {
-          "visual": "09_install_conda",
-          "narration": "Run conda list spacr to see the installed version and confirm that it comes from conda-forge. Installing Python and spaCR in one command lets Conda resolve every package together, which is much faster than adding spaCR to an existing environment.",
+          "visual": "pip_04_check",
+          "narration": "Check the installed version and package path, then run python dash m pip check. Keep the version with your analysis notes. This route installs the published PyPI package; a source checkout or nightly build can have newer interface features.",
           "hold_after": 0.7
         },
         {
-          "visual": "03_installed_versions",
-          "narration": "Check the installed spaCR version and package location. Keep that version with your analysis notes so you can return to the same environment later.",
+          "visual": "pip_05_launch",
+          "narration": "Run spacr-doctor and follow any missing-dependency guidance relevant to your work. Then enter spacr to launch the installed application. Close the application before changing its environment.",
           "hold_after": 0.7
         },
         {
-          "visual": "05_doctor",
-          "narration": "Run spacr-doctor to check the installation. Here it reports that vispy, a core dependency, is missing, and shows the command that installs it. Run that command, then run spacr-doctor again. Follow other suggested steps only for the file formats or features you need.",
+          "visual": "pip_conda_01_create",
+          "narration": "For pip inside Conda, create an environment named spacr-pip with Python three point twelve and pip, then activate it. Conda supplies the interpreter; pip will supply spaCR. Choose a distinct name if spacr-pip already exists.",
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Enter spacr to launch the application. Complete any first-launch choices, then continue with the Home tutorial to find modules and their example data.",
+          "visual": "pip_conda_02_install",
+          "narration": "With spacr-pip active, upgrade pip and run pip install spacr. The package installation includes its Qt desktop dependencies. Check the package version and run pip check, just as in the virtual-environment route. Launch spacr from this same active environment.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_01_create",
+          "narration": "For conda-forge, create a new environment named spacr-conda with Python three point twelve and spacr from the conda-forge channel in one command. Solving the interpreter and spaCR together avoids adding the package into an unrelated environment.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_02_plan",
+          "narration": "Conda shows its package plan before installing. Review it, accept the plan and let the downloads and installation finish. The available conda-forge release may differ from the latest PyPI or nightly version.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_03_activate",
+          "narration": "Activate spacr-conda. Check the Python environment path and run conda list spacr to confirm the installed version and channel. Then run spacr-doctor and launch spacr from this environment.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_current_home",
+          "narration": "This companion shows the current nightly Home interface. Your installed release may look different. The environment commands install the published package from the selected channel; this current-source view does not claim that all nightly features are already published.",
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
+          "related_lessons": [
+            "05_home"
           ]
         },
         {
-          "visual": "10_current_release_choice",
-          "narration": "To update later, close spaCR, activate this environment and update the conda-forge package. When conda-forge has no newer build, Conda reports that all requested packages are already installed. Check the installed version afterwards; the pip and installer lessons cover the other installation routes.",
+          "visual": "pip_06_update",
+          "narration": "To update a pip installation, close spaCR, activate its environment and run pip install dash dash upgrade spacr. Check the version afterwards. Use pip for spaCR updates in both pip routes, including the Conda environment created for pip.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_04_update",
+          "narration": "For the conda-forge route, close spaCR, activate spacr-conda and run conda update dash c conda-forge spacr. If no newer build is available, Conda reports that the requested packages are already installed. Check the installed version rather than assuming the interface has changed.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "pip_07_uninstall",
+          "narration": "To remove a pip installation, activate its environment and run python dash m pip uninstall spacr, then accept the removal prompt. This removes the spaCR package. It does not remove your microscopy projects or automatically remove every dependency.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "pip_08_remove_environment",
+          "narration": "If dot venv was created only for spaCR, deactivate it and remove that dedicated dot venv folder. For the dedicated spacr-pip Conda environment, run conda deactivate, then conda env remove dash n spacr-pip. Remove only the environment you created for this tutorial.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_05_uninstall",
+          "narration": "In the conda-forge environment, conda remove spacr removes the package after you review its removal plan. To remove the entire dedicated environment instead, deactivate it and run conda env remove dash n spacr-conda. Keep your project folders separately; uninstalling the environment is not deleting your analysis data.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "01_pypi_github",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "03_pip_install",
-      "number": 3,
-      "slug": "pip_install",
-      "title": "Install spaCR with pip",
-      "series": 1,
-      "app_key": null,
-      "section": "spaCR",
-      "description": "Create an isolated Python environment, install the public package, verify its dependencies, and launch the installed Qt application.",
-      "objectives": [
-        "Create and activate a Python virtual environment.",
-        "Install spaCR and check its dependencies.",
-        "Launch the application and update the intended environment."
-      ],
-      "prerequisite": "Install Python 3.12 and open a terminal. Use the activation command for your operating system and shell.",
-      "scenes": [
-        {
-          "visual": "01_python_version",
-          "narration": "Open a terminal and check your Python version. This walkthrough uses Python three point twelve. Keep spaCR in a dedicated virtual environment so its packages are easy to manage.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "07_create_environment",
-          "narration": "Create a virtual environment named dot venv with the command for your operating system. This creates a folder containing the Python environment you will use for spaCR.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "08_activate_environment",
-          "narration": "Activate dot venv using the command for your shell. Windows PowerShell and Command Prompt have different activation commands; macOS and Linux usually use the shell command shown here.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_pip_environment",
-          "narration": "Run python dash m pip dash dash version. Check that the displayed path belongs to dot venv. Use python dash m pip for the installation commands so pip uses this interpreter.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "09_install_package",
-          "narration": "Upgrade pip, then install spacr. Wait for the scientific packages to finish downloading and installing. The current package includes the desktop components needed to open the application.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_installed_versions",
-          "narration": "Check the installed spaCR version and package location with the displayed command. Save the version alongside your analysis notes.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_dependency_check",
-          "narration": "Run python dash m pip check. If it reports conflicting requirements, resolve those conflicts before using the environment.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "05_doctor",
-          "narration": "Run spacr-doctor to inspect the installation and see any missing optional features. Follow the suggested repair only for the formats or capabilities you need.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "10_launch_commands",
-          "narration": "Launch spacr from the activated environment. On the first launch, follow the setup prompts and choose your preferences.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "13_current_nightly_home",
-          "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Assays. Continue to Home screen and navigation for the current modules.",
-          "related_lessons": [
+            "04_platform_installers",
             "05_home"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "11_update_intentionally",
-          "narration": "To update, close spaCR and activate this environment. Upgrade the package, then check its version and dependencies again. Keep the previous environment if you need it for an ongoing analysis.",
-          "related_lessons": [
-            "01_pypi_github",
-            "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -440,13 +350,14 @@
       "objectives": [
         "Download and run the installer for your operating system.",
         "Choose an acceleration option and first-launch preferences.",
-        "Open spaCR and find installation logs if setup needs attention."
+        "Open spaCR and find installation logs if setup needs attention.",
+        "Uninstall the application using the operating-system or bundled removal route."
       ],
       "prerequisite": "Download the official installer for your operating system and allow space for the application and its scientific dependencies.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system. These online installers download the Python runtime and scientific packages during setup. Keep SHA256SUMS dot txt from the same release if you want to verify the download.",
+          "narration": "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system. These online installers download the Python runtime and scientific packages during setup.",
           "hold_after": 0.7
         },
         {
@@ -486,7 +397,7 @@
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Assays. Continue to Home screen and navigation for the current modules.",
+          "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Organism. Continue to Home screen and navigation for the current modules.",
           "related_lessons": [
             "05_home"
           ],
@@ -502,9 +413,23 @@
           "narration": "For installation problems, find install dot log and install-profile dot json in the installation directory. Review the logs before sharing them with a support request. Include your operating system and spaCR version so the problem is easier to diagnose.",
           "related_lessons": [
             "01_pypi_github",
-            "02_conda_install",
-            "03_pip_install"
+            "02_install_spacr"
           ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_uninstall_windows",
+          "narration": "On Windows, close spaCR, open Settings, then Apps and Installed apps. Choose spaCR and Uninstall. The installed Uninstall executable is another route to the same removal process. Keep your project folders separately.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_uninstall_macos",
+          "narration": "On macOS, close spaCR and run the bundled uninstall-spacr script in Library slash Application Support slash spaCR. It removes the application and its system launchers. The per-user runtime in your own Library slash Application Support slash spaCR is separate; remove it only if you also want to discard that runtime.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_uninstall_linux",
+          "narration": "On Linux, close spaCR and run the uninstall-spacr script under your home folder, dot local slash share slash spacr. It removes the managed runtime and application launchers. Uninstallation does not require deleting your microscopy projects or their analysis results.",
           "hold_after": 0.7
         }
       ],
@@ -585,139 +510,248 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Tour every current Home module from left to right, then learn the shared module controls using Mask and adjust navigation, help and appearance.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Arrange the Home column and module panels to suit your screen.",
-        "Load an example, find help with search or Control-K, and set Preferences."
+        "Identify every module in the current Core, Data, Tools and Organism rows.",
+        "Use Mask to recognize shared settings, previews, actions and outputs.",
+        "Return Home, use search and arrange panels.",
+        "Choose appearance and performance settings."
       ],
       "prerequisite": "Install spaCR and open the desktop application.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "narration": "Home is the starting point. Read each row from left to right: Core, Data, Tools and Organism. Every tile opens its named module. The sidebar provides the same routes, and Home returns to this overview.",
           "hold_after": 0.7
         },
         {
-          "visual": "01_core  (6)",
-          "narration": "Read the Core tiles from left to right. Mask outlines objects in microscope images. Measure extracts object features and crops. Annotate lets you label example objects. Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines phenotype scores and guide counts to find associations.",
+          "visual": "home_module_mask",
+          "narration": "Mask generates object masks from microscopy images. We will open it briefly later to learn the controls shared by analysis modules.",
           "hold_after": 0.7,
           "focus_modules": [
-            "mask",
-            "measure",
-            "annotate",
-            "classify_merged",
-            "map_barcodes",
+            "mask"
+          ],
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "home_module_measure",
+          "narration": "Measure combines images and masks to extract object measurements and crops. Its measurement tables connect images to later analyses.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "measure"
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "home_module_annotate",
+          "narration": "Annotate lets you inspect object crops and record reviewed labels for examples.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "annotate"
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ]
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify learns from reviewed labels and scores other objects, using image-based or tabular approaches.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "home_module_map_barcodes",
+          "narration": "Map Barcodes reads sequencing data to count and identify guides or barcodes.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "map_barcodes"
+          ],
+          "related_lessons": [
+            "12_map_barcodes"
+          ]
+        },
+        {
+          "visual": "home_module_regression",
+          "narration": "Regression relates phenotype scores to sequencing guide counts, preserving the experimental grouping.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "regression"
           ],
           "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "12_map_barcodes",
             "13_regression"
           ]
         },
         {
-          "visual": "02_data  (7)",
-          "narration": "Read the Data tiles from left to right. Import brings existing images, masks or measurement tables into a project. Embeddings turns object crops into numerical feature vectors for comparison. Run Compare sets two runs side by side. Experiment Design lays out your plates. Power / Design simulates detection under different cell-count and well-count assumptions to help plan an experiment. Dose-Response fits concentration-response curves and shows their estimates, intervals and fit warnings. QC shows the recorded quality checks. Open each module’s tutorial for its inputs and next steps.",
+          "visual": "home_module_foreign",
+          "narration": "Import prepares incoming microscopy files and metadata for the project structure.",
           "hold_after": 0.7,
           "focus_modules": [
-            "foreign",
-            "embeddings",
-            "run_compare",
-            "experiment_design",
-            "power",
-            "dose_response",
+            "foreign"
+          ],
+          "related_lessons": [
+            "36_import"
+          ]
+        },
+        {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings encodes object crops into numerical features for exploration and comparison.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "home_module_run_compare",
+          "narration": "Run Compare brings saved run results together so you can inspect differences.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "run_compare"
+          ],
+          "related_lessons": [
+            "50_run_compare"
+          ]
+        },
+        {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design lays out conditions, wells and sample identities before an experiment.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
+          "visual": "home_module_power",
+          "narration": "Power / Design explores sample-size and power assumptions when planning comparisons.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "power"
+          ],
+          "related_lessons": [
+            "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose-Response fits responses across concentrations, keeping the chosen endpoint and controls explicit.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC brings together quality checks and identifies evidence that is available or missing.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "qc_dashboard"
           ],
           "related_lessons": [
-            "36_import",
-            "77_embeddings",
-            "50_run_compare",
-            "67_experiment_design",
-            "68_power_design",
-            "69_dose_response",
             "54_qc_dashboard"
           ]
         },
         {
-          "visual": "03_tools  (5)",
-          "narration": "Read the Tools tiles from left to right. Make Masks lets you edit masks and opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles. Image UMAP explores object crops in a reduced-dimensional view. Gate Editor selects groups using measured feature ranges. Graph Builder plots measured results. Each module’s toolbar opens its related tools.",
+          "visual": "home_module_make_masks",
+          "narration": "Make Masks lets you draw and review masks by hand, or prepare image-mask pairs.",
           "hold_after": 0.7,
           "focus_modules": [
-            "make_masks",
-            "align",
-            "umap",
-            "gate_editor",
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "home_module_align",
+          "narration": "Align & Stitch joins compatible image tiles and records their geometry.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "align"
+          ],
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "home_module_umap",
+          "narration": "Image UMAP projects object features so you can explore similar objects and inspect representative crops.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "umap"
+          ],
+          "related_lessons": [
+            "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor defines selections on real data columns. Review selected objects before turning a gate into labels.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "home_module_graph_builder",
+          "narration": "Graph Builder creates plots from measurement tables with configurable columns and grouping.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "graph_builder"
           ],
           "related_lessons": [
-            "14_make_masks",
-            "32_align_stitch",
-            "15_image_umap",
-            "64_gate_editor",
             "58_graph_builder"
           ]
         },
         {
-          "visual": "04_assays  (1)",
-          "narration": "Open Assays for organism-specific workflows. Toxoplasma opens its assay menu: for example, plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "visual": "home_module_toxoplasma",
+          "narration": "The Organism row contains Toxoplasma. It opens an organism guide, an interactive diagram and the available Toxoplasma assay routes. The separate Toxoplasma tutorial explores this page.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma"
           ],
           "related_lessons": [
-            "24_plaque",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication"
-          ]
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "41_classify",
-            "10_classify_cv",
-            "11_classify_ml"
-          ]
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
-          "hold_after": 0.7,
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "39_classifier_evaluation",
-            "70_explain_cv",
-            "16_activation",
-            "28_training_runs",
-            "65_feature_explorer"
+            "82_toxoplasma"
           ]
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "17_timelapse"
-          ]
+          "narration": "Open Mask as a generic example of an analysis module. Here we are learning the screen layout, rather than completing a segmentation workflow. Settings sit on the left, the console and progress panels on the right, and actions along the bottom. Live opens the module’s preview when input data is available.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06b_mask_settings",
+          "narration": "Settings are grouped into sections. Expand a section to see its controls. Choose your own input folder or use Load test data when a supplied example is available. Labels and help explain what each setting expects.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06c_mask_actions",
+          "narration": "Import settings brings a saved configuration into this form. Run starts the chosen work and Stop asks a running job to stop. The console reports progress and messages. Check the module-specific tutorial before starting an analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_resize_panels",
-          "narration": "Every module screen can be arranged to suit your screen. Drag the handle between the settings and the right-hand panels to give either side more room, or click its arrow to fold the settings away. Hold Control and scroll over the right-hand panels to make their text larger or smaller, and press Control-0 to reset it.",
-          "hold_after": 0.7,
-          "focus": [
-            1800,
-            171,
-            300,
-            1950
-          ]
+          "narration": "Drag the divider to give the settings or preview more space. Control plus the mouse wheel changes the text size in a column. These layout controls help you read the settings without changing the analysis itself.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_home_column",
@@ -775,7 +809,7 @@
         },
         {
           "visual": "13b_preferences_appearance",
-          "narration": "Appearance decides how help appears as you work. Tooltip delay is how long the pointer rests on a control before its tip appears: two seconds by default, and zero shows tips at once. Show tooltips turns them off entirely, and the Theme and Animation sections fold open below for the window's look.",
+          "narration": "Appearance decides how help appears as you work. Tooltip delay sets how long the pointer rests before a floating tip appears: two seconds by default, or zero for immediate tips. Show tooltips controls those floating tips. The dedicated help areas on Home and in Preferences show their text immediately. Theme and Animation fold open below to set the window's appearance.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -797,7 +831,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Click Animation to open it instead. It chooses the animated backdrop and its palette, with sliders for detail, blur, speed, size and density, whether setting tooltips animate, and the backdrop shown behind settings.",
+          "narration": "Click Animation to choose the main backdrop and its palette. Animation colours sets the primary and accent colours for Custom colours; Animation background chooses an independent background, and Theme colour restores the page theme. Detail controls rendering resolution. Speed, Size and Density change motion and population. Mouse gravity radius sets mouse influence; zero disables it. Dot blinking controls white flashes. Field ripples enables waves from clicks, container changes and window snapping independently of mouse gravity. Popup wave frequency sets automatic waves in spaCR field while ripples are on. Settings animation speed, Settings animation size, Settings animation detail and Settings animation density change only the Settings backdrop. Settings backdrop darkness controls the form’s readability.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -805,6 +839,16 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "13h_preferences_apply",
+          "narration": "Click Apply to preview your changes while Preferences stays open. A separate question asks whether to Keep or Revert the applied settings. Revert restores the previous settings; your edited controls remain available so you can adjust them or apply again.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13i_preferences_kept",
+          "narration": "Keep accepts the applied settings and leaves Preferences open. Continue adjusting another tab, or click Save when you are ready to keep the current values and close the window.",
+          "hold_after": 0.7
         },
         {
           "visual": "13e_session_updates",
@@ -840,20 +884,9 @@
           ]
         },
         {
-          "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "78_spacr_screens",
-            "80_image_analysis_pathways",
-            "81_sequencing_pathways"
-          ],
-          "focus": [
-            3150,
-            205,
-            666,
-            46
-          ]
+          "visual": "24_spaceout_field",
+          "narration": "In Spaceout mode, Preferences includes spaCR field controls for eight independent effects. Turn each effect on or off separately. Ordinary appearance and settings-window animation controls remain available; Apply previews a change, Keep accepts it and Revert restores the previous choice.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -15039,7 +15072,7 @@
       "series": 1,
       "app_key": null,
       "section": "Workflows",
-      "description": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
+      "description": "Follow the current image-to-measurement routes and choose exploration, labeling, comparison or organism-specific analyses.",
       "objectives": [
         "Choose a starting module from the data you already have.",
         "Identify what each module reads and writes.",
@@ -15048,195 +15081,131 @@
       "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
       "scenes": [
         {
-          "visual": "home",
-          "narration": "Image analysis in spaCR follows your pictures from pixels to answers. Raw images start in Mask, which finds the objects. If you want to correct masks by hand, use Make Masks, or import masks you already have. Measure then turns images and masks into numbers, and crops if you want them. From there you choose the road: classification, image exploration, gating or an assay. Stitch tiles first when the analysis needs one coordinate system.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "05_home"
-          ]
+          "visual": "00_home",
+          "narration": "Start with the question and the data you already have. The current Home rows separate Core analysis, Data preparation and comparison, Tools, and the Toxoplasma Organism page. A module is one step; its output becomes another module’s input.",
+          "hold_after": 0.7
         },
         {
-          "visual": "module_mask",
-          "narration": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
+          "visual": "module_foreign",
+          "narration": "Import organizes incoming microscopy files and metadata. If your acquisition contains overlapping tiles, Align & Stitch can prepare a mosaic with its coordinate records. Keep channel identities and source metadata with the project.",
           "hold_after": 0.7,
           "related_lessons": [
-            "07_mask",
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "module_make_masks",
-          "narration": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "14_make_masks",
-            "24_plaque"
-          ]
-        },
-        {
-          "visual": "module_measure",
-          "narration": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "14_make_masks",
-            "15_image_umap",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication",
-            "41_classify",
-            "54_qc_dashboard",
-            "64_gate_editor",
-            "77_embeddings",
-            "85_host_pathogen"
-          ]
-        },
-        {
-          "visual": "module_annotate",
-          "narration": "With measurements in hand, Annotate is where you teach by example. Open it from Home and it shows the object crops Measure saved or streams from the project. Label representative objects; each label goes into an annotation column of the png_list table, tied to that object's identity. You don't have to start from nothing: gates saved in Gate Editor can propose candidate labels for you to review. Use a separate column for each question, keep training and evaluation objects apart, and that column is what Classify trains on next.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_classify_merged",
-          "narration": "Open Classify from Home to turn labels into predictions. It has two families, and your data decides between them. Computer Vision learns from object crops, saved or streamed by Measure; Tabular Machine Learning learns from the measured feature columns. The labels can come from three places. Most often they come from Annotate. Gate Editor can write reviewed gate selections to an annotation column, and Image UMAP can do the same with reviewed lasso selections; either way, select that same column and object population here. An embedding cluster is not ground truth, so inspect the crops, validate the labels and keep validation objects apart from training. Classify then saves its scores, the trained model and an evaluation bundle of held-out predictions. In a screen, pick the CV or ML score column you mean and carry it, plate and well identity intact, into Regression.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "13_regression",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_umap",
-          "narration": "Image UMAP is for looking before you label. Open it from Home and it projects the measured features from Measure, or encoder features from Embeddings with matching object IDs, into a map where similar objects sit close together. Open representative crops to see what a region really holds. A cluster is only a candidate grouping, not a validated phenotype. When a region does look meaningful, draw a lasso around it, review what you caught, and write the selection to an annotation column in the matching measurement database. Classify can then train on that column. The projection can also go to Gate Editor, if you would rather define the selection there with the matching coordinate and feature columns. Not every GUI route saves encoder features for you, and a shape on a plot alone does not establish a biological phenotype.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor",
-            "77_embeddings"
-          ]
-        },
-        {
-          "visual": "module_gate_editor",
-          "narration": "Gate Editor lets you choose objects by rule rather than by eye. Open it from Home and draw threshold or polygon gates on real columns: measured features from Measure, in their actual units, or the coordinates of an Image UMAP projection. Save a gate and you can apply it again to any compatible objects. Its Annotate button writes the displayed gates to an annotation column, once you have reviewed the selected objects and chosen binary or multiclass labels. Saved gates can also propose candidate labels inside Annotate. Then select that same column and object population in Classify, keeping validation objects separate from the training labels.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_align",
-          "narration": "Some analyses need tiles stitched into one picture first. Open Align & Stitch from Home, check the tile geometry, overlap and channel mapping, and save the mosaic with its coordinate records. For OPS, keep the original cycle and site identities as well.",
-          "hold_after": 0.7,
-          "related_lessons": [
+            "36_import",
             "32_align_stitch"
           ]
         },
         {
-          "visual": "module_analyze_plaques",
-          "narration": "Now the Toxoplasma assays. Open Toxoplasma from Home and choose Plaque Assay. This one skips Measure: it reads plaque images, or masks you already have, and runs the configured plaque model. Masks from Make Masks work here if they are plaque masks with matching source images; cell masks are not plaque labels. It saves plaque results and masks, and the plaque example lesson shows a full run.",
+          "visual": "module_mask",
+          "narration": "Mask produces object labels from microscopy images. Make Masks lets you create or review masks manually. Image-mask pairs must keep the same field identity; a loose mask file is not automatically the combined project arrays Measure needs.",
           "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
-            "24_plaque"
+            "07_mask",
+            "14_make_masks"
           ]
         },
         {
-          "visual": "module_recruitment",
-          "narration": "Recruitment asks how much of a marker gathers at the parasite. Open Toxoplasma from Home, then choose Recruitment. It reads compartment intensities from Measure, with matching host and pathogen identities, and computes recruitment ratios that keep each well and condition.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "25_recruitment"
-          ]
-        },
-        {
-          "visual": "module_host_pathogen",
-          "narration": "Host–Pathogen Analysis looks at infection from both sides. Open Toxoplasma from Home, then choose it. It reads measurements from Measure that include whole vacuoles, host reference compartments and the uninfected host cells, which form the infection denominator. Select the marker channels and set ratio thresholds calibrated on your controls. If you segmented individual parasites, it can count them per vacuole from explicit links or a measured count column. You then get vacuole, host and well tables, joint marker states, replication distributions and any parasite links it could not match. Unknown measurements stay unknown, and host identity alone never defines a vacuole.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "85_host_pathogen"
-          ]
-        },
-        {
-          "visual": "module_invasion",
-          "narration": "To tell parasites that merely attached from those that got inside, open Toxoplasma from Home and choose Invasion Assay. It relies on two-colour differential-staining measurements from Measure, together with stain-baseline controls, and saves assay results with each well and condition intact.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "26_invasion"
-          ]
-        },
-        {
-          "visual": "module_replication",
-          "narration": "The Replication Assay, also under Toxoplasma on Home, counts parasites in each vacuole and compares those distributions between conditions. It reads objects from Measure, but it needs explicit parasite-to-vacuole identities; host identity alone does not define a vacuole.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "27_replication"
-          ]
-        },
-        {
-          "visual": "module_qc_dashboard",
-          "narration": "Any time after Measure, open QC from Home to check your work. It reads the stored checks for segmentation, units, leakage and plate effects, and its nested viewers let you look closer. A missing check is not a passing one. QC saves its results with exportable figures and tables.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ]
-        },
-        {
-          "visual": "module_embeddings",
-          "narration": "Embeddings describes objects by what a model sees rather than by hand-picked features. Open it from Home, choose a model and a channel policy, and it encodes the object crops Measure produced into one feature vector per object. Record the object identities, the encoder and the channel policy with those features, because Image UMAP needs a feature table with matching object IDs, and not every route saves one for you.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "77_embeddings"
-          ]
-        },
-        {
-          "visual": "module_endodyogeny",
-          "narration": "Two tools in this map live only in Python. The first is the endodyogeny size proxy, spacr.submodules.analyze_endodyogeny; it has no Home tile or menu entry. It reads measured compartment areas from your Measure projects, labels them by condition, and bins area to the power of one and a half into log2 size doublings. By default it sums pathogen area per host cell, not per vacuole, so several vacuoles in one cell are combined. That makes it an area-derived size proxy, not a measured volume or a parasite count; for parasites per vacuole, use the Replication Assay. Set the compartment, area filters, calibration, conditions and grouping before you call it, and check aggregation and area units before reading the bins. The Mask counts database alone is not enough.",
+          "visual": "module_measure",
+          "narration": "Measure reads the prepared images and mask planes together. It writes measurements.db with object identities and feature columns, and can save object crops. Keep the source project and channel mapping with those tables.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
           ]
         },
         {
-          "visual": "module_cellpose_masks",
-          "narration": "The second is direct Cellpose mask generation, spacr.spacr_cellpose.identify_masks_finetune, again with no Home tile or menu entry. Despite that name, it runs inference, not training: it applies a stock or custom Cellpose model to the TIFF fields in a folder. Check normalization, channels, resizing and model settings first, and enable saving, because masks are written only when save is on. What you get are label TIFFs, not a Measure-ready project. To carry on, import the image and mask pairs through External Masks before Measure, or curate them for training.",
+          "visual": "module_annotate",
+          "narration": "Annotate displays object crops so you can add reviewed labels. Classify learns from the selected label column, using crop images or measured features. Keep evaluation objects separate from training objects and carry the score column and object identities into later analyses.",
           "hold_after": 0.7,
-          "related_lessons": []
+          "related_lessons": [
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Embeddings encodes crops into numerical features. Image UMAP projects compatible features for exploration. Inspect representative crops before assigning meaning to a cluster; a cluster alone is not a validated phenotype.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "77_embeddings",
+            "15_image_umap"
+          ]
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Gate Editor selects objects using real feature columns or compatible projection coordinates. Review the selected objects before writing labels. Those labels can become reviewed examples for Annotate or Classify.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "QC reports the quality checks that are present and the evidence that is missing. Run Compare inspects saved runs side by side. Graph Builder plots measurement tables with the columns and grouping you choose.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "54_qc_dashboard",
+            "50_run_compare",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Experiment Design plans conditions and sample identities. Power / Design explores statistical planning assumptions. Dose-Response analyzes an endpoint across concentrations. Keep the measurement endpoint, controls and experimental unit explicit.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "module_toxoplasma",
+          "narration": "The Toxoplasma page groups organism-specific assays. Their inputs differ: a plaque image, compartment measurements or explicit parasite-to-vacuole links are not interchangeable. Choose the matching assay and follow its own input requirements.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "82_toxoplasma"
+          ]
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "For pooled screens, Map Barcodes produces guide counts from sequencing reads. Regression combines those counts with compatible phenotype scores. Preserve plate, well and guide identity when joining the two routes.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ]
         },
         {
           "visual": "home_summary",
-          "narration": "So the image route nearly always runs Mask into Measure, then branches toward your question. To train your own segmentation model, prepare image-mask pairs in Make Masks, train them in Cellpose Workbench and open the saved model back in Mask. With compatible outputs in hand, step in later. Wherever you go, keep channel identities, units and object keys with each result.",
+          "narration": "Return Home and choose the next step from the output you actually have. Use the linked module lessons for a complete run. Keep the input identity, settings, installed version and output location together so the workflow can be checked later.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15443,7 +15412,7 @@
       "id": "82_toxoplasma",
       "number": 82,
       "slug": "toxoplasma",
-      "title": "Toxoplasma: explore the page and choose an assay",
+      "title": "Toxoplasma organism: guide, diagram and assays",
       "series": 3,
       "app_key": "toxoplasma",
       "section": "Organisms and assays",
@@ -15457,7 +15426,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Every Toxoplasma experiment can start from one page. From Home, choose Toxoplasma: the organism guide, a cell diagram and the available assays sit side by side, ready to explore before you load any images.",
+          "narration": "From Home, choose the Organism category, then Toxoplasma. This page combines an organism guide, an interactive cell diagram and the available Toxoplasma assay routes. Explore it before choosing an analysis.",
           "hold_after": 0.7
         },
         {
@@ -15472,28 +15441,51 @@
         },
         {
           "visual": "03_assays",
-          "narration": "Pick the tile that matches your question. Plaque Assay counts plaques and measures their areas; Invasion Assay asks how many parasites got inside. Recruitment measures how much marker gathers at the vacuole, Replication Assay how many parasites each vacuole holds, and Host–Pathogen ties vacuoles to their host cells. Each has its own lesson.",
+          "narration": "Plaque Assay counts plaques and measures their areas. Recruitment measures marker enrichment at the parasite-containing vacuole, and Replication Assay counts parasites per vacuole. Select an assay according to the quantity you need to measure and its required input.",
           "hold_after": 0.7
         },
         {
-          "visual": "04_host_pathogen",
-          "narration": "Let's follow one of them. Click Host–Pathogen and its analysis screen opens. Load test data brings in the supplied microscopy example, and from there the Host–Pathogen tutorial walks you through the settings, preview and Run.",
+          "visual": "04_plaque_assay",
+          "narration": "Click Plaque Assay to open its analysis screen. The settings panel specifies the image source, masks and detection options. Load test data provides an example. Review the inputs and preview before starting Run; the Plaque Analysis tutorial describes the complete workflow.",
           "hold_after": 0.7
         },
         {
-          "visual": "05_starplast",
-          "narration": "Back on the Toxoplasma page, Starplast opens a knowledge map in its own application; the first time, it offers installation steps to follow. The reference links, meanwhile, open organism resources in your browser.",
+          "visual": "05_references",
+          "narration": "Return to the Toxoplasma guide and scroll the information pane to its references. ToxoDB, the Toxoplasma hyperLOPIT atlas, UniProt and NCBI Taxonomy link to organism resources. These links open in your browser; the guide does not perform a database search or predict protein localization.",
           "hold_after": 0.7
         },
         {
           "visual": "06_home_return",
-          "narration": "The guide writes no analysis files, so the real work happens elsewhere. If your images still need segmenting or measuring, return Home first; once the images or tables are ready, the assay pages take over.",
+          "narration": "The organism guide does not produce analysis tables. Return Home for image preparation, segmentation or measurement, then choose the assay that matches your prepared input. Each assay has its own requirements and linked walkthrough.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16189,5 +16181,9 @@
         ]
       }
     }
-  ]
+  ],
+  "lesson_aliases": {
+    "02_conda_install": "02_install_spacr",
+    "03_pip_install": "02_install_spacr"
+  }
 }

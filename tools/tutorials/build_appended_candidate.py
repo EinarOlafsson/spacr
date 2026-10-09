@@ -411,6 +411,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     if len(roots) != 2 or set(roots) != {receipt['media_root']}:
         raise ValueError('Baseline media revision is not the currently published revision')
     catalogs = {name: read(published / 'catalog' / name) for name in CATALOGS}
+    original_catalogs = deepcopy(catalogs)
     for name in CATALOGS:
         if catalogs[name] != read(baseline / 'web/catalog' / name):
             raise ValueError('Published lesson sources differ from the verified media baseline')
@@ -424,6 +425,13 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     catalogs = {name: {**catalog, 'lessons': [lesson for lesson in catalog['lessons']
                                               if lesson['id'] not in withdraw]}
                 for name, catalog in catalogs.items()}
+    from lesson_redirects import INSTALL_ID, INSTALL_ARCHIVES, installation_placeholder
+    installation_merge = INSTALL_ID in identities
+    if installation_merge:
+        if not set(INSTALL_ARCHIVES) <= set(withdraw) or INSTALL_ID not in refresh_ids:
+            raise ValueError('Merged installation requires both archival withdrawals and explicit refresh')
+        catalogs = {name: installation_placeholder(catalog, original_catalogs[name])
+                    for name, catalog in catalogs.items()}
     # Routes of the remaining published lessons, after any withdrawal.
     previous_navigation = navigation(catalogs['lessons_en.json'])
     current_hosts = {identity: route.get('host_app_key')
@@ -484,6 +492,11 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     for lesson in lessons:
         identity = lesson['id']
         source = stage / 'production' / identity
+        from native_live_timing import checked_native_timing
+        native_timings = checked_native_timing(stage, identity)
+        if native_timings is not None:
+            copy_checked(native_timings, root / 'media_host' / identity / 'video' / native_timings.name,
+                         records, root, digest(native_timings))
         video, proof, browser_path = web_inputs[identity]
         copy_checked(source / 'video' / video.name, root / 'media_host' / identity / 'video' / video.name,
                      records, root, proof['master_sha256'])
@@ -501,14 +514,23 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     for name, catalog in catalogs.items():
         write(root / 'web/catalog' / name, catalog)
     js_catalog = parse_javascript((published / 'lesson_catalog.js').read_text())
+    original_js_catalog = deepcopy(js_catalog)
     js_catalog = {**js_catalog, 'lessons': [lesson for lesson in js_catalog['lessons']
                                             if lesson['id'] not in withdraw]}
+    if installation_merge:
+        js_catalog = installation_placeholder(js_catalog, original_js_catalog)
     appended = [identity for identity in identities if identity not in refresh_ids]
     if appended:
         js_catalog = append_javascript_catalog(js_catalog, catalogs['lessons_en.json'], len(appended))
     if refresh_ids:
         js_catalog = append_javascript_catalog(js_catalog, catalogs['lessons_en.json'],
                                                len(refresh_ids), replacements=refresh_ids)
+    for lesson in js_catalog['lessons']:
+        if lesson['id'] in identities:
+            from native_live_timing import checked_native_timing
+            native_timings = checked_native_timing(stage, lesson['id'])
+            if native_timings is not None:
+                lesson['visual_timings'] = f"{lesson['id']}/video/{native_timings.name}"
     if link_lessons:
         js_catalog = synchronize_links({'lessons_en.json': js_catalog}, link_lessons)['lessons_en.json']
     js_catalog = mark_hosted_web(js_catalog, [*(identities if host_web else ()), *migrate_web])

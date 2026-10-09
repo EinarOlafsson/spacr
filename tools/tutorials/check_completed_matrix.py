@@ -15,7 +15,7 @@ import math
 from pathlib import Path
 import subprocess
 
-from stage_lesson import DEFAULT_STAGE, read, write
+from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 CAPTION_LANGUAGES = ('da', 'de', 'is', 'ko', 'nb', 'sv')
 
@@ -171,7 +171,7 @@ if __name__ == '__main__':
     parser.add_argument('--retained-narration', action='store_true',
                         help='Require exact original/published catalogs and unchanged original audio/timings')
     args = parser.parse_args()
-    result = check(args.stage, args.lesson, DEFAULT_STAGE.parent / 'tools/render_all_voices.py',
+    result = check(args.stage, args.lesson, REPO / 'tools/tutorials/authoring/tools/render_all_voices.py',
                    retained_narration=args.retained_narration)
     write(args.stage / 'production' / args.lesson / 'final-artifact-checks.json', result)
     print(f"{args.lesson}: {result['unique_final_tracks']} final tracks, "

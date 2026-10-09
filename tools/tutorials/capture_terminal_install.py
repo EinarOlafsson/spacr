@@ -14,6 +14,7 @@ Its first-launch setup screen and tour are dismissed with their own Escape
 action. CUDA devices are hidden from the whole session (no GPU work).
 
 Routes, each in a fresh throwaway folder under <stage>/installation_runs:
+  pip_conda  fresh Miniforge, a Python 3.12 Conda environment and PyPI
   pip        standalone CPython 3.12 at /usr/local, a .venv and PyPI
   conda      a fresh Miniforge and the conda-forge package
   installer  the checksum-verified public Linux online installer
@@ -63,6 +64,41 @@ def steps(route, version, phase):
     A ('quiet', command) step runs before the screen is cleared, to reopen an
     environment in a new terminal.
     """
+    if route == 'pip_conda':
+        if phase in ('install', 'recreate'):
+            reset = [('quiet', 'conda env remove -n spacr-pip -y', 900)] if phase == 'recreate' else []
+            return reset + [
+                ('run', 'conda --version'),
+                ('run', 'conda create -n spacr-pip -c conda-forge python=3.12 pip', 1800, [PROCEED]),
+                ('run', 'conda activate spacr-pip'),
+                ('run', 'python -c "import sys; print(sys.prefix)"'),
+                ('shot', 'pip_conda_01_create'),
+                ('clear',), ('run', 'pip install --upgrade pip', 900),
+                ('run', 'pip install spacr', 5400),
+                ('clear',), ('run', VERSION_COMMAND, 300),
+                ('run', 'python -m pip check', 300), ('run', 'history 5'),
+                ('shot', 'pip_conda_02_install'),
+            ]
+        if phase == 'uninstall':
+            return [
+                ('quiet', 'conda activate spacr-pip'),
+                ('quiet', 'test "$CONDA_PREFIX" = /home/user/miniforge3/envs/spacr-pip'),
+                ('clear',), ('run', 'pip uninstall spacr', 300, [(r'Proceed \(Y/n\)\?', 'y')]),
+                ('run', 'python -c "import importlib.util; print(importlib.util.find_spec(\'spacr\') is None)"'),
+                ('shot', 'pip_conda_03_uninstall'),
+                ('clear',), ('run', 'conda deactivate'),
+                ('run', 'conda env remove -n spacr-pip', 900,
+                 [PROCEED, (r'Do you wish to continue\?\s+\(y/\[n\]\)\?', 'y')]),
+                ('run', 'conda env list'), ('shot', 'pip_conda_04_remove_environment'),
+            ]
+        if phase == 'remove_environment':
+            return [
+                ('run', 'conda env remove -n spacr-pip', 300,
+                 [(r'Do you wish to continue\?\s+\(y/\[n\]\)\?', 'y')]),
+                ('run', 'test ! -d /home/user/miniforge3/envs/spacr-pip'),
+                ('run', 'conda env list'), ('shot', 'pip_conda_04_remove_environment'),
+            ]
+        raise ValueError('The pip-in-Conda route supports install and uninstall phases')
     if route == 'pip':
         if phase == 'install':
             return [
@@ -73,10 +109,10 @@ def steps(route, version, phase):
                 ('shot', '08_activate_environment'),
                 ('clear',), ('run', 'python -m pip --version'), ('shot', '02_pip_environment'),
                 ('clear',), ('run', 'python -m pip install --upgrade pip', 900),
-                ('run', 'python -m pip install spacr', 5400), ('shot', '09_install_package'),
+                ('run', 'pip install spacr', 5400), ('shot', '09_install_package'),
                 ('clear',), ('run', VERSION_COMMAND, 300), ('shot', '03_installed_versions'),
                 ('clear',), ('run', 'python -m pip check', 300), ('shot', '04_dependency_check'),
-                ('clear',), ('run', 'python -m pip install --upgrade spacr', 1800),
+                ('clear',), ('run', 'pip install --upgrade spacr', 1800),
                 ('run', 'spacr --version', 300), ('run', 'python -m pip check', 300),
                 ('shot', '11_update_intentionally'),
             ]
@@ -88,7 +124,7 @@ def steps(route, version, phase):
                 ('quiet', 'rm -rf .venv'), ('quiet', 'python3 -m venv .venv'),
                 ('quiet', 'source .venv/bin/activate'),
                 ('clear',), ('run', 'python -m pip install --upgrade pip', 900),
-                ('run', 'python -m pip install spacr', 5400,
+                ('run', 'pip install spacr', 5400,
                  [(r'Downloading torch-', None, '09_install_package')]),
                 ('run', VERSION_COMMAND, 300), ('evidence', 'reinstalled_environment'),
             ]
@@ -378,9 +414,13 @@ class Recorder:
         refuse_whats_new_titles(w[1] for w in self.app_windows())
         self.display.park_pointer()
         path = self.capture / (name + '.png')
-        subprocess.run(['import', '-window', 'root', '-depth', '8', str(path)], check=True, timeout=60)
-        size = subprocess.check_output(['identify', '-format', '%wx%h', str(path)], text=True)
-        if size != '3840x2160':
+        subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-f', 'x11grab',
+                        '-video_size', '3840x2160', '-i', os.environ['DISPLAY'],
+                        '-frames:v', '1', '-threads', '2', '-update', '1', str(path)],
+                       check=True, timeout=60)
+        from PIL import Image
+        size = Image.open(path).size
+        if size != (3840, 2160):
             raise RuntimeError(f'{name} is {size}, not native 4K')
         record = dict(image=path.name, sha256=hashlib.sha256(path.read_bytes()).hexdigest(), buttons=[])
         if evidence:
@@ -467,10 +507,11 @@ class Recorder:
 
 def inside(args):
     run_dir, capture = args.installation.resolve(), args.capture.resolve()
-    ctl = run_dir / ('ctl-' + args.phase)
+    phase_key = args.phase if args.take == 1 else f'{args.phase}-take{args.take}'
+    ctl = run_dir / ('ctl-' + phase_key)
     recorder = Recorder(ctl, capture, args.route)
     terminal = subprocess.Popen(['gnome-terminal', '--wait', '--hide-menubar', '--title=' + TERMINAL_TITLE,
-                                 '--zoom=1.8', '--', *sandbox(run_dir, args.route, args.cwd, args.phase),
+                                 '--zoom=1.8', '--', *sandbox(run_dir, args.route, args.cwd, phase_key),
                                  '/usr/bin/python3', str(TOOL), '--typist', str(ctl)])
     try:
         deadline = time.monotonic() + 60
@@ -533,15 +574,15 @@ def sandbox(run_dir, route, cwd, phase='install'):
         LANG='en_US.UTF-8', LC_ALL='en_US.UTF-8',
         PATH=f'{NEUTRAL_HOME}/.local/bin:/usr/local/bin:/usr/bin:/bin',
         TMPDIR=f'{NEUTRAL_HOME}/.cache/tmp', XDG_RUNTIME_DIR=str(run_dir / 'xdg-runtime'),
-        OMP_NUM_THREADS='4', OPENBLAS_NUM_THREADS='4',
-        MKL_NUM_THREADS='4', NUMEXPR_NUM_THREADS='4', UV_CONCURRENT_DOWNLOADS='4',
+        OMP_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2',
+        MKL_NUM_THREADS='2', NUMEXPR_NUM_THREADS='2', UV_CONCURRENT_DOWNLOADS='4',
         UV_CONCURRENT_INSTALLS='4', UV_CONCURRENT_BUILDS='1', MAX_JOBS='2',
         QT_QPA_PLATFORM='xcb', QT_SCALE_FACTOR='2', NO_AT_BRIDGE='1', GSETTINGS_BACKEND='memory',
         PIP_NO_CACHE_DIR='1', SPACR_CTL=str(run_dir / ('ctl-' + phase)))
     # The installer route installs PyTorch's CPU-only build, which cannot
     # start CUDA work, so the card stays visible to the installer's and the
     # doctor's hardware reports without a GPU turn.
-    if phase != 'gpu' and route != 'installer':
+    if not re.fullmatch(r'gpu(?:-take[1-9][0-9]*)?', phase) and route != 'installer':
         environment['CUDA_VISIBLE_DEVICES'] = ''
     for key in ('DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS'):
         if os.environ.get(key):
@@ -580,7 +621,7 @@ def prepare(route, run_dir, version, receipt):
                                  note='Standalone CPython 3.12 visible as /usr/local/bin/python3')
         (home / 'spacr-project').mkdir()
         return f'{NEUTRAL_HOME}/spacr-project'
-    if route == 'conda':
+    if route in ('conda', 'pip_conda'):
         release = json.loads(fetch('https://api.github.com/repos/conda-forge/miniforge/releases/latest'))
         tag = release['tag_name']
         base = f'https://github.com/conda-forge/miniforge/releases/download/{tag}/'
@@ -618,6 +659,7 @@ def prepare(route, run_dir, version, receipt):
 def identity(route, run_dir, cwd):
     python = {'pip': f'{NEUTRAL_HOME}/spacr-project/.venv/bin/python',
               'conda': f'{NEUTRAL_HOME}/miniforge3/envs/spacr-conda/bin/python',
+              'pip_conda': f'{NEUTRAL_HOME}/miniforge3/envs/spacr-pip/bin/python',
               'installer': f'{NEUTRAL_HOME}/.local/share/spacr/venv/bin/python'}[route]
     program = ('import json,sys,spacr; print(json.dumps(dict(version=spacr.__version__, '
                'package=spacr.__file__, prefix=sys.prefix, python=sys.version.split()[0])))')
@@ -639,30 +681,51 @@ def remove(path):
     shutil.rmtree(path, onerror=writable)
 
 
+def require_partial_environment_removal(run_dir, provenance):
+    """Limit the removal retry to the recorded private, partially removed environment."""
+    environment = run_dir / 'home/miniforge3/envs/spacr-pip'
+    if (not environment.is_dir() or environment.is_symlink()
+            or not (environment / 'conda-meta/history').is_file()
+            or list((environment / 'conda-meta').glob('*.json'))
+            or list(environment.glob('lib/python*/site-packages/spacr'))
+            or not provenance.get('phases', {}).get('uninstall', {}).get('returncode')):
+        raise ValueError('Resume only this failed private removal after its package transaction completed')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
-    parser.add_argument('--route', choices=('pip', 'conda', 'installer'))
+    parser.add_argument('--route', choices=('pip', 'pip_conda', 'conda', 'installer'))
     parser.add_argument('--version', default='1.5.1.0', help='Release expected from the route')
     parser.add_argument('--capture-name')
     parser.add_argument('--phase', choices=('install', 'recreate', 'reinstall', 'update', 'resume', 'relist',
-                                            'relaunch', 'gpu'),
+                                            'relaunch', 'gpu', 'uninstall', 'remove_environment'),
                         default='install',
                         help='install/update: CUDA hidden, no GPU turn. gpu: inside tools/gpu_turn.sh')
     parser.add_argument('--installation', type=Path,
                         help='Continue in the throwaway folder an install phase kept')
+    parser.add_argument('--prepared-installation', type=Path,
+                        help='Fresh private pip-in-Conda interpreter preparation made by the normal prepare API')
     parser.add_argument('--keep-installation', action='store_true')
+    parser.add_argument('--take', type=int, default=1,
+                        help='Positive retake number; preserve earlier control folders and phase receipts')
     parser.add_argument('--typist', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--inside', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--capture', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--cwd', help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.take < 1:
+        parser.error('--take must be a positive integer')
     if args.typist:
         return typist(args.typist)
     if args.inside:
         return inside(args)
     if not args.route or not args.capture_name:
         parser.error('--route and --capture-name are required')
+    if args.phase in ('uninstall', 'remove_environment') and args.route != 'pip_conda':
+        parser.error('The recorded uninstall phase currently supports only the dedicated pip-in-Conda environment')
+    if args.installation and args.prepared_installation:
+        parser.error('Choose a kept installation or a fresh prepared interpreter, not both')
     if Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}:
         parser.error('--capture-name must be one directory name')
     stage = args.stage.resolve()
@@ -676,13 +739,26 @@ def main():
         if provenance.get('installation_folder') != str(run_dir):
             raise ValueError('That folder belongs to a different capture')
         cwd = provenance['working_directory']
+        if args.phase == 'remove_environment':
+            require_partial_environment_removal(run_dir, provenance)
     else:
         if capture.exists():
             raise FileExistsError('Choose a new capture name; earlier evidence is retained')
         if shutil.disk_usage(stage).free < 40 * 1024 ** 3:
             raise ValueError('Keep at least 40 GiB free for a throwaway installation')
         runs.mkdir(parents=True, exist_ok=True)
-        run_dir = Path(tempfile.mkdtemp(prefix=f'{args.route}-walkthrough-', dir=runs))
+        prepared = None
+        if args.prepared_installation:
+            run_dir = args.prepared_installation.resolve()
+            if args.route != 'pip_conda' or not run_dir.is_relative_to(runs):
+                raise ValueError('Use only a prepared private pip-in-Conda folder')
+            prepared = read(run_dir / 'preparation.json')
+            if (not prepared.get('completed') or prepared.get('route') != args.route
+                    or prepared.get('installation_folder') != str(run_dir)
+                    or (run_dir / 'home/miniforge3/envs/spacr-pip').exists()):
+                raise ValueError('The prepared interpreter must be fresh and source bound')
+        else:
+            run_dir = Path(tempfile.mkdtemp(prefix=f'{args.route}-walkthrough-', dir=runs))
         capture.mkdir(parents=True)
         provenance = dict(
             completed_capture=False, module=f'{args.route}_install_walkthrough',
@@ -692,14 +768,19 @@ def main():
             application_source_modified=False, application_preferences_modified=False,
             first_launch_dialogs='dismissed with their own Escape action', visible_home=NEUTRAL_HOME,
             phases={}, installation_folder=str(run_dir), installation_deleted=False)
-        (run_dir / 'home').mkdir()
-        cwd = prepare(args.route, run_dir, args.version, provenance)
+        if prepared is None:
+            (run_dir / 'home').mkdir()
+            cwd = prepare(args.route, run_dir, args.version, provenance)
+        else:
+            cwd = prepared['working_directory']
+            provenance['off_camera_interpreter_preparation'] = prepared
         provenance['working_directory'] = cwd
     write(capture / 'provenance.json', provenance)
     print('Throwaway installation folder: ' + str(run_dir), flush=True)
     finished = False
     try:
-        ctl = run_dir / ('ctl-' + args.phase)
+        phase_key = args.phase if args.take == 1 else f'{args.phase}-take{args.take}'
+        ctl = run_dir / ('ctl-' + phase_key)
         if ctl.exists():
             raise FileExistsError('This phase was already recorded in that folder')
         (ctl / 'inbox').mkdir(parents=True)
@@ -710,7 +791,7 @@ def main():
         env = dict(os.environ)
         for key, name in (('XDG_CONFIG_HOME', 'config'), ('XDG_DATA_HOME', 'data'),
                           ('XDG_CACHE_HOME', 'cache'), ('XDG_RUNTIME_DIR', 'runtime')):
-            folder = run_dir / ('desktop-' + args.phase) / name
+            folder = run_dir / ('desktop-' + phase_key) / name
             folder.mkdir(parents=True, mode=0o700)
             env[key] = str(folder)
         env.update(GSETTINGS_BACKEND='memory', NO_AT_BRIDGE='1', GTK_USE_PORTAL='0',
@@ -720,26 +801,34 @@ def main():
         command = ['xvfb-run', '-a', '-s', '-screen 0 3840x2160x24', 'dbus-run-session', '--',
                    sys.executable, str(TOOL), '--inside', '--route', args.route, '--phase', args.phase,
                    '--version', args.version, '--installation', str(run_dir),
-                   '--capture', str(capture), '--cwd', cwd]
+                   '--capture', str(capture), '--cwd', cwd, '--take', str(args.take)]
         # SPACR_GPU_TURN_HELD=1: the caller already runs inside one gpu_turn.sh
         # turn covering several recordings, so this one must not queue again.
         if args.phase == 'gpu' and os.environ.get('SPACR_GPU_TURN_HELD') != '1':
             command = [str(REPO / 'tools/gpu_turn.sh'), f'358-install-{args.route}-capture', *command]
         started = time.time()
         result = subprocess.run(command, env=env, timeout=8 * 3600)
-        shutil.copyfile(ctl / 'transcript.log', capture / f'transcript.{args.phase}.log')
+        shutil.copyfile(ctl / 'transcript.log', capture / f'transcript.{phase_key}.log')
         if args.phase == 'relaunch':
             provenance['application_preferences_modified'] = True
             provenance['preference_choices'] = dict(
                 theme='dark', how='spacr.qt.preferences.set_theme in the private home, the choice '
                 'the first-launch Theme slide offers; 1.5.0.8 otherwise follows the light system theme')
-        provenance['phases'][args.phase] = dict(returncode=result.returncode, cuda_visible=args.phase == 'gpu',
+        provenance['phases'][phase_key] = dict(returncode=result.returncode, cuda_visible=args.phase == 'gpu',
                                                 gpu_turn=args.phase == 'gpu', started=started,
-                                                seconds=round(time.time() - started))
+                                                seconds=round(time.time() - started),
+                                                source_commit=subprocess.check_output(
+                                                    ['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip())
         write(capture / 'provenance.json', provenance)
         if result.returncode:
             raise RuntimeError('The recording did not complete')
-        provenance['installed_identity'] = identity(args.route, run_dir, cwd)
+        if args.phase not in ('uninstall', 'remove_environment'):
+            provenance['installed_identity'] = identity(args.route, run_dir, cwd)
+        else:
+            environment = run_dir / 'home/miniforge3/envs/spacr-pip'
+            provenance['uninstall_verified'] = not environment.exists()
+            if not provenance['uninstall_verified']:
+                raise ValueError('The dedicated pip-in-Conda environment was not removed')
         if args.route != 'conda' and provenance['installed_identity']['version'] != args.version:
             raise RuntimeError('The installed release is not the expected version')
         provenance['frames'] = sorted(read(capture / 'frames.json'))
@@ -752,6 +841,7 @@ def main():
                       '08_activate_conda', '09_install_conda',
                       '03_installed_versions', '05_doctor', '06_installed_home',
                       '10_current_release_choice'},
+            'pip_conda': {'pip_conda_01_create', 'pip_conda_02_install'},
             'installer': {'11_linux_commands', '07_privacy_keep_off', '06_installed_home',
                           '02_installer_backend', '03_installed_versions', '05_doctor',
                           '12_logs_and_versions'}}[args.route]

@@ -1,25 +1,100 @@
 {
   "schema": 1,
-  "reviewed_at": "2026-10-05",
+  "reviewed_at": "2026-10-08",
   "reviewer": "Codex",
   "review_kind": "AI technical review, no native-speaker signoff",
   "scope": "Visible tutorial navigation category headings derived from the current Home GUI hierarchy. Data is also the ordinary Danish, Norwegian and Swedish word; identical spelling is retained deliberately.",
-  "source": ["Core", "Data", "Tools", "Assays"],
-  "source_sha256": "7be750c68054cba18c209978b2ac2053420b4ae8c08aa5abe05b982fb2bccd77",
+  "source": [
+    "Core",
+    "Data",
+    "Tools",
+    "Organism"
+  ],
+  "source_sha256": "ca6ec49146a89efb75fdbdfc3d76fb4f654a55f40b05ef85830f8d05be6016ee",
   "labels": {
-    "en": ["Core", "Data", "Tools", "Assays"],
-    "es": ["Funciones básicas", "Datos", "Herramientas", "Ensayos"],
-    "fr": ["Fonctions de base", "Données", "Outils", "Essais"],
-    "hi": ["मूल कार्य", "डेटा", "उपकरण", "जैविक परीक्षण"],
-    "it": ["Funzioni di base", "Dati", "Strumenti", "Saggi"],
-    "pt-BR": ["Funções básicas", "Dados", "Ferramentas", "Ensaios"],
-    "ja": ["基本機能", "データ", "ツール", "アッセイ"],
-    "zh-CN": ["核心功能", "数据", "工具", "测定"],
-    "da": ["Kernefunktioner", "Data", "Værktøjer", "Analyser"],
-    "de": ["Kernfunktionen", "Daten", "Werkzeuge", "Analysen"],
-    "is": ["Grunnvirkni", "Gögn", "Verkfæri", "Prófanir"],
-    "ko": ["핵심 기능", "데이터", "도구", "분석"],
-    "nb": ["Kjernefunksjoner", "Data", "Verktøy", "Analyser"],
-    "sv": ["Grundfunktioner", "Data", "Verktyg", "Analyser"]
+    "en": [
+      "Core",
+      "Data",
+      "Tools",
+      "Organism"
+    ],
+    "es": [
+      "Funciones básicas",
+      "Datos",
+      "Herramientas",
+      "Organismo"
+    ],
+    "fr": [
+      "Fonctions de base",
+      "Données",
+      "Outils",
+      "Organisme"
+    ],
+    "hi": [
+      "मूल कार्य",
+      "डेटा",
+      "उपकरण",
+      "जीव"
+    ],
+    "it": [
+      "Funzioni di base",
+      "Dati",
+      "Strumenti",
+      "Organismo"
+    ],
+    "pt-BR": [
+      "Funções básicas",
+      "Dados",
+      "Ferramentas",
+      "Organismo"
+    ],
+    "ja": [
+      "基本機能",
+      "データ",
+      "ツール",
+      "生物"
+    ],
+    "zh-CN": [
+      "核心功能",
+      "数据",
+      "工具",
+      "生物"
+    ],
+    "da": [
+      "Kernefunktioner",
+      "Data",
+      "Værktøjer",
+      "Organisme"
+    ],
+    "de": [
+      "Kernfunktionen",
+      "Daten",
+      "Werkzeuge",
+      "Organismus"
+    ],
+    "is": [
+      "Grunnvirkni",
+      "Gögn",
+      "Verkfæri",
+      "Lífvera"
+    ],
+    "ko": [
+      "핵심 기능",
+      "데이터",
+      "도구",
+      "생물"
+    ],
+    "nb": [
+      "Kjernefunksjoner",
+      "Data",
+      "Verktøy",
+      "Organisme"
+    ],
+    "sv": [
+      "Grundfunktioner",
+      "Data",
+      "Verktyg",
+      "Organism"
+    ]
   }
 }

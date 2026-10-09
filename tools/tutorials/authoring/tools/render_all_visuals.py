@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get('SPACR_TUTORIAL_WORKSPACE', Path(__file__).resolve().parents[1])).resolve()
 PRODUCTION = ROOT / "production"
 RENDERER = Path(__file__).with_name("render_visual_master.py")
 
@@ -40,6 +42,12 @@ def main() -> int:
             continue
         scenes = lesson_root / "scenes.json"
         timings = lesson_root / "audio" / "en" / "af_heart.json"
+        native_timings = lesson_root / 'video' / 'native-live-timings.json'
+        if native_timings.exists() or (scenes.exists() and any(
+                scene.get('clip') for scene in json.loads(scenes.read_text())['scenes'])):
+            sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+            from native_live_timing import checked_native_timing
+            timings = checked_native_timing(ROOT, lesson_root.name)
         output = lesson_root / "video" / f"{lesson_root.name}_silent.mp4"
         if not scenes.exists() or not timings.exists():
             unavailable += 1

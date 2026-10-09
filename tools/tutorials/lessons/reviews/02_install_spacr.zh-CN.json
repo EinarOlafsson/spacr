@@ -1,0 +1,41 @@
+{
+  "lesson": "02_install_spacr",
+  "english_sha256": "ebd31960772d2090c7c0e9442bafffdcb0d34bbf1905dc562a1829bf87c0f051",
+  "review": {
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+  },
+  "language": "zh-CN",
+  "title": "安装spaCR",
+  "description": "在Python虚拟环境中用pip安装，在Conda环境中用pip安装，或在Conda环境中通过conda-forge安装；启动、更新和卸载。",
+  "objectives": [
+    "选择三种隔离安装方式中的一种。",
+    "安装或启动前激活正确的环境。",
+    "检查已安装版本，安全更新和卸载。"
+  ],
+  "prerequisite": "虚拟环境方式使用Python 3.12；两种Conda方式均需先安装Conda/Miniforge。打开终端。不要与现有环境使用相同名称。",
+  "scenes": [
+    "选择一种安装方式。Pip可将spaCR安装到Python虚拟环境或Conda环境中。Conda-forge安装到Conda环境中，不能向Python虚拟环境安装软件包。以下三种方式是备选方案，只需选择一种。",
+    "要在虚拟环境中使用pip，请创建专用文件夹，并用Python三点十二运行横杠m venv来创建点venv。如果文件夹中已有环境，请换一个文件夹。",
+    "每次安装、更新或启动前都要激活点venv。在Linux和macOS上，用source加载其bin斜杠activate脚本。在Windows PowerShell中，运行点venv反斜杠Scripts反斜杠Activate点ps一。环境提示符和Python路径可确认正在使用的解释器。",
+    "激活环境后，先升级pip，再运行pip install spacr。软件包安装会包含桌面应用使用的Qt依赖项。等待科学计算和桌面依赖项安装完成。",
+    "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。此方式安装的是PyPI上已发布的软件包；源代码检出版本或每夜开发版可能有更新的界面功能。",
+    "运行spacr-doctor，并遵照与您的工作相关的缺失依赖项提示操作。然后输入spacr，启动已安装的应用。更改环境前先关闭应用。",
+    "要在Conda中使用pip，请创建名为spacr-pip、含Python三点十二和pip的环境，然后激活。Conda提供解释器，pip提供spaCR。如果spacr-pip已存在，请另选名称。",
+    "激活spacr-pip后，升级pip并运行pip install spacr。软件包安装包含其Qt桌面依赖项。与虚拟环境方式一样，检查软件包版本并运行pip check。从这个已激活的环境启动spacr。",
+    "使用conda-forge时，用一条命令创建名为spacr-conda的新环境，包含Python三点十二和来自conda-forge频道的spacr。将解释器与spaCR一起解析，可避免把软件包添加到无关环境中。",
+    "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。conda-forge上可用的版本可能与最新PyPI版本或每夜开发版不同。",
+    "激活spacr-conda。检查Python环境路径，并运行conda list spacr确认已安装版本及频道。然后运行spacr-doctor，从此环境启动spacr。",
+    "这份补充材料展示当前每夜开发版的Home界面。您已安装的发布版本可能外观不同。环境命令安装的是所选频道中已发布的软件包；此当前源代码视图并不意味着每夜开发版的所有功能都已发布。",
+    "更新pip安装时，先关闭spaCR，激活对应环境，然后运行pip install横杠横杠upgrade spacr。之后检查版本。两种pip方式都使用pip更新spaCR，包括专为pip创建的Conda环境。",
+    "对于conda-forge方式，关闭spaCR，激活spacr-conda，然后运行conda update横杠c conda-forge spacr。如果没有更新的构建，Conda会报告请求的软件包已安装。请检查已安装版本，不要假定界面已改变。",
+    "卸载pip安装时，激活对应环境，运行python横杠m pip uninstall spacr，然后确认卸载。这会删除spaCR软件包，但不会删除显微成像项目，也不会自动删除每个依赖项。",
+    "如果点venv仅为spaCR创建，请先停用环境，再删除这个专用的点venv文件夹。对于专用的spacr-pip Conda环境，运行conda deactivate，然后运行conda env remove横杠n spacr-pip。只删除本教程创建的环境。",
+    "在conda-forge环境中，检查卸载计划后，conda remove spacr会删除软件包。如果要改为删除整个专用环境，请先停用它，再运行conda env remove横杠n spacr-conda。将项目文件夹单独保存；卸载环境不等于删除分析数据。"
+  ]
+}

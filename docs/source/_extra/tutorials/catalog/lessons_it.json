@@ -66,12 +66,12 @@
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Espandi Assets e scarica l’installer per Windows, macOS o Linux. Conserva il file dei checksum della stessa release se vuoi verificare il download. La lezione Platform installers spiega come avviare l’installer e aprire spaCR.",
+          "narration": "Espandi Assets e scarica il programma di installazione per Windows, macOS o Linux. La lezione Platform installers spiega l’installazione, l’avvio di spaCR e la disinstallazione su ogni sistema operativo.",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
           ],
-          "speech_text": "Espandi Assets e scarica l’installer per Windows, macOS o Linux. Conserva il file dei checksum della stessa release se vuoi verificare il download. La lezione Platform installers spiega come avviare l’installer e aprire spàker."
+          "speech_text": "Espandi Assets e scarica il programma di installazione per Windows, macOS o Linux. La lezione Platform installers spiega l’installazione, l’avvio di spàker e la disinstallazione su ogni sistema operativo."
         },
         {
           "visual": "05_conda_current_package",
@@ -81,23 +81,22 @@
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "Il comando di conda-forge installa spaCR nel tuo ambiente Conda attivo. Segui la lezione su Conda per creare quell’ambiente, installare il pacchetto e avviare l’applicazione.",
+          "narration": "Il comando conda-forge installa spaCR nell’ambiente Conda attivo. Segui Install spaCR per creare l’ambiente, installare il pacchetto e avviare l’applicazione. La lezione spiega anche come rimuovere il pacchetto e l’ambiente.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install"
+            "02_install_spacr"
           ],
-          "speech_text": "Il comando di Conda Forge installa spàker nel tuo ambiente Conda attivo. Segui la lezione su Conda per creare quell’ambiente, installare il pacchetto e avviare l’applicazione."
+          "speech_text": "Il comando Conda Forge installa spàker nell’ambiente Conda attivo. Segui Install spàker per creare l’ambiente, installare il pacchetto e avviare l’applicazione. La lezione spiega anche come rimuovere il pacchetto e l’ambiente."
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Prosegui con pip, Conda o Platform installers. Una volta aperto spaCR, passa alla lezione su Home, poi alle panoramiche delle pipeline per scegliere un flusso di lavoro per i tuoi dati.",
+          "narration": "Continua con Install spaCR per pip o conda-forge, oppure con Platform installers per un programma di installazione desktop. Entrambe le lezioni includono istruzioni di disinstallazione. Una volta aperto spaCR, passa a Home e poi alle panoramiche delle pipeline per scegliere un flusso di lavoro per i tuoi dati.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
           ],
-          "speech_text": "Prosegui con pip, Conda o Platform installers. Una volta aperto spàker, passa alla lezione su Home, poi alle panoramiche delle pipeline per scegliere un flusso di lavoro per i tuoi dati."
+          "speech_text": "Continua con Install spàker per pip o Conda Forge, oppure con Platform installers per un programma di installazione desktop. Entrambe le lezioni includono istruzioni di disinstallazione. Una volta aperto spàker, passa a Home e poi alle panoramiche delle pipeline per scegliere un flusso di lavoro per i tuoi dati."
         }
       ],
       "narration_voices": {
@@ -170,221 +169,129 @@
       }
     },
     {
-      "id": "02_conda_install",
+      "id": "02_install_spacr",
       "number": 2,
-      "slug": "conda_install",
-      "title": "Installare spaCR con Conda",
+      "slug": "install_spacr",
+      "title": "Installare spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Crea un ambiente Conda, installa spaCR da conda-forge e avvia l’applicazione.",
+      "description": "Installare con pip in un ambiente virtuale Python, con pip in un ambiente Conda o con conda-forge in un ambiente Conda; avviare, aggiornare e disinstallare.",
       "objectives": [
-        "Creare e attivare un ambiente Conda dedicato.",
-        "Installare spaCR da conda-forge.",
-        "Aprire spaCR e aggiornare lo stesso ambiente quando serve."
+        "Scegliere uno dei tre percorsi di installazione isolati.",
+        "Attivare l’ambiente corretto prima di installare o avviare.",
+        "Verificare la versione installata, aggiornare e disinstallare in sicurezza."
       ],
-      "prerequisite": "Installa Conda o Miniforge, poi apri un terminale in cui sia disponibile il comando conda.",
+      "prerequisite": "Usa Python 3.12 per l’ambiente virtuale, oppure installa Conda/Miniforge per uno dei due percorsi Conda. Apri un terminale. Scegli nomi diversi da quelli degli ambienti esistenti.",
       "scenes": [
         {
-          "visual": "02_conda_environment",
-          "narration": "Apri un terminale abilitato per Conda. Creerai un ambiente per spaCR, installerai il pacchetto di conda-forge e avvierai l’applicazione da quell’ambiente.",
+          "visual": "00_install_routes",
+          "narration": "Scegli un percorso di installazione. Pip installa spaCR in un ambiente virtuale Python oppure in un ambiente Conda. Conda-forge installa in un ambiente Conda; non può installare pacchetti in un ambiente virtuale Python. I tre percorsi seguenti sono alternative, quindi ne basta uno.",
           "hold_after": 0.7,
-          "speech_text": "Apri un terminale abilitato per Conda. Creerai un ambiente per spàker, installerai il pacchetto di Conda Forge e avvierai l’applicazione da quell’ambiente."
+          "speech_text": "Scegli un percorso di installazione. Pip installa spàker in un ambiente virtuale Python oppure in un ambiente Conda. Conda Forge installa in un ambiente Conda; non può installare pacchetti in un ambiente virtuale Python. I tre percorsi seguenti sono alternative, quindi ne basta uno."
         },
         {
-          "visual": "07_create_conda_command",
-          "narration": "Crea un ambiente chiamato spacr-conda con Python tre punto dodici e spaCR da conda-forge, usando il comando mostrato. Scegli un altro nome se lo usi già per un ambiente diverso.",
+          "visual": "pip_01_create_venv",
+          "narration": "Per pip con un ambiente virtuale, crea una cartella dedicata ed esegui Python tre punto dodici con trattino m venv per creare punto venv. Usa un’altra cartella se contiene già un ambiente.",
           "hold_after": 0.7,
-          "speech_text": "Crea un ambiente chiamato spàker-conda con Python tre punto dodici e spàker da Conda Forge, usando il comando mostrato. Scegli un altro nome se lo usi già per un ambiente diverso."
+          "speech_text": "Per pip con un ambiente virtuale, crea una cartella dedicata ed esegui Python tre punto dodici con trattino m venv per creare punto venv. Usa un’altra cartella se contiene già un ambiente."
         },
         {
-          "visual": "07_create_conda",
-          "narration": "Conda risolve l’ambiente ed elenca il piano dei pacchetti. Controllalo, digita la lettera y per accettare, poi attendi che download e installazione finiscano.",
+          "visual": "pip_02_activate_venv",
+          "narration": "Attiva punto venv prima di ogni installazione, aggiornamento o avvio. Su Linux e macOS, carica con source lo script bin barra activate. In Windows PowerShell, esegui punto venv barra inversa Scripts barra inversa Activate punto ps uno. Il prompt dell’ambiente e il percorso Python confermano quale interprete stai usando.",
           "hold_after": 0.7,
-          "speech_text": "Conda risolve l’ambiente ed elenca il piano dei pacchetti. Controllalo, digita la lettera y per accettare, poi attendi che download e installazione finiscano."
+          "speech_text": "Attiva punto venv prima di ogni installazione, aggiornamento o avvio. Su Linux e macOS, carica con source lo script bin barra activate. In Windows PowerShell, esegui punto venv barra inversa Scripts barra inversa Activate punto ps uno. Il prompt dell’ambiente e il percorso Python confermano quale interprete stai usando."
         },
         {
-          "visual": "08_activate_conda",
-          "narration": "Attiva spacr-conda. Esegui il comando Python mostrato per vedere il percorso dell’ambiente e verifica che sia l’ambiente appena creato.",
+          "visual": "pip_03_install",
+          "narration": "Con l’ambiente attivo, aggiorna pip e poi esegui pip install spacr. L’installazione del pacchetto include le dipendenze Qt usate dall’applicazione desktop. Attendi che l’installazione delle dipendenze scientifiche e desktop sia terminata.",
           "hold_after": 0.7,
-          "speech_text": "Attiva spàker-conda. Esegui il comando Python mostrato per vedere il percorso dell’ambiente e verifica che sia l’ambiente appena creato."
+          "speech_text": "Con l’ambiente attivo, aggiorna pip e poi esegui pip install spàker. L’installazione del pacchetto include le dipendenze cu ti usate dall’applicazione desktop. Attendi che l’installazione delle dipendenze scientifiche e desktop sia terminata."
         },
         {
-          "visual": "09_install_conda",
-          "narration": "Esegui conda list spacr per vedere la versione installata e confermare che provenga da conda-forge. Installare Python e spaCR con un solo comando permette a Conda di risolvere tutti i pacchetti insieme, ed è molto più veloce che aggiungere spaCR a un ambiente esistente.",
+          "visual": "pip_04_check",
+          "narration": "Verifica la versione installata e il percorso del pacchetto, poi esegui python trattino m pip check. Conserva la versione con le note dell’analisi. Questo percorso installa il pacchetto pubblicato su PyPI; una copia del codice sorgente o una versione nightly può avere funzionalità dell’interfaccia più recenti.",
           "hold_after": 0.7,
-          "speech_text": "Esegui conda list spàker per vedere la versione installata e confermare che provenga da Conda Forge. Installare Python e spàker con un solo comando permette a Conda di risolvere tutti i pacchetti insieme, ed è molto più veloce che aggiungere spàker a un ambiente esistente."
+          "speech_text": "Verifica la versione installata e il percorso del pacchetto, poi esegui python trattino m pip check. Conserva la versione con le note dell’analisi. Questo percorso installa il pacchetto pubblicato su paip; una copia del codice sorgente o una versione nightly può avere funzionalità dell’interfaccia più recenti."
         },
         {
-          "visual": "03_installed_versions",
-          "narration": "Controlla la versione installata di spaCR e la posizione del pacchetto. Conserva quella versione con le note di analisi, così potrai tornare più tardi allo stesso ambiente.",
+          "visual": "pip_05_launch",
+          "narration": "Esegui spacr-doctor e segui le indicazioni sulle dipendenze mancanti pertinenti al tuo lavoro. Poi inserisci spacr per avviare l’applicazione installata. Chiudi l’applicazione prima di modificarne l’ambiente.",
           "hold_after": 0.7,
-          "speech_text": "Controlla la versione installata di spàker e la posizione del pacchetto. Conserva quella versione con le note di analisi, così potrai tornare più tardi allo stesso ambiente."
+          "speech_text": "Esegui spàker-doctor e segui le indicazioni sulle dipendenze mancanti pertinenti al tuo lavoro. Poi inserisci spàker per avviare l’applicazione installata. Chiudi l’applicazione prima di modificarne l’ambiente."
         },
         {
-          "visual": "05_doctor",
-          "narration": "Esegui spacr-doctor per controllare l’installazione. Qui segnala che manca vispy, una dipendenza principale, e mostra il comando che la installa. Esegui quel comando, poi esegui di nuovo spacr-doctor. Segui gli altri passaggi suggeriti solo per i formati di file o le funzioni che ti servono.",
+          "visual": "pip_conda_01_create",
+          "narration": "Per pip in Conda, crea un ambiente chiamato spacr-pip con Python tre punto dodici e pip, quindi attivalo. Conda fornisce l’interprete; pip fornirà spaCR. Scegli un nome diverso se spacr-pip esiste già.",
           "hold_after": 0.7,
-          "speech_text": "Esegui spàker-doctor per controllare l’installazione. Qui segnala che manca vispy, una dipendenza principale, e mostra il comando che la installa. Esegui quel comando, poi esegui di nuovo spàker-doctor. Segui gli altri passaggi suggeriti solo per i formati di file o le funzioni che ti servono."
+          "speech_text": "Per pip in Conda, crea un ambiente chiamato spàker-pip con Python tre punto dodici e pip, quindi attivalo. Conda fornisce l’interprete; pip fornirà spàker. Scegli un nome diverso se spàker-pip esiste già."
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Digita spacr per avviare l’applicazione. Completa le scelte del primo avvio, poi continua con il tutorial di Home per trovare i moduli e i relativi dati di esempio.",
+          "visual": "pip_conda_02_install",
+          "narration": "Con spacr-pip attivo, aggiorna pip ed esegui pip install spacr. L’installazione del pacchetto include le sue dipendenze Qt per il desktop. Verifica la versione del pacchetto ed esegui pip check, come nel percorso dell’ambiente virtuale. Avvia spacr dallo stesso ambiente attivo.",
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ],
-          "speech_text": "Digita spàker per avviare l’applicazione. Completa le scelte del primo avvio, poi continua con il tutorial di Home per trovare i moduli e i relativi dati di esempio."
+          "speech_text": "Con spàker-pip attivo, aggiorna pip ed esegui pip install spàker. L’installazione del pacchetto include le sue dipendenze cu ti per il desktop. Verifica la versione del pacchetto ed esegui pip check, come nel percorso dell’ambiente virtuale. Avvia spàker dallo stesso ambiente attivo."
         },
         {
-          "visual": "10_current_release_choice",
-          "narration": "Per aggiornare in seguito, chiudi spaCR, attiva questo ambiente e aggiorna il pacchetto di conda-forge. Se conda-forge non ha una build più recente, Conda segnala che tutti i pacchetti richiesti sono già installati. Poi controlla la versione installata; le lezioni su pip e sull’installer descrivono gli altri metodi di installazione.",
-          "related_lessons": [
-            "01_pypi_github",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
+          "visual": "conda_01_create",
+          "narration": "Per conda-forge, crea con un unico comando un nuovo ambiente chiamato spacr-conda con Python tre punto dodici e spacr dal canale conda-forge. Risolvere insieme l’interprete e spaCR evita di aggiungere il pacchetto a un ambiente non pertinente.",
           "hold_after": 0.7,
-          "speech_text": "Per aggiornare in seguito, chiudi spàker, attiva questo ambiente e aggiorna il pacchetto di Conda Forge. Se Conda Forge non ha una build più recente, Conda segnala che tutti i pacchetti richiesti sono già installati. Poi controlla la versione installata; le lezioni su pip e sull’installer descrivono gli altri metodi di installazione."
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "03_pip_install",
-      "number": 3,
-      "slug": "pip_install",
-      "title": "Installare spaCR con pip",
-      "series": 1,
-      "app_key": null,
-      "section": "spaCR",
-      "description": "Crea un ambiente Python isolato, installa il pacchetto pubblico, verifica le sue dipendenze e avvia l’applicazione Qt installata.",
-      "objectives": [
-        "Creare e attivare un ambiente virtuale Python.",
-        "Installare spaCR e controllarne le dipendenze.",
-        "Avviare l’applicazione e aggiornare l’ambiente previsto."
-      ],
-      "prerequisite": "Installa Python 3.12 e apri un terminale. Usa il comando di attivazione per il tuo sistema operativo e la tua shell.",
-      "scenes": [
-        {
-          "visual": "01_python_version",
-          "narration": "Apri un terminale e controlla la versione di Python. Questa procedura usa Python tre punto dodici. Tieni spaCR in un ambiente virtuale dedicato, così i suoi pacchetti restano facili da gestire.",
-          "hold_after": 0.7,
-          "speech_text": "Apri un terminale e controlla la versione di Python. Questa procedura usa Python tre punto dodici. Tieni spàker in un ambiente virtuale dedicato, così i suoi pacchetti restano facili da gestire."
+          "speech_text": "Per Conda Forge, crea con un unico comando un nuovo ambiente chiamato spàker-conda con Python tre punto dodici e spàker dal canale Conda Forge. Risolvere insieme l’interprete e spàker evita di aggiungere il pacchetto a un ambiente non pertinente."
         },
         {
-          "visual": "07_create_environment",
-          "narration": "Crea un ambiente virtuale chiamato punto venv con il comando per il tuo sistema operativo. Viene creata una cartella che contiene l’ambiente Python che userai per spaCR.",
+          "visual": "conda_02_plan",
+          "narration": "Conda mostra il piano dei pacchetti prima dell’installazione. Esaminalo, accettalo e attendi che download e installazione terminino. La versione disponibile su conda-forge può differire dalla più recente versione PyPI o nightly.",
           "hold_after": 0.7,
-          "speech_text": "Crea un ambiente virtuale chiamato punto venv con il comando per il tuo sistema operativo. Viene creata una cartella che contiene l’ambiente Python che userai per spàker."
+          "speech_text": "Conda mostra il piano dei pacchetti prima dell’installazione. Esaminalo, accettalo e attendi che download e installazione terminino. La versione disponibile su Conda Forge può differire dalla più recente versione paip o nightly."
         },
         {
-          "visual": "08_activate_environment",
-          "narration": "Attiva punto venv con il comando della tua shell. PowerShell e il Prompt dei comandi di Windows hanno comandi di attivazione diversi; macOS e Linux usano di solito il comando di shell mostrato qui.",
+          "visual": "conda_03_activate",
+          "narration": "Attiva spacr-conda. Verifica il percorso dell’ambiente Python ed esegui conda list spacr per confermare versione installata e canale. Quindi esegui spacr-doctor e avvia spacr da questo ambiente.",
           "hold_after": 0.7,
-          "speech_text": "Attiva punto venv con il comando della tua shell. PowerShell e il Prompt dei comandi di Windows hanno comandi di attivazione diversi; macOS e Linux usano di solito il comando di shell mostrato qui."
+          "speech_text": "Attiva spàker-conda. Verifica il percorso dell’ambiente Python ed esegui conda list spàker per confermare versione installata e canale. Quindi esegui spàker-doctor e avvia spàker da questo ambiente."
         },
         {
-          "visual": "02_pip_environment",
-          "narration": "Esegui python trattino m pip trattino trattino version. Verifica che il percorso mostrato appartenga a punto venv. Usa python trattino m pip per i comandi di installazione, così pip usa questo interprete.",
+          "visual": "06_current_home",
+          "narration": "Questo materiale complementare mostra l’interfaccia Home della versione nightly attuale. La versione installata può apparire diversa. I comandi degli ambienti installano il pacchetto pubblicato nel canale scelto; questa vista del codice attuale non afferma che tutte le funzionalità nightly siano già pubblicate.",
           "hold_after": 0.7,
-          "speech_text": "Esegui python trattino m pip trattino trattino version. Verifica che il percorso mostrato appartenga a punto venv. Usa python trattino m pip per i comandi di installazione, così pip usa questo interprete."
-        },
-        {
-          "visual": "09_install_package",
-          "narration": "Aggiorna pip, poi installa spacr. Attendi che i pacchetti scientifici finiscano di scaricarsi e installarsi. Il pacchetto attuale include i componenti desktop necessari per aprire l’applicazione.",
-          "hold_after": 0.7,
-          "speech_text": "Aggiorna pip, poi installa spàker. Attendi che i pacchetti scientifici finiscano di scaricarsi e installarsi. Il pacchetto attuale include i componenti desktop necessari per aprire l’applicazione."
-        },
-        {
-          "visual": "03_installed_versions",
-          "narration": "Controlla la versione installata di spaCR e la posizione del pacchetto con il comando mostrato. Salva la versione insieme alle note di analisi.",
-          "hold_after": 0.7,
-          "speech_text": "Controlla la versione installata di spàker e la posizione del pacchetto con il comando mostrato. Salva la versione insieme alle note di analisi."
-        },
-        {
-          "visual": "04_dependency_check",
-          "narration": "Esegui python trattino m pip check. Se segnala requisiti in conflitto, risolvi quei conflitti prima di usare l’ambiente.",
-          "hold_after": 0.7,
-          "speech_text": "Esegui python trattino m pip check. Se segnala requisiti in conflitto, risolvi quei conflitti prima di usare l’ambiente."
-        },
-        {
-          "visual": "05_doctor",
-          "narration": "Esegui spacr-doctor per esaminare l’installazione e vedere eventuali funzioni opzionali mancanti. Applica la riparazione suggerita solo per i formati o le funzionalità che ti servono.",
-          "hold_after": 0.7,
-          "speech_text": "Esegui spàker-doctor per esaminare l’installazione e vedere eventuali funzioni opzionali mancanti. Applica la riparazione suggerita solo per i formati o le funzionalità che ti servono."
-        },
-        {
-          "visual": "10_launch_commands",
-          "narration": "Avvia spacr dall’ambiente attivato. Al primo avvio, segui le richieste di configurazione e scegli le tue preferenze.",
-          "hold_after": 0.7,
-          "speech_text": "Avvia spàker dall’ambiente attivato. Al primo avvio, segui le richieste di configurazione e scegli le tue preferenze."
-        },
-        {
-          "visual": "13_current_nightly_home",
-          "narration": "Questa registrazione installa spaCR versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Assays. Prosegui con Home screen and navigation per conoscere i moduli attuali.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Questa registrazione installa spàker versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Assays. Prosegui con Home screen and navigation per conoscere i moduli attuali."
+          "speech_text": "Questo materiale complementare mostra l’interfaccia Home della versione nightly attuale. La versione installata può apparire diversa. I comandi degli ambienti installano il pacchetto pubblicato nel canale scelto; questa vista del codice attuale non afferma che tutte le funzionalità nightly siano già pubblicate."
         },
         {
-          "visual": "11_update_intentionally",
-          "narration": "Per aggiornare, chiudi spaCR e attiva questo ambiente. Aggiorna il pacchetto, poi controlla di nuovo versione e dipendenze. Conserva l’ambiente precedente se ti serve per un’analisi in corso.",
-          "related_lessons": [
-            "01_pypi_github",
-            "04_platform_installers"
-          ],
+          "visual": "pip_06_update",
+          "narration": "Per aggiornare un’installazione pip, chiudi spaCR, attiva il suo ambiente ed esegui pip install trattino trattino upgrade spacr. Verifica poi la versione. Usa pip per aggiornare spaCR in entrambi i percorsi pip, incluso l’ambiente Conda creato per pip.",
           "hold_after": 0.7,
-          "speech_text": "Per aggiornare, chiudi spàker e attiva questo ambiente. Aggiorna il pacchetto, poi controlla di nuovo versione e dipendenze. Conserva l’ambiente precedente se ti serve per un’analisi in corso."
+          "speech_text": "Per aggiornare un’installazione pip, chiudi spàker, attiva il suo ambiente ed esegui pip install trattino trattino upgrade spàker. Verifica poi la versione. Usa pip per aggiornare spàker in entrambi i percorsi pip, incluso l’ambiente Conda creato per pip."
+        },
+        {
+          "visual": "conda_04_update",
+          "narration": "Per il percorso conda-forge, chiudi spaCR, attiva spacr-conda ed esegui conda update trattino c conda-forge spacr. Se non è disponibile una versione più recente, Conda indica che i pacchetti richiesti sono già installati. Verifica la versione installata invece di presumere che l’interfaccia sia cambiata.",
+          "hold_after": 0.7,
+          "speech_text": "Per il percorso Conda Forge, chiudi spàker, attiva spàker-conda ed esegui conda update trattino c Conda Forge spàker. Se non è disponibile una versione più recente, Conda indica che i pacchetti richiesti sono già installati. Verifica la versione installata invece di presumere che l’interfaccia sia cambiata."
+        },
+        {
+          "visual": "pip_07_uninstall",
+          "narration": "Per rimuovere un’installazione pip, attiva il suo ambiente ed esegui python trattino m pip uninstall spacr, poi conferma la rimozione. Questo rimuove il pacchetto spaCR. Non elimina i progetti di microscopia né rimuove automaticamente tutte le dipendenze.",
+          "hold_after": 0.7,
+          "speech_text": "Per rimuovere un’installazione pip, attiva il suo ambiente ed esegui python trattino m pip uninstall spàker, poi conferma la rimozione. Questo rimuove il pacchetto spàker. Non elimina i progetti di microscopia né rimuove automaticamente tutte le dipendenze."
+        },
+        {
+          "visual": "pip_08_remove_environment",
+          "narration": "Se punto venv è stato creato solo per spaCR, disattivalo e rimuovi quella cartella punto venv dedicata. Per l’ambiente Conda dedicato spacr-pip, esegui conda deactivate, poi conda env remove trattino n spacr-pip. Rimuovi solo l’ambiente creato per questo tutorial.",
+          "hold_after": 0.7,
+          "speech_text": "Se punto venv è stato creato solo per spàker, disattivalo e rimuovi quella cartella punto venv dedicata. Per l’ambiente Conda dedicato spàker-pip, esegui conda deactivate, poi conda env remove trattino n spàker-pip. Rimuovi solo l’ambiente creato per questo tutorial."
+        },
+        {
+          "visual": "conda_05_uninstall",
+          "narration": "Nell’ambiente conda-forge, conda remove spacr rimuove il pacchetto dopo che hai esaminato il piano di rimozione. Per rimuovere invece l’intero ambiente dedicato, disattivalo ed esegui conda env remove trattino n spacr-conda. Conserva separatamente le cartelle dei progetti; disinstallare l’ambiente non significa eliminare i dati dell’analisi.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "04_platform_installers",
+            "05_home"
+          ],
+          "speech_text": "Nell’ambiente Conda Forge, conda remove spàker rimuove il pacchetto dopo che hai esaminato il piano di rimozione. Per rimuovere invece l’intero ambiente dedicato, disattivalo ed esegui conda env remove trattino n spàker-conda. Conserva separatamente le cartelle dei progetti; disinstallare l’ambiente non significa eliminare i dati dell’analisi."
         }
       ],
       "narration_voices": {
@@ -468,15 +375,16 @@
       "objectives": [
         "Scaricare ed eseguire l’installer per il tuo sistema operativo.",
         "Scegliere un’opzione di accelerazione e le preferenze del primo avvio.",
-        "Aprire spaCR e trovare i log di installazione se la configurazione richiede attenzione."
+        "Aprire spaCR e trovare i log di installazione se la configurazione richiede attenzione.",
+        "Disinstallare l’applicazione tramite le opzioni del sistema operativo o lo strumento di rimozione incluso."
       ],
       "prerequisite": "Scarica l’installer ufficiale per il tuo sistema operativo e lascia spazio per l’applicazione e le sue dipendenze scientifiche.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Apri la release ufficiale di spaCR su GitHub e, sotto Assets, scarica l’installer per il tuo sistema operativo. Questi installer online scaricano il runtime Python e i pacchetti scientifici durante la configurazione. Conserva SHA256SUMS punto txt della stessa release se vuoi verificare il download.",
+          "narration": "Apri la release ufficiale di spaCR su GitHub e, sotto Assets, scarica l’installer per il tuo sistema operativo. Questi installer online scaricano il runtime Python e i pacchetti scientifici durante la configurazione.",
           "hold_after": 0.7,
-          "speech_text": "Apri la release ufficiale di spàker su GitHub e, sotto Assets, scarica l’installer per il tuo sistema operativo. Questi installer online scaricano il runtime Python e i pacchetti scientifici durante la configurazione. Conserva SHA256SUMS punto txt della stessa release se vuoi verificare il download."
+          "speech_text": "Apri la release ufficiale di spàker su GitHub e, sotto Assets, scarica l’installer per il tuo sistema operativo. Questi installer online scaricano il runtime Python e i pacchetti scientifici durante la configurazione."
         },
         {
           "visual": "09_windows_guidance",
@@ -522,12 +430,12 @@
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Questa registrazione installa spaCR versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Assays. Prosegui con Home screen and navigation per conoscere i moduli attuali.",
+          "narration": "Questa registrazione installa spaCR versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Organism. Prosegui con Home screen and navigation per conoscere i moduli attuali.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Questa registrazione installa spàker versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Assays. Prosegui con Home screen and navigation per conoscere i moduli attuali."
+          "speech_text": "Questa registrazione installa spàker versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Organism. Prosegui con Home screen and navigation per conoscere i moduli attuali."
         },
         {
           "visual": "05_doctor",
@@ -540,11 +448,28 @@
           "narration": "Per i problemi di installazione, cerca install punto log e install-profile punto json nella cartella di installazione. Rivedi i log prima di condividerli in una richiesta di assistenza. Indica il sistema operativo e la versione di spaCR, così il problema è più facile da diagnosticare.",
           "related_lessons": [
             "01_pypi_github",
-            "02_conda_install",
-            "03_pip_install"
+            "02_install_spacr"
           ],
           "hold_after": 0.7,
           "speech_text": "Per i problemi di installazione, cerca install punto log e install-profile punto json nella cartella di installazione. Rivedi i log prima di condividerli in una richiesta di assistenza. Indica il sistema operativo e la versione di spàker, così il problema è più facile da diagnosticare."
+        },
+        {
+          "visual": "15_uninstall_windows",
+          "narration": "Su Windows, chiudi spaCR, apri Settings, poi Apps e Installed apps. Scegli spaCR e Uninstall. Anche l’eseguibile Uninstall installato avvia la stessa procedura di rimozione. Conserva separatamente le cartelle dei progetti.",
+          "hold_after": 0.7,
+          "speech_text": "Su Windows, chiudi spàker, apri Settings, poi Apps e Installed apps. Scegli spàker e Uninstall. Anche l’eseguibile Uninstall installato avvia la stessa procedura di rimozione. Conserva separatamente le cartelle dei progetti."
+        },
+        {
+          "visual": "16_uninstall_macos",
+          "narration": "Su macOS, chiudi spaCR ed esegui lo script uninstall-spacr incluso in Library barra Application Support barra spaCR. Rimuove l’applicazione e i suoi launcher di sistema. Il runtime per utente nella tua Library barra Application Support barra spaCR è separato; rimuovilo solo se vuoi eliminare anche quel runtime.",
+          "hold_after": 0.7,
+          "speech_text": "Su macOS, chiudi spàker ed esegui lo script uninstall-spàker incluso in Library barra Application Support barra spàker. Rimuove l’applicazione e i suoi launcher di sistema. Il runtime per utente nella tua Library barra Application Support barra spàker è separato; rimuovilo solo se vuoi eliminare anche quel runtime."
+        },
+        {
+          "visual": "17_uninstall_linux",
+          "narration": "Su Linux, chiudi spaCR ed esegui lo script uninstall-spacr nella tua cartella personale, sotto punto local barra share barra spacr. Rimuove il runtime gestito e i launcher dell’applicazione. La disinstallazione non richiede di eliminare i progetti di microscopia né i risultati delle analisi.",
+          "hold_after": 0.7,
+          "speech_text": "Su Linux, chiudi spàker ed esegui lo script uninstall-spàker nella tua cartella personale, sotto punto local barra share barra spàker. Rimuove il runtime gestito e i launcher dell’applicazione. La disinstallazione non richiede di eliminare i progetti di microscopia né i risultati delle analisi."
         }
       ],
       "narration_voices": {
@@ -624,148 +549,272 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Apri un modulo da Home, trova gli strumenti collegati e i dati di esempio, poi scegli una pipeline da seguire.",
+      "description": "Esamina tutti i moduli attuali di Home da sinistra a destra, poi impara i controlli condivisi usando Mask e regola navigazione, guida e aspetto.",
       "objectives": [
-        "Scegliere un modulo di partenza per immagini, misure o letture di sequenziamento.",
-        "Trovare gli strumenti collegati e i saggi specifici per organismo.",
-        "Adattare la colonna di Home e i pannelli dei moduli al tuo schermo.",
-        "Caricare un esempio, trovare aiuto con la ricerca o Control-K e impostare Preferences."
+        "Identificare tutti i moduli delle righe attuali Core, Data, Tools e Organism.",
+        "Usare Mask per riconoscere impostazioni, anteprime, azioni e risultati condivisi.",
+        "Tornare a Home, usare la ricerca e disporre i pannelli.",
+        "Scegliere le impostazioni di aspetto e prestazioni."
       ],
       "prerequisite": "Installa spaCR e apri l’applicazione desktop.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home è il tuo punto di partenza. Fai clic su un riquadro per aprire un modulo, oppure usa la barra laterale a sinistra. Fai clic su Home nella barra laterale per tornare qui. Le schede Core, Data, Tools e Assays ti aiutano a trovare l’attività che vuoi svolgere.",
+          "narration": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data, Tools e Organism. Ogni riquadro apre il suo modulo. La barra laterale offre gli stessi percorsi e Home torna a questa panoramica.",
           "hold_after": 0.7,
-          "speech_text": "Home è il tuo punto di partenza. Fai clic su un riquadro per aprire un modulo, oppure usa la barra laterale a sinistra. Fai clic su Home nella barra laterale per tornare qui. Le schede Core, Data, Tools e Assays ti aiutano a trovare l’attività che vuoi svolgere."
+          "speech_text": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data, Tools e Organism. Ogni riquadro apre il suo modulo. La barra laterale offre gli stessi percorsi e Home torna a questa panoramica."
         },
         {
-          "visual": "01_core  (6)",
-          "narration": "Leggi le tessere Core da sinistra a destra. Per le immagini al microscopio, inizia con Mask per delineare gli oggetti, poi usa Measure per estrarne caratteristiche e ritagli. Annotate ti permette di etichettare oggetti di esempio, e Classify impara da quelle etichette per assegnare un punteggio ad altri oggetti. Map Barcodes legge i dati di sequenziamento. Regression combina i punteggi di fenotipo ottenuti con i conteggi delle guide per trovare associazioni.",
+          "visual": "home_module_mask",
+          "narration": "Mask genera maschere degli oggetti da immagini di microscopia. Lo apriremo brevemente per conoscere i controlli comuni ai moduli di analisi.",
           "hold_after": 0.7,
           "focus_modules": [
-            "mask",
-            "measure",
-            "annotate",
-            "classify_merged",
-            "map_barcodes",
+            "mask"
+          ],
+          "related_lessons": [
+            "07_mask"
+          ],
+          "speech_text": "Mask genera maschere degli oggetti da immagini di microscopia. Lo apriremo brevemente per conoscere i controlli comuni ai moduli di analisi."
+        },
+        {
+          "visual": "home_module_measure",
+          "narration": "Measure combina immagini e maschere per estrarre misure e ritagli degli oggetti. Le sue tabelle collegano le immagini alle analisi successive.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "measure"
+          ],
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "Measure combina immagini e maschere per estrarre misure e ritagli degli oggetti. Le sue tabelle collegano le immagini alle analisi successive."
+        },
+        {
+          "visual": "home_module_annotate",
+          "narration": "Annotate permette di esaminare i ritagli degli oggetti e registrare etichette verificate per gli esempi.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "annotate"
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "speech_text": "Annotate permette di esaminare i ritagli degli oggetti e registrare etichette verificate per gli esempi."
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify apprende da etichette verificate e assegna punteggi ad altri oggetti usando immagini o dati tabellari.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify apprende da etichette verificate e assegna punteggi ad altri oggetti usando immagini o dati tabellari."
+        },
+        {
+          "visual": "home_module_map_barcodes",
+          "narration": "Map Barcodes legge dati di sequenziamento per contare e identificare guide o codici a barre.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "map_barcodes"
+          ],
+          "related_lessons": [
+            "12_map_barcodes"
+          ],
+          "speech_text": "Map Barcodes legge dati di sequenziamento per contare e identificare guide o codici a barre."
+        },
+        {
+          "visual": "home_module_regression",
+          "narration": "Regression collega i punteggi fenotipici ai conteggi delle guide mantenendo i gruppi sperimentali.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "regression"
           ],
           "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "12_map_barcodes",
             "13_regression"
           ],
-          "speech_text": "Leggi le tessere Core da sinistra a destra. Per le immagini al microscopio, inizia con Mask per delineare gli oggetti, poi usa Measure per estrarne caratteristiche e ritagli. Annotate ti permette di etichettare oggetti di esempio, e Classify impara da quelle etichette per assegnare un punteggio ad altri oggetti. Map Barcodes legge i dati di sequenziamento. Regression combina i punteggi di fenotipo ottenuti con i conteggi delle guide per trovare associazioni."
+          "speech_text": "Regression collega i punteggi fenotipici ai conteggi delle guide mantenendo i gruppi sperimentali."
         },
         {
-          "visual": "02_data  (7)",
-          "narration": "Leggi le tessere Data da sinistra a destra. Import inserisce immagini, maschere o tabelle di misurazioni esistenti in un progetto. Embeddings trasforma i ritagli degli oggetti in vettori numerici di caratteristiche da confrontare. Run Compare affianca due esecuzioni. Experiment Design organizza le piastre. Power / Design simula il rilevamento con diverse ipotesi sul numero di cellule e pozzetti per aiutare a pianificare un esperimento. Dose-Response adatta curve di concentrazione e risposta e mostra stime, intervalli e avvertenze sull’adattamento. QC mostra i controlli di qualità registrati. Apri il tutorial di ogni modulo per conoscere gli input e i passaggi successivi.",
+          "visual": "home_module_foreign",
+          "narration": "Import prepara i file di microscopia e i metadati in ingresso per la struttura del progetto.",
           "hold_after": 0.7,
           "focus_modules": [
-            "foreign",
-            "embeddings",
-            "run_compare",
-            "experiment_design",
-            "power",
-            "dose_response",
+            "foreign"
+          ],
+          "related_lessons": [
+            "36_import"
+          ],
+          "speech_text": "Import prepara i file di microscopia e i metadati in ingresso per la struttura del progetto."
+        },
+        {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings codifica i ritagli degli oggetti in caratteristiche numeriche da esplorare e confrontare.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ],
+          "speech_text": "Embeddings codifica i ritagli degli oggetti in caratteristiche numeriche da esplorare e confrontare."
+        },
+        {
+          "visual": "home_module_run_compare",
+          "narration": "Run Compare riunisce i risultati salvati di più esecuzioni per esaminarne le differenze.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "run_compare"
+          ],
+          "related_lessons": [
+            "50_run_compare"
+          ],
+          "speech_text": "Run Compare riunisce i risultati salvati di più esecuzioni per esaminarne le differenze."
+        },
+        {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design organizza condizioni, pozzetti e identità dei campioni prima dell’esperimento.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ],
+          "speech_text": "Experiment Design organizza condizioni, pozzetti e identità dei campioni prima dell’esperimento."
+        },
+        {
+          "visual": "home_module_power",
+          "narration": "Power / Design esplora le ipotesi sulla dimensione del campione e sulla potenza quando si pianificano confronti.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "power"
+          ],
+          "related_lessons": [
+            "68_power_design"
+          ],
+          "speech_text": "Power / Design esplora le ipotesi sulla dimensione del campione e sulla potenza quando si pianificano confronti."
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose-Response adatta le risposte alle concentrazioni, mantenendo espliciti l’esito misurato e i controlli scelti.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ],
+          "speech_text": "Dose-Response adatta le risposte alle concentrazioni, mantenendo espliciti l’esito misurato e i controlli scelti."
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC riunisce i controlli di qualità e indica quali prove sono disponibili e quali mancano.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "qc_dashboard"
           ],
           "related_lessons": [
-            "36_import",
-            "77_embeddings",
-            "50_run_compare",
-            "67_experiment_design",
-            "68_power_design",
-            "69_dose_response",
             "54_qc_dashboard"
           ],
-          "speech_text": "Leggi le tessere Data da sinistra a destra. Import inserisce immagini, maschere o tabelle di misurazioni esistenti in un progetto. Embeddings trasforma i ritagli degli oggetti in vettori numerici di caratteristiche da confrontare. Run Compare affianca due esecuzioni. Experiment Design organizza le piastre. Power / Design simula il rilevamento con diverse ipotesi sul numero di cellule e pozzetti per aiutare a pianificare un esperimento. Dose-Response adatta curve di concentrazione e risposta e mostra stime, intervalli e avvertenze sull’adattamento. QC mostra i controlli di qualità registrati. Apri il tutorial di ogni modulo per conoscere gli input e i passaggi successivi."
+          "speech_text": "QC riunisce i controlli di qualità e indica quali prove sono disponibili e quali mancano."
         },
         {
-          "visual": "03_tools  (5)",
-          "narration": "Leggi le tessere Tools da sinistra a destra. Make Masks permette di modificare le maschere e apre Cellpose Workbench. Align and Stitch unisce tessere di immagini sovrapposte. Image UMAP esplora i ritagli degli oggetti in una vista a dimensionalità ridotta. Gate Editor seleziona gruppi mediante intervalli di caratteristiche misurate. Graph Builder rappresenta i risultati misurati. La barra degli strumenti di ogni modulo apre gli strumenti correlati.",
+          "visual": "home_module_make_masks",
+          "narration": "Make Masks permette di disegnare e verificare maschere manualmente o preparare coppie immagine-maschera.",
           "hold_after": 0.7,
           "focus_modules": [
-            "make_masks",
-            "align",
-            "umap",
-            "gate_editor",
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "speech_text": "Make Masks permette di disegnare e verificare maschere manualmente o preparare coppie immagine-maschera."
+        },
+        {
+          "visual": "home_module_align",
+          "narration": "Align & Stitch unisce tessere di immagine compatibili e ne registra la geometria.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "align"
+          ],
+          "related_lessons": [
+            "32_align_stitch"
+          ],
+          "speech_text": "Align & Stitch unisce tessere di immagine compatibili e ne registra la geometria."
+        },
+        {
+          "visual": "home_module_umap",
+          "narration": "Image UMAP proietta le caratteristiche degli oggetti per esplorare oggetti simili e controllare ritagli rappresentativi.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "umap"
+          ],
+          "related_lessons": [
+            "15_image_umap"
+          ],
+          "speech_text": "Image iu map proietta le caratteristiche degli oggetti per esplorare oggetti simili e controllare ritagli rappresentativi."
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor definisce selezioni su colonne di dati reali. Controlla gli oggetti selezionati prima di trasformare una selezione in etichette.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "gheit èditor definisce selezioni su colonne di dati reali. Controlla gli oggetti selezionati prima di trasformare una selezione in etichette."
+        },
+        {
+          "visual": "home_module_graph_builder",
+          "narration": "Graph Builder crea grafici dalle tabelle di misure con colonne e raggruppamenti configurabili.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "graph_builder"
           ],
           "related_lessons": [
-            "14_make_masks",
-            "32_align_stitch",
-            "15_image_umap",
-            "64_gate_editor",
             "58_graph_builder"
           ],
-          "speech_text": "Leggi le tessere Tools da sinistra a destra. Make Masks permette di modificare le maschere e apre sel pòus Workbench. Align and Stitch unisce tessere di immagini sovrapposte. Image iu map esplora i ritagli degli oggetti in una vista a dimensionalità ridotta. gheit èditor seleziona gruppi mediante intervalli di caratteristiche misurate. Graph Builder rappresenta i risultati misurati. La barra degli strumenti di ogni modulo apre gli strumenti correlati."
+          "speech_text": "Graph Builder crea grafici dalle tabelle di misure con colonne e raggruppamenti configurabili."
         },
         {
-          "visual": "04_assays  (1)",
-          "narration": "Apri Assays per i flussi di lavoro specifici di un organismo. Toxoplasma apre il suo menu di saggi, ad esempio l’analisi delle placche o le misure ospite–patogeno. Segui il tutorial del saggio scelto per preparare immagini, maschere e dati di misura.",
+          "visual": "home_module_toxoplasma",
+          "narration": "La riga Organism contiene Toxoplasma. Apre una guida dell’organismo, un diagramma interattivo e i percorsi dei saggi disponibili. Il tutorial Toxoplasma esplora questa pagina separatamente.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma"
           ],
           "related_lessons": [
-            "24_plaque",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication"
+            "82_toxoplasma"
           ],
-          "speech_text": "Apri Assays per i flussi di lavoro specifici di un organismo. Toxoplasma apre il suo menu di saggi, ad esempio l’analisi delle placche o le misure ospite–patogeno. Segui il tutorial del saggio scelto per preparare immagini, maschere e dati di misura."
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "Apri Classify e usa Classifier family per scegliere l’input. Seleziona Computer Vision per le immagini degli oggetti, oppure Tabular Machine Learning per le colonne di caratteristiche misurate. I tutorial collegati ti guidano nell’addestramento, nella valutazione e nel calcolo dei punteggi per ciascuna famiglia.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "41_classify",
-            "10_classify_cv",
-            "11_classify_ml"
-          ],
-          "speech_text": "Apri Classify e usa Classifier family per scegliere l’input. Seleziona Computer Vision per le immagini degli oggetti, oppure Tabular Machine Learning per le colonne di caratteristiche misurate. I tutorial collegati ti guidano nell’addestramento, nella valutazione e nel calcolo dei punteggi per ciascuna famiglia."
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "Quando un modello è addestrato, la barra degli strumenti di Classify ti aiuta a esaminarlo. Classifier Evaluation mostra come si è comportato sui dati tenuti da parte, Explain CV Model e Activation mostrano cosa guida le sue decisioni, Training Runs confronta le cronologie di addestramento e Feature Explorer ordina le caratteristiche che separano i tuoi gruppi. Passa il puntatore su un’icona per vederne il nome.",
-          "hold_after": 0.7,
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "39_classifier_evaluation",
-            "70_explain_cv",
-            "16_activation",
-            "28_training_runs",
-            "65_feature_explorer"
-          ],
-          "speech_text": "Quando un modello è addestrato, la barra degli strumenti di Classify ti aiuta a esaminarlo. Classifier Evaluation mostra come si è comportato sui dati tenuti da parte, Explain CV Model e Activation mostrano cosa guida le sue decisioni, Training Runs confronta le cronologie di addestramento e Feature Explorer ordina le caratteristiche che separano i tuoi gruppi. Passa il puntatore su un’icona per vederne il nome."
+          "speech_text": "La riga Organism contiene Toxoplasma. Apre una guida dell’organismo, un diagramma interattivo e i percorsi dei saggi disponibili. Il tutorial Toxoplasma esplora questa pagina separatamente."
         },
         {
           "visual": "06_mask_host",
-          "narration": "Per provare un modulo, fai clic su Load test data quando è disponibile. Attendi la fine del download, poi controlla gli input e le impostazioni compilati. In Mask, fai clic su Live per esaminare un campo prima di premere Run. Attiva Time per una serie temporale o 3D per un’immagine volumetrica.",
+          "narration": "Apri Mask come esempio generico di modulo di analisi. Qui impariamo la disposizione dello schermo senza completare una segmentazione. I controlli sono a sinistra, la console e l’avanzamento a destra e le azioni in basso. Live apre l’anteprima quando sono disponibili dati in ingresso.",
           "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "17_timelapse"
-          ],
-          "speech_text": "Per provare un modulo, fai clic su Load test data quando è disponibile. Attendi la fine del download, poi controlla gli input e le impostazioni compilati. In Mask, fai clic su Live per esaminare un campo prima di premere Run. Attiva Time per una serie temporale o tre di per un’immagine volumetrica."
+          "speech_text": "Apri Mask come esempio generico di modulo di analisi. Qui impariamo la disposizione dello schermo senza completare una segmentazione. I controlli sono a sinistra, la console e l’avanzamento a destra e le azioni in basso. Live apre l’anteprima quando sono disponibili dati in ingresso."
+        },
+        {
+          "visual": "06b_mask_settings",
+          "narration": "I controlli sono raggruppati in sezioni. Espandi una sezione per vederli. Scegli la tua cartella di ingresso o usa Load test data quando è disponibile un esempio. Le etichette e l’aiuto spiegano cosa richiede ogni impostazione.",
+          "hold_after": 0.7,
+          "speech_text": "I controlli sono raggruppati in sezioni. Espandi una sezione per vederli. Scegli la tua cartella di ingresso o usa Load test data quando è disponibile un esempio. Le etichette e l’aiuto spiegano cosa richiede ogni impostazione."
+        },
+        {
+          "visual": "06c_mask_actions",
+          "narration": "Import settings carica una configurazione salvata nel modulo. Run avvia il lavoro scelto e Stop richiede l’arresto di un lavoro in corso. La console mostra avanzamento e messaggi. Consulta il tutorial del modulo prima di iniziare un’analisi.",
+          "hold_after": 0.7,
+          "speech_text": "Import settings carica una configurazione salvata nel modulo. Run avvia il lavoro scelto e Stop richiede l’arresto di un lavoro in corso. La console mostra avanzamento e messaggi. Consulta il tutorial del modulo prima di iniziare un’analisi."
         },
         {
           "visual": "14_resize_panels",
-          "narration": "Ogni schermata di modulo si adatta al tuo schermo. Trascina la maniglia tra le impostazioni e i pannelli di destra per dare più spazio a un lato, oppure fai clic sulla sua freccia per ripiegare le impostazioni. Tieni premuto Control e scorri sui pannelli di destra per ingrandirne o ridurne il testo, poi premi Control-0 per ripristinarlo.",
+          "narration": "Trascina il divisore per dare più spazio alle impostazioni o all’anteprima. Control e la rotellina cambiano la dimensione del testo di una colonna. Questi controlli aiutano a leggere senza modificare l’analisi.",
           "hold_after": 0.7,
-          "focus": [
-            1800,
-            171,
-            300,
-            1950
-          ],
-          "speech_text": "Ogni schermata di modulo si adatta al tuo schermo. Trascina la maniglia tra le impostazioni e i pannelli di destra per dare più spazio a un lato, oppure fai clic sulla sua freccia per ripiegare le impostazioni. Tieni premuto Control e scorri sui pannelli di destra per ingrandirne o ridurne il testo, poi premi Control-0 per ripristinarlo."
+          "speech_text": "Trascina il divisore per dare più spazio alle impostazioni o all’anteprima. Control e la rotellina cambiano la dimensione del testo di una colonna. Questi controlli aiutano a leggere senza modificare l’analisi."
         },
         {
           "visual": "10_home_column",
@@ -829,7 +878,7 @@
         },
         {
           "visual": "13b_preferences_appearance",
-          "narration": "Appearance decide come compare l’aiuto mentre lavori. Tooltip delay è il tempo per cui il puntatore resta su un controllo prima che compaia il suggerimento: due secondi per impostazione predefinita, e zero li mostra subito. Show tooltips li disattiva del tutto, e le sezioni Theme e Animation si aprono sotto per l’aspetto della finestra.",
+          "narration": "Appearance determina come viene mostrato l’aiuto mentre lavori. Tooltip delay stabilisce quanto deve restare fermo il puntatore prima che appaia un suggerimento mobile: due secondi per impostazione predefinita, oppure zero per mostrarlo subito. Show tooltips controlla questi suggerimenti mobili. Le aree di aiuto dedicate in Home e Preferences mostrano il testo immediatamente. Più sotto puoi espandere Theme e Animation per impostare l’aspetto della finestra.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -837,7 +886,7 @@
             1200,
             1200
           ],
-          "speech_text": "Appearance decide come compare l’aiuto mentre lavori. Tooltip delay è il tempo per cui il puntatore resta su un controllo prima che compaia il suggerimento: due secondi per impostazione predefinita, e zero li mostra subito. Show tooltips li disattiva del tutto, e le sezioni Theme e Animation si aprono sotto per l’aspetto della finestra."
+          "speech_text": "Appearance determina come viene mostrato l’aiuto mentre lavori. Tooltip delay stabilisce quanto deve restare fermo il puntatore prima che appaia un suggerimento mobile: due secondi per impostazione predefinita, oppure zero per mostrarlo subito. Show tooltips controlla questi suggerimenti mobili. Le aree di aiuto dedicate in Home e Preferences mostrano il testo immediatamente. Più sotto puoi espandere Theme e Animation per impostare l’aspetto della finestra."
         },
         {
           "visual": "13c_appearance_theme",
@@ -853,7 +902,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Fai clic invece su Animation per aprirla. Sceglie lo sfondo animato e la sua tavolozza, con cursori per dettaglio, sfocatura, velocità, dimensione e densità, se i suggerimenti delle impostazioni sono animati e lo sfondo mostrato dietro le impostazioni.",
+          "narration": "Fai clic su Animation per scegliere lo sfondo principale e la sua tavolozza. Animation colours imposta i colori principale e di accento di Custom colours; Animation background sceglie uno sfondo indipendente, e Theme colour ripristina il tema della pagina. Detail controlla la risoluzione del rendering. Speed, Size e Density cambiano il movimento e il numero di elementi. Mouse gravity radius stabilisce il raggio d’influenza del mouse; zero lo disattiva. Dot blinking controlla i lampi bianchi, e Popup wave frequency avvia onde dalle finestre aperte in spaCR field. Field ripples controlla le onde prodotte dai clic, dall’apertura o chiusura dei contenitori e dall’aggancio della finestra al bordo dello schermo, indipendentemente dall’attrazione del mouse. Disattivandolo si fermano anche le onde automatiche delle finestre aperte. Settings animation speed, Settings animation size, Settings animation detail e Settings animation density modificano solo Settings backdrop. Settings backdrop darkness controlla la leggibilità del modulo.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -861,7 +910,19 @@
             1200,
             1500
           ],
-          "speech_text": "Fai clic invece su Animation per aprirla. Sceglie lo sfondo animato e la sua tavolozza, con cursori per dettaglio, sfocatura, velocità, dimensione e densità, se i suggerimenti delle impostazioni sono animati e lo sfondo mostrato dietro le impostazioni."
+          "speech_text": "Fai clic su Animation per scegliere lo sfondo principale e la sua tavolozza. Animation colours imposta i colori principale e di accento di Custom colours; Animation background sceglie uno sfondo indipendente, e Theme colour ripristina il tema della pagina. Detail controlla la risoluzione del rendering. Speed, Size e Density cambiano il movimento e il numero di elementi. Mouse gravity radius stabilisce il raggio d’influenza del mouse; zero lo disattiva. Dot blinking controlla i lampi bianchi, e Popup wave frequency avvia onde dalle finestre aperte in spàker field. Field ripples controlla le onde prodotte dai clic, dall’apertura o chiusura dei contenitori e dall’aggancio della finestra al bordo dello schermo, indipendentemente dall’attrazione del mouse. Disattivandolo si fermano anche le onde automatiche delle finestre aperte. Settings animation speed, Settings animation size, Settings animation detail e Settings animation density modificano solo Settings backdrop. Settings backdrop darkness controlla la leggibilità del modulo."
+        },
+        {
+          "visual": "13h_preferences_apply",
+          "narration": "Fai clic su Apply per provare le modifiche mentre Preferences rimane aperto. Una domanda separata propone Keep o Revert per le impostazioni applicate. Revert ripristina le impostazioni precedenti; i controlli modificati rimangono disponibili per regolarli o applicarli di nuovo.",
+          "hold_after": 0.7,
+          "speech_text": "Fai clic su Apply per provare le modifiche mentre Preferences rimane aperto. Una domanda separata propone Keep o Revert per le impostazioni applicate. Revert ripristina le impostazioni precedenti; i controlli modificati rimangono disponibili per regolarli o applicarli di nuovo."
+        },
+        {
+          "visual": "13i_preferences_kept",
+          "narration": "Keep accetta le impostazioni applicate e lascia Preferences aperto. Continua a modificare un’altra scheda, oppure fai clic su Save quando vuoi conservare i valori attuali e chiudere la finestra.",
+          "hold_after": 0.7,
+          "speech_text": "Keep accetta le impostazioni applicate e lascia Preferences aperto. Continua a modificare un’altra scheda, oppure fai clic su Save quando vuoi conservare i valori attuali e chiudere la finestra."
         },
         {
           "visual": "13e_session_updates",
@@ -900,21 +961,10 @@
           "speech_text": "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla."
         },
         {
-          "visual": "00_home",
-          "narration": "Torna a Home e fai clic su Pipeline overviews per scegliere un flusso di lavoro. Inizia con spaCR screens per uno screening in pool basato sulle immagini, oppure scegli un percorso di analisi delle immagini o di sequenziamento per i tuoi dati. I tutorial successivi mostrano come si collegano quei moduli, e le lezioni dei moduli guidano poi in ciascuna attività.",
+          "visual": "24_spaceout_field",
+          "narration": "In modalità Spaceout, Preferences include i controlli spaCR field per otto effetti indipendenti. Attiva o disattiva ogni effetto separatamente. Restano disponibili i normali controlli di aspetto e animazione del pannello delle impostazioni; Apply mostra l’anteprima, Keep accetta e Revert ripristina la scelta precedente.",
           "hold_after": 0.7,
-          "related_lessons": [
-            "78_spacr_screens",
-            "80_image_analysis_pathways",
-            "81_sequencing_pathways"
-          ],
-          "focus": [
-            3150,
-            205,
-            666,
-            46
-          ],
-          "speech_text": "Torna a Home e fai clic su Pipeline overviews per scegliere un flusso di lavoro. Inizia con spàker screens per uno screening in pool basato sulle immagini, oppure scegli un percorso di analisi delle immagini o di sequenziamento per i tuoi dati. I tutorial successivi mostrano come si collegano quei moduli, e le lezioni dei moduli guidano poi in ciascuna attività."
+          "speech_text": "In modalità Spaceout, Preferences include i controlli spàker field per otto effetti indipendenti. Attiva o disattiva ogni effetto separatamente. Restano disponibili i normali controlli di aspetto e animazione del pannello delle impostazioni; Apply mostra l’anteprima, Keep accetta e Revert ripristina la scelta precedente."
         }
       ],
       "narration_voices": {
@@ -16163,7 +16213,7 @@
       "series": 1,
       "app_key": null,
       "section": "Flussi di lavoro",
-      "description": "Scegliere un percorso di analisi delle immagini attraverso segmentazione, misurazione, annotazione, classificazione, proiezioni, gate, registrazione delle immagini, controllo qualità e saggi.",
+      "description": "Segui i percorsi attuali dalle immagini alle misure e scegli esplorazione, etichettatura, confronto o analisi specifiche per un organismo.",
       "objectives": [
         "Scegliere il modulo iniziale in base ai dati già disponibili.",
         "Identificare ciò che ciascun modulo legge e scrive.",
@@ -16172,214 +16222,143 @@
       "prerequisite": "Installa spaCR e apri Home. Scegli i dati di partenza del tuo flusso di lavoro, poi segui le lezioni dei moduli collegate per i comandi e i dati di esempio.",
       "scenes": [
         {
-          "visual": "home",
-          "narration": "L’analisi delle immagini in spaCR segue le tue immagini dai pixel alle risposte. Le immagini grezze iniziano in Mask, che trova gli oggetti. Se vuoi correggere le maschere a mano, usa Make Masks, oppure importa maschere che hai già. Measure trasforma poi immagini e maschere in numeri, e in ritagli se li vuoi. Da lì scegli la strada: classificazione, esplorazione delle immagini, gate o un saggio. Unisci prima i riquadri quando l’analisi richiede un unico sistema di coordinate.",
+          "visual": "00_home",
+          "narration": "Parti dalla domanda e dai dati che hai già. Le righe attuali di Home separano Core analysis, Data preparation and comparison, Tools e la pagina Organism di Toxoplasma. Un modulo è un passaggio; il suo output diventa l’input di un altro modulo.",
+          "hold_after": 0.7,
+          "speech_text": "Parti dalla domanda e dai dati che hai già. Le righe attuali di Home separano Core analysis, Data preparation and comparison, Tools e la pagina Organism di Toxoplasma. Un modulo è un passaggio; il suo output diventa l’input di un altro modulo."
+        },
+        {
+          "visual": "module_foreign",
+          "narration": "Import organizza i file di microscopia in ingresso e i metadati. Se l’acquisizione contiene riquadri sovrapposti, Align & Stitch può preparare un mosaico con i relativi record di coordinate. Conserva le identità dei canali e i metadati di origine insieme al progetto.",
           "hold_after": 0.7,
           "related_lessons": [
-            "05_home"
+            "36_import",
+            "32_align_stitch"
           ],
-          "speech_text": "L’analisi delle immagini in spàker segue le tue immagini dai pixel alle risposte. Le immagini grezze iniziano in Mask, che trova gli oggetti. Se vuoi correggere le maschere a mano, usa Make Masks, oppure importa maschere che hai già. Measure trasforma poi immagini e maschere in numeri, e in ritagli se li vuoi. Da lì scegli la strada: classificazione, esplorazione delle immagini, gate o un saggio. Unisci prima i riquadri quando l’analisi richiede un unico sistema di coordinate."
+          "speech_text": "Import organizza i file di microscopia in ingresso e i metadati. Se l’acquisizione contiene riquadri sovrapposti, Align & Stitch può preparare un mosaico con i relativi record di coordinate. Conserva le identità dei canali e i metadati di origine insieme al progetto."
         },
         {
           "visual": "module_mask",
-          "narration": "Le immagini grezze al microscopio iniziano in Mask. Aprilo da Home, scegli i canali e i modelli di segmentazione e controlla l’anteprima prima di eseguire. Mask scrive ogni campo come un array unito, con i canali dell’immagine e i piani di etichette intere insieme, ed è questo array unito che Measure legge dopo. Mask conserva anche un piccolo database di conteggi, ma è solo un conteggio, non una tabella di caratteristiche.",
+          "narration": "Mask produce etichette degli oggetti dalle immagini di microscopia. Make Masks permette di creare o verificare manualmente le maschere. Le coppie immagine-maschera devono mantenere la stessa identità del campo; un file di maschera isolato non è automaticamente l’array combinato del progetto necessario a Measure.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
-            "08_measure"
+            "14_make_masks"
           ],
-          "speech_text": "Le immagini grezze al microscopio iniziano in Mask. Aprilo da Home, scegli i canali e i modelli di segmentazione e controlla l’anteprima prima di eseguire. Mask scrive ogni campo come un array unito, con i canali dell’immagine e i piani di etichette intere insieme, ed è questo array unito che Measure legge dopo. Mask conserva anche un piccolo database di conteggi, ma è solo un conteggio, non una tabella di caratteristiche."
-        },
-        {
-          "visual": "module_make_masks",
-          "narration": "A volte le maschere hanno bisogno di una mano umana. Apri Make Masks da Home per correggerle campo per campo. Ciò che salvi qui può prendere due strade. Per addestrare la segmentazione, cura coppie immagine-maschera e tienile insieme come campi di addestramento. Per misurare, usa Organize for Measure, che sposta ogni immagine e le sue maschere in cartelle di canale e le unisce negli array che Measure legge; una maschera isolata non è un array unito. Le maschere di placche disegnate qui possono anche alimentare Plaque Assay con le immagini di origine corrispondenti. Salvare una maschera non addestra un classificatore.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "14_make_masks",
-            "24_plaque"
-          ],
-          "speech_text": "A volte le maschere hanno bisogno di una mano umana. Apri Make Masks da Home per correggerle campo per campo. Ciò che salvi qui può prendere due strade. Per addestrare la segmentazione, cura coppie immagine-maschera e tienile insieme come campi di addestramento. Per misurare, usa Organize for Measure, che sposta ogni immagine e le sue maschere in cartelle di canale e le unisce negli array che Measure legge; una maschera isolata non è un array unito. Le maschere di placche disegnate qui possono anche alimentare Plaque Assay con le immagini di origine corrispondenti. Salvare una maschera non addestra un classificatore."
+          "speech_text": "Mask produce etichette degli oggetti dalle immagini di microscopia. Make Masks permette di creare o verificare manualmente le maschere. Le coppie immagine-maschera devono mantenere la stessa identità del campo; un file di maschera isolato non è automaticamente l’array combinato del progetto necessario a Measure."
         },
         {
           "visual": "module_measure",
-          "narration": "Measure è il perno di tutta questa mappa. Aprilo da Home e indirizzalo al progetto creato da Mask, con gli indici dei canali di immagine e maschera impostati correttamente; anche le maschere abbinate in Make Masks arrivano qui. Measure legge insieme immagini e piani di etichette e scrive ogni cellula, nucleo o parassita come una riga in measurements.db. Attiva il salvataggio dei ritagli se vuoi un PNG di ogni oggetto, e conserva il database con il progetto di origine se invece fornisci i ritagli al volo. Quasi tutto il resto parte da queste righe. Annotate e Classify usano misure e ritagli per imparare i fenotipi. Image UMAP le proietta per cercare raggruppamenti, ed Embeddings codifica i ritagli con un modello, registrando encoder e regola dei canali. Gate Editor imposta soglie sulle caratteristiche realmente misurate, nelle loro unità reali, e QC mostra quali controlli esistono e quali mancano. Anche i saggi di Toxoplasma partono da qui: Recruitment richiede le giuste intensità dei compartimenti, Invasion Assay misure di colorazione a due colori con controlli di riferimento, e Replication Assay collegamenti espliciti parassita-vacuolo. Host–Pathogen Analysis vuole maschere di vacuoli interi e intensità di riferimento dell’ospite, mantenendo le cellule non infette. Infine l’indicatore di dimensione dell’endodiogenia legge il progetto misurato da Python, dopo aver controllato l’aggregazione per cellula ospite e le unità di area; il database di conteggi di Mask da solo non basta.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "14_make_masks",
-            "15_image_umap",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication",
-            "41_classify",
-            "54_qc_dashboard",
-            "64_gate_editor",
-            "77_embeddings",
-            "85_host_pathogen"
-          ],
-          "speech_text": "Measure è il perno di tutta questa mappa. Aprilo da Home e indirizzalo al progetto creato da Mask, con gli indici dei canali di immagine e maschera impostati correttamente; anche le maschere abbinate in Make Masks arrivano qui. Measure legge insieme immagini e piani di etichette e scrive ogni cellula, nucleo o parassita come una riga in measurements punto di bi. Attiva il salvataggio dei ritagli se vuoi un PNG di ogni oggetto, e conserva il database con il progetto di origine se invece fornisci i ritagli al volo. Quasi tutto il resto parte da queste righe. Annotate e Classify usano misure e ritagli per imparare i fenotipi. Image iu map le proietta per cercare raggruppamenti, ed Embeddings codifica i ritagli con un modello, registrando encoder e regola dei canali. gheit èditor imposta soglie sulle caratteristiche realmente misurate, nelle loro unità reali, e QC mostra quali controlli esistono e quali mancano. Anche i saggi di Toxoplasma partono da qui: Recruitment richiede le giuste intensità dei compartimenti, Invasion Assay misure di colorazione a due colori con controlli di riferimento, e Replication Assay collegamenti espliciti parassita-vacuolo. Host–Pathogen Analysis vuole maschere di vacuoli interi e intensità di riferimento dell’ospite, mantenendo le cellule non infette. Infine l’indicatore di dimensione dell’endodiogenia legge il progetto misurato da Python, dopo aver controllato l’aggregazione per cellula ospite e le unità di area; il database di conteggi di Mask da solo non basta."
-        },
-        {
-          "visual": "module_annotate",
-          "narration": "Con le misure in mano, Annotate è il luogo in cui si insegna con gli esempi. Aprilo da Home e ti mostrerà i ritagli degli oggetti che Measure ha salvato o fornisce al volo dal progetto. Etichetta oggetti rappresentativi; ogni etichetta va in una colonna di annotazione della tabella png_list, legata all’identità dell’oggetto. Non devi partire da zero: i gate salvati in Gate Editor possono proporre etichette candidate da rivedere. Usa una colonna diversa per ogni domanda, tieni separati gli oggetti di addestramento e di valutazione, ed è su quella colonna che Classify si addestra dopo.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "64_gate_editor"
-          ],
-          "speech_text": "Con le misure in mano, Annotate è il luogo in cui si insegna con gli esempi. Aprilo da Home e ti mostrerà i ritagli degli oggetti che Measure ha salvato o fornisce al volo dal progetto. Etichetta oggetti rappresentativi; ogni etichetta va in una colonna di annotazione della tabella png_list, legata all’identità dell’oggetto. Non devi partire da zero: i gate salvati in gheit èditor possono proporre etichette candidate da rivedere. Usa una colonna diversa per ogni domanda, tieni separati gli oggetti di addestramento e di valutazione, ed è su quella colonna che Classify si addestra dopo."
-        },
-        {
-          "visual": "module_classify_merged",
-          "narration": "Apri Classify da Home per trasformare le etichette in previsioni. Ha due famiglie, e sono i tuoi dati a scegliere. Computer Vision impara dai ritagli degli oggetti, salvati o forniti al volo da Measure; Tabular Machine Learning impara dalle colonne di caratteristiche misurate. Le etichette possono arrivare da tre posti. Più spesso arrivano da Annotate. Gate Editor può scrivere selezioni di gate controllate in una colonna di annotazione, e Image UMAP può fare lo stesso con selezioni al lazo controllate; in entrambi i casi, seleziona qui la stessa colonna e la stessa popolazione di oggetti. Un cluster di embedding non è una verità di riferimento, quindi esamina i ritagli, convalida le etichette e tieni gli oggetti di validazione separati dall’addestramento. Classify salva poi i punteggi, il modello addestrato e un pacchetto di valutazione con le previsioni sui dati tenuti da parte. In uno screening, scegli la colonna di punteggio CV o ML che intendi usare e portala in Regression con l’identità di piastra e pozzetto intatta.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "13_regression",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ],
-          "speech_text": "Apri Classify da Home per trasformare le etichette in previsioni. Ha due famiglie, e sono i tuoi dati a scegliere. Computer Vision impara dai ritagli degli oggetti, salvati o forniti al volo da Measure; Tabular Machine Learning impara dalle colonne di caratteristiche misurate. Le etichette possono arrivare da tre posti. Più spesso arrivano da Annotate. gheit èditor può scrivere selezioni di gate controllate in una colonna di annotazione, e Image iu map può fare lo stesso con selezioni al lazo controllate; in entrambi i casi, seleziona qui la stessa colonna e la stessa popolazione di oggetti. Un cluster di embedding non è una verità di riferimento, quindi esamina i ritagli, convalida le etichette e tieni gli oggetti di validazione separati dall’addestramento. Classify salva poi i punteggi, il modello addestrato e un pacchetto di valutazione con le previsioni sui dati tenuti da parte. In uno screening, scegli la colonna di punteggio CV o ML che intendi usare e portala in Regression con l’identità di piastra e pozzetto intatta."
-        },
-        {
-          "visual": "module_umap",
-          "narration": "Image UMAP serve a guardare prima di etichettare. Aprilo da Home e proietterà le caratteristiche misurate da Measure, oppure le caratteristiche dell’encoder di Embeddings con ID di oggetto corrispondenti, su una mappa in cui gli oggetti simili stanno vicini. Apri ritagli rappresentativi per vedere cosa contiene davvero una regione. Un cluster è solo un raggruppamento candidato, non un fenotipo validato. Quando una regione sembra davvero significativa, disegna un lazo intorno, controlla cosa hai catturato e scrivi la selezione in una colonna di annotazione del database di misure corrispondente. Classify potrà allora addestrarsi su quella colonna. La proiezione può anche andare a Gate Editor, se preferisci definire lì la selezione con le colonne di coordinate e caratteristiche corrispondenti. Non tutti i percorsi dell’interfaccia salvano per te le caratteristiche dell’encoder, e una forma su un grafico da sola non stabilisce un fenotipo biologico.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor",
-            "77_embeddings"
-          ],
-          "speech_text": "Image iu map serve a guardare prima di etichettare. Aprilo da Home e proietterà le caratteristiche misurate da Measure, oppure le caratteristiche dell’encoder di Embeddings con ID di oggetto corrispondenti, su una mappa in cui gli oggetti simili stanno vicini. Apri ritagli rappresentativi per vedere cosa contiene davvero una regione. Un cluster è solo un raggruppamento candidato, non un fenotipo validato. Quando una regione sembra davvero significativa, disegna un lazo intorno, controlla cosa hai catturato e scrivi la selezione in una colonna di annotazione del database di misure corrispondente. Classify potrà allora addestrarsi su quella colonna. La proiezione può anche andare a gheit èditor, se preferisci definire lì la selezione con le colonne di coordinate e caratteristiche corrispondenti. Non tutti i percorsi dell’interfaccia salvano per te le caratteristiche dell’encoder, e una forma su un grafico da sola non stabilisce un fenotipo biologico."
-        },
-        {
-          "visual": "module_gate_editor",
-          "narration": "Gate Editor ti permette di scegliere gli oggetti in base a una regola invece che a occhio. Aprilo da Home e disegna gate a soglia o poligonali su colonne reali: caratteristiche misurate da Measure, nelle loro unità reali, oppure le coordinate di una proiezione di Image UMAP. Salva un gate e potrai applicarlo di nuovo a qualsiasi oggetto compatibile. Il suo pulsante Annotate scrive i gate visualizzati in una colonna di annotazione, dopo che hai controllato gli oggetti selezionati e scelto etichette binarie o multiclasse. I gate salvati possono anche proporre etichette candidate dentro Annotate. Poi seleziona la stessa colonna e la stessa popolazione di oggetti in Classify, tenendo gli oggetti di validazione separati dalle etichette di addestramento.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ],
-          "speech_text": "gheit èditor ti permette di scegliere gli oggetti in base a una regola invece che a occhio. Aprilo da Home e disegna gate a soglia o poligonali su colonne reali: caratteristiche misurate da Measure, nelle loro unità reali, oppure le coordinate di una proiezione di Image iu map. Salva un gate e potrai applicarlo di nuovo a qualsiasi oggetto compatibile. Il suo pulsante Annotate scrive i gate visualizzati in una colonna di annotazione, dopo che hai controllato gli oggetti selezionati e scelto etichette binarie o multiclasse. I gate salvati possono anche proporre etichette candidate dentro Annotate. Poi seleziona la stessa colonna e la stessa popolazione di oggetti in Classify, tenendo gli oggetti di validazione separati dalle etichette di addestramento."
-        },
-        {
-          "visual": "module_align",
-          "narration": "Alcune analisi richiedono prima di unire i riquadri in un’unica immagine. Apri Align & Stitch da Home, controlla la geometria dei riquadri, la sovrapposizione e l’assegnazione dei canali, e salva il mosaico con i dati delle coordinate. Per OPS, conserva anche le identità originali di ciclo e posizione.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "32_align_stitch"
-          ],
-          "speech_text": "Alcune analisi richiedono prima di unire i riquadri in un’unica immagine. Apri Align & Stitch da Home, controlla la geometria dei riquadri, la sovrapposizione e l’assegnazione dei canali, e salva il mosaico con i dati delle coordinate. Per OPS, conserva anche le identità originali di ciclo e posizione."
-        },
-        {
-          "visual": "module_analyze_plaques",
-          "narration": "Ora i saggi di Toxoplasma. Apri Toxoplasma da Home e scegli Plaque Assay. Questo salta Measure: legge immagini di placche di lisi, o maschere che hai già, ed esegue il modello di placche configurato. Le maschere di Make Masks funzionano qui se sono maschere di placche con le immagini di origine corrispondenti; le maschere cellulari non sono etichette di placche. Salva risultati e maschere delle placche, e la lezione sull’esempio delle placche mostra un’esecuzione completa.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "14_make_masks",
-            "24_plaque"
-          ],
-          "speech_text": "Ora i saggi di Toxoplasma. Apri Toxoplasma da Home e scegli Plaque Assay. Questo salta Measure: legge immagini di placche di lisi, o maschere che hai già, ed esegue il modello di placche configurato. Le maschere di Make Masks funzionano qui se sono maschere di placche con le immagini di origine corrispondenti; le maschere cellulari non sono etichette di placche. Salva risultati e maschere delle placche, e la lezione sull’esempio delle placche mostra un’esecuzione completa."
-        },
-        {
-          "visual": "module_recruitment",
-          "narration": "Recruitment chiede quanto marcatore si accumula sul parassita. Apri Toxoplasma da Home, poi scegli Recruitment. Legge le intensità dei compartimenti da Measure, con identità di ospite e patogeno corrispondenti, e calcola rapporti di reclutamento che conservano ogni pozzetto e ogni condizione.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "25_recruitment"
-          ],
-          "speech_text": "Recruitment chiede quanto marcatore si accumula sul parassita. Apri Toxoplasma da Home, poi scegli Recruitment. Legge le intensità dei compartimenti da Measure, con identità di ospite e patogeno corrispondenti, e calcola rapporti di reclutamento che conservano ogni pozzetto e ogni condizione."
-        },
-        {
-          "visual": "module_host_pathogen",
-          "narration": "Host–Pathogen Analysis guarda l’infezione da entrambi i lati. Apri Toxoplasma da Home, poi sceglilo. Legge da Measure misure che includono vacuoli interi, compartimenti di riferimento dell’ospite e le cellule ospiti non infette, che formano il denominatore dell’infezione. Seleziona i canali dei marcatori e imposta soglie di rapporto calibrate sui tuoi controlli. Se hai segmentato i singoli parassiti, può contarli per vacuolo a partire da collegamenti espliciti o da una colonna di conteggio misurata. Ottieni tabelle di vacuoli, ospiti e pozzetti, stati combinati dei marcatori, distribuzioni di replicazione e i collegamenti dei parassiti che non è riuscito ad abbinare. Le misure sconosciute restano sconosciute, e l’identità dell’ospite da sola non definisce mai un vacuolo.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "85_host_pathogen"
-          ],
-          "speech_text": "Host–Pathogen Analysis guarda l’infezione da entrambi i lati. Apri Toxoplasma da Home, poi sceglilo. Legge da Measure misure che includono vacuoli interi, compartimenti di riferimento dell’ospite e le cellule ospiti non infette, che formano il denominatore dell’infezione. Seleziona i canali dei marcatori e imposta soglie di rapporto calibrate sui tuoi controlli. Se hai segmentato i singoli parassiti, può contarli per vacuolo a partire da collegamenti espliciti o da una colonna di conteggio misurata. Ottieni tabelle di vacuoli, ospiti e pozzetti, stati combinati dei marcatori, distribuzioni di replicazione e i collegamenti dei parassiti che non è riuscito ad abbinare. Le misure sconosciute restano sconosciute, e l’identità dell’ospite da sola non definisce mai un vacuolo."
-        },
-        {
-          "visual": "module_invasion",
-          "narration": "Per distinguere i parassiti solo attaccati da quelli entrati, apri Toxoplasma da Home e scegli Invasion Assay. Si basa su misure di colorazione differenziale a due colori provenienti da Measure, insieme a controlli di riferimento della colorazione, e salva i risultati del saggio mantenendo intatti pozzetti e condizioni.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "26_invasion"
-          ],
-          "speech_text": "Per distinguere i parassiti solo attaccati da quelli entrati, apri Toxoplasma da Home e scegli Invasion Assay. Si basa su misure di colorazione differenziale a due colori provenienti da Measure, insieme a controlli di riferimento della colorazione, e salva i risultati del saggio mantenendo intatti pozzetti e condizioni."
-        },
-        {
-          "visual": "module_replication",
-          "narration": "Replication Assay, anch’esso sotto Toxoplasma in Home, conta i parassiti in ogni vacuolo e confronta queste distribuzioni tra le condizioni. Legge gli oggetti da Measure, ma richiede identità esplicite parassita-vacuolo; l’identità dell’ospite da sola non definisce un vacuolo.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "27_replication"
-          ],
-          "speech_text": "Replication Assay, anch’esso sotto Toxoplasma in Home, conta i parassiti in ogni vacuolo e confronta queste distribuzioni tra le condizioni. Legge gli oggetti da Measure, ma richiede identità esplicite parassita-vacuolo; l’identità dell’ospite da sola non definisce un vacuolo."
-        },
-        {
-          "visual": "module_qc_dashboard",
-          "narration": "In qualsiasi momento dopo Measure, apri QC da Home per controllare il tuo lavoro. Legge i controlli salvati su segmentazione, unità, perdite di segnale ed effetti di piastra, e i visualizzatori integrati ti permettono di guardare più da vicino. Un controllo mancante non è un controllo superato. QC salva i risultati con figure e tabelle esportabili.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ],
-          "speech_text": "In qualsiasi momento dopo Measure, apri QC da Home per controllare il tuo lavoro. Legge i controlli salvati su segmentazione, unità, perdite di segnale ed effetti di piastra, e i visualizzatori integrati ti permettono di guardare più da vicino. Un controllo mancante non è un controllo superato. QC salva i risultati con figure e tabelle esportabili."
-        },
-        {
-          "visual": "module_embeddings",
-          "narration": "Embeddings descrive gli oggetti in base a ciò che vede un modello, anziché con caratteristiche scelte a mano. Aprilo da Home, scegli un modello e una regola per i canali, e codificherà i ritagli degli oggetti prodotti da Measure in un vettore di caratteristiche per oggetto. Registra identità degli oggetti, encoder e regola dei canali insieme a quelle caratteristiche, perché Image UMAP richiede una tabella di caratteristiche con ID di oggetto corrispondenti, e non tutti i percorsi la salvano per te.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings descrive gli oggetti in base a ciò che vede un modello, anziché con caratteristiche scelte a mano. Aprilo da Home, scegli un modello e una regola per i canali, e codificherà i ritagli degli oggetti prodotti da Measure in un vettore di caratteristiche per oggetto. Registra identità degli oggetti, encoder e regola dei canali insieme a quelle caratteristiche, perché Image iu map richiede una tabella di caratteristiche con ID di oggetto corrispondenti, e non tutti i percorsi la salvano per te."
-        },
-        {
-          "visual": "module_endodyogeny",
-          "narration": "Due strumenti di questa mappa esistono solo in Python. Il primo è l’indicatore di dimensione dell’endodiogenia, spacr.submodules.analyze_endodyogeny; non ha riquadro in Home né voce di menu. Legge le aree dei compartimenti misurate dai progetti di Measure, le etichetta per condizione e raggruppa l’area elevata a uno virgola cinque in raddoppi di dimensione in log2. Per impostazione predefinita somma l’area del patogeno per cellula ospite, non per vacuolo, quindi più vacuoli nella stessa cellula vengono combinati. Per questo è un indicatore di dimensione derivato dall’area, non un volume misurato né un conteggio di parassiti; per i parassiti per vacuolo, usa Replication Assay. Imposta compartimento, filtri di area, calibrazione, condizioni e raggruppamento prima di chiamarlo, e controlla aggregazione e unità di area prima di leggere le classi. Il database di conteggi di Mask da solo non basta.",
+          "narration": "Measure legge insieme le immagini preparate e i piani delle maschere. Scrive measurements.db con identità degli oggetti e colonne di caratteristiche e può salvare ritagli degli oggetti. Conserva il progetto di origine e la mappatura dei canali insieme a queste tabelle.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
           ],
-          "speech_text": "Due strumenti di questa mappa esistono solo in Python. Il primo è l’indicatore di dimensione dell’endodiogenia, spàker.submodules.analyze_endodyogeny; non ha riquadro in Home né voce di menu. Legge le aree dei compartimenti misurate dai progetti di Measure, le etichetta per condizione e raggruppa l’area elevata a uno virgola cinque in raddoppi di dimensione in log2. Per impostazione predefinita somma l’area del patogeno per cellula ospite, non per vacuolo, quindi più vacuoli nella stessa cellula vengono combinati. Per questo è un indicatore di dimensione derivato dall’area, non un volume misurato né un conteggio di parassiti; per i parassiti per vacuolo, usa Replication Assay. Imposta compartimento, filtri di area, calibrazione, condizioni e raggruppamento prima di chiamarlo, e controlla aggregazione e unità di area prima di leggere le classi. Il database di conteggi di Mask da solo non basta."
+          "speech_text": "Measure legge insieme le immagini preparate e i piani delle maschere. Scrive measurements punto di bi con identità degli oggetti e colonne di caratteristiche e può salvare ritagli degli oggetti. Conserva il progetto di origine e la mappatura dei canali insieme a queste tabelle."
         },
         {
-          "visual": "module_cellpose_masks",
-          "narration": "Il secondo è la generazione diretta di maschere con Cellpose, spacr.spacr_cellpose.identify_masks_finetune, anch’essa senza riquadro in Home né voce di menu. Nonostante il nome, esegue inferenza, non addestramento: applica un modello Cellpose standard o personalizzato ai campi TIFF di una cartella. Controlla prima normalizzazione, canali, ridimensionamento e impostazioni del modello, e attiva il salvataggio, perché le maschere vengono scritte solo quando save è attivo. Ottieni TIFF di etichette, non un progetto pronto per Measure. Per proseguire, importa le coppie immagine-maschera con External Masks prima di Measure, oppure curale per l’addestramento.",
+          "visual": "module_annotate",
+          "narration": "Annotate mostra i ritagli degli oggetti per permetterti di aggiungere etichette verificate. Classify apprende dalla colonna di etichette selezionata, usando immagini ritagliate o caratteristiche misurate. Tieni separati gli oggetti di valutazione da quelli di addestramento e porta la colonna dei punteggi e le identità degli oggetti nelle analisi successive.",
           "hold_after": 0.7,
-          "related_lessons": [],
-          "speech_text": "Il secondo è la generazione diretta di maschere con sel pòus, spàker.spàker_sel pòus.identify_masks_finetune, anch’essa senza riquadro in Home né voce di menu. Nonostante il nome, esegue inferenza, non addestramento: applica un modello sel pòus standard o personalizzato ai campi TIFF di una cartella. Controlla prima normalizzazione, canali, ridimensionamento e impostazioni del modello, e attiva il salvataggio, perché le maschere vengono scritte solo quando save è attivo. Ottieni TIFF di etichette, non un progetto pronto per Measure. Per proseguire, importa le coppie immagine-maschera con External Masks prima di Measure, oppure curale per l’addestramento."
+          "related_lessons": [
+            "09_annotate",
+            "41_classify"
+          ],
+          "speech_text": "Annotate mostra i ritagli degli oggetti per permetterti di aggiungere etichette verificate. Classify apprende dalla colonna di etichette selezionata, usando immagini ritagliate o caratteristiche misurate. Tieni separati gli oggetti di valutazione da quelli di addestramento e porta la colonna dei punteggi e le identità degli oggetti nelle analisi successive."
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Embeddings codifica i ritagli in caratteristiche numeriche. Image UMAP proietta caratteristiche compatibili per esplorarle. Esamina ritagli rappresentativi prima di attribuire un significato a un gruppo; un gruppo da solo non è un fenotipo validato.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "77_embeddings",
+            "15_image_umap"
+          ],
+          "speech_text": "Embeddings codifica i ritagli in caratteristiche numeriche. Image iu map proietta caratteristiche compatibili per esplorarle. Esamina ritagli rappresentativi prima di attribuire un significato a un gruppo; un gruppo da solo non è un fenotipo validato."
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Gate Editor seleziona gli oggetti usando colonne di caratteristiche effettive o coordinate di proiezione compatibili. Verifica gli oggetti selezionati prima di scrivere etichette. Queste etichette possono diventare esempi verificati per Annotate o Classify.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "gheit èditor seleziona gli oggetti usando colonne di caratteristiche effettive o coordinate di proiezione compatibili. Verifica gli oggetti selezionati prima di scrivere etichette. Queste etichette possono diventare esempi verificati per Annotate o Classify."
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "QC riporta i controlli di qualità presenti e le evidenze mancanti. Run Compare esamina le esecuzioni salvate affiancandole. Graph Builder traccia le tabelle delle misure usando le colonne e il raggruppamento che scegli.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "54_qc_dashboard",
+            "50_run_compare",
+            "58_graph_builder"
+          ],
+          "speech_text": "QC riporta i controlli di qualità presenti e le evidenze mancanti. Run Compare esamina le esecuzioni salvate affiancandole. Graph Builder traccia le tabelle delle misure usando le colonne e il raggruppamento che scegli."
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Experiment Design pianifica le condizioni e le identità dei campioni. Power / Design esplora le ipotesi della pianificazione statistica. Dose-Response analizza un esito a diverse concentrazioni. Esplicita l’esito misurato, i controlli e l’unità sperimentale.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ],
+          "speech_text": "Experiment Design pianifica le condizioni e le identità dei campioni. Power / Design esplora le ipotesi della pianificazione statistica. Dose-Response analizza un esito a diverse concentrazioni. Esplicita l’esito misurato, i controlli e l’unità sperimentale."
+        },
+        {
+          "visual": "module_toxoplasma",
+          "narration": "La pagina Toxoplasma raggruppa i saggi specifici per l’organismo. I loro input differiscono: un’immagine di placche, misure di compartimenti o collegamenti espliciti tra parassiti e vacuoli non sono intercambiabili. Scegli il saggio corrispondente e segui i suoi requisiti di input.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "La pagina Toxoplasma raggruppa i saggi specifici per l’organismo. I loro input differiscono: un’immagine di placche, misure di compartimenti o collegamenti espliciti tra parassiti e vacuoli non sono intercambiabili. Scegli il saggio corrispondente e segui i suoi requisiti di input."
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Per gli screening in pool, Map Barcodes produce conteggi delle guide dalle letture di sequenziamento. Regression combina questi conteggi con punteggi fenotipici compatibili. Conserva l’identità di piastra, pozzetto e guida quando unisci i due percorsi.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ],
+          "speech_text": "Per gli screening in pool, Map Barcodes produce conteggi delle guide dalle letture di sequenziamento. Regression combina questi conteggi con punteggi fenotipici compatibili. Conserva l’identità di piastra, pozzetto e guida quando unisci i due percorsi."
         },
         {
           "visual": "home_summary",
-          "narration": "Così il percorso delle immagini passa quasi sempre da Mask a Measure, poi si dirama verso la tua domanda. Per addestrare il tuo modello di segmentazione, prepara coppie immagine-maschera in Make Masks, addestrale in Cellpose Workbench e riapri il modello salvato in Mask. Con output compatibili a disposizione, puoi entrare più avanti. Ovunque tu vada, conserva con ogni risultato le identità dei canali, le unità e le chiavi degli oggetti.",
+          "narration": "Torna a Home e scegli il passaggio successivo dall’output che hai effettivamente a disposizione. Usa le lezioni dei moduli collegate per un’esecuzione completa. Conserva insieme l’identità degli input, le impostazioni, la versione installata e la posizione degli output, così da poter verificare il flusso di lavoro in seguito.",
           "hold_after": 0.7,
-          "speech_text": "Così il percorso delle immagini passa quasi sempre da Mask a Measure, poi si dirama verso la tua domanda. Per addestrare il tuo modello di segmentazione, prepara coppie immagine-maschera in Make Masks, addestrale in sel pòus Workbench e riapri il modello salvato in Mask. Con output compatibili a disposizione, puoi entrare più avanti. Ovunque tu vada, conserva con ogni risultato le identità dei canali, le unità e le chiavi degli oggetti."
+          "speech_text": "Torna a Home e scegli il passaggio successivo dall’output che hai effettivamente a disposizione. Usa le lezioni dei moduli collegate per un’esecuzione completa. Conserva insieme l’identità degli input, le impostazioni, la versione installata e la posizione degli output, così da poter verificare il flusso di lavoro in seguito."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16597,7 +16576,7 @@
       "id": "82_toxoplasma",
       "number": 82,
       "slug": "toxoplasma",
-      "title": "Toxoplasma: esplorare la pagina e scegliere un saggio",
+      "title": "Organismo Toxoplasma: guida, diagramma e saggi",
       "series": 3,
       "app_key": "toxoplasma",
       "section": "Organisms and assays",
@@ -16611,9 +16590,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Ogni esperimento su Toxoplasma può partire da un’unica pagina. Da Home, scegli Toxoplasma: la guida dell’organismo, un diagramma cellulare e i saggi disponibili stanno fianco a fianco, pronti da esplorare prima di caricare qualsiasi immagine.",
+          "narration": "Da Home, scegli la categoria Organism e poi Toxoplasma. Questa pagina combina una guida all’organismo, un diagramma cellulare interattivo e i percorsi dei saggi Toxoplasma disponibili. Esplorala prima di scegliere un’analisi.",
           "hold_after": 0.7,
-          "speech_text": "Ogni esperimento su Toxoplasma può partire da un’unica pagina. Da Home, scegli Toxoplasma: la guida dell’organismo, un diagramma cellulare e i saggi disponibili stanno fianco a fianco, pronti da esplorare prima di caricare qualsiasi immagine."
+          "speech_text": "Da Home, scegli la categoria Organism e poi Toxoplasma. Questa pagina combina una guida all’organismo, un diagramma cellulare interattivo e i percorsi dei saggi Toxoplasma disponibili. Esplorala prima di scegliere un’analisi."
         },
         {
           "visual": "01_organism",
@@ -16629,32 +16608,55 @@
         },
         {
           "visual": "03_assays",
-          "narration": "Scegli il riquadro adatto alla tua domanda. Plaque Assay conta le placche di lisi e ne misura le aree; Invasion Assay chiede quanti parassiti sono entrati. Recruitment misura quanto marcatore si accumula al vacuolo, Replication Assay quanti parassiti contiene ogni vacuolo, e Host–Pathogen collega i vacuoli alle rispettive cellule ospiti. Ciascuno ha la sua lezione.",
+          "narration": "Plaque Assay conta le placche e ne misura le aree. Recruitment misura l’arricchimento del marcatore presso il vacuolo contenente il parassita, mentre Replication Assay conta i parassiti per vacuolo. Seleziona un saggio in base alla grandezza da misurare e ai dati di ingresso richiesti.",
           "hold_after": 0.7,
-          "speech_text": "Scegli il riquadro adatto alla tua domanda. Plaque Assay conta le placche di lisi e ne misura le aree; Invasion Assay chiede quanti parassiti sono entrati. Recruitment misura quanto marcatore si accumula al vacuolo, Replication Assay quanti parassiti contiene ogni vacuolo, e Host–Pathogen collega i vacuoli alle rispettive cellule ospiti. Ciascuno ha la sua lezione."
+          "speech_text": "Plaque Assay conta le placche e ne misura le aree. Recruitment misura l’arricchimento del marcatore presso il vacuolo contenente il parassita, mentre Replication Assay conta i parassiti per vacuolo. Seleziona un saggio in base alla grandezza da misurare e ai dati di ingresso richiesti."
         },
         {
-          "visual": "04_host_pathogen",
-          "narration": "Seguiamone uno. Fai clic su Host–Pathogen e si apre la sua schermata di analisi. Load test data carica l’esempio di microscopia fornito e da lì il tutorial di Host–Pathogen ti guida tra impostazioni, anteprima e Run.",
+          "visual": "04_plaque_assay",
+          "narration": "Fai clic su Plaque Assay per aprire la schermata di analisi. Il pannello delle impostazioni specifica la sorgente delle immagini, le maschere e le opzioni di rilevamento. Load test data fornisce un esempio. Controlla i dati di ingresso e l’anteprima prima di avviare Run; il tutorial Plaque Analysis descrive il flusso di lavoro completo.",
           "hold_after": 0.7,
-          "speech_text": "Seguiamone uno. Fai clic su Host–Pathogen e si apre la sua schermata di analisi. Load test data carica l’esempio di microscopia fornito e da lì il tutorial di Host–Pathogen ti guida tra impostazioni, anteprima e Run."
+          "speech_text": "Fai clic su Plaque Assay per aprire la schermata di analisi. Il pannello delle impostazioni specifica la sorgente delle immagini, le maschere e le opzioni di rilevamento. Load test data fornisce un esempio. Controlla i dati di ingresso e l’anteprima prima di avviare Run; il tutorial Plaque Analysis descrive il flusso di lavoro completo."
         },
         {
-          "visual": "05_starplast",
-          "narration": "Tornando alla pagina di Toxoplasma, Starplast apre una mappa delle conoscenze in un’applicazione a parte; la prima volta propone i passaggi di installazione da seguire. I collegamenti di riferimento, invece, aprono risorse sull’organismo nel browser.",
+          "visual": "05_references",
+          "narration": "Torna alla guida Toxoplasma e scorri il pannello informativo fino ai riferimenti. ToxoDB, l’atlante hyperLOPIT di Toxoplasma, UniProt e NCBI Taxonomy rimandano a risorse sull’organismo. Questi collegamenti si aprono nel browser; la guida non esegue ricerche in un database né predice la localizzazione delle proteine.",
           "hold_after": 0.7,
-          "speech_text": "Tornando alla pagina di Toxoplasma, Starplast apre una mappa delle conoscenze in un’applicazione a parte; la prima volta propone i passaggi di installazione da seguire. I collegamenti di riferimento, invece, aprono risorse sull’organismo nel browser."
+          "speech_text": "Torna alla guida Toxoplasma e scorri il pannello informativo fino ai riferimenti. ToxoDB, l’atlante hyperLOPIT di Toxoplasma, UniProt e NCBI Taxonomy rimandano a risorse sull’organismo. Questi collegamenti si aprono nel browser; la guida non esegue ricerche in un database né predice la localizzazione delle proteine."
         },
         {
           "visual": "06_home_return",
-          "narration": "La guida non scrive file di analisi, quindi il lavoro vero si svolge altrove. Se le immagini devono ancora essere segmentate o misurate, torna prima a Home; quando immagini o tabelle sono pronte, le pagine dei saggi prendono il testimone.",
+          "narration": "La guida all’organismo non produce tabelle di analisi. Torna a Home per preparare le immagini, segmentarle o misurarle, quindi scegli il saggio adatto ai tuoi input preparati. Ogni saggio ha i propri requisiti e una procedura guidata collegata.",
           "hold_after": 0.7,
-          "speech_text": "La guida non scrive file di analisi, quindi il lavoro vero si svolge altrove. Se le immagini devono ancora essere segmentate o misurate, torna prima a Home; quando immagini o tabelle sono pronte, le pagine dei saggi prendono il testimone."
+          "speech_text": "La guida all’organismo non produce tabelle di analisi. Torna a Home per preparare le immagini, segmentarle o misurarle, quindi scegli il saggio adatto ai tuoi input preparati. Ogni saggio ha i propri requisiti e una procedura guidata collegata."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -17407,5 +17409,9 @@
       }
     }
   ],
-  "language": "it"
+  "language": "it",
+  "lesson_aliases": {
+    "02_conda_install": "02_install_spacr",
+    "03_pip_install": "02_install_spacr"
+  }
 }

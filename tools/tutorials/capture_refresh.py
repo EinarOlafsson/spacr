@@ -36,10 +36,27 @@ def main() -> int:
     parser.add_argument('--module', default='home')
     parser.add_argument('--home-preferences-only', action='store_true',
                         help='Refresh only Home Preferences scenes and the real Apply/Keep/Revert flow, using the default spaCR field backdrop')
+    parser.add_argument('--home-navigation-only', action='store_true',
+                        help='Refresh only current Home/navigation/host chrome through real tabs and sidebar controls; no Preferences, download or analysis')
+    parser.add_argument('--gate-chrome-only', action='store_true',
+                        help='Record current Gate plot chrome and its real figure menu on a private existing measurement database; no gating or export')
+    parser.add_argument('--spaceout-effects-only', action='store_true',
+                        help='Record a separate fresh Spaceout field Preferences companion with eight effect controls; ordinary lessons stay unchanged')
+    parser.add_argument('--gate-database', type=Path,
+                        help='Private completed measurement database for --gate-chrome-only')
     parser.add_argument('--stage', type=Path,
                         default=Path(tempfile.gettempdir()) / 'spacr-tutorials-current')
     parser.add_argument('--theme', choices=('dark',), default='dark')
-    parser.add_argument('--backdrop', choices=('blobs',), default='blobs')
+    parser.add_argument('--backdrop', choices=('blobs', 'data_art_impulse_lens'),
+                        default='data_art_impulse_lens')
+    parser.add_argument('--live-video', action='store_true',
+                        help='Record actual animated native application clips on isolated X11')
+    parser.add_argument('--clip-seconds', type=float, default=30,
+                        help='Genuine footage per scene; must cover its final narration duration')
+    parser.add_argument('--record-scenes',
+                        help='Comma-separated scene names for a bounded missing-scene followup')
+    parser.add_argument('--clip-durations', type=Path,
+                        help='Source-bound measured per-visual capture durations')
     parser.add_argument('--download', action='store_true')
     parser.add_argument('--preview', action='store_true')
     parser.add_argument('--preview-variants', action='store_true')
@@ -121,9 +138,21 @@ def main() -> int:
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
                              'every other recording is refused while alpha features are on')
     args = parser.parse_args()
+    clip_durations = json.loads(args.clip_durations.read_text()) if args.clip_durations else {}
+    if args.spaceout_effects_only and (args.module != 'home' or args.home_preferences_only
+                                     or args.run or args.download or args.preview or args.openings):
+        parser.error('--spaceout-effects-only requires Home alone, without another tour')
+    if args.spaceout_effects_only:
+        args.backdrop = 'data_art_spaceout_field'
+    if args.gate_chrome_only and (args.module != 'gate_editor' or args.gate_database is None
+                                 or args.run or args.download or args.preview):
+        parser.error('--gate-chrome-only requires --module gate_editor and --gate-database, without run/download/preview')
+    if args.home_navigation_only and (args.module != 'home' or args.openings or args.home_preferences_only
+                                     or args.spaceout_effects_only or args.run or args.download or args.preview):
+        parser.error('--home-navigation-only requires Home alone without Preferences, Spaceout, download or analysis')
     if args.home_preferences_only and (args.module != 'home' or args.openings):
         parser.error('--home-preferences-only requires --module home without --openings')
-    if args.home_preferences_only:
+    if args.home_preferences_only or args.home_navigation_only:
         args.backdrop = 'data_art_impulse_lens'
     if args.mask_yolo_tour and (args.module != 'make_masks' or args.run or args.download
                               or args.mask_editor_tour or args.mask_readouts_tour
@@ -363,6 +392,9 @@ def main() -> int:
         # imported module and emit a traceback with local installation paths.
         import torch  # noqa: F401
     app = QApplication.instance() or QApplication([])
+    if args.spaceout_effects_only:
+        from spacr.qt.theme import enable_spaceout
+        enable_spaceout()
     mark_tour_seen()
     for key, *_ in gui.APPS:
         mark_seen(key)
@@ -372,7 +404,12 @@ def main() -> int:
     set_ai_on_by_default(False)
     # Also turns Show alpha features off: alpha features get no tutorials.
     configure_appearance(args.theme, args.backdrop,
-                         home_preferences=args.home_preferences_only)
+                         home_preferences=args.home_preferences_only or args.home_navigation_only,
+                         spaceout_effects=args.spaceout_effects_only,
+                         default_field=args.backdrop == 'data_art_impulse_lens')
+    if args.backdrop == 'blobs' and args.module in ('mask', 'make_masks', 'cellpose_masks'):
+        from spacr.qt.preferences import set_ambient_density
+        set_ambient_density(2.0)
     set_font_scale(args.font_scale)
     if args.module in ('regression', 'queue', 'train_cellpose'):
         from spacr.qt.preferences import set_figure_format
@@ -412,8 +449,12 @@ def main() -> int:
         from capture_geometry import capture_rect
         return capture_rect(widget, window)
 
-    def capture(name, *, desktop=False):
-        if args.home_preferences_only:
+    def capture(name, *, desktop=False, actions=()):
+        if args.record_scenes and name not in args.record_scenes.split(','):
+            return
+        if args.live_video and (name in frames or (captures / f'{name}.mp4').exists()):
+            raise FileExistsError(f'Native capture already exists: {name}')
+        if args.home_preferences_only or args.home_navigation_only or args.spaceout_effects_only:
             exclude_release_history(window)
         hidden_backdrops = exclude_special_backdrops(window)
         if hidden_backdrops:
@@ -421,7 +462,11 @@ def main() -> int:
         appearance = verify_appearance(
             window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene,
             alpha_lesson=args.alpha_lesson,
-            home_preferences=args.home_preferences_only)
+            home_preferences=(args.home_preferences_only or args.home_navigation_only)
+                             and not window.property('tutorialMaskBlobs'),
+            spaceout_effects=args.spaceout_effects_only,
+            default_field=args.backdrop == 'data_art_impulse_lens'
+                          and not window.property('tutorialMaskBlobs'))
         try:
             verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
         except RuntimeError:
@@ -475,8 +520,21 @@ def main() -> int:
                         'dialogs': [{'title': d.windowTitle(), 'rect': rect(d),
                                      'labels': [label.text() for label in d.findChildren(QLabel)]}
                                     for d in dialogs]}
+        if args.live_video:
+            from capture_live_video import record_x11_video
+            video = captures / f'{name}.mp4'
+            duration = float(clip_durations.get(name, args.clip_seconds))
+            receipt = record_x11_video(window, app.processEvents, video, duration,
+                                      actions=actions)
+            frames[name]['clip'] = {'video': video.name,
+                                    'receipt': video.with_suffix('.capture.json').name,
+                                    'receipt_sha256': hashlib.sha256(video.with_suffix('.capture.json').read_bytes()).hexdigest(),
+                                    'sha256': receipt['sha256']}
         write_json(captures / 'frames.json', frames)
         print(f'captured {args.module}/{name}', flush=True)
+
+    capture.supports_live_actions = args.live_video
+    capture.maximum_live_clip_seconds = max([args.clip_seconds, *clip_durations.values()]) if args.live_video else 0
 
     settle(2)
     apps = gui.tiled_apps(gui.visible_apps())
@@ -507,9 +565,9 @@ def main() -> int:
             capture_openings.record_mask_source_channels(app, window, stage, captures, capture, settle, write_json)
         else:
             capture_openings.record_align_test_data(app, window, stage, captures, capture, settle, write_json, args.timeout)
-    else:
+    elif args.module not in ('workflow_overview', 'toxoplasma', 'plasmodium', 'candida'):
         capture('00_home')
-    if args.module == 'home' and not args.openings and not args.home_preferences_only:
+    if args.module == 'home' and not args.openings and not args.home_preferences_only and not args.home_navigation_only and not args.spaceout_effects_only:
         home = window._startup
         tabs = home._tabs
         for index in range(1, tabs.count()):
@@ -544,11 +602,16 @@ def main() -> int:
         record_preferences_page(window, capture, settle, 'PreferencesTabAppearance',
                                 '13b_preferences_appearance')
         from capture_home import record_appearance_sections
-        record_appearance_sections(window, capture, settle)
+        write_json(captures / 'appearance_controls.json',
+                   record_appearance_sections(window, capture, settle))
         from capture_home import record_session_and_updates, record_storage
         home_focus['13e_session_updates'] = record_session_and_updates(window, capture, settle)
         home_focus['13g_storage_prune'] = record_storage(window, capture, settle)
         write_json(captures / 'home_focus.json', home_focus)
+    if args.home_navigation_only:
+        from capture_home import record_home_navigation
+        write_json(captures / 'home_focus.json',
+                   record_home_navigation(app, window, capture, settle))
     if args.home_preferences_only:
         from capture_home import (record_performance, record_preferences_page,
                                   record_appearance_sections, record_session_and_updates,
@@ -557,11 +620,16 @@ def main() -> int:
         record_preferences_page(window, capture, settle)
         record_preferences_page(window, capture, settle, 'PreferencesTabAppearance',
                                 '13b_preferences_appearance')
-        record_appearance_sections(window, capture, settle)
+        write_json(captures / 'appearance_controls.json',
+                   record_appearance_sections(window, capture, settle))
         focus = {'13e_session_updates': record_session_and_updates(window, capture, settle),
                  '13g_storage_prune': record_storage(window, capture, settle),
                  '13h_preferences_apply': record_preferences_apply(window, capture, settle)}
         write_json(captures / 'home_focus.json', focus)
+    if args.spaceout_effects_only:
+        from capture_home import record_spaceout_effects
+        write_json(captures / 'spaceout_effects.json',
+                   record_spaceout_effects(window, capture, settle))
     if args.workflow_overview:
         from capture_workflow_overview import record_overview
         browser = None
@@ -874,8 +942,13 @@ def main() -> int:
                          settle, write_json, args.timeout)
         if args.module == 'gate_editor':
             from capture_gates import record_gates
-            record_gates(app, window, screen, stage, captures, capture,
-                         settle, write_json, args.timeout)
+            if args.gate_chrome_only:
+                from capture_gate_chrome import record_gate_chrome
+                record_gate_chrome(app, window, screen, stage, captures, capture,
+                                   settle, write_json, args.gate_database, args.timeout)
+            else:
+                record_gates(app, window, screen, stage, captures, capture,
+                             settle, write_json, args.timeout)
         if args.module == 'align':
             from capture_align import record_align
             record_align(app, window, screen, stage, captures, capture,
@@ -1773,7 +1846,7 @@ def main() -> int:
                    json.loads((stage / (args.module + '_state') / f'{args.capture_name or args.module}.json').read_text())['cache']
                    if args.module in ('lineage', 'image_scatter') else str(stage / 'example_data')),
                'app_source_modified': False, 'cache_isolated_with_bind_mount': True,
-               'completed_capture': True})
+               'completed_capture': True, 'selected_scenes': args.record_scenes})
     window.close()
     settle(0.2)
     app.quit()

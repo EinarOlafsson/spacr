@@ -26,7 +26,10 @@ def record_organism(app, window, stage, captures, capture, settle, write_json, k
         if not window._startup.isVisible():
             raise RuntimeError('The Home control did not open Home')
 
+    initial_home_recorded = False
+
     def open_guide():
+        nonlocal initial_home_recorded
         home()
         tiles = [button for button in window._startup.findChildren(QAbstractButton)
                  if button.property('moduleAppKey') == key]
@@ -37,7 +40,9 @@ def record_organism(app, window, stage, captures, capture, settle, write_json, k
                 QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
                                  pos=tabs.tabBar().tabRect(index).center())
                 settle(.4)
-                capture('00_home')
+                if not initial_home_recorded:
+                    capture('00_home')
+                    initial_home_recorded = True
                 click(max(choices, key=lambda tile: tile.width() * tile.height()))
                 break
         else:
@@ -86,21 +91,26 @@ def record_organism(app, window, stage, captures, capture, settle, write_json, k
                            'enabled': tile.isEnabled()} for tile in screen._tiles]}
     if key == 'toxoplasma':
         tile = next(tile for tile in screen._tiles
-                    if tile.property('organismModuleKey') == 'host_pathogen')
+                    if tile.property('organismModuleKey') == 'analyze_plaques')
         screen._module_scroll.ensureWidgetVisible(tile)
         settle(.4)
         click(tile)
-        target = window._screens.get('host_pathogen')
+        target = window._screens.get('analyze_plaques')
         if target is None or not target.isVisible():
-            raise RuntimeError('The Host–Pathogen assay tile did not open its module')
-        capture('04_host_pathogen')
-        evidence['host_pathogen_tile_clicked'] = True
+            raise RuntimeError('The Plaque Assay tile did not open its module')
+        capture('04_plaque_assay')
+        evidence['plaque_assay_tile_clicked'] = True
         screen = open_guide()
-        starplast = next(tile for tile in screen._tiles
-                         if tile.property('organismModuleKey') == 'starplast')
-        screen._module_scroll.ensureWidgetVisible(starplast)
+        references = [label for label in screen._intro.findChildren(QLabel)
+                      if label.openExternalLinks() and 'toxodb.org' in label.text()]
+        if len(references) != 1:
+            raise RuntimeError('The ToxoDB organism reference link is absent')
+        external = [label for label in screen._intro.findChildren(QLabel)
+                    if label.openExternalLinks()]
+        screen._scroll.ensureWidgetVisible(external[-1])
         settle(.4)
-        capture('05_starplast')
+        capture('05_references')
+        evidence['reference_links_shown'] = True
         home()
         capture('06_home_return')
     else:

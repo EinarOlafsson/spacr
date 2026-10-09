@@ -41,7 +41,7 @@
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Opnaðu Assets og sæktu uppsetningarforritið fyrir Windows, macOS eða Linux. Geymdu gátsummuskrána úr sömu útgáfu ef þú vilt staðfesta niðurhalið. Kennslan Platform installers sýnir hvernig á að ræsa uppsetningarforritið og opna spaCR.",
+          "narration": "Opnaðu Assets og sæktu uppsetningarforritið fyrir Windows, macOS eða Linux. Kennsluefnið Platform installers útskýrir uppsetningu, ræsingu spaCR og hvernig því er eytt af hverju stýrikerfi.",
           "hold_after": 0.7,
           "related_lessons": [
             "04_platform_installers"
@@ -54,19 +54,18 @@
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "Skipunin fyrir conda-forge setur spaCR upp í virka Conda-umhverfinu þínu. Fylgdu Conda-kennslunni til að búa til það umhverfi, setja pakkann upp og ræsa forritið.",
+          "narration": "Skipunin frá conda-forge setur spaCR upp í virka Conda-umhverfinu þínu. Fylgdu Install spaCR til að búa til umhverfið, setja pakkann upp og ræsa forritið. Þar er einnig útskýrt hvernig pakkinn og umhverfið eru fjarlægð.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install"
+            "02_install_spacr"
           ]
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Haltu áfram með pip, Conda eða Platform installers. Þegar spaCR opnast ferðu í Home-kennsluna og síðan í yfirlit greiningarferla til að velja verkferli fyrir gögnin þín.",
+          "narration": "Haltu áfram í Install spaCR fyrir pip eða conda-forge, eða í Platform installers fyrir uppsetningarforrit fyrir skjáborð. Bæði kennsluefnin útskýra hvernig uppsetningin er fjarlægð. Þegar spaCR hefur opnast skaltu fara á Home og síðan í yfirlit vinnsluferla til að velja vinnuflæði fyrir gögnin þín.",
           "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
           ]
         }
@@ -141,201 +140,112 @@
       }
     },
     {
-      "id": "02_conda_install",
+      "id": "02_install_spacr",
       "number": 2,
-      "slug": "conda_install",
-      "title": "Settu upp spaCR með Conda",
+      "slug": "install_spacr",
+      "title": "Settu upp spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Búðu til Conda-umhverfi, settu upp spaCR frá conda-forge og ræstu forritið.",
+      "description": "Settu upp með pip í sýndarumhverfi Python, pip í Conda-umhverfi eða conda-forge í Conda-umhverfi; ræstu, uppfærðu og fjarlægðu.",
       "objectives": [
-        "Búa til og virkja sérstakt Conda-umhverfi.",
-        "Setja upp spaCR frá conda-forge.",
-        "Opna spaCR og uppfæra sama umhverfi þegar þörf krefur."
+        "Veldu eina af þremur aðskildum uppsetningarleiðum.",
+        "Virkjaðu rétt umhverfi fyrir uppsetningu eða ræsingu.",
+        "Athugaðu uppsetta útgáfu, uppfærðu og fjarlægðu á öruggan hátt."
       ],
-      "prerequisite": "Settu upp Conda eða Miniforge og opnaðu síðan skipanaglugga þar sem skipunin conda er tiltæk.",
+      "prerequisite": "Notaðu Python 3.12 fyrir sýndarumhverfisleiðina eða settu upp Conda/Miniforge fyrir aðra hvora Conda-leiðina. Opnaðu skipanalínu. Veldu önnur nöfn en þau sem núverandi umhverfi nota.",
       "scenes": [
         {
-          "visual": "02_conda_environment",
-          "narration": "Opnaðu skipanaglugga með Conda. Þú býrð til umhverfi fyrir spaCR, setur upp conda-forge-pakkann og ræsir forritið úr því umhverfi.",
+          "visual": "00_install_routes",
+          "narration": "Veldu uppsetningarleið. Pip setur spaCR upp annaðhvort í sýndarumhverfi Python eða Conda-umhverfi. Conda-forge setur upp í Conda-umhverfi; það getur ekki sett pakka upp í sýndarumhverfi Python. Leiðirnar þrjár hér að neðan eru valkostir, svo þú þarft aðeins eina.",
           "hold_after": 0.7
         },
         {
-          "visual": "07_create_conda_command",
-          "narration": "Búðu til umhverfi sem heitir spacr-conda með Python 3.12 og spaCR frá conda-forge með skipuninni sem birtist. Veldu annað nafn ef þú notar það nafn nú þegar fyrir annað umhverfi.",
+          "visual": "pip_01_create_venv",
+          "narration": "Fyrir pip með sýndarumhverfi skaltu búa til sérstaka möppu og keyra Python 3.12 með -m venv til að búa til .venv. Notaðu aðra möppu ef hún inniheldur þegar umhverfi.",
           "hold_after": 0.7
         },
         {
-          "visual": "07_create_conda",
-          "narration": "Conda leysir umhverfið og birtir pakkaáætlunina. Farðu yfir hana, sláðu inn y til að samþykkja og bíddu síðan þar til niðurhali og uppsetningu er lokið.",
+          "visual": "pip_02_activate_venv",
+          "narration": "Virkjaðu .venv fyrir hverja uppsetningu, uppfærslu eða ræsingu. Í Linux og macOS skaltu hlaða bin/activate-skriftunni með source. Í Windows PowerShell skaltu keyra .venv\\Scripts\\Activate.ps1. Skipanalínukvaðning umhverfisins og Python-slóðin staðfesta hvaða túlkur er notaður.",
           "hold_after": 0.7
         },
         {
-          "visual": "08_activate_conda",
-          "narration": "Virkjaðu spacr-conda. Keyrðu Python-skipunina sem birtist til að sjá slóð umhverfisins og gakktu úr skugga um að þetta sé umhverfið sem þú varst að búa til.",
+          "visual": "pip_03_install",
+          "narration": "Með umhverfið virkt skaltu uppfæra pip og síðan keyra pip install spacr. Uppsetning pakkans inniheldur Qt-hugbúnaðarsöfn sem skjáborðsforritið notar. Bíddu þar til uppsetningu vísindapakka og skjáborðsháðra pakka er lokið.",
           "hold_after": 0.7
         },
         {
-          "visual": "09_install_conda",
-          "narration": "Keyrðu conda list spacr til að sjá uppsettu útgáfuna og staðfesta að hún komi frá conda-forge. Þegar Python og spaCR eru sett upp með einni skipun getur Conda leyst alla pakkana saman, sem er mun fljótlegra en að bæta spaCR við umhverfi sem þegar er til.",
+          "visual": "pip_04_check",
+          "narration": "Athugaðu uppsetta útgáfu og slóð pakkans og keyrðu síðan python -m pip check. Geymdu útgáfuna með greiningarnótunum þínum. Þessi leið setur upp útgefna PyPI-pakkann; afrit af frumkóða eða nightly-útgáfa getur haft nýrri viðmótsaðgerðir.",
           "hold_after": 0.7
         },
         {
-          "visual": "03_installed_versions",
-          "narration": "Athugaðu uppsettu spaCR-útgáfuna og staðsetningu pakkans. Geymdu útgáfuna með greiningarglósunum þínum svo þú getir síðar snúið aftur í sama umhverfi.",
+          "visual": "pip_05_launch",
+          "narration": "Keyrðu spacr-doctor og fylgdu leiðbeiningum um háð sem vantar og skipta máli fyrir vinnuna þína. Sláðu síðan inn spacr til að ræsa uppsetta forritið. Lokaðu forritinu áður en umhverfi þess er breytt.",
           "hold_after": 0.7
         },
         {
-          "visual": "05_doctor",
-          "narration": "Keyrðu spacr-doctor til að athuga uppsetninguna. Hér tilkynnir það að vispy, sem er kjarnapakki sem spaCR þarfnast, vanti og sýnir skipunina sem setur hann upp. Keyrðu þá skipun og keyrðu svo spacr-doctor aftur. Fylgdu öðrum ráðlögðum skrefum aðeins fyrir þau skráarsnið eða eiginleika sem þú þarft.",
+          "visual": "pip_conda_01_create",
+          "narration": "Fyrir pip innan Conda skaltu búa til umhverfi sem heitir spacr-pip með Python 3.12 og pip og virkja það. Conda útvegar túlkinn; pip útvegar spaCR. Veldu annað nafn ef spacr-pip er þegar til.",
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Sláðu inn spacr til að ræsa forritið. Ljúktu við valkostina við fyrstu ræsingu og haltu svo áfram með Home-kennsluna til að finna einingar og sýnigögn þeirra.",
+          "visual": "pip_conda_02_install",
+          "narration": "Með spacr-pip virkt skaltu uppfæra pip og keyra pip install spacr. Uppsetning pakkans inniheldur Qt-hugbúnaðarsöfn fyrir skjáborðsviðmótið. Athugaðu útgáfu pakkans og keyrðu pip check, eins og í sýndarumhverfisleiðinni. Ræstu spacr úr sama virka umhverfi.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_01_create",
+          "narration": "Fyrir conda-forge skaltu með einni skipun búa til nýtt umhverfi sem heitir spacr-conda með Python 3.12 og spacr úr conda-forge-rásinni. Með því að leysa túlkinn og spaCR saman er komið í veg fyrir að pakkanum sé bætt í ótengt umhverfi.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_02_plan",
+          "narration": "Conda sýnir pakkaáætlun sína fyrir uppsetningu. Farðu yfir hana, samþykktu hana og leyfðu niðurhali og uppsetningu að ljúka. Tiltæk conda-forge-útgáfa getur verið önnur en nýjasta PyPI- eða nightly-útgáfan.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_03_activate",
+          "narration": "Virkjaðu spacr-conda. Athugaðu slóð Python-umhverfisins og keyrðu conda list spacr til að staðfesta uppsetta útgáfu og rás. Keyrðu síðan spacr-doctor og ræstu spacr úr þessu umhverfi.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_current_home",
+          "narration": "Þetta fylgiefni sýnir Home í núverandi nightly-viðmóti. Uppsetta útgáfan þín getur litið öðruvísi út. Umhverfisskipanirnar setja upp útgefna pakkann úr valinni rás; þessi sýn á núverandi frumkóða fullyrðir ekki að allar nightly-aðgerðir séu þegar útgefnar.",
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
+          "related_lessons": [
+            "05_home"
           ]
         },
         {
-          "visual": "10_current_release_choice",
-          "narration": "Til að uppfæra síðar lokarðu spaCR, virkjar þetta umhverfi og uppfærir conda-forge-pakkann. Þegar conda-forge hefur enga nýrri útgáfu tilkynnir Conda að allir umbeðnir pakkar séu þegar uppsettir. Athugaðu síðan uppsettu útgáfuna; kennslustundirnar um pip og uppsetningarforritið fjalla um hinar uppsetningarleiðirnar.",
+          "visual": "pip_06_update",
+          "narration": "Til að uppfæra pip-uppsetningu skaltu loka spaCR, virkja umhverfi þess og keyra pip install --upgrade spacr. Athugaðu útgáfuna á eftir. Notaðu pip til að uppfæra spaCR í báðum pip-leiðunum, einnig Conda-umhverfinu sem var búið til fyrir pip.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_04_update",
+          "narration": "Fyrir conda-forge-leiðina skaltu loka spaCR, virkja spacr-conda og keyra conda update -c conda-forge spacr. Ef nýrri útgáfa er ekki tiltæk segir Conda að umbeðnir pakkar séu þegar uppsettir. Athugaðu uppsettu útgáfuna frekar en að gera ráð fyrir að viðmótið hafi breyst.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "pip_07_uninstall",
+          "narration": "Til að fjarlægja pip-uppsetningu skaltu virkja umhverfi hennar og keyra python -m pip uninstall spacr og síðan samþykkja fjarlæginguna. Þetta fjarlægir spaCR-pakkann. Það fjarlægir hvorki smásjárverkefnin þín né sjálfkrafa alla pakka sem það er háð.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "pip_08_remove_environment",
+          "narration": "Ef .venv var aðeins búið til fyrir spaCR skaltu óvirkja það og fjarlægja þessa sérstöku .venv-möppu. Fyrir sérstaka Conda-umhverfið spacr-pip skaltu keyra conda deactivate og síðan conda env remove -n spacr-pip. Fjarlægðu aðeins umhverfið sem þú bjóst til fyrir þessa kennslu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "conda_05_uninstall",
+          "narration": "Í conda-forge-umhverfinu fjarlægir conda remove spacr pakkann eftir að þú hefur farið yfir fjarlægingaráætlunina. Til að fjarlægja í staðinn allt sérstaka umhverfið skaltu óvirkja það og keyra conda env remove -n spacr-conda. Geymdu verkefnamöppur aðskildar; að fjarlægja umhverfið er ekki að eyða greiningargögnunum þínum.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "01_pypi_github",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "03_pip_install",
-      "number": 3,
-      "slug": "pip_install",
-      "title": "Settu upp spaCR með pip",
-      "series": 1,
-      "app_key": null,
-      "section": "spaCR",
-      "description": "Búðu til einangrað Python-umhverfi, settu upp opinbera pakkann, athugaðu hvaða pökkum hann er háður og ræstu uppsetta Qt-forritið.",
-      "objectives": [
-        "Búa til og virkja sýndarumhverfi fyrir Python.",
-        "Setja upp spaCR og athuga pakkana sem það þarfnast.",
-        "Ræsa forritið og uppfæra rétta umhverfið."
-      ],
-      "prerequisite": "Settu upp Python 3.12 og opnaðu skipanaglugga. Notaðu virkjunarskipunina fyrir stýrikerfið þitt og skelina.",
-      "scenes": [
-        {
-          "visual": "01_python_version",
-          "narration": "Opnaðu skipanaglugga og athugaðu Python-útgáfuna. Þessi yfirferð notar Python 3.12. Hafðu spaCR í sérstöku sýndarumhverfi svo auðvelt sé að halda utan um pakkana.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "07_create_environment",
-          "narration": "Búðu til sýndarumhverfi sem heitir .venv með skipuninni fyrir stýrikerfið þitt. Þá verður til mappa með Python-umhverfinu sem þú notar fyrir spaCR.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "08_activate_environment",
-          "narration": "Virkjaðu .venv með skipuninni fyrir skelina þína. Windows PowerShell og skipanalínan í Windows nota ólíkar virkjunarskipanir; macOS og Linux nota yfirleitt skeljarskipunina sem sést hér.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_pip_environment",
-          "narration": "Keyrðu python -m pip --version. Athugaðu að slóðin sem birtist tilheyri .venv. Notaðu python -m pip í uppsetningarskipunum svo pip noti þennan túlk.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "09_install_package",
-          "narration": "Uppfærðu pip og settu síðan upp spacr. Bíddu þar til vísindapakkarnir hafa hlaðist niður og verið settir upp. Núverandi pakki inniheldur skjáborðshlutana sem þarf til að opna forritið.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_installed_versions",
-          "narration": "Athugaðu uppsettu spaCR-útgáfuna og staðsetningu pakkans með skipuninni sem birtist. Vistaðu útgáfuna með greiningarglósunum þínum.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_dependency_check",
-          "narration": "Keyrðu python -m pip check. Ef það tilkynnir um kröfur sem stangast á skaltu leysa þá árekstra áður en þú notar umhverfið.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "05_doctor",
-          "narration": "Keyrðu spacr-doctor til að skoða uppsetninguna og sjá hvort valfrjálsa eiginleika vanti. Fylgdu ráðlagðri lagfæringu aðeins fyrir þau snið eða eiginleika sem þú þarft.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "10_launch_commands",
-          "narration": "Ræstu spacr úr virka umhverfinu. Við fyrstu ræsingu fylgirðu uppsetningarleiðbeiningunum og velur stillingarnar þínar.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "13_current_nightly_home",
-          "narration": "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Assays. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
-          "related_lessons": [
+            "04_platform_installers",
             "05_home"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "11_update_intentionally",
-          "narration": "Til að uppfæra lokarðu spaCR og virkjar þetta umhverfi. Uppfærðu pakkann og athugaðu svo útgáfuna og pakkana sem hann þarfnast aftur. Haltu fyrra umhverfinu ef þú þarft það fyrir greiningu sem er í gangi.",
-          "related_lessons": [
-            "01_pypi_github",
-            "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -419,13 +329,14 @@
       "objectives": [
         "Sækja og keyra uppsetningarforritið fyrir stýrikerfið þitt.",
         "Velja hröðunarkost og stillingar fyrir fyrstu ræsingu.",
-        "Opna spaCR og finna uppsetningarannála ef uppsetningin þarfnast athygli."
+        "Opna spaCR og finna uppsetningarannála ef uppsetningin þarfnast athygli.",
+        "Fjarlægðu forritið með aðgerð stýrikerfisins eða meðfylgjandi fjarlægingarverkfæri."
       ],
       "prerequisite": "Sæktu opinbera uppsetningarforritið fyrir stýrikerfið þitt og gerðu ráð fyrir plássi fyrir forritið og vísindapakkana sem það þarfnast.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Opnaðu opinberu spaCR-útgáfuna á GitHub og sæktu uppsetningarforritið fyrir stýrikerfið þitt undir Assets. Þessi netuppsetningarforrit sækja Python-keyrsluumhverfið og vísindapakkana meðan á uppsetningu stendur. Geymdu SHA256SUMS.txt úr sömu útgáfu ef þú vilt staðfesta niðurhalið.",
+          "narration": "Opnaðu opinberu spaCR-útgáfuna á GitHub og sæktu uppsetningarforritið fyrir stýrikerfið þitt undir Assets. Þessi netuppsetningarforrit sækja Python-keyrsluumhverfið og vísindapakkana meðan á uppsetningu stendur.",
           "hold_after": 0.7
         },
         {
@@ -465,7 +376,7 @@
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Assays. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
+          "narration": "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Organism. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
           "related_lessons": [
             "05_home"
           ],
@@ -481,9 +392,23 @@
           "narration": "Ef vandamál koma upp við uppsetningu finnurðu install.log og install-profile.json í uppsetningarmöppunni. Farðu yfir annálana áður en þú deilir þeim í beiðni um aðstoð. Tilgreindu stýrikerfið og spaCR-útgáfuna svo auðveldara sé að greina vandann.",
           "related_lessons": [
             "01_pypi_github",
-            "02_conda_install",
-            "03_pip_install"
+            "02_install_spacr"
           ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_uninstall_windows",
+          "narration": "Í Windows skaltu loka spaCR, opna Settings og síðan Apps og Installed apps. Veldu spaCR og Uninstall. Uppsetta keyrsluskráin Uninstall ræsir sömu fjarlægingu. Geymdu verkefnamöppurnar þínar aðskildar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_uninstall_macos",
+          "narration": "Í macOS skaltu loka spaCR og keyra meðfylgjandi uninstall-spacr-skriftu í Library/Application Support/spaCR. Hún fjarlægir forritið og ræsiforrit þess á kerfisstigi. Keyrsluumhverfi notandans í þinni eigin Library/Application Support/spaCR er aðskilið; fjarlægðu það aðeins ef þú vilt einnig losna við það keyrsluumhverfi.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_uninstall_linux",
+          "narration": "Í Linux skaltu loka spaCR og keyra uninstall-spacr-skriftuna í .local/share/spacr undir heimamöppunni þinni. Hún fjarlægir stýrða keyrsluumhverfið og ræsiforritin. Fjarlæging krefst þess ekki að þú eyðir smásjárverkefnum eða niðurstöðum greininga þeirra.",
           "hold_after": 0.7
         }
       ],
@@ -564,139 +489,248 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Opnaðu einingu frá Home, finndu tengd verkfæri hennar og sýnigögn og veldu svo greiningarferli til að fylgja.",
+      "description": "Farðu yfir allar núverandi einingar á Home frá vinstri til hægri. Lærðu síðan á sameiginleg stjórntæki með Mask og stilltu leiðsögn, hjálp og útlit.",
       "objectives": [
-        "Velja upphafseiningu fyrir myndir, mælingar eða raðgreiningarlestra.",
-        "Finna tengd verkfæri og greiningar fyrir einstakar lífverur.",
-        "Laga Home-dálkinn og einingaspjöldin að skjánum þínum.",
-        "Hlaða inn dæmi, finna hjálp með leit eða Control-K og stilla Preferences."
+        "Þekkja allar einingarnar í núverandi röðunum Core, Data, Tools og Organism.",
+        "Nota Mask til að þekkja sameiginlegar stillingar, forskoðanir, aðgerðir og niðurstöður.",
+        "Fara aftur á Home, nota leit og raða spjöldum.",
+        "Velja stillingar fyrir útlit og afköst."
       ],
       "prerequisite": "Settu upp spaCR og opnaðu skjáborðsforritið.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er upphafsstaðurinn. Smelltu á reit til að opna einingu, eða notaðu hliðarstikuna vinstra megin. Smelltu á Home í hliðarstikunni til að koma aftur hingað. Flipinn Core, Data, Tools og Assays hjálpa þér að finna verkið sem þú vilt vinna.",
+          "narration": "Home er upphafspunkturinn. Lestu hverja röð frá vinstri til hægri: Core, Data, Tools og Organism. Hver reitur opnar sína einingu. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
           "hold_after": 0.7
         },
         {
-          "visual": "01_core  (6)",
-          "narration": "Lestu reitina í Core frá vinstri til hægri. Fyrir smásjármyndir byrjarðu á Mask til að afmarka hluti og notar svo Measure til að draga út eiginleika þeirra og útskurði. Með Annotate merkirðu dæmihluti og Classify lærir af merkingunum til að gefa fleiri hlutum stig. Map Barcodes les raðgreiningargögn. Regression tengir svipgerðarstigin sem fást við talningu leiðsagnar-RNA til að finna tengsl.",
+          "visual": "home_module_mask",
+          "narration": "Mask býr til hlutgrímur úr smásjármyndum. Við opnum það stuttlega síðar til að sjá sameiginleg stjórntæki greiningareininganna.",
           "hold_after": 0.7,
           "focus_modules": [
-            "mask",
-            "measure",
-            "annotate",
-            "classify_merged",
-            "map_barcodes",
+            "mask"
+          ],
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "home_module_measure",
+          "narration": "Measure sameinar myndir og grímur til að draga út mælingar og myndútskurði hluta. Mælitöflurnar tengja myndir við frekari greiningar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "measure"
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "home_module_annotate",
+          "narration": "Annotate sýnir myndútskurði hluta og gerir þér kleift að skrá yfirfarnar merkingar fyrir dæmi.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "annotate"
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ]
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify lærir af yfirförnum merkingum og gefur öðrum hlutum stig með mynd- eða töfluaðferðum.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "home_module_map_barcodes",
+          "narration": "Map Barcodes les raðgreiningargögn til að telja og auðkenna leiðara eða strikamerki.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "map_barcodes"
+          ],
+          "related_lessons": [
+            "12_map_barcodes"
+          ]
+        },
+        {
+          "visual": "home_module_regression",
+          "narration": "Regression tengir svipgerðarstig við talningu leiðara og varðveitir flokkun tilraunarinnar.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "regression"
           ],
           "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "12_map_barcodes",
             "13_regression"
           ]
         },
         {
-          "visual": "02_data  (7)",
-          "narration": "Lestu reitina í Data frá vinstri til hægri. Import flytur fyrirliggjandi myndir, grímur eða mælitöflur inn í verkefni. Embeddings breytir myndútskurðum hluta í tölulega eiginleikavigra til samanburðar. Run Compare sýnir tvær keyrslur hlið við hlið. Experiment Design skipuleggur plöturnar þínar. Power / Design hermir greiningu út frá mismunandi forsendum um fjölda frumna og brunna til að hjálpa við skipulagningu tilraunar. Dose-Response fellir styrk-svörunarferla að gögnunum og sýnir áætlanir, bil og viðvaranir um aðlögunina. QC sýnir skráðar gæðaprófanir. Opnaðu kennsluefni hvers einingar til að sjá inntak hennar og næstu skref.",
+          "visual": "home_module_foreign",
+          "narration": "Import undirbýr aðkomnar smásjárskrár og lýsigögn fyrir uppbyggingu verkefnisins.",
           "hold_after": 0.7,
           "focus_modules": [
-            "foreign",
-            "embeddings",
-            "run_compare",
-            "experiment_design",
-            "power",
-            "dose_response",
+            "foreign"
+          ],
+          "related_lessons": [
+            "36_import"
+          ]
+        },
+        {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings kóðar myndútskurði hluta sem töluleg einkenni til skoðunar og samanburðar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "home_module_run_compare",
+          "narration": "Run Compare safnar vistuðum niðurstöðum keyrslna svo þú getir skoðað muninn.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "run_compare"
+          ],
+          "related_lessons": [
+            "50_run_compare"
+          ]
+        },
+        {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design raðar skilyrðum, brunnum og auðkennum sýna fyrir tilraun.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
+          "visual": "home_module_power",
+          "narration": "Power / Design skoðar forsendur um úrtaksstærð og tölfræðilegt afl við skipulagningu samanburðar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "power"
+          ],
+          "related_lessons": [
+            "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose-Response fellir líkan að svörun yfir styrkleika og heldur valinni útkomumælingu og viðmiðum skýrum.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC sameinar gæðaprófanir og sýnir hvaða gögn eru fyrir hendi eða vantar.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "qc_dashboard"
           ],
           "related_lessons": [
-            "36_import",
-            "77_embeddings",
-            "50_run_compare",
-            "67_experiment_design",
-            "68_power_design",
-            "69_dose_response",
             "54_qc_dashboard"
           ]
         },
         {
-          "visual": "03_tools  (5)",
-          "narration": "Lestu reitina í Tools frá vinstri til hægri. Make Masks gerir þér kleift að breyta grímum og opnar Cellpose Workbench. Align and Stitch sameinar myndflísar sem skarast. Image UMAP kannar myndútskurði hluta í sýn með færri víddum. Gate Editor velur hópa út frá gildisbilum mældra eiginleika. Graph Builder teiknar mælinganiðurstöður. Verkfærastikan í hverri einingu opnar tengd verkfæri hennar.",
+          "visual": "home_module_make_masks",
+          "narration": "Make Masks gerir þér kleift að teikna og yfirfara grímur handvirkt eða undirbúa mynd- og grímupör.",
           "hold_after": 0.7,
           "focus_modules": [
-            "make_masks",
-            "align",
-            "umap",
-            "gate_editor",
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "home_module_align",
+          "narration": "Align & Stitch tengir samhæfa myndreiti og skráir rúmfræði þeirra.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "align"
+          ],
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "home_module_umap",
+          "narration": "Image UMAP varpar einkennum hluta til að skoða svipaða hluti og yfirfara dæmigerða myndútskurði.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "umap"
+          ],
+          "related_lessons": [
+            "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor skilgreinir val á raunverulegum gagnadálkum. Yfirfarðu valda hluti áður en vali er breytt í merkingar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "home_module_graph_builder",
+          "narration": "Graph Builder býr til gröf úr mælitöflum með stillanlegum dálkum og hópum.",
+          "hold_after": 0.7,
+          "focus_modules": [
             "graph_builder"
           ],
           "related_lessons": [
-            "14_make_masks",
-            "32_align_stitch",
-            "15_image_umap",
-            "64_gate_editor",
             "58_graph_builder"
           ]
         },
         {
-          "visual": "04_assays  (1)",
-          "narration": "Opnaðu Assays fyrir verkferla sem eru bundnir lífveru. Toxoplasma opnar prófavalmynd sína, til dæmis skelluagreiningu eða mælingar á hýsli og sýkli. Fylgdu kennsluefni valda prófsins til að undirbúa myndir þess, grímur og mæligögn.",
+          "visual": "home_module_toxoplasma",
+          "narration": "Röðin Organism inniheldur Toxoplasma. Hún opnar leiðarvísi um lífveruna, gagnvirka teikningu og tiltækar Toxoplasma-greiningar. Sérstök Toxoplasma-kennsla fer yfir þessa síðu.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma"
           ],
           "related_lessons": [
-            "24_plaque",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication"
-          ]
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "Opnaðu Classify og veldu inntakið með Classifier family. Veldu Computer Vision fyrir myndir af hlutum eða Tabular Machine Learning fyrir dálka með mældum eiginleikum. Tengdu kennslurnar leiða þig í gegnum þjálfun, mat og stigagjöf fyrir hvora fjölskyldu.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "41_classify",
-            "10_classify_cv",
-            "11_classify_ml"
-          ]
-        },
-        {
-          "visual": "05_classify_host",
-          "narration": "Þegar líkan hefur verið þjálfað hjálpar verkfærastika Classify þér að rýna í það. Classifier Evaluation sýnir hvernig því gekk á gögnum sem haldið var til hliðar, Explain CV Model og Activation sýna hvað ræður niðurstöðum þess, Training Runs ber saman þjálfunarsögu og Feature Explorer raðar þeim eiginleikum sem aðgreina hópana. Haltu bendlinum yfir tákni til að sjá heiti þess.",
-          "hold_after": 0.7,
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "39_classifier_evaluation",
-            "70_explain_cv",
-            "16_activation",
-            "28_training_runs",
-            "65_feature_explorer"
+            "82_toxoplasma"
           ]
         },
         {
           "visual": "06_mask_host",
-          "narration": "Til að prófa einingu smellirðu á Load test data þegar það er í boði. Bíddu þar til niðurhalinu lýkur og farðu svo yfir útfyllt inntök og stillingar. Í Mask smellirðu á Live til að skoða sjónsvið áður en þú ýtir á Run. Kveiktu á Time fyrir tímaröð eða 3D fyrir rúmmálsmynd.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "17_timelapse"
-          ]
+          "narration": "Opnaðu Mask sem almennt dæmi um greiningareiningu. Hér lærum við uppbyggingu skjásins án þess að ljúka myndskiptingu. Stillingar eru vinstra megin, stjórnborð og framvinda hægra megin og aðgerðir neðst. Live opnar forskoðun þegar inntaksgögn eru tiltæk.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06b_mask_settings",
+          "narration": "Stillingar eru flokkaðar í hluta. Opnaðu hluta til að sjá stjórntækin. Veldu inntaksmöppuna þína eða notaðu Load test data þegar dæmi er tiltækt. Merkingar og hjálp útskýra hvað hver stilling þarfnast.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06c_mask_actions",
+          "narration": "Import settings sækir vistaða uppsetningu í formið. Run byrjar valda vinnu og Stop biður keyrandi verk um að stöðva. Stjórnborðið sýnir framvindu og skilaboð. Skoðaðu kennslu einingarinnar áður en þú byrjar greiningu.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_resize_panels",
-          "narration": "Hægt er að laga hvern einingarskjá að skjánum þínum. Dragðu handfangið milli stillinganna og spjaldanna hægra megin til að gefa annarri hliðinni meira pláss, eða smelltu á örina til að fella stillingarnar frá. Haltu Control niðri og skrunaðu yfir spjöldunum hægra megin til að stækka eða minnka textann í þeim, og ýttu á Control-0 til að núllstilla hann.",
-          "hold_after": 0.7,
-          "focus": [
-            1800,
-            171,
-            300,
-            1950
-          ]
+          "narration": "Dragðu skilrúmið til að gefa stillingum eða forskoðun meira pláss. Control og músarhjólið breyta textastærð í dálki. Þessi stjórntæki auðvelda lestur án þess að breyta greiningunni.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_home_column",
@@ -754,7 +788,7 @@
         },
         {
           "visual": "13b_preferences_appearance",
-          "narration": "Appearance ræður hvernig hjálp birtist á meðan þú vinnur. Tooltip delay er hversu lengi bendillinn hvílir á stjórnhlut áður en ábendingin birtist: tvær sekúndur sjálfgefið, og núll sýnir ábendingar strax. Show tooltips slekkur alveg á þeim, og hlutarnir Theme og Animation opnast fyrir neðan fyrir útlit gluggans.",
+          "narration": "Appearance stjórnar því hvernig hjálpin birtist meðan þú vinnur. Tooltip delay ákveður hversu lengi bendillinn þarf að vera kyrr áður en fljótandi vísbending birtist: tvær sekúndur sjálfgefið, eða núll til að birta hana strax. Show tooltips stjórnar þessum fljótandi vísbendingum. Sérstök hjálparsvæði á Home og í Preferences birta textann strax. Theme og Animation má opna fyrir neðan til að stilla útlit gluggans.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -776,7 +810,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Smelltu frekar á Animation til að opna hann. Hann velur hreyfðan bakgrunn og litaspjald hans, með sleðum fyrir smáatriði, móðu, hraða, stærð og þéttleika, hvort vísbendingar stillinga hreyfist, og bakgrunninn á bak við stillingarnar.",
+          "narration": "Smelltu á Animation til að velja aðalbakgrunninn og litaspjaldið. Animation colours stillir aðal- og áhersluliti fyrir Custom colours; Animation background velur sjálfstæðan bakgrunn og Theme colour endurheimtir þema síðunnar. Detail stjórnar upplausn myndgerðarinnar. Speed, Size og Density breyta hreyfingu og fjölda eininga. Mouse gravity radius ákveður áhrifasvæði músarinnar; núll slekkur á því. Dot blinking stjórnar hvítum leiftrum og Popup wave frequency setur af stað bylgjur frá opnum sprettigluggum í spaCR field. Field ripples stjórnar bylgjum frá smellum, opnun eða lokun íláta og þegar glugginn er festur við skjájaðar, óháð aðdráttarafli músarinnar. Þegar slökkt er á því stöðvast sjálfvirkar bylgjur frá sprettigluggum líka. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density breyta aðeins Settings backdrop. Settings backdrop darkness stjórnar læsileika formsins.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -784,6 +818,16 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "13h_preferences_apply",
+          "narration": "Smelltu á Apply til að prófa breytingarnar á meðan Preferences er áfram opið. Sérstakur gluggi spyr hvort þú viljir velja Keep eða Revert fyrir stillingarnar sem hafa verið notaðar. Revert endurheimtir fyrri stillingar; breyttu stýringarnar eru enn tiltækar svo þú getir lagfært þær eða notað þær aftur.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13i_preferences_kept",
+          "narration": "Keep samþykkir stillingarnar sem hafa verið notaðar og heldur Preferences opnu. Haltu áfram að breyta öðrum flipa eða smelltu á Save þegar þú vilt halda núverandi gildum og loka glugganum.",
+          "hold_after": 0.7
         },
         {
           "visual": "13e_session_updates",
@@ -819,20 +863,9 @@
           ]
         },
         {
-          "visual": "00_home",
-          "narration": "Farðu aftur í Home og smelltu á Pipeline overviews til að velja verkferli. Byrjaðu á spaCR screens fyrir samsafnaða myndgreiningarskimun, eða veldu leið fyrir myndgreiningu eða raðgreiningu sem hentar gögnunum þínum. Næstu kennslur sýna hvernig þessar einingar tengjast og kennslur einstakra eininga fara síðan í gegnum hvert verk.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "78_spacr_screens",
-            "80_image_analysis_pathways",
-            "81_sequencing_pathways"
-          ],
-          "focus": [
-            3150,
-            205,
-            666,
-            46
-          ]
+          "visual": "24_spaceout_field",
+          "narration": "Í Spaceout-ham inniheldur Preferences spaCR field-stjórntæki fyrir átta óháð áhrif. Kveiktu eða slökktu á hverju fyrir sig. Venjuleg stjórntæki fyrir útlit og hreyfimyndir stillingagluggans eru áfram tiltæk. Apply forskoðar breytingu, Keep samþykkir hana og Revert endurheimtir fyrra val.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -15018,7 +15051,7 @@
       "series": 1,
       "app_key": null,
       "section": "Workflows",
-      "description": "Veldu myndgreiningarleið í gegnum aðgreiningu, mælingu, merkingu, flokkun, varpanir, hlið, samskráningu mynda, gæðaeftirlit og greiningar.",
+      "description": "Fylgdu núverandi leiðum frá myndum til mælinga og veldu könnun, merkingu, samanburð eða lífverusértækar greiningar.",
       "objectives": [
         "Velja upphafseiningu út frá gögnunum sem þú ert þegar með.",
         "Greina hvað hver eining les og skrifar.",
@@ -15027,195 +15060,131 @@
       "prerequisite": "Settu upp spaCR og opnaðu Home. Veldu upphafsgögn verkferlisins og fylgdu svo tengdu einingakennslunum fyrir stýringar og sýnigögn.",
       "scenes": [
         {
-          "visual": "home",
-          "narration": "Myndgreining í spaCR fylgir myndunum þínum frá dílum til svara. Óunnar myndir byrja í Mask, sem finnur hlutina. Ef þú vilt laga grímur í höndunum notarðu Make Masks, eða flytur inn grímur sem þú átt þegar. Measure breytir svo myndum og grímum í tölur, og í úrklipp ef þú vilt. Þaðan velurðu leiðina: flokkun, könnun mynda, hliðun eða greiningu. Skeyttu reitum saman fyrst þegar greiningin þarf eitt hnitakerfi.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "05_home"
-          ]
+          "visual": "00_home",
+          "narration": "Byrjaðu á spurningunni og gögnunum sem þú hefur þegar. Núverandi raðir á Home aðgreina Core analysis, Data preparation and comparison, Tools og Organism-síðu Toxoplasma. Eining er eitt skref; úttak hennar verður inntak annarrar einingar.",
+          "hold_after": 0.7
         },
         {
-          "visual": "module_mask",
-          "narration": "Óunnar smásjármyndir byrja í Mask. Opnaðu það frá Home, veldu rásir og aðgreiningarlíkön og athugaðu forskoðunina áður en þú keyrir. Mask skrifar hvert sjónsvið sem sameinað fylki, þar sem myndrásirnar og heiltölumerkingalögin eru saman, og það er þetta sameinaða fylki sem Measure les næst. Mask geymir líka lítinn talningagagnagrunn, en hann er aðeins talning, ekki eiginleikatafla.",
+          "visual": "module_foreign",
+          "narration": "Import skipuleggur innkomnar smásjármyndaskrár og lýsigögn. Ef myndatakan inniheldur skarandi myndflísar getur Align & Stitch útbúið mósaík með tilheyrandi hnitaskrám. Geymdu auðkenni rása og lýsigögn upprunans með verkefninu.",
           "hold_after": 0.7,
           "related_lessons": [
-            "07_mask",
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "module_make_masks",
-          "narration": "Stundum þurfa grímur mannshönd. Opnaðu Make Masks frá Home til að laga þær sjónsvið fyrir sjónsvið. Það sem þú vistar hér getur farið tvær leiðir. Til að þjálfa aðgreiningu ferðu yfir pör af myndum og grímum og heldur þeim saman sem þjálfunarsviðum. Til að mæla notarðu Organize for Measure, sem færir hverja mynd og grímur hennar í rásarmöppur og sameinar þær í fylkin sem Measure les; stök gríma er ekki sameinað fylki. Skellugrímur sem teiknaðar eru hér geta líka farið í Plaque Assay með samsvarandi upprunamyndum. Að vista grímu þjálfar engan flokkara.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "14_make_masks",
-            "24_plaque"
-          ]
-        },
-        {
-          "visual": "module_measure",
-          "narration": "Measure er miðpunktur alls þessa korts. Opnaðu það frá Home og beindu því að verkefninu sem Mask bjó til, með rásavísa myndar og grímu rétt stillta; grímur sem paraðar eru í Make Masks koma líka hingað. Measure les myndir og merkingalög saman og skrifar hverja frumu, kjarna eða sníkjudýr sem línu í measurements.db. Kveiktu á vistun úrklippa ef þú vilt PNG-mynd af hverjum hlut, og geymdu gagnagrunninn með upprunaverkefninu ef þú streymir úrklippum í staðinn. Nær allt annað byrjar á þessum línum. Annotate og Classify nota mælingarnar og úrklippin til að læra svipgerðir. Image UMAP varpar þeim svo þú getir leitað að hópum og Embeddings kóðar úrklippin með líkani og skráir kóðarann og rásastefnuna. Gate Editor setur þröskulda á raunverulega mælda eiginleika, í raunverulegum einingum þeirra, og QC sýnir hvaða athuganir eru til og hverjar vantar. Toxoplasma-greiningarnar byrja líka hér: Recruitment þarf réttan styrk hólfa, Invasion Assay tvílitar litunarmælingar með grunnlínuviðmiðum og Replication Assay skýr tengsl sníkjudýrs og bólu. Host–Pathogen Analysis krefst grímna af heilum bólum og viðmiðunarstyrks hýsils, með ósýktu frumunum haldið inni. Og stærðarvísir innfjölgunar les mælda verkefnið úr Python eftir að þú hefur athugað samantekt eftir hýsilfrumum og flatarmálseiningar; talningagagnagrunnur Mask einn og sér dugar ekki.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "07_mask",
-            "08_measure",
-            "09_annotate",
-            "14_make_masks",
-            "15_image_umap",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication",
-            "41_classify",
-            "54_qc_dashboard",
-            "64_gate_editor",
-            "77_embeddings",
-            "85_host_pathogen"
-          ]
-        },
-        {
-          "visual": "module_annotate",
-          "narration": "Með mælingar í höndunum er Annotate staðurinn þar sem þú kennir með dæmum. Opnaðu það frá Home og það sýnir úrklipp hlutanna sem Measure vistaði eða streymir úr verkefninu. Merktu dæmigerða hluti; hver merking fer í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Þú þarft ekki að byrja frá grunni: hlið sem vistuð eru í Gate Editor geta stungið upp á merkingum sem þú ferð yfir. Notaðu sérstakan dálk fyrir hverja spurningu, haltu þjálfunar- og matshlutum aðskildum, og það er þessi dálkur sem Classify þjálfar á næst.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_classify_merged",
-          "narration": "Opnaðu Classify frá Home til að breyta merkingum í spár. Það hefur tvær fjölskyldur og gögnin þín ráða hvor er notuð. Computer Vision lærir af úrklippum hluta sem Measure vistar eða streymir; Tabular Machine Learning lærir af mældu eiginleikadálkunum. Merkingarnar geta komið frá þremur stöðum. Oftast koma þær úr Annotate. Gate Editor getur skrifað yfirfarið val hliða í merkingadálk og Image UMAP getur gert það sama með yfirfarið snöruval; í báðum tilvikum velurðu hér sama dálk og sama hlutasafn. Innfellingaklasi er ekki rétt svar, svo skoðaðu úrklippin, staðfestu merkingarnar og haltu staðfestingarhlutum frá þjálfuninni. Classify vistar svo stigin, þjálfaða líkanið og matspakka með spám á gögnunum sem haldið var til hliðar. Í skimun velurðu CV- eða ML-stigadálkinn sem þú átt við og ferð með hann í Regression með auðkenni plötu og brunns óskert.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "13_regression",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_umap",
-          "narration": "Image UMAP er til að skoða áður en þú merkir. Opnaðu það frá Home og það varpar mældu eiginleikunum úr Measure, eða kóðaraeiginleikum úr Embeddings með samsvarandi auðkennum hluta, á kort þar sem líkir hlutir liggja nálægt hver öðrum. Opnaðu dæmigerð úrklipp til að sjá hvað svæði inniheldur í raun. Klasi er aðeins hópun sem kemur til greina, ekki staðfest svipgerð. Þegar svæði virðist raunverulega marktækt teiknarðu snöru utan um það, ferð yfir það sem þú náðir og skrifar valið í merkingadálk í samsvarandi mæligagnagrunni. Classify getur þá þjálfað á þeim dálki. Vörpunin getur líka farið í Gate Editor ef þú vilt frekar skilgreina valið þar með samsvarandi hnita- og eiginleikadálkum. Ekki vista allar leiðir viðmótsins kóðaraeiginleika fyrir þig, og lögun á grafi ein og sér staðfestir ekki líffræðilega svipgerð.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor",
-            "77_embeddings"
-          ]
-        },
-        {
-          "visual": "module_gate_editor",
-          "narration": "Gate Editor leyfir þér að velja hluti eftir reglu frekar en með augunum. Opnaðu það frá Home og teiknaðu þröskulds- eða marghyrningshlið á raunverulega dálka: mælda eiginleika úr Measure, í raunverulegum einingum sínum, eða hnit úr Image UMAP-vörpun. Vistaðu hlið og þú getur beitt því aftur á hvaða samhæfa hlut sem er. Annotate-hnappur þess skrifar sýndu hliðin í merkingadálk þegar þú hefur farið yfir valda hlutina og valið tvíundar- eða fjölflokkamerkingar. Vistuð hlið geta líka stungið upp á merkingum inni í Annotate. Veldu svo sama dálk og sama hlutasafn í Classify og haltu staðfestingarhlutum aðskildum frá þjálfunarmerkingunum.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "09_annotate",
-            "15_image_umap",
-            "41_classify",
-            "64_gate_editor"
-          ]
-        },
-        {
-          "visual": "module_align",
-          "narration": "Sumar greiningar þurfa fyrst að skeyta reitum saman í eina mynd. Opnaðu Align & Stitch frá Home, athugaðu rúmfræði reitanna, skörun og rásavörpun og vistaðu mósaíkið með hnitaskrám sínum. Fyrir OPS heldurðu líka upprunalegum auðkennum lotna og staða.",
-          "hold_after": 0.7,
-          "related_lessons": [
+            "36_import",
             "32_align_stitch"
           ]
         },
         {
-          "visual": "module_analyze_plaques",
-          "narration": "Nú að Toxoplasma-greiningunum. Opnaðu Toxoplasma frá Home og veldu Plaque Assay. Þessi sleppir Measure: hún les skellumyndir, eða grímur sem þú átt þegar, og keyrir stillta skellulíkanið. Grímur úr Make Masks virka hér ef þær eru skellugrímur með samsvarandi upprunamyndum; frumugrímur eru ekki skellumerkingar. Hún vistar niðurstöður og grímur skellanna, og kennslan um skelludæmið sýnir heila keyrslu.",
+          "visual": "module_mask",
+          "narration": "Mask býr til hlutamerkingar úr smásjármyndum. Make Masks gerir þér kleift að búa til eða yfirfara grímur handvirkt. Mynd–grímu-pör verða að halda sama sviðsauðkenni; stök grímuskrá er ekki sjálfkrafa samsett verkefnafylki sem Measure þarf.",
           "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
-            "24_plaque"
+            "07_mask",
+            "14_make_masks"
           ]
         },
         {
-          "visual": "module_recruitment",
-          "narration": "Recruitment spyr hversu mikið af merki safnast við sníkjudýrið. Opnaðu Toxoplasma frá Home og veldu svo Recruitment. Það les styrk hólfa úr Measure, með samsvarandi auðkennum hýsils og sýkils, og reiknar söfnunarhlutföll sem halda hverjum brunni og skilyrði.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "25_recruitment"
-          ]
-        },
-        {
-          "visual": "module_host_pathogen",
-          "narration": "Host–Pathogen Analysis skoðar sýkinguna frá báðum hliðum. Opnaðu Toxoplasma frá Home og veldu það svo. Það les mælingar úr Measure sem ná yfir heilar bólur, viðmiðunarhólf hýsilsins og ósýktar hýsilfrumur, sem mynda nefnara sýkingarinnar. Veldu merkjarásirnar og stilltu hlutfallsþröskulda sem eru kvarðaðir á viðmiðin þín. Ef þú aðgreindir einstök sníkjudýr getur það talið þau í hverri bólu út frá skýrum tengslum eða mældum talningardálki. Þá færðu töflur fyrir bólur, hýsla og brunna, samsettar merkjastöður, dreifingu fjölgunar og þau tengsl sníkjudýra sem ekki tókst að para. Óþekktar mælingar haldast óþekktar og auðkenni hýsils eitt og sér skilgreinir aldrei bólu.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "85_host_pathogen"
-          ]
-        },
-        {
-          "visual": "module_invasion",
-          "narration": "Til að greina sníkjudýr sem aðeins festust frá þeim sem komust inn opnarðu Toxoplasma frá Home og velur Invasion Assay. Það byggir á tvílita aðgreiningarlitunarmælingum úr Measure ásamt grunnlínuviðmiðum fyrir litunina, og vistar niðurstöðurnar með hvern brunn og skilyrði óskert.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "26_invasion"
-          ]
-        },
-        {
-          "visual": "module_replication",
-          "narration": "Replication Assay, sem er líka undir Toxoplasma í Home, telur sníkjudýrin í hverri bólu og ber þessar dreifingar saman milli skilyrða. Það les hluti úr Measure en þarf skýr tengsl sníkjudýrs og bólu; auðkenni hýsilsins eitt og sér skilgreinir ekki bólu.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "27_replication"
-          ]
-        },
-        {
-          "visual": "module_qc_dashboard",
-          "narration": "Hvenær sem er eftir Measure geturðu opnað QC frá Home til að athuga vinnuna. Það les vistaðar athuganir á aðgreiningu, einingum, leka og plötuáhrifum, og innbyggðir skoðarar leyfa þér að skoða nánar. Athugun sem vantar er ekki athugun sem stóðst. QC vistar niðurstöður sínar með myndritum og töflum sem hægt er að flytja út.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ]
-        },
-        {
-          "visual": "module_embeddings",
-          "narration": "Embeddings lýsir hlutum út frá því sem líkan sér frekar en handvöldum eiginleikum. Opnaðu það frá Home, veldu líkan og rásastefnu, og það kóðar úrklipp hlutanna frá Measure í einn eiginleikavigur fyrir hvern hlut. Skráðu auðkenni hlutanna, kóðarann og rásastefnuna með þessum eiginleikum, því Image UMAP þarf eiginleikatöflu með samsvarandi auðkennum hluta og ekki vista allar leiðir hana fyrir þig.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure",
-            "15_image_umap",
-            "77_embeddings"
-          ]
-        },
-        {
-          "visual": "module_endodyogeny",
-          "narration": "Tvö verkfæri í þessu korti eru aðeins til í Python. Það fyrra er stærðarvísir innfjölgunar, spacr.submodules.analyze_endodyogeny; það hefur hvorki reit á Home né valmyndaratriði. Það les mæld flatarmál hólfa úr Measure-verkefnunum þínum, merkir þau eftir skilyrðum og skiptir flatarmálinu í veldinu 1,5 í tvöfaldanir stærðar á log2-kvarða. Sjálfgefið leggur það flatarmál sýkilsins saman eftir hýsilfrumu, ekki eftir bólu, svo margar bólur í sömu frumu eru sameinaðar. Þess vegna er það stærðarvísir sem byggir á flatarmáli, ekki mælt rúmmál né fjöldi sníkjudýra; fyrir sníkjudýr í hverri bólu notarðu Replication Assay. Stilltu hólf, flatarmálssíur, kvörðun, skilyrði og hópun áður en þú kallar á það, og athugaðu samantekt og flatarmálseiningar áður en þú lest bilin. Talningagagnagrunnur Mask einn og sér dugar ekki.",
+          "visual": "module_measure",
+          "narration": "Measure les undirbúnar myndir og grímuplön saman. Það skrifar measurements.db með auðkennum hluta og dálkum fyrir eiginleika og getur vistað myndútskurði af hlutum. Geymdu upprunaverkefnið og vörpun rása með þessum töflum.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
           ]
         },
         {
-          "visual": "module_cellpose_masks",
-          "narration": "Annað er bein grímugerð með Cellpose, spacr.spacr_cellpose.identify_masks_finetune, einnig án reits á Home eða valmyndaratriðis. Þrátt fyrir nafnið keyrir það ályktun, ekki þjálfun: það beitir stöðluðu eða sérsniðnu Cellpose-líkani á TIFF-sjónsviðin í möppu. Athugaðu fyrst stöðlun, rásir, stærðarbreytingu og stillingar líkansins og kveiktu á vistun, því grímur eru aðeins skrifaðar þegar save er virkt. Það sem þú færð eru merkinga-TIFF-skrár, ekki verkefni tilbúið fyrir Measure. Til að halda áfram flytur þú pör mynda og grímna inn með External Masks fyrir Measure, eða ferð yfir þau fyrir þjálfun.",
+          "visual": "module_annotate",
+          "narration": "Annotate sýnir myndútskurði af hlutum svo þú getir bætt við yfirförnum merkingum. Classify lærir af valda merkingadálkinum með útskurðsmyndum eða mældum eiginleikum. Haltu matshlutum aðskildum frá þjálfunarhlutum og færðu stigadálkinn og auðkenni hluta áfram í síðari greiningar.",
           "hold_after": 0.7,
-          "related_lessons": []
+          "related_lessons": [
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Embeddings kóðar myndútskurði í tölulega eiginleika. Image UMAP varpar samhæfum eiginleikum til könnunar. Skoðaðu dæmigerða myndútskurði áður en þú gefur klasa merkingu; klasi einn og sér er ekki staðfest svipgerð.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "77_embeddings",
+            "15_image_umap"
+          ]
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Gate Editor velur hluti með raunverulegum eiginleikadálkum eða samhæfum vörpunarhnitum. Yfirfarðu valda hluti áður en þú skrifar merkingar. Þessar merkingar geta orðið yfirfarin dæmi fyrir Annotate eða Classify.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "QC skýrir frá þeim gæðaprófunum sem eru til staðar og þeim gögnum sem vantar til staðfestingar. Run Compare skoðar vistaðar keyrslur hlið við hlið. Graph Builder teiknar mælitöflur með þeim dálkum og þeirri hópun sem þú velur.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "54_qc_dashboard",
+            "50_run_compare",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Experiment Design skipuleggur skilyrði og auðkenni sýna. Power / Design kannar forsendur tölfræðilegrar áætlanagerðar. Dose-Response greinir mæliútkomu við mismunandi styrk. Tilgreindu mæliútkomuna, viðmiðin og tilraunaeininguna skýrt.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "module_toxoplasma",
+          "narration": "Toxoplasma-síðan safnar saman lífverusértækum prófunum. Inntök þeirra eru ólík: mynd af sýkingarskellum, mælingar á frumuhólfum og skýr tengsl milli sníkjudýra og frymisbóla eru ekki víxlanleg. Veldu viðeigandi prófun og fylgdu hennar eigin inntakskröfum.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "82_toxoplasma"
+          ]
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Fyrir sameinaðar skimanir framleiðir Map Barcodes talningar leiðar-RNA úr raðgreiningarlestrum. Regression sameinar þessar talningar við samhæf svipgerðarstig. Varðveittu auðkenni plötu, brunns og leiðar-RNA þegar þú tengir leiðirnar tvær.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ]
         },
         {
           "visual": "home_summary",
-          "narration": "Myndaleiðin liggur því nær alltaf frá Mask til Measure og greinist svo eftir spurningunni þinni. Til að þjálfa eigið aðgreiningarlíkan útbýrðu pör af myndum og grímum í Make Masks, þjálfar þau í Cellpose Workbench og opnar vistaða líkanið aftur í Mask. Ef þú ert þegar með samhæft úttak geturðu komið inn síðar. Hvert sem þú ferð skaltu halda auðkennum rása, einingum og lyklum hluta með hverri niðurstöðu.",
+          "narration": "Farðu aftur á Home og veldu næsta skref út frá því úttaki sem þú hefur í raun. Notaðu tengdar kennslustundir eininga fyrir heila keyrslu. Geymdu inntaksauðkenni, stillingar, uppsetta útgáfu og staðsetningu úttaks saman svo hægt sé að yfirfara verkferlið síðar.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15422,7 +15391,7 @@
       "id": "82_toxoplasma",
       "number": 82,
       "slug": "toxoplasma",
-      "title": "Toxoplasma: skoðaðu síðuna og veldu greiningu",
+      "title": "Lífveran Toxoplasma: leiðarvísir, skýringarmynd og prófanir",
       "series": 3,
       "app_key": "toxoplasma",
       "section": "Organisms and assays",
@@ -15436,7 +15405,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Hver Toxoplasma-tilraun getur hafist á einni síðu. Frá Home velurðu Toxoplasma: leiðarvísir lífverunnar, frumuskýringarmynd og greiningarnar sem eru í boði liggja hlið við hlið, tilbúnar til skoðunar áður en þú hleður inn nokkurri mynd.",
+          "narration": "Veldu flokkinn Organism á Home og síðan Toxoplasma. Þessi síða sameinar leiðarvísi um lífveruna, gagnvirka frumumynd og tiltækar prófunarleiðir fyrir Toxoplasma. Skoðaðu hana áður en þú velur greiningu.",
           "hold_after": 0.7
         },
         {
@@ -15451,28 +15420,51 @@
         },
         {
           "visual": "03_assays",
-          "narration": "Veldu reitinn sem passar við spurninguna þína. Plaque Assay telur skellur og mælir flatarmál þeirra; Invasion Assay kannar hversu mörg sníkjudýr komust inn. Recruitment mælir hversu mikið merki safnast við bóluna, Replication Assay hversu mörg sníkjudýr eru í hverri bólu, og Host–Pathogen tengir bólur við hýsilfrumur sínar. Hvert hefur sína eigin kennslu.",
+          "narration": "Plaque Assay telur skellur og mælir flatarmál þeirra. Recruitment mælir auðgun merkiefnis við safabóluna sem inniheldur sníkjudýrið og Replication Assay telur sníkjudýr í hverri safabólu. Veldu prófun eftir þeirri stærð sem þarf að mæla og þeim inntaksgögnum sem hún krefst.",
           "hold_after": 0.7
         },
         {
-          "visual": "04_host_pathogen",
-          "narration": "Fylgjum einu þeirra. Smelltu á Host–Pathogen og greiningarskjár þess opnast. Load test data hleður inn meðfylgjandi smásjárdæmi og þaðan leiðir Host–Pathogen-kennslan þig í gegnum stillingar, forskoðun og Run.",
+          "visual": "04_plaque_assay",
+          "narration": "Smelltu á Plaque Assay til að opna greiningarskjáinn. Stillingaspjaldið tilgreinir uppruna mynda, grímur og greiningarvalkosti. Load test data gefur dæmi. Farðu yfir inntak og forskoðun áður en Run er ræst; kennslan Plaque Analysis lýsir öllu vinnuferlinu.",
           "hold_after": 0.7
         },
         {
-          "visual": "05_starplast",
-          "narration": "Aftur á Toxoplasma-síðunni opnar Starplast þekkingarkort í eigin forriti; í fyrsta sinn býður það upp á uppsetningarskref til að fylgja. Heimildatenglarnir opna hins vegar efni um lífveruna í vafranum þínum.",
+          "visual": "05_references",
+          "narration": "Farðu aftur í Toxoplasma-leiðarvísinn og skrunaðu upplýsingaspjaldið að heimildunum. ToxoDB, hyperLOPIT-atlas Toxoplasma, UniProt og NCBI Taxonomy vísa á auðlindir um lífveruna. Þessir tenglar opnast í vafranum; leiðarvísirinn leitar ekki í gagnagrunnum og spáir ekki fyrir um staðsetningu próteina.",
           "hold_after": 0.7
         },
         {
           "visual": "06_home_return",
-          "narration": "Leiðarvísirinn skrifar engar greiningarskrár, svo raunverulega vinnan fer fram annars staðar. Ef enn á eftir að aðgreina eða mæla myndirnar þínar skaltu fyrst fara aftur í Home; þegar myndirnar eða töflurnar eru tilbúnar taka greiningarsíðurnar við.",
+          "narration": "Leiðarvísirinn um lífveruna framleiðir ekki greiningartöflur. Farðu aftur á Home til að undirbúa myndir, hluta þær niður eða mæla þær og veldu síðan prófun sem passar við undirbúið inntak. Hver prófun hefur sínar eigin kröfur og tengda leiðsögn.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16168,5 +16160,9 @@
         ]
       }
     }
-  ]
+  ],
+  "lesson_aliases": {
+    "02_conda_install": "02_install_spacr",
+    "03_pip_install": "02_install_spacr"
+  }
 }
