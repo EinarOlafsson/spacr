@@ -19,3 +19,5 @@ Current source and owning check result are preserved by automatic job:
  /mnt/wd4tb/scratch/spacr-prepared-publication/results/683-publisher-v2.job.json
 Progress watcher emits the entire table on committed100% completion and
 also discovers new numbered items beyond its baseline ledger.
+
+2026-10-09 — First automatic job passed24 checks and committed/pushed d23330a6bd. Renderer upgrade cache now also binds its own script hash; same-source caches discover newly numbered items. Regression test and next prepared job retain full-scope publication gates.

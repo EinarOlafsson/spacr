@@ -76,3 +76,22 @@ def test_failed_test_command_never_commits_or_pushes(tmp_path, monkeypatch):
     assert result["status"] == "blocked"
     assert "Prepared checks failed" in result["error"]
     assert mutations == []
+
+
+def test_upgraded_renderer_refreshes_old_cache_and_discovers_new_items(tmp_path, monkeypatch):
+    spec = importlib.util.spec_from_file_location("progress_renderer", Path(__file__).resolve().parents[1] / "tools/watch_progress_table.py")
+    renderer = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(renderer)
+    ledger = "features/data/progress_2026-10-08_2341.md"
+    old = "features/new/681_badge.txt"
+    new = "features/new/682_release.txt"
+    def fake_git(root, *args):
+        if args[0] == "rev-parse": return "same-source"
+        if args[0] == "ls-tree": return "\n".join([ledger, old, new])
+        if args[-1].endswith(ledger): return f"| [681](/machine/{old}) | Home | — | Unknown | Badge |"
+        return "Status: COMPLETE 100%\nOwner: Home\nDescription: Verified scope\n"
+    monkeypatch.setattr(renderer, "git", fake_git)
+    state = renderer.refresh(tmp_path, tmp_path, dict(source_sha="same-source"))
+    assert set(state["rows"]) == {"681", "682"}
+    assert state["completed"] == ["681", "682"]
+    assert state["renderer_sha256"]

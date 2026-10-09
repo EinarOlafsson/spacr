@@ -25,7 +25,8 @@ def write(path, text):
 def refresh(root, output, state):
     ref = "origin/nightly"
     sha = git(root, "rev-parse", ref).strip()
-    if state.get("source_sha") == sha:
+    renderer = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    if state.get("source_sha") == sha and state.get("renderer_sha256") == renderer:
         return state
     names = git(root, "ls-tree", "-r", "--name-only", ref, "features/data", "features/new")
     ledgers = sorted(name for name in names.splitlines()
@@ -101,7 +102,7 @@ def refresh(root, output, state):
         with (output / "events.log").open("a", encoding="utf-8") as log:
             log.write("Newly completed: " + ", ".join(newly) + "\n\n" + document + "\n")
         print("Completed:", ", ".join(newly), flush=True)
-    state = dict(source_sha=sha, rows=rows, completed=sorted(completed, key=int),
+    state = dict(source_sha=sha, renderer_sha256=renderer, rows=rows, completed=sorted(completed, key=int),
                  updated=stamp, table_sha256=hashlib.sha256(document.encode()).hexdigest())
     write(output / "state.json", json.dumps(state, ensure_ascii=False, indent=2) + "\n")
     return state
