@@ -1,5 +1,23 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-09 00:10 EDT — Current Root CI read-only observer started
+
+Latest low-token local wrap-up is pushed73f751b0b; tested code6fb0115f8.
+Current tests37881951815/docs37881951511 pending,compat37881951526 queued.
+One passive READ-ONLY observer, execsession42740, verified live and exact
+three initial source/state snapshots saved. Five-minute polling,512M cap,
+8-hour observation window. It archives only completed failed-job logs and
+never changes source or dispatches/cancels runs. Existing Home watcher and
+heldQtserial untouched; this is not a second agent. Script/full initial states:
+ data/current_ci_watch_2026-10-09/receipt.json
+Live statusfolder:/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/current-ci-watch-20261009
+Log:/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/current-ci-watch-20261009.log
+Next session polls the samehandle42740 or checks actual GH source/job state;
+file/log silence or observation expiry is not terminal CI evidence. No
+restart/duplicate observer. All local guards/media jobs terminalaccepted;
+current hosted acceptance and36 broader/private/native/external items remain.
+One Root and completed children; no broad new work under low-token constraint.
+
 ## 2026-10-09 00:01 EDT — Tutorial publication and browser navigation guards accepted
 
 Root found additional current publication guards expecting85 lessons, Assays

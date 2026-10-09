@@ -1,0 +1,29 @@
+{
+  "recorded_at": "2026-10-09 00:10 EDT",
+  "code_source": "6fb0115f807c351382f6d6b20625e00ba05dd0dc",
+  "script_sha256": "fd4e47a07a49403686aec76ae29dd53c5e22581e449ba63993abe02ba920b9ea",
+  "exec_session": 42740,
+  "status_folder": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/current-ci-watch-20261009",
+  "log": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/current-ci-watch-20261009.log",
+  "poll_seconds": 300,
+  "observation_window_hours": 8,
+  "memory_cap": "512M",
+  "runs": [
+    {
+      "id": 37881951815,
+      "status": "pending",
+      "conclusion": null
+    },
+    {
+      "id": 37881951511,
+      "status": "pending",
+      "conclusion": null
+    },
+    {
+      "id": 37881951526,
+      "status": "queued",
+      "conclusion": null
+    }
+  ],
+  "scope": "Read-only logging of three exact current Root runs; records terminal failed-job logs. No dispatch, cancellation, application/source edits, GPU work, or external messages. Existing Home logger and serial run not watched or altered. Live process is not a completion verdict."
+}
