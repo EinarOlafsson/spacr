@@ -1,5 +1,53 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 21:13 EDT — Reduced-token handoff; numeric badge replaces old test badge
+
+Only Home/root is active; all three useful subagents are finished and their
+commits/proofs are integrated. No new agent or feature wave is started. User
+requests conserving remaining tokens, finishing current work and current handoffs.
+
+N681 replaces the old Tests status badge in English and all nine translated
+READMEs with tests passed/total. Exact thresholds: >90 green, 80–90 yellow,
+70–80 orange (80 is yellow), below70 red. The initial endpoint is grey pending,
+not fabricated acceptance. Stdlib-only pytest plugin retains selected/unrun,
+skip and setup/teardown failures; xdist copies deduplicate within sessions and
+repeated dependency profiles must all pass. Failed runs publish real counts
+without weakening release-gate. Latest badge+dependency cohort21PASS1.59s;
+earlier batching+badge28PASS4.03s and real2worker trial11PASS/endpoint11/11.
+All10 README headers checked: one numeric badge each, old Tests absent.
+WORKSTATION: preserve N681 headers during normal README refresh, or use
+ tools.test_count_badge.install_readme_badges(repo_root).
+Normal prose is unchanged. First actual hosted endpoint publication is pending.
+
+Final CI test fixes now integrated: Edit-menu fixture activates its own window
+before child focus (owning6PASS); Home fixtures stay within actual Xvfb display
+and activate before keyboard focus (owning219PASS, final5/5 focused); OPS resume
+uses two real adjacent sites per each well rather than five. Original five-site
+full/malformed fixture, both stored wells and resume assertions remain intact.
+Targeted OPS test1PASS275.32s under unchanged300s timeout and4G cap. Broader
+modified OPS cohort was deliberately stopped for user budget, NOT accepted.
+No production timing, guard, skip policy or ratchet is weakened. Private source
+and exact compressed/raw proofs are committed; current hosted acceptance needed.
+
+Known-failing e600 original-order serial37865976724 will be superseded only after
+these fixes are pushed. Fresh full required and original-order serial dispatch
+on the final source will be recorded in the next note; hosted work continues
+without local sampling/poll churn. No current GitHub-green claim.
+
+Detached shared Claude checkout repaired by reattaching the existing matching
+nightly branch with git symbolic-ref HEAD refs/heads/nightly, then setting
+origin/nightly upstream. Its modified tools/gpu_turn.sh was preserved; no stash,
+reset, checkout, clean, merge or pull was performed in the shared checkout.
+
+F576 combined PRIVATE6727 remains140PASS realPG/no skips. Its non-failing child
+exit diagnostic traces a one-shot daemon GPU-count probe in an isolated tooltip
+test that does not process Qt shutdown; child exits, no production pool leak
+established. F572 PRIVATEb33 remains115PASS for bounded clean/crop support only.
+Both consolidated packets require coherent workstation-owned normal API/runtime
+caption adoption before application publication. Workstation21:07 note records
+its final current bounded checks; all parents with pending publication/external
+acceptance remain open. No livecell/cellposeTIME job or GPU process is touched.
+
 ## 2026-10-08 21:07 EDT — Final bounded workstation translation checks saved; agents finished
 
 All three workstation agents are finished, clean and have no running jobs.

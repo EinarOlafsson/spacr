@@ -2443,3 +2443,5 @@ assertions. See data/47_idle_category_runner_lifecycle_2026-10-09/receipt.json
 and data/43_copy_idle_dependency_current_cpu_2026-10-09/receipt.json. Parent stays
 PARTIAL pending coherent current hosted serial acceptance, not a local full-suite
 run or a hard native performance claim.
+
+2026-10-08 21:13 EDT — Final Edit focus and bounded Xvfb Home fixtures pass owning6/219 and focused5/5 checks. Known-failing e600 serial will be superseded after push by one final-source original-order run. Hosted full-suite acceptance and native performance remain pending; no local full-suite run or weakened timing ceiling.

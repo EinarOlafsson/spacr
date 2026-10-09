@@ -3619,3 +3619,5 @@ Root integrated OPS selectors+rollback51PASS/3existingCuPySKIP20.61s. No product
 or generated artifact change. Current hosted green remains pending; old f0OPS
 resume worker300s death is separately under reproduction. See portable
 43_dbqueue_pandas3_rollback_2026-10-09 and43_288_current_cpu_root_readback_2026-10-09.
+
+2026-10-08 21:13 EDT — Edit focus6PASS; Xvfb Home219PASS/final5PASS; OPS adjacent-site two-well resume1PASS275.32s under unchanged300s. Narrow test repairs and actual raw proofs integrated. N681 numeric badge21PASS plus actual2worker11/11, old badge removed in all10 READMEs. Fresh hosted acceptance still pending; no failure guard waived.
