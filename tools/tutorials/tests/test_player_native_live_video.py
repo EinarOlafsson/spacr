@@ -53,16 +53,26 @@ def test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries(served,t
         page.wait_for_function('!elements.video.paused && !elements.audio.paused && !elements.video.seeking',timeout=60000)
         page.evaluate('(target)=>seekTo(target)',audio_step-.8)
         page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.paused',timeout=60000)
+        # Observe after the player's frame callback, rather than between a
+        # clock crossing its scene boundary and that callback beginning a seek.
         page.evaluate('''() => {
           window.__nativeTrace=[];
-          window.__nativeTimer=setInterval(()=>window.__nativeTrace.push({
-            audio:elements.audio.currentTime,video:elements.video.currentTime,
-            rate:elements.video.playbackRate,audioRate:elements.audio.playbackRate,
-            scene:timingScene(audioTimings,elements.audio.currentTime).index,
-            seeking:elements.video.seeking,correcting:videoClockCorrectionPending}),50);
+          let previous=-Infinity;
+          const sample=(now)=>{
+            if(now-previous>=50){
+              previous=now;
+              window.__nativeTrace.push({
+                audio:elements.audio.currentTime,video:elements.video.currentTime,
+                rate:elements.video.playbackRate,audioRate:elements.audio.playbackRate,
+                scene:timingScene(audioTimings,elements.audio.currentTime).index,
+                seeking:elements.video.seeking,correcting:videoClockCorrectionPending});
+            }
+            window.__nativeTimer=requestAnimationFrame(sample);
+          };
+          window.__nativeTimer=requestAnimationFrame(sample);
         }''')
         page.wait_for_timeout(3500)
-        trace=page.evaluate('window.__nativeTrace');page.evaluate('clearInterval(window.__nativeTimer)')
+        trace=page.evaluate('window.__nativeTrace');page.evaluate('cancelAnimationFrame(window.__nativeTimer)')
         browser.close()
     settled=[row for row in trace if not row['seeking'] and not row['correcting']]
     assert len(settled)>20
@@ -78,3 +88,17 @@ def test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries(served,t
     assert pairs
     assert all(abs((right['video']-left['video'])-(right['audio']-left['audio']))<.2
                for left,right in pairs)
+
+
+def test_native_video_guard_rejects_disabled_frame_sync(served,tmp_path):
+    """Frame-ordered observations still reject a missing boundary correction."""
+    from test_player_holds_narration import PLAYER
+    url,handler=served
+    source=PLAYER.read_text()
+    needle='function startNativeFrameSync() {'
+    assert source.count(needle)==1
+    disabled=tmp_path/'disabled-native-frame-sync.js'
+    disabled.write_text(source.replace(needle,needle+'\n  return;'))
+    handler.routes['/web/app_v2.js']=(disabled,'application/javascript')
+    with pytest.raises(AssertionError,match="'audio':"):
+        test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries((url,handler),tmp_path)

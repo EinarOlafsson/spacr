@@ -40,6 +40,7 @@ import time
 
 from check_completed_matrix import digest
 from build_release_candidate import copy_checked
+from append_staged_lessons import parse_javascript
 from stage_lesson import REPO, read, write
 from validate_candidate import validate
 
@@ -262,6 +263,51 @@ def drop_superseded_web_copies(pages_root, manifest):
     return removed
 
 
+def retire_withdrawn_pages(root, pages_root, manifest):
+    """Archive explicitly redirected lessons before removing their live copies."""
+    withdrawn = manifest.get('withdrawn_lessons', [])
+    catalog = parse_javascript((root / 'web/lesson_catalog.js').read_text())
+    active = {row['id'] for row in catalog['lessons']}
+    aliases = catalog.get('lesson_aliases', {})
+    if (len(withdrawn) != len(set(withdrawn)) or any(
+            not re.fullmatch(r'[0-9]+_[a-z0-9_]+', identity)
+            or identity in active or aliases.get(identity) not in active
+            for identity in withdrawn)):
+        raise ValueError('Withdrawn Pages lessons need unique, valid active redirects')
+    records = []
+    archive = root / 'retired-pages'
+    if archive.is_symlink():
+        raise ValueError('Refusing to archive redirected lessons through a symlink')
+    for identity in withdrawn:
+        source = pages_root / 'production' / identity
+        backup = archive / identity
+        if source.is_symlink() or backup.is_symlink():
+            raise ValueError('Refusing to archive a redirected lesson through a symlink')
+        paths = sorted(source.rglob('*')) if source.exists() else []
+        if any(path.is_symlink() for path in paths):
+            raise ValueError('Refusing to archive redirected lesson symlinks')
+        original = [(path, digest(path)) for path in paths if path.is_file()]
+        for path, expected in original:
+            target = backup / path.relative_to(source)
+            if target.exists() and digest(target) != expected:
+                raise ValueError('The retained Pages archive has different bytes')
+            copy_checked(path, target, [], archive, expected)
+        if any(digest(path) != expected for path, expected in original):
+            raise ValueError('Withdrawn Pages bytes changed during archiving')
+        for path, expected in original:
+            path.unlink()
+        for directory in sorted((path for path in paths if path.is_dir()),
+                                key=lambda path: len(path.parts), reverse=True):
+            directory.rmdir()
+        if source.exists():
+            source.rmdir()
+        for path in sorted(backup.rglob('*')):
+            if path.is_file():
+                records.append(dict(path=path.relative_to(archive).as_posix(),
+                                    sha256=digest(path), bytes=path.stat().st_size))
+    return records
+
+
 def pages(root, key):
     """Write the Pages tree from the candidate, pinned to the verified commit."""
     receipt = read(root / RECEIPT)
@@ -320,6 +366,7 @@ def pages(root, key):
     index = replace(r'Lesson 1 of \d+', f'Lesson 1 of {len(catalog)}', index)
     if '../media_host' in index or 'data-production-root="production"' not in index:
         raise SystemExit('Pages index still points at local media')
+    withdrawn_archive = retire_withdrawn_pages(root, PAGES, manifest)
     superseded = drop_superseded_web_copies(PAGES, manifest)
     index_temporary = PAGES / 'index.html.publishing'
     index_temporary.write_text(index, encoding='utf-8')
@@ -337,6 +384,8 @@ def pages(root, key):
                         'cache_key': key, 'unchanged_versioned_assets': sorted(unchanged),
                         'versioned_assets': versions,
                         'hosted_web_copies': len(hosted), 'removed_local_web_copies': superseded,
+                        'withdrawn_pages_archive': {'directory': str(root / 'retired-pages'),
+                                                    'files': withdrawn_archive},
                         'ready': ready, 'routes': len(catalog)}
     write(root / RECEIPT, receipt)
     print('PAGES TREE', PAGES, receipt['pages'], flush=True)

@@ -1,0 +1,51 @@
+{
+  "scope": "Private normal tutorial publication-owner repairs; no player bytes, media, narration, tolerance, immutable upload or public source altered.",
+  "base_commit": "0fbbd1e47cd3115819b2c351bb8c6b5fc1d41119",
+  "normal_matching_owning_tests": 114,
+  "normal_matching_owning_seconds": 22.57,
+  "targeted_tests": 11,
+  "targeted_seconds": 18.39,
+  "original_root_failures": 3,
+  "original_root_passes": 104,
+  "original_native_isolated_passes": 1,
+  "native_positive_numeric_assertions_ast_identical": 6,
+  "production_disabled_frame_sync_negative_rejected": true,
+  "initial_negative_regex_failure_retained": true,
+  "archival_redirect_guard_tests": 6,
+  "archival_fixture_files": 218,
+  "archival_fixture_bytes": 46445772,
+  "archival_fixture_full_sha_readback": true,
+  "normal_pages_fixture": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/publication-owner-pages-web-fixture-grgm724m",
+  "archive_directory": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/publication-owner-pages-web-fixture-grgm724m/retired-pages",
+  "immutable_media_commit": "5abf35929844697a46ffb3a7802c24f6774dc07f",
+  "accepted_candidate_mutated": false,
+  "source_only_handoff": true,
+  "published": false,
+  "pending": [
+    "Root source adoption",
+    "Root normal pages rerun against accepted C to archive retired directories, full published84-route browser and normal record"
+  ],
+  "archive": {
+    "name": "publication-owner-fixes.tar.gz",
+    "sha256": "c40022a5c6aba15a21a2d18aef48cb37c328957593584dcc2e52da2266f1dfa3",
+    "bytes": 355663,
+    "members": 14,
+    "member_sha256": {
+      "checks/publication-owner-independent-preservation-r1.json": "35a9dbfeff0527cac99b17ede2269c080a2188401274b35b8ec58bf2ee5cf1bf",
+      "checks/publication-owner-pages-web-fixture-r1.json": "f4e035e34fe172238508cd459bc0a5d28e22891995a4ca382162e949a3d7585d",
+      "closed_logs/publication-native-owner-original-r1.log": "02fc449fc227ba64aa46ee33e9abf1209b81f1747f26adf95703c219982d6b8a",
+      "closed_logs/publication-owner-fixes-r1.log": "905c46b6ef80687ce9879528b89c24c6f50e313170ccbfb24f0023e0375e8d83",
+      "closed_logs/publication-owner-fixes-r2.log": "9fe5c18fe6dc73ed85775e09843aea3b765c68628cb8bbb21fd0c2b166cddbac",
+      "closed_logs/publication-owner-normal-pages-r1.log": "3cbb6f22acbeb51d8a5671352e572d7ad4f4b304c54323b6f38f0024f31ea6dd",
+      "closed_logs/publication-owning-full-r1.log": "faf2111199d87b0d55fe8cfc434c3279d14b9fca84ab068a0ba2a8b254d6bb77",
+      "closed_logs/root-original-3fail-104pass.log": "48e83cf2f10cfb1f771f5202ea153566f752c780a083d18c40449217db392eb7",
+      "normal_pages_fixture/publication-receipt.json": "ff2ab835e87ce111776fef37f7aefcb6b59c6d96c5fa09aa7c25f3bac5155c0a",
+      "normal_pages_fixture/release-manifest.json": "fece6863b147babec9bebc411dcfb62a426ef135d6e496a6d0b357d87d07007f",
+      "source/tests/test_docs_media_budget.py": "673089c5a2fcdbc54b7f53d55d02ec675ffaf7e3d017b9c75df55affb1cd0542",
+      "source/tools/tutorials/publish_release_candidate.py": "4e6c2330947c635924989e964e5f463e0df78cf3d938a1455350d8b57c4f0967",
+      "source/tools/tutorials/tests/test_player_native_live_video.py": "c7e29f35bbedfc062a4135f6e865dbb77a2279195b6718217a222a237b135aed",
+      "source/tools/tutorials/tests/test_withdrawn_pages_archive.py": "9442fbedc8755780d4469c03a9ed0ca0756a502f8e9b0023f159ce972523096a"
+    },
+    "full_readback_verified": true
+  }
+}
