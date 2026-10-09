@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 22:20 EDT — One agent; refreshed tutorial publication ready
+
+2026-10-08 22:20 EDT — Six refreshed lessons accepted for normal source publication.
+Source afa437697 includes merged Install spaCR (venv/pip, Conda/pip and
+conda-forge, each with uninstall), desktop install/uninstall without user-facing
+hashes, complete ordered Home navigation and generic module walkthrough, current
+image-analysis relationships and Toxoplasma. Six lessons use59 native moving
+clips with dense Blobs for masks, current field elsewhere,300 current voices
+and14 catalogs. Hosted5077 files are fully read back at immutable5abf359298.
+Normal strict English and all9 guides pass; current13233 API/10065 runtime
+source is equal to normal extraction and all9 source-compatible. Owning166
+tests pass. Normal main+nightly site is977236449 bytes under unchanged950MiB.
+Actual combined-site mobile playback, audio identity, chapter seek and layout
+pass all6 lessons. Earlier scratch checks used a nonexistent Toxoplasma ID;
+original failures retained, corrected catalog-derived check passes unchanged.
+Proof: data/676_current_tutorial_site_acceptance_2026-10-09/receipt.json
+Source publication is the next normal nightly push; deployed-site acceptance
+remains pending. Historical56-track publication, other legacy tutorials and
+N615 broader coherent application integration remain open. Only Root is active;
+all3 subagents are completed. No new media rendering/upload or broad work begun.
+
+
 ## 2026-10-08 21:17 EDT — One workstation agent; small tutorial reporting fix
 
 User now explicitly requires one agent. Only Root is active. Root continues

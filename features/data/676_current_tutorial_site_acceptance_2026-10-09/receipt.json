@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "rendered_source_commit": "afa4376971a40c2562a90c4e8073845bd6d70780",
+  "source_sha256": {
+    "spacr/resources/module_workflows.json": "cf0089ee333e65d4e4de5e8c162f78d5fa907231db0c99b12e60cb7e7b76a2ba",
+    "spacr/resources/tutorial_index.json": "30ce3eea02ab3f14d29909d9621f1074c44b5fdd1165fb6439c87d752c816c36",
+    "tools/build_module_workflows.py": "0d8fbf3503799e78564192ae59c9eae440070740ad20322d9551eca58521174e",
+    "tools/docs_media_budget.py": "29a964f0e87c7771c6d428d49d207e0676734124e246da3a27be28e1e98f87c5",
+    "tools/publish_docs_channels.py": "4c4cbb4bc069418937c273f83565b525a7ce980b2d90f81b988bbc2eb39b089d",
+    "tools/tutorials/verify_release_candidate.py": "df4a635f1afa065c1471a42bbb5d9fb03c9e7eaf1e961f46eaa62c16b478ff53",
+    "tools/tutorials/authoring/web/app_v2.js": "6788bcb633ec49827d15198ed03dba48c08845588e9fad6287221884fe8e397b",
+    "tools/tutorials/release_candidate/release-manifest.json": "fece6863b147babec9bebc411dcfb62a426ef135d6e496a6d0b357d87d07007f",
+    "tools/tutorials/release_candidate/publication-receipt.json": "e497acd2d3c5b6ef3b1d51af8bab56bb14f23214423a64e9d84649c16e4d783d"
+  },
+  "payloads": [
+    {
+      "path": "payload/tutorial-integrated-strict-english-r2-tool.log.gz",
+      "raw_bytes": 341424,
+      "raw_sha256": "3da2404ff1a8a05d477e4c86905fa66bb723ede36f96dce648449f2da3c0c8ed",
+      "gzip_sha256": "1e4e4f9d4d73c0dc35b490ae779cd275b4d986a4458a2acaf933bd602b29c24d"
+    },
+    {
+      "path": "payload/tutorial-integrated-strict-english-r3-tool.log.gz",
+      "raw_bytes": 341571,
+      "raw_sha256": "f96df3714f8a0eee617e0ee1c4e0c5d35fde0485b6433ddd21ee7ebe08a5589c",
+      "gzip_sha256": "93f262d1406cf9d74d06985b43c09dad9a9d5271952e1b1acd3e8817a633e35b"
+    },
+    {
+      "path": "payload/tutorial-integrated-strict-guides-r3-tool.log.gz",
+      "raw_bytes": 717,
+      "raw_sha256": "30111fb42530a72384a08a84a50aeb5efab50526b15f43ac673cdaf6a2710d4f",
+      "gzip_sha256": "738cce2fc5ff855cf021f56c8c7c425b69aafe0961648dae37b3d53c184ab361"
+    },
+    {
+      "path": "payload/tutorial-integrated-normal-source-r3-tool.log.gz",
+      "raw_bytes": 1951,
+      "raw_sha256": "ea435660f7029d196b8ef1d1a08945baadd47ba0893cd2794bdc2212e080e37a",
+      "gzip_sha256": "13e08822d1d60bc8a1a185f44a00fd8972298e6aa79ea7373079b6a6ccc2e17f"
+    },
+    {
+      "path": "payload/tutorial-integrated-normal-source-r3.json.gz",
+      "raw_bytes": 1255,
+      "raw_sha256": "e1406f8d8f8f96172ef169015a5ca9382a48473aed767be1109f1d324d36813c",
+      "gzip_sha256": "0c9442bd6c59f08ee76cc411accf3489ff31a210a2d488719961d77b9fa2ab2a"
+    },
+    {
+      "path": "payload/tutorial-integrated-publication-compatibility-r3-tool.log.gz",
+      "raw_bytes": 869,
+      "raw_sha256": "a6fac66b3f168156aebc41efbf41cbf14141b15ece388df6b44d5e54f6efda63",
+      "gzip_sha256": "1483b05733094da9264f8207590d7e294071d60b67d71835f1bac3aed3e57ee5"
+    },
+    {
+      "path": "payload/tutorial-integrated-publication-compatibility-r3.json.gz",
+      "raw_bytes": 16063,
+      "raw_sha256": "103927b015a2aadca27abaea5fd31a45fc24513c20a227119ad79b7a78b3eab8",
+      "gzip_sha256": "7c25413057630c4d776451db177e3447ea48874c49c47929510c61681dc8b18c"
+    },
+    {
+      "path": "payload/tutorial-current-combined-pages-r3-tool.log.gz",
+      "raw_bytes": 1279,
+      "raw_sha256": "f2927a97180702c404819ea05408d2206de91ecb5aaf6f2113af5dcb512b6c66",
+      "gzip_sha256": "78d51f9335ec57876189ca525be07cead3a42b9a01fa28b592e7c2736f22bd90"
+    },
+    {
+      "path": "payload/tutorial-current-combined-pages-r4-tool.log.gz",
+      "raw_bytes": 659,
+      "raw_sha256": "8816e3c8370263f053812700adecc4e93a902d0c868db81b8127c160e6c3c7a8",
+      "gzip_sha256": "e855544ef7c349b1a2663b9f3019aa9f009b1156a7b4a52dc08e007448a220dd"
+    },
+    {
+      "path": "payload/tutorial-current-combined-pages-r4/receipt.json.gz",
+      "raw_bytes": 991,
+      "raw_sha256": "f0118e9617db67231eae3e0d11e953b03078b4b001dc37acb1be72bba55009c4",
+      "gzip_sha256": "964940190117fc6fd54ae187b5a232b025fe4a3b5f65e71989f21285cc3d85be"
+    },
+    {
+      "path": "payload/tutorial-current-final-owning-r3-tool.log.gz",
+      "raw_bytes": 2442,
+      "raw_sha256": "e4bc5639cc2d9189a0a72f767b7ba610dc6ce732be4db8b1fd47b79a5fe06cd1",
+      "gzip_sha256": "958a8de635c1669e11d64b72993d92066956b27db6b0054cf2c3100d0a78a231"
+    },
+    {
+      "path": "payload/tutorial-current-combined-mobile-r4-tool.log.gz",
+      "raw_bytes": 3386,
+      "raw_sha256": "dc51f1f52ebc96742dd938530cf491e850caa3dd754639f571b683d48969a901",
+      "gzip_sha256": "6cbfc83c0ef305f49db8296da076920b9915a93903fd6b3837fb435220a3dd4b"
+    },
+    {
+      "path": "payload/assemble_tutorial_current_docs_r3.py.gz",
+      "raw_bytes": 2983,
+      "raw_sha256": "f86bd21f0c336298ac9d921ad80ad7aee967ece14c0da8cfc312d7580f2ff1fe",
+      "gzip_sha256": "084944af34a35640835bc254af78b64460e85b357bc354f649f9512102a4cf83"
+    },
+    {
+      "path": "payload/assemble_tutorial_current_docs_r4.py.gz",
+      "raw_bytes": 3779,
+      "raw_sha256": "38e2289386fb0cf49ab423dedcc8036261b95c44fb3ed20e594cbe12bcfd8ce4",
+      "gzip_sha256": "3cd0a389dc05596e3e5dd6fba75ead1aa060ec46e3c5b9af8e82c26cee1b0450"
+    },
+    {
+      "path": "payload/verify_tutorial_combined_mobile_r4.py.gz",
+      "raw_bytes": 1433,
+      "raw_sha256": "a3c810f3da7002f10a456f134736c9ba6b78368a7f493642db2067707c491685",
+      "gzip_sha256": "8966ec714474de82ffc32a2a4c20330c3e8f65e0f66b45eac7812c667a27bce9"
+    },
+    {
+      "path": "payload/verify_tutorial_combined_mobile_r5.py.gz",
+      "raw_bytes": 2747,
+      "raw_sha256": "ca0ee35e359cda234e0e9b512ca640fb3d8606d9f03ae7b0ae0d87e046a2b23f",
+      "gzip_sha256": "cb081e7081e6e63cd7491bce46dc61f71ac1e3b4d52896e4534d39de1af8a781"
+    },
+    {
+      "path": "payload/tutorial-current-combined-mobile-r5-tool.log.gz",
+      "raw_bytes": 3351,
+      "raw_sha256": "8f75187b226734ff079b9f84af707de286b354880270362fa805b8156a39d369",
+      "gzip_sha256": "a6d4d44b5dfd649df531ba5a8f815a1fce0da944dd88a1cf07f069293d454e00"
+    },
+    {
+      "path": "payload/tutorial-current-combined-mobile-r5-diagnostics.json.gz",
+      "raw_bytes": 2530,
+      "raw_sha256": "636b5e29db9f2a846bbfc3d28286075effd26c2cedb2265b895bb5d4557497c0",
+      "gzip_sha256": "990ffa4f391fd102516251fb7dde2e68d1e779d2e4c91fa0b5014e4581a389cc"
+    },
+    {
+      "path": "payload/verify_tutorial_combined_mobile_r6.py.gz",
+      "raw_bytes": 1661,
+      "raw_sha256": "4c37d6adabb3a623191b9b2690b5c237fa76c533c82f0076ed4a6c31fe98ea2f",
+      "gzip_sha256": "3dc753f12c3de672b373e0d52a65ea99c43e4e8861233b4c7333b9261dc90473"
+    },
+    {
+      "path": "payload/tutorial-current-combined-mobile-r6-tool.log.gz",
+      "raw_bytes": 994,
+      "raw_sha256": "f5f310537660771b98e59ba36d32f7c6a3df3d8e1e1b34c4c8f97a0fcff235f1",
+      "gzip_sha256": "8b11a54566004a6c3def64d0f40c2c0cac3b27768e5a902fdfa3e78287f95008"
+    },
+    {
+      "path": "payload/tutorial-current-combined-mobile-r6.json.gz",
+      "raw_bytes": 8304,
+      "raw_sha256": "d075e584b5a8f513a1034583b2350c916477be2be7a6feb9bbf6733c405514f3",
+      "gzip_sha256": "a7f0e2394ced142ab28bbbf9dbf82aa36e4f35a15cdaa11a3e3cdd02c5226b6a"
+    }
+  ],
+  "strict_english": "PASS",
+  "strict_localized_guides": 9,
+  "normal_api_symbols": 13233,
+  "normal_runtime_total": 10065,
+  "all9_api_and_runtime_source_compatible": true,
+  "owning_tests": {
+    "passed": 166,
+    "seconds": 27.04
+  },
+  "combined_site_bytes": 977236449,
+  "limit_bytes": 996147200,
+  "headroom_bytes": 18910751,
+  "immutable_media_commit": "5abf35929844697a46ffb3a7802c24f6774dc07f",
+  "verified_external_video_paths": 84,
+  "actual_combined_mobile_initial": {
+    "passed_lessons": [
+      "01_pypi_github",
+      "02_install_spacr",
+      "04_platform_installers",
+      "05_home",
+      "80_image_analysis_pathways"
+    ],
+    "failed_lesson": "82_toxoplasma_pathways",
+    "reason": "Scratch R4 and R5 requested the nonexistent 82_toxoplasma_pathways ID; player correctly fell back to lesson01. Original timeouts retained. R6 reads actual lesson IDs from catalog and all six pass without product changes."
+  },
+  "source_publication": "Prepared for normal nightly source push; verify remote publication separately.",
+  "deployed": false,
+  "qualified_scope": "Fresh six-lesson source and normal combined publication artifact. Does not close historical56-track publication, all global prose review, or larger private app integration.",
+  "actual_combined_mobile_final": {
+    "passed": true,
+    "lessons": [
+      "01_pypi_github",
+      "02_install_spacr",
+      "04_platform_installers",
+      "05_home",
+      "80_image_analysis_pathways",
+      "82_toxoplasma"
+    ],
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "is_mobile": true,
+      "has_touch": true,
+      "device_scale_factor": 3
+    },
+    "evidence": "payload/tutorial-current-combined-mobile-r6.json.gz",
+    "original_verifier_unchanged": true
+  }
+}
