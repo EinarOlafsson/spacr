@@ -152,10 +152,14 @@ def test_generated_api_and_tutorial_contracts_match_the_map():
         contract = json.loads((workflow.ROOT / f"tools/tutorials/workflows/{key}.json").read_text())
         script = json.loads((workflow.ROOT / f"tools/tutorials/lessons/{key}.json").read_text())
         assert script["app_key"] is None
-        assert script["scenes"][0]["visual"] == "home"
-        assert script["scenes"][-1]["visual"] == "home_summary"
-        assert [scene["visual"] for scene in script["scenes"][1:-1]] == [
-            "module_" + module for module in lesson["modules"]]
+        if lesson.get("lesson_source") == "authored":
+            assert workflow.lesson_document(data, key) == script
+            assert Path(f"tools/tutorials/lessons/{key}.json") not in workflow.outputs(data)
+        else:
+            assert script["scenes"][0]["visual"] == "home"
+            assert script["scenes"][-1]["visual"] == "home_summary"
+            assert [scene["visual"] for scene in script["scenes"][1:-1]] == [
+                "module_" + module for module in lesson["modules"]]
         for module in lesson["modules"]:
             assert contract["module_contracts"][module] == data["modules"][module]
         for pathway in lesson["pathways"]:
@@ -261,8 +265,77 @@ def test_stale_generated_prose_stops_the_docs_build(tmp_path):
         if module.get("api_entry"):
             file = tmp_path / (module["api_module"].replace(".", "/") + ".py")
             file.write_text((workflow.ROOT / file.relative_to(tmp_path)).read_text())
+    for key, tutorial in data["tutorials"].items():
+        if tutorial.get("lesson_source") == "authored":
+            relative = Path(f"tools/tutorials/lessons/{key}.json")
+            destination = tmp_path / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text((workflow.ROOT / relative).read_text())
+            for scene in json.loads(destination.read_text())["scenes"]:
+                for link in scene.get("related_lessons", []):
+                    relative = Path(f"tools/tutorials/lessons/{link}.json")
+                    (tmp_path / relative).write_text((workflow.ROOT / relative).read_text())
     with pytest.raises(ValueError, match="stale workflow artifact"):
         workflow.prepare_jinja(Environment(), root=tmp_path)
+
+
+def test_authored_lesson_is_validated_but_never_a_workflow_writer_target():
+    data = workflow.load()
+    authored = {key for key, value in data["tutorials"].items()
+                if value.get("lesson_source") == "authored"}
+    assert authored == {"80_image_analysis_pathways"}
+    for key in authored:
+        relative = Path(f"tools/tutorials/lessons/{key}.json")
+        original = (workflow.ROOT / relative).read_bytes()
+        assert relative not in workflow.outputs(data)
+        assert Path(f"tools/tutorials/workflows/{key}.json") in workflow.outputs(data)
+        lesson = workflow.lesson_document(data, key)
+        assert lesson == json.loads(original)
+        assert (workflow.ROOT / relative).read_bytes() == original
+    generated = copy.deepcopy(data)
+    generated["tutorials"]["80_image_analysis_pathways"].pop("lesson_source")
+    assert relative in workflow.outputs(generated)
+    assert "pixels to answers" in workflow.outputs(generated)[relative]
+
+
+@pytest.mark.parametrize("fault,match", [
+    ("missing", "missing authored lesson"),
+    ("identity", "identity drift"),
+    ("title", "identity drift"),
+    ("scene", "invalid authored lesson scene"),
+    ("link", "invalid authored lesson link"),
+    ("escape", "invalid authored lesson link"),
+])
+def test_authored_lesson_source_and_links_cannot_silently_drift(tmp_path, fault, match):
+    data = workflow.load()
+    key = "80_image_analysis_pathways"
+    lesson = workflow.lesson_document(data, key)
+    path = tmp_path / f"tools/tutorials/lessons/{key}.json"
+    path.parent.mkdir(parents=True)
+    for scene in lesson["scenes"]:
+        for link in scene.get("related_lessons", []):
+            (path.parent / f"{link}.json").write_text("{}")
+    if fault == "identity":
+        lesson["id"] = "81_sequencing_pathways"
+    elif fault == "title":
+        lesson["title"] = "Old image tutorial"
+    elif fault == "scene":
+        lesson["scenes"][0]["narration"] = ""
+    elif fault == "link":
+        lesson["scenes"][0]["related_lessons"] = ["99_missing_lesson"]
+    elif fault == "escape":
+        lesson["scenes"][0]["related_lessons"] = ["../80_image_analysis_pathways"]
+    if fault != "missing":
+        path.write_text(json.dumps(lesson))
+    with pytest.raises(ValueError, match=match):
+        workflow.lesson_document(data, key, root=tmp_path)
+
+
+def test_unknown_lesson_ownership_is_rejected():
+    data = copy.deepcopy(workflow.load())
+    data["tutorials"]["80_image_analysis_pathways"]["lesson_source"] = "skip_checks"
+    with pytest.raises(ValueError, match="unknown lesson source"):
+        workflow.validate(data, live=False)
 
 
 def test_installed_resource_is_declared_for_wheels_and_source_archives():

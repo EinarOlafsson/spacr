@@ -1,7 +1,8 @@
 """Generate workflow documentation from the bundled module input/output map.
 
-Run with --check in validation. The JSON is the editorial source; this tool
-checks its live navigation and port declarations before producing any pages.
+Run with --check in validation. The JSON owns workflow handoffs and identifies
+separately authored lessons. This tool checks live navigation and port
+declarations before producing pages; it never rewrites authored lesson files.
 It never imports a pipeline entry point or opens a user's project.
 """
 from __future__ import annotations
@@ -11,6 +12,7 @@ import ast
 from dataclasses import asdict
 import json
 from pathlib import Path
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,7 +22,7 @@ MODES = {"classify": "classify_merged", "ml_analyze": "classify_merged",
 
 
 def load(root=ROOT):
-    """Read the sole editorial source for pathways and module handoffs."""
+    """Read the editorial source for pathways, handoffs and lesson ownership."""
     return json.loads((root / MAP_PATH).read_text(encoding="utf-8"))
 
 
@@ -88,6 +90,11 @@ def validate(data, root=ROOT, *, live=True):
                 raise ValueError(f"{key}: invalid external input {identity!r}")
             input_ids.add(identity)
     for key, lesson in data["tutorials"].items():
+        ownership = lesson.get("lesson_source", "workflow_map")
+        if ownership not in {"workflow_map", "authored"}:
+            raise ValueError(f"{key}: unknown lesson source {ownership!r}")
+        if ownership == "authored":
+            _authored_lesson(data, key, root)
         for field in ("description", "introduction", "conclusion"):
             if not str(lesson.get(field, "")).strip():
                 raise ValueError(f"{key}: missing tutorial {field}")
@@ -342,15 +349,62 @@ def _told_scene(data, key, module_key, tr, introduced):
     return " ".join(parts)
 
 
-def lesson_document(data, key, *, translate=None):
+def _authored_lesson(data, key, root):
+    """Validate a separately authored script without regenerating its scenes."""
+    if re.fullmatch(r"\d+_[a-z0-9_]+", key) is None:
+        raise ValueError(f"{key}: invalid authored lesson identity")
+    path = root / f"tools/tutorials/lessons/{key}.json"
+    if not path.is_file():
+        raise ValueError(f"{key}: missing authored lesson {path}")
+    lesson = json.loads(path.read_text(encoding="utf-8"))
+    number, slug = key.split("_", 1)
+    if (lesson.get("id") != key or lesson.get("number") != int(number)
+            or lesson.get("slug") != slug or lesson.get("app_key") is not None
+            or lesson.get("title") != data["tutorials"][key]["title"]):
+        raise ValueError(f"{key}: authored lesson identity drift")
+    for field in ("title", "section", "description", "prerequisite"):
+        if not isinstance(lesson.get(field), str) or not lesson[field].strip():
+            raise ValueError(f"{key}: missing authored lesson {field}")
+    if (not isinstance(lesson.get("objectives"), list) or not lesson["objectives"]
+            or any(not isinstance(value, str) or not value.strip()
+                   for value in lesson["objectives"])):
+        raise ValueError(f"{key}: missing authored lesson objectives")
+    if not isinstance(lesson.get("scenes"), list) or not lesson["scenes"]:
+        raise ValueError(f"{key}: missing authored lesson scenes")
+    for scene in lesson["scenes"]:
+        if (not isinstance(scene, dict)
+                or any(not isinstance(scene.get(field), str) or not scene[field].strip()
+                       for field in ("visual", "narration"))):
+            raise ValueError(f"{key}: invalid authored lesson scene")
+        links = scene.get("related_lessons", [])
+        if (not isinstance(links, list)
+                or any(not isinstance(link, str)
+                       or re.fullmatch(r"\d+_[a-z0-9_]+", link) is None
+                       or not (root / f"tools/tutorials/lessons/{link}.json").is_file()
+                       for link in links)):
+            raise ValueError(f"{key}: invalid authored lesson link")
+    return lesson
+
+
+def lesson_document(data, key, *, translate=None, root=ROOT):
     """Write narration from the same artifacts and handoffs used by the API.
 
     A lesson may carry a written story for each module scene; validation keeps
     that story naming the same routes and handoff peers as the map. Otherwise
     the scene is told from the module's guidance, artifacts and handoffs.
+    Explicitly authored lessons are read from their validated canonical scripts;
+    translation changes prose only and retains scene actions and links.
     """
     tr = translate if translate is not None else lambda text: text
     tutorial = data["tutorials"][key]
+    if tutorial.get("lesson_source") == "authored":
+        lesson = _authored_lesson(data, key, root)
+        for field in ("title", "section", "description", "prerequisite"):
+            lesson[field] = tr(lesson[field])
+        lesson["objectives"] = [tr(text) for text in lesson["objectives"]]
+        for scene in lesson["scenes"]:
+            scene["narration"] = tr(scene["narration"])
+        return lesson
     number, slug = key.split("_", 1)
     scenes = [{"visual": "home", "narration": tr(tutorial["introduction"]),
                "hold_after": 0.7, "related_lessons": ["05_home"]}]
@@ -446,8 +500,9 @@ def outputs(data):
                        connections=[e for e in data["connections"]
                                     if e["from"] in lesson["modules"] and e["to"] in lesson["modules"]])
         result[Path(f"tools/tutorials/workflows/{key}.json")] = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
-        result[Path(f"tools/tutorials/lessons/{key}.json")] = json.dumps(
-            lesson_document(data, key), ensure_ascii=False, indent=2) + "\n"
+        if lesson.get("lesson_source", "workflow_map") == "workflow_map":
+            result[Path(f"tools/tutorials/lessons/{key}.json")] = json.dumps(
+                lesson_document(data, key), ensure_ascii=False, indent=2) + "\n"
     return result
 
 

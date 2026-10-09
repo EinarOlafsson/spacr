@@ -31,11 +31,16 @@ def test_default_generator_keeps_all_current_english_scripts_unchanged():
 def test_shared_generator_preserves_every_scene_route_and_literal_identifier(inputs):
     data, bank = inputs
     reviews = translation.compose_reviews(bank, data, 'test-map')
-    assert [len(review['scenes']) for review in reviews.values()] == [78, 19]
-    for identity, previous_count in zip(reviews, (77, 18), strict=True):
+    assert len(reviews['79_module_inputs_outputs']['scenes']) == 78
+    for identity, previous_count in (('79_module_inputs_outputs', 77),):
         scenes = translation.workflow.lesson_document(data, identity)['scenes']
         assert sum(scene['visual'] == 'module_host_pathogen' for scene in scenes) == 1
         assert len([scene for scene in scenes if scene['visual'] != 'module_host_pathogen']) == previous_count
+    authored = json.loads((translation.ROOT / 'tools/tutorials/lessons/80_image_analysis_pathways.json').read_text())
+    assert reviews['80_image_analysis_pathways']['scenes'] == [
+        'Übersetzung: ' + scene['narration'] for scene in authored['scenes']]
+    assert reviews['80_image_analysis_pathways']['english_sha256'] == translation.canonical_hash(authored)
+    assert 'pixels to answers' not in ' '.join(reviews['80_image_analysis_pathways']['scenes'])
     reference = reviews['79_module_inputs_outputs']
     prose = ' '.join(reference['scenes'])
     from spacr.settings import _alpha_species_names
