@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-09 16:36 EDT — Make Masks and alpha VVVV export requests registered
+
+N685: features/new/685_make_masks_curation_controls_and_alpha_vvvv_export.txt.
+Keep incomplete dividing strokes for successive cuts; right-click deletes
+objects with magnifier on; editable 1/N queue tally to the right of Flows;
+first-unreviewed-image button to the left of Clear all objects; Toxoplasma
+plaque model belongs under spaCR, not spaCR Community; alpha VVVV export module.
+Preserve saving/undo and distinguish click deletion from right-drag merging.
+VVVV pipeline/schema unspecified: confirm the export contract before building.
+Registration only; implementation belongs to the next session. One Root.
+
 ## 2026-10-09 11:55 EDT — New animation/window request registered for next session
 
 N684: features/new/684_animation_defaults_ripples_cross_platform_snap_and_dynamic_gpu.txt.

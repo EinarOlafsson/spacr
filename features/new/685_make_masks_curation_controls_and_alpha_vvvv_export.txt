@@ -1,0 +1,114 @@
+================================================================================
+MAKE MASKS CURATION CONTROLS, PLAQUE MODEL CATEGORY AND ALPHA VVVV EXPORT
+================================================================================
+
+Status:    not started
+Requested: 2026-10-09 — "make this into a new feature"
+Owner:     Next session; coordinate Make Masks and model-zoo owners
+Related:   N396 queue; N448 keep/discard; N466 divider; N481 clear objects;
+           N417 magnifier; N680 save on navigation; N438 plaque checkpoint
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+This item registers six user requests. No application behavior or model
+metadata is changed by registration. Inspect the current Make Masks screen,
+mask-editing implementation, queue persistence and model-zoo metadata before
+changing them. Preserve previously accepted draw/save and navigation fixes.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A partial dividing stroke must remain available for subsequent cuts. Users
+also need consistent deletion while magnifying and direct access to queued
+images that have not been reviewed. The plaque model should appear under its
+correct source category, and an alpha export module should support VVVV use.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Preserve every dividing stroke
+   The user requested: "the deviding line tool in make masks should allways
+   draw the deviding line eaven if 2 objects are not seperated, several lines
+   are sometimes necessary."
+   Commit and retain a dividing stroke even when it does not yet separate
+   an object into two components. Subsequent strokes must build on earlier
+   cuts until separation occurs. Keep the cut visible; do not roll it back
+   solely because a connected-component test still finds one object. Preserve
+   undo/redo, mask saving and existing Divide / Merge mouse-button behavior.
+
+2. Delete objects with the magnifier enabled
+   Right-clicking an existing object while the magnifier is on removes that
+   object. Ensure magnifier event handling does not consume the deletion or
+   immediately re-detect the deleted object from the same click. Preserve the
+   intended right-drag merge gesture in Divide / Merge mode and distinguish
+   clicks from drags. Deletions must participate in undo and normal saving.
+
+3. Editable image-queue tally
+   When curating a folder, show an index tally such as 1/100 immediately to
+   the right of the Flows tab. The current 1-based index is editable and jumps
+   to that image in the queue; the total reflects the actual queue length.
+   Validate the entered index, handle empty queues and keep the tally in sync
+   with ordinary navigation and folder changes. Invalid input must not change
+   the loaded image. Respect the existing unsaved-edit/save-on-navigation
+   contract when jumping, without marking an image kept or discarded merely
+   because it was visited.
+
+4. Jump to the first unreviewed image
+   Add a button immediately to the left of Clear all objects. It goes to the
+   first image in queue order with neither a Keep nor a Discard value. Read
+   the actual persisted curation status, including after reopening a folder.
+   Respect pending edits and update the editable tally on arrival. Handle an
+   all-reviewed or empty queue without loading an invalid index or changing
+   existing review decisions. Use a clear translated label and explanation.
+
+5. Correct the Toxoplasma plaque model category
+   List the Toxoplasma plaque model in the spaCR category rather than spaCR
+   Community. Identify the canonical model record and update category metadata
+   through the normal source/generation path. Keep its identifier, checkpoint,
+   download route and existing saved selections working; do not duplicate it
+   into both categories or recategorize unrelated community models.
+
+6. Add an alpha VVVV export module
+   Provide an alpha module that exports users' spaCR data for a VVVV pipeline.
+   The exact target VVVV pipeline, accepted file formats and required data
+   schema were not supplied. Confirm the target and define the export contract
+   before implementing a format; do not invent a proprietary VVVV file schema.
+   Record which measurements, object identifiers, images/masks and metadata
+   are supported, preserving identifiers and coordinate/unit conventions.
+   The module must be hidden unless Show alpha features is enabled, registered
+   with ALPHA_FEATURES and literal widget object names. Use existing module
+   infrastructure; do not add a new Python module under spacr/. Export tables
+   through spacr.tabular and translate all user-facing controls/help.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Focused checks demonstrate an incomplete cut surviving a second cut, undo
+and save/reload; right-click deletion with magnification on; and unchanged
+right-drag merging. Queue checks cover valid first/middle/last index jumps,
+invalid input, pending edits, empty folders and a matching tally. Review
+checks demonstrate selecting the first unreviewed image after reopening and
+safe behavior when every image has Keep or Discard set.
+
+Model-zoo checks find the plaque model exactly once under spaCR, with its
+existing checkpoint and identity intact. Alpha-gate checks hide/show the
+export module. Validate an exported representative dataset by actually
+loading it into the agreed VVVV pipeline and checking identifiers, values,
+units and coordinates; writing files alone is not interoperability evidence.
+Use focused capped checks and normal generated metadata/catalog tools.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No implementation, new model publication or VVVV compatibility is claimed.
+Existing curation decisions are not reset and source data must not be changed
+by export. The unspecified VVVV format remains an explicit follow-up.
+
+2026-10-09 — Registered as N685 for the next session; all six requests remain
+pending implementation and acceptance.
