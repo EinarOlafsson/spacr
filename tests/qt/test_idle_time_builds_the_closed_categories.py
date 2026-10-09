@@ -148,15 +148,19 @@ def _move_the_mouse(screen, state) -> None:
 
 # -- it is the same build -------------------------------------------------------
 
-def test_idle_time_builds_every_closed_category(qtbot):
-    _w, screen, saved = _window(qtbot, "classify_merged")
+@pytest.mark.parametrize("setup_pause", (0.0, 0.7))
+def test_idle_time_builds_every_closed_category(qtbot, setup_pause):
+    _w, screen, saved = _window(qtbot, "classify_merged", idle=False)
     try:
+        _pump(setup_pause)
         closed = len(_waiting(screen))
         assert closed >= 5
+        _restore_idle(saved)
+        builder = screen.__dict__["_idle_prebuild"]
+        builder.resume()
         _until_built(screen)
         assert _waiting(screen) == []
         assert not screen._settings_model._widgets.keys_to_come()
-        builder = screen.__dict__["_idle_prebuild"]
         # Slices are bounded in time, not count, so a faster machine needs
         # fewer of them; "sliced" means several slices per closed category.
         assert len(builder.slices_ms) > 3 * closed, "the build was not sliced"
