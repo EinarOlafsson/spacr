@@ -104,5 +104,6 @@
   },
   "retained_baseline_api_pin": 13215,
   "reviewed_live_settings_close_arrival_commit": "9a2f897401",
-  "source_base": "841816a2d92fd5b84ef8e32354358fd01ab67228"
+  "source_base": "841816a2d92fd5b84ef8e32354358fd01ab67228",
+  "source_commit": "39bfe8e19f1fa0a2b7e559908aae5356931d37ac"
 }
