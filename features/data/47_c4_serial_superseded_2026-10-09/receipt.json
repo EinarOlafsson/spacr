@@ -68,5 +68,19 @@
     "fixed": "Full owning file: 6 passed in 7.59s, Qt 6.12/Xvfb/4G.",
     "repair_commit": "9d981e8fbb"
   },
-  "limits": "All c4 failure entries are historical source diagnostics; neither the cancellation nor the local focus repair certifies the pending e600 serial run."
+  "limits": "All c4 failure entries are historical source diagnostics; neither the cancellation nor the local focus repair certifies the pending e600 serial run.",
+  "bounded_current_source_replay": {
+    "source_sha": "e6004557024ec29a25d8a378beef05bd91ab9be2",
+    "qt": "6.12.0",
+    "display": "Xvfb xcb 1920x1080",
+    "memory_cap": "4G",
+    "verdict": "4 passed in 7.24s",
+    "log_sha256": "cfd16590b031a00ec840be4a8e8930db699b92c038185cfd3f5a30af8c3b4364",
+    "nodes": [
+      "tests/qt/test_live_preview.py::TestCompartmentSettings::test_dialog_shows_only_primary_object_panel",
+      "tests/qt/test_idle_time_builds_the_closed_categories.py::test_the_prebuild_shows_or_opens_nothing_outside_the_categories",
+      "tests/qt/test_every_popup_has_the_card_and_the_rim.py::test_the_backdrop_honours_the_ambient_preference",
+      "tests/qt/test_cov_r8_fractal_app_hooks.py::test_closing_the_host_joins_its_cpu_backdrop_before_deferred_deletion"
+    ]
+  }
 }
