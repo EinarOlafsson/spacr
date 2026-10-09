@@ -150,6 +150,18 @@
       "raw_bytes": 215,
       "raw_sha256": "db48cc2dfd18d23ac880c9d6fa58057d2d8e06a315e99398a360b3475a63eccd",
       "gzip_sha256": "14fb550bbd946981ccf8086aa0626c94f00059d40a6182cc21e8ec49f10e2f9e"
+    },
+    {
+      "path": "payload/tutorial-current-publication-gates-r1-tool.log.gz",
+      "raw_bytes": 1202,
+      "raw_sha256": "980c20dca6c114b76e4cdb6cc7a63094c9eba49adea4a679bc3022d2c43051ec",
+      "gzip_sha256": "83d8f5334fe23d34af790de376b6136115631eeda4464979ac54a34daeba6770"
+    },
+    {
+      "path": "payload/tutorial-current-publication-gates-r1.log.gz",
+      "raw_bytes": 558,
+      "raw_sha256": "b929fef37be00936e7f455e51fe15f18b279bec53f7b7304464488c3280818de",
+      "gzip_sha256": "c32b82cac86849746ec961d4602fa4d10cbe0754cc37fe5af8d317fed4192886"
     }
   ],
   "strict_english": "PASS",
@@ -210,7 +222,25 @@
     "source_commit": "611feca5b31bf13d2c8fa8ac0e2ed7560889221b",
     "scope": "player links, reviewed translation promotion, archived retired Pages, Home speech and verified sentence cache"
   },
-  "hosted_checks_at_2026_10_09_0224_UTC": {
+  "publication_gate_tests": {
+    "source_commit": "e9fd92ea9a079736580cb550b039aabbba58f366",
+    "passed": 26,
+    "skipped": 2,
+    "deselected": 72,
+    "seconds": 79.55,
+    "skip_scope": [
+      "English-only publication mode test: actual workflow and artifact use all-language mode",
+      "Opt-in preflight of not-yet-selected helper corpus"
+    ],
+    "deselected_scope": "Same 72 real-catalog browser cases omitted by the normal docs publication workflow; no new acceptance claimed for them",
+    "files_sha256": {
+      "tests/test_tooltip_api_links_resolve.py": "f3915dbd17ab9e3e69519d217e404143c9327a82d9bdfba701d1499b9386b4de",
+      "tests/test_built_constructor_api.py": "7fc00fb2aa20bd1bd4b2aa621b0b45ea6d49347796453d7439d8fbf6eafc250d",
+      "tests/test_built_nested_helper_api.py": "b6c4f362e191388dee9f3fd8edab491f303536a53aadddfc3c79aef300e69db0",
+      "tests/test_english_documentation_publication.py": "d317ba7ddfaafdae30d1cf238a738ce357deb909917878ef8640f138297f2a23"
+    }
+  },
+  "hosted_checks_after_source_push": {
     "current_tests": {
       "run": 37874032049,
       "status": "queued"
