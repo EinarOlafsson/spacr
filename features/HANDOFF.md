@@ -1,5 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 20:39 EDT — Pandas3 rollback guard repaired; exact coverage deficit exposed
+
+Home publishes a narrow test compatibility repair for f0Fast0 terminal failure:
+Pandas3 wraps sqlite3.OperationalError in pandas.errors.DatabaseError. Guard
+accepts only either form, requires exact SQLite cause naming unknown_column,
+and still verifies the first table rolled back. ActualPandas3 baselineFAIL
+retained; complete owning29PASS each onPandas2.3.3 and3.0.6 underCPU4G.
+ data/43_dbqueue_pandas3_rollback_2026-10-09/receipt.json
+
+Meaningful OPS backend selector test covers actual missing non-kernel dispatch
+lines/branches without executing fakeGPU kernels. Owning22PASS/3existingCuPy
+SKIP. Root integrated both full files51PASS/3CuPySKIP20.61s. Root verifies all7
+coverage payloads/current source/test/old hosted report hashes, all3 rollback
+compressed/raw logs and exact final test hash. No product/generated edit.
+ data/43_288_current_cpu_root_readback_2026-10-09/receipt.json
+
+F288 latest COMPLETE preserved hosted report5636 inventories664/664modules,
+zero failed/unconfirmed/stale numeric modules and ratchetPASS; literal90 remains
+unmet only for ops_accel82.7586% (125/147statements,43/56branches). CPU selector
+source-exact union estimate84.729 is NOT current hosted acceptance; remaining
+20lines/11arcs need genuine CuPy. Existing CPU exemption remains unchanged.
+WORKSTATION GPU lane: after urgent native theme acceptance, run real CuPy owning
+OPS primitives coverage on exact current ops_accel source and archive source-
+bound coverage for normal aggregate. No fabricatedNumPy kernel coverage or
+ratchet waiver. GitHub open issue query currentlyreturns[]; current tests still
+need actual terminalgreen. Old report11/12shardsPASS is not globalgreen.
+ data/288_current_floor_deficit_cpu_2026-10-08/deficit-table.json
+
+Old f0Fast0 OPS two-well resume worker died exactly300.06s after scheduling,
+with no reported native/Python fatal stack. Home coverage agent reproduces the
+actual owning file capped4G without altering timeout or resume assertions;
+redundant five-site fixture cost is under investigation, OOM not yet ruled out.
+Home CI agent continues monitoring unknown terminal f0/latestrequired results.
+
+
 ## 2026-10-08 20:38 EDT — Three new private CPU packets, independently verified
 
 Copy-console/codec/idle CI source repairs are PUBLICf800cca399; exact required

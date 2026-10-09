@@ -3611,3 +3611,11 @@ Normal API13233/all6 runtime maps unchanged; portable source-bound receipts in
 features/data/43_copy_idle_dependency_current_cpu_2026-10-09/. Parent remains
 PARTIAL: current hosted GitHub green is not yet established; workstation owns
 known README tracked-size and compact-caption gaps. No guard waived.
+
+2026-10-08 20:39 EDT — Home fixes pandas3 SQLite rollback exception wrapper
+compatibility while requiring exact operational-error cause and preserved table
+rollback. Owning29PASS each underpandas2/3; actualpandas3 baselineFAIL retained.
+Root integrated OPS selectors+rollback51PASS/3existingCuPySKIP20.61s. No product
+or generated artifact change. Current hosted green remains pending; old f0OPS
+resume worker300s death is separately under reproduction. See portable
+43_dbqueue_pandas3_rollback_2026-10-09 and43_288_current_cpu_root_readback_2026-10-09.
