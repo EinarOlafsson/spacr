@@ -1,5 +1,132 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 20:38 EDT — Three new private CPU packets, independently verified
+
+Copy-console/codec/idle CI source repairs are PUBLICf800cca399; exact required
+GitHub run37865024733 is pending. Workstation dated README3416MB normal writer
+is active. Preserve that source wave and source-bound run results.
+
+Home independently verifies12 migration payloads/3 Git source bindings,5
+classifier payloads/2bindings,6 merged-region payloads/2bindings. Each source
+patch applied to its frozen baseline in an alternate index and reproduced every
+recorded source SHA exactly. Portable readback:
+ data/backend_figure_packet_root_readback_2026-10-09/receipt.json
+
+PRIVATEF576 migration212:12 final owningPASS; realPG UI source-preserving
+SQLite→PG→SQLite/empty table/occupied destination refusal verified. APIunchanged,
+22 newUI literals require normal workstation caption ownership before appship.
+ data/576_measurement_migration_ui_cpu_2026-10-08/receipt.json
+PRIVATEF576 classifierfbb:9 final native backend matrixPASS15.31s,11neighbor
+PASS before dedup follow-up; regression/prediction/classifier total5API prose
+replacements, runtimezero. Two-plate samePGDSN reads only once. Portable delta
+base338 requires earlier regression/writer source packets; paired GUI later
+arrivals are separate and source-private.
+ data/576_classifier_store_routing_2026-10-08/receipt.json
+
+PRIVATEF572b33 real merged_crop producer now yields advisory notes for bounded
+replay-verified overlap of fully hashed shared sources. Actual96/128montage
+exports positive; changed source/tampered replay/cap/malformed recipe abstain.
+Figure+montage115PASS31.63s. API/runtime same as predecessor; earlier plot tr
+extractor gap still needs normal ownership. No arbitrary splice/heavy-noise
+completion claim: existing shared-label controls false-match and noise recall
+is inadequate. New CONSOLIDATEDpublic-f0 six-file source patch includes all
+prior exact replay and current reachable source-region code. PreserveN658.
+ data/572_verified_merged_source_regions_cpu_2026-10-08/receipt.json
+ data/572_current_merged_source_handoff_2026-10-09/receipt.json
+
+F576 paired-table GUI includes13 newUI captions and total7backend API prose
+changes; output-root DSN fix continues privately. PostgreSQL count inputs with
+blank local src must not produce DSN-shaped folders. WORKSTATION normal tooltip
+owner: regression src prose currently promises auto-output beside count table;
+remote count stores instead need an explicit local output directory. General
+settings backend help still needs its earlier SQLite-working-copy correction.
+
+
+## 2026-10-08 20:26 EDT — Home publishes three narrow CI source repairs
+
+Home integrates immediate Copy console translation (de/pt initial-layout width),
+declares the existing fallback worker codec cloudpickle>=3.1.2,<4 with the minimum
+constraint at3.1.2, and makes the idle-build fixture snapshot deterministic.
+The original closed>=5 and completion/slice guards remain unchanged. Comparison
+windows close normally after parity assertions, fixing the retained worker race.
+
+Owning Copy console/layout cohort233PASS and language/hosted selectors79PASS.
+Integrated idle/dependency/worker cohort102PASS had one retained busy-worker
+report; after normal comparison-window cleanup the complete final idle file
+15PASS53.66s has no busy-worker report. Standalone codec fallback passes the
+existing closure test; cached nativePython3.9.21 round-trips closures/keywords/
+returned closures with cloudpickle3.1.2. This is not a full Python3.9 app run.
+
+Root complete normal API13233 and all6 runtime maps exactly equal current stored
+English (UI7287, application total10065);193 imports are source-owned. Source
+and compressed/raw acceptance hashes are verified. No generated hand edit,
+raised ratchet, ignored failure or wider private application source is included.
+ data/43_copy_idle_dependency_current_cpu_2026-10-09/receipt.json
+ data/43_copy_console_first_layout_2026-10-08/receipt.json
+ data/47_idle_category_runner_lifecycle_2026-10-09/receipt.json
+
+ParentN43/N47 remain open until exact current hosted runs finish successfully.
+WORKSTATION still owns the known README tracked-size mismatch and the three
+compact caption ownership gaps listed below. Do not dispatch another full serial
+acceptance on a source already known to fail those guards. Later private F576
+paired-store GUI and F572 verified-source-region changes require normal caption/
+API ownership before publication; preserve these narrow CI source fixes.
+
+## 2026-10-08 20:35 EDT — Current README size guard repaired in all nine locales
+
+Workstation remeasures all24683 tracked public6fd files as3,582,359,908bytes
+(3416.4MiB), updates README3416MB/date2026-10-08, and regenerates allnine
+native READMEs through normal producer. Independent full-byte comparison
+proves only that one numeric/date paragraph changes perlocale; native hardware
+and every other byte remainexact. Originalclone download measurements remain
+datedhistorical values. Full light-install guard17PASS89.14s,15 unrelated
+presentationcases explicitly deselected; checkout-size assertion included and
+existing15percent tolerance untouched. No application/API/runtime changes.
+ data/43_current_checkout_size_remeasurement_2026-10-08/receipt.json
+
+Home retains compound Copy-console width fix andCI dispatch/serial ownership.
+Tutorial native pages privately pass all84 routes after archival retirement;
+Root normalrecord and strictbuild/publication remain before sourcepush. Native
+GPU R8 passes84palette/backgroundcases672exactframes plus actualMainWindow
+ApplyRevertKeep/resize/shutdown onQt6.12/xcb; source remainsprivate, performance
+and Automatic verificationR9 queued throughunchangedguard20:33:41EDT.
+
+
+## 2026-10-08 20:22 EDT — Native tutorial media published; GPU and combined source acceptance continue
+
+Immutable tutorial media5abf35929844697a46ffb3a7802c24f6774dc07f is uploaded
+and full-stream SHA verified:5077files/6,125,100,132bytes. Normalpages, all84
+actual published-media routes and normalrecord PASS. Root private bounded
+source0fbbd1e47 retains3FAIL104PASS owning diagnostic; tutorial agent fixes
+stale02/03 installer directories and unconditional manifest identity, and
+proves the native scene-boundary observation race without relaxing assertions.
+No repositoryPages/nightly deployment completion claim yet.
+ data/676_native_six_lesson_media_publication_2026-10-08/receipt.json
+
+Root independently verifies all154 navigation runtime payloads plus658actual
+Git app sources/25artifact-helper-test bindings. Current frozen8cc normal
+API13265 and runtime10173/UI7395 source/review producers are in final owning,
+strict build and browser acceptance; no wider source publication claim yet.
+ data/navigation_runtime_independent_root_2026-10-08/receipt.json
+
+Native privateGPU R6 fullengine24cases/192exact moving frames and owner-thread
+release proof is byte verified and portable. R7 retains real random-advection
+blinking matrix-index crash, now reproduced in a CPU regression. Root fix
+e91593c76 passes42 complete blinking/flowfallback/Preferences checks52.75s.
+Fresh R8 actualnative palette/events/MainWindow ApplyKeepRevert/resize/shutdown
+turn queued20:20:53EDT through unchanged360idle/600gap guard. GPU source stays
+PRIVATE; no production renderer or original user crash completion claim.
+ data/679_native_application_engine_GPU_2026-10-08/receipt.json
+
+Root separately owns normal dated README tracked-size remeasurement3416MB
+against public6fdced907; nine native source reviews prepared, normal writer
+active. Home owns compound Copy-console geometry repair/CI dispatch. N677
+reopening is preserved; three compact caption owners follow frozen acceptance.
+All three workstation agents stay active; historical56 English TV tracks
+continue separately, originals retained. New Home backend/figure packets are
+queued after the current coherent freeze rather than mutating its readers.
+
+
 
 ## 2026-10-08 19:52 EDT — Current CI failures and portable backend/figure packets
 

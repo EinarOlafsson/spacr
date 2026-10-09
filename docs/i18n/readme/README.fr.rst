@@ -274,7 +274,7 @@ Les contributeurs ont besoin de l’historique des versions ; pour simplement ex
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la taille de la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Les téléchargements silencieux à la demande empêchent de mesurer le total complet transféré. Les fichiers suivis de nightly occupent 2839 MB dans la copie de travail (mesurés le 2026-10-07), hors historique Git. La taille et la durée du téléchargement varient selon la branche.
+Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la taille de la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Les téléchargements silencieux à la demande empêchent de mesurer le total complet transféré. Les fichiers suivis de nightly occupent 3416 MB dans la copie de travail (mesurés le 2026-10-08), hors historique Git. La taille et la durée du téléchargement varient selon la branche.
 
 
 Points d’entrée en ligne de commande

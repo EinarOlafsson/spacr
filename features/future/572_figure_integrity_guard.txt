@@ -210,3 +210,14 @@ MontageLoad API prose refresh and review/generation of the new plot.py tr litera
 which canonical_sources currently omits. Advisory reports similar displayed
 pixels only; it does not assert acquisition identity or manipulation. Separate
 source-only splice/noise scope remains open; parent not100%.
+
+2026-10-08 20:38 EDT — Home verified actual merged montage producer overlap
+childb33: 96/128exports from fully hashed merged sources produce bounded advisory
+notes; source changes, tampered replay, malformed recipe and cap exhaustion
+abstain. Complete figure+montage owning115PASS31.63s. Root verifies6payloads/
+2Gitbindings and exact patch reproduction. Consolidated six-file public-f0
+source packet: data/572_current_merged_source_handoff_2026-10-09/receipt.json.
+Source remains private pending normal plot tr ownership/review; preserveN658.
+Broader arbitrary source-splice and heavy-noise scope staysOPEN. Existing probe
+false-matches distinct shared-label controls (2/40 nucleus,14/40cell,10/40pathogen)
+and heavy-noise recall is inadequate, so no forensic verdict is introduced.

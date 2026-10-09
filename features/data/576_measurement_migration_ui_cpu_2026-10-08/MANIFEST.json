@@ -1,0 +1,52 @@
+{
+  "files": {
+    "api-guards.log.gz": {
+      "sha256": "49984e2632240ff740238f53453d58b7d00d5ab9526b9ca7753960a63bd4702b",
+      "bytes": 53
+    },
+    "baseline-inventory.json.gz": {
+      "sha256": "38ee4073c4c2dfe15fe4cff12997bf7ce0e751948f0d1d9be82530bd7bb38d67",
+      "bytes": 2552401
+    },
+    "final-inventory.json.gz": {
+      "sha256": "02678eb2a288d57c887c4ca8616d3e00edc76e8ed3b949a52ae8d44326ce1b65",
+      "bytes": 2552844
+    },
+    "focused-adjacent-pre-final.log.gz": {
+      "sha256": "c993e6965308e93aa6342670225faeaeae3b7bd603a8233e3b207c4dd8d889ff",
+      "bytes": 176
+    },
+    "inventory-delta.json": {
+      "sha256": "7a8dfc57a8e0ad796ed39d4c795500c587d8724c4dd64e69502ac19b2e505994",
+      "bytes": 2312
+    },
+    "owning-final.log.gz": {
+      "sha256": "8b037b3e6e19b858f7994cb8847abe4edda96f2bbe335fda9add19ba01ff99aa",
+      "bytes": 52
+    },
+    "postgres-final-existing-tests.log.gz": {
+      "sha256": "84eab94f713645041a919a8871d202474b26fc223d7b3918de931d9e72457b71",
+      "bytes": 50
+    },
+    "postgres-final-ui-probe.log.gz": {
+      "sha256": "8f94390bacf001036f98674287b47e353efc71e9c1523526d9f0221301e866ed",
+      "bytes": 260
+    },
+    "postgres-final-ui-probe.py.gz": {
+      "sha256": "033951c35d92ac0c4ac384cea1f599183b5482660a4dacbea09d80b33a2fe160",
+      "bytes": 933
+    },
+    "receipt.json": {
+      "sha256": "d3aa74734d5f8b5e84f97f9dcca04aa1673789cca29bb17b38146724f1152daf",
+      "bytes": 1921
+    },
+    "source-and-tests.patch": {
+      "sha256": "267f332e65a8d17d22bce93e732576f58c1cc4548e51784036d3c1ec8ffdb431",
+      "bytes": 26440
+    },
+    "verify.py": {
+      "sha256": "2409b45badd0841be3ee13aae014025dc7b784f1d3b6a8906308594dd9f58348",
+      "bytes": 2368
+    }
+  }
+}

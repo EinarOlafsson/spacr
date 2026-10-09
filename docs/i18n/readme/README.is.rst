@@ -274,7 +274,7 @@ Uppsetning frá frumkóða (létt)
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Hljóðlausar niðurhalssóknir eftir þörfum koma í veg fyrir fullkomna mælingu á heildarniðurhali. Útgáfustýrðu skrárnar í nightly taka 2839 MB í vinnueintakinu (mælt 2026-10-07), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein.
+Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Hljóðlausar niðurhalssóknir eftir þörfum koma í veg fyrir fullkomna mælingu á heildarniðurhali. Útgáfustýrðu skrárnar í nightly taka 3416 MB í vinnueintakinu (mælt 2026-10-08), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein.
 
 
 Skipanalínuskipanir

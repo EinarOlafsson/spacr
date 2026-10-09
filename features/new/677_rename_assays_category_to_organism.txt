@@ -1,5 +1,7 @@
-=========================================================================RENAME THE ASSAYS CATEGORY TO ORGANISM
-=========================================================================
+================================================================================
+RENAME THE ASSAYS CATEGORY TO ORGANISM
+================================================================================
+
 Status:    REOPENED 2026-10-08 — heading done; first-run navigation help translation still missing.
 Requested: 2026-10-08 — "cahnge the assays category to organism"
 Owner:     Home/root implementation; workstation runtime translations/tutorials
