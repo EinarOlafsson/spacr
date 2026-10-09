@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/release-candidate-append-9t0mo_lu",
-  "manifest_sha256": "fece6863b147babec9bebc411dcfb62a426ef135d6e496a6d0b357d87d07007f",
+  "private_candidate": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-historical-live-tv-r1/release-candidate-audio-buhh9wb_",
+  "manifest_sha256": "2b6079acab3d58759e1abf49e248431c4b3e7e7ea7a9dfbbc3ebf6c5124ac423",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -9,8 +9,8 @@
     },
     {
       "path": "web/app_v2.js",
-      "sha256": "6788bcb633ec49827d15198ed03dba48c08845588e9fad6287221884fe8e397b",
-      "bytes": 94543
+      "sha256": "34df699e2c36c317a6a126596b51fba95dcd3a011668dc6d30557f4241746fd4",
+      "bytes": 94896
     },
     {
       "path": "web/catalog/captions_da.json",
@@ -264,8 +264,8 @@
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "b40874ce794e72ead90cce8a0fc66be119021591df733ebf56925b570158555d",
-      "bytes": 529302
+      "sha256": "10b0952ec0e8f9a1c2c793289c7bd8083b0186366863f70c629b68b8267a86c0",
+      "bytes": 530005
     },
     {
       "path": "web/logo_spacr.png",
@@ -714,17 +714,17 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "fece6863b147babec9bebc411dcfb62a426ef135d6e496a6d0b357d87d07007f",
-      "bytes": 1191781
+      "sha256": "2b6079acab3d58759e1abf49e248431c4b3e7e7ea7a9dfbbc3ebf6c5124ac423",
+      "bytes": 1156518
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "ff6586c2f522ca3972d69827b8ba93f00903c869614951ab0ef4b7b9533e3315",
-      "bytes": 127532
+      "sha256": "c121685236b7f832b8de5762a8059926a16434984e7eeddb37a3db825e80a17d",
+      "bytes": 127558
     },
     {
       "path": "placeholder-mutation-checks.json",
-      "sha256": "e43b7d92ba8ea587e9f2e932e724aa150016f5aa291767625ca725555bd48ae7",
+      "sha256": "b3b2ef9f691e743cff2b0bf8fe6d21e7525a65823eedefa094acd36d10c846a6",
       "bytes": 510
     }
   ],
@@ -732,15 +732,5 @@
   "narration_and_4k_in_git": false,
   "browser_checks_complete": true,
   "published": false,
-  "release_hold": false,
-  "media_uploaded": true,
-  "pages_tree_ready": true,
-  "media_revision": {
-    "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "tutorial-native-install-home-toxo-20261008-r1",
-    "tag": "tutorial-native-install-home-toxo-20261008-r1-verified",
-    "commit": "5abf35929844697a46ffb3a7802c24f6774dc07f",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5abf35929844697a46ffb3a7802c24f6774dc07f"
-  },
-  "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
+  "release_hold": true
 }
