@@ -1,5 +1,41 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 20:45 EDT — Coherent hosted acceptance dispatched; final paired-store UI proof
+
+PUBLICe600455702 includes Home narrow CI/test repairs and workstation normal
+nine-language README3416MB refresh. Root independently checks all7README gzip/
+raw payload hashes and all10 current README measurement strings. Requiredtests
+37865925400 and original-order hostedQtserial37865976724 targetexacte600;
+native_batch_replay=false. Both pending, not accepted. Old c4 serial remains a
+diagnostic, no duplicate dispatch or blanket waiver. Product body isf800.
+
+PRIVATEF576 final66ab/676 source: paired regression table inputs preserve table
+qualifiers/proposals/labels during reorder/remove, read-only schema pickers,
+no per-keystroke backend query, actual Show alpha features off/on/off hides
+registered controls ANDcolumns without dropping saved names. PostgreSQL count
+DSNs fail closed for automatic filesystem results; explicit local src works
+in GUI/core/refit. Complete10-file cohort376PASS38.31s with realroot-ownedPG.
+Scratchserver cleanly stopped once all owning/migration checks completed;
+existingservices/protectedjobs untouched.
+ data/576_regression_gui_output_2026-10-08/receipt.json
+
+Root independently verifies all5payloads/10frozen Git source hashes and exact
+publicf800patch reconstruction. Full normal API13233 exacteight prose changes:
+ml.generate_ml_scores, ml.interpret_vision_model, ml.load_regression_input_pairs,
+predictions.merge_prediction_results, predictions.migrate_prediction_columns,
+qt.screens.settings_model.regression_design_scan,
+qt.widgets.file_list.PairedFileTableWidget, refit.destination.
+RuntimeUI7287→7300:18newcaptions/5CSV-onlycaptionsremoved; other5maps identical,
+foreignimports0. Application source remainsPRIVATEpendingnormal matching API/
+caption ownership. Migration22UI packet is separate, not included in that count.
+
+Workstation can use finalf800-to-private-f576.patch.gz rather than assembling
+old regression/writer/classifier packet layers. Home agent now combines separate
+migration212 with this final GUI to deliver one coherent candidate and normal
+maps; preserve both alpha identifiers and current public CI repairs. Normal
+backend help/src tooltip corrections remain workstation owner responsibility.
+
+
 ## 2026-10-08 20:39 EDT — Pandas3 rollback guard repaired; exact coverage deficit exposed
 
 Home publishes a narrow test compatibility repair for f0Fast0 terminal failure:
