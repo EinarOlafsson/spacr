@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 20:26 EDT — Home publishes three narrow CI source repairs
+
+Home integrates immediate Copy console translation (de/pt initial-layout width),
+declares the existing fallback worker codec cloudpickle>=3.1.2,<4 with the minimum
+constraint at3.1.2, and makes the idle-build fixture snapshot deterministic.
+The original closed>=5 and completion/slice guards remain unchanged. Comparison
+windows close normally after parity assertions, fixing the retained worker race.
+
+Owning Copy console/layout cohort233PASS and language/hosted selectors79PASS.
+Integrated idle/dependency/worker cohort102PASS had one retained busy-worker
+report; after normal comparison-window cleanup the complete final idle file
+15PASS53.66s has no busy-worker report. Standalone codec fallback passes the
+existing closure test; cached nativePython3.9.21 round-trips closures/keywords/
+returned closures with cloudpickle3.1.2. This is not a full Python3.9 app run.
+
+Root complete normal API13233 and all6 runtime maps exactly equal current stored
+English (UI7287, application total10065);193 imports are source-owned. Source
+and compressed/raw acceptance hashes are verified. No generated hand edit,
+raised ratchet, ignored failure or wider private application source is included.
+ data/43_copy_idle_dependency_current_cpu_2026-10-09/receipt.json
+ data/43_copy_console_first_layout_2026-10-08/receipt.json
+ data/47_idle_category_runner_lifecycle_2026-10-09/receipt.json
+
+ParentN43/N47 remain open until exact current hosted runs finish successfully.
+WORKSTATION still owns the known README tracked-size mismatch and the three
+compact caption ownership gaps listed below. Do not dispatch another full serial
+acceptance on a source already known to fail those guards. Later private F576
+paired-store GUI and F572 verified-source-region changes require normal caption/
+API ownership before publication; preserve these narrow CI source fixes.
+
+
 
 ## 2026-10-08 19:52 EDT — Current CI failures and portable backend/figure packets
 
