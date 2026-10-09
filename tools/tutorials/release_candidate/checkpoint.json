@@ -732,5 +732,15 @@
   "narration_and_4k_in_git": false,
   "browser_checks_complete": true,
   "published": false,
-  "release_hold": true
+  "release_hold": false,
+  "media_uploaded": true,
+  "pages_tree_ready": true,
+  "media_revision": {
+    "repository": "datasets/einarolafsson/spacr-tutorials",
+    "branch": "tutorial-live-tv-20261008-r1",
+    "tag": "tutorial-live-tv-20261008-r1-verified",
+    "commit": "1b5880b95c72c49fd0085b800323e2254ff89727",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1b5880b95c72c49fd0085b800323e2254ff89727"
+  },
+  "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }
