@@ -1,0 +1,21 @@
+TOKEN-FREE PREPARED ITEM CHECKS AND PUBLICATION
+
+Status: COMPLETE 100% 2026-10-09 after owning checks and automatic publication.
+Owner: Home
+Description: Prepared-item worker runs capped owning checks, commits exact reviewed files and pushes nightly; full progress tables update without model calls. New code fixes still require reasoning.
+
+2026-10-09 — tools/publish_prepared_items.py consumes locally prepared
+*.job.json manifests with exact worktree HEAD and file SHA256 allowlist,
+reviewed full-scope completion and explicit owning test files/nodes.
+Shared checkout, source drift, unrelated/staged work, unapproved scope,
+empty/failing/skipped tests and file changes after tests block publication.
+CPU/offscreen checks run under4G with30-minute limit; no whole suite orGPU.
+Worker commits only allowlisted files, then normal-pushes HEAD:nightly.
+No force, automatic merge/reset/stash, model/API-agent call or chat message.
+Committed checkpoint supports crash recovery; failed cases remain blocked
+with logs and receipts. Worker cannot decide new scientific/native/external
+requirements, write arbitrary fixes, or claim GitHub green from local tests.
+Current source and owning check result are preserved by automatic job:
+ /mnt/wd4tb/scratch/spacr-prepared-publication/results/683-publisher-v2.job.json
+Progress watcher emits the entire table on committed100% completion and
+also discovers new numbered items beyond its baseline ledger.

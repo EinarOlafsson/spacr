@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-09 — Prepared-item automatic check/commit/push worker active
+
+Explicitly authorized local manifests only; no model calls. Queue:
+ /mnt/wd4tb/scratch/spacr-prepared-publication/*.job.json
+Results/logs/JUnit: same folder/results; blocked jobs are not silently completed.
+Manifest fields: root(private worktree),base(exactHEAD),files(path:SHA256),
+item(completion-note path),completion_approved:true(full-scope review done),
+message(commit text),tests(explicit test files/nodes, no directories).
+Prepare code/notes/generated artifacts first; capture exact hashes, enqueue
+and let the worker run checks and publish without a further model turn.
+Never approve broad parent completion from a narrow passing subset.
+Worker: tools/publish_prepared_items.py; user service spacr-prepared-publication.
+Stop: systemctl --user stop spacr-prepared-publication
+Restart exactly once if absent after reboot:
+ systemd-run --user --unit=spacr-prepared-publication --collect -p MemoryMax=256M -p MemorySwapMax=0 /home/olafsson/anaconda3/bin/python /mnt/wd4tb/spacr-worktrees/codex-low-token-recovery-20261009/tools/publish_prepared_items.py --queue /mnt/wd4tb/scratch/spacr-prepared-publication --watch
+Worker's own deployment is prepared job683-publisher-v2.job.json, owning guard
+and badge tests. Its result must saypublished before calling N683 complete.
+N682 bump/merge/retrigger scope complete: main/initialnightlyf89; actual
+release37941159752 queued. PyPI/tag/installers not yet proven, no CIgreen claim.
+Full6fb CI50MB log download finally succeeded; actual18 failing nodes selected.
+Current-nightly local replay15FAIL3PASS in34.10s, durable files:
+ /mnt/wd4tb/scratch/low-token-recovery-20261009/github-failures-http1.log
+ /mnt/wd4tb/scratch/low-token-recovery-20261009/failed-nodes.json
+ /mnt/wd4tb/scratch/low-token-recovery-20261009/actual-ci-failures.log
+ /mnt/wd4tb/scratch/low-token-recovery-20261009/actual-ci-failures.xml
+Home owns theme/input/preferences failures; WS owns tutorial/API guard failures.
+Automated mechanical work cannot repair these new failures without reasoning.
+One Root, no subagents/GPU/protected jobs. All35 older unfinished parents open.
+
+
 ## 2026-10-09 — Explicit user release request: nightly 1.5.1.4 promoted to main
 
 User explicitly requested bumping nightly to1.5.1.4 and merging nightly into
