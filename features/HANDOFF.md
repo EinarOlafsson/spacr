@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:11 EDT — Home source and Root help fix jointly accepted
+
+2026-10-08 23:11 EDT — Merged actual Home841816a2d normally after rejected push.
+Both complete handoff sections retained; no force/reset/stash. Home's tested
+final-edge/container waves,0–200% ripple intensity and signed Spaceout
+relief/stronger vortex/colour schedule retained with Root conditional help
+fix. Normal help index regeneration adds exactly one existing compact
+nine-locale Ripple intensity row. Exactmergeddeebb0749 eight complete
+owner files207PASS83.89s/no skips; full13233 API/10065 runtime/65 installer
+normal source maps equal stored English. Receipt
+data/43_spaceout_help_targets_cpu_2026-10-09/receipt.json now retains
+19 verified payloads and16 merged actual Git source bindings.
+Earlier81PASS and original negative stay bound to their own14f source.
+Frozen8c historical audio upload/readback handle65256 remainslive, unaffected
+by this merge; no mutable source or candidate replacement. Current source
+push triggers normalCI. Home4944 serial/full diagnostics remain intact;
+no current full-green/native-user approval or parent completion claim. OneRoot.
+
+
 ## 2026-10-08 23:02 EDT — Current Spaceout preference search targets repaired
 
 2026-10-08 23:02 EDT — Small current help-search visibility fixsource14f054696.

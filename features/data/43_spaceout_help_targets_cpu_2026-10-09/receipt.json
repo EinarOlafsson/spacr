@@ -102,7 +102,77 @@
       "raw_bytes": 1285,
       "raw_sha256": "524e9e0d548dcd523ef3fbb102d9256eec0e0ca9677338a46f87624336b2de55",
       "gzip_sha256": "51294f53a107a519b4d7e7d9fecd3b5725c825d4ed517956fb9416ff9aa8588a"
+    },
+    {
+      "path": "payload/home-relief-merged-help-index-r1-tool.log.gz",
+      "raw_bytes": 549,
+      "raw_sha256": "a1ca91359546bc81c154b2154e06d8a01e387e49dfdc37088df997d776e712de",
+      "gzip_sha256": "13390c6a763deceb6ccabb3f51b7abd86ed42d62a9ab520e9bbf8b4f33950624"
+    },
+    {
+      "path": "payload/home-relief-merged-help-index-r1.log.gz",
+      "raw_bytes": 149,
+      "raw_sha256": "8edce4614505d9cb4dd98458a9c05f479174e82cd8fc20b437501eed4d7f649c",
+      "gzip_sha256": "061889c2b8ff756e3bd142e1140cd271f31a27003574597d2618d35c0288b045"
+    },
+    {
+      "path": "payload/home-relief-merged-owning-r1-tool.log.gz",
+      "raw_bytes": 1210,
+      "raw_sha256": "a5da5dfbdf5f039bd4b6d9742f06adcecf7f2a1b111e74a5c4137c7caa70b682",
+      "gzip_sha256": "8690472ec3f525756aababe3fb1026f5f7f7a2e65473a6c9dc532789deb0fa9b"
+    },
+    {
+      "path": "payload/home-relief-merged-owning-r1.log.gz",
+      "raw_bytes": 387,
+      "raw_sha256": "3b6918a2a9ad904dd5d1e2304914fc17015f5869d42a3fca1eae5888ef343ef5",
+      "gzip_sha256": "989b1fb9eccd28ec58ea7bd3a8fc3006a22f1e3a4e08674fde331d225e22b653"
+    },
+    {
+      "path": "payload/home-relief-merged-current-source-r1-tool.log.gz",
+      "raw_bytes": 2120,
+      "raw_sha256": "62330615e464eb668e60a852589039c8283625abcafa5ea9990af3b99eb1136e",
+      "gzip_sha256": "87b29a1c57f88a34decc8db2e4765cfa77fcb1cfca6cd176f6787f44d777f2e2"
+    },
+    {
+      "path": "payload/home-relief-merged-current-source-r1.log.gz",
+      "raw_bytes": 1540,
+      "raw_sha256": "ceabd5cd445c4db16a9c8afdf70d44f871f9160ac7c9cbb765c8857b73df4381",
+      "gzip_sha256": "f6e19b741d33018e55e2f6309a262bcec9fea211a61c84716d40d598fbe0c2d7"
+    },
+    {
+      "path": "payload/home-relief-merged-current-source-r1.json.gz",
+      "raw_bytes": 1424,
+      "raw_sha256": "60249336818a82af1c829a43a98b8a41b7910cbb4ff9f19fc4c4d7d0f4e67ef4",
+      "gzip_sha256": "63a6230ae86f66b9fa62f710d99bfc41238880dcd92bcfe20fab1cd9b5378ea7"
     }
   ],
-  "qualification": "Fixes only the demonstrated Spaceout-only dead preference targets. Remaining completed jobs show already-repaired recording errors. Ignored colorama atexit diagnostic and parked import-worker reports are not claimed resolved. Full current GitHub green, hosted coverage and tutorial upload/readback remain pending."
+  "qualification": "Fixes only the demonstrated Spaceout-only dead preference targets. Remaining completed jobs show already-repaired recording errors. Ignored colorama atexit diagnostic and parked import-worker reports are not claimed resolved. Full current GitHub green, hosted coverage and tutorial upload/readback remain pending.",
+  "merged_home_acceptance": {
+    "source_commit": "deebb07496960c135bb628b0154eb60212daec1b",
+    "home_public_commit": "841816a2d",
+    "passed": 207,
+    "seconds": 83.89,
+    "skipped": 0,
+    "source_sha256": {
+      "spacr/qt/help_index.py": "bf7040f35d76c778e3ae21b25b3d82905fac3e1e1677e4e5f983f24b4b660b1e",
+      "spacr/qt/help_api_index.py": "0470fc930440f8b16e027905c100f95560b39fab52766b87ff2a14905126df05",
+      "spacr/qt/preferences.py": "6a2ed2a090e237dbb779dc99fb07cd58430ffabcc5ddb875a849076f1f77b2ab",
+      "spacr/qt/i18n.py": "00b1a435883eb65e60fc5271dd9b45f98207c60bb3d72c8a40d48787fee7fdee",
+      "spacr/qt/widgets/ambient.py": "339eb481ae656a9da015ca126d5f1f682122f0c1be2040e86a35cded065000d5",
+      "spacr/qt/widgets/collapsible_splitter.py": "87ac677d5b3ea281c73bceadee549f8a82ce39fc61cd133d554cd924565b2b3d",
+      "spacr/qt/widgets/dock.py": "2035b1e4b91c1f789ecfc813bf0c514615fcaf15b1f7ba3a37bb5e872e1f7e6f",
+      "spacr/qt/widgets/section.py": "40bfba7ad283d7bd88af0d5f96e58d122e1347b735694bf80d1cbbb28a405084",
+      "tests/qt/test_the_help_search_field_lands_where_it_says.py": "e3b668da2161b163f7afc95162df4bc950ebf83d814678bd415d111217e2196e",
+      "tests/qt/test_the_help_search_says_what_it_left_out.py": "1ec73a45322e0fb44253f966b35f55c99eb7a921a00df1bd4d40bd87dc2e22ae",
+      "tests/test_the_help_index_is_generated_not_typed.py": "18373e4f992b870629868f4701f07c89f5c2db0d35ed0c4d09f1fbbddaff1b80",
+      "tests/qt/test_field_popup_waves.py": "48c6c4899308df43211fd15a2880efbca53ecbc25f23d408450eb0ceb2e82525",
+      "tests/qt/test_field_ripple_controls.py": "5d7a4fcd659dafef00f58f0f5dbb8d2fa317713d853d3fa3ffd64556e6d42806",
+      "tests/qt/test_spaceout_field_phenomena.py": "f6a9641b80ce218601a7fe90f7a6dfb8d592fc23d9aa4fbf6de8c3fd6fd56dad",
+      "tests/qt/test_window_snap_and_field_edges_n666.py": "b3cd9d8d0eb887964596e76bb2980598efdd023d6c6a6f8f7822fe8a2116f73e",
+      "tests/qt/test_n668_spaceout_and_popup_motion.py": "30cf5115a764a5f6ce1f054e296d287e2264e8323139148caa82e728658a1148"
+    },
+    "generated_change": "Normal help index adds only existing nine-locale compact Ripple intensity preference; no hand edits or API changes.",
+    "api_runtime_source_equal": true,
+    "scope": "Combined eight complete owning files after preserving both Home ripple/relief changes and Root Spaceout-only help target fix."
+  }
 }
