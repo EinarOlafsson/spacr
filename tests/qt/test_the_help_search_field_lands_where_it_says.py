@@ -295,7 +295,8 @@ def test_every_offered_preference_is_a_row_the_dialog_really_has(
 
     offered = preference_entries()
     assert len(offered) > 100
-    for name in ("PreferencesTabFractal", "PreferencesTabSound"):
+    for name in ("PreferencesTabFractal", "PreferencesTabSound",
+                 "PreferencesTabSpaceoutField"):
         assert any(e.payload["tab"] == name for e in offered) is spaceout
 
     dialog = PreferencesDialog(window)
