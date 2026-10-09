@@ -17,6 +17,63 @@ No full GitHub green or parent43/615 completion claim. One Root agent.
 Historical audio verification remains the existing handle65256 on frozen8c;
 no replacement upload, new media generation or broad feature work started.
 
+## 2026-10-08 23:24 EDT — Shared latest source merged; final guard patch remains Home owner
+
+Workstation796428c8a3 independently fixed the same conditional help-page issue
+and re-generated the same ripple intensity help row. Its actual merged source
+207PASS eight-owner proof is preserved, along with audio-transfer65256 ownership.
+Merge retains both authored handoff/item notes and equivalent two-line Help
+assertion formatting. No generated hand-merge or stronger source change.
+Home39bfe8e19f contains two additional accepted guard repairs: exact reviewed
+API close arrival and exact18 active README-domain source set. All current
+ripple/Spaceout changes are already public841; final guard patch push was slow
+and interrupted after remote advanced, without force/reset/stash. Normal private
+merge/push follows; do not mistakenly treat an interrupted upload as acceptance.
+Home841 manual37877663418 cancelled while queued because these remaining guards
+would fail. Old4944 manual also cancelled after preserving all14 failed logs.
+Keep4944 original-order serial37868900922 (stilllive). Latest full CI dispatch
+on final merged source follows the successful push; record exact ID below.
+No children/new broad work. Source-body copies and original proofs remain frozen.
+
+## 2026-10-08 23:16 EDT — Final small CI gaps repaired; current-source dispatch next
+
+PUBLIC841816a2d9 includes ripple final-edge/intensityf632 and Spaceout relief aef80706ef
+plus preserved workstation updates. Final Spaceout rerun47PASS4.96s. Exact full
+normal API13233 equals current English manifest; six runtime source maps unchanged.
+New ripple control caption lives in compact tr rows for nine locales. No local
+GPU/protected job or active subagent. Scratch3 preview images remain available.
+
+Archived every14 completed failing job from old Home4944manual37868897849,
+plus exact job/source state and compressed/raw SHA digests. First aggregate log
+request was unavailable while run live (zero-byte scratch output, not evidence);
+per-job API captures succeed. Cancellation requested for this already-red run
+because its old collector/API/README/help failures are repaired in current source.
+Fresh841 manual37877663418 is still queued; replace it after this final fix push,
+so a known-stale guard does not consume another full hosted run. KEEP original
+4944Qtserial37868900922, which remainslive and has no demonstrated failure here.
+
+Three bounded current guard repairs: accepted LiveSettingsDialog.close already
+reviewed in all9 API catalogs by9a2f is added to authored Home arrival fixture;
+base13,215 stays unchanged, source-bound arrivals9→10. Help preference mode gate
+now includes PreferencesTabSpaceoutField, verified against real dialogs in both
+modes. Normal help-index generator rerun adds new ripple intensity row. Current
+README domain review has18 active source blocks, with retired blocks archived;
+historical minimum23 was false. Guard binds exact authored current-source set
+instead of arbitrary count, retains all-nine target/actual visible text checks,
+and fails any dropped/extra domain key. No coverage/timing/skip/ratchet waiver.
+
+Initial scoped API+README+whole Help51cases:50PASS,1FAIL85.59s (README23minimum).
+Final exact4 API/README/normal+Spaceout actual-row guards:4PASS31.48s with REAL
+numeric collector enabled. No unrelated full rerun. Portable receipt includes
+15 old-run payloads + actual hashes of seven current repair/contract files:
+ data/43_final_guard_fixes_2026-10-09/receipt.json
+
+NEXT agent: final-source full hosted CI and first numeric endpoint publication
+remain main priority. Check new run IDs in following note. Retain live Qt serial
+and workstation historical audio transfer65256; no duplication/rescope. Other
+private/API/docs/GPU/native/external parents remain as recorded below; this
+bounded patch does not mean all tasks, current hosted green or native visuals
+are accepted. User requests minimum tokens and current handoff for next session.
 ## 2026-10-08 23:11 EDT — Home source and Root help fix jointly accepted
 
 2026-10-08 23:11 EDT — Merged actual Home841816a2d normally after rejected push.

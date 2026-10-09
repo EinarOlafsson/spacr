@@ -7,5 +7,6 @@
   "spacr.qt.widgets.hint_bar.HintBar.changeEvent": "Keep the reserved four lines in sync with the painted font.\n\n:param event: the Qt font or style change event.\n:returns: None.",
   "spacr.qt.widgets.hint_bar.HintBar.setText": "Show all help in the fixed strip, scrolling when it exceeds four lines.\n\n:param text: the complete translated help sentence.",
   "spacr.qt.widgets.hint_bar.HintBar.showEvent": "Restore a saved height after the Preferences layout is measured.\n\n:param event: the Qt show event.",
-  "spacr.qt.widgets.hint_bar.HintBar.text": "Return the complete sentence currently shown in the strip."
+  "spacr.qt.widgets.hint_bar.HintBar.text": "Return the complete sentence currently shown in the strip.",
+  "spacr.qt.widgets.live_preview.LiveSettingsDialog.close": "Return panel controls even when a never-shown dialog is closed.\n\nQt skips :meth:`done` for a hidden dialog's successful close, though\nthe dialog can still be destroyed afterward. A visible dialog reaches\n``done`` through its normal close event; its release guard keeps this\npath idempotent.\n\n:returns: whether Qt accepted the close request."
 }

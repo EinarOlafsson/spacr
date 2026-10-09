@@ -3658,6 +3658,7 @@ live. This is owning CPU correctness/counting evidence, not recovered full
 hosted coverage, current GitHub green, deployed docs or parent43/681 closure.
 One Root agent; low-token finish-up scope preserved.
 
+2026-10-08 23:16 EDT — All14 terminal old4944 failed-job logs archived. Final bounded API arrival/actual-mode preference help/exact active README domain guards4PASS31.48s with real collector. Numeric base13,215, coverage, skip and timeout ceilings retained. Current-source full hosted acceptance remains pending. See43_final_guard_fixes_2026-10-09/receipt.json.
 2026-10-08 23:02 EDT — Small current help-search visibility fixsource14f054696.
 Actual completed4944 Qt1/coverage1 logs expose8 Spaceout-only field rows
 offered in ordinary spaCR, where their preferences page is absent. Added
