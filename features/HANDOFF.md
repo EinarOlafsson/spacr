@@ -60,6 +60,40 @@ vortex rotation only0.42rad and attractors have no depth/lighting. Keep changes
 private/helpers, respect toggles and mouse physics, test finite/bounded/no-history
 and visual snapshots. No GPU work or new agents; minimize tokens. Existing
 Home4944 hosted acceptance remains useful; do not cancel it for cosmetic changes.
+## 2026-10-08 22:54 EDT — Existing historical narration publication in progress
+
+2026-10-08 22:54 EDT — Root continues existing historical56 English live-TV packet.
+Private current-source worktreehistorical-voice-publication-20261009 has
+accepted checkpoint8c372c8bf; normal complete5229-file validation passes,
+4 owning files35PASS40.31s. Exact manifest comparison preserves14 catalogs
+and5105 original records. Only112 corrected English files,2 required player
+index files and10 explicit original visual clocks change; six refreshed
+current lessons retain all their media. Public5ab media remains in use.
+Normal existing single-transfer uploader/readback is LIVE (owned handle65256)
+on branch tutorial-live-tv-20261008-r1; do not duplicate/restart from a stale
+log. Not yet uploaded/tagged/published acceptance. No fresh voice generation
+or video recording. Proofdata/676_historical_publication_preflight_2026-10-09
+retains7 payloads and8 actual Git source bindings. Root is the sole local agent.
+Current728 fulltests/docs await runners; Home4944 serialQt stilllive.
+
+
+## 2026-10-08 22:41 EDT — Additional affected collector owners accepted
+
+2026-10-08 22:41 EDT — Three additional completed4944 jobs (113622486792,
+113622487182,113622487248) expose the same already-repaired count-recording
+relative-path failure. Complete terminal logs and current job/source state
+retained. On exact7281178ac, real collector enabled across6 affected owner
+files260PASS7.60s; actual endpoint260/260, no skips. Files cover doctor,
+CellProfiler provisioning, relative file writers, tilde database paths,
+Starplast environments and original diagnostic messages. No further source
+change or duplicated full CI dispatch. Receipt
+data/681_collector_file_access_ci_2026-10-09/receipt.json now retains
+27 verified payloads and six additional exact Git test bindings.
+Current728 tests/docs/compat await hosted runners; Home4944 serialQt remains
+live. This is owning CPU correctness/counting evidence, not recovered full
+hosted coverage, current GitHub green, deployed docs or parent43/681 closure.
+One Root agent; low-token finish-up scope preserved.
+
 
 ## 2026-10-08 22:37 EDT — Hosted badge collector, recipe and README guard repairs
 
