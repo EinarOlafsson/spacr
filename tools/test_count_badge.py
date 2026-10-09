@@ -11,6 +11,7 @@ import uuid
 
 _RECORD = None
 _SESSION = None
+_RECORD_OPEN = open
 _ORDER = {"not_run": 0, "passed": 1, "skipped": 2, "failed": 3}
 
 
@@ -22,13 +23,13 @@ def pytest_configure(config):
     _SESSION = (os.environ["SPACR_TEST_COUNT_SESSION"]
                 if hasattr(config, "workerinput") else uuid.uuid4().hex)
     os.environ["SPACR_TEST_COUNT_SESSION"] = _SESSION
-    _RECORD = Path(directory) / f"{_SESSION}-{os.getpid()}.jsonl"
+    _RECORD = Path(directory).absolute() / f"{_SESSION}-{os.getpid()}.jsonl"
     _RECORD.parent.mkdir(parents=True, exist_ok=True)
 
 
 def _emit(nodeid, outcome):
     if _RECORD is not None:
-        with _RECORD.open("a", encoding="utf-8") as handle:
+        with _RECORD_OPEN(_RECORD, "a", encoding="utf-8") as handle:
             handle.write(json.dumps({"session": _SESSION, "nodeid": nodeid,
                                      "outcome": outcome}) + "\n")
 
