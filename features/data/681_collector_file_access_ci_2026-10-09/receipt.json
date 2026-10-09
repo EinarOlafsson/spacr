@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "source_commit": "dbbd7e023a992bfb21ed56a2187ab981e4716b76",
+  "source_sha256": {
+    "tools/test_count_badge.py": "e85f08404c623c1296ba210897c8b2b07954694eea6528fa23a16e7b3a073b2e",
+    "tests/test_test_count_badge.py": "7417a953301c12cb0eabeb3added8f01b1162fec97207ada03e279a79b54965c",
+    "conda-forge/recipe/recipe.yaml": "3ac981f8f4a70e6ef442276ee5f69a5eeca27fa02d4d5b29175ab9c2be0f7984",
+    "tests/test_conda_forge_recipe.py": "eadc3ca476da8c0f49103d628d958aafe13e8cbbd5356da7a2b749502a84684e",
+    "tests/test_documentation_i18n.py": "c058e5a982f2becaedc6fd167c725e5e2464c9f6d5e33f5f821f9f287e508513"
+  },
+  "terminal_hosted_source": "4944c63dc74b7eb83db9280ea51e0cb3d4a6cfec",
+  "terminal_hosted_run": 37868897849,
+  "terminal_hosted_job_ids": [
+    113622486970,
+    113622486979,
+    113622487010,
+    113622487249,
+    113622487279,
+    113622487319
+  ],
+  "collector_repair": "Resolve record directory before tests change working directory; preserve the original open callable across mocked application I/O. No swallowed recording errors or changed pass/fail aggregation.",
+  "baseline": {
+    "terminal_exit": 3,
+    "scope": "Original fixture activates the registered reporter and reproduces relative-path internal error; final unit fixture is isolated from the live reporter."
+  },
+  "integrated": {
+    "source_commit": "9b54bfbfd3701ad4940e796a72a258e23be5651e",
+    "passed": 23,
+    "seconds": 4.89,
+    "recorded": {
+      "schemaVersion": 1,
+      "label": "tests",
+      "message": "23/23",
+      "color": "green",
+      "passed": 23,
+      "total": 23,
+      "run_id": "",
+      "source_sha": "9b54bfbfd"
+    },
+    "scope": "Actual collector enabled; original hosted Path.open-mocked annotate owner and chdir permutation owner both pass, exact23/23 outcomes. Same collector and test bytes at final source."
+  },
+  "conda_readme": {
+    "passed": 25,
+    "seconds": 1.4,
+    "deselected": 176,
+    "original_failed_attempt_retained": true,
+    "scope": "Entire Conda recipe file plus selected README translation contracts; reviewed exact RST category heading is distinguished from body prefixes."
+  },
+  "payloads": [
+    {
+      "path": "payload/count-collector-baseline-r1-tool.log.gz",
+      "raw_bytes": 10652,
+      "raw_sha256": "9b80f1769958052f4daa58a2d3fdddadac83bb1719a98b09111dbd61c863e3c6",
+      "gzip_sha256": "c27b242e4acbf4afa75f5bcbe8a8b65f56df8915fbe2e200399652e66e1cfbf8"
+    },
+    {
+      "path": "payload/count-collector-baseline-r1.log.gz",
+      "raw_bytes": 10153,
+      "raw_sha256": "96e44b227e2dd11f7bb2469fb915a00f89790a6bc51c2cb443d953376b715c38",
+      "gzip_sha256": "c9754ee860d777ed1ff16e09320c4c3be87c716e41afffdefc23407d29e2a482"
+    },
+    {
+      "path": "payload/count-collector-fixed-r1-tool.log.gz",
+      "raw_bytes": 708,
+      "raw_sha256": "7e693d5a6d8d3cc168b4a89f08ebc074043cf7834e25edb2fcb816efd2f4260f",
+      "gzip_sha256": "38edc614a2d4435de4a774778609cb8fd589ac8b309ab691f57ae7bd46cbf11e"
+    },
+    {
+      "path": "payload/count-collector-fixed-r1.log.gz",
+      "raw_bytes": 215,
+      "raw_sha256": "71156b83b6187e45062259fef63968ce163220b639515fc86b10289790b16f97",
+      "gzip_sha256": "e43bb3f707af6963f10e02818f388c23e7f5b06b835f78688b2b05457fe24bb1"
+    },
+    {
+      "path": "payload/count-collector-integrated-r1-tool.log.gz",
+      "raw_bytes": 819,
+      "raw_sha256": "0f6c4110689b9bcb748655c1c8f068992b47636fc2c3c5a8c2affba99e9960c1",
+      "gzip_sha256": "fd747a42ed91b8dac49da4ca7f6a7a31475c4af99c55c6fac580d348a44a4095"
+    },
+    {
+      "path": "payload/count-collector-integrated-r1.log.gz",
+      "raw_bytes": 215,
+      "raw_sha256": "38ba65b5a9a361452279b687fec2a11f566c50d6b3844408e3f5cbee4bc76024",
+      "gzip_sha256": "cbe6bf6705a4cf0ffc9a7267579df6321fc89d14fa97596950fa8d5d924a9bdd"
+    },
+    {
+      "path": "payload/hosted-conda-readme-fixed-r1-tool.log.gz",
+      "raw_bytes": 3322,
+      "raw_sha256": "4b47f6168dddbd29f92d2d6778667a475fd0d17db5d45e4488d74431e22ff986",
+      "gzip_sha256": "6f39c926f72b37cb3ca7e1ab212afcd3b7b88ade3dc2d24332ca487867c1317d"
+    },
+    {
+      "path": "payload/hosted-conda-readme-fixed-r1.log.gz",
+      "raw_bytes": 2788,
+      "raw_sha256": "a23a724601faa380aaaeeb8c9d65605e4922ad068222f37d261bfd0dbc6b91d1",
+      "gzip_sha256": "b607cdebafe3c5a4a99a2f7f870002f93cd73f17cc9ba26b03c93a49d1716811"
+    },
+    {
+      "path": "payload/hosted-conda-readme-fixed-r2-tool.log.gz",
+      "raw_bytes": 765,
+      "raw_sha256": "df38d21b586fc8969c69aca96b0b143b4aa9e0f600b628deb70866ffa80b1cf2",
+      "gzip_sha256": "fe5d3c1877431f87c202b3f6ce16886271c8f5f08171fe4734795300c31693dd"
+    },
+    {
+      "path": "payload/hosted-conda-readme-fixed-r2.log.gz",
+      "raw_bytes": 231,
+      "raw_sha256": "e15460c0e4b19debf5d441ba59a6cd463d50cddb5608775f4122d430092dade4",
+      "gzip_sha256": "850cea5c3c5011f29f6be8f93badb3ec7517d0bee676ea0542da1ebc4fd564ca"
+    },
+    {
+      "path": "payload/count-collector-integrated-r1-endpoint.json.gz",
+      "raw_bytes": 163,
+      "raw_sha256": "f6f71c5e6b51ec6d6ef9b28b873f88a52d764dfdc11d35c74d7af8815366f016",
+      "gzip_sha256": "d9bd9ed9b40524862d49437b379a2bc5c90147a5a7cf334ff9881ad79feb10b6"
+    },
+    {
+      "path": "payload/home-4944-terminal-job-state-r1.json.gz",
+      "raw_bytes": 94311,
+      "raw_sha256": "d003e106d9ffa1e717f1211eb835cb53ee92451010e11d3c41e7894bee8976d6",
+      "gzip_sha256": "5d077aeb3172ef1ee27caee527868da68e4504eee30130c66caa3a4b82d0ee5a"
+    },
+    {
+      "path": "payload/home-4944-job-113622486970-terminal-r2.log.gz",
+      "raw_bytes": 4656122,
+      "raw_sha256": "7f8d818a22dfaacf2df3211994190a2299a7ee7085d023711cbf6a0f8c557f98",
+      "gzip_sha256": "83d2090cea487546e9b4225d2fa898eb6d8cc2541dfde81fcd326ebe333a6803"
+    },
+    {
+      "path": "payload/home-4944-job-113622486979-terminal-r2.log.gz",
+      "raw_bytes": 2624900,
+      "raw_sha256": "e30571f8ea0ec56ee7f4ae349133fbc5663a755f17db1f75a69b7fedbbfeade6",
+      "gzip_sha256": "732a9c02661df0f837afbee3bc8f7d7e0b6a21fad61ef33e8c5b22bf06ea5e9f"
+    },
+    {
+      "path": "payload/home-4944-job-113622487010-terminal-r2.log.gz",
+      "raw_bytes": 4180011,
+      "raw_sha256": "c46310edc4cc7b149597ab7f0fede540adf044d5b66b20266e056c95361cbd7e",
+      "gzip_sha256": "acf81d59a19c0a0554c6d5b8a1b61b501eeb3a6cf404e372fb226bda77ce1fdb"
+    },
+    {
+      "path": "payload/home-4944-job-113622487249-terminal-r2.log.gz",
+      "raw_bytes": 2442788,
+      "raw_sha256": "c11ad3c6c216c1587f661ccf4727be7337093d2f2cac1c20dab697e664d73790",
+      "gzip_sha256": "7721b0a6f178d6272ebe5c6a20b1fd28b1e521ad13540021cc4762334e56c670"
+    },
+    {
+      "path": "payload/home-4944-job-113622487279-terminal-r2.log.gz",
+      "raw_bytes": 2204039,
+      "raw_sha256": "e33f40dc54961a15c6ebc9e5e256b45555277cec835940cccc6e7e732f271721",
+      "gzip_sha256": "ce60bb318de71c67592e672bc8f1aeb8144337100bf3e05c77fe85ad25745a15"
+    },
+    {
+      "path": "payload/home-4944-job-113622487319-terminal-r2.log.gz",
+      "raw_bytes": 2630610,
+      "raw_sha256": "d59dd881114824f5ef89dbc309bfbbcd7c241b5f8377b434bd3e245b75926344",
+      "gzip_sha256": "7cb78121e5b5c08b0a168f94daa4d5635764ea977078310c60c43067d933eafa"
+    },
+    {
+      "path": "payload/count-collector-integration-r1/dee7fedaa25e43828183cb155e805334-522412.jsonl.gz",
+      "raw_bytes": 7783,
+      "raw_sha256": "3d4e1ec86434af37c98928268415fc8c14d8f65d4092788d5903dee7b08b986e",
+      "gzip_sha256": "21bf1baccfacce8ca880ea6f134d154ab9d59264c64aa40e246f730597ccd359"
+    }
+  ],
+  "qualification": "Only completed job logs used for diagnosis; overall hosted run and Home serial Qt still live. Full current GitHub green, exact coverage recovery and published Conda channel remain unverified. App/API/runtime/README generated files unchanged in this batch."
+}
