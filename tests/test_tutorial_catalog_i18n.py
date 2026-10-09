@@ -34,7 +34,7 @@ def _catalog(prefix: str, locale: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_all_authored_catalogs_match_the_85_lesson_inventory_and_routes():
+def test_all_authored_catalogs_match_the_84_lesson_inventory_and_routes():
     """Every locale must carry the complete lesson and folded-host topology."""
     english = _catalog("lessons", "en")["lessons"]
     ids = [lesson["id"] for lesson in english]
@@ -52,7 +52,9 @@ def test_all_authored_catalogs_match_the_85_lesson_inventory_and_routes():
     # Tutorial wave 3 (2026-10-04) withdrew 83_plasmodium and 84_candida,
     # whose pages moved behind Show alpha species.
     # Wave 4 appended the two allow-listed alpha lessons.
-    assert len(ids) == len(set(ids)) == 85
+    assert len(ids) == len(set(ids)) == 84
+    assert ids[:3] == ['01_pypi_github', '02_install_spacr', '04_platform_installers']
+    assert not {'02_conda_install', '03_pip_install'} & set(ids)
     assert ids[-4:] == ['82_toxoplasma', '85_host_pathogen',
                         '86_alpha_organism_modules', '87_alpha_features']
     assert not {'83_plasmodium', '84_candida'} & set(ids)
@@ -91,7 +93,7 @@ def test_all_authored_catalogs_match_the_85_lesson_inventory_and_routes():
 def test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale():
     """Every scene that shows PyPI speaks the reviewed "pype" form, never "pypie".
 
-    The rule is ``PRONUNCIATION_VERSION = "2026-08-28-pype-v11"`` in the
+    The rule is ``PRONUNCIATION_VERSION = "2026-10-08-live-tv-v12"`` in the
     renderer's pronunciation module: PyPI is the single syllable "pype" in
     English and ``PYPI_SPEECH[locale]`` elsewhere, "never PyPy, pypie, a
     sequence of letters, or two paused syllables". This test was
@@ -111,7 +113,7 @@ def test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale():
         ROOT / "tools" / "tutorials" / "authoring" / "tools" / "pronunciation.py")
     rule = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(rule)
-    assert rule.PRONUNCIATION_VERSION == "2026-08-28-pype-v11"
+    assert rule.PRONUNCIATION_VERSION == "2026-10-08-live-tv-v12"
     # Japanese particles and Chinese prose can touch a Latin brand directly.
     # Keep ASCII identifier boundaries while checking those genuine mentions.
     display_token = re.compile(r"(?<![A-Za-z0-9_])PyPI(?![A-Za-z0-9_])")
@@ -159,8 +161,7 @@ def test_caption_only_installation_lessons_keep_reviewed_display_copy():
     )
     installation_ids = {
         "01_pypi_github",
-        "02_conda_install",
-        "03_pip_install",
+        "02_install_spacr",
         "04_platform_installers",
         "05_home",
     }

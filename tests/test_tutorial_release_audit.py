@@ -58,7 +58,18 @@ def test_release_audit_parsers_pin_the_current_inventory():
     )
     # Wave 3 (candidate nmw7tksc) withdrew 83_plasmodium and 84_candida.
     # Wave 4 (candidate ake_bqpd) added the allow-listed alpha lessons 86 and 87.
-    assert len(catalog["lessons"]) == 85
+    assert len(catalog["lessons"]) == 84
+    assert catalog["lesson_aliases"] == {
+        "02_conda_install": "02_install_spacr",
+        "03_pip_install": "02_install_spacr",
+    }
+    refreshed_scenes = {
+        "01_pypi_github": 8, "02_install_spacr": 17,
+        "04_platform_installers": 14, "05_home": 39,
+        "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
+    }
+    assert {lesson["id"]: len(lesson["scenes"]) for lesson in catalog["lessons"]
+            if lesson["id"] in refreshed_scenes} == refreshed_scenes
     # Native Embeddings replaces eleven historical scenes with nine; current Plate Viewer adds two;
     # native Timelapse has 12 scenes (was 16), native OPS 12 (was 9), Conda 9 (was 8);
     # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11);
@@ -79,8 +90,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     assert {"07b_wand_add", "07c_wand_ctrl_remove", "08b_merge_demo"} <= {
         scene["visual"] for scene in make_masks["scenes"]
     }
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1156
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1217
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1166
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1227
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
@@ -347,7 +358,7 @@ def test_navigation_places_existing_lessons_once_under_current_home_and_hosts():
     sections = navigation["sections"]
     assert [section["id"] for section in sections] == ["orientation", "main", "submodules"]
     assert navigation['intro']['lessons'] == [
-        '01_pypi_github', '03_pip_install', '02_conda_install', '04_platform_installers']
+        '01_pypi_github', '02_install_spacr', '04_platform_installers']
     assert sections[0]['groups'][0]['lessons'] == [
         '05_home', '78_spacr_screens', '80_image_analysis_pathways',
         '81_sequencing_pathways', '79_module_inputs_outputs']
@@ -374,7 +385,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     """Speak PyPI as the reviewed "pype" form in every narration language.
 
     THE RULE is the renderer's own pronunciation module,
-    ``PRONUNCIATION_VERSION = "2026-08-28-pype-v11"``: English ``PyPI`` is
+    ``PRONUNCIATION_VERSION = "2026-10-08-live-tv-v12"``: English ``PyPI`` is
     "the single syllable 'pype', with the vowel and final consonant of 'pipe'.
     It is never PyPy, pypie, a sequence of letters, or two paused syllables",
     and each narration language has a reviewed form in ``PYPI_SPEECH``.
@@ -393,7 +404,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     """
     rule = _load("tutorial_pronunciation",
                  "tools/tutorials/authoring/tools/pronunciation.py")
-    assert rule.PRONUNCIATION_VERSION == "2026-08-28-pype-v11"
+    assert rule.PRONUNCIATION_VERSION == "2026-10-08-live-tv-v12"
     assert rule.PYPI_SPEECH["en"] == "[pype](/pˈIp/)"
     for retired in ("pypie", "PyPie", "PyPI", "P Y P I", "P-Y-P-I", "pie pi",
                     "pie pee", "Pie Pee", "pie-pee", "pypee", "PyPee",

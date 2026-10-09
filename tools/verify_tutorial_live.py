@@ -130,7 +130,11 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
         normalized = {name: _sha256(payload) for name, payload in source_equivalent_assets(remote).items()}
         result["source_equivalent_sha256"] = normalized
         result["hashes_match_local"] = normalized == local_hashes
-    assert result["lessons"] == 85, result
+    assert result["lessons"] == 84, result
+    assert catalog["lesson_aliases"] == {
+        "02_conda_install": "02_install_spacr",
+        "03_pip_install": "02_install_spacr",
+    }, result
     assert expected_scenes > 0 and result["scenes"] == expected_scenes, result
     assert result["languages"] == 8, result
     assert result["voices"] == 50, result
