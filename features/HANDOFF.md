@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:24 EDT — Reviewed API guard and Swedish identity check repaired
+
+Root found the remaining exact completed4944 coverage7 failure on public796:
+extractor count omitted the already reviewed LiveSettingsDialog.close contract.
+Sourceccf5f431b consumes the existing exact arrival fixture, checks its sole
+symbol/text and disjointness, and retains both original13215 ceilings. Whole
+extractor plus all10 English/nine-language inventory/hash cases18PASS138.32s;
+184 unrelated deselected. Source7dfd7c5d8 documents Swedish Organism as the
+same valid biological noun, using SAOL; product/catalog wording unchanged.
+Whole translation checker terminal0; original1FAIL12PASS1XFAIL retained.
+Proof:data/43_reviewed_api_guard_2026-10-09/receipt.json contains9 complete
+payloads and5 exact Git bindings. Original4944 full run is now cancelled;
+separate Home serialQt and current hosted runs retain their own verdicts.
+No full GitHub green or parent43/615 completion claim. One Root agent.
+Historical audio verification remains the existing handle65256 on frozen8c;
+no replacement upload, new media generation or broad feature work started.
+
 ## 2026-10-08 23:11 EDT — Home source and Root help fix jointly accepted
 
 2026-10-08 23:11 EDT — Merged actual Home841816a2d normally after rejected push.

@@ -3689,3 +3689,11 @@ Frozen8c historical audio upload/readback handle65256 remainslive, unaffected
 by this merge; no mutable source or candidate replacement. Current source
 push triggers normalCI. Home4944 serial/full diagnostics remain intact;
 no current full-green/native-user approval or parent completion claim. OneRoot.
+
+2026-10-08 23:24 EDT — Root exact API guard repair: existing reviewed hidden
+settings close fixture now participates in both unchanged13215 extractor
+counts. Entire extractor + English/all9 inventory/hash cases18PASS138.32s.
+Swedish Organism intentional spelling documented; full checker terminal0.
+Original failed/cancelled hosted evidence retained in
+data/43_reviewed_api_guard_2026-10-09/receipt.json. Full current hosted
+acceptance remains pending; do not transfer cancelled4944 acceptance.
