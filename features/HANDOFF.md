@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:01 EDT — Bounded Spaceout relief accepted; final push follows remote merge
+
+N674 now projects signed field height and uses surface normals for lighting:
+positive/negative attractors make raised peaks and depressions; vortices rotate
+up to2.4rad with moving signed relief; spirals also carry relief. Colour waves
+and three-arm spirals traverse the user's palette more strongly. Two bounded
+29/43-second lanes have jittered starts/durations/positions and calm gaps. A
+seed-shuffled geometry bag ensures both mountains and vortex events in the first
+minute, rather than long chance-based silence; colour/density lane stays random.
+All existing switches, hover/grab physics, native grain count, viewport boundaries,
+clock-seek determinism and calm/disabled exact equivalence are retained. Normal
+calm/color-only frames avoid allocating depth-light arrays. No extra GPU process.
+
+Owning Spaceout + launch47PASS4.73s, zero skips; four real scheduler seeds show
+both geometry effects within60s. New signed height/slope and disabled-zero guard
+passes. Full normal API13233 equals committed English manifest exactly; earlier
+six complete normal runtime maps equal current sources. No regenerated artifact
+or API ratchet edit. Actual1280x720 engine PNGs were inspected: peaks/valleys,
+vortex, colour spiral. Scratch: /mnt/wd4tb/scratch/spaceout-relief-20261009/.
+Preview-only first attempt used unsupported blink_percent constructor argument;
+corrected to real engine API and all3 previews saved. No application error.
+
+Ripple/intensity commitf6323d56d4 is locally committed; first push was rejected
+because concurrent workstation advanced origin. Never force push. Save Spaceout
+source then merge origin/nightly in this PRIVATE tree and push both finished
+changes with git push origin HEAD:nightly. Existing held4944 hosted runs remain
+live diagnostics; current normal push covers newer source. Parents remain open
+where hosted/native/user visual acceptance is required. Zero active subagents.
+User wants minimum tokens and a current handoff for the next Codex/Claude session;
+do not start another broad feature or replay whole local suite.
+
 ## 2026-10-08 22:56 EDT — Container-edge ripple and intensity repair ready for publication
 
 Backported only tested finite-segment waves from316ce/c797 into current7281178,

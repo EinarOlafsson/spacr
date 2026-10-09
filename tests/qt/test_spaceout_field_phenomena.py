@@ -424,3 +424,32 @@ def test_float32_cyclic_hue_rounding_cannot_index_beyond_palette():
     words = np.frombuffer(image.constBits(), np.uint32)
     assert np.all(words >> 24 == 255)
     assert np.any(words & 0xffffff)
+
+
+def test_relief_has_signed_depth_and_slopes_and_disables_exactly():
+    made = _engine()
+    _only(made, 'attractors')
+    event = _event(made, 'attractors')
+    elapsed = made.time - event[1]
+    x = np.array([cx + .022 * math.sin(elapsed * .12 + phase) + .04
+                  for cx, cy, radius, polarity, phase in event[3]])
+    y = np.array([cy + .022 * math.cos(elapsed * .09 + phase)
+                  for cx, cy, radius, polarity, phase in event[3]])
+    depth, gx, gy = made._field_depth(x, y, 600, 600)
+    assert depth[0] > .03 and depth[1] < -.03
+    assert gx[0] < -.1 and gx[1] > .1
+    assert np.isfinite(gy).all()
+    made.set_field_effects({'attractors': False})
+    assert all(np.array_equal(values, np.zeros_like(x))
+               for values in made._field_depth(x, y, 600, 600))
+
+
+def test_real_scheduler_shows_mountains_and_vortices_in_first_minute():
+    for seed in (1, 19, 42, 137):
+        made = _engine()
+        made._art_seed = seed
+        seen = set()
+        for clock in range(60):
+            made.set_time(clock)
+            seen.update(event[0] for event in made._field_events())
+        assert {'attractors', 'vortex'} <= seen

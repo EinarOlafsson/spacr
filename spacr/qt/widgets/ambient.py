@@ -6070,7 +6070,7 @@ class _SpaceoutFieldEngine(_DataArtEngine):
     no phenomenon changes native resolution or removes population samples.
     """
 
-    _lane_periods = (73.0, 109.0)
+    _lane_periods = (29.0, 43.0)
     _effect_keys = ("attractors", "relaxation", "elastic_release", "vortex",
                     "density_pulses", "density_waves", "color_waves", "spirals")
     _event_keys = ("attractors", "vortex", "density_pulses", "density_waves",
@@ -6097,11 +6097,16 @@ class _SpaceoutFieldEngine(_DataArtEngine):
             events = []
             for lane, (epoch, period) in enumerate(zip(epochs, self._lane_periods)):
                 rng = random.Random((self._art_seed << 32) ^ (epoch * 3 + lane))
-                if rng.random() < .18:
+                if lane == 1 and rng.random() < .08:
                     continue
-                kind = rng.choice(self._event_keys)
-                started = epoch * period + rng.uniform(.06, .32) * period
-                duration = rng.uniform(.30, .50) * period
+                if lane == 0:
+                    kinds = ["attractors", "vortex"]
+                    random.Random((self._art_seed << 32) ^ (epoch // 2)).shuffle(kinds)
+                    kind = kinds[epoch % 2]
+                else:
+                    kind = rng.choice(("density_pulses", "density_waves", "color_waves", "spirals"))
+                started = epoch * period + rng.uniform(.04, .18) * period
+                duration = rng.uniform(.40, .68) * period
                 regions = tuple((rng.uniform(.12, .88), rng.uniform(.12, .88),
                                  rng.uniform(.16, .33),
                                  (-1.0 if i % 2 else 1.0) * rng.uniform(.65, 1.0),
@@ -6162,7 +6167,7 @@ class _SpaceoutFieldEngine(_DataArtEngine):
                     squared = dx * dx + dy * dy
                     reach = np.maximum(0.0, 1.0 - squared / radius ** 2) ** 3
                     if kind == "vortex":
-                        twist = strength * polarity * .42 * reach
+                        twist = strength * polarity * 2.4 * reach
                         cosine, sine = np.cos(twist), np.sin(twist)
                         sx += dx * (cosine - 1.0) - dy * sine
                         sy += dx * sine + dy * (cosine - 1.0)
@@ -6172,10 +6177,43 @@ class _SpaceoutFieldEngine(_DataArtEngine):
                             amount *= math.sin(elapsed * (.38 + radius) + local_phase)
                         sx += dx * amount
                         sy += dy * amount
+        depth, _gx, _gy = self._field_depth(x, y, width, height)
+        sx -= depth * .18
+        sy -= depth * .65
+        length = np.hypot(sx, sy)
+        scale = np.minimum(1.0, .14 / np.maximum(length, 1e-9))
         boundary = (np.sin(np.clip(x, 0, 1) * math.pi) ** 2
                     * np.sin(np.clip(y, 0, 1) * math.pi) ** 2)
-        return super()._bend_pointer(x + sx * boundary / ax,
-                                    y + sy * boundary / ay, width, height)
+        return super()._bend_pointer(x + sx * scale * boundary / ax,
+                                    y + sy * scale * boundary / ay, width, height)
+
+    def _field_depth(self, x, y, width, height):
+        """Sample signed relief and surface slopes for projection and lighting."""
+        np = _numpy()
+        depth, gx, gy = np.zeros_like(x), np.zeros_like(x), np.zeros_like(x)
+        ax, ay = width / min(width, height), height / min(width, height)
+        for event in self._field_events():
+            kind, started, _duration, regions, _phase = event
+            if kind not in ("attractors", "vortex", "density_waves", "spirals"):
+                continue
+            strength = self._event_strength(event)
+            elapsed = self.time - started
+            for cx, cy, radius, polarity, phase in regions:
+                cx += .022 * math.sin(elapsed * .12 + phase)
+                cy += .022 * math.cos(elapsed * .09 + phase)
+                dx, dy = (x - cx) * ax, (y - cy) * ay
+                squared = dx * dx + dy * dy
+                reach = np.maximum(0.0, 1.0 - squared / radius ** 2)
+                amplitude = .14 * polarity * strength
+                if kind != "attractors":
+                    amplitude *= math.sin(elapsed * .42 + phase)
+                depth += amplitude * reach ** 3
+                slope = -6.0 * amplitude * reach ** 2 / radius ** 2
+                gx += slope * dx
+                gy += slope * dy
+        boundary = (np.sin(np.clip(x, 0, 1) * math.pi) ** 2
+                    * np.sin(np.clip(y, 0, 1) * math.pi) ** 2)
+        return depth * boundary, gx * boundary, gy * boundary
 
     def _step_field_grab(self) -> None:
         """Keep held physics; optionally give release an exact damped elastic return."""
@@ -6211,6 +6249,13 @@ class _SpaceoutFieldEngine(_DataArtEngine):
         active = self._field_events()
         np = _numpy()
         shorter = max(1, min(width, height))
+        if any(event[0] in ("attractors", "vortex", "density_waves", "spirals")
+               for event in active):
+            depth, gx, gy = self._field_depth(np.asarray(x) / width,
+                                             np.asarray(y) / height, width, height)
+            diffuse = (.8 - .50 * gx - .65 * gy) / np.sqrt(1 + gx * gx + gy * gy)
+            lighting = np.clip(.45 + diffuse * .6875 + depth * 1.2, .20, 1.5)
+            light = np.asarray(light) * lighting
         density_events = tuple(event for event in active
                                if event[0] in ("density_pulses", "density_waves"))
         if density_events:
@@ -6250,14 +6295,14 @@ class _SpaceoutFieldEngine(_DataArtEngine):
             strength = self._event_strength(event)
             if kind == "color_waves":
                 travel = (x * math.cos(phase) + y * math.sin(phase)) / shorter
-                hue += strength * .45 * np.sin(travel * 7.0 - elapsed * .22 + phase)
+                hue += strength * .75 * np.sin(travel * 9.0 - elapsed * .35 + phase)
             else:
                 cx, cy, radius, polarity, local_phase = regions[0]
                 dx, dy = (x - cx * width) / shorter, (y - cy * height) / shorter
                 distance = np.sqrt(dx * dx + dy * dy)
                 reach = np.maximum(0.0, 1.0 - distance / (radius * 3.0)) ** 2
-                hue += strength * .45 * reach * np.sin(
-                    np.arctan2(dy, dx) * 2.0 + distance * 17.0 - elapsed * .27 + local_phase)
+                hue += strength * .75 * reach * np.sin(
+                    np.arctan2(dy, dx) * 3.0 + distance * 23.0 - elapsed * .42 + local_phase)
         tables = self._material_cache.get("spaceout_hues")
         if tables is None:
             colors = np.asarray([[c.red(), c.green(), c.blue()] for c in self.paint_colors], np.float32)
