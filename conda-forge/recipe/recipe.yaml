@@ -1,5 +1,5 @@
 context:
-  version: "1.5.1.3"
+  version: "1.5.1.4"
 
 package:
   name: spacr
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://pypi.org/packages/source/s/spacr/spacr-${{ version }}.tar.gz
-  sha256: 104c0fcd80702e34c2f6b62fe11792a9eefdb8d2956d255bc297667af2cebc8c
+  sha256: 32113621263f931862d5ab63fb507819d2172276edb3bfdf42210bf3e7eea7bb
 
 build:
   noarch: python
