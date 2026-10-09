@@ -5983,7 +5983,8 @@ class _DataArtEngine(_BufferedEngine):
         """
         np = _numpy()
         width, height = image.width(), image.height()
-        px, py = np.asarray(x, dtype=np.int32), np.asarray(y, dtype=np.int32)
+        px = np.asarray(x, dtype=np.int32).reshape(-1)
+        py = np.asarray(y, dtype=np.int32).reshape(-1)
         visible = np.flatnonzero((px >= 0) & (px < width)
                                  & (py >= 0) & (py < height))
         tick = int(math.floor(self.time * 4.0))

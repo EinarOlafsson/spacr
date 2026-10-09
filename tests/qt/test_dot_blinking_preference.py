@@ -65,6 +65,21 @@ def test_tiny_counts_are_not_rounded_up_to_one_dot(qapp):
     assert 0.07 < np.mean(counts) < 0.13
 
 
+def test_random_advection_blinks_across_all_trail_coordinates(qapp):
+    engine = ambient.make_engine('data_art_genetic_advection', 'random',
+                                 '#101010', seed=19, density=.25)
+    engine.set_blink_percent(10)
+    image = engine.shade(640, 360)
+    flat = np.frombuffer(image.constBits(), dtype=np.uint32)
+    assert np.count_nonzero(flat == 0xffffffff) > 0
+    assert engine._blink_selection[0][1] > 12
+    before = bytes(image.constBits())
+    engine.advance(.25)
+    next_image = engine.shade(640, 360)
+    assert bytes(next_image.constBits()) != before
+    assert bytes(image.constBits()) == before
+
+
 def test_slider_spans_all_six_decades_and_allows_exact_input(private_preferences, qtbot):
     dialog, _, _ = _dialog(qtbot)
     slider = dialog.findChild(QSlider, 'AmbientBlinkPercent')
