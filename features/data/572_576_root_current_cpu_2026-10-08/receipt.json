@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "source_commit": "f1e767bdbcc7254521e6e37ac6f7edcc3bcb68fb",
+  "source_sha256": {
+    "tests/test_measurement_backends.py": "726c1fce9292aa9178544502cb8080160bcab56a044d62b3acbc2e78a3eada23",
+    "tests/test_predictions_merge.py": "77f9bf47c99f75f16f7ddea7006f541e87cecafe33a3fdf4b78210133d4cc3e0",
+    "tests/test_cov_ml_perform_regression.py": "59f179742c48bbf01ec9fe59490f581d7e97dd1c138677e200096cacd3b1354d",
+    "tests/test_one_parse_per_file.py": "8cc8e40f758ef44e9d12f9291194a1f674e7999acaa80bd765728420bd380735",
+    "tests/test_figure_integrity_guard.py": "6a911473978c652197ede0eefb5bf53cda1f50cb5951f5710563c04572a51f97",
+    "tests/qt/test_right_click_saves_the_picture.py": "10848637f28e94720cb7be5cc323302f1439951a4c9b4b309df54165e42a9b50",
+    "tests/qt/test_cells_behind_the_dot_tab.py": "cc79f321e1d0d326b8f18c5949ede0972af9deecdae948b993d8c06c18c6b870",
+    "tests/test_cov_plot_overlay_core.py": "a4ea1a34b6ef4f41327fded750fcb362d60f32d714a96e696258add097e571cd",
+    "tests/test_mask_overlay_draws_every_organelle_slot.py": "ea880cfb7fc71757f5a8912a8d4b34339d38a46b904b8e30a15cc34b6e49fa90",
+    "tests/test_the_overlay_loop_plots_only_image_stacks.py": "b226b040c923dfc9d8b7e87d43d268f9bf70da9cbe33f9867aacceab1fb9dc16",
+    "spacr/ml.py": "6f71eba18b5c1954ba543b1d92eeb4aa0bf579ac8b1fa16a8266e5648fdbeb75",
+    "spacr/predictions.py": "dbc3c6039bcfa9c0c4ca0b41c0546b220d4bec83605e56d27702bfc85b9f72df",
+    "spacr/plot.py": "3f70c0580b5c0be200fa1bd068f53455a0cac4b5d4feb174dbc8e27b3cdd528a",
+    "spacr/tabular.py": "6e284e78b1546cb8633fe3f88c5b33554d7147a2207964f23a327eae777898df",
+    "spacr/settings.py": "ebb2a1af5ebe68b554e2388ca05417b8b4d94f16e5f65aab16f95bc35ab29718",
+    "spacr/regression_panels.py": "709656a17afb0cfe50a1c2b229ce99fc93d86dd0bbb0bc6852e754241a11c9e8",
+    "setup.py": "6957002099f4e9194889a924d5ff7a14dac6704c3e53ac65817eff19880df8c8"
+  },
+  "payloads": [
+    {
+      "path": "backend-figure-missing-pypdf-r1-tool.log.gz",
+      "raw_bytes": 2007,
+      "raw_sha256": "6f0ffe2604d96cc27bbec408ebdb33fe758e97a46fca0f1a37f70b187bbbdfcc",
+      "gzip_sha256": "17aaacf1ca83dbdc5fba169cdc5d33e22529434abca38f95dd2c0c284ba4cd3d"
+    },
+    {
+      "path": "backend-figure-missing-pypdf-r1.log.gz",
+      "raw_bytes": 1078,
+      "raw_sha256": "066d0c9df92bbdcfda20e9c1962c09763cb8390022aa18c8bb68a31a0d371adc",
+      "gzip_sha256": "a78b627b51c6d100bf1025c61a5f06408973ee37bb05bac4ed0348c307d8383d"
+    },
+    {
+      "path": "backend-figure-owning-r1-tool.log.gz",
+      "raw_bytes": 1919,
+      "raw_sha256": "03e935e8a738ea8ccec1b7bd857f5d8249fb5a8a1e902baa5e961277337ecfc0",
+      "gzip_sha256": "1410a1df1a41b087886027b6cb966f1e353f90813caf52ced764b861ce2e9e71"
+    },
+    {
+      "path": "backend-figure-owning-r1.log.gz",
+      "raw_bytes": 1077,
+      "raw_sha256": "7629611597cc2b9219678cf874d23af871859356399ecdbd2594ca2a5f998b04",
+      "gzip_sha256": "f4e0bfedb62968aefef13fddbdbf19955e8545ed3b96b681aafd2d0c30ee338c"
+    },
+    {
+      "path": "backend-figure-owning-r2-tool.log.gz",
+      "raw_bytes": 17912,
+      "raw_sha256": "4f5ca845f5d0313eac44276e29b83647e54a9202feca4a7f862da6f6bfdfdafd",
+      "gzip_sha256": "da3e8a1c4c6c108903f2d84d0dd1b66e88bc1c69205f1063884af1c19c18c327"
+    },
+    {
+      "path": "backend-figure-owning-r2.log.gz",
+      "raw_bytes": 16988,
+      "raw_sha256": "a3bb26dd879523f46b94f466eb7a37072d3044f13e6cee28b4d0e9b7c6131e5c",
+      "gzip_sha256": "1d3fc1b141ff5df75b82b2e35db4799aa3d398c173df6df10f5ae2c958cb61bf"
+    }
+  ],
+  "original_collection_failure_retained": true,
+  "complete_10_file_run": {
+    "exit_code": 1,
+    "passed": 338,
+    "failed": 5,
+    "skipped": 18,
+    "seconds": 672.84,
+    "failure_cause": "All five failures were ModuleNotFoundError for declared pypdf>=6.16.1,<7.0 in isolated test environment."
+  },
+  "targeted_unchanged_failure_rerun": {
+    "exit_code": 0,
+    "passed": 5,
+    "seconds": 11.81,
+    "environment_fix": "Installed declared pypdf6.16.1 without dependencies in task-specific scratch overlay. No source edits or assertions changed."
+  },
+  "qualification": "The entire cohort was not repeated. Optional DuckDB/PostgreSQL cases remain skipped in this environment; Home real PostgreSQL acceptance is a separate source-bound receipt. Current f1 app source remains private pending coherent captions/API integration."
+}
