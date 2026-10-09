@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 21:07 EDT — Final bounded workstation translation checks saved; agents finished
+
+All three workstation agents are finished, clean and have no running jobs.
+Current compact/backend follow-up source952150143/reviews c325ad102/normal
+catalogs ca97fda7e/fixture8b3b042c0/proof4c6683d4c are committed privately.
+Allnine audits and58756review records PASS,12 scoped checks PASS140.82s;
+10173runtime/UI7395. Root independently verifies251 compressed/raw payloads,
+2421 artifact bindings and658 actual Git source bindings; receiptSHA
+cc4dd0b5d0a867d219b701bbecb5d31986cf1141ca125c8cf1aec87a8de51492.
+10171 unchanged rows perlocale,2344 unrelated reviews and18 exact old archives
+are retained. Original guard/scratch failures are preserved. Full90case cohort
+is explicitly UNRUN; coherent current API/source adoption and publication remain
+pending. Public commits carry evidence/handoff only, not this private app wave.
+ data/compact_backend_runtime_review_2026-10-08/receipt.json
+
+User's reduced-scope instruction is satisfied by finishing current bounded
+checks and saving all remaining work. No new feature, media upload, rewrite or
+later consolidated Home source wave was started. Workstation takes no new items.
+
 ## 2026-10-08 21:02 EDT — Workstation finishes current checks under reduced scope
 
 The user requests low-token items only and finishing current work. No new
