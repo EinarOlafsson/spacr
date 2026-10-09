@@ -20,7 +20,7 @@ No model/API agent/chat-message call and no automatic commits/cancellations.
 Chat completion updates still require the root response and should contain
 the full table. Stop with: systemctl --user stop spacr-progress-table-20261009
 If absent after reboot, resume exactly once from the private worktree using:
- systemd-run --user --unit=spacr-progress-table-20261009 --collect -p MemoryMax=256M -p MemorySwapMax=0 /home/olafsson/anaconda3/bin/python tools/watch_progress_table.py --watch --hours 0 --output /mnt/wd4tb/scratch/spacr-live-progress
+ systemd-run --user --unit=spacr-progress-table-20261009 --collect -p MemoryMax=256M -p MemorySwapMax=0 /home/olafsson/anaconda3/bin/python /mnt/wd4tb/spacr-worktrees/codex-low-token-recovery-20261009/tools/watch_progress_table.py --watch --hours 0 --output /mnt/wd4tb/scratch/spacr-live-progress
 CI collector recovered run/job state, but log download returned1 and extracted
 zero failure lines; do not claim exact terminal failure logs are archived.
 Next CI work needs successful actual log download. Latest6fb tests red; docs
