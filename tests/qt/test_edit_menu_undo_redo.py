@@ -166,6 +166,7 @@ def test_focused_text_owns_undo_before_a_parent_settings_stack(qtbot):
     line.insert("d")
     assert line.isUndoAvailable()
     window.show()
+    window.activateWindow()
     line.setFocus()
     qtbot.waitUntil(lambda: QApplication.focusWidget() is line)
     window._edit_menu.popup(window.mapToGlobal(QPoint(20, 30)))

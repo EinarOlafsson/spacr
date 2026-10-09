@@ -73,6 +73,9 @@ concurrency:
   group: tests-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  SPACR_TEST_COUNT_DIR: .test-counts
+
 jobs:
   # THE NEWEST END of the dependency policy setup.py states: this job installs
   # with no constraints file, so pip resolves the top of every declared range
@@ -204,6 +207,17 @@ jobs:
             --per-test-timeout 300 \
             --batch-timeout 2700
 
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Upload translation incompatibilities (report-only)
         if: always()
         uses: actions/upload-artifact@v7
@@ -482,6 +496,17 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Upload translation incompatibilities (report-only)
         if: always()
         uses: actions/upload-artifact@v7
@@ -620,6 +645,17 @@ jobs:
           print("all coverage shards passed their selected tests")
           PY
 
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Upload translation incompatibilities (report-only)
         if: always()
         uses: actions/upload-artifact@v7
@@ -673,6 +709,17 @@ jobs:
             --max-average A \
             "${targets[@]}"
 
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Upload translation incompatibilities (report-only)
         if: always()
         uses: actions/upload-artifact@v7
@@ -796,6 +843,17 @@ jobs:
             --per-test-timeout 300 \
             --batch-timeout 2700
 
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Upload translation incompatibilities (report-only)
         if: always()
         uses: actions/upload-artifact@v7
@@ -844,6 +902,17 @@ jobs:
               sys.exit("release gate failed: not every blocking job succeeded")
           print("release gate passed: every blocking job succeeded")
           PY
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Upload translation incompatibilities (report-only)
         if: always()
         uses: actions/upload-artifact@v7
@@ -852,3 +921,35 @@ jobs:
           path: .translation-reports/
           include-hidden-files: true
           if-no-files-found: ignore
+
+  test-count-badge:
+    concurrency:
+      group: test-count-badge-nightly
+      cancel-in-progress: false
+    name: Publish passed/total badge
+    if: always() && !cancelled() && github.ref == 'refs/heads/nightly'
+    needs: [release-gate]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: nightly
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: test-counts-${{ github.run_attempt }}-*
+          path: .test-counts
+          merge-multiple: true
+      - name: Generate numeric badge
+        run: python tools/test_count_badge.py .test-counts docs/source/_static/test-counts.json --run-id '${{ github.run_id }}' --source-sha '${{ github.sha }}'
+      - name: Publish numeric badge
+        run: |
+          git config user.name 'Einar Olafsson'
+          git config user.email 'einar.olafsson@gmail.com'
+          git add docs/source/_static/test-counts.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Update hosted test counts [skip ci]'
+          git pull --rebase origin nightly
+          git push origin HEAD:nightly

@@ -66,6 +66,9 @@ on:
         default: 0
         type: number
 
+env:
+  SPACR_TEST_COUNT_DIR: .test-counts
+
 jobs:
   pytest:
     name: ${{ inputs.suite_name }} (ubuntu-24.04, py${{ inputs.python_version }})
@@ -326,6 +329,17 @@ jobs:
           path: ${{ runner.temp }}/spacr-memory-telemetry/
           if-no-files-found: warn
           retention-days: 14
+      - name: Name numeric test results
+        if: always()
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+      - name: Upload numeric test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.TEST_COUNT_ARTIFACT }}
+          path: .test-counts/
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Upload translation incompatibilities (report-only)
         if: always()
         uses: actions/upload-artifact@v7

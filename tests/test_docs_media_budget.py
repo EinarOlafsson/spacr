@@ -627,6 +627,20 @@ def test_full_audio_publishes_every_voice(tiny_library, tmp_path):
     assert len([p for p in published if p.suffix == ".m4a"]) == 10
 
 
+@pytest.mark.parametrize("quote", ['"', "\u0027"])
+def test_report_names_the_revision_selected_by_the_player(tiny_library, quote):
+    selected = "https://example.invalid/current?revision=new&amp;voice=all"
+    (tiny_library / "tutorials" / "index.html").write_text(
+        f"<body data-audio-root={quote}{selected}{quote}>", encoding="utf-8")
+    result = budget.report(tiny_library)
+    assert "served from https://example.invalid/current?revision=new&voice=all" in result
+    assert budget.NARRATION_HOST not in result
+
+
+def test_report_retains_the_default_when_the_player_has_no_audio_root(tiny_library):
+    assert f"served from {budget.NARRATION_HOST}" in budget.report(tiny_library)
+
+
 def test_the_full_audio_env_var_selects_that_policy(monkeypatch):
     monkeypatch.delenv(budget.FULL_AUDIO_ENV, raising=False)
     assert budget.per_language_setting() == budget.VOICES_PER_LANGUAGE

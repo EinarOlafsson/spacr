@@ -1,5 +1,122 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 21:17 EDT — One workstation agent; small tutorial reporting fix
+
+User now explicitly requires one agent. Only Root is active. Root continues
+finishing the already-committed six-lesson source build, with no new media
+synthesis/upload or broad feature wave. Exact mergedfd79 source strict Sphinx
+rerun is live; do not mutate its source or claim terminal acceptance yet.
+
+Small source14eade3fd fixes build report using actual player data-audio-root
+rather than oldd8 fallback revision. Whole owning media-budget file32PASS0.83s.
+Actual immutable5ab candidate report now names5ab; published142/dropped270files
+and complete staging plan remain byte-for-byte equivalent in both versions.
+Source policy/ceiling/media/API/captions unchanged. Full payload/Git hash receipt:
+ data/615_selected_tutorial_media_revision_2026-10-08/receipt.json
+
+Home CI dispatch/serial acceptance ownership is unchanged; normal source push
+has no skipCI marker. No complete GitHub/all-task acceptance claim is made.
+
+## 2026-10-08 21:16 EDT — Final source dispatched; no active subagents or local jobs
+
+PUBLISHED final tested-source4944c63dc74b7eb83db9280ea51e0cb3d4a6cfec.
+Requiredfull37868897849 (workflow_dispatch) and original-orderQtserial37868900922
+(native_batch_replay=false) both targetexact4944. Codepush37868881670 is the
+normal pending push-group run; manualgroup avoids waiting for oldf0push verdict.
+No duplicate manual final-source dispatch. Counts will publish after required
+workflow terminates; initial endpoint remains honest pending. Cancellation was
+requested for queued72 provisionalrequired37868726393 andQt37868731002; the
+former began while the correction was prepared, so cancellation is asynchronous.
+Old e600Qt37865976724 now completed/cancelled. No acceptance is transferred from
+cancelled runs. Source4944 has final normal README producer/locale alt correction.
+
+All CI repairs/proofs, current item notes and workstation handoffs are saved.
+Only root is active during this wrap-up; no subagent/local test/PG/GPU job remains.
+Hosted runs continue independently. Goal tool had been blocked earlier, so do
+not claim an active unattended local goal loop. Next agent checks these two runs
+and first actual endpoint publication, then fixes remaining exact hosted errors.
+Do not restart whole local suite or re-scope archived finished agent contexts.
+
+Remaining parents (percentage estimates, not acceptance claims; time unknown):
+N43 GitHub green; N47 full Qt; F288 literal90/CuPy; N681 first hosted counts;
+N615 coherent API/docs/translations; N677 compact navigation help; N680 mask
+save-navigation; N670 independent/full-edge ripples; N666 window edges/snap;
+N668 preferences/background/help layout; N649 undo/redo; N656 rebindable keys;
+N658 figure recipe/export; N674 random Spaceout field; N672 gate anchors/surfaces;
+N673 3D masks; F572 bounded crop provenance; N663 native smoothness/crash;
+N655 accessibility platform bridge; N676 current tutorials/site; N675 conda-forge;
+N679 GPU renderer publication; F576 backend/migration; F548 incoming-image watch;
+F560 foundation embeddings; N678 factual-language review. Workstation21:07 note
+and consolidatedF572/F576 receipts distinguish accepted private bodies from
+unpublished coherent source. No API/docs/translations/GPU ownership is reassigned.
+
+External-input parents remain F370 curated scorecards; F404 DINO acceptance;
+F470 cross-channel labels; F534 infected spatial paired reference; F537 tracked
+lineages; F543 vendor flat-field reference; F557 second low-light benchmark;
+F559 QC labels/weights; F574 repository curator acceptance; F586 cluster/registry.
+User-accepted F493,F490,N627scene,N633,N53/native review are not reopened.
+
+## 2026-10-08 21:15 EDT — N681 normal README producer and reviewed alt text checked
+
+Follow-up replaces README_BADGE_SUBSTITUTIONS Tests with Test counts in the
+normal documentation producer. Badge installer reuses each locale's existing
+reviewed test-suite accessibility label instead of introducing untranslated alt
+text. English and nine locales contain only the numeric test badge. Owning
+badge12 + README row/accessibility2 =14PASS0.99s; guards unchanged.
+Source72e295c4b8 is published. Initial required37868726393 and serial37868731002
+are still queued, with no verdict. Replace both queued acceptance dispatches on
+final corrected producer source, rather than knowingly run the missing-name
+README guard. Older known-failing e600serial37865976724 cancellation requested.
+No current green, active children or duplicate source dispatch claim.
+
+## 2026-10-08 21:13 EDT — Reduced-token handoff; numeric badge replaces old test badge
+
+Only Home/root is active; all three useful subagents are finished and their
+commits/proofs are integrated. No new agent or feature wave is started. User
+requests conserving remaining tokens, finishing current work and current handoffs.
+
+N681 replaces the old Tests status badge in English and all nine translated
+READMEs with tests passed/total. Exact thresholds: >90 green, 80–90 yellow,
+70–80 orange (80 is yellow), below70 red. The initial endpoint is grey pending,
+not fabricated acceptance. Stdlib-only pytest plugin retains selected/unrun,
+skip and setup/teardown failures; xdist copies deduplicate within sessions and
+repeated dependency profiles must all pass. Failed runs publish real counts
+without weakening release-gate. Latest badge+dependency cohort21PASS1.59s;
+earlier batching+badge28PASS4.03s and real2worker trial11PASS/endpoint11/11.
+All10 README headers checked: one numeric badge each, old Tests absent.
+WORKSTATION: preserve N681 headers during normal README refresh, or use
+ tools.test_count_badge.install_readme_badges(repo_root).
+Normal prose is unchanged. First actual hosted endpoint publication is pending.
+
+Final CI test fixes now integrated: Edit-menu fixture activates its own window
+before child focus (owning6PASS); Home fixtures stay within actual Xvfb display
+and activate before keyboard focus (owning219PASS, final5/5 focused); OPS resume
+uses two real adjacent sites per each well rather than five. Original five-site
+full/malformed fixture, both stored wells and resume assertions remain intact.
+Targeted OPS test1PASS275.32s under unchanged300s timeout and4G cap. Broader
+modified OPS cohort was deliberately stopped for user budget, NOT accepted.
+No production timing, guard, skip policy or ratchet is weakened. Private source
+and exact compressed/raw proofs are committed; current hosted acceptance needed.
+
+Known-failing e600 original-order serial37865976724 will be superseded only after
+these fixes are pushed. Fresh full required and original-order serial dispatch
+on the final source will be recorded in the next note; hosted work continues
+without local sampling/poll churn. No current GitHub-green claim.
+
+Detached shared Claude checkout repaired by reattaching the existing matching
+nightly branch with git symbolic-ref HEAD refs/heads/nightly, then setting
+origin/nightly upstream. Its modified tools/gpu_turn.sh was preserved; no stash,
+reset, checkout, clean, merge or pull was performed in the shared checkout.
+
+F576 combined PRIVATE6727 remains140PASS realPG/no skips. Its non-failing child
+exit diagnostic traces a one-shot daemon GPU-count probe in an isolated tooltip
+test that does not process Qt shutdown; child exits, no production pool leak
+established. F572 PRIVATEb33 remains115PASS for bounded clean/crop support only.
+Both consolidated packets require coherent workstation-owned normal API/runtime
+caption adoption before application publication. Workstation21:07 note records
+its final current bounded checks; all parents with pending publication/external
+acceptance remain open. No livecell/cellposeTIME job or GPU process is touched.
+
 ## 2026-10-08 21:07 EDT — Final bounded workstation translation checks saved; agents finished
 
 All three workstation agents are finished, clean and have no running jobs.

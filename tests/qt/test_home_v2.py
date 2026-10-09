@@ -1524,13 +1524,15 @@ def test_a_click_inside_the_panel_pins_it_against_the_close_timer(window):
     assert drawer.is_open()
 
 
-def test_the_app_list_is_reachable_without_a_mouse(window, qapp):
+def test_the_app_list_is_reachable_without_a_mouse(window, qapp, qtbot):
     """A column reachable only by tabbing through the page is hard to reach.
 
     The dock no longer slides, so there is nothing to open -- but the menu
     action and its shortcut still have to put a keyboard user INSIDE it,
     which is the whole reason the action survived the reveal being removed.
     """
+    window.activateWindow()
+    qtbot.waitUntil(window.isActiveWindow, timeout=2000)
     window.apply_dock_mode("locked")
     window.toggle_app_drawer()
     qapp.processEvents()
