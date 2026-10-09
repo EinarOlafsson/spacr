@@ -3708,7 +3708,7 @@ localHTTP staticaudit/sourcehashes pass. Evidence:
 data/43_current_tutorial_guard_repair_2026-10-09/receipt.json
 Latest currentfullGitHub acceptance remainspending.
 
-2026-10-09 00:03 EDT — Further stale publication guards repaired:84 current
+2026-10-09 00:01 EDT — Further stale publication guards repaired:84 current
 ready routes/all14 catalogs/Organism labels/verified cache versions and actual
 nonduplicated narration staging. Whole3 owningfiles31PASS/no skips. Normal
 desktop/mobile navigation7checks pass; localmedia only. Evidence expands

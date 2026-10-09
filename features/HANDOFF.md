@@ -1,6 +1,6 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
-## 2026-10-09 00:03 EDT — Tutorial publication and browser navigation guards accepted
+## 2026-10-09 00:01 EDT — Tutorial publication and browser navigation guards accepted
 
 Root found additional current publication guards expecting85 lessons, Assays
 and old fixed cache versions. Baseline19FAIL12PASS. Sourcecb9dea899 validates
@@ -14,7 +14,7 @@ cases: new install order, Next/Previous, parent breadcrumb, parentsearch,
 Spanish labels,390px collapsible menu and no JS errors. Both screenshots and
 complete normal browser report retained; remote_media_tested=false is explicit.
 Expanded proof:data/43_current_tutorial_guard_repair_2026-10-09/receipt.json.
-Source/player/catalog/media bytes unchanged from acceptedb80. Existing prior
+Application/player/catalog/media bytes unchanged from acceptedb80. Existing prior
 15 normal release/catalog tests and84 hosted playback cases keep their own
 source bindings; no full current CI/deployedwebsite claim. Home serialQt and
 passive watcher untouched. Current normalpush includes these guard repairs.
