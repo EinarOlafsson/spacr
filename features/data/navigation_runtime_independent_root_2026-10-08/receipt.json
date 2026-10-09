@@ -1,0 +1,27 @@
+{
+  "result": "PASS",
+  "full_proofs": 154,
+  "original_git_app_source_bindings": 658,
+  "artifact_helper_test_bindings": 25,
+  "qualification": "Accepted earlier navigation source; fresh larger 8cc combined acceptance remains separate.",
+  "payloads": {
+    "readback_navigation_runtime_r1.py.gz": {
+      "bytes": 775,
+      "sha256": "fb22923106823d1812ad4f85e9c18711a76ad79c29aafc27389974da1956bcb3",
+      "raw_bytes": 1794,
+      "raw_sha256": "a0d18ccf4cf21d0fc934e7e8ff5699976b5e30103cf42d79208a95edb36c48ee"
+    },
+    "navigation-runtime-root-readback-r1.json.gz": {
+      "bytes": 305,
+      "sha256": "a75af7881b57b4ad9c94f80e6d34259099e34c4fe15ee0a507a74e40e08ae0b7",
+      "raw_bytes": 436,
+      "raw_sha256": "5109efb93a4ab0b04333d3aabf1a90042d43c9d3c31a3a1aeece01c3cf23bbc4"
+    },
+    "navigation-runtime-root-readback-r1-tool.log.gz": {
+      "bytes": 477,
+      "sha256": "ec47307955e544ca89442e545ba416921dac3e976a7e50200b4872707648922a",
+      "raw_bytes": 723,
+      "raw_sha256": "4c2b75c18720581b44f7060308861ff74d2a24427b6d8a9a710479a297cb234e"
+    }
+  }
+}
