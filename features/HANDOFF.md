@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 22:54 EDT — Existing historical narration publication in progress
+
+2026-10-08 22:54 EDT — Root continues existing historical56 English live-TV packet.
+Private current-source worktreehistorical-voice-publication-20261009 has
+accepted checkpoint8c372c8bf; normal complete5229-file validation passes,
+4 owning files35PASS40.31s. Exact manifest comparison preserves14 catalogs
+and5105 original records. Only112 corrected English files,2 required player
+index files and10 explicit original visual clocks change; six refreshed
+current lessons retain all their media. Public5ab media remains in use.
+Normal existing single-transfer uploader/readback is LIVE (owned handle65256)
+on branch tutorial-live-tv-20261008-r1; do not duplicate/restart from a stale
+log. Not yet uploaded/tagged/published acceptance. No fresh voice generation
+or video recording. Proofdata/676_historical_publication_preflight_2026-10-09
+retains7 payloads and8 actual Git source bindings. Root is the sole local agent.
+Current728 fulltests/docs await runners; Home4944 serialQt stilllive.
+
+
 ## 2026-10-08 22:41 EDT — Additional affected collector owners accepted
 
 2026-10-08 22:41 EDT — Three additional completed4944 jobs (113622486792,
