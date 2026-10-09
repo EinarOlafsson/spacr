@@ -1,6 +1,44 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
-## 2026-10-08 20:45 EDT — Coherent hosted acceptance dispatched; final paired-store UI proof
+## 2026-10-08 20:50 EDT — Final consolidated F576 source has real PostgreSQL acceptance
+
+One coherent PRIVATEF576 candidate6727 includes prediction native stores,
+regression named tables/qualifiers, classifier routing, paired-table controls,
+alpha hide/restore, explicit localPG output roots and migration UI. Publice600
+scoped consolidatedpatch applies exactly and preserves all narrow CI repairs.
+Root verifies all5payloads/10Git source bindings/completeAPI13233eightprosekeys/
+all6runtime maps40added5retiredUI/foreign0 and exact patch reconstruction.
+ data/576_consolidated_backend_gui_migration_2026-10-08/receipt.json
+
+Final same-source8-file cohort with realroot-ownedPG18.4:140PASS20.00s, zero
+skips. Earlier136PASS/4PGskips receipt is retained, not rewritten. Root verifies
+addendum8exactsourcehashes and compressed/raw log digests. Session hygiene
+reported one non-failing SpawnProcess-1 at exit; parentexited0 with no hang,
+agent traces pool ownership next. No global/native/GPU acceptance claimed.
+Only root-owned socket-onlyPG was restarted for this gap and cleanly stopped.
+ data/576_consolidated_backend_gui_migration_2026-10-08/real-postgres-addendum.json
+ data/576_consolidated_home_readback_2026-10-09/receipt.json
+
+WORKSTATION: use ONEe600-to-private-F576.patch.gz instead of old layered packets,
+reconcile against concurrent current source without replacing whole files.
+EightAPIprose records listed in20:43 note require normal refresh. UI40new/5old
+sources require normal review/generation. ADDITIONAL newcore tr error is omitted
+by canonical_sources because ml.py is not scanned; register/own normally:
+A local regression output directory is required for PostgreSQL counts.
+Current normal capturedUI7322 excludes that error, so it is not translated yet.
+Correct normal regression src tooltip for remote-store local output requirement
+and backend tooltip's stale universal SQLite working-copy claim. No generated
+handmerge, pin waiver or body-only product publication. ParentF576 staysPARTIAL.
+
+Root CI decision after source mapping: preserve oldc4 serial prefix/hash and
+known failures, cancel superseded already-failing serial37849590095 to release
+current original-order e600serial37865976724. Fresh full current suite covers
+same unknown later cases with corrected source. Exact focused undo node is
+unchanged and being reproduced locally; no failure suppressed. Ordinaryf0
+unknown terminal jobs continue to yield useful remaining failure evidence.
+
+
+## 2026-10-08 20:43 EDT — Coherent hosted acceptance dispatched; final paired-store UI proof
 
 PUBLICe600455702 includes Home narrow CI/test repairs and workstation normal
 nine-language README3416MB refresh. Root independently checks all7README gzip/
