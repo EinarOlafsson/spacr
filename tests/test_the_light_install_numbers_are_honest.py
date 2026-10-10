@@ -212,9 +212,12 @@ def test_the_readme_does_not_sell_a_filter_that_saved_nothing():
                 "slower than --depth 1 alone and downloads the same bytes")
     assert "--filter=blob:none" in section, (
         "the README should say why the obvious flag is not used")
-    assert re.search(r"saves nothing|does not help|no help|did not reduce", section), (
+    assert re.search(r"saves nothing|does not help|no help|(did|does) not reduce", section), (
         "--filter=blob:none is named without explaining the measured result")
-    assert 'to the shallow clone' in section and 'measured download' in section
+    flat = " ".join(section.split())
+    assert 'to the shallow clone' in flat
+    assert re.search(r"measured download|download total was measured", flat), (
+        "the README does not say whether the filtered download was measured")
 
 
 def test_the_readme_dates_its_numbers_and_names_what_remeasures_them():
