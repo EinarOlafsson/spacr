@@ -274,7 +274,7 @@ Bidragsgivare behöver versionshistoriken; välj ett alternativ nedan om du bara
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen hjälper inte till att minska utcheckningens storlek: dess Git-objektlager väger fortfarande 2032 MB. Tysta hämtningar vid behov gör att den totala nedladdningen inte kan mätas fullständigt. De versionshanterade filerna i nightly ger en utcheckning på 3416 MB (uppmätt 2026-10-08), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
+Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 3416 MB (uppmätt 2026-10-08), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
 
 
 Kommandoradskommandon
@@ -556,17 +556,17 @@ spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Ö
 
 Varje figur ovan mäts på bilder modellen aldrig såg i träning.
 
-**Precision** is how many of the objects a model reported are real; **recall** is how many of the real objects it found. They fail in opposite directions: poor precision invents plaques, poor recall misses them.
+**Precision** är hur många av de objekt en modell rapporterade som är verkliga; **recall** (känslighet) är hur många av de verkliga objekten den hittade. Låg precision innebär falska detektioner; låg recall innebär missade objekt.
 
-**F1** är de två kombinerade, och citeras eftersom var och en av dem är trivialt gamed - rapportera en omisskännlig plakett för nära perfekt precision, eller varje mörk blob för nära-perfect recall. Som du hellre skulle förlora beror på analysen, och räkning är vanligtvis bättre betjänas av over-calling: plaque-modellen accepterades med precision 0.858 med reclosure 0.811 under en tidigare runda på 0,939 och 0,631.
+**F1** är deras harmoniska medelvärde. Var för sig kan de vara nästan perfekta: precision för en modell som rapporterar en enda otvetydig plack, recall för en som rapporterar varje mörk fläck. Vilket fel som väger tyngst beror på analysen: plackmodellen godkändes vid precision 0.858 och recall 0.811, före en tidigare omgång med 0.939 och 0.631.
 
 **IoU** (intersection over union) dividerar överlappningsarean mellan det förutsagda objektet och referensobjektet med arean av deras union. Läs poäng tillsammans med tröskelvärdet: ”F1 0.864 vid IoU 0.5” räknar en vakuol som hittad när överlappningen når minst halva unionens area.
 
-**mAP50** och **mAP50-95** tillhör detektorn. Den första frågar om brunnarna hittades; den andra upprepar det över tio tröskelvärden från 0,5 till 0,95, så den frågar också hur tätt varje låda dras. Klyftan mellan dem är placering, inte detektion.
+**mAP50** och **mAP50-95** bedömer brunnsdetektorn: genomsnittlig precision (mean average precision) vid IoU 0.5, och dess medelvärde över tio IoU-tröskelvärden från 0.5 till 0.95, som även bestraffar slarvigt placerade rutor.
 
-**Cross-validerad**, med en **SD**, betyder att poängen är medelvärdet av tre körningar på olika splitar och SD är hur långt de flyttade isär. En split kan ha tur: denna modells litteraturfigur är 0,834 på en enda 19-håls split och 0,806 på alla tre.
+**Cross-validated** (korsvaliderad), med en **SD**, anger medelvärde och standardavvikelse över veck: tre för ``toxoplasma_plaque_v1``, fem för ``toxoplasma_pv_v2``. En enskild uppdelning kan vilseleda: litteraturvärdet för ``toxoplasma_plaque_v1`` är 0.834 på en enda uppdelning med 19 brunnar och 0.806 över alla tre.
 
-Modeller lagras på respektive författares eget Hugging Face-konto; ``spacr.model_zoo.publish_model`` laddar upp en modell och skriver ut katalograden som ska läggas till.
+Modeller lagras på respektive författares eget Hugging Face-konto; ``spacr.model_zoo.publish_model`` laddar upp en modell och returnerar katalograden som ska läggas till.
 
 
 Prestandadiagnostik
@@ -606,7 +606,7 @@ När spaCR inte kommer att starta
 
 ``spacr-doctor`` skriver ut en rad per check, med ett kommando att köra för varje fel. Det rapporterar också som ``spacr`` är på sökvägen, vilket är vad en gammal redigerbar installera skuggor.
 
-``safespacr`` reads every preference as its default and forces the backdrop, animations, verbose logging and preloading off. Use it when a saved preference breaks the launch. It changes nothing permanently.
+``safespacr`` läser varje inställning som dess standardvärde och stänger av bakgrunden, animationerna, utförlig loggning och förladdning. Använd det när en sparad inställning hindrar programmet från att starta. Inställningar som sparas i säkert läge skrivs som vanligt och finns kvar.
 
 Drivmoduler utan grafiskt gränssnitt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -622,7 +622,7 @@ Ingen Qt, ingen visning – för kluster, servrar och CI.
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-``validate`` läser samma inställningar som körningen skulle och rapporterar vad som saknas, motsägelsefullt eller pekar på ingenting.
+``validate`` läser samma inställningar som körningen skulle läsa och listar varje problem, till exempel en saknad inställning eller en sökväg som inte finns, tillsammans med en åtgärd.
 
 Inspektera en körning efteråt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

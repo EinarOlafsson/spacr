@@ -1,0 +1,233 @@
+{
+ "agent": "a5-guides2",
+ "files": {
+  "docs/source/measure_live.rst": {
+   "paragraphs_read": 10,
+   "paragraphs_changed": 0
+  },
+  "docs/source/model_explanation.rst": {
+   "paragraphs_read": 20,
+   "paragraphs_changed": 2
+  },
+  "docs/source/model_zoo.rst": {
+   "paragraphs_read": 5,
+   "paragraphs_changed": 0
+  },
+  "docs/source/plaque_assay.rst": {
+   "paragraphs_read": 20,
+   "paragraphs_changed": 1
+  },
+  "docs/source/plugin_sdk.rst": {
+   "paragraphs_read": 14,
+   "paragraphs_changed": 0
+  },
+  "docs/source/point_spread.rst": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "docs/source/recruitment.rst": {
+   "paragraphs_read": 9,
+   "paragraphs_changed": 1
+  },
+  "docs/source/reproducibility_manifests.rst": {
+   "paragraphs_read": 13,
+   "paragraphs_changed": 2
+  },
+  "docs/source/run_history.rst": {
+   "paragraphs_read": 10,
+   "paragraphs_changed": 2
+  },
+  "docs/source/settings_flow.rst": {
+   "paragraphs_read": 4,
+   "paragraphs_changed": 3
+  },
+  "docs/source/threading_cancellation_audit.rst": {
+   "paragraphs_read": 10,
+   "paragraphs_changed": 2
+  },
+  "docs/source/umap_multiobjective.rst": {
+   "paragraphs_read": 15,
+   "paragraphs_changed": 3
+  }
+ },
+ "changes": [
+  {
+   "file": "docs/source/model_explanation.rst",
+   "before": "spaCR separates three questions that are easy to blur together:",
+   "after": "spaCR provides three separate analyses that answer different questions:",
+   "kind": "filler",
+   "evidence": "Original clause was a subjective aside; the three bullets that follow are unchanged."
+  },
+  {
+   "file": "docs/source/model_explanation.rst",
+   "before": "The first output is an honest review queue: cells in target-containing wells",
+   "after": "The first output is a review queue: cells in target-containing wells",
+   "kind": "promotional",
+   "evidence": "'honest' is an evaluative adjective; the queue is defined by the rest of the sentence."
+  },
+  {
+   "file": "docs/source/recruitment.rst",
+   "before": "The calculation produces fifteen auxiliary ratios per channel. It does not\ncreates constant-one pathogen/nucleus slope columns;",
+   "after": "The calculation produces fifteen auxiliary ratios per channel. It does not\ncreate constant-one pathogen/nucleus slope columns;",
+   "kind": "precision",
+   "evidence": "Grammar error 'does not creates'; spacr/utils.py:3577-3605 (_calculate_recruitment: 3 compartments x 5 statistics = 15 columns, no slope columns written)."
+  },
+  {
+   "file": "docs/source/reproducibility_manifests.rst",
+   "before": "   hashes, input hashes, output hashes, warnings, and an exception traceback.",
+   "after": "   hashes, input hashes, output hashes, warnings, and, for a failed run, the\n   exception traceback.",
+   "kind": "precision",
+   "evidence": "spacr/run_journal.py:1188 writes 'traceback': error_traceback or None; error_traceback set only when an exception is raised (run_journal.py:1327-1331)."
+  },
+  {
+   "file": "docs/source/reproducibility_manifests.rst",
+   "before": "``output_tree_sha256`` values. These make it cheap to establish whether two\ncomplete sets match while retaining the per-file records needed to locate a\ndifference.",
+   "after": "``output_tree_sha256`` values. Comparing these single digests shows whether two\ncomplete sets match; the per-file records identify which files differ.",
+   "kind": "vague",
+   "evidence": "'cheap' replaced by the concrete operation; spacr/run_journal.py:1180 (_json_digest over per-file hashes)."
+  },
+  {
+   "file": "docs/source/run_history.rst",
+   "before": "Interrupted and corrupt folders stay visible rather than disappearing.",
+   "after": "Interrupted and corrupt run folders remain listed, with status ``running``\nor ``corrupt`` and diagnostic warnings.",
+   "kind": "precision",
+   "evidence": "spacr/run_journal.py:2046-2047 (search_runs docstring: explicit 'corrupt'/'running' status and diagnostic warnings)."
+  },
+  {
+   "file": "docs/source/run_history.rst",
+   "before": ":func:`spacr.run_journal.search_runs` provides the same resilient records\nwithout Qt:",
+   "after": ":func:`spacr.run_journal.search_runs` returns the same records as the\ndashboard, including corrupt and interrupted runs, without Qt:",
+   "kind": "vague",
+   "evidence": "'resilient' undefined; spacr/run_journal.py:2042-2047 ('dashboard-ready records for all journalled runs', corrupt/interrupted remain visible)."
+  },
+  {
+   "file": "docs/source/settings_flow.rst",
+   "before": "the settings get passed along to. when they click the setting itself they\nshould get the tool tip text.\"* This is that page. When the function that\nreads a setting has no published API anchor, the **API** link in the\nsetting's tooltip opens its section here instead, so the answer to \"what\ndoes this actually change\" is one click from the control it is about.",
+   "after": "the settings get passed along to. when they click the setting itself they\nshould get the tool tip text.\"* This page lists those call paths. When the\nfunction that reads a setting has no published API anchor, the **API** link\nin the setting's tooltip opens the setting's section on this page instead.",
+   "kind": "filler",
+   "evidence": "Removed rhetorical phrasing ('This is that page', 'what does this actually change is one click from'); behaviour statement kept."
+  },
+  {
+   "file": "docs/source/settings_flow.rst",
+   "before": "HOW TO READ A BRANCH. Each line is a call, indented under its caller, and a\nstep marked **-- reads it** is where the value is finally used rather than\npassed on. A branch that reaches no reader is not drawn at all, because a\npath that carries a setting nowhere is not a path the reader needs. A step\nmarked ``[UNRESOLVED]`` is a call static analysis cannot follow -- a\n``getattr``, a dispatch table, a Qt signal, a callback passed as a value --\nand it is SHOWN rather than dropped: a tree that silently hides what it\ncould not follow looks complete when it is not.",
+   "after": "Each line of a branch is a call, indented under its caller. A step marked\n**-- reads it** is where the value is used rather than passed on. Branches\nthat reach no reader are omitted. A step marked ``[UNRESOLVED]`` is a call\nthat static analysis cannot follow -- a ``getattr``, a dispatch table, a Qt\nsignal, a callback passed as a value. These steps are shown rather than\nomitted, so the tree marks where the analysis is incomplete.",
+   "kind": "filler",
+   "evidence": "All-caps heading-in-prose and justifying asides removed; behaviour per tools/settings_flow.py:18-22 (UNRESOLVED recorded and shown)."
+  },
+  {
+   "file": "docs/source/settings_flow.rst",
+   "before": "The page is generated by ``tools/settings_flow.py`` from the source itself,\nso it cannot drift from what the code does without the next run saying so.",
+   "after": "The page is generated from the source by ``tools/settings_flow.py``.\n``tests/test_the_settings_flow_artefacts_are_current.py`` fails when the\ngenerated page no longer matches a fresh run of the generator.",
+   "kind": "vague",
+   "evidence": "Replaced 'cannot drift ... without the next run saying so' with the actual mechanism: tests/test_the_settings_flow_artefacts_are_current.py:1-53 compares _generated/settings_flow.rst against tools/settings_flow.py --rst output."
+  },
+  {
+   "file": "docs/source/threading_cancellation_audit.rst",
+   "before": "**Force stop** gives the window back at once. A worker that does not respond",
+   "after": "**Force stop** returns control to the window immediately. A worker that does not respond",
+   "kind": "metaphor",
+   "evidence": "Literal description of Force stop; parking per spacr/qt/bridge.py:968-986."
+  },
+  {
+   "file": "docs/source/threading_cancellation_audit.rst",
+   "before": "while active, and refusal to destroy a stubborn worker.",
+   "after": "while active, and refusal to destroy an unresponsive worker.",
+   "kind": "metaphor",
+   "evidence": "Anthropomorphic 'stubborn' replaced."
+  },
+  {
+   "file": "docs/source/threading_cancellation_audit.rst",
+   "before": "Headless and plugin pipelines use the same small API::",
+   "after": "Headless and plugin pipelines use the same API::",
+   "kind": "filler",
+   "evidence": "'small' adds no information."
+  },
+  {
+   "file": "docs/source/umap_multiobjective.rst",
+   "before": "   penalizes neighbours invented by the two-dimensional embedding; continuity\n   penalizes true feature-space neighbours that the embedding tears apart.\n   Requiring both prevents either failure from being hidden.",
+   "after": "   penalizes neighbours invented by the two-dimensional embedding; continuity\n   penalizes feature-space neighbours that the embedding places far apart.\n   Because the geometric mean is low when either term is low, a high value\n   requires both.",
+   "kind": "metaphor",
+   "evidence": "spacr/hyperparam.py:2057 neighborhood = sqrt(trust * continuity); 'tears apart' replaced; 'true' dropped (feature-space neighbours are a reference, not ground truth)."
+  },
+  {
+   "file": "docs/source/umap_multiobjective.rst",
+   "before": "   Positive silhouette structure on a scale from zero to one. When labels are\n   supplied through the Python API they define the partition. Otherwise spaCR\n   fits reproducible K-means partitions from 2 through 8 clusters and reports\n   the strongest silhouette together with the selected cluster counts. This is",
+   "after": "   The silhouette coefficient clipped to the range 0 to 1, so negative values\n   score 0. When labels are supplied through the Python API they define the\n   partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8\n   clusters (at most one fewer than the number of rows) and reports the\n   highest silhouette together with the selected cluster counts. This is",
+   "kind": "precision",
+   "evidence": "spacr/hyperparam.py:1910-1964 (_cluster_structure: max(0, min(1, raw)); KMeans random_state=seed; range(2, min(8, n_samples-1)+1); best_raw = max silhouette)."
+  },
+  {
+   "file": "docs/source/umap_multiobjective.rst",
+   "before": "The composite score is not presented as the only answer. spaCR also marks the\nPareto front in the result table.",
+   "after": "The composite score gives one ranking of the trials. spaCR also marks the\nPareto front in the result table.",
+   "kind": "vague",
+   "evidence": "Removed 'answer' framing; Pareto front per spacr/hyperparam.py SearchResult.pareto_front."
+  },
+  {
+   "file": "docs/source/plaque_assay.rst",
+   "before": "preview status before starting the batch analysis. Saving happens in the\nbackground so the image remains responsive; a queued save is not yet a\ncompleted write.",
+   "after": "preview status before starting the batch analysis. Saving runs in the\nbackground so the window remains responsive; a queued save is not yet a\ncompleted write.",
+   "kind": "precision",
+   "evidence": "An image is not 'responsive'; the background save keeps the GUI interactive (save_annotations returns the queued destination, documented at plaque_assay.rst:230-232)."
+  }
+ ],
+ "left_as_is_notable": [
+  {
+   "file": "docs/source/umap_multiobjective.rst",
+   "text": "``multi_objective`` is the default criterion.",
+   "reason": "True for the GUI (APP_CRITERIA['umap'][0], spacr/hyperparam.py:200-203) but the Python umap_search default is metric='trustworthiness' (spacr/hyperparam.py:2101). Sentence is in GUI context, so left; the code example passes metric explicitly."
+  },
+  {
+   "file": "docs/source/point_spread.rst",
+   "text": "approximately 0.354 µm Gaussian FWHM; 0.51 × emission wavelength / numerical aperture",
+   "reason": "Verified: spacr/point_spread.py:446-448 (6.5 µm, 520 nm, factor 0.51); 0.51*0.52/0.75 = 0.3536."
+  },
+  {
+   "file": "docs/source/plugin_sdk.rst",
+   "text": "Supported codes are sv, de, es, zh_CN, pt, hi, ko, is and fr.",
+   "reason": "Verified against spacr/qt/i18n.py:56-67 LANGUAGES."
+  },
+  {
+   "file": "docs/source/threading_cancellation_audit.rst",
+   "text": "if the run has not reached a boundary after five minutes, the question is asked again",
+   "reason": "Verified spacr/qt/shutdown.py:22,227,265."
+  },
+  {
+   "file": "docs/source/settings_flow.rst",
+   "text": "Asked for on 2026-09-08: *\"in the API when a user clicks a settings ...\"*",
+   "reason": "Verbatim maintainer request quoted in the page; kept as a quotation (only the follow-up sentence was rewritten). Maintainer may prefer to remove the quote entirely."
+  },
+  {
+   "file": "docs/source/model_explanation.rst",
+   "text": "learns background and target-like morphology across many wells",
+   "reason": "'learns' is the standard ML term for a fitted model, not anthropomorphism of spaCR."
+  },
+  {
+   "file": "docs/source/threading_cancellation_audit.rst",
+   "text": "treating it as a failed field would defeat the worker's distinct cancellation status",
+   "reason": "Mildly figurative but technically accurate; left."
+  }
+ ],
+ "out_of_scope_skipped": [
+  {
+   "file": "docs/source/measure_live.rst",
+   "text": "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM ...",
+   "area": "Preferences > Performance / storage"
+  },
+  {
+   "file": "docs/source/point_spread.rst",
+   "text": "Sections 'Use the desktop controls' (In **Make Masks**, open **Image enhancement** ...) through the GIF caption",
+   "area": "Make Masks; also setting animation GIF"
+  },
+  {
+   "file": "docs/source/model_zoo.rst",
+   "text": "open **Model Zoo** from the **Make Masks** masthead",
+   "area": "Make Masks (no change needed anyway)"
+  },
+  {
+   "file": "docs/source/run_history.rst",
+   "text": "**Preferences → Storage** keeps the spaCR home folder from growing without bound.",
+   "area": "Storage settings (ambiguous with storage backends). Note: the claim conflicts with 'nothing is pruned automatically' in the same paragraph; suggested wording: '**Preferences → Storage** sets retention limits for ...'."
+  }
+ ]
+}

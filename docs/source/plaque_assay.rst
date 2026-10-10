@@ -188,8 +188,8 @@ become available again. Wait for those controls before rerunning with changed
 settings.
 
 After choosing **Save annotations**, wait for the saved confirmation in the
-preview status before starting the batch analysis. Saving happens in the
-background so the image remains responsive; a queued save is not yet a
+preview status before starting the batch analysis. Saving runs in the
+background so the window remains responsive; a queued save is not yet a
 completed write.
 
 Python preview contracts

@@ -13,8 +13,9 @@ An execution profile describes *how to reach compute*, not an analysis.
 Profiles never store passwords or API keys:
 
 ``SSH workstation``
-   Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in
-   a durable background process and records its exit code.
+   Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a
+   detached background process (output redirected to a log, stdin closed) so
+   it continues if the SSH connection drops, and records its exit code.
 
 ``Slurm cluster``
    Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then
@@ -24,7 +25,8 @@ Profiles never store passwords or API keys:
 ``Cloud / custom command``
    Runs configured submit/status/cancel argument templates. This supports
    cloud CLIs and site-specific schedulers without embedding vendor
-   credentials in spaCR. The command must print a safe job identifier and the
+   credentials in spaCR. The command must print a job identifier containing only letters, digits
+   and ``_.:+-``, and the
    status command should print a conventional state such as ``PENDING``,
    ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``.
 

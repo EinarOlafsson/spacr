@@ -15,7 +15,8 @@ Each folder contains:
    A versioned, atomically written record of the module, timestamps, status,
    settings hash, declared random seeds, Python/NumPy/Torch random-state
    identifiers, spaCR and Git versions, all installed package versions, model
-   hashes, input hashes, output hashes, warnings, and an exception traceback.
+   hashes, input hashes, output hashes, warnings, and, for a failed run, the
+   exception traceback.
 
 ``log.txt``
    The tail of the application log at completion.
@@ -49,9 +50,8 @@ outputs. Symlinks, version-control folders, caches, and the run journal itself
 are excluded.
 
 The manifest also includes deterministic aggregate ``input_tree_sha256`` and
-``output_tree_sha256`` values. These make it cheap to establish whether two
-complete sets match while retaining the per-file records needed to locate a
-difference.
+``output_tree_sha256`` values. Comparing these single digests shows whether two
+complete sets match; the per-file records identify which files differ.
 
 Crash and failure behavior
 --------------------------

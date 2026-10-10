@@ -66,7 +66,7 @@ with optional channels.
      - Images per training minibatch. Larger batches require more memory.
    * - ``learning_rate``
      - 0.00001
-     - Size of the model's training updates.
+     - Optimizer step size.
    * - ``weight_decay``
      - 0.1
      - Strength of weight regularization during training.

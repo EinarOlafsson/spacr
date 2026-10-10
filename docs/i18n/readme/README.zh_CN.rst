@@ -274,7 +274,7 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 无助于缩小检出文件的大小：其 Git 对象存储仍占用 2032 MB。静默按需获取对象使完整下载总量无法测得。nightly 的版本控制文件检出后占用 3416 MB（2026-10-08 测得），不含 Git 历史。下载大小和耗时随分支而变化。
+nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 3416 MB（2026-10-08 测得），不含 Git 历史。下载大小和耗时随分支而变化。
 
 
 命令行入口
@@ -556,17 +556,17 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 上面的每个图像都是用模型从未在训练中看到的图像来测量的。
 
-**精度**是模型的对象中有多少是真实的; **回忆**是它发现的真实对象中的多少。
+**Precision** （精确率）表示模型报告的对象中有多少是真实的； **recall** （召回率）表示真实对象中有多少被模型找到。精确率低意味着误检；召回率低意味着漏检。
 
-**F1**是两个结合,并被引用,因为每个单独是三重播放 - 报告一个不可错误的板,以接近完美的精度,或每个黑暗的泡沫,以靠近完美的回报. 你会更喜欢失去取决于估计,并计算通常更好地通过过呼:板模型被接受的精度 0.858 与回报 0.811 上一个之前的轮子在 0.939 和 0.631.
+**F1** 是两者的调和平均数。单看其中任何一个都可能接近完美：只报告一个明确噬斑的模型精确率很高，报告每个暗斑的模型召回率很高。哪种错误更重要取决于实验：噬斑模型以精确率 0.858、召回率 0.811 被采用，取代了此前精确率 0.939、召回率 0.631 的版本。
 
 **IoU**（交并比）是预测对象与参考对象的交集面积除以并集面积。解读分数时应同时查看阈值：“IoU 0.5 时 F1 为 0.864”表示，当交集面积达到并集面积的一半或以上时，该液泡才计为已检出。
 
-**mAP50** 和 **mAP50-95** 属于探测器. 第一问孔是否被发现; 第二重复它在十个从 0.5 到 0.95 的边界,所以它也问每个盒子是多么紧紧地拖动。
+**mAP50** 和 **mAP50-95** 用于评估孔检测器：IoU 为 0.5 时的平均精度均值（mean average precision），以及在 0.5 到 0.95 的十个 IoU 阈值上的平均值，后者还会惩罚位置不准的框。
 
-**Cross-validated**,与一个**SD**,意味着得分是不同分区的三轮的平均值,而SD是它们移动到多远。
+**Cross-validated** （交叉验证）与 **SD** 一起给出各折的均值和标准差： ``toxoplasma_plaque_v1`` 为三折， ``toxoplasma_pv_v2`` 为五折。单一划分可能产生误导： ``toxoplasma_plaque_v1`` 的文献值在单个 19 孔划分上为 0.834，在全部三折上为 0.806。
 
-模型托管在各作者自己的 Hugging Face 账户中； ``spacr.model_zoo.publish_model`` 可上传模型，并输出要添加到目录中的条目。
+模型托管在各作者自己的 Hugging Face 账户中； ``spacr.model_zoo.publish_model`` 可上传模型，并返回要添加到目录中的条目。
 
 
 性能诊断
@@ -606,7 +606,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 ``spacr-doctor`` 打印一个行每检查,每个故障运行一个命令. 它还报告哪个 ``spacr`` 在路径上,这是一个可编辑的旧安装的阴影。
 
-``safespacr`` 读取每个偏好作为其默认的,并强迫背景,动画,字面登录和预载。
+``safespacr`` 以默认值读取每项偏好设置，并关闭背景、动画、详细日志和预加载。当已保存的偏好设置导致程序无法启动时使用它。在安全模式下保存的偏好设置会正常写入并保留。
 
 无图形界面发运行模块
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -622,7 +622,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-``validate`` 读取相同的设置,并报告什么是缺乏,矛盾或指向什么。
+``validate`` 读取运行时会读取的同一组设置，并列出每个问题（例如缺少的设置或不存在的路径）及其修复方法。
 
 接下来的跑步检查
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

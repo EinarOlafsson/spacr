@@ -274,7 +274,7 @@ Uppsetning frá frumkóða (létt)
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Hljóðlausar niðurhalssóknir eftir þörfum koma í veg fyrir fullkomna mælingu á heildarniðurhali. Útgáfustýrðu skrárnar í nightly taka 3416 MB í vinnueintakinu (mælt 2026-10-08), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein.
+Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í nightly taka 3416 MB í vinnueintakinu (mælt 2026-10-08), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein.
 
 
 Skipanalínuskipanir
@@ -556,17 +556,17 @@ spaCR skipar listan af þjálfað mönnunum og snúa þeim á eftirspurn. Opna *
 
 Hvert dæmi yfir er metið á myndum sem myndavél hefur aldrei séð í æfingu.
 
-**Trekkur** er hversu margir af hlutum mönnun er raunverulegur; **reikla** er hve mörg af raunverulegum hlutum það fann.
+**Precision** (nákvæmni) segir hve mörg þeirra hluta sem líkan tilkynnti eru raunveruleg; **recall** (næmi) segir hve mörg raunverulegu hlutanna það fann. Lág nákvæmni þýðir rangar greiningar; lágt næmi þýðir hluti sem fundust ekki.
 
-**F1** er tvö sameiginlegt, og er kvótað vegna þess að hver einn er trivially gamed - tala um einn ómeðlilegt plakk fyrir næstum fullkomna nákvæmni, eða hvert myrkur blob fyrir næstu fullkomnu endurskoðun. Það sem þú myndi helst missa af því að mæla, og fjölda er yfirleitt betra með yfirskoðun: plakkamálið var samþykkt á nákvóm 0.858 með endurskoða 0.811 yfir fyrri runda á 0.939 og 0.631.
+**F1** er hrímeðaltal þeirra. Hvort um sig getur verið nær fullkomið: nákvæmnin hjá líkani sem tilkynnir eina ótvíræða skellu, næmið hjá líkani sem tilkynnir hvern dökkan blett. Hvor villan skiptir meira máli fer eftir prófinu: skellulíkanið var samþykkt með nákvæmni 0.858 og næmi 0.811 fram yfir fyrri umferð með 0.939 og 0.631.
 
 **IoU** (intersection over union) er flatarmál skörunar milli spáðs hlutar og viðmiðunarhlutar, deilt með flatarmáli sammengis þeirra. Lesið gildi ásamt viðmiðunarmörkum: „F1 0.864 við IoU 0.5“ telur frymisbólu fundna þegar skörunin nær að minnsta kosti helmingi flatarmáls sammengisins.
 
-**mAP50** og **map50-95** eru með uppgötvuna. fyrri spyr hvort bólkurnar voru fundið; annar endurtekur það yfir tíu þremur frá 0.5 til 0.95, þannig að það spyr einnig hversu þreyttur hver boksi er þreytur.
+**mAP50** og **mAP50-95** meta brunnagreininn: meðalnákvæmni (mean average precision) við IoU 0.5 og meðaltal hennar yfir tíu IoU-þröskulda frá 0.5 til 0.95, sem refsar einnig fyrir illa staðsetta kassa.
 
-**Cross-validated**, með **SD**, þýðir að skólan er miðjan þremur rún á mismunandi rúnum og SD er hversu langt þeir flytja út.
+**Cross-validated** (krossprófað), með **SD**, gefur meðaltal og staðalfrávik yfir skiptingar: þrjár fyrir ``toxoplasma_plaque_v1`` og fimm fyrir ``toxoplasma_pv_v2``. Ein skipting getur villt um: birt gildi ``toxoplasma_plaque_v1`` er 0.834 á einni skiptingu með 19 brunnum og 0.806 yfir allar þrjár.
 
-Líkön eru hýst á eigin Hugging Face-reikningi hvers höfundar; ``spacr.model_zoo.publish_model`` hleður upp líkani og prentar færsluna sem bæta á í líkanaskrána.
+Líkön eru hýst á eigin Hugging Face-reikningi hvers höfundar; ``spacr.model_zoo.publish_model`` hleður upp líkani og skilar færslunni sem bæta á í líkanaskrána.
 
 
 Greining á afköstum
@@ -606,7 +606,7 @@ Að byrja við umsókn
 
 ``spacr-doctor`` drukkar eitt línu á athygli, með komandi til að kjósa fyrir hvert mismunandi. Það segir einnig hvaða ``spacr`` er á leiðinni, sem er það sem gamla redigable uppsetningu skugga.
 
-``safespacr`` lætur hvert forrit eins og uppáhaldsins og þykir bakgrunni, tegundum, verbose logging og hlaða út. Nottu það þegar sparaður forrit breytir upphafið. Það breytist ekkert stöðugt.
+``safespacr`` les hverja stillingu sem sjálfgefið gildi hennar og slekkur á bakgrunni, hreyfimyndum, ítarlegri skráningu og forhleðslu. Notaðu það þegar vistuð stilling kemur í veg fyrir að forritið ræsist. Stillingar sem vistaðar eru í öruggum ham eru skrifaðar eins og venjulega og haldast.
 
 Að hlaupa modúlum án heiðar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -622,7 +622,7 @@ Engin Qt, engin sýning — fyrir klúster, þjónusta og CI.
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-``validate`` lætur sömu settun sem fer myndi og segir hvað er saknað, óþekkt eða sýnir ekkert.
+``validate`` les sömu stillingar og keyrslan myndi lesa og telur upp hvert vandamál, til dæmis stillingu sem vantar eða slóð sem er ekki til, ásamt lagfæringu.
 
 Spurning á leiðinni síðar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

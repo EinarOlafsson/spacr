@@ -274,7 +274,7 @@ Les contributeurs ont besoin de l’historique des versions ; pour simplement ex
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la taille de la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Les téléchargements silencieux à la demande empêchent de mesurer le total complet transféré. Les fichiers suivis de nightly occupent 3416 MB dans la copie de travail (mesurés le 2026-10-08), hors historique Git. La taille et la durée du téléchargement varient selon la branche.
+Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de nightly occupent 3416 MB dans la copie de travail (mesurés le 2026-10-08), hors historique Git. La taille et la durée du téléchargement varient selon la branche.
 
 
 Points d’entrée en ligne de commande
@@ -556,17 +556,17 @@ spaCR envoie un catalogue de modèles formés et les récupère sur demande. Ouv
 
 Chaque figure ci-dessus est mesurée sur des images que le modèle n'a jamais vues dans l'entraînement.
 
-**La précision** est le nombre d'objets déclarés par un modèle qui sont réels; **recall** est celui des objets réels qu'il a trouvés. Ils échouent dans des directions opposées: une mauvaise précision invente des plaques, un mauvais souvenir les manque.
+**Precision** (précision) indique combien d’objets signalés par un modèle sont réels ; **recall** (rappel) indique combien d’objets réels il a trouvés. Une précision faible signifie de fausses détections ; un rappel faible signifie des objets manqués.
 
-**F1** est les deux combinés et est cité parce que chacun d'eux est triviallement gamed - rapporter une plaque unique pour une précision presque parfaite, ou chaque blob sombre pour un rappel presque parfait. Ce que vous préféreriez perdre dépend de l'essai, et le comptage est généralement mieux servi par des surappels: le modèle de plaque a été accepté à la précision 0.858 avec le rappel 0.811 sur une ronde antérieure à 0.939 et 0.631.
+**F1** est leur moyenne harmonique. Chacune peut être presque parfaite à elle seule : la précision pour un modèle qui signale une seule plage indiscutable, le rappel pour un modèle qui signale chaque tache sombre. L’erreur la plus gênante dépend de l’essai : le modèle de plages a été accepté avec une précision de 0.858 et un rappel de 0.811, de préférence à une version antérieure à 0.939 et 0.631.
 
 **IoU** (intersection sur union) divise la surface de chevauchement entre les objets prédits et de référence par la surface de leur union. Lisez les scores avec leur seuil : « F1 0.864 à IoU 0.5 » compte une vacuole comme détectée lorsque le chevauchement atteint au moins la moitié de cette surface.
 
-**mAP50** et **mPA50-95** appartiennent au détecteur. Le premier demande si les puits ont été trouvés; le second le répète à travers dix seuils de 0,5 à 0,95, de sorte qu'il demande aussi à quel point chaque boîte est serrée. L'écart entre eux est le placement, et non la détection.
+**mAP50** et **mAP50-95** évaluent le détecteur de puits : la précision moyenne (mean average precision) à IoU 0.5, et sa moyenne sur dix seuils d’IoU de 0.5 à 0.95, qui pénalise aussi les boîtes mal placées.
 
-**Cross-validated**, with an **SD**, means the score is the mean of three runs on different splits and the SD is how far they moved apart. One split can be lucky: this model's literature figure is 0.834 on a single 19-well split and 0.806 across all three.
+**Cross-validated** (validation croisée), avec un **SD**, donne la moyenne et l’écart type sur les plis : trois pour ``toxoplasma_plaque_v1``, cinq pour ``toxoplasma_pv_v2``. Une seule partition peut induire en erreur : la valeur publiée pour ``toxoplasma_plaque_v1`` est 0.834 sur une seule partition de 19 puits et 0.806 sur les trois.
 
-Les modèles sont hébergés sur le compte Hugging Face de chaque auteur ; ``spacr.model_zoo.publish_model`` téléverse un modèle et affiche la ligne à ajouter au catalogue.
+Les modèles sont hébergés sur le compte Hugging Face de chaque auteur ; ``spacr.model_zoo.publish_model`` téléverse un modèle et renvoie la ligne à ajouter au catalogue.
 
 
 Diagnostic des performances
@@ -606,7 +606,7 @@ Quand spaCR ne démarrera pas
 
 ``spacr-doctor`` affiche une ligne par vérification, avec une commande à exécuter pour chaque échec. Il indique également quel ``spacr`` est sur le chemin, qui est ce qu'une ancienne install shadows modifiable.
 
-``safespacr`` lit chaque préférence comme son défaut et force la toile de fond, les animations, l'enregistrement de verbes et le préchargement. Utilisez-le quand une préférence sauvegardée casse le lancement. Il ne change rien de façon permanente.
+``safespacr`` lit chaque préférence avec sa valeur par défaut et désactive l’arrière-plan, les animations, la journalisation détaillée et le préchargement. Utilisez-le lorsqu’une préférence enregistrée empêche le démarrage. Les préférences enregistrées en mode sans échec sont écrites normalement et sont conservées.
 
 Modules de exécution sans interface graphique
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -622,7 +622,7 @@ Pas de Qt, pas d'affichage — pour les clusters, les serveurs et les CI.
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-``validate`` lit les mêmes paramètres que l'exécution et signale ce qui manque, contradictoire ou pointant vers rien.
+``validate`` lit les mêmes paramètres que l’exécution et liste chaque problème, par exemple un paramètre manquant ou un chemin inexistant, avec une correction.
 
 Inspecter une course après
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

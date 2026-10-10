@@ -274,7 +274,7 @@ Colaboradores precisam do histórico de versões; para executar o spaCR, escolha
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-O clone completo de nightly baixou 9.25 GiB. Adicionar ``--filter=blob:none`` ao clone superficial não reduz o tamanho da cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. As transferências silenciosas sob demanda impedem medir todo o volume baixado. Os arquivos versionados de nightly ocupam 3416 MB na cópia de trabalho (medidos em 2026-10-08), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo.
+O clone completo de nightly baixou 9.25 GiB. Adicionar ``--filter=blob:none`` ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de nightly ocupam 3416 MB na cópia de trabalho (medidos em 2026-10-08), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo.
 
 
 Comandos de linha de comando
@@ -556,17 +556,17 @@ spaCR envia um catálogo de modelos treinados e os busca sob demanda. Abra  **Mo
 
 Cada figura acima é medida em imagens que o modelo nunca viu no treinamento.
 
-**Precisão** é quantos dos objetos que um modelo relatou são reais;  **recall** é como muitos dos objetos reais que encontrou. Eles falham em direções opostas: má precisão inventa placas, má memória os perde.
+**Precision** (precisão) é quantos dos objetos relatados por um modelo são reais; **recall** (sensibilidade) é quantos dos objetos reais ele encontrou. Precisão baixa significa detecções falsas; sensibilidade baixa significa objetos perdidos.
 
-**F1** é os dois combinados, e é citado porque cada um é trivialmente disputado -- reporte uma placa inconfundível para precisão quase perfeita, ou cada bolha escura para recall quase perfeito. O que você preferiria perder depende do ensaio, e a contagem é geralmente melhor servida por over-calling: o modelo de placa foi aceito com precisão 0,858 com recall 0,811 ao longo de uma rodada anterior em 0,939 e 0,631.
+**F1** é a média harmônica das duas. Cada uma isoladamente pode ser quase perfeita: a precisão para um modelo que relata uma única placa inequívoca, a sensibilidade para um que relata cada mancha escura. Qual erro importa mais depende do ensaio: o modelo de placas foi aceito com precisão 0.858 e sensibilidade 0.811, em vez de uma rodada anterior com 0.939 e 0.631.
 
 **IoU** (interseção sobre união) divide a área de sobreposição entre o objeto previsto e o de referência pela área da união dos dois. Leia os resultados junto com o limiar: «F1 0.864 com IoU 0.5» conta um vacúolo como detectado quando a sobreposição atinge pelo menos metade da área da união.
 
-**mAP50** e **mAP50-95** pertencem ao detector. O primeiro pergunta se os poços foram encontrados; o segundo repete através de dez limiares de 0,5 a 0,95, por isso também pergunta com que força cada caixa é desenhada. A lacuna entre eles é a colocação, não a detecção.
+**mAP50** e **mAP50-95** avaliam o detector de poços: a precisão média (mean average precision) com IoU 0.5 e a sua média em dez limiares de IoU de 0.5 a 0.95, que também penaliza caixas mal posicionadas.
 
-**Cross-validated**, com um  **SD**, significa que a pontuação é a média de três execuções em divisões diferentes e o SD é o quão longe eles se afastaram. Uma divisão pode ter sorte: a figura da literatura deste modelo é 0,834 em uma única divisão de 19 poços e 0,806 em todos os três.
+**Cross-validated** (validação cruzada), com um **SD**, dá a média e o desvio padrão entre as partições: três para ``toxoplasma_plaque_v1`` e cinco para ``toxoplasma_pv_v2``. Uma única partição pode enganar: o valor publicado de ``toxoplasma_plaque_v1`` é 0.834 numa única partição de 19 poços e 0.806 nas três.
 
-Os modelos são hospedados na conta de Hugging Face de cada autor; ``spacr.model_zoo.publish_model`` envia um modelo e imprime a linha a ser adicionada ao catálogo.
+Os modelos são hospedados na conta de Hugging Face de cada autor; ``spacr.model_zoo.publish_model`` envia um modelo e retorna a linha a ser adicionada ao catálogo.
 
 
 Diagnóstico de desempenho
@@ -606,7 +606,7 @@ Quando spaCR não será iniciado
 
 ``spacr-doctor`` imprime uma linha por verificação, com um comando a ser executado para cada falha. Ele também relata que  ``spacr`` está no caminho, que é o que uma antiga sombra de instalação editável.
 
-``safespacr`` lê todas as preferências como padrão e força o pano de fundo, animações, logging verboso e pré-carregamento. Use-o quando uma preferência salva quebrar o lançamento. Ele não muda nada permanentemente.
+``safespacr`` lê cada preferência com seu valor padrão e desativa o plano de fundo, as animações, o registro detalhado e o pré-carregamento. Use-o quando uma preferência salva impedir a inicialização. As preferências salvas no modo de segurança são gravadas normalmente e permanecem.
 
 Módulos em execução sem interface gráfica
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -622,7 +622,7 @@ No Qt, no display para clusters, servidores e CI.
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-``validate`` lê as mesmas configurações que a execução faria e relata o que está faltando, contraditório ou apontando para nada.
+``validate`` lê as mesmas configurações que a execução leria e lista cada problema, como uma configuração ausente ou um caminho que não existe, com uma correção.
 
 Inspecionando uma corrida depois
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

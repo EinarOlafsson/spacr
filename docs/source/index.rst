@@ -16,10 +16,10 @@ Welcome to spaCR
    publishes its own API, guides and committed tutorial catalog automatically.
 
 A Python toolkit for quantifying and visualising phenotypic changes in
-high-throughput microscopy screens. Ships with a modern PySide6 GUI
-(``spacr``), a headless pipeline (:mod:`spacr.core`), and a
-plate-to-classification workflow that runs on top of PyTorch,
-Cellpose, scikit-image, and scipy.
+high-throughput microscopy screens. It provides a PySide6 desktop interface
+(``spacr``), headless pipeline functions (:mod:`spacr.core`), and a workflow
+from plate images to object classification built on PyTorch, Cellpose,
+scikit-image and SciPy.
 
 It is built for cell biologists running pooled or arrayed CRISPR screens
 who need per-cell measurements from plate images. The GUI route needs no
@@ -27,22 +27,22 @@ programming; the same processing steps are available through the Python API
 for scripted and reproducible workflows.
 
 The GUI groups its applications into four categories: *Core* for the
-segment-measure-classify pipeline, *Data* for getting images and tables in
-and running them at scale, *Tools* for the instruments you point at a
-project — hand mask correction, stitching, embeddings, gates, plots and
-quality control — and *Organism* for the Toxoplasma organism guide, which
+segment-measure-classify pipeline; *Data* for importing images and tables,
+feature embeddings, run comparison, experiment and power design,
+dose–response analysis and quality control; *Tools* for operations on an
+existing project — hand mask correction, stitching, image UMAP, gating and
+plotting; and *Organism* for the Toxoplasma organism guide, which
 lists its available assays; planned analyses are marked Coming soon. The
 bands under "Applications and workflow" below are those categories, in that
 order, with the tiles each one holds.
 
-Not every screen is a tile, which is why no count of them is printed here.
-Work that only makes sense inside another step opens from that step's
-masthead instead — **Timelapse** from Mask, **Illumination** and the
+Not every screen is a tile. Screens used within another step open from that
+step's masthead — **Timelapse** from Mask, **Illumination** and the
 **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV
 Model** from Classify, **Annotator Agreement** from Annotate, and the
 **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from
-Make Masks, among them — so a screen with no tile below is one step further
-in rather than gone. Home lists whatever the running build offers.
+Make Masks, among others. Home shows only the tiles enabled in the running
+build.
 
 .. grid:: 2
    :gutter: 3

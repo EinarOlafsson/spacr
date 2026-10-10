@@ -17,7 +17,8 @@ The dashboard combines:
 Search terms are combined: ``adamw plate_03 warning`` shows only records
 containing all three terms anywhere in settings, paths, warnings, failures or
 environment data. Module and status filters can be applied at the same time.
-Interrupted and corrupt folders stay visible rather than disappearing.
+Interrupted and corrupt run folders remain listed, with status ``running``
+or ``corrupt`` and diagnostic warnings.
 
 Select a row to inspect its details. **Load settings in module** opens the
 original module and propagates the exact recorded settings into its controls;
@@ -57,8 +58,8 @@ deleted and emptied and how much space was freed.
 Headless search
 ---------------
 
-:func:`spacr.run_journal.search_runs` provides the same resilient records
-without Qt:
+:func:`spacr.run_journal.search_runs` returns the same records as the
+dashboard, including corrupt and interrupted runs, without Qt:
 
 .. code-block:: python
 

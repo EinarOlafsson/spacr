@@ -1,0 +1,1585 @@
+{
+ "agent": "a6-narration",
+ "mode": "findings-only (no repository files edited; narration changes to be applied with re-recording)",
+ "files": {
+  "tools/tutorials/lessons/01_pypi_github.json": {
+   "paragraphs_read": 14,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/02_conda_install.json": {
+   "paragraphs_read": 15,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/02_install_spacr.json": {
+   "paragraphs_read": 23,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/03_pip_install.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/04_platform_installers.json": {
+   "paragraphs_read": 21,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/05_home.json": {
+   "paragraphs_read": 46,
+   "paragraphs_changed": 2
+  },
+  "tools/tutorials/lessons/06_api.json": {
+   "paragraphs_read": 12,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/07_mask.json": {
+   "paragraphs_read": 19,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/08_measure.json": {
+   "paragraphs_read": 23,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/09_annotate.json": {
+   "paragraphs_read": 29,
+   "paragraphs_changed": 2
+  },
+  "tools/tutorials/lessons/10_classify_cv.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/11_classify_ml.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/12_map_barcodes.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/13_regression.json": {
+   "paragraphs_read": 21,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/14_make_masks.json": {
+   "paragraphs_read": 69,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/15_image_umap.json": {
+   "paragraphs_read": 21,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/16_activation.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/17_timelapse.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/18_motility.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/19_train_cellpose.json": {
+   "paragraphs_read": 19,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/20_cellpose_masks.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/21_model_compare.json": {
+   "paragraphs_read": 12,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/22_model_zoo.json": {
+   "paragraphs_read": 20,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/23_agreement.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/24_plaque.json": {
+   "paragraphs_read": 26,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/25_recruitment.json": {
+   "paragraphs_read": 22,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/26_invasion.json": {
+   "paragraphs_read": 19,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/27_replication.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/28_training_runs.json": {
+   "paragraphs_read": 23,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/29_report.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/30_plate_queue.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/31_external_masks.json": {
+   "paragraphs_read": 21,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/32_align_stitch.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/33_plate_viewer.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/34_database.json": {
+   "paragraphs_read": 14,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/35_converter.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/36_import.json": {
+   "paragraphs_read": 23,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/37_batch.json": {
+   "paragraphs_read": 20,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/38_distributed_jobs.json": {
+   "paragraphs_read": 15,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/39_classifier_evaluation.json": {
+   "paragraphs_read": 20,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/40_run_history.json": {
+   "paragraphs_read": 19,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/41_classify.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 2
+  },
+  "tools/tutorials/lessons/42_curate.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/43_illumination.json": {
+   "paragraphs_read": 20,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/44_data_manager.json": {
+   "paragraphs_read": 19,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/45_project_browser.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/46_napari_bridge.json": {
+   "paragraphs_read": 15,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/47_barcode_qc.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/48_hit_list.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/49_methods_results.json": {
+   "paragraphs_read": 15,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/50_run_compare.json": {
+   "paragraphs_read": 15,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/51_control_charts.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/52_pipeline_graph.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/53_prediction_profiler.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/54_qc_dashboard.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/55_image_scatter.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/56_lineage.json": {
+   "paragraphs_read": 20,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/57_layer_viewer.json": {
+   "paragraphs_read": 26,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/58_graph_builder.json": {
+   "paragraphs_read": 31,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/59_anndata_export.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/60_pca.json": {
+   "paragraphs_read": 22,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/61_tabulate.json": {
+   "paragraphs_read": 24,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/62_feature_dictionary.json": {
+   "paragraphs_read": 15,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/63_small_multiples.json": {
+   "paragraphs_read": 23,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/64_gate_editor.json": {
+   "paragraphs_read": 31,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/65_feature_explorer.json": {
+   "paragraphs_read": 20,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/66_outliers.json": {
+   "paragraphs_read": 23,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/67_experiment_design.json": {
+   "paragraphs_read": 20,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/68_power_design.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/69_dose_response.json": {
+   "paragraphs_read": 24,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/70_explain_cv.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/71_investigate_hit.json": {
+   "paragraphs_read": 24,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/72_volcano_explorer.json": {
+   "paragraphs_read": 19,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/73_parameter_sweep.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/74_import_images.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/75_regression_diagnostics.json": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/76_ops.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/77_embeddings.json": {
+   "paragraphs_read": 15,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/78_spacr_screens.json": {
+   "paragraphs_read": 14,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/79_module_inputs_outputs.json": {
+   "paragraphs_read": 84,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/80_image_analysis_pathways.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 1
+  },
+  "tools/tutorials/lessons/81_sequencing_pathways.json": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  },
+  "tools/tutorials/lessons/82_toxoplasma.json": {
+   "paragraphs_read": 13,
+   "paragraphs_changed": 2
+  },
+  "tools/tutorials/lessons/85_host_pathogen.json": {
+   "paragraphs_read": 18,
+   "paragraphs_changed": 9
+  },
+  "tools/tutorials/lessons/86_alpha_organism_modules.json": {
+   "paragraphs_read": 22,
+   "paragraphs_changed": 5
+  },
+  "tools/tutorials/lessons/87_alpha_features.json": {
+   "paragraphs_read": 34,
+   "paragraphs_changed": 2
+  },
+  "spacr/resources/module_workflows.json": {
+   "paragraphs_read": 273,
+   "paragraphs_changed": 22
+  },
+  "tools/build_module_workflows.py": {
+   "paragraphs_read": 10,
+   "paragraphs_changed": 4,
+   "note": "narration templates only (lines 226-234, 280-335)"
+  }
+ },
+ "changes": [
+  {
+   "file": "tools/tutorials/lessons/02_conda_install.json",
+   "pointer": "/scenes/4/narration",
+   "before": "Installing Python and spaCR in one command lets Conda resolve every package together, which is much faster than adding spaCR to an existing environment.",
+   "after": "Installing Python and spaCR in one command lets Conda resolve every package together, instead of adding spaCR to an environment that already contains other packages.",
+   "kind": "promotional",
+   "evidence": "\"much faster\" is an unmeasured performance claim; no benchmark in the repository. The resolve-together statement is kept.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 40,
+   "full_after_words": 41,
+   "length_ratio": 1.05,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/03_pip_install.json",
+   "pointer": "/scenes/0/narration",
+   "before": "Keep spaCR in a dedicated virtual environment so its packages are easy to manage.",
+   "after": "Keep spaCR in a dedicated virtual environment so its packages stay separate from other Python projects.",
+   "kind": "promotional",
+   "evidence": "\"easy to manage\" replaced by the concrete property of a virtual environment (isolation).",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 29,
+   "full_after_words": 31,
+   "length_ratio": 1.12,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/05_home.json",
+   "pointer": "/scenes/4/narration",
+   "before": "Classify learns from reviewed labels and scores other objects, using image-based or tabular approaches.",
+   "after": "Classify trains a model on reviewed labels and scores other objects, using image crops or measured features.",
+   "kind": "precision",
+   "evidence": "Anthropomorphism (\"Classify learns\"). spacr/qt/screens/app_screen.py APP_INTROS[\"classify_merged\"]: trains classifiers from image crops or measured features.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 14,
+   "full_after_words": 17,
+   "length_ratio": 1.05,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/05_home.json",
+   "pointer": "/scenes/13/narration",
+   "before": "QC brings together quality checks and identifies evidence that is available or missing.",
+   "after": "QC lists a project's saved quality reports and marks the ones that are missing.",
+   "kind": "vague",
+   "evidence": "spacr/qt/screens/qc_dashboard.py:4 lists segmentation, units, leakage, plate-effect and agreement verdicts; lesson 54 scene 3 (Missing).",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 13,
+   "full_after_words": 14,
+   "length_ratio": 0.91,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/08_measure.json",
+   "pointer": "/scenes/10/narration",
+   "before": "Give the template a name you would say out loud; next time you apply it instead of retyping.",
+   "after": "Give the template a descriptive name; next time, apply it instead of entering the settings again.",
+   "kind": "filler",
+   "evidence": "\"a name you would say out loud\" gives no usable instruction. Labels verified: spacr/qt/recipes.py:521 \"Save current settings…\", :798 \"Templates\". The Ctrl+Shift+R sentence in this scene (keyboard shortcuts) is out of scope and left unchanged.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 39,
+   "full_after_words": 37,
+   "length_ratio": 1.02,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/09_annotate.json",
+   "pointer": "/scenes/17/narration",
+   "before": "every crop on the page now wears a question-mark badge.",
+   "after": "every crop on the page now shows a question-mark badge.",
+   "kind": "metaphor",
+   "evidence": "\"wears\" is figurative; spacr/qt/screens/annotate.py:46 describes the badge.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 41,
+   "full_after_words": 41,
+   "length_ratio": 1.0,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/09_annotate.json",
+   "pointer": "/scenes/18/narration",
+   "before": "Both answers are recorded, rejections train the next round, and Confirm the rest of the page settles what is left once you have checked it.",
+   "after": "Both answers are recorded, and the next Suggest round uses rejections as examples of the other class. Confirm the rest of the page confirms every suggestion you have not judged yet.",
+   "kind": "vague",
+   "evidence": "\"settles what is left\" is vague. spacr/qt/screens/annotate.py:4473-4478 (button tooltip: \"Confirm every suggestion on this page you have not judged yet\") and :6010-6013 (\"a rejection is an example of the other class\").",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 44,
+   "full_after_words": 50,
+   "length_ratio": 1.18,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/22_model_zoo.json",
+   "pointer": "/scenes/11/narration",
+   "before": "Cellpose rescales each image by the diameter it is given, so a diameter measured on your own fields is safer than a guess.",
+   "after": "Cellpose rescales each image by the diameter it is given, so the diameter should match the objects in your own fields.",
+   "kind": "vague",
+   "evidence": "\"safer than a guess\" is an unquantified comparison. The rescaling statement is kept; the Measure diameters dialog is spacr/qt/prerun.py:1164/1460.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 30,
+   "full_after_words": 28,
+   "length_ratio": 0.98,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/26_invasion.json",
+   "pointer": "/scenes/12/narration",
+   "before": "Everything lands in results/analyze_invasion inside Source.",
+   "after": "The analysis writes its tables to results/analyze_invasion inside Source.",
+   "kind": "metaphor",
+   "evidence": "spacr/submodules.py:5500-5505 writes parasite_calls.csv, field_thresholds.csv, well_invasion.csv, condition_summary.csv; spacr/cli.py:412.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 37,
+   "full_after_words": 40,
+   "length_ratio": 1.04,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/27_replication.json",
+   "pointer": "/scenes/11/narration",
+   "before": "The results in results/analyze_replication inside Source build upward.",
+   "after": "The tables in results/analyze_replication inside Source are derived from one another.",
+   "kind": "metaphor",
+   "evidence": "spacr/submodules.py:3996-3998 (vacuole_counts.csv -> well_distribution.csv -> condition_summary.csv).",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 44,
+   "full_after_words": 47,
+   "length_ratio": 1.05,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/31_external_masks.json",
+   "pointer": "/scenes/0/narration",
+   "before": "From Home, open Import Project, then choose External Masks.",
+   "after": "From Home, open Import, then choose External Masks.",
+   "kind": "precision",
+   "evidence": "UI name: the Home tile is \"Import\" (spacr/qt/app.py:1151; tiled_apps()); \"Import Project\" is only the screen title (app_screen.py APP_TITLES[\"foreign\"]). Lesson 36 scene 0 already says \"open Import\".",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 26,
+   "full_after_words": 25,
+   "length_ratio": 0.95,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/35_converter.json",
+   "pointer": "/scenes/0/narration",
+   "before": "From Home, open Import Project and choose Format Converter.",
+   "after": "From Home, open Import and choose Format Converter.",
+   "kind": "precision",
+   "evidence": "Same as lesson 31: Home tile label is \"Import\" (spacr/qt/app.py:1151); fold button \"Format Converter\" verified via fold_strip.fold_label.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 22,
+   "full_after_words": 21,
+   "length_ratio": 0.94,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/41_classify.json",
+   "pointer": "/scenes/1/narration",
+   "before": "Choose Computer Vision to learn from object images. Choose Tabular Machine Learning to learn from measured feature columns.",
+   "after": "Choose Computer Vision to train on object images. Choose Tabular Machine Learning to train on measured feature columns.",
+   "kind": "precision",
+   "evidence": "\"to learn from\" has no clear subject; the families train classifiers (app_screen.py APP_INTROS classify_merged).",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 29,
+   "full_after_words": 29,
+   "length_ratio": 0.98,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/41_classify.json",
+   "pointer": "/scenes/7/narration",
+   "before": "Open Explain CV to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then inspect which features explain the scores.",
+   "after": "Open Explain CV Model to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then check the surrogate's fidelity before reading its feature ranking.",
+   "kind": "factual-error",
+   "evidence": "Button label is \"Explain CV Model\" (fold_strip.fold_label(\"explain_cv\")). The tool fits a measured-feature surrogate and withholds the ranking when fidelity is low (lesson 70 scenes 3-7; module_workflows /modules/explain_cv/guidance \"A surrogate explanation is not causality\"), so \"which features explain the scores\" overstates it.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 28,
+   "full_after_words": 32,
+   "length_ratio": 1.15,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/56_lineage.json",
+   "pointer": "/scenes/0/narration",
+   "before": "From Home, open Database Browser, then Lineage.",
+   "after": "Open Help, then Database Browser, then Lineage.",
+   "kind": "factual-error",
+   "evidence": "Database Browser has no Home tile: it is in TILELESS_APPS and _HELP_MODULES (spacr/qt/app.py:1338-1361, Help menu built at :3661); folded_children() maps db_browser -> (lineage, tabulate). Lesson 34 scene 0 already says \"Open Help, then Database Browser\".",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 21,
+   "full_after_words": 21,
+   "length_ratio": 1.0,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/61_tabulate.json",
+   "pointer": "/scenes/0/narration",
+   "before": "From Home, open Database Browser, then choose Tabulate.",
+   "after": "Open Help, then Database Browser, then choose Tabulate.",
+   "kind": "factual-error",
+   "evidence": "Same evidence as lesson 56 scene 0 (spacr/qt/app.py:1338-1361, :3661).",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 31,
+   "full_after_words": 31,
+   "length_ratio": 1.0,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/80_image_analysis_pathways.json",
+   "pointer": "/scenes/4/narration",
+   "before": "Classify learns from the selected label column, using crop images or measured features.",
+   "after": "Classify trains a model on the selected label column, using crop images or measured features.",
+   "kind": "precision",
+   "evidence": "Anthropomorphism. Lesson 80 is accepted authored media (T03/T06); low priority, apply only if lesson 80 is re-recorded for another reason.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 41,
+   "full_after_words": 43,
+   "length_ratio": 1.02,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/82_toxoplasma.json",
+   "pointer": "/scenes/2/narration",
+   "before": "The diagram is there to explore.",
+   "after": "The diagram is interactive.",
+   "kind": "filler",
+   "evidence": "Following sentences already describe hover/select behaviour.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 27,
+   "full_after_words": 25,
+   "length_ratio": 0.97,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/82_toxoplasma.json",
+   "pointer": "/scenes/4/narration",
+   "before": "the Plaque Analysis tutorial describes the complete workflow.",
+   "after": "the Plaque Assay tutorial describes the complete workflow.",
+   "kind": "precision",
+   "evidence": "The tutorial is titled \"Plaque Assay: count plaques and measure their areas\" (lessons/24_plaque.json title) and the tile is \"Plaque Assay\" (fold_label).",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 41,
+   "full_after_words": 41,
+   "length_ratio": 0.99,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/85_host_pathogen.json",
+   "pointer": "/scenes/0/narration",
+   "before": "Host–Pathogen ties every vacuole's markers and parasite count back to its host cell and its well. To get there, open Toxoplasma from Home, then choose Host–Pathogen.",
+   "after": "Host–Pathogen links each vacuole's marker measurements and parasite count to its host cell and its well. To open it, choose Toxoplasma on Home, then Host–Pathogen.",
+   "kind": "metaphor",
+   "evidence": "spacr/host_pathogen.py:237 returns vacuoles/cells/wells tables. Organism-page tile label \"Host–Pathogen\" (spacr/qt/organisms.py toxoplasma modules). Alpha module (T04 scope decision pending); apply only if lesson 85 stays in the catalogue.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 26,
+   "full_after_words": 25,
+   "length_ratio": 0.99,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/85_host_pathogen.json",
+   "pointer": "/scenes/1/narration",
+   "before": "The easiest way in is the example.",
+   "after": "Start with the supplied example.",
+   "kind": "promotional",
+   "evidence": "\"easiest way in\" is promotional/metaphorical. Alpha module (T04 scope decision pending); apply only if lesson 85 stays in the catalogue.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 40,
+   "full_after_words": 38,
+   "length_ratio": 0.99,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/85_host_pathogen.json",
+   "pointer": "/scenes/2/narration",
+   "before": "Everything the module reads comes through Source, which should point at the project holding measurements/measurements.db.",
+   "after": "The module reads its input from Source, which should point at the project holding measurements/measurements.db.",
+   "kind": "vague",
+   "evidence": "spacr/host_pathogen.py:258-265 (src -> measurements/measurements.db). Alpha module (T04 scope decision pending); apply only if lesson 85 stays in the catalogue.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 32,
+   "full_after_words": 32,
+   "length_ratio": 0.96,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/85_host_pathogen.json",
+   "pointer": "/scenes/3/narration",
+   "before": "Now tell it where vacuoles and hosts live in that database:",
+   "after": "Next, name the tables in that database that hold the vacuoles and the host cells:",
+   "kind": "metaphor",
+   "evidence": "spacr/host_pathogen.py:271 hp_vacuole_table / hp_reference_table. Alpha module (T04 scope decision pending); apply only if lesson 85 stays in the catalogue.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 46,
+   "full_after_words": 50,
+   "length_ratio": 1.08,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/85_host_pathogen.json",
+   "pointer": "/scenes/5/narration",
+   "before": "At first, leave Marker thresholds empty and simply look at the recruitment ratios.",
+   "after": "At first, leave Marker thresholds empty and inspect the recruitment ratios.",
+   "kind": "filler",
+   "evidence": "\"simply\" (brief list). Alpha module (T04 scope decision pending); apply only if lesson 85 stays in the catalogue.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 51,
+   "full_after_words": 49,
+   "length_ratio": 0.98,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/85_host_pathogen.json",
+   "pointer": "/scenes/8/narration",
+   "before": "and the results land in results/host_pathogen inside the first selected project.",
+   "after": "and the results are written to results/host_pathogen inside the first selected project.",
+   "kind": "metaphor",
+   "evidence": "spacr/host_pathogen.py:283-288. Alpha module (T04 scope decision pending); apply only if lesson 85 stays in the catalogue.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 41,
+   "full_after_words": 42,
+   "length_ratio": 1.03,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/85_host_pathogen.json",
+   "pointer": "/scenes/9/narration",
+   "before": "The results build from small to large. vacuoles.csv has one row per vacuole: its host link, marker ratios, marker state and any parasite count. cells.csv rolls those up into host-cell infection and vacuole counts, and wells.csv summarises them per well.",
+   "after": "The tables go from vacuoles to host cells to wells. vacuoles.csv has one row per vacuole: its host link, marker ratios, marker state and any parasite count. cells.csv aggregates those into host-cell infection and vacuole counts, and wells.csv summarises them per well.",
+   "kind": "metaphor",
+   "evidence": "spacr/host_pathogen.py:237. Alpha module (T04 scope decision pending); apply only if lesson 85 stays in the catalogue.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 40,
+   "full_after_words": 42,
+   "length_ratio": 1.06,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/85_host_pathogen.json",
+   "pointer": "/scenes/10/narration",
+   "before": "Two more tables answer the biology. marker_states.csv shows joint marker states, and replication_distribution.csv the parasite counts per counted vacuole. Parasites without a usable parent link land in orphan_parasites.csv. Keep settings.json with them so your channel and threshold choices travel along.",
+   "after": "Two more tables summarize the assay readouts. marker_states.csv shows joint marker states, and replication_distribution.csv the parasite counts per counted vacuole. Parasites without a usable parent link are listed in orphan_parasites.csv. Keep settings.json with them so your channel and threshold choices are stored with the results.",
+   "kind": "metaphor",
+   "evidence": "\"answer the biology\", \"land in\", \"travel along\". spacr/host_pathogen.py:237-238, :288. Alpha module (T04 scope decision pending); apply only if lesson 85 stays in the catalogue.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 40,
+   "full_after_words": 45,
+   "length_ratio": 1.1,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/85_host_pathogen.json",
+   "pointer": "/scenes/11/narration",
+   "before": "and unknown never quietly becomes zero.",
+   "after": "and an unknown count is never replaced by zero.",
+   "kind": "metaphor",
+   "evidence": "module_workflows /modules/host_pathogen/guidance (\"unknown measurements remain unknown\"). Alpha module (T04 scope decision pending); apply only if lesson 85 stays in the catalogue.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 43,
+   "full_after_words": 46,
+   "length_ratio": 1.03,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/86_alpha_organism_modules.json",
+   "pointer": "/scenes/4/narration",
+   "before": "Each tile opens a page built the same way, so once you know one, you can read them all.",
+   "after": "Each tile opens a page with the same layout: an introduction, a cell diagram and assay tiles.",
+   "kind": "filler",
+   "evidence": "Layout per lesson 86 objectives and spacr/qt/organisms.py entries (description, diagram, modules).",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 41,
+   "full_after_words": 39,
+   "length_ratio": 1.02,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/86_alpha_organism_modules.json",
+   "pointer": "/scenes/6/narration",
+   "before": "The cell diagram is an interactive map of compartments taken from UniProt.",
+   "after": "The cell diagram shows compartments taken from UniProt.",
+   "kind": "metaphor",
+   "evidence": "\"interactive map\" (brief: map metaphors); interactivity is described in the next sentence.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 37,
+   "full_after_words": 33,
+   "length_ratio": 0.92,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/86_alpha_organism_modules.json",
+   "pointer": "/scenes/7/narration",
+   "before": "The assay tiles are where work starts.",
+   "after": "The assay tiles open the analysis modules.",
+   "kind": "filler",
+   "evidence": "Next sentences give the concrete behaviour (bright vs dimmed tiles).",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 42,
+   "full_after_words": 42,
+   "length_ratio": 1.01,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/86_alpha_organism_modules.json",
+   "pointer": "/scenes/13/narration",
+   "before": "so the core pipeline is one click away from the organism page.",
+   "after": "so you can open the core modules directly from the organism page.",
+   "kind": "promotional",
+   "evidence": "\"one click away\" is a slogan.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 35,
+   "full_after_words": 35,
+   "length_ratio": 1.01,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/86_alpha_organism_modules.json",
+   "pointer": "/scenes/15/narration",
+   "before": "As each organism matures it will leave alpha and get its own walkthrough. Until then, use",
+   "after": "These organism pages do not have walkthroughs of their own yet. Until they do, use",
+   "kind": "vague",
+   "evidence": "Forward-looking promise that cannot be verified in the code; replaced with the current state.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 40,
+   "full_after_words": 39,
+   "length_ratio": 0.97,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/87_alpha_features.json",
+   "pointer": "/scenes/15/narration",
+   "before": "and morphs crops step by step toward the other class, so you can see which features the model relies on.",
+   "after": "and changes crops step by step toward the other class, scoring each step with the classifier's probability for that class.",
+   "kind": "factual-error",
+   "evidence": "spacr/attribution.py:3033-3046 (_counterfactual_sequences scores each step as the classifier probability of the target class). The output is a sequence of generated images with scores; it does not identify \"features the model relies on\".",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 32,
+   "full_after_words": 32,
+   "length_ratio": 1.09,
+   "applied": false
+  },
+  {
+   "file": "tools/tutorials/lessons/87_alpha_features.json",
+   "pointer": "/scenes/20/narration",
+   "before": "so spaCR can tell you by desktop message, email, Slack or a web hook when a long run finishes or fails.",
+   "after": "so spaCR can send a desktop message, email, Slack message or web hook request when a long run finishes or fails.",
+   "kind": "precision",
+   "evidence": "Anthropomorphism (\"tell you\"); channel list unchanged.",
+   "rerecord": null,
+   "note": null,
+   "full_before_words": 26,
+   "full_after_words": 26,
+   "length_ratio": 1.06,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/introduction",
+   "before": "A pooled screen tells its story twice, once in images and once in sequencing reads, and spaCR brings the two together at the end. On the image side, Mask and Measure turn your microscope fields into measured cells, and Annotate and Classify turn those cells into phenotype scores. On the sequencing side, Map Barcodes turns reads into guide counts. Regression joins the two by plate and well. Join wherever your results begin.",
+   "after": "A pooled screen produces two data sets: microscope images and sequencing reads. On the image side, Mask and Measure segment your microscope fields and measure each cell, and Annotate and Classify assign a phenotype score to each cell. On the sequencing side, Map Barcodes converts reads into guide counts. Regression joins the two by plate and well. Start at the module that reads the data you already have.",
+   "kind": "metaphor",
+   "evidence": "\"tells its story twice\", \"brings the two together\", \"Join wherever your results begin\". Module roles per module_workflows modules/*/inputs,outputs.",
+   "rerecord": "78_spacr_screens scene 0",
+   "note": null,
+   "full_before_words": 72,
+   "full_after_words": 68,
+   "length_ratio": 0.96,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/scenes/mask",
+   "before": "Everything starts with your microscope images. Open Mask from Home, choose the channels and a segmentation model, and check the preview before you run it. Mask finds the objects in every field and saves each field as a merged array, the image channels stacked with their label masks. Those merged arrays are what Measure opens next. The small counts database Mask leaves behind is only a tally, not yet a feature table.",
+   "after": "The image analysis starts from your microscope images. Open Mask from Home, choose the channels and a segmentation model, and check the preview before you run it. Mask segments the objects in every field and saves each field as a merged array, the image channels stacked with their label masks. Those merged arrays are what Measure opens next. The counts database that Mask also writes contains object counts, not per-object features.",
+   "kind": "metaphor",
+   "evidence": "\"Everything starts\", \"leaves behind ... a tally\". module_workflows /artifacts/counts/location (\"Mask counts alone are not per-object feature measurements\").",
+   "rerecord": "78_spacr_screens scene 1",
+   "note": null,
+   "full_before_words": 72,
+   "full_after_words": 71,
+   "length_ratio": 1.04,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/scenes/measure",
+   "before": "From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
+   "after": "Two modules use these outputs next. Annotate shows those crops so you can label examples, and Classify trains on either the crops or the measured features, so keep object identities stable.",
+   "kind": "metaphor",
+   "evidence": "\"the story forks\"; \"Classify learns\" (anthropomorphism).",
+   "rerecord": "78_spacr_screens scene 2",
+   "note": null,
+   "full_before_words": 90,
+   "full_after_words": 91,
+   "length_ratio": 1.01,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/scenes/annotate",
+   "before": "Before a classifier can learn anything, it needs examples.",
+   "after": "A classifier needs labelled examples for training.",
+   "kind": "metaphor",
+   "evidence": "Anthropomorphism.",
+   "rerecord": "78_spacr_screens scene 3",
+   "note": null,
+   "full_before_words": 72,
+   "full_after_words": 70,
+   "length_ratio": 0.98,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/scenes/classify_merged",
+   "before": "Open Classify from Home, and here your labels become scores. Classify has two families, and your data picks between them. Computer Vision learns from the object crops themselves, while Tabular Machine Learning learns from the measured feature columns. Either way, it trains on the labels you made in Annotate, checks itself on the objects you held out,",
+   "after": "Open Classify from Home to train a classifier on your labels and score each object. Classify has two families, and your input data determines which one to use. Computer Vision trains on the object crops themselves, while Tabular Machine Learning trains on the measured feature columns. Either way, it trains on the labels you made in Annotate, evaluates the model on the objects you held out,",
+   "kind": "metaphor",
+   "evidence": "\"labels become scores\", \"your data picks\", \"checks itself\" (anthropomorphism). Outputs per /modules/classify_merged/outputs (scores, classifier, feature_model, evaluation).",
+   "rerecord": "78_spacr_screens scene 4",
+   "note": null,
+   "full_before_words": 98,
+   "full_after_words": 107,
+   "length_ratio": 1.07,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/scenes/map_barcodes",
+   "before": "While the images go one way, the sequencing reads go another. Open Map Barcodes from Home, give it your FASTQ files and the barcode references that encode your screen, and it counts which guides turned up in each well. Check the mapped counts and barcode QC before you trust them.",
+   "after": "The sequencing reads are processed separately from the images. Open Map Barcodes from Home, give it your FASTQ files and the barcode references that encode your screen, and it counts the reads for each guide in each well. Check the mapped counts and barcode QC before you use them.",
+   "kind": "metaphor",
+   "evidence": "\"go one way ... go another\", \"turned up\". /artifacts/barcode_counts/location (unique_combinations.csv).",
+   "rerecord": "78_spacr_screens scene 5",
+   "note": null,
+   "full_before_words": 67,
+   "full_after_words": 66,
+   "length_ratio": 1.0,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/scenes/regression",
+   "before": "This is where the two halves of the screen meet.",
+   "after": "Regression combines the image results with the sequencing results.",
+   "kind": "metaphor",
+   "evidence": "Opening sentence; two further sentences of this scene are listed separately.",
+   "rerecord": "78_spacr_screens scene 6",
+   "note": null,
+   "full_before_words": 117,
+   "full_after_words": 116,
+   "length_ratio": 1.03,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/conclusion",
+   "before": "So a pooled screen runs as two streams that meet in Regression.",
+   "after": "In a pooled screen, the image results and the sequencing results are combined in Regression.",
+   "kind": "metaphor",
+   "evidence": "\"two streams that meet\".",
+   "rerecord": "78_spacr_screens scene 7",
+   "note": null,
+   "full_before_words": 60,
+   "full_after_words": 63,
+   "length_ratio": 1.08,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/79_module_inputs_outputs/introduction",
+   "before": "Think of this lesson as a map of where each file goes. Every chapter is one module: how to open it, what it reads, what it writes and which module picks that output up next. Start from the files you have or the result you need, and follow the handoffs from there. Keep object, plate and well identifiers with your data as it travels.",
+   "after": "This lesson lists, for each module, the files it reads and writes. Each chapter covers one module: how to open it, what it reads, what it writes and which module uses that output next. Start from the files you have or the result you need, and follow the handoffs from there. Keep object, plate and well identifiers with your data at every step.",
+   "kind": "metaphor",
+   "evidence": "\"Think of this lesson as a map\" is the brief's named example; \"as it travels\".",
+   "rerecord": "79_module_inputs_outputs scene 0",
+   "note": null,
+   "full_before_words": 64,
+   "full_after_words": 63,
+   "length_ratio": 1.03,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/introduction",
+   "before": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
+   "after": "In a pooled screen, sequencing identifies which guide is present in each well or cell, and spaCR reads barcodes in two ways. Map Barcodes reads the output of a sequencer. OPS, which is part of Mask, decodes barcodes imaged cycle by cycle. In both cases, Regression joins the barcode identities to your phenotypes. This lesson also covers Experiment Design and Power / Design, used before acquisition, and Dose–Response and Run Compare, used on results.",
+   "kind": "metaphor",
+   "evidence": "\"a pooled screen learns\", \"lives inside\", \"Around that core sit\". OPS is folded under Mask (spacr/qt/app.py folded_children: mask -> (timelapse, ops)).",
+   "rerecord": "81_sequencing_pathways scene 0",
+   "note": null,
+   "full_before_words": 76,
+   "full_after_words": 74,
+   "length_ratio": 1.01,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/map_barcodes",
+   "before": "Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
+   "after": "Before you use those counts, open them in Barcode QC. After that check, Regression pairs these guide counts with phenotype scores on the same plate and well keys.",
+   "kind": "vague",
+   "evidence": "\"Once they pass\" implies a pass/fail gate that Barcode QC does not enforce (lesson 47: flags and threshold sweep, user chooses cutoff).",
+   "rerecord": "81_sequencing_pathways scene 1",
+   "note": null,
+   "full_before_words": 81,
+   "full_after_words": 79,
+   "length_ratio": 0.98,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/barcode_qc",
+   "before": "Barcode QC lives inside Map Barcodes,",
+   "after": "Barcode QC is part of Map Barcodes,",
+   "kind": "metaphor",
+   "evidence": "folded_children: map_barcodes -> (barcode_qc,).",
+   "rerecord": "81_sequencing_pathways scene 2",
+   "note": null,
+   "full_before_words": 55,
+   "full_after_words": 56,
+   "length_ratio": 0.99,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/ops",
+   "before": "Optical screens take a different road.",
+   "after": "Optical screens read barcodes from images instead.",
+   "kind": "metaphor",
+   "evidence": "\"take a different road\" (brief: road metaphor).",
+   "rerecord": "81_sequencing_pathways scene 3",
+   "note": null,
+   "full_before_words": 85,
+   "full_after_words": 86,
+   "length_ratio": 1.02,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/regression",
+   "before": "Whichever way you sequenced, barcodes meet phenotypes in Regression.",
+   "after": "Both routes end in Regression, which joins barcodes to phenotypes.",
+   "kind": "metaphor",
+   "evidence": "Opening sentence; two further sentences of this scene are listed separately.",
+   "rerecord": "81_sequencing_pathways scene 4",
+   "note": null,
+   "full_before_words": 120,
+   "full_after_words": 121,
+   "length_ratio": 1.0,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/power",
+   "before": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. The layout from Experiment Design feeds these estimates, and the estimates in turn may send you back to revise that design.",
+   "after": "Planning happens before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. Power / Design does not read the Experiment Design export, so enter the planned plate values by hand, and revise the layout if the estimates require it.",
+   "kind": "factual-error",
+   "evidence": "\"feeds these estimates\" implies a data transfer that does not exist: spacr/qt/screens/power.py opens only a pilot table (:1073) and an alpha arrayed plan JSON (:1348); no plate_map reader (grep plate_map: only experiment_design.py, convert.py, report.py, app_screen.py).",
+   "rerecord": "81_sequencing_pathways scene 5",
+   "note": null,
+   "full_before_words": 64,
+   "full_after_words": 68,
+   "length_ratio": 1.08,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/experiment_design",
+   "before": "That layout travels far. Power / Design uses it to set sampling assumptions, and later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
+   "after": "Use the same layout when you enter assumptions in Power / Design. After acquisition and measurement, keep its dose and condition identities unchanged in the table you load into Dose–Response; neither module reads the export directly.",
+   "kind": "factual-error",
+   "evidence": "\"travels far\" (metaphor) and \"uses it\" (implied automatic handoff). spacr/qt/screens/dose_response.py loads a user table via \"Load table…\" (:412, :828); neither it nor power.py reads plate_map.csv.",
+   "rerecord": "81_sequencing_pathways scene 6",
+   "note": null,
+   "full_before_words": 70,
+   "full_after_words": 69,
+   "length_ratio": 1.0,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/dose_response",
+   "before": "Dose–Response answers how much, not which guide, so it needs no sequencing at all. Open it from Home and bring your measured responses with the dose and condition identities from Experiment Design.",
+   "after": "Dose–Response fits responses against concentration and uses no sequencing data. Open it from Home and load a table of measured responses that keeps the dose and condition identities from Experiment Design.",
+   "kind": "metaphor",
+   "evidence": "\"answers how much\"; lesson 69 (logistic fit of response vs concentration, Load table).",
+   "rerecord": "81_sequencing_pathways scene 7",
+   "note": null,
+   "full_before_words": 55,
+   "full_after_words": 54,
+   "length_ratio": 1.02,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/simulation",
+   "before": "One more planning tool lives only in Python:",
+   "after": "One more planning tool is available only from Python:",
+   "kind": "metaphor",
+   "evidence": "\"lives\". The later sentence \"What comes out is planning evidence, not data\" is already covered by N678-T05 (not duplicated).",
+   "rerecord": "81_sequencing_pathways scene 9",
+   "note": null,
+   "full_before_words": 117,
+   "full_after_words": 118,
+   "length_ratio": 1.01,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/conclusion",
+   "before": "So the barcode side of a screen always ends the same way: identities joined to phenotypes by plate and well.",
+   "after": "Both barcode routes end with the same step: barcode identities are joined to phenotypes by plate and well.",
+   "kind": "filler",
+   "evidence": "Formulaic summary opener (\"So ... always ends the same way\").",
+   "rerecord": "81_sequencing_pathways scene 10",
+   "note": null,
+   "full_before_words": 59,
+   "full_after_words": 57,
+   "length_ratio": 0.99,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/scenes/regression",
+   "before": "run the fit, and open the diagnostics before you believe any hit.",
+   "after": "run the fit, and open the diagnostics before you interpret any hit.",
+   "kind": "precision",
+   "evidence": "\"believe\" -> \"interpret\".",
+   "rerecord": "78_spacr_screens scene 6",
+   "note": null,
+   "full_before_words": 117,
+   "full_after_words": 117,
+   "length_ratio": 1.0,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/78_spacr_screens/scenes/regression",
+   "before": "OPS does not hand over a ready-made count table.",
+   "after": "OPS does not write a count table that Regression reads directly.",
+   "kind": "metaphor",
+   "evidence": "/connections/28/handoff (\"this is not a direct CSV handoff\").",
+   "rerecord": "78_spacr_screens scene 6",
+   "note": null,
+   "full_before_words": 117,
+   "full_after_words": 119,
+   "length_ratio": 1.02,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/ops",
+   "before": "The results land in the OPS measurements.db,",
+   "after": "OPS writes the results to its measurements.db,",
+   "kind": "metaphor",
+   "evidence": "/artifacts/ops_tables/location.",
+   "rerecord": "81_sequencing_pathways scene 3",
+   "note": null,
+   "full_before_words": 85,
+   "full_after_words": 85,
+   "length_ratio": 1.0,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/regression",
+   "before": "run the fit, and read the diagnostics before you call anything a hit.",
+   "after": "run the fit, and read the diagnostics before you report any hit.",
+   "kind": "precision",
+   "evidence": "Informal phrasing.",
+   "rerecord": "81_sequencing_pathways scene 4",
+   "note": null,
+   "full_before_words": 120,
+   "full_after_words": 119,
+   "length_ratio": 0.99,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/tutorials/81_sequencing_pathways/scenes/regression",
+   "before": "is what Run Compare opens when you want to line this run up against another.",
+   "after": "is what Run Compare opens when you compare this run with another.",
+   "kind": "metaphor",
+   "evidence": "\"line this run up\".",
+   "rerecord": "81_sequencing_pathways scene 4",
+   "note": null,
+   "full_before_words": 120,
+   "full_after_words": 117,
+   "length_ratio": 0.98,
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/modules/illumination/guidance",
+   "before": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
+   "after": "Estimate a flat-field illumination model. When Illumination correction is on, Measure measures the corrected pixels and leaves the stored arrays unchanged; record the model used.",
+   "kind": "factual-error",
+   "evidence": "\"corrected display values\" is wrong: correction changes the measured values. spacr/measure.py:9428-9440 (prepare_illumination_correction before measuring); spacr/core.py:484 (Mask); lesson 08 scene 8 and lesson 43 scene 13 (\"Measure then divides the field out ... before it measures; the masks are not changed\").",
+   "rerecord": "79_module_inputs_outputs scene 61",
+   "note": null,
+   "full_before_words": 21,
+   "full_after_words": 25,
+   "length_ratio": 1.08,
+   "ratio_basis": "lesson 79 scene 61",
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/modules/qc_dashboard/guidance",
+   "before": "Inspect stored segmentation, unit, leakage and plate-effect checks.",
+   "after": "Inspect stored segmentation, unit, leakage, plate-effect and annotator-agreement checks.",
+   "kind": "precision",
+   "evidence": "spacr/qt/screens/qc_dashboard.py:4 (five verdict categories, including agreement); lesson 54 scene 7 \"all five categories\".",
+   "rerecord": "79_module_inputs_outputs scene 19",
+   "note": null,
+   "full_before_words": 15,
+   "full_after_words": 16,
+   "length_ratio": 1.06,
+   "ratio_basis": "lesson 79 scene 19",
+   "applied": false
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "pointer": "/connections/29/handoff",
+   "before": "Use the experimental layout to define sampling assumptions, then revise the design.",
+   "after": "Power / Design does not read the exported layout; enter its plate and replicate values as sampling assumptions, then revise the design.",
+   "kind": "factual-error",
+   "evidence": "spacr/qt/screens/power.py file dialogs: pilot table (:1073) and arrayed plan (:1348) only. Narrated in lesson 79 scenes 21 and 23; also shown in the flowchart edge text (workflow_diagram.edge_description).",
+   "rerecord": "79_module_inputs_outputs scenes 21, 23",
+   "note": null,
+   "full_before_words": 12,
+   "full_after_words": 22,
+   "length_ratio": 1.11,
+   "ratio_basis": "lesson 79 scene 23",
+   "applied": false
+  },
+  {
+   "file": "tools/build_module_workflows.py",
+   "pointer": "_opening (line ~295)",
+   "before": "Find {name} in the application's Help or tools menus.",
+   "after": "Open Help, then {name}.",
+   "kind": "vague",
+   "evidence": "All ten modules that use this fallback (queue, batch, distributed_jobs, db_browser, run_history, report, data_manager, pipeline_graph, project_browser, feature_dict) have a Help-menu entry: spacr/qt/app.py:1338-1361 _HELP_MODULES, :3661; feature_dictionary.install_help_action. There is no \"tools menu\".",
+   "rerecord": "79_module_inputs_outputs scenes 11-18, 27, 40",
+   "note": "Changing an English template invalidates its translation-catalog entries in spacr/qt/i18n_catalogs.",
+   "length_ratio": null,
+   "applied": false
+  },
+  {
+   "file": "tools/build_module_workflows.py",
+   "pointer": "_opening (line ~292)",
+   "before": "Open {host} through Help search, then choose {name}.",
+   "after": "Open Help, then {host}, then choose {name}.",
+   "kind": "precision",
+   "evidence": "Used only for Lineage and Tabulate (host db_browser), which is a Help-menu entry (spacr/qt/app.py:1352), not a search result.",
+   "rerecord": "79_module_inputs_outputs scenes 20, 25",
+   "note": "Translation catalogs keyed by the old string.",
+   "length_ratio": null,
+   "applied": false
+  },
+  {
+   "file": "tools/build_module_workflows.py",
+   "pointer": "_SENT_AGAIN / _BROUGHT_IN (lines 226-234)",
+   "before": "{peer} is another place they go. | They also feed {peer}. | {artifacts_from} {peer} work here too.",
+   "after": "{peer} also reads them. | {peer} reads them as well. | {peer} can also provide {artifacts}.",
+   "kind": "filler",
+   "evidence": "Formulaic/figurative variants (\"another place they go\", \"feed\", \"work here too\") in generated narration.",
+   "rerecord": "79_module_inputs_outputs scenes containing these phrases (about 9)",
+   "note": "Translation catalogs keyed by the old strings.",
+   "length_ratio": null,
+   "applied": false
+  },
+  {
+   "file": "tools/build_module_workflows.py",
+   "pointer": "_told_scene (line ~327)",
+   "before": "The columns to keep an eye on are {columns}.",
+   "after": "The relevant columns are {columns}.",
+   "kind": "filler",
+   "evidence": "Idiom; the Sphinx output of the same builder already says \"Relevant columns, depending on the route\" (line ~205).",
+   "rerecord": "79_module_inputs_outputs scenes 2, 3, 4, 5, 74",
+   "note": "Translation catalogs keyed by the old string.",
+   "length_ratio": null,
+   "applied": false
+  }
+ ],
+ "rerecord_by_lesson": {
+  "02_conda_install": {
+   "scenes": [
+    4
+   ],
+   "count": 1
+  },
+  "03_pip_install": {
+   "scenes": [
+    0
+   ],
+   "count": 1
+  },
+  "05_home": {
+   "scenes": [
+    4,
+    13
+   ],
+   "count": 2
+  },
+  "08_measure": {
+   "scenes": [
+    10
+   ],
+   "count": 1
+  },
+  "09_annotate": {
+   "scenes": [
+    17,
+    18
+   ],
+   "count": 2
+  },
+  "22_model_zoo": {
+   "scenes": [
+    11
+   ],
+   "count": 1
+  },
+  "26_invasion": {
+   "scenes": [
+    12
+   ],
+   "count": 1
+  },
+  "27_replication": {
+   "scenes": [
+    11
+   ],
+   "count": 1
+  },
+  "31_external_masks": {
+   "scenes": [
+    0
+   ],
+   "count": 1
+  },
+  "35_converter": {
+   "scenes": [
+    0
+   ],
+   "count": 1
+  },
+  "41_classify": {
+   "scenes": [
+    1,
+    7
+   ],
+   "count": 2
+  },
+  "56_lineage": {
+   "scenes": [
+    0
+   ],
+   "count": 1
+  },
+  "61_tabulate": {
+   "scenes": [
+    0
+   ],
+   "count": 1
+  },
+  "78_spacr_screens": {
+   "scenes": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "count": 8
+  },
+  "79_module_inputs_outputs": {
+   "scenes": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    23,
+    25,
+    27,
+    40,
+    61,
+    74
+   ],
+   "count": 24
+  },
+  "80_image_analysis_pathways": {
+   "scenes": [
+    4
+   ],
+   "count": 1,
+   "note": "optional; accepted authored media, apply only if re-recorded for another reason"
+  },
+  "81_sequencing_pathways": {
+   "scenes": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9,
+    10
+   ],
+   "count": 10
+  },
+  "82_toxoplasma": {
+   "scenes": [
+    2,
+    4
+   ],
+   "count": 2
+  },
+  "85_host_pathogen": {
+   "scenes": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    8,
+    9,
+    10,
+    11
+   ],
+   "count": 9,
+   "note": "alpha module; depends on the pending T04 scope decision"
+  },
+  "86_alpha_organism_modules": {
+   "scenes": [
+    4,
+    6,
+    7,
+    13,
+    15
+   ],
+   "count": 5
+  },
+  "87_alpha_features": {
+   "scenes": [
+    15,
+    20
+   ],
+   "count": 2
+  }
+ },
+ "left_as_is_notable": [
+  {
+   "file": "tools/tutorials/lessons/10_classify_cv.json",
+   "text": "This family learns from labelled object crops and saves a model that can score other crops.",
+   "reason": "\"learns\" is the standard machine-learning term for a model family here, not anthropomorphism of spaCR; kept."
+  },
+  {
+   "file": "tools/tutorials/lessons/30_plate_queue.json; 44_data_manager.json; 45_project_browser.json; 52_pipeline_graph.json; 24_plaque.json scene 11",
+   "text": "Open Help, then Plate queue / Data manager / Project browser / Pipeline graph / Database browser",
+   "reason": "Help menu labels are title case (spacr/qt/app.py:1338-1361). Spoken audio is identical, so no re-recording; correct only the written narration/subtitles if desired."
+  },
+  {
+   "file": "tools/tutorials/lessons/16_activation.json",
+   "text": "From Home, open Classify, then Activation Maps.",
+   "reason": "The Classify fold button reads \"Activation\" (classify.py FOLD_FALLBACK); the screen title is \"Activation Maps\" (app_screen.py:671). Lesson 41 scene 8 uses \"Activation\". Acceptable either way; not changed."
+  },
+  {
+   "file": "tools/tutorials/lessons/79_module_inputs_outputs.json scenes 8, 15, 17, 27, 40, 50, 61",
+   "text": "e.g. \"Run History reads the run history and artifacts. From those, Run History produces the run history and artifacts.\"",
+   "reason": "Generated self-loop sentences: module outputs equal inputs in module_workflows.json (convert, run_history, data_manager, project_browser, model_zoo, illumination, feature_dict). For read-only tools the \"produces\" sentence is meaningless; for Format Converter and Illumination the output artifact is misidentified (converted TIFFs; an illumination model file). Needs a data-model decision (new artifacts or a template that skips outputs equal to inputs) before any wording change; not proposed as a text edit."
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "text": "/tutorials/80_image_analysis_pathways/scenes/* (17 strings), e.g. \"Measure is the hub of this whole map.\", \"Sometimes masks need a human hand.\", \"Annotate is where you teach by example.\", \"Image UMAP is for looking before you label.\", \"Two tools in this map live only in Python.\"",
+   "reason": "Archival old map story; not used to build lesson 80 because lesson_source is \"authored\" (build_module_workflows.py:400, T03). Full of metaphors. Recommend deleting these strings or rewriting them before any future reuse; no audio impact."
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "text": "/modules/toxoplasma/guidance: \"... then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run.\"",
+   "reason": "spacr/qt/organisms.py Toxoplasma modules: four tiles have no key (Egress, Gliding motility, Bradyzoite conversion, Host cell damage), but a \"gliding\" workflow entry maps to Motility Assay, so whether Gliding motility runs is unclear; the list also omits Host–Pathogen and Starplast tiles. Not changed because I could not confirm the rendered tile states."
+  },
+  {
+   "file": "tools/tutorials/lessons/82_toxoplasma.json",
+   "text": "Plaque Assay counts plaques ... Recruitment ... and Replication Assay counts parasites per vacuole.",
+   "reason": "Omits Invasion Assay and Host–Pathogen tiles, both alpha (T04). Consistent with T04; left for the scope decision."
+  },
+  {
+   "file": "tools/tutorials/lessons/79_module_inputs_outputs.json",
+   "text": "\"{peer} picks up {artifacts} next.\" (20 scenes)",
+   "reason": "Mild idiom, unambiguous; kept to limit re-recording."
+  },
+  {
+   "file": "tools/tutorials/lessons/35_converter.json",
+   "text": "Preview shows where every source file will land before anything is written",
+   "reason": "\"land\" is mild and the sentence is concrete; kept."
+  },
+  {
+   "file": "tools/tutorials/lessons/25_recruitment.json",
+   "text": "so the main ratio and additional intensity summaries are easy to compare",
+   "reason": "Mild; kept."
+  },
+  {
+   "file": "features/data/678_tutorial_factual_findings_2026-10-08/findings.json",
+   "text": "N678-T01..T06",
+   "reason": "Not duplicated. T01 confirmed: 86_alpha_organism_modules scenes 0 and 4 say \"Assays tab\"; SECTION_ASSAYS = \"Organism\" (spacr/qt/app.py:540). T02 confirmed (24_plaque scene 13). T04 refined: APP_STAGE (spacr/qt/app.py ~1196-1215) also marks tile modules classify_merged, foreign, align, plate_view, db_browser, report, run_history and others as alpha, and the Toxoplasma organism page itself is registered STAGE_ALPHA; APP_STAGE drives the maturity colour, while hiding is a separate alpha gate (tiled_apps/_alpha_hidden_apps) - so \"alpha\" in APP_STAGE alone does not mean the ordinary lessons teach hidden UI. T05 (81 simulation) left to its own draft; only \"lives only in Python\" proposed here. T06 skipped as instructed."
+  }
+ ],
+ "out_of_scope_skipped": [
+  {
+   "file": "tools/tutorials/lessons/14_make_masks.json",
+   "text": "all 61 scenes",
+   "area": "Make Masks"
+  },
+  {
+   "file": "tools/tutorials/lessons/64_gate_editor.json",
+   "text": "all 25 scenes",
+   "area": "Gate Editor"
+  },
+  {
+   "file": "tools/tutorials/lessons/04_platform_installers.json",
+   "text": "scene 7 (Preferences > Performance)",
+   "area": "Preferences > Performance"
+  },
+  {
+   "file": "tools/tutorials/lessons/05_home.json",
+   "text": "scene 28 (Performance), scenes 29-34 and 38 (Appearance, Theme, Animation, Spaceout field, Figures tab)",
+   "area": "themes, animations, Performance, figure export"
+  },
+  {
+   "file": "tools/tutorials/lessons/05_home.json",
+   "text": "scenes 36-37 (Storage tab: log/run-folder retention and caches)",
+   "area": "storage settings (treated as out of scope conservatively)"
+  },
+  {
+   "file": "tools/tutorials/lessons/05_home.json",
+   "text": "scene 27 (Control-K command palette)",
+   "area": "keyboard shortcuts"
+  },
+  {
+   "file": "tools/tutorials/lessons/08_measure.json",
+   "text": "scene 13 and the Ctrl+Shift+R clause of scene 10",
+   "area": "keyboard shortcuts"
+  },
+  {
+   "file": "tools/tutorials/lessons/09_annotate.json",
+   "text": "scene 8 \"The on-screen legend lists the navigation and undo shortcuts.\"",
+   "area": "Undo/Redo and keyboard shortcuts"
+  },
+  {
+   "file": "tools/tutorials/lessons/72_volcano_explorer.json",
+   "text": "scenes 10-12 (figure size, style, PDF/PNG export)",
+   "area": "figure export"
+  },
+  {
+   "file": "tools/tutorials/lessons/87_alpha_features.json",
+   "text": "scene 8 \"extra storage formats for very large runs\"",
+   "area": "storage backends"
+  },
+  {
+   "file": "spacr/resources/module_workflows.json",
+   "text": "/modules/gate_editor/guidance, /modules/make_masks/guidance, /pathways/pooled_screen/steps/5, /pathways/phenotype_discovery/steps/3, /pathways/segmentation_training/steps/0, /connections/7, 9, 18, 19, 20, 26, 54",
+   "area": "Gate Editor / Make Masks"
+  }
+ ],
+ "notes": [
+  "Every \"before\" was checked to occur verbatim at its pointer; \"length_ratio\" is new/old character length of the whole narrated scene (for guidance/handoff strings: of the lesson 79 scene that narrates them). All ratios are within 0.91-1.18.",
+  "Lessons 78, 79 and 81 are generated from spacr/resources/module_workflows.json by tools/build_module_workflows.py; changes are stated against those sources. Rewritten 78/81 story scenes pass build_module_workflows._validate_story.",
+  "Changing English strings in module_workflows.json or the builder templates invalidates the corresponding entries in spacr/qt/i18n_catalogs and the per-language lesson reviews."
+ ]
+}

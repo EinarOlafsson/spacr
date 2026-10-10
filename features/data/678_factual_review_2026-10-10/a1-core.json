@@ -1,0 +1,289 @@
+{
+ "agent": "a1-core",
+ "files": {
+  "README.rst": {
+   "paragraphs_read": 70,
+   "paragraphs_changed": 8
+  },
+  "docs/source/index.rst": {
+   "paragraphs_read": 16,
+   "paragraphs_changed": 3
+  },
+  "docs/source/features.rst": {
+   "paragraphs_read": 88,
+   "paragraphs_changed": 10
+  },
+  "docs/source/python_api.rst": {
+   "paragraphs_read": 14,
+   "paragraphs_changed": 3
+  },
+  "docs/source/localization.rst": {
+   "paragraphs_read": 17,
+   "paragraphs_changed": 0
+  }
+ },
+ "changes": [
+  {
+   "file": "README.rst",
+   "before": "Adding ``--filter=blob:none`` to the shallow clone does not help shrink the checkout: its object store still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download total.",
+   "after": "... does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured.",
+   "kind": "vague",
+   "evidence": "Wording only; measured numbers unchanged."
+  },
+  {
+   "file": "README.rst",
+   "before": "They fail in opposite directions: poor precision invents plaques, poor recall misses them.",
+   "after": "Low precision means false detections; low recall means missed objects.",
+   "kind": "metaphor",
+   "evidence": "Standard metric definitions."
+  },
+  {
+   "file": "README.rst",
+   "before": "**F1** is the two combined, and is quoted because each alone is trivially gamed -- ... Which you would rather lose depends on the assay, and counting is usually better served by over-calling: the plaque model was accepted at ...",
+   "after": "**F1** is their harmonic mean; either alone is near-perfect for a model that reports one unmistakable plaque, or every dark blob. Which error matters more depends on the assay: the plaque model was accepted at precision 0.858 with recall 0.811 over an earlier round at 0.939 and 0.631.",
+   "kind": "vague",
+   "evidence": "Removed unverifiable generalisation 'counting is usually better served by over-calling'; F1 defined precisely; numbers unchanged."
+  },
+  {
+   "file": "README.rst",
+   "before": "**mAP50** and **mAP50-95** belong to the detector. The first asks whether the wells were found; the second repeats it ... asks how tightly each box is drawn. The gap between them is placement, not detection.",
+   "after": "**mAP50** and **mAP50-95** score the well detector: mean average precision at IoU 0.5, and its average over ten IoU thresholds from 0.5 to 0.95, which also penalizes loosely placed boxes.",
+   "kind": "metaphor",
+   "evidence": "Standard COCO/ultralytics metric definitions."
+  },
+  {
+   "file": "README.rst",
+   "before": "**Cross-validated**, with an **SD**, means the score is the mean of three runs on different splits and the SD is how far they moved apart. One split can be lucky: this model's literature figure is 0.834 ...",
+   "after": "**Cross-validated**, with an **SD**, gives the mean and standard deviation over folds: three for ``toxoplasma_plaque_v1``, five for ``toxoplasma_pv_v2``. One split can mislead: the literature figure of ``toxoplasma_plaque_v1`` is 0.834 on a single 19-well split and 0.806 across all three.",
+   "kind": "factual-error",
+   "evidence": "README model-zoo table (generated): toxoplasma_plaque_v1 '3-fold cross-validated, SD 0.020' but toxoplasma_pv_v2 '5-fold cross-validation'; 'three runs' was wrong for pv_v2 and 'this model' was ambiguous."
+  },
+  {
+   "file": "README.rst",
+   "before": "``spacr.model_zoo.publish_model`` uploads one and prints the catalogue row to add.",
+   "after": "``spacr.model_zoo.publish_model`` uploads one and returns the catalogue row to add.",
+   "kind": "factual-error",
+   "evidence": "spacr/model_zoo.py:2087 docstring 'return its catalogue row', returns row (~2147); only LOG.info, no print."
+  },
+  {
+   "file": "README.rst",
+   "before": "Use it when a saved preference breaks the launch. It changes nothing permanently.",
+   "after": "Use it when a saved preference breaks the launch. Preferences saved in safe mode are written normally and persist.",
+   "kind": "factual-error",
+   "evidence": "spacr/qt/safespacr.py:7-10 'WRITES ARE NOT SHADOWED ... writing to the real store is what makes it useful'; stderr message 'Anything you save is written normally.'"
+  },
+  {
+   "file": "README.rst",
+   "before": "``validate`` reads the same settings the run would and reports what is missing, contradictory or pointing at nothing.",
+   "after": "``validate`` reads the same settings the run would and lists each problem, such as a missing setting or a path that does not exist, with a fix.",
+   "kind": "metaphor",
+   "evidence": "spacr/validate.py:58-72 (Problem has severity, message, fix), :707 'is missing from the settings', :1498/:1519 'points at a path that does not exist'."
+  },
+  {
+   "file": "docs/source/index.rst",
+   "before": "Ships with a modern PySide6 GUI (``spacr``), a headless pipeline (:mod:`spacr.core`), and a plate-to-classification workflow that runs on top of PyTorch, Cellpose, scikit-image, and scipy.",
+   "after": "It provides a PySide6 desktop interface (``spacr``), headless pipeline functions (:mod:`spacr.core`), and a workflow from plate images to object classification built on PyTorch, Cellpose, scikit-image and SciPy.",
+   "kind": "promotional",
+   "evidence": "Removed 'modern'."
+  },
+  {
+   "file": "docs/source/index.rst",
+   "before": "*Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control —",
+   "after": "*Data* for importing images and tables, feature embeddings, run comparison, experiment and power design, dose–response analysis and quality control; *Tools* for operations on an existing project — hand mask correction, stitching, image UMAP, gating and plotting;",
+   "kind": "factual-error",
+   "evidence": "spacr.qt.app.tiled_apps() after register_self_registering_modules(): Data = Import, Embeddings, Run Compare, Experiment Design, Power / Design, Dose–Response, QC; Tools = Make Masks, Align & Stitch, Image UMAP, Gate Editor, Graph Builder. QC and Embeddings were wrongly placed under Tools. Metaphor 'instruments you point at' removed."
+  },
+  {
+   "file": "docs/source/index.rst",
+   "before": "Not every screen is a tile, which is why no count of them is printed here. Work that only makes sense inside another step opens from that step's masthead instead — ... among them — so a screen with no tile below is one step further in rather than gone. Home lists whatever the running build offers.",
+   "after": "Not every screen is a tile. Screens used within another step open from that step's masthead — ... among others. Home shows only the tiles enabled in the running build.",
+   "kind": "metaphor",
+   "evidence": "Masthead list verified against spacr.qt.app.folded_children(); alpha gating in tiled_apps()/_alpha_hidden_apps() (spacr/qt/app.py ~1716-1750). Kept 'Not every screen is a tile' because tests/test_the_api_homepage_shows_the_module_structure.py partitions on it."
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "spaCR follows an image-based screen from raw microscopy files to a ranked hit list. This page gives the full map; ... show the individual routes.",
+   "after": "spaCR processes an image-based screen from raw microscopy files to a ranked hit list. This page lists its capabilities by area; ... cover individual workflows.",
+   "kind": "metaphor",
+   "evidence": ""
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "as many organelle slots as ``number_of_organelles`` asks for",
+   "after": "as many organelle slots as ``number_of_organelles`` specifies",
+   "kind": "precision",
+   "evidence": "MAX_ORGANELLES=26 (spacr/organelle_types.py, spacr/settings_spec.py:352)"
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "a hidden object's answers are kept",
+   "after": "the values of a hidden object are kept",
+   "kind": "precision",
+   "evidence": ""
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "Rejections are kept and inform the next round of training.",
+   "after": "Rejections are stored; in a two-class column, the next training round uses a rejected suggestion as an example of the other class.",
+   "kind": "vague",
+   "evidence": "spacr/active_learning.py:3147-3152 (rejections param: 'In a two-class column a rejection of class 1 is an example of class 2')."
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "twenty-one modules have a tile",
+   "after": "nineteen modules have a tile",
+   "kind": "factual-error",
+   "evidence": "spacr.qt.app.tiled_apps() returns 19 rows after spacr.qt.register_self_registering_modules(); tests/test_the_readme_describes_the_build_that_ships.py:104-108 asserts len(tiled_apps()) == 19 and records that 21 became 19."
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own;",
+   "after": "Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps;",
+   "kind": "metaphor",
+   "evidence": "Section membership from tiled_apps()."
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:",
+   "after": "Most modules do not have a tile; they inspect or extend work started in another module. They open from:",
+   "kind": "metaphor",
+   "evidence": "54 registered apps vs 19 tiles (spacr.qt.app.APPS after registration)."
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "None of them is second-class: they are shipped, translated and documented like any other module, and the ones that are pipelines still run headlessly under ``spacr-run``.",
+   "after": "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``.",
+   "kind": "promotional",
+   "evidence": ""
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "The settings panel carries a control when it applies to the run being set up and leaves it off the form when it does not: - a slot past ``number_of_organelles`` takes its whole block of settings with it, its channel included -- a slot the run does not have is not a slot with its channel left showing;",
+   "after": "The settings panel shows a control only when it applies to the run being set up: - the settings of a slot past ``number_of_organelles``, its channel included, are removed from the form;",
+   "kind": "filler",
+   "evidence": ""
+  },
+  {
+   "file": "docs/source/features.rst",
+   "before": "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning.",
+   "after": "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning.",
+   "kind": "precision",
+   "evidence": "spacr/settings.py:4717 ram_guard; spacr/resource_log.py:947 _RAM_RESERVE_FRACTION = 0.125"
+  },
+  {
+   "file": "docs/source/python_api.rst",
+   "before": "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field.",
+   "after": "The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with ``run_mask`` and ``run_measure``. Typed fields cover the commonly set options; ``extra`` accepts any other setting and raises ``ValueError`` if it repeats a typed field.",
+   "kind": "vague",
+   "evidence": "spacr/api.py:18 __all__; spacr/api.py:28-38 _merge_extra raises ValueError."
+  },
+  {
+   "file": "docs/source/python_api.rst",
+   "before": "... before importing the heavy pipeline stack.",
+   "after": "... before importing PyTorch, Cellpose and the other pipeline dependencies.",
+   "kind": "vague",
+   "evidence": "spacr/cli.py:1570-1574 import_entry docstring (torch, cellpose load late)."
+  },
+  {
+   "file": "docs/source/python_api.rst",
+   "before": "Unknown settings and values that cannot be converted are refused with a suggestion.",
+   "after": "Unknown settings and values that cannot be converted are refused; an unknown name is reported with the closest known setting when one exists.",
+   "kind": "precision",
+   "evidence": "spacr/cli.py:1228-1232 difflib.get_close_matches cutoff 0.6; hint only when a match exists."
+  }
+ ],
+ "left_as_is_notable": [
+  {
+   "file": "README.rst",
+   "text": "Workflow block section notes ('Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality.' etc.)",
+   "reason": "Generated between spacr-workflow-begin/end from spacr/qt/app.py:600-615 _SECTION_NOTE_LIBRARY; metaphorical and lists 'check quality' under Tools although QC is a Data tile. Fix belongs in app.py, not in my files."
+  },
+  {
+   "file": "README.rst",
+   "text": "Code-block comments: 'the least spaCR that can still change a setting', '--dir, --branch, --no-install and --help do the obvious things'",
+   "reason": "Inside literal/code blocks, which the brief forbids changing."
+  },
+  {
+   "file": "README.rst",
+   "text": "Python 3.12 has the widest choice of optional scientific packages",
+   "reason": "Plausible but not verified against the extras compatibility table; left."
+  },
+  {
+   "file": "README.rst",
+   "text": "No Qt, no display — for clusters, servers and CI.",
+   "reason": "Terse but factual; left."
+  },
+  {
+   "file": "docs/source/features.rst",
+   "text": "Masthead table (Host / Opens from its masthead)",
+   "reason": "Incomplete vs spacr.qt.app.folded_children(): Classify also hosts Training Runs and Feature Explorer; Regression also Investigate Hit, Prediction Profiler (named in a bullet); Graph Builder (Plate Viewer, Small Multiples), Database Browser (Lineage, Tabulate), QC and Import hosts not in table. Left because table structure must not change; a maintainer may want rows added."
+  },
+  {
+   "file": "docs/source/features.rst",
+   "text": "Settings that apply: 'enables the volumetric settings -- segmentation mode, anisotropy and voxel size'",
+   "reason": "settings.py:4739 lists z_segmentation_mode, anisotropy and stitch_threshold, not voxel size; voxel size not checked further, left unchanged (uncertain)."
+  },
+  {
+   "file": "docs/source/localization.rst",
+   "text": "This explicit fallback is preferable to guessing the meaning of a technical control.",
+   "reason": "A rationale rather than a behaviour claim; behaviour itself (English fallback) is accurate. Left."
+  },
+  {
+   "file": "README.rst",
+   "text": "(generated) |Module_embeddings| tile",
+   "reason": "Embeddings registers only after spacr.qt.register_self_registering_modules(); 19 tiles confirmed."
+  }
+ ],
+ "out_of_scope_skipped": [
+  {
+   "file": "README.rst",
+   "text": "Make Masks corrects segmentation masks and annotates independent, class-labelled rectangles with the **Box** tool...",
+   "area": "Make Masks"
+  },
+  {
+   "file": "README.rst",
+   "text": "Images, masks, crops, measurements, annotations, predictions, barcodes and well identifiers live in one SQLite project.",
+   "area": "storage backends (also imprecise: images/masks/crops are files on disk; noted for the storage owner)"
+  },
+  {
+   "file": "README.rst",
+   "text": "Animated setting guidance section",
+   "area": "animations"
+  },
+  {
+   "file": "docs/source/features.rst",
+   "text": "Undo and redo section",
+   "area": "Edit > Undo/Redo"
+  },
+  {
+   "file": "docs/source/features.rst",
+   "text": "Data-art themes section; Accessibility 'High contrast' theme sentence",
+   "area": "themes and animations"
+  },
+  {
+   "file": "docs/source/features.rst",
+   "text": "Make Masks section (incl. Recrop/Cellpose-SAM paragraphs with metaphorical phrasing 'teaches a network that two objects are one picture')",
+   "area": "Make Masks"
+  },
+  {
+   "file": "docs/source/features.rst",
+   "text": "Figure settings, Working with figures, How the statistics are chosen",
+   "area": "figure export and figure integrity"
+  },
+  {
+   "file": "docs/source/features.rst",
+   "text": "Annotate Y/N/U keys; command palette (Ctrl+K) bullet 'the keyboard user's navigation'",
+   "area": "keyboard shortcuts"
+  },
+  {
+   "file": "docs/source/features.rst",
+   "text": "'Graph Builder, gates and linked views' bullet",
+   "area": "Gate Editor (left unchanged)"
+  },
+  {
+   "file": "docs/source/localization.rst",
+   "text": "Animation word in tooltip footer paragraph",
+   "area": "animations"
+  }
+ ]
+}

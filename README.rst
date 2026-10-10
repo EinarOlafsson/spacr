@@ -313,9 +313,9 @@ Contributors need history; to run spaCR, choose below. Measurements:
     sh install_spacr.sh --branch nightly
 
 The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none``
-to the shallow clone does not help shrink the checkout: its object store
-still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download
-total. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08),
+to the shallow clone does not reduce the checkout: its object store is still
+2032 MB. Git does not report lazy blob fetches, so no download total was
+measured. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08),
 excluding Git history. Download sizes and times vary with the branch.
 
 
@@ -630,33 +630,31 @@ because a truncated or substituted checkpoint cannot be told from the real one.
 Every figure above is measured on images the model never saw in training.
 
 **Precision** is how many of the objects a model reported are real; **recall**
-is how many of the real objects it found. They fail in opposite directions:
-poor precision invents plaques, poor recall misses them.
+is how many of the real objects it found. Low precision means false
+detections; low recall means missed objects.
 
-**F1** is the two combined, and is quoted because each alone is trivially
-gamed -- report one unmistakable plaque for near-perfect precision, or every
-dark blob for near-perfect recall. Which you would rather lose depends on the
-assay, and counting is usually better served by over-calling: the plaque model
-was accepted at precision 0.858 with recall 0.811 over an earlier round at
-0.939 and 0.631.
+**F1** is their harmonic mean. Either alone can be near-perfect: precision
+for a model that reports one unmistakable plaque, recall for one that reports
+every dark blob. Which error matters more depends on the assay: the plaque
+model was accepted at precision 0.858 with recall 0.811 over an earlier round
+at 0.939 and 0.631.
 
 **IoU**, intersection over union, divides the overlap between predicted and
 reference objects by their combined area. Read scores with their threshold:
 "F1 0.864 at IoU 0.5" counts a vacuole as found when that overlap reaches half
 the combined area.
 
-**mAP50** and **mAP50-95** belong to the detector. The first asks whether the
-wells were found; the second repeats it across ten thresholds from 0.5 to
-0.95, so it also asks how tightly each box is drawn. The gap between them is
-placement, not detection.
+**mAP50** and **mAP50-95** score the well detector: mean average precision
+at IoU 0.5, and its average over ten IoU thresholds from 0.5 to 0.95, which
+also penalizes loosely placed boxes.
 
-**Cross-validated**, with an **SD**, means the score is the mean of three runs
-on different splits and the SD is how far they moved apart. One split can be
-lucky: this model's literature figure is 0.834 on a single 19-well split and
-0.806 across all three.
+**Cross-validated**, with an **SD**, gives the mean and standard deviation over
+folds: three for ``toxoplasma_plaque_v1``, five for ``toxoplasma_pv_v2``. One
+split can mislead: the literature figure of ``toxoplasma_plaque_v1`` is 0.834
+on a single 19-well split and 0.806 across all three.
 
 Models are hosted on each author's own Hugging Face account;
-``spacr.model_zoo.publish_model`` uploads one and prints the catalogue row to add.
+``spacr.model_zoo.publish_model`` uploads one and returns the catalogue row to add.
 
 
 Diagnosing performance
@@ -704,7 +702,8 @@ editable install shadows.
 
 ``safespacr`` reads every preference as its default and forces the backdrop,
 animations, verbose logging and preloading off. Use it when a saved
-preference breaks the launch. It changes nothing permanently.
+preference breaks the launch. Preferences saved in safe mode are written
+normally and persist.
 
 Running modules headlessly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -720,8 +719,8 @@ No Qt, no display — for clusters, servers and CI.
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-``validate`` reads the same settings the run would and reports what is
-missing, contradictory or pointing at nothing.
+``validate`` reads the same settings the run would and lists each problem,
+such as a missing setting or a path that does not exist, with a fix.
 
 Inspecting a run afterwards
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

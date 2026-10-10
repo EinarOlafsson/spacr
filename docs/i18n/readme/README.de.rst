@@ -274,7 +274,7 @@ Mitwirkende benötigen die Versionshistorie; um spaCR nur auszuführen, wählen 
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Der vollständige nightly-Klon lud 9.25 GiB herunter. ``--filter=blob:none`` zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Stille Abrufe bei Bedarf verhindern eine vollständige Messung der übertragenen Daten. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 3416 MB (gemessen am 2026-10-08), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab.
+Der vollständige nightly-Klon lud 9.25 GiB herunter. ``--filter=blob:none`` zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 3416 MB (gemessen am 2026-10-08), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab.
 
 
 Befehle für die Kommandozeile
@@ -556,17 +556,17 @@ spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage 
 
 Jede Abbildung oben wird auf Bildern gemessen, die das Modell im Training nie gesehen hat.
 
-**Präzision** ist, wie viele der Objekte, von denen ein Modell berichtet wird, real sind; **Recall** ist wie viele Objekte es gefunden hat. Sie scheitern in entgegengesetzte Richtungen: schlechte Präzision erfindet Plaques, schlechte Erinnerung vermisst sie.
+**Precision** (Präzision) gibt an, wie viele der von einem Modell gemeldeten Objekte echt sind; **recall** (Sensitivität) gibt an, wie viele der echten Objekte es gefunden hat. Niedrige Präzision bedeutet Fehldetektionen; niedrige Sensitivität bedeutet übersehene Objekte.
 
-**F1** ist die Kombination der beiden, und wird zitiert, weil jeder einzelne trivial gespielt wird -- berichten Sie eine unverwechselbare Plaque für nahezu perfekte Präzision, oder jeder dunkle Blob für nahezu perfekten Rückruf. Was Sie lieber verlieren würden, hängt vom Assay ab, und Zählen wird in der Regel besser durch Überrufen bedient: Das Plaque-Modell wurde mit Präzision 0.858 mit Rückruf 0.811 in einer früheren Runde bei 0.939 und 0.631 akzeptiert.
+**F1** ist ihr harmonisches Mittel. Jede Größe für sich kann nahezu perfekt sein: die Präzision bei einem Modell, das eine einzige eindeutige Plaque meldet, die Sensitivität bei einem, das jeden dunklen Fleck meldet. Welcher Fehler schwerer wiegt, hängt vom Assay ab: Das Plaque-Modell wurde mit Präzision 0.858 und Sensitivität 0.811 einer früheren Runde mit 0.939 und 0.631 vorgezogen.
 
 **IoU** (Intersection over Union) teilt die Überlappungsfläche zwischen vorhergesagtem Objekt und Referenzobjekt durch ihre Vereinigungsfläche. Lesen Sie Kennwerte zusammen mit ihrem Schwellenwert: „F1 0.864 bei IoU 0.5“ zählt eine Vakuole als gefunden, wenn die Überlappung mindestens die Hälfte der Vereinigungsfläche erreicht.
 
-**mAP50** und **mAPI50-95** gehören zum Detektor. Der erste fragt, ob die Wells gefunden wurden; der zweite wiederholt sie über zehn Schwellen von 0,5 bis 0,95, so dass er auch fragt, wie eng jede Box gezeichnet wird.
+**mAP50** und **mAP50-95** bewerten den Well-Detektor: die mittlere durchschnittliche Präzision (mean average precision) bei IoU 0.5 und ihr Mittel über zehn IoU-Schwellen von 0.5 bis 0.95, das zusätzlich ungenau platzierte Boxen bestraft.
 
-**Cross-validated**, mit einem **SD**, bedeutet, dass die Punktzahl das Mittel von drei Runs auf verschiedenen Splits ist und der SD ist, wie weit sie auseinander bewegt. Ein Split kann Glück haben: Die Literatur dieses Modells ist 0,834 auf einem einzigen 19-Well-Split und 0,806 auf allen drei.
+**Cross-validated** (kreuzvalidiert), mit einer **SD**, gibt Mittelwert und Standardabweichung über die Folds an: drei für ``toxoplasma_plaque_v1``, fünf für ``toxoplasma_pv_v2``. Ein einzelner Split kann täuschen: Der Literaturwert von ``toxoplasma_plaque_v1`` beträgt 0.834 auf einem einzigen Split mit 19 Wells und 0.806 über alle drei.
 
-Modelle werden im eigenen Hugging Face-Konto des jeweiligen Autors gehostet; ``spacr.model_zoo.publish_model`` lädt ein Modell hoch und gibt die hinzuzufügende Katalogzeile aus.
+Modelle werden im eigenen Hugging Face-Konto des jeweiligen Autors gehostet; ``spacr.model_zoo.publish_model`` lädt ein Modell hoch und gibt die hinzuzufügende Katalogzeile zurück.
 
 
 Leistungsdiagnose
@@ -606,7 +606,7 @@ Wenn spaCR nicht startet
 
 ``spacr-doctor`` gibt eine Zeile pro Check aus, mit einem Befehl, der für jeden Fehler ausgeführt werden soll. Es wird auch berichtet, welcher ``spacr`` auf dem Pfad ist, was eine alte bearbeitbare Installationsschatten ist.
 
-``safespacr`` liest jede Präferenz als Voreinstellung und zwingt die Kulisse, Animationen, das Protokollieren und das Vorladen. Verwenden Sie sie, wenn eine gespeicherte Präferenz den Start bricht. Es ändert nichts dauerhaft.
+``safespacr`` liest jede Einstellung mit ihrem Standardwert und schaltet Hintergrund, Animationen, ausführliche Protokollierung und Vorabladen ab. Verwenden Sie es, wenn eine gespeicherte Einstellung den Start verhindert. Im abgesicherten Modus gespeicherte Einstellungen werden normal geschrieben und bleiben erhalten.
 
 Laufende Module ohne grafische Oberfläche
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -622,7 +622,7 @@ Kein Qt, kein Display — für Cluster, Server und CI.
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-``validate`` liest die gleichen Einstellungen, die der Lauf ausführen würde, und berichtet, was fehlt, widersprüchlich ist oder auf nichts hinweist.
+``validate`` liest dieselben Einstellungen wie der Lauf und listet jedes Problem auf, etwa eine fehlende Einstellung oder einen nicht vorhandenen Pfad, jeweils mit einer Abhilfe.
 
 Inspizieren eines Laufs danach
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -58,7 +58,7 @@ and 4, its separate column is
 the channel 2 result. These are illustrative intensities, not experiment data.
 
 The calculation produces fifteen auxiliary ratios per channel. It does not
-creates constant-one pathogen/nucleus slope columns; these ratios do not
+create constant-one pathogen/nucleus slope columns; these ratios do not
 estimate a spatial slope. Genuine slope columns already supplied by the
 caller are preserved. When comparing historical exports, check whether their
 auxiliary column names identify a channel before combining runs.

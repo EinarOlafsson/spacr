@@ -113,7 +113,7 @@ Unlinked vacuoles and missing, invalid or zero host-reference intensities yield
 unknown marker states. Joint marker fractions include unknown vacuoles in
 their denominator; replication fractions use only vacuoles with counts.
 Host infection fractions describe retained measured host cells. These
-denominators answer different questions and should be reported explicitly.
+fractions use different denominators, so report each denominator explicitly.
 
 For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and
 :func:`spacr.host_pathogen.summarize_tables`. The headless module name is

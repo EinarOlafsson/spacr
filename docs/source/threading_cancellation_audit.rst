@@ -32,7 +32,7 @@ five minutes, the question is asked again. The console reports ``Stopped
 safely`` when the boundary is reached, and the reproducibility manifest
 records ``status: cancelled`` rather than a failure traceback.
 
-**Force stop** gives the window back at once. A worker that does not respond
+**Force stop** returns control to the window immediately. A worker that does not respond
 -- typically one inside a long Cellpose or PyTorch call -- is parked rather
 than terminated: its references are kept and it finishes in the background,
 so anything it is writing may be left half-written. **Force restart** saves the
@@ -57,7 +57,7 @@ event loop.
 API usage
 ---------
 
-Headless and plugin pipelines use the same small API::
+Headless and plugin pipelines use the same API::
 
    from spacr.cancellation import checkpoint
 
@@ -76,7 +76,7 @@ Stress coverage
 
 ``tests/qt/test_threading_cancellation_audit.py`` exercises fifty rapid
 Start/Stop cycles, registry-wide shutdown, repeated cancellation, screen close
-while active, and refusal to destroy a stubborn worker.
+while active, and refusal to destroy an unresponsive worker.
 ``tests/test_cancellation.py`` verifies thread isolation, idempotence,
 durability-before-cancel, resumable queues, and termination of an active batch
 subprocess.

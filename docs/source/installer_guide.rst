@@ -24,11 +24,12 @@ existing Python environment, notebook, server or cluster, or when you need a
 PyPI extra that is not part of the conda package. Python 3.12 currently offers
 the widest selection of optional scientific packages.
 
-Use a :ref:`container image <container-images>` when the install itself is the
-problem: a cluster node, a cloud instance, a shared machine you cannot change,
-or an analysis that has to be re-runnable years from now. The images are for
-the CLI and the pipelines; the desktop interface in a container is a Linux-only
-extra and is documented as one. On a cluster without Docker, build the same
+Use a :ref:`container image <container-images>` when spaCR cannot be
+installed directly on the host, such as a cluster node, a cloud instance or a
+shared machine you cannot change, or when an analysis must be rerun later with
+the same software versions. The images are for the CLI and the pipelines;
+running the desktop interface in a container is supported only on Linux and is
+described separately below. On a cluster without Docker, build the same
 image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a
 workstation that has no network access at all, use an
 :ref:`offline installer bundle <offline-bundle>`.
@@ -46,9 +47,10 @@ Windows 10/11
 Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user
 location is ``%LOCALAPPDATA%\spaCR`` and does not require administrator
 access. Automatic hardware acceleration is selected by default. It installs a
-CUDA-capable PyTorch build on compatible NVIDIA systems and falls back safely
-elsewhere. Clear the component only when you require the smaller CPU-only
-installation.
+CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it
+installs the PyTorch build that ``uv`` selects for the detected hardware, which
+is the CPU build when no supported GPU is detected. Clear the component only
+when you require the smaller CPU-only installation.
 
 macOS 11 or later
 ~~~~~~~~~~~~~~~~~
@@ -97,7 +99,7 @@ which arrive sooner and are tested less; withdrawn (yanked) versions are never
 offered. After an update, the next launch opens **What's new in spaCR** with the
 release notes of every version between the previous and the running one: the
 notes bundled with the build, plus the published GitHub releases when
-**Release news** is on and the network answers. **Help → What's new…** reopens
+**Release news** is on and GitHub can be reached. **Help → What's new…** reopens
 it at any time.
 
 Proxies and corporate certificates
@@ -136,16 +138,16 @@ Older installations and full installers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The full installers and other installer update paths look for spaCR
-installations an earlier installer made and remove them, so
-two versions never sit side by side with one of them on the path. They find
+installations an earlier installer made and remove them, so that only one
+installer-made copy remains. They find
 the Windows online and offline installs, the macOS application and its
 per-user environment, the Linux online install and the Debian package,
 together with their launchers, shortcuts, menu entries and uninstall
 registrations. Environments you created yourself and source checkouts are
 listed but never removed, and your project folders and results are never
 touched. If a copy cannot be removed -- for example a macOS application in
-``/Applications`` that needs an administrator -- the installer says which,
-and installs nothing, so you are never left with half an update.
+``/Applications`` that needs an administrator -- the installer names it
+and does not install the new version.
 
 To see what it would find without changing anything, run the finder from a
 spaCR checkout: ``python spacr/install_cleanup.py find``.
@@ -474,20 +476,19 @@ Container images
 
 Two images are published to the GitHub Container Registry as part of every
 spaCR release, after that version reaches PyPI. Each one is built and then
-checked before it is pushed — it must report the version its tag claims, it
-must not be running as root, and it must complete one real pipeline — so an
-image that exists is an image that ran. An image that fails a check is not
-published, and the release run that built it is red.
+checked before it is pushed: it must report the version its tag claims, it
+must not run as root, and it must complete one pipeline run on a synthetic
+field. An image that fails a check is not published, and the workflow run that
+built it fails.
 
 The public `GHCR package page
 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available
 versions. The commands below use the published **1.5.1.0** images; not every
 older spaCR release has a container image.
 
-They exist for the headless half of spaCR: the CLI, the pipelines, a cluster
-job and a reviewer re-running an analysis a year later. They are not a way to
-install the desktop application, which the platform installers above do
-better.
+The images run spaCR without a display: the CLI, the pipelines, cluster jobs
+and reruns of an earlier analysis with a pinned version. Use the platform
+installers above to install the desktop application.
 
 .. list-table::
    :header-rows: 1
@@ -507,8 +508,8 @@ better.
 ``:cuda12.4`` follow the newest CUDA release. Name an exact version for
 anything you intend to reproduce.
 
-Models and data are mounted, never baked in. A cpsam checkpoint is about
-1.2 GB and goes stale between releases, so the image ships none: mount a
+Models and data are mounted at run time; neither is included in the image. A cpsam checkpoint is about
+1.2 GB and may be updated between releases, so the image ships none: mount a
 folder on ``/models`` and it becomes both the folder the Model Zoo downloads
 into and the folder Cellpose loads from. SAMCell and DINOCell are not in the
 images either, because they pin PyTorch versions that conflict with spaCR's
@@ -605,7 +606,7 @@ libraries, so a Linux host running X11 can pass its display socket in:
        spacr
 
 Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist
-inside the container, and Qt complains about it on every start; the image
+inside the container, and Qt prints a warning about it at every start; the image
 makes its own runtime directory under the container's cache folder instead.
 
 A container rarely has a usable OpenGL context, so the animated backdrop may

@@ -18,23 +18,23 @@ Choosing a method
    retained.
 
 ``robust_zscore``
-   Align plate medians and median absolute deviations. This is resilient to
-   outliers, but can remove genuine differences if biological conditions are
+   Align plate medians and median absolute deviations. This is less sensitive
+   to outliers than ``zscore``, but can remove genuine differences if biological conditions are
    unevenly distributed across plates.
 
 ``center``
    Align plate means while preserving the overall mean.
 
 ``zscore``
-   Align both plate means and standard deviations. This is the strongest
-   of the per-plate rescalings and should be used only when plate composition
-   is comparable.
+   Align both plate means and standard deviations to the pooled values. Use
+   it only when plate composition is comparable, because a difference in
+   condition mix between plates is removed together with the batch effect.
 
 ``combat``
    Empirical-Bayes ComBat (Johnson, Li & Rabinovich, 2007). Each feature is
    modelled on batch *and* on the biology named in ``batch_covariate_column``,
    and only the batch part is removed; per-batch estimates are shrunk across
-   features, which keeps small plates usable. It refuses to run until the
+   features, which stabilizes the estimates for plates with few samples. It refuses to run until the
    covariate is answered: name the column(s) to preserve, or pass
    ``no_covariate`` to record that every batch holds the same mixture of
    conditions. ``batch_combat_mean_only=True`` corrects only the additive
@@ -54,7 +54,8 @@ and Classify's ML family follows ``location_column`` (or
 ``annotation_column`` when annotations define the classes) and
 ``negative_control_id``.
 Regression requires an explicit reference value.
-``batch_missing_control=error`` is the safe default;
+``batch_missing_control=error`` (the default) stops the run when a plate has
+fewer than ``batch_min_samples`` usable reference controls;
 ``skip`` leaves an affected plate unchanged and records a warning.
 
 Every regression correction writes ``batch_correction.json`` next to the

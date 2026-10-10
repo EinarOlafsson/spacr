@@ -1,9 +1,10 @@
 Checkpoint and resume
 =====================
 
-spaCR checkpoints long work only after a safe unit has finished. A checkpoint
-never means killing a write halfway through: it means that a later invocation
-can prove which fields, trials, or plate jobs settled and continue after them.
+spaCR writes a checkpoint only after a complete unit of work (a field, trial,
+or plate job) has finished; a write in progress is not interrupted. A later
+invocation reads the checkpoint to determine which units completed and
+continues after them.
 The Qt **Stop** button uses the same boundaries: it requests cooperative
 cancellation, lets the current safe unit finish, and retains the checkpoint for
 the next run. See :doc:`threading_cancellation_audit`.
@@ -34,7 +35,7 @@ Measure
    conversion, alignment, or other modules are never deleted.
 
 Format Converter
-   Enable the Apple-style **Resume** switch. The converter writes
+   Enable the **Resume** switch. The converter writes
    ``.spacr_conversion.checkpoint.json`` after a whole field is complete.
    Resume reopens each target's TIFF metadata before accepting the field and
    atomically repairs a missing or corrupt target. Source identity and the full

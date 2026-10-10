@@ -1,0 +1,47 @@
+{
+  "agent": "a4-guides1",
+  "files": {
+    "docs/source/anndata_export.rst": {"paragraphs_read": 16, "paragraphs_changed": 1},
+    "docs/source/batch_correction.rst": {"paragraphs_read": 11, "paragraphs_changed": 4},
+    "docs/source/cellpose_training.rst": {"paragraphs_read": 22, "paragraphs_changed": 1},
+    "docs/source/checkpoint_resume.rst": {"paragraphs_read": 10, "paragraphs_changed": 2},
+    "docs/source/classifier_evaluation.rst": {"paragraphs_read": 40, "paragraphs_changed": 3},
+    "docs/source/database_concurrency_audit.rst": {"paragraphs_read": 28, "paragraphs_changed": 0},
+    "docs/source/distributed_execution.rst": {"paragraphs_read": 24, "paragraphs_changed": 2},
+    "docs/source/guide_permutation.rst": {"paragraphs_read": 6, "paragraphs_changed": 0},
+    "docs/source/host_pathogen.rst": {"paragraphs_read": 20, "paragraphs_changed": 1},
+    "docs/source/image_quality.rst": {"paragraphs_read": 14, "paragraphs_changed": 0},
+    "docs/source/leakage_audit.rst": {"paragraphs_read": 18, "paragraphs_changed": 2}
+  },
+  "changes": [
+    {"file": "docs/source/anndata_export.rst", "before": "The normal exporter handles entirely missing metadata directly.", "after": "Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written.", "kind": "vague", "evidence": "spacr/anndata_export/__init__.py:815-832 (_hdf5_metadata) and :846"},
+    {"file": "docs/source/batch_correction.rst", "before": "This is resilient to outliers, but can remove", "after": "This is less sensitive to outliers than ``zscore``, but can remove", "kind": "precision", "evidence": "spacr/batch_correction.py:144-147 (median/MAD*1.4826 vs mean/std), docstring :579"},
+    {"file": "docs/source/batch_correction.rst", "before": "Align both plate means and standard deviations. This is the strongest of the per-plate rescalings and should be used only when plate composition is comparable.", "after": "Align both plate means and standard deviations to the pooled values. Use it only when plate composition is comparable, because a difference in condition mix between plates is removed together with the batch effect.", "kind": "vague", "evidence": "'strongest' unverifiable (robust_zscore also aligns location and scale); behaviour per spacr/batch_correction.py:578, 772-795"},
+    {"file": "docs/source/batch_correction.rst", "before": "features, which keeps small plates usable.", "after": "features, which stabilizes the estimates for plates with few samples.", "kind": "vague", "evidence": "empirical-Bayes shrinkage, spacr/batch_correction.py:315-372"},
+    {"file": "docs/source/batch_correction.rst", "before": "``batch_missing_control=error`` is the safe default;", "after": "``batch_missing_control=error`` (the default) stops the run when a plate has fewer than ``batch_min_samples`` usable reference controls;", "kind": "precision", "evidence": "spacr/batch_correction.py:762-770 (ValueError unless 'skip'); default settings.py:1687"},
+    {"file": "docs/source/cellpose_training.rst", "before": "Size of the model's training updates.", "after": "Optimizer step size.", "kind": "precision", "evidence": "learning_rate passed to Cellpose training; default 1e-5 at spacr/settings.py:2735"},
+    {"file": "docs/source/checkpoint_resume.rst", "before": "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them.", "after": "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them.", "kind": "metaphor", "evidence": "'safe unit', 'prove', 'settled' replaced by the described behaviour in the same page"},
+    {"file": "docs/source/checkpoint_resume.rst", "before": "Enable the Apple-style **Resume** switch.", "after": "Enable the **Resume** switch.", "kind": "filler", "evidence": "spacr/qt/screens/convert.py:413 Toggle(\"Resume\")"},
+    {"file": "docs/source/classifier_evaluation.rst", "before": "it opens from the **Classify** masthead, because judging a classifier is the sentence after training one.", "after": "it opens from the **Classify** masthead.", "kind": "metaphor", "evidence": "non-informative clause"},
+    {"file": "docs/source/classifier_evaluation.rst", "before": "This is fast and useful for routine comparisons, but can give a slightly optimistic estimate when many choices are made against that fold.", "after": "This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold.", "kind": "precision", "evidence": "'slightly' is an unverifiable magnitude; run-count comparison per settings.py:5355 (outer x inner runs)"},
+    {"file": "docs/source/classifier_evaluation.rst", "before": "any protected overlap raises an actionable error before model fitting.", "after": "any protected overlap raises ``LeakageError`` before model fitting; the message lists the overlap counts per level.", "kind": "vague", "evidence": "spacr/classifier_evaluation.py:467, 748-757"},
+    {"file": "docs/source/distributed_execution.rst", "before": "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code.", "after": "Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a detached background process (output redirected to a log, stdin closed) so it continues if the SSH connection drops, and records its exit code.", "kind": "vague", "evidence": "spacr/remote_execution.py:985-995 (SshBackend.submit docstring)"},
+    {"file": "docs/source/distributed_execution.rst", "before": "The command must print a safe job identifier and the", "after": "The command must print a job identifier containing only letters, digits and ``_.:+-``, and the", "kind": "precision", "evidence": "spacr/remote_execution.py:56 _JOB_ID_RE, :792-824 _safe_external_id"},
+    {"file": "docs/source/host_pathogen.rst", "before": "These denominators answer different questions and should be reported explicitly.", "after": "These fractions use different denominators, so report each denominator explicitly.", "kind": "metaphor", "evidence": "anthropomorphic phrasing; facts unchanged"},
+    {"file": "docs/source/leakage_audit.rst", "before": "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary.", "after": "A held-out accuracy estimate overstates performance on independent data when related crops occur on both sides of an evaluation boundary.", "kind": "precision", "evidence": "states the actual bias instead of an absolute claim"},
+    {"file": "docs/source/leakage_audit.rst", "before": "it does not make their performance estimate trustworthy.", "after": "their performance estimate is still not independent of the training data.", "kind": "vague", "evidence": "settings.py:5358 ('its performance estimate remains invalid')"}
+  ],
+  "left_as_is_notable": [
+    {"file": "docs/source/batch_correction.rst", "text": "``robust_zscore``", "reason": "technical term (median/MAD z-score), kept"},
+    {"file": "docs/source/classifier_evaluation.rst", "text": "Set ``nested_cv_inner_folds`` to two or more to enable true nested CV.", "reason": "'true' distinguishes from ordinary CV; verified settings.py:5355"},
+    {"file": "docs/source/guide_permutation.rst", "text": "The important output columns are ...", "reason": "mild; not rewritten merely to differ"},
+    {"file": "docs/source/host_pathogen.rst", "text": "The download is approximately 114 MB. / 164 host cells, 189 nuclei, 97 whole vacuoles and 164 cytoplasm objects", "reason": "numbers depend on the remote dataset; not verified, left unchanged"},
+    {"file": "docs/source/anndata_export.rst", "text": "a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values", "reason": "depends on tutorial dataset; not verified, left unchanged"},
+    {"file": "docs/source/database_concurrency_audit.rst", "text": "spaCR enables WAL only where it is known to be safe.", "reason": "summarised by the following sentences (allowlist of local filesystems); accurate"}
+  ],
+  "out_of_scope_skipped": [
+    {"file": "docs/source/database_concurrency_audit.rst", "text": "In **Preferences → Performance**, **Database write queue RAM** controls ...", "area": "Preferences > Performance"},
+    {"file": "docs/source/database_concurrency_audit.rst", "text": "Optional DuckDB, Parquet and PostgreSQL mirrors retain their existing worker path ...", "area": "storage backends"},
+    {"file": "docs/source/cellpose_training.rst", "text": "From **Home → Tools → Make Masks**, open **Cellpose Workbench** ... / Use Make Masks to inspect and correct object boundaries before training.", "area": "Make Masks"}
+  ]
+}

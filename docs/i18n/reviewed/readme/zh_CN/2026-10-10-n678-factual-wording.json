@@ -1,0 +1,55 @@
+{
+    "schema": 1,
+    "language": "zh_CN",
+    "review_method": "N678 factual-language revision 2026-10-10: English blocks rewritten to match the implementation (fold counts per model, publish_model returns the row, safe-mode preferences persist, metric definitions); translations written and checked by Claude against the revised meaning, preserving literals, numbers and markup. No native-speaker signoff.",
+    "records": [
+        {
+            "label": "clone-size-without-lazy-fetch-claim",
+            "source_sha256": "f4badfffeb2ab569b1d3adb28ec01c06a1b06c60df773764b7db86ba8db29bb7",
+            "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08), excluding Git history. Download sizes and times vary with the branch.",
+            "translation": "nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 3416 MB（2026-10-08 测得），不含 Git 历史。下载大小和耗时随分支而变化。"
+        },
+        {
+            "label": "precision-recall-definitions",
+            "source_sha256": "89a9bbd3eb1eb0d9a49db7e669a771f8e15cc40664a0d0e5d97eef0387c13768",
+            "source": "**Precision** is how many of the objects a model reported are real; **recall** is how many of the real objects it found. Low precision means false detections; low recall means missed objects.",
+            "translation": "**Precision** （精确率）表示模型报告的对象中有多少是真实的； **recall** （召回率）表示真实对象中有多少被模型找到。精确率低意味着误检；召回率低意味着漏检。"
+        },
+        {
+            "label": "f1-harmonic-mean",
+            "source_sha256": "c492936dc0d2fca2e2e266ae65ee4d2608a0cf8e6ea6d5007c2010cea53c62f9",
+            "source": "**F1** is their harmonic mean. Either alone can be near-perfect: precision for a model that reports one unmistakable plaque, recall for one that reports every dark blob. Which error matters more depends on the assay: the plaque model was accepted at precision 0.858 with recall 0.811 over an earlier round at 0.939 and 0.631.",
+            "translation": "**F1** 是两者的调和平均数。单看其中任何一个都可能接近完美：只报告一个明确噬斑的模型精确率很高，报告每个暗斑的模型召回率很高。哪种错误更重要取决于实验：噬斑模型以精确率 0.858、召回率 0.811 被采用，取代了此前精确率 0.939、召回率 0.631 的版本。"
+        },
+        {
+            "label": "map-iou-definitions",
+            "source_sha256": "15df5f74dd4eaac903950e3cd255456a643f9902fa43240a8526942ff2243712",
+            "source": "**mAP50** and **mAP50-95** score the well detector: mean average precision at IoU 0.5, and its average over ten IoU thresholds from 0.5 to 0.95, which also penalizes loosely placed boxes.",
+            "translation": "**mAP50** 和 **mAP50-95** 用于评估孔检测器：IoU 为 0.5 时的平均精度均值（mean average precision），以及在 0.5 到 0.95 的十个 IoU 阈值上的平均值，后者还会惩罚位置不准的框。"
+        },
+        {
+            "label": "cross-validation-folds-per-model",
+            "source_sha256": "23ded58c491de0d5d4a9c6effdf637e665d84a9bc0b97d2bae28dc7f4276f1a3",
+            "source": "**Cross-validated**, with an **SD**, gives the mean and standard deviation over folds: three for ``toxoplasma_plaque_v1``, five for ``toxoplasma_pv_v2``. One split can mislead: the literature figure of ``toxoplasma_plaque_v1`` is 0.834 on a single 19-well split and 0.806 across all three.",
+            "translation": "**Cross-validated** （交叉验证）与 **SD** 一起给出各折的均值和标准差： ``toxoplasma_plaque_v1`` 为三折， ``toxoplasma_pv_v2`` 为五折。单一划分可能产生误导： ``toxoplasma_plaque_v1`` 的文献值在单个 19 孔划分上为 0.834，在全部三折上为 0.806。"
+        },
+        {
+            "label": "publish-model-returns-row",
+            "source_sha256": "b63375e80f0eecd4d0bc16b833c801062a6f3061bde49f352e88b4511a0dcaaf",
+            "source": "Models are hosted on each author's own Hugging Face account; ``spacr.model_zoo.publish_model`` uploads one and returns the catalogue row to add.",
+            "translation": "模型托管在各作者自己的 Hugging Face 账户中； ``spacr.model_zoo.publish_model`` 可上传模型，并返回要添加到目录中的条目。"
+        },
+        {
+            "label": "safespacr-preferences-persist",
+            "source_sha256": "1a199f5d29b78cac2ed874be9d25af4f6662792442901bc233c95c4cfe906d01",
+            "source": "``safespacr`` reads every preference as its default and forces the backdrop, animations, verbose logging and preloading off. Use it when a saved preference breaks the launch. Preferences saved in safe mode are written normally and persist.",
+            "translation": "``safespacr`` 以默认值读取每项偏好设置，并关闭背景、动画、详细日志和预加载。当已保存的偏好设置导致程序无法启动时使用它。在安全模式下保存的偏好设置会正常写入并保留。"
+        },
+        {
+            "label": "validate-lists-problems",
+            "source_sha256": "406586010b7cc46feedc5b38ecd925f5911ebf5981187e718e8625c94fd4d4af",
+            "source": "``validate`` reads the same settings the run would and lists each problem, such as a missing setting or a path that does not exist, with a fix.",
+            "translation": "``validate`` 读取运行时会读取的同一组设置，并列出每个问题（例如缺少的设置或不存在的路径）及其修复方法。"
+        }
+    ]
+}

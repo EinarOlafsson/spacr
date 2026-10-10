@@ -1,9 +1,9 @@
 Capabilities
 ============
 
-spaCR follows an image-based screen from raw microscopy files to a ranked hit
-list. This page gives the full map; the :doc:`Python API quickstart
-<python_api>` and interactive tutorials show the individual routes.
+spaCR processes an image-based screen from raw microscopy files to a ranked
+hit list. This page lists its capabilities by area; the :doc:`Python API
+quickstart <python_api>` and interactive tutorials cover individual workflows.
 
 Core screen workflow
 --------------------
@@ -18,7 +18,7 @@ mask corrections with the layer viewer or napari.
 
 The objects are not a fixed set of four. A project has a cell, a nucleus and a
 pathogen, a cytoplasm derived from them, and as many organelle slots as
-``number_of_organelles`` asks for -- from none up to twenty-six. Each slot is
+``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is
 independent, with its own channel, diameter, detection method and morphology.
 
 A slot is given a morphology preset -- punctate, vesicular, spherical,
@@ -29,7 +29,7 @@ irregular or ring.
 Mask generation lays out the per-object settings as one table under
 **Per-object settings**, with a column for each object whose channel is set;
 the cell column is always shown. An object's channel is set on the ordinary
-form, and a hidden object's answers are kept for when its channel is set
+form, and the values of a hidden object are kept for when its channel is set
 again. Every object has a **Remove background** check box, and the cell
 column also has **Adjust cells**. **Add a filter** adds a row that filters
 objects on any scikit-image regionprop, such as area or mean intensity; each
@@ -71,8 +71,9 @@ A page holds as many crops as fit and never scrolls; the rest are on the next
 page. After **Suggest…**, suggested crops carry a **?** badge: click one or
 press **Y** to confirm it, right-click or press **N** to reject it, and **U**
 undoes. **Confirm the rest of the page** and **Reject the rest of the page**
-judge every remaining suggestion at once. Rejections are kept and inform the
-next round of training.
+judge every remaining suggestion at once. Rejections are stored; in a
+two-class column, the next training round uses a rejected suggestion as an
+example of the other class.
 Classify trains PyTorch image models or classical and boosted models from
 measurement tables. Checkpoints record their dataset, split rule, class
 balance and held-out metrics. The **Essentials** view of Classify holds what
@@ -136,16 +137,15 @@ How a module is reached
 -----------------------
 
 The home screen groups modules into four categories -- **Core**, **Data**,
-**Tools** and **Organism** -- and twenty-one modules have a tile in one of
-them. Core is the pipeline you run in order; Data is what goes in and what
-comes out of it; Tools are the instruments you point at a project rather
-than steps the pipeline takes on its own; Organism opens the Toxoplasma
-guide and its available assays. Planned analyses are marked Coming soon.
+**Tools** and **Organism** -- and nineteen modules have a tile in one of
+them. Core holds the pipeline modules, run in order; Data holds import,
+embeddings, run comparison, design, dose–response and QC; Tools holds
+modules that operate on an existing project rather than pipeline steps;
+Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon.
 Make Masks is filed under **Tools**.
 
-A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says
-"start here", and a module that answers a question about a run somebody else
-started is not a place to start. Those open instead from:
+Most modules do not have a tile; they inspect or extend work started in
+another module. They open from:
 
 - **a button on their host's masthead** -- as a page beside that host's
   settings, already pointed at the same project. Investigate Hit and
@@ -159,9 +159,9 @@ started is not a place to start. Those open instead from:
   not. It is the one route with no exceptions, and the keyboard user's
   navigation.
 
-None of them is second-class: they are shipped, translated and documented
-like any other module, and the ones that are pipelines still run headlessly
-under ``spacr-run``.
+Modules without a tile are installed, translated and documented in the same
+way as tiled modules, and those that are pipelines also run headlessly under
+``spacr-run``.
 
 ============= ==========================================================
 Host          Opens from its masthead
@@ -399,12 +399,11 @@ reason is visible.
 Settings that apply
 -------------------
 
-The settings panel carries a control when it applies to the run being set up
-and leaves it off the form when it does not:
+The settings panel shows a control only when it applies to the run being set
+up:
 
-- a slot past ``number_of_organelles`` takes its whole block of settings with
-  it, its channel included -- a slot the run does not have is not a slot with
-  its channel left showing;
+- the settings of a slot past ``number_of_organelles``, its channel included,
+  are removed from the form;
 - an object whose channel names no plane is not in the run at all, so its
   settings are not on the form;
 - a setting belonging to one morphology is dropped for a slot of another: a
@@ -554,8 +553,8 @@ lists your own largest programs. Nothing is ticked at first, and only the
 programs you tick are asked to quit, after you confirm; they can usually
 save first, but unsaved work in them may still be lost.
 
-Runs started without the GUI lower ``n_jobs`` to the safe number and print a
-warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs``
+Runs started without the GUI lower ``n_jobs`` to the number that keeps the
+reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs``
 unchanged; Measure still waits while free memory is below the reserve.
 
 Worker startup and final retries
