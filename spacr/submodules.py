@@ -107,6 +107,7 @@ from scipy.stats import chi2_contingency
 from sklearn.metrics import mean_absolute_error
 from skimage.measure import label as sklabel
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from natsort import natsorted
 
 from torch.utils.data import Dataset
@@ -553,7 +554,7 @@ def test_cellpose_model(settings):
             save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
             save_path = save_figure(fig, save_path,
                                     bbox_inches='tight')
-            plt.show()
+            _show_if_interactive()
             plt.close(fig)
         
         
@@ -752,7 +753,7 @@ def apply_cellpose_model(settings):
             save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
             save_path = save_figure(fig, save_path,
                                     bbox_inches='tight')
-            plt.show()
+            _show_if_interactive()
             plt.close(fig)
         
         
@@ -863,7 +864,7 @@ def plot_cellpose_batch(images, labels):
             axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
             axs[1, i].set_title(f'Label {i+1}')
             axs[1, i].axis('off')
-        plt.show()
+        _show_if_interactive()
 
 def analyze_percent_positive(settings):
     """Annotate objects above a threshold and summarise positive fractions per well.
@@ -2208,7 +2209,7 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
                                         bbox_inches='tight')
                 print(f"Plot saved to {save_path}")
 
-            plt.show()
+            _show_if_interactive()
         return fig
     
     def calculate_grna_fraction_ratio(df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4'):
@@ -2489,7 +2490,7 @@ def interpret_vision_model(settings=None):
             ax.set_xticklabels(labels, fontsize=TYPE_SCALE['tick'],
                                rotation=45, ha='right')
             plt.title(title, pad=20)
-            plt.show()
+            _show_if_interactive()
 
     def extract_compartment_channel(feature_name):
         """Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.
@@ -2626,7 +2627,7 @@ def interpret_vision_model(settings=None):
                 plt.title(f"Top {settings['top_features']} Features - Feature Importance")
                 plt.gca().invert_yaxis()
                 plt.tight_layout()
-                plt.show()
+                _show_if_interactive()
 
             output['feature_importance'] = feature_importance_df
             fi_compartment_df = group_feature_class(feature_importance_df, feature_groups=settings['tables'], name='compartment', include_all=settings['include_all'])
@@ -2653,7 +2654,7 @@ def interpret_vision_model(settings=None):
             plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
             plt.gca().invert_yaxis()
             plt.tight_layout()
-            plt.show()
+            _show_if_interactive()
             
         output['permutation_importance'] = perm_importance_df
     
@@ -2926,7 +2927,7 @@ def analyze_endodyogeny(settings):
         pairwise_results_df.to_csv(os.path.join(output_dir, 'chi_squared_pairwise_results.csv'), index=False)
         print(f"Chi-squared results saved to {output_dir}")
 
-    plt.show()
+    _show_if_interactive()
 
     return output
 
@@ -4015,7 +4016,7 @@ def analyze_replication(settings):
                   f"threshold ({settings['non_power_of_two_warn']:.0%}): "
                   f"{', '.join(map(str, flagged))}")
 
-    plt.show()
+    _show_if_interactive()
     plt.close(well_fig)
     plt.close(group_fig)
 
@@ -5532,7 +5533,7 @@ def analyze_invasion(settings):
             print(f"QC: {len(flagged)} well(s) flagged:")
             print(flagged.to_string(index=False))
 
-    plt.show()
+    _show_if_interactive()
     for figure in (well_fig, group_fig, threshold_fig):
         plt.close(figure)
 
@@ -5624,7 +5625,7 @@ def analyze_class_proportion(settings):
         print(f"Chi-squared results saved to {output_path_chi}")
         print(f"Annotated data saved to {output_path_data}")
 
-    plt.show()
+    _show_if_interactive()
     
     fig2 = plot_plates(df, variable=settings['class_column'], grouping='mean', min_max='allq', cmap='viridis', min_count=0, verbose=True, dst=None)
     if settings['save']:
@@ -5632,7 +5633,7 @@ def analyze_class_proportion(settings):
         output_path_fig2 = save_figure(fig2, output_path_fig2,
                                        bbox_inches='tight')
     
-    plt.show()
+    _show_if_interactive()
     
     is_normal, normality_results = perform_normality_tests(df, settings['group_column'], [settings['class_column']])
     variance_stat, variance_p = perform_levene_test(df, settings['group_column'], settings['class_column'])
@@ -5780,7 +5781,7 @@ def generate_score_heatmap(settings):
             _style_colour_bar(fig)
             plt.tight_layout()
 
-            plt.show()
+            _show_if_interactive()
 
         return fig
 
@@ -5921,7 +5922,7 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
                 correlation_fig_path = save_figure(fig,
                                                    correlation_fig_path)
 
-            plt.show()
+            _show_if_interactive()
 
         return correlation_matrix
 
@@ -5968,7 +5969,7 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
                 effect_sizes_fig_path = save_figure(fig,
                                                     effect_sizes_fig_path)
 
-            plt.show()
+            _show_if_interactive()
 
         return effect_sizes
     

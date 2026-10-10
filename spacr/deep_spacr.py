@@ -12,6 +12,7 @@ import pandas as pd
 from torch.optim import Adagrad, AdamW
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from PIL import Image
 from IPython.display import display
 from multiprocessing import cpu_count
@@ -2019,7 +2020,7 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None,
     suffix = f' / {total_epochs}' if total_epochs else ''
     fig.suptitle(f'Training — epoch {last}{suffix}')
     plt.tight_layout()
-    plt.show(block=False)
+    _show_if_interactive(block=False)
     return fig
 
 
@@ -3402,7 +3403,7 @@ def visualize_classes(model, dtype, class_names, **kwargs):
         plt.imshow(visualization)
         plt.title(f"Class {class_names[target_y]} Visualization")
         plt.axis('off')
-        plt.show()
+        _show_if_interactive()
 
 def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=None, normalize=True, save_integrated_grads=False, save_dir='integrated_grads'):
     """Compute and plot Integrated Gradients maps for every PNG under ``src``.
@@ -3467,7 +3468,7 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
             ax[2].imshow(overlay)
             ax[2].axis('off')
             ax[2].set_title("Overlay")
-            plt.show()
+            _show_if_interactive()
 
             if save_integrated_grads:
                 os.makedirs(save_dir, exist_ok=True)
@@ -3573,7 +3574,7 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
             ax[2].imshow(overlay)
             ax[2].axis('off')
             ax[2].set_title("Overlay")
-            plt.show()
+            _show_if_interactive()
 
             if save_smooth_grad:
                 os.makedirs(save_dir, exist_ok=True)

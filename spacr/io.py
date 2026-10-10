@@ -35,6 +35,7 @@ import skimage.measure as measure
 from skimage import exposure
 import imageio.v2 as imageio2
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from io import BytesIO
 from multiprocessing import cpu_count
 from .resource_log import _parallel_pool as Pool
@@ -5679,7 +5680,7 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
                 from .plot import save_figure
                 pdf_path = save_figure(plt.gcf(), pdf_path, dpi=dpi)
             else:
-                plt.show()
+                _show_if_interactive()
 
     train_df = pd.read_csv(train_file_path, index_col=0)
     val_df = pd.read_csv(val_file_path, index_col=0)

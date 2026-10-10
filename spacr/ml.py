@@ -74,6 +74,9 @@ from sklearn.base import clone
 from sklearn.metrics import mean_squared_error
 
 import matplotlib.pyplot as plt
+from .figure_sink import (_ShowOnlyWhereItReturns, _can_show,
+                          _interactive_backends, _interactive_session,
+                          _show_if_interactive)
 try:
     from IPython.display import display
 except Exception:
@@ -4757,102 +4760,6 @@ def regression_levels(df, csv_path, dependent_variable='predictions',
             level_dst=level_dst, draw_shared_panels=(index == 0), **kwargs)
         regression_type = fits[one][2]
     return fits
-
-
-def _interactive_backends():
-    """The names of matplotlib's built-in GUI backends, lower-cased."""
-    try:
-        from matplotlib.backends import BackendFilter, backend_registry
-
-        names = backend_registry.list_builtin(BackendFilter.INTERACTIVE)
-    except ImportError:
-        from matplotlib import rcsetup
-
-        names = rcsetup.interactive_bk
-    return {str(name).lower() for name in names}
-
-
-def _interactive_session():
-    """True in a Python prompt, an IPython shell or kernel, or under ``plt.ion()``."""
-    import matplotlib
-
-    if matplotlib.is_interactive() or hasattr(sys, "ps1") or sys.flags.interactive:
-        return True
-    ipython = sys.modules.get("IPython")
-    getter = getattr(ipython, "get_ipython", None)
-    try:
-        return bool(getter and getter() is not None)
-    except Exception:
-        return False
-
-
-def _can_show():
-    """Whether ``plt.show()`` would show something and then return.
-
-    A host that captured ``pyplot.show`` (the Qt bridge, the CLI's figure
-    closer, a test) and a notebook backend (``module://...``) always can. A
-    GUI backend can only from an interactive session and never on an
-    offscreen Qt platform, where ``plt.show()`` enters an event loop no one
-    can end, so a scripted or headless run hangs on its first figure. A
-    non-GUI backend such as Agg has nothing to show.
-    """
-    import matplotlib
-    import matplotlib.pyplot as pyplot
-
-    if getattr(pyplot.show, "__module__", None) != "matplotlib.pyplot":
-        return True
-    backend = str(matplotlib.get_backend()).lower()
-    if backend.startswith("module://"):
-        return True
-    if backend not in _interactive_backends():
-        return False
-    platform = os.environ.get("QT_QPA_PLATFORM", "").lower()
-    if backend.startswith("qt") and platform in ("offscreen", "minimal"):
-        return False
-    return _interactive_session()
-
-
-def _show_if_interactive():
-    """Call ``plt.show()`` only where :func:`_can_show` allows it.
-
-    :returns: whether ``plt.show()`` was called.
-    """
-    import matplotlib.pyplot as pyplot
-
-    if not _can_show():
-        return False
-    pyplot.show()
-    return True
-
-
-class _ShowOnlyWhereItReturns:
-    """Make ``plt.show()`` a no-op for one run where it would block.
-
-    The regression reaches drawing code across spaCR (threshold sweeps, plate
-    maps, volcanoes) that calls ``plt.show()`` itself. Where
-    :func:`_can_show` says no, ``pyplot.show`` is replaced for the duration
-    of the run, as Agg would leave it, and restored afterwards; otherwise
-    nothing is touched.
-    """
-
-    def __enter__(self):
-        import matplotlib.pyplot as pyplot
-
-        self._pyplot = pyplot
-        self._original = None
-        if not _can_show():
-            self._original = pyplot.show
-            pyplot.show = self._skip
-        return self
-
-    @staticmethod
-    def _skip(*_args, **_kwargs):
-        return None
-
-    def __exit__(self, *_exc_info):
-        if self._original is not None and self._pyplot.show is self._skip:
-            self._pyplot.show = self._original
-        return False
 
 
 def _show_well_distributions(frame, response_name, dst, plot=True):

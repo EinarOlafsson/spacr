@@ -59,6 +59,7 @@ from multiprocessing import cpu_count, Queue, Process
 from .resource_log import _parallel_pool as Pool
 from Bio.Seq import Seq
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 import numpy as np
 from . import schema
 from .runctx import run_context
@@ -1552,7 +1553,7 @@ def graph_sequencing_stats(settings):
         fig_file_path = save_figure(fig, fig_file_path,
                                     bbox_inches='tight')
         print(f"Saved {fig_file_path}")
-        plt.show()
+        _show_if_interactive()
 
         return closest_threshold['fraction_threshold']
 

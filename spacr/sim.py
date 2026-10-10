@@ -8,6 +8,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from matplotlib.patches import Patch
 import seaborn as sns
 import sklearn.metrics as metrics
@@ -834,7 +835,7 @@ def visualize_all(output):
             ax[n].spines['right'].set_visible(False)
 
         plt.tight_layout()
-        plt.show()
+        _show_if_interactive()
         gc.collect()
         return fig
 
@@ -1357,7 +1358,7 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
         ax.set_visible(False)
 
     plt.tight_layout()
-    plt.show()
+    _show_if_interactive()
     return fig
     
 
@@ -1423,7 +1424,7 @@ def plot_correlation_matrix(df, annot=False, cmap=None, clean=True, dst=None):
         _style_colour_bar(fig)
 
         plt.tight_layout()
-        plt.show()
+        _show_if_interactive()
         save_plot(fig, src=_figures_dst(dst), variable='correlation_matrix', i=1)
     return fig
 
@@ -1467,7 +1468,7 @@ def plot_feature_importance(df, target='prauc', exclude=None, clean=True, dst=No
         plt.xlabel('Feature Importance')
         plt.title('Feature Importances')
         plt.tight_layout()
-        plt.show()
+        _show_if_interactive()
         save_plot(fig, src=_figures_dst(dst), variable='feature_importance', i=1)
     return fig
 
@@ -1515,7 +1516,7 @@ def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats
     ax.set_yticklabels([features[i] for i in sorted_idx])
     ax.set_xlabel('Permutation Importance')
     plt.tight_layout()
-    plt.show()
+    _show_if_interactive()
     save_plot(fig, src=_figures_dst(dst), variable='permutation_importance', i=1)
     return fig
     
@@ -1566,7 +1567,7 @@ def plot_partial_dependences(df, target='prauc', clean=True, dst=None):
         ax.set_visible(False)
     
     plt.tight_layout()
-    plt.show()
+    _show_if_interactive()
     save_plot(fig, src=_figures_dst(dst), variable='partial_dependences', i=1)
     return fig
 

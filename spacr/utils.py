@@ -145,6 +145,7 @@ from torchvision import models as tv_models
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib as mpl
 
@@ -5400,7 +5401,7 @@ def model_metrics(model):
         ax[1, 1].set_ylabel(r'$\sqrt{|Standardized Residuals|}$')
 
         plt.tight_layout()
-        plt.show()
+        _show_if_interactive()
 
 def check_multicollinearity(x):
     """Checks multicollinearity of the predictors by computing the VIF.
@@ -7033,7 +7034,7 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=None
             plt.title('%s\nIteration %d / %d' % (class_name, t + 1, num_iterations))
             plt.gcf().set_size_inches(4, 4)
             plt.axis('off')
-            plt.show()
+            _show_if_interactive()
 
     return deprocess(img.data.cpu())
 
@@ -7573,7 +7574,7 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
             plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
         if interactive_payload is not None:
             fig._spacr_umap_payload = interactive_payload
-        plt.show()
+        _show_if_interactive()
         return fig
 
 def generate_colors(num_clusters, black_background):
@@ -8030,7 +8031,7 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
                 color=plot_colors['foreground'])
             grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
 
-        plt.show()
+        _show_if_interactive()
         return grid_fig
 
 def generate_path_list_from_db(db_path, file_metadata):
@@ -9406,7 +9407,7 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
         plt.xlabel('PCA Component 1')
         plt.ylabel('PCA Component 2')
         plt.title('Object Clustering')
-        plt.show()
+        _show_if_interactive()
     
     all_properties = []
 

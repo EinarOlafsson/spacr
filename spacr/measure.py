@@ -75,6 +75,7 @@ from skimage.feature import graycomatrix, graycoprops
 from skimage import morphology, measure, filters
 from skimage.util import img_as_bool
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from math import ceil, sqrt
 
 from .crops import (
@@ -11159,7 +11160,7 @@ def process_measure_crop_results(partial_results, settings):
                 fig_path = save_figure(fig, fig_path)
                 with figure_style(theme_target()):
                     plt.figure(fig.number)
-                    plt.show()
+                    _show_if_interactive()
                     plt.close(fig)
             result = (index, None, None, None)
 

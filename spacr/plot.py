@@ -9,6 +9,7 @@ from typing import Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from matplotlib.colors import ListedColormap
 import matplotlib as mpl
 import scipy.ndimage as ndi
@@ -3628,7 +3629,7 @@ def plot_image_mask_overlay(
                 )
                 pdf_path = save_figure(fig, pdf_path)
 
-            plt.show()
+            _show_if_interactive()
             return fig
 
     def _save_channels_as_tiff(stack, save_dir, filename):
@@ -4014,7 +4015,7 @@ def plot_image_mask_overlay_magenta_outlines(
                 )
                 pdf_path = save_figure(fig, pdf_path)
 
-            plt.show()
+            _show_if_interactive()
             return fig
 
     def _save_channels_as_tiff(stack, save_dir, filename):
@@ -4200,7 +4201,7 @@ def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr
                         ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
                 ax[chans+1].imshow(flow, cmap='viridis', interpolation='nearest')
                 ax[chans+1].set_title('Flow')
-                plt.show()
+                _show_if_interactive()
     return
 
 def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize=10, nr=1, print_object_number=True):
@@ -4257,7 +4258,7 @@ def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize
                 a.axis('off')
 
             plt.tight_layout()
-            plt.show()
+            _show_if_interactive()
 
     return
 
@@ -4319,7 +4320,7 @@ def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_ty
                         ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
                 ax[chans+1].imshow(flow, cmap='viridis')
                 ax[chans+1].set_title('Flow')
-                plt.show()
+                _show_if_interactive()
     return
 
 def _plot_4D_arrays(src, figuresize=10, cmap='inferno', nr_npz=1, nr=1):
@@ -4363,7 +4364,7 @@ def _plot_4D_arrays(src, figuresize=10, cmap='inferno', nr_npz=1, nr=1):
                     axs[c].axis('off')
 
                 fig.tight_layout()
-                plt.show()
+                _show_if_interactive()
     return
 
 def generate_mask_random_cmap(mask):
@@ -4563,7 +4564,7 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
                     axes[1].axis('off')
 
                     plt.tight_layout()
-                    plt.show()
+                    _show_if_interactive()
 
     if overlay:
         print(f'Overlay will only work on the first two folders in the list')
@@ -4721,7 +4722,7 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
                 ax.axis('off')
 
             fig.tight_layout()
-            plt.show()
+            _show_if_interactive()
 
 def _normalize_and_outline(image, remove_background, normalize, normalization_percentiles, overlay, overlay_chans, mask_dims, outline_colors, outline_thickness):
     """
@@ -4840,7 +4841,7 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
                     ax[i + image.shape[-1] + ax_index].text(cx, cy, str(obj), color='white', fontsize=8, ha='center', va='center')
 
         plt.tight_layout()
-        plt.show()
+        _show_if_interactive()
         return fig
 
 def plot_merged(src, settings):
@@ -4998,7 +4999,7 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
 
         plt.tight_layout(pad=3)
         if plot:
-            plt.show()
+            _show_if_interactive()
         return fig
 
 def _save_scimg_plot(src, nr_imgs=16, channel_indices=None, um_per_pixel=0.1, scale_bar_length_um=10, standardize=True, fontsize=8, show_filename=True, channel_names=None, dpi=300, plot=False, i=1, all_folders=1):
@@ -5170,7 +5171,7 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
             _register_figure_data(fig, stack, kind="image")
             plot_single_array(stack, ax, 'Channel one', plt.get_cmap(cmap))
             fig.tight_layout()
-            plt.show()
+            _show_if_interactive()
         elif len(dim) > 2:
             num_channels = dim[2]
             fig, axs = plt.subplots(1, num_channels, figsize=(figuresize, figuresize))
@@ -5237,7 +5238,7 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
                 ax.plot(_track['x'], _track['y'], '-k', linewidth=1)
 
             ax.axis('off')
-            plt.show()
+            _show_if_interactive()
 
     if plot:
         if interactive:
@@ -5328,7 +5329,7 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
             rotate_ticks(axes[i])
 
         fig.tight_layout()
-        plt.show()
+        _show_if_interactive()
 
         columns = columns + [f'pathogen_channel_{channel_of_interest}_cytoplasm_{stat}_ratio'
                              for stat in ('mean', 'q75', 'periphery_mean', 'outside_mean', 'outside_q75')]
@@ -5364,7 +5365,7 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
         hide_unused(axes[len(columns):])
 
         fig.tight_layout()
-        plt.show()
+        _show_if_interactive()
     
 def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
     """
@@ -5453,7 +5454,7 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
                 descriptor(current_axis,
                            f'Condition: {condition} - Channel {idx_channel}')
         fig.tight_layout()
-        plt.show()
+        _show_if_interactive()
 
 def _imshow(img, labels, nrow=20, color='white', fontsize=12):
     """
@@ -5570,7 +5571,7 @@ def _plot_histograms_and_stats(df):
             ax.set_xlabel('Pred Value')
             ax.set_ylabel('Count')
             ax.legend()
-            plt.show()
+            _show_if_interactive()
 
 def _show_residules(model):
     """Draw the three residual diagnostics and print the Shapiro-Wilk test.
@@ -5593,7 +5594,7 @@ def _show_residules(model):
         descriptor(ax, 'Histogram of Residuals')
         ax.set_xlabel('Residual Value')
         ax.set_ylabel('Frequency')
-        plt.show()
+        _show_if_interactive()
 
         qq_fig, qq_ax = plt.subplots()
         from .figures.bundle import _register_figure_data
@@ -5613,7 +5614,7 @@ def _show_residules(model):
                 line.set_linewidth(WEIGHTS['reference'])
                 line.set_linestyle((0, (4, 3)))
         descriptor(qq_ax, 'QQ Plot')
-        plt.show()
+        _show_if_interactive()
 
         resid_fig, resid_ax = plt.subplots()
         from .figures.bundle import _register_figure_data
@@ -5628,7 +5629,7 @@ def _show_residules(model):
         resid_ax.set_ylabel('Residuals')
         descriptor(resid_ax, 'Residuals vs. Fitted Values')
         reference_line(resid_ax, y=0)
-        plt.show()
+        _show_if_interactive()
 
     W, p_value = stats.shapiro(residuals)
     print(f'Shapiro-Wilk Test W-statistic: {W}, p-value: {p_value}')
@@ -5663,7 +5664,7 @@ def _reg_v_plot(df, grouping=None, variable=None, plate_number=None):
                         va='bottom', color=resolve_ink(theme_target()))
 
         reference_line(ax, y=-np.log10(0.05))
-        plt.show()
+        _show_if_interactive()
 
 def _well_axis_labels(tokens, parse, render):
     """Map raw row (or column) tokens onto ``(index, canonical label)``.
@@ -5906,7 +5907,7 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
         print(f'Saved heatmap to {filename}')
 
     if verbose:
-        plt.show()
+        _show_if_interactive()
     return fig
 
 def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickness=2):
@@ -6046,7 +6047,7 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
             axs[2].axis('off')
 
         fig.tight_layout()
-        plt.show()
+        _show_if_interactive()
     
 def plot_resize(images, resized_images, labels, resized_labels):
     """Show original vs. resized image/label pairs in a 2x2 grid.
@@ -6108,7 +6109,7 @@ def plot_resize(images, resized_images, labels, resized_labels):
         ax[1, 1].set_title('Resized Label')
 
         plt.tight_layout()
-        plt.show()
+        _show_if_interactive()
     
 def normalize_and_visualize(image, normalized_image, title=""):
     """Show the original and the normalised image side by side in grayscale.
@@ -6138,7 +6139,7 @@ def normalize_and_visualize(image, normalized_image, title=""):
         ax[1].set_title("Normalized " + title)
         ax[1].axis('off')
     
-        plt.show()
+        _show_if_interactive()
     
 def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
     """Show three masks side by side with random colormaps.
@@ -6163,7 +6164,7 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
             ax.set_title(panel_title)
             ax.axis('off')
         plt.suptitle(title)
-        plt.show()
+        _show_if_interactive()
 
 def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=None):
     """Display several Cellpose-style label masks side by side for a quick visual QC.
@@ -6224,7 +6225,7 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
             ax.axis('off')
     
         plt.suptitle(comparison_title)
-        plt.show()
+        _show_if_interactive()
     
     if save:
         if src is None:
@@ -6283,7 +6284,7 @@ def plot_comparison_results(comparison_results):
             panel_letter(ax, 'ABCD'[index])
 
         fig.tight_layout()
-        plt.show()
+        _show_if_interactive()
     return fig
 
 def plot_object_outlines(src, objects=None, channels=None, max_nr=10):
@@ -6340,7 +6341,7 @@ def plot_histogram(df, column, dst=None):
             filename = save_figure(fig, filename)
             print(f'Saved histogram to {filename}')
 
-        plt.show()
+        _show_if_interactive()
 
 def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
                        remove_keys=None,
@@ -6519,7 +6520,7 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
                                          bbox_inches='tight')
             print(f"Saved Lorenz Curve: {save_file_path}")
 
-        plt.show()
+        _show_if_interactive()
 
     for plate, gini in gini_values.items():
         print(f"{plate}: Gini Coefficient = {gini:.4f}")
@@ -6643,7 +6644,7 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
             rotate_ticks(ax)
             fig.tight_layout()
             ax.set_ylim(y_lim)
-            plt.show()
+            _show_if_interactive()
     else:
         print("No CSV files found in the specified directory.")
 
@@ -6758,7 +6759,7 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
                                       bbox_inches='tight')
             print(f"Jitter plot saved to {output_path}")
         else:
-            plt.show()
+            _show_if_interactive()
 
     return balanced_df
 
@@ -7022,7 +7023,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
             results_df.to_csv(results_path, index=False)
             print(f"Test results saved to {results_path}")
 
-        plt.show()
+        _show_if_interactive()
 
         figure = plt.gcf()
         try:
@@ -7160,7 +7161,7 @@ class spacrGraph:
             reordered_palette = palette
         if show_theme:
             sns.palplot(reordered_palette)
-            plt.show()
+            _show_if_interactive()
         return reordered_palette
 
     def _user_style(self):
@@ -8525,7 +8526,7 @@ def plot_data_from_db(settings):
     spacr_graph.create_plot()
 
     fig = spacr_graph.get_figure()
-    plt.show()
+    _show_if_interactive()
 
     results_df = spacr_graph.get_results()
     return fig, results_df, df
@@ -8641,7 +8642,7 @@ def plot_data_from_csv(settings):
     spacr_graph.create_plot()
 
     fig = spacr_graph.get_figure()
-    plt.show()
+    _show_if_interactive()
 
     results_df = spacr_graph.get_results()
     return fig, results_df
@@ -8898,7 +8899,7 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
                 plt.imshow(blended)
                 plt.title(f"Overlay: {filename}")
                 plt.axis('off')
-                plt.show()
+                _show_if_interactive()
         written += 1
       except Exception as error:                             # noqa: BLE001
         failed.append((filename, f"{type(error).__name__}: {error}"))
@@ -8962,7 +8963,7 @@ def graph_importance(settings):
 
     spacr_graph.create_plot()
 
-    plt.show()
+    _show_if_interactive()
     
 #: Which column carries the unit of replication for each declared level.
 #: `level` chose the FIGURE and nothing else; it now chooses the denominator
@@ -9335,7 +9336,7 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
                                     bbox_inches="tight")
             print(f"Venn diagram saved to {save_path}")
         else:
-            plt.show()
+            _show_if_interactive()
 
     return {
         "overlap": list(overlapping_genes),
@@ -9626,6 +9627,6 @@ def volcano_plot(
         if save_path:
             save_path = save_figure(fig, save_path, bbox_inches="tight")
         if show:
-            plt.show()
+            _show_if_interactive()
 
     return fig, ax, hits

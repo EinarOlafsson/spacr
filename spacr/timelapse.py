@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from collections import defaultdict
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from matplotlib.figure import Figure
 import matplotlib as mpl
 from IPython.display import display
@@ -3337,7 +3338,7 @@ def infected_vs_noninfected(result_df, measurement):
         ax.set_xticklabels(all_timepoints, rotation=45, ha="right")
 
     plt.tight_layout()
-    plt.show()
+    _show_if_interactive()
 
 def save_figure(fig, src, figure_number):
     """Save ``fig`` as ``figure_<figure_number>`` inside a sibling ``results`` folder.
@@ -3848,7 +3849,7 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     ax.set_ylabel('Normalized Delta ' + measurement)
     plt.tight_layout()
     
-    plt.show()
+    _show_if_interactive()
 
     save_figure(fig, src=db_loc, figure_number=1)
     

@@ -5,7 +5,8 @@ variable set (matplotlib picks QtAgg) and ``QT_QPA_PLATFORM=offscreen`` sat
 forever on the first plate heatmap, because ``plt.show()`` entered a Qt event
 loop that nothing could end. Only ``MPLBACKEND=Agg`` got it through.
 
-The regression figure helpers now go through ``_show_if_interactive``: a host
+The regression figure helpers now go through ``_show_if_interactive`` (it
+lives in :mod:`spacr.figure_sink`; ``spacr.ml`` keeps the names): a host
 that captured ``pyplot.show`` and a notebook backend are always shown, a GUI
 backend only from an interactive session on a real platform, Agg never.
 """
@@ -20,7 +21,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pytest
 
-from spacr import ml
+from spacr import figure_sink, ml
 
 
 def _pyplot_show(calls):
@@ -45,7 +46,7 @@ def _backend(monkeypatch, name):
 def test_qt_offscreen_is_never_shown(monkeypatch, calls):
     _backend(monkeypatch, "QtAgg")
     monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
-    monkeypatch.setattr(ml, "_interactive_session", lambda: True)
+    monkeypatch.setattr(figure_sink, "_interactive_session", lambda: True)
     assert ml._show_if_interactive() is False
     assert calls == []
 
@@ -53,7 +54,7 @@ def test_qt_offscreen_is_never_shown(monkeypatch, calls):
 def test_a_gui_backend_in_a_script_is_not_shown(monkeypatch, calls):
     _backend(monkeypatch, "TkAgg")
     monkeypatch.delenv("QT_QPA_PLATFORM", raising=False)
-    monkeypatch.setattr(ml, "_interactive_session", lambda: False)
+    monkeypatch.setattr(figure_sink, "_interactive_session", lambda: False)
     assert ml._show_if_interactive() is False
     assert calls == []
 
@@ -61,14 +62,14 @@ def test_a_gui_backend_in_a_script_is_not_shown(monkeypatch, calls):
 def test_a_gui_backend_in_an_interactive_session_is_shown(monkeypatch, calls):
     _backend(monkeypatch, "QtAgg")
     monkeypatch.delenv("QT_QPA_PLATFORM", raising=False)
-    monkeypatch.setattr(ml, "_interactive_session", lambda: True)
+    monkeypatch.setattr(figure_sink, "_interactive_session", lambda: True)
     assert ml._show_if_interactive() is True
     assert calls == [1]
 
 
 def test_agg_is_not_shown(monkeypatch, calls):
     _backend(monkeypatch, "agg")
-    monkeypatch.setattr(ml, "_interactive_session", lambda: True)
+    monkeypatch.setattr(figure_sink, "_interactive_session", lambda: True)
     assert ml._show_if_interactive() is False
     assert calls == []
 
@@ -181,7 +182,7 @@ def test_the_run_guard_silences_show_where_it_would_block(monkeypatch, calls):
 def test_the_run_guard_leaves_a_working_show_alone(monkeypatch, calls):
     _backend(monkeypatch, "QtAgg")
     monkeypatch.delenv("QT_QPA_PLATFORM", raising=False)
-    monkeypatch.setattr(ml, "_interactive_session", lambda: True)
+    monkeypatch.setattr(figure_sink, "_interactive_session", lambda: True)
     original = plt.show
     with ml._ShowOnlyWhereItReturns():
         assert plt.show is original
@@ -196,7 +197,7 @@ def test_perform_regression_runs_under_the_guard(monkeypatch, calls):
 
     def fake_run(settings):
         plt.show()
-        seen.append(plt.show.__module__ == "spacr.ml")
+        seen.append(plt.show.__module__ == "spacr.figure_sink")
         return {}
 
     monkeypatch.setattr(ml, "_perform_regression", fake_run)
@@ -206,3 +207,9 @@ def test_perform_regression_runs_under_the_guard(monkeypatch, calls):
     assert ml.perform_regression({}) == {}
     assert seen == [True] and calls == []
     assert plt.show.__module__ == "matplotlib.pyplot"
+
+
+def test_ml_keeps_the_shared_helpers_as_aliases():
+    assert ml._show_if_interactive is figure_sink._show_if_interactive
+    assert ml._can_show is figure_sink._can_show
+    assert ml._ShowOnlyWhereItReturns is figure_sink._ShowOnlyWhereItReturns

@@ -11,6 +11,7 @@ import contextlib
 import os
 
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 import seaborn as sns
 import numpy as np
 from adjustText import adjust_text
@@ -340,7 +341,7 @@ def custom_volcano_plot(
         if save_path:
             save_path = _write_the_figure(fig, save_path,
                                           bbox_inches='tight')
-        plt.show()
+        _show_if_interactive()
 
         return hit_list
 
@@ -554,7 +555,7 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
                  (f'not called ({int((~called).sum())})', ROLES['data'])],
                 scale)
             fig.tight_layout()
-            plt.show()
+            _show_if_interactive()
 
         print(f'Results for {go_term_column}')
 
@@ -592,7 +593,7 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
 
         adjust_text(texts, ax=ax, arrowprops=_LEADER)
         fig.tight_layout()
-        plt.show()
+        _show_if_interactive()
 
 
 def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gondii GT1 CRISPR Phenotype - Mean Phenotype',error_column='T.gondii GT1 CRISPR Phenotype - Standard Error', save_path=None):
@@ -693,7 +694,7 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
                                           bbox_inches='tight')
             print(f"Figure saved to {save_path}")
 
-        plt.show()
+        _show_if_interactive()
 
 def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=False, save_path=None):
     """Render a heatmap for selected genes across selected metadata columns.
@@ -764,7 +765,7 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
                                           bbox_inches='tight')
             print(f"Figure saved to {save_path}")
 
-        plt.show()
+        _show_if_interactive()
 
 def generate_score_heatmap(settings):
     """Build combined classification-score and control-fraction heatmaps for a plate.

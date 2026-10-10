@@ -66,6 +66,7 @@ from . import _gc as gc
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 try:
     from IPython.display import display
 except Exception:
@@ -5021,7 +5022,7 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
         if return_fig:
             return fig
         if show and not save:
-            plt.show()
+            _show_if_interactive()
         return
 
 def _finite_ratio(numerator, denominator):
