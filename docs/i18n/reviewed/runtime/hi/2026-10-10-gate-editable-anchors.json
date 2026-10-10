@@ -1,0 +1,350 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "A selected volume surface does not exist.",
+      "source": "A selected volume surface does not exist.",
+      "source_sha256": "18cdd6cc3b6ab6c9fc2c4e7a5ae64b77ed0e14046ce5ad9b24cf35f6a252cbfd",
+      "table": "ui",
+      "translation": "चयनित वॉल्यूम सतह मौजूद नहीं है।"
+    },
+    {
+      "key": "A view-drawn volume needs finite increasing view limits before editing.",
+      "source": "A view-drawn volume needs finite increasing view limits before editing.",
+      "source_sha256": "6e4ffeabde50ec659059ca809c5ded5789be2b60c5719df0c5f17f07b9f0ed74",
+      "table": "ui",
+      "translation": "व्यू में बनाए गए वॉल्यूम को संपादन से पहले सीमित, बढ़ती व्यू सीमाओं की आवश्यकता है।"
+    },
+    {
+      "key": "A volume anchor needs three finite coordinates.",
+      "source": "A volume anchor needs three finite coordinates.",
+      "source_sha256": "d9557278204f5414ad6e62701235790f45518d4f631a744391b28d6aa79d8cf6",
+      "table": "ui",
+      "translation": "वॉल्यूम एंकर को तीन सीमित निर्देशांकों की आवश्यकता है।"
+    },
+    {
+      "key": "A volume must have nonzero extent on all three axes.",
+      "source": "A volume must have nonzero extent on all three axes.",
+      "source_sha256": "e60b786b55c58dbb98b1476ffe13ecbfef8718df128a22ce83bea011f42d4a31",
+      "table": "ui",
+      "translation": "वॉल्यूम का विस्तार तीनों अक्षों पर शून्य से भिन्न होना चाहिए।"
+    },
+    {
+      "key": "A volume scale must be positive and finite.",
+      "source": "A volume scale must be positive and finite.",
+      "source_sha256": "cff8258cc86e133b6beebb7b781b0d9211fe3e404b1cf4a0c97a7ada97ff730e",
+      "table": "ui",
+      "translation": "वॉल्यूम स्केल धनात्मक और सीमित होना चाहिए।"
+    },
+    {
+      "key": "An editable volume needs 4 to 8192 vertices and at most 16384 triangles.",
+      "source": "An editable volume needs 4 to 8192 vertices and at most 16384 triangles.",
+      "source_sha256": "ceaba5be8c53155b0be49e2143a7167d63a105e7c6bd243891f836e803b4bc35",
+      "table": "ui",
+      "translation": "संपादन योग्य वॉल्यूम को 4 से 8192 शीर्षों और अधिकतम 16384 त्रिभुजों की आवश्यकता है।"
+    },
+    {
+      "key": "An editable volume requires three distinct measurement columns.",
+      "source": "An editable volume requires three distinct measurement columns.",
+      "source_sha256": "307f916ee3fe5106606ad14ed566717f36753e21046a984b2b6cf8e3bc437195",
+      "table": "ui",
+      "translation": "संपादन योग्य वॉल्यूम के लिए तीन अलग-अलग माप स्तंभ आवश्यक हैं।"
+    },
+    {
+      "key": "An edited outline must have distinct points and nonzero area.",
+      "source": "An edited outline must have distinct points and nonzero area.",
+      "source_sha256": "dcc3e25f28c3401ee133d7d48ae1d6a24c8f42b306e841acfea9e56450cc93ce",
+      "table": "ui",
+      "translation": "संपादित रूपरेखा में अलग-अलग बिंदु और शून्य से भिन्न क्षेत्रफल होना चाहिए।"
+    },
+    {
+      "key": "An edited outline must have nonzero area.",
+      "source": "An edited outline must have nonzero area.",
+      "source_sha256": "9228514b915cbf171d808783ebcec2cd35102cf9db586eb510c4e8d6b656a31e",
+      "table": "ui",
+      "translation": "संपादित रूपरेखा का क्षेत्रफल शून्य से भिन्न होना चाहिए।"
+    },
+    {
+      "key": "An edited outline needs at least three finite points.",
+      "source": "An edited outline needs at least three finite points.",
+      "source_sha256": "0809d5de2b33b14c455fa97977bb92413f125b666c7455757dc9138a088b7310",
+      "table": "ui",
+      "translation": "संपादित रूपरेखा को कम से कम तीन सीमित बिंदुओं की आवश्यकता है।"
+    },
+    {
+      "key": "An unbounded gate needs explicit finite view limits before editing its volume.",
+      "source": "An unbounded gate needs explicit finite view limits before editing its volume.",
+      "source_sha256": "d9d9b8b0eb5958c397d29649c7f8891eafa10478985500be82fedcbf101a7cf6",
+      "table": "ui",
+      "translation": "असीमित गेट का वॉल्यूम संपादित करने से पहले स्पष्ट सीमित व्यू सीमाएँ आवश्यक हैं।"
+    },
+    {
+      "key": "Anchor density",
+      "source": "Anchor density",
+      "source_sha256": "5ffa899bcb7650658aa80a4ddde11807f6ce010edcbcd1933d6b46d6c51f8f8a",
+      "table": "ui",
+      "translation": "एंकर घनत्व"
+    },
+    {
+      "key": "Anchor density must be between 1 and 8.",
+      "source": "Anchor density must be between 1 and 8.",
+      "source_sha256": "aababfc0dbca69de36f4e3437daa390a01ac747318ac2531597c967ad481aa93",
+      "table": "ui",
+      "translation": "एंकर घनत्व 1 और 8 के बीच होना चाहिए।"
+    },
+    {
+      "key": "Anchor visibility must be true or false.",
+      "source": "Anchor visibility must be true or false.",
+      "source_sha256": "33a2939afdcadc884d468268c699c1c151504e6e017359c0bebf930b97c91f60",
+      "table": "ui",
+      "translation": "एंकर दृश्यता सत्य या असत्य होनी चाहिए।"
+    },
+    {
+      "key": "Constrain anchor and surface movement to a data axis, or drag in the view plane. The selected axis also controls wheel movement.",
+      "source": "Constrain anchor and surface movement to a data axis, or drag in the view plane. The selected axis also controls wheel movement.",
+      "source_sha256": "daf9958f1126d1cd4d7b8beb1001262308b96bd8c39991b4fd3daf8e50ccc747",
+      "table": "ui",
+      "translation": "एंकर और सतह की गति को किसी डेटा अक्ष तक सीमित करें, या व्यू प्लेन में खींचें। चुना गया अक्ष व्हील से होने वाली गति को भी नियंत्रित करता है।"
+    },
+    {
+      "key": "Drag to draw the chosen shape on the chosen plane.",
+      "source": "Drag to draw the chosen shape on the chosen plane.",
+      "source_sha256": "ec154459f7666929f65fb4ac65d5ee95e332c118ea0672624cd3060616bf4e95",
+      "table": "ui",
+      "translation": "चुने गए प्लेन पर चुना गया आकार बनाने के लिए खींचें।"
+    },
+    {
+      "key": "Drag to turn the volume.",
+      "source": "Drag to turn the volume.",
+      "source_sha256": "da877a7662f669bfc874676ccb9d430e129a326252f4bc5e4aa15bc668b06f1f",
+      "table": "ui",
+      "translation": "वॉल्यूम घुमाने के लिए खींचें।"
+    },
+    {
+      "key": "Edit volume anchors and surfaces. Ctrl-click selects multiple surfaces; the wheel moves them together. Curved gates become a piecewise-linear boundary on the first committed edit.",
+      "source": "Edit volume anchors and surfaces. Ctrl-click selects multiple surfaces; the wheel moves them together. Curved gates become a piecewise-linear boundary on the first committed edit.",
+      "source_sha256": "889a8f61b57de04db65822efc8d417b44daa2b895d25f29592e64ba0a2bd172a",
+      "table": "ui",
+      "translation": "वॉल्यूम के एंकर और सतहें संपादित करें। Ctrl-क्लिक कई सतहें चुनता है; व्हील उन्हें एक साथ खिसकाता है। पहले पुष्ट संपादन पर वक्र गेट खंडशः रैखिक सीमा बन जाते हैं।"
+    },
+    {
+      "key": "Edit volume surfaces: Ctrl-click selects several. Edit axis constrains motion. Curved gates become piecewise-linear when edited. View-drawn and unbounded gates use the current view's finite depth at the first committed edit.",
+      "source": "Edit volume surfaces: Ctrl-click selects several. Edit axis constrains motion. Curved gates become piecewise-linear when edited. View-drawn and unbounded gates use the current view's finite depth at the first committed edit.",
+      "source_sha256": "7937fc3b8e4447bcf3b800d0deb7eca7574fbff80ff95bb0c4f42d241d4704f1",
+      "table": "ui",
+      "translation": "वॉल्यूम सतहें संपादित करें: Ctrl-क्लिक कई चुनता है। संपादन अक्ष गति को सीमित करता है। संपादित करने पर वक्र गेट खंडशः रैखिक हो जाते हैं। व्यू में बनाए गए और असीमित गेट पहले पुष्ट संपादन पर वर्तमान व्यू की सीमित गहराई का उपयोग करते हैं।"
+    },
+    {
+      "key": "Edited outline edges must not cross or overlap.",
+      "source": "Edited outline edges must not cross or overlap.",
+      "source_sha256": "936b8fbc7790f014d8889de5efd993db4b02c8842e4a9cff0b966c9544dd4c01",
+      "table": "ui",
+      "translation": "संपादित रूपरेखा के किनारे एक-दूसरे को काटने या ओवरलैप करने नहीं चाहिए।"
+    },
+    {
+      "key": "Editing an outline anchor commits a piecewise-linear boundary; counts and exports use that same boundary.",
+      "source": "Editing an outline anchor commits a piecewise-linear boundary; counts and exports use that same boundary.",
+      "source_sha256": "7c7211eff0ba6b8ab9d8a68008ce1dade67ee49a9777a0047e0b6c777ae18221",
+      "table": "ui",
+      "translation": "रूपरेखा एंकर संपादित करने से खंडशः रैखिक सीमा पुष्ट होती है; गिनती और निर्यात उसी सीमा का उपयोग करते हैं।"
+    },
+    {
+      "key": "Editing this anchor commits a piecewise-linear volume. View-drawn and unbounded gates use the current view's finite depth.",
+      "source": "Editing this anchor commits a piecewise-linear volume. View-drawn and unbounded gates use the current view's finite depth.",
+      "source_sha256": "330ec3c9a9af746dec480d238b2cf9f7830d883e1eae248168ab0add58aea51e",
+      "table": "ui",
+      "translation": "इस एंकर को संपादित करने से खंडशः रैखिक वॉल्यूम पुष्ट होता है। व्यू में बनाए गए और असीमित गेट वर्तमान व्यू की सीमित गहराई का उपयोग करते हैं।"
+    },
+    {
+      "key": "Evenly subdivide gate edges and surfaces into editable anchors. Density changes handles, not the gate's geometry or membership.",
+      "source": "Evenly subdivide gate edges and surfaces into editable anchors. Density changes handles, not the gate's geometry or membership.",
+      "source_sha256": "83333a257285e8f1661ae35aaad9f7dc707d02348a6b99e62cd0c404814af46f",
+      "table": "ui",
+      "translation": "गेट के किनारों और सतहों को समान रूप से संपादन योग्य एंकरों में बाँटें। घनत्व हैंडल बदलता है, गेट की ज्यामिति या सदस्यता नहीं।"
+    },
+    {
+      "key": "Every volume triangle must name three existing vertices.",
+      "source": "Every volume triangle must name three existing vertices.",
+      "source_sha256": "50758abc2e11518dcfe4e2791b10ee7ab9e36082b83084590df2f9f1a6122dc2",
+      "table": "ui",
+      "translation": "प्रत्येक वॉल्यूम त्रिभुज को तीन मौजूदा शीर्ष बताने चाहिए।"
+    },
+    {
+      "key": "Only a three-dimensional gate can become an editable volume.",
+      "source": "Only a three-dimensional gate can become an editable volume.",
+      "source_sha256": "41dae4d01af794174b17c2532acce82defd688ba01bb23ef39d675200563bd85",
+      "table": "ui",
+      "translation": "केवल त्रि-आयामी गेट ही संपादन योग्य वॉल्यूम बन सकता है।"
+    },
+    {
+      "key": "Rotate the graph to expose that axis before dragging its anchors.",
+      "source": "Rotate the graph to expose that axis before dragging its anchors.",
+      "source_sha256": "b05fcc0c7a319dd34916c859b7c13a7a3df6092dca39fd3da287367e7e598408",
+      "table": "ui",
+      "translation": "उस अक्ष के एंकर खींचने से पहले उसे दिखाने के लिए ग्राफ़ घुमाएँ।"
+    },
+    {
+      "key": "Saved anchor controls are invalid.",
+      "source": "Saved anchor controls are invalid.",
+      "source_sha256": "f263b6b9bd0b2ebef93b4a15aba0569d44c332c0eb5a167dcf022cbce9a56ffc",
+      "table": "ui",
+      "translation": "सहेजे गए एंकर नियंत्रण अमान्य हैं।"
+    },
+    {
+      "key": "Show gate anchors",
+      "source": "Show gate anchors",
+      "source_sha256": "d67b755df6873f29594f6ffff3957976c55a7a3b0c8780dda8622d71503eb6c4",
+      "table": "ui",
+      "translation": "गेट एंकर दिखाएँ"
+    },
+    {
+      "key": "Spin",
+      "source": "Spin",
+      "source_sha256": "b9e96ae52a7b7115022a979b3151221b0e6e9ce0c219933b2d84b29a7f47ecc7",
+      "table": "ui",
+      "translation": "घुमाएँ"
+    },
+    {
+      "key": "The editable view boundary must stay finite and in front of its camera.",
+      "source": "The editable view boundary must stay finite and in front of its camera.",
+      "source_sha256": "1911706823912ef9d67626d8df2a6a3f37dca30f261692eee02407f18fb33415",
+      "table": "ui",
+      "translation": "संपादन योग्य व्यू सीमा सीमित और अपने कैमरे के सामने रहनी चाहिए।"
+    },
+    {
+      "key": "The editable view volume must remain in front of its camera.",
+      "source": "The editable view volume must remain in front of its camera.",
+      "source_sha256": "f9f6635c98eebb9450844cd5898735de40fcfa6d7533c0301ed7b2b4a1c23749",
+      "table": "ui",
+      "translation": "संपादन योग्य व्यू वॉल्यूम अपने कैमरे के सामने रहना चाहिए।"
+    },
+    {
+      "key": "The selected volume anchor does not exist.",
+      "source": "The selected volume anchor does not exist.",
+      "source_sha256": "2bbc0f477eb52654af36fd550f9d5bb5bdbee0280b826f37667daca2bf864f62",
+      "table": "ui",
+      "translation": "चयनित वॉल्यूम एंकर मौजूद नहीं है।"
+    },
+    {
+      "key": "The view camera cannot resolve an editable volume boundary.",
+      "source": "The view camera cannot resolve an editable volume boundary.",
+      "source_sha256": "427965cf2d9ac56a20d2c555df80d65ba1aeb2f8353923ed68d7bf46ccac0e75",
+      "table": "ui",
+      "translation": "व्यू कैमरा संपादन योग्य वॉल्यूम सीमा निर्धारित नहीं कर सकता।"
+    },
+    {
+      "key": "The view camera has no finite editable depth.",
+      "source": "The view camera has no finite editable depth.",
+      "source_sha256": "85d4775f90221a435cd2cac6616f8b27ee09a3b38c6a349ede09824efd4c23d4",
+      "table": "ui",
+      "translation": "व्यू कैमरे में कोई सीमित संपादन योग्य गहराई नहीं है।"
+    },
+    {
+      "key": "The volume footprint must be a simple nondegenerate polygon.",
+      "source": "The volume footprint must be a simple nondegenerate polygon.",
+      "source_sha256": "29a373091daa842131763f2ef2ce39042db9d441107eacdb5a7da159ea982e2a",
+      "table": "ui",
+      "translation": "वॉल्यूम का आधार एक सरल, अपभ्रष्ट न होने वाला बहुभुज होना चाहिए।"
+    },
+    {
+      "key": "The volume footprint must have finite nonzero extent on both axes.",
+      "source": "The volume footprint must have finite nonzero extent on both axes.",
+      "source_sha256": "89556e9e331b30a3c482741efe8f61fb82a332872407aa33023e6f31f3d1df76",
+      "table": "ui",
+      "translation": "वॉल्यूम के आधार का दोनों अक्षों पर सीमित और शून्य से भिन्न विस्तार होना चाहिए।"
+    },
+    {
+      "key": "The volume must enclose a nonzero region.",
+      "source": "The volume must enclose a nonzero region.",
+      "source_sha256": "036f5b77e22522245ed41a6cfba3f2f3cd5a620eec78902ec203e38228471df9",
+      "table": "ui",
+      "translation": "वॉल्यूम को शून्य से भिन्न क्षेत्र घेरना चाहिए।"
+    },
+    {
+      "key": "This gate has no supported finite editable volume boundary.",
+      "source": "This gate has no supported finite editable volume boundary.",
+      "source_sha256": "63a24252183b042f0d075e5a37d600dfbe368f23b1c0e33f0e500f028e74592a",
+      "table": "ui",
+      "translation": "इस गेट की कोई समर्थित सीमित संपादन योग्य वॉल्यूम सीमा नहीं है।"
+    },
+    {
+      "key": "View plane",
+      "source": "View plane",
+      "source_sha256": "df10f36812fe45ec79193f2f800f0c8698874b488949bc49183045438d091559",
+      "table": "ui",
+      "translation": "व्यू प्लेन"
+    },
+    {
+      "key": "Volume coordinates, triangles and surface groups are invalid.",
+      "source": "Volume coordinates, triangles and surface groups are invalid.",
+      "source_sha256": "6032ea0d29f7fb0dd6ce05cb6e9959740470adad1ab8a55b0de7d1dc40076c1e",
+      "table": "ui",
+      "translation": "वॉल्यूम के निर्देशांक, त्रिभुज और सतह समूह अमान्य हैं।"
+    },
+    {
+      "key": "Volume motion needs existing vertices and a finite three-axis displacement.",
+      "source": "Volume motion needs existing vertices and a finite three-axis displacement.",
+      "source_sha256": "60484e558ba8fbee39392e234f296e709ad481c6fd74943d40c5f90c70e7e749",
+      "table": "ui",
+      "translation": "वॉल्यूम खिसकाने के लिए मौजूदा शीर्ष और तीन अक्षों में सीमित विस्थापन आवश्यक है।"
+    },
+    {
+      "key": "Volume sampling needs 8 to 128 circumference samples and 1 to 16 depth intervals.",
+      "source": "Volume sampling needs 8 to 128 circumference samples and 1 to 16 depth intervals.",
+      "source_sha256": "094c9499a4ac0ed2615e569fae761e61764fa92d22a13529b27965d21d931c31",
+      "table": "ui",
+      "translation": "वॉल्यूम सैंपलिंग को 8 से 128 परिधि नमूनों और 1 से 16 गहराई अंतरालों की आवश्यकता है।"
+    },
+    {
+      "key": "Volume surfaces must be connected and use every vertex.",
+      "source": "Volume surfaces must be connected and use every vertex.",
+      "source_sha256": "352d6122082494e9200fb779e84c924eefc0f831a3558b7fed2c1faa49092b65",
+      "table": "ui",
+      "translation": "वॉल्यूम सतहें जुड़ी होनी चाहिए और हर शीर्ष का उपयोग करना चाहिए।"
+    },
+    {
+      "key": "Volume surfaces must form one closed consistently oriented mesh.",
+      "source": "Volume surfaces must form one closed consistently oriented mesh.",
+      "source_sha256": "a74b5d20aa78661c7ae8d83192ed1af964173f1d3f9d3c0a4f5bd281851079dd",
+      "table": "ui",
+      "translation": "वॉल्यूम सतहों को एक बंद, एकसमान अभिविन्यास वाला मेश बनाना चाहिए।"
+    },
+    {
+      "key": "Volume surfaces must not intersect or overlap.",
+      "source": "Volume surfaces must not intersect or overlap.",
+      "source_sha256": "ce10b1e68c5b60d919af14d7afa47709142b487a4814e46da17421b9e328d38c",
+      "table": "ui",
+      "translation": "वॉल्यूम सतहें एक-दूसरे को काटनी या ओवरलैप नहीं करनी चाहिए।"
+    },
+    {
+      "key": "Volume triangles must not collapse.",
+      "source": "Volume triangles must not collapse.",
+      "source_sha256": "fcd36c9d58389be6c61136124f47a74170c71972c1774d2a04319bc541e3b49c",
+      "table": "ui",
+      "translation": "वॉल्यूम त्रिभुज ध्वस्त नहीं होने चाहिए।"
+    },
+    {
+      "key": "Volume vertex indices must be integers.",
+      "source": "Volume vertex indices must be integers.",
+      "source_sha256": "d09d54eb2ac3d9ca5cba01d042988890ee7eb9b4872256c18a079dd0bcac510b",
+      "table": "ui",
+      "translation": "वॉल्यूम शीर्ष सूचकांक पूर्णांक होने चाहिए।"
+    },
+    {
+      "key": "Volume vertices must be finite and distinct.",
+      "source": "Volume vertices must be finite and distinct.",
+      "source_sha256": "ac584143f072ba84b235a8f3253220eadd528d184985f0d7002d43f5c9835192",
+      "table": "ui",
+      "translation": "वॉल्यूम शीर्ष सीमित और अलग-अलग होने चाहिए।"
+    },
+    {
+      "key": "{x} × {y} × {z}: {count} volume anchors",
+      "source": "{x} × {y} × {z}: {count} volume anchors",
+      "source_sha256": "30db1e3a2b48cbfb9ebebad2ba190921dadeced243140d5901f8e4a5c099b567",
+      "table": "ui",
+      "translation": "{x} × {y} × {z}: {count} वॉल्यूम एंकर"
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

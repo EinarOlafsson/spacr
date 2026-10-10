@@ -70,9 +70,10 @@ import numpy as np
 import pandas as pd
 
 from ...selection import DataFilter, RangeFilter
+from ..i18n import tr
 
 __all__ = [
-    "GateError",
+    "GateError", "EditableVolumeGate", "VolumeAnchor",
     "THRESHOLD", "RECTANGLE", "POLYGON", "CYLINDER", "PRISM", "COMPOSITE",
     "COMPOSITE_OPS", "GATE_KINDS", "CylinderGate", "PrismGate",
     "VIEW_LASSO", "ViewGate",
@@ -2454,6 +2455,557 @@ class _EllipsoidGate(Gate):
 
 
 _GATE_CLASSES[_ELLIPSOID] = _EllipsoidGate
+
+def _validate_edited_polygon(vertices) -> None:
+    """Refuse nonfinite, collapsed or crossing outlines before an anchor commit."""
+    points = np.asarray(vertices, dtype=float)
+    if points.ndim != 2 or points.shape[1] != 2 or len(points) < 3 or not np.isfinite(points).all():
+        raise GateError(tr("An edited outline needs at least three finite points."))
+    spans = np.ptp(points, axis=0)
+    if np.any(spans <= 0) or len(np.unique(points, axis=0)) != len(points):
+        raise GateError(tr("An edited outline must have distinct points and nonzero area."))
+    points = (points - points.min(axis=0)) / spans
+    def cross(u, v):
+        """The normalized signed planar area of two edge vectors."""
+        return float(u[0] * v[1] - u[1] * v[0])
+    area = sum(cross(points[i], points[(i + 1) % len(points)]) for i in range(len(points)))
+    if abs(area) <= 1e-12:
+        raise GateError(tr("An edited outline must have nonzero area."))
+    for i in range(len(points)):
+        a, b = points[i], points[(i + 1) % len(points)]
+        for j in range(i + 1, len(points)):
+            if j == i + 1 or (i == 0 and j == len(points) - 1):
+                continue
+            c, d = points[j], points[(j + 1) % len(points)]
+            if np.any(np.maximum(a, b) < np.minimum(c, d) - 1e-10) or np.any(np.maximum(c, d) < np.minimum(a, b) - 1e-10):
+                continue
+            first = [cross(b - a, p - a) for p in (c, d)]
+            second = [cross(d - c, p - c) for p in (a, b)]
+            if min(first) <= 1e-10 and max(first) >= -1e-10 and min(second) <= 1e-10 and max(second) >= -1e-10:
+                raise GateError(tr("Edited outline edges must not cross or overlap."))
+
+
+def _triangulate_volume_cap(footprint):
+    """Triangulate a simple counterclockwise polygon without filling its concavities."""
+    points = np.asarray(footprint, dtype=float)
+    spans = np.ptp(points, axis=0)
+    if points.ndim != 2 or points.shape[1] != 2 or not np.isfinite(points).all() or np.any(spans <= 0):
+        raise GateError(tr("The volume footprint must have finite nonzero extent on both axes."))
+    points = (points - points.min(axis=0)) / spans
+    pending = list(range(len(points)))
+    triangles = []
+    def turn(a, b, c):
+        """The oriented planar area of one candidate triangle."""
+        u, v = points[b] - points[a], points[c] - points[a]
+        return float(u[0] * v[1] - u[1] * v[0])
+    while len(pending) > 3:
+        for position, b in enumerate(pending):
+            a, c = pending[position - 1], pending[(position + 1) % len(pending)]
+            if turn(a, b, c) <= 1e-12:
+                continue
+            others = [i for i in pending if i not in (a, b, c)]
+            if any(turn(a, b, i) >= -1e-12 and turn(b, c, i) >= -1e-12 and turn(c, a, i) >= -1e-12 for i in others):
+                continue
+            triangles.append((a, b, c))
+            pending.pop(position)
+            break
+        else:
+            raise GateError(tr("The volume footprint must be a simple nondegenerate polygon."))
+    triangles.append(tuple(pending))
+    return triangles
+
+
+def _mesh_triangle_contact(first, second, common) -> bool:
+    """Reject triangle contact beyond vertices or edges shared by topology."""
+    tolerance = 1e-10
+    n1 = np.cross(first[1] - first[0], first[2] - first[0])
+    n2 = np.cross(second[1] - second[0], second[2] - second[0])
+    coplanar = np.max(np.abs((second - first[0]) @ n1)) <= tolerance * np.linalg.norm(n1)
+    if coplanar:
+        axis = int(np.argmax(np.abs(n1)))
+        a, b = np.delete(first, axis, axis=1), np.delete(second, axis, axis=1)
+        def cross(u, v):
+            """The signed area of two planar vectors."""
+            return float(u[0] * v[1] - u[1] * v[0])
+        common_flat = np.delete(np.asarray(common).reshape(-1, 3), axis, axis=1)
+        for left, right in ((a, b), (b, a)):
+            for point in left:
+                if any(np.linalg.norm(point - vertex) <= tolerance for vertex in common_flat):
+                    continue
+                signs = [cross(right[(i + 1) % 3] - right[i], point - right[i]) for i in range(3)]
+                if min(signs) >= -tolerance or max(signs) <= tolerance:
+                    return True
+        for i in range(3):
+            for j in range(3):
+                p, r = a[i], a[(i + 1) % 3] - a[i]
+                q, s = b[j], b[(j + 1) % 3] - b[j]
+                denominator = cross(r, s)
+                if abs(denominator) > tolerance:
+                    t, u = cross(q - p, s) / denominator, cross(q - p, r) / denominator
+                    if tolerance < t < 1 - tolerance and tolerance < u < 1 - tolerance:
+                        return True
+        return False
+    for triangle, other, normal in ((first, second, n2), (second, first, n1)):
+        for i in range(3):
+            start, end = triangle[i], triangle[(i + 1) % 3]
+            denominator = float((end - start) @ normal)
+            if abs(denominator) <= tolerance * np.linalg.norm(normal):
+                continue
+            t = float((other[0] - start) @ normal) / denominator
+            if t < -tolerance or t > 1 + tolerance:
+                continue
+            point = start + t * (end - start)
+            if any(np.linalg.norm(point - vertex) <= tolerance for vertex in common):
+                continue
+            u, v, w = other[1] - other[0], other[2] - other[0], point - other[0]
+            uu, uv, vv = float(u @ u), float(u @ v), float(v @ v)
+            wu, wv = float(w @ u), float(w @ v)
+            determinant = float(np.cross(u, v) @ np.cross(u, v))
+            s, r = (vv * wu - uv * wv) / determinant, (uu * wv - uv * wu) / determinant
+            if s >= -tolerance and r >= -tolerance and s + r <= 1 + tolerance:
+                return True
+    return False
+
+
+def _validate_volume_mesh(vertices, faces) -> None:
+    """Require a finite connected closed orientable boundary without crossings."""
+    if len(vertices) < 4 or len(vertices) > 8192 or len(faces) > 16384:
+        raise GateError(tr("An editable volume needs 4 to 8192 vertices and at most 16384 triangles."))
+    if not np.isfinite(vertices).all() or len(np.unique(vertices, axis=0)) != len(vertices):
+        raise GateError(tr("Volume vertices must be finite and distinct."))
+    span = np.ptp(vertices, axis=0)
+    if np.any(span <= 0):
+        raise GateError(tr("A volume must have nonzero extent on all three axes."))
+    points = (vertices - vertices.min(axis=0)) / span
+    if faces.ndim != 2 or faces.shape[1] != 3 or not len(faces) or faces.min() < 0 or faces.max() >= len(points):
+        raise GateError(tr("Every volume triangle must name three existing vertices."))
+    triangles = points[faces]
+    normals = np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0])
+    if np.any(np.linalg.norm(normals, axis=1) <= 1e-12):
+        raise GateError(tr("Volume triangles must not collapse."))
+    edges = {}
+    for index, face in enumerate(faces):
+        for a, b in zip(face, np.roll(face, -1)):
+            edges.setdefault(tuple(sorted((int(a), int(b)))), []).append((index, int(a), int(b)))
+    if any(len(items) != 2 or items[0][1:] != items[1][1:][::-1] for items in edges.values()):
+        raise GateError(tr("Volume surfaces must form one closed consistently oriented mesh."))
+    neighbours = {i: set() for i in range(len(faces))}
+    for items in edges.values():
+        a, b = items[0][0], items[1][0]
+        neighbours[a].add(b)
+        neighbours[b].add(a)
+    visited, pending = set(), [0]
+    while pending:
+        index = pending.pop()
+        if index not in visited:
+            visited.add(index)
+            pending.extend(neighbours[index] - visited)
+    if len(visited) != len(faces) or len(set(faces.ravel())) != len(points):
+        raise GateError(tr("Volume surfaces must be connected and use every vertex."))
+    volume = np.einsum('ij,ij->i', triangles[:, 0], normals).sum() / 6
+    if abs(float(volume)) <= 1e-12:
+        raise GateError(tr("The volume must enclose a nonzero region."))
+    low, high = triangles.min(axis=1), triangles.max(axis=1)
+    for i, triangle in enumerate(triangles):
+        candidates = np.flatnonzero(np.all(high[i] >= low[i + 1:] - 1e-10, axis=1) & np.all(high[i + 1:] >= low[i] - 1e-10, axis=1)) + i + 1
+        for j in candidates:
+            shared = set(faces[i]) & set(faces[j])
+            if len(shared) == 3 or _mesh_triangle_contact(triangle, triangles[j], points[list(shared)]):
+                raise GateError(tr("Volume surfaces must not intersect or overlap."))
+
+
+@dataclass(frozen=True)
+class VolumeAnchor:
+    """A boundary point and its stable barycentric editing role.
+
+    :param point: coordinates in the gate's three-column order.
+    :param role: canonical vertex/edge/triangle weights consumed by edits.
+    """
+
+    point: Tuple[float, float, float]
+    role: str
+
+
+@dataclass(frozen=True)
+class EditableVolumeGate(Gate):
+    """A closed editable piecewise-linear volume used by both drawing and gating.
+
+    :param name: unique gate name used by the gating hierarchy.
+    :param parent: optional parent gate restricting this volume's membership.
+    :param x_column: measurement along the first data axis.
+    :param y_column: measurement along the second data axis.
+    :param z_column: measurement along the third data axis.
+    :param vertices: finite distinct three-dimensional boundary coordinates.
+    :param faces: consistently oriented triangles indexing shared vertices.
+    :param surface_groups: selectable surface identifier for each triangle;
+        triangles in one group move together. Empty assigns one group per triangle.
+    """
+
+    x_column: str = ""
+    y_column: str = ""
+    z_column: str = ""
+    vertices: Tuple[Tuple[float, float, float], ...] = ()
+    faces: Tuple[Tuple[int, int, int], ...] = ()
+    surface_groups: Tuple[int, ...] = ()
+
+    def __post_init__(self) -> None:
+        """Freeze and validate every coordinate, boundary connection and surface."""
+        super().__post_init__()
+        columns = tuple(str(getattr(self, name)).strip() for name in ('x_column', 'y_column', 'z_column'))
+        if not all(columns) or len(set(columns)) != 3:
+            raise GateError(tr("An editable volume requires three distinct measurement columns."))
+        for name, value in zip(('x_column', 'y_column', 'z_column'), columns):
+            object.__setattr__(self, name, value)
+        try:
+            vertices = np.asarray(self.vertices, dtype=float)
+            raw_faces = np.asarray(self.faces)
+            faces = np.asarray(self.faces, dtype=int)
+            if vertices.ndim != 2 or vertices.shape[1] != 3 or not np.array_equal(raw_faces, faces):
+                raise ValueError
+            _validate_volume_mesh(vertices, faces)
+            groups = tuple(self.surface_groups) or tuple(range(len(faces)))
+            if len(groups) != len(faces) or any(not isinstance(g, (int, np.integer)) or g < 0 for g in groups):
+                raise ValueError
+        except (TypeError, ValueError, OverflowError) as exc:
+            if isinstance(exc, GateError):
+                raise
+            raise GateError(tr("Volume coordinates, triangles and surface groups are invalid.")) from exc
+        object.__setattr__(self, 'vertices', tuple(tuple(float(v) for v in row) for row in vertices))
+        object.__setattr__(self, 'faces', tuple(tuple(int(v) for v in row) for row in faces))
+        object.__setattr__(self, 'surface_groups', tuple(int(g) for g in groups))
+
+    @property
+    def kind(self) -> str:
+        """The persisted editable-volume tag."""
+        return 'editable_volume'
+
+    @property
+    def columns(self) -> Tuple[str, str, str]:
+        """The measurement columns matching every vertex coordinate."""
+        return self.x_column, self.y_column, self.z_column
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the exact mesh, grouped surfaces and gate hierarchy."""
+        return {'kind': self.kind, 'name': self.name, 'parent': self.parent,
+                'x_column': self.x_column, 'y_column': self.y_column, 'z_column': self.z_column,
+                'vertices': self.vertices, 'faces': self.faces, 'surface_groups': self.surface_groups}
+
+    def describe(self) -> str:
+        """Describe the measurements and the actual editable boundary size."""
+        return tr("{x} × {y} × {z}: {count} volume anchors", x=self.x_column, y=self.y_column, z=self.z_column, count=len(self.vertices))
+
+    def centre(self) -> Tuple[float, float]:
+        """Return the first two components of the vertex centroid for flat tools."""
+        centre = np.mean(self.vertices, axis=0)
+        return float(centre[0]), float(centre[1])
+
+    def translated(self, dx: float, dy: float) -> 'EditableVolumeGate':
+        """Move the first two axes while preserving depth and all shared vertices.
+
+        :param dx: first-axis displacement in measurement units.
+        :param dy: second-axis displacement in measurement units.
+        """
+        return self.moved_vertices(range(len(self.vertices)), (dx, dy, 0.0))
+
+    def scaled(self, factor: float, *, about=None) -> 'EditableVolumeGate':
+        """Scale all three dimensions about the centroid or a supplied flat anchor.
+
+        :param factor: positive finite scale factor.
+        :param about: optional first/second-axis centre; depth uses its centroid.
+        """
+        factor = float(factor)
+        if not np.isfinite(factor) or factor <= 0:
+            raise GateError(tr("A volume scale must be positive and finite."))
+        points = np.asarray(self.vertices)
+        centre = points.mean(axis=0)
+        if about is not None:
+            centre[:2] = about
+        return replace(self, vertices=tuple(map(tuple, centre + (points - centre) * factor)))
+
+    def moved_vertices(self, indices, delta) -> 'EditableVolumeGate':
+        """Displace each selected shared vertex once and validate the new boundary.
+
+        :param indices: vertex indices; repeated indices are deduplicated.
+        :param delta: displacement along each of the three data axes.
+        :raises GateError: on invalid indices, nonfinite motion or invalid geometry.
+        """
+        raw_indices = np.asarray(sorted(set(indices)))
+        try:
+            selected = raw_indices.astype(int)
+        except (ValueError, TypeError, OverflowError) as exc:
+            raise GateError(tr("Volume vertex indices must be integers.")) from exc
+        if not np.array_equal(raw_indices, selected):
+            raise GateError(tr("Volume vertex indices must be integers."))
+        movement = np.asarray(delta, dtype=float)
+        if movement.shape != (3,) or not np.isfinite(movement).all() or np.any(selected < 0) or np.any(selected >= len(self.vertices)):
+            raise GateError(tr("Volume motion needs existing vertices and a finite three-axis displacement."))
+        points = np.asarray(self.vertices).copy()
+        points[selected] += movement
+        return replace(self, vertices=tuple(map(tuple, points)))
+
+    def moved_surfaces(self, groups, delta) -> 'EditableVolumeGate':
+        """Move selected surfaces and their shared anchors once, maintaining connectivity.
+
+        :param groups: existing surface identifiers; repetitions have no effect.
+        :param delta: displacement in the three measurement dimensions.
+        """
+        selected = set(groups)
+        if not selected <= set(self.surface_groups):
+            raise GateError(tr("A selected volume surface does not exist."))
+        indices = {i for face, group in zip(self.faces, self.surface_groups) if group in selected for i in face}
+        return self.moved_vertices(indices, delta)
+
+    @classmethod
+    def from_gate(cls, gate: Gate, limits=None, *, segments: int = 32,
+                  depth_steps: int = 4) -> 'EditableVolumeGate':
+        """Make a shared boundary for a box, cylinder, prism, ellipsoid or view gate.
+
+        Curved surfaces become an explicitly piecewise-linear boundary when
+        edited; the original analytic gate remains unchanged until commit.
+
+        :param gate: the existing three-dimensional gate and its hierarchy.
+        :param limits: finite axis bounds used only for an unbounded original
+            side or a view gate's finite depth, in ``gate.columns`` order.
+            Omitting required bounds is refused. A view gate is bounded at the
+            nearest and farthest projected depths of these limits when edited.
+        :param segments: circumference samples for curved shapes, 8 to 128.
+        :param depth_steps: evenly spaced axial intervals, 1 to 16.
+        :returns: the closed volume with shared selectable surfaces.
+        """
+        if isinstance(gate, cls):
+            return gate
+        segments, depth_steps = int(segments), int(depth_steps)
+        if not 8 <= segments <= 128 or not 1 <= depth_steps <= 16:
+            raise GateError(tr("Volume sampling needs 8 to 128 circumference samples and 1 to 16 depth intervals."))
+        columns = gate.columns
+        if len(columns) != 3:
+            raise GateError(tr("Only a three-dimensional gate can become an editable volume."))
+        bounds = tuple(limits) if limits is not None else ()
+        def bound(value, axis, side):
+            """Resolve one explicit bound without inventing an unseen extent."""
+            if value is not None:
+                return float(value)
+            if len(bounds) != 3:
+                raise GateError(tr("An unbounded gate needs explicit finite view limits before editing its volume."))
+            return float(bounds[axis][side])
+        vertices, faces, groups = [], [], []
+        if isinstance(gate, BoxGate):
+            pairs = [(bound(getattr(gate, f'{prefix}_low'), axis, 0), bound(getattr(gate, f'{prefix}_high'), axis, 1)) for axis, prefix in enumerate(('x', 'y', 'z'))]
+            vertices = [(x, y, z) for z in pairs[2] for y in pairs[1] for x in pairs[0]]
+            quads = [(0, 2, 3, 1), (4, 5, 7, 6), (0, 1, 5, 4), (2, 6, 7, 3), (0, 4, 6, 2), (1, 3, 7, 5)]
+            for group, (a, b, c, d) in enumerate(quads):
+                faces.extend([(a, b, c), (a, c, d)])
+                groups.extend([group, group])
+        elif isinstance(gate, (CylinderGate, PrismGate)):
+            if isinstance(gate, CylinderGate):
+                theta = np.linspace(0, 2 * np.pi, segments, endpoint=False)
+                footprint = [(gate.u_centre + gate.u_radius * float(np.cos(t)), gate.v_centre + gate.v_radius * float(np.sin(t))) for t in theta]
+            else:
+                footprint = list(gate.vertices)
+            planar = np.asarray(footprint, dtype=float)
+            spans = np.ptp(planar, axis=0)
+            if np.any(spans <= 0) or not np.isfinite(planar).all():
+                raise GateError(tr("The volume footprint must have finite nonzero extent on both axes."))
+            planar = (planar - planar.min(axis=0)) / spans
+            area = sum(planar[i][0] * planar[(i + 1) % len(footprint)][1] - planar[(i + 1) % len(footprint)][0] * planar[i][1] for i in range(len(footprint)))
+            if area < 0:
+                footprint.reverse()
+            cap = _triangulate_volume_cap(footprint)
+            count = len(footprint)
+            heights = np.linspace(bound(gate.axis_low, 2, 0), bound(gate.axis_high, 2, 1), depth_steps + 1)
+            vertices = [(u, v, float(z)) for z in heights for u, v in footprint]
+            for layer in range(depth_steps):
+                for i in range(count):
+                    a, b = layer * count + i, layer * count + (i + 1) % count
+                    faces.extend([(a, b, b + count), (a, b + count, a + count)])
+                    groups.extend([layer * count + i] * 2)
+            for triangle in cap:
+                faces.append(tuple(reversed(triangle)))
+                groups.append(depth_steps * count)
+                faces.append(tuple(i + depth_steps * count for i in triangle))
+                groups.append(depth_steps * count + 1)
+        elif isinstance(gate, _EllipsoidGate):
+            centre = np.asarray([gate.x_centre, gate.y_centre, gate.z_centre])
+            radii = np.asarray([gate.x_radius, gate.y_radius, gate.z_radius])
+            vertices = [tuple(centre + radii * (0, 0, -1))]
+            for z in np.linspace(-1, 1, depth_steps + 3)[1:-1]:
+                radial = np.sqrt(1 - z * z)
+                for angle in np.linspace(0, 2 * np.pi, segments, endpoint=False):
+                    vertices.append(tuple(centre + radii * (radial * np.cos(angle), radial * np.sin(angle), z)))
+            top = len(vertices)
+            vertices.append(tuple(centre + radii * (0, 0, 1)))
+            rings = depth_steps + 1
+            for i in range(segments):
+                j = (i + 1) % segments
+                faces.extend([(0, 1 + j, 1 + i), (top, 1 + (rings - 1) * segments + i, 1 + (rings - 1) * segments + j)])
+                groups.extend([0, 1])
+            for layer in range(rings - 1):
+                for i in range(segments):
+                    a, b = 1 + layer * segments + i, 1 + layer * segments + (i + 1) % segments
+                    faces.extend([(a, b, b + segments), (a, b + segments, a + segments)])
+                    groups.extend([2 + layer * segments + i] * 2)
+        elif isinstance(gate, ViewGate):
+            if len(bounds) != 3 or np.asarray(bounds).shape != (3, 2) or not np.isfinite(bounds).all() or any(hi <= lo for lo, hi in bounds):
+                raise GateError(tr("A view-drawn volume needs finite increasing view limits before editing."))
+            matrix = np.asarray(gate.projection, dtype=float)
+            corners = np.asarray([(x, y, z, 1.) for x in bounds[0] for y in bounds[1] for z in bounds[2]])
+            projected = corners @ matrix.T
+            if np.any(projected[:, 3] <= 0):
+                raise GateError(tr("The editable view volume must remain in front of its camera."))
+            depths = projected[:, 2] / projected[:, 3]
+            if not np.isfinite(depths).all() or np.ptp(depths) <= 0:
+                raise GateError(tr("The view camera has no finite editable depth."))
+            footprint = list(gate.vertices)
+            _validate_edited_polygon(footprint)
+            planar = np.asarray(footprint)
+            if sum(planar[i, 0] * planar[(i + 1) % len(planar), 1] - planar[(i + 1) % len(planar), 0] * planar[i, 1] for i in range(len(planar))) < 0:
+                footprint.reverse()
+            cap = _triangulate_volume_cap(footprint)
+            rings = []
+            for depth in (float(depths.min()), float(depths.max())):
+                ring = []
+                for x, y in footprint:
+                    system = np.vstack((matrix[0] - x * matrix[3], matrix[1] - y * matrix[3], matrix[2] - depth * matrix[3]))
+                    try:
+                        point = np.linalg.solve(system[:, :3], -system[:, 3])
+                    except np.linalg.LinAlgError as exc:
+                        raise GateError(tr("The view camera cannot resolve an editable volume boundary.")) from exc
+                    if not np.isfinite(point).all() or matrix[3] @ np.append(point, 1.) <= 0:
+                        raise GateError(tr("The editable view boundary must stay finite and in front of its camera."))
+                    ring.append(point)
+                rings.append(np.asarray(ring))
+            count = len(footprint)
+            vertices = [tuple(point) for fraction in np.linspace(0, 1, depth_steps + 1) for point in rings[0] + fraction * (rings[1] - rings[0])]
+            for layer in range(depth_steps):
+                for i in range(count):
+                    a, b = layer * count + i, layer * count + (i + 1) % count
+                    faces.extend([(a, b, b + count), (a, b + count, a + count)])
+                    groups.extend([layer * count + i] * 2)
+            for triangle in cap:
+                faces.extend([tuple(reversed(triangle)), tuple(i + depth_steps * count for i in triangle)])
+                groups.extend([depth_steps * count, depth_steps * count + 1])
+        else:
+            raise GateError(tr("This gate has no supported finite editable volume boundary."))
+        return cls(name=gate.name, parent=gate.parent, x_column=columns[0],
+                   y_column=columns[1], z_column=columns[2], vertices=tuple(vertices),
+                   faces=tuple(faces), surface_groups=tuple(groups))
+
+    def anchors(self, density: int = 2) -> Tuple[VolumeAnchor, ...]:
+        """Sample every surface and edge with uniformly spaced barycentric anchors.
+
+        Density changes only visible editing handles, never scientific geometry.
+        Shared edges and vertices expose one canonical handle.
+
+        :param density: subdivisions per triangle edge, 1 to 8.
+        :returns: unique anchors in deterministic surface order.
+        """
+        density = int(density)
+        if not 1 <= density <= 8:
+            raise GateError(tr("Anchor density must be between 1 and 8."))
+        points = np.asarray(self.vertices)
+        anchors = {}
+        for face in self.faces:
+            for a in range(density + 1):
+                for b in range(density + 1 - a):
+                    weights = sorted((int(index), weight) for index, weight in zip(face, (a, b, density - a - b)) if weight)
+                    divisor = int(np.gcd.reduce([weight for _, weight in weights]))
+                    weights = [(index, weight // divisor) for index, weight in weights]
+                    role = 'anchor:' + ','.join(f'{index}:{weight}' for index, weight in weights)
+                    if role not in anchors:
+                        point = sum(points[index] * weight for index, weight in weights) / sum(weight for _, weight in weights)
+                        anchors[role] = VolumeAnchor(tuple(float(v) for v in point), role)
+        return tuple(anchors.values())
+
+    def with_anchor(self, role: str, point) -> 'EditableVolumeGate':
+        """Move an existing vertex or insert and move an edge/surface anchor.
+
+        Inserting an edge anchor splits every incident triangle together, so no
+        crack appears between surfaces. Repeated editing never changes columns.
+
+        :param role: canonical role returned by :meth:`anchors`.
+        :param point: target coordinate in the three measurement dimensions.
+        :raises GateError: invalid roles, nonfinite targets or invalid deformations.
+        """
+        try:
+            if not role.startswith('anchor:'):
+                raise ValueError
+            weights = [tuple(map(int, item.split(':'))) for item in role[7:].split(',')]
+            indices = {index for index, weight in weights}
+            if len(indices) != len(weights) or not 1 <= len(weights) <= 3 or any(index < 0 or index >= len(self.vertices) or weight <= 0 for index, weight in weights):
+                raise ValueError
+            if not any(indices <= set(face) for face in self.faces):
+                raise ValueError
+        except (ValueError, TypeError) as exc:
+            raise GateError(tr("The selected volume anchor does not exist.")) from exc
+        target = np.asarray(point, dtype=float)
+        if target.shape != (3,) or not np.isfinite(target).all():
+            raise GateError(tr("A volume anchor needs three finite coordinates."))
+        if len(weights) == 1:
+            old = self.vertices[weights[0][0]]
+            return self.moved_vertices(indices, target - old)
+        vertices = list(self.vertices) + [tuple(target)]
+        new_index = len(self.vertices)
+        faces, groups = [], []
+        for face, group in zip(self.faces, self.surface_groups):
+            if not indices <= set(face):
+                faces.append(face)
+                groups.append(group)
+                continue
+            if len(weights) == 3:
+                additions = [(face[i], face[(i + 1) % 3], new_index) for i in range(3)]
+            else:
+                position = next(i for i in range(3) if {face[i], face[(i + 1) % 3]} == indices)
+                a, b, c = (face[(position + i) % 3] for i in range(3))
+                additions = [(a, new_index, c), (new_index, b, c)]
+            faces.extend(additions)
+            groups.extend([group] * len(additions))
+        return replace(self, vertices=tuple(vertices), faces=tuple(faces), surface_groups=tuple(groups))
+
+    def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Test measured points against this same closed mesh using signed solid angles.
+
+        Boundary points are included. Nonfinite measurements are excluded. Work
+        is bounded to 4096 points per triangle without allocating a voxel volume.
+
+        :param frame: measurements containing all three gate columns.
+        :returns: one boolean per row in the original order.
+        """
+        points = np.column_stack([_numeric(frame, column, f"gate {self.name!r}") for column in self.columns])
+        vertices = np.asarray(self.vertices)
+        origin, scale = vertices.min(axis=0), np.ptp(vertices, axis=0)
+        vertices = (vertices - origin) / scale
+        points = (points - origin) / scale
+        result = np.zeros(len(points), dtype=bool)
+        eligible = np.flatnonzero(np.isfinite(points).all(axis=1) & np.all(points >= -1e-10, axis=1) & np.all(points <= 1 + 1e-10, axis=1))
+        for start in range(0, len(eligible), 4096):
+            indices = eligible[start:start + 4096]
+            tested = points[indices]
+            angles = np.zeros(len(indices))
+            boundary = np.zeros(len(indices), dtype=bool)
+            for face in self.faces:
+                triangle = vertices[list(face)]
+                a, b, c = (triangle[i] - tested for i in range(3))
+                lengths = [np.linalg.norm(value, axis=1) for value in (a, b, c)]
+                determinant = np.einsum('ij,ij->i', a, np.cross(b, c))
+                denominator = lengths[0] * lengths[1] * lengths[2]
+                denominator += np.einsum('ij,ij->i', a, b) * lengths[2]
+                denominator += np.einsum('ij,ij->i', b, c) * lengths[0]
+                denominator += np.einsum('ij,ij->i', c, a) * lengths[1]
+                angles += 2 * np.arctan2(determinant, denominator)
+                u, v = triangle[1] - triangle[0], triangle[2] - triangle[0]
+                normal = np.cross(u, v)
+                projected = tested - triangle[0]
+                uu, uv, vv = float(u @ u), float(u @ v), float(v @ v)
+                wu, wv = projected @ u, projected @ v
+                divisor = float(normal @ normal)
+                s, t = (vv * wu - uv * wv) / divisor, (uu * wv - uv * wu) / divisor
+                boundary |= (np.abs(projected @ normal) <= 1e-10 * np.linalg.norm(normal)) & (s >= -1e-10) & (t >= -1e-10) & (s + t <= 1 + 1e-10)
+            result[indices] = boundary | (np.abs(angles) > 2 * np.pi)
+        return result
+
+
+
+_GATE_CLASSES['editable_volume'] = EditableVolumeGate
 
 
 @dataclass(frozen=True)

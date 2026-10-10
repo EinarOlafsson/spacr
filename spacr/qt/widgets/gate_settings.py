@@ -37,6 +37,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..theme import SPACING
+from ..i18n import tr
 from .toggle import Toggle
 
 #: Colour maps offered for the density/colour axis. Perceptually uniform ones
@@ -88,6 +89,10 @@ class GateEditorSettings:
     Frozen: settings are replaced wholesale rather than mutated, so a screen
     can compare what it has against what it is given and re-read the table
     only when something that actually costs a read has changed.
+
+    :param anchor_density: edge subdivisions for visible editing anchors,
+        from 1 to 8; this never changes a gate's stored geometry.
+    :param show_anchors: show and enable editable boundary anchors.
     """
 
     #: Fraction of the table loaded, in (0, 1]. The lag fix: gates are drawn
@@ -203,6 +208,8 @@ class GateEditorSettings:
     #: name. A default that is right most of the time is a wrong answer nobody
     #: can find the rest of the time, so every one of them is overridable.
     merge_overrides: Mapping[str, str] = None
+    anchor_density: int = 2
+    show_anchors: bool = True
 
     def __post_init__(self) -> None:
         """Normalise the mode and freeze the mutable defaults.
@@ -212,6 +219,15 @@ class GateEditorSettings:
         precisely so the 3D view had one -- so it becomes 3D with the projection
         turned on.
         """
+        try:
+            density = int(self.anchor_density)
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError(tr("Anchor density must be between 1 and 8.")) from exc
+        if isinstance(self.anchor_density, bool) or density != self.anchor_density or not 1 <= density <= 8:
+            raise ValueError(tr("Anchor density must be between 1 and 8."))
+        object.__setattr__(self, 'anchor_density', density)
+        if not isinstance(self.show_anchors, bool):
+            raise ValueError(tr("Anchor visibility must be true or false."))
         if str(self.gate_mode).strip().lower() == "xd":
             object.__setattr__(self, "gate_mode", "3D")
             object.__setattr__(self, "xd_projection", True)
@@ -459,6 +475,19 @@ class GateSettingsDialog(QDialog):
         self._highlight.toggled.connect(
             lambda v: self._change(highlight_gated=bool(v)))
         form.addRow("", self._highlight)
+
+        self._anchor_density = QSpinBox(page)
+        self._anchor_density.setObjectName("GateAnchorDensity")
+        self._anchor_density.setRange(1, 8)
+        self._anchor_density.setValue(self._settings.anchor_density)
+        self._anchor_density.setToolTip(tr("Evenly subdivide gate edges and surfaces into editable anchors. Density changes handles, not the gate's geometry or membership."))
+        self._anchor_density.valueChanged.connect(lambda value: self._change(anchor_density=int(value)))
+        form.addRow(tr("Anchor density"), self._anchor_density)
+        self._show_anchors = Toggle(tr("Show gate anchors"), page)
+        self._show_anchors.setObjectName("GateAnchorVisibility")
+        self._show_anchors.setChecked(self._settings.show_anchors)
+        self._show_anchors.toggled.connect(lambda checked: self._change(show_anchors=bool(checked)))
+        form.addRow("", self._show_anchors)
 
         self._merge_boxes: Dict[str, Toggle] = {}
         merge_note = QLabel(

@@ -1344,6 +1344,14 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             the search panel.
         """
         previous, self._settings = self._settings, settings
+        if self._settings_dialog is not None:
+            self._settings_dialog._settings = settings
+            for control, value, setter in ((self._settings_dialog._anchor_density, settings.anchor_density, 'setValue'), (self._settings_dialog._show_anchors, settings.show_anchors, 'setChecked')):
+                blocked = control.blockSignals(True)
+                try:
+                    getattr(control, setter)(value)
+                finally:
+                    control.blockSignals(blocked)
         self.gates.apply_settings(settings)
         self.search.apply_settings(settings)
         if previous.costs_a_reload(settings) and self._path:
@@ -2092,10 +2100,14 @@ class GateEditorScreen(DerivedTableSource, QWidget):
     def save_gates(self, path: str) -> str:
         """Write the gating strategy to ``path``.
 
+        Edited volume vertices and surfaces are saved with the anchor density
+        and visibility controls; display settings do not approximate membership.
+
         :param path: the file to write the gating strategy to, as JSON; an
             existing file is overwritten.
         """
         payload = self.gates.gates.to_dict()
+        payload['editor_controls'] = {'anchor_density': self._settings.anchor_density, 'show_anchors': self._settings.show_anchors}
         if self._merge_definition:
             payload["merge_definition"] = self._merge_definition
         Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
@@ -2121,6 +2133,9 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         and reports the problem: the gates are still there to look at and fix,
         which is more use than refusing the file.
 
+        Saved anchor density and visibility are restored without resampling
+        any edited boundary. Older files keep the current editor controls.
+
         :param path: a JSON gate file written by :meth:`save_gates`. A file
             that cannot be read is reported on the source line and gives False.
         """
@@ -2128,6 +2143,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             payload = json.loads(Path(path).read_text(encoding="utf-8"))
             definition = payload.get("merge_definition")
             loaded_gates = GateSet.from_dict(payload)
+            controls = payload.get('editor_controls', {})
+            if not isinstance(controls, dict) or set(controls) - {'anchor_density', 'show_anchors'}:
+                raise GateError(tr("Saved anchor controls are invalid."))
+            edited_settings = self._settings.replaced(**controls)
             if definition:
                 from ...derived_tables import execute, save_definition
                 if not self._path:
@@ -2148,6 +2167,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             self._gate_strategy_path = str(Path(path).resolve())
             try:
                 self.gates.set_gates(loaded_gates)
+                self.apply_settings(edited_settings)
             except Exception:
                 self._gate_strategy_path = previous_strategy
                 raise

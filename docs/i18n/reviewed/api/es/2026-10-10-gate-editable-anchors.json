@@ -1,0 +1,461 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "Saved anchor density and visibility are restored without resampling any edited boundary. Older files keep the current editor controls.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#2",
+      "source": "Saved anchor density and visibility are restored without resampling any edited boundary. Older files keep the current editor controls.",
+      "source_sha256": "34fa1e10dee26acfe23a29d297fadd3b431e73a094f1901541668d13bb7ec1e9",
+      "translation": "La densidad y la visibilidad de las anclas guardadas se restauran sin remuestrear ningún contorno editado. Los archivos antiguos conservan los controles actuales del editor."
+    },
+    {
+      "context": "Edited volume vertices and surfaces are saved with the anchor density and visibility controls; display settings do not approximate membership.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#1",
+      "source": "Edited volume vertices and surfaces are saved with the anchor density and visibility controls; display settings do not approximate membership.",
+      "source_sha256": "a6ee952b06cac5711c98a5f0acdac0baa38b44a89ed1c8696c0d799b8304337f",
+      "translation": "Los vértices y superficies de volumen editados se guardan con los controles de densidad y visibilidad de las anclas; los ajustes de visualización no aproximan la pertenencia."
+    },
+    {
+      "context": "What dragging does right now: spin, draw or edit a volume boundary.",
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.drag_mode#0",
+      "source": "What dragging does right now: spin, draw or edit a volume boundary.",
+      "source_sha256": "771f724dc10b0f24290acafb37e7c02b6e3d8f0e81867990371cccbbc213e296",
+      "translation": "Lo que hace el arrastre en este momento: girar, dibujar o editar un contorno de volumen."
+    },
+    {
+      "context": "Choose rotation, drawing or explicit boundary editing.",
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.set_drag_mode#0",
+      "source": "Choose rotation, drawing or explicit boundary editing.",
+      "source_sha256": "b4a1ec9cb84f3bed093421e4fa2e6b8532038205ee6531df838ea609051f330b",
+      "translation": "Elige rotación, dibujo o edición explícita del contorno."
+    },
+    {
+      "context": "``\"spin\"``, ``\"draw\"`` or ``\"edit\"``; anything else is taken as ``\"spin\"``.",
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.set_drag_mode#1",
+      "source": "``\"spin\"``, ``\"draw\"`` or ``\"edit\"``; anything else is taken as ``\"spin\"``.",
+      "source_sha256": "cd939610e6e23121b7d651d53febacf22f0d33b7e332b544a794fa1a4dfe1e15",
+      "translation": "``\"spin\"``, ``\"draw\"`` o ``\"edit\"``; cualquier otro valor se interpreta como ``\"spin\"``."
+    },
+    {
+      "context": "Pick the nearest actual boundary triangle after camera rotation.",
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.volume_surface_at#0",
+      "source": "Pick the nearest actual boundary triangle after camera rotation.",
+      "source_sha256": "fe2912b61c576e62ce53d074f2a7920cb2a225914ce07754e4e47b9a2ce66553",
+      "translation": "Selecciona el triángulo de contorno real más cercano tras la rotación de la cámara."
+    },
+    {
+      "context": "a Matplotlib pointer event in the current volume axes.",
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.volume_surface_at#1",
+      "source": "a Matplotlib pointer event in the current volume axes.",
+      "source_sha256": "08ec8f5dee1b52460afb805705f35d457e22b8aa5b8fa2d91ebf8b7370b28324",
+      "translation": "un evento de puntero de Matplotlib en los ejes de volumen actuales."
+    },
+    {
+      "context": "``(gate name, surface identifier)`` or ``None``.",
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.volume_surface_at#2",
+      "source": "``(gate name, surface identifier)`` or ``None``.",
+      "source_sha256": "15080cab25dd2ac3be85be430723f613ccb53ddb364a6b33a64c20433b2d7df1",
+      "translation": "``(gate name, surface identifier)`` o ``None``."
+    },
+    {
+      "context": "edge subdivisions for visible editing anchors, from 1 to 8; this never changes a data-selection boundary's stored geometry.",
+      "label": "spacr.qt.widgets.gate_settings.GateEditorSettings#2",
+      "source": "edge subdivisions for visible editing anchors, from 1 to 8; this never changes a gate's stored geometry.",
+      "source_sha256": "0392f929b7d8e5e94febc38f7634dabc723a744c28571c17f0d4e721cf3cc207",
+      "translation": "subdivisiones de arista para las anclas de edición visibles, de 1 a 8; esto nunca modifica la geometría almacenada de una región de selección."
+    },
+    {
+      "context": "show and enable editable boundary anchors.",
+      "label": "spacr.qt.widgets.gate_settings.GateEditorSettings#3",
+      "source": "show and enable editable boundary anchors.",
+      "source_sha256": "e2663e64e02425e3ad91b027c9e7fd5bc521ebcb396b78b68cf717b8b51fbbc7",
+      "translation": "muestra y habilita las anclas de contorno editables."
+    },
+    {
+      "context": "A closed editable piecewise-linear volume used by both drawing and data-selection filtering.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate#0",
+      "source": "A closed editable piecewise-linear volume used by both drawing and gating.",
+      "source_sha256": "d3eaf9d2ba2da3d5fd403d7c45fc022b870939f961649b4b29d7700a1b725b80",
+      "translation": "Un volumen lineal a trozos, cerrado y editable, usado tanto para dibujar como para la selección por regiones."
+    },
+    {
+      "context": "unique data-selection boundary name used by the data-selection filtering hierarchy.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate#1",
+      "source": "unique gate name used by the gating hierarchy.",
+      "source_sha256": "cf6b9b1b5338d84ab511ad6e588f4d4e5ebbc2b0675575b18631c554ef548316",
+      "translation": "nombre único de la región de selección usado por la jerarquía de selección."
+    },
+    {
+      "context": "optional parent data-selection boundary restricting this volume's membership.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate#2",
+      "source": "optional parent gate restricting this volume's membership.",
+      "source_sha256": "bce3be498f079e73a75c43601594272f7475ffc6777769dc8427dd65de05ce38",
+      "translation": "región de selección principal opcional que restringe la pertenencia a este volumen."
+    },
+    {
+      "context": "measurement along the first data axis.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate#3",
+      "source": "measurement along the first data axis.",
+      "source_sha256": "65d0dbbdb282489670f00f9b7359ca850fc4ff4338b1876f248103fb9b92404e",
+      "translation": "medida a lo largo del primer eje de datos."
+    },
+    {
+      "context": "measurement along the second data axis.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate#4",
+      "source": "measurement along the second data axis.",
+      "source_sha256": "63b3e43319369f5194df5def73606f5531f712e14b9efdb4222d1fb7dadfde2b",
+      "translation": "medida a lo largo del segundo eje de datos."
+    },
+    {
+      "context": "measurement along the third data axis.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate#5",
+      "source": "measurement along the third data axis.",
+      "source_sha256": "10145730e02194e0130bf84de5d453301b632e8a99d3ade4925507f186af0f46",
+      "translation": "medida a lo largo del tercer eje de datos."
+    },
+    {
+      "context": "finite distinct three-dimensional boundary coordinates.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate#6",
+      "source": "finite distinct three-dimensional boundary coordinates.",
+      "source_sha256": "a01f870875a5596fa823a5df546789d6bea2cc80a6a43d628933d15e05104801",
+      "translation": "coordenadas de contorno tridimensionales finitas y distintas."
+    },
+    {
+      "context": "consistently oriented triangles indexing shared vertices.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate#7",
+      "source": "consistently oriented triangles indexing shared vertices.",
+      "source_sha256": "2dc750cfd420a9e33763bfb5c4256d1c1f99b4aeb96d4371980b23436f52c021",
+      "translation": "triángulos con orientación coherente que indexan vértices compartidos."
+    },
+    {
+      "context": "selectable surface identifier for each triangle; triangles in one group move together. Empty assigns one group per triangle.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate#8",
+      "source": "selectable surface identifier for each triangle; triangles in one group move together. Empty assigns one group per triangle.",
+      "source_sha256": "caa2ca217306daac2dce7ec77fe96d110f96ede3b9d6efa61e313b5cd8efc604",
+      "translation": "identificador de superficie seleccionable para cada triángulo; los triángulos de un mismo grupo se mueven juntos. Si está vacío, se asigna un grupo por triángulo."
+    },
+    {
+      "context": "Freeze and validate every coordinate, boundary connection and surface.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__#0",
+      "source": "Freeze and validate every coordinate, boundary connection and surface.",
+      "source_sha256": "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5",
+      "translation": "Congela y valida cada coordenada, conexión de contorno y superficie."
+    },
+    {
+      "context": "Sample every surface and edge with uniformly spaced barycentric anchors.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.anchors#0",
+      "source": "Sample every surface and edge with uniformly spaced barycentric anchors.",
+      "source_sha256": "4592c53591117b9d62bceafb8da41032f1a77300da61250d566d9f3302c2cdb4",
+      "translation": "Muestrea cada superficie y arista con anclas baricéntricas espaciadas uniformemente."
+    },
+    {
+      "context": "Density changes only visible editing handles, never scientific geometry. Shared edges and vertices expose one canonical handle.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.anchors#1",
+      "source": "Density changes only visible editing handles, never scientific geometry. Shared edges and vertices expose one canonical handle.",
+      "source_sha256": "bf907558691f231110b8e06ef0fe4df6f11ba0e93ecd112ba3bd2ea09bc5542d",
+      "translation": "La densidad solo cambia los controladores de edición visibles, nunca la geometría científica. Las aristas y vértices compartidos exponen un único controlador canónico."
+    },
+    {
+      "context": "subdivisions per triangle edge, 1 to 8.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.anchors#2",
+      "source": "subdivisions per triangle edge, 1 to 8.",
+      "source_sha256": "330a9ba2899bfd70be150747c43290da6cf0b875a05ee5b3e937d624b3d01f31",
+      "translation": "subdivisiones por arista de triángulo, de 1 a 8."
+    },
+    {
+      "context": "unique anchors in deterministic surface order.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.anchors#3",
+      "source": "unique anchors in deterministic surface order.",
+      "source_sha256": "224954b10e0b10cc4393c8764c5077f449536bf39b8b995be59af53a70dcbac5",
+      "translation": "anclas únicas en un orden de superficies determinista."
+    },
+    {
+      "context": "Return the first two components of the vertex centroid for flat tools.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.centre#0",
+      "source": "Return the first two components of the vertex centroid for flat tools.",
+      "source_sha256": "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd",
+      "translation": "Devuelve los dos primeros componentes del centroide de los vértices para herramientas planas."
+    },
+    {
+      "context": "The measurement columns matching every vertex coordinate.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.columns#0",
+      "source": "The measurement columns matching every vertex coordinate.",
+      "source_sha256": "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292",
+      "translation": "Las columnas de medida que corresponden a cada coordenada de vértice."
+    },
+    {
+      "context": "Describe the measurements and the actual editable boundary size.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.describe#0",
+      "source": "Describe the measurements and the actual editable boundary size.",
+      "source_sha256": "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120",
+      "translation": "Describe las medidas y el tamaño real del contorno editable."
+    },
+    {
+      "context": "Make a shared boundary for a box, cylinder, prism, ellipsoid or view data-selection boundary.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate#0",
+      "source": "Make a shared boundary for a box, cylinder, prism, ellipsoid or view gate.",
+      "source_sha256": "796315c2ee87d6a070d059499e4efa5d78477963dea17485d45734f914048aa4",
+      "translation": "Crea un contorno compartido para una región de selección de caja, cilindro, prisma, elipsoide o vista."
+    },
+    {
+      "context": "Curved surfaces become an explicitly piecewise-linear boundary when edited; the original analytic data-selection boundary remains unchanged until commit.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate#1",
+      "source": "Curved surfaces become an explicitly piecewise-linear boundary when edited; the original analytic gate remains unchanged until commit.",
+      "source_sha256": "ebf7a797869a243e20cbdbbd065f2e63e5879422594d2d8a4e8ca6853e621631",
+      "translation": "Las superficies curvas se convierten en un contorno explícitamente lineal a trozos al editarse; la región de selección analítica original no cambia hasta la confirmación."
+    },
+    {
+      "context": "the existing three-dimensional data-selection boundary and its hierarchy.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate#2",
+      "source": "the existing three-dimensional gate and its hierarchy.",
+      "source_sha256": "759a80ed5e9a6783b50bc9aede35ee8258b6de94daa1fe10777162afa1398b7e",
+      "translation": "la región de selección tridimensional existente y su jerarquía."
+    },
+    {
+      "context": "finite axis bounds used only for an unbounded original side or a view data-selection boundary's finite depth, in ``gate.columns`` order. Omitting required bounds is refused. A view data-selection boundary is bounded at the nearest and farthest projected depths of these limits when edited.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate#3",
+      "source": "finite axis bounds used only for an unbounded original side or a view gate's finite depth, in ``gate.columns`` order. Omitting required bounds is refused. A view gate is bounded at the nearest and farthest projected depths of these limits when edited.",
+      "source_sha256": "2d5b8b09260252da838bde97b6919dfa09719b8be081dd68159ccd666a9e9c15",
+      "translation": "límites finitos de los ejes usados solo para un lado original no acotado o para la profundidad finita de una región de selección de vista, en el orden de ``gate.columns``. Se rechaza la omisión de límites obligatorios. Al editarse, una región de selección de vista queda acotada en las profundidades proyectadas más cercana y más lejana de estos límites."
+    },
+    {
+      "context": "circumference samples for curved shapes, 8 to 128.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate#4",
+      "source": "circumference samples for curved shapes, 8 to 128.",
+      "source_sha256": "bacafe906a8acc4ea6f6894322140671dbcb1d03b1415e3fcdfe381e272efc62",
+      "translation": "muestras de circunferencia para formas curvas, de 8 a 128."
+    },
+    {
+      "context": "evenly spaced axial intervals, 1 to 16.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate#5",
+      "source": "evenly spaced axial intervals, 1 to 16.",
+      "source_sha256": "4a3de99a5e7b70d843ee73883efe7a4c9a5f65613c9e060e7255220106177dce",
+      "translation": "intervalos axiales espaciados uniformemente, de 1 a 16."
+    },
+    {
+      "context": "the closed volume with shared selectable surfaces.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate#6",
+      "source": "the closed volume with shared selectable surfaces.",
+      "source_sha256": "2c225b8dcd41961241e1182c42f71e6c9da30ed60ab78c76f8e671f8da3dc96d",
+      "translation": "el volumen cerrado con superficies seleccionables compartidas."
+    },
+    {
+      "context": "Resolve one explicit bound without inventing an unseen extent.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate.bound#0",
+      "source": "Resolve one explicit bound without inventing an unseen extent.",
+      "source_sha256": "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a",
+      "translation": "Resuelve un límite explícito sin inventar una extensión no observada."
+    },
+    {
+      "context": "The persisted editable-volume tag.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.kind#0",
+      "source": "The persisted editable-volume tag.",
+      "source_sha256": "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30",
+      "translation": "La etiqueta persistente del volumen editable."
+    },
+    {
+      "context": "Test measured points against this same closed mesh using signed solid angles.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.mask#0",
+      "source": "Test measured points against this same closed mesh using signed solid angles.",
+      "source_sha256": "6913cd31a980e4f6fb5b0ba482416e5a4c63b75072c52ffaed0c6acf8a062736",
+      "translation": "Evalúa los puntos medidos frente a esta misma malla cerrada mediante ángulos sólidos con signo."
+    },
+    {
+      "context": "Boundary points are included. Nonfinite measurements are excluded. Work is bounded to 4096 points per triangle without allocating a voxel volume.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.mask#1",
+      "source": "Boundary points are included. Nonfinite measurements are excluded. Work is bounded to 4096 points per triangle without allocating a voxel volume.",
+      "source_sha256": "d420fba8d94ab646e67e6a20f83095062c6428054733b3f4841448cf0c30d855",
+      "translation": "Los puntos del contorno se incluyen. Las medidas no finitas se excluyen. El trabajo se limita a 4096 puntos por triángulo sin asignar un volumen de vóxeles."
+    },
+    {
+      "context": "measurements containing all three data-selection boundary columns.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.mask#2",
+      "source": "measurements containing all three gate columns.",
+      "source_sha256": "a662071ce78fdf986c832dbd838269c84f351ea2509dca73ffe7ad3d01ee12d3",
+      "translation": "medidas que contienen las tres columnas de la región de selección."
+    },
+    {
+      "context": "one boolean per row in the original order.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.mask#3",
+      "source": "one boolean per row in the original order.",
+      "source_sha256": "d29b21b0e9a0a6752f7e625071d8cec07cf989f129ebabf1429187399842212c",
+      "translation": "un booleano por fila en el orden original."
+    },
+    {
+      "context": "Move selected surfaces and their shared anchors once, maintaining connectivity.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_surfaces#0",
+      "source": "Move selected surfaces and their shared anchors once, maintaining connectivity.",
+      "source_sha256": "8bcca0d928527686ea7f22f2a59a5da960958c7d5f8cfea34e11338cc3b0341d",
+      "translation": "Mueve una sola vez las superficies seleccionadas y sus anclas compartidas, manteniendo la conectividad."
+    },
+    {
+      "context": "existing surface identifiers; repetitions have no effect.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_surfaces#1",
+      "source": "existing surface identifiers; repetitions have no effect.",
+      "source_sha256": "6b991e09d11ce4718eb8426ad9276b1a18d61cdfe00b66f7fcc16ebd18039e6e",
+      "translation": "identificadores de superficie existentes; las repeticiones no tienen efecto."
+    },
+    {
+      "context": "displacement in the three measurement dimensions.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_surfaces#2",
+      "source": "displacement in the three measurement dimensions.",
+      "source_sha256": "7b6ef655f7b5cf6a5052244472dc217fbc01737325f2f55c363e327281b50010",
+      "translation": "desplazamiento en las tres dimensiones de medida."
+    },
+    {
+      "context": "Displace each selected shared vertex once and validate the new boundary.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_vertices#0",
+      "source": "Displace each selected shared vertex once and validate the new boundary.",
+      "source_sha256": "18e201a77cb007f7ce410b508889f53b5d24a0e74f586f4629b75d89ded2824e",
+      "translation": "Desplaza una sola vez cada vértice compartido seleccionado y valida el nuevo contorno."
+    },
+    {
+      "context": "vertex indices; repeated indices are deduplicated.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_vertices#1",
+      "source": "vertex indices; repeated indices are deduplicated.",
+      "source_sha256": "1289cc1d69e56f681d1bd36ebf995e95405269dad1b86bd531911e5747657b0d",
+      "translation": "índices de vértices; los índices repetidos se deduplican."
+    },
+    {
+      "context": "displacement along each of the three data axes.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_vertices#2",
+      "source": "displacement along each of the three data axes.",
+      "source_sha256": "5d4699044f2321ca513029e9d0160061fe7783aca5e16986babd415e48b77d61",
+      "translation": "desplazamiento a lo largo de cada uno de los tres ejes de datos."
+    },
+    {
+      "context": "on invalid indices, nonfinite motion or invalid geometry.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_vertices#3",
+      "source": "on invalid indices, nonfinite motion or invalid geometry.",
+      "source_sha256": "85ad43f9df9d8372f29da956b51a4bdac8fed69a24e3e8bdcba8327b0326c8e6",
+      "translation": "ante índices no válidos, movimiento no finito o geometría no válida."
+    },
+    {
+      "context": "Scale all three dimensions about the centroid or a supplied flat anchor.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.scaled#0",
+      "source": "Scale all three dimensions about the centroid or a supplied flat anchor.",
+      "source_sha256": "6e5c7968429b442c440db9ffd83203f34e70407a13901fd64a03b30ebe1b66ae",
+      "translation": "Escala las tres dimensiones respecto al centroide o a un ancla plana proporcionada."
+    },
+    {
+      "context": "positive finite scale factor.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.scaled#1",
+      "source": "positive finite scale factor.",
+      "source_sha256": "912e37d4a47f12243ed74d26e763d3ec3792a3b5acdf3dc815d2e1edbd62bf2d",
+      "translation": "factor de escala finito positivo."
+    },
+    {
+      "context": "optional first/second-axis centre; depth uses its centroid.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.scaled#2",
+      "source": "optional first/second-axis centre; depth uses its centroid.",
+      "source_sha256": "c01be27f4c847341f7e9c50741cd448a70908dbe67c7e4a0cebfa0ece81e27fd",
+      "translation": "centro opcional del primer/segundo eje; la profundidad usa su centroide."
+    },
+    {
+      "context": "Serialize the exact mesh, grouped surfaces and data-selection boundary hierarchy.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.to_dict#0",
+      "source": "Serialize the exact mesh, grouped surfaces and gate hierarchy.",
+      "source_sha256": "90119b4f94a1f948d3b163d0320ac027af7a781ac389de0090be51f6d107a20e",
+      "translation": "Serializa la malla exacta, las superficies agrupadas y la jerarquía de regiones de selección."
+    },
+    {
+      "context": "Move the first two axes while preserving depth and all shared vertices.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.translated#0",
+      "source": "Move the first two axes while preserving depth and all shared vertices.",
+      "source_sha256": "aead03d2dc2fcca22148340b1ee8d70976e3910412cc0797a6db6211024ab830",
+      "translation": "Mueve los dos primeros ejes conservando la profundidad y todos los vértices compartidos."
+    },
+    {
+      "context": "first-axis displacement in measurement units.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.translated#1",
+      "source": "first-axis displacement in measurement units.",
+      "source_sha256": "d70385d65ca0d5741accb60f324e33116931081f2bd1d76ea38635545c1a125b",
+      "translation": "desplazamiento en el primer eje en unidades de medida."
+    },
+    {
+      "context": "second-axis displacement in measurement units.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.translated#2",
+      "source": "second-axis displacement in measurement units.",
+      "source_sha256": "fba5d4f40ec1479863041501fffbe1f46e5d5515cda7c0789ce511f274cd8681",
+      "translation": "desplazamiento en el segundo eje en unidades de medida."
+    },
+    {
+      "context": "Move an existing vertex or insert and move an edge/surface anchor.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor#0",
+      "source": "Move an existing vertex or insert and move an edge/surface anchor.",
+      "source_sha256": "7b6d12ffc4cb7f7beaaafceb14a6bdc8513cbeb759f2cd37b9da9e3dbba4230d",
+      "translation": "Mueve un vértice existente o inserta y mueve un ancla de arista/superficie."
+    },
+    {
+      "context": "Inserting an edge anchor splits every incident triangle together, so no crack appears between surfaces. Repeated editing never changes columns.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor#1",
+      "source": "Inserting an edge anchor splits every incident triangle together, so no crack appears between surfaces. Repeated editing never changes columns.",
+      "source_sha256": "a52716eceeec9f75808088db0c4b9f688ef3b86daed4a92cd57adb12dc84f1a1",
+      "translation": "Insertar un ancla de arista divide a la vez todos los triángulos incidentes, de modo que no aparece ninguna grieta entre superficies. La edición repetida nunca cambia las columnas."
+    },
+    {
+      "context": "canonical role returned by :meth:`anchors`.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor#2",
+      "source": "canonical role returned by :meth:`anchors`.",
+      "source_sha256": "5bb2ba108ac2fbeafe200390a6342a21508fd1a113cf079bb14f9c43c640a67d",
+      "translation": "rol canónico devuelto por :meth:`anchors`."
+    },
+    {
+      "context": "target coordinate in the three measurement dimensions.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor#3",
+      "source": "target coordinate in the three measurement dimensions.",
+      "source_sha256": "97345f60982fc3cb185079cc8d731babbdb8c9b1d110ca9f0224bcbc2d778b6e",
+      "translation": "coordenada de destino en las tres dimensiones de medida."
+    },
+    {
+      "context": "invalid roles, nonfinite targets or invalid deformations.",
+      "label": "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor#4",
+      "source": "invalid roles, nonfinite targets or invalid deformations.",
+      "source_sha256": "7dd93930a1a4d3180c4098e701731c0d3cf522062ce9fa33246e43591217477b",
+      "translation": "roles no válidos, destinos no finitos o deformaciones no válidas."
+    },
+    {
+      "context": "A boundary point and its stable barycentric editing role.",
+      "label": "spacr.qt.widgets.gate_spec.VolumeAnchor#0",
+      "source": "A boundary point and its stable barycentric editing role.",
+      "source_sha256": "62305811be8b97f47bbc0f631b12081c7b1f5411f1c4f3217159d38588d998cc",
+      "translation": "Un punto del contorno y su rol de edición baricéntrico estable."
+    },
+    {
+      "context": "coordinates in the data-selection boundary's three-column order.",
+      "label": "spacr.qt.widgets.gate_spec.VolumeAnchor#1",
+      "source": "coordinates in the gate's three-column order.",
+      "source_sha256": "5956556497f99476e229178d01fd7dedd1b421303957f1346e6d83347632cba0",
+      "translation": "coordenadas en el orden de tres columnas de la región de selección."
+    },
+    {
+      "context": "canonical vertex/edge/triangle weights consumed by edits.",
+      "label": "spacr.qt.widgets.gate_spec.VolumeAnchor#2",
+      "source": "canonical vertex/edge/triangle weights consumed by edits.",
+      "source_sha256": "55d7d1a93c2639bd6d389f85c3ed5e7192a01f2ee71aa0be71b67f3f11b17eeb",
+      "translation": "pesos canónicos de vértice/arista/triángulo consumidos por las ediciones."
+    },
+    {
+      "context": "The signed area of two planar vectors.",
+      "label": "spacr.qt.widgets.gate_spec._mesh_triangle_contact.cross#0",
+      "source": "The signed area of two planar vectors.",
+      "source_sha256": "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec",
+      "translation": "El área con signo de dos vectores planos."
+    },
+    {
+      "context": "The oriented planar area of one candidate triangle.",
+      "label": "spacr.qt.widgets.gate_spec._triangulate_volume_cap.turn#0",
+      "source": "The oriented planar area of one candidate triangle.",
+      "source_sha256": "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab",
+      "translation": "El área plana orientada de un triángulo candidato."
+    },
+    {
+      "context": "The normalized signed planar area of two edge vectors.",
+      "label": "spacr.qt.widgets.gate_spec._validate_edited_polygon.cross#0",
+      "source": "The normalized signed planar area of two edge vectors.",
+      "source_sha256": "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714",
+      "translation": "El área plana con signo normalizada de dos vectores de arista."
+    }
+  ],
+  "schema": 1
+}
