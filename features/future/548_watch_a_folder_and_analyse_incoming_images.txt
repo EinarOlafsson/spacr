@@ -1186,3 +1186,52 @@ remain open. No improved speed or whole-memory claim; alpha scope unchanged.
         per SIM volume this dominates latency for a busy acquisition.
     Receipt (sources named, local paths removed), runner and per-field QC:
     features/data/548_nd2_live_acceptance_2026-10-10/.
+
+
+2026-10-10 — FOLLOW-UPS FROM THE WORKSTATION ND2 RUN (status unchanged: DONE (alpha))
+    1. Voxel size from the file. Without conversion_map.csv, a z_stack or
+       t_stack watch now takes an unset voxel_size_z_um / voxel_size_xy_um
+       from each field's own metadata: ND2 voxel_size() (only axes the file
+       marks calibrated; Z only with Z planes), CZI Scaling distances (metres;
+       0 = undeclared), LIF image coordinates (metres) and OME-TIFF
+       PhysicalSize* (um, nm, mm, m). X and Y differing by more than 1 % count
+       as undeclared (voxel_size_xy_um assumes square pixels). A value in the
+       settings always wins, per axis; a Measure recipe without its own voxel
+       size takes the field's. The run log prints each field's z/xy values and
+       their source ("ND2 metadata", "settings", "not declared"), and the
+       ledger records them under voxel_size. The start-time anisotropy check
+       is deferred to each field for vendor watches; a field whose file
+       declares nothing and whose settings give nothing fails before analysis
+       with "the file declares no voxel size" (retried on the next start).
+       Helpers: _watch_nd2_voxel, _watch_czi_voxel, _watch_lif_voxel,
+       _watch_tiff_voxel, _watch_field_voxel, _watch_check_field_voxel.
+    2. Volumetric recipe defaults. _watch_vendor_recipe fills, for a vendor
+       z_stack/t_stack watch (no map): z_segmentation_mode='volumetric' when
+       unset or the Make Masks default 'project' (which cannot run such a
+       watch), z_axis=0 for Z, t_axis_order='TZYX' for T-by-Z when no axis
+       is given. Other explicit values (e.g. 'stitch', z_axis=2, 'ZTYX') are
+       kept and the existing check explains them. The log names what was
+       filled. The workstation recipe now needs only z_stack=True.
+    3. Fields stay serial (documented in _watch_folder_and_analyse). The
+       per-field staging itself is private and could run concurrently, but
+       the analysis cannot safely move to worker threads: Stop
+       (cancellation token), pause, GUI log routing, the run journal and the
+       RAM guard are all thread-local, so a worker thread would ignore Stop
+       and log to the terminal; mask_measure forks Measure pools (fork from a
+       threaded torch process can deadlock); worker processes would each load
+       their own Cellpose model on the one GPU and cannot take the in-process
+       analyse callables. Each field's Cellpose run already uses the GPU and
+       n_jobs workers. Parallel fields would need those per-thread contexts
+       propagated first; left for a separate item.
+    Tests: tests/test_watch_vendor_voxel_f548.py (11): real header_test2.nd2
+    (z 0.5, xy 0.1286) and MeOh ND2 (no Z), committed PR2729 LIF and cached
+    FRAP.lif, committed CZI fixtures (Scaling 0) plus a Scaling parse, OME
+    units; settings win per axis; recipe defaults; end to end, the real ND2
+    T-by-Z watch with no voxel, anisotropy, mode or axis order set gives
+    merged arrays and Cellpose anisotropy equal to a batch run given
+    0.5/0.1286 um by hand; an OME-TIFF Z watch needs only z_stack; an
+    undeclared stack fails before analysis; three ready fields never overlap.
+    tests/test_watch_folder_and_analyse.py: the z_stack refusal case now sets
+    z_segmentation_mode='stitch' (a bare z_stack is no longer refused). Watch
+    cohort tests/test_watch_*.py + native T-by-Z batch, CPU, nd2/liffile/
+    czifile 2026 installed: 381 passed after the fixes.

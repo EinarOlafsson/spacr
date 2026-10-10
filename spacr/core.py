@@ -1548,7 +1548,7 @@ def _watch_well_label(row, column):
 
 
 def _watch_vendor_field(kind, unit, plate, well, field, sizes, planes, members,
-                        reason=None):
+                        reason=None, voxel=None):
     """Describe one watched field of a container or companion-described series.
 
     :param kind: ``'nd2'``, ``'czi'``, ``'lif'``, ``'micromanager'``,
@@ -1561,6 +1561,8 @@ def _watch_vendor_field(kind, unit, plate, well, field, sizes, planes, members,
     :param planes: ``{(t, z, c): (member basename, locator)}``, zero-based.
     :param members: basenames of every file the field reads, with the unit.
     :param reason: why the field cannot be complete yet, or None.
+    :param voxel: ``{'z': um or None, 'xy': um or None}`` the file declares,
+        or None when it declares neither.
     :returns: the field description.
     """
     declared = sizes['T'] * sizes['Z'] * sizes['C']
@@ -1572,7 +1574,8 @@ def _watch_vendor_field(kind, unit, plate, well, field, sizes, planes, members,
         reason = f'{len(planes)} of {declared} declared planes are listed'
     return {'kind': kind, 'unit': unit, 'key': f'{plate}_{well}_{int(field)}',
             'plate': plate, 'well': well, 'field': int(field), 'sizes': dict(sizes),
-            'planes': planes, 'members': sorted({unit, *members}), 'reason': reason}
+            'planes': planes, 'members': sorted({unit, *members}), 'reason': reason,
+            'voxel_um': dict(voxel or {})}
 
 
 def _watch_czi_declared(text):
@@ -1583,6 +1586,223 @@ def _watch_czi_declared(text):
     for axis, size in re.findall(r'<Size([TZCS])>\s*(\d+)\s*</Size\1>', text or ''):
         declared.setdefault(axis, int(size))
     return declared
+
+
+def _watch_um(value, scale=1.0):
+    """A positive finite length in micrometres, or None.
+
+    :param value: the declared length.
+    :param scale: micrometres per declared unit.
+    """
+    try:
+        number = float(value) * float(scale)
+    except (TypeError, ValueError):
+        return None
+    return number if np.isfinite(number) and number > 0 else None
+
+
+def _watch_square_um(x, y):
+    """One square pixel size from declared X and Y sizes, or None.
+
+    spaCR's ``voxel_size_xy_um`` assumes square pixels, so X and Y that differ
+    by more than 1 % are treated as undeclared.
+    """
+    x, y = _watch_um(x), _watch_um(y)
+    if x is None or y is None or abs(x - y) > 0.01 * max(x, y):
+        return None
+    return (x + y) / 2.0
+
+
+def _watch_nd2_voxel(handle, sizes):
+    """The calibrated pixel size and Z step an ND2 declares.
+
+    :param handle: an open ``nd2.ND2File``.
+    :param sizes: its axis sizes; Z counts only when the file has Z planes.
+    :returns: ``{'z': um or None, 'xy': um or None}``.
+    """
+    try:
+        calibrated = tuple(handle.metadata.channels[0].volume.axesCalibrated)
+        x, y, z = handle.voxel_size()
+    except Exception:
+        return {'z': None, 'xy': None}
+    return {'xy': _watch_square_um(x, y) if all(calibrated[:2]) else None,
+            'z': _watch_um(z) if sizes.get('Z', 1) > 1 and calibrated[2] else None}
+
+
+def _watch_czi_voxel(text, planes):
+    """The pixel size and Z step a CZI's ``Scaling`` metadata declares.
+
+    CZI distances are in metres; a zero distance means not declared.
+
+    :param text: the CZI metadata XML.
+    :param planes: Z planes in the scene; Z counts only above 1.
+    :returns: ``{'z': um or None, 'xy': um or None}``.
+    """
+    import re
+
+    scaling = re.search(r'<Scaling>(.*?)</Scaling>', text or '', re.S)
+    found = {}
+    for axis, value in re.findall(r'<Distance Id="([XYZ])"\s*>.*?<Value>([^<]*)</Value>',
+                                  scaling.group(1) if scaling else '', re.S):
+        found.setdefault(axis, _watch_um(value, 1e6))
+    return {'xy': _watch_square_um(found.get('X'), found.get('Y')),
+            'z': found.get('Z') if planes > 1 else None}
+
+
+def _watch_lif_voxel(image, sizes):
+    """The pixel size and Z step one LIF image declares through its coordinates.
+
+    :param image: a ``liffile`` image; its spatial coordinates are in metres.
+    :param sizes: its axis sizes; Z counts only above 1 plane.
+    :returns: ``{'z': um or None, 'xy': um or None}``.
+    """
+    def step(axis):
+        """The spacing of one axis in micrometres, or None."""
+        try:
+            values = np.asarray(image.coords[axis], dtype=float)
+        except Exception:
+            return None
+        return _watch_um(abs(values[1] - values[0]), 1e6) if values.size >= 2 else None
+
+    return {'xy': _watch_square_um(step('X'), step('Y')),
+            'z': step('Z') if sizes.get('Z', 1) > 1 else None}
+
+
+_WATCH_OME_UNITS = {'\u00b5m': 1.0, 'um': 1.0, 'nm': 1e-3, 'mm': 1e3, 'm': 1e6}
+
+
+def _watch_tiff_voxel(path):
+    """The physical pixel size and Z step an OME-TIFF stack declares.
+
+    :param path: the stack.
+    :returns: ``{'z': um or None, 'xy': um or None}``; both None for a TIFF
+        without OME physical sizes.
+    """
+    import re
+
+    import tifffile
+
+    try:
+        with tifffile.TiffFile(path) as handle:
+            text = handle.ome_metadata if handle.is_ome else None
+    except Exception:
+        text = None
+    pixels = re.search(r'<(?:\w+:)?Pixels\b([^>]*)>', text or '')
+    attributes = dict(re.findall(r'(\w+)="([^"]*)"', pixels.group(1) if pixels else ''))
+
+    def size(axis):
+        """One OME physical size in micrometres, or None."""
+        scale = _WATCH_OME_UNITS.get(attributes.get(f'PhysicalSize{axis}Unit', '\u00b5m'))
+        return _watch_um(attributes.get(f'PhysicalSize{axis}'), scale) if scale else None
+
+    planes = attributes.get('SizeZ', '1')
+    return {'xy': _watch_square_um(size('X'), size('Y')),
+            'z': size('Z') if planes.isdigit() and int(planes) > 1 else None}
+
+
+_WATCH_VOXEL_KEYS = (('z', 'voxel_size_z_um'), ('xy', 'voxel_size_xy_um'))
+
+
+def _watch_field_voxel(settings, declared, label):
+    """Fill a 3-D field's unset voxel sizes from what its file declares.
+
+    A value in the settings always wins; only ``voxel_size_z_um`` or
+    ``voxel_size_xy_um`` left unset is taken from the file. A Measure recipe
+    without its own voxel size takes the field's resolved one.
+
+    :param settings: the watch run settings.
+    :param declared: ``{'z': um or None, 'xy': um or None}`` from the file.
+    :param label: names the file's metadata in the run log, e.g.
+        ``'ND2 metadata'``.
+    :returns: ``(field settings, record)``; the record holds ``z_um``,
+        ``xy_um`` and each value's ``source``.
+    """
+    declared = declared or {}
+    resolved, source = dict(settings), {}
+    for axis, key in _WATCH_VOXEL_KEYS:
+        if settings.get(key) is not None:
+            source[axis] = 'settings'
+        elif declared.get(axis) is not None:
+            resolved[key] = float(declared[axis])
+            source[axis] = label
+        else:
+            source[axis] = 'not declared'
+    measure = settings.get('watch_measure_snapshot')
+    if isinstance(measure, dict):
+        measure = dict(measure)
+        if measure.get('anisotropy') is None:
+            for _axis, key in _WATCH_VOXEL_KEYS:
+                if measure.get(key) is None and resolved.get(key) is not None:
+                    measure[key] = resolved[key]
+        resolved['watch_measure_snapshot'] = measure
+    return resolved, {'z_um': resolved.get('voxel_size_z_um'),
+                      'xy_um': resolved.get('voxel_size_xy_um'), 'source': source}
+
+
+def _watch_voxel_known(settings):
+    """Whether settings give a 3-D run its z/xy relationship."""
+    return settings.get('anisotropy') is not None or all(
+        settings.get(key) is not None for _axis, key in _WATCH_VOXEL_KEYS)
+
+
+def _watch_check_field_voxel(settings):
+    """Refuse a 3-D field whose voxel size is still unknown after its file was read.
+
+    :param settings: the field settings of :func:`_watch_field_voxel`.
+    :raises ValueError: naming the settings to fill in.
+    """
+    from copy import deepcopy
+
+    if not _watch_voxel_known(settings):
+        raise ValueError('the file declares no voxel size; set voxel_size_z_um and '
+                         'voxel_size_xy_um (or anisotropy) for this watch.')
+    measure = settings.get('watch_measure_snapshot')
+    if isinstance(measure, dict):
+        from .measure import resolve_measurement_spacing
+        from .settings import get_measure_crop_settings
+
+        resolve_measurement_spacing(get_measure_crop_settings(deepcopy(measure)), 3)
+
+
+def _watch_vendor_recipe(settings):
+    """Default the volumetric recipe of a Z or T-by-Z watch of vendor stacks.
+
+    Without ``conversion_map.csv`` a ``z_stack`` or ``t_stack`` watch reads
+    each acquired stack as one 3-D field, and those modes run only the
+    volumetric recipe. Unset recipe keys are filled in: ``z_segmentation_mode``
+    becomes ``'volumetric'`` (the Make Masks default ``'project'`` cannot run
+    such a watch and counts as unset), a Z watch gets ``z_axis=0`` and a
+    T-by-Z watch ``t_axis_order='TZYX'``. A value the user chose otherwise is
+    kept, so the watch's own check still explains it.
+
+    :param settings: the watch run settings.
+    :returns: ``(settings, {key: value filled in})``; the input is not changed.
+    """
+    from .convert import MAP_FILENAME
+    from .utils import normalize_src_path
+
+    if not _watch_truthy(settings.get('z_stack', False)):
+        return settings, {}
+    try:
+        src = normalize_src_path(settings.get('src'))
+        if isinstance(src, list):
+            src = src[0] if len(src) == 1 else None
+        src = os.path.abspath(os.path.expanduser(str(src))) if src else None
+        if (src is None or not os.path.isdir(src)
+                or os.path.lexists(os.path.join(src, MAP_FILENAME))):
+            return settings, {}
+    except (ValueError, TypeError, OSError):
+        return settings, {}
+    filled = {}
+    if settings.get('z_segmentation_mode') in (None, '', 'project'):
+        filled['z_segmentation_mode'] = 'volumetric'
+    if _watch_truthy(settings.get('t_stack', False)):
+        if (settings.get('t_axis_order') in (None, '')
+                and settings.get('t_axis') is None and settings.get('z_axis') is None):
+            filled['t_axis_order'] = 'TZYX'
+    elif settings.get('z_axis') is None and not _watch_truthy(settings.get('timelapse', False)):
+        filled['z_axis'] = 0
+    return ({**settings, **filled} if filled else settings), filled
 
 
 def _watch_container_fields(path, name):
@@ -1628,12 +1848,14 @@ def _watch_container_fields(path, name):
                     planes[(int(place.get('T', 0)), int(place.get('Z', 0)), channel)] = (
                         unit, ('nd2', frame, channel))
             shape = {'T': sizes.get('T', 1), 'Z': sizes.get('Z', 1), 'C': channels}
+            voxel = _watch_nd2_voxel(handle, sizes)
             for position, planes in sorted(positions.items()):
                 fields.append(_watch_vendor_field(kind, unit, plate, 'A01', position + 1,
-                                                  shape, planes, [unit]))
+                                                  shape, planes, [unit], voxel=voxel))
     elif extension == '.czi':
         with module.CziFile(path) as handle:
-            declared = _watch_czi_declared(handle.metadata())
+            text = handle.metadata()
+            declared = _watch_czi_declared(text)
             scenes = list(handle.scenes.items())
             if declared.get('S', 1) > max(len(scenes), 1):
                 raise ValueError(f'{len(scenes)} of {declared["S"]} declared scenes '
@@ -1652,7 +1874,8 @@ def _watch_container_fields(path, name):
                 planes = {(t, z, c): (unit, ('czi', scene, t, z, c))
                           for t, z, c in np.ndindex(shape['T'], shape['Z'], shape['C'])}
                 fields.append(_watch_vendor_field(kind, unit, plate, 'A01', position + 1,
-                                                  shape, planes, [unit]))
+                                                  shape, planes, [unit],
+                                                  voxel=_watch_czi_voxel(text, shape['Z'])))
     else:
         with module.LifFile(path) as handle:
             position = 0
@@ -1671,7 +1894,8 @@ def _watch_container_fields(path, name):
                               for t, z, c in np.ndindex(shape['T'], shape['Z'],
                                                         shape['C'])}
                     fields.append(_watch_vendor_field(kind, unit, plate, 'A01', position,
-                                                      shape, planes, [unit]))
+                                                      shape, planes, [unit],
+                                                      voxel=_watch_lif_voxel(image, sizes)))
     if not fields:
         raise ValueError('the file declares no images')
     return fields
@@ -3033,6 +3257,7 @@ def _watch_run_field(key, members, signature, context):
 
     _watch_check_map(context)
     seen, ledger = context['seen'], context['ledger']
+    field_settings = context['settings']
     arrived = max(seen[name]['changed'] for name, _channel in members)
     entry = context.get('analysis_entries', ledger['fields']).setdefault(key, {})
     saved_collection = entry.get('collection_checkpoint')
@@ -3042,6 +3267,7 @@ def _watch_run_field(key, members, signature, context):
         entry.pop('derived_sha256', None)
         entry.pop('vendor_sha256', None)
         entry.pop('vendor_plan', None)
+        entry.pop('voxel_size', None)
         entry.update(status='running', files=signature,
                      first_seen=min(seen[name]['first'] for name, _c in members),
                      stable_since=arrived, started=time.time(), error=None)
@@ -3106,11 +3332,23 @@ def _watch_run_field(key, members, signature, context):
                 if description is not None:
                     snapshots, vendor_plan = _watch_described_stage(
                         field_dir, snapshot_dir, description, vendor, context['settings'])
+                    declared = description.get('voxel_um')
+                    label = f"{description['kind'].upper()} metadata"
                 else:
                     (name, _channel), = members
+                    copy = os.path.join(snapshot_dir, os.path.basename(name))
                     snapshots, vendor_plan = _watch_vendor_stage(
-                        field_dir, os.path.join(snapshot_dir, os.path.basename(name)),
-                        key, vendor, context['settings'])
+                        field_dir, copy, key, vendor, context['settings'])
+                    declared = _watch_tiff_voxel(copy) if vendor != 'timelapse' else None
+                    label = 'OME-TIFF metadata'
+                if vendor != 'timelapse':
+                    field_settings, voxel = _watch_field_voxel(
+                        context['settings'], declared, label)
+                    entry['voxel_size'] = voxel
+                    print(f"watch_folder: {key} voxel size z {voxel['z_um']} um "
+                          f"({voxel['source']['z']}), xy {voxel['xy_um']} um "
+                          f"({voxel['source']['xy']}).")
+                    _watch_check_field_voxel(field_settings)
                 entry['vendor_plan'] = vendor_plan
                 if vendor == 'volume':
                     volume_plan[key] = vendor_plan
@@ -3130,7 +3368,7 @@ def _watch_run_field(key, members, signature, context):
             if derived is not None:
                 entry['derived_sha256'] = derived
             _watch_save_ledger(context['ledger_path'], ledger)
-            context['analyse'](field_dir, context['settings'])
+            context['analyse'](field_dir, field_settings)
             _watch_snapshot_database(field_dir)
             entry['collection_checkpoint'] = {
                 'artifacts': _watch_collection_artifacts(
@@ -4010,6 +4248,16 @@ def _watch_folder_and_analyse(settings, analyse=None):
     pattern, and a file whose name carries no channel is a field by itself.
     Images already in the folder are analysed first.
 
+    Without a map, a ``z_stack`` or ``t_stack`` watch fills its unset recipe
+    keys for 3-D fields (``z_segmentation_mode='volumetric'``, ``z_axis=0``
+    or ``t_axis_order='TZYX'``), and each field takes an unset
+    ``voxel_size_z_um`` or ``voxel_size_xy_um`` from the pixel size and Z step
+    its ND2, CZI, LIF or OME-TIFF metadata declares; a value in the settings
+    always wins, and the log and the field's record name each value's source.
+    Fields are analysed one at a time: the GUI routes log output, Stop,
+    pause and the run journal per thread, and each field's Cellpose run
+    already uses the GPU and ``n_jobs`` workers.
+
     Each ready field is copied into ``src/spacr_watch/fields/<field>``, so
     the pipeline never writes to the acquired files, and analysed there on
     its own by ``watch_pipeline``: ``'mask'`` runs Make
@@ -4063,10 +4311,16 @@ def _watch_folder_and_analyse(settings, analyse=None):
     """
     from .cancellation import PipelineCancelled, checkpoint
 
+    settings, recipe_defaults = _watch_vendor_recipe(settings)
     src, pipeline, settle, poll, idle = _watch_check_settings(settings)
     from copy import deepcopy
 
     settings = deepcopy(dict(settings))
+    if recipe_defaults:
+        print('watch_folder: vendor stacks are read as 3-D fields; using '
+              + ', '.join(f'{key}={value!r}' for key, value in recipe_defaults.items())
+              + ' (unset in the settings).')
+    from_files = not _watch_voxel_known(settings)
     _, mask_sha256 = _watch_mask_recipe(settings)
     native_series = _watch_truthy(settings.get('t_stack', False))
     series = _watch_truthy(settings.get('timelapse', False)) or native_series
@@ -4117,7 +4371,8 @@ def _watch_folder_and_analyse(settings, analyse=None):
                 or settings.get('segmentation_backend', 'cellpose') != 'cellpose'):
             raise ValueError('watch_folder: native T-by-Z requires plain Cellpose '
                              'Mask without sampling, plots, adjustment, illumination or PSF.')
-        plan = plan_4d_from_settings(settings)
+        plan = plan_4d_from_settings(
+            {**settings, 'anisotropy': 1.0} if vendor is not None and from_files else settings)
         if (plan is None or plan.t_axis != 0 or plan.z_axis != 1
                 or plan.z_mode != 'volumetric' or plan.frame_interval_s is None):
             raise ValueError('watch_folder: native T-by-Z needs explicit TZYX axes, '
@@ -4139,7 +4394,8 @@ def _watch_folder_and_analyse(settings, analyse=None):
         if _watch_truthy(settings.get('illumination_correction', False)) or processing_requested(settings):
             raise ValueError('watch_folder: native Z raw-volume ingest does not '
                              'support illumination or PSF preprocessing.')
-        plan_from_settings({**settings, 'z_axis': 0})
+        plan_from_settings({**settings, 'z_axis': 0,
+                            **({'anisotropy': 1.0} if vendor is not None and from_files else {})})
         volume_plan = (_watch_volume_plan(src, settings, manifest, map_sha256)
                        if manifest is not None else {})
     if series:
@@ -4167,7 +4423,8 @@ def _watch_folder_and_analyse(settings, analyse=None):
                    for key in ('save_png', 'save_arrays', 'plot')):
                 raise ValueError('watch_folder: native Z Measure cannot save '
                                  '2-D crops, arrays or plots from 3-D fields.')
-            resolve_measurement_spacing(effective_measure, 3)
+            if vendor is None or _watch_voxel_known(effective_measure):
+                resolve_measurement_spacing(effective_measure, 3)
         settings = {**settings, 'watch_measure_snapshot': measure_recipe}
     classify_sha256 = None
     classify_model_sha256 = None
@@ -4255,6 +4512,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
         from functools import partial
 
         context['unreadable'] = partial(_watch_vendor_unreadable, mode=vendor)
+        if vendor != 'timelapse' and from_files:
+            print('watch_folder: voxel_size_z_um and voxel_size_xy_um are unset; each '
+                  "field takes them from its file's metadata when it declares them.")
         print(f'watch_folder: no conversion_map.csv; each TIFF/OME-TIFF stack and '
               f'each position of an ND2, CZI or LIF file or of a per-plane series '
               f'described by metadata.txt, *.companion.ome or Index.xml is one '
