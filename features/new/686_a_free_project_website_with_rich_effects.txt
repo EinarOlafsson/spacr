@@ -1,0 +1,103 @@
+================================================================================
+A FREE WEBSITE FOR spaCR AND THE MAINTAINER'S OTHER PROJECTS, WITH RICH EFFECTS
+================================================================================
+
+Status:    not started
+Requested: 2026-10-10 — "I'd like to have a free webpage for spacr and my other
+           projects. I'd like the page to be able to have cooler effects than
+           GitHub allows me to have."
+Owner:     Home (build); WS (translations and copy, once the layout settles)
+Related:   README deck; docs Pages budget (WS note 2026-10-10: the combined
+           docs site is 960 of 996 MB); N684 animation; N674 field relief
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spaCR's only web presence is the GitHub repository and README plus the Sphinx
+docs on GitHub Pages (main and nightly channels). A GitHub README cannot run
+JavaScript, CSS animation, WebGL or video autoplay: it is sanitized markdown.
+GitHub Pages itself has no such limit. It serves any static HTML/JS/WebGL. But
+the spaCR repository's Pages site is the docs, and it is already near the 1 GB
+Pages size limit, so a project site must not live there.
+
+The maintainer's other projects (live_cell / cellposeTIME, the Cellect phone
+eyepiece mount, and any others the maintainer lists) have no shared landing
+page.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The README is the first thing people see, and it can only show static images
+and GIFs. spaCR's own animated backgrounds (flow fields, ripples, Spaceout
+themes) and its segmentation results are its most striking features, and none
+of them can be shown live. There is no single place that presents all of the
+maintainer's projects together.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Host at no cost, separate from the docs.
+   Recommended: a GitHub user site, repository EinarOlafsson/EinarOlafsson.github.io
+   (free, own 1 GB budget, served at https://einarolafsson.github.io/, custom
+   domain optional later). Alternatives with the same zero cost: Cloudflare
+   Pages or Netlify (also free static hosting, higher bandwidth limits, preview
+   deploys per push). Ask the maintainer to choose the host and whether to buy
+   a custom domain (about USD 10/year; the only non-free part, optional).
+
+2. Build as a static site: plain HTML/CSS/JS, or Astro if pages multiply. No
+   server, no tracking, no build step the maintainer has to run by hand. A
+   GitHub Actions workflow in the site repository deploys on push.
+
+3. Effects that GitHub's README cannot do:
+   - a live WebGL background that ports spaCR's own flow-field / ripple /
+     field-relief shaders (N674, N684), reacting to the pointer, so the site
+     looks like the app;
+   - scroll-driven reveals and parallax of real spaCR screenshots and
+     segmentation overlays;
+   - before/after sliders (raw image vs. mask), autoplaying muted tutorial
+     clips from the existing tutorial media;
+   - an interactive 3D model viewer (three.js / <model-viewer>) for the Cellect
+     phone mount STL;
+   - respect prefers-reduced-motion (effects off, static fallback) and a
+     visible "pause effects" toggle; keep the first view under 1 MB and
+     60 fps on a mid-range laptop, and fall back to CSS when WebGL is absent.
+
+4. Pages: a landing page with one card per project; a spaCR page (what it does,
+   install links to PyPI and the installers, docs, tutorials, citation/DOI,
+   the README deck); one page per other project from material the maintainer
+   supplies; light/dark themes; mobile layout.
+
+5. Link it from spaCR's README, docs and setup.py project_urls ("Homepage").
+   Keep project facts (version, installer links, DOI) generated from
+   packaging/release.py's published metadata so the site never goes stale;
+   release.yml pings the site repository to rebuild after each release.
+
+6. Translations: after the English layout settles, WS adds the nine spaCR
+   locales for the spaCR page (same AI-reviewed labelling as the docs).
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- The site is live at its public URL, served free, deployed by a push.
+- Lighthouse (mobile): performance >= 90, accessibility >= 95; first view
+  under 1 MB transferred.
+- With prefers-reduced-motion set, no animation runs; with WebGL disabled the
+  page still renders fully.
+- The spaCR page's version, installer links and DOI match PyPI and the latest
+  GitHub release after a release, without hand edits.
+- The spaCR README and docs link to it.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- Not inside the spaCR repository's GitHub Pages: that site is the docs and
+  is close to its 1 GB limit.
+- No paid hosting, CMS, analytics or cookies; a custom domain only if the
+  maintainer chooses to buy one.
+- Other projects' content is not invented: each project page waits for the
+  maintainer's text, images and the list of projects to include.
