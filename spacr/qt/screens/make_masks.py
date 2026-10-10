@@ -8980,7 +8980,7 @@ class _VolumeMaskEditor(QDialog):
         rgb = engine.overlay_mask(scaled, labels)
         rgba = np.dstack((rgb, np.full(rgb.shape[:2], 255, dtype=np.uint8)))
         picture = QPixmap.fromImage(_rgba_qimage(rgba))
-        self._slice_view.setPixmap(picture.scaled(self._slice_view.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self._slice_view.setPixmap(scaled_for(picture, self._slice_view, self._slice_view.size()))
         count = int(np.count_nonzero(session.mask == self._selected_label)) if self._selected_label else 0
         self._count.setText(tr('Object {label}: {n} voxels\nAxes: {axes}\nSpacing: {spacing} {unit}',
                                label=self._selected_label, n=count, axes=session.axes,
