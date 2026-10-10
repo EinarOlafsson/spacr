@@ -2,7 +2,7 @@
 REBINDABLE SHORTCUTS
 ================================================================================
 
-Status:    OPEN 2026-10-08 — per-screen implementation tested; matching publication pending.
+Status:    OPEN 2026-10-10 — per-screen rebinding and nine-language captions published; user-guide page update pending.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -28,3 +28,18 @@ DONE 2026-10-04
   a user-docs page and translations of the 16 new captions (catalog rebuild).
 
 2026-10-08 17:12 EDT — Actual per-screen rebinding implemented in privateccf9ce7a4ac and transferred via data/656_screen_shortcut_rebinding_cpu_2026-10-08. Final81+2checks, broader222 and6documentation guardsPASS in overlapping phases, not summed;234changed statements and changed arcs have zero gaps. Persisted live Annotate/MakeMasks/field-browser keys include aliases, clearing, conflict validation, legends and realQCquarantine. Normalinventory: one changed moduleAPIbody,22newUIcaptions. All9translation/user-guide refresh and coherent app publication remainOPEN; no 100% or nativeOS claim.
+
+2026-10-10 — Per-screen rebinding published on nightly. Codex's private
+ccf9ce7a4 source and tests ported cleanly onto current nightly (Annotate,
+Make Masks, QC field browser, shortcuts.py). tests/qt/test_cov_w2_6_shortcuts.py
+now accepts that the shared Left/Right keys are listed once per screen (each
+screen holds its own rebindable copy). All 22 new captions have AI-reviewed
+records in nine locales (docs/i18n/reviewed/runtime/*/2026-10-10-screen-
+shortcut-rebinding.json), catalogs regenerated (UI 7289 to 7311) and the
+arrivals recorded in the caption arrival ledger. Checks under run_capped,
+CUDA hidden, offscreen: shortcut, Annotate, field-browser and Make Masks
+Qt files 968+54 PASS; i18n ratchet/arrival/catalog/syntax guards PASS (the
+one report-only compact XFAIL predates this item: N677's Organism tour
+paragraph, Box tool, spaCR blobs). Left: docs/source/shortcuts_and_templates.rst
+still says per-screen keys cannot be changed; update it and its nine guide
+catalogs. No native-speaker review; no native macOS/Windows key check.

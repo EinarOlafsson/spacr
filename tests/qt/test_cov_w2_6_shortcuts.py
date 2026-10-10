@@ -52,7 +52,14 @@ def test_the_map_is_the_window_wide_keys_plus_the_per_screen_ones():
     not -- and the map has to describe both."""
     everything = sc.mapped()
     assert everything[:len(sc.SHORTCUTS)] == sc.SHORTCUTS
-    assert set(sc.SCREEN_SHORTCUTS).issubset(set(everything))
+    # 656: a key shared by several screens (Left/Right) is listed once per
+    # screen, because each screen now holds its own rebindable copy of it.
+    assert {(spec.keys, spec.label) for spec in sc.SCREEN_SHORTCUTS} <= {
+        (spec.keys, spec.label) for spec in everything}
+    for scope in ("Annotate", "Make Masks", "Field browser"):
+        assert {"Left", "Right"} <= {
+            spec.keys for spec in everything[len(sc.SHORTCUTS):]
+            if spec.category == scope}
     assert all(spec.scope != sc.EVERYWHERE for spec in sc.SCREEN_SHORTCUTS)
 
 

@@ -26,8 +26,8 @@ typed there replaces the default, a key already taken by another action is
 named as a conflict and cannot be saved, and the overrides are kept in the
 Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a
 keymap saved on one platform reads the same on the others. Keys that belong
-to a single screen (Annotate, Make Masks, the field browser) keep their
-defaults and are listed as taken.
+to a single screen (Annotate, Make Masks, the field browser) have separate
+editable rows and saved overrides, applied to both existing and new screens.
 """
 from __future__ import annotations
 
@@ -39,6 +39,7 @@ from PySide6.QtCore import QEvent, QRectF, Qt
 from PySide6.QtGui import (QAction, QColor, QKeySequence, QPainter, QPen,
                            QShortcut, QUndoCommand, QUndoStack)
 from PySide6.QtWidgets import (
+    QApplication,
     QDialog,
     QGridLayout,
     QHBoxLayout,
@@ -321,7 +322,11 @@ def installed() -> List[ShortcutSpec]:
 
 def mapped() -> List[ShortcutSpec]:
     """Every shortcut the map describes: window-wide, then per-screen."""
-    return list(SHORTCUTS) + list(SCREEN_SHORTCUTS)
+    local = _load_screen_keymap()
+    return list(SHORTCUTS) + [
+        ShortcutSpec(local.get(scope, {}).get(spec.keys, spec.keys),
+                     spec.label, scope, _SCREEN_SCOPES[scope])
+        for scope in _SCREEN_SCOPES for spec in _screen_specs(scope)]
 
 
 def native(keys: str) -> str:
@@ -334,7 +339,7 @@ def native(keys: str) -> str:
         ``'Ctrl+H'``. Returned unchanged when Qt cannot convert it.
     """
     try:
-        return QKeySequence(str(keys)).toString(QKeySequence.NativeText) \
+        return QKeySequence(_portable(keys)).toString(QKeySequence.NativeText) \
             or str(keys)
     except Exception:                                    # noqa: BLE001
         return str(keys)
@@ -389,10 +394,238 @@ def discover(window) -> List[ShortcutSpec]:
 _KEYMAP_KEY = "shortcuts/keymap"
 
 
+
+_SCREEN_KEYMAP_KEY = "shortcuts/screens"
+_SCREEN_SCOPES = {
+    "Annotate": "the Annotate screen",
+    "Make Masks": "the Make Masks screen",
+    "Field browser": "the QC field browser",
+}
+
+
+_ANNOTATE_SHORTCUTS = [
+    ShortcutSpec("Up", "Move focus up", "Annotate", "the Annotate screen"),
+    ShortcutSpec("Down", "Move focus down", "Annotate", "the Annotate screen"),
+    ShortcutSpec("H", "Move focus left", "Annotate", "the Annotate screen"),
+    ShortcutSpec("J", "Move focus down", "Annotate", "the Annotate screen"),
+    ShortcutSpec("K", "Move focus up", "Annotate", "the Annotate screen"),
+    ShortcutSpec("L", "Move focus right", "Annotate", "the Annotate screen"),
+    ShortcutSpec("U", "Undo", "Annotate", "the Annotate screen"),
+    ShortcutSpec("Space", "Skip forward one crop", "Annotate", "the Annotate screen"),
+    ShortcutSpec("Backspace", "Step back one crop", "Annotate", "the Annotate screen"),
+    ShortcutSpec("Return", "Save and load the next batch", "Annotate", "the Annotate screen"),
+    ShortcutSpec("Enter", "Save and load the next batch", "Annotate", "the Annotate screen"),
+    ShortcutSpec("?", "Toggle keyboard legend", "Annotate", "the Annotate screen"),
+    ShortcutSpec("Esc", "Close keyboard legend or zoom", "Annotate", "the Annotate screen"),
+    ShortcutSpec("0", "Clear the focused crop", "Annotate", "the Annotate screen"),
+    ShortcutSpec("1", "Assign class 1", "Annotate", "the Annotate screen"),
+    ShortcutSpec("2", "Assign class 2", "Annotate", "the Annotate screen"),
+    ShortcutSpec("3", "Assign class 3", "Annotate", "the Annotate screen"),
+    ShortcutSpec("4", "Assign class 4", "Annotate", "the Annotate screen"),
+    ShortcutSpec("5", "Assign class 5", "Annotate", "the Annotate screen"),
+    ShortcutSpec("6", "Assign class 6", "Annotate", "the Annotate screen"),
+    ShortcutSpec("7", "Assign class 7", "Annotate", "the Annotate screen"),
+    ShortcutSpec("8", "Assign class 8", "Annotate", "the Annotate screen"),
+    ShortcutSpec("9", "Assign class 9", "Annotate", "the Annotate screen"),
+]
+
+
+def _screen_specs(scope: str) -> List[ShortcutSpec]:
+    """Declared bindings for one screen, including shared navigation keys."""
+    return [spec for spec in SCREEN_SHORTCUTS
+            if spec.keys in ("Left", "Right")
+            or spec.scope == _SCREEN_SCOPES.get(scope)] + (
+                list(_ANNOTATE_SHORTCUTS) if scope == "Annotate" else [])
+
+
+def _screen_label(label: str) -> str:
+    """Translate scoped action captions from their canonical English source."""
+    from .i18n import tr
+    captions = {
+        'Move focus up': tr('Move focus up'),
+        'Move focus down': tr('Move focus down'),
+        'Move focus left': tr('Move focus left'),
+        'Move focus right': tr('Move focus right'),
+        'Skip forward one crop': tr('Skip forward one crop'),
+        'Step back one crop': tr('Step back one crop'),
+        'Save and load the next batch': tr('Save and load the next batch'),
+        'Toggle keyboard legend': tr('Toggle keyboard legend'),
+        'Close keyboard legend or zoom': tr('Close keyboard legend or zoom'),
+        'Clear the focused crop': tr('Clear the focused crop'),
+        'Assign class 1': tr('Assign class 1'),
+        'Assign class 2': tr('Assign class 2'),
+        'Assign class 3': tr('Assign class 3'),
+        'Assign class 4': tr('Assign class 4'),
+        'Assign class 5': tr('Assign class 5'),
+        'Assign class 6': tr('Assign class 6'),
+        'Assign class 7': tr('Assign class 7'),
+        'Assign class 8': tr('Assign class 8'),
+        'Assign class 9': tr('Assign class 9'),
+    }
+    return captions.get(label, tr(label))
+
+
+def _load_screen_keymap() -> dict:
+    """Read known single-key per-screen overrides from the preferences store."""
+    import json
+    try:
+        from .preferences import _settings
+        data = json.loads(_settings().value(_SCREEN_KEYMAP_KEY, "") or "{}")
+    except Exception:
+        LOG.debug("could not read screen shortcuts", exc_info=True)
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    result = {}
+    for scope in _SCREEN_SCOPES:
+        values = data.get(scope, {})
+        if not isinstance(values, dict):
+            continue
+        result[scope] = {spec.keys: _portable(values[spec.keys])
+                         for spec in _screen_specs(scope)
+                         if isinstance(values.get(spec.keys), str)
+                         and QKeySequence(_portable(values[spec.keys])).count() <= 1
+                         and (not values[spec.keys] or _portable(values[spec.keys]))
+                         and (not values[spec.keys]
+                              or QKeySequence(_portable(values[spec.keys]))[0].key() != Qt.Key_unknown)}
+    return result
+
+
+def _bind_screen_key(widget, scope: str, default: str, callback) -> QShortcut:
+    """Bind a declared screen key with its saved value and retain its identity.
+
+    :param widget: screen owning the shortcut.
+    :param scope: screen category in the declaration table.
+    :param default: original portable key, identifying this binding.
+    :param callback: action invoked on activation.
+    :returns: the owned, screen-scoped shortcut.
+    """
+    if getattr(widget, "_spacr_screen_scope", None) != scope:
+        widget._spacr_screen_scope = scope
+        widget._spacr_screen_keymap = _load_screen_keymap().get(scope, {})
+    shortcut = QShortcut(QKeySequence(
+        _portable(widget._spacr_screen_keymap.get(default, default))), widget)
+    shortcut.setContext(Qt.WidgetWithChildrenShortcut)
+    shortcut.activated.connect(callback)
+    holders = getattr(widget, "_spacr_screen_holders", None)
+    if holders is None:
+        holders = widget._spacr_screen_holders = {}
+    holders[default] = shortcut
+    _refresh_screen_hints(widget)
+    return shortcut
+
+
+def _apply_screen_keymaps() -> None:
+    """Update built screens and independent browser dialogs after a save."""
+    saved = _load_screen_keymap()
+    app = QApplication.instance()
+    if app is None:
+        return
+    for widget in app.allWidgets():
+        scope = getattr(widget, "_spacr_screen_scope", None)
+        if scope not in _SCREEN_SCOPES:
+            continue
+        widget._spacr_screen_keymap = saved.get(scope, {})
+        for default, holder in getattr(widget, "_spacr_screen_holders", {}).items():
+            chosen = widget._spacr_screen_keymap.get(default, default)
+            try:
+                holder.setKey(QKeySequence(_portable(chosen)))
+            except RuntimeError:
+                continue
+        _refresh_screen_hints(widget)
+
+
+
+def _refresh_screen_hints(widget) -> None:
+    """Keep inline key legends synchronized without changing mouse gestures."""
+    from .i18n import tr
+    keymap = getattr(widget, "_spacr_screen_keymap", {})
+    rows = getattr(widget, "_shortcut_rows", {})
+    for default in getattr(widget, "_spacr_screen_holders", {}):
+        if default in rows:
+            rows[default][0].setText(native(keymap.get(default, default)) or "—")
+    groups = {
+        "Left / Right arrows": ("Left", "Right"),
+        "Ctrl+Z / Ctrl+Y": ("Ctrl+Z", "Ctrl+Y"),
+        "B E W D V Z R": ("B", "E", "W", "D", "V", "Z", "R"),
+    }
+    for caption, defaults in groups.items():
+        if caption in rows:
+            text = tr(caption) if not any(key in keymap for key in defaults) else " / ".join(
+                native(keymap.get(key, key)) or "—" for key in defaults)
+            rows[caption][0].setText(text)
+    legend = getattr(widget, "_legend_label", None)
+    if legend is not None:
+        from html import escape
+        text = widget.LEGEND_FULL if getattr(widget, "_legend_expanded", False) else widget.LEGEND_COMPACT
+        def shown(key):
+            """Escape a saved key for the existing rich-text legend."""
+            return escape(native(keymap.get(key, key)) or "—")
+        if any(key in keymap for key in ("Left", "Up", "Down", "Right")):
+            text = text.replace("← ↑ ↓ →", " ".join(
+                shown(key) for key in ("Left", "Up", "Down", "Right")))
+        if any(key in keymap for key in ("H", "J", "K", "L")):
+            aliases = " ".join(shown(key) for key in ("H", "J", "K", "L"))
+            text = text.replace("hjkl", aliases).replace("h j k l", aliases)
+        if any(str(index) in keymap for index in range(1, 10)):
+            text = text.replace("<b>1</b>–<b>9</b>", "<b>" + " / ".join(
+                shown(str(index)) for index in range(1, 10)) + "</b>")
+        for key, printed in (("0", "0"), ("Space", "Space"),
+                             ("Backspace", "Backspace"), ("U", "u")):
+            if key in keymap:
+                text = text.replace("<b>" + printed + "</b>", "<b>" + shown(key) + "</b>")
+        if "Return" in keymap or "Enter" in keymap:
+            text = text.replace("<b>Enter</b>", "<b>" + shown("Return") + " / " + shown("Enter") + "</b>")
+        legend.setText(text)
+    if getattr(widget, "_spacr_screen_scope", None) == "Field browser":
+        widget._quarantine.setToolTip(tr(
+            "Move this merged .npy to merged_quarantined so later Measure "
+            "runs skip it. Press {key} to quarantine or restore.",
+            key=native(keymap.get("Q", "Q")) or "—"))
+
+
+def _screen_event_key(widget, event) -> Optional[int]:
+    """Resolve a real key event to its declared original screen action key.
+
+    Rebound and cleared defaults stop routing through fixed event handlers.
+    Unmodified undeclared keys retain the screen's existing keyboard tools;
+    unrelated modified keys remain available to their own shortcuts.
+    """
+    sequence = QKeySequence(event.keyCombination()).toString(QKeySequence.PortableText)
+    keymap = getattr(widget, "_spacr_screen_keymap", {})
+    scope = getattr(widget, "_spacr_screen_scope", "")
+    specs = _screen_specs(scope) if scope in _SCREEN_SCOPES else []
+    for spec in specs:
+        chosen = keymap.get(spec.keys, spec.keys)
+        if chosen and _portable(chosen) == sequence:
+            return QKeySequence(_portable(spec.keys))[0].key()
+        if (_portable(chosen) == _portable(spec.keys)
+                and not event.modifiers() & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)
+                and QKeySequence(_portable(spec.keys))[0].keyboardModifiers() == Qt.NoModifier
+                and event.key() == QKeySequence(_portable(spec.keys))[0].key()):
+            return event.key()
+    original = QKeySequence(event.key()).toString(QKeySequence.PortableText)
+    if sequence in {_portable(spec.keys) for spec in specs} or (
+            original in {_portable(spec.keys) for spec in specs}
+            and not event.modifiers() & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)):
+        return None
+    if event.modifiers() & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier):
+        return None
+    text_key = _portable(event.text().upper()) if event.text() else ""
+    for spec in specs:
+        chosen = keymap.get(spec.keys, spec.keys)
+        if text_key and chosen and _portable(chosen) == text_key:
+            return QKeySequence(_portable(spec.keys))[0].key()
+    if text_key and text_key in {_portable(spec.keys) for spec in specs}:
+        return None
+    return event.key()
+
+
 def _portable(keys: str) -> str:
     """``keys`` in Qt's portable spelling, or ``""`` when Qt cannot read it."""
     try:
-        return QKeySequence(str(keys)).toString(QKeySequence.PortableText)
+        return QKeySequence(str(keys).replace("PageUp", "PgUp").replace(
+            "PageDown", "PgDown")).toString(QKeySequence.PortableText)
     except Exception:                                    # noqa: BLE001
         return ""
 
@@ -432,10 +665,11 @@ def _load_keymap() -> dict:
     return {str(k): str(v) for k, v in data.items() if k in known}
 
 
-def _save_keymap(keymap: dict) -> None:
+def _save_keymap(keymap: dict, screen_keymap: Optional[dict] = None) -> None:
     """Store ``keymap``, keeping only the entries that differ from the default.
 
     :param keymap: default key to chosen key; ``""`` unbinds the action.
+    :param screen_keymap: per-screen overrides; saved ones when omitted.
     :raises ValueError: when two actions would share one key.
     """
     import json
@@ -444,11 +678,29 @@ def _save_keymap(keymap: dict) -> None:
         chosen = _portable(chosen) if chosen else ""
         if chosen != _portable(default):
             clean[str(default)] = chosen
-    clashes = _conflicts(clean)
+    screens = _load_screen_keymap() if screen_keymap is None else screen_keymap
+    local = {}
+    for scope in _SCREEN_SCOPES:
+        values = screens.get(scope, {})
+        chosen = {}
+        for spec in _screen_specs(scope):
+            key = values.get(spec.keys, spec.keys)
+            if (not isinstance(key, str) or QKeySequence(_portable(key)).count() > 1
+                    or (key and (not _portable(key)
+                                 or QKeySequence(_portable(key))[0].key() == Qt.Key_unknown))):
+                from .i18n import tr
+                raise ValueError(tr("Shortcut {key} is not a single key sequence.", key=str(key)))
+            if _portable(key) != _portable(spec.keys):
+                chosen[spec.keys] = _portable(key)
+        if chosen:
+            local[scope] = chosen
+    clashes = _conflicts(clean, local)
     if clashes:
         raise ValueError(_describe_conflicts(clashes))
     from .preferences import _settings
-    _settings().setValue(_KEYMAP_KEY, json.dumps(clean, sort_keys=True))
+    store = _settings()
+    store.setValue(_KEYMAP_KEY, json.dumps(clean, sort_keys=True))
+    store.setValue(_SCREEN_KEYMAP_KEY, json.dumps(local, sort_keys=True))
 
 
 def _effective(default: str, keymap: Optional[dict] = None) -> str:
@@ -461,30 +713,32 @@ def _effective(default: str, keymap: Optional[dict] = None) -> str:
     return keymap.get(default, default)
 
 
-def _conflicts(keymap: dict) -> dict:
-    """Every key that more than one action would answer to.
+def _conflicts(keymap: dict, screen_keymap: Optional[dict] = None) -> dict:
+    """Conflicts among global actions and within each independently active screen.
 
-    Window-wide actions are compared with each other and with the per-screen
-    keys, which cannot be rebound and so always hold their defaults.
-
-    :param keymap: default key to chosen key.
-    :returns: a mapping from the shared key, in portable spelling, to the
-        labels of the actions that would share it; empty when nothing clashes.
+    :param keymap: global default key to chosen key.
+    :param screen_keymap: screen category to default-key overrides.
+    :returns: conflicting portable keys and their action labels.
     """
-    holders: dict = {}
+    screens = _load_screen_keymap() if screen_keymap is None else screen_keymap
+    global_holders = {}
     for spec in _rebindable():
         key = _portable(_effective(spec.keys, keymap))
         if key:
-            holders.setdefault(key, []).append(spec.label)
-    for spec in SCREEN_SHORTCUTS:
-        key = _portable(spec.keys)
-        if key in holders:
-            holders[key].append(spec.label)
-    out = {}
-    for key, labels in holders.items():
-        unique = list(dict.fromkeys(labels))
-        if len(unique) > 1:
-            out[key] = unique
+            global_holders.setdefault(key, []).append(spec.label)
+    out = {key: labels for key, labels in global_holders.items() if len(labels) > 1}
+    for scope in _SCREEN_SCOPES:
+        holders = {key: list(labels) for key, labels in global_holders.items()}
+        for spec in _screen_specs(scope):
+            key = _portable(screens.get(scope, {}).get(spec.keys, spec.keys))
+            if key:
+                if (scope == "Annotate" and spec.keys == "?" and key == "?"
+                        and _effective("?", keymap) == "?"):
+                    continue
+                holders.setdefault(key, []).append(spec.label)
+        for key, labels in holders.items():
+            if len(labels) > 1:
+                out[key] = list(dict.fromkeys(out.get(key, []) + labels))
     return out
 
 
@@ -493,7 +747,7 @@ def _describe_conflicts(clashes: dict) -> str:
     from .i18n import tr
     return "\n".join(
         tr("{key} is used by: {actions}.", key=native(key),
-           actions=", ".join(tr(label) for label in labels))
+           actions=", ".join(_screen_label(label) for label in labels))
         for key, labels in clashes.items())
 
 
@@ -561,7 +815,7 @@ def _apply_keymap(window, keymap: Optional[dict] = None) -> int:
 
 
 class _KeymapDialog(QDialog):
-    """Rebind the window-wide shortcuts, refusing any key two actions share.
+    """Rebind global and screen shortcuts, refusing simultaneously active conflicts.
 
     One row per action: what it does, its default key, and an editor holding
     the key it answers to now. Conflicts are listed under the table as they
@@ -583,6 +837,9 @@ class _KeymapDialog(QDialog):
         self.setWindowTitle(tr("Change shortcuts"))
         self._specs = _rebindable()
         saved = _load_keymap()
+        screen_saved = _load_screen_keymap()
+        self._screen_rows = [(scope, spec) for scope in _SCREEN_SCOPES
+                             for spec in _screen_specs(scope)]
 
         column = QVBoxLayout(self)
         intro = QLabel(tr("Click a shortcut and press the new key. Clear it "
@@ -590,16 +847,16 @@ class _KeymapDialog(QDialog):
         intro.setWordWrap(True)
         column.addWidget(intro)
 
-        self._table = QTableWidget(len(self._specs), 3, self)
+        self._table = QTableWidget(len(self._specs) + len(self._screen_rows), 4, self)
         self._table.setObjectName("KeymapTable")
         self._table.setHorizontalHeaderLabels(
-            [tr("Action"), tr("Default"), tr("Shortcut")])
+            [tr("Action"), tr("Default"), tr("Shortcut"), tr("Scope")])
         self._table.verticalHeader().setVisible(False)
         from .widgets.sortable_table import install_sorting, table_item
 
         self._editors: List[QKeySequenceEdit] = []
         for row, spec in enumerate(self._specs):
-            self._table.setItem(row, 0, table_item(tr(spec.label)))
+            self._table.setItem(row, 0, table_item(_screen_label(spec.label)))
             self._table.setItem(row, 1, table_item(native(spec.keys)))
             editor = QKeySequenceEdit(
                 QKeySequence(_effective(spec.keys, saved)), self._table)
@@ -610,6 +867,21 @@ class _KeymapDialog(QDialog):
             editor.keySequenceChanged.connect(self._refresh)
             self._table.setCellWidget(row, 2, editor)
             self._editors.append(editor)
+        self._screen_editors = []
+        for index, (scope, spec) in enumerate(self._screen_rows):
+            row = len(self._specs) + index
+            self._table.setItem(row, 0, table_item(_screen_label(spec.label)))
+            self._table.setItem(row, 1, table_item(native(spec.keys)))
+            self._table.setItem(row, 3, table_item(tr(_SCREEN_SCOPES[scope])))
+            editor = QKeySequenceEdit(QKeySequence(
+                _portable(screen_saved.get(scope, {}).get(spec.keys, spec.keys))), self._table)
+            editor.setMaximumSequenceLength(1)
+            editor.setClearButtonEnabled(True)
+            editor.keySequenceChanged.connect(self._refresh)
+            self._table.setCellWidget(row, 2, editor)
+            self._screen_editors.append(editor)
+        for row in range(len(self._specs)):
+            self._table.setItem(row, 3, table_item(tr(EVERYWHERE)))
         self._table.resizeColumnsToContents()
         install_sorting(self._table)
         column.addWidget(self._table, 1)
@@ -652,6 +924,20 @@ class _KeymapDialog(QDialog):
             if spec.keys == default:
                 editor.setKeySequence(QKeySequence(keys))
 
+    def _screen_keymap(self) -> dict:
+        """The screen overrides currently displayed in the editor."""
+        result = {}
+        for (scope, spec), editor in zip(self._screen_rows, self._screen_editors):
+            result.setdefault(scope, {})[spec.keys] = editor.keySequence().toString(
+                QKeySequence.PortableText)
+        return result
+
+    def _set_screen_key(self, scope: str, default: str, keys: str) -> None:
+        """Edit one scoped binding without changing another screen's action."""
+        for (row_scope, spec), editor in zip(self._screen_rows, self._screen_editors):
+            if row_scope == scope and spec.keys == default:
+                editor.setKeySequence(QKeySequence(keys))
+
     def conflict_text(self) -> str:
         """The conflict line under the table, as the user reads it."""
         return self._conflict_label.text()
@@ -659,11 +945,14 @@ class _KeymapDialog(QDialog):
     def restore_defaults(self) -> None:
         """Put every row back to its default key."""
         for spec, editor in zip(self._specs, self._editors):
-            editor.setKeySequence(QKeySequence(spec.keys))
+            editor.setKeySequence(QKeySequence(_portable(spec.keys)))
+
+        for (_scope, spec), editor in zip(self._screen_rows, self._screen_editors):
+            editor.setKeySequence(QKeySequence(_portable(spec.keys)))
 
     def _refresh(self, *_args) -> None:
         """Show the current conflicts and allow Save only when there are none."""
-        clashes = _conflicts(self.keymap())
+        clashes = _conflicts(self.keymap(), self._screen_keymap())
         self._conflict_label.setText(
             _describe_conflicts(clashes) if clashes else "")
         self._btn_save.setEnabled(not clashes)
@@ -674,11 +963,12 @@ class _KeymapDialog(QDialog):
         :returns: ``False`` when a conflict kept it from being stored.
         """
         try:
-            _save_keymap(self.keymap())
+            _save_keymap(self.keymap(), self._screen_keymap())
         except ValueError as exc:
             self._conflict_label.setText(str(exc))
             return False
         _apply_keymap(self._window)
+        _apply_screen_keymaps()
         self.accept()
         return True
 
@@ -1099,12 +1389,13 @@ class ShortcutOverlay(QWidget):
             grid.addWidget(header, row, column, 1, 2)
             row += 1
             for spec in specs:
-                keys = QLabel(native(_effective(spec.keys, keymap)) or "—",
+                keys = QLabel(native(_effective(spec.keys, keymap)
+                                     if spec.scope == EVERYWHERE else spec.keys) or "—",
                               self._card_content)
                 keys.setObjectName("ShortcutOverlayKeys")
                 keys.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 grid.addWidget(keys, row, column)
-                said = tr(spec.label)
+                said = _screen_label(spec.label)
                 if spec.scope and spec.scope != EVERYWHERE:
                     said = f"{said}  —  {tr(spec.scope)}"
                 label = QLabel(said, self._card_content)

@@ -201,7 +201,12 @@ def test_the_cheat_sheet_button_opens_the_editor(window, qtbot):
     dialogs = window.findChildren(S._KeymapDialog)
     assert dialogs and dialogs[-1].isVisible()
     rows = dialogs[-1]._table.rowCount()
-    assert rows == len(S._rebindable())
+    assert rows == len(S._rebindable()) + sum(
+        len(S._screen_specs(scope)) for scope in S._SCREEN_SCOPES)
+    assert {item.text() for item in (dialogs[-1]._table.item(row, 3)
+                                   for row in range(rows))} >= {
+        S.EVERYWHERE, "the Annotate screen", "the Make Masks screen",
+        "the QC field browser"}
     dialogs[-1].reject()
 
 

@@ -99,8 +99,7 @@ from PySide6.QtCore import (
 from PIL import Image
 from PIL.ImageQt import ImageQt
 from PySide6.QtGui import (QColor, QDoubleValidator, QFont, QImage,
-                           QKeySequence, QPainter, QPainterPath, QPen,
-                           QPixmap, QShortcut)
+                           QPainter, QPainterPath, QPen, QPixmap)
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -1872,7 +1871,12 @@ class _ZoomOverlay(QWidget):
 
     def keyPressEvent(self, event):     # noqa: N802  (Qt naming)
         """Escape folds the crop back; everything else goes to the grid."""
-        if event.key() == Qt.Key_Escape:
+        from ..shortcuts import _screen_event_key
+        owner = self.parentWidget()
+        while owner is not None and getattr(owner, "_spacr_screen_scope", None) != "Annotate":
+            owner = owner.parentWidget()
+        key = _screen_event_key(owner, event) if owner is not None else event.key()
+        if key == Qt.Key_Escape:
             self.dismissed.emit()
             event.accept()
             return
@@ -4493,8 +4497,8 @@ class AnnotateScreen(QWidget):
     def _toggle_legend(self) -> bool:
         """Flip the legend between the compact strip and the full reference."""
         self._legend_expanded = not self._legend_expanded
-        self._legend_label.setText(
-            self.LEGEND_FULL if self._legend_expanded else self.LEGEND_COMPACT)
+        from ..shortcuts import _refresh_screen_hints
+        _refresh_screen_hints(self)
         return True
 
     def _set_kbd_hint(self, text: str = "") -> None:
@@ -4509,12 +4513,13 @@ class AnnotateScreen(QWidget):
         one-key decisions, and a hand that has to reach for the mouse between
         each one does a fraction as many in an hour.
         """
-        QShortcut(QKeySequence(Qt.Key_PageUp), self, self._on_prev)
-        QShortcut(QKeySequence(Qt.Key_PageDown), self, self._on_next)
-        QShortcut(QKeySequence("Alt+Left"), self, self._on_prev)
-        QShortcut(QKeySequence("Alt+Right"), self, self._on_next)
-        from ..shortcuts import _bind_undo_keys
-        _bind_undo_keys(self, self._kbd_undo, self._kbd_redo)
+        from ..shortcuts import _bind_screen_key
+
+        for key, callback in (("PageUp", self._on_prev), ("PageDown", self._on_next),
+                              ("Alt+Left", self._on_prev), ("Alt+Right", self._on_next),
+                              ("Ctrl+Z", self._kbd_undo), ("Ctrl+Y", self._kbd_redo),
+                              ("Ctrl+Shift+Z", self._kbd_redo)):
+            _bind_screen_key(self, "Annotate", key, callback)
 
     def _grid_area(self) -> Optional[QSize]:
         """The room the crops have, in device pixels, or None before layout.
@@ -7411,7 +7416,9 @@ class AnnotateScreen(QWidget):
         :param event: the key event; its key code and text are read, and it is
             accepted when the key is bound.
         """
-        if self.handle_key(event.key(), event.text()):
+        from ..shortcuts import _screen_event_key
+        key = _screen_event_key(self, event)
+        if key is not None and self.handle_key(key, event.text() if key == event.key() else ""):
             event.accept()
             return
         super().keyPressEvent(event)
@@ -7437,13 +7444,14 @@ class AnnotateScreen(QWidget):
             etype = event.type()
         except Exception:
             return False
-        if etype == QEvent.KeyPress and event.key() == Qt.Key_Escape \
-                and self._zoom_is_open():
-            self._fold_zoom_back()
-            return True
-        if etype == QEvent.KeyPress and self.handle_key(event.key(),
-                                                         event.text()):
-            return True
+        if etype == QEvent.KeyPress:
+            from ..shortcuts import _screen_event_key
+            key = _screen_event_key(self, event)
+            if key == Qt.Key_Escape and self._zoom_is_open():
+                self._fold_zoom_back()
+                return True
+            if key is not None and self.handle_key(key, event.text() if key == event.key() else ""):
+                return True
         if etype == QEvent.Leave:
             self._set_hover_slot(None)
         if etype == QEvent.Resize:

@@ -143,11 +143,9 @@ from PySide6.QtGui import (
     QColor,
     QCursor,
     QImage,
-    QKeySequence,
     QPainter,
     QPen,
     QPixmap,
-    QShortcut,
 )
 from PySide6.QtWidgets import (
     QApplication,
@@ -11595,22 +11593,24 @@ class MakeMasksScreen(QWidget):
         hundreds of small corrections, and a hand that has to find the mouse
         between each one does a fraction as many.
         """
-        QShortcut(QKeySequence(Qt.Key_Left), self, self._on_prev)
-        QShortcut(QKeySequence(Qt.Key_Right), self, self._on_next)
-        QShortcut(QKeySequence("Ctrl+S"), self, self._on_save)
-        QShortcut(QKeySequence("B"), self, lambda: self._set_mode(MODE_BRUSH))
-        QShortcut(QKeySequence("E"), self, lambda: self._set_mode(MODE_ERASE))
-        QShortcut(QKeySequence("W"), self, lambda: self._set_mode(MODE_WAND_ADD))
-        QShortcut(QKeySequence("D"), self, lambda: self._set_mode(MODE_DRAW))
-        QShortcut(QKeySequence("X"), self, lambda: self._set_mode(MODE_BOX))
-        QShortcut(QKeySequence("V"), self, lambda: self._set_mode(MODE_DIVIDE))
-        QShortcut(QKeySequence("Z"), self, lambda: self._set_mode(MODE_ZOOM))
-        QShortcut(QKeySequence("R"), self, lambda: self._set_mode(MODE_RECROP))
-        QShortcut(QKeySequence("M"), self, self._toggle_magnifier_key)
-        QShortcut(QKeySequence("Escape"), self, self._on_reset_zoom)
-        QShortcut(QKeySequence("Ctrl+Z"), self, self._on_undo)
-        QShortcut(QKeySequence("Ctrl+Y"), self, self._on_redo)
-        QShortcut(QKeySequence("Ctrl+Shift+Z"), self, self._on_redo)
+        from ..shortcuts import _bind_screen_key
+
+        _bind_screen_key(self, "Make Masks", "Left", self._on_prev)
+        _bind_screen_key(self, "Make Masks", "Right", self._on_next)
+        _bind_screen_key(self, "Make Masks", "Ctrl+S", self._on_save)
+        _bind_screen_key(self, "Make Masks", "B", lambda: self._set_mode(MODE_BRUSH))
+        _bind_screen_key(self, "Make Masks", "E", lambda: self._set_mode(MODE_ERASE))
+        _bind_screen_key(self, "Make Masks", "W", lambda: self._set_mode(MODE_WAND_ADD))
+        _bind_screen_key(self, "Make Masks", "D", lambda: self._set_mode(MODE_DRAW))
+        _bind_screen_key(self, "Make Masks", "X", lambda: self._set_mode(MODE_BOX))
+        _bind_screen_key(self, "Make Masks", "V", lambda: self._set_mode(MODE_DIVIDE))
+        _bind_screen_key(self, "Make Masks", "Z", lambda: self._set_mode(MODE_ZOOM))
+        _bind_screen_key(self, "Make Masks", "R", lambda: self._set_mode(MODE_RECROP))
+        _bind_screen_key(self, "Make Masks", "M", self._toggle_magnifier_key)
+        _bind_screen_key(self, "Make Masks", "Esc", self._on_reset_zoom)
+        _bind_screen_key(self, "Make Masks", "Ctrl+Z", self._on_undo)
+        _bind_screen_key(self, "Make Masks", "Ctrl+Y", self._on_redo)
+        _bind_screen_key(self, "Make Masks", "Ctrl+Shift+Z", self._on_redo)
 
     def _toggle_magnifier_key(self) -> bool:
         """Turn the live magnifier on or off from the keyboard: the M key.
