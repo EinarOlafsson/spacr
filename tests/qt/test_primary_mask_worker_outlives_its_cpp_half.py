@@ -100,3 +100,50 @@ def test_retired_wrappers_are_released_once_their_cpp_half_is_gone(qtbot, tmp_pa
     assert sum(isValid(kept) for kept in module._RETIRED) <= 1
     assert len(module._RETIRED) <= 1
     selector.shutdown()
+
+
+def test_a_finished_make_masks_load_keeps_its_worker_wrapper(qtbot, tmp_path):
+    from spacr.qt.screens import make_masks
+
+    screen = make_masks.MakeMasksScreen()
+    qtbot.addWidget(screen)
+    write_tiff(tmp_path / 'field.tif', np.full((12, 12), 5, dtype=np.uint16))
+    screen._load_token = 7
+    screen._start_background_load(str(tmp_path), 'field.tif', 7)
+    seen = _watch(screen._load_worker)
+    retired = weakref.ref(screen._load_worker)
+    qtbot.waitUntil(lambda: screen._load_worker is None, timeout=10000)
+    _flush_deletes()
+    assert seen == [True]
+    assert any(kept is retired() for kept in module._RETIRED)
+
+
+@pytest.mark.parametrize('fails', [False, True])
+def test_a_finished_make_masks_folder_job_keeps_its_worker_wrapper(qtbot, fails):
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt.screens import make_masks
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+
+    def job():
+        if fails:
+            raise OSError('folder vanished')
+        return 'done'
+
+    results = []
+
+    def start():
+        """Start the job holding the worker only through Qt and its slot."""
+        worker = make_masks._FolderJobWorker(job, owner)
+        worker.finished.connect(lambda: (results.append(worker.result),
+                                         make_masks._retire_worker(worker)))
+        worker.start()
+        return _watch(worker), weakref.ref(worker)
+
+    seen, retired = start()
+    qtbot.waitUntil(lambda: bool(results), timeout=10000)
+    _flush_deletes()
+    assert any(kept is retired() for kept in module._RETIRED)
+    assert results == [None if fails else 'done']
+    assert seen == [True]

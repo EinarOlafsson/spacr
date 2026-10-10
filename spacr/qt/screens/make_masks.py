@@ -143,9 +143,11 @@ from PySide6.QtGui import (
     QColor,
     QCursor,
     QImage,
+    QKeySequence,
     QPainter,
     QPen,
     QPixmap,
+    QShortcut,
 )
 from PySide6.QtWidgets import (
     QApplication,
@@ -553,6 +555,36 @@ QLabel#{INVERT_WARNING_NAME} {{
 
 
 register_widget_qss(MAKE_MASKS_QSS_NAME, _make_masks_qss, replace=True)
+
+
+def _retire_worker(worker, *, delete: bool = True) -> None:
+    """Keep a finished worker's wrapper alive past its C++ delete.
+
+    Uses :func:`spacr.qt.widgets.primary_mask_selector._retire`, which holds
+    a module-level reference so Shiboken cannot free the wrapper inside
+    ``Object::destroy`` (item 43). Test doubles that are not threads are
+    simply deleted.
+
+    :param worker: a load or folder-job thread whose ``run`` has returned.
+    :param delete: schedule the delete now; when False the worker stays
+        with its Qt parent and only the reference is kept.
+    """
+    from shiboken6 import isValid
+    from ..widgets import primary_mask_selector as selector
+
+    if not isinstance(worker, QThread):
+        if delete and hasattr(worker, "deleteLater"):
+            worker.deleteLater()
+        return
+    if not isValid(worker):
+        return
+    if delete:
+        selector._retire(worker)
+        return
+    worker.wait()
+    selector._RETIRED[:] = [kept for kept in selector._RETIRED
+                            if isValid(kept)]
+    selector._RETIRED.append(worker)
 
 
 class _MaskLoadWorker(QThread):
@@ -8664,6 +8696,342 @@ class ObjectFilterList(QWidget):
         self.changed.emit()
 
 
+def _apply_volume_edit(request):
+    """Apply one owned session edit off-thread without touching Qt objects."""
+    session, label, gate, cancel = request
+    session._cancelled = cancel.is_set
+    try:
+        return session.apply_geometry(label, gate)
+    finally:
+        session._cancelled = None
+
+
+class _VolumeMaskEditor(QDialog):
+    """Native shared-anchor editing of a spatial image and its label volume.
+
+    The point cloud is a labelled display preview; exact voxels and counts
+    are computed from every relevant voxel centre, not sampled display dots.
+    One bounded CPU worker commits geometry. Image slices, labels and the
+    source TIFF retain their spatial-axis and physical-spacing semantics.
+    """
+
+    _delivered = Signal(object)
+
+    def __init__(self, session, parent=None):
+        """Build the native volume view, slice preview and explicit save actions."""
+        from dataclasses import replace
+        import pandas as pd
+        from ..i18n import tr
+        from ..linked_selection import LinkedSelection
+        from ..tooltip_policy import OPT_OUT_PROPERTY
+        from ..widgets.gate_editor import GateEditorPanel
+        from ..widgets.gate_settings import GateEditorSettings
+        from ..widgets.graph_spec import GraphSpec
+        from ..widgets.hint_bar import HintBar
+        from ..widgets.toggle import Toggle
+
+        super().__init__(parent)
+        self.setObjectName('MakeMasksVolumeEditor')
+        self.setWindowTitle(tr('3D mask editor'))
+        self.resize(1300, 900)
+        self._session = session
+        self._closing = self._restoring = self._busy = self._dirty = False
+        self._cancel = threading.Event()
+        self._selected_label = 0
+        self._delivered.connect(self._take_edit)
+        self._worker = _NewestRequestWorker(
+            _apply_volume_edit, lambda request, result, error: self._delivered.emit((request, result, error)),
+            name='spacr-volume-mask-edit')
+        outer = QVBoxLayout(self)
+        self._preview_notice = QLabel(tr(
+            'Physical X/Y/Z coordinates. Sampled point-cloud preview; mask edits and voxel counts use the full image.'), self)
+        self._preview_notice.setObjectName('VolumeMaskPreviewNotice')
+        self._preview_notice.setWordWrap(True)
+        outer.addWidget(self._preview_notice)
+        self._notice = HintBar(tr('Choose an object and drag its anchors to edit the full mask.'), self)
+        self._notice.setObjectName('VolumeMaskNotice')
+        outer.addWidget(self._notice)
+        controls = QHBoxLayout()
+        controls.addWidget(QLabel(tr('Object ID'), self))
+        self._labels = QComboBox(self)
+        self._labels.setObjectName('VolumeMaskObjectLabel')
+        controls.addWidget(self._labels)
+        self._density = QSpinBox(self)
+        self._density.setObjectName('VolumeMaskAnchorDensity')
+        self._density.setRange(1, 8)
+        self._density.setValue(session._editor_controls['anchor_density'])
+        controls.addWidget(QLabel(tr('Anchor density'), self))
+        controls.addWidget(self._density)
+        self._anchors = Toggle(parent=self)
+        self._anchors.setObjectName('VolumeMaskAnchorVisibility')
+        self._anchors.setChecked(session._editor_controls['show_anchors'])
+        controls.addWidget(QLabel(tr('Show anchors'), self))
+        controls.addWidget(self._anchors)
+        self._save = QPushButton(tr('Save 3D mask'), self)
+        self._save.setObjectName('SaveVolumeMask')
+        self._undo = QPushButton(tr('Undo'), self)
+        self._redo = QPushButton(tr('Redo'), self)
+        self._undo.setObjectName('VolumeMaskUndo')
+        self._redo.setObjectName('VolumeMaskRedo')
+        for button in (self._undo, self._redo, self._save):
+            controls.addWidget(button)
+        controls.addStretch(1)
+        outer.addLayout(controls)
+        self._panel = GateEditorPanel(self, link=LinkedSelection(), source='make_masks_volume')
+        self._panel._gate_undo_replaying = True
+        self._panel.tree_section.hide()
+        self._panel._cluster.hide()
+        self._panel._settings_button.hide()
+        self._panel._xd_button.hide()
+        self._panel._tool.hide()
+        self._panel._status.hide()
+        for button in self._panel._mode_buttons.values():
+            button.hide()
+        self._panel.set_spin_controls_visible(True)
+        self._panel.set_namer(self._object_name)
+        for shortcut in self._panel.findChildren(QShortcut):
+            shortcut.setEnabled(False)
+        sample = np.linspace(0, session.image.size - 1, min(4000, session.image.size), dtype=int)
+        coordinates = np.asarray(np.unravel_index(sample, session.image.shape))
+        frame = pd.DataFrame({axis: (coordinates[session.axes.index(axis)] + .5) * session.xyz_spacing[index]
+                              for index, axis in enumerate('XYZ')})
+        frame['Intensity'] = session.image.ravel()[sample]
+        corners = pd.DataFrame([(x, y, z, 0.) for x in session.limits[0]
+                                for y in session.limits[1] for z in session.limits[2]],
+                               columns=['X', 'Y', 'Z', 'Intensity'])
+        self._panel.set_frame(pd.concat([frame, corners], ignore_index=True))
+        self._panel.set_spec(GraphSpec(x='X', y='Y', colour='Intensity'))
+        self._panel.canvas.set_mode('3D', z_column='Z')
+        self._panel.canvas._notice.hide()
+        self._settings = replace(GateEditorSettings(), **session._editor_controls)
+        self._panel.apply_settings(self._settings)
+        self._panel.gates_changed.connect(self._geometry_changed)
+        self._panel.canvas.depth_requested.connect(self._notice.setText)
+        outer.addWidget(self._panel, 1)
+        slice_row = QHBoxLayout()
+        self._slice = QSpinBox(self)
+        self._slice.setObjectName('VolumeMaskZSlice')
+        self._slice.setRange(0, session.image.shape[session.axes.index('Z')] - 1)
+        slice_row.addWidget(QLabel(tr('Z slice (index)'), self))
+        slice_row.addWidget(self._slice)
+        self._slice_view = QLabel(self)
+        self._slice_view.setObjectName('VolumeMaskSlicePreview')
+        self._slice_view.setFixedHeight(170)
+        self._slice_view.setAlignment(Qt.AlignCenter)
+        slice_row.addWidget(self._slice_view, 1)
+        self._count = HintBar(tr('Select an object to inspect its exact voxel count and spacing.'), self)
+        self._count.setObjectName('VolumeMaskCount')
+        slice_row.addWidget(self._count)
+        outer.addLayout(slice_row)
+        self._labels.currentIndexChanged.connect(self._select_label)
+        self._density.valueChanged.connect(self._anchor_settings)
+        self._anchors.toggled.connect(self._anchor_settings)
+        self._slice.valueChanged.connect(self._refresh_slice)
+        self._undo.clicked.connect(lambda: self._history(False))
+        self._redo.clicked.connect(lambda: self._history(True))
+        self._save.clicked.connect(self._save_mask)
+        for sequence, redo in [('Ctrl+Z', False), ('Ctrl+Shift+Z', True), ('Ctrl+Y', True)]:
+            shortcut = QShortcut(QKeySequence(sequence), self)
+            shortcut.activated.connect(lambda value=redo: self._history(value))
+        self._save.setToolTip(
+            'Save the full 3D labels and their editable boundary without changing the source image.')
+        self._undo.setToolTip(
+            'Undo the last volume edit, including its exact labels and boundary.')
+        self._redo.setToolTip('Redo the last volume edit.')
+        self._labels.setToolTip(
+            'Choose an existing object to edit, or draw a new object with an unused label.')
+        self._density.setToolTip(
+            'Subdivide every edge and surface into editing anchors. This never changes mask voxels.')
+        self._anchors.setToolTip(
+            'Show or hide editing anchors without changing the mask.')
+        for control in (self._save, self._undo, self._redo, self._labels,
+                        self._density, self._anchors):
+            text = control.toolTip()
+            control.setAccessibleDescription(tr(text))
+            self._panel._action_help.explain(control, text)
+            control.setProperty(OPT_OUT_PROPERTY, True)
+        self._refresh()
+
+    def _object_name(self):
+        """Name drawn geometry with its exact existing or unused object ID."""
+        return str(self._selected_label or self._session.next_label())
+
+    def _anchor_settings(self, *_args):
+        """Update only shared editing handles, preserving all geometry and voxels."""
+        from dataclasses import replace
+
+        self._settings = replace(self._settings, anchor_density=self._density.value(),
+                                 show_anchors=self._anchors.isChecked())
+        self._session._editor_controls = {'anchor_density': self._settings.anchor_density,
+                                         'show_anchors': self._settings.show_anchors}
+        self._dirty = True
+        self._panel.apply_settings(self._settings)
+
+    def _select_label(self, _index=0):
+        """Preview the chosen label's exact closed boundary or explain refusal."""
+        from ..widgets.gate_spec import GateSet
+
+        if self._restoring or self._busy:
+            return
+        self._selected_label = int(self._labels.currentData() or 0)
+        canvas = self._panel.canvas
+        surface_name = canvas._surface_gate
+        selected_surfaces = set(canvas._selected_surfaces)
+        gates = dict(self._session.geometries)
+        if self._selected_label:
+            try:
+                gates[self._selected_label] = self._session.geometry_for_label(self._selected_label)
+            except ValueError as exc:
+                self._notice.setText(str(exc))
+                self._selected_label = 0
+        self._restoring = True
+        try:
+            self._panel.set_gates(GateSet(list(gates.values())))
+            if self._selected_label:
+                self._panel.tree.select(str(self._selected_label))
+                if surface_name == str(self._selected_label):
+                    valid_groups = set(gates[self._selected_label].surface_groups)
+                    canvas._surface_gate = surface_name
+                    canvas._selected_surfaces = selected_surfaces & valid_groups
+            self._panel._drag_buttons['edit'].click()
+        finally:
+            self._restoring = False
+        self._refresh_slice()
+
+    def _geometry_changed(self):
+        """Queue one validated native edit, with no sampled-point mask inference."""
+        from dataclasses import replace
+        from ..i18n import tr
+
+        if self._restoring or self._busy or self._closing:
+            return
+        name = self._panel.canvas.active_gate or self._panel.tree.active_gate()
+        gate = self._panel.gates.get(name) if name else None
+        if gate is None:
+            return
+        try:
+            label = int(gate.name)
+            volume = self._panel.canvas._editable_boundary(gate)
+            if volume is None:
+                raise ValueError(tr('The drawn shape cannot become a valid bounded spatial volume.'))
+            order = [volume.columns.index(axis) for axis in 'XYZ']
+            if order != [0, 1, 2]:
+                volume = replace(volume, x_column='X', y_column='Y', z_column='Z',
+                                 vertices=tuple(tuple(point[index] for index in order) for point in volume.vertices))
+            if self._session.geometries.get(label) == volume:
+                return
+        except ValueError as exc:
+            self._notice.setText(str(exc))
+            self._select_label()
+            return
+        self._busy = True
+        for control in (self._panel, self._labels, self._save, self._undo, self._redo):
+            control.setEnabled(False)
+        self._worker.submit((self._session, label, volume, self._cancel))
+
+    def _take_edit(self, payload):
+        """Publish completed labels on the GUI thread and restore refused edits."""
+        from ..i18n import tr
+
+        if self._closing:
+            return
+        request, changed, error = payload
+        self._busy = False
+        for control in (self._panel, self._labels, self._save, self._undo, self._redo):
+            control.setEnabled(True)
+        if error is not None:
+            self._notice.setText(str(error))
+        else:
+            self._dirty = True
+            self._selected_label = request[1]
+            self._notice.setText(tr('Updated {n} voxels; source image and other labels are unchanged.', n=changed))
+        self._refresh()
+
+    def _refresh(self):
+        """Synchronize label selection and exact voxel counts after one edit."""
+        from ..i18n import tr
+
+        self._restoring = True
+        try:
+            self._labels.clear()
+            self._labels.addItem(tr('New object'), 0)
+            for value in np.unique(self._session.mask):
+                if value:
+                    self._labels.addItem(str(int(value)), int(value))
+            index = self._labels.findData(self._selected_label)
+            self._labels.setCurrentIndex(max(0, index))
+        finally:
+            self._restoring = False
+        self._select_label()
+        self._undo.setEnabled(bool(self._session._undo))
+        self._redo.setEnabled(bool(self._session._redo))
+
+    def _refresh_slice(self, *_args):
+        """Display the full original Z slice with exact label colours."""
+        from ..i18n import tr
+
+        session = self._session
+        order = tuple(session.axes.index(axis) for axis in 'ZYX')
+        image = np.transpose(session.image, order)[self._slice.value()]
+        labels = np.transpose(session.mask, order)[self._slice.value()]
+        data = np.asarray(image, dtype=float)
+        low, high = float(data.min()), float(data.max())
+        scaled = ((data - low) / max(high - low, 1.) * 65535).astype(np.uint16)
+        rgb = engine.overlay_mask(scaled, labels)
+        rgba = np.dstack((rgb, np.full(rgb.shape[:2], 255, dtype=np.uint8)))
+        picture = QPixmap.fromImage(_rgba_qimage(rgba))
+        self._slice_view.setPixmap(picture.scaled(self._slice_view.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        count = int(np.count_nonzero(session.mask == self._selected_label)) if self._selected_label else 0
+        self._count.setText(tr('Object {label}: {n} voxels\nAxes: {axes}\nSpacing: {spacing} {unit}',
+                               label=self._selected_label, n=count, axes=session.axes,
+                               spacing=', '.join(map(str, session.spacing)), unit=session.unit))
+
+    def _history(self, redo=False):
+        """Restore both actual voxel labels and shared geometry as one step."""
+        if self._busy or self._closing:
+            return
+        if (self._session.redo if redo else self._session.undo)():
+            self._dirty = True
+            self._refresh()
+
+    def _save_mask(self):
+        """Save the native labels without entering the two-dimensional writer."""
+        from ..i18n import tr
+
+        if self._busy:
+            return False
+        try:
+            path = engine.save_volume_mask(self._session)
+        except (ValueError, OSError) as exc:
+            self._notice.setText(str(exc))
+            return False
+        self._dirty = False
+        self._notice.setText(tr('Saved 3D mask: {path}', path=path))
+        return True
+
+    def closeEvent(self, event):
+        """Cancel unfinished voxelization and protect unsaved completed edits."""
+        from ..i18n import tr
+
+        if self._dirty:
+            buttons = QMessageBox.Discard | QMessageBox.Cancel
+            message = tr('An edit is still running. Discard the completed unsaved edits and cancel this operation?')
+            if not self._busy:
+                buttons |= QMessageBox.Save
+                message = tr('Save the edited volume before closing?')
+            choice = QMessageBox.question(self, tr('Save 3D mask?'),
+                                          message, buttons,
+                                          QMessageBox.Cancel)
+            if (choice == QMessageBox.Cancel
+                    or choice == QMessageBox.Save and (self._busy or not self._save_mask())):
+                event.ignore()
+                return
+        self._closing = True
+        self._cancel.set()
+        self._worker.close(timeout=0)
+        super().closeEvent(event)
+
+
 class MakeMasksScreen(QWidget):
     """Qt widget for the Make Masks app — the successor to Tk ModifyMaskApp.
 
@@ -8730,6 +9098,7 @@ class MakeMasksScreen(QWidget):
         #: :meth:`finish_recrop`.
         self._recrop_children: List[str] = []
         self._load_worker: Optional[_MaskLoadWorker] = None
+        self._volume_dialog = None
         self._pending_load = None
         self._loading = False
         self._detection_worker = None
@@ -8772,6 +9141,40 @@ class MakeMasksScreen(QWidget):
         from ..widgets.make_masks_help import install_make_masks_help
         install_make_masks_help(self)
         self._take_any_terminal_queue()
+
+    def open_volume(self, path=None):
+        """Open a native spatial TIFF in the shared 3-D anchor editor.
+
+        The existing 2-D image, mask tools and YOLO annotations stay separate.
+        Time/channel/RGB TIFFs are refused rather than interpreted as depth.
+
+        :param path: optional spatial TIFF path; otherwise opens a file picker.
+        :returns: the native volume dialog, or None on cancellation/refusal.
+        """
+        from pathlib import Path
+        from ..i18n import tr
+
+        if path is None:
+            path, _ = QFileDialog.getOpenFileName(self, tr("Open 3D spatial image"),
+                                                self._folder, tr("Spatial TIFF (*.tif *.tiff)"))
+        if not path:
+            return None
+        if self._volume_dialog is not None and not self._volume_dialog.close():
+            return self._volume_dialog
+        source = Path(path)
+        try:
+            sibling = self._masks_dir if str(source.parent) == self._folder else None
+            session = engine.load_volume_image_and_mask(str(source.parent), source.name, sibling)
+        except (ValueError, OSError) as exc:
+            self._status_label.setText(str(exc))
+            return None
+        self._volume_dialog = _VolumeMaskEditor(session, self)
+        self._volume_dialog.setAttribute(Qt.WA_DeleteOnClose)
+        expected = weakref.ref(self._volume_dialog)
+        self._volume_dialog.destroyed.connect(lambda: setattr(self, '_volume_dialog', None)
+                                              if self._volume_dialog is expected() else None)
+        self._volume_dialog.show()
+        return self._volume_dialog
 
     def _take_any_terminal_queue(self) -> bool:
         """Open the queue ``spacr-make-masks`` handed over, if there is one.
@@ -9063,6 +9466,15 @@ class MakeMasksScreen(QWidget):
         self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_folder)
         nav_row.addWidget(self._btn_open)
+        self._btn_volume = QPushButton(tr("Open 3D image…"), self)
+        self._btn_volume.setObjectName("OpenVolumeMask")
+        self._btn_volume.setProperty('_spacr_i18n_tooltip',
+            'Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.')
+        self._btn_volume.setToolTip(tr(
+            'Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.'))
+        self._btn_volume.setAccessibleDescription(self._btn_volume.toolTip())
+        self._btn_volume.clicked.connect(lambda: self.open_volume())
+        nav_row.addWidget(self._btn_volume)
         nav_row.addWidget(self._build_organize_button())
         nav_row.addWidget(self._build_test_data_button())
         nav_row.addWidget(self._build_uncertainty_button())
@@ -16558,6 +16970,19 @@ class MakeMasksScreen(QWidget):
         self._btn_organize = button
         return button
 
+    def _finish_folder_job(self, worker, report) -> None:
+        """Report a finished folder job, then retire its thread safely.
+
+        :param worker: the finished job.
+        :param report: the handler that reads the job's result.
+        """
+        try:
+            report(worker)
+        finally:
+            if getattr(self, "_folder_job", None) is worker:
+                self._folder_job = None
+            _retire_worker(worker)
+
     def _folder_job_running(self) -> bool:
         """Whether a consolidation or channel sort is still running."""
         worker = getattr(self, "_folder_job", None)
@@ -16613,7 +17038,8 @@ class MakeMasksScreen(QWidget):
             folder, output, extensions=engine.IMAGE_EXTS,
             skip_dirs=_NOT_CONSOLIDATED,
             log=post), self)
-        worker.finished.connect(lambda: self._on_consolidated(worker))
+        worker.finished.connect(
+            lambda: self._finish_folder_job(worker, self._on_consolidated))
         self._folder_job = worker
         worker.start()
         return True
@@ -16695,7 +17121,8 @@ class MakeMasksScreen(QWidget):
         post(tr("Sorting {n} image(s) into channels under {dest}…",
                 n=len(plan.rows), dest=plan.dest))
         worker = _FolderJobWorker(lambda: cs.apply_plan(plan, log=post), self)
-        worker.finished.connect(lambda: self._on_channels_sorted(worker))
+        worker.finished.connect(
+            lambda: self._finish_folder_job(worker, self._on_channels_sorted))
         self._folder_job = worker
         worker.start()
         return True
@@ -17026,7 +17453,7 @@ class MakeMasksScreen(QWidget):
                 self._apply_loaded_pair(
                     worker.filename, worker.token, *worker.result
                 )
-        worker.deleteLater()
+        _retire_worker(worker)
         pending, self._pending_load = self._pending_load, None
         if pending is not None:
             self._start_background_load(*pending)
@@ -17054,6 +17481,9 @@ class MakeMasksScreen(QWidget):
         """
         from ..bridge import drain_thread
 
+        if self._volume_dialog is not None and not self._volume_dialog.close():
+            event.ignore()
+            return
         if not self._save_boxes_if_needed():
             event.ignore()
             return
@@ -17091,6 +17521,8 @@ class MakeMasksScreen(QWidget):
                 pass
             if not drain_thread(worker, timeout_ms=5000):
                 worker.setParent(None)
+            else:
+                _retire_worker(worker, delete=False)
         self._loading = False
         super().closeEvent(event)
 

@@ -1,0 +1,293 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Edit native spatial labels using the same boundary as the 3-D data-selection boundary view.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#0",
+      "source": "Edit native spatial labels using the same boundary as the 3-D gate view.",
+      "source_sha256": "8d38d80f7c769a723e70c41aefe1f279daebcefb6814cc6ae7ca4a78322315f3",
+      "translation": "Native räumliche Labels mit derselben Begrenzung wie in der 3-D-Gate-Ansicht bearbeiten."
+    },
+    {
+      "context": "Coordinates are physical X/Y/Z distances from the image's outer origin; voxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their declared spatial axis order, source dtype and existing object identities. At most 16,777,216 voxels and 256 MiB of source intensities are accepted; larger microscope fields of view are refused explicitly. Sparse undo deltas have a combined 64 MiB budget rather than retaining a volume for every edit.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#1",
+      "source": "Coordinates are physical X/Y/Z distances from the image's outer origin; voxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their declared spatial axis order, source dtype and existing object identities. At most 16,777,216 voxels and 256 MiB of source intensities are accepted; larger fields are refused explicitly. Sparse undo deltas have a combined 64 MiB budget rather than retaining a volume for every edit.",
+      "source_sha256": "3a385a26ee899c965f2d6d828fba37c6b9687bd0f8aa4bbc4e8bb9524b9a8dd9",
+      "translation": "Koordinaten sind physische X/Y/Z-Distanzen vom äußeren Ursprung des Bildes; Voxelzentren liegen bei ``(index + 0.5) * spacing``. Arrays behalten ihre deklarierte räumliche Achsenreihenfolge, den Quell-dtype und bestehende Objektidentitäten. Höchstens 16,777,216 Voxel und 256 MiB an Quellintensitäten werden akzeptiert; größere Felder werden explizit abgelehnt. Dünnbesetzte Rückgängig-Deltas haben ein gemeinsames Budget von 64 MiB, anstatt für jede Bearbeitung ein ganzes Volumen zu behalten."
+    },
+    {
+      "context": "spatial storage-axis order, a permutation of XYZ.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#10",
+      "source": "spatial storage-axis order, a permutation of XYZ.",
+      "source_sha256": "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
+      "translation": "räumliche Speicherachsenreihenfolge, eine Permutation von XYZ."
+    },
+    {
+      "context": "three positive finite distances in storage order.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#11",
+      "source": "three positive finite distances in storage order.",
+      "source_sha256": "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
+      "translation": "drei positive endliche Distanzen in Speicherreihenfolge."
+    },
+    {
+      "context": "the common distance unit.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#12",
+      "source": "the common distance unit.",
+      "source_sha256": "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b",
+      "translation": "die gemeinsame Distanzeinheit."
+    },
+    {
+      "context": "finite real numeric three-dimensional source intensities.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#2",
+      "source": "finite real numeric three-dimensional source intensities.",
+      "source_sha256": "ac0065724c23fefd243fe93ec54b2265626bfd533b80ca5448ea9d41d3add1a2",
+      "translation": "endliche, reelle, numerische dreidimensionale Quellintensitäten."
+    },
+    {
+      "context": "nonnegative integer labels of exactly the source shape.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#3",
+      "source": "nonnegative integer labels of exactly the source shape.",
+      "source_sha256": "c642ea08391f093a1632d2e6680f773fe20ed524d895f1a639bf67cc070580d5",
+      "translation": "nichtnegative ganzzahlige Labels mit exakt der Form der Quelle."
+    },
+    {
+      "context": "a permutation of the three spatial axes ``XYZ``.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#4",
+      "source": "a permutation of the three spatial axes ``XYZ``.",
+      "source_sha256": "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
+      "translation": "eine Permutation der drei räumlichen Achsen ``XYZ``."
+    },
+    {
+      "context": "positive finite distances in that same array axis order.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#5",
+      "source": "positive finite distances in that same array axis order.",
+      "source_sha256": "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
+      "translation": "positive endliche Distanzen in derselben Array-Achsenreihenfolge."
+    },
+    {
+      "context": "the physical distance unit, or ``pixel`` when unspecified.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#6",
+      "source": "the physical distance unit, or ``pixel`` when unspecified.",
+      "source_sha256": "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+      "translation": "die physische Distanzeinheit oder ``pixel``, wenn nicht angegeben."
+    },
+    {
+      "context": "Validate one spatial image and own its mutable label array.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#7",
+      "source": "Validate one spatial image and own its mutable label array.",
+      "source_sha256": "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
+      "translation": "Ein räumliches Bild validieren und dessen veränderliches Label-Array übernehmen."
+    },
+    {
+      "context": "finite real numeric source intensities.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#8",
+      "source": "finite real numeric source intensities.",
+      "source_sha256": "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
+      "translation": "endliche, reelle, numerische Quellintensitäten."
+    },
+    {
+      "context": "nonnegative integer object labels matching the image.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#9",
+      "source": "nonnegative integer object labels matching the image.",
+      "source_sha256": "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
+      "translation": "nichtnegative ganzzahlige Objekt-Labels, die zum Bild passen."
+    },
+    {
+      "context": "Commit one validated shared boundary and its exact mask voxels.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry#0",
+      "source": "Commit one validated shared boundary and its exact mask voxels.",
+      "source_sha256": "e1da32670300ea3aee37dc6bf89ecc1ef999dcf704df94358bd7a1f6addc934e",
+      "translation": "Eine validierte gemeinsame Begrenzung und ihre exakten Maskenvoxel übernehmen."
+    },
+    {
+      "context": "Other object IDs are protected. Invalid motion, collisions or a delta exceeding the history budget leave arrays, geometry and history intact.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry#1",
+      "source": "Other object IDs are protected. Invalid motion, collisions or a delta exceeding the history budget leave arrays, geometry and history intact.",
+      "source_sha256": "43ae30a163ea00e756068cd7ef8ba9eaed5c8d6af3fd85b88c05b0a67685b3a1",
+      "translation": "Andere Objekt-IDs sind geschützt. Ungültige Bewegungen, Kollisionen oder ein Delta, das das Verlaufsbudget überschreitet, lassen Arrays, Geometrie und Verlauf unverändert."
+    },
+    {
+      "context": "positive ID representable by the current mask dtype.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry#2",
+      "source": "positive ID representable by the current mask dtype.",
+      "source_sha256": "006f1812a1208eae0a5c3f4d005e938ecaa218e8973397f270da133b05b88a59",
+      "translation": "positive ID, die mit dem aktuellen Masken-dtype darstellbar ist."
+    },
+    {
+      "context": "shared ``EditableVolumeGate`` with physical X/Y/Z columns.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry#3",
+      "source": "shared ``EditableVolumeGate`` with physical X/Y/Z columns.",
+      "source_sha256": "01b84d022ad85e540a460440f98e0e4ed3bc14328b5a1ff621674f7c97371ff4",
+      "translation": "gemeinsames ``EditableVolumeGate`` mit physischen X/Y/Z-Spalten."
+    },
+    {
+      "context": "number of changed voxels.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry#4",
+      "source": "number of changed voxels.",
+      "source_sha256": "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+      "translation": "Anzahl der geänderten Voxel."
+    },
+    {
+      "context": "Return saved geometry or an exact closed voxel-boundary mesh.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label#0",
+      "source": "Return saved geometry or an exact closed voxel-boundary mesh.",
+      "source_sha256": "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
+      "translation": "Gespeicherte Geometrie oder ein exaktes geschlossenes Voxelbegrenzungsnetz zurückgeben."
+    },
+    {
+      "context": "Corner-touching, disconnected or excessively detailed labels that cannot satisfy the shared mesh's bounds/topology are refused rather than replaced by a bounding box. Merely previewing this mesh does not change voxels, history or saved geometry.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label#1",
+      "source": "Corner-touching, disconnected or excessively detailed labels that cannot satisfy the shared mesh's bounds/topology are refused rather than replaced by a bounding box. Merely previewing this mesh does not change voxels, history or saved geometry.",
+      "source_sha256": "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
+      "translation": "Labels, die sich nur an Ecken berühren, unzusammenhängend oder übermäßig detailliert sind und die Grenzen/Topologie des gemeinsamen Netzes nicht erfüllen können, werden abgelehnt, anstatt durch einen umschließenden Quader ersetzt zu werden. Die bloße Vorschau dieses Netzes ändert weder Voxel noch Verlauf noch gespeicherte Geometrie."
+    },
+    {
+      "context": "an existing positive object identifier.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label#2",
+      "source": "an existing positive object identifier.",
+      "source_sha256": "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
+      "translation": "ein vorhandener positiver Objektbezeichner."
+    },
+    {
+      "context": "a validated shared editable volume in physical coordinates.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label#3",
+      "source": "a validated shared editable volume in physical coordinates.",
+      "source_sha256": "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f",
+      "translation": "ein validiertes gemeinsames bearbeitbares Volumen in physischen Koordinaten."
+    },
+    {
+      "context": "The exact physical outer image bounds in X/Y/Z order.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.limits#0",
+      "source": "The exact physical outer image bounds in X/Y/Z order.",
+      "source_sha256": "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242",
+      "translation": "Die exakten physischen äußeren Bildgrenzen in X/Y/Z-Reihenfolge."
+    },
+    {
+      "context": "Return the first unused positive ID without renumbering any object.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.next_label#0",
+      "source": "Return the first unused positive ID without renumbering any object.",
+      "source_sha256": "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254",
+      "translation": "Die erste unbenutzte positive ID zurückgeben, ohne ein Objekt neu zu nummerieren."
+    },
+    {
+      "context": "Reapply the most recently undone voxel delta and geometry.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.redo#0",
+      "source": "Reapply the most recently undone voxel delta and geometry.",
+      "source_sha256": "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173",
+      "translation": "Das zuletzt rückgängig gemachte Voxel-Delta und die Geometrie erneut anwenden."
+    },
+    {
+      "context": "Restore the preceding sparse voxel delta and immutable geometry.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.undo#0",
+      "source": "Restore the preceding sparse voxel delta and immutable geometry.",
+      "source_sha256": "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3",
+      "translation": "Das vorherige dünnbesetzte Voxel-Delta und die unveränderliche Geometrie wiederherstellen."
+    },
+    {
+      "context": "Voxel distances in physical X/Y/Z order, independent of storage.",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.xyz_spacing#0",
+      "source": "Voxel distances in physical X/Y/Z order, independent of storage.",
+      "source_sha256": "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c",
+      "translation": "Voxeldistanzen in physischer X/Y/Z-Reihenfolge, unabhängig von der Speicherung."
+    },
+    {
+      "context": "Open an explicitly declared grayscale spatial TIFF for native 3-D editing.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#0",
+      "source": "Open an explicitly declared grayscale spatial TIFF for native 3-D editing.",
+      "source_sha256": "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
+      "translation": "Ein explizit deklariertes räumliches Graustufen-TIFF für die native 3-D-Bearbeitung öffnen."
+    },
+    {
+      "context": "Exactly three spatial axes are supported, in any order. Time, image data channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#1",
+      "source": "Exactly three spatial axes are supported, in any order. Time, channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
+      "source_sha256": "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+      "translation": "Es werden genau drei räumliche Achsen in beliebiger Reihenfolge unterstützt. Zeit-, Kanal-, Farb- und abgeleitete Seitenachsen werden abgelehnt. ``voxel_spacing``-Metadaten werden in Speicherachsenreihenfolge gelesen. Physische OME-Größen werden in Mikrometer umgerechnet; ImageJ-Abstände und XY-Auflösung bleiben erhalten. Fehlende physische Metadaten bedeuten Pixelkoordinaten. Labels behalten dtype und Identität. Eine gespeicherte Geometrie-Sidecar-Datei ist an die exakte Quelldatei und die Maskenpixel gebunden und wird abgelehnt, wenn sie veraltet ist."
+    },
+    {
+      "context": "source image directory.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#2",
+      "source": "source image directory.",
+      "source_sha256": "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+      "translation": "Quellbildverzeichnis."
+    },
+    {
+      "context": "spatial TIFF image filename.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#3",
+      "source": "spatial TIFF image filename.",
+      "source_sha256": "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+      "translation": "Dateiname des räumlichen TIFF-Bildes."
+    },
+    {
+      "context": "optional existing sibling mask directory.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#4",
+      "source": "optional existing sibling mask directory.",
+      "source_sha256": "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+      "translation": "optionales vorhandenes benachbartes Maskenverzeichnis."
+    },
+    {
+      "context": "a ``VolumeMaskSession`` owning the labels and source metadata.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#5",
+      "source": "a ``VolumeMaskSession`` owning the labels and source metadata.",
+      "source_sha256": "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39",
+      "translation": "eine ``VolumeMaskSession``, der die Labels und Quellmetadaten gehören."
+    },
+    {
+      "context": "Write native labels and their source-bound shared boundary sidecar.",
+      "label": "spacr.qt.mask_engine.save_volume_mask#0",
+      "source": "Write native labels and their source-bound shared boundary sidecar.",
+      "source_sha256": "67c99870147c421a816cdc38866de243e4dfb67ca102d56e9f54483e38d02662",
+      "translation": "Native Labels und ihre an die Quelle gebundene gemeinsame Begrenzungs-Sidecar-Datei schreiben."
+    },
+    {
+      "context": "Both artifacts are prepared before replacing either destination. A failed second replacement restores the previous pair. Source/output identities are rechecked after staging. Two filenames cannot form a fully atomic transaction against an uncooperative concurrent writer; interrupted or mismatched publications are refused by the source/mask-bound sidecar on loading. Source axes, spacing, label dtype and IDs are preserved.",
+      "label": "spacr.qt.mask_engine.save_volume_mask#1",
+      "source": "Both artifacts are prepared before replacing either destination. A failed second replacement restores the previous pair. Source/output identities are rechecked after staging. Two filenames cannot form a fully atomic transaction against an uncooperative concurrent writer; interrupted or mismatched publications are refused by the source/mask-bound sidecar on loading. Source axes, spacing, label dtype and IDs are preserved.",
+      "source_sha256": "4d1b5243419c1879129e2b239aeb8381bf9e0707f5c57e5b088e0f773e32b87a",
+      "translation": "Beide Artefakte werden vorbereitet, bevor eines der Ziele ersetzt wird. Schlägt die zweite Ersetzung fehl, wird das vorherige Paar wiederhergestellt. Quell-/Ausgabeidentitäten werden nach dem Staging erneut geprüft. Zwei Dateinamen können gegenüber einem nicht kooperierenden gleichzeitigen Schreiber keine vollständig atomare Transaktion bilden; unterbrochene oder nicht übereinstimmende Veröffentlichungen werden beim Laden von der an Quelle/Maske gebundenen Sidecar-Datei abgelehnt. Quellachsen, Abstand, Label-dtype und IDs bleiben erhalten."
+    },
+    {
+      "context": "a volume session loaded through the existing mask paths.",
+      "label": "spacr.qt.mask_engine.save_volume_mask#2",
+      "source": "a volume session loaded through the existing mask paths.",
+      "source_sha256": "0bbfc87fca59c066bae4562a7c35f3ec398c17db5f650c3106ed2924ad5af263",
+      "translation": "eine Volumensitzung, die über die vorhandenen Maskenpfade geladen wurde."
+    },
+    {
+      "context": "the canonical TIFF mask path.",
+      "label": "spacr.qt.mask_engine.save_volume_mask#3",
+      "source": "the canonical TIFF mask path.",
+      "source_sha256": "d6c21e86b31929098381b63efbea3617c7184e5d3c80ac246b97b2918146b91c",
+      "translation": "der kanonische TIFF-Maskenpfad."
+    },
+    {
+      "context": "Open a native spatial TIFF in the shared 3-D anchor editor.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#0",
+      "source": "Open a native spatial TIFF in the shared 3-D anchor editor.",
+      "source_sha256": "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
+      "translation": "Ein natives räumliches TIFF im gemeinsamen 3-D-Ankereditor öffnen."
+    },
+    {
+      "context": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/image data channel/RGB TIFFs are refused rather than interpreted as depth.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#1",
+      "source": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/channel/RGB TIFFs are refused rather than interpreted as depth.",
+      "source_sha256": "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
+      "translation": "Das vorhandene 2-D-Bild, die Maskenwerkzeuge und die YOLO-Annotationen bleiben getrennt. Zeit-/Kanal-/RGB-TIFFs werden abgelehnt, anstatt als Tiefe interpretiert zu werden."
+    },
+    {
+      "context": "optional spatial TIFF path; otherwise opens a file picker.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#2",
+      "source": "optional spatial TIFF path; otherwise opens a file picker.",
+      "source_sha256": "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+      "translation": "optionaler Pfad zu einem räumlichen TIFF; andernfalls wird eine Dateiauswahl geöffnet."
+    },
+    {
+      "context": "the native volume dialog, or None on cancellation/refusal.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#3",
+      "source": "the native volume dialog, or None on cancellation/refusal.",
+      "source_sha256": "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6",
+      "translation": "der native Volumendialog oder None bei Abbruch/Ablehnung."
+    }
+  ],
+  "schema": 1
+}

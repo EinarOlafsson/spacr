@@ -5283,6 +5283,447 @@ def magic_wand(
 
 
 
+class VolumeMaskSession:
+    """Edit native spatial labels using the same boundary as the 3-D gate view.
+
+    Coordinates are physical X/Y/Z distances from the image's outer origin;
+    voxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their
+    declared spatial axis order, source dtype and existing object identities.
+    At most 16,777,216 voxels and 256 MiB of source intensities are accepted;
+    larger fields are refused explicitly. Sparse undo deltas have a combined
+    64 MiB budget rather than retaining a volume for every edit.
+
+    :param image: finite real numeric three-dimensional source intensities.
+    :param mask: nonnegative integer labels of exactly the source shape.
+    :param axes: a permutation of the three spatial axes ``XYZ``.
+    :param spacing: positive finite distances in that same array axis order.
+    :param unit: the physical distance unit, or ``pixel`` when unspecified.
+    """
+
+    MAX_VOXELS = 16_777_216
+    MAX_HISTORY_BYTES = 64 * 1024 * 1024
+
+    def __init__(self, image, mask, *, axes='ZYX', spacing=(1., 1., 1.),
+                 unit='pixel'):
+        """Validate one spatial image and own its mutable label array.
+
+        :param image: finite real numeric source intensities.
+        :param mask: nonnegative integer object labels matching the image.
+        :param axes: spatial storage-axis order, a permutation of XYZ.
+        :param spacing: three positive finite distances in storage order.
+        :param unit: the common distance unit.
+        """
+        from .i18n import tr
+
+        image, labels = np.asarray(image), np.asarray(mask)
+        axes = str(axes)
+        if (image.ndim != 3 or sorted(axes) != ['X', 'Y', 'Z']
+                or image.size == 0 or image.size > self.MAX_VOXELS
+                or image.nbytes > 256 * 1024 * 1024
+                or image.dtype.kind not in 'uif' or not np.isfinite(image).all()):
+            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+        try:
+            distances = tuple(float(value) for value in spacing)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(tr('Voxel spacing must contain three positive finite distances.')) from exc
+        if (len(distances) != 3 or not all(np.isfinite(value) and value > 0 for value in distances)
+                or any(isinstance(value, (bool, np.bool_)) for value in spacing)):
+            raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+        if not all(np.isfinite(float(length) * distance) for length, distance in zip(image.shape, distances)):
+            raise ValueError(tr('The physical image bounds must be finite.'))
+        if (labels.shape != image.shape or labels.dtype.kind not in 'ui'
+                or labels.min() < 0 or labels.max() > 65535):
+            raise ValueError(tr('The volume mask must contain matching nonnegative integer object labels up to 65535.'))
+        self.image = image
+        self.mask = np.array(labels, copy=True, order="C")
+        self.axes, self.spacing, self.unit = axes, distances, str(unit)
+        self.geometries = {}
+        self._undo, self._redo = [], []
+        self._history_bytes = 0
+        self._cancelled = None
+        self._editor_controls = {'anchor_density': 2, 'show_anchors': True}
+        self.source_path = self.source_sha256 = None
+        self.mask_path = None
+        self._saved_mask_sha256 = self._saved_geometry_sha256 = None
+
+    @property
+    def xyz_spacing(self):
+        """Voxel distances in physical X/Y/Z order, independent of storage."""
+        return tuple(self.spacing[self.axes.index(axis)] for axis in 'XYZ')
+
+    @property
+    def limits(self):
+        """The exact physical outer image bounds in X/Y/Z order."""
+        return tuple((0., self.image.shape[self.axes.index(axis)] * distance)
+                     for axis, distance in zip('XYZ', self.xyz_spacing))
+
+    def next_label(self):
+        """Return the first unused positive ID without renumbering any object."""
+        from .i18n import tr
+
+        occupied = set(map(int, np.unique(self.mask)))
+        maximum = min(65535, np.iinfo(self.mask.dtype).max)
+        for value in range(1, maximum + 1):
+            if value not in occupied:
+                return value
+        raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+
+    def geometry_for_label(self, label):
+        """Return saved geometry or an exact closed voxel-boundary mesh.
+
+        Corner-touching, disconnected or excessively detailed labels that
+        cannot satisfy the shared mesh's bounds/topology are refused rather
+        than replaced by a bounding box. Merely previewing this mesh does not
+        change voxels, history or saved geometry.
+
+        :param label: an existing positive object identifier.
+        :returns: a validated shared editable volume in physical coordinates.
+        """
+        from .i18n import tr
+        from .widgets.gate_spec import EditableVolumeGate
+
+        if (not isinstance(label, Integral) or isinstance(label, (bool, np.bool_))
+                or label <= 0):
+            raise ValueError(tr('Choose an existing positive object label.'))
+        label = int(label)
+        if label in self.geometries:
+            return self.geometries[label]
+        volume = np.transpose(self.mask, tuple(self.axes.index(axis) for axis in 'XYZ'))
+        positions = np.argwhere(volume == label)
+        if label <= 0 or not len(positions):
+            raise ValueError(tr('Choose an existing positive object label.'))
+        corners = [(x, y, z) for z in (0, 1) for y in (0, 1) for x in (0, 1)]
+        quads = [(0, 2, 3, 1), (4, 5, 7, 6), (0, 1, 5, 4),
+                 (2, 6, 7, 3), (0, 4, 6, 2), (1, 3, 7, 5)]
+        offsets = [(0, 0, -1), (0, 0, 1), (0, -1, 0),
+                   (0, 1, 0), (-1, 0, 0), (1, 0, 0)]
+        indices, vertices, faces, groups = {}, [], [], []
+        for position in positions:
+            for quad, offset in zip(quads, offsets):
+                neighbour = position + offset
+                if (np.all(neighbour >= 0) and np.all(neighbour < volume.shape)
+                        and volume[tuple(neighbour)] == label):
+                    continue
+                shared = []
+                for corner in quad:
+                    key = tuple(map(int, position + corners[corner]))
+                    if key not in indices:
+                        indices[key] = len(vertices)
+                        vertices.append(tuple(value * distance for value, distance in zip(key, self.xyz_spacing)))
+                    shared.append(indices[key])
+                a, b, c, d = shared
+                groups.extend([len(faces) // 2] * 2)
+                faces.extend([(a, b, c), (a, c, d)])
+                if len(vertices) > 8192 or len(faces) > 16384:
+                    raise ValueError(tr('This label has too much boundary detail for editable volume geometry.'))
+        return EditableVolumeGate(name=str(label), x_column='X', y_column='Y',
+                                  z_column='Z', vertices=tuple(vertices),
+                                  faces=tuple(faces), surface_groups=tuple(groups))
+
+    def _paint_geometry(self, output, label, gate):
+        """Voxelize only the physical boundary's bounding region in 4096-point chunks."""
+        import pandas as pd
+        from .i18n import tr
+
+        vertices = np.asarray(gate.vertices)
+        xyz_low, xyz_high = vertices.min(axis=0), vertices.max(axis=0)
+        xyz_spacing = np.asarray(self.xyz_spacing)
+        xyz_shape = np.asarray([self.mask.shape[self.axes.index(axis)] for axis in 'XYZ'])
+        xyz_low = np.maximum(0., xyz_low)
+        xyz_high = np.minimum(xyz_shape * xyz_spacing, xyz_high)
+        if np.any(xyz_high < xyz_low):
+            return
+        low = np.maximum(0, np.ceil(xyz_low / xyz_spacing - .5).astype(int))
+        high = np.minimum(xyz_shape, np.floor(xyz_high / xyz_spacing - .5).astype(int) + 1)
+        if np.any(high <= low):
+            return
+        order = ['XYZ'.index(axis) for axis in self.axes]
+        start, shape = low[order], (high - low)[order]
+        for offset in range(0, int(np.prod(shape)), 4096):
+            if self._cancelled is not None and self._cancelled():
+                raise InterruptedError(tr('Volume editing was cancelled; no labels were changed.'))
+            count = min(4096, int(np.prod(shape)) - offset)
+            coordinates = np.asarray(np.unravel_index(np.arange(offset, offset + count), tuple(shape))) + start[:, None]
+            frame = pd.DataFrame({axis: (coordinates[self.axes.index(axis)] + .5) * self.xyz_spacing[i]
+                                  for i, axis in enumerate('XYZ')})
+            inside = gate.mask(frame)
+            selected = tuple(coordinates[:, inside])
+            existing = output[selected]
+            if np.any((existing != 0) & (existing != label)):
+                raise ValueError(tr('The edited volume overlaps another object; no labels were changed.'))
+            output[selected] = label
+
+    def apply_geometry(self, label, gate):
+        """Commit one validated shared boundary and its exact mask voxels.
+
+        Other object IDs are protected. Invalid motion, collisions or a delta
+        exceeding the history budget leave arrays, geometry and history intact.
+
+        :param label: positive ID representable by the current mask dtype.
+        :param gate: shared ``EditableVolumeGate`` with physical X/Y/Z columns.
+        :returns: number of changed voxels.
+        """
+        from .i18n import tr
+        from .widgets.gate_spec import EditableVolumeGate
+
+        if (not isinstance(label, Integral) or isinstance(label, (bool, np.bool_))
+                or not 0 < label <= min(65535, np.iinfo(self.mask.dtype).max)
+                or not isinstance(gate, EditableVolumeGate) or gate.columns != ('X', 'Y', 'Z')
+                or gate.parent is not None or gate.name != str(label)):
+            raise ValueError(tr('Volume geometry needs one valid object ID and physical X/Y/Z coordinates.'))
+        output = self.mask.copy()
+        output[output == label] = 0
+        self._paint_geometry(output, label, gate)
+        if self._cancelled is not None and self._cancelled():
+            raise InterruptedError(tr('Volume editing was cancelled; no labels were changed.'))
+        changed = np.flatnonzero(output.ravel() != self.mask.ravel()).astype(np.uint32)
+        old = self.mask.ravel()[changed].copy()
+        new = output.ravel()[changed].copy()
+        cost = changed.nbytes + old.nbytes + new.nbytes
+        if cost > self.MAX_HISTORY_BYTES:
+            raise ValueError(tr('This edit exceeds the volume undo memory budget; no labels were changed.'))
+        before, after = dict(self.geometries), dict(self.geometries)
+        after[int(label)] = gate
+        if not len(changed) and before == after:
+            return 0
+        self._redo.clear()
+        while self._undo and self._history_bytes + cost > self.MAX_HISTORY_BYTES:
+            removed = self._undo.pop(0)
+            self._history_bytes -= sum(value.nbytes for value in removed[:3])
+        self._undo.append((changed, old, new, before, after))
+        self._history_bytes += cost
+        if len(self._undo) > 25:
+            removed = self._undo.pop(0)
+            self._history_bytes -= sum(value.nbytes for value in removed[:3])
+        self.mask, self.geometries = output, after
+        return len(changed)
+
+    def undo(self):
+        """Restore the preceding sparse voxel delta and immutable geometry."""
+        if not self._undo:
+            return False
+        record = self._undo.pop()
+        self._history_bytes -= sum(value.nbytes for value in record[:3])
+        self.mask.ravel()[record[0]] = record[1]
+        self.geometries = dict(record[3])
+        self._redo.append(record)
+        return True
+
+    def redo(self):
+        """Reapply the most recently undone voxel delta and geometry."""
+        if not self._redo:
+            return False
+        record = self._redo.pop()
+        self.mask.ravel()[record[0]] = record[2]
+        self.geometries = dict(record[4])
+        self._undo.append(record)
+        self._history_bytes += sum(value.nbytes for value in record[:3])
+        return True
+
+    def _validate_boundaries(self):
+        """Refuse saved geometry that disagrees with its actual labelled voxels."""
+        from .i18n import tr
+        from .widgets.gate_spec import EditableVolumeGate
+
+        for label, gate in self.geometries.items():
+            if (not isinstance(label, Integral) or isinstance(label, (bool, np.bool_))
+                    or not 0 < label <= min(65535, np.iinfo(self.mask.dtype).max)
+                    or not isinstance(gate, EditableVolumeGate)
+                    or gate.name != str(label) or gate.columns != ('X', 'Y', 'Z')
+                    or gate.parent is not None):
+                raise ValueError(tr('The volume sidecar contains invalid object geometry.'))
+            output = self.mask.copy()
+            output[output == label] = 0
+            self._paint_geometry(output, label, gate)
+            if not np.array_equal(output, self.mask):
+                raise ValueError(tr('The saved boundary does not match its object voxels.'))
+
+
+def load_volume_image_and_mask(folder, filename, masks_dir=None):
+    """Open an explicitly declared grayscale spatial TIFF for native 3-D editing.
+
+    Exactly three spatial axes are supported, in any order. Time, channel,
+    colour and inferred page axes are refused. ``voxel_spacing`` metadata is
+    read in storage-axis order. OME physical sizes are converted to micrometres;
+    ImageJ spacing and XY resolution are retained. Absent physical metadata
+    means pixel coordinates.
+    Labels retain dtype and identity. A saved geometry sidecar is bound to
+    the exact source file and mask pixels and is refused when stale.
+
+    :param folder: source image directory.
+    :param filename: spatial TIFF image filename.
+    :param masks_dir: optional existing sibling mask directory.
+    :returns: a ``VolumeMaskSession`` owning the labels and source metadata.
+    """
+    import tifffile
+    from .i18n import tr
+    from .widgets.gate_spec import GateSet, EditableVolumeGate
+
+    source = Path(folder) / filename
+    digest = _yolo_source_hash(source)
+    with tifffile.TiffFile(source) as handle:
+        series = handle.series[0]
+        axes = series.axes
+        metadata = (handle.shaped_metadata or ({},))[0] or {}
+        spacing = metadata.get('voxel_spacing', (1., 1., 1.))
+        unit = metadata.get('unit', 'pixel')
+        if 'voxel_spacing' not in metadata and handle.ome_metadata:
+            import xml.etree.ElementTree as ET
+
+            pixels = next(node for node in ET.fromstring(handle.ome_metadata).iter()
+                          if node.tag.rsplit('}', 1)[-1] == 'Pixels')
+            factors = {'nm': .001, 'µm': 1., 'um': 1., 'mm': 1000., 'm': 1_000_000.}
+            if any('PhysicalSize' + axis in pixels.attrib for axis in 'XYZ'):
+                try:
+                    spacing = tuple(float(pixels.attrib['PhysicalSize' + axis])
+                                    * factors[pixels.attrib.get('PhysicalSize' + axis + 'Unit', 'µm')]
+                                    for axis in axes)
+                except (KeyError, ValueError) as exc:
+                    raise ValueError(tr('OME volumes need complete supported physical spacing for X, Y and Z.')) from exc
+                unit = 'um'
+        elif 'voxel_spacing' not in metadata and handle.imagej_metadata:
+            metadata = handle.imagej_metadata
+            unit = metadata.get('unit', 'pixel')
+            distances = {'Z': metadata.get('spacing', 1.)}
+            for axis in 'XY':
+                value = handle.pages[0].tags[axis + 'Resolution'].value
+                if value[0] <= 0 or value[1] <= 0:
+                    raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+                distances[axis] = value[1] / value[0]
+            spacing = tuple(distances[axis] for axis in axes)
+        if len(series.shape) != 3 or sorted(axes) != ['X', 'Y', 'Z']:
+            raise ValueError(tr('Choose a TIFF explicitly declaring three spatial axes; time, channels and RGB are not 3D fields.'))
+        if math.prod(series.shape) > VolumeMaskSession.MAX_VOXELS or math.prod(series.shape) * series.dtype.itemsize > 256 * 1024 * 1024:
+            raise ValueError(tr('This TIFF exceeds the native volume memory budget.'))
+        image = series.asarray()
+    mask_path = Path(mask_save_path(folder, filename, masks_dir))
+    if mask_path.exists():
+        with tifffile.TiffFile(mask_path) as handle:
+            mask_series = handle.series[0]
+            if mask_series.axes != axes:
+                raise ValueError(tr('The saved mask axes do not match the spatial source.'))
+            if (mask_series.shape != image.shape or mask_series.dtype.kind not in 'ui'
+                    or math.prod(mask_series.shape) * mask_series.dtype.itemsize > 256 * 1024 * 1024):
+                raise ValueError(tr('The saved spatial mask shape, integer dtype or decoded size does not match this volume.'))
+            labels = mask_series.asarray()
+    else:
+        labels = np.zeros(image.shape, dtype=np.uint16)
+    session = VolumeMaskSession(image, labels, axes=axes, spacing=spacing, unit=unit)
+    session.source_path, session.source_sha256, session.mask_path = str(source), digest, str(mask_path)
+    if _yolo_source_hash(source) != digest:
+        raise ValueError(tr('The source volume changed while opening it.'))
+    sidecar = mask_path.with_suffix(mask_path.suffix + '.volume.json')
+    session._saved_mask_sha256 = _yolo_source_hash(mask_path) if mask_path.exists() else None
+    session._saved_geometry_sha256 = _yolo_source_hash(sidecar) if sidecar.exists() else None
+    if sidecar.exists():
+        record = json.loads(sidecar.read_text())
+        expected = {'source_sha256': digest, 'shape': list(image.shape), 'axes': axes,
+                    'spacing': list(session.spacing), 'mask_sha256': hashlib.sha256(session.mask.tobytes(order='C')).hexdigest()}
+        if any(record.get(key) != value for key, value in expected.items()) or record.get('version') != 1:
+            raise ValueError(tr('The saved volume geometry does not match these source and mask pixels.'))
+        geometries = GateSet.from_dict(record.get('geometry', {}))
+        for gate in geometries.gates:
+            if (not isinstance(gate, EditableVolumeGate) or not gate.name.isdecimal()
+                    or not 0 < int(gate.name) <= 65535 or gate.columns != ('X', 'Y', 'Z')
+                    or gate.parent is not None):
+                raise ValueError(tr('The volume sidecar contains invalid object geometry.'))
+            session.geometries[int(gate.name)] = gate
+        controls = record.get('editor_controls', session._editor_controls)
+        if (not isinstance(controls, dict) or set(controls) != {'anchor_density', 'show_anchors'}
+                or type(controls['anchor_density']) is not int or not 1 <= controls['anchor_density'] <= 8
+                or type(controls['show_anchors']) is not bool):
+            raise ValueError(tr('The saved volume anchor controls are invalid.'))
+        session._editor_controls = dict(controls)
+        session._validate_boundaries()
+    return session
+
+
+def _volume_file_stamp(path):
+    """Return one file's device, inode, length and modification identity."""
+    try:
+        value = Path(path).stat()
+    except FileNotFoundError:
+        return None
+    return value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns
+
+
+def save_volume_mask(session):
+    """Write native labels and their source-bound shared boundary sidecar.
+
+    Both artifacts are prepared before replacing either destination. A failed
+    second replacement restores the previous pair. Source/output identities
+    are rechecked after staging. Two filenames cannot form a fully atomic
+    transaction against an uncooperative concurrent writer; interrupted or
+    mismatched publications are refused by the source/mask-bound sidecar on
+    loading. Source axes, spacing, label dtype and IDs are preserved.
+
+    :param session: a volume session loaded through the existing mask paths.
+    :returns: the canonical TIFF mask path.
+    """
+    import shutil
+    from .i18n import tr
+    from .widgets.gate_spec import GateSet
+
+    if (not isinstance(session, VolumeMaskSession) or not session.source_path
+            or _yolo_source_hash(Path(session.source_path)) != session.source_sha256):
+        raise ValueError(tr('The source volume changed; no mask was saved.'))
+    session._validate_boundaries()
+    target = Path(session.mask_path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    sidecar = target.with_suffix(target.suffix + '.volume.json')
+    if target.resolve() == Path(session.source_path).resolve():
+        raise ValueError(tr('The mask output must not overwrite the source volume.'))
+    record = {'version': 1, 'source_sha256': session.source_sha256,
+              'mask_sha256': hashlib.sha256(session.mask.tobytes(order='C')).hexdigest(),
+              'shape': list(session.mask.shape), 'axes': session.axes,
+              'spacing': list(session.spacing), 'unit': session.unit,
+              'geometry': GateSet(list(session.geometries.values())).to_dict(),
+              'editor_controls': dict(session._editor_controls)}
+    lock = sidecar.with_suffix(sidecar.suffix + '.lock')
+    try:
+        descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    except FileExistsError as exc:
+        raise ValueError(tr('This volume is already being saved.')) from exc
+    try:
+        if ((_yolo_source_hash(target) if target.exists() else None) != session._saved_mask_sha256
+                or (_yolo_source_hash(sidecar) if sidecar.exists() else None) != session._saved_geometry_sha256):
+            raise ValueError(tr('The saved volume changed outside this session; no mask was overwritten.'))
+        stamps = {path: _volume_file_stamp(path) for path in (Path(session.source_path), target, sidecar)}
+        with tempfile.TemporaryDirectory(dir=target.parent, prefix='.spacr-volume-') as folder:
+            folder = Path(folder)
+            staged_mask, staged_json = folder / 'mask.tif', folder / 'geometry.json'
+            write_tiff(staged_mask, session.mask, metadata={'axes': session.axes,
+                        'voxel_spacing': list(session.spacing), 'unit': session.unit})
+            staged_json.write_bytes(_yolo_json_bytes(record))
+            backups = {}
+            for path in (target, sidecar):
+                if path.exists():
+                    backup = folder / (path.name + '.backup')
+                    shutil.copyfile(path, backup)
+                    backups[path] = backup
+            if (any(_volume_file_stamp(path) != stamp for path, stamp in stamps.items())
+                    or _yolo_source_hash(Path(session.source_path)) != session.source_sha256
+                    or (_yolo_source_hash(target) if target.exists() else None) != session._saved_mask_sha256
+                    or (_yolo_source_hash(sidecar) if sidecar.exists() else None) != session._saved_geometry_sha256):
+                raise ValueError(tr('The volume files changed during saving; no output was replaced.'))
+            os.replace(staged_mask, target)
+            try:
+                os.replace(staged_json, sidecar)
+            except BaseException:
+                for path in (target, sidecar):
+                    if path in backups:
+                        os.replace(backups[path], path)
+                    else:
+                        path.unlink(missing_ok=True)
+                raise
+    finally:
+        os.close(descriptor)
+        lock.unlink(missing_ok=True)
+    session._saved_mask_sha256 = _yolo_source_hash(target)
+    session._saved_geometry_sha256 = _yolo_source_hash(sidecar)
+    return str(target)
+
+
 class MaskHistory:
     """Bounded undo/redo stack of mask arrays. Deep-copies on push so
     callers can mutate in place without corrupting older snapshots."""
