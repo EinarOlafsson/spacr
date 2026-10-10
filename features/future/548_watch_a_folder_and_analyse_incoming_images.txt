@@ -1,6 +1,7 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: OPEN 2026-10-10 (second pass) — every vendor acquisition kind now
+Status: DONE (alpha) 2026-10-10 — real-acquisition GPU acceptance passed on the workstation (see the trailing note); second-pass description follows.
+Previous status: OPEN 2026-10-10 (second pass) — every vendor acquisition kind now
         watches without a map: self-describing TIFF/OME-TIFF stacks, ND2/CZI/LIF
         files (one field per position, completed by their own dimension
         metadata) and per-plane series described by Micro-Manager metadata.txt,
@@ -1148,3 +1149,40 @@ remain open. No improved speed or whole-memory claim; alpha scope unchanged.
     requested but not run in this session (permission refused); the
     workstation run will cover it.
 
+
+2026-10-10 — WORKSTATION REAL-ACQUISITION GPU ACCEPTANCE (WS, RTX 3090 Ti)
+    Two real Nikon N-SIM ND2 Z-stacks from the lab NAS (hargk_SIM nd024.nd2 and
+    nd025.nd2: 405/488/561 nm 3D-SIM, Z 11 x C 3 x 768 x 1280 uint16, voxel
+    0.065 x 0.065 x 0.2 um, 65 MB each; read only from the NAS) were written into
+    an empty watch folder in eleven chunks two seconds apart, the way a microscope
+    grows a file, while the live watcher ran (z_stack=True, volumetric, z_axis=0,
+    nucleus channel 0, cell channel 1, watch_pipeline 'mask', poll 1 s, settle 3 s,
+    idle 1.5 min). Real Cellpose on the GPU, through tools/gpu_turn.sh.
+    Readers: nd2 0.12.0 and liffile installed into the WS spacr env with the
+    maintainer's approval (not pip install -e, which would repoint the env's
+    editable spaCR away from the shared checkout).
+      Result: both fields done, none failed or incomplete; merged arrays carry
+        the nucleus and cell label planes (11 x 768 x 1280 x 5).
+      Pickup latency (watcher start minus the moment the file stopped growing):
+        nd024 1.1 s. nd025 started 787 s after completion only because fields
+        are analysed one at a time and nd024 was still running.
+      Analysis time per field: 818 s and 722 s (3-D Cellpose on full-resolution
+        SIM volumes). Total run 1,664 s.
+      Peak RAM 7.0 GiB (process tree); peak GPU memory 2,792 MiB (process,
+        nvidia-smi), torch max allocated 2,354 MiB.
+    Findings:
+      - The watch did not take the voxel size from the ND2, which declares it;
+        a z_stack watch refuses to run until voxel_size_z_um/voxel_size_xy_um
+        (or anisotropy) are set. Reading them from vendor metadata would remove
+        a manual step.
+      - z_stack also requires z_segmentation_mode='volumetric' and z_axis=0;
+        the error says so, but the defaults do not provide them.
+      - Segmentation quality on SIM data is NOT validated: 104/113 nucleus and
+        198/284 cell labels per 50 x 83 um field are far more than the field can
+        hold, i.e. default object sizes over-segment 65 nm/px super-resolution
+        volumes. The acceptance covers the watch path, completion detection and
+        GPU segmentation running end to end, not mask quality on SIM.
+      - Fields run serially, so a second stack waits for the first; at ~13 min
+        per SIM volume this dominates latency for a busy acquisition.
+    Receipt (sources named, local paths removed), runner and per-field QC:
+    features/data/548_nd2_live_acceptance_2026-10-10/.
