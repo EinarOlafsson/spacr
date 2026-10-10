@@ -128,7 +128,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "regression settings; the sgRNA count CSVs are taken from the ``count`` entries of ``paired_data``, or from the legacy ``count_data`` when there are none.",
       "source_sha256": "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
-      "translation": "회귀 설정입니다. sgRNA 개수 CSVs 는 ``count`` 항목(``paired_data`` 안)에서 가져오며, 없으면 레거시 ``count_data`` 에서 가져옵니다."
+      "translation": "회귀 설정입니다. sgRNA 개수 CSVs 는 ``count`` 항목(``paired_data`` 안)에서 가져오며, 없으면 레거시 ``count_data`` 에서 가져옵니다.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "context": "application structured-data name; a registered plugin's defaults are used first, then the registered or built-in defaults for that structured-data name, and an unknown structured-data name gets a minimal ``{'src': ...}`` key-value mapping.",

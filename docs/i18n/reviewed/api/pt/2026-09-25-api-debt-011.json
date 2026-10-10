@@ -736,7 +736,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE DOWNLOAD IS THE EXISTING ONE. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
-      "translation": "O DOWNLOAD É O QUE JÁ EXISTE. Nada novo é publicado: o arquivo compactado, o worker e o diálogo de progresso são :func:`spacr.qt.hf_download.download_annotate_example`, a mesma chamada que o botão de Classify faz, e uma placa já descompactada por qualquer um deles é reutilizada sem tocar na rede."
+      "translation": "O DOWNLOAD É O QUE JÁ EXISTE. Nada novo é publicado: o arquivo compactado, o worker e o diálogo de progresso são :func:`spacr.qt.hf_download.download_annotate_example`, a mesma chamada que o botão de Classify faz, e uma placa já descompactada por qualquer um deles é reutilizada sem tocar na rede.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The example plate's ``measurements/measurements.db``, present or not.",

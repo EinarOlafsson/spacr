@@ -3410,7 +3410,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
       "source_sha256": "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821",
-      "translation": "Folge von Mappings mit den Tabellenpfaden ``'score'`` und ``'count'`` (jeder darf leer sein), wie von :func:`normalize_regression_input_pairs` zurückgegeben. Der Eintrag ``'plate'`` jedes Mappings wird mit dem aufgelösten Plattenlabel überschrieben."
+      "translation": "Folge von Mappings mit den Tabellenpfaden ``'score'`` und ``'count'`` (jeder darf leer sein), wie von :func:`normalize_regression_input_pairs` zurückgegeben. Der Eintrag ``'plate'`` jedes Mappings wird mit dem aufgelösten Plattenlabel überschrieben.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` or ``'xgboost'``.",

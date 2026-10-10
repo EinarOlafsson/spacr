@@ -370,7 +370,9 @@
       "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
       "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "translation": "LE TÉLÉCHARGEMENT EST CELUI QUI EXISTE DÉJÀ. Rien de nouveau n’est publié : l’archive, le worker et la boîte de dialogue de progression sont ceux de :func:`spacr.qt.hf_download.download_annotate_example`, le même appel que fait le bouton de Classify, et une plaque déjà décompressée par l’un d’eux est réutilisée sans accéder au réseau.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurements_example.example_measurements_db#0",

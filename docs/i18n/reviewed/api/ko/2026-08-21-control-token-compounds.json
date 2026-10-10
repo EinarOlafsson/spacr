@@ -27,7 +27,9 @@
       "label": "spacr.qt.screens.settings_model.regression_design_scan#2",
       "source": "WHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else, so it is the design AS THE INPUT FILES HOLD IT: before the merge with the score data, before ``fraction_threshold`` and before the well filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
       "source_sha256": "7f0642598e55885e75f67b054146674dcc9640f62113a7a9763b66385d3897c8",
-      "translation": "이 함수가 보여 주는 범위를 분명히 구분해야 합니다. sgRNA 카운트 CSV 파일만 읽으므로, 이 설계는 점수 데이터와 병합하기 전, ``fraction_threshold``를 적용하기 전, 그리고 마이크로플레이트 샘플 위치 필터를 적용하기 전의 입력 파일 상태를 나타냅니다. 이는 의도된 동작입니다. 실행 후 정리된 카운트와 비교할 기준값을 제공하며, 두 값을 비교하면 예상과 다르게 작동한 필터를 확인할 수 있습니다. 각 호출자는 어떤 값을 보고하는지 명시합니다."
+      "translation": "이 함수가 보여 주는 범위를 분명히 구분해야 합니다. sgRNA 카운트 CSV 파일만 읽으므로, 이 설계는 점수 데이터와 병합하기 전, ``fraction_threshold``를 적용하기 전, 그리고 마이크로플레이트 샘플 위치 필터를 적용하기 전의 입력 파일 상태를 나타냅니다. 이는 의도된 동작입니다. 실행 후 정리된 카운트와 비교할 기준값을 제공하며, 두 값을 비교하면 예상과 다르게 작동한 필터를 확인할 수 있습니다. 각 호출자는 어떤 값을 보고하는지 명시합니다.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "context": "EmptyState — reusable big \"nothing here yet\" panel with icon, title, subtitle, and an optional call-to-action button.",

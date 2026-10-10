@@ -41,7 +41,9 @@
       "label": "spacr.example_archives.example_set#1",
       "source": "``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` or ``invasion``.",
       "source_sha256": "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
-      "translation": "``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` oder ``invasion``."
+      "translation": "``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` oder ``invasion``.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded."
     },
     {
       "context": "naming the keys that do exist. A typo that returned ``None`` would download nothing and report success, which is the one outcome a download command must never produce.",

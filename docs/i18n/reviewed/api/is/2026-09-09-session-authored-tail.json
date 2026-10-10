@@ -438,7 +438,9 @@
       "source_sha256": "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
       "source": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the CSVs still land on the right plates.",
       "context": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the CSVs still land on the right plates.",
-      "translation": "taflan sem þegar er vistuð, ein færsla á plötu. Allt sem berst eftir það LEGGUR TIL ALLA TÖFLUNA AÐ NÝJU út frá skráarnafnsbrotum fremur en að bæta við, sem er það sem lætur gagnagrunna sem sleppt er í öfugri röð við CSV-skrárnar samt lenda á réttum plötum."
+      "translation": "taflan sem þegar er vistuð, ein færsla á plötu. Allt sem berst eftir það LEGGUR TIL ALLA TÖFLUNA AÐ NÝJU út frá skráarnafnsbrotum fremur en að bæta við, sem er það sem lætur gagnagrunna sem sleppt er í öfugri röð við CSV-skrárnar samt lenda á réttum plötum.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.showEvent#2",

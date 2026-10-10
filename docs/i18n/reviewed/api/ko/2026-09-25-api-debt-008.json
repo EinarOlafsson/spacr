@@ -1291,7 +1291,7 @@
     },
     {
       "context": "a JSON data-selection boundary file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#2",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "a JSON gate file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
       "source_sha256": "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495",
@@ -1347,7 +1347,7 @@
     },
     {
       "context": "the file to write the data-selection filtering strategy to, as JSON; an existing file is overwritten.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#1",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the file to write the gating strategy to, as JSON; an existing file is overwritten.",
       "source_sha256": "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f",
@@ -2556,7 +2556,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``\"spin\"`` or ``\"draw\"``; anything else is taken as ``\"spin\"``.",
       "source_sha256": "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e",
-      "translation": "``\"spin\"`` 또는 ``\"draw\"`` 입니다. 그 밖의 값은 ``\"spin\"`` 으로 취급됩니다."
+      "translation": "``\"spin\"`` 또는 ``\"draw\"`` 입니다. 그 밖의 값은 ``\"spin\"`` 으로 취급됩니다.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N672 added an Edit drag mode, so set_drag_mode's parameter text was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``True`` draws it, ``False`` hides it.",

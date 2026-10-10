@@ -3974,7 +3974,9 @@
       "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
       "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "translation": "다운로드는 기존 것입니다. 새로 게시하는 것은 없습니다. 아카이브, 워커 프로세스, 진행 대화 상자는 Classify 의 버튼이 호출하는 것과 같은 :func:`spacr.qt.hf_download.download_annotate_example` 이며, 이들 중 어느 것이 이미 풀어 둔 플레이트는 네트워크에 접근하지 않고 재사용됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurements_example.example_measurements_db#0",

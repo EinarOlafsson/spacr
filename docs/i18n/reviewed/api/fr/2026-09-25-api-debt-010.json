@@ -1895,7 +1895,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``\"spin\"`` or ``\"draw\"``; anything else is taken as ``\"spin\"``.",
       "source_sha256": "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e",
-      "translation": "``\"spin\"`` ou ``\"draw\"`` ; toute autre valeur est prise pour ``\"spin\"``."
+      "translation": "``\"spin\"`` ou ``\"draw\"`` ; toute autre valeur est prise pour ``\"spin\"``.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N672 added an Edit drag mode, so set_drag_mode's parameter text was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``True`` draws it, ``False`` hides it.",

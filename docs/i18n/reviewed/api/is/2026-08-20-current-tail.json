@@ -488,7 +488,9 @@
       "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#1",
       "source": "A row is ONE PLATE: its score CSV, its count CSV, and the measurements database that plate's per-object tables live in. All three columns are filled BY ADDITION -- every arrival re-proposes the whole table from filename tokens -- so databases dropped in the opposite order to the CSVs still land on the right plates. That is the rule, and the third column obeys it rather than keeping a list of its own.",
       "source_sha256": "1a8b42f2d2e4503ac7041aae0a24c3711ded0586f5a5f3e344f2c151672304da",
-      "translation": "Röð er EINN rannsóknarstofu örplata: stig hennar CSV, fjöldi hennar CSV og mælingagagnagrunnur sem töflur rannsóknarstofu örplötu fyrir hverja hlut búa í. Allir þrír dálkarnir eru fylltir MEÐ AÐBÆTTU -- hver komu endurbætir alla töfluna frá skráarnafnatáknum -- svo gagnagrunnar sem falla niður í gagnstæða röð rannsóknarstofu lenda enn á CSVs örplötunni. Það er reglan og þriðji dálkurinn hlýðir henni frekar en að halda eigin lista."
+      "translation": "Röð er EINN rannsóknarstofu örplata: stig hennar CSV, fjöldi hennar CSV og mælingagagnagrunnur sem töflur rannsóknarstofu örplötu fyrir hverja hlut búa í. Allir þrír dálkarnir eru fylltir MEÐ AÐBÆTTU -- hver komu endurbætir alla töfluna frá skráarnafnatáknum -- svo gagnagrunnar sem falla niður í gagnstæða röð rannsóknarstofu lenda enn á CSVs örplötunni. Það er reglan og þriðji dálkurinn hlýðir henni frekar en að halda eigin lista.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``databases`` is keyword-only and defaults to nothing, so the two-argument call every existing caller makes still means what it did. A database is matched against BOTH cells of a row it may join -- a laboratory microplate is named by its score CSV as often as by its count CSV -- and one that matches nothing is listed on its own row rather than being dropped or guessed onto row 0.",

@@ -352,7 +352,7 @@
       "translation": "mikroskopets synfälts ``.npy``-stam, till exempel ``plate1_A01_F001``. En laboratorium microplate-wide belysningmodell indexerar dess per-brunnförstärkning som använder detta."
     },
     {
-      "label": "spacr.ml.generate_ml_scores#6",
+      "label": "spacr.ml.generate_ml_scores#7",
       "source_sha256": "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
       "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
       "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",

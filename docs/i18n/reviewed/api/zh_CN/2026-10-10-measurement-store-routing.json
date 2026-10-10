@@ -1,0 +1,111 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the microplate sample positions marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a laboratory microplate heatmap into ``results/`` under the first source folder.",
+      "label": "spacr.ml.generate_ml_scores#1",
+      "source": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` under the first source folder.",
+      "source_sha256": "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
+      "translation": "读取由 ``measurement_backend`` 从 :func:`spacr.measure.measure_crop` 中选定的测量存储，合并细胞/细胞核/病原体/ 细胞质特征表，将标记为 ``positive_control`` / ``negative_control`` 的孔（或某个注释列）用作训练标签，把拟合委托给 :func:`ml_analysis`，并将逐对象预测、置换表和特征重要性表以及一张板热图写入第一个源文件夹下的 ``results/``。"
+    },
+    {
+      "context": "``src`` (str or list) — folder(s) containing the measurements.",
+      "label": "spacr.ml.generate_ml_scores#3",
+      "source": "``src`` (str or list) — folder(s) containing the measurements.",
+      "source_sha256": "f9649bcde48272dcf6fe6c267b467dd966b1b229e8957f7c2f9b1060139c801d",
+      "translation": "``src``（str 或 list）— 包含测量数据的文件夹。"
+    },
+    {
+      "context": "``measurement_backend`` / ``measurement_backend_target`` — select the SQLite, DuckDB, Parquet or PostgreSQL measurement store.",
+      "label": "spacr.ml.generate_ml_scores#4",
+      "source": "``measurement_backend`` / ``measurement_backend_target`` — select the SQLite, DuckDB, Parquet or PostgreSQL measurement store.",
+      "source_sha256": "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
+      "translation": "``measurement_backend`` / ``measurement_backend_target`` — 选择 SQLite、DuckDB、Parquet 或 PostgreSQL 测量存储。"
+    },
+    {
+      "context": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and image data channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence image data channel drives the model.",
+      "label": "spacr.ml.interpret_vision_model#1",
+      "source": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence channel drives the model.",
+      "source_sha256": "b3fd4e7d658707f3e9bae619a91fd0814c79c0818e1ef5b829740efa9b7cc05e",
+      "translation": "将所选测量存储中的逐对象测量数据与预测得分的 CSV 合并，在排名靠前的特征上运行 RF 特征重要性、置换重要性和 SHAP 的任意组合，然后将 SHAP 贡献汇总为区室和通道雷达图，以便查看是哪个区域（细胞 / 细胞核 / 病原体 / 细胞质）和哪个荧光通道在驱动模型。"
+    },
+    {
+      "context": "The merged per-object DataFrame — the measurement tables joined to the scores CSV — that the explainers were fitted on. Radar and importance plots are rendered, and with ``save=True`` importance CSVs are written under the source folder's ``results/``, as side effects.",
+      "label": "spacr.ml.interpret_vision_model#12",
+      "source": "The merged per-object DataFrame — the measurement tables joined to the scores CSV — that the explainers were fitted on. Radar and importance plots are rendered, and with ``save=True`` importance CSVs are written under the source folder's ``results/``, as side effects.",
+      "source_sha256": "410a0e3de10b66cfb8aba04f997a4fec17d85fbd1984f2512af1d9368c7d446f",
+      "translation": "合并后的逐对象 DataFrame — 即与得分 CSV 连接后的测量表 — 解释器即在其上拟合。作为副作用，会渲染雷达图和重要性图；当 ``save=True`` 时，还会将重要性 CSV 写入源文件夹的 ``results/`` 下。"
+    },
+    {
+      "context": "``src`` — folder containing the measurements.",
+      "label": "spacr.ml.interpret_vision_model#3",
+      "source": "``src`` — folder containing the measurements.",
+      "source_sha256": "2c2a047f662554493f1912f8ed549570e65fbf341ad893b2a27696d085c25fec",
+      "translation": "``src`` — 包含测量数据的文件夹。"
+    },
+    {
+      "context": "``measurement_backend`` / ``measurement_backend_target`` — select the SQLite, DuckDB, Parquet or PostgreSQL measurement store.",
+      "label": "spacr.ml.interpret_vision_model#4",
+      "source": "``measurement_backend`` / ``measurement_backend_target`` — select the SQLite, DuckDB, Parquet or PostgreSQL measurement store.",
+      "source_sha256": "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
+      "translation": "``measurement_backend`` / ``measurement_backend_target`` — 选择 SQLite、DuckDB、Parquet 或 PostgreSQL 测量存储。"
+    },
+    {
+      "context": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label. Database inputs also specify ``'score_table'`` or ``'count_table'``; tables from the same database are cached and paired separately.",
+      "label": "spacr.ml.load_regression_input_pairs#2",
+      "source": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label. Database inputs also specify ``'score_table'`` or ``'count_table'``; tables from the same database are cached and paired separately.",
+      "source_sha256": "91c0ecf82e1a22d071a2449f0c6f854ae695f77baadd4600d0b403ba73d3f2b1",
+      "translation": "包含 ``'score'`` 和 ``'count'`` 表路径（任一项均可为空）的映射序列，即 :func:`normalize_regression_input_pairs` 的返回值。每个映射的 ``'plate'`` 会被解析后的板标签覆盖。数据库输入还需指定 ``'score_table'`` 或 ``'count_table'``；来自同一数据库的表会被缓存并分别配对。"
+    },
+    {
+      "context": "How big the fit is about to be, read off its count input tables.",
+      "label": "spacr.qt.screens.settings_model.regression_design_scan#0",
+      "source": "How big the fit is about to be, read off its count input tables.",
+      "source_sha256": "16d867741877db30c3e82c476b9571fa2687122c81af25093e121cfddb45cdf1",
+      "translation": "根据计数输入表读出的即将进行的拟合规模。"
+    },
+    {
+      "context": "What this is and is not. It reads the sgRNA count inputs and nothing else, so it is the design as the input files hold it: before the merge with the score data, before ``fraction_threshold`` and before the microplate sample position filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
+      "label": "spacr.qt.screens.settings_model.regression_design_scan#2",
+      "source": "WHAT THIS IS AND IS NOT. It reads the sgRNA count inputs and nothing else, so it is the design AS THE INPUT FILES HOLD IT: before the merge with the score data, before ``fraction_threshold`` and before the well filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
+      "source_sha256": "0e43b420537b13399aee953fa3bf7407e016d8421caddce9d4446ceb194f3341",
+      "translation": "它是什么、不是什么。它只读取 sgRNA 计数输入，因此它是输入文件中原样保存的设计：在与得分数据合并之前、在 ``fraction_threshold`` 之前、也在孔过滤器之前。这是有意为之 -- 它是用来与运行自身清洗后计数进行比较的数值，而正是这种比较使行为异常的过滤器得以显现。每个调用方都会说明是哪一种。"
+    },
+    {
+      "context": "regression settings; count paths and optional ``count_table`` names come from ``paired_data``, or paths from legacy ``count_data`` when there are no paired counts.",
+      "label": "spacr.qt.screens.settings_model.regression_design_scan#4",
+      "source": "regression settings; count paths and optional ``count_table`` names come from ``paired_data``, or paths from legacy ``count_data`` when there are no paired counts.",
+      "source_sha256": "0d98b403d68a96ab0a4d25a8b36fc9524780cb9f2200fb52f900ebaaf4635031",
+      "translation": "回归设置；计数路径和可选的 ``count_table`` 名称来自 ``paired_data``，若没有配对计数，则路径来自旧版 ``count_data``。"
+    },
+    {
+      "context": "Editable one-row-per-laboratory microplate score/count input and measurement link.",
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#0",
+      "source": "Editable one-row-per-plate score/count input and measurement link.",
+      "source_sha256": "0cea675f583a20c5e0fba9704eab5fd61499cd52d6d713b8ddc38aa5e0bc520e",
+      "translation": "可编辑的每板一行得分/计数输入及测量链接。"
+    },
+    {
+      "context": "A row is one laboratory microplate: its score and count source paths, optional named tables within those sources, and the separate measurements database that laboratory microplate's per-object tables live in. The source paths are filled by addition -- every arrival re-proposes the whole table from filename tokens -- so databases dropped in the opposite order to the files still land on the right laboratory microplates. That is the rule, and the third column obeys it rather than keeping a list of its own.",
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#1",
+      "source": "A row is ONE PLATE: its score and count source paths, optional named tables within those sources, and the separate measurements database that plate's per-object tables live in. The source paths are filled BY ADDITION -- every arrival re-proposes the whole table from filename tokens -- so databases dropped in the opposite order to the files still land on the right plates. That is the rule, and the third column obeys it rather than keeping a list of its own.",
+      "source_sha256": "892f02642e630a53c1ca30bee2c142b9343e81bcdf9a73b730ab8bbc57851f94",
+      "translation": "一行即一块板：包括其得分和计数源路径、这些源中可选的命名表，以及存放该板逐对象表的独立测量数据库。源路径通过添加来填充 -- 每次有新内容到达，都会根据文件名标记重新提议整张表 -- 因此即使数据库按与文件相反的顺序拖入，也仍会落到正确的板上。这就是规则，第三列遵循该规则，而不是自行维护列表。"
+    },
+    {
+      "context": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the source files still land on the right plates.",
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#3",
+      "source": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the source files still land on the right plates.",
+      "source_sha256": "97e2d7a934760480fc3c9447069c7db5cefea5a5501f0a59cfe078001c0e34ef",
+      "translation": "已保存的表，每块板一个条目。此后到达的所有内容都会根据文件名标记重新提议整张表，而不是追加，正因如此，即使数据库按与源文件相反的顺序拖入，也仍会落到正确的板上。"
+    },
+    {
+      "context": "The predicted results directory, or ``None`` when no count-data path or writable folder choice can be resolved. PostgreSQL counts require an explicit local ``src``.",
+      "label": "spacr.refit.destination#2",
+      "source": "The predicted results directory, or ``None`` when no count-data path or writable folder choice can be resolved. PostgreSQL counts require an explicit local ``src``.",
+      "source_sha256": "b7526ea714edd8259fb0e1001901e7d14163f048166451decea8abc394a47833",
+      "translation": "预测结果目录；当无法确定计数数据路径或可写文件夹时为 ``None``。PostgreSQL 计数需要显式的本地 ``src``。"
+    }
+  ],
+  "schema": 1
+}

@@ -1607,7 +1607,9 @@
       "review_basis": "MT draft kept after AI review",
       "source": "``\"spin\"`` or ``\"draw\"``; anything else is taken as ``\"spin\"``.",
       "source_sha256": "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e",
-      "translation": "``\"spin\"`` o ``\"draw\"``; cualquier otra cosa se toma como ``\"spin\"``."
+      "translation": "``\"spin\"`` o ``\"draw\"``; cualquier otra cosa se toma como ``\"spin\"``.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N672 added an Edit drag mode, so set_drag_mode's parameter text was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``True`` draws it, ``False`` hides it.",
@@ -4800,7 +4802,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE DOWNLOAD IS THE EXISTING ONE. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
-      "translation": "LA DESCARGA ES LA QUE YA EXISTE. No se publica nada nuevo: el archivo, el proceso de trabajo y el diálogo de progreso son :func:`spacr.qt.hf_download.download_annotate_example`, la misma llamada que hace el botón de Classify, y una placa ya desempaquetada por cualquiera de ellos se reutiliza sin tocar la red."
+      "translation": "LA DESCARGA ES LA QUE YA EXISTE. No se publica nada nuevo: el archivo, el proceso de trabajo y el diálogo de progreso son :func:`spacr.qt.hf_download.download_annotate_example`, la misma llamada que hace el botón de Classify, y una placa ya desempaquetada por cualquiera de ellos se reutiliza sin tocar la red.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Add the \"Load test data…\" button to ``layout`` and wire it to ``apply``.",

@@ -35,7 +35,9 @@
       "source_sha256": "d36376d87588cccca12cb40f2050eaac8299f4c768c58e14a29fc00a59a7851e",
       "source": "Merges per-object measurements from ``measurements.db`` with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence channel drives the model.",
       "context": "Merges per-object measurements from ``measurements.db`` with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and image data channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence image data channel drives the model.",
-      "translation": "把 ``measurements.db`` 中的逐对象测量值与预测得分 CSV 合并，对排名靠前的特征运行 RF 特征重要性、置换重要性和 SHAP 的任意组合，再把 SHAP 贡献汇总为区室和图像数据通道雷达图，以显示哪个区域（细胞 / 细胞核 / 病原体 / 细胞质）以及哪个荧光图像数据通道驱动模型。"
+      "translation": "把 ``measurements.db`` 中的逐对象测量值与预测得分 CSV 合并，对排名靠前的特征运行 RF 特征重要性、置换重要性和 SHAP 的任意组合，再把 SHAP 贡献汇总为区室和图像数据通道雷达图，以显示哪个区域（细胞 / 细胞核 / 病原体 / 细胞质）以及哪个荧光图像数据通道驱动模型。",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_compare.load_fields#4",

@@ -4245,7 +4245,9 @@
       "source_sha256": "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e",
       "context": "``\"spin\"`` or ``\"draw\"``; anything else is taken as ``\"spin\"``.",
       "translation": "``\"spin\"`` oder ``\"draw\"``; alles andere wird als ``\"spin\"`` genommen.",
-      "review_basis": "MT draft kept after AI review"
+      "review_basis": "MT draft kept after AI review",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N672 added an Edit drag mode, so set_drag_mode's parameter text was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.gate_editor.GateCanvas.set_gate_enabled#3",

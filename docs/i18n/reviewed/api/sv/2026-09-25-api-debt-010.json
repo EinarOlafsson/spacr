@@ -4261,7 +4261,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``\"spin\"`` or ``\"draw\"``; anything else is taken as ``\"spin\"``.",
       "source_sha256": "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e",
-      "translation": "``\"spin\"`` eller ``\"draw\"``; allt annat tolkas som ``\"spin\"``."
+      "translation": "``\"spin\"`` eller ``\"draw\"``; allt annat tolkas som ``\"spin\"``.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N672 added an Edit drag mode, so set_drag_mode's parameter text was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``True`` draws it, ``False`` hides it.",

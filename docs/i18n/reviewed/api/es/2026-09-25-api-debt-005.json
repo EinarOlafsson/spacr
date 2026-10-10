@@ -1503,7 +1503,7 @@
     },
     {
       "context": "a JSON data-selection boundary file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#2",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#3",
       "review_basis": "MT draft edited in AI review",
       "source": "a JSON gate file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
       "source_sha256": "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495",
@@ -1559,7 +1559,7 @@
     },
     {
       "context": "the file to write the data-selection filtering strategy to, as JSON; an existing file is overwritten.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#1",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#2",
       "review_basis": "MT draft edited in AI review",
       "source": "the file to write the gating strategy to, as JSON; an existing file is overwritten.",
       "source_sha256": "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f",

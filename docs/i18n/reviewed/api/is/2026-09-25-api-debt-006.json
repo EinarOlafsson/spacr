@@ -266,7 +266,9 @@
       "source_sha256": "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
       "context": "regression settings; the sgRNA count CSVs are taken from the ``count`` entries of ``paired_data``, or from the legacy ``count_data`` when there are none.",
       "translation": "aðhvarfsstillingar; CSV-skrár með sgRNA-talningum eru teknar úr ``count`` færslum ``paired_data``, eða úr eldra ``count_data`` þegar engar eru til.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.settings_model.resolve_default_settings#1",

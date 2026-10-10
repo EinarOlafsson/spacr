@@ -918,7 +918,7 @@
     },
     {
       "context": "a JSON data-selection boundary file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#2",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "a JSON gate file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
       "source_sha256": "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495",
@@ -974,7 +974,7 @@
     },
     {
       "context": "the file to write the data-selection filtering strategy to, as JSON; an existing file is overwritten.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#1",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the file to write the gating strategy to, as JSON; an existing file is overwritten.",
       "source_sha256": "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f",
@@ -3435,7 +3435,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "regression settings; the sgRNA count CSVs are taken from the ``count`` entries of ``paired_data``, or from the legacy ``count_data`` when there are none.",
       "source_sha256": "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
-      "translation": "回归设置；sgRNA 计数 CSVs 取自 ``count`` 条目（位于 ``paired_data`` 中），没有时取自旧式的 ``count_data``。"
+      "translation": "回归设置；sgRNA 计数 CSVs 取自 ``count`` 条目（位于 ``paired_data`` 中），没有时取自旧式的 ``count_data``。",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "context": "application structured-data name; a registered plugin's defaults are used first, then the registered or built-in defaults for that structured-data name, and an unknown structured-data name gets a minimal ``{'src': ...}`` key-value mapping.",
