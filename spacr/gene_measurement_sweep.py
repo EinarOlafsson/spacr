@@ -594,8 +594,10 @@ def _write(figure, path) -> None:
                 setter(replacement)
                 restore.append(lambda put=setter, old=current: put(old))
     try:
-        figure.savefig(path, dpi=200, bbox_inches="tight",
-                       facecolor=figure.get_facecolor())
+        from .plot import _checked_savefig
+
+        _checked_savefig(figure, path, dpi=200, bbox_inches="tight",
+                         facecolor=figure.get_facecolor())
     finally:
         for undo in reversed(restore):
             undo()

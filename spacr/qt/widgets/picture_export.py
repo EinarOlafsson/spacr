@@ -118,6 +118,7 @@ def save_picture(picture, path, dpi: Optional[int] = None) -> bool:
         if enabled:
             import numpy as np
             from matplotlib.figure import Figure
+
             from ...plot import _PNG_PROVENANCE_KEY, _integrity_report
 
             rgba = image.convertToFormat(QImage.Format.Format_RGBA8888)

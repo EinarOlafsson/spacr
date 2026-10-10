@@ -2443,9 +2443,10 @@ def save_figure_as(parent, figure, path: str = "") -> str:
 
     extension = os.path.splitext(path)[1].lower().lstrip(".")
     try:
-        from ...plot import FIGURE_FORMATS, print_ready, save_figure
+        from ...plot import FIGURE_FORMATS, _checked_savefig, print_ready, save_figure
     except Exception:
         FIGURE_FORMATS, print_ready, save_figure = (), None, None
+        _checked_savefig = None
 
     if save_figure is not None and extension in FIGURE_FORMATS:
         try:
@@ -2474,9 +2475,12 @@ def save_figure_as(parent, figure, path: str = "") -> str:
     try:
         vector = extension in ("pdf", "svg", "eps")
         ink = print_ready(figure) if print_ready is not None else nullcontext()
+        write = (_checked_savefig if _checked_savefig is not None
+                 else lambda target, where, **options: target.savefig(
+                     where, **options))
         with ink:
-            figure.savefig(
-                path, bbox_inches="tight", facecolor=background,
+            write(
+                figure, path, bbox_inches="tight", facecolor=background,
                 transparent=figure_bg_is_transparent(background),
                 **({} if vector else {"dpi": dpi}))
     except Exception as error:           # noqa: BLE001 - report, do not raise

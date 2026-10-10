@@ -510,6 +510,51 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
     return destination
 
 
+def _checked_savefig(fig, path, *, dpi=None, integrity=None, **kwargs):
+    """Write ``fig`` with ``savefig`` under the figure-integrity check.
+
+    For writers that keep their own ``savefig`` call rather than going
+    through :func:`save_figure`: when the check is on, the figure's image
+    panels are checked, provenance is stamped into PNG and PDF files and a
+    sidecar is written, exactly as :func:`save_figure` does. When it is off
+    this is a plain ``savefig``.
+
+    :param fig: the figure to write.
+    :param path: destination; its extension names the format unless
+        ``format`` is passed.
+    :param dpi: resolution, passed on to ``savefig``.
+    :param integrity: True/False forces the check; None follows the
+        environment and the Preferences toggle.
+    :returns: ``path``.
+    """
+    fmt = str(kwargs.get("format") or os.path.splitext(str(path))[1]
+              or "png").lower().lstrip(".")
+    report = None
+    if _figure_integrity_enabled(integrity):
+        try:
+            report = _integrity_report(fig, fmt=fmt, dpi=dpi or fig.dpi,
+                                       destination=path)
+            if report is not None:
+                metadata = _integrity_metadata(report, fmt,
+                                               kwargs.get(_SAVEFIG_METADATA))
+                if metadata is not None:
+                    kwargs[_SAVEFIG_METADATA] = metadata
+        except Exception as exc:
+            print(f"Figure integrity: the check could not run ({exc}); "
+                  f"writing {path} without it.")
+            report = None
+    if dpi is not None:
+        kwargs["dpi"] = dpi
+    fig.savefig(path, **kwargs)
+    if report is not None:
+        try:
+            _finish_integrity(report, path)
+        except Exception as exc:
+            print(f"Figure integrity: the provenance sidecar for "
+                  f"{path} could not be written ({exc}).")
+    return path
+
+
 _INTEGRITY_ENV = "SPACR_FIGURE_INTEGRITY"
 _SAVEFIG_METADATA = "metadata"
 _PANEL_TAG = "_spacr_panel_provenance"
@@ -527,6 +572,7 @@ _MIN_PANEL_SIDE = 16
 _MIN_COMPARE_PIXELS = 64 * 64
 _RESAMPLE_NOTE_FACTOR = 2.0
 _SOURCE_HASH_LIMIT = 256 * 1024 * 1024
+_MICROMANAGER_TAG = 51123
 _SPATIAL_SIDE = 128
 _SPATIAL_COMPRESSED_LIMIT = 24 * 1024
 _SPATIAL_REPORT_LIMIT = 256 * 1024
@@ -539,6 +585,33 @@ _SOURCE_REGION_PAIRS = 8
 _SOURCE_REGION_SECONDS = 0.5
 _SOURCE_REGION_BYTES = 8 * 1024 * 1024
 _SOURCE_REGION_PIXELS = 1024 * 1024
+_REGION_WORK = 128
+_REGION_STEPS = 28
+_REGION_REFINE = 256
+_REGION_COARSE = 0.55
+_REGION_SCORE = 0.7
+_REGION_DETAIL = 0.25
+_REGION_MAX_AREA = 0.85
+_REGION_MIN_SIDE = 24
+_REGION_MIN_BOX = 48
+_REGION_MIN_FRACTION = 0.3
+_REGION_PANELS = 16
+_REGION_SECONDS = 2.0
+_SPLICE_WORK = 512
+_SPLICE_PANELS = 32
+_SPLICE_STEP = 1.0
+_SPLICE_SIGN = 0.55
+_SPLICE_NOISE_RATIO = 1.6
+_CLONE_GUARD = 8
+_CLONE_PEAK = 0.006
+_CLONE_AREA = 0.01
+_CLONE_PEAKS = 16
+_INDEX_NAME = ".spacr_figure_index.jsonl"
+_INDEX_ENV = "SPACR_FIGURE_INDEX"
+_INDEX_LIMIT = 4 * 1024 * 1024
+_INDEX_HAMMING = 10
+_INDEX_ENTRIES = 512
+_INDEX_CONFIRM = 24
 _LOSSY_FORMATS = frozenset({"jpg", "jpeg", "jpe", "jfif", "webp", "gif",
                             "heic", "heif", "avif"})
 _REPLAYABLE_OPS = frozenset({"select_channel", "crop", "max_project",
@@ -695,13 +768,81 @@ def _ome_pixels_for_ifd(root, ifd):
     return matches[0]
 
 
+def _declared_sensor_range(raw, bits, metadata, record=None):
+    """Validate a declared camera bit depth against the displayed source.
+
+    :param raw: the unchanged source array.
+    :param bits: the declared significant bits per pixel.
+    :param metadata: where the declaration came from, in words.
+    :param record: an existing record to update; a new one otherwise.
+    :returns: the JSON-ready record. A declaration the pixels exceed is kept
+        as a contradiction, with the storage ceiling still in force.
+    """
+    raw = np.asarray(raw)
+    if record is None:
+        integer = np.issubdtype(raw.dtype, np.integer)
+        record = {'ceiling': int(np.iinfo(raw.dtype).max) if integer else None,
+                  'source': 'storage dtype', 'reason': None}
+    record['declared_significant_bits'] = bits
+    try:
+        if raw.dtype.kind != 'u':
+            raise ValueError(f'{metadata} needs unsigned integer pixels')
+        bits = int(bits)
+        if not 1 <= bits <= np.iinfo(raw.dtype).bits:
+            raise ValueError(f'{metadata} is outside the storage type')
+        ceiling = (1 << bits) - 1
+        observed = int(raw.max()) if raw.size else 0
+        if observed > ceiling:
+            record.update(contradiction=True, observed_max=observed,
+                          metadata=metadata, declared_significant_bits=bits)
+            raise ValueError('source pixels exceed the declared significant-bit ceiling')
+        record.update(ceiling=ceiling, source=metadata,
+                      significant_bits=bits, reason=None)
+    except (ValueError, TypeError) as error:
+        record['reason'] = str(error)
+    return record
+
+
+def _micromanager_bits(tags):
+    """The camera bit depth in a Micro-Manager TIFF plane's metadata, or None.
+
+    :raises ValueError: the metadata is oversized or malformed.
+    """
+    import json
+
+    text = tags.get(_MICROMANAGER_TAG)
+    if text is None:
+        return None
+    if isinstance(text, (tuple, list)) and len(text) == 1:
+        text = text[0]
+    if isinstance(text, bytes):
+        if len(text) > 1024 * 1024:
+            raise ValueError('Micro-Manager metadata exceeds 1 MiB')
+        text = text.decode('utf-8')
+    if not isinstance(text, str) or len(text) > 1024 * 1024:
+        raise ValueError('Micro-Manager metadata exceeds 1 MiB')
+    data = json.loads(text)
+    if not isinstance(data, dict):
+        raise ValueError('Micro-Manager metadata is not an object')
+    bits = data.get('BitDepth')
+    if bits is None and isinstance(data.get('Summary'), dict):
+        bits = data['Summary'].get('BitDepth')
+    if bits is None:
+        return None
+    if isinstance(bits, bool) or not str(bits).strip().isdigit():
+        raise ValueError('Micro-Manager BitDepth is not a whole number')
+    return int(str(bits).strip())
+
+
 def _source_sensor_range(opened, raw):
     """Read bounded existing TIFF metadata for the displayed source plane.
 
     :param opened: already-open Pillow image at the displayed IFD.
     :param raw: already-decoded, unchanged source array.
-    :returns: JSON-ready ceiling, evidence and fallback reason. Only validated
-        unsigned OME SignificantBits overrides the storage dtype ceiling.
+    :returns: JSON-ready ceiling, evidence and fallback reason. Validated
+        unsigned OME SignificantBits, or else a Micro-Manager BitDepth,
+        overrides the storage dtype ceiling. A declaration the pixels exceed
+        is recorded as a contradiction.
     """
     import xml.etree.ElementTree as ET
 
@@ -719,33 +860,37 @@ def _source_sensor_range(opened, raw):
             if len(description) > 1024 * 1024:
                 raise ValueError('OME metadata exceeds 1 MiB')
             description = description.decode('utf-8')
-        if not isinstance(description, str) or not description:
-            return record
-        if len(description) > 1024 * 1024 or len(description.encode('utf-8')) > 1024 * 1024:
-            raise ValueError('OME metadata exceeds 1 MiB')
-        if '<!DOCTYPE' in description.upper() or '<!ENTITY' in description.upper():
-            raise ValueError('XML declarations with entities are unsupported')
-        root = ET.fromstring(description)
-        pixels = _ome_pixels_for_ifd(root, record['ifd'])
-        record['pixels_id'] = pixels.get('ID')
-        bits = pixels.get('SignificantBits')
-        if bits is None:
-            raise ValueError('OME SignificantBits is absent')
-        record['declared_significant_bits'] = bits
-        if (raw.dtype.kind != 'u' or pixels.get('Type') != raw.dtype.name
-                or int(pixels.attrib['SizeX']) != raw.shape[1]
-                or int(pixels.attrib['SizeY']) != raw.shape[0]):
-            raise ValueError('OME pixel type or dimensions contradict the displayed array')
-        bits = int(bits)
-        if not 1 <= bits <= np.iinfo(raw.dtype).bits:
-            raise ValueError('OME SignificantBits is outside the storage type')
-        ceiling = (1 << bits) - 1
-        if raw.size and int(raw.max()) > ceiling:
-            raise ValueError('source pixels exceed the declared significant-bit ceiling')
-        record.update(ceiling=ceiling, source='OME Pixels SignificantBits',
-                      significant_bits=bits, reason=None)
+        if isinstance(description, str) and description:
+            if len(description) > 1024 * 1024 or len(description.encode('utf-8')) > 1024 * 1024:
+                raise ValueError('OME metadata exceeds 1 MiB')
+            if '<!DOCTYPE' in description.upper() or '<!ENTITY' in description.upper():
+                raise ValueError('XML declarations with entities are unsupported')
+            root = ET.fromstring(description)
+            pixels = _ome_pixels_for_ifd(root, record['ifd'])
+            record['pixels_id'] = pixels.get('ID')
+            bits = pixels.get('SignificantBits')
+            if bits is None:
+                raise ValueError('OME SignificantBits is absent')
+            record['declared_significant_bits'] = bits
+            if (raw.dtype.kind != 'u' or pixels.get('Type') != raw.dtype.name
+                    or int(pixels.attrib['SizeX']) != raw.shape[1]
+                    or int(pixels.attrib['SizeY']) != raw.shape[0]):
+                raise ValueError('OME pixel type or dimensions contradict the displayed array')
+            bits = int(bits)
+            if not 1 <= bits <= np.iinfo(raw.dtype).bits:
+                raise ValueError('OME SignificantBits is outside the storage type')
+            return _declared_sensor_range(raw, bits, 'OME Pixels SignificantBits',
+                                          record)
     except (ValueError, TypeError, KeyError, IndexError, OSError, ET.ParseError) as error:
         record['reason'] = str(error)
+    try:
+        bits = _micromanager_bits(tags)
+    except (ValueError, TypeError, UnicodeDecodeError) as error:
+        record['micromanager_reason'] = str(error)
+        return record
+    if bits is not None:
+        record['ome_reason'] = record.get('reason')
+        return _declared_sensor_range(raw, bits, 'Micro-Manager BitDepth', record)
     return record
 
 
@@ -782,7 +927,8 @@ def _raw_clip_stats(raw, ranges, *, sensor_ceiling=None):
 
 
 def _tag_panel(artist, source=None, steps=(), display_range=None,
-               channel=None, compare=None, raw=None, sensor_range=None):
+               channel=None, compare=None, raw=None, sensor_range=None,
+               significant_bits=None):
     """Attach provenance to an image artist so an export can trace it.
 
     Nothing is hashed or read here; the file hashes are taken only when a
@@ -802,8 +948,14 @@ def _tag_panel(artist, source=None, steps=(), display_range=None,
     :param raw: the source pixels, used once to measure clipping and
         detector saturation.
     :param sensor_range: validated acquisition ceiling and metadata evidence.
+    :param significant_bits: the camera bit depth, when the caller read it
+        from acquisition metadata that :func:`_source_sensor_range` does not
+        parse; it is validated against ``raw`` like any other declaration.
     :returns: the artist.
     """
+    if sensor_range is None and significant_bits is not None and raw is not None:
+        sensor_range = _declared_sensor_range(raw, significant_bits,
+                                              'caller-declared bit depth')
     sources = ([] if source is None else
                [source] if isinstance(source, (str, os.PathLike)) else
                list(source))
@@ -943,8 +1095,6 @@ def _spatial_signature(array):
         return None
     raw = grey.tobytes()
     compressed = zlib.compress(raw, 6)
-    if len(compressed) > _SPATIAL_COMPRESSED_LIMIT:
-        return None
     return {"version": 1, "side": _SPATIAL_SIDE,
             "codec": "zlib+base64 gray-u8",
             "sha256": hashlib.sha256(raw).hexdigest(),
@@ -970,8 +1120,6 @@ def _decode_spatial_signature(record):
         compressed = base64.b64decode(data, validate=True)
     except (ValueError, TypeError, binascii.Error) as error:
         raise ValueError("malformed spatial signature") from error
-    if len(compressed) > _SPATIAL_COMPRESSED_LIMIT:
-        raise ValueError("spatial signature compressed size")
     try:
         stream = zlib.decompressobj()
         raw = stream.decompress(compressed, _SPATIAL_SIDE ** 2 + 1)
@@ -1250,8 +1398,11 @@ def _saturation_findings(panels):
         if sensor is not None and sensor > _SENSOR_WARN_FRACTION:
             sensor_range = panel.get("sensor_range") or {}
             limit = (f"the acquisition ceiling {sensor_range['ceiling']} declared "
-                     "by OME SignificantBits"
-                     if sensor_range.get("source") == "OME Pixels SignificantBits"
+                     + ("by OME SignificantBits"
+                        if sensor_range.get("source") == "OME Pixels SignificantBits"
+                        else f"by {sensor_range.get('source')}")
+                     if sensor_range.get("significant_bits") is not None
+                     and sensor_range.get("reason") is None
                      else "the largest value the image type can hold")
             findings.append({
                 "check": "saturation", "severity": "warning",
@@ -1344,6 +1495,561 @@ def _duplicate_findings(panels, arrays):
                        ". If one image is shown twice on purpose, say so in "
                        "the legend.")),
             })
+    return findings
+
+
+def _panel_grey(array, side):
+    """A finite grey float32 copy whose longer side is at most ``side``.
+
+    :returns: ``(grey, scale)`` with ``scale`` the work pixels per displayed
+        pixel, or None for an array that is not an image of usable size.
+    """
+    data = np.asarray(array)
+    if data.dtype.kind not in "biuf" or data.ndim not in (2, 3):
+        return None
+    if data.ndim == 3:
+        if data.shape[2] not in (3, 4):
+            return None
+        data = data[..., :3].astype(np.float32).mean(axis=-1)
+    else:
+        data = data.astype(np.float32)
+    if min(data.shape) < _MIN_PANEL_SIDE:
+        return None
+    finite = np.isfinite(data)
+    if not finite.all():
+        fill = float(np.median(data[finite])) if finite.any() else 0.0
+        data = np.where(finite, data, fill).astype(np.float32)
+    height, width = data.shape
+    scale = min(1.0, side / max(height, width))
+    if scale < 1.0:
+        data = cv2.resize(data, (max(1, int(round(width * scale))),
+                                 max(1, int(round(height * scale)))),
+                          interpolation=cv2.INTER_AREA)
+    return np.ascontiguousarray(data), scale
+
+
+def _band_pass(image, fine=False):
+    """Texture band of a grey image; ``fine`` keeps only pixel-scale detail."""
+    if fine:
+        return image - cv2.GaussianBlur(image, (0, 0), 1.0)
+    return (cv2.GaussianBlur(image, (0, 0), 0.8)
+            - cv2.GaussianBlur(image, (0, 0), 3.0))
+
+
+def _region_scales(big, small, low=None, high=None, count=_REGION_STEPS,
+                   minimum=_REGION_MIN_SIDE):
+    """Template scales that place ``small`` as a strict sub-region of ``big``.
+
+    :param minimum: the shortest template side, in work pixels.
+    """
+    big_h, big_w = big.shape
+    small_h, small_w = small.shape
+    top = min(big_w / small_w, big_h / small_h,
+              math.sqrt(_REGION_MAX_AREA * big_w * big_h / (small_w * small_h)))
+    bottom = max(max(_REGION_MIN_SIDE, minimum) / min(small_w, small_h),
+                 _REGION_MIN_FRACTION * min(big_w / small_w, big_h / small_h))
+    if low is not None:
+        bottom, top = max(bottom, low), min(top, high)
+    if bottom > top:
+        return []
+    return list(np.geomspace(bottom, top, count)) if top > bottom else [bottom]
+
+
+def _region_variants(small):
+    """The shape-preserving flips of a template: as is, mirrored, upturned."""
+    return {"none": small, "mirror": small[:, ::-1], "flip": small[::-1],
+            "rot180": small[::-1, ::-1]}
+
+
+def _best_region(big, small, scales, variants):
+    """Best band-pass template match of rescaled ``small`` within ``big``."""
+    target = _band_pass(big)
+    if float(target.std()) < 1e-6:
+        return None
+    best = None
+    for name in variants:
+        turned = np.ascontiguousarray(_region_variants(small)[name])
+        for scale in scales:
+            width = int(round(turned.shape[1] * scale))
+            height = int(round(turned.shape[0] * scale))
+            if (width > big.shape[1] or height > big.shape[0]
+                    or min(width, height) < _REGION_MIN_SIDE // 2):
+                continue
+            resized = cv2.resize(turned, (width, height),
+                                 interpolation=(cv2.INTER_AREA if scale < 1
+                                                else cv2.INTER_LINEAR))
+            template = _band_pass(resized)
+            if float(template.std()) < 1e-6:
+                continue
+            _low, score, _where, (x, y) = cv2.minMaxLoc(cv2.matchTemplate(
+                target, template, cv2.TM_CCOEFF_NORMED))
+            if np.isfinite(score) and (best is None or score > best[0]):
+                best = (float(score), float(scale), name, (x, y), resized)
+    return best
+
+
+def _aligned_residual_correlation(window, template):
+    """Correlation of the pixel-scale residuals once two patches are aligned.
+
+    The template is first aligned to the window with sub-pixel accuracy
+    (an affine ECC fit); the residual left after a 1.5-pixel blur is then
+    the image's own noise and fine texture, which two different cells of
+    the same shape do not share but a reused region does.
+
+    :returns: the correlation, or None when the patches cannot be aligned or
+        carry no residual.
+    """
+    window = np.ascontiguousarray(window, dtype=np.float32)
+    template = np.ascontiguousarray(template, dtype=np.float32)
+    warp = np.eye(2, 3, dtype=np.float32)
+    try:
+        _found, warp = cv2.findTransformECC(
+            window, template, warp, cv2.MOTION_AFFINE,
+            (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 60, 1e-6),
+            None, 1)
+    except cv2.error:
+        return None
+    height, width = window.shape
+    aligned = cv2.warpAffine(template, warp, (width, height),
+                             flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP,
+                             borderMode=cv2.BORDER_REFLECT)
+    margin = max(2, min(height, width) // 16)
+    inner = (slice(margin, -margin), slice(margin, -margin))
+    smooth_first = cv2.GaussianBlur(window, (0, 0), 1.5)
+    smooth_second = cv2.GaussianBlur(aligned, (0, 0), 1.5)
+    slope = np.maximum(
+        np.hypot(*np.gradient(cv2.GaussianBlur(window, (0, 0), 2.0))),
+        np.hypot(*np.gradient(cv2.GaussianBlur(aligned, (0, 0), 2.0))))[inner]
+    flat = slope <= np.percentile(slope, 50)
+    first = (window - smooth_first)[inner][flat]
+    second = (aligned - smooth_second)[inner][flat]
+    if first.size < 64 or float(first.std()) <= 1e-3 * float(window.std()):
+        return None
+    gain = float(np.polyfit(smooth_second[inner].ravel(),
+                            smooth_first[inner].ravel(), 1)[0])
+    return 1.0 - float(np.var(first - gain * second)) / float(np.var(first))
+
+
+def _region_in_panel(big, small):
+    """Whether ``small`` shows a rescaled sub-region of ``big``, or None.
+
+    Both are ``(coarse, fine)`` pairs of :func:`_panel_grey` results. The
+    coarse search covers every scale and shape-preserving flip; the fine
+    search confirms one candidate at a higher resolution, on the texture
+    band and again on pixel-scale detail, which two different cells of
+    similar shape do not share.
+    """
+    (big_c, big_cs), (big_f, big_fs) = big
+    (small_c, small_cs), (small_f, small_fs) = small
+    scales = _region_scales(big_c, small_c, count=_REGION_STEPS,
+                            minimum=_REGION_MIN_BOX * big_cs)
+    if not scales:
+        return None
+    candidates = []
+    for variant in _region_variants(small_c):
+        found = _best_region(big_c, small_c, scales, [variant])
+        if found is not None and found[0] >= _REGION_COARSE:
+            candidates.append(found)
+    fine = None
+    for coarse in sorted(candidates, key=lambda item: -item[0])[:2]:
+        relative = coarse[1] * small_cs / big_cs
+        centre = relative * big_fs / small_fs
+        scales = _region_scales(big_f, small_f, centre / 1.05, centre * 1.05, 11,
+                                minimum=_REGION_MIN_BOX * big_fs)
+        found = _best_region(big_f, small_f, scales, [coarse[2]]) if scales else None
+        if found is not None and (fine is None or found[0] > fine[0]):
+            fine = found
+    if fine is None or fine[0] < _REGION_SCORE:
+        return None
+    score, scale, variant, (x, y), resized = fine
+    window = big_f[y:y + resized.shape[0], x:x + resized.shape[1]]
+    detail = _aligned_residual_correlation(window, resized)
+    if detail is None or detail < _REGION_DETAIL:
+        return None
+    relative = scale * small_fs / big_fs
+    return {"score": round(score, 4), "detail": round(detail, 4),
+            "zoom": round(1.0 / relative, 3), "variant": variant,
+            "box": [int(round(y / big_fs)), int(round((y + resized.shape[0]) / big_fs)),
+                    int(round(x / big_fs)), int(round((x + resized.shape[1]) / big_fs))]}
+
+
+def _region_reuse_findings(panels, arrays, known_pairs=()):
+    """Panels that show a rescaled or cropped region of another panel.
+
+    Each pair is searched both ways for the smaller-content panel inside
+    the larger one, within a time budget; the report records how many pairs
+    were checked and how many the budget left out. Pairs already reported
+    as whole-panel repeats are not searched again.
+
+    :returns: ``(findings, statistics)``.
+    """
+    import time
+
+    from .qt.i18n import tr
+
+    started = time.monotonic()
+    work = []
+    for panel, array in zip(panels, arrays):
+        if len(work) >= _REGION_PANELS:
+            break
+        if int(np.prod(panel["shape"][:2])) < _MIN_COMPARE_PIXELS:
+            continue
+        coarse = _panel_grey(array, _REGION_WORK)
+        fine = _panel_grey(array, _REGION_REFINE)
+        if coarse is not None and fine is not None:
+            work.append((panel, (coarse, fine)))
+    known = {frozenset(pair) for pair in known_pairs}
+    findings, checked, skipped = [], 0, 0
+    for big_panel, big in work:
+        for small_panel, small in work:
+            pair = frozenset((big_panel["panel"], small_panel["panel"]))
+            if big_panel is small_panel or pair in known:
+                continue
+            if time.monotonic() - started > _REGION_SECONDS:
+                skipped += 1
+                continue
+            checked += 1
+            match = _region_in_panel(big, small)
+            if match is None:
+                continue
+            known.add(pair)
+            declared = bool(
+                big_panel.get("source") and small_panel.get("source")
+                and {s.get("path") for s in big_panel["source"]}
+                & {s.get("path") for s in small_panel["source"]})
+            findings.append({
+                "check": "region_reuse",
+                "severity": "note" if declared else "warning",
+                "panels": [small_panel["panel"], big_panel["panel"]],
+                "correlation": match["score"], "detail": match["detail"],
+                "zoom": match["zoom"], "variant": match["variant"],
+                "box": match["box"],
+                "message": tr(
+                    "Panel {panel} shows a region of panel {other} "
+                    "(rows {top}-{bottom}, columns {left}-{right}) at "
+                    "{zoom}x magnification. If it is an inset or a zoom, "
+                    "mark the region and say so in the legend.",
+                    panel=small_panel["panel"], other=big_panel["panel"],
+                    top=match["box"][0], bottom=match["box"][1],
+                    left=match["box"][2], right=match["box"][3],
+                    zoom=f"{match['zoom']:.2f}"),
+            })
+    return findings, {"pairs_checked": checked, "pairs_skipped": skipped}
+
+
+def _clone_region(grey):
+    """A region repeated at another place inside one image, or None.
+
+    A copied patch shows as a secondary peak in the autocorrelation of the
+    texture band; the peak is confirmed only where both copies agree in
+    9x9 windows over a connected area of at least 1 % of the image.
+    """
+    texture = _band_pass(grey, fine=True).astype(np.float64)
+    texture -= texture.mean(axis=0, keepdims=True)
+    texture -= texture.mean(axis=1, keepdims=True)
+    energy = float((texture ** 2).sum())
+    height, width = texture.shape
+    if energy <= 1e-9 or min(height, width) < 32:
+        return None
+    spectrum = np.fft.rfft2(texture, s=(2 * height, 2 * width))
+    corr = np.fft.irfft2(spectrum * np.conj(spectrum),
+                         s=(2 * height, 2 * width)) / energy
+    corr = np.fft.fftshift(corr)
+    cy, cx = height, width
+    ys, xs = np.mgrid[-cy:cy, -cx:cx]
+    masked = corr.copy()
+    masked[((np.abs(ys) <= _CLONE_GUARD) & (np.abs(xs) <= _CLONE_GUARD))
+         | (ys < 0) | ((ys == 0) & (xs < 0))
+         | (np.abs(ys) > height - 16) | (np.abs(xs) > width - 16)] = 0
+    for _attempt in range(_CLONE_PEAKS):
+        py, px = np.unravel_index(int(np.argmax(masked)), masked.shape)
+        value = float(masked[py, px])
+        if value < _CLONE_PEAK:
+            return None
+        masked[py - 2:py + 3, px - 2:px + 3] = 0
+        found = _confirm_clone(texture, corr, (py, px), value)
+        if found is not None:
+            return found
+    return None
+
+
+def _confirm_clone(texture, corr, at, value):
+    """Confirm one autocorrelation peak as a copied patch, or None.
+
+    A copy is a sharp peak with no echo at half or twice its shift (which a
+    periodic pattern or pixel-replicated upscaling would have), and both
+    copies agree in 9x9 windows over a connected area.
+    """
+    height, width = texture.shape
+    py, px = at
+    dy, dx = int(py - height), int(px - width)
+    around = corr[py - 2:py + 3, px - 2:px + 3].copy()
+    around[2, 2] = -np.inf
+    if float(around.max()) > 0.5 * value:
+        return None
+    echoes = [(2 * dy, 2 * dx), (dy / 2, dx / 2)]
+    if dy and dx:
+        echoes += [(dy, 0), (0, dx)]
+    for fy, fx in echoes:
+        if fy != int(fy) or fx != int(fx):
+            continue
+        ry, rx = int(height + fy), int(width + fx)
+        if (0 <= ry < corr.shape[0] and 0 <= rx < corr.shape[1]
+                and float(corr[ry, rx]) > 0.5 * value):
+            return None
+    first = texture[max(0, -dy):height - max(0, dy), max(0, -dx):width - max(0, dx)]
+    second = texture[max(0, dy):height + min(0, dy), max(0, dx):width + min(0, dx)]
+    window = (9, 9)
+    product = cv2.blur((first * second).astype(np.float32), window)
+    power = np.sqrt(cv2.blur((first ** 2).astype(np.float32), window)
+                    * cv2.blur((second ** 2).astype(np.float32), window))
+    noise = float(np.median(np.abs(texture))) + 1e-9
+    agree = (product / np.maximum(power, 1e-12) > 0.9) & (power > (0.5 * noise) ** 2)
+    count, _labels, stats_, _centroids = cv2.connectedComponentsWithStats(
+        agree.astype(np.uint8), connectivity=8)
+    if count < 2:
+        return None
+    largest = 1 + int(np.argmax(stats_[1:, cv2.CC_STAT_AREA]))
+    area = int(stats_[largest, cv2.CC_STAT_AREA])
+    if area < _CLONE_AREA * height * width or area < 16 * 16:
+        return None
+    x0, y0 = stats_[largest, cv2.CC_STAT_LEFT], stats_[largest, cv2.CC_STAT_TOP]
+    w0, h0 = stats_[largest, cv2.CC_STAT_WIDTH], stats_[largest, cv2.CC_STAT_HEIGHT]
+    oy, ox = max(0, -dy), max(0, -dx)
+    return {"shift": [dy, dx], "peak": round(value, 4),
+            "area_fraction": round(area / (height * width), 4),
+            "box": [int(y0 + oy), int(y0 + oy + h0), int(x0 + ox), int(x0 + ox + w0)]}
+
+
+def _noise_like(image):
+    """Whether an image's finest detail is acquisition noise.
+
+    Rendered graphics, label masks and denoised pictures have pixel-scale
+    detail that is smooth from one pixel to the next; camera noise is not.
+    Noise-level comparisons and copied-patch searches need the latter.
+    """
+    detail = image - cv2.GaussianBlur(image, (0, 0), 1.0)
+    first, second = detail[:, :-1].ravel(), detail[:, 1:].ravel()
+    if float(first.std()) < 1e-9 or float(second.std()) < 1e-9:
+        return False
+    lag = float(np.corrcoef(first, second)[0, 1])
+    return bool(np.isfinite(lag) and lag < 0.5)
+
+
+def _noise_by_intensity(left, right):
+    """Median log ratio of matched-intensity noise across two strips, or None.
+
+    Noise is compared only between pixels of similar local brightness, so
+    shot noise that rises with signal does not read as a change of camera.
+    """
+    ratios = []
+    pairs = []
+    for strip in (left, right):
+        local = cv2.GaussianBlur(strip, (0, 0), 2.0)
+        pairs.append((local.ravel(), (strip - cv2.GaussianBlur(strip, (0, 0), 1.0)).ravel()))
+    both = np.concatenate([pairs[0][0], pairs[1][0]])
+    edges = np.quantile(both, np.linspace(0, 1, 6))
+    for low, high in zip(edges[:-1], edges[1:]):
+        spreads = []
+        for local, residual in pairs:
+            chosen = residual[(local >= low) & (local <= high)]
+            if chosen.size < 100:
+                break
+            spreads.append(float(np.median(np.abs(chosen - np.median(chosen)))))
+        if len(spreads) == 2 and min(spreads) > 1e-9:
+            ratios.append(math.log(spreads[0] / spreads[1]))
+    if len(ratios) < 2 or (min(ratios) < 0 < max(ratios)):
+        return None
+    return float(np.median(ratios))
+
+
+def _seam(grey):
+    """A straight seam where background level or noise changes, or None."""
+    best = None
+    for axis, image in (("vertical", grey), ("horizontal", grey.T)):
+        height, width = image.shape
+        if width < 64 or height < 32:
+            continue
+        steps = np.diff(image, axis=1)
+        centred = steps - np.median(steps)
+        scale = 1.4826 * float(np.median(np.abs(centred)))
+        residual = np.abs(image - cv2.GaussianBlur(image, (0, 0), 1.0))
+        profile = np.median(residual, axis=0)
+        floor = float(np.median(profile))
+        if scale <= 1e-9 or floor <= 1e-9:
+            continue
+        band = max(8, width // 8)
+        noisy = _noise_like(image)
+        middle = np.median(steps, axis=0)
+        agree = np.mean(np.sign(steps) == np.sign(middle)[None, :], axis=0)
+        level = np.abs(middle) / scale
+        for column in range(band, width - band):
+            edge = column - 1
+            if (profile[column - band:column].min() < 0.2 * floor
+                    or profile[column:column + band].min() < 0.2 * floor):
+                continue
+            nearby = np.r_[level[max(0, edge - 10):edge - 1],
+                           level[edge + 2:edge + 11]]
+            offset = (level[edge] >= _SPLICE_STEP and agree[edge] >= _SPLICE_SIGN
+                      and nearby.size and float(nearby.max()) < 0.3 * level[edge])
+            left = profile[column - band:column]
+            right = profile[column:column + band]
+            jump = abs(math.log((float(np.median(left)) + 1e-9)
+                                / (float(np.median(right)) + 1e-9)))
+            if not offset and jump < math.log(_SPLICE_NOISE_RATIO) * 0.8:
+                continue
+            noise = None
+            if not offset:
+                if not noisy:
+                    continue
+                noise = _noise_by_intensity(image[:, column - band:column],
+                                            image[:, column:column + band])
+                if noise is None or abs(noise) < math.log(_SPLICE_NOISE_RATIO):
+                    continue
+            strength = (float(level[edge]) if offset else 0.0) + abs(noise or 0.0)
+            if best is None or strength > best["strength"]:
+                best = {"axis": axis, "position": int(column),
+                        "offset": round(float(level[edge]), 3) if offset else None,
+                        "noise_ratio": (round(math.exp(abs(noise)), 3)
+                                        if noise is not None else None),
+                        "strength": strength}
+    return best
+
+
+def _splice_work(array):
+    """A grey work image for splice checks, with pixel replication undone.
+
+    An image enlarged by repeating pixels carries a regular lattice that
+    reads as copied texture; rows and columns that only repeat their
+    neighbour are dropped first when they make up 40 % or more of an axis.
+
+    :returns: ``(grey, rows, columns, scale)``: the work image, the
+        displayed-array row and column each kept line came from, and the
+        work pixels per kept line; or None for a panel too small to check.
+    """
+    whole = _panel_grey(array, float("inf"))
+    if whole is None:
+        return None
+    grey = whole[0]
+    rows, columns = np.arange(grey.shape[0]), np.arange(grey.shape[1])
+    for axis in (0, 1):
+        same = np.all(np.diff(grey, axis=axis) == 0, axis=1 - axis)
+        if same.size and float(same.mean()) >= 0.4:
+            keep = np.r_[True, ~same]
+            if axis == 0:
+                grey, rows = grey[keep], rows[keep]
+            else:
+                grey, columns = grey[:, keep], columns[keep]
+    height, width = grey.shape
+    if min(height, width) < 64:
+        return None
+    scale = min(1.0, _SPLICE_WORK / max(height, width))
+    if scale < 1.0:
+        grey = cv2.resize(grey, (max(1, int(round(width * scale))),
+                                 max(1, int(round(height * scale)))),
+                          interpolation=cv2.INTER_AREA)
+    return np.ascontiguousarray(grey), rows, columns, scale
+
+
+def _work_to_displayed(mapping, scale, value):
+    """The displayed-array line a splice work-image coordinate came from.
+
+    :param mapping: the displayed row or column of each kept line.
+    :param scale: work pixels per kept line.
+    :param value: the work-image coordinate; one past the last line maps to
+        one past the last displayed line.
+    """
+    position = int(round(value / scale))
+    if position >= len(mapping):
+        return int(mapping[-1]) + 1
+    return int(mapping[max(0, position)])
+
+
+def _splice_findings(panels, arrays):
+    """Panels that look assembled from more than one image.
+
+    Two signs are checked on each panel of at least 64x64 pixels: a region
+    repeated elsewhere in the same panel (a cloned patch), and a straight
+    full-length seam where the background level steps or the noise of
+    equally bright pixels changes (two images butted together). Seams
+    against flat padding are ignored.
+    """
+    from .qt.i18n import tr
+
+    findings = []
+    for panel, array in list(zip(panels, arrays))[:_SPLICE_PANELS]:
+        if int(np.prod(panel["shape"][:2])) < _MIN_COMPARE_PIXELS:
+            continue
+        work = _splice_work(array)
+        if work is None:
+            continue
+        grey, rows, columns, scale = work
+        clone = _clone_region(grey) if _noise_like(grey) else None
+        if clone is not None:
+            box = [_work_to_displayed(rows, scale, clone["box"][0]),
+                   _work_to_displayed(rows, scale, clone["box"][1]),
+                   _work_to_displayed(columns, scale, clone["box"][2]),
+                   _work_to_displayed(columns, scale, clone["box"][3])]
+            shift = [int(round(clone["shift"][0] * (rows[-1] + 1)
+                               / grey.shape[0])),
+                     int(round(clone["shift"][1] * (columns[-1] + 1)
+                               / grey.shape[1]))]
+            findings.append({
+                "check": "splice", "kind": "clone", "severity": "warning",
+                "panels": [panel["panel"]], "shift": shift, "box": box,
+                "peak": clone["peak"], "area_fraction": clone["area_fraction"],
+                "message": tr(
+                    "Panel {panel}: the region at rows {top}-{bottom}, columns "
+                    "{left}-{right} repeats {down} rows down and {across} "
+                    "columns across in the same image. Check the source image "
+                    "for a copied patch.", panel=panel["panel"], top=box[0],
+                    bottom=box[1], left=box[2], right=box[3],
+                    down=shift[0], across=shift[1]),
+            })
+        seam = _seam(grey)
+        if seam is not None:
+            position = _work_to_displayed(
+                columns if seam["axis"] == "vertical" else rows, scale,
+                seam["position"])
+            findings.append({
+                "check": "splice", "kind": "seam", "severity": "warning",
+                "panels": [panel["panel"]], "axis": seam["axis"],
+                "position": position, "offset": seam["offset"],
+                "noise_ratio": seam["noise_ratio"],
+                "message": tr(
+                    "Panel {panel}: a straight {axis} seam at pixel {position} "
+                    "separates areas with a different background level or "
+                    "noise, as when two images are butted together. If the "
+                    "panel combines images, separate them with a visible line "
+                    "and say so in the legend.", panel=panel["panel"],
+                    axis=tr(seam["axis"]), position=position),
+            })
+    return findings
+
+
+def _bit_depth_findings(panels):
+    """Panels whose camera metadata contradicts their pixel values."""
+    from .qt.i18n import tr
+
+    findings = []
+    for panel in panels:
+        sensor = panel.get("sensor_range") or {}
+        if not sensor.get("contradiction"):
+            continue
+        findings.append({
+            "check": "bit_depth", "severity": "warning",
+            "panels": [panel["panel"]],
+            "declared_bits": sensor.get("declared_significant_bits"),
+            "metadata": sensor.get("metadata"),
+            "message": tr(
+                "Panel {panel}: the source metadata ({metadata}) declares "
+                "{bits}-bit camera data, but pixel values reach {peak}. The "
+                "image was rescaled after acquisition or the metadata is wrong; "
+                "saturation was checked against the storage type instead.",
+                panel=panel["panel"], metadata=sensor.get("metadata"),
+                bits=sensor.get("declared_significant_bits"),
+                peak=sensor.get("observed_max")),
+        })
     return findings
 
 
@@ -1503,6 +2209,7 @@ def _source_regions_overlap(first, second):
 def _verified_source_region(panel, previous, first, second, deadline):
     """Check bounded raw-source texture and exact replay for both exports."""
     import time
+
     from PIL import Image
 
     merged = first[0]["path"].lower().endswith(".npy")
@@ -1664,8 +2371,6 @@ def _prior_figure_findings(panels, destination):
                     for previous in old_panels[:128]:
                         if time.monotonic() - source_started >= _SOURCE_REGION_SECONDS:
                             break
-                        if not isinstance(previous, dict):
-                            continue
                         prior_sources = previous.get("source") or []
                         if (len(prior_sources) != 1
                                 or not isinstance(prior_sources[0], dict)
@@ -1740,9 +2445,6 @@ def _prior_figure_findings(panels, destination):
                     identity = (key, panel["panel"])
                     if (identity in seen_crops
                             or panel["displayed_sha256"] in seen):
-                        continue
-                    if (previous.get("displayed_sha256")
-                            == panel["displayed_sha256"]):
                         continue
                     seen_crops.add(identity)
                     findings.append({
@@ -1821,6 +2523,259 @@ def _prior_figure_findings(panels, destination):
     return findings
 
 
+def _index_hash(grey):
+    """A 64-bit block-mean hash of a 128x128 grey signature, as 16 hex digits."""
+    blocks = np.asarray(grey, dtype=np.float32).reshape(8, 16, 8, 16).mean(axis=(1, 3))
+    bits = (blocks > np.median(blocks)).ravel()
+    return f"{int(''.join('1' if bit else '0' for bit in bits), 2):016x}"
+
+
+def _index_hashes(grey):
+    """The hashes of every flip and rotation of a grey signature."""
+    found = set()
+    for quarter in range(4):
+        turned = np.rot90(grey, quarter)
+        found.add(_index_hash(turned))
+        found.add(_index_hash(turned[:, ::-1]))
+    return found
+
+
+def _figure_index_paths(destination):
+    """Every index file a checked export reads and appends to.
+
+    One beside the figure, one in the open run's folder, and the file named
+    by ``SPACR_FIGURE_INDEX`` when that is set, so a project can share one
+    index across output folders.
+    """
+    folder = os.path.dirname(os.path.abspath(os.fspath(destination)))
+    paths = [os.path.join(folder, _INDEX_NAME)]
+    try:
+        from .run_journal import current_run
+        active = current_run()
+        if active is not None:
+            paths.append(os.path.join(str(active.dir), _INDEX_NAME))
+    except Exception:
+        pass
+    shared = os.environ.get(_INDEX_ENV, "").strip()
+    if shared:
+        paths.append(os.path.abspath(shared))
+    unique = []
+    for path in paths:
+        if path not in unique:
+            unique.append(path)
+    return unique
+
+
+def _read_figure_index(path):
+    """The newest valid entry per figure in one index file, newest first."""
+    import json
+
+    try:
+        with open(path, "rb") as handle:
+            handle.seek(0, os.SEEK_END)
+            size = handle.tell()
+            handle.seek(max(0, size - _INDEX_LIMIT))
+            data = handle.read(_INDEX_LIMIT)
+    except OSError:
+        return []
+    lines = data.split(b"\n")
+    if size > _INDEX_LIMIT:
+        lines = lines[1:]
+    latest = {}
+    for line in lines:
+        try:
+            entry = json.loads(line)
+        except ValueError:
+            continue
+        if (not isinstance(entry, dict) or entry.get("v") != 1
+                or not isinstance(entry.get("figure"), str)
+                or not isinstance(entry.get("panels"), list)):
+            continue
+        latest.pop(entry["figure"], None)
+        latest[entry["figure"]] = entry
+    return list(reversed(list(latest.values())))
+
+
+def _record_in_index(report, figure_path, sidecar):
+    """Append one checked export's panel signatures to its index files.
+
+    An index that grows past its size limit keeps its newest half.
+    """
+    import json
+
+    entry = {
+        "v": 1, "figure": os.path.abspath(str(figure_path)),
+        "figure_sha256": report.get("figure_sha256"),
+        "sidecar": os.path.abspath(str(sidecar)),
+        "created": report.get("created"),
+        "panels": [{"panel": panel["panel"],
+                    "displayed_sha256": panel.get("displayed_sha256"),
+                    "hash": panel.get("index_hash"),
+                    "sources": [source.get("path") for source in
+                                panel.get("source") or []
+                                if isinstance(source, dict)]}
+                   for panel in report.get("panels", [])],
+    }
+    line = (json.dumps(entry, separators=(",", ":"), default=str) + "\n").encode()
+    if len(line) > _INDEX_LIMIT // 8:
+        return
+    for path in _figure_index_paths(figure_path):
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "ab") as handle:
+                handle.write(line)
+                size = handle.tell()
+            if size > _INDEX_LIMIT:
+                with open(path, "rb") as handle:
+                    handle.seek(size - _INDEX_LIMIT // 2)
+                    kept = handle.read().split(b"\n", 1)[-1]
+                temporary = f"{path}.tmp"
+                with open(temporary, "wb") as handle:
+                    handle.write(kept)
+                os.replace(temporary, path)
+        except OSError:
+            continue
+
+
+def _indexed_prior_panel(entry, previous, figure_hashes):
+    """The prior panel record behind an index entry, after verification.
+
+    The prior figure must still hash to what the index and its sidecar
+    recorded, so a replaced or edited file is never used as evidence.
+    """
+    import json
+    import stat
+
+    from .run_journal import hash_file
+
+    figure, sidecar = entry.get("figure"), entry.get("sidecar")
+    if not isinstance(sidecar, str) or not isinstance(figure, str):
+        return None
+    try:
+        info = os.stat(sidecar)
+        if not stat.S_ISREG(info.st_mode) or info.st_size > _SPATIAL_SIDECAR_LIMIT:
+            return None
+        figure_info = os.stat(figure)
+        if not stat.S_ISREG(figure_info.st_mode) or figure_info.st_size > 256 * 1024 ** 2:
+            return None
+        with open(sidecar, encoding="utf-8") as handle:
+            old = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    if figure not in figure_hashes:
+        figure_hashes[figure] = hash_file(figure, full=True)
+    digest = figure_hashes[figure]
+    if (not isinstance(old, dict) or digest != entry.get("figure_sha256")
+            or digest != old.get("figure_sha256")):
+        return None
+    for record in old.get("panels") or []:
+        if (isinstance(record, dict) and record.get("panel") == previous.get("panel")
+                and record.get("displayed_sha256") == previous.get("displayed_sha256")):
+            return record
+    return None
+
+
+def _index_findings(panels, destination, findings):
+    """Repeats of this figure's panels in any figure the index has seen.
+
+    Candidates come from identical pixel digests and from block-mean hashes
+    within a few bits under any flip or rotation; an approximate candidate
+    is a repeat only when the stored signatures pass the same layout and
+    texture test as panels within one figure.
+
+    :param findings: findings so far; a prior panel already reported by the
+        folder scan is not reported twice.
+    """
+    from .qt.i18n import tr
+
+    destination = os.path.abspath(os.fspath(destination))
+    reported = {(finding.get("prior_figure"), finding.get("prior_panel"),
+                 finding["panels"][0]) for finding in findings
+                if finding.get("check", "").startswith("cross_figure")}
+    current, greys = [], {}
+    for panel in panels:
+        variants = set()
+        if panel.get("spatial_v1"):
+            try:
+                grey = _decode_spatial_signature(panel["spatial_v1"])
+            except ValueError:
+                grey = None
+            if grey is not None:
+                greys[panel["panel"]] = grey
+                variants = _index_hashes(grey)
+        current.append((panel, {int(value, 16) for value in variants}))
+    entries, seen_figures = [], set()
+    for path in _figure_index_paths(destination):
+        for entry in _read_figure_index(path):
+            if entry["figure"] in seen_figures or entry["figure"] == destination:
+                continue
+            seen_figures.add(entry["figure"])
+            entries.append(entry)
+    candidates = []
+    for entry in entries[:_INDEX_ENTRIES]:
+        for previous in entry["panels"]:
+            if not isinstance(previous, dict):
+                continue
+            try:
+                prior_hash = int(previous.get("hash") or "", 16)
+            except ValueError:
+                prior_hash = None
+            for panel, hashes in current:
+                exact = previous.get("displayed_sha256") == panel["displayed_sha256"]
+                near = prior_hash is not None and any(
+                    bin(prior_hash ^ value).count("1") <= _INDEX_HAMMING
+                    for value in hashes)
+                if exact or near:
+                    candidates.append((entry, previous, panel, exact))
+    found, figure_hashes, confirmed = [], {}, set()
+    for entry, previous, panel, exact in candidates[:_INDEX_CONFIRM]:
+        name = os.path.basename(entry["figure"])
+        identity = (name, previous.get("panel"), panel["panel"])
+        if identity in reported or panel["panel"] in confirmed:
+            continue
+        record = _indexed_prior_panel(entry, previous, figure_hashes)
+        if record is None:
+            continue
+        score = None
+        if not exact:
+            try:
+                prior = _decode_spatial_signature(record.get("spatial_v1"))
+            except ValueError:
+                continue
+            first = _panel_thumbnail(greys[panel["panel"]])
+            second = _panel_thumbnail(prior)
+            if first is None or second is None:
+                continue
+            score = _best_dihedral_correlation(first[0], second[0])
+            if (score < _DUPLICATE_CORRELATION
+                    or _best_dihedral_correlation(first[1], second[1])
+                    < _DUPLICATE_DETAIL):
+                continue
+        prior_sources = [source.get("path") for source in record.get("source") or []
+                         if isinstance(source, dict)]
+        sources = [source.get("path") for source in panel.get("source") or []]
+        declared = bool(sources and sources == prior_sources)
+        reported.add(identity)
+        confirmed.add(panel["panel"])
+        found.append({
+            "check": "cross_figure_index",
+            "severity": "note" if declared else "warning",
+            "panels": [panel["panel"]], "prior_figure": name,
+            "prior_figure_path": entry["figure"],
+            "prior_panel": previous.get("panel"), "identical": bool(exact),
+            "correlation": None if score is None else round(float(score), 4),
+            "message": tr(
+                "Panel {panel} shows the same image as panel {prior_panel} in "
+                "an earlier export ({prior_figure}){how}. If the reuse is "
+                "intentional, explain it in the legend.",
+                panel=panel["panel"], prior_panel=previous.get("panel"),
+                prior_figure=name,
+                how="" if exact else tr(
+                    ", allowing flips, rotations and contrast changes")),
+        })
+    return found
+
+
 def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
                       destination=None):
     """Check ``fig``'s image panels and assemble its provenance.
@@ -1850,8 +2805,12 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
         return None
     written = str(fmt or "").lower().lstrip(".")
     requested = str(requested_fmt or written).lower().lstrip(".")
+    duplicates = _duplicate_findings(panels, arrays)
+    regions, region_search = _region_reuse_findings(
+        panels, arrays, [finding["panels"] for finding in duplicates])
     findings = (_range_findings(panels) + _saturation_findings(panels)
-                + _duplicate_findings(panels, arrays)
+                + _bit_depth_findings(panels) + duplicates + regions
+                + _splice_findings(panels, arrays)
                 + _lossy_findings(requested, written, panels)
                 + _resampling_findings(panels))
     run = None
@@ -1883,15 +2842,28 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
             "checks": ["display_range", "saturation", "duplicate",
                        "lossy_format", "resampling", "cross_figure_duplicate",
                        "cross_figure_source_crop", "cross_figure_source_region",
-                       "similar_displayed_region"],
+                       "similar_displayed_region", "region_reuse", "splice",
+                       "bit_depth", "cross_figure_index"],
+            "region_search": region_search,
             "warnings": sum(f["severity"] == "warning" for f in findings),
             "notes": sum(f["severity"] == "note" for f in findings),
             "findings": findings,
         },
     }
     _attach_spatial_signatures(report, arrays)
+    for panel in panels:
+        if panel.get("spatial_v1"):
+            try:
+                panel["index_hash"] = _index_hash(
+                    _decode_spatial_signature(panel["spatial_v1"]))
+            except ValueError:
+                pass
     if destination is not None:
         findings += _prior_figure_findings(panels, destination)
+        try:
+            findings += _index_findings(panels, destination, findings)
+        except (OSError, ValueError, TypeError, KeyError, AttributeError):
+            pass
         report["integrity"]["warnings"] = sum(
             f["severity"] == "warning" for f in findings)
         report["integrity"]["notes"] = sum(
@@ -1988,6 +2960,8 @@ def _finish_integrity(report, figure_path):
             run.record_output(sidecar, setting_key="figure_provenance")
         except Exception:
             pass
+    if sidecar:
+        _record_in_index(report, figure_path, sidecar)
     return sidecar
 
 

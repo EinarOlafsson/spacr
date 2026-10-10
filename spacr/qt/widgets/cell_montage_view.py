@@ -413,8 +413,6 @@ class MontageLoad:
     :param images: the crops, one list per plan, aligned with that plan's
         ``objects`` rows. An entry is ``None`` only where a source returned
         nothing for a row.
-    :param crop_sources: source path and exact crop recipe per loaded image,
-        aligned with ``images``; missing entries make no provenance claim.
     :param sources: ``{experiment root: description}`` -- which crop source
         drew each plate, in words.
     :param error: why there is no montage, or ``''``. A SENTENCE, not an
@@ -451,7 +449,6 @@ class MontageLoad:
     shape_reason: str = ""
     objects: Any = None
     counts: Any = None
-    crop_sources: Tuple[Tuple[Any, ...], ...] = ()
 
     @property
     def ok(self) -> bool:
@@ -833,13 +830,14 @@ def _load(request, step):
         for candidate in CROP_SHAPES:
             if not why and not req.offers(candidate):
                 why = req.why_not(candidate)
-    return MontageLoad(request=request, plans=tuple(plans),
-                       images=tuple(images), crop_sources=tuple(crop_sources),
-                       sources=described,
-                       shapes=tuple(s for s in CROP_SHAPES
-                                    if s in (offered or set())),
-                       shape_reason=why,
-                       objects=objects, counts=counts)
+    loaded = MontageLoad(request=request, plans=tuple(plans),
+                         images=tuple(images), sources=described,
+                         shapes=tuple(s for s in CROP_SHAPES
+                                      if s in (offered or set())),
+                         shape_reason=why,
+                         objects=objects, counts=counts)
+    object.__setattr__(loaded, "_crop_sources", tuple(crop_sources))
+    return loaded
 
 
 def _with_notes(plan, notes: Tuple[str, ...]):
@@ -2312,7 +2310,7 @@ class CellMontageView(QWidget):
             return
         self._plans = result.plans
         self._images = result.images
-        self._crop_sources = result.crop_sources
+        self._crop_sources = getattr(result, "_crop_sources", ())
         self._loaded_signature = self._load_signature()
         self._sources = dict(result.sources)
         self._shown_key = self._key
