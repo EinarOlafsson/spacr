@@ -248,9 +248,13 @@ def test_automatic_follows_the_measured_cost_per_theme_and_size(monkeypatch, qap
 
     assert not asks('data_art_genetic_advection', 1920, 1080, 1.0)
     assert not asks('data_art_genetic_advection', 3840, 2160, 1.0)
-    assert not asks('data_art_point_atlas', 3840, 2160, 1.0)
-    assert asks('data_art_point_atlas', 1920, 1080, 1.0)
-    assert asks('data_art_impulse_lens', 3840, 2160, 1.0)
+    # Round-2 audit (684_animation_gpu_audit_r2_2026-10-10): point_atlas at 4K
+    # full is now faster on the GPU (3.3 vs 5.1 ms) and impulse_lens at 4K full
+    # faster on the CPU (5.0 vs 9.1 ms); the winners follow the receipt.
+    assert asks('data_art_point_atlas', 3840, 2160, 1.0)
+    # 1080p full is a near tie (1.91 CPU vs 1.81 GPU ms): Automatic stays on CPU.
+    assert not asks('data_art_point_atlas', 1920, 1080, 1.0)
+    assert not asks('data_art_impulse_lens', 3840, 2160, 1.0)
     assert not asks('data_art_spaceout_field', 1920, 1080, 1.0)
     assert asks('data_art_spaceout_field', 3840, 2160, 1.0)
 

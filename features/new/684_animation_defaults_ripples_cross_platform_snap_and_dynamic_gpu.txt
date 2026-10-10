@@ -278,3 +278,21 @@ handles the queue.
     spinn (Spaceout, move the mouse over it); compare with Off, hide/show,
     resize, and start a Measure and a mask job (animation pauses / GPU
     released). Not offscreen-checkable.
+
+2026-10-10 — WORKSTATION ROUND 2 (b39cefeb6 and later; RTX 3090 Ti, NVIDIA EGL)
+    Parity (tools/verify_animation_gpu_parity.py --images, gpu_turn.sh, CUDA
+    unset): all_passed=False, 56 of 64 cases. PASS 8/8 each: aurora, blobs,
+    drift, genetic_advection, impulse_lens, point_atlas, tissue_facets (aurora
+    GPU 2.2 ms vs CPU 15.9 ms at 1080p full; isolated max differences up to 126
+    but mean <= 0.31, p99 <= 2, within thresholds). FAIL 0/8:
+    data_art_fungal_growth -- its GPU path refused every frame (3/3 per case);
+    its 'GPU' timing equals the CPU timing, so it is drawing on the CPU. Sent to
+    Home's animation agent. Receipt and worst-case images:
+    features/data/684_animation_gpu_parity_2026-10-10/.
+    Timing audit r2 (audit_animation_performance.py --gpu --frames 24):
+    features/data/684_animation_gpu_audit_r2_2026-10-10/receipt.json.
+    Cost table regenerated from it into ambient._GRAPHICS_COST (fungal growth has
+    no GPU row). Winners that changed: point_atlas at 4K full now GPU (3.3 vs
+    5.1 ms), impulse_lens at 4K full now CPU (5.0 vs 9.1 ms), blobs/aurora/
+    spinning paper GPU at 1080p and 4K; tests updated to the measured winners
+    (74 passed, CPU only). Native desktop checks remain on the maintainer's list.

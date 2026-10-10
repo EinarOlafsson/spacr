@@ -176,13 +176,17 @@ def test_busy_external_gpu_keeps_cpu(theme, recorder, monkeypatch, qapp):
     assert recorder.made == []
 
 
-def test_automatic_selects_only_4k_aurora_and_spinning_paper(qapp):
+def test_automatic_selects_the_measured_winner_for_cpu_themes(qapp):
+    # Round-2 audit (684_animation_gpu_audit_r2_2026-10-10) at full density:
+    # blobs, aurora and spinning paper are faster on the GPU at 1080p and 4K;
+    # drift is not, and fungal growth has no measured GPU row (its GPU path
+    # refused every parity frame). Tiny frames never take the GPU.
+    gpu = ("blobs", "aurora", "data_art_tissue_facets")
     for theme in CPU_THEMES:
         engine = make(theme)
-        assert not engine._graphics_automatic(1920, 1080)
         assert not engine._graphics_automatic(320, 200)
-        assert engine._graphics_automatic(3840, 2160) is (
-            theme in ("aurora", "data_art_tissue_facets"))
+        assert engine._graphics_automatic(1920, 1080) is (theme in gpu)
+        assert engine._graphics_automatic(3840, 2160) is (theme in gpu)
 
 
 def test_graphics_only_preparation_is_skipped_on_the_cpu(monkeypatch, qapp):
