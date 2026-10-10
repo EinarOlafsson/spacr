@@ -2525,9 +2525,6 @@ def get_ambient_density(theme=None) -> float:
 
     Density determines the population independently of detail. Render
     sampling and the native screen-pixel budget bound the combined work.
-
-    :param theme: whose shipped default to use while no density was saved;
-        ``None`` means the saved animation.
     """
     if not _stored(_KEY_AMBIENT_DENSITY):
         return _default_ambient_density(theme)
@@ -2550,8 +2547,7 @@ def set_ambient_density(value: float) -> None:
     :param value: the multiplier on each animation's own element count (1.0 is
         as designed); clamped to ``DENSITY_RANGE`` from
         :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
-        ``DEFAULT_DENSITY``. A profile that never chose a density and
-        stores its theme's own default keeps following per-theme defaults.
+        ``DEFAULT_DENSITY``.
     """
     try:
         unchanged = (not _stored(_KEY_AMBIENT_DENSITY)

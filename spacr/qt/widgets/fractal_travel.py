@@ -57,9 +57,9 @@ except Exception:                                            # pragma: no cover
 
 VERSION: Final[str] = "2.1.0"
 Backend = Literal["auto", "gpu", "cpu"]
-Quality = Literal["auto", "balanced", "high"]
+Quality = Literal["auto", "balanced", "high", "ultra"]
 BACKENDS: Final[tuple[str, ...]] = ("auto", "gpu", "cpu")
-QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
+QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high", "ultra")
 
 #: Reference defaults shared by both renderers. `auto` picks the GPU when
 #: vispy is importable and the CPU otherwise, which makes one set of numbers
