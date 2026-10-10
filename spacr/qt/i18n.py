@@ -143,9 +143,9 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Los módulos principales se agrupan aquí en Principal, Datos, Herramientas y Organismo; los flujos de trabajo relacionados se abren desde su módulo anfitrión. Haga clic en cualquier nombre para abrirlo. Ctrl+1 a Ctrl+9 abren las nueve primeras aplicaciones en el orden de la barra lateral.",
         "主要模块在此分组为核心、数据、工具和生物体；相关工作流可从其宿主模块打开。点击任意名称即可打开。Ctrl+1 至 Ctrl+9 按侧边栏顺序打开前九个应用。",
         "Os módulos principais estão agrupados aqui em Principal, Dados, Ferramentas e Organismo; os fluxos de trabalho relacionados são abertos a partir do seu módulo anfitrião. Clique em qualquer nome para o abrir. Ctrl+1 a Ctrl+9 abrem as nove primeiras aplicações pela ordem da barra lateral.",
-        "मुख्य मॉड्यूल यहाँ मुख्य, डेटा, उपकरण और जीव में समूहित हैं; संबंधित वर्कफ़्लो उनके होस्ट मॉड्यूल से खोले जाते हैं। खोलने के लिए किसी भी नाम पर क्लिक करें। Ctrl+1 से Ctrl+9 साइडबार क्रम में पहले नौ ऐप खोलते हैं।",
+        "प्राथमिक मॉड्यूल यहाँ मुख्य, डेटा, उपकरण और जीव में समूहित हैं; संबंधित वर्कफ़्लो उनके होस्ट मॉड्यूल से खोले जाते हैं। खोलने के लिए किसी भी नाम पर क्लिक करें। Ctrl+1 से Ctrl+9 साइडबार क्रम में पहले नौ ऐप खोलते हैं।",
         "기본 모듈은 여기에서 핵심, 데이터, 도구, 생물체로 그룹화됩니다. 관련 워크플로는 해당 호스트 모듈에서 열립니다. 이름을 클릭하면 열립니다. Ctrl+1 부터 Ctrl+9 까지는 사이드바 순서대로 처음 아홉 개의 앱을 엽니다.",
-        "Aðaleiningar eru flokkaðar hér í Kjarna, Gögnum, Verkfærum og Lífveru; tengd vinnuferli eru opnuð frá hýsileiningu sinni. Smelltu á hvaða heiti sem er til að opna það. Ctrl+1 til Ctrl+9 opna fyrstu níu forritin í röð hliðarstikunnar.",
+        "Aðaleiningar eru flokkaðar hér í Kjarna, Gögn, Verkfæri og Lífveru; tengd vinnuferli eru opnuð frá hýsileiningu sinni. Smelltu á hvaða heiti sem er til að opna það. Ctrl+1 til Ctrl+9 opna fyrstu níu forritin í röð hliðarstikunnar.",
         "Les modules principaux sont regroupés ici en Cœur, Données, Outils et Organisme ; les flux de travail associés s’ouvrent depuis leur module hôte. Cliquez sur un nom pour l’ouvrir. Ctrl+1 à Ctrl+9 ouvrent les neuf premières applications dans l’ordre de la barre latérale."),
     "none detected": _row(
         "ingen upptäckt", "keine erkannt", "ninguno detectado", "未检测到", "nenhum detectado", "कोई नहीं मिला", "감지되지 않음", "ekkert greindist", "aucun détecté"),
