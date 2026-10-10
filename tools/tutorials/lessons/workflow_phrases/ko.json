@@ -404,9 +404,9 @@
       "translation": "이처럼 풀링 스크린은 Regression에서 만나는 두 흐름으로 진행됩니다. 열기 전에 점수, 가이드 개수, 플레이트 레이아웃 사이에서 플레이트와 웰 식별자가 일치하는지 확인하고, 주석 열, 분류기 설정, 바코드 참조를 실행과 함께 보관하세요. 연결된 모듈 강의가 각 단계를 안내하며, Home에서 풀링 스크린 안내를 선택할 수도 있습니다."
     },
     {
-      "source": "So the image route nearly always runs Mask into Measure, then branches toward your question. To train your own segmentation model, prepare image-mask pairs in Make Masks, train them in Cellpose Workbench and open the saved model back in Mask. With compatible outputs in hand, step in later. Wherever you go, keep channel identities, units and object keys with each result.",
-      "source_sha256": "2c0d7903f782ec7e590990e95d24d4a2fc455fc5d1807856ccba09844943be4c",
-      "translation": "이처럼 이미지 경로는 거의 항상 Mask에서 Measure로 이어진 뒤 질문에 따라 갈라집니다. 자신만의 분할 모델을 학습시키려면 Make Masks에서 이미지-마스크 쌍을 준비하고, Cellpose Workbench에서 학습시킨 뒤, 저장된 모델을 Mask에서 다시 여세요. 호환되는 출력이 이미 있다면 중간 단계부터 시작할 수 있습니다. 어디로 가든 각 결과에 채널 식별 정보, 단위, 객체 키를 함께 보관하세요."
+      "source": "Most image analyses run Mask, then Measure, then one downstream module. To train a segmentation model, curate image-mask pairs in Make Masks, train them in Cellpose Workbench and load the saved model in Mask. A module can start later in the sequence when its inputs already exist. Keep channel identities, units and object keys with each result so later modules can match them.",
+      "source_sha256": "6216f6193148aa9230c1fd15edab5b20cf28c59bfb9f53780b57526875df8995",
+      "translation": "대부분의 이미지 분석은 Mask, 그다음 Measure, 그다음 후속 모듈 하나를 실행합니다. 분할 모델을 학습하려면 Make Masks에서 이미지-마스크 쌍을 정리하고 Cellpose Workbench에서 학습한 뒤 저장된 모델을 Mask에서 불러옵니다. 입력이 이미 있으면 모듈은 순서의 중간에서 시작할 수 있습니다. 이후 모듈이 일치시킬 수 있도록 각 결과에 채널 식별, 단위, 객체 키를 함께 유지하세요."
     },
     {
       "source": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
@@ -444,9 +444,9 @@
       "translation": "풀링 스크린은 이야기를 두 번 들려줍니다. 한 번은 이미지로, 한 번은 시퀀싱 리드로 들려주며, spaCR은 마지막에 둘을 합칩니다. 이미지 쪽에서는 Mask와 Measure가 현미경 시야를 측정된 세포로 바꾸고, Annotate와 Classify가 그 세포를 표현형 점수로 바꿉니다. 시퀀싱 쪽에서는 Map Barcodes가 리드를 가이드 개수로 바꿉니다. Regression은 플레이트와 웰을 기준으로 둘을 연결합니다. 결과가 시작되는 지점에서 합류하세요."
     },
     {
-      "source": "Image analysis in spaCR follows your pictures from pixels to answers. Raw images start in Mask, which finds the objects. If you want to correct masks by hand, use Make Masks, or import masks you already have. Measure then turns images and masks into numbers, and crops if you want them. From there you choose the road: classification, image exploration, gating or an assay. Stitch tiles first when the analysis needs one coordinate system.",
-      "source_sha256": "58f9a55bd3dc1cf0f1d93b20c17a8fd64cf9e32260bce7843b545cbad513eed3",
-      "translation": "spaCR의 이미지 분석은 픽셀에서 답까지 이미지를 따라갑니다. 원본 이미지는 객체를 찾는 Mask에서 시작합니다. 마스크를 손으로 고치고 싶다면 Make Masks를 쓰거나 이미 있는 마스크를 가져오세요. 그다음 Measure가 이미지와 마스크를 숫자로, 원하면 크롭으로도 바꿉니다. 거기서부터는 분류, 이미지 탐색, 게이팅, 분석 중에서 길을 고릅니다. 분석에 하나의 좌표계가 필요하면 먼저 타일을 이어 붙이세요."
+      "source": "The image-analysis modules usually run in this order. Mask segments objects in the raw images and writes merged image arrays and label masks. To correct masks by hand or import existing masks, use Make Masks. Measure reads the merged arrays and masks, writes per-object measurements to a database and can also save a PNG crop of each object. Classification, image exploration, gating and the assay modules start from those measurements and crops. When tiles must share one coordinate system, build a mosaic in Align & Stitch first.",
+      "source_sha256": "edac19a51bacc6d8d4773db6ec793354af258630687217725e7994669585cca9",
+      "translation": "이미지 분석 모듈은 보통 이 순서로 실행합니다. Mask는 원본 이미지에서 객체를 분할하고 병합된 이미지 배열과 라벨 마스크를 기록합니다. 마스크를 직접 수정하거나 기존 마스크를 가져오려면 Make Masks를 사용합니다. Measure는 병합된 배열과 마스크를 읽어 객체별 측정값을 데이터베이스에 기록하고, 각 객체의 PNG 크롭도 저장할 수 있습니다. 분류, 이미지 탐색, 게이팅, 분석 모듈은 이 측정값과 크롭에서 시작합니다. 타일이 하나의 좌표계를 공유해야 하면 먼저 Align & Stitch에서 모자이크를 만드세요."
     },
     {
       "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",

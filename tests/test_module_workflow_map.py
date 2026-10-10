@@ -295,7 +295,7 @@ def test_authored_lesson_is_validated_but_never_a_workflow_writer_target():
     generated = copy.deepcopy(data)
     generated["tutorials"]["80_image_analysis_pathways"].pop("lesson_source")
     assert relative in workflow.outputs(generated)
-    assert "pixels to answers" in workflow.outputs(generated)[relative]
+    assert "usually run in this order" in workflow.outputs(generated)[relative]
 
 
 @pytest.mark.parametrize("fault,match", [

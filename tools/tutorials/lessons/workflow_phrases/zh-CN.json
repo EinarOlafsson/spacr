@@ -1616,9 +1616,9 @@
       "translation": "所以，混池筛选是两条在 Regression 中汇合的数据流。打开它之前，请检查分数、向导计数和板布局中的板和孔标识符是否一致，并把注释列、分类器设置和条形码参考与这次运行一起保存。链接的模块课程会逐步讲解，您也可以在 Home 中选择混池筛选的演示。"
     },
     {
-      "source": "So the image route nearly always runs Mask into Measure, then branches toward your question. To train your own segmentation model, prepare image-mask pairs in Make Masks, train them in Cellpose Workbench and open the saved model back in Mask. With compatible outputs in hand, step in later. Wherever you go, keep channel identities, units and object keys with each result.",
-      "source_sha256": "2c0d7903f782ec7e590990e95d24d4a2fc455fc5d1807856ccba09844943be4c",
-      "translation": "所以，图像路线几乎总是从 Mask 到 Measure，然后根据您的问题分叉。要训练自己的分割模型，请在 Make Masks 中准备图像与掩膜对，在 Cellpose Workbench 中训练，再把保存的模型在 Mask 中打开。如果手头已有兼容的输出，也可以从后面的步骤开始。无论走到哪里，都要为每个结果保留通道标识、单位和对象键。"
+      "source": "Most image analyses run Mask, then Measure, then one downstream module. To train a segmentation model, curate image-mask pairs in Make Masks, train them in Cellpose Workbench and load the saved model in Mask. A module can start later in the sequence when its inputs already exist. Keep channel identities, units and object keys with each result so later modules can match them.",
+      "source_sha256": "6216f6193148aa9230c1fd15edab5b20cf28c59bfb9f53780b57526875df8995",
+      "translation": "大多数图像分析先运行 Mask，再运行 Measure，然后运行一个下游模块。要训练分割模型，请在 Make Masks 中整理图像-掩膜对，在 Cellpose Workbench 中训练，然后在 Mask 中加载保存的模型。当某个模块的输入已经存在时，它可以从序列的后段开始。请为每个结果保留通道标识、单位和对象键，以便后续模块进行匹配。"
     },
     {
       "source": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
@@ -1656,9 +1656,9 @@
       "translation": "混池筛选的故事要讲两遍，一遍用图像，一遍用测序读段，最后由 spaCR 把两者合在一起。在图像这一侧，Mask 和 Measure 把显微视野变成已测量的细胞，Annotate 和 Classify 再把这些细胞变成表型分数。在测序这一侧，Map Barcodes 把读段变成向导计数。Regression 按板和孔把两者连接起来。请从您的结果开始的地方进入。"
     },
     {
-      "source": "Image analysis in spaCR follows your pictures from pixels to answers. Raw images start in Mask, which finds the objects. If you want to correct masks by hand, use Make Masks, or import masks you already have. Measure then turns images and masks into numbers, and crops if you want them. From there you choose the road: classification, image exploration, gating or an assay. Stitch tiles first when the analysis needs one coordinate system.",
-      "source_sha256": "58f9a55bd3dc1cf0f1d93b20c17a8fd64cf9e32260bce7843b545cbad513eed3",
-      "translation": "spaCR 中的图像分析跟随您的图像，从像素一直走到答案。原始图像从 Mask 开始，由它找出对象。如果想手动修正掩膜，请使用 Make Masks，或者导入已有的掩膜。然后 Measure 把图像和掩膜变成数字，需要的话也生成裁剪图像。从那里起，您可以选择方向：分类、图像探索、门控或某项检测。当分析需要统一的坐标系时，请先拼接图块。"
+      "source": "The image-analysis modules usually run in this order. Mask segments objects in the raw images and writes merged image arrays and label masks. To correct masks by hand or import existing masks, use Make Masks. Measure reads the merged arrays and masks, writes per-object measurements to a database and can also save a PNG crop of each object. Classification, image exploration, gating and the assay modules start from those measurements and crops. When tiles must share one coordinate system, build a mosaic in Align & Stitch first.",
+      "source_sha256": "edac19a51bacc6d8d4773db6ec793354af258630687217725e7994669585cca9",
+      "translation": "图像分析模块通常按此顺序运行。Mask 在原始图像中分割对象，并写出合并后的图像数组和标签掩膜。如需手动修正掩膜或导入现有掩膜，请使用 Make Masks。Measure 读取合并后的数组和掩膜，将每个对象的测量值写入数据库，还可以保存每个对象的 PNG 裁剪图。分类、图像探索、门控和检测模块都从这些测量值和裁剪图开始。当图块需要共享同一坐标系时，请先在 Align & Stitch 中构建拼接图。"
     },
     {
       "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
