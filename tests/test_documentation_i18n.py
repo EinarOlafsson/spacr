@@ -3312,7 +3312,15 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
     assert {key: docs[key] for key in hidden_close} == hidden_close
     assert hidden_close.keys() <= home_ui_arrivals.keys()
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+    # 2026-10-10: N672/N673's 32 editable-volume arrivals are one exact named
+    # contract, as in the extractor and docstring inventory tests; the ratchet
+    # counts the surface before them.
+    volume_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text())
+    assert len(volume_arrivals) == 32
+    assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
+               - volume_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
         "catalog, review the diff, and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."

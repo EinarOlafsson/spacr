@@ -52191,6 +52191,81 @@
       "source_sha256": "76a5053e00d085b300f61bbb6e1af92ffecec4136246e266592a6aad1259f13c",
       "text": "Secondary labels, their primary relationships and the common stop level.\n\n``labels`` has the primary mask's dtype, shape and retained object IDs.\n``relationships`` includes primaries removed by minimum-area filtering.\n``level`` is None for the per-primary peak-ratio rule or an empty primary\nmask; otherwise it is the common threshold in processed intensity units.\n\n:ivar labels: secondary label array retaining primary IDs and dtype.\n:ivar relationships: primary/secondary identity report after filtering.\n:ivar level: shared stop threshold, or None when no common threshold applies."
     },
+    "spacr.qt.mask_engine.VolumeMaskSession": {
+      "source_blocks_sha256": [
+        "8d38d80f7c769a723e70c41aefe1f279daebcefb6814cc6ae7ca4a78322315f3",
+        "3a385a26ee899c965f2d6d828fba37c6b9687bd0f8aa4bbc4e8bb9524b9a8dd9",
+        "ac0065724c23fefd243fe93ec54b2265626bfd533b80ca5448ea9d41d3add1a2",
+        "c642ea08391f093a1632d2e6680f773fe20ed524d895f1a639bf67cc070580d5",
+        "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
+        "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
+        "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
+        "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
+        "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
+        "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
+        "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+      ],
+      "source_sha256": "a2891fbdf0da347f05c6afda5c6561dfbc6c396b65fda3c6a1aa3fb2b40bdeaa",
+      "text": "Edit native spatial labels using the same boundary as the 3-D gate view.\n\nCoordinates are physical X/Y/Z distances from the image's outer origin;\nvoxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their\ndeclared spatial axis order, source dtype and existing object identities.\nAt most 16,777,216 voxels and 256 MiB of source intensities are accepted;\nlarger fields are refused explicitly. Sparse undo deltas have a combined\n64 MiB budget rather than retaining a volume for every edit.\n\n:param image: finite real numeric three-dimensional source intensities.\n:param mask: nonnegative integer labels of exactly the source shape.\n:param axes: a permutation of the three spatial axes ``XYZ``.\n:param spacing: positive finite distances in that same array axis order.\n:param unit: the physical distance unit, or ``pixel`` when unspecified.\nValidate one spatial image and own its mutable label array.\n\n:param image: finite real numeric source intensities.\n:param mask: nonnegative integer object labels matching the image.\n:param axes: spatial storage-axis order, a permutation of XYZ.\n:param spacing: three positive finite distances in storage order.\n:param unit: the common distance unit."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry": {
+      "source_blocks_sha256": [
+        "e1da32670300ea3aee37dc6bf89ecc1ef999dcf704df94358bd7a1f6addc934e",
+        "43ae30a163ea00e756068cd7ef8ba9eaed5c8d6af3fd85b88c05b0a67685b3a1",
+        "006f1812a1208eae0a5c3f4d005e938ecaa218e8973397f270da133b05b88a59",
+        "01b84d022ad85e540a460440f98e0e4ed3bc14328b5a1ff621674f7c97371ff4",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "d43aa6979fc5d7440b473a8a2926a9f4f959916a21231dcb52b96207f715ce02",
+      "text": "Commit one validated shared boundary and its exact mask voxels.\n\nOther object IDs are protected. Invalid motion, collisions or a delta\nexceeding the history budget leave arrays, geometry and history intact.\n\n:param label: positive ID representable by the current mask dtype.\n:param gate: shared ``EditableVolumeGate`` with physical X/Y/Z columns.\n:returns: number of changed voxels."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
+      "source_blocks_sha256": [
+        "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
+        "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
+        "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
+        "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ],
+      "source_sha256": "855806e4c95205b428777fd15ebba3049a11ddc10ed83c541effb993a1eaab09",
+      "text": "Return saved geometry or an exact closed voxel-boundary mesh.\n\nCorner-touching, disconnected or excessively detailed labels that\ncannot satisfy the shared mesh's bounds/topology are refused rather\nthan replaced by a bounding box. Merely previewing this mesh does not\nchange voxels, history or saved geometry.\n\n:param label: an existing positive object identifier.\n:returns: a validated shared editable volume in physical coordinates."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.limits": {
+      "source_blocks_sha256": [
+        "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242"
+      ],
+      "source_sha256": "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242",
+      "text": "The exact physical outer image bounds in X/Y/Z order."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.next_label": {
+      "source_blocks_sha256": [
+        "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
+      ],
+      "source_sha256": "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254",
+      "text": "Return the first unused positive ID without renumbering any object."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.redo": {
+      "source_blocks_sha256": [
+        "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ],
+      "source_sha256": "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173",
+      "text": "Reapply the most recently undone voxel delta and geometry."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.undo": {
+      "source_blocks_sha256": [
+        "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3"
+      ],
+      "source_sha256": "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3",
+      "text": "Restore the preceding sparse voxel delta and immutable geometry."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.xyz_spacing": {
+      "source_blocks_sha256": [
+        "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c"
+      ],
+      "source_sha256": "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c",
+      "text": "Voxel distances in physical X/Y/Z order, independent of storage."
+    },
     "spacr.qt.mask_engine.apply_filters": {
       "source_blocks_sha256": [
         "7a3348b0b992abcb835a65d8c72036ff228e56de89aed7f0611c1c03ec72881b",
@@ -52594,6 +52669,18 @@
       "source_sha256": "4159de0fd026c6636c67e4387f0080c1d9ca3015ad89f4e4fb24fde48c164ab4",
       "text": "Load a Cellpose bundle as the editor's ``(image, mask)`` pair.\n\n:param path: the ``_seg.npy`` bundle.\n:returns: ``(image, mask)``, checked and converted exactly as\n    :func:`load_image_and_mask` converts a TIFF pair.\n:raises ValueError: for a file that is not a bundle, a bundle with no\n    image to show, or labels that do not fit the image."
     },
+    "spacr.qt.mask_engine.load_volume_image_and_mask": {
+      "source_blocks_sha256": [
+        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
+        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+        "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
+      ],
+      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
+      "text": "Open an explicitly declared grayscale spatial TIFF for native 3-D editing.\n\nExactly three spatial axes are supported, in any order. Time, channel,\ncolour and inferred page axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF image filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
+    },
     "spacr.qt.mask_engine.load_yolo_boxes": {
       "source_blocks_sha256": [
         "ebd81a03a270fc79e4e80ce177c0e61af5a0680a65c1d53e34793d2c8fb62e7e",
@@ -52962,6 +53049,16 @@
       ],
       "source_sha256": "f9aae0dee9303cec8b84d18e8cfb5e409e980a70e4091a89a5d5a9a5de109a95",
       "text": "Write edited labels back into the bundle they came from.\n\nEvery key the bundle already had is kept -- ``img``, ``flows``,\n``filename``, ``source_image``, ``diameter``, and any other -- and\n``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys\nare DERIVED from the masks and would describe the old ones if left:\n\n* ``outlines`` is redrawn by :func:`seg_outlines`;\n* ``ismanual``, one flag per object, is resized to the new largest id:\n  an id the bundle already flagged keeps its flag, and an id beyond the\n  old list was drawn in this editor, so it is flagged manual.\n\n:param path: the ``_seg.npy`` bundle.\n:param mask: the edited labels.\n:param preserve_ids: keep every supplied label exactly, including a lone\n    ID or disconnected pieces with the same ID. Labels must fit uint16.\n:returns: ``path``.\n:raises ValueError: when ``path`` is not a bundle."
+    },
+    "spacr.qt.mask_engine.save_volume_mask": {
+      "source_blocks_sha256": [
+        "67c99870147c421a816cdc38866de243e4dfb67ca102d56e9f54483e38d02662",
+        "4d1b5243419c1879129e2b239aeb8381bf9e0707f5c57e5b088e0f773e32b87a",
+        "0bbfc87fca59c066bae4562a7c35f3ec398c17db5f650c3106ed2924ad5af263",
+        "d6c21e86b31929098381b63efbea3617c7184e5d3c80ac246b97b2918146b91c"
+      ],
+      "source_sha256": "8f343202bdda510fbacc8ab6208aec3e314a981359a382c633ad2abf5d26910d",
+      "text": "Write native labels and their source-bound shared boundary sidecar.\n\nBoth artifacts are prepared before replacing either destination. A failed\nsecond replacement restores the previous pair. Source/output identities\nare rechecked after staging. Two filenames cannot form a fully atomic\ntransaction against an uncooperative concurrent writer; interrupted or\nmismatched publications are refused by the source/mask-bound sidecar on\nloading. Source axes, spacing, label dtype and IDs are preserved.\n\n:param session: a volume session loaded through the existing mask paths.\n:returns: the canonical TIFF mask path."
     },
     "spacr.qt.mask_engine.save_yolo_boxes": {
       "source_blocks_sha256": [
@@ -63491,10 +63588,11 @@
       "source_blocks_sha256": [
         "d7734e191878e2de43066a43d79bcce5221a245bb6ca621b7ddc331a3918910c",
         "f83f3909066e7e76ff236e7b558634c97b6214caf8b7f1467f0278d7f552e7fd",
+        "34fa1e10dee26acfe23a29d297fadd3b431e73a094f1901541668d13bb7ec1e9",
         "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495"
       ],
-      "source_sha256": "e02c0a1647630f01f2af281a7e758e268642d7db69a46dea489af658d8fcdf80",
-      "text": "Read a gating strategy and apply it to the loaded table.\n\nA strategy naming a measurement this table does not carry loads anyway\nand reports the problem: the gates are still there to look at and fix,\nwhich is more use than refusing the file.\n\n:param path: a JSON gate file written by :meth:`save_gates`. A file\n    that cannot be read is reported on the source line and gives False."
+      "source_sha256": "49b5bce46ba7533bf00dc72028545281bc0e12ef40cc8e230b44d3a34255483d",
+      "text": "Read a gating strategy and apply it to the loaded table.\n\nA strategy naming a measurement this table does not carry loads anyway\nand reports the problem: the gates are still there to look at and fix,\nwhich is more use than refusing the file.\n\nSaved anchor density and visibility are restored without resampling\nany edited boundary. Older files keep the current editor controls.\n\n:param path: a JSON gate file written by :meth:`save_gates`. A file\n    that cannot be read is reported on the source line and gives False."
     },
     "spacr.qt.screens.gate_editor.GateEditorScreen.load_path": {
       "source_blocks_sha256": [
@@ -63564,10 +63662,11 @@
     "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates": {
       "source_blocks_sha256": [
         "95c986a735d316b5013fcb91fec18f6b21b4d97b3267ce9427b6569d5b72b75d",
+        "a6ee952b06cac5711c98a5f0acdac0baa38b44a89ed1c8696c0d799b8304337f",
         "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f"
       ],
-      "source_sha256": "6748d44fbe238e7745166b02211ebff2270ac8bfa34b888193bd4330ec7c61d0",
-      "text": "Write the gating strategy to ``path``.\n\n:param path: the file to write the gating strategy to, as JSON; an\n    existing file is overwritten."
+      "source_sha256": "714bf7ff3facb02abdab03bcd1a817bf765ce86c638c7f33eb84a3a3b210714e",
+      "text": "Write the gating strategy to ``path``.\n\nEdited volume vertices and surfaces are saved with the anchor density\nand visibility controls; display settings do not approximate membership.\n\n:param path: the file to write the gating strategy to, as JSON; an\n    existing file is overwritten."
     },
     "spacr.qt.screens.gate_editor.GateEditorScreen.save_graph": {
       "source_blocks_sha256": [
@@ -65618,6 +65717,16 @@
       ],
       "source_sha256": "0551e89b9365ce780a021ba3bf68f94257c141ba080a6a5928bbf7ba9b96d715",
       "text": "Open the fields a curation session offers, in the order it offers.\n\nThe session decides WHICH fields and in WHAT ORDER -- reviewed ones\nalready dropped, ``--limit`` already applied -- and this screen shows\nthem. All three layouts are edited where they lie:\n\n* ``nested`` opens the queue folder, masks in ``<folder>/masks``;\n* ``sibling`` opens ``<folder>/images`` and reads and saves the\n  masks in ``<folder>/masks`` beside it, never ``images/masks``;\n* ``seg`` opens the queue folder with the ``_seg.npy`` bundles as\n  its fields, each saved back into itself.\n\nWhat the session had to say -- a ``prob`` or ``easy`` order that\nfell back for want of scores, fields the scores do not name, a\nresume record beside the folder rather than in it -- is put on\nscreen with it, not only in the terminal that started it. It stays\non the status line after the first field loads, including a field\nlarge enough to load in the background, which lands after this\nreturns.\n\n:param queue: a :class:`spacr.curation_queue.CurationQueue`.\n:returns: whether the editor is now on that session."
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
+      "source_blocks_sha256": [
+        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
+        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
+        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+      ],
+      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
+      "text": "Open a native spatial TIFF in the shared 3-D anchor editor.\n\nThe existing 2-D image, mask tools and YOLO annotations stay separate.\nTime/channel/RGB TIFFs are refused rather than interpreted as depth.\n\n:param path: optional spatial TIFF path; otherwise opens a file picker.\n:returns: the native volume dialog, or None on cancellation/refusal."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
       "source_blocks_sha256": [
@@ -91366,11 +91475,11 @@
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.drag_mode": {
       "source_blocks_sha256": [
-        "fddde89a3af427df4e064229a6d534b831c6c53dc28dbdf723827b840bc256dc",
+        "771f724dc10b0f24290acafb37e7c02b6e3d8f0e81867990371cccbbc213e296",
         "8ad04673687e64083770f9dfa7eff62caa97756bd46a4928f563aed01a904e5c"
       ],
-      "source_sha256": "9da497bc2a50845ab3f180ee6e8c6c1222b2a518d9c6cf0e30714eafddf9ecb4",
-      "text": "What dragging does right now: spin the view, or draw.\n\n:returns: the mode's name, defaulting to ``spin``."
+      "source_sha256": "6d4543ace1c3dab4ee373b0fe89cf2964f3c691561a9681a1f8ff782ed365cd6",
+      "text": "What dragging does right now: spin, draw or edit a volume boundary.\n\n:returns: the mode's name, defaulting to ``spin``."
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.enabled_gates": {
       "source_blocks_sha256": [
@@ -91523,11 +91632,11 @@
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.set_drag_mode": {
       "source_blocks_sha256": [
-        "da81bf68743aa647b2fb352488829f0f024c9d6e586a0af3594aad4cc22068d0",
-        "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e"
+        "b4a1ec9cb84f3bed093421e4fa2e6b8532038205ee6531df838ea609051f330b",
+        "cd939610e6e23121b7d651d53febacf22f0d33b7e332b544a794fa1a4dfe1e15"
       ],
-      "source_sha256": "6f5d5761dca3667955ebdb34ef9ffea345a18b2d184168764453697167da8fd9",
-      "text": "``'spin'`` or ``'draw'``. They were competing for one button.\n\n:param mode: ``\"spin\"`` or ``\"draw\"``; anything else is taken as\n    ``\"spin\"``."
+      "source_sha256": "8b00d13a5dd4fa2e303e3ab6c2997ce29142cd15bf81b0516cf5955d541ce7d8",
+      "text": "Choose rotation, drawing or explicit boundary editing.\n\n:param mode: ``\"spin\"``, ``\"draw\"`` or ``\"edit\"``; anything else is taken as\n    ``\"spin\"``."
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.set_gate_enabled": {
       "source_blocks_sha256": [
@@ -91648,6 +91757,15 @@
       ],
       "source_sha256": "bd823b58580f1f25731417444ef4480ab4685231d08e40ca02a71e0fefe1e615",
       "text": "Which solid a 3-D gate is drawn as.\n\n:returns: the shape's name, defaulting to ``box``."
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas.volume_surface_at": {
+      "source_blocks_sha256": [
+        "fe2912b61c576e62ce53d074f2a7920cb2a225914ce07754e4e47b9a2ce66553",
+        "08ec8f5dee1b52460afb805705f35d457e22b8aa5b8fa2d91ebf8b7370b28324",
+        "15080cab25dd2ac3be85be430723f613ccb53ddb364a6b33a64c20433b2d7df1"
+      ],
+      "source_sha256": "a33bc78a589b89a625ec5549a6b87ed7f34e4764d505130f43b4a283b2012a31",
+      "text": "Pick the nearest actual boundary triangle after camera rotation.\n\n:param event: a Matplotlib pointer event in the current volume axes.\n:returns: ``(gate name, surface identifier)`` or ``None``."
     },
     "spacr.qt.widgets.gate_editor.GateEditorPanel": {
       "source_blocks_sha256": [
@@ -91932,10 +92050,12 @@
     "spacr.qt.widgets.gate_settings.GateEditorSettings": {
       "source_blocks_sha256": [
         "6e4730832ef9a0ca6d827e73b021b160c44b7ddcb906e2118eb4d05be0ec0221",
-        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5"
+        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5",
+        "0392f929b7d8e5e94febc38f7634dabc723a744c28571c17f0d4e721cf3cc207",
+        "e2663e64e02425e3ad91b027c9e7fd5bc521ebcb396b78b68cf717b8b51fbbc7"
       ],
-      "source_sha256": "66b684e0c582ccc1a0b5edbd328e891df0b5af7a6f2b005a59a937569491085f",
-      "text": "Everything the Gate Editor is configured by.\n\nFrozen: settings are replaced wholesale rather than mutated, so a screen\ncan compare what it has against what it is given and re-read the table\nonly when something that actually costs a read has changed."
+      "source_sha256": "4641a541cb4a268cff2512ad76b582de88667b79ab4ea455fb1eeb0cba07b10f",
+      "text": "Everything the Gate Editor is configured by.\n\nFrozen: settings are replaced wholesale rather than mutated, so a screen\ncan compare what it has against what it is given and re-read the table\nonly when something that actually costs a read has changed.\n\n:param anchor_density: edge subdivisions for visible editing anchors,\n    from 1 to 8; this never changes a gate's stored geometry.\n:param show_anchors: show and enable editable boundary anchors."
     },
     "spacr.qt.widgets.gate_settings.GateEditorSettings.__post_init__": {
       "source_blocks_sha256": [
@@ -92424,6 +92544,151 @@
       ],
       "source_sha256": "86748d90e98cc65237600d5c5887457da5f367a58378f29b5fcf40ced29b66f8",
       "text": "Bound the NORMAL. The oval/polygon is not a range and is not one.\n\nThis is how the user bounds the cylinder's height, which is what point 4\nof the design asks for.\n\n:param column: must be :attr:`axis_column`, the cylinder's normal; any\n    other column raises :class:`GateError`.\n:param low: lower bound, or ``None`` to leave that side open. The two\n    bounds are swapped if given in reverse.\n:param high: upper bound, or ``None`` to leave that side open."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate": {
+      "source_blocks_sha256": [
+        "d3eaf9d2ba2da3d5fd403d7c45fc022b870939f961649b4b29d7700a1b725b80",
+        "cf6b9b1b5338d84ab511ad6e588f4d4e5ebbc2b0675575b18631c554ef548316",
+        "bce3be498f079e73a75c43601594272f7475ffc6777769dc8427dd65de05ce38",
+        "65d0dbbdb282489670f00f9b7359ca850fc4ff4338b1876f248103fb9b92404e",
+        "63b3e43319369f5194df5def73606f5531f712e14b9efdb4222d1fb7dadfde2b",
+        "10145730e02194e0130bf84de5d453301b632e8a99d3ade4925507f186af0f46",
+        "a01f870875a5596fa823a5df546789d6bea2cc80a6a43d628933d15e05104801",
+        "2dc750cfd420a9e33763bfb5c4256d1c1f99b4aeb96d4371980b23436f52c021",
+        "caa2ca217306daac2dce7ec77fe96d110f96ede3b9d6efa61e313b5cd8efc604"
+      ],
+      "source_sha256": "8f643eeb8fb71860fc05e007e8d4c1e420979fa6eec91dca82518d68f0acc65b",
+      "text": "A closed editable piecewise-linear volume used by both drawing and gating.\n\n:param name: unique gate name used by the gating hierarchy.\n:param parent: optional parent gate restricting this volume's membership.\n:param x_column: measurement along the first data axis.\n:param y_column: measurement along the second data axis.\n:param z_column: measurement along the third data axis.\n:param vertices: finite distinct three-dimensional boundary coordinates.\n:param faces: consistently oriented triangles indexing shared vertices.\n:param surface_groups: selectable surface identifier for each triangle;\n    triangles in one group move together. Empty assigns one group per triangle."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__": {
+      "source_blocks_sha256": [
+        "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5"
+      ],
+      "source_sha256": "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5",
+      "text": "Freeze and validate every coordinate, boundary connection and surface."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.anchors": {
+      "source_blocks_sha256": [
+        "4592c53591117b9d62bceafb8da41032f1a77300da61250d566d9f3302c2cdb4",
+        "bf907558691f231110b8e06ef0fe4df6f11ba0e93ecd112ba3bd2ea09bc5542d",
+        "330a9ba2899bfd70be150747c43290da6cf0b875a05ee5b3e937d624b3d01f31",
+        "224954b10e0b10cc4393c8764c5077f449536bf39b8b995be59af53a70dcbac5"
+      ],
+      "source_sha256": "26ae553ddf47a9f53152f842eb65f172ab34c19c488815b350340bf27b5a9da1",
+      "text": "Sample every surface and edge with uniformly spaced barycentric anchors.\n\nDensity changes only visible editing handles, never scientific geometry.\nShared edges and vertices expose one canonical handle.\n\n:param density: subdivisions per triangle edge, 1 to 8.\n:returns: unique anchors in deterministic surface order."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.centre": {
+      "source_blocks_sha256": [
+        "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd"
+      ],
+      "source_sha256": "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd",
+      "text": "Return the first two components of the vertex centroid for flat tools."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.columns": {
+      "source_blocks_sha256": [
+        "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292"
+      ],
+      "source_sha256": "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292",
+      "text": "The measurement columns matching every vertex coordinate."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.describe": {
+      "source_blocks_sha256": [
+        "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120"
+      ],
+      "source_sha256": "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120",
+      "text": "Describe the measurements and the actual editable boundary size."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate": {
+      "source_blocks_sha256": [
+        "796315c2ee87d6a070d059499e4efa5d78477963dea17485d45734f914048aa4",
+        "ebf7a797869a243e20cbdbbd065f2e63e5879422594d2d8a4e8ca6853e621631",
+        "759a80ed5e9a6783b50bc9aede35ee8258b6de94daa1fe10777162afa1398b7e",
+        "2d5b8b09260252da838bde97b6919dfa09719b8be081dd68159ccd666a9e9c15",
+        "bacafe906a8acc4ea6f6894322140671dbcb1d03b1415e3fcdfe381e272efc62",
+        "4a3de99a5e7b70d843ee73883efe7a4c9a5f65613c9e060e7255220106177dce",
+        "2c225b8dcd41961241e1182c42f71e6c9da30ed60ab78c76f8e671f8da3dc96d"
+      ],
+      "source_sha256": "7a7d92c175602e5c8a81f3b28cf8f600d10d21b11444f8a55a744ecb163ea0ba",
+      "text": "Make a shared boundary for a box, cylinder, prism, ellipsoid or view gate.\n\nCurved surfaces become an explicitly piecewise-linear boundary when\nedited; the original analytic gate remains unchanged until commit.\n\n:param gate: the existing three-dimensional gate and its hierarchy.\n:param limits: finite axis bounds used only for an unbounded original\n    side or a view gate's finite depth, in ``gate.columns`` order.\n    Omitting required bounds is refused. A view gate is bounded at the\n    nearest and farthest projected depths of these limits when edited.\n:param segments: circumference samples for curved shapes, 8 to 128.\n:param depth_steps: evenly spaced axial intervals, 1 to 16.\n:returns: the closed volume with shared selectable surfaces."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate.bound": {
+      "source_blocks_sha256": [
+        "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a"
+      ],
+      "source_sha256": "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a",
+      "text": "Resolve one explicit bound without inventing an unseen extent."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.kind": {
+      "source_blocks_sha256": [
+        "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30"
+      ],
+      "source_sha256": "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30",
+      "text": "The persisted editable-volume tag."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.mask": {
+      "source_blocks_sha256": [
+        "6913cd31a980e4f6fb5b0ba482416e5a4c63b75072c52ffaed0c6acf8a062736",
+        "d420fba8d94ab646e67e6a20f83095062c6428054733b3f4841448cf0c30d855",
+        "a662071ce78fdf986c832dbd838269c84f351ea2509dca73ffe7ad3d01ee12d3",
+        "d29b21b0e9a0a6752f7e625071d8cec07cf989f129ebabf1429187399842212c"
+      ],
+      "source_sha256": "85f3910eda2471c9fa30b57141ea7f13cd6f6860aa719f0e272f79f61dee33d0",
+      "text": "Test measured points against this same closed mesh using signed solid angles.\n\nBoundary points are included. Nonfinite measurements are excluded. Work\nis bounded to 4096 points per triangle without allocating a voxel volume.\n\n:param frame: measurements containing all three gate columns.\n:returns: one boolean per row in the original order."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_surfaces": {
+      "source_blocks_sha256": [
+        "8bcca0d928527686ea7f22f2a59a5da960958c7d5f8cfea34e11338cc3b0341d",
+        "6b991e09d11ce4718eb8426ad9276b1a18d61cdfe00b66f7fcc16ebd18039e6e",
+        "7b6ef655f7b5cf6a5052244472dc217fbc01737325f2f55c363e327281b50010"
+      ],
+      "source_sha256": "7ff9a839bb380c9b2c472ea0be69dde27d6fd41b9bd371be92b3884f43b2cb8f",
+      "text": "Move selected surfaces and their shared anchors once, maintaining connectivity.\n\n:param groups: existing surface identifiers; repetitions have no effect.\n:param delta: displacement in the three measurement dimensions."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_vertices": {
+      "source_blocks_sha256": [
+        "18e201a77cb007f7ce410b508889f53b5d24a0e74f586f4629b75d89ded2824e",
+        "1289cc1d69e56f681d1bd36ebf995e95405269dad1b86bd531911e5747657b0d",
+        "5d4699044f2321ca513029e9d0160061fe7783aca5e16986babd415e48b77d61",
+        "85ad43f9df9d8372f29da956b51a4bdac8fed69a24e3e8bdcba8327b0326c8e6"
+      ],
+      "source_sha256": "7c0045168205e6697244b08f1546d7cd0b120c4cf9ac2650bbf296271e2a9c48",
+      "text": "Displace each selected shared vertex once and validate the new boundary.\n\n:param indices: vertex indices; repeated indices are deduplicated.\n:param delta: displacement along each of the three data axes.\n:raises GateError: on invalid indices, nonfinite motion or invalid geometry."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.scaled": {
+      "source_blocks_sha256": [
+        "6e5c7968429b442c440db9ffd83203f34e70407a13901fd64a03b30ebe1b66ae",
+        "912e37d4a47f12243ed74d26e763d3ec3792a3b5acdf3dc815d2e1edbd62bf2d",
+        "c01be27f4c847341f7e9c50741cd448a70908dbe67c7e4a0cebfa0ece81e27fd"
+      ],
+      "source_sha256": "9774185b661e1d532ec85661ad18f76945feff549f52232fa8b646c290ad7029",
+      "text": "Scale all three dimensions about the centroid or a supplied flat anchor.\n\n:param factor: positive finite scale factor.\n:param about: optional first/second-axis centre; depth uses its centroid."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.to_dict": {
+      "source_blocks_sha256": [
+        "90119b4f94a1f948d3b163d0320ac027af7a781ac389de0090be51f6d107a20e"
+      ],
+      "source_sha256": "90119b4f94a1f948d3b163d0320ac027af7a781ac389de0090be51f6d107a20e",
+      "text": "Serialize the exact mesh, grouped surfaces and gate hierarchy."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.translated": {
+      "source_blocks_sha256": [
+        "aead03d2dc2fcca22148340b1ee8d70976e3910412cc0797a6db6211024ab830",
+        "d70385d65ca0d5741accb60f324e33116931081f2bd1d76ea38635545c1a125b",
+        "fba5d4f40ec1479863041501fffbe1f46e5d5515cda7c0789ce511f274cd8681"
+      ],
+      "source_sha256": "f4bbc5ed23c13f86e95a54c2fdf2fe7cebf227282ba71aa394b6f2bc09df3240",
+      "text": "Move the first two axes while preserving depth and all shared vertices.\n\n:param dx: first-axis displacement in measurement units.\n:param dy: second-axis displacement in measurement units."
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor": {
+      "source_blocks_sha256": [
+        "7b6d12ffc4cb7f7beaaafceb14a6bdc8513cbeb759f2cd37b9da9e3dbba4230d",
+        "a52716eceeec9f75808088db0c4b9f688ef3b86daed4a92cd57adb12dc84f1a1",
+        "5bb2ba108ac2fbeafe200390a6342a21508fd1a113cf079bb14f9c43c640a67d",
+        "97345f60982fc3cb185079cc8d731babbdb8c9b1d110ca9f0224bcbc2d778b6e",
+        "7dd93930a1a4d3180c4098e701731c0d3cf522062ce9fa33246e43591217477b"
+      ],
+      "source_sha256": "a7b969dbccacedf95463a9c8018bfbe85b360047a6a108a68bf40b1fe46fabd0",
+      "text": "Move an existing vertex or insert and move an edge/surface anchor.\n\nInserting an edge anchor splits every incident triangle together, so no\ncrack appears between surfaces. Repeated editing never changes columns.\n\n:param role: canonical role returned by :meth:`anchors`.\n:param point: target coordinate in the three measurement dimensions.\n:raises GateError: invalid roles, nonfinite targets or invalid deformations."
     },
     "spacr.qt.widgets.gate_spec.EllipseGate": {
       "source_blocks_sha256": [
@@ -93701,6 +93966,15 @@
       "source_sha256": "c3e3f886f68139cbe5e225b8719f25b01a42a8d374cfc7cd25dd31b574a498fd",
       "text": "A copy with the outline moved on its own view.\n\n:param dx: shift along the view's horizontal, in view coordinates.\n:param dy: shift along its vertical.\n:returns: the moved copy."
     },
+    "spacr.qt.widgets.gate_spec.VolumeAnchor": {
+      "source_blocks_sha256": [
+        "62305811be8b97f47bbc0f631b12081c7b1f5411f1c4f3217159d38588d998cc",
+        "5956556497f99476e229178d01fd7dedd1b421303957f1346e6d83347632cba0",
+        "55d7d1a93c2639bd6d389f85c3ed5e7192a01f2ee71aa0be71b67f3f11b17eeb"
+      ],
+      "source_sha256": "83297e197eda933b77f90d14c1ad6efe8cd67eb01bec6150e4eba4a404b338ca",
+      "text": "A boundary point and its stable barycentric editing role.\n\n:param point: coordinates in the gate's three-column order.\n:param role: canonical vertex/edge/triangle weights consumed by edits."
+    },
     "spacr.qt.widgets.gate_spec.WandError": {
       "source_blocks_sha256": [
         "2c644b2b57daee03b88c9582adcb0cd95c3c0053af468a425be6f985a73efa5c"
@@ -93715,6 +93989,27 @@
       ],
       "source_sha256": "1528980f1c919a1f594388a1219048fb83aba87ea5b2ffb83b2dd43bc1a9e792",
       "text": "One monotone half of the hull, by cross product.\n\nPoints that turn the wrong way are popped, which is what leaves only the\nboundary -- run twice, upper and lower, it gives the whole hull."
+    },
+    "spacr.qt.widgets.gate_spec._mesh_triangle_contact.cross": {
+      "source_blocks_sha256": [
+        "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec"
+      ],
+      "source_sha256": "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec",
+      "text": "The signed area of two planar vectors."
+    },
+    "spacr.qt.widgets.gate_spec._triangulate_volume_cap.turn": {
+      "source_blocks_sha256": [
+        "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab"
+      ],
+      "source_sha256": "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab",
+      "text": "The oriented planar area of one candidate triangle."
+    },
+    "spacr.qt.widgets.gate_spec._validate_edited_polygon.cross": {
+      "source_blocks_sha256": [
+        "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714"
+      ],
+      "source_sha256": "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714",
+      "text": "The normalized signed planar area of two edge vectors."
     },
     "spacr.qt.widgets.gate_spec.best_cluster_candidate": {
       "source_blocks_sha256": [

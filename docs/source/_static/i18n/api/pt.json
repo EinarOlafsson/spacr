@@ -23777,14 +23777,14 @@
     "spacr.example_archives.example_set": {
       "source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
-        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
+        "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ],
-      "source_sha256": "835bc56de2bfedaa226ad998ebba8587e0b2fdfdf6922c3e45a6d00e0e9ecb75",
-      "text": "O conjunto chamado ``key``.\n\n:param key: ``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` ou ``invasion``.\n:raises KeyError: nomeando as chaves que existem. Um erro de digitação que retornou ``None`` baixaria nada e relataria o sucesso, que é o único resultado que um comando de download nunca deve produzir.",
+      "source_sha256": "735c94dee3087069fed735729956f2ea70a492eec2edc37e8df3c2a870d9abe8",
+      "text": "O conjunto chamado ``key``.\n\n:param key: an :data:`EXAMPLE_SETS` key, such as ``import``, ``mask``, ``measure``, ``annotate``, ``dose``, ``control_chart`` or ``hit``.\n:raises KeyError: nomeando as chaves que existem. Um erro de digitação que retornou ``None`` baixaria nada e relataria o sucesso, que é o único resultado que um comando de download nunca deve produzir.",
       "translation_source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
-        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
+        "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ]
     },
@@ -48031,9 +48031,10 @@
     "spacr.ml.generate_ml_scores": {
       "source_blocks_sha256": [
         "a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e",
-        "0ff1beae2f012bb566a9a3d73b348fffe0977eb688f17b77174e6960fa38f437",
+        "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
         "74aea7343be214b65d61228568b199720441d78049b01956370c20a94d0ebb8d",
-        "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
+        "f9649bcde48272dcf6fe6c267b467dd966b1b229e8957f7c2f9b1060139c801d",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
         "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
         "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
@@ -48047,13 +48048,14 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
-      "text": "Treine um modelo clássico de classificação por aprendizado de máquina (XGBoost / logistic / RF) com características de cada objeto e atribua uma pontuação a cada posição de amostra da microplaca em uma triagem.\n\nLê o ``measurements.db`` produzido por :func:`spacr.measure.measure_crop`, mescla as tabelas de características de célula/núcleo/patógeno/citoplasma, usa os poços marcados como ``positive_control`` / ``negative_control`` (ou uma coluna de anotação) como rótulos de treinamento, delega o ajuste a :func:`ml_analysis` e grava previsões por objeto, tabelas de permutação e importância de características, além de um mapa de calor da placa, em ``results/`` ao lado do banco de dados de origem.\n\n:param settings: Dicionário de configurações, canonizado por :func:`spacr.settings.set_default_analyze_screen`. Entradas principais:\n\n    - ``src`` (str ou lista) — pasta ou pastas que contêm ``measurements/measurements.db``.\n    - ``channel_of_interest`` — canal indexado a partir de zero para a característica de taxa de recrutamento; também determina a seleção de tabelas.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — identificadores de poços (por exemplo, ``'c2'`` / ``'c1'``) usados como rótulos de treinamento.\n    - ``annotation_column`` — substitui os controles por uma coluna de anotação no nível do PNG.\n    - ``location_column`` — ``'columnID'`` ou ``'rowID'``.\n    - ``heatmap_feature`` — característica representada no mapa de calor da placa.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: A lista de dois elementos ``[output, plate_heatmap]``, em que ``output`` é a lista de resultados de 10 elementos de :func:`ml_analysis` e ``plate_heatmap`` é a figura ``matplotlib`` do mapa de calor da placa. Os CSVs e as figuras são gravados em ``results/`` como efeito colateral; seus caminhos não são retornados.\n:raises ValueError: se ``annotation_column`` estiver definida, mas a tabela ``png_list`` não contiver ``prcfo`` / essa coluna, os IDs de objeto da tabela não tiverem correspondência nas medições ou essa coluna contiver menos de duas classes observadas; ou se ``heatmap_feature`` não estiver entre as características usadas no treinamento.\n\nExemplo:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nVeja também: :func:`ml_analysis` — a rotina subjacente de ajuste e avaliação. :func:`perform_regression` — regressão de efeitos mistos nas pontuações de ML por poço.",
+      "source_sha256": "371211be8b4816670b170e1fc23507ac1efea2047ab33d9aa1596e689a74c2c7",
+      "text": "Treine um modelo clássico de classificação por aprendizado de máquina (XGBoost / logistic / RF) com características de cada objeto e atribua uma pontuação a cada posição de amostra da microplaca em uma triagem.\n\nLê o armazenamento de medições selecionado por ``measurement_backend`` a partir de :func:`spacr.measure.measure_crop`, mescla as tabelas de características de célula/núcleo/patógeno/ citoplasma, usa os poços marcados como ``positive_control`` / ``negative_control`` (ou uma coluna de anotação) como rótulos de treinamento, delega o ajuste a :func:`ml_analysis` e grava as previsões por objeto, as tabelas de permutação e de importância de características, além de um mapa de calor da placa, em ``results/`` na primeira pasta de origem.\n\n:param settings: Dicionário de configurações, canonizado por :func:`spacr.settings.set_default_analyze_screen`. Entradas principais:\n\n    - ``src`` (str ou list) — pasta(s) que contêm as medições.\n    - ``measurement_backend`` / ``measurement_backend_target`` — selecionam o armazenamento de medições SQLite, DuckDB, Parquet ou PostgreSQL.\n    - ``channel_of_interest`` — canal indexado a partir de zero para a característica de taxa de recrutamento; também determina a seleção de tabelas.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — identificadores de poços (por exemplo, ``'c2'`` / ``'c1'``) usados como rótulos de treinamento.\n    - ``annotation_column`` — substitui os controles por uma coluna de anotação no nível do PNG.\n    - ``location_column`` — ``'columnID'`` ou ``'rowID'``.\n    - ``heatmap_feature`` — característica representada no mapa de calor da placa.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: A lista de dois elementos ``[output, plate_heatmap]``, em que ``output`` é a lista de resultados de 10 elementos de :func:`ml_analysis` e ``plate_heatmap`` é a figura ``matplotlib`` do mapa de calor da placa. Os CSVs e as figuras são gravados em ``results/`` como efeito colateral; seus caminhos não são retornados.\n:raises ValueError: se ``annotation_column`` estiver definida, mas a tabela ``png_list`` não contiver ``prcfo`` / essa coluna, os IDs de objeto da tabela não tiverem correspondência nas medições ou essa coluna contiver menos de duas classes observadas; ou se ``heatmap_feature`` não estiver entre as características usadas no treinamento.\n\nExemplo:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nVeja também: :func:`ml_analysis` — a rotina subjacente de ajuste e avaliação. :func:`perform_regression` — regressão de efeitos mistos nas pontuações de ML por poço.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
-        "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
+        "6fe9baab893b87764a9ab970ffc46d56f40daea75c46a5aae4764b33ca0ffc70",
         "7c21621e1e71f3b10d12114713e1aef36b9b3cc5f211bdf7bec9e0ddb3882486",
-        "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
+        "f9649bcde48272dcf6fe6c267b467dd966b1b229e8957f7c2f9b1060139c801d",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
         "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
         "219d41a366a79ee727fffa7d276c61b0044bfe410ea94665119151f96b736f43",
@@ -48071,9 +48073,10 @@
     "spacr.ml.interpret_vision_model": {
       "source_blocks_sha256": [
         "27e1da7167f142b5e33ff9bfa9350d86a492f88afcfb2ab52f0a74ab3f2d588c",
-        "d36376d87588cccca12cb40f2050eaac8299f4c768c58e14a29fc00a59a7851e",
+        "b3fd4e7d658707f3e9bae619a91fd0814c79c0818e1ef5b829740efa9b7cc05e",
         "8e78ef9d6b118a1806645232b929f7492d86fc30a04ef74a91c9000595886fa6",
-        "8c57814dfcc90c731338ebdf8b8db3aa289deda6ca7818ec78b1772d2f6eaf83",
+        "2c2a047f662554493f1912f8ed549570e65fbf341ad893b2a27696d085c25fec",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "0be5c41369b67d724501213429176394827b7ade97cdc6741e6cf37f47c81287",
         "45fb3a49c34f2d3fb198f4b348a7ee25bcf139bdf8072fa02b0b63acb31adfb3",
         "9336b99c45f95510baba8cfa464fe006492448ac800e03a14907777eabc80d18",
@@ -48081,17 +48084,18 @@
         "4cfb4764796993e5d56d729e3707ad65b23476b1e3fde4184724a7eb6b2664d1",
         "467632f70d802b6e3092ba295bbba467ad9245ddf961d4f6b73b21e7387da280",
         "31639ff5a83c58d22e8020e4d612032aaae6606dc9b8f17edd03756957720755",
-        "390bfe5f7c8c473f4ca539dcbb0259bfff23b16b9a2b29f38f8290f711f5e0a0",
+        "410a0e3de10b66cfb8aba04f997a4fec17d85fbd1984f2512af1d9368c7d446f",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "29fa68c067d32edaa7b1656265ec6181f1531cf25d9c3e1b57aa0dc7ec440366"
       ],
-      "source_sha256": "972479829694da6a3e5af23fd459b47cfd9c43e0225247f18b2b9ce90c61d606",
-      "text": "Explique uma pontuação de modelo de visão spacr usando RF, permutação e importância SHAP, com gráficos de radar por componente / por canal.\n\nMesclar medições por objeto a partir de ``measurements.db`` com um CSV dos escores previstos, executa qualquer combinação de importância característica RF, importância da permutação e SHAP sobre as características superiores, em seguida, agrega contribuições SHAP em parcelas de radar de canais de dados de compartimento e imagem para que você possa ver qual região (célula / núcleo / patógeno / citoplasma) e qual canal de dados da imagem de fluorescência impulsiona o modelo.\n\n:param settings: Configurações mapeamento chave-valor, canonizado via :func:`spacr.settings.set_interpret_vision_model_defaults`. Entradas de dados estruturados:\n\n    - ``src`` pasta contendo ``measurements/measurements.db``.\n    - ``scores`` CSV de previsões por objeto para explicar.\n    - ``score_column`` coluna de ``scores`` segurando a pontuação.\n    - ``tables`` Tabelas de banco de dados para mesclar (padrão ``['cell','nucleus','pathogen','cytoplasm']``).\n    - ``feature_importance`` / ``permutation_importance`` / ``shap`` habilitar cada explicador.\n    - ``top_features`` cap em recursos mostrados.\n    - ``nuclei_limit`` / ``pathogen_limit`` limites de contagem de objetos.\n    - ``n_jobs``, ``save``.\n\n:returns: O DataFrame mesclado por objeto as tabelas de medição se juntaram aos escores CSV em que os explicadores foram montados. Os gráficos de radar e importância são renderizados e, com ``save=True``, os CSVs de importância são escritos ao lado do DB, como efeitos colaterais.\n\nExemplo:\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\nVeja também: :func:`spacr.submodules.interpret_vision_model` legado / ponto de entrada alternativo retornando um mapeamento chave-valor de importância DataFrames em vez das medições mescladas.",
+      "source_sha256": "3ad66c1c0b926918c008821bad441b1be68cc6a5eb4cd2fd4c1301aef1960d1a",
+      "text": "Explique uma pontuação de modelo de visão spacr usando RF, permutação e importância SHAP, com gráficos de radar por componente / por canal.\n\nMescla as medições por objeto do armazenamento de medições selecionado com um CSV de pontuações previstas, executa qualquer combinação de importância de características RF, importância por permutação e SHAP sobre as principais características e, em seguida, agrega as contribuições SHAP em gráficos de radar por compartimento e por canal, para que se veja qual região (célula / núcleo / patógeno / citoplasma) e qual canal de fluorescência conduzem o modelo.\n\n:param settings: Configurações mapeamento chave-valor, canonizado via :func:`spacr.settings.set_interpret_vision_model_defaults`. Entradas de dados estruturados:\n\n    - ``src`` — pasta que contém as medições.\n    - ``measurement_backend`` / ``measurement_backend_target`` — selecionam o armazenamento de medições SQLite, DuckDB, Parquet ou PostgreSQL.\n    - ``scores`` CSV de previsões por objeto para explicar.\n    - ``score_column`` coluna de ``scores`` segurando a pontuação.\n    - ``tables`` Tabelas de banco de dados para mesclar (padrão ``['cell','nucleus','pathogen','cytoplasm']``).\n    - ``feature_importance`` / ``permutation_importance`` / ``shap`` habilitar cada explicador.\n    - ``top_features`` cap em recursos mostrados.\n    - ``nuclei_limit`` / ``pathogen_limit`` limites de contagem de objetos.\n    - ``n_jobs``, ``save``.\n\n:returns: O DataFrame mesclado por objeto — as tabelas de medições unidas ao CSV de pontuações — no qual os explicadores foram ajustados. Como efeitos colaterais, são gerados gráficos de radar e de importância e, com ``save=True``, CSVs de importância são gravados em ``results/`` da pasta de origem.\n\nExemplo:\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\nVeja também: :func:`spacr.submodules.interpret_vision_model` legado / ponto de entrada alternativo retornando um mapeamento chave-valor de importância DataFrames em vez das medições mescladas.",
       "translation_source_blocks_sha256": [
         "27e1da7167f142b5e33ff9bfa9350d86a492f88afcfb2ab52f0a74ab3f2d588c",
-        "9090614639eb25ed74e81ab4f8bf169b663279d4e861a74e0e35fe59d8827af7",
+        "e06152d24f4a3f6b771f287f5bed2c550d711081e43cad68e4ce0e77fc911f0c",
         "72c8c83f7c600ff7f85794dd668f3b1e0e8aa06ff534a52d031a612782f7a2a4",
-        "8c57814dfcc90c731338ebdf8b8db3aa289deda6ca7818ec78b1772d2f6eaf83",
+        "2c2a047f662554493f1912f8ed549570e65fbf341ad893b2a27696d085c25fec",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "0be5c41369b67d724501213429176394827b7ade97cdc6741e6cf37f47c81287",
         "45fb3a49c34f2d3fb198f4b348a7ee25bcf139bdf8072fa02b0b63acb31adfb3",
         "9336b99c45f95510baba8cfa464fe006492448ac800e03a14907777eabc80d18",
@@ -48099,7 +48103,7 @@
         "4cfb4764796993e5d56d729e3707ad65b23476b1e3fde4184724a7eb6b2664d1",
         "467632f70d802b6e3092ba295bbba467ad9245ddf961d4f6b73b21e7387da280",
         "31639ff5a83c58d22e8020e4d612032aaae6606dc9b8f17edd03756957720755",
-        "390bfe5f7c8c473f4ca539dcbb0259bfff23b16b9a2b29f38f8290f711f5e0a0",
+        "410a0e3de10b66cfb8aba04f997a4fec17d85fbd1984f2512af1d9368c7d446f",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "4e6240e0a06e23ec4d12023e66ac2435f9f5451747e98be6e623681707ce8130"
       ]
@@ -48170,14 +48174,14 @@
       "source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
-        "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821"
+        "91c0ecf82e1a22d071a2449f0c6f854ae695f77baadd4600d0b403ba73d3f2b1"
       ],
-      "source_sha256": "64e2d6a847a7e26e3e5a918dae1ae92104ced69f13a832eea5ab5c2d2762ee63",
-      "text": "Leia entradas pareadas e resolva a identidade da placa sem palpites de nome de arquivo.\n\nA ordem de resolução é a coluna própria, a coluna parceira e, por fim, a ordem das linhas do par. Declarações conflitantes são rejeitadas. Retorna ``(count_frame, score_frame, audit_rows)``.\n\n:param pairs: sequência de mapeamentos com os caminhos das tabelas ``'score'`` e ``'count'`` (qualquer um pode estar vazio), como retornado por :func:`normalize_regression_input_pairs`. O ``'plate'`` de cada mapeamento é sobrescrito com o rótulo de placa resolvido.",
+      "source_sha256": "bccd8c56c3b7afb8975c77afcf90d2585f98883bcadc3bdb34ca5eac6dd5220b",
+      "text": "Leia entradas pareadas e resolva a identidade da placa sem palpites de nome de arquivo.\n\nA ordem de resolução é a coluna própria, a coluna parceira e, por fim, a ordem das linhas do par. Declarações conflitantes são rejeitadas. Retorna ``(count_frame, score_frame, audit_rows)``.\n\n:param pairs: sequência de mapeamentos com caminhos de tabela ``'score'`` e ``'count'`` (qualquer um pode estar vazio), conforme retornados por :func:`normalize_regression_input_pairs`. O campo ``'plate'`` de cada mapeamento é sobrescrito com o rótulo de placa resolvido. Entradas de banco de dados também especificam ``'score_table'`` ou ``'count_table'``; tabelas do mesmo banco de dados são armazenadas em cache e pareadas separadamente.",
       "translation_source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
-        "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821"
+        "91c0ecf82e1a22d071a2449f0c6f854ae695f77baadd4600d0b403ba73d3f2b1"
       ]
     },
     "spacr.ml.load_regression_input_pairs.plates": {
@@ -67007,31 +67011,31 @@
         "fccbe09e90c12f3eec3423141af30b5838c41a34450a3f24f4c7096d10d51763",
         "d00917f74b1c60449223b98e16fe1418c23499d9daff770b4b821ea63c8cec5b",
         "956bd67481a9ea16e49f40267925728697390bb90e85710a6190427dc25e8396",
-        "78566b3d98d12dc8ad7b65b57f4aea303e58e82343ad958348d92761ea8004e4",
+        "f76193f9494f4496087d8a05efc8f849d7f73de3d162e2a3a92df029c45a2c46",
         "fc3fb2886e57522b3b050178212c0b973205a31723e3a9490fb3e29b8207db7c",
         "e617adcc7d35691d321c961f501e866061e2f5a370480d7933025d2e17f309ce",
         "1084850c0b1fec29977e8d663efda1d76bf7ae4c968bc5c084cde651b7b64d0a",
         "24836ab5abfffb819bca8eb37250a5b4747767340023c36c6723d34fa0a7e490",
         "9ce2ee07cff94515b65a32d8f07ad40311b6078cccbed2081a7abd06b821a8a7",
-        "4500e99167ae7ff6f78d91bd5dbdc1777005c4f8000b64f27aaabf636bbe044a",
+        "e5283f398103af1a3962f6ba3f51903dc956d7e230ae00a55d0bc5a1131bd0d7",
         "0defb5cc2fa671f4b79c095da6e3b8e0064627bc7766da2a382033e32e64e588",
-        "5f8746785b059302dc196301001d6d982539ec509781e9313490add30d9174e7"
+        "02016aecd7cc868af44fccc2fa72bb5057b97171cb3d5b517a968fb9f9aeeac6"
       ],
-      "source_sha256": "e527ed71bbb49f50898da5535c8cc6fdf509688783cdb61809fea98d71376365",
-      "text": "Escreva os resultados por objeto de um modelo de classificação de aprendizado de máquina nas linhas de ``table``.\n\nCompartilhado por Classify (CV) e Classify (ML) --- veja o módulo docstring para saber por que a chave é ``prcfo``, por que uma chave ambígua é recusada em vez de adivinhada, e por que a coisa toda é uma transação.\n\n:param results: DataFrame de resultados por objeto. Deve carregar as colunas de origem nomeadas em ``columns``, além de algo para usar como um índice: uma coluna ``prcfo``, um índice chamado ``prcfo``, ou uma coluna ``path``/``png_path``/ ``file_name`` contendo nomes de região de imagem extraída spaCR.\n:param db_path: SQLite banco de dados. Um arquivo ausente é relatado e ignorado.\n:param columns: mapeamento de *database* nome da coluna para ``(results column, 'REAL' | 'INTEGER')``.\n:param table: tabela de destino. Padrão ``'png_list'``.\n:param key: ``'auto'`` (meça cada candidato e use o melhor) ou um de :data:`KEY_PRIORITY` para forçá-lo.\n:param timelapse: Se os nomes de região de imagem extraídos carregam um ponto de tempo. ``None`` detecta a partir da presença de uma coluna de tempo na tabela.\n:param verbose: Imprima o relatório.\n:returns: a :class:`MergeReport`, ou ``None`` se o banco de dados estiver faltando.\n:raises KeyError: Se ``results`` não tiver uma das colunas de origem.\n:raises sqlite3.OperationalError: Se ``table`` não existir.",
+      "source_sha256": "862f76814ccbc61805375ba790553417f0090548a8b1d80399acf724fbd859d8",
+      "text": "Escreva os resultados por objeto de um modelo de classificação de aprendizado de máquina nas linhas de ``table``.\n\nCompartilhado por Classify (CV) e Classify (ML) --- veja o módulo docstring para saber por que a chave é ``prcfo``, por que uma chave ambígua é recusada em vez de adivinhada, e por que a coisa toda é uma transação.\n\n:param results: DataFrame de resultados por objeto. Deve carregar as colunas de origem nomeadas em ``columns``, além de algo para usar como um índice: uma coluna ``prcfo``, um índice chamado ``prcfo``, ou uma coluna ``path``/``png_path``/ ``file_name`` contendo nomes de região de imagem extraída spaCR.\n:param db_path: Arquivo SQLite ou DuckDB, diretório de loja  Parquet ou cadeia de caracteres de conexão PostgreSQL. Uma loja local ausente é relatada e ignorada.\n:param columns: mapeamento de *database* nome da coluna para ``(results column, 'REAL' | 'INTEGER')``.\n:param table: tabela de destino. Padrão ``'png_list'``.\n:param key: ``'auto'`` (meça cada candidato e use o melhor) ou um de :data:`KEY_PRIORITY` para forçá-lo.\n:param timelapse: Se os nomes de região de imagem extraídos carregam um ponto de tempo. ``None`` detecta a partir da presença de uma coluna de tempo na tabela.\n:param verbose: Imprima o relatório.\n:returns: a :class:`MergeReport`, ou  ``None`` se uma loja local estiver faltando.\n:raises KeyError: Se ``results`` não tiver uma das colunas de origem.\n:raises ValueError: se uma tabela Parquet estiver faltando ou a saída de previsão substituiria uma coluna de identificador de junção em um armazenamento alternativo.",
       "translation_source_blocks_sha256": [
         "efa7ca1bc33fa4bcd95303b0d0111d764f63bfb466b5c85331aa1d64da9880f9",
         "d00917f74b1c60449223b98e16fe1418c23499d9daff770b4b821ea63c8cec5b",
         "9f51a2b1992d0c1fb2bd1ddf84355b5006467bb919d819853997c587850156ff",
-        "78566b3d98d12dc8ad7b65b57f4aea303e58e82343ad958348d92761ea8004e4",
+        "f76193f9494f4496087d8a05efc8f849d7f73de3d162e2a3a92df029c45a2c46",
         "fc3fb2886e57522b3b050178212c0b973205a31723e3a9490fb3e29b8207db7c",
         "e617adcc7d35691d321c961f501e866061e2f5a370480d7933025d2e17f309ce",
         "1084850c0b1fec29977e8d663efda1d76bf7ae4c968bc5c084cde651b7b64d0a",
         "b1327dc300f2f4c03a3663a3db4523b7c2baf187d4ddd897818570cfd576e112",
         "9ce2ee07cff94515b65a32d8f07ad40311b6078cccbed2081a7abd06b821a8a7",
-        "4500e99167ae7ff6f78d91bd5dbdc1777005c4f8000b64f27aaabf636bbe044a",
+        "e5283f398103af1a3962f6ba3f51903dc956d7e230ae00a55d0bc5a1131bd0d7",
         "0defb5cc2fa671f4b79c095da6e3b8e0064627bc7766da2a382033e32e64e588",
-        "5f8746785b059302dc196301001d6d982539ec509781e9313490add30d9174e7"
+        "272de301bc6eff4bb7707cb201b999018e2d6aa2f081670e34000b10a5dd85b2"
       ]
     },
     "spacr.predictions.migrate_prediction_columns": {
@@ -67040,21 +67044,21 @@
         "3201ec3b3e0c63e4c4ef93891991cb36f3322bc8899e11090fea61ea0b90ecae",
         "2e4aca84a25eacee6508a33b9afa631f16e373a97ad466410de568aab422b97b",
         "122669b9ae72fbc44f93da7a40b40c7b7fe319a8af57695cb180ec6abe251c03",
-        "34387b44c863d87bcda1c583797ba6b79fcd8332ac79a48b09b931d43cdb68e4",
-        "ba4855f520616f049843acd685f06e31517985ea41519bb8f936a5fe6b2252f1",
+        "84e806987eaf654ba94f2f7278292c903056dced529dd052ff7e7ed58efd2c22",
+        "6002394960198870d5ad9841e4189e9f7edea6d9ab9b584dbf91ff386e1b36e8",
         "5108414c2187671983a501e3835fd52d7c737b53c801cdf0018cbb82f174c49d",
         "ee104499017420e09b4eb31a2650f43db6be8919c7385b473bde35995fdd4d91",
         "72eec3c643a1c33f10765e4ff4a9fd0b372ee9fef1345477aa7fdf2dddc48609"
       ],
-      "source_sha256": "a53c351484c73dc153ba79e984302b577379ac740f8700418973f27400836bb5",
-      "text": "Coloque uma coluna de previsão legada de volta na codificação em que ela afirma estar.\n\n:func:`spacr.utils.add_column_to_database` O antigo caminho de escrita do estágio ML substituiu todos os ``0`` com a ``2`` no caminho para o banco de dados, porque o aplicativo Anotar rótulos classes 1 e 2. Nada mais fez isso, então ``png_list.predictions`` disse ``2`` em que ``results.csv`` da mesma execução disse ``0``: um número, dois significados, dependendo do arquivo que você abriu. Isso o conserta, então um banco de dados escrito antes da alteração lê corretamente sem ação manual --- o mesmo contrato de reparo na leitura :func:`spacr.utils.rename_columns_in_db` tem, e as mesmas propriedades:\n\n* **idempotente.** Após o reparo, a coluna contém 0s e 1s, que não é a codificação que isso procura, então uma segunda passagem não faz nada.\n* **Nunca destrutivo.** A substituição só é revertida quando a coluna não contém nada além de 1s e 2s. A classe genuína 2 de um modelo de três classes é indistinguível de um 0 mutilado, e adivinhar seria pior do que deixá-lo exatamente como é.\n* **Tudo ou nada.** Uma transação explícita, revertida em qualquer erro. O driver abre um para DML por si só, mas não para o ``PRAGMA``/DDL com o qual ele compartilha uma conexão, e uma coluna semi-reparada seria uma coluna em duas codificações ao mesmo tempo.\n\n:param db_path: SQLite arquivo. Um arquivo ausente é um no-op.\n:param table: tabela para migrar. Padrão ``'png_list'``.\n:param verbose: imprimir cada reparo.\n:returns: Lista de ``(table, column, rows_repaired)``.",
+      "source_sha256": "3bd6481ce775e04b17ebd26d7e1be2be8c953002320e140363efa3650ad74b64",
+      "text": "Coloque uma coluna de previsão legada de volta na codificação em que ela afirma estar.\n\n:func:`spacr.utils.add_column_to_database` O antigo caminho de escrita do estágio ML substituiu todos os ``0`` com a ``2`` no caminho para o banco de dados, porque o aplicativo Anotar rótulos classes 1 e 2. Nada mais fez isso, então ``png_list.predictions`` disse ``2`` em que ``results.csv`` da mesma execução disse ``0``: um número, dois significados, dependendo do arquivo que você abriu. Isso o conserta, então um banco de dados escrito antes da alteração lê corretamente sem ação manual --- o mesmo contrato de reparo na leitura :func:`spacr.utils.rename_columns_in_db` tem, e as mesmas propriedades:\n\n* **idempotente.** Após o reparo, a coluna contém 0s e 1s, que não é a codificação que isso procura, então uma segunda passagem não faz nada.\n* **Nunca destrutivo.** A substituição só é revertida quando a coluna não contém nada além de 1s e 2s. A classe genuína 2 de um modelo de três classes é indistinguível de um 0 mutilado, e adivinhar seria pior do que deixá-lo exatamente como é.\n* **Tudo ou nada.**  SQLite, DuckDB e PostgreSQL repair em uma transação; Parquet publica um instantâneo de peça de substituição completa. Uma coluna semi-reparada seria uma coluna em duas codificações ao mesmo tempo.\n\n:param db_path: Arquivo SQLite ou DuckDB, diretório de loja  Parquet ou cadeia de caracteres de conexão PostgreSQL. Uma loja local ausente é um no-op.\n:param table: tabela para migrar. Padrão ``'png_list'``.\n:param verbose: imprimir cada reparo.\n:returns: Lista de ``(table, column, rows_repaired)``.",
       "translation_source_blocks_sha256": [
         "afba4282c13eb6c7bf59b0504f911ebb9494a6fe94b5258e3f38ed42f9576c65",
         "3201ec3b3e0c63e4c4ef93891991cb36f3322bc8899e11090fea61ea0b90ecae",
         "2e4aca84a25eacee6508a33b9afa631f16e373a97ad466410de568aab422b97b",
         "122669b9ae72fbc44f93da7a40b40c7b7fe319a8af57695cb180ec6abe251c03",
-        "34387b44c863d87bcda1c583797ba6b79fcd8332ac79a48b09b931d43cdb68e4",
-        "ba4855f520616f049843acd685f06e31517985ea41519bb8f936a5fe6b2252f1",
+        "84e806987eaf654ba94f2f7278292c903056dced529dd052ff7e7ed58efd2c22",
+        "6002394960198870d5ad9841e4189e9f7edea6d9ab9b584dbf91ff386e1b36e8",
         "5108414c2187671983a501e3835fd52d7c737b53c801cdf0018cbb82f174c49d",
         "ee104499017420e09b4eb31a2650f43db6be8919c7385b473bde35995fdd4d91",
         "72eec3c643a1c33f10765e4ff4a9fd0b372ee9fef1345477aa7fdf2dddc48609"
@@ -84076,6 +84080,124 @@
         "15dd9587977f356ec1b10ecd9180dd78e9ef73f97fcad503e54544d69d058488"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession": {
+      "source_blocks_sha256": [
+        "8d38d80f7c769a723e70c41aefe1f279daebcefb6814cc6ae7ca4a78322315f3",
+        "3a385a26ee899c965f2d6d828fba37c6b9687bd0f8aa4bbc4e8bb9524b9a8dd9",
+        "ac0065724c23fefd243fe93ec54b2265626bfd533b80ca5448ea9d41d3add1a2",
+        "c642ea08391f093a1632d2e6680f773fe20ed524d895f1a639bf67cc070580d5",
+        "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
+        "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
+        "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
+        "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
+        "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
+        "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
+        "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+      ],
+      "source_sha256": "a2891fbdf0da347f05c6afda5c6561dfbc6c396b65fda3c6a1aa3fb2b40bdeaa",
+      "text": "Edita rótulos espaciais nativos usando o mesmo contorno da vista de gate 3-D.\n\nAs coordenadas são distâncias físicas X/Y/Z a partir da origem externa da imagem; os centros dos voxels ficam em ``(index + 0.5) * spacing``. Os arrays mantêm a ordem de eixos espaciais declarada, o dtype de origem e as identidades de objeto existentes. São aceitos no máximo 16,777,216 voxels e 256 MiB de intensidades de origem; campos maiores são recusados explicitamente. Os deltas esparsos de desfazer compartilham um limite combinado de 64 MiB em vez de manter um volume para cada edição.\n\n:param image: intensidades de origem tridimensionais numéricas reais e finitas.\n:param mask: rótulos inteiros não negativos com exatamente a forma da origem.\n:param axes: uma permutação dos três eixos espaciais ``XYZ``.\n:param spacing: distâncias finitas positivas nessa mesma ordem de eixos do array.\n:param unit: a unidade de distância física, ou ``pixel`` quando não especificada.\nValida uma imagem espacial e assume a posse do seu array de rótulos mutável.\n\n:param image: intensidades de origem numéricas reais e finitas.\n:param mask: rótulos de objeto inteiros não negativos correspondentes à imagem.\n:param axes: ordem espacial dos eixos de armazenamento, uma permutação de XYZ.\n:param spacing: três distâncias finitas positivas na ordem de armazenamento.\n:param unit: a unidade de distância comum.",
+      "translation_source_blocks_sha256": [
+        "12c85fbce6b86c7feb9ffc5357dce959967be5bbf6552676440bc2b1300984f4",
+        "f1f3dbfb88ba2413aee45558e881ac799c58672b07250f76b54224025b3b9036",
+        "ac0065724c23fefd243fe93ec54b2265626bfd533b80ca5448ea9d41d3add1a2",
+        "c642ea08391f093a1632d2e6680f773fe20ed524d895f1a639bf67cc070580d5",
+        "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
+        "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
+        "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
+        "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
+        "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
+        "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
+        "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry": {
+      "source_blocks_sha256": [
+        "e1da32670300ea3aee37dc6bf89ecc1ef999dcf704df94358bd7a1f6addc934e",
+        "43ae30a163ea00e756068cd7ef8ba9eaed5c8d6af3fd85b88c05b0a67685b3a1",
+        "006f1812a1208eae0a5c3f4d005e938ecaa218e8973397f270da133b05b88a59",
+        "01b84d022ad85e540a460440f98e0e4ed3bc14328b5a1ff621674f7c97371ff4",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "d43aa6979fc5d7440b473a8a2926a9f4f959916a21231dcb52b96207f715ce02",
+      "text": "Confirma um contorno compartilhado validado e os voxels exatos de sua máscara.\n\nOs demais IDs de objeto são protegidos. Movimento inválido, colisões ou um delta que exceda o limite do histórico deixam os arrays, a geometria e o histórico intactos.\n\n:param label: ID positivo representável pelo dtype da máscara atual.\n:param gate: ``EditableVolumeGate`` compartilhado com colunas físicas X/Y/Z.\n:returns: número de voxels alterados.",
+      "translation_source_blocks_sha256": [
+        "e1da32670300ea3aee37dc6bf89ecc1ef999dcf704df94358bd7a1f6addc934e",
+        "43ae30a163ea00e756068cd7ef8ba9eaed5c8d6af3fd85b88c05b0a67685b3a1",
+        "006f1812a1208eae0a5c3f4d005e938ecaa218e8973397f270da133b05b88a59",
+        "01b84d022ad85e540a460440f98e0e4ed3bc14328b5a1ff621674f7c97371ff4",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
+      "source_blocks_sha256": [
+        "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
+        "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
+        "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
+        "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ],
+      "source_sha256": "855806e4c95205b428777fd15ebba3049a11ddc10ed83c541effb993a1eaab09",
+      "text": "Retorna a geometria salva ou uma malha exata e fechada do contorno de voxels.\n\nRótulos que se tocam apenas pelos cantos, desconectados ou excessivamente detalhados que não podem satisfazer os limites/a topologia da malha compartilhada são recusados em vez de substituídos por uma caixa delimitadora. A simples pré-visualização desta malha não altera voxels, histórico nem a geometria salva.\n\n:param label: um identificador de objeto positivo existente.\n:returns: um volume editável compartilhado e validado em coordenadas físicas.",
+      "translation_source_blocks_sha256": [
+        "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
+        "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
+        "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
+        "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.limits": {
+      "source_blocks_sha256": [
+        "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242"
+      ],
+      "source_sha256": "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242",
+      "text": "Os limites externos físicos exatos da imagem na ordem X/Y/Z.",
+      "translation_source_blocks_sha256": [
+        "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.next_label": {
+      "source_blocks_sha256": [
+        "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
+      ],
+      "source_sha256": "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254",
+      "text": "Retorna o primeiro ID positivo não utilizado sem renumerar nenhum objeto.",
+      "translation_source_blocks_sha256": [
+        "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.redo": {
+      "source_blocks_sha256": [
+        "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ],
+      "source_sha256": "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173",
+      "text": "Reaplica o delta de voxels e a geometria desfeitos mais recentemente.",
+      "translation_source_blocks_sha256": [
+        "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.undo": {
+      "source_blocks_sha256": [
+        "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3"
+      ],
+      "source_sha256": "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3",
+      "text": "Restaura o delta esparso de voxels anterior e a geometria imutável.",
+      "translation_source_blocks_sha256": [
+        "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.xyz_spacing": {
+      "source_blocks_sha256": [
+        "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c"
+      ],
+      "source_sha256": "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c",
+      "text": "Distâncias de voxel na ordem física X/Y/Z, independentemente do armazenamento.",
+      "translation_source_blocks_sha256": [
+        "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c"
+      ]
+    },
     "spacr.qt.mask_engine.apply_filters": {
       "source_blocks_sha256": [
         "7a3348b0b992abcb835a65d8c72036ff228e56de89aed7f0611c1c03ec72881b",
@@ -84746,6 +84868,26 @@
         "67b14b18f207e8af712b9f66deacd03f488cadbfd37dae6ed11ef64edd6d2a64"
       ]
     },
+    "spacr.qt.mask_engine.load_volume_image_and_mask": {
+      "source_blocks_sha256": [
+        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
+        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+        "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
+      ],
+      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
+      "text": "Abre um TIFF espacial em tons de cinza declarado explicitamente para edição 3-D nativa.\n\nSão suportados exatamente três eixos espaciais, em qualquer ordem. Eixos de tempo, canal, cor e de página inferidos são recusados. Os metadados ``voxel_spacing`` são lidos na ordem dos eixos de armazenamento. Os tamanhos físicos OME são convertidos para micrômetros; o espaçamento do ImageJ e a resolução XY são mantidos. A ausência de metadados físicos implica coordenadas em pixels. Os rótulos mantêm o dtype e a identidade. Um arquivo auxiliar de geometria salvo está vinculado ao arquivo de origem e aos pixels de máscara exatos e é recusado quando desatualizado.\n\n:param folder: diretório da imagem de origem.\n:param filename: nome do arquivo de imagem TIFF espacial.\n:param masks_dir: diretório de máscaras irmão existente opcional.\n:returns: uma ``VolumeMaskSession`` que detém os rótulos e os metadados de origem.",
+      "translation_source_blocks_sha256": [
+        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
+        "a9ba5e8105b8b0a9e311ee0abf0d2d9cb5498e34d21fb1572af99de1ee6e25d0",
+        "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+        "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
+      ]
+    },
     "spacr.qt.mask_engine.load_yolo_boxes": {
       "source_blocks_sha256": [
         "ebd81a03a270fc79e4e80ce177c0e61af5a0680a65c1d53e34793d2c8fb62e7e",
@@ -85354,6 +85496,22 @@
         "bb39147b837252cc70c8038f9bd16e634ec249100a8e6bf7bac1dd32577d5ba3",
         "bb68e2df885e347011fc1871954ad112d58b5213b0a1f2dc448f859cdb09de0d",
         "b8b67aa673028d2375e564f1174c8d04bb4d1d5b40ce52fa73e63f0ab61e9caf"
+      ]
+    },
+    "spacr.qt.mask_engine.save_volume_mask": {
+      "source_blocks_sha256": [
+        "67c99870147c421a816cdc38866de243e4dfb67ca102d56e9f54483e38d02662",
+        "4d1b5243419c1879129e2b239aeb8381bf9e0707f5c57e5b088e0f773e32b87a",
+        "0bbfc87fca59c066bae4562a7c35f3ec398c17db5f650c3106ed2924ad5af263",
+        "d6c21e86b31929098381b63efbea3617c7184e5d3c80ac246b97b2918146b91c"
+      ],
+      "source_sha256": "8f343202bdda510fbacc8ab6208aec3e314a981359a382c633ad2abf5d26910d",
+      "text": "Grava os rótulos nativos e seu arquivo auxiliar de contorno compartilhado vinculado à origem.\n\nAmbos os artefatos são preparados antes de substituir qualquer um dos destinos. Uma falha na segunda substituição restaura o par anterior. As identidades de origem/saída são verificadas novamente após a preparação. Dois nomes de arquivo não podem formar uma transação totalmente atômica contra um gravador concorrente não cooperativo; publicações interrompidas ou incompatíveis são recusadas no carregamento pelo arquivo auxiliar vinculado à origem/máscara. Os eixos de origem, o espaçamento, o dtype dos rótulos e os IDs são preservados.\n\n:param session: uma sessão de volume carregada pelos caminhos de máscara existentes.\n:returns: o caminho canônico da máscara TIFF.",
+      "translation_source_blocks_sha256": [
+        "67c99870147c421a816cdc38866de243e4dfb67ca102d56e9f54483e38d02662",
+        "4d1b5243419c1879129e2b239aeb8381bf9e0707f5c57e5b088e0f773e32b87a",
+        "0bbfc87fca59c066bae4562a7c35f3ec398c17db5f650c3106ed2924ad5af263",
+        "d6c21e86b31929098381b63efbea3617c7184e5d3c80ac246b97b2918146b91c"
       ]
     },
     "spacr.qt.mask_engine.save_yolo_boxes": {
@@ -101672,13 +101830,15 @@
       "source_blocks_sha256": [
         "d7734e191878e2de43066a43d79bcce5221a245bb6ca621b7ddc331a3918910c",
         "f83f3909066e7e76ff236e7b558634c97b6214caf8b7f1467f0278d7f552e7fd",
+        "34fa1e10dee26acfe23a29d297fadd3b431e73a094f1901541668d13bb7ec1e9",
         "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495"
       ],
-      "source_sha256": "e02c0a1647630f01f2af281a7e758e268642d7db69a46dea489af658d8fcdf80",
-      "text": "Leia uma estratégia de filtragem de seleção de dados e aplique-a à tabela carregada.\n\nUma estratégia que nomeia uma medição desta tabela não carrega cargas de qualquer maneira e relata o problema: os limites de seleção de dados ainda estão lá para olhar e corrigir, o que é mais útil do que recusar o arquivo.\n\n:param path: um arquivo JSON de gates gravado por :meth:`save_gates`. Um arquivo que não pode ser lido é informado na linha de origem e dá False.",
+      "source_sha256": "49b5bce46ba7533bf00dc72028545281bc0e12ef40cc8e230b44d3a34255483d",
+      "text": "Leia uma estratégia de filtragem de seleção de dados e aplique-a à tabela carregada.\n\nUma estratégia que nomeia uma medição desta tabela não carrega cargas de qualquer maneira e relata o problema: os limites de seleção de dados ainda estão lá para olhar e corrigir, o que é mais útil do que recusar o arquivo.\n\nA densidade e a visibilidade das âncoras salvas são restauradas sem reamostrar nenhum contorno editado. Arquivos mais antigos mantêm os controles atuais do editor.\n\n:param path: um arquivo JSON de gates gravado por :meth:`save_gates`. Um arquivo que não pode ser lido é informado na linha de origem e dá False.",
       "translation_source_blocks_sha256": [
         "d68130cfbe26d1436d83e7ef7130353a2ff662f4118cfa2cc3342c5fc50938e7",
         "1aa326dc03c5497de93520ef1cd5b1f24208f223d145dd3b10e2594928dfb721",
+        "34fa1e10dee26acfe23a29d297fadd3b431e73a094f1901541668d13bb7ec1e9",
         "110eee8f35e420ccc77e1613f2ab74ca7ee3f546126b3c112770a6d895534a09"
       ]
     },
@@ -101787,12 +101947,14 @@
     "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates": {
       "source_blocks_sha256": [
         "95c986a735d316b5013fcb91fec18f6b21b4d97b3267ce9427b6569d5b72b75d",
+        "a6ee952b06cac5711c98a5f0acdac0baa38b44a89ed1c8696c0d799b8304337f",
         "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f"
       ],
-      "source_sha256": "6748d44fbe238e7745166b02211ebff2270ac8bfa34b888193bd4330ec7c61d0",
-      "text": "Escreva a estratégia de filtragem de seleção de dados para ``path``.\n\n:param path: o arquivo em que a estratégia de gating é gravada, como JSON; um arquivo existente é sobrescrito.",
+      "source_sha256": "714bf7ff3facb02abdab03bcd1a817bf765ce86c638c7f33eb84a3a3b210714e",
+      "text": "Escreva a estratégia de filtragem de seleção de dados para ``path``.\n\nOs vértices e superfícies de volume editados são salvos com os controles de densidade e visibilidade das âncoras; as configurações de exibição não aproximam a pertença.\n\n:param path: o arquivo em que a estratégia de gating é gravada, como JSON; um arquivo existente é sobrescrito.",
       "translation_source_blocks_sha256": [
         "27093136993e745fadb7c281caa8f7f41e574f4824d13a7d576531a30613caea",
+        "a6ee952b06cac5711c98a5f0acdac0baa38b44a89ed1c8696c0d799b8304337f",
         "e7632bba82a949da3bdb19f454f1adca86d1f9e894822ee64e0a99fc5f5b1c35"
       ]
     },
@@ -104970,6 +105132,22 @@
         "5b22e43116a10f106c8b52a9ce0dd9a2efc0f26489bfb655995e7d49a2365465",
         "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
         "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
+      "source_blocks_sha256": [
+        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
+        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
+        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+      ],
+      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
+      "text": "Abre um TIFF espacial nativo no editor de âncoras 3-D compartilhado.\n\nA imagem 2-D existente, as ferramentas de máscara e as anotações YOLO permanecem separadas. TIFFs de tempo/canal/RGB são recusados em vez de interpretados como profundidade.\n\n:param path: caminho opcional de um TIFF espacial; caso contrário, abre um seletor de arquivos.\n:returns: o diálogo de volume nativo, ou None em caso de cancelamento/recusa.",
+      "translation_source_blocks_sha256": [
+        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
+        "9a2cedf269b09b9d40b2e783dfdfc3cf243b7982330d4918b2734beab5056ff9",
+        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
@@ -112852,21 +113030,21 @@
     },
     "spacr.qt.screens.settings_model.regression_design_scan": {
       "source_blocks_sha256": [
-        "9b6c2f2f7b28da7693eab65e26845f116b0952aba25f2d37ec1dba9ea14c36b4",
+        "16d867741877db30c3e82c476b9571fa2687122c81af25093e121cfddb45cdf1",
         "82dff70b6853cac5b5392c2874fb613114407d3989ff00dce45e1dced645d9cb",
-        "7f0642598e55885e75f67b054146674dcc9640f62113a7a9763b66385d3897c8",
+        "0e43b420537b13399aee953fa3bf7407e016d8421caddce9d4446ceb194f3341",
         "406013900845a1429f63ee3ced85e055ab7e29cde52eb2946be494b93d0db1f7",
-        "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
+        "0d98b403d68a96ab0a4d25a8b36fc9524780cb9f2200fb52f900ebaaf4635031",
         "9ec366aca8635a0fd2e590ac42908ff75f5af7c094ac8ec359cb9378152aabc7"
       ],
-      "source_sha256": "d5e151d97dc58062102a046d3f69ad6abbf220f52505b62280a0aaf38d8c6c99",
-      "text": "Quão grande o ajuste está prestes a ser, leia os arquivos de contagem que foi dado.\n\nO projeto: “A linha útil nomeia o projeto – ‘encaixando 389 genes e 823 guiam efeitos aleatórios sobre 610 posições de amostra de microplacas’ – porque essa é também a linha que diz a um usuário que seus filtros fizeram algo inesperado.”\n\nO que isso é e não é. Ele lê a contagem de sgRNA CSVs e nada mais, por isso é o design como os arquivos de entrada mantê-lo: antes da fusão com os dados de pontuação, antes  ``fraction_threshold`` e antes dos filtros de posição de amostra microplate. Isso é deliberado - é o número para comparar as contagens pós-limpeza da própria execução contra, e compará-los é como um filtro que fez algo inesperado torna visível. Cada chamada diz que é.\n\nNunca lança. Ele é executado para colocar uma frase no console ao lado de um ajuste que já está começando; uma varredura que jogou levaria a própria mensagem da execução com ele. O que não poderia funcionar volta como ``None`` com um  ``note`` dizendo o porquê.\n\n:param settings: configurações de regressão; os CSVs de contagem de sgRNA são tirados das entradas ``count`` de ``paired_data``, ou do antigo ``count_data`` quando não houver nenhuma.\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.",
+      "source_sha256": "f39e119a4bf25f6f6409b96e6296c728cbb5a7e1277099423959d6b8cea2fb56",
+      "text": "Qual será o tamanho do ajuste, lido a partir das suas tabelas de entrada de contagens.\n\nO projeto: “A linha útil nomeia o projeto – ‘encaixando 389 genes e 823 guiam efeitos aleatórios sobre 610 posições de amostra de microplacas’ – porque essa é também a linha que diz a um usuário que seus filtros fizeram algo inesperado.”\n\nO QUE ISTO É E O QUE NÃO É. Lê as entradas de contagens de sgRNA e nada mais, portanto é o desenho TAL COMO OS ARQUIVOS DE ENTRADA O CONTÊM: antes da mesclagem com os dados de pontuação, antes de ``fraction_threshold`` e antes dos filtros de poços. Isso é intencional -- é o número com o qual comparar as contagens da própria execução após a limpeza, e essa comparação é o que torna visível um filtro que fez algo inesperado. Cada chamador informa de qual se trata.\n\nNunca lança. Ele é executado para colocar uma frase no console ao lado de um ajuste que já está começando; uma varredura que jogou levaria a própria mensagem da execução com ele. O que não poderia funcionar volta como ``None`` com um  ``note`` dizendo o porquê.\n\n:param settings: configurações de regressão; os caminhos de contagens e os nomes opcionais de ``count_table`` vêm de ``paired_data``, ou os caminhos do ``count_data`` legado quando não há contagens pareadas.\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.",
       "translation_source_blocks_sha256": [
-        "9b6c2f2f7b28da7693eab65e26845f116b0952aba25f2d37ec1dba9ea14c36b4",
+        "16d867741877db30c3e82c476b9571fa2687122c81af25093e121cfddb45cdf1",
         "c5d912a3f53cabdcb82a48b6ee5715038066b0e9c7b5b7e0a857d337a3ae0273",
-        "81482eb87975579c80d9882e3f0e6ec54b5c891493d9f74c3269f09265f509f2",
+        "f198604fab9319f34a1034ea7294435b7434700e4faff145ebaef3505b9f41de",
         "6b87f9af6718b0791434a540603036c6afb3c0d7605dffa37c1cbc258487a743",
-        "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
+        "0d98b403d68a96ab0a4d25a8b36fc9524780cb9f2200fb52f900ebaaf4635031",
         "9ec366aca8635a0fd2e590ac42908ff75f5af7c094ac8ec359cb9378152aabc7"
       ]
     },
@@ -140826,22 +141004,22 @@
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget": {
       "source_blocks_sha256": [
-        "66518968ae2d3938e4d2a7248ffe219560bf8a9e33da7b08b3add3d80bf2d429",
-        "1a8b42f2d2e4503ac7041aae0a24c3711ded0586f5a5f3e344f2c151672304da",
+        "0cea675f583a20c5e0fba9704eab5fd61499cd52d6d713b8ddc38aa5e0bc520e",
+        "892f02642e630a53c1ca30bee2c142b9343e81bcdf9a73b730ab8bbc57851f94",
         "4744c9a7b9d536414a859f8db4e1f1f3508fc1335dc95f2ae761b07536aff97c",
-        "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
+        "97e2d7a934760480fc3c9447069c7db5cefea5a5501f0a59cfe078001c0e34ef",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "3947ff34d3ff17bea3330e5a99d5b5b65441cbceb26696f8bfa50a1c5569298c",
         "cb8f68674dadf8106df8cd6d7cb9d19f7d387bc13387c13c108b21ee6cada6ee",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "1be9dae75de7fbf11a2aaa3bae6b864f47d9eb4950d079667528a450cd8f5811",
-      "text": "Contrato de entrada de microplacas / contagem / banco de dados editável de uma linha por laboratório.\n\nUma linha é uma microplaca de laboratório: sua pontuação CSV, sua contagem CSV, e o banco de dados de medidas em que as tabelas por objeto da microplacas de laboratório vivem. Todas as três colunas são preenchidas por adição - cada chegada propõe novamente a tabela inteira dos tokens de nome de arquivo - então os bancos de dados caíram na ordem oposta para a CSVs ainda pousar nas microplatas de laboratório corretas. Essa é a regra, e a terceira coluna obedece a ela em vez que mantém sua própria lista.\n\nUma placa com banco de dados NO é legal e não é um erro: a regressão é ajustada em pontuações e contagens. A base de dados é o que torna as medições dessa placa disponíveis a jusante, de modo que sua ausência desabilita a placa lá em vez de falhar a execução.\n\n:param value: a tabela já salva, uma entrada por placa. Tudo o que chega depois RE-PROPOSTA toda a tabela de tokens de nome de arquivo em vez de anexar, que é o que permite que os bancos de dados caiam na ordem oposta para o CSVs ainda pousar nas placas direitas.\n:param parent: widget pai.\nCrie a tabela de microplacas de uma fila por laboratório.\n\n:param value: as linhas já salvas.\n:param parent: widget pai.",
+      "source_sha256": "a162490117b9e261bf2382b5bbe0746f15b7d8c52b287a7fc27e8c7f638efb1f",
+      "text": "Entrada editável de pontuações/contagens com uma linha por placa e vínculo às medições.\n\nUma linha é UMA PLACA: seus caminhos de origem de pontuações e contagens, tabelas nomeadas opcionais dentro dessas origens e o banco de dados de medições separado no qual ficam as tabelas por objeto dessa placa. Os caminhos de origem são preenchidos POR ADIÇÃO -- cada chegada repropõe a tabela inteira a partir dos tokens dos nomes de arquivo --, de modo que bancos de dados soltos na ordem inversa à dos arquivos ainda caem nas placas corretas. Essa é a regra, e a terceira coluna a obedece em vez de manter uma lista própria.\n\nUma placa com banco de dados NO é legal e não é um erro: a regressão é ajustada em pontuações e contagens. A base de dados é o que torna as medições dessa placa disponíveis a jusante, de modo que sua ausência desabilita a placa lá em vez de falhar a execução.\n\n:param value: a tabela já salva, uma entrada por placa. Tudo o que chega depois REPROPÕE a tabela inteira a partir dos tokens dos nomes de arquivo em vez de acrescentar, o que permite que bancos de dados soltos na ordem inversa à dos arquivos de origem ainda caiam nas placas corretas.\n:param parent: widget pai.\nCrie a tabela de microplacas de uma fila por laboratório.\n\n:param value: as linhas já salvas.\n:param parent: widget pai.",
       "translation_source_blocks_sha256": [
-        "8477acf8545b7060d04a9a8b542c3fa485f249be178eb14114ea2cac18aea313",
-        "a0bd34a9e3af45eac9c62d9f7a9bc79ee0aa1f2aa4234675f9c053e6361c9e05",
+        "7c0187a74f2d76d748f88e8b0a546be7447277c2caee031ff2fe66d791aa3b52",
+        "38544d6891d66a422e537f873100bc8ac6d671a185c0c8f9cc011256e42bc467",
         "4744c9a7b9d536414a859f8db4e1f1f3508fc1335dc95f2ae761b07536aff97c",
-        "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
+        "97e2d7a934760480fc3c9447069c7db5cefea5a5501f0a59cfe078001c0e34ef",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "8927041aa1ce77d02324863232ac441b1e738f121bf28a7510c23d80a714f1aa",
         "cb8f68674dadf8106df8cd6d7cb9d19f7d387bc13387c13c108b21ee6cada6ee",
@@ -145300,13 +145478,13 @@
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.drag_mode": {
       "source_blocks_sha256": [
-        "fddde89a3af427df4e064229a6d534b831c6c53dc28dbdf723827b840bc256dc",
+        "771f724dc10b0f24290acafb37e7c02b6e3d8f0e81867990371cccbbc213e296",
         "8ad04673687e64083770f9dfa7eff62caa97756bd46a4928f563aed01a904e5c"
       ],
-      "source_sha256": "9da497bc2a50845ab3f180ee6e8c6c1222b2a518d9c6cf0e30714eafddf9ecb4",
-      "text": "O que o arrastar faz agora: girar a vista, ou desenhar.\n\n:returns: o nome do modo, padrão para ``spin``.",
+      "source_sha256": "6d4543ace1c3dab4ee373b0fe89cf2964f3c691561a9681a1f8ff782ed365cd6",
+      "text": "O que o arraste faz neste momento: girar, desenhar ou editar um contorno de volume.\n\n:returns: o nome do modo, padrão para ``spin``.",
       "translation_source_blocks_sha256": [
-        "fddde89a3af427df4e064229a6d534b831c6c53dc28dbdf723827b840bc256dc",
+        "771f724dc10b0f24290acafb37e7c02b6e3d8f0e81867990371cccbbc213e296",
         "8ad04673687e64083770f9dfa7eff62caa97756bd46a4928f563aed01a904e5c"
       ]
     },
@@ -145542,14 +145720,14 @@
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.set_drag_mode": {
       "source_blocks_sha256": [
-        "da81bf68743aa647b2fb352488829f0f024c9d6e586a0af3594aad4cc22068d0",
-        "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e"
+        "b4a1ec9cb84f3bed093421e4fa2e6b8532038205ee6531df838ea609051f330b",
+        "cd939610e6e23121b7d651d53febacf22f0d33b7e332b544a794fa1a4dfe1e15"
       ],
-      "source_sha256": "6f5d5761dca3667955ebdb34ef9ffea345a18b2d184168764453697167da8fd9",
-      "text": "``'spin'`` ou  ``'draw'``. Eles estavam competindo por um botão.\n\n:param mode: ``\"spin\"`` ou ``\"draw\"``; qualquer outra coisa é tomada como ``\"spin\"``.",
+      "source_sha256": "8b00d13a5dd4fa2e303e3ab6c2997ce29142cd15bf81b0516cf5955d541ce7d8",
+      "text": "Escolhe rotação, desenho ou edição explícita do contorno.\n\n:param mode: ``\"spin\"``, ``\"draw\"`` ou ``\"edit\"``; qualquer outro valor é tratado como ``\"spin\"``.",
       "translation_source_blocks_sha256": [
-        "da81bf68743aa647b2fb352488829f0f024c9d6e586a0af3594aad4cc22068d0",
-        "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e"
+        "b4a1ec9cb84f3bed093421e4fa2e6b8532038205ee6531df838ea609051f330b",
+        "cd939610e6e23121b7d651d53febacf22f0d33b7e332b544a794fa1a4dfe1e15"
       ]
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.set_gate_enabled": {
@@ -145734,6 +145912,20 @@
       "translation_source_blocks_sha256": [
         "ea98f963f8541a8ac7f0f128ee8d731b96c2e2e177d0cc07f239496f6741967a",
         "831417f8a5c16263e2c004741a03b6d6e03ca652dbea9e92cccd17721d44a265"
+      ]
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas.volume_surface_at": {
+      "source_blocks_sha256": [
+        "fe2912b61c576e62ce53d074f2a7920cb2a225914ce07754e4e47b9a2ce66553",
+        "08ec8f5dee1b52460afb805705f35d457e22b8aa5b8fa2d91ebf8b7370b28324",
+        "15080cab25dd2ac3be85be430723f613ccb53ddb364a6b33a64c20433b2d7df1"
+      ],
+      "source_sha256": "a33bc78a589b89a625ec5549a6b87ed7f34e4764d505130f43b4a283b2012a31",
+      "text": "Seleciona o triângulo de contorno real mais próximo após a rotação da câmera.\n\n:param event: um evento de ponteiro do Matplotlib nos eixos de volume atuais.\n:returns: ``(gate name, surface identifier)`` ou ``None``.",
+      "translation_source_blocks_sha256": [
+        "fe2912b61c576e62ce53d074f2a7920cb2a225914ce07754e4e47b9a2ce66553",
+        "08ec8f5dee1b52460afb805705f35d457e22b8aa5b8fa2d91ebf8b7370b28324",
+        "15080cab25dd2ac3be85be430723f613ccb53ddb364a6b33a64c20433b2d7df1"
       ]
     },
     "spacr.qt.widgets.gate_editor.GateEditorPanel": {
@@ -146167,13 +146359,17 @@
     "spacr.qt.widgets.gate_settings.GateEditorSettings": {
       "source_blocks_sha256": [
         "6e4730832ef9a0ca6d827e73b021b160c44b7ddcb906e2118eb4d05be0ec0221",
-        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5"
+        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5",
+        "0392f929b7d8e5e94febc38f7634dabc723a744c28571c17f0d4e721cf3cc207",
+        "e2663e64e02425e3ad91b027c9e7fd5bc521ebcb396b78b68cf717b8b51fbbc7"
       ],
-      "source_sha256": "66b684e0c582ccc1a0b5edbd328e891df0b5af7a6f2b005a59a937569491085f",
-      "text": "Tudo pelo qual o Editor de limites de seleção de dados é configurado.\n\nAs Frozen: settings são substituídas por atacado em vez de mutadas, de modo que uma triagem pode comparar o que tem com o que é dado e reler a tabela apenas quando algo que realmente custa uma leitura mudou.",
+      "source_sha256": "4641a541cb4a268cff2512ad76b582de88667b79ab4ea455fb1eeb0cba07b10f",
+      "text": "Tudo pelo qual o Editor de limites de seleção de dados é configurado.\n\nAs Frozen: settings são substituídas por atacado em vez de mutadas, de modo que uma triagem pode comparar o que tem com o que é dado e reler a tabela apenas quando algo que realmente custa uma leitura mudou.\n\n:param anchor_density: subdivisões de aresta para as âncoras de edição visíveis, de 1 a 8; isso nunca altera a geometria armazenada de um gate.\n:param show_anchors: mostra e habilita as âncoras de contorno editáveis.",
       "translation_source_blocks_sha256": [
         "a80bb10a60cf031445b385ed2ef630b503d14f5155506548c60b6606528f3080",
-        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5"
+        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5",
+        "4740dff3d61739d0185fb1a1d5738ce8d513eaccd95fa0908eb299478a33b3d7",
+        "e2663e64e02425e3ad91b027c9e7fd5bc521ebcb396b78b68cf717b8b51fbbc7"
       ]
     },
     "spacr.qt.widgets.gate_settings.GateEditorSettings.__post_init__": {
@@ -146938,6 +147134,232 @@
         "4afabcee864d72d345c81c11bdd4fe91744a488bd5313e75b2e93798438fe832",
         "e7376b18ce5e0c065dec2c1cfe70b5138612028bc4ca5d1eddacc0642317ff34",
         "98ca330358cdbd5744ac9e3dbf8df2ece853889e3529b7b647ca6535da384a3a"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate": {
+      "source_blocks_sha256": [
+        "d3eaf9d2ba2da3d5fd403d7c45fc022b870939f961649b4b29d7700a1b725b80",
+        "cf6b9b1b5338d84ab511ad6e588f4d4e5ebbc2b0675575b18631c554ef548316",
+        "bce3be498f079e73a75c43601594272f7475ffc6777769dc8427dd65de05ce38",
+        "65d0dbbdb282489670f00f9b7359ca850fc4ff4338b1876f248103fb9b92404e",
+        "63b3e43319369f5194df5def73606f5531f712e14b9efdb4222d1fb7dadfde2b",
+        "10145730e02194e0130bf84de5d453301b632e8a99d3ade4925507f186af0f46",
+        "a01f870875a5596fa823a5df546789d6bea2cc80a6a43d628933d15e05104801",
+        "2dc750cfd420a9e33763bfb5c4256d1c1f99b4aeb96d4371980b23436f52c021",
+        "caa2ca217306daac2dce7ec77fe96d110f96ede3b9d6efa61e313b5cd8efc604"
+      ],
+      "source_sha256": "8f643eeb8fb71860fc05e007e8d4c1e420979fa6eec91dca82518d68f0acc65b",
+      "text": "Um volume linear por partes, fechado e editável, usado tanto no desenho quanto no gating.\n\n:param name: nome de gate único usado pela hierarquia de gating.\n:param parent: gate pai opcional que restringe a pertença a este volume.\n:param x_column: medida ao longo do primeiro eixo de dados.\n:param y_column: medida ao longo do segundo eixo de dados.\n:param z_column: medida ao longo do terceiro eixo de dados.\n:param vertices: coordenadas de contorno tridimensionais finitas e distintas.\n:param faces: triângulos orientados de forma consistente que indexam vértices compartilhados.\n:param surface_groups: identificador de superfície selecionável para cada triângulo; triângulos de um mesmo grupo se movem juntos. Vazio atribui um grupo por triângulo.",
+      "translation_source_blocks_sha256": [
+        "88e66539434d8e16d3a396ed8b4c58bab2379db5e34eb3e80d44b40f9d007cae",
+        "e237fb13b7d9d5f5e031dfb0f68d754692d82547ddb0e92c4ea0cb1fec9a8f54",
+        "8f7a0de2c1f5ff53a681b2b12ead6b5d93ab23bb8a2d96d7f571a62b29637840",
+        "65d0dbbdb282489670f00f9b7359ca850fc4ff4338b1876f248103fb9b92404e",
+        "63b3e43319369f5194df5def73606f5531f712e14b9efdb4222d1fb7dadfde2b",
+        "10145730e02194e0130bf84de5d453301b632e8a99d3ade4925507f186af0f46",
+        "a01f870875a5596fa823a5df546789d6bea2cc80a6a43d628933d15e05104801",
+        "2dc750cfd420a9e33763bfb5c4256d1c1f99b4aeb96d4371980b23436f52c021",
+        "caa2ca217306daac2dce7ec77fe96d110f96ede3b9d6efa61e313b5cd8efc604"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__": {
+      "source_blocks_sha256": [
+        "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5"
+      ],
+      "source_sha256": "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5",
+      "text": "Congela e valida cada coordenada, conexão de contorno e superfície.",
+      "translation_source_blocks_sha256": [
+        "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.anchors": {
+      "source_blocks_sha256": [
+        "4592c53591117b9d62bceafb8da41032f1a77300da61250d566d9f3302c2cdb4",
+        "bf907558691f231110b8e06ef0fe4df6f11ba0e93ecd112ba3bd2ea09bc5542d",
+        "330a9ba2899bfd70be150747c43290da6cf0b875a05ee5b3e937d624b3d01f31",
+        "224954b10e0b10cc4393c8764c5077f449536bf39b8b995be59af53a70dcbac5"
+      ],
+      "source_sha256": "26ae553ddf47a9f53152f842eb65f172ab34c19c488815b350340bf27b5a9da1",
+      "text": "Amostra cada superfície e aresta com âncoras baricêntricas uniformemente espaçadas.\n\nA densidade altera apenas as alças de edição visíveis, nunca a geometria científica. Arestas e vértices compartilhados expõem uma única alça canônica.\n\n:param density: subdivisões por aresta de triângulo, de 1 a 8.\n:returns: âncoras únicas em ordem de superfícies determinística.",
+      "translation_source_blocks_sha256": [
+        "4592c53591117b9d62bceafb8da41032f1a77300da61250d566d9f3302c2cdb4",
+        "bf907558691f231110b8e06ef0fe4df6f11ba0e93ecd112ba3bd2ea09bc5542d",
+        "330a9ba2899bfd70be150747c43290da6cf0b875a05ee5b3e937d624b3d01f31",
+        "224954b10e0b10cc4393c8764c5077f449536bf39b8b995be59af53a70dcbac5"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.centre": {
+      "source_blocks_sha256": [
+        "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd"
+      ],
+      "source_sha256": "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd",
+      "text": "Retorna os dois primeiros componentes do centroide dos vértices para ferramentas planas.",
+      "translation_source_blocks_sha256": [
+        "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.columns": {
+      "source_blocks_sha256": [
+        "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292"
+      ],
+      "source_sha256": "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292",
+      "text": "As colunas de medida correspondentes a cada coordenada de vértice.",
+      "translation_source_blocks_sha256": [
+        "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.describe": {
+      "source_blocks_sha256": [
+        "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120"
+      ],
+      "source_sha256": "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120",
+      "text": "Descreve as medidas e o tamanho real do contorno editável.",
+      "translation_source_blocks_sha256": [
+        "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate": {
+      "source_blocks_sha256": [
+        "796315c2ee87d6a070d059499e4efa5d78477963dea17485d45734f914048aa4",
+        "ebf7a797869a243e20cbdbbd065f2e63e5879422594d2d8a4e8ca6853e621631",
+        "759a80ed5e9a6783b50bc9aede35ee8258b6de94daa1fe10777162afa1398b7e",
+        "2d5b8b09260252da838bde97b6919dfa09719b8be081dd68159ccd666a9e9c15",
+        "bacafe906a8acc4ea6f6894322140671dbcb1d03b1415e3fcdfe381e272efc62",
+        "4a3de99a5e7b70d843ee73883efe7a4c9a5f65613c9e060e7255220106177dce",
+        "2c225b8dcd41961241e1182c42f71e6c9da30ed60ab78c76f8e671f8da3dc96d"
+      ],
+      "source_sha256": "7a7d92c175602e5c8a81f3b28cf8f600d10d21b11444f8a55a744ecb163ea0ba",
+      "text": "Cria um contorno compartilhado para um gate de caixa, cilindro, prisma, elipsoide ou vista.\n\nSuperfícies curvas tornam-se um contorno explicitamente linear por partes ao serem editadas; o gate analítico original permanece inalterado até a confirmação.\n\n:param gate: o gate tridimensional existente e sua hierarquia.\n:param limits: limites de eixo finitos usados apenas para um lado original ilimitado ou para a profundidade finita de um gate de vista, na ordem de ``gate.columns``. A omissão de limites obrigatórios é recusada. Ao ser editado, um gate de vista é delimitado nas profundidades projetadas mais próxima e mais distante desses limites.\n:param segments: amostras de circunferência para formas curvas, de 8 a 128.\n:param depth_steps: intervalos axiais uniformemente espaçados, de 1 a 16.\n:returns: o volume fechado com superfícies selecionáveis compartilhadas.",
+      "translation_source_blocks_sha256": [
+        "c67b49cdb6ac0a83da27a680c9c9fa62131689828e7199b6750bf1e4b7d2e3dc",
+        "a441a621352ea5788240fee5bdea1f027879f24b8deb966e94193e66004586ca",
+        "0dbfda1b81d32d1534a37deb60b6c951be5238ab8443b454eee7f43b786c490c",
+        "5111f0e891c82ad2937d1e2fe13f3f6aabff83c32489bb1ecfb023b703a714ef",
+        "bacafe906a8acc4ea6f6894322140671dbcb1d03b1415e3fcdfe381e272efc62",
+        "4a3de99a5e7b70d843ee73883efe7a4c9a5f65613c9e060e7255220106177dce",
+        "2c225b8dcd41961241e1182c42f71e6c9da30ed60ab78c76f8e671f8da3dc96d"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate.bound": {
+      "source_blocks_sha256": [
+        "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a"
+      ],
+      "source_sha256": "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a",
+      "text": "Resolve um limite explícito sem inventar uma extensão não observada.",
+      "translation_source_blocks_sha256": [
+        "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.kind": {
+      "source_blocks_sha256": [
+        "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30"
+      ],
+      "source_sha256": "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30",
+      "text": "A etiqueta persistente do volume editável.",
+      "translation_source_blocks_sha256": [
+        "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.mask": {
+      "source_blocks_sha256": [
+        "6913cd31a980e4f6fb5b0ba482416e5a4c63b75072c52ffaed0c6acf8a062736",
+        "d420fba8d94ab646e67e6a20f83095062c6428054733b3f4841448cf0c30d855",
+        "a662071ce78fdf986c832dbd838269c84f351ea2509dca73ffe7ad3d01ee12d3",
+        "d29b21b0e9a0a6752f7e625071d8cec07cf989f129ebabf1429187399842212c"
+      ],
+      "source_sha256": "85f3910eda2471c9fa30b57141ea7f13cd6f6860aa719f0e272f79f61dee33d0",
+      "text": "Testa os pontos medidos contra esta mesma malha fechada usando ângulos sólidos com sinal.\n\nOs pontos do contorno são incluídos. Medidas não finitas são excluídas. O trabalho é limitado a 4096 pontos por triângulo sem alocar um volume de voxels.\n\n:param frame: medidas que contêm as três colunas do gate.\n:returns: um booleano por linha na ordem original.",
+      "translation_source_blocks_sha256": [
+        "6913cd31a980e4f6fb5b0ba482416e5a4c63b75072c52ffaed0c6acf8a062736",
+        "d420fba8d94ab646e67e6a20f83095062c6428054733b3f4841448cf0c30d855",
+        "c09c5e56443b8dc03fb2152884bcd4b54cf002679f404c88597d3c5eb65f8181",
+        "d29b21b0e9a0a6752f7e625071d8cec07cf989f129ebabf1429187399842212c"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_surfaces": {
+      "source_blocks_sha256": [
+        "8bcca0d928527686ea7f22f2a59a5da960958c7d5f8cfea34e11338cc3b0341d",
+        "6b991e09d11ce4718eb8426ad9276b1a18d61cdfe00b66f7fcc16ebd18039e6e",
+        "7b6ef655f7b5cf6a5052244472dc217fbc01737325f2f55c363e327281b50010"
+      ],
+      "source_sha256": "7ff9a839bb380c9b2c472ea0be69dde27d6fd41b9bd371be92b3884f43b2cb8f",
+      "text": "Move uma única vez as superfícies selecionadas e suas âncoras compartilhadas, mantendo a conectividade.\n\n:param groups: identificadores de superfície existentes; repetições não têm efeito.\n:param delta: deslocamento nas três dimensões de medida.",
+      "translation_source_blocks_sha256": [
+        "8bcca0d928527686ea7f22f2a59a5da960958c7d5f8cfea34e11338cc3b0341d",
+        "6b991e09d11ce4718eb8426ad9276b1a18d61cdfe00b66f7fcc16ebd18039e6e",
+        "7b6ef655f7b5cf6a5052244472dc217fbc01737325f2f55c363e327281b50010"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_vertices": {
+      "source_blocks_sha256": [
+        "18e201a77cb007f7ce410b508889f53b5d24a0e74f586f4629b75d89ded2824e",
+        "1289cc1d69e56f681d1bd36ebf995e95405269dad1b86bd531911e5747657b0d",
+        "5d4699044f2321ca513029e9d0160061fe7783aca5e16986babd415e48b77d61",
+        "85ad43f9df9d8372f29da956b51a4bdac8fed69a24e3e8bdcba8327b0326c8e6"
+      ],
+      "source_sha256": "7c0045168205e6697244b08f1546d7cd0b120c4cf9ac2650bbf296271e2a9c48",
+      "text": "Desloca uma única vez cada vértice compartilhado selecionado e valida o novo contorno.\n\n:param indices: índices de vértices; índices repetidos são deduplicados.\n:param delta: deslocamento ao longo de cada um dos três eixos de dados.\n:raises GateError: em caso de índices inválidos, movimento não finito ou geometria inválida.",
+      "translation_source_blocks_sha256": [
+        "18e201a77cb007f7ce410b508889f53b5d24a0e74f586f4629b75d89ded2824e",
+        "1289cc1d69e56f681d1bd36ebf995e95405269dad1b86bd531911e5747657b0d",
+        "5d4699044f2321ca513029e9d0160061fe7783aca5e16986babd415e48b77d61",
+        "85ad43f9df9d8372f29da956b51a4bdac8fed69a24e3e8bdcba8327b0326c8e6"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.scaled": {
+      "source_blocks_sha256": [
+        "6e5c7968429b442c440db9ffd83203f34e70407a13901fd64a03b30ebe1b66ae",
+        "912e37d4a47f12243ed74d26e763d3ec3792a3b5acdf3dc815d2e1edbd62bf2d",
+        "c01be27f4c847341f7e9c50741cd448a70908dbe67c7e4a0cebfa0ece81e27fd"
+      ],
+      "source_sha256": "9774185b661e1d532ec85661ad18f76945feff549f52232fa8b646c290ad7029",
+      "text": "Escala as três dimensões em torno do centroide ou de uma âncora plana fornecida.\n\n:param factor: fator de escala finito positivo.\n:param about: centro opcional do primeiro/segundo eixo; a profundidade usa seu centroide.",
+      "translation_source_blocks_sha256": [
+        "6e5c7968429b442c440db9ffd83203f34e70407a13901fd64a03b30ebe1b66ae",
+        "912e37d4a47f12243ed74d26e763d3ec3792a3b5acdf3dc815d2e1edbd62bf2d",
+        "c01be27f4c847341f7e9c50741cd448a70908dbe67c7e4a0cebfa0ece81e27fd"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.to_dict": {
+      "source_blocks_sha256": [
+        "90119b4f94a1f948d3b163d0320ac027af7a781ac389de0090be51f6d107a20e"
+      ],
+      "source_sha256": "90119b4f94a1f948d3b163d0320ac027af7a781ac389de0090be51f6d107a20e",
+      "text": "Serializa a malha exata, as superfícies agrupadas e a hierarquia de gates.",
+      "translation_source_blocks_sha256": [
+        "9873349e7b671fad30989d8b3384627f4cb73d4676f5214c380c7db3ab66ea3a"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.translated": {
+      "source_blocks_sha256": [
+        "aead03d2dc2fcca22148340b1ee8d70976e3910412cc0797a6db6211024ab830",
+        "d70385d65ca0d5741accb60f324e33116931081f2bd1d76ea38635545c1a125b",
+        "fba5d4f40ec1479863041501fffbe1f46e5d5515cda7c0789ce511f274cd8681"
+      ],
+      "source_sha256": "f4bbc5ed23c13f86e95a54c2fdf2fe7cebf227282ba71aa394b6f2bc09df3240",
+      "text": "Move os dois primeiros eixos preservando a profundidade e todos os vértices compartilhados.\n\n:param dx: deslocamento no primeiro eixo em unidades de medida.\n:param dy: deslocamento no segundo eixo em unidades de medida.",
+      "translation_source_blocks_sha256": [
+        "aead03d2dc2fcca22148340b1ee8d70976e3910412cc0797a6db6211024ab830",
+        "d70385d65ca0d5741accb60f324e33116931081f2bd1d76ea38635545c1a125b",
+        "fba5d4f40ec1479863041501fffbe1f46e5d5515cda7c0789ce511f274cd8681"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor": {
+      "source_blocks_sha256": [
+        "7b6d12ffc4cb7f7beaaafceb14a6bdc8513cbeb759f2cd37b9da9e3dbba4230d",
+        "a52716eceeec9f75808088db0c4b9f688ef3b86daed4a92cd57adb12dc84f1a1",
+        "5bb2ba108ac2fbeafe200390a6342a21508fd1a113cf079bb14f9c43c640a67d",
+        "97345f60982fc3cb185079cc8d731babbdb8c9b1d110ca9f0224bcbc2d778b6e",
+        "7dd93930a1a4d3180c4098e701731c0d3cf522062ce9fa33246e43591217477b"
+      ],
+      "source_sha256": "a7b969dbccacedf95463a9c8018bfbe85b360047a6a108a68bf40b1fe46fabd0",
+      "text": "Move um vértice existente ou insere e move uma âncora de aresta/superfície.\n\nInserir uma âncora de aresta divide ao mesmo tempo todos os triângulos incidentes, de modo que nenhuma fenda aparece entre as superfícies. Edições repetidas nunca alteram as colunas.\n\n:param role: papel canônico retornado por :meth:`anchors`.\n:param point: coordenada de destino nas três dimensões de medida.\n:raises GateError: papéis inválidos, destinos não finitos ou deformações inválidas.",
+      "translation_source_blocks_sha256": [
+        "7b6d12ffc4cb7f7beaaafceb14a6bdc8513cbeb759f2cd37b9da9e3dbba4230d",
+        "a52716eceeec9f75808088db0c4b9f688ef3b86daed4a92cd57adb12dc84f1a1",
+        "5bb2ba108ac2fbeafe200390a6342a21508fd1a113cf079bb14f9c43c640a67d",
+        "97345f60982fc3cb185079cc8d731babbdb8c9b1d110ca9f0224bcbc2d778b6e",
+        "7dd93930a1a4d3180c4098e701731c0d3cf522062ce9fa33246e43591217477b"
       ]
     },
     "spacr.qt.widgets.gate_spec.EllipseGate": {
@@ -148924,6 +149346,20 @@
         "2fdefbff188a05d69da89e7ae54c0fc35ff7fbaab98a6ff1e44b200b370cc36c"
       ]
     },
+    "spacr.qt.widgets.gate_spec.VolumeAnchor": {
+      "source_blocks_sha256": [
+        "62305811be8b97f47bbc0f631b12081c7b1f5411f1c4f3217159d38588d998cc",
+        "5956556497f99476e229178d01fd7dedd1b421303957f1346e6d83347632cba0",
+        "55d7d1a93c2639bd6d389f85c3ed5e7192a01f2ee71aa0be71b67f3f11b17eeb"
+      ],
+      "source_sha256": "83297e197eda933b77f90d14c1ad6efe8cd67eb01bec6150e4eba4a404b338ca",
+      "text": "Um ponto de contorno e seu papel de edição baricêntrico estável.\n\n:param point: coordenadas na ordem de três colunas do gate.\n:param role: pesos canônicos de vértice/aresta/triângulo consumidos pelas edições.",
+      "translation_source_blocks_sha256": [
+        "62305811be8b97f47bbc0f631b12081c7b1f5411f1c4f3217159d38588d998cc",
+        "7442c2a4ec3992030c65365cbde46fd92e7ea745dd4c1980494299c24ee32d2e",
+        "55d7d1a93c2639bd6d389f85c3ed5e7192a01f2ee71aa0be71b67f3f11b17eeb"
+      ]
+    },
     "spacr.qt.widgets.gate_spec.WandError": {
       "source_blocks_sha256": [
         "2c644b2b57daee03b88c9582adcb0cd95c3c0053af468a425be6f985a73efa5c"
@@ -148944,6 +149380,36 @@
       "translation_source_blocks_sha256": [
         "c4a2443a566ab76d53f93e2e19c501c2e03d8cda6b7233770edc68ce44194bae",
         "b29d06bbc97708aebffba5aa2a9a993c61ad9f5ca003aff93843d9697c2c6573"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._mesh_triangle_contact.cross": {
+      "source_blocks_sha256": [
+        "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec"
+      ],
+      "source_sha256": "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec",
+      "text": "A área com sinal de dois vetores planos.",
+      "translation_source_blocks_sha256": [
+        "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._triangulate_volume_cap.turn": {
+      "source_blocks_sha256": [
+        "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab"
+      ],
+      "source_sha256": "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab",
+      "text": "A área plana orientada de um triângulo candidato.",
+      "translation_source_blocks_sha256": [
+        "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._validate_edited_polygon.cross": {
+      "source_blocks_sha256": [
+        "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714"
+      ],
+      "source_sha256": "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714",
+      "text": "A área plana com sinal normalizada de dois vetores de aresta.",
+      "translation_source_blocks_sha256": [
+        "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714"
       ]
     },
     "spacr.qt.widgets.gate_spec.best_cluster_candidate": {
@@ -157263,15 +157729,17 @@
         "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
         "f350ab15190913cb5a93bf9dd3d402c1c6c225ae4be6af6c9419242af2786b6e",
         "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
-        "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923"
+        "8d7703dde8e227af9a9a7d4e87678c61cf0752cbe88b2a175264d85b2a38b2d2",
+        "832feba1f5b08c47a7ab9640073ad512503c55fc44ff3f0627c4e15c579e46cc"
       ],
-      "source_sha256": "a776ae68b80affa923c8a943668486f6705e8fa701f73f9e2c285561036d6b63",
-      "text": "Um único botão \"Load test data…\" para toda tela que lê um banco de dados de medições.\n\nO exemplo de Annotate (``einarolafsson/spacr-example-annotate``) é uma placa real: ``measurements/measurements.db`` com suas tabelas de células, citoplasma, núcleos e patógenos, e os 2,341 recortes em ``data/`` que ele indexa. Annotate e Classify já o baixam para a pasta compartilhada da placa de exemplo (:func:`spacr.example_archives.example_plate_folder`). Todas as outras telas que abrem um banco de dados de medições podem ser mostradas funcionando na mesma placa, então este módulo a baixa uma vez e a entrega para a tela que pediu.\n\nUM AUXILIAR, NÃO UMA CÓPIA POR TELA. A decisão entre cache e download, o estado de ocupado do botão e a mensagem de falha são os mesmos para Plate Viewer, Tabulate, Graph Builder e os demais; o que difere é apenas qual campo é preenchido e qual método o abre. Por isso a tela passa essa única diferença como callback e nada mais.\n\nO DOWNLOAD É O QUE JÁ EXISTE. Nada novo é publicado: o arquivo compactado, o worker e o diálogo de progresso são :func:`spacr.qt.hf_download.download_annotate_example`, a mesma chamada que o botão de Classify faz, e uma placa já descompactada por qualquer um deles é reutilizada sem tocar na rede.",
+      "source_sha256": "489cf0a2b46933da128810c3566ccec2800d3d1312d7eb267888534a86e55bda",
+      "text": "Um único botão \"Load test data…\" para toda tela que lê um banco de dados de medições.\n\nO exemplo de Annotate (``einarolafsson/spacr-example-annotate``) é uma placa real: ``measurements/measurements.db`` com suas tabelas de células, citoplasma, núcleos e patógenos, e os 2,341 recortes em ``data/`` que ele indexa. Annotate e Classify já o baixam para a pasta compartilhada da placa de exemplo (:func:`spacr.example_archives.example_plate_folder`). Todas as outras telas que abrem um banco de dados de medições podem ser mostradas funcionando na mesma placa, então este módulo a baixa uma vez e a entrega para a tela que pediu.\n\nUM AUXILIAR, NÃO UMA CÓPIA POR TELA. A decisão entre cache e download, o estado de ocupado do botão e a mensagem de falha são os mesmos para Plate Viewer, Tabulate, Graph Builder e os demais; o que difere é apenas qual campo é preenchido e qual método o abre. Por isso a tela passa essa única diferença como callback e nada mais.\n\nO download é o existente. O arquivo, o trabalhador e a caixa de diálogo de progresso são :func:`spacr.qt.hf_download.download_annotate_example`, o mesmo botão Classify da chamada faz, e uma placa já desempacotada por qualquer um deles é reutilizada sem tocar na rede.\n\nThree public sets have buttons of their own, fetched through the example-set registry (:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose`` (LINCS Cell Painting, ``einarolafsson/spacr-example-dose``) for Dose-Response, Prediction Profiler, Run Compare, Run History and Training Runs, ``control_chart`` (CPJUMP1, ``einarolafsson/spacr-example-control-chart``) for Control Chart, and ``hit`` (a cut of the TSG101 screening experiment, ``einarolafsson/spacr-example-hit``) for Investigate Hit.",
       "translation_source_blocks_sha256": [
         "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
         "bf705997d039273e6200aa24bc3548efafcc18cffa68eb9128242c54129b9a51",
         "ee693d0de0ae694a157a77ad54e55cb1f7dc5be278c06df146b45d64da37829b",
-        "cb254d1e322e8aed9a0ecb91063cd954234d140a7c24d20ff762550f2a88fc79"
+        "cfff72f3559ef0ce2383478b212c6a89903d5e57a312caa5311b9b009ddc6d24",
+        "f5cbf5d54395dbb04a329b6fa7042dd5737b3b14ed2f18886a445a4bbd79ba6e"
       ]
     },
     "spacr.qt.widgets.measurements_example.example_measurements_db": {
@@ -176418,15 +176886,15 @@
       "source_blocks_sha256": [
         "f31af1568cc3c2205bcb60cdd45210266125f4b3ab096d05ccafec7ee8e2efb7",
         "2bd4b70a329792c28b03b67b2fa7504bf1d2ee4e24a6bda6f14c0cea69f31b6d",
-        "8464bf387f9ff80a2714587f481defacd127bb39508db7611d8581350afff2fa",
+        "b7526ea714edd8259fb0e1001901e7d14163f048166451decea8abc394a47833",
         "cb0920ed702f545a7ffbf3e6eeb802f68b9e43f52cb096dead407b84804ceb77"
       ],
-      "source_sha256": "9f37c658b6b5af553b41579fee9b1e7c708bb5314fa961e48c34b6dbfb3ed9fb",
-      "text": "Retornar o diretório de saída que uma sessão de processamento usaria sem executá-lo.\n\n:param settings: configurações de regressão usadas para resolver o tipo de fonte e modelo.\n:returns: O diretório de resultados previsto, ou ``None`` quando nenhum caminho de contagem de dados ou escolha de pasta gravável pode ser resolvido.\n\nO resultado usa a mesma regra de seleção de pasta que a sessão de processamento de regressão.",
+      "source_sha256": "6dab4991af82da8c561f7c2401927325907915885f393051e8be57686bce735f",
+      "text": "Retornar o diretório de saída que uma sessão de processamento usaria sem executá-lo.\n\n:param settings: configurações de regressão usadas para resolver o tipo de fonte e modelo.\n:returns: O diretório de resultados previstos, ou ``None`` quando nenhum caminho de contagem de dados ou opção de pasta gravável pode ser resolvido. As contagens PostgreSQL exigem um local explícito  ``src``.\n\nO resultado usa a mesma regra de seleção de pasta que a sessão de processamento de regressão.",
       "translation_source_blocks_sha256": [
         "ce3c159bb7d688a71db73ae9cf84bf21ea42d8403b010492c378a82a25967deb",
         "2bd4b70a329792c28b03b67b2fa7504bf1d2ee4e24a6bda6f14c0cea69f31b6d",
-        "8464bf387f9ff80a2714587f481defacd127bb39508db7611d8581350afff2fa",
+        "b7526ea714edd8259fb0e1001901e7d14163f048166451decea8abc394a47833",
         "2db65f87e551041d30271d153c79df70dc36d8aa0c959c01f78b13612efc6112"
       ]
     },

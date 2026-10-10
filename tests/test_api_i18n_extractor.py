@@ -249,7 +249,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # against 6ae5e1b36: +1 / -0.
     # ViewGate.__post_init__ is the one new documented special method.
     # PSF validates its immutable kernel in one further documented member.
-    assert len(dunders) == 215
+    # 215 -> 216 on 2026-10-10: EditableVolumeGate.__post_init__ (item 672),
+    # the validator that refuses an open, self-intersecting or degenerate
+    # mesh -- a contract a reader meets on the API page.
+    assert "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__" in dunders
+    assert len(dunders) == 216
+    # The historical digests below describe the surface without it.
+    dunders = dunders - {
+        "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__"}
     psf_validator = "spacr.point_spread.PSF.__post_init__"
     assert psf_validator in dunders
     # The exact Make Masks animation registry is one new documented value.
@@ -1405,7 +1412,20 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
     assert {key: docs[key] for key in hidden_close} == hidden_close
     assert hidden_close.keys() <= home_ui_arrivals.keys()
-    actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) - len(builder.API_DOC_ALIASES)
+    # 2026-10-10, items 672/673: the editable 3D gate volume and the native
+    # 3D Make Masks session arrive as one exact contract of 32 documented
+    # symbols (EditableVolumeGate and its members, VolumeAnchor,
+    # GateCanvas.volume_surface_at, VolumeMaskSession and its members,
+    # load_volume_image_and_mask, save_volume_mask,
+    # MakeMasksScreen.open_volume and three nested geometry helpers).
+    volume_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text())
+    assert len(volume_arrivals) == 32
+    assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
+    assert not volume_arrivals.keys() & (
+        worker_arrivals.keys() | home_ui_arrivals.keys())
+    actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
         f"({actual - expected:+d}). A public docstring addition must bump this "
@@ -1453,7 +1473,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_218
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_218
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

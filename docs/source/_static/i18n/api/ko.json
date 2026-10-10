@@ -23777,14 +23777,14 @@
     "spacr.example_archives.example_set": {
       "source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
-        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
+        "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ],
-      "source_sha256": "835bc56de2bfedaa226ad998ebba8587e0b2fdfdf6922c3e45a6d00e0e9ecb75",
-      "text": "세트는 ``key``라고 불립니다.\n\n:param key: ``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` 또는 ``invasion`` 입니다.\n:raises KeyError: ``None``을 반환 한 타이포는 아무것도 다운로드하고 성공을 보고하지 않을 것이며, 하나의 결과는 다운로드 명령이 결코 생성해서는 안됩니다.",
+      "source_sha256": "735c94dee3087069fed735729956f2ea70a492eec2edc37e8df3c2a870d9abe8",
+      "text": "세트는 ``key``라고 불립니다.\n\n:param key: :data:`EXAMPLE_SETS` 키, 예를 들면 ``import``, ``mask``, [``measure``], ``annotate``, (``dose``), ``control_chart`` 또는 ``hit``.\n:raises KeyError: ``None``을 반환 한 타이포는 아무것도 다운로드하고 성공을 보고하지 않을 것이며, 하나의 결과는 다운로드 명령이 결코 생성해서는 안됩니다.",
       "translation_source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
-        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
+        "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ]
     },
@@ -48031,9 +48031,10 @@
     "spacr.ml.generate_ml_scores": {
       "source_blocks_sha256": [
         "a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e",
-        "0ff1beae2f012bb566a9a3d73b348fffe0977eb688f17b77174e6960fa38f437",
+        "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
         "74aea7343be214b65d61228568b199720441d78049b01956370c20a94d0ebb8d",
-        "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
+        "f9649bcde48272dcf6fe6c267b467dd966b1b229e8957f7c2f9b1060139c801d",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
         "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
         "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
@@ -48047,13 +48048,14 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
-      "text": "개체별 특성으로 고전적 ML 분류기(XGBoost / logistic / RF)를 학습하고 스크리닝의 각 마이크로플레이트 표본 위치에 점수를 매깁니다.\n\n``measurements.db``를 읽습니다. 이 파일은 :func:`spacr.measure.measure_crop`가 생성합니다. 세포/핵/병원체/세포질 특성 테이블을 병합하고, ``positive_control`` / ``negative_control``로 표시된 마이크로플레이트 표본 위치(또는 주석 열)를 학습 라벨로 사용하고, :func:`ml_analysis`에 적합을 위임하며, 개체별 예측, 순열 및 특성 중요도 테이블과 실험실 마이크로플레이트 히트맵을 원본 DB 옆의 ``results/``에 기록합니다.\n\n:param settings: 설정 키-값 매핑이며, :func:`spacr.settings.set_default_analyze_screen`를 통해 표준화됩니다. 구조화된 데이터 항목:\n\n    - ``src`` (문자열 또는 목록) — ``measurements/measurements.db``가 포함된 폴더입니다.\n    - ``channel_of_interest`` — 리크루트먼트 비율 특성에 사용할 0부터 시작하는 채널이며, 테이블 선택도 제어합니다.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — 학습 라벨로 사용하는 마이크로플레이트 표본 위치 ID(예: ``'c2'`` / ``'c1'``)입니다.\n    - ``annotation_column`` — 대조군 대신 PNG 수준의 주석 열을 사용합니다.\n    - ``location_column`` — ``'columnID'`` 또는 ``'rowID'``.\n    - ``heatmap_feature`` — 플레이트 히트맵에 표시되는 특징.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 두 요소 목록 ``[output, plate_heatmap]``입니다. ``output``은 :func:`ml_analysis`의 10개 요소 결과 목록이고 ``plate_heatmap``은 플레이트 히트맵 ``matplotlib`` 그림입니다. CSV 파일과 그림은 부작용으로 ``results/``에 기록되며, 해당 경로는 반환되지 않습니다.\n:raises ValueError: ``annotation_column``이 설정되어 있지만 ``png_list`` 테이블에 ``prcfo`` / 해당 열이 없거나, 테이블의 객체 ID가 측정 데이터와 조인되지 않거나, 관측된 클래스가 두 개 미만인 경우, 또는 ``heatmap_feature``이 학습된 특성에 포함되지 않은 경우입니다.\n\n예시:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n참고: :func:`ml_analysis` — 내부 적합/평가 루틴. :func:`perform_regression` — 마이크로플레이트 표본 위치별 ML 점수에 대한 혼합효과 회귀.",
+      "source_sha256": "371211be8b4816670b170e1fc23507ac1efea2047ab33d9aa1596e689a74c2c7",
+      "text": "개체별 특성으로 고전적 ML 분류기(XGBoost / logistic / RF)를 학습하고 스크리닝의 각 마이크로플레이트 표본 위치에 점수를 매깁니다.\n\n``measurement_backend``로 선택한, :func:`spacr.measure.measure_crop`의 측정 저장소를 읽고, 세포/핵/병원체/ 세포질 특징 테이블을 병합하며, ``positive_control`` / ``negative_control``로 표시된 웰(또는 주석 열)을 학습 레이블로 사용하고, 적합은 :func:`ml_analysis`에 위임한 뒤, 객체별 예측, 순열 및 특징 중요도 테이블과 플레이트 히트맵을 첫 번째 소스 폴더 아래의 ``results/``에 기록합니다.\n\n:param settings: 설정 키-값 매핑이며, :func:`spacr.settings.set_default_analyze_screen`를 통해 표준화됩니다. 구조화된 데이터 항목:\n\n    - ``src`` (str 또는 list) — 측정값이 들어 있는 폴더.\n    - ``measurement_backend`` / ``measurement_backend_target`` — SQLite, DuckDB, Parquet 또는 PostgreSQL 측정 저장소를 선택합니다.\n    - ``channel_of_interest`` — 리크루트먼트 비율 특성에 사용할 0부터 시작하는 채널이며, 테이블 선택도 제어합니다.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — 학습 라벨로 사용하는 마이크로플레이트 표본 위치 ID(예: ``'c2'`` / ``'c1'``)입니다.\n    - ``annotation_column`` — 대조군 대신 PNG 수준의 주석 열을 사용합니다.\n    - ``location_column`` — ``'columnID'`` 또는 ``'rowID'``.\n    - ``heatmap_feature`` — 플레이트 히트맵에 표시되는 특징.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 두 요소 목록 ``[output, plate_heatmap]``입니다. ``output``은 :func:`ml_analysis`의 10개 요소 결과 목록이고 ``plate_heatmap``은 플레이트 히트맵 ``matplotlib`` 그림입니다. CSV 파일과 그림은 부작용으로 ``results/``에 기록되며, 해당 경로는 반환되지 않습니다.\n:raises ValueError: ``annotation_column``이 설정되어 있지만 ``png_list`` 테이블에 ``prcfo`` / 해당 열이 없거나, 테이블의 객체 ID가 측정 데이터와 조인되지 않거나, 관측된 클래스가 두 개 미만인 경우, 또는 ``heatmap_feature``이 학습된 특성에 포함되지 않은 경우입니다.\n\n예시:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n참고: :func:`ml_analysis` — 내부 적합/평가 루틴. :func:`perform_regression` — 마이크로플레이트 표본 위치별 ML 점수에 대한 혼합효과 회귀.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
-        "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
+        "6fe9baab893b87764a9ab970ffc46d56f40daea75c46a5aae4764b33ca0ffc70",
         "7c21621e1e71f3b10d12114713e1aef36b9b3cc5f211bdf7bec9e0ddb3882486",
-        "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
+        "f9649bcde48272dcf6fe6c267b467dd966b1b229e8957f7c2f9b1060139c801d",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
         "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
         "219d41a366a79ee727fffa7d276c61b0044bfe410ea94665119151f96b736f43",
@@ -48071,9 +48073,10 @@
     "spacr.ml.interpret_vision_model": {
       "source_blocks_sha256": [
         "27e1da7167f142b5e33ff9bfa9350d86a492f88afcfb2ab52f0a74ab3f2d588c",
-        "d36376d87588cccca12cb40f2050eaac8299f4c768c58e14a29fc00a59a7851e",
+        "b3fd4e7d658707f3e9bae619a91fd0814c79c0818e1ef5b829740efa9b7cc05e",
         "8e78ef9d6b118a1806645232b929f7492d86fc30a04ef74a91c9000595886fa6",
-        "8c57814dfcc90c731338ebdf8b8db3aa289deda6ca7818ec78b1772d2f6eaf83",
+        "2c2a047f662554493f1912f8ed549570e65fbf341ad893b2a27696d085c25fec",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "0be5c41369b67d724501213429176394827b7ade97cdc6741e6cf37f47c81287",
         "45fb3a49c34f2d3fb198f4b348a7ee25bcf139bdf8072fa02b0b63acb31adfb3",
         "9336b99c45f95510baba8cfa464fe006492448ac800e03a14907777eabc80d18",
@@ -48081,17 +48084,18 @@
         "4cfb4764796993e5d56d729e3707ad65b23476b1e3fde4184724a7eb6b2664d1",
         "467632f70d802b6e3092ba295bbba467ad9245ddf961d4f6b73b21e7387da280",
         "31639ff5a83c58d22e8020e4d612032aaae6606dc9b8f17edd03756957720755",
-        "390bfe5f7c8c473f4ca539dcbb0259bfff23b16b9a2b29f38f8290f711f5e0a0",
+        "410a0e3de10b66cfb8aba04f997a4fec17d85fbd1984f2512af1d9368c7d446f",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "29fa68c067d32edaa7b1656265ec6181f1531cf25d9c3e1b57aa0dc7ec440366"
       ],
-      "source_sha256": "972479829694da6a3e5af23fd459b47cfd9c43e0225247f18b2b9ce90c61d606",
-      "text": "RF, 순열 및 SHAP 중요도를 사용하여 spacr 비전 모델 점수를 설명하고 컴파트먼트별/채널별 레이더 플롯을 제공합니다.\n\n개체별 측정에 대한 측정 ``measurements.db`` A와 함께 CSV 예측된 점수, RF 특성 중요성, 변동 중요성의 모든 조합을 실행하고, SHAP 상단 기능을 넘어서, 그 다음에 집합 SHAP 공유 및 이미지 데이터 채널 레이더 플로트에 기여하여 어떤 지역 (세포 / 핵 / 병원성 / 시토 플라스마)과 어떤 플루로스센스 이미지 데이터채널이 모델을 운전하는지 볼 수 있습니다.\n\n:param settings: :func:`spacr.settings.set_interpret_vision_model_defaults`을 통해 캐논화된 키 가치 맵링을 설정합니다. 구조화된 데이터 입력:\n\n    - ``src`` - ``measurements/measurements.db``을 포함하는 폴더.\n    - ``scores`` — CSV 설명할 수 있는 개체별 예측.\n    - ``score_column`` - 점수를 유지하는 ``scores``의 열.\n    - ``tables`` — DB 테이블을 합병 (기본 ``['cell','nucleus','pathogen','cytoplasm']``).\n    - ``feature_importance`` / ``permutation_importance`` / ``shap`` - 각 설명을 활성화합니다.\n    - ``top_features`` - 표시된 기능에 대한 캡.\n    - ``nuclei_limit`` / ``pathogen_limit`` - 개체 계산 캡.\n    - ``n_jobs``, ``save``.\n\n:returns: 융합된 개체에 대하여 DataFrame - 점수에 연결된 측정 테이블 CSV 레이더와 중요성 플레이트가 배치되고, 그리고 ``save=True`` 중요성 CSVs DB와 함께 부작용으로 작성됩니다.\n\n예시:\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\n또한 참조 : :func:`spacr.submodules.interpret_vision_model` - 유산 / 대체 입력 포인트 중요성의 핵심 가치 맵링을 반환 DataFrames 조합된 측정 대신.",
+      "source_sha256": "3ad66c1c0b926918c008821bad441b1be68cc6a5eb4cd2fd4c1301aef1960d1a",
+      "text": "RF, 순열 및 SHAP 중요도를 사용하여 spacr 비전 모델 점수를 설명하고 컴파트먼트별/채널별 레이더 플롯을 제공합니다.\n\n선택한 측정 저장소의 객체별 측정값을 예측 점수 CSV와 병합하고, 상위 특징에 대해 RF 특징 중요도, 순열 중요도 및 SHAP를 임의로 조합해 실행한 다음, SHAP 기여도를 구획별 및 채널별 레이더 플롯으로 집계하여 어느 영역(세포 / 핵 / 병원체 / 세포질)과 어느 형광 채널이 모델을 좌우하는지 확인할 수 있게 합니다.\n\n:param settings: :func:`spacr.settings.set_interpret_vision_model_defaults`을 통해 캐논화된 키 가치 맵링을 설정합니다. 구조화된 데이터 입력:\n\n    - ``src`` — 측정값이 들어 있는 폴더.\n    - ``measurement_backend`` / ``measurement_backend_target`` — SQLite, DuckDB, Parquet 또는 PostgreSQL 측정 저장소를 선택합니다.\n    - ``scores`` — CSV 설명할 수 있는 개체별 예측.\n    - ``score_column`` - 점수를 유지하는 ``scores``의 열.\n    - ``tables`` — DB 테이블을 합병 (기본 ``['cell','nucleus','pathogen','cytoplasm']``).\n    - ``feature_importance`` / ``permutation_importance`` / ``shap`` - 각 설명을 활성화합니다.\n    - ``top_features`` - 표시된 기능에 대한 캡.\n    - ``nuclei_limit`` / ``pathogen_limit`` - 개체 계산 캡.\n    - ``n_jobs``, ``save``.\n\n:returns: 병합된 객체별 DataFrame — 점수 CSV와 결합된 측정 테이블 — 으로, 설명기가 이를 바탕으로 적합되었습니다. 부수 효과로 레이더 및 중요도 플롯이 렌더링되며, ``save=True``이면 중요도 CSV가 소스 폴더의 ``results/`` 아래에 기록됩니다.\n\n예시:\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\n또한 참조 : :func:`spacr.submodules.interpret_vision_model` - 유산 / 대체 입력 포인트 중요성의 핵심 가치 맵링을 반환 DataFrames 조합된 측정 대신.",
       "translation_source_blocks_sha256": [
         "27e1da7167f142b5e33ff9bfa9350d86a492f88afcfb2ab52f0a74ab3f2d588c",
-        "9090614639eb25ed74e81ab4f8bf169b663279d4e861a74e0e35fe59d8827af7",
+        "e06152d24f4a3f6b771f287f5bed2c550d711081e43cad68e4ce0e77fc911f0c",
         "72c8c83f7c600ff7f85794dd668f3b1e0e8aa06ff534a52d031a612782f7a2a4",
-        "8c57814dfcc90c731338ebdf8b8db3aa289deda6ca7818ec78b1772d2f6eaf83",
+        "2c2a047f662554493f1912f8ed549570e65fbf341ad893b2a27696d085c25fec",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "0be5c41369b67d724501213429176394827b7ade97cdc6741e6cf37f47c81287",
         "45fb3a49c34f2d3fb198f4b348a7ee25bcf139bdf8072fa02b0b63acb31adfb3",
         "9336b99c45f95510baba8cfa464fe006492448ac800e03a14907777eabc80d18",
@@ -48099,7 +48103,7 @@
         "4cfb4764796993e5d56d729e3707ad65b23476b1e3fde4184724a7eb6b2664d1",
         "467632f70d802b6e3092ba295bbba467ad9245ddf961d4f6b73b21e7387da280",
         "31639ff5a83c58d22e8020e4d612032aaae6606dc9b8f17edd03756957720755",
-        "390bfe5f7c8c473f4ca539dcbb0259bfff23b16b9a2b29f38f8290f711f5e0a0",
+        "410a0e3de10b66cfb8aba04f997a4fec17d85fbd1984f2512af1d9368c7d446f",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "4e6240e0a06e23ec4d12023e66ac2435f9f5451747e98be6e623681707ce8130"
       ]
@@ -48170,14 +48174,14 @@
       "source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
-        "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821"
+        "91c0ecf82e1a22d071a2449f0c6f854ae695f77baadd4600d0b403ba73d3f2b1"
       ],
-      "source_sha256": "64e2d6a847a7e26e3e5a918dae1ae92104ced69f13a832eea5ab5c2d2762ee63",
-      "text": "쌍으로 된 입력을 읽고 파일 이름 추측 없이 플레이트 식별을 해결합니다.\n\n해결 순서는 자체 열, 파트너 열, 그 다음에는 쌍-행 순서입니다. 상충되는 선언은 거부됩니다. ``(count_frame, score_frame, audit_rows)``를 반환합니다.\n\n:param pairs: ``'score'`` 및 ``'count'`` 테이블 경로(둘 중 하나는 비어 있을 수 있음)를 가진 매핑의 시퀀스이며, :func:`normalize_regression_input_pairs` 가 반환하는 형태입니다. 각 매핑의 ``'plate'`` 는 확인된 마이크로플레이트 레이블로 덮어씁니다.",
+      "source_sha256": "bccd8c56c3b7afb8975c77afcf90d2585f98883bcadc3bdb34ca5eac6dd5220b",
+      "text": "쌍으로 된 입력을 읽고 파일 이름 추측 없이 플레이트 식별을 해결합니다.\n\n해결 순서는 자체 열, 파트너 열, 그 다음에는 쌍-행 순서입니다. 상충되는 선언은 거부됩니다. ``(count_frame, score_frame, audit_rows)``를 반환합니다.\n\n:param pairs: ``'score'`` 및 ``'count'`` 테이블 경로(둘 중 어느 것이든 비어 있을 수 있음)를 가진 매핑의 시퀀스로, :func:`normalize_regression_input_pairs`가 반환합니다. 각 매핑의 ``'plate'``는 확인된 플레이트 레이블로 덮어씁니다. 데이터베이스 입력은 ``'score_table'`` 또는 ``'count_table'``도 지정하며, 같은 데이터베이스의 테이블은 캐시되고 별도로 쌍을 이룹니다.",
       "translation_source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
-        "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821"
+        "91c0ecf82e1a22d071a2449f0c6f854ae695f77baadd4600d0b403ba73d3f2b1"
       ]
     },
     "spacr.ml.load_regression_input_pairs.plates": {
@@ -67007,31 +67011,31 @@
         "fccbe09e90c12f3eec3423141af30b5838c41a34450a3f24f4c7096d10d51763",
         "d00917f74b1c60449223b98e16fe1418c23499d9daff770b4b821ea63c8cec5b",
         "956bd67481a9ea16e49f40267925728697390bb90e85710a6190427dc25e8396",
-        "78566b3d98d12dc8ad7b65b57f4aea303e58e82343ad958348d92761ea8004e4",
+        "f76193f9494f4496087d8a05efc8f849d7f73de3d162e2a3a92df029c45a2c46",
         "fc3fb2886e57522b3b050178212c0b973205a31723e3a9490fb3e29b8207db7c",
         "e617adcc7d35691d321c961f501e866061e2f5a370480d7933025d2e17f309ce",
         "1084850c0b1fec29977e8d663efda1d76bf7ae4c968bc5c084cde651b7b64d0a",
         "24836ab5abfffb819bca8eb37250a5b4747767340023c36c6723d34fa0a7e490",
         "9ce2ee07cff94515b65a32d8f07ad40311b6078cccbed2081a7abd06b821a8a7",
-        "4500e99167ae7ff6f78d91bd5dbdc1777005c4f8000b64f27aaabf636bbe044a",
+        "e5283f398103af1a3962f6ba3f51903dc956d7e230ae00a55d0bc5a1131bd0d7",
         "0defb5cc2fa671f4b79c095da6e3b8e0064627bc7766da2a382033e32e64e588",
-        "5f8746785b059302dc196301001d6d982539ec509781e9313490add30d9174e7"
+        "02016aecd7cc868af44fccc2fa72bb5057b97171cb3d5b517a968fb9f9aeeac6"
       ],
-      "source_sha256": "e527ed71bbb49f50898da5535c8cc6fdf509688783cdb61809fea98d71376365",
-      "text": "기계 학습 분류 모델의 per-object 결과를 ``table`` 라인에 기록하십시오.\n\n분류 (CV) 및 분류 (ML)에 의해 공유 --- 모듈이 왜 열쇠가 ``prcfo``인지, 왜 두 가지 열쇠가 추측하는 대신 거부되는지, 그리고 왜 전체가 하나의 거래인지에 대한 문서를 참조하십시오.\n\n:param results: DataFrame 개체에 대한 결과입니다. ``columns``로 이름을 지정한 출처 열과 인덱스로 사용할 수 있는 무언가가 있어야 합니다: ``prcfo`` 열, ``prcfo``로 이름의 인덱스는, 또는 spaCR 추출된 이미지 지역 이름을 가진 ``path``/``png_path``/ ``file_name`` 열.\n:param db_path: SQLite 데이터베이스: 실종된 파일이 보고되고 삭제됩니다.\n:param columns: *데이터베이스* 열 이름을 ``(results column, 'REAL' | 'INTEGER')``로 맵링합니다.\n:param table: 목표 표 : 기본 ``'png_list'``\n:param key: ``'auto'`` (모든 후보를 측정하고 최선을 사용) 또는 :data:`KEY_PRIORITY` 중 하나를 강요하십시오.\n:param timelapse: 추출 된 이미지 지역 이름이 시간 포인트를 가지고 있는지 여부. ``None`` 테이블에 시간 열의 존재에서 그것을 감지합니다.\n:param verbose: 보고서를 인쇄합니다.\n:returns: 데이터베이스가 없으면 :class:`MergeReport` 또는 ``None``를 입력합니다.\n:raises KeyError: ``results``이 원본 열 중 하나가 부족한 경우.\n:raises sqlite3.OperationalError: ``table``이 존재하지 않는 경우",
+      "source_sha256": "862f76814ccbc61805375ba790553417f0090548a8b1d80399acf724fbd859d8",
+      "text": "기계 학습 분류 모델의 per-object 결과를 ``table`` 라인에 기록하십시오.\n\n분류 (CV) 및 분류 (ML)에 의해 공유 --- 모듈이 왜 열쇠가 ``prcfo``인지, 왜 두 가지 열쇠가 추측하는 대신 거부되는지, 그리고 왜 전체가 하나의 거래인지에 대한 문서를 참조하십시오.\n\n:param results: DataFrame 개체에 대한 결과입니다. ``columns``로 이름을 지정한 출처 열과 인덱스로 사용할 수 있는 무언가가 있어야 합니다: ``prcfo`` 열, ``prcfo``로 이름의 인덱스는, 또는 spaCR 추출된 이미지 지역 이름을 가진 ``path``/``png_path``/ ``file_name`` 열.\n:param db_path: SQLite 또는 DuckDB 파일, Parquet 스토어 디렉토리, 또는 PostgreSQL 연결 스트립.\n:param columns: *데이터베이스* 열 이름을 ``(results column, 'REAL' | 'INTEGER')``로 맵링합니다.\n:param table: 목표 표 : 기본 ``'png_list'``\n:param key: ``'auto'`` (모든 후보를 측정하고 최선을 사용) 또는 :data:`KEY_PRIORITY` 중 하나를 강요하십시오.\n:param timelapse: 추출 된 이미지 지역 이름이 시간 포인트를 가지고 있는지 여부. ``None`` 테이블에 시간 열의 존재에서 그것을 감지합니다.\n:param verbose: 보고서를 인쇄합니다.\n:returns: :class:`MergeReport` 또는 ``None``가 현지 상점이 부족한 경우.\n:raises KeyError: ``results``이 원본 열 중 하나가 부족한 경우.\n:raises ValueError: Parquet 테이블이 사라지거나 예측 출력은 대체 상점에서 합류 식별자 열을 대체합니다.",
       "translation_source_blocks_sha256": [
         "efa7ca1bc33fa4bcd95303b0d0111d764f63bfb466b5c85331aa1d64da9880f9",
         "d00917f74b1c60449223b98e16fe1418c23499d9daff770b4b821ea63c8cec5b",
         "9f51a2b1992d0c1fb2bd1ddf84355b5006467bb919d819853997c587850156ff",
-        "78566b3d98d12dc8ad7b65b57f4aea303e58e82343ad958348d92761ea8004e4",
+        "f76193f9494f4496087d8a05efc8f849d7f73de3d162e2a3a92df029c45a2c46",
         "fc3fb2886e57522b3b050178212c0b973205a31723e3a9490fb3e29b8207db7c",
         "e617adcc7d35691d321c961f501e866061e2f5a370480d7933025d2e17f309ce",
         "1084850c0b1fec29977e8d663efda1d76bf7ae4c968bc5c084cde651b7b64d0a",
         "b1327dc300f2f4c03a3663a3db4523b7c2baf187d4ddd897818570cfd576e112",
         "9ce2ee07cff94515b65a32d8f07ad40311b6078cccbed2081a7abd06b821a8a7",
-        "4500e99167ae7ff6f78d91bd5dbdc1777005c4f8000b64f27aaabf636bbe044a",
+        "e5283f398103af1a3962f6ba3f51903dc956d7e230ae00a55d0bc5a1131bd0d7",
         "0defb5cc2fa671f4b79c095da6e3b8e0064627bc7766da2a382033e32e64e588",
-        "5f8746785b059302dc196301001d6d982539ec509781e9313490add30d9174e7"
+        "272de301bc6eff4bb7707cb201b999018e2d6aa2f081670e34000b10a5dd85b2"
       ]
     },
     "spacr.predictions.migrate_prediction_columns": {
@@ -67040,21 +67044,21 @@
         "3201ec3b3e0c63e4c4ef93891991cb36f3322bc8899e11090fea61ea0b90ecae",
         "2e4aca84a25eacee6508a33b9afa631f16e373a97ad466410de568aab422b97b",
         "122669b9ae72fbc44f93da7a40b40c7b7fe319a8af57695cb180ec6abe251c03",
-        "34387b44c863d87bcda1c583797ba6b79fcd8332ac79a48b09b931d43cdb68e4",
-        "ba4855f520616f049843acd685f06e31517985ea41519bb8f936a5fe6b2252f1",
+        "84e806987eaf654ba94f2f7278292c903056dced529dd052ff7e7ed58efd2c22",
+        "6002394960198870d5ad9841e4189e9f7edea6d9ab9b584dbf91ff386e1b36e8",
         "5108414c2187671983a501e3835fd52d7c737b53c801cdf0018cbb82f174c49d",
         "ee104499017420e09b4eb31a2650f43db6be8919c7385b473bde35995fdd4d91",
         "72eec3c643a1c33f10765e4ff4a9fd0b372ee9fef1345477aa7fdf2dddc48609"
       ],
-      "source_sha256": "a53c351484c73dc153ba79e984302b577379ac740f8700418973f27400836bb5",
-      "text": "유산 예측 열을 암호화에 다시 넣어 그것은 그것에 있다고 주장합니다.\n\n:func:`spacr.utils.add_column_to_database` --- ML 단계의 오래된 글쓰기 경로 --- 각각의 대체 ``0`` A와 함께 ``2`` 데이터베이스에 들어가는 길에, 왜냐하면 Annotate 애플리케이션은 클래스 1 및 2를 표시하기 때문입니다. ``png_list.predictions`` 말한 것 ``2`` 어디서 ``results.csv`` 똑같은 라운드에서 말했듯이 ``0``: 하나의 숫자, 두 개의 의미, 당신이 열린 파일에 따라.이것은 그것을 수리, 그래서 변경 전에 작성 된 데이터베이스는 수동 작업없이 올바르게 읽을 --- 같은 수리-읽기 계약 :func:`spacr.utils.rename_columns_in_db` 그것은, 그리고 동일한 속성을 가지고있다 :\n\n* **Idempotent.** 수리 후 열은 0s와 1s를 유지, 이것은 암호화가 아닌, 그래서 두 번째 통과는 아무것도하지 않습니다.\n* **절대 파괴적이지 않습니다.** 교체는 열이 1s와 2s 외에 아무것도 가지고있을 때만 반환됩니다. 3 클래스 모델의 진정한 클래스 2는 망가진 0에서 구별 할 수 없으며 추측은 정확히 그것이있는 방식으로 그것을 떠나는 것보다 더 나쁘다.\n* **모든 또는 아무것도.** 한 명시적인 거래, 오류에 다시 롤. 드라이버는 DML 자체에 하나를 열지만 ``PRAGMA``/DDL이 연결을 공유하지 않습니다, 반 반복 된 열은 두 개의 암호화로 한 번에 열이 될 것입니다.\n\n:param db_path: SQLite 파일. 실종된 파일은 no-op입니다.\n:param table: 이민 테이블. 기본 ``'png_list'``\n:param verbose: 각 수리마다 인쇄합니다.\n:returns: 숫자 ``(table, column, rows_repaired)``에 대한 목록",
+      "source_sha256": "3bd6481ce775e04b17ebd26d7e1be2be8c953002320e140363efa3650ad74b64",
+      "text": "유산 예측 열을 암호화에 다시 넣어 그것은 그것에 있다고 주장합니다.\n\n:func:`spacr.utils.add_column_to_database` --- ML 단계의 오래된 글쓰기 경로 --- 각각의 대체 ``0`` A와 함께 ``2`` 데이터베이스에 들어가는 길에, 왜냐하면 Annotate 애플리케이션은 클래스 1 및 2를 표시하기 때문입니다. ``png_list.predictions`` 말한 것 ``2`` 어디서 ``results.csv`` 똑같은 라운드에서 말했듯이 ``0``: 하나의 숫자, 두 개의 의미, 당신이 열린 파일에 따라.이것은 그것을 수리, 그래서 변경 전에 작성 된 데이터베이스는 수동 작업없이 올바르게 읽을 --- 같은 수리-읽기 계약 :func:`spacr.utils.rename_columns_in_db` 그것은, 그리고 동일한 속성을 가지고있다 :\n\n* **Idempotent.** 수리 후 열은 0s와 1s를 유지, 이것은 암호화가 아닌, 그래서 두 번째 통과는 아무것도하지 않습니다.\n* **절대 파괴적이지 않습니다.** 교체는 열이 1s와 2s 외에 아무것도 가지고있을 때만 반환됩니다. 3 클래스 모델의 진정한 클래스 2는 망가진 0에서 구별 할 수 없으며 추측은 정확히 그것이있는 방식으로 그것을 떠나는 것보다 더 나쁘다.\n* **모든 또는 아무것도.** SQLite, 거래에서 DuckDB 및 PostgreSQL 수리; Parquet는 완전한 교체 부분 스냅샷을 게시합니다.\n\n:param db_path: SQLite 또는 DuckDB 파일, Parquet 스토어 디렉토리, 또는 PostgreSQL 연결 스트립.\n:param table: 이민 테이블. 기본 ``'png_list'``\n:param verbose: 각 수리마다 인쇄합니다.\n:returns: 숫자 ``(table, column, rows_repaired)``에 대한 목록",
       "translation_source_blocks_sha256": [
         "afba4282c13eb6c7bf59b0504f911ebb9494a6fe94b5258e3f38ed42f9576c65",
         "3201ec3b3e0c63e4c4ef93891991cb36f3322bc8899e11090fea61ea0b90ecae",
         "2e4aca84a25eacee6508a33b9afa631f16e373a97ad466410de568aab422b97b",
         "122669b9ae72fbc44f93da7a40b40c7b7fe319a8af57695cb180ec6abe251c03",
-        "34387b44c863d87bcda1c583797ba6b79fcd8332ac79a48b09b931d43cdb68e4",
-        "ba4855f520616f049843acd685f06e31517985ea41519bb8f936a5fe6b2252f1",
+        "84e806987eaf654ba94f2f7278292c903056dced529dd052ff7e7ed58efd2c22",
+        "6002394960198870d5ad9841e4189e9f7edea6d9ab9b584dbf91ff386e1b36e8",
         "5108414c2187671983a501e3835fd52d7c737b53c801cdf0018cbb82f174c49d",
         "ee104499017420e09b4eb31a2650f43db6be8919c7385b473bde35995fdd4d91",
         "72eec3c643a1c33f10765e4ff4a9fd0b372ee9fef1345477aa7fdf2dddc48609"
@@ -84076,6 +84080,124 @@
         "15dd9587977f356ec1b10ecd9180dd78e9ef73f97fcad503e54544d69d058488"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession": {
+      "source_blocks_sha256": [
+        "8d38d80f7c769a723e70c41aefe1f279daebcefb6814cc6ae7ca4a78322315f3",
+        "3a385a26ee899c965f2d6d828fba37c6b9687bd0f8aa4bbc4e8bb9524b9a8dd9",
+        "ac0065724c23fefd243fe93ec54b2265626bfd533b80ca5448ea9d41d3add1a2",
+        "c642ea08391f093a1632d2e6680f773fe20ed524d895f1a639bf67cc070580d5",
+        "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
+        "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
+        "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
+        "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
+        "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
+        "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
+        "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+      ],
+      "source_sha256": "a2891fbdf0da347f05c6afda5c6561dfbc6c396b65fda3c6a1aa3fb2b40bdeaa",
+      "text": "3-D 게이트 뷰와 동일한 경계를 사용하여 기본 공간 레이블을 편집합니다.\n\n좌표는 이미지 외곽 원점으로부터의 물리적 X/Y/Z 거리이며, 복셀 중심은 ``(index + 0.5) * spacing``에 있습니다. 배열은 선언된 공간 축 순서, 원본 dtype 및 기존 객체 식별을 유지합니다. 최대 16,777,216개 복셀과 256 MiB의 원본 강도까지 허용되며, 더 큰 필드는 명시적으로 거부됩니다. 희소 실행 취소 델타는 편집마다 볼륨을 보존하는 대신 합계 64 MiB의 예산을 가집니다.\n\n:param image: 유한한 실수 숫자형 삼차원 원본 강도.\n:param mask: 원본과 정확히 같은 형태의 음이 아닌 정수 레이블.\n:param axes: 세 공간 축 ``XYZ``의 순열.\n:param spacing: 동일한 배열 축 순서로 나열된 유한한 양의 거리.\n:param unit: 물리적 거리 단위. 지정되지 않은 경우 ``pixel``.\n하나의 공간 이미지를 검증하고 가변 레이블 배열을 소유합니다.\n\n:param image: 유한한 실수 숫자형 원본 강도.\n:param mask: 이미지와 일치하는 음이 아닌 정수 객체 레이블.\n:param axes: 공간 저장 축 순서, XYZ의 순열.\n:param spacing: 저장 순서로 나열된 세 개의 유한한 양의 거리.\n:param unit: 공통 거리 단위.",
+      "translation_source_blocks_sha256": [
+        "12c85fbce6b86c7feb9ffc5357dce959967be5bbf6552676440bc2b1300984f4",
+        "f1f3dbfb88ba2413aee45558e881ac799c58672b07250f76b54224025b3b9036",
+        "ac0065724c23fefd243fe93ec54b2265626bfd533b80ca5448ea9d41d3add1a2",
+        "c642ea08391f093a1632d2e6680f773fe20ed524d895f1a639bf67cc070580d5",
+        "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
+        "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
+        "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
+        "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
+        "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
+        "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
+        "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry": {
+      "source_blocks_sha256": [
+        "e1da32670300ea3aee37dc6bf89ecc1ef999dcf704df94358bd7a1f6addc934e",
+        "43ae30a163ea00e756068cd7ef8ba9eaed5c8d6af3fd85b88c05b0a67685b3a1",
+        "006f1812a1208eae0a5c3f4d005e938ecaa218e8973397f270da133b05b88a59",
+        "01b84d022ad85e540a460440f98e0e4ed3bc14328b5a1ff621674f7c97371ff4",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "d43aa6979fc5d7440b473a8a2926a9f4f959916a21231dcb52b96207f715ce02",
+      "text": "검증된 공유 경계 하나와 그 정확한 마스크 복셀을 커밋합니다.\n\n다른 객체 ID는 보호됩니다. 유효하지 않은 움직임, 충돌 또는 기록 예산을 초과하는 델타가 발생하면 배열, 기하 구조 및 기록이 그대로 유지됩니다.\n\n:param label: 현재 마스크 dtype으로 표현할 수 있는 양의 ID.\n:param gate: 물리적 X/Y/Z 열을 가진 공유 ``EditableVolumeGate``.\n:returns: 변경된 복셀 수.",
+      "translation_source_blocks_sha256": [
+        "e1da32670300ea3aee37dc6bf89ecc1ef999dcf704df94358bd7a1f6addc934e",
+        "43ae30a163ea00e756068cd7ef8ba9eaed5c8d6af3fd85b88c05b0a67685b3a1",
+        "006f1812a1208eae0a5c3f4d005e938ecaa218e8973397f270da133b05b88a59",
+        "01b84d022ad85e540a460440f98e0e4ed3bc14328b5a1ff621674f7c97371ff4",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
+      "source_blocks_sha256": [
+        "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
+        "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
+        "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
+        "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ],
+      "source_sha256": "855806e4c95205b428777fd15ebba3049a11ddc10ed83c541effb993a1eaab09",
+      "text": "저장된 기하 구조 또는 정확한 닫힌 복셀 경계 메시를 반환합니다.\n\n귀퉁이만 맞닿거나, 연결되지 않았거나, 지나치게 세밀하여 공유 메시의 경계/위상 조건을 충족할 수 없는 레이블은 경계 상자로 대체되지 않고 거부됩니다. 이 메시를 미리 보기만 해서는 복셀, 기록 또는 저장된 기하 구조가 변경되지 않습니다.\n\n:param label: 기존의 양수 객체 식별자.\n:returns: 물리 좌표로 표현된 검증된 공유 편집 가능 볼륨.",
+      "translation_source_blocks_sha256": [
+        "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
+        "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
+        "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
+        "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.limits": {
+      "source_blocks_sha256": [
+        "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242"
+      ],
+      "source_sha256": "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242",
+      "text": "X/Y/Z 순서로 나타낸 정확한 물리적 이미지 외곽 경계.",
+      "translation_source_blocks_sha256": [
+        "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.next_label": {
+      "source_blocks_sha256": [
+        "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
+      ],
+      "source_sha256": "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254",
+      "text": "어떤 객체도 번호를 다시 매기지 않고 사용되지 않은 첫 번째 양의 ID를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.redo": {
+      "source_blocks_sha256": [
+        "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ],
+      "source_sha256": "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173",
+      "text": "가장 최근에 실행 취소한 복셀 델타와 기하 구조를 다시 적용합니다.",
+      "translation_source_blocks_sha256": [
+        "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.undo": {
+      "source_blocks_sha256": [
+        "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3"
+      ],
+      "source_sha256": "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3",
+      "text": "이전의 희소 복셀 델타와 불변 기하 구조를 복원합니다.",
+      "translation_source_blocks_sha256": [
+        "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.xyz_spacing": {
+      "source_blocks_sha256": [
+        "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c"
+      ],
+      "source_sha256": "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c",
+      "text": "저장 방식과 무관한 물리적 X/Y/Z 순서의 복셀 거리.",
+      "translation_source_blocks_sha256": [
+        "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c"
+      ]
+    },
     "spacr.qt.mask_engine.apply_filters": {
       "source_blocks_sha256": [
         "7a3348b0b992abcb835a65d8c72036ff228e56de89aed7f0611c1c03ec72881b",
@@ -84746,6 +84868,26 @@
         "67b14b18f207e8af712b9f66deacd03f488cadbfd37dae6ed11ef64edd6d2a64"
       ]
     },
+    "spacr.qt.mask_engine.load_volume_image_and_mask": {
+      "source_blocks_sha256": [
+        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
+        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+        "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
+      ],
+      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
+      "text": "기본 3-D 편집을 위해 명시적으로 선언된 회색조 공간 TIFF를 엽니다.\n\n정확히 세 개의 공간 축이 순서에 관계없이 지원됩니다. 시간, 채널, 색상 및 추론된 페이지 축은 거부됩니다. ``voxel_spacing`` 메타데이터는 저장 축 순서로 읽습니다. OME 물리적 크기는 마이크로미터로 변환되며, ImageJ 간격과 XY 해상도는 유지됩니다. 물리적 메타데이터가 없으면 픽셀 좌표를 의미합니다. 레이블은 dtype과 식별을 유지합니다. 저장된 기하 구조 사이드카는 정확한 원본 파일과 마스크 픽셀에 결합되며, 오래된 경우 거부됩니다.\n\n:param folder: 원본 이미지 디렉터리.\n:param filename: 공간 TIFF 이미지 파일 이름.\n:param masks_dir: 선택적인 기존 형제 마스크 디렉터리.\n:returns: 레이블과 원본 메타데이터를 소유하는 ``VolumeMaskSession``.",
+      "translation_source_blocks_sha256": [
+        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
+        "a9ba5e8105b8b0a9e311ee0abf0d2d9cb5498e34d21fb1572af99de1ee6e25d0",
+        "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+        "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
+      ]
+    },
     "spacr.qt.mask_engine.load_yolo_boxes": {
       "source_blocks_sha256": [
         "ebd81a03a270fc79e4e80ce177c0e61af5a0680a65c1d53e34793d2c8fb62e7e",
@@ -85354,6 +85496,22 @@
         "bb39147b837252cc70c8038f9bd16e634ec249100a8e6bf7bac1dd32577d5ba3",
         "bb68e2df885e347011fc1871954ad112d58b5213b0a1f2dc448f859cdb09de0d",
         "b8b67aa673028d2375e564f1174c8d04bb4d1d5b40ce52fa73e63f0ab61e9caf"
+      ]
+    },
+    "spacr.qt.mask_engine.save_volume_mask": {
+      "source_blocks_sha256": [
+        "67c99870147c421a816cdc38866de243e4dfb67ca102d56e9f54483e38d02662",
+        "4d1b5243419c1879129e2b239aeb8381bf9e0707f5c57e5b088e0f773e32b87a",
+        "0bbfc87fca59c066bae4562a7c35f3ec398c17db5f650c3106ed2924ad5af263",
+        "d6c21e86b31929098381b63efbea3617c7184e5d3c80ac246b97b2918146b91c"
+      ],
+      "source_sha256": "8f343202bdda510fbacc8ab6208aec3e314a981359a382c633ad2abf5d26910d",
+      "text": "기본 레이블과 원본에 결합된 공유 경계 사이드카를 기록합니다.\n\n두 산출물은 어느 대상이든 교체하기 전에 준비됩니다. 두 번째 교체가 실패하면 이전 쌍이 복원됩니다. 스테이징 후 원본/출력 식별을 다시 확인합니다. 협조하지 않는 동시 작성자에 대해 두 파일 이름으로는 완전한 원자적 트랜잭션을 구성할 수 없으며, 중단되었거나 불일치하는 게시는 로드 시 원본/마스크에 결합된 사이드카에 의해 거부됩니다. 원본 축, 간격, 레이블 dtype 및 ID는 유지됩니다.\n\n:param session: 기존 마스크 경로를 통해 로드된 볼륨 세션.\n:returns: 정규 TIFF 마스크 경로.",
+      "translation_source_blocks_sha256": [
+        "67c99870147c421a816cdc38866de243e4dfb67ca102d56e9f54483e38d02662",
+        "4d1b5243419c1879129e2b239aeb8381bf9e0707f5c57e5b088e0f773e32b87a",
+        "0bbfc87fca59c066bae4562a7c35f3ec398c17db5f650c3106ed2924ad5af263",
+        "d6c21e86b31929098381b63efbea3617c7184e5d3c80ac246b97b2918146b91c"
       ]
     },
     "spacr.qt.mask_engine.save_yolo_boxes": {
@@ -101672,13 +101830,15 @@
       "source_blocks_sha256": [
         "d7734e191878e2de43066a43d79bcce5221a245bb6ca621b7ddc331a3918910c",
         "f83f3909066e7e76ff236e7b558634c97b6214caf8b7f1467f0278d7f552e7fd",
+        "34fa1e10dee26acfe23a29d297fadd3b431e73a094f1901541668d13bb7ec1e9",
         "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495"
       ],
-      "source_sha256": "e02c0a1647630f01f2af281a7e758e268642d7db69a46dea489af658d8fcdf80",
-      "text": "데이터 선택 필터링 전략을 읽고 로드 테이블에 적용합니다.\n\n이 테이블을 측정하는 전략은 어쨌든 부하를 수행하지 않으며 게이트제를보고합니다 : 데이터 선택의 한계는 여전히 볼 수 있고 수정 할 수 있습니다, 이는 파일을 거부하는 것보다 더 유용합니다.\n\n:param path: :meth:`save_gates` 가 기록한 JSON 게이트 파일입니다. 읽을 수 없는 파일은 소스 줄에 보고되며 False 를 반환합니다.",
+      "source_sha256": "49b5bce46ba7533bf00dc72028545281bc0e12ef40cc8e230b44d3a34255483d",
+      "text": "데이터 선택 필터링 전략을 읽고 로드 테이블에 적용합니다.\n\n이 테이블을 측정하는 전략은 어쨌든 부하를 수행하지 않으며 게이트제를보고합니다 : 데이터 선택의 한계는 여전히 볼 수 있고 수정 할 수 있습니다, 이는 파일을 거부하는 것보다 더 유용합니다.\n\n저장된 앵커 밀도와 가시성은 편집된 경계를 다시 샘플링하지 않고 복원됩니다. 이전 파일은 현재 편집기 컨트롤을 유지합니다.\n\n:param path: :meth:`save_gates` 가 기록한 JSON 게이트 파일입니다. 읽을 수 없는 파일은 소스 줄에 보고되며 False 를 반환합니다.",
       "translation_source_blocks_sha256": [
         "d68130cfbe26d1436d83e7ef7130353a2ff662f4118cfa2cc3342c5fc50938e7",
         "1aa326dc03c5497de93520ef1cd5b1f24208f223d145dd3b10e2594928dfb721",
+        "34fa1e10dee26acfe23a29d297fadd3b431e73a094f1901541668d13bb7ec1e9",
         "110eee8f35e420ccc77e1613f2ab74ca7ee3f546126b3c112770a6d895534a09"
       ]
     },
@@ -101787,12 +101947,14 @@
     "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates": {
       "source_blocks_sha256": [
         "95c986a735d316b5013fcb91fec18f6b21b4d97b3267ce9427b6569d5b72b75d",
+        "a6ee952b06cac5711c98a5f0acdac0baa38b44a89ed1c8696c0d799b8304337f",
         "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f"
       ],
-      "source_sha256": "6748d44fbe238e7745166b02211ebff2270ac8bfa34b888193bd4330ec7c61d0",
-      "text": "데이터 선택 필터링 전략을 ``path``로 작성합니다.\n\n:param path: 게이팅 전략을 JSON 으로 기록할 파일입니다. 기존 파일은 덮어씁니다.",
+      "source_sha256": "714bf7ff3facb02abdab03bcd1a817bf765ce86c638c7f33eb84a3a3b210714e",
+      "text": "데이터 선택 필터링 전략을 ``path``로 작성합니다.\n\n편집된 볼륨 꼭짓점과 표면은 앵커 밀도 및 가시성 컨트롤과 함께 저장됩니다. 표시 설정은 소속 여부를 근사하지 않습니다.\n\n:param path: 게이팅 전략을 JSON 으로 기록할 파일입니다. 기존 파일은 덮어씁니다.",
       "translation_source_blocks_sha256": [
         "27093136993e745fadb7c281caa8f7f41e574f4824d13a7d576531a30613caea",
+        "a6ee952b06cac5711c98a5f0acdac0baa38b44a89ed1c8696c0d799b8304337f",
         "e7632bba82a949da3bdb19f454f1adca86d1f9e894822ee64e0a99fc5f5b1c35"
       ]
     },
@@ -104970,6 +105132,22 @@
         "5b22e43116a10f106c8b52a9ce0dd9a2efc0f26489bfb655995e7d49a2365465",
         "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
         "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
+      "source_blocks_sha256": [
+        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
+        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
+        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+      ],
+      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
+      "text": "공유 3-D 앵커 편집기에서 기본 공간 TIFF를 엽니다.\n\n기존 2-D 이미지, 마스크 도구 및 YOLO 주석은 별도로 유지됩니다. 시간/채널/RGB TIFF는 깊이로 해석되지 않고 거부됩니다.\n\n:param path: 선택적 공간 TIFF 경로. 지정하지 않으면 파일 선택기를 엽니다.\n:returns: 기본 볼륨 대화 상자, 또는 취소/거부 시 None.",
+      "translation_source_blocks_sha256": [
+        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
+        "9a2cedf269b09b9d40b2e783dfdfc3cf243b7982330d4918b2734beab5056ff9",
+        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
@@ -112852,21 +113030,21 @@
     },
     "spacr.qt.screens.settings_model.regression_design_scan": {
       "source_blocks_sha256": [
-        "9b6c2f2f7b28da7693eab65e26845f116b0952aba25f2d37ec1dba9ea14c36b4",
+        "16d867741877db30c3e82c476b9571fa2687122c81af25093e121cfddb45cdf1",
         "82dff70b6853cac5b5392c2874fb613114407d3989ff00dce45e1dced645d9cb",
-        "7f0642598e55885e75f67b054146674dcc9640f62113a7a9763b66385d3897c8",
+        "0e43b420537b13399aee953fa3bf7407e016d8421caddce9d4446ceb194f3341",
         "406013900845a1429f63ee3ced85e055ab7e29cde52eb2946be494b93d0db1f7",
-        "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
+        "0d98b403d68a96ab0a4d25a8b36fc9524780cb9f2200fb52f900ebaaf4635031",
         "9ec366aca8635a0fd2e590ac42908ff75f5af7c094ac8ec359cb9378152aabc7"
       ],
-      "source_sha256": "d5e151d97dc58062102a046d3f69ad6abbf220f52505b62280a0aaf38d8c6c99",
-      "text": "얼마나 큰 적합이 될 것인지, 그것이 주어진 계산 파일을 읽으십시오.\n\n디자인 : \"유용한 라인은 디자인을 이름 - '389 유전자와 823 마이크로 플레이트 샘플 위치에 우연한 효과를 가리키는' - 그것은 또한 사용자가 그들의 필터가 예기치 않은 일을했다고 말하는 라인이기 때문에.\"\n\n이 함수가 보여 주는 범위를 분명히 구분해야 합니다. sgRNA 카운트 CSV 파일만 읽으므로, 이 설계는 점수 데이터와 병합하기 전, ``fraction_threshold``를 적용하기 전, 그리고 마이크로플레이트 샘플 위치 필터를 적용하기 전의 입력 파일 상태를 나타냅니다. 이는 의도된 동작입니다. 실행 후 정리된 카운트와 비교할 기준값을 제공하며, 두 값을 비교하면 예상과 다르게 작동한 필터를 확인할 수 있습니다. 각 호출자는 어떤 값을 보고하는지 명시합니다.\n\n결코 던지지 않는다.그것은 이미 시작되고있는 일치의 옆에 콘솔에 문장을 넣기 위해 실행됩니다; 던지는 스캔은 그것과 함께 실행의 자신의 메시지를 가져올 것입니다.이 작업을 수행 할 수없는 것은 ``None``로 돌아와 ``note`` 이유를 말합니다.\n\n:param settings: 회귀 설정입니다. sgRNA 개수 CSVs 는 ``count`` 항목(``paired_data`` 안)에서 가져오며, 없으면 레거시 ``count_data`` 에서 가져옵니다.\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.",
+      "source_sha256": "f39e119a4bf25f6f6409b96e6296c728cbb5a7e1277099423959d6b8cea2fb56",
+      "text": "카운트 입력 테이블에서 읽어 낸, 적합이 얼마나 커질지에 대한 정보.\n\n디자인 : \"유용한 라인은 디자인을 이름 - '389 유전자와 823 마이크로 플레이트 샘플 위치에 우연한 효과를 가리키는' - 그것은 또한 사용자가 그들의 필터가 예기치 않은 일을했다고 말하는 라인이기 때문에.\"\n\n이것이 무엇이고 무엇이 아닌가. 이 함수는 sgRNA 카운트 입력만 읽으므로, 이는 입력 파일에 담긴 그대로의 설계입니다. 즉 점수 데이터와 병합하기 전, ``fraction_threshold`` 적용 전, 웰 필터 적용 전의 상태입니다. 이는 의도된 것입니다 -- 실행 자체의 정리 후 카운트와 비교할 기준이 되는 수치이며, 이 비교를 통해 예상치 못한 동작을 한 필터가 드러납니다. 모든 호출자는 어느 쪽인지 명시합니다.\n\n결코 던지지 않는다.그것은 이미 시작되고있는 일치의 옆에 콘솔에 문장을 넣기 위해 실행됩니다; 던지는 스캔은 그것과 함께 실행의 자신의 메시지를 가져올 것입니다.이 작업을 수행 할 수없는 것은 ``None``로 돌아와 ``note`` 이유를 말합니다.\n\n:param settings: 회귀 설정; 카운트 경로와 선택적 ``count_table`` 이름은 ``paired_data``에서 가져오며, 쌍을 이룬 카운트가 없으면 경로를 레거시 ``count_data``에서 가져옵니다.\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.",
       "translation_source_blocks_sha256": [
-        "9b6c2f2f7b28da7693eab65e26845f116b0952aba25f2d37ec1dba9ea14c36b4",
+        "16d867741877db30c3e82c476b9571fa2687122c81af25093e121cfddb45cdf1",
         "c5d912a3f53cabdcb82a48b6ee5715038066b0e9c7b5b7e0a857d337a3ae0273",
-        "81482eb87975579c80d9882e3f0e6ec54b5c891493d9f74c3269f09265f509f2",
+        "f198604fab9319f34a1034ea7294435b7434700e4faff145ebaef3505b9f41de",
         "6b87f9af6718b0791434a540603036c6afb3c0d7605dffa37c1cbc258487a743",
-        "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
+        "0d98b403d68a96ab0a4d25a8b36fc9524780cb9f2200fb52f900ebaaf4635031",
         "9ec366aca8635a0fd2e590ac42908ff75f5af7c094ac8ec359cb9378152aabc7"
       ]
     },
@@ -140826,22 +141004,22 @@
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget": {
       "source_blocks_sha256": [
-        "66518968ae2d3938e4d2a7248ffe219560bf8a9e33da7b08b3add3d80bf2d429",
-        "1a8b42f2d2e4503ac7041aae0a24c3711ded0586f5a5f3e344f2c151672304da",
+        "0cea675f583a20c5e0fba9704eab5fd61499cd52d6d713b8ddc38aa5e0bc520e",
+        "892f02642e630a53c1ca30bee2c142b9343e81bcdf9a73b730ab8bbc57851f94",
         "4744c9a7b9d536414a859f8db4e1f1f3508fc1335dc95f2ae761b07536aff97c",
-        "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
+        "97e2d7a934760480fc3c9447069c7db5cefea5a5501f0a59cfe078001c0e34ef",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "3947ff34d3ff17bea3330e5a99d5b5b65441cbceb26696f8bfa50a1c5569298c",
         "cb8f68674dadf8106df8cd6d7cb9d19f7d387bc13387c13c108b21ee6cada6ee",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "1be9dae75de7fbf11a2aaa3bae6b864f47d9eb4950d079667528a450cd8f5811",
-      "text": "편집할 수 있는 단일 로-퍼-실험실 마이크로 플레이트 점수 / 계산 / 데이터베이스 입력 계약.\n\n라인은 하나의 실험실 마이크로 플레이트입니다 : 그것의 점수 CSV 그녀의 숫자 CSV 모든 세 열은 추가로 채워집니다 - 각 도착은 파일 이름 토큰에서 전체 테이블을 다시 제안합니다 - 그래서 데이터베이스는 반대 순서로 떨어집니다. CSVs 여전히 올바른 실험실 마이크로 플레이트에 착륙합니다.이것은 규칙이며, 세 번째 열은 자신의 목록을 유지하는 대신 그것을 순종합니다.\n\nNO 데이터베이스가있는 플레이트는 합법적이며 오류가 아닙니다 : 회복은 점수와 계산에 고정되어 있습니다. 데이터바이스는 플레트의 측정이 다운로드 스트리밍에서 사용할 수 있도록하는 것입니다, 그래서 그것의 부재는 실패하는 대신 거기에 플레드를 방해합니다.\n\n:param value: 테이블은 이미 저장되었고, 플레이트 당 1 개의 입력입니다.다음에 도착하는 모든 것은 파일 이름 토큰 대신 전체 테이브를 다시 제안합니다.이것은 데이터베이스가 반대 순서로 떨어지는 것을 허용합니다. CSVs 여전히 오른쪽 플레이트에 땅.\n:param parent: 상위 위젯입니다.\n실험실별로 하나의 마이크로 플레이트 테이블을 만드십시오.\n\n:param value: 그들은 이미 구원을 받았습니다.\n:param parent: 상위 위젯입니다.",
+      "source_sha256": "a162490117b9e261bf2382b5bbe0746f15b7d8c52b287a7fc27e8c7f638efb1f",
+      "text": "플레이트당 한 행으로 편집 가능한 점수/카운트 입력 및 측정 링크.\n\n한 행은 하나의 플레이트입니다. 즉 그 플레이트의 점수 및 카운트 소스 경로, 해당 소스 내의 선택적 명명 테이블, 그리고 그 플레이트의 객체별 테이블이 들어 있는 별도의 측정 데이터베이스입니다. 소스 경로는 추가 방식으로 채워집니다 -- 새로 들어올 때마다 파일 이름 토큰을 바탕으로 전체 테이블을 다시 제안합니다 -- 따라서 파일과 반대 순서로 놓인 데이터베이스도 올바른 플레이트에 배정됩니다. 이것이 규칙이며, 세 번째 열은 자체 목록을 유지하지 않고 이 규칙을 따릅니다.\n\nNO 데이터베이스가있는 플레이트는 합법적이며 오류가 아닙니다 : 회복은 점수와 계산에 고정되어 있습니다. 데이터바이스는 플레트의 측정이 다운로드 스트리밍에서 사용할 수 있도록하는 것입니다, 그래서 그것의 부재는 실패하는 대신 거기에 플레드를 방해합니다.\n\n:param value: 이미 저장된 테이블로, 플레이트당 하나의 항목입니다. 이후에 들어오는 모든 항목은 덧붙이는 대신 파일 이름 토큰을 바탕으로 전체 테이블을 다시 제안하며, 이 덕분에 소스 파일과 반대 순서로 놓인 데이터베이스도 올바른 플레이트에 배정됩니다.\n:param parent: 상위 위젯입니다.\n실험실별로 하나의 마이크로 플레이트 테이블을 만드십시오.\n\n:param value: 그들은 이미 구원을 받았습니다.\n:param parent: 상위 위젯입니다.",
       "translation_source_blocks_sha256": [
-        "8477acf8545b7060d04a9a8b542c3fa485f249be178eb14114ea2cac18aea313",
-        "a0bd34a9e3af45eac9c62d9f7a9bc79ee0aa1f2aa4234675f9c053e6361c9e05",
+        "7c0187a74f2d76d748f88e8b0a546be7447277c2caee031ff2fe66d791aa3b52",
+        "38544d6891d66a422e537f873100bc8ac6d671a185c0c8f9cc011256e42bc467",
         "4744c9a7b9d536414a859f8db4e1f1f3508fc1335dc95f2ae761b07536aff97c",
-        "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
+        "97e2d7a934760480fc3c9447069c7db5cefea5a5501f0a59cfe078001c0e34ef",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "8927041aa1ce77d02324863232ac441b1e738f121bf28a7510c23d80a714f1aa",
         "cb8f68674dadf8106df8cd6d7cb9d19f7d387bc13387c13c108b21ee6cada6ee",
@@ -145300,13 +145478,13 @@
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.drag_mode": {
       "source_blocks_sha256": [
-        "fddde89a3af427df4e064229a6d534b831c6c53dc28dbdf723827b840bc256dc",
+        "771f724dc10b0f24290acafb37e7c02b6e3d8f0e81867990371cccbbc213e296",
         "8ad04673687e64083770f9dfa7eff62caa97756bd46a4928f563aed01a904e5c"
       ],
-      "source_sha256": "9da497bc2a50845ab3f180ee6e8c6c1222b2a518d9c6cf0e30714eafddf9ecb4",
-      "text": "지금 끌리는 것은 무엇입니까 : 시야를 회전하거나 끌어 들이는 것입니다.\n\n:returns: 모드 이름, 기본적으로 ``spin``로 표시됩니다.",
+      "source_sha256": "6d4543ace1c3dab4ee373b0fe89cf2964f3c691561a9681a1f8ff782ed365cd6",
+      "text": "현재 드래그 동작: 회전, 그리기 또는 볼륨 경계 편집.\n\n:returns: 모드 이름, 기본적으로 ``spin``로 표시됩니다.",
       "translation_source_blocks_sha256": [
-        "fddde89a3af427df4e064229a6d534b831c6c53dc28dbdf723827b840bc256dc",
+        "771f724dc10b0f24290acafb37e7c02b6e3d8f0e81867990371cccbbc213e296",
         "8ad04673687e64083770f9dfa7eff62caa97756bd46a4928f563aed01a904e5c"
       ]
     },
@@ -145542,14 +145720,14 @@
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.set_drag_mode": {
       "source_blocks_sha256": [
-        "da81bf68743aa647b2fb352488829f0f024c9d6e586a0af3594aad4cc22068d0",
-        "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e"
+        "b4a1ec9cb84f3bed093421e4fa2e6b8532038205ee6531df838ea609051f330b",
+        "cd939610e6e23121b7d651d53febacf22f0d33b7e332b544a794fa1a4dfe1e15"
       ],
-      "source_sha256": "6f5d5761dca3667955ebdb34ef9ffea345a18b2d184168764453697167da8fd9",
-      "text": "``'spin'`` 또는 ``'draw'``. 그들은 하나의 버튼을 위해 경쟁했다.\n\n:param mode: ``\"spin\"`` 또는 ``\"draw\"`` 입니다. 그 밖의 값은 ``\"spin\"`` 으로 취급됩니다.",
+      "source_sha256": "8b00d13a5dd4fa2e303e3ab6c2997ce29142cd15bf81b0516cf5955d541ce7d8",
+      "text": "회전, 그리기 또는 명시적 경계 편집을 선택합니다.\n\n:param mode: ``\"spin\"``, ``\"draw\"`` 또는 ``\"edit\"``. 그 외의 값은 ``\"spin\"``으로 간주됩니다.",
       "translation_source_blocks_sha256": [
-        "da81bf68743aa647b2fb352488829f0f024c9d6e586a0af3594aad4cc22068d0",
-        "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e"
+        "b4a1ec9cb84f3bed093421e4fa2e6b8532038205ee6531df838ea609051f330b",
+        "cd939610e6e23121b7d651d53febacf22f0d33b7e332b544a794fa1a4dfe1e15"
       ]
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.set_gate_enabled": {
@@ -145734,6 +145912,20 @@
       "translation_source_blocks_sha256": [
         "ea98f963f8541a8ac7f0f128ee8d731b96c2e2e177d0cc07f239496f6741967a",
         "831417f8a5c16263e2c004741a03b6d6e03ca652dbea9e92cccd17721d44a265"
+      ]
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas.volume_surface_at": {
+      "source_blocks_sha256": [
+        "fe2912b61c576e62ce53d074f2a7920cb2a225914ce07754e4e47b9a2ce66553",
+        "08ec8f5dee1b52460afb805705f35d457e22b8aa5b8fa2d91ebf8b7370b28324",
+        "15080cab25dd2ac3be85be430723f613ccb53ddb364a6b33a64c20433b2d7df1"
+      ],
+      "source_sha256": "a33bc78a589b89a625ec5549a6b87ed7f34e4764d505130f43b4a283b2012a31",
+      "text": "카메라 회전 후 가장 가까운 실제 경계 삼각형을 선택합니다.\n\n:param event: 현재 볼륨 축의 Matplotlib 포인터 이벤트.\n:returns: ``(gate name, surface identifier)`` 또는 ``None``.",
+      "translation_source_blocks_sha256": [
+        "fe2912b61c576e62ce53d074f2a7920cb2a225914ce07754e4e47b9a2ce66553",
+        "08ec8f5dee1b52460afb805705f35d457e22b8aa5b8fa2d91ebf8b7370b28324",
+        "15080cab25dd2ac3be85be430723f613ccb53ddb364a6b33a64c20433b2d7df1"
       ]
     },
     "spacr.qt.widgets.gate_editor.GateEditorPanel": {
@@ -146167,13 +146359,17 @@
     "spacr.qt.widgets.gate_settings.GateEditorSettings": {
       "source_blocks_sha256": [
         "6e4730832ef9a0ca6d827e73b021b160c44b7ddcb906e2118eb4d05be0ec0221",
-        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5"
+        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5",
+        "0392f929b7d8e5e94febc38f7634dabc723a744c28571c17f0d4e721cf3cc207",
+        "e2663e64e02425e3ad91b027c9e7fd5bc521ebcb396b78b68cf717b8b51fbbc7"
       ],
-      "source_sha256": "66b684e0c582ccc1a0b5edbd328e891df0b5af7a6f2b005a59a937569491085f",
-      "text": "모든 데이터 선택 제한 편집기가 구성되어 있습니다.\n\nFrozen: settings 대체 대량 대신 변형, 그래서 화면은 그것이 주어진 것과 비교하고 테이블을 다시 읽을 수있다 그것은 실제로 읽기 비용이 변경 된 경우에만.",
+      "source_sha256": "4641a541cb4a268cff2512ad76b582de88667b79ab4ea455fb1eeb0cba07b10f",
+      "text": "모든 데이터 선택 제한 편집기가 구성되어 있습니다.\n\nFrozen: settings 대체 대량 대신 변형, 그래서 화면은 그것이 주어진 것과 비교하고 테이블을 다시 읽을 수있다 그것은 실제로 읽기 비용이 변경 된 경우에만.\n\n:param anchor_density: 표시되는 편집 앵커의 모서리 세분 수(1에서 8까지). 게이트에 저장된 기하 구조는 절대 변경되지 않습니다.\n:param show_anchors: 편집 가능한 경계 앵커를 표시하고 활성화합니다.",
       "translation_source_blocks_sha256": [
         "a80bb10a60cf031445b385ed2ef630b503d14f5155506548c60b6606528f3080",
-        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5"
+        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5",
+        "4740dff3d61739d0185fb1a1d5738ce8d513eaccd95fa0908eb299478a33b3d7",
+        "e2663e64e02425e3ad91b027c9e7fd5bc521ebcb396b78b68cf717b8b51fbbc7"
       ]
     },
     "spacr.qt.widgets.gate_settings.GateEditorSettings.__post_init__": {
@@ -146938,6 +147134,232 @@
         "4afabcee864d72d345c81c11bdd4fe91744a488bd5313e75b2e93798438fe832",
         "e7376b18ce5e0c065dec2c1cfe70b5138612028bc4ca5d1eddacc0642317ff34",
         "98ca330358cdbd5744ac9e3dbf8df2ece853889e3529b7b647ca6535da384a3a"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate": {
+      "source_blocks_sha256": [
+        "d3eaf9d2ba2da3d5fd403d7c45fc022b870939f961649b4b29d7700a1b725b80",
+        "cf6b9b1b5338d84ab511ad6e588f4d4e5ebbc2b0675575b18631c554ef548316",
+        "bce3be498f079e73a75c43601594272f7475ffc6777769dc8427dd65de05ce38",
+        "65d0dbbdb282489670f00f9b7359ca850fc4ff4338b1876f248103fb9b92404e",
+        "63b3e43319369f5194df5def73606f5531f712e14b9efdb4222d1fb7dadfde2b",
+        "10145730e02194e0130bf84de5d453301b632e8a99d3ade4925507f186af0f46",
+        "a01f870875a5596fa823a5df546789d6bea2cc80a6a43d628933d15e05104801",
+        "2dc750cfd420a9e33763bfb5c4256d1c1f99b4aeb96d4371980b23436f52c021",
+        "caa2ca217306daac2dce7ec77fe96d110f96ede3b9d6efa61e313b5cd8efc604"
+      ],
+      "source_sha256": "8f643eeb8fb71860fc05e007e8d4c1e420979fa6eec91dca82518d68f0acc65b",
+      "text": "그리기와 게이팅 모두에 사용되는 닫힌 편집 가능 조각별 선형 볼륨.\n\n:param name: 게이팅 계층 구조에서 사용하는 고유한 게이트 이름.\n:param parent: 이 볼륨의 소속을 제한하는 선택적 상위 게이트.\n:param x_column: 첫 번째 데이터 축을 따른 측정값.\n:param y_column: 두 번째 데이터 축을 따른 측정값.\n:param z_column: 세 번째 데이터 축을 따른 측정값.\n:param vertices: 유한하고 서로 다른 삼차원 경계 좌표.\n:param faces: 공유 꼭짓점을 인덱싱하는, 일관되게 방향이 지정된 삼각형.\n:param surface_groups: 각 삼각형에 대한 선택 가능한 표면 식별자. 같은 그룹의 삼각형은 함께 이동합니다. 비어 있으면 삼각형마다 하나의 그룹을 할당합니다.",
+      "translation_source_blocks_sha256": [
+        "88e66539434d8e16d3a396ed8b4c58bab2379db5e34eb3e80d44b40f9d007cae",
+        "e237fb13b7d9d5f5e031dfb0f68d754692d82547ddb0e92c4ea0cb1fec9a8f54",
+        "8f7a0de2c1f5ff53a681b2b12ead6b5d93ab23bb8a2d96d7f571a62b29637840",
+        "65d0dbbdb282489670f00f9b7359ca850fc4ff4338b1876f248103fb9b92404e",
+        "63b3e43319369f5194df5def73606f5531f712e14b9efdb4222d1fb7dadfde2b",
+        "10145730e02194e0130bf84de5d453301b632e8a99d3ade4925507f186af0f46",
+        "a01f870875a5596fa823a5df546789d6bea2cc80a6a43d628933d15e05104801",
+        "2dc750cfd420a9e33763bfb5c4256d1c1f99b4aeb96d4371980b23436f52c021",
+        "caa2ca217306daac2dce7ec77fe96d110f96ede3b9d6efa61e313b5cd8efc604"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__": {
+      "source_blocks_sha256": [
+        "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5"
+      ],
+      "source_sha256": "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5",
+      "text": "모든 좌표, 경계 연결 및 표면을 고정하고 검증합니다.",
+      "translation_source_blocks_sha256": [
+        "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.anchors": {
+      "source_blocks_sha256": [
+        "4592c53591117b9d62bceafb8da41032f1a77300da61250d566d9f3302c2cdb4",
+        "bf907558691f231110b8e06ef0fe4df6f11ba0e93ecd112ba3bd2ea09bc5542d",
+        "330a9ba2899bfd70be150747c43290da6cf0b875a05ee5b3e937d624b3d01f31",
+        "224954b10e0b10cc4393c8764c5077f449536bf39b8b995be59af53a70dcbac5"
+      ],
+      "source_sha256": "26ae553ddf47a9f53152f842eb65f172ab34c19c488815b350340bf27b5a9da1",
+      "text": "균일한 간격의 무게중심 앵커로 모든 표면과 모서리를 샘플링합니다.\n\n밀도는 표시되는 편집 핸들만 변경하며 과학적 기하 구조는 절대 변경하지 않습니다. 공유 모서리와 꼭짓점은 하나의 정규 핸들을 노출합니다.\n\n:param density: 삼각형 모서리당 세분 수, 1에서 8까지.\n:returns: 결정적 표면 순서로 정렬된 고유 앵커.",
+      "translation_source_blocks_sha256": [
+        "4592c53591117b9d62bceafb8da41032f1a77300da61250d566d9f3302c2cdb4",
+        "bf907558691f231110b8e06ef0fe4df6f11ba0e93ecd112ba3bd2ea09bc5542d",
+        "330a9ba2899bfd70be150747c43290da6cf0b875a05ee5b3e937d624b3d01f31",
+        "224954b10e0b10cc4393c8764c5077f449536bf39b8b995be59af53a70dcbac5"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.centre": {
+      "source_blocks_sha256": [
+        "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd"
+      ],
+      "source_sha256": "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd",
+      "text": "평면 도구를 위해 꼭짓점 중심의 처음 두 성분을 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.columns": {
+      "source_blocks_sha256": [
+        "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292"
+      ],
+      "source_sha256": "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292",
+      "text": "모든 꼭짓점 좌표에 대응하는 측정 열.",
+      "translation_source_blocks_sha256": [
+        "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.describe": {
+      "source_blocks_sha256": [
+        "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120"
+      ],
+      "source_sha256": "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120",
+      "text": "측정값과 실제 편집 가능한 경계 크기를 설명합니다.",
+      "translation_source_blocks_sha256": [
+        "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate": {
+      "source_blocks_sha256": [
+        "796315c2ee87d6a070d059499e4efa5d78477963dea17485d45734f914048aa4",
+        "ebf7a797869a243e20cbdbbd065f2e63e5879422594d2d8a4e8ca6853e621631",
+        "759a80ed5e9a6783b50bc9aede35ee8258b6de94daa1fe10777162afa1398b7e",
+        "2d5b8b09260252da838bde97b6919dfa09719b8be081dd68159ccd666a9e9c15",
+        "bacafe906a8acc4ea6f6894322140671dbcb1d03b1415e3fcdfe381e272efc62",
+        "4a3de99a5e7b70d843ee73883efe7a4c9a5f65613c9e060e7255220106177dce",
+        "2c225b8dcd41961241e1182c42f71e6c9da30ed60ab78c76f8e671f8da3dc96d"
+      ],
+      "source_sha256": "7a7d92c175602e5c8a81f3b28cf8f600d10d21b11444f8a55a744ecb163ea0ba",
+      "text": "상자, 원기둥, 프리즘, 타원체 또는 뷰 게이트에 대한 공유 경계를 만듭니다.\n\n곡면은 편집 시 명시적인 조각별 선형 경계가 됩니다. 원래의 해석적 게이트는 커밋할 때까지 변경되지 않습니다.\n\n:param gate: 기존 삼차원 게이트와 그 계층 구조.\n:param limits: 무계인 원래 면 또는 뷰 게이트의 유한 깊이에만 사용되는 유한 축 경계로, ``gate.columns`` 순서를 따릅니다. 필요한 경계를 생략하면 거부됩니다. 뷰 게이트는 편집 시 이 한계를 투영한 가장 가까운 깊이와 가장 먼 깊이에서 경계가 정해집니다.\n:param segments: 곡면 형상의 원주 샘플 수, 8에서 128까지.\n:param depth_steps: 균등한 간격의 축 방향 구간 수, 1에서 16까지.\n:returns: 공유된 선택 가능 표면을 가진 닫힌 볼륨.",
+      "translation_source_blocks_sha256": [
+        "c67b49cdb6ac0a83da27a680c9c9fa62131689828e7199b6750bf1e4b7d2e3dc",
+        "a441a621352ea5788240fee5bdea1f027879f24b8deb966e94193e66004586ca",
+        "0dbfda1b81d32d1534a37deb60b6c951be5238ab8443b454eee7f43b786c490c",
+        "5111f0e891c82ad2937d1e2fe13f3f6aabff83c32489bb1ecfb023b703a714ef",
+        "bacafe906a8acc4ea6f6894322140671dbcb1d03b1415e3fcdfe381e272efc62",
+        "4a3de99a5e7b70d843ee73883efe7a4c9a5f65613c9e060e7255220106177dce",
+        "2c225b8dcd41961241e1182c42f71e6c9da30ed60ab78c76f8e671f8da3dc96d"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate.bound": {
+      "source_blocks_sha256": [
+        "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a"
+      ],
+      "source_sha256": "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a",
+      "text": "보이지 않는 범위를 임의로 만들지 않고 하나의 명시적 경계를 결정합니다.",
+      "translation_source_blocks_sha256": [
+        "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.kind": {
+      "source_blocks_sha256": [
+        "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30"
+      ],
+      "source_sha256": "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30",
+      "text": "저장되는 편집 가능 볼륨 태그.",
+      "translation_source_blocks_sha256": [
+        "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.mask": {
+      "source_blocks_sha256": [
+        "6913cd31a980e4f6fb5b0ba482416e5a4c63b75072c52ffaed0c6acf8a062736",
+        "d420fba8d94ab646e67e6a20f83095062c6428054733b3f4841448cf0c30d855",
+        "a662071ce78fdf986c832dbd838269c84f351ea2509dca73ffe7ad3d01ee12d3",
+        "d29b21b0e9a0a6752f7e625071d8cec07cf989f129ebabf1429187399842212c"
+      ],
+      "source_sha256": "85f3910eda2471c9fa30b57141ea7f13cd6f6860aa719f0e272f79f61dee33d0",
+      "text": "부호 있는 입체각을 사용하여 동일한 닫힌 메시에 대해 측정 점을 검사합니다.\n\n경계 위의 점은 포함됩니다. 유한하지 않은 측정값은 제외됩니다. 복셀 볼륨을 할당하지 않고 삼각형당 4096개 점으로 작업량이 제한됩니다.\n\n:param frame: 세 개의 게이트 열을 모두 포함하는 측정값.\n:returns: 원래 순서대로 행마다 하나의 불리언 값.",
+      "translation_source_blocks_sha256": [
+        "6913cd31a980e4f6fb5b0ba482416e5a4c63b75072c52ffaed0c6acf8a062736",
+        "d420fba8d94ab646e67e6a20f83095062c6428054733b3f4841448cf0c30d855",
+        "c09c5e56443b8dc03fb2152884bcd4b54cf002679f404c88597d3c5eb65f8181",
+        "d29b21b0e9a0a6752f7e625071d8cec07cf989f129ebabf1429187399842212c"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_surfaces": {
+      "source_blocks_sha256": [
+        "8bcca0d928527686ea7f22f2a59a5da960958c7d5f8cfea34e11338cc3b0341d",
+        "6b991e09d11ce4718eb8426ad9276b1a18d61cdfe00b66f7fcc16ebd18039e6e",
+        "7b6ef655f7b5cf6a5052244472dc217fbc01737325f2f55c363e327281b50010"
+      ],
+      "source_sha256": "7ff9a839bb380c9b2c472ea0be69dde27d6fd41b9bd371be92b3884f43b2cb8f",
+      "text": "연결성을 유지하면서 선택한 표면과 공유 앵커를 한 번 이동합니다.\n\n:param groups: 기존 표면 식별자. 중복은 아무 효과가 없습니다.\n:param delta: 세 측정 차원에서의 변위.",
+      "translation_source_blocks_sha256": [
+        "8bcca0d928527686ea7f22f2a59a5da960958c7d5f8cfea34e11338cc3b0341d",
+        "6b991e09d11ce4718eb8426ad9276b1a18d61cdfe00b66f7fcc16ebd18039e6e",
+        "7b6ef655f7b5cf6a5052244472dc217fbc01737325f2f55c363e327281b50010"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_vertices": {
+      "source_blocks_sha256": [
+        "18e201a77cb007f7ce410b508889f53b5d24a0e74f586f4629b75d89ded2824e",
+        "1289cc1d69e56f681d1bd36ebf995e95405269dad1b86bd531911e5747657b0d",
+        "5d4699044f2321ca513029e9d0160061fe7783aca5e16986babd415e48b77d61",
+        "85ad43f9df9d8372f29da956b51a4bdac8fed69a24e3e8bdcba8327b0326c8e6"
+      ],
+      "source_sha256": "7c0045168205e6697244b08f1546d7cd0b120c4cf9ac2650bbf296271e2a9c48",
+      "text": "선택한 각 공유 꼭짓점을 한 번 변위시키고 새 경계를 검증합니다.\n\n:param indices: 꼭짓점 인덱스. 중복된 인덱스는 제거됩니다.\n:param delta: 세 데이터 축 각각을 따른 변위.\n:raises GateError: 인덱스가 유효하지 않거나, 움직임이 유한하지 않거나, 기하 구조가 유효하지 않은 경우.",
+      "translation_source_blocks_sha256": [
+        "18e201a77cb007f7ce410b508889f53b5d24a0e74f586f4629b75d89ded2824e",
+        "1289cc1d69e56f681d1bd36ebf995e95405269dad1b86bd531911e5747657b0d",
+        "5d4699044f2321ca513029e9d0160061fe7783aca5e16986babd415e48b77d61",
+        "85ad43f9df9d8372f29da956b51a4bdac8fed69a24e3e8bdcba8327b0326c8e6"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.scaled": {
+      "source_blocks_sha256": [
+        "6e5c7968429b442c440db9ffd83203f34e70407a13901fd64a03b30ebe1b66ae",
+        "912e37d4a47f12243ed74d26e763d3ec3792a3b5acdf3dc815d2e1edbd62bf2d",
+        "c01be27f4c847341f7e9c50741cd448a70908dbe67c7e4a0cebfa0ece81e27fd"
+      ],
+      "source_sha256": "9774185b661e1d532ec85661ad18f76945feff549f52232fa8b646c290ad7029",
+      "text": "중심점 또는 지정한 평면 앵커를 기준으로 세 차원 모두의 크기를 조정합니다.\n\n:param factor: 유한한 양의 배율.\n:param about: 선택적 첫 번째/두 번째 축 중심. 깊이는 중심점을 사용합니다.",
+      "translation_source_blocks_sha256": [
+        "6e5c7968429b442c440db9ffd83203f34e70407a13901fd64a03b30ebe1b66ae",
+        "912e37d4a47f12243ed74d26e763d3ec3792a3b5acdf3dc815d2e1edbd62bf2d",
+        "c01be27f4c847341f7e9c50741cd448a70908dbe67c7e4a0cebfa0ece81e27fd"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.to_dict": {
+      "source_blocks_sha256": [
+        "90119b4f94a1f948d3b163d0320ac027af7a781ac389de0090be51f6d107a20e"
+      ],
+      "source_sha256": "90119b4f94a1f948d3b163d0320ac027af7a781ac389de0090be51f6d107a20e",
+      "text": "정확한 메시, 그룹화된 표면 및 게이트 계층 구조를 직렬화합니다.",
+      "translation_source_blocks_sha256": [
+        "9873349e7b671fad30989d8b3384627f4cb73d4676f5214c380c7db3ab66ea3a"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.translated": {
+      "source_blocks_sha256": [
+        "aead03d2dc2fcca22148340b1ee8d70976e3910412cc0797a6db6211024ab830",
+        "d70385d65ca0d5741accb60f324e33116931081f2bd1d76ea38635545c1a125b",
+        "fba5d4f40ec1479863041501fffbe1f46e5d5515cda7c0789ce511f274cd8681"
+      ],
+      "source_sha256": "f4bbc5ed23c13f86e95a54c2fdf2fe7cebf227282ba71aa394b6f2bc09df3240",
+      "text": "깊이와 모든 공유 꼭짓점을 유지하면서 처음 두 축을 이동합니다.\n\n:param dx: 측정 단위로 나타낸 첫 번째 축 변위.\n:param dy: 측정 단위로 나타낸 두 번째 축 변위.",
+      "translation_source_blocks_sha256": [
+        "aead03d2dc2fcca22148340b1ee8d70976e3910412cc0797a6db6211024ab830",
+        "d70385d65ca0d5741accb60f324e33116931081f2bd1d76ea38635545c1a125b",
+        "fba5d4f40ec1479863041501fffbe1f46e5d5515cda7c0789ce511f274cd8681"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor": {
+      "source_blocks_sha256": [
+        "7b6d12ffc4cb7f7beaaafceb14a6bdc8513cbeb759f2cd37b9da9e3dbba4230d",
+        "a52716eceeec9f75808088db0c4b9f688ef3b86daed4a92cd57adb12dc84f1a1",
+        "5bb2ba108ac2fbeafe200390a6342a21508fd1a113cf079bb14f9c43c640a67d",
+        "97345f60982fc3cb185079cc8d731babbdb8c9b1d110ca9f0224bcbc2d778b6e",
+        "7dd93930a1a4d3180c4098e701731c0d3cf522062ce9fa33246e43591217477b"
+      ],
+      "source_sha256": "a7b969dbccacedf95463a9c8018bfbe85b360047a6a108a68bf40b1fe46fabd0",
+      "text": "기존 꼭짓점을 이동하거나, 모서리/표면 앵커를 삽입하여 이동합니다.\n\n모서리 앵커를 삽입하면 인접한 모든 삼각형이 함께 분할되므로 표면 사이에 틈이 생기지 않습니다. 반복 편집으로 열이 변경되는 일은 없습니다.\n\n:param role: :meth:`anchors`가 반환하는 정규 역할.\n:param point: 세 측정 차원에서의 목표 좌표.\n:raises GateError: 유효하지 않은 역할, 유한하지 않은 목표 또는 유효하지 않은 변형.",
+      "translation_source_blocks_sha256": [
+        "7b6d12ffc4cb7f7beaaafceb14a6bdc8513cbeb759f2cd37b9da9e3dbba4230d",
+        "a52716eceeec9f75808088db0c4b9f688ef3b86daed4a92cd57adb12dc84f1a1",
+        "5bb2ba108ac2fbeafe200390a6342a21508fd1a113cf079bb14f9c43c640a67d",
+        "97345f60982fc3cb185079cc8d731babbdb8c9b1d110ca9f0224bcbc2d778b6e",
+        "7dd93930a1a4d3180c4098e701731c0d3cf522062ce9fa33246e43591217477b"
       ]
     },
     "spacr.qt.widgets.gate_spec.EllipseGate": {
@@ -148924,6 +149346,20 @@
         "2fdefbff188a05d69da89e7ae54c0fc35ff7fbaab98a6ff1e44b200b370cc36c"
       ]
     },
+    "spacr.qt.widgets.gate_spec.VolumeAnchor": {
+      "source_blocks_sha256": [
+        "62305811be8b97f47bbc0f631b12081c7b1f5411f1c4f3217159d38588d998cc",
+        "5956556497f99476e229178d01fd7dedd1b421303957f1346e6d83347632cba0",
+        "55d7d1a93c2639bd6d389f85c3ed5e7192a01f2ee71aa0be71b67f3f11b17eeb"
+      ],
+      "source_sha256": "83297e197eda933b77f90d14c1ad6efe8cd67eb01bec6150e4eba4a404b338ca",
+      "text": "경계 점과 그 안정적인 무게중심 편집 역할.\n\n:param point: 게이트의 세 열 순서에 따른 좌표.\n:param role: 편집에서 사용하는 정규 꼭짓점/모서리/삼각형 가중치.",
+      "translation_source_blocks_sha256": [
+        "62305811be8b97f47bbc0f631b12081c7b1f5411f1c4f3217159d38588d998cc",
+        "7442c2a4ec3992030c65365cbde46fd92e7ea745dd4c1980494299c24ee32d2e",
+        "55d7d1a93c2639bd6d389f85c3ed5e7192a01f2ee71aa0be71b67f3f11b17eeb"
+      ]
+    },
     "spacr.qt.widgets.gate_spec.WandError": {
       "source_blocks_sha256": [
         "2c644b2b57daee03b88c9582adcb0cd95c3c0053af468a425be6f985a73efa5c"
@@ -148944,6 +149380,36 @@
       "translation_source_blocks_sha256": [
         "c4a2443a566ab76d53f93e2e19c501c2e03d8cda6b7233770edc68ce44194bae",
         "b29d06bbc97708aebffba5aa2a9a993c61ad9f5ca003aff93843d9697c2c6573"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._mesh_triangle_contact.cross": {
+      "source_blocks_sha256": [
+        "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec"
+      ],
+      "source_sha256": "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec",
+      "text": "두 평면 벡터의 부호 있는 넓이.",
+      "translation_source_blocks_sha256": [
+        "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._triangulate_volume_cap.turn": {
+      "source_blocks_sha256": [
+        "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab"
+      ],
+      "source_sha256": "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab",
+      "text": "후보 삼각형 하나의 방향이 있는 평면 넓이.",
+      "translation_source_blocks_sha256": [
+        "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._validate_edited_polygon.cross": {
+      "source_blocks_sha256": [
+        "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714"
+      ],
+      "source_sha256": "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714",
+      "text": "두 모서리 벡터의 정규화된 부호 있는 평면 넓이.",
+      "translation_source_blocks_sha256": [
+        "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714"
       ]
     },
     "spacr.qt.widgets.gate_spec.best_cluster_candidate": {
@@ -157263,15 +157729,17 @@
         "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
         "f350ab15190913cb5a93bf9dd3d402c1c6c225ae4be6af6c9419242af2786b6e",
         "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
-        "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923"
+        "8d7703dde8e227af9a9a7d4e87678c61cf0752cbe88b2a175264d85b2a38b2d2",
+        "832feba1f5b08c47a7ab9640073ad512503c55fc44ff3f0627c4e15c579e46cc"
       ],
-      "source_sha256": "a776ae68b80affa923c8a943668486f6705e8fa701f73f9e2c285561036d6b63",
-      "text": "측정 DB 를 읽는 모든 화면을 위한 하나의 \"Load test data…\" 버튼입니다.\n\nAnnotate 예제(``einarolafsson/spacr-example-annotate``)는 실제 플레이트입니다: 세포, 세포질, 핵, 병원체 테이블을 가진 ``measurements/measurements.db`` 와, 그것이 색인하는 ``data/`` 아래의 추출된 이미지 영역 2,341 개. Annotate 와 Classify 는 이미 이를 공유 예제 플레이트 폴더(:func:`spacr.example_archives.example_plate_folder`)로 가져옵니다. 측정 데이터베이스를 여는 다른 모든 화면도 같은 플레이트로 동작하는 모습을 보여 줄 수 있으므로, 이 모듈이 한 번 가져와 요청한 화면에 넘겨줍니다.\n\n화면마다 사본 하나가 아니라 도우미 하나. 캐시 사용 또는 다운로드 결정, 버튼의 사용 중 상태, 실패 메시지는 Plate Viewer, Tabulate, Graph Builder 등에서 모두 같으며, 다른 것은 어느 필드를 채우고 어느 메서드로 여는지뿐입니다. 그래서 화면은 그 차이 하나만 콜백으로 전달합니다.\n\n다운로드는 기존 것입니다. 새로 게시하는 것은 없습니다. 아카이브, 워커 프로세스, 진행 대화 상자는 Classify 의 버튼이 호출하는 것과 같은 :func:`spacr.qt.hf_download.download_annotate_example` 이며, 이들 중 어느 것이 이미 풀어 둔 플레이트는 네트워크에 접근하지 않고 재사용됩니다.",
+      "source_sha256": "489cf0a2b46933da128810c3566ccec2800d3d1312d7eb267888534a86e55bda",
+      "text": "측정 DB 를 읽는 모든 화면을 위한 하나의 \"Load test data…\" 버튼입니다.\n\nAnnotate 예제(``einarolafsson/spacr-example-annotate``)는 실제 플레이트입니다: 세포, 세포질, 핵, 병원체 테이블을 가진 ``measurements/measurements.db`` 와, 그것이 색인하는 ``data/`` 아래의 추출된 이미지 영역 2,341 개. Annotate 와 Classify 는 이미 이를 공유 예제 플레이트 폴더(:func:`spacr.example_archives.example_plate_folder`)로 가져옵니다. 측정 데이터베이스를 여는 다른 모든 화면도 같은 플레이트로 동작하는 모습을 보여 줄 수 있으므로, 이 모듈이 한 번 가져와 요청한 화면에 넘겨줍니다.\n\n화면마다 사본 하나가 아니라 도우미 하나. 캐시 사용 또는 다운로드 결정, 버튼의 사용 중 상태, 실패 메시지는 Plate Viewer, Tabulate, Graph Builder 등에서 모두 같으며, 다른 것은 어느 필드를 채우고 어느 메서드로 여는지뿐입니다. 그래서 화면은 그 차이 하나만 콜백으로 전달합니다.\n\n아카이브, 노동자 및 진보 대화는 :func:`spacr.qt.hf_download.download_annotate_example`이며, 동일한 호출 클래식 버튼을 만듭니다, 그리고 그들 중 어느 하나에 의해 이미 포장되지 않은 플레이트는 네트워크를 만지지 않고 다시 사용됩니다.\n\n세 개의 공공 세트는 자신의 버튼을 가지고 있으며, 예제 세트 레지스트리 (:data:`spacr.example_archives.EXAMPLE_SETS`)를 통해 캡처 : ``dose`` (LINCS 세포 페인트, ``einarolafsson/spacr-example-dose``) 용 복용량 응답, 예측 프로파일러, 실행 비교 Run History 및 Training Runs, ``control_chart`` (CPJUMP1, ``einarolafsson/spacr-example-control-chart``) 컨트롤 차트, 그리고 ``hit`` (TSG101 스크린링 실험의 절단, ``einarolafsson/spacr-example-hit``) 수사 히트.",
       "translation_source_blocks_sha256": [
         "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
         "bf705997d039273e6200aa24bc3548efafcc18cffa68eb9128242c54129b9a51",
         "ee693d0de0ae694a157a77ad54e55cb1f7dc5be278c06df146b45d64da37829b",
-        "cb254d1e322e8aed9a0ecb91063cd954234d140a7c24d20ff762550f2a88fc79"
+        "cfff72f3559ef0ce2383478b212c6a89903d5e57a312caa5311b9b009ddc6d24",
+        "f5cbf5d54395dbb04a329b6fa7042dd5737b3b14ed2f18886a445a4bbd79ba6e"
       ]
     },
     "spacr.qt.widgets.measurements_example.example_measurements_db": {
@@ -176418,15 +176886,15 @@
       "source_blocks_sha256": [
         "f31af1568cc3c2205bcb60cdd45210266125f4b3ab096d05ccafec7ee8e2efb7",
         "2bd4b70a329792c28b03b67b2fa7504bf1d2ee4e24a6bda6f14c0cea69f31b6d",
-        "8464bf387f9ff80a2714587f481defacd127bb39508db7611d8581350afff2fa",
+        "b7526ea714edd8259fb0e1001901e7d14163f048166451decea8abc394a47833",
         "cb0920ed702f545a7ffbf3e6eeb802f68b9e43f52cb096dead407b84804ceb77"
       ],
-      "source_sha256": "9f37c658b6b5af553b41579fee9b1e7c708bb5314fa961e48c34b6dbfb3ed9fb",
-      "text": "출력 디렉토리를 반환하는 것은 처리 세션을 실행하지 않고 사용할 것입니다.\n\n:param settings: 원본 및 모델 유형을 해결하는 데 사용되는 회복 설정.\n:returns: 예상 결과 디렉토리, 또는 ``None`` 계산 데이터 경로 또는 작성 가능한 폴더 선택이 해결할 수 없을 때.\n\n결과는 복구 처리 세션과 동일한 폴더 선택 규칙을 사용합니다.",
+      "source_sha256": "6dab4991af82da8c561f7c2401927325907915885f393051e8be57686bce735f",
+      "text": "출력 디렉토리를 반환하는 것은 처리 세션을 실행하지 않고 사용할 것입니다.\n\n:param settings: 원본 및 모델 유형을 해결하는 데 사용되는 회복 설정.\n:returns: 예상 결과 디렉토리, 또는 ``None`` 계산 데이터 경로 또는 작성 가능한 폴더 선택이 해결할 수 없을 때. PostgreSQL 계산은 명시적인 지역 ``src``가 필요합니다.\n\n결과는 복구 처리 세션과 동일한 폴더 선택 규칙을 사용합니다.",
       "translation_source_blocks_sha256": [
         "ce3c159bb7d688a71db73ae9cf84bf21ea42d8403b010492c378a82a25967deb",
         "2bd4b70a329792c28b03b67b2fa7504bf1d2ee4e24a6bda6f14c0cea69f31b6d",
-        "8464bf387f9ff80a2714587f481defacd127bb39508db7611d8581350afff2fa",
+        "b7526ea714edd8259fb0e1001901e7d14163f048166451decea8abc394a47833",
         "2db65f87e551041d30271d153c79df70dc36d8aa0c959c01f78b13612efc6112"
       ]
     },

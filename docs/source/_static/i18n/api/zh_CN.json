@@ -23778,14 +23778,14 @@
     "spacr.example_archives.example_set": {
       "source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
-        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
+        "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ],
-      "source_sha256": "835bc56de2bfedaa226ad998ebba8587e0b2fdfdf6922c3e45a6d00e0e9ecb75",
-      "text": "该集称为 ``key``。\n\n:param key: ``import``、``mask``、``measure``、``annotate``、``replication``、``recruitment`` 或 ``invasion``。\n:raises KeyError: 一个返回 ``None`` 的typo 不会下载任何东西,并报告成功,这是一个结果下载命令永远不会产生。",
+      "source_sha256": "735c94dee3087069fed735729956f2ea70a492eec2edc37e8df3c2a870d9abe8",
+      "text": "该集称为 ``key``。\n\n:param key: an :data:`EXAMPLE_SETS` key, such as ``import``, ``mask``, ``measure``, ``annotate``, ``dose``, ``control_chart`` or ``hit``.\n:raises KeyError: 一个返回 ``None`` 的typo 不会下载任何东西,并报告成功,这是一个结果下载命令永远不会产生。",
       "translation_source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
-        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
+        "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ]
     },
@@ -48032,9 +48032,10 @@
     "spacr.ml.generate_ml_scores": {
       "source_blocks_sha256": [
         "a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e",
-        "0ff1beae2f012bb566a9a3d73b348fffe0977eb688f17b77174e6960fa38f437",
+        "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
         "74aea7343be214b65d61228568b199720441d78049b01956370c20a94d0ebb8d",
-        "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
+        "f9649bcde48272dcf6fe6c267b467dd966b1b229e8957f7c2f9b1060139c801d",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
         "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
         "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
@@ -48048,13 +48049,14 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
-      "text": "使用每个对象的特征训练经典 ML 分类器（XGBoost / logistic / RF），并为筛选中的每个孔位评分。\n\n读取 ``measurements.db``（由 :func:`spacr.measure.measure_crop` 生成），合并细胞/细胞核/病原体/细胞质特征表，将标记为 ``positive_control`` / ``negative_control`` 的孔位（或注释列）用作训练标签，把拟合交给 :func:`ml_analysis`，并在源 DB 旁的 ``results/`` 中写入逐对象预测、置换表、特征重要性表和微孔板热图。\n\n:param settings: 设置字典，经 :func:`spacr.settings.set_default_analyze_screen` 规范化。主要条目：\n\n    - ``src``（str 或列表）— 包含 ``measurements/measurements.db`` 的文件夹。\n    - ``channel_of_interest`` — 从 0 开始计数的通道，用于招募比率特征；同时决定表选择。\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — 用作训练标签的孔位 ID（例如 ``'c2'`` / ``'c1'``）。\n    - ``annotation_column`` — 用 PNG 级注释列覆盖对照。\n    - ``location_column`` — ``'columnID'`` 或 ``'rowID'``.\n    - ``heatmap_feature`` — 在微孔板热图上绘制的特征。\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 二元素列表 ``[output, plate_heatmap]``，其中 ``output`` 是 :func:`ml_analysis` 的 10 元素结果列表，``plate_heatmap`` 是微孔板热图的 ``matplotlib`` 图。CSV 和图形会作为副作用写入 ``results/``；不返回其路径。\n:raises ValueError: 当设置了 ``annotation_column``，但 ``png_list`` 表缺少 ``prcfo`` / 该列、其中的对象 ID 无法与测量数据联接，或其中观测到的类别少于两个；或者 ``heatmap_feature`` 不在已训练特征中时。\n\n示例：\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n另请参阅：:func:`ml_analysis` — 底层拟合/评估例程。:func:`perform_regression` — 对各孔位 ML 得分执行混合效应回归。",
+      "source_sha256": "371211be8b4816670b170e1fc23507ac1efea2047ab33d9aa1596e689a74c2c7",
+      "text": "使用每个对象的特征训练经典 ML 分类器（XGBoost / logistic / RF），并为筛选中的每个孔位评分。\n\n读取由 ``measurement_backend`` 从 :func:`spacr.measure.measure_crop` 中选定的测量存储，合并细胞/细胞核/病原体/ 细胞质特征表，将标记为 ``positive_control`` / ``negative_control`` 的孔（或某个注释列）用作训练标签，把拟合委托给 :func:`ml_analysis`，并将逐对象预测、置换表和特征重要性表以及一张板热图写入第一个源文件夹下的 ``results/``。\n\n:param settings: 设置字典，经 :func:`spacr.settings.set_default_analyze_screen` 规范化。主要条目：\n\n    - ``src``（str 或 list）— 包含测量数据的文件夹。\n    - ``measurement_backend`` / ``measurement_backend_target`` — 选择 SQLite、DuckDB、Parquet 或 PostgreSQL 测量存储。\n    - ``channel_of_interest`` — 从 0 开始计数的通道，用于招募比率特征；同时决定表选择。\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — 用作训练标签的孔位 ID（例如 ``'c2'`` / ``'c1'``）。\n    - ``annotation_column`` — 用 PNG 级注释列覆盖对照。\n    - ``location_column`` — ``'columnID'`` 或 ``'rowID'``.\n    - ``heatmap_feature`` — 在微孔板热图上绘制的特征。\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 二元素列表 ``[output, plate_heatmap]``，其中 ``output`` 是 :func:`ml_analysis` 的 10 元素结果列表，``plate_heatmap`` 是微孔板热图的 ``matplotlib`` 图。CSV 和图形会作为副作用写入 ``results/``；不返回其路径。\n:raises ValueError: 当设置了 ``annotation_column``，但 ``png_list`` 表缺少 ``prcfo`` / 该列、其中的对象 ID 无法与测量数据联接，或其中观测到的类别少于两个；或者 ``heatmap_feature`` 不在已训练特征中时。\n\n示例：\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n另请参阅：:func:`ml_analysis` — 底层拟合/评估例程。:func:`perform_regression` — 对各孔位 ML 得分执行混合效应回归。",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
-        "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
+        "6fe9baab893b87764a9ab970ffc46d56f40daea75c46a5aae4764b33ca0ffc70",
         "7c21621e1e71f3b10d12114713e1aef36b9b3cc5f211bdf7bec9e0ddb3882486",
-        "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
+        "f9649bcde48272dcf6fe6c267b467dd966b1b229e8957f7c2f9b1060139c801d",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
         "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
         "219d41a366a79ee727fffa7d276c61b0044bfe410ea94665119151f96b736f43",
@@ -48072,9 +48074,10 @@
     "spacr.ml.interpret_vision_model": {
       "source_blocks_sha256": [
         "27e1da7167f142b5e33ff9bfa9350d86a492f88afcfb2ab52f0a74ab3f2d588c",
-        "d36376d87588cccca12cb40f2050eaac8299f4c768c58e14a29fc00a59a7851e",
+        "b3fd4e7d658707f3e9bae619a91fd0814c79c0818e1ef5b829740efa9b7cc05e",
         "8e78ef9d6b118a1806645232b929f7492d86fc30a04ef74a91c9000595886fa6",
-        "8c57814dfcc90c731338ebdf8b8db3aa289deda6ca7818ec78b1772d2f6eaf83",
+        "2c2a047f662554493f1912f8ed549570e65fbf341ad893b2a27696d085c25fec",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "0be5c41369b67d724501213429176394827b7ade97cdc6741e6cf37f47c81287",
         "45fb3a49c34f2d3fb198f4b348a7ee25bcf139bdf8072fa02b0b63acb31adfb3",
         "9336b99c45f95510baba8cfa464fe006492448ac800e03a14907777eabc80d18",
@@ -48082,17 +48085,18 @@
         "4cfb4764796993e5d56d729e3707ad65b23476b1e3fde4184724a7eb6b2664d1",
         "467632f70d802b6e3092ba295bbba467ad9245ddf961d4f6b73b21e7387da280",
         "31639ff5a83c58d22e8020e4d612032aaae6606dc9b8f17edd03756957720755",
-        "390bfe5f7c8c473f4ca539dcbb0259bfff23b16b9a2b29f38f8290f711f5e0a0",
+        "410a0e3de10b66cfb8aba04f997a4fec17d85fbd1984f2512af1d9368c7d446f",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "29fa68c067d32edaa7b1656265ec6181f1531cf25d9c3e1b57aa0dc7ec440366"
       ],
-      "source_sha256": "972479829694da6a3e5af23fd459b47cfd9c43e0225247f18b2b9ce90c61d606",
-      "text": "使用射频、置换和 SHAP 重要性以及每隔间/每通道雷达图解释 spacr 视觉模型得分。\n\n把 ``measurements.db`` 中的逐对象测量值与预测得分 CSV 合并，对排名靠前的特征运行 RF 特征重要性、置换重要性和 SHAP 的任意组合，再把 SHAP 贡献汇总为区室和图像数据通道雷达图，以显示哪个区域（细胞 / 细胞核 / 病原体 / 细胞质）以及哪个荧光图像数据通道驱动模型。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.set_interpret_vision_model_defaults` 进行可通化。\n\n    - ``src`` - 包含 ``measurements/measurements.db`` 的文件夹。\n    - ``scores`` — CSV 每对象预测要解释。\n    - ``score_column`` 是保持得分的 ``scores`` 列。\n    - ``tables`` — DB 表合并(默认情况为 ``['cell','nucleus','pathogen','cytoplasm']``)。\n    - ``feature_importance`` / ``permutation_importance``/ ``shap`` - 允许每个解释器。\n    - ``top_features`` — 显示的属性上的 cap。\n    - ``nuclei_limit`` / ``pathogen_limit`` — 对象计算胶囊。\n    - ``n_jobs``, ``save``.\n\n:returns: 合并对对象 DataFrame - 测量表与分数 CSV 相结合 - 描述器被配置。 雷达和重要性插图被排序,并且与 ``save=True`` 重要性 CSVs 被写在 DB 旁边,作为副作用。\n\n示例：\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\n此外,请参见: :func:`spacr.submodules.interpret_vision_model` - 继承 / 替代输入点返回 DataFrames 的关键值地图而不是合并测量。",
+      "source_sha256": "3ad66c1c0b926918c008821bad441b1be68cc6a5eb4cd2fd4c1301aef1960d1a",
+      "text": "使用射频、置换和 SHAP 重要性以及每隔间/每通道雷达图解释 spacr 视觉模型得分。\n\n将所选测量存储中的逐对象测量数据与预测得分的 CSV 合并，在排名靠前的特征上运行 RF 特征重要性、置换重要性和 SHAP 的任意组合，然后将 SHAP 贡献汇总为区室和通道雷达图，以便查看是哪个区域（细胞 / 细胞核 / 病原体 / 细胞质）和哪个荧光通道在驱动模型。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.set_interpret_vision_model_defaults` 进行可通化。\n\n    - ``src`` — 包含测量数据的文件夹。\n    - ``measurement_backend`` / ``measurement_backend_target`` — 选择 SQLite、DuckDB、Parquet 或 PostgreSQL 测量存储。\n    - ``scores`` — CSV 每对象预测要解释。\n    - ``score_column`` 是保持得分的 ``scores`` 列。\n    - ``tables`` — DB 表合并(默认情况为 ``['cell','nucleus','pathogen','cytoplasm']``)。\n    - ``feature_importance`` / ``permutation_importance``/ ``shap`` - 允许每个解释器。\n    - ``top_features`` — 显示的属性上的 cap。\n    - ``nuclei_limit`` / ``pathogen_limit`` — 对象计算胶囊。\n    - ``n_jobs``, ``save``.\n\n:returns: 合并后的逐对象 DataFrame — 即与得分 CSV 连接后的测量表 — 解释器即在其上拟合。作为副作用，会渲染雷达图和重要性图；当 ``save=True`` 时，还会将重要性 CSV 写入源文件夹的 ``results/`` 下。\n\n示例：\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\n此外,请参见: :func:`spacr.submodules.interpret_vision_model` - 继承 / 替代输入点返回 DataFrames 的关键值地图而不是合并测量。",
       "translation_source_blocks_sha256": [
         "27e1da7167f142b5e33ff9bfa9350d86a492f88afcfb2ab52f0a74ab3f2d588c",
-        "9090614639eb25ed74e81ab4f8bf169b663279d4e861a74e0e35fe59d8827af7",
+        "e06152d24f4a3f6b771f287f5bed2c550d711081e43cad68e4ce0e77fc911f0c",
         "72c8c83f7c600ff7f85794dd668f3b1e0e8aa06ff534a52d031a612782f7a2a4",
-        "8c57814dfcc90c731338ebdf8b8db3aa289deda6ca7818ec78b1772d2f6eaf83",
+        "2c2a047f662554493f1912f8ed549570e65fbf341ad893b2a27696d085c25fec",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "0be5c41369b67d724501213429176394827b7ade97cdc6741e6cf37f47c81287",
         "45fb3a49c34f2d3fb198f4b348a7ee25bcf139bdf8072fa02b0b63acb31adfb3",
         "9336b99c45f95510baba8cfa464fe006492448ac800e03a14907777eabc80d18",
@@ -48100,7 +48104,7 @@
         "4cfb4764796993e5d56d729e3707ad65b23476b1e3fde4184724a7eb6b2664d1",
         "467632f70d802b6e3092ba295bbba467ad9245ddf961d4f6b73b21e7387da280",
         "31639ff5a83c58d22e8020e4d612032aaae6606dc9b8f17edd03756957720755",
-        "390bfe5f7c8c473f4ca539dcbb0259bfff23b16b9a2b29f38f8290f711f5e0a0",
+        "410a0e3de10b66cfb8aba04f997a4fec17d85fbd1984f2512af1d9368c7d446f",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "4e6240e0a06e23ec4d12023e66ac2435f9f5451747e98be6e623681707ce8130"
       ]
@@ -48171,14 +48175,14 @@
       "source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
-        "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821"
+        "91c0ecf82e1a22d071a2449f0c6f854ae695f77baadd4600d0b403ba73d3f2b1"
       ],
-      "source_sha256": "64e2d6a847a7e26e3e5a918dae1ae92104ced69f13a832eea5ab5c2d2762ee63",
-      "text": "读取配对输入，并在不猜测文件名的情况下解析微孔板身份。\n\n解析顺序为本方列、配对方列，然后是配对行顺序。拒绝相互冲突的声明。返回 ``(count_frame, score_frame, audit_rows)``。\n\n:param pairs: 映射序列，每个映射包含 ``'score'`` 和 ``'count'`` 表路径（两者都可以为空），与 :func:`normalize_regression_input_pairs` 的返回值相同。每个映射的 ``'plate'`` 会被解析出的板标签覆盖。",
+      "source_sha256": "bccd8c56c3b7afb8975c77afcf90d2585f98883bcadc3bdb34ca5eac6dd5220b",
+      "text": "读取配对输入，并在不猜测文件名的情况下解析微孔板身份。\n\n解析顺序为本方列、配对方列，然后是配对行顺序。拒绝相互冲突的声明。返回 ``(count_frame, score_frame, audit_rows)``。\n\n:param pairs: 包含 ``'score'`` 和 ``'count'`` 表路径（任一项均可为空）的映射序列，即 :func:`normalize_regression_input_pairs` 的返回值。每个映射的 ``'plate'`` 会被解析后的板标签覆盖。数据库输入还需指定 ``'score_table'`` 或 ``'count_table'``；来自同一数据库的表会被缓存并分别配对。",
       "translation_source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
-        "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821"
+        "91c0ecf82e1a22d071a2449f0c6f854ae695f77baadd4600d0b403ba73d3f2b1"
       ]
     },
     "spacr.ml.load_regression_input_pairs.plates": {
@@ -67008,31 +67012,31 @@
         "fccbe09e90c12f3eec3423141af30b5838c41a34450a3f24f4c7096d10d51763",
         "d00917f74b1c60449223b98e16fe1418c23499d9daff770b4b821ea63c8cec5b",
         "956bd67481a9ea16e49f40267925728697390bb90e85710a6190427dc25e8396",
-        "78566b3d98d12dc8ad7b65b57f4aea303e58e82343ad958348d92761ea8004e4",
+        "f76193f9494f4496087d8a05efc8f849d7f73de3d162e2a3a92df029c45a2c46",
         "fc3fb2886e57522b3b050178212c0b973205a31723e3a9490fb3e29b8207db7c",
         "e617adcc7d35691d321c961f501e866061e2f5a370480d7933025d2e17f309ce",
         "1084850c0b1fec29977e8d663efda1d76bf7ae4c968bc5c084cde651b7b64d0a",
         "24836ab5abfffb819bca8eb37250a5b4747767340023c36c6723d34fa0a7e490",
         "9ce2ee07cff94515b65a32d8f07ad40311b6078cccbed2081a7abd06b821a8a7",
-        "4500e99167ae7ff6f78d91bd5dbdc1777005c4f8000b64f27aaabf636bbe044a",
+        "e5283f398103af1a3962f6ba3f51903dc956d7e230ae00a55d0bc5a1131bd0d7",
         "0defb5cc2fa671f4b79c095da6e3b8e0064627bc7766da2a382033e32e64e588",
-        "5f8746785b059302dc196301001d6d982539ec509781e9313490add30d9174e7"
+        "02016aecd7cc868af44fccc2fa72bb5057b97171cb3d5b517a968fb9f9aeeac6"
       ],
-      "source_sha256": "e527ed71bbb49f50898da5535c8cc6fdf509688783cdb61809fea98d71376365",
-      "text": "将机器学习分类模型的对象结果写入 ``table`` 的行列。\n\n由分类(CV)和分类 (ML) --- 分享,请参见模块为何密钥是 ``prcfo`` ,为什么一个双重的密钥被拒绝而不是猜测,以及为什么整个东西是一个交易。\n\n:param results: DataFrame 对对象的结果。 必须携带以 ``columns`` 命名的源列,加上用作指数的东西:一个 ``prcfo`` 列,一个 ``prcfo`` 命名的指数,或者一个 ``path``/``png_path``/ ``file_name`` 列持有 spaCR 提取图像区域名称。\n:param db_path: SQLite 数据库. 已被报告并被删除。\n:param columns: 将 *数据库* 列名称地图为 ``(results column, 'REAL' | 'INTEGER')``。\n:param table: 目标表:默认 ``'png_list'``。\n:param key: ``'auto'``(测量每个候选人并使用最好的)或一个:data:`KEY_PRIORITY`强制它。\n:param timelapse: 是否提取图像区域名称携带时间点. ``None`` 从表上的时间列的存在检测到它。\n:param verbose: 打印报告。\n:returns: 缺少 :class:`MergeReport`,或 ``None`` 如果数据库。\n:raises KeyError: 如果 ``results`` 缺乏源列之一。\n:raises sqlite3.OperationalError: 如果 ``table`` 不存在。",
+      "source_sha256": "862f76814ccbc61805375ba790553417f0090548a8b1d80399acf724fbd859d8",
+      "text": "将机器学习分类模型的对象结果写入 ``table`` 的行列。\n\n由分类(CV)和分类 (ML) --- 分享,请参见模块为何密钥是 ``prcfo`` ,为什么一个双重的密钥被拒绝而不是猜测,以及为什么整个东西是一个交易。\n\n:param results: DataFrame 对对象的结果。 必须携带以 ``columns`` 命名的源列,加上用作指数的东西:一个 ``prcfo`` 列,一个 ``prcfo`` 命名的指数,或者一个 ``path``/``png_path``/ ``file_name`` 列持有 spaCR 提取图像区域名称。\n:param db_path: SQLite 或 DuckDB 文件, Parquet 仓库目录, 或 PostgreSQL 连接链。\n:param columns: 将 *数据库* 列名称地图为 ``(results column, 'REAL' | 'INTEGER')``。\n:param table: 目标表:默认 ``'png_list'``。\n:param key: ``'auto'``(测量每个候选人并使用最好的)或一个:data:`KEY_PRIORITY`强制它。\n:param timelapse: 是否提取图像区域名称携带时间点. ``None`` 从表上的时间列的存在检测到它。\n:param verbose: 打印报告。\n:returns: :class:`MergeReport` 或 ``None`` 如果本地商店缺席。\n:raises KeyError: 如果 ``results`` 缺乏源列之一。\n:raises ValueError: 如果一个 Parquet 表失踪,或者预测输出将取代在替代商店中的附加识别列。",
       "translation_source_blocks_sha256": [
         "efa7ca1bc33fa4bcd95303b0d0111d764f63bfb466b5c85331aa1d64da9880f9",
         "d00917f74b1c60449223b98e16fe1418c23499d9daff770b4b821ea63c8cec5b",
         "9f51a2b1992d0c1fb2bd1ddf84355b5006467bb919d819853997c587850156ff",
-        "78566b3d98d12dc8ad7b65b57f4aea303e58e82343ad958348d92761ea8004e4",
+        "f76193f9494f4496087d8a05efc8f849d7f73de3d162e2a3a92df029c45a2c46",
         "fc3fb2886e57522b3b050178212c0b973205a31723e3a9490fb3e29b8207db7c",
         "e617adcc7d35691d321c961f501e866061e2f5a370480d7933025d2e17f309ce",
         "1084850c0b1fec29977e8d663efda1d76bf7ae4c968bc5c084cde651b7b64d0a",
         "b1327dc300f2f4c03a3663a3db4523b7c2baf187d4ddd897818570cfd576e112",
         "9ce2ee07cff94515b65a32d8f07ad40311b6078cccbed2081a7abd06b821a8a7",
-        "4500e99167ae7ff6f78d91bd5dbdc1777005c4f8000b64f27aaabf636bbe044a",
+        "e5283f398103af1a3962f6ba3f51903dc956d7e230ae00a55d0bc5a1131bd0d7",
         "0defb5cc2fa671f4b79c095da6e3b8e0064627bc7766da2a382033e32e64e588",
-        "5f8746785b059302dc196301001d6d982539ec509781e9313490add30d9174e7"
+        "272de301bc6eff4bb7707cb201b999018e2d6aa2f081670e34000b10a5dd85b2"
       ]
     },
     "spacr.predictions.migrate_prediction_columns": {
@@ -67041,21 +67045,21 @@
         "3201ec3b3e0c63e4c4ef93891991cb36f3322bc8899e11090fea61ea0b90ecae",
         "2e4aca84a25eacee6508a33b9afa631f16e373a97ad466410de568aab422b97b",
         "122669b9ae72fbc44f93da7a40b40c7b7fe319a8af57695cb180ec6abe251c03",
-        "34387b44c863d87bcda1c583797ba6b79fcd8332ac79a48b09b931d43cdb68e4",
-        "ba4855f520616f049843acd685f06e31517985ea41519bb8f936a5fe6b2252f1",
+        "84e806987eaf654ba94f2f7278292c903056dced529dd052ff7e7ed58efd2c22",
+        "6002394960198870d5ad9841e4189e9f7edea6d9ab9b584dbf91ff386e1b36e8",
         "5108414c2187671983a501e3835fd52d7c737b53c801cdf0018cbb82f174c49d",
         "ee104499017420e09b4eb31a2650f43db6be8919c7385b473bde35995fdd4d91",
         "72eec3c643a1c33f10765e4ff4a9fd0b372ee9fef1345477aa7fdf2dddc48609"
       ],
-      "source_sha256": "a53c351484c73dc153ba79e984302b577379ac740f8700418973f27400836bb5",
-      "text": "将遗产预测列返回它声称在编码中。\n\n:func:`spacr.utils.add_column_to_database` --- ML 阶段的旧写路 --- 替换了每 ``0`` 的 ``2`` 在数据库的道路上,因为 Annotate 应用程序标记了 1 和 2 类。 没有别的,所以 ``png_list.predictions`` 说 ``2`` 在那里 ``results.csv`` 从相同的运行说 ``0``:一个数字,两个含义,取决于你打开的文件。 这修复了它,所以在更改之前写的数据库正确阅读,没有手动操作 --- 相同的修复阅读合同 :func:`spacr.utils.rename_columns_in_db` 有,并且相同属性:\n\n* **无效**修复后,列保持0s和1s,这不是编码这个寻找,所以第二个通道什么都没有。\n* **永远不会破坏性.** 替代仅在列只保留1s和2s时被逆转。 一个三级模型的真实类别2是不可分离的,从一个失败的0中,猜测会比离开它正如它一样更糟糕。\n* **所有或什么都没有** 一个明确的交易,在任何错误上旋转。 驱动程序为 DML 开启一个,但不是为 ``PRAGMA``/DDL 它共享一个连接,而一个半重复的列将是两个编码的列。\n\n:param db_path: SQLite 文件. 丢失的文件是一个 no-op。\n:param table: 图为转移. 默认 ``'png_list'``。\n:param verbose: 打印每一次修复。\n:returns: 列出 ``(table, column, rows_repaired)``。",
+      "source_sha256": "3bd6481ce775e04b17ebd26d7e1be2be8c953002320e140363efa3650ad74b64",
+      "text": "将遗产预测列返回它声称在编码中。\n\n:func:`spacr.utils.add_column_to_database` --- ML 阶段的旧写路 --- 替换了每 ``0`` 的 ``2`` 在数据库的道路上,因为 Annotate 应用程序标记了 1 和 2 类。 没有别的,所以 ``png_list.predictions`` 说 ``2`` 在那里 ``results.csv`` 从相同的运行说 ``0``:一个数字,两个含义,取决于你打开的文件。 这修复了它,所以在更改之前写的数据库正确阅读,没有手动操作 --- 相同的修复阅读合同 :func:`spacr.utils.rename_columns_in_db` 有,并且相同属性:\n\n* **无效**修复后,列保持0s和1s,这不是编码这个寻找,所以第二个通道什么都没有。\n* **永远不会破坏性.** 替代仅在列只保留1s和2s时被逆转。 一个三级模型的真实类别2是不可分离的,从一个失败的0中,猜测会比离开它正如它一样更糟糕。\n* **所有或什么都没有** SQLite, DuckDB 和 PostgreSQL 在交易中修复; Parquet 发布了一个完整的替代部分截图。\n\n:param db_path: SQLite 或 DuckDB 文件, Parquet 仓库目录, 或 PostgreSQL 连接链。\n:param table: 图为转移. 默认 ``'png_list'``。\n:param verbose: 打印每一次修复。\n:returns: 列出 ``(table, column, rows_repaired)``。",
       "translation_source_blocks_sha256": [
         "afba4282c13eb6c7bf59b0504f911ebb9494a6fe94b5258e3f38ed42f9576c65",
         "3201ec3b3e0c63e4c4ef93891991cb36f3322bc8899e11090fea61ea0b90ecae",
         "2e4aca84a25eacee6508a33b9afa631f16e373a97ad466410de568aab422b97b",
         "122669b9ae72fbc44f93da7a40b40c7b7fe319a8af57695cb180ec6abe251c03",
-        "34387b44c863d87bcda1c583797ba6b79fcd8332ac79a48b09b931d43cdb68e4",
-        "ba4855f520616f049843acd685f06e31517985ea41519bb8f936a5fe6b2252f1",
+        "84e806987eaf654ba94f2f7278292c903056dced529dd052ff7e7ed58efd2c22",
+        "6002394960198870d5ad9841e4189e9f7edea6d9ab9b584dbf91ff386e1b36e8",
         "5108414c2187671983a501e3835fd52d7c737b53c801cdf0018cbb82f174c49d",
         "ee104499017420e09b4eb31a2650f43db6be8919c7385b473bde35995fdd4d91",
         "72eec3c643a1c33f10765e4ff4a9fd0b372ee9fef1345477aa7fdf2dddc48609"
@@ -84077,6 +84081,124 @@
         "15dd9587977f356ec1b10ecd9180dd78e9ef73f97fcad503e54544d69d058488"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession": {
+      "source_blocks_sha256": [
+        "8d38d80f7c769a723e70c41aefe1f279daebcefb6814cc6ae7ca4a78322315f3",
+        "3a385a26ee899c965f2d6d828fba37c6b9687bd0f8aa4bbc4e8bb9524b9a8dd9",
+        "ac0065724c23fefd243fe93ec54b2265626bfd533b80ca5448ea9d41d3add1a2",
+        "c642ea08391f093a1632d2e6680f773fe20ed524d895f1a639bf67cc070580d5",
+        "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
+        "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
+        "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
+        "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
+        "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
+        "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
+        "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+      ],
+      "source_sha256": "a2891fbdf0da347f05c6afda5c6561dfbc6c396b65fda3c6a1aa3fb2b40bdeaa",
+      "text": "使用与 3-D 门控视图相同的边界编辑原生空间标签。\n\n坐标是相对于图像外部原点的物理 X/Y/Z 距离；体素中心位于 ``(index + 0.5) * spacing``。数组保留其声明的空间轴顺序、源 dtype 和现有对象身份。最多接受 16,777,216 个体素和 256 MiB 的源强度；更大的场会被明确拒绝。稀疏撤销增量共享 64 MiB 的总预算，而不是为每次编辑保留一个体积。\n\n:param image: 有限实数数值的三维源强度。\n:param mask: 形状与源完全相同的非负整数标签。\n:param axes: 三个空间轴 ``XYZ`` 的一种排列。\n:param spacing: 按相同数组轴顺序排列的有限正距离。\n:param unit: 物理距离单位；未指定时为 ``pixel``。\n验证一个空间图像并持有其可变的标签数组。\n\n:param image: 有限实数数值的源强度。\n:param mask: 与图像匹配的非负整数对象标签。\n:param axes: 空间存储轴顺序，XYZ 的一种排列。\n:param spacing: 按存储顺序排列的三个有限正距离。\n:param unit: 通用的距离单位。",
+      "translation_source_blocks_sha256": [
+        "12c85fbce6b86c7feb9ffc5357dce959967be5bbf6552676440bc2b1300984f4",
+        "f1f3dbfb88ba2413aee45558e881ac799c58672b07250f76b54224025b3b9036",
+        "ac0065724c23fefd243fe93ec54b2265626bfd533b80ca5448ea9d41d3add1a2",
+        "c642ea08391f093a1632d2e6680f773fe20ed524d895f1a639bf67cc070580d5",
+        "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
+        "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
+        "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
+        "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
+        "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
+        "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
+        "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry": {
+      "source_blocks_sha256": [
+        "e1da32670300ea3aee37dc6bf89ecc1ef999dcf704df94358bd7a1f6addc934e",
+        "43ae30a163ea00e756068cd7ef8ba9eaed5c8d6af3fd85b88c05b0a67685b3a1",
+        "006f1812a1208eae0a5c3f4d005e938ecaa218e8973397f270da133b05b88a59",
+        "01b84d022ad85e540a460440f98e0e4ed3bc14328b5a1ff621674f7c97371ff4",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "d43aa6979fc5d7440b473a8a2926a9f4f959916a21231dcb52b96207f715ce02",
+      "text": "提交一个经过验证的共享边界及其精确的掩膜体素。\n\n其他对象 ID 受到保护。无效运动、碰撞或超出历史预算的增量会使数组、几何和历史保持不变。\n\n:param label: 当前掩膜 dtype 可表示的正 ID。\n:param gate: 具有物理 X/Y/Z 列的共享 ``EditableVolumeGate``。\n:returns: 已更改的体素数量。",
+      "translation_source_blocks_sha256": [
+        "e1da32670300ea3aee37dc6bf89ecc1ef999dcf704df94358bd7a1f6addc934e",
+        "43ae30a163ea00e756068cd7ef8ba9eaed5c8d6af3fd85b88c05b0a67685b3a1",
+        "006f1812a1208eae0a5c3f4d005e938ecaa218e8973397f270da133b05b88a59",
+        "01b84d022ad85e540a460440f98e0e4ed3bc14328b5a1ff621674f7c97371ff4",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
+      "source_blocks_sha256": [
+        "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
+        "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
+        "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
+        "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ],
+      "source_sha256": "855806e4c95205b428777fd15ebba3049a11ddc10ed83c541effb993a1eaab09",
+      "text": "返回已保存的几何或精确的封闭体素边界网格。\n\n对于角点接触、不连通或细节过多而无法满足共享网格边界/拓扑要求的标签，将予以拒绝，而不是用边界框替代。仅预览此网格不会更改体素、历史或已保存的几何。\n\n:param label: 一个现有的正值对象标识符。\n:returns: 物理坐标中经过验证的共享可编辑体积。",
+      "translation_source_blocks_sha256": [
+        "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
+        "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
+        "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
+        "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.limits": {
+      "source_blocks_sha256": [
+        "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242"
+      ],
+      "source_sha256": "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242",
+      "text": "按 X/Y/Z 顺序排列的精确物理图像外边界。",
+      "translation_source_blocks_sha256": [
+        "7776a825aaeed68583564143a0dd1578fc899a24e9dd770d107fa03fe0c29242"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.next_label": {
+      "source_blocks_sha256": [
+        "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
+      ],
+      "source_sha256": "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254",
+      "text": "返回第一个未使用的正 ID，不对任何对象重新编号。",
+      "translation_source_blocks_sha256": [
+        "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.redo": {
+      "source_blocks_sha256": [
+        "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ],
+      "source_sha256": "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173",
+      "text": "重新应用最近一次撤销的体素增量和几何。",
+      "translation_source_blocks_sha256": [
+        "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.undo": {
+      "source_blocks_sha256": [
+        "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3"
+      ],
+      "source_sha256": "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3",
+      "text": "恢复之前的稀疏体素增量和不可变几何。",
+      "translation_source_blocks_sha256": [
+        "4edfaa39c18494f49f291d2807118564bcce876136ad998e2f6c248d258043d3"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.xyz_spacing": {
+      "source_blocks_sha256": [
+        "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c"
+      ],
+      "source_sha256": "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c",
+      "text": "按物理 X/Y/Z 顺序排列的体素距离，与存储方式无关。",
+      "translation_source_blocks_sha256": [
+        "e34a904a208c4784598ea77b87c82c50651e2f9872d50ea8b706107c1175781c"
+      ]
+    },
     "spacr.qt.mask_engine.apply_filters": {
       "source_blocks_sha256": [
         "7a3348b0b992abcb835a65d8c72036ff228e56de89aed7f0611c1c03ec72881b",
@@ -84747,6 +84869,26 @@
         "67b14b18f207e8af712b9f66deacd03f488cadbfd37dae6ed11ef64edd6d2a64"
       ]
     },
+    "spacr.qt.mask_engine.load_volume_image_and_mask": {
+      "source_blocks_sha256": [
+        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
+        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+        "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
+      ],
+      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
+      "text": "打开明确声明的灰度空间 TIFF，用于原生 3-D 编辑。\n\n支持恰好三个空间轴，顺序不限。时间、通道、颜色和推断出的页面轴将被拒绝。``voxel_spacing`` 元数据按存储轴顺序读取。OME 物理尺寸会转换为微米；ImageJ 间距和 XY 分辨率予以保留。缺少物理元数据时使用像素坐标。标签保留 dtype 和身份。已保存的几何附属文件与确切的源文件和掩膜像素绑定，过期时将被拒绝。\n\n:param folder: 源图像目录。\n:param filename: 空间 TIFF 图像文件名。\n:param masks_dir: 可选的现有同级掩膜目录。\n:returns: 持有标签和源元数据的 ``VolumeMaskSession``。",
+      "translation_source_blocks_sha256": [
+        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
+        "a9ba5e8105b8b0a9e311ee0abf0d2d9cb5498e34d21fb1572af99de1ee6e25d0",
+        "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+        "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
+      ]
+    },
     "spacr.qt.mask_engine.load_yolo_boxes": {
       "source_blocks_sha256": [
         "ebd81a03a270fc79e4e80ce177c0e61af5a0680a65c1d53e34793d2c8fb62e7e",
@@ -85355,6 +85497,22 @@
         "bb39147b837252cc70c8038f9bd16e634ec249100a8e6bf7bac1dd32577d5ba3",
         "bb68e2df885e347011fc1871954ad112d58b5213b0a1f2dc448f859cdb09de0d",
         "b8b67aa673028d2375e564f1174c8d04bb4d1d5b40ce52fa73e63f0ab61e9caf"
+      ]
+    },
+    "spacr.qt.mask_engine.save_volume_mask": {
+      "source_blocks_sha256": [
+        "67c99870147c421a816cdc38866de243e4dfb67ca102d56e9f54483e38d02662",
+        "4d1b5243419c1879129e2b239aeb8381bf9e0707f5c57e5b088e0f773e32b87a",
+        "0bbfc87fca59c066bae4562a7c35f3ec398c17db5f650c3106ed2924ad5af263",
+        "d6c21e86b31929098381b63efbea3617c7184e5d3c80ac246b97b2918146b91c"
+      ],
+      "source_sha256": "8f343202bdda510fbacc8ab6208aec3e314a981359a382c633ad2abf5d26910d",
+      "text": "写入原生标签及其绑定到源的共享边界附属文件。\n\n两个产物都在替换任一目标之前准备好。第二次替换失败时会恢复之前的一对文件。暂存后会重新检查源/输出身份。面对不配合的并发写入者，两个文件名无法构成完全原子的事务；中断或不匹配的发布会在加载时被绑定到源/掩膜的附属文件拒绝。源轴、间距、标签 dtype 和 ID 均予以保留。\n\n:param session: 通过现有掩膜路径加载的体积会话。\n:returns: 规范的 TIFF 掩膜路径。",
+      "translation_source_blocks_sha256": [
+        "67c99870147c421a816cdc38866de243e4dfb67ca102d56e9f54483e38d02662",
+        "4d1b5243419c1879129e2b239aeb8381bf9e0707f5c57e5b088e0f773e32b87a",
+        "0bbfc87fca59c066bae4562a7c35f3ec398c17db5f650c3106ed2924ad5af263",
+        "d6c21e86b31929098381b63efbea3617c7184e5d3c80ac246b97b2918146b91c"
       ]
     },
     "spacr.qt.mask_engine.save_yolo_boxes": {
@@ -101673,13 +101831,15 @@
       "source_blocks_sha256": [
         "d7734e191878e2de43066a43d79bcce5221a245bb6ca621b7ddc331a3918910c",
         "f83f3909066e7e76ff236e7b558634c97b6214caf8b7f1467f0278d7f552e7fd",
+        "34fa1e10dee26acfe23a29d297fadd3b431e73a094f1901541668d13bb7ec1e9",
         "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495"
       ],
-      "source_sha256": "e02c0a1647630f01f2af281a7e758e268642d7db69a46dea489af658d8fcdf80",
-      "text": "阅读数据选择过滤策略并将其应用到加载表。\n\n一个名为测量的策略,这个表不承载负载,并报告问题:数据选择边界仍然在那里查看和修复,这比拒绝文件更有用。\n\n:param path: 由 :meth:`save_gates` 写出的 JSON 门控文件。无法读取的文件会在来源行中报告，并返回 False。",
+      "source_sha256": "49b5bce46ba7533bf00dc72028545281bc0e12ef40cc8e230b44d3a34255483d",
+      "text": "阅读数据选择过滤策略并将其应用到加载表。\n\n一个名为测量的策略,这个表不承载负载,并报告问题:数据选择边界仍然在那里查看和修复,这比拒绝文件更有用。\n\n恢复已保存的锚点密度和可见性，不会对任何已编辑的边界重新采样。较旧的文件保留当前的编辑器控制参数。\n\n:param path: 由 :meth:`save_gates` 写出的 JSON 门控文件。无法读取的文件会在来源行中报告，并返回 False。",
       "translation_source_blocks_sha256": [
         "d68130cfbe26d1436d83e7ef7130353a2ff662f4118cfa2cc3342c5fc50938e7",
         "1aa326dc03c5497de93520ef1cd5b1f24208f223d145dd3b10e2594928dfb721",
+        "34fa1e10dee26acfe23a29d297fadd3b431e73a094f1901541668d13bb7ec1e9",
         "110eee8f35e420ccc77e1613f2ab74ca7ee3f546126b3c112770a6d895534a09"
       ]
     },
@@ -101788,12 +101948,14 @@
     "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates": {
       "source_blocks_sha256": [
         "95c986a735d316b5013fcb91fec18f6b21b4d97b3267ce9427b6569d5b72b75d",
+        "a6ee952b06cac5711c98a5f0acdac0baa38b44a89ed1c8696c0d799b8304337f",
         "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f"
       ],
-      "source_sha256": "6748d44fbe238e7745166b02211ebff2270ac8bfa34b888193bd4330ec7c61d0",
-      "text": "输入数据选项过滤策略到 ``path``。\n\n:param path: 要将门控策略以 JSON 形式写入的文件；已有文件会被覆盖。",
+      "source_sha256": "714bf7ff3facb02abdab03bcd1a817bf765ce86c638c7f33eb84a3a3b210714e",
+      "text": "输入数据选项过滤策略到 ``path``。\n\n已编辑的体积顶点和表面会与锚点密度及可见性控制参数一同保存；显示设置不会近似成员归属。\n\n:param path: 要将门控策略以 JSON 形式写入的文件；已有文件会被覆盖。",
       "translation_source_blocks_sha256": [
         "27093136993e745fadb7c281caa8f7f41e574f4824d13a7d576531a30613caea",
+        "a6ee952b06cac5711c98a5f0acdac0baa38b44a89ed1c8696c0d799b8304337f",
         "e7632bba82a949da3bdb19f454f1adca86d1f9e894822ee64e0a99fc5f5b1c35"
       ]
     },
@@ -104971,6 +105133,22 @@
         "5b22e43116a10f106c8b52a9ce0dd9a2efc0f26489bfb655995e7d49a2365465",
         "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
         "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
+      "source_blocks_sha256": [
+        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
+        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
+        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+      ],
+      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
+      "text": "在共享的 3-D 锚点编辑器中打开原生空间 TIFF。\n\n现有的 2-D 图像、掩膜工具和 YOLO 标注保持独立。时间/通道/RGB TIFF 将被拒绝，而不会被解释为深度。\n\n:param path: 可选的空间 TIFF 路径；否则打开文件选择器。\n:returns: 原生体积对话框；取消或拒绝时为 None。",
+      "translation_source_blocks_sha256": [
+        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
+        "9a2cedf269b09b9d40b2e783dfdfc3cf243b7982330d4918b2734beab5056ff9",
+        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
@@ -112853,21 +113031,21 @@
     },
     "spacr.qt.screens.settings_model.regression_design_scan": {
       "source_blocks_sha256": [
-        "9b6c2f2f7b28da7693eab65e26845f116b0952aba25f2d37ec1dba9ea14c36b4",
+        "16d867741877db30c3e82c476b9571fa2687122c81af25093e121cfddb45cdf1",
         "82dff70b6853cac5b5392c2874fb613114407d3989ff00dce45e1dced645d9cb",
-        "7f0642598e55885e75f67b054146674dcc9640f62113a7a9763b66385d3897c8",
+        "0e43b420537b13399aee953fa3bf7407e016d8421caddce9d4446ceb194f3341",
         "406013900845a1429f63ee3ced85e055ab7e29cde52eb2946be494b93d0db1f7",
-        "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
+        "0d98b403d68a96ab0a4d25a8b36fc9524780cb9f2200fb52f900ebaaf4635031",
         "9ec366aca8635a0fd2e590ac42908ff75f5af7c094ac8ec359cb9378152aabc7"
       ],
-      "source_sha256": "d5e151d97dc58062102a046d3f69ad6abbf220f52505b62280a0aaf38d8c6c99",
-      "text": "如何大合适的即将到来,阅读它被授予的计算文件。\n\n设计: “有用的线命名设计 - “适合389基因和823引导 RNA随机效果超过610个微板样本位置” - 因为这也是线,告诉一个用户他们的过滤器做了一些意想不到的事情。\n\n它读到 sgRNA 计算 CSVs 和没有别的东西,所以它是设计,因为输入文件保持它:在合并与分数数据之前,在 ``fraction_threshold`` 之前,并在微板样本位置过滤器之前。\n\n永远不会扔掉。 它正在运行,将一个句子放在控制台旁边一个已经开始的匹配; 一个投射的扫描将带走自己的消息。 它可能不起作用的回归为``None``与``note``说为什么。\n\n:param settings: 回归设置；sgRNA 计数 CSVs 取自 ``count`` 条目（位于 ``paired_data`` 中），没有时取自旧式的 ``count_data``。\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.",
+      "source_sha256": "f39e119a4bf25f6f6409b96e6296c728cbb5a7e1277099423959d6b8cea2fb56",
+      "text": "根据计数输入表读出的即将进行的拟合规模。\n\n设计: “有用的线命名设计 - “适合389基因和823引导 RNA随机效果超过610个微板样本位置” - 因为这也是线,告诉一个用户他们的过滤器做了一些意想不到的事情。\n\n它是什么、不是什么。它只读取 sgRNA 计数输入，因此它是输入文件中原样保存的设计：在与得分数据合并之前、在 ``fraction_threshold`` 之前、也在孔过滤器之前。这是有意为之 -- 它是用来与运行自身清洗后计数进行比较的数值，而正是这种比较使行为异常的过滤器得以显现。每个调用方都会说明是哪一种。\n\n永远不会扔掉。 它正在运行,将一个句子放在控制台旁边一个已经开始的匹配; 一个投射的扫描将带走自己的消息。 它可能不起作用的回归为``None``与``note``说为什么。\n\n:param settings: 回归设置；计数路径和可选的 ``count_table`` 名称来自 ``paired_data``，若没有配对计数，则路径来自旧版 ``count_data``。\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.",
       "translation_source_blocks_sha256": [
-        "9b6c2f2f7b28da7693eab65e26845f116b0952aba25f2d37ec1dba9ea14c36b4",
+        "16d867741877db30c3e82c476b9571fa2687122c81af25093e121cfddb45cdf1",
         "c5d912a3f53cabdcb82a48b6ee5715038066b0e9c7b5b7e0a857d337a3ae0273",
-        "81482eb87975579c80d9882e3f0e6ec54b5c891493d9f74c3269f09265f509f2",
+        "f198604fab9319f34a1034ea7294435b7434700e4faff145ebaef3505b9f41de",
         "6b87f9af6718b0791434a540603036c6afb3c0d7605dffa37c1cbc258487a743",
-        "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
+        "0d98b403d68a96ab0a4d25a8b36fc9524780cb9f2200fb52f900ebaaf4635031",
         "9ec366aca8635a0fd2e590ac42908ff75f5af7c094ac8ec359cb9378152aabc7"
       ]
     },
@@ -140827,22 +141005,22 @@
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget": {
       "source_blocks_sha256": [
-        "66518968ae2d3938e4d2a7248ffe219560bf8a9e33da7b08b3add3d80bf2d429",
-        "1a8b42f2d2e4503ac7041aae0a24c3711ded0586f5a5f3e344f2c151672304da",
+        "0cea675f583a20c5e0fba9704eab5fd61499cd52d6d713b8ddc38aa5e0bc520e",
+        "892f02642e630a53c1ca30bee2c142b9343e81bcdf9a73b730ab8bbc57851f94",
         "4744c9a7b9d536414a859f8db4e1f1f3508fc1335dc95f2ae761b07536aff97c",
-        "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
+        "97e2d7a934760480fc3c9447069c7db5cefea5a5501f0a59cfe078001c0e34ef",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "3947ff34d3ff17bea3330e5a99d5b5b65441cbceb26696f8bfa50a1c5569298c",
         "cb8f68674dadf8106df8cd6d7cb9d19f7d387bc13387c13c108b21ee6cada6ee",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "1be9dae75de7fbf11a2aaa3bae6b864f47d9eb4950d079667528a450cd8f5811",
-      "text": "可编辑一卷每实验室微板分数 / 计算 / 数据库输入合同。\n\n一行是一个实验室微板:它的分数 CSV,它的数量 CSV,和测量资料库,实验院微板的每个对象表生活在其中. 所有三个列都充满了附加 - 每个到来重新提交整个表从字符标志 - 因此,数据库落在相反的顺序到 CSVs 仍然在正确的实验园微板上。\n\n没有数据库的磁盘是合法的,并不是一个错误:逆转设置在分数和计算。 数据库是使该磁盘的测量可用于下流,因此它的缺席阻碍了磁盘在那里而不是失败运行。\n\n:param value: 所有随后到达的,都是从字符号代码的整个表,而不是打开,这使得数据库落在相反的顺序,到 CSVs 仍然在右板上。\n:param parent: 父控件。\n创建一个单环每实验室微板桌。\n\n:param value: 线路已经保存了。\n:param parent: 父控件。",
+      "source_sha256": "a162490117b9e261bf2382b5bbe0746f15b7d8c52b287a7fc27e8c7f638efb1f",
+      "text": "可编辑的每板一行得分/计数输入及测量链接。\n\n一行即一块板：包括其得分和计数源路径、这些源中可选的命名表，以及存放该板逐对象表的独立测量数据库。源路径通过添加来填充 -- 每次有新内容到达，都会根据文件名标记重新提议整张表 -- 因此即使数据库按与文件相反的顺序拖入，也仍会落到正确的板上。这就是规则，第三列遵循该规则，而不是自行维护列表。\n\n没有数据库的磁盘是合法的,并不是一个错误:逆转设置在分数和计算。 数据库是使该磁盘的测量可用于下流,因此它的缺席阻碍了磁盘在那里而不是失败运行。\n\n:param value: 已保存的表，每块板一个条目。此后到达的所有内容都会根据文件名标记重新提议整张表，而不是追加，正因如此，即使数据库按与源文件相反的顺序拖入，也仍会落到正确的板上。\n:param parent: 父控件。\n创建一个单环每实验室微板桌。\n\n:param value: 线路已经保存了。\n:param parent: 父控件。",
       "translation_source_blocks_sha256": [
-        "8477acf8545b7060d04a9a8b542c3fa485f249be178eb14114ea2cac18aea313",
-        "a0bd34a9e3af45eac9c62d9f7a9bc79ee0aa1f2aa4234675f9c053e6361c9e05",
+        "7c0187a74f2d76d748f88e8b0a546be7447277c2caee031ff2fe66d791aa3b52",
+        "38544d6891d66a422e537f873100bc8ac6d671a185c0c8f9cc011256e42bc467",
         "4744c9a7b9d536414a859f8db4e1f1f3508fc1335dc95f2ae761b07536aff97c",
-        "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
+        "97e2d7a934760480fc3c9447069c7db5cefea5a5501f0a59cfe078001c0e34ef",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "8927041aa1ce77d02324863232ac441b1e738f121bf28a7510c23d80a714f1aa",
         "cb8f68674dadf8106df8cd6d7cb9d19f7d387bc13387c13c108b21ee6cada6ee",
@@ -145301,13 +145479,13 @@
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.drag_mode": {
       "source_blocks_sha256": [
-        "fddde89a3af427df4e064229a6d534b831c6c53dc28dbdf723827b840bc256dc",
+        "771f724dc10b0f24290acafb37e7c02b6e3d8f0e81867990371cccbbc213e296",
         "8ad04673687e64083770f9dfa7eff62caa97756bd46a4928f563aed01a904e5c"
       ],
-      "source_sha256": "9da497bc2a50845ab3f180ee6e8c6c1222b2a518d9c6cf0e30714eafddf9ecb4",
-      "text": "拖动现在做什么:旋转视野,或拖动。\n\n:returns: 模式名称,默认为 ``spin``。",
+      "source_sha256": "6d4543ace1c3dab4ee373b0fe89cf2964f3c691561a9681a1f8ff782ed365cd6",
+      "text": "当前拖动的作用：旋转、绘制或编辑体积边界。\n\n:returns: 模式名称,默认为 ``spin``。",
       "translation_source_blocks_sha256": [
-        "fddde89a3af427df4e064229a6d534b831c6c53dc28dbdf723827b840bc256dc",
+        "771f724dc10b0f24290acafb37e7c02b6e3d8f0e81867990371cccbbc213e296",
         "8ad04673687e64083770f9dfa7eff62caa97756bd46a4928f563aed01a904e5c"
       ]
     },
@@ -145543,14 +145721,14 @@
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.set_drag_mode": {
       "source_blocks_sha256": [
-        "da81bf68743aa647b2fb352488829f0f024c9d6e586a0af3594aad4cc22068d0",
-        "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e"
+        "b4a1ec9cb84f3bed093421e4fa2e6b8532038205ee6531df838ea609051f330b",
+        "cd939610e6e23121b7d651d53febacf22f0d33b7e332b544a794fa1a4dfe1e15"
       ],
-      "source_sha256": "6f5d5761dca3667955ebdb34ef9ffea345a18b2d184168764453697167da8fd9",
-      "text": "``'spin'`` 或 ``'draw'``. 他们为一个按钮竞争。\n\n:param mode: ``\"spin\"`` 或 ``\"draw\"``；其他任何值都视为 ``\"spin\"``。",
+      "source_sha256": "8b00d13a5dd4fa2e303e3ab6c2997ce29142cd15bf81b0516cf5955d541ce7d8",
+      "text": "选择旋转、绘制或显式边界编辑。\n\n:param mode: ``\"spin\"``、``\"draw\"`` 或 ``\"edit\"``；其他任何值均视为 ``\"spin\"``。",
       "translation_source_blocks_sha256": [
-        "da81bf68743aa647b2fb352488829f0f024c9d6e586a0af3594aad4cc22068d0",
-        "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e"
+        "b4a1ec9cb84f3bed093421e4fa2e6b8532038205ee6531df838ea609051f330b",
+        "cd939610e6e23121b7d651d53febacf22f0d33b7e332b544a794fa1a4dfe1e15"
       ]
     },
     "spacr.qt.widgets.gate_editor.GateCanvas.set_gate_enabled": {
@@ -145735,6 +145913,20 @@
       "translation_source_blocks_sha256": [
         "ea98f963f8541a8ac7f0f128ee8d731b96c2e2e177d0cc07f239496f6741967a",
         "831417f8a5c16263e2c004741a03b6d6e03ca652dbea9e92cccd17721d44a265"
+      ]
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas.volume_surface_at": {
+      "source_blocks_sha256": [
+        "fe2912b61c576e62ce53d074f2a7920cb2a225914ce07754e4e47b9a2ce66553",
+        "08ec8f5dee1b52460afb805705f35d457e22b8aa5b8fa2d91ebf8b7370b28324",
+        "15080cab25dd2ac3be85be430723f613ccb53ddb364a6b33a64c20433b2d7df1"
+      ],
+      "source_sha256": "a33bc78a589b89a625ec5549a6b87ed7f34e4764d505130f43b4a283b2012a31",
+      "text": "在相机旋转后选取最近的实际边界三角形。\n\n:param event: 当前体积坐标轴中的 Matplotlib 指针事件。\n:returns: ``(gate name, surface identifier)`` 或 ``None``。",
+      "translation_source_blocks_sha256": [
+        "fe2912b61c576e62ce53d074f2a7920cb2a225914ce07754e4e47b9a2ce66553",
+        "08ec8f5dee1b52460afb805705f35d457e22b8aa5b8fa2d91ebf8b7370b28324",
+        "15080cab25dd2ac3be85be430723f613ccb53ddb364a6b33a64c20433b2d7df1"
       ]
     },
     "spacr.qt.widgets.gate_editor.GateEditorPanel": {
@@ -146168,13 +146360,17 @@
     "spacr.qt.widgets.gate_settings.GateEditorSettings": {
       "source_blocks_sha256": [
         "6e4730832ef9a0ca6d827e73b021b160c44b7ddcb906e2118eb4d05be0ec0221",
-        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5"
+        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5",
+        "0392f929b7d8e5e94febc38f7634dabc723a744c28571c17f0d4e721cf3cc207",
+        "e2663e64e02425e3ad91b027c9e7fd5bc521ebcb396b78b68cf717b8b51fbbc7"
       ],
-      "source_sha256": "66b684e0c582ccc1a0b5edbd328e891df0b5af7a6f2b005a59a937569491085f",
-      "text": "所有数据选择边界编辑器都是由设置的。\n\nFrozen: settings 取代大批而不是转换,所以筛选可以将其所拥有的与所提供的相比,并仅在实际上花费阅读的东西发生变化时重新阅读表。",
+      "source_sha256": "4641a541cb4a268cff2512ad76b582de88667b79ab4ea455fb1eeb0cba07b10f",
+      "text": "所有数据选择边界编辑器都是由设置的。\n\nFrozen: settings 取代大批而不是转换,所以筛选可以将其所拥有的与所提供的相比,并仅在实际上花费阅读的东西发生变化时重新阅读表。\n\n:param anchor_density: 可见编辑锚点的边细分数，范围为 1 到 8；这绝不会更改门控区域存储的几何。\n:param show_anchors: 显示并启用可编辑的边界锚点。",
       "translation_source_blocks_sha256": [
         "a80bb10a60cf031445b385ed2ef630b503d14f5155506548c60b6606528f3080",
-        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5"
+        "11a7c23ce357c40af54b2e27d8a4b8a3064e407781e9bbd265e90a71daa7c9e5",
+        "4740dff3d61739d0185fb1a1d5738ce8d513eaccd95fa0908eb299478a33b3d7",
+        "e2663e64e02425e3ad91b027c9e7fd5bc521ebcb396b78b68cf717b8b51fbbc7"
       ]
     },
     "spacr.qt.widgets.gate_settings.GateEditorSettings.__post_init__": {
@@ -146939,6 +147135,232 @@
         "4afabcee864d72d345c81c11bdd4fe91744a488bd5313e75b2e93798438fe832",
         "e7376b18ce5e0c065dec2c1cfe70b5138612028bc4ca5d1eddacc0642317ff34",
         "98ca330358cdbd5744ac9e3dbf8df2ece853889e3529b7b647ca6535da384a3a"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate": {
+      "source_blocks_sha256": [
+        "d3eaf9d2ba2da3d5fd403d7c45fc022b870939f961649b4b29d7700a1b725b80",
+        "cf6b9b1b5338d84ab511ad6e588f4d4e5ebbc2b0675575b18631c554ef548316",
+        "bce3be498f079e73a75c43601594272f7475ffc6777769dc8427dd65de05ce38",
+        "65d0dbbdb282489670f00f9b7359ca850fc4ff4338b1876f248103fb9b92404e",
+        "63b3e43319369f5194df5def73606f5531f712e14b9efdb4222d1fb7dadfde2b",
+        "10145730e02194e0130bf84de5d453301b632e8a99d3ade4925507f186af0f46",
+        "a01f870875a5596fa823a5df546789d6bea2cc80a6a43d628933d15e05104801",
+        "2dc750cfd420a9e33763bfb5c4256d1c1f99b4aeb96d4371980b23436f52c021",
+        "caa2ca217306daac2dce7ec77fe96d110f96ede3b9d6efa61e313b5cd8efc604"
+      ],
+      "source_sha256": "8f643eeb8fb71860fc05e007e8d4c1e420979fa6eec91dca82518d68f0acc65b",
+      "text": "一个封闭的、可编辑的分段线性体积，供绘制和门控共同使用。\n\n:param name: 门控层级结构使用的唯一门控区域名称。\n:param parent: 可选的父门控区域，用于限制此体积的成员归属。\n:param x_column: 沿第一个数据轴的测量值。\n:param y_column: 沿第二个数据轴的测量值。\n:param z_column: 沿第三个数据轴的测量值。\n:param vertices: 有限且互不相同的三维边界坐标。\n:param faces: 方向一致、索引共享顶点的三角形。\n:param surface_groups: 每个三角形的可选表面标识符；同一组中的三角形一起移动。为空时每个三角形各分配一组。",
+      "translation_source_blocks_sha256": [
+        "88e66539434d8e16d3a396ed8b4c58bab2379db5e34eb3e80d44b40f9d007cae",
+        "e237fb13b7d9d5f5e031dfb0f68d754692d82547ddb0e92c4ea0cb1fec9a8f54",
+        "8f7a0de2c1f5ff53a681b2b12ead6b5d93ab23bb8a2d96d7f571a62b29637840",
+        "65d0dbbdb282489670f00f9b7359ca850fc4ff4338b1876f248103fb9b92404e",
+        "63b3e43319369f5194df5def73606f5531f712e14b9efdb4222d1fb7dadfde2b",
+        "10145730e02194e0130bf84de5d453301b632e8a99d3ade4925507f186af0f46",
+        "a01f870875a5596fa823a5df546789d6bea2cc80a6a43d628933d15e05104801",
+        "2dc750cfd420a9e33763bfb5c4256d1c1f99b4aeb96d4371980b23436f52c021",
+        "caa2ca217306daac2dce7ec77fe96d110f96ede3b9d6efa61e313b5cd8efc604"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__": {
+      "source_blocks_sha256": [
+        "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5"
+      ],
+      "source_sha256": "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5",
+      "text": "冻结并验证每个坐标、边界连接和表面。",
+      "translation_source_blocks_sha256": [
+        "a9c0822857fbe24aab8d316b04a3fc578a2f25358454f9809e88f79499a7fde5"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.anchors": {
+      "source_blocks_sha256": [
+        "4592c53591117b9d62bceafb8da41032f1a77300da61250d566d9f3302c2cdb4",
+        "bf907558691f231110b8e06ef0fe4df6f11ba0e93ecd112ba3bd2ea09bc5542d",
+        "330a9ba2899bfd70be150747c43290da6cf0b875a05ee5b3e937d624b3d01f31",
+        "224954b10e0b10cc4393c8764c5077f449536bf39b8b995be59af53a70dcbac5"
+      ],
+      "source_sha256": "26ae553ddf47a9f53152f842eb65f172ab34c19c488815b350340bf27b5a9da1",
+      "text": "用均匀间隔的重心锚点对每个表面和每条边进行采样。\n\n密度只改变可见的编辑控制柄，绝不改变科学几何。共享的边和顶点只暴露一个规范控制柄。\n\n:param density: 每条三角形边的细分数，1 到 8。\n:returns: 按确定性表面顺序排列的唯一锚点。",
+      "translation_source_blocks_sha256": [
+        "4592c53591117b9d62bceafb8da41032f1a77300da61250d566d9f3302c2cdb4",
+        "bf907558691f231110b8e06ef0fe4df6f11ba0e93ecd112ba3bd2ea09bc5542d",
+        "330a9ba2899bfd70be150747c43290da6cf0b875a05ee5b3e937d624b3d01f31",
+        "224954b10e0b10cc4393c8764c5077f449536bf39b8b995be59af53a70dcbac5"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.centre": {
+      "source_blocks_sha256": [
+        "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd"
+      ],
+      "source_sha256": "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd",
+      "text": "返回顶点质心的前两个分量，供平面工具使用。",
+      "translation_source_blocks_sha256": [
+        "98c2ca9b0fb57da2b51c59cd27163e19b9e24b71440f35ca92bd87c11672c6cd"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.columns": {
+      "source_blocks_sha256": [
+        "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292"
+      ],
+      "source_sha256": "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292",
+      "text": "与每个顶点坐标相匹配的测量列。",
+      "translation_source_blocks_sha256": [
+        "3134d58a35b94d007599d356ac4c29d731f3122f3f4af4320ca263fac24b5292"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.describe": {
+      "source_blocks_sha256": [
+        "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120"
+      ],
+      "source_sha256": "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120",
+      "text": "描述测量值以及实际可编辑边界的大小。",
+      "translation_source_blocks_sha256": [
+        "5c79b42d2af659635d0d935c65b61a17b48ab758b03747f210712eab4fc16120"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate": {
+      "source_blocks_sha256": [
+        "796315c2ee87d6a070d059499e4efa5d78477963dea17485d45734f914048aa4",
+        "ebf7a797869a243e20cbdbbd065f2e63e5879422594d2d8a4e8ca6853e621631",
+        "759a80ed5e9a6783b50bc9aede35ee8258b6de94daa1fe10777162afa1398b7e",
+        "2d5b8b09260252da838bde97b6919dfa09719b8be081dd68159ccd666a9e9c15",
+        "bacafe906a8acc4ea6f6894322140671dbcb1d03b1415e3fcdfe381e272efc62",
+        "4a3de99a5e7b70d843ee73883efe7a4c9a5f65613c9e060e7255220106177dce",
+        "2c225b8dcd41961241e1182c42f71e6c9da30ed60ab78c76f8e671f8da3dc96d"
+      ],
+      "source_sha256": "7a7d92c175602e5c8a81f3b28cf8f600d10d21b11444f8a55a744ecb163ea0ba",
+      "text": "为长方体、圆柱体、棱柱、椭球体或视图门控区域生成共享边界。\n\n编辑时，曲面会变为显式分段线性边界；原始解析门控区域在提交之前保持不变。\n\n:param gate: 现有的三维门控区域及其层级结构。\n:param limits: 有限的轴边界，仅用于无界的原始边或视图门控区域的有限深度，按 ``gate.columns`` 顺序排列。省略必需的边界将被拒绝。编辑时，视图门控区域以这些界限投影后的最近和最远深度为边界。\n:param segments: 曲面形状的圆周采样数，8 到 128。\n:param depth_steps: 均匀分布的轴向区间数，1 到 16。\n:returns: 具有共享可选表面的封闭体积。",
+      "translation_source_blocks_sha256": [
+        "c67b49cdb6ac0a83da27a680c9c9fa62131689828e7199b6750bf1e4b7d2e3dc",
+        "a441a621352ea5788240fee5bdea1f027879f24b8deb966e94193e66004586ca",
+        "0dbfda1b81d32d1534a37deb60b6c951be5238ab8443b454eee7f43b786c490c",
+        "5111f0e891c82ad2937d1e2fe13f3f6aabff83c32489bb1ecfb023b703a714ef",
+        "bacafe906a8acc4ea6f6894322140671dbcb1d03b1415e3fcdfe381e272efc62",
+        "4a3de99a5e7b70d843ee73883efe7a4c9a5f65613c9e060e7255220106177dce",
+        "2c225b8dcd41961241e1182c42f71e6c9da30ed60ab78c76f8e671f8da3dc96d"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate.bound": {
+      "source_blocks_sha256": [
+        "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a"
+      ],
+      "source_sha256": "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a",
+      "text": "解析一个显式边界，不臆造未见的范围。",
+      "translation_source_blocks_sha256": [
+        "eb42dc186dc907727eee79cdb7f35c8e7c73329281adcbcebfcdf5ab59e22d5a"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.kind": {
+      "source_blocks_sha256": [
+        "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30"
+      ],
+      "source_sha256": "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30",
+      "text": "持久化的可编辑体积标记。",
+      "translation_source_blocks_sha256": [
+        "57e823b553a54741c2e4f0f51c03274b97e4786a05e4fbc0182a005bbdc6af30"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.mask": {
+      "source_blocks_sha256": [
+        "6913cd31a980e4f6fb5b0ba482416e5a4c63b75072c52ffaed0c6acf8a062736",
+        "d420fba8d94ab646e67e6a20f83095062c6428054733b3f4841448cf0c30d855",
+        "a662071ce78fdf986c832dbd838269c84f351ea2509dca73ffe7ad3d01ee12d3",
+        "d29b21b0e9a0a6752f7e625071d8cec07cf989f129ebabf1429187399842212c"
+      ],
+      "source_sha256": "85f3910eda2471c9fa30b57141ea7f13cd6f6860aa719f0e272f79f61dee33d0",
+      "text": "使用有符号立体角，针对同一封闭网格测试测量点。\n\n边界上的点包含在内。非有限测量值被排除。每个三角形的计算量限制为 4096 个点，且不分配体素体积。\n\n:param frame: 包含全部三个门控列的测量值。\n:returns: 按原始顺序每行一个布尔值。",
+      "translation_source_blocks_sha256": [
+        "6913cd31a980e4f6fb5b0ba482416e5a4c63b75072c52ffaed0c6acf8a062736",
+        "d420fba8d94ab646e67e6a20f83095062c6428054733b3f4841448cf0c30d855",
+        "c09c5e56443b8dc03fb2152884bcd4b54cf002679f404c88597d3c5eb65f8181",
+        "d29b21b0e9a0a6752f7e625071d8cec07cf989f129ebabf1429187399842212c"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_surfaces": {
+      "source_blocks_sha256": [
+        "8bcca0d928527686ea7f22f2a59a5da960958c7d5f8cfea34e11338cc3b0341d",
+        "6b991e09d11ce4718eb8426ad9276b1a18d61cdfe00b66f7fcc16ebd18039e6e",
+        "7b6ef655f7b5cf6a5052244472dc217fbc01737325f2f55c363e327281b50010"
+      ],
+      "source_sha256": "7ff9a839bb380c9b2c472ea0be69dde27d6fd41b9bd371be92b3884f43b2cb8f",
+      "text": "将选定表面及其共享锚点移动一次，并保持连通性。\n\n:param groups: 现有的表面标识符；重复项无效。\n:param delta: 在三个测量维度上的位移。",
+      "translation_source_blocks_sha256": [
+        "8bcca0d928527686ea7f22f2a59a5da960958c7d5f8cfea34e11338cc3b0341d",
+        "6b991e09d11ce4718eb8426ad9276b1a18d61cdfe00b66f7fcc16ebd18039e6e",
+        "7b6ef655f7b5cf6a5052244472dc217fbc01737325f2f55c363e327281b50010"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_vertices": {
+      "source_blocks_sha256": [
+        "18e201a77cb007f7ce410b508889f53b5d24a0e74f586f4629b75d89ded2824e",
+        "1289cc1d69e56f681d1bd36ebf995e95405269dad1b86bd531911e5747657b0d",
+        "5d4699044f2321ca513029e9d0160061fe7783aca5e16986babd415e48b77d61",
+        "85ad43f9df9d8372f29da956b51a4bdac8fed69a24e3e8bdcba8327b0326c8e6"
+      ],
+      "source_sha256": "7c0045168205e6697244b08f1546d7cd0b120c4cf9ac2650bbf296271e2a9c48",
+      "text": "将每个选定的共享顶点位移一次，并验证新的边界。\n\n:param indices: 顶点索引；重复的索引会被去重。\n:param delta: 沿三个数据轴各自的位移。\n:raises GateError: 当索引无效、运动非有限或几何无效时。",
+      "translation_source_blocks_sha256": [
+        "18e201a77cb007f7ce410b508889f53b5d24a0e74f586f4629b75d89ded2824e",
+        "1289cc1d69e56f681d1bd36ebf995e95405269dad1b86bd531911e5747657b0d",
+        "5d4699044f2321ca513029e9d0160061fe7783aca5e16986babd415e48b77d61",
+        "85ad43f9df9d8372f29da956b51a4bdac8fed69a24e3e8bdcba8327b0326c8e6"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.scaled": {
+      "source_blocks_sha256": [
+        "6e5c7968429b442c440db9ffd83203f34e70407a13901fd64a03b30ebe1b66ae",
+        "912e37d4a47f12243ed74d26e763d3ec3792a3b5acdf3dc815d2e1edbd62bf2d",
+        "c01be27f4c847341f7e9c50741cd448a70908dbe67c7e4a0cebfa0ece81e27fd"
+      ],
+      "source_sha256": "9774185b661e1d532ec85661ad18f76945feff549f52232fa8b646c290ad7029",
+      "text": "以质心或提供的平面锚点为中心，缩放全部三个维度。\n\n:param factor: 有限的正缩放因子。\n:param about: 可选的第一/第二轴中心；深度使用其质心。",
+      "translation_source_blocks_sha256": [
+        "6e5c7968429b442c440db9ffd83203f34e70407a13901fd64a03b30ebe1b66ae",
+        "912e37d4a47f12243ed74d26e763d3ec3792a3b5acdf3dc815d2e1edbd62bf2d",
+        "c01be27f4c847341f7e9c50741cd448a70908dbe67c7e4a0cebfa0ece81e27fd"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.to_dict": {
+      "source_blocks_sha256": [
+        "90119b4f94a1f948d3b163d0320ac027af7a781ac389de0090be51f6d107a20e"
+      ],
+      "source_sha256": "90119b4f94a1f948d3b163d0320ac027af7a781ac389de0090be51f6d107a20e",
+      "text": "序列化精确网格、分组表面和门控层级结构。",
+      "translation_source_blocks_sha256": [
+        "9873349e7b671fad30989d8b3384627f4cb73d4676f5214c380c7db3ab66ea3a"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.translated": {
+      "source_blocks_sha256": [
+        "aead03d2dc2fcca22148340b1ee8d70976e3910412cc0797a6db6211024ab830",
+        "d70385d65ca0d5741accb60f324e33116931081f2bd1d76ea38635545c1a125b",
+        "fba5d4f40ec1479863041501fffbe1f46e5d5515cda7c0789ce511f274cd8681"
+      ],
+      "source_sha256": "f4bbc5ed23c13f86e95a54c2fdf2fe7cebf227282ba71aa394b6f2bc09df3240",
+      "text": "移动前两个轴，同时保留深度和所有共享顶点。\n\n:param dx: 以测量单位表示的第一轴位移。\n:param dy: 以测量单位表示的第二轴位移。",
+      "translation_source_blocks_sha256": [
+        "aead03d2dc2fcca22148340b1ee8d70976e3910412cc0797a6db6211024ab830",
+        "d70385d65ca0d5741accb60f324e33116931081f2bd1d76ea38635545c1a125b",
+        "fba5d4f40ec1479863041501fffbe1f46e5d5515cda7c0789ce511f274cd8681"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor": {
+      "source_blocks_sha256": [
+        "7b6d12ffc4cb7f7beaaafceb14a6bdc8513cbeb759f2cd37b9da9e3dbba4230d",
+        "a52716eceeec9f75808088db0c4b9f688ef3b86daed4a92cd57adb12dc84f1a1",
+        "5bb2ba108ac2fbeafe200390a6342a21508fd1a113cf079bb14f9c43c640a67d",
+        "97345f60982fc3cb185079cc8d731babbdb8c9b1d110ca9f0224bcbc2d778b6e",
+        "7dd93930a1a4d3180c4098e701731c0d3cf522062ce9fa33246e43591217477b"
+      ],
+      "source_sha256": "a7b969dbccacedf95463a9c8018bfbe85b360047a6a108a68bf40b1fe46fabd0",
+      "text": "移动现有顶点，或插入并移动边/表面锚点。\n\n插入边锚点会同时拆分所有相邻三角形，因此表面之间不会出现裂缝。重复编辑绝不会更改列。\n\n:param role: 由 :meth:`anchors` 返回的规范角色。\n:param point: 在三个测量维度中的目标坐标。\n:raises GateError: 无效的角色、非有限目标或无效的形变。",
+      "translation_source_blocks_sha256": [
+        "7b6d12ffc4cb7f7beaaafceb14a6bdc8513cbeb759f2cd37b9da9e3dbba4230d",
+        "a52716eceeec9f75808088db0c4b9f688ef3b86daed4a92cd57adb12dc84f1a1",
+        "5bb2ba108ac2fbeafe200390a6342a21508fd1a113cf079bb14f9c43c640a67d",
+        "97345f60982fc3cb185079cc8d731babbdb8c9b1d110ca9f0224bcbc2d778b6e",
+        "7dd93930a1a4d3180c4098e701731c0d3cf522062ce9fa33246e43591217477b"
       ]
     },
     "spacr.qt.widgets.gate_spec.EllipseGate": {
@@ -148925,6 +149347,20 @@
         "2fdefbff188a05d69da89e7ae54c0fc35ff7fbaab98a6ff1e44b200b370cc36c"
       ]
     },
+    "spacr.qt.widgets.gate_spec.VolumeAnchor": {
+      "source_blocks_sha256": [
+        "62305811be8b97f47bbc0f631b12081c7b1f5411f1c4f3217159d38588d998cc",
+        "5956556497f99476e229178d01fd7dedd1b421303957f1346e6d83347632cba0",
+        "55d7d1a93c2639bd6d389f85c3ed5e7192a01f2ee71aa0be71b67f3f11b17eeb"
+      ],
+      "source_sha256": "83297e197eda933b77f90d14c1ad6efe8cd67eb01bec6150e4eba4a404b338ca",
+      "text": "一个边界点及其稳定的重心编辑角色。\n\n:param point: 按门控区域三列顺序排列的坐标。\n:param role: 编辑所使用的规范顶点/边/三角形权重。",
+      "translation_source_blocks_sha256": [
+        "62305811be8b97f47bbc0f631b12081c7b1f5411f1c4f3217159d38588d998cc",
+        "7442c2a4ec3992030c65365cbde46fd92e7ea745dd4c1980494299c24ee32d2e",
+        "55d7d1a93c2639bd6d389f85c3ed5e7192a01f2ee71aa0be71b67f3f11b17eeb"
+      ]
+    },
     "spacr.qt.widgets.gate_spec.WandError": {
       "source_blocks_sha256": [
         "2c644b2b57daee03b88c9582adcb0cd95c3c0053af468a425be6f985a73efa5c"
@@ -148945,6 +149381,36 @@
       "translation_source_blocks_sha256": [
         "c4a2443a566ab76d53f93e2e19c501c2e03d8cda6b7233770edc68ce44194bae",
         "b29d06bbc97708aebffba5aa2a9a993c61ad9f5ca003aff93843d9697c2c6573"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._mesh_triangle_contact.cross": {
+      "source_blocks_sha256": [
+        "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec"
+      ],
+      "source_sha256": "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec",
+      "text": "两个平面向量的有符号面积。",
+      "translation_source_blocks_sha256": [
+        "b38d14de9f3d77cd2ce9b3c5f36e956b0a84edca19fe9b033594f0439b06d7ec"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._triangulate_volume_cap.turn": {
+      "source_blocks_sha256": [
+        "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab"
+      ],
+      "source_sha256": "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab",
+      "text": "一个候选三角形的有向平面面积。",
+      "translation_source_blocks_sha256": [
+        "2f2a79d8db7df35d3b229cdf048db9535da3727aecbf5d98c99103bbbbb03eab"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._validate_edited_polygon.cross": {
+      "source_blocks_sha256": [
+        "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714"
+      ],
+      "source_sha256": "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714",
+      "text": "两个边向量的归一化有符号平面面积。",
+      "translation_source_blocks_sha256": [
+        "fcb4b3279aace0793dffca11d8c8b8cc5cafed472f23d9dd0d7161479a9b9714"
       ]
     },
     "spacr.qt.widgets.gate_spec.best_cluster_candidate": {
@@ -157264,15 +157730,17 @@
         "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
         "f350ab15190913cb5a93bf9dd3d402c1c6c225ae4be6af6c9419242af2786b6e",
         "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
-        "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923"
+        "8d7703dde8e227af9a9a7d4e87678c61cf0752cbe88b2a175264d85b2a38b2d2",
+        "832feba1f5b08c47a7ab9640073ad512503c55fc44ff3f0627c4e15c579e46cc"
       ],
-      "source_sha256": "a776ae68b80affa923c8a943668486f6705e8fa701f73f9e2c285561036d6b63",
-      "text": "为每个读取测量数据库的界面提供的同一个 \"Load test data…\" 按钮。\n\nAnnotate 示例（``einarolafsson/spacr-example-annotate``）是一块真实的板：``measurements/measurements.db`` 及其细胞、细胞质、细胞核和病原体表，以及它所索引的 ``data/`` 下的 2,341 个裁剪图。Annotate 和 Classify 已经会将它获取到共享的示例板文件夹中（:func:`spacr.example_archives.example_plate_folder`）。其他每个打开测量数据库的界面都可以演示在同一块板上的运行效果，因此本模块只获取一次，然后交给发出请求的界面。\n\n“一个辅助函数，而不是每个界面各一份副本。”使用缓存还是下载的判断、按钮的忙碌状态以及失败消息，对于 Plate Viewer、Tabulate、Graph Builder 等都是一样的；不同的只是填写哪个输入框，以及用哪个方法打开它。因此，界面只需以回调形式传入这一处差异，别无其他。\n\n“下载使用的是现有的机制。”不会发布任何新内容：归档、工作线程和进度对话框都是 :func:`spacr.qt.hf_download.download_annotate_example`，与 Classify 按钮所用的调用相同；任何一处已经解压过的板都会被重用，而不访问网络。",
+      "source_sha256": "489cf0a2b46933da128810c3566ccec2800d3d1312d7eb267888534a86e55bda",
+      "text": "为每个读取测量数据库的界面提供的同一个 \"Load test data…\" 按钮。\n\nAnnotate 示例（``einarolafsson/spacr-example-annotate``）是一块真实的板：``measurements/measurements.db`` 及其细胞、细胞质、细胞核和病原体表，以及它所索引的 ``data/`` 下的 2,341 个裁剪图。Annotate 和 Classify 已经会将它获取到共享的示例板文件夹中（:func:`spacr.example_archives.example_plate_folder`）。其他每个打开测量数据库的界面都可以演示在同一块板上的运行效果，因此本模块只获取一次，然后交给发出请求的界面。\n\n“一个辅助函数，而不是每个界面各一份副本。”使用缓存还是下载的判断、按钮的忙碌状态以及失败消息，对于 Plate Viewer、Tabulate、Graph Builder 等都是一样的；不同的只是填写哪个输入框，以及用哪个方法打开它。因此，界面只需以回调形式传入这一处差异，别无其他。\n\n存档、工作者和进展对话是 :func:`spacr.qt.hf_download.download_annotate_example`,相同的呼叫Classify的按钮,并且已经由任何一个未包装的微孔板被重新使用,而无需触摸网络。\n\n三个公共集有自己的按钮,通过示例集注册表(:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose``(LINCS 细胞绘画, ``einarolafsson/spacr-example-dose``)为剂量响应,预测配置,运行比较, Run History和 Training Runs,``control_chart``(CPJUMP1, ``einarolafsson/spacr-example-control-chart``)对控制图,以及 ``hit``(TSG101 扫描实验的切割,``einarolafsson/spacr-example-hit``)的调查命中。",
       "translation_source_blocks_sha256": [
         "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
         "bf705997d039273e6200aa24bc3548efafcc18cffa68eb9128242c54129b9a51",
         "ee693d0de0ae694a157a77ad54e55cb1f7dc5be278c06df146b45d64da37829b",
-        "cb254d1e322e8aed9a0ecb91063cd954234d140a7c24d20ff762550f2a88fc79"
+        "cfff72f3559ef0ce2383478b212c6a89903d5e57a312caa5311b9b009ddc6d24",
+        "f5cbf5d54395dbb04a329b6fa7042dd5737b3b14ed2f18886a445a4bbd79ba6e"
       ]
     },
     "spacr.qt.widgets.measurements_example.example_measurements_db": {
@@ -176419,15 +176887,15 @@
       "source_blocks_sha256": [
         "f31af1568cc3c2205bcb60cdd45210266125f4b3ab096d05ccafec7ee8e2efb7",
         "2bd4b70a329792c28b03b67b2fa7504bf1d2ee4e24a6bda6f14c0cea69f31b6d",
-        "8464bf387f9ff80a2714587f481defacd127bb39508db7611d8581350afff2fa",
+        "b7526ea714edd8259fb0e1001901e7d14163f048166451decea8abc394a47833",
         "cb0920ed702f545a7ffbf3e6eeb802f68b9e43f52cb096dead407b84804ceb77"
       ],
-      "source_sha256": "9f37c658b6b5af553b41579fee9b1e7c708bb5314fa961e48c34b6dbfb3ed9fb",
-      "text": "返回输出目录的处理会使用,而不执行它。\n\n:param settings: 回归设置用于解决源和模型类型。\n:returns: 预测结果目录,或 ``None`` 当没有计算数据路径或可写的文件夹选项可以解决。\n\n结果使用相同的文件夹选择规则,如回归处理会议。",
+      "source_sha256": "6dab4991af82da8c561f7c2401927325907915885f393051e8be57686bce735f",
+      "text": "返回输出目录的处理会使用,而不执行它。\n\n:param settings: 回归设置用于解决源和模型类型。\n:returns: 预测结果目录；当无法确定计数数据路径或可写文件夹时为 ``None``。PostgreSQL 计数需要显式的本地 ``src``。\n\n结果使用相同的文件夹选择规则,如回归处理会议。",
       "translation_source_blocks_sha256": [
         "ce3c159bb7d688a71db73ae9cf84bf21ea42d8403b010492c378a82a25967deb",
         "2bd4b70a329792c28b03b67b2fa7504bf1d2ee4e24a6bda6f14c0cea69f31b6d",
-        "8464bf387f9ff80a2714587f481defacd127bb39508db7611d8581350afff2fa",
+        "b7526ea714edd8259fb0e1001901e7d14163f048166451decea8abc394a47833",
         "2db65f87e551041d30271d153c79df70dc36d8aa0c959c01f78b13612efc6112"
       ]
     },
