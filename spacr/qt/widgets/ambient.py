@@ -1556,6 +1556,171 @@ class _BufferedEngine(AmbientEngine):
 
 
 
+#: Measured shading cost per theme, ``(pixels, density, cpu ms, gpu ms)``,
+#: from the workstation audit features/data/684_animation_gpu_audit_2026-10-10
+#: (RTX 3090 Ti, tools/audit_animation_performance.py --gpu, median of 24
+#: frames). Regenerate from the newest audit receipt with
+#: ``tools/audit_animation_performance.py --cost-table RECEIPT``; a test
+#: holds this table to that receipt. Automatic follows the nearest row.
+_GRAPHICS_COST = {
+    "data_art_impulse_lens": (
+        (2073600, 0.25, 5.18, 1.982), (2073600, 1.0, 1.888, 1.338),
+        (8294400, 0.25, 4.486, 4.183), (8294400, 1.0, 8.057, 5.933)),
+    "data_art_genetic_advection": (
+        (2073600, 0.1, 0.759, 4.154), (2073600, 1.0, 5.989, 8.611),
+        (8294400, 0.1, 2.732, 6.376), (8294400, 1.0, 9.781, 16.499)),
+    "data_art_point_atlas": (
+        (2073600, 0.1, 0.471, 0.926), (2073600, 1.0, 2.695, 1.94),
+        (8294400, 0.1, 2.273, 3.053), (8294400, 1.0, 2.681, 4.618)),
+    "data_art_spaceout_field": (
+        (2073600, 0.1, 0.265, 1.35), (2073600, 1.0, 0.721, 1.383),
+        (8294400, 0.1, 5.617, 3.856), (8294400, 1.0, 9.213, 5.594)),
+}
+
+#: Automatic takes the graphics path only when it measured at least this
+#: much faster than the CPU, so a near tie keeps the GPU free for analysis.
+_GRAPHICS_GAIN = 0.9
+
+
+def _measured_graphics_win(theme, pixels, density):
+    """Whether the nearest measured row says the GPU is faster, or ``None``.
+
+    Canvases under half the smallest measured size stay on the CPU: the
+    measurements do not reach down to small widgets.
+    """
+    rows = _GRAPHICS_COST.get(theme)
+    if not rows or pixels <= 0 or density <= 0:
+        return None
+    if pixels < 0.5 * min(row[0] for row in rows):
+        return False
+    nearest = min(rows, key=lambda row: abs(math.log(pixels / row[0]))
+                  + abs(math.log(density / row[1])))
+    return nearest[3] < _GRAPHICS_GAIN * nearest[2]
+
+
+class _GraphicsBackend:
+    """Optional N679 graphics renderer for one theme, with CPU fallback.
+
+    ``_graphics_backend`` holds the Performance > Animation GPU choice:
+    ``"cpu"`` never touches a graphics driver, ``"gpu"`` asks for the
+    renderer on every frame it supports, and ``"auto"`` asks only where
+    :meth:`_graphics_automatic` says the graphics path is expected to beat
+    the CPU. Every refusal keeps the CPU picture: a frame shaded off the
+    producer thread, a canvas above 3840 x 2160, Dynamic animation holding
+    decorative GPU work, a failed isolated probe, another process computing
+    on the GPU, a constructor error or a draw error. The last three are
+    remembered for the engine's lifetime as ``_graphics_failed``.
+
+    The renderer is :class:`_FlowPointGraphics`, created, used and released
+    on the producer thread that owns its context.
+    """
+
+    _graphics_backend = 'cpu'
+    _point_graphics = None
+    _graphics_failed = False
+    _graphics_idle_until = 0.0
+    _graphics_idle = False
+
+    def _graphics_automatic(self, width, height, work=0) -> bool:
+        """Whether Automatic picks the graphics path for this frame.
+
+        The measured cost table decides where the theme has been measured
+        (:data:`_GRAPHICS_COST`); otherwise :meth:`_graphics_unmeasured`.
+        """
+        measured = _measured_graphics_win(getattr(self, "name", ""), width * height,
+                                          float(getattr(self, "density", 1.0)))
+        if measured is not None:
+            return measured
+        return self._graphics_unmeasured(width, height, work)
+
+    def _graphics_unmeasured(self, width, height, work=0) -> bool:
+        """Automatic's choice before a theme has GPU measurements: CPU.
+
+        The CPU frame is already cheap for most themes, and a full-frame
+        readback is not free.
+        """
+        return False
+
+    def _release_point_graphics(self):
+        """Release this producer's renderer without crossing thread ownership."""
+        renderer = self._point_graphics
+        if renderer is not None and renderer._owner == threading.get_ident():
+            renderer._close()
+            self._point_graphics = None
+
+    def _graphics_renderer(self, width, height, work=0):
+        """Return the producer's renderer for this frame, or ``None`` for CPU."""
+        mode = self._graphics_backend
+        if mode not in ('auto', 'gpu'):
+            self._release_point_graphics()
+            return None
+        if threading.current_thread().name != 'spacr-ambient-shade':
+            return None
+        eligible = (mode in ('auto', 'gpu') and not self._graphics_failed
+                    and width * height <= 3840 * 2160
+                    and sys.byteorder == 'little')
+        if mode == 'auto':
+            eligible = eligible and self._graphics_automatic(width, height, work)
+        if not eligible or _decorative_gpu_blocked():
+            self._release_point_graphics()
+            return None
+        if self._point_graphics is None and not _flow_graphics_preflight():
+            self._graphics_failed = True
+            return None
+        now = time.monotonic()
+        if now >= self._graphics_idle_until:
+            self._graphics_idle = (not _dynamic_animation_on()
+                                   or _flow_compute_idle())
+            self._graphics_idle_until = now + 2.0
+        if not self._graphics_idle:
+            self._release_point_graphics()
+            return None
+        if self._point_graphics is None:
+            try:
+                self._point_graphics = _FlowPointGraphics()
+            except Exception:
+                LOG.debug('flow graphics unavailable; retaining CPU material',
+                          exc_info=True)
+                self._graphics_failed = True
+                return None
+        return self._point_graphics
+
+    def _graphics_frame(self, method, width, height, *args, work=0, build=None):
+        """Draw one frame with renderer ``method``, or return ``None`` for CPU.
+
+        ``build``, when given, returns the arguments; it runs only once a
+        renderer has accepted the frame, so the CPU path pays nothing for
+        graphics-only preparation.
+        """
+        renderer = self._graphics_renderer(width, height, work)
+        if renderer is None:
+            return None
+        try:
+            if build is not None:
+                args = tuple(build())
+            return getattr(renderer, method)(width, height, *args)
+        except Exception:
+            LOG.debug('flow graphics unavailable; retaining CPU material', exc_info=True)
+            self._release_point_graphics()
+            self._graphics_failed = True
+            return None
+
+
+def _flow_graphics_possible() -> bool:
+    """Cheap check whether a graphics renderer could exist in this process.
+
+    False once the isolated probe has failed or when moderngl is missing.
+    Used where the CPU path would otherwise change shape (the stratified
+    theme only gets a shading thread for its graphics path).
+    """
+    if _FLOW_GRAPHICS_PROBE is False:
+        return False
+    import importlib.util
+
+    return importlib.util.find_spec("moderngl") is not None
+
+
+
 #: How many blobs. Cheap enough to raise (the shading happens over 37 000
 #: buffer pixels), but past about twenty the fields merge into a single wash
 #: and the individual motion stops being readable.
@@ -1608,7 +1773,7 @@ class Blob:
     color: int
 
 
-class BlobsEngine(_BufferedEngine):
+class BlobsEngine(_GraphicsBackend, _BufferedEngine):
     """Diffuse colour blobs, drifting and pulsing.
 
     Motion is two independent sines per blob rather than a random walk, so
@@ -1680,6 +1845,29 @@ class BlobsEngine(_BufferedEngine):
             out.append((cx, cy, max(1.0, radius)))
         return tuple(out)
 
+    def _shade(self, width: int, height: int) -> QImage:
+        """Shade on the optional graphics renderer, else on the CPU buffer."""
+        bw, bh = self.buffer_size(width, height)
+        image = self._graphics_frame(
+            '_draw_blobs', bw, bh,
+            build=lambda: (self._blob_rows(bw, bh), BLOB_FALLOFF, self.dark))
+        if image is None:
+            return super()._shade(width, height)
+        return self._soften(image, width, height)
+
+    def _blob_rows(self, width: int, height: int) -> list:
+        """``cx, cy, radius, alpha, r, g, b`` per blob, as the CPU paints them."""
+        peak = (BLOB_ALPHA_DARK if self.dark else BLOB_ALPHA_LIGHT) \
+            * self._fractional_alpha_scale(BLOB_COUNT)
+        colors = self.paint_colors
+        rows = []
+        for blob, (cx, cy, radius) in zip(self.blobs,
+                                          self.geometry(width, height)):
+            color = colors[blob.color % len(colors)]
+            rows.append((cx, cy, radius, max(0.0, min(1.0, peak)),
+                         color.redF(), color.greenF(), color.blueF()))
+        return rows
+
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
         """Draw one frame's field of shapes.
 
@@ -1706,6 +1894,9 @@ class BlobsEngine(_BufferedEngine):
 AURORA_CURTAINS = 3
 
 AURORA_BUFFER_EDGE = 960
+
+#: Rows of the per-curtain ray texture, from its top (row 0) to its base.
+_AURORA_TEXTURE_ROWS = 192
 
 #: Ray length — how far up the sheet is lit — as a fraction of the canvas
 #: height, scaled by the size setting. Comfortably deeper than the fold
@@ -1943,7 +2134,7 @@ class Curtain:
     color: int
 
 
-class AuroraEngine(_BufferedEngine):
+class AuroraEngine(_GraphicsBackend, _BufferedEngine):
     """Folded curtains of vertical rays, rippling along their own length.
 
     Rays rise from an irregular folded lower edge, fan gently toward the
@@ -1987,8 +2178,18 @@ class AuroraEngine(_BufferedEngine):
         return max(1.0, width / bw, height / bh)
 
     def _shade(self, width: int, height: int) -> QImage:
-        """Clear the owned raster before painting the current curtains."""
+        """Clear the owned raster before painting the current curtains.
+
+        The optional graphics renderer generates the same ray textures and
+        warps them along the same strips; any refusal paints on the CPU.
+        """
         bw, bh = self.buffer_size(width, height)
+        image = self._graphics_frame(
+            '_draw_aurora', bw, bh,
+            build=lambda: ([self._aurora_gpu_layer(layer)
+                            for layer in self._aurora_layers(bw, bh)], self.dark))
+        if image is not None:
+            return self._soften(image, width, height)
         buf = QImage(bw, bh, QImage.Format_RGB32)
         buf.fill(self.identity)
         inner = QPainter(buf)
@@ -1999,6 +2200,14 @@ class AuroraEngine(_BufferedEngine):
         finally:
             inner.end()
         return self._soften(buf, width, height)
+
+    def _graphics_unmeasured(self, width, height, work=0) -> bool:
+        """Until aurora's GPU cost is measured, Automatic takes 4K frames.
+
+        The 2026-10-10 audits measured 20-99 ms per 4K CPU frame, over the
+        frame budget; smaller frames stay on the CPU.
+        """
+        return width * height >= 3840 * 2160
 
     def _configure(self, rng: random.Random) -> None:
         """Roll this theme's constants from the seed.
@@ -2388,14 +2597,21 @@ class AuroraEngine(_BufferedEngine):
         emission profile. Affine strips bend it along the sheet without
         painting hundreds of separate full-height gradients.
         """
+        self._paint_layers(painter, self._aurora_layers(width, height))
+
+    def _aurora_layers(self, width: int, height: int) -> list:
+        """Per curtain: the ray material, its colour table and its strips.
+
+        Everything here is one-dimensional (per texture column or per
+        sampled fold column); the two-dimensional ray texture is built by
+        :meth:`_aurora_texture` on the CPU or by the graphics renderer.
+        """
         np = _numpy()
         peak = (0.80 if self.dark else 0.65) * self.alpha_scale() * math.sqrt(
             min(1.0, AURORA_CURTAINS * self.effective_density()))
         samples = self.geometry(width, height)
         stride = AURORA_COLUMNS + 1
-        texture_height = 192
-        vertical = np.linspace(1.0, 0.0, texture_height, dtype=np.float32)[:, None]
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        layers = []
         for index, curtain in enumerate(self.curtains[:self.count()]):
             columns = samples[index * stride:(index + 1) * stride]
             if len(columns) < 2:
@@ -2427,17 +2643,10 @@ class AuroraEngine(_BufferedEngine):
             coordinates, distance, constants = material
             length, weight, phase, rate = constants.T
             ray_length = length * (0.82 + 0.18 * np.sin(self.time * rate + phase))
-            rise = vertical / ray_length[None, :]
-            beam_width = 0.14 + 0.28 * (1.0 - np.clip(rise, 0.0, 1.0))
-            rays = np.exp(-(distance[None, :] / beam_width) ** 2)
-            emission = (0.15 + 0.85 * np.maximum(0.0, 1.0 - rise) ** 0.8)
-            emission *= np.clip((1.0 - rise) / 0.12, 0.0, 1.0)
-            emission *= np.minimum(1.0, rise / 0.045)
             shimmer = 0.72 + 0.28 * np.sin(self.time * rate * 1.7 + phase)
             surge = np.interp(coordinates, np.linspace(0.0, 1.0, stride),
                               [column[3] for column in columns]).astype(np.float32)
-            alpha = emission * (0.20 + 0.80 * rays) * (
-                peak * weight * shimmer * surge * np.sin(math.pi * coordinates) ** 0.65)[None, :]
+            gain = peak * weight * shimmer * surge * np.sin(math.pi * coordinates) ** 0.65
             roles = self.ramp_colors(curtain, quantised=False)
             if self._spacr_palette:
                 roles = {"main": QColor("#6dff9d"), "blend": QColor("#b6ffc8"),
@@ -2449,30 +2658,19 @@ class AuroraEngine(_BufferedEngine):
             values = np.arange(256, dtype=np.float32) / 255.0
             lookup = np.stack([np.interp(values, ramp_positions, ramp[:, channel])
                                for channel in range(3)], axis=1).astype(np.float32)
-            color_index = np.clip(rise * 255.0, 0, 255).astype(np.uint8)
             if not self.dark:
                 lookup = 255.0 - lookup
+            color_ids = None
             if self._random_palette:
                 colors = np.array([[color.red(), color.green(), color.blue()]
                                    for color in self.paint_colors], dtype=np.float32)
                 color_ids = (phase * 1000).astype(np.int32) % len(colors)
                 lookup = colors
-                color_index = np.broadcast_to(color_ids, alpha.shape)
                 if not self.dark:
                     lookup = 255.0 - lookup
-            levels = np.arange(256, dtype=np.float32) / 255.0
-            rgb = (lookup[None, :, :] * levels[:, None, None]).astype(np.uint32)
-            packed = (np.uint32(0xff000000) | (rgb[:, :, 0] << 16)
-                      | (rgb[:, :, 1] << 8) | rgb[:, :, 2])
-            if not self.dark:
-                packed = packed ^ np.uint32(0x00ffffff)
-            alpha_index = np.clip(alpha * 255.0, 0, 255).astype(np.uint8)
-            words = packed[alpha_index, color_index]
-            words = np.ascontiguousarray(words)
-            texture = QImage(words.data, texture_width, texture_height,
-                             words.strides[0], QImage.Format_RGB32)
             _, ray_height = self.anchor(curtain, height)
             lean = width * 0.12 * math.sin(curtain.phase + self.time * 0.04)
+            strips = []
             for first, second in zip(columns, columns[1:]):
                 x0, bottom0 = first[:2]
                 x1, bottom1 = second[:2]
@@ -2480,14 +2678,81 @@ class AuroraEngine(_BufferedEngine):
                 shear = (bottom1 - bottom0) / extent
                 source_x = (x0 - left) / (right - left) * texture_width
                 source_width = extent / (right - left) * texture_width
+                strips.append((extent / source_width, shear * extent / source_width,
+                               -lean / _AURORA_TEXTURE_ROWS,
+                               ray_height / _AURORA_TEXTURE_ROWS,
+                               x0 + lean, bottom0 - ray_height,
+                               source_x, source_width))
+            layers.append({"width": texture_width, "distance": distance,
+                           "ray_length": ray_length, "gain": gain,
+                           "lookup": lookup, "color_ids": color_ids,
+                           "strips": strips})
+        return layers
+
+    def _aurora_texture(self, layer: dict):
+        """The CPU ray texture for one layer, with the array it borrows."""
+        np = _numpy()
+        vertical = np.linspace(1.0, 0.0, _AURORA_TEXTURE_ROWS,
+                               dtype=np.float32)[:, None]
+        rise = vertical / layer["ray_length"][None, :]
+        beam_width = 0.14 + 0.28 * (1.0 - np.clip(rise, 0.0, 1.0))
+        rays = np.exp(-(layer["distance"][None, :] / beam_width) ** 2)
+        emission = (0.15 + 0.85 * np.maximum(0.0, 1.0 - rise) ** 0.8)
+        emission *= np.clip((1.0 - rise) / 0.12, 0.0, 1.0)
+        emission *= np.minimum(1.0, rise / 0.045)
+        alpha = emission * (0.20 + 0.80 * rays) * layer["gain"][None, :]
+        lookup = layer["lookup"]
+        if layer["color_ids"] is None:
+            color_index = np.clip(rise * 255.0, 0, 255).astype(np.uint8)
+        else:
+            color_index = np.broadcast_to(layer["color_ids"], alpha.shape)
+        levels = np.arange(256, dtype=np.float32) / 255.0
+        rgb = (lookup[None, :, :] * levels[:, None, None]).astype(np.uint32)
+        packed = (np.uint32(0xff000000) | (rgb[:, :, 0] << 16)
+                  | (rgb[:, :, 1] << 8) | rgb[:, :, 2])
+        if not self.dark:
+            packed = packed ^ np.uint32(0x00ffffff)
+        alpha_index = np.clip(alpha * 255.0, 0, 255).astype(np.uint8)
+        words = np.ascontiguousarray(packed[alpha_index, color_index])
+        texture = QImage(words.data, layer["width"], _AURORA_TEXTURE_ROWS,
+                         words.strides[0], QImage.Format_RGB32)
+        return texture, words
+
+    def _paint_layers(self, painter: QPainter, layers: list) -> None:
+        """Warp each CPU ray texture along its fold strips."""
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        rows = _AURORA_TEXTURE_ROWS
+        for layer in layers:
+            texture, words = self._aurora_texture(layer)
+            for (m11, m12, m21, m22, dx, dy, source_x,
+                 source_width) in layer["strips"]:
                 painter.save()
-                painter.setTransform(QTransform(
-                    extent / source_width, shear * extent / source_width,
-                    -lean / texture_height, ray_height / texture_height,
-                    x0 + lean, bottom0 - ray_height), True)
-                painter.drawImage(QRectF(0.0, 0.0, source_width + 0.5, texture_height),
-                                  texture, QRectF(source_x, 0.0, source_width + 0.5, texture_height))
+                painter.setTransform(QTransform(m11, m12, m21, m22, dx, dy), True)
+                painter.drawImage(QRectF(0.0, 0.0, source_width + 0.5, rows),
+                                  texture, QRectF(source_x, 0.0, source_width + 0.5, rows))
                 painter.restore()
+            del texture, words
+
+    @staticmethod
+    def _aurora_gpu_layer(layer: dict) -> tuple:
+        """Columns, colour table and strip vertices for the graphics renderer."""
+        np = _numpy()
+        columns = np.empty((layer["width"], 4), dtype=np.float32)
+        columns[:, 0] = layer["distance"]
+        columns[:, 1] = layer["ray_length"]
+        columns[:, 2] = layer["gain"]
+        columns[:, 3] = 0.0 if layer["color_ids"] is None else layer["color_ids"]
+        rows = float(_AURORA_TEXTURE_ROWS)
+        vertices = []
+        for m11, m12, m21, m22, dx, dy, source_x, source_width in layer["strips"]:
+            span = source_width + 0.5
+            corners = [(m11 * u + m21 * v + dx, m12 * u + m22 * v + dy,
+                        source_x + u, v)
+                       for u, v in ((0.0, 0.0), (span, 0.0), (0.0, rows), (span, rows))]
+            vertices.extend((corners[0], corners[1], corners[2],
+                             corners[2], corners[1], corners[3]))
+        return (columns, layer["lookup"], layer["color_ids"] is not None,
+                np.asarray(vertices, dtype=np.float32).reshape(-1, 4))
 
     @staticmethod
     def _sheet(columns, top: float) -> QPainterPath:
@@ -2712,7 +2977,67 @@ class Particle:
     wander_phase: float = 0.0
 
 
-class DriftEngine(AmbientEngine):
+class _StarsOnGraphics:
+    """The stratified theme's optional shading-thread half (N684).
+
+    Kept off :class:`DriftEngine` itself: the theme's public drawing call
+    stays :meth:`DriftEngine.paint`, and only a widget with Animation GPU
+    On hands it to a shading thread through these methods.
+    """
+
+    def shade(self, width: int, height: int) -> Optional[QImage]:
+        """One transparent premultiplied frame for the graphics shading thread.
+
+        Only used when Animation GPU asks for the graphics renderer (see
+        :meth:`AmbientWidget._start_producer`); :meth:`paint` stays the CPU
+        path. The frame holds the dots alone, drawn source-over onto
+        transparency, so :meth:`blit` composites them onto the page exactly
+        as :meth:`paint` draws them. A refused renderer gives the same
+        frame from QPainter.
+        """
+        if width <= 0 or height <= 0:
+            return None
+        bw, bh = self.buffer_size(width, height)
+        passes = self._dot_passes(width, height)
+        image = self._graphics_frame(
+            '_draw_stars', bw, bh,
+            build=partial(self._star_rows, passes, (bw / width, bh / height)))
+        if image is not None:
+            return image
+        image = QImage(bw, bh, QImage.Format_ARGB32_Premultiplied)
+        image.fill(Qt.transparent)
+        inner = QPainter(image)
+        try:
+            if (bw, bh) != (width, height):
+                inner.scale(bw / width, bh / height)
+            self._paint_dots(inner, width, height, passes)
+        finally:
+            inner.end()
+        return image
+
+    def blit(self, painter: QPainter, image: Optional[QImage],
+             width: int, height: int) -> None:
+        """Composite a :meth:`shade` frame onto the page. **GUI thread only.**"""
+        if image is None or image.isNull() or width <= 0 or height <= 0:
+            return
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        painter.drawImage(QRect(0, 0, int(width), int(height)), image)
+
+    def _star_rows(self, passes, scale) -> tuple:
+        """Disc rows, scale and edge mode for the graphics renderer."""
+        rows = []
+        for pen, points in passes:
+            color = pen.color()
+            radius = pen.widthF() * 0.5
+            red, green, blue = color.redF(), color.greenF(), color.blueF()
+            alpha = color.alphaF()
+            rows.extend((point.x(), point.y(), radius, red, green, blue, alpha)
+                        for point in points)
+        return rows, scale, self.resolution > DRIFT_HARD_EDGE_RESOLUTION
+
+
+class DriftEngine(_StarsOnGraphics, _GraphicsBackend, AmbientEngine):
     """A slow starfield in three parallax layers.
 
     At full Detail dots are drawn directly and stay crisp. Lower Detail
@@ -2941,10 +3266,8 @@ class DriftEngine(AmbientEngine):
         painter.drawImage(QRect(0, 0, int(width), int(height)), image)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
-    def _paint_dots(self, painter: QPainter, width: int, height: int) -> None:
-        """Batch dots in canvas coordinates so Detail never changes population."""
-        painter.setRenderHint(QPainter.Antialiasing,
-                              self.resolution > DRIFT_HARD_EDGE_RESOLUTION)
+    def _dot_passes(self, width: int, height: int) -> list:
+        """The ordered ``(pen, points)`` batches :meth:`_paint_dots` draws."""
         n_colors = len(self.paint_colors)
         steps = [self._alpha_step(i) for i in range(len(DRIFT_LAYERS))]
         buckets: Dict[Tuple[int, int, int], List[QPointF]] = {}
@@ -2959,17 +3282,26 @@ class DriftEngine(AmbientEngine):
             key = (particle.color % n_colors, particle.layer,
                    steps[particle.layer])
             buckets.setdefault(key, []).append(QPointF(x, y))
+        passes = []
         if self.blur > 0.0:
             for key, points in buckets.items():
-                painter.setPen(self._pen(*key, halo=True))
-                painter.drawPoints(points)
+                passes.append((self._pen(*key, halo=True), points))
         for key, points in buckets.items():
-            painter.setPen(self._pen(*key))
-            painter.drawPoints(points)
+            passes.append((self._pen(*key), points))
         for layer, points in flashes.items():
             pen = QPen(QColor("white"))
             pen.setWidthF(self.dot_size(layer))
             pen.setCapStyle(Qt.RoundCap)
+            passes.append((pen, points))
+        return passes
+
+    def _paint_dots(self, painter: QPainter, width: int, height: int,
+                    passes: Optional[list] = None) -> None:
+        """Batch dots in canvas coordinates so Detail never changes population."""
+        painter.setRenderHint(QPainter.Antialiasing,
+                              self.resolution > DRIFT_HARD_EDGE_RESOLUTION)
+        for pen, points in (self._dot_passes(width, height)
+                            if passes is None else passes):
             painter.setPen(pen)
             painter.drawPoints(points)
 
@@ -5075,6 +5407,271 @@ def _flow_compute_idle():
             pass
 
 
+_GL_QUAD = '''
+    vec2 quad_corner() {
+        return vec2(float(gl_VertexID & 1), float(gl_VertexID >> 1));
+    }
+    vec4 canvas_position(vec2 point, vec2 canvas) {
+        return vec4(point / canvas * 2.0 - 1.0, 0.0, 1.0);
+    }
+'''
+
+_GL_HAIRLINE_VERTEX = '''
+        #version 430
+        in vec4 segment;
+        in float half_width;
+        in float caps;
+        uniform vec2 canvas;
+        flat out vec4 ends;
+        flat out float reach;
+        flat out float capped;
+    ''' + _GL_QUAD + '''
+        void main() {
+            vec2 a = segment.xy;
+            vec2 b = segment.zw;
+            float span = length(b - a);
+            vec2 along = span > 1e-6 ? (b - a) / span : vec2(1.0, 0.0);
+            vec2 across = vec2(-along.y, along.x);
+            float extent = half_width + 1.5;
+            vec2 corner = quad_corner();
+            vec2 point = mix(a - along * extent, b + along * extent, corner.x)
+                + across * extent * (corner.y * 2.0 - 1.0);
+            gl_Position = canvas_position(point, canvas);
+            ends = segment;
+            reach = half_width;
+            capped = caps;
+        }
+    '''
+
+#: GLSL for the graphics paths of the CPU-only themes (N684). Coordinates
+#: are QPainter canvas pixels with pixel centres at +0.5, and framebuffer
+#: row ``r`` is image row ``r``, so the readback is the QImage unchanged.
+#: Colours are written blue-green-red so the RGBA8 bytes are the RGB32 /
+#: ARGB32 words Qt expects on a little-endian host.
+_GL_SHADERS = {
+    'blobs': ('''
+        #version 430
+        in vec4 shape;
+        in vec3 tint;
+        uniform vec2 canvas;
+        flat out vec4 disc;
+        flat out vec3 colour;
+    ''' + _GL_QUAD + '''
+        void main() {
+            vec2 point = shape.xy + (quad_corner() * 2.0 - 1.0) * (shape.z + 1.0);
+            gl_Position = canvas_position(point, canvas);
+            disc = shape;
+            colour = tint;
+        }
+    ''', '''
+        #version 430
+        uniform vec2 stops[4];
+        flat in vec4 disc;
+        flat in vec3 colour;
+        out vec4 result;
+        void main() {
+            float d = distance(gl_FragCoord.xy, disc.xy) / disc.z;
+            if (d > 1.0) discard;
+            float a = stops[3].y;
+            for (int i = 1; i < 4; ++i) {
+                if (d <= stops[i].x) {
+                    float f = (d - stops[i - 1].x) / max(1e-6, stops[i].x - stops[i - 1].x);
+                    a = mix(stops[i - 1].y, stops[i].y, f);
+                    break;
+                }
+            }
+            a *= disc.w;
+            result = vec4(colour.bgr * a, a);
+        }
+    '''),
+    'discs': ('''
+        #version 430
+        in vec3 disc;
+        in vec4 tint;
+        uniform vec2 canvas;
+        uniform vec2 scale;
+        flat out vec3 shape;
+        flat out vec4 colour;
+    ''' + _GL_QUAD + '''
+        void main() {
+            float radius = disc.z * scale.x;
+            vec2 centre = disc.xy * scale;
+            vec2 point = centre + (quad_corner() * 2.0 - 1.0) * (radius + 1.5);
+            gl_Position = canvas_position(point, canvas);
+            shape = vec3(centre, radius);
+            colour = tint;
+        }
+    ''', '''
+        #version 430
+        uniform bool smooth_edge;
+        flat in vec3 shape;
+        flat in vec4 colour;
+        out vec4 result;
+        void main() {
+            float cover = 0.0;
+            if (smooth_edge) {
+                for (int i = 0; i < 4; ++i) {
+                    for (int j = 0; j < 4; ++j) {
+                        vec2 sample_at = floor(gl_FragCoord.xy)
+                            + (vec2(float(i), float(j)) + 0.5) / 4.0;
+                        cover += distance(sample_at, shape.xy) <= shape.z ? 0.0625 : 0.0;
+                    }
+                }
+            } else {
+                cover = distance(gl_FragCoord.xy, shape.xy) <= shape.z ? 1.0 : 0.0;
+            }
+            if (cover <= 0.0) discard;
+            float a = colour.a * cover;
+            result = vec4(colour.bgr * a, a);
+        }
+    '''),
+    'aurora_texture': ('''
+        #version 430
+        void main() {
+            vec2 corner = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));
+            gl_Position = vec4(corner * 2.0 - 1.0, 0.0, 1.0);
+        }
+    ''', '''
+        #version 430
+        layout(std430, binding=3) readonly buffer Columns { vec4 columns[]; };
+        layout(std430, binding=4) readonly buffer Lookup { vec4 lookup[]; };
+        uniform bool per_column;
+        uniform bool dark;
+        uniform float rows;
+        out vec4 texel;
+        void main() {
+            int x = int(gl_FragCoord.x);
+            float row = floor(gl_FragCoord.y);
+            vec4 column = columns[x];
+            float vertical = 1.0 - row / (rows - 1.0);
+            float rise = vertical / column.y;
+            float beam = 0.14 + 0.28 * (1.0 - clamp(rise, 0.0, 1.0));
+            float spread = column.x / beam;
+            float rays = exp(-(spread * spread));
+            float emission = 0.15 + 0.85 * pow(max(0.0, 1.0 - rise), 0.8);
+            emission *= clamp((1.0 - rise) / 0.12, 0.0, 1.0);
+            emission *= min(1.0, rise / 0.045);
+            float alpha = emission * (0.20 + 0.80 * rays) * column.z;
+            uint level = uint(clamp(alpha * 255.0, 0.0, 255.0));
+            uint index = per_column ? uint(column.w)
+                                    : uint(clamp(rise * 255.0, 0.0, 255.0));
+            uvec3 rgb = uvec3(lookup[index].rgb * (float(level) / 255.0));
+            if (!dark) rgb = uvec3(255u) - rgb;
+            texel = vec4(vec3(rgb.bgr) / 255.0, 1.0);
+        }
+    '''),
+    'strips': ('''
+        #version 430
+        in vec4 vertex;
+        uniform vec2 canvas;
+        uniform vec2 source;
+        out vec2 uv;
+        void main() {
+            gl_Position = vec4(vertex.xy / canvas * 2.0 - 1.0, 0.0, 1.0);
+            uv = vertex.zw / source;
+        }
+    ''', '''
+        #version 430
+        uniform sampler2D material;
+        in vec2 uv;
+        out vec4 result;
+        void main() {
+            result = vec4(texture(material, uv).rgb, 1.0);
+        }
+    '''),
+    'capsules': (_GL_HAIRLINE_VERTEX, '''
+        #version 430
+        flat in vec4 ends;
+        flat in float reach;
+        out float cover;
+        void main() {
+            vec2 p = gl_FragCoord.xy - ends.xy;
+            vec2 d = ends.zw - ends.xy;
+            float t = clamp(dot(p, d) / max(dot(d, d), 1e-12), 0.0, 1.0);
+            float r = length(p - d * t);
+            cover = clamp(min(r + reach, 0.5) - max(r - reach, -0.5), 0.0, 1.0);
+        }
+    '''),
+    'hairlines': (_GL_HAIRLINE_VERTEX, '''
+        #version 430
+        uniform vec4 colour;
+        flat in vec4 ends;
+        flat in float reach;
+        flat in float capped;
+        out vec4 result;
+        void main() {
+            vec2 d = ends.zw - ends.xy;
+            bool across = abs(d.x) >= abs(d.y);
+            float major = across ? d.x : d.y;
+            if (abs(major) < 1e-6) discard;
+            vec2 p = gl_FragCoord.xy;
+            float t = ((across ? p.x : p.y) - (across ? ends.x : ends.y)) / major;
+            if (t < 0.0 || t >= 1.0) discard;
+            int flags = int(capped + 0.5);
+            bool forward = major > 0.0;
+            bool low_capped = forward ? (flags & 1) != 0 : (flags & 2) != 0;
+            if (low_capped) {
+                float low = forward ? (across ? ends.x : ends.y) : (across ? ends.z : ends.w);
+                t += (fract(low) >= 0.5 ? 0.5 : -0.5) / major;
+            }
+            float line = (across ? ends.y : ends.x) + t * (across ? d.y : d.x);
+            float cover = max(0.0, 1.0 - abs((across ? p.y : p.x) - line));
+            float a = colour.a * cover * min(1.0, reach * 2.0);
+            if (a <= 0.0) discard;
+            result = vec4(colour.bgr * a, a);
+        }
+    '''),
+    'coverage': ('''
+        #version 430
+        uniform vec4 bounds;
+        uniform vec2 canvas;
+    ''' + _GL_QUAD + '''
+        void main() {
+            gl_Position = canvas_position(mix(bounds.xy, bounds.zw, quad_corner()), canvas);
+        }
+    ''', '''
+        #version 430
+        uniform sampler2D coverage;
+        uniform vec4 colour;
+        out vec4 result;
+        void main() {
+            float a = colour.a * texelFetch(coverage, ivec2(gl_FragCoord.xy), 0).r;
+            result = vec4(colour.bgr * a, a);
+        }
+    '''),
+    'tiles': ('''
+        #version 430
+        in vec3 place;
+        in vec4 rect;
+        in vec2 offset;
+        uniform vec2 canvas;
+        out vec2 texel;
+        flat out vec4 bounds;
+    ''' + _GL_QUAD + '''
+        void main() {
+            vec2 corner = quad_corner() * rect.zw;
+            vec2 local = offset + corner;
+            float c = cos(place.z);
+            float s = sin(place.z);
+            vec2 point = place.xy + vec2(c * local.x - s * local.y, s * local.x + c * local.y);
+            gl_Position = canvas_position(point, canvas);
+            texel = rect.xy + corner;
+            bounds = vec4(rect.xy + 0.5, rect.xy + rect.zw - 0.5);
+        }
+    ''', '''
+        #version 430
+        uniform sampler2D atlas;
+        in vec2 texel;
+        flat in vec4 bounds;
+        out vec4 result;
+        void main() {
+            vec2 at = clamp(texel, bounds.xy, bounds.zw);
+            result = vec4(texture(atlas, at / vec2(textureSize(atlas, 0))).rgb, 1.0);
+        }
+    '''),
+}
+
+
 class _FlowPointGraphics:
     """Render monotonic packed grains in a producer-owned OpenGL framebuffer.
 
@@ -5178,22 +5775,360 @@ class _FlowPointGraphics:
         self._framebuffer.read_into(image.bits(), components=4, alignment=1)
         return image
 
+    def _shader(self, name):
+        """Compile one theme program from :data:`_GL_SHADERS` on first use."""
+        programs = self.__dict__.setdefault('_programs', {})
+        program = programs.get(name)
+        if program is None:
+            vertex, fragment = _GL_SHADERS[name]
+            program = self._context.program(vertex_shader=vertex.strip(),
+                                            fragment_shader=fragment.strip())
+            self._resources.append(program)
+            programs[name] = program
+        return program
+
+    @staticmethod
+    def _uniform(program, name, value):
+        """Set a uniform the compiler kept; optimised-out names are ignored."""
+        try:
+            member = program[name]
+        except KeyError:
+            return
+        if isinstance(value, (bytes, bytearray)):
+            member.write(value)
+        else:
+            member.value = value
+
+    def _stream(self, name, data):
+        """Write ``data`` into a reusable named buffer and return it."""
+        buffers = self.__dict__.setdefault('_streams', {})
+        raw = data.tobytes()
+        buffer = buffers.get(name)
+        if buffer is None:
+            buffer = self._context.buffer(reserve=max(64, len(raw)))
+            self._resources.append(buffer)
+            buffers[name] = buffer
+        if len(raw) > buffer.size:
+            buffer.orphan(len(raw))
+        if raw:
+            buffer.write(raw)
+        return buffer
+
+    def _array(self, program, buffer, layout, *names):
+        """A vertex array over one stream, cached per program and layout."""
+        arrays = self.__dict__.setdefault('_arrays', {})
+        key = (id(program), id(buffer), layout, names)
+        array = arrays.get(key)
+        if array is None:
+            array = self._context.vertex_array(program, [(buffer, layout, *names)])
+            self._resources.append(array)
+            arrays[key] = array
+        return array
+
+    def _bare(self, program):
+        """An attribute-free vertex array for a program that uses gl_VertexID."""
+        arrays = self.__dict__.setdefault('_arrays', {})
+        array = arrays.get((id(program), None))
+        if array is None:
+            array = self._context.vertex_array(program, [])
+            self._resources.append(array)
+            arrays[(id(program), None)] = array
+        return array
+
+    def _scratch(self, name, size, components=4, filtered=False):
+        """A reusable named texture and framebuffer of ``size``."""
+        targets = self.__dict__.setdefault('_scratch_targets', {})
+        entry = targets.get(name)
+        if entry is None or entry[0].size != tuple(size):
+            if entry is not None:
+                entry[1].release()
+                entry[0].release()
+            texture = self._context.texture(tuple(size), components, dtype='f1')
+            texture.repeat_x = texture.repeat_y = False
+            linear = self._gl.LINEAR if filtered else self._gl.NEAREST
+            texture.filter = linear, linear
+            entry = texture, self._context.framebuffer([texture])
+            targets[name] = entry
+        return entry
+
+    def _target(self, width, height, clear):
+        """Bind the shared frame target at this size and clear it to ``clear``."""
+        if threading.get_ident() != self._owner:
+            raise RuntimeError('flow graphics context belongs to another thread')
+        if self._size != (width, height):
+            if self._framebuffer is not None:
+                self._framebuffer.release()
+                self._texture.release()
+            self._texture = self._context.texture((width, height), 4, dtype='f1')
+            self._framebuffer = self._context.framebuffer([self._texture])
+            self._size = width, height
+        self._framebuffer.use()
+        self._context.viewport = (0, 0, width, height)
+        self._context.scissor = None
+        self._framebuffer.clear(*clear)
+        self._context.blend_equation = self._gl.FUNC_ADD
+
+    def _blend(self, composition):
+        """Match a QPainter composition mode on premultiplied BGRA output.
+
+        ``plus`` and ``multiply`` keep the opaque destination alpha of an
+        RGB32 frame; anything else is premultiplied source-over.
+        """
+        gl = self._gl
+        self._context.blend_equation = gl.FUNC_ADD
+        if composition == 'plus':
+            self._context.blend_func = gl.ONE, gl.ONE, gl.ZERO, gl.ONE
+        elif composition == 'multiply':
+            self._context.blend_func = (gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,
+                                        gl.ZERO, gl.ONE)
+        else:
+            self._context.blend_func = (gl.ONE, gl.ONE_MINUS_SRC_ALPHA,
+                                        gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+
+    def _read(self, width, height, image_format=QImage.Format_RGB32):
+        """Copy the frame target into a newly owned QImage."""
+        image = QImage(width, height, image_format)
+        self._framebuffer.read_into(image.bits(), components=4, alignment=1)
+        return image
+
+    def _discs(self, width, height, rows, scale=(1.0, 1.0), smooth=True):
+        """Blend rows of ``x, y, radius, r, g, b, alpha`` discs in row order."""
+        np = _numpy()
+        rows = np.ascontiguousarray(rows, dtype=np.float32).reshape(-1, 7)
+        if not len(rows):
+            return
+        program = self._shader('discs')
+        self._uniform(program, 'canvas', (float(width), float(height)))
+        self._uniform(program, 'scale', (float(scale[0]), float(scale[1])))
+        self._uniform(program, 'smooth_edge', bool(smooth))
+        array = self._array(program, self._stream('discs', rows), '3f 4f/i',
+                            'disc', 'tint')
+        array.render(mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(rows))
+
+    def _draw_blobs(self, width, height, blobs, stops, dark):
+        """Shade radial-gradient blobs from rows of ``cx, cy, radius, alpha, r, g, b``."""
+        np = _numpy()
+        identity = 0.0 if dark else 1.0
+        self._target(width, height, (identity, identity, identity, 1.0))
+        rows = np.ascontiguousarray(blobs, dtype=np.float32).reshape(-1, 7)
+        if len(rows):
+            program = self._shader('blobs')
+            self._blend('plus' if dark else 'multiply')
+            self._uniform(program, 'canvas', (float(width), float(height)))
+            self._uniform(program, 'stops', np.asarray(stops, dtype=np.float32).tobytes())
+            array = self._array(program, self._stream('blobs', rows), '4f 3f/i',
+                                'shape', 'tint')
+            array.render(mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(rows))
+        return self._read(width, height)
+
+    def _draw_stars(self, width, height, rows, scale, smooth):
+        """Draw ordered star discs onto a transparent premultiplied frame."""
+        self._target(width, height, (0.0, 0.0, 0.0, 0.0))
+        self._blend('over')
+        self._discs(width, height, rows, scale, smooth)
+        return self._read(width, height, QImage.Format_ARGB32_Premultiplied)
+
+    def _draw_aurora(self, width, height, curtains, dark):
+        """Generate each curtain's ray texture, then warp it along its folds.
+
+        ``curtains`` holds ``(columns, lookup, per_column, strips)`` per
+        curtain: ``columns`` rows of ``distance, ray length, gain, colour``,
+        ``lookup`` the colour table, and ``strips`` six vertices per strip
+        of ``x, y, source x, source y`` in texture pixels.
+        """
+        np = _numpy()
+        identity = 0.0 if dark else 1.0
+        self._target(width, height, (identity, identity, identity, 1.0))
+        generator = self._shader('aurora_texture')
+        strips = self._shader('strips')
+        for index, (columns, lookup, per_column, vertices) in enumerate(curtains):
+            columns = np.ascontiguousarray(columns, dtype=np.float32).reshape(-1, 4)
+            vertices = np.ascontiguousarray(vertices, dtype=np.float32).reshape(-1, 4)
+            if not len(columns) or not len(vertices):
+                continue
+            size = len(columns), _AURORA_TEXTURE_ROWS
+            texture, framebuffer = self._scratch('aurora', size, filtered=True)
+            table = np.zeros((len(lookup), 4), dtype=np.float32)
+            table[:, :3] = lookup
+            self._stream('aurora_columns', columns).bind_to_storage_buffer(3)
+            self._stream('aurora_lookup', table).bind_to_storage_buffer(4)
+            framebuffer.use()
+            self._context.viewport = (0, 0) + size
+            self._context.disable(self._gl.BLEND)
+            self._uniform(generator, 'per_column', bool(per_column))
+            self._uniform(generator, 'dark', bool(dark))
+            self._uniform(generator, 'rows', float(_AURORA_TEXTURE_ROWS))
+            self._bare(generator).render(mode=self._gl.TRIANGLES, vertices=3)
+            self._context.enable(self._gl.BLEND)
+            self._framebuffer.use()
+            self._context.viewport = (0, 0, width, height)
+            self._blend('plus' if dark else 'multiply')
+            texture.use(location=0)
+            self._uniform(strips, 'material', 0)
+            self._uniform(strips, 'canvas', (float(width), float(height)))
+            self._uniform(strips, 'source', (float(size[0]), float(size[1])))
+            self._array(strips, self._stream('aurora_strips', vertices), '4f',
+                        'vertex').render(mode=self._gl.TRIANGLES, vertices=len(vertices))
+        return self._read(width, height)
+
+    def _draw_filaments(self, width, height, groups, segments, tips, dark):
+        """Stroke each filament group as one union, then the live tips.
+
+        ``segments`` rows are ``x0, y0, x1, y1, half width, caps`` (caps:
+        1 when the first end starts a subpath, 2 when the second ends one,
+        already extended half a pixel as Qt's hairline caps are); each group is
+        ``(first, count, left, top, right, bottom, r, g, b, alpha)`` over
+        them. A group's capsules are combined with MAX into a coverage
+        target first, so overlapping pieces of one QPainterPath are blended
+        once, as QPainter strokes a path.
+        """
+        np = _numpy()
+        identity = 0.0 if dark else 1.0
+        self._target(width, height, (identity, identity, identity, 1.0))
+        composition = 'plus' if dark else 'multiply'
+        segments = np.ascontiguousarray(segments, dtype=np.float32).reshape(-1, 6)
+        if len(segments) and groups:
+            capsules = self._shader('capsules')
+            combine = self._shader('coverage')
+            hairlines = self._shader('hairlines')
+            coverage, cover_target = self._scratch('filaments', (width, height), 1)
+            quad = self._bare(combine)
+            self._uniform(capsules, 'canvas', (float(width), float(height)))
+            self._uniform(combine, 'canvas', (float(width), float(height)))
+            self._uniform(combine, 'coverage', 0)
+            for first, count, left, top, right, bottom, red, green, blue, alpha in groups:
+                piece = segments[int(first):int(first) + int(count)]
+                if len(piece) and piece[0, 4] * 2.0 <= 1.0:
+                    self._framebuffer.use()
+                    self._context.scissor = None
+                    self._blend(composition)
+                    self._uniform(hairlines, 'canvas', (float(width), float(height)))
+                    self._uniform(hairlines, 'colour', (red, green, blue, alpha))
+                    self._array(hairlines, self._stream('filaments', piece), '4f 1f 1f/i',
+                                'segment', 'half_width', 'caps').render(
+                        mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(piece))
+                    continue
+                left, top = max(0, int(left)), max(0, int(top))
+                right, bottom = min(width, int(math.ceil(right))), min(height, int(math.ceil(bottom)))
+                if right <= left or bottom <= top or count <= 0:
+                    continue
+                box = left, top, right - left, bottom - top
+                cover_target.use()
+                self._context.scissor = box
+                cover_target.clear(0.0, 0.0, 0.0, 0.0)
+                self._context.blend_equation = self._gl.MAX
+                self._context.blend_func = self._gl.ONE, self._gl.ONE
+                self._array(capsules, self._stream('filaments', piece), '4f 1f 1f/i',
+                            'segment', 'half_width', 'caps').render(
+                    mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(piece))
+                self._framebuffer.use()
+                self._context.scissor = box
+                self._blend(composition)
+                coverage.use(location=0)
+                self._uniform(combine, 'bounds', (float(left), float(top),
+                                                  float(right), float(bottom)))
+                self._uniform(combine, 'colour', (red, green, blue, alpha))
+                quad.render(mode=self._gl.TRIANGLE_STRIP, vertices=4)
+            self._context.scissor = None
+        self._framebuffer.use()
+        self._blend(composition)
+        self._discs(width, height, tips)
+        return self._read(width, height)
+
+    def _draw_tiles(self, width, height, material, placements, dark):
+        """Place cached paper tiles, rotated where the pointer spun them.
+
+        ``material`` is the engine's tuple of cells (its QImage tiles are
+        packed into one atlas texture, rebuilt only when that tuple is
+        replaced); ``placements`` holds ``(index, x, y, degrees)``.
+        """
+        np = _numpy()
+        atlas = self.__dict__.get('_atlas')
+        if atlas is None or atlas[0] is not material:
+            if atlas is not None:
+                atlas[1].release()
+                self.__dict__['_atlas'] = None
+            self.__dict__['_atlas'] = atlas = (material, *self._pack_tiles(material, dark))
+        _material, texture, rects = atlas
+        identity = 0.0 if dark else 1.0
+        self._target(width, height, (identity, identity, identity, 1.0))
+        rows = np.empty((len(placements), 9), dtype=np.float32)
+        for row, (index, x, y, degrees) in zip(rows, placements):
+            extent_x, extent_y = material[index][6], material[index][7]
+            left, top, tile_width, tile_height = rects[index]
+            if degrees == 0.0:
+                row[:] = (math.floor(x - extent_x + 0.5), math.floor(y - extent_y + 0.5),
+                          0.0, left, top, tile_width, tile_height, 0.0, 0.0)
+            else:
+                row[:] = (x, y, math.radians(degrees), left, top, tile_width,
+                          tile_height, -extent_x, -extent_y)
+        if len(rows):
+            program = self._shader('tiles')
+            self._blend('plus' if dark else 'multiply')
+            texture.use(location=0)
+            self._uniform(program, 'atlas', 0)
+            self._uniform(program, 'canvas', (float(width), float(height)))
+            self._array(program, self._stream('tiles', rows), '3f 4f 2f/i',
+                        'place', 'rect', 'offset').render(
+                mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(rows))
+        return self._read(width, height)
+
+    def _pack_tiles(self, material, dark):
+        """Shelf-pack every cell tile into one bilinear atlas texture."""
+        np = _numpy()
+        limit = min(16384, int(self._context.info.get('GL_MAX_TEXTURE_SIZE', 8192)))
+        sizes = [(cell[5].width(), cell[5].height()) for cell in material]
+        if not sizes:
+            sizes = [(1, 1)]
+        shelf = max(max(w for w, _ in sizes) + 2, min(limit, 4096))
+        rects, x, y, line = [], 0, 0, 0
+        for tile_width, tile_height in sizes:
+            if x + tile_width + 2 > shelf:
+                x, y, line = 0, y + line, 0
+            rects.append((x + 1, y + 1, tile_width, tile_height))
+            x += tile_width + 2
+            line = max(line, tile_height + 2)
+        height = y + line
+        if shelf > limit or height > limit or shelf * height > 64 * 1024 ** 2:
+            raise RuntimeError('paper tiles exceed the graphics atlas budget')
+        fill = 0 if dark else 255
+        pixels = np.full((height, shelf, 4), fill, dtype=np.uint8)
+        pixels[:, :, 3] = 255
+        for cell, (left, top, tile_width, tile_height) in zip(material, rects):
+            tile = cell[5].convertToFormat(QImage.Format_RGB32)
+            raw = np.frombuffer(tile.constBits(), dtype=np.uint8).reshape(
+                tile_height, tile.bytesPerLine())[:, :tile_width * 4]
+            pixels[top:top + tile_height, left:left + tile_width] = raw.reshape(
+                tile_height, tile_width, 4)
+        texture = self._context.texture((shelf, height), 4, pixels.tobytes(), dtype='f1')
+        texture.repeat_x = texture.repeat_y = False
+        texture.filter = self._gl.LINEAR, self._gl.LINEAR
+        return texture, rects
+
     def _close(self):
         """Release all graphics resources on the constructing thread."""
         if threading.get_ident() != self._owner:
             raise RuntimeError('flow graphics release belongs to another thread')
-        for resource in (self._framebuffer, self._texture, *reversed(self._resources),
-                         self._context):
+        extras = [resource for pair in
+                  self.__dict__.pop('_scratch_targets', {}).values()
+                  for resource in reversed(pair)]
+        atlas = self.__dict__.pop('_atlas', None)
+        if atlas is not None:
+            extras.append(atlas[1])
+        for resource in (self._framebuffer, self._texture, *extras,
+                         *reversed(self._resources), self._context):
             if resource is not None:
                 try:
                     resource.release()
                 except Exception:
                     LOG.debug('could not release a flow graphics resource', exc_info=True)
+        for name in ('_programs', '_streams', '_arrays'):
+            self.__dict__.pop(name, None)
         self._resources = []
         self._context = self._framebuffer = self._texture = None
 
 
-class _DataArtEngine(_BufferedEngine):
+class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
     """Retained crisp procedural materials with native display sampling.
 
     The existing producer owns every shade pass. Reusable coordinates and
@@ -5227,52 +6162,21 @@ class _DataArtEngine(_BufferedEngine):
         self._graphics_idle = False
         super().__init__(*args, **kwargs)
 
-    def _release_point_graphics(self):
-        """Release this producer's renderer without crossing thread ownership."""
-        renderer = self._point_graphics
-        if renderer is not None and renderer._owner == threading.get_ident():
-            renderer._close()
-            self._point_graphics = None
+    def _graphics_unmeasured(self, width, height, work=0) -> bool:
+        """Automatic before measurements: dense 4K points, or 4K spinning paper.
+
+        Spinn under a moving pointer cost 62 ms per 4K CPU frame in the
+        2026-10-10 audit; its resting frame is reused and costs nothing.
+        """
+        if self.family == "tissue_facets":
+            return width * height >= 3840 * 2160
+        return width * height >= 3840 * 2160 and work >= 100000
 
     def _graphics_point_image(self, width, height, px, py, intensities,
                               lookup, spread):
         """Use optional graphics only for supported producer-thread material."""
-        mode = self._graphics_backend
-        if threading.current_thread().name != 'spacr-ambient-shade':
-            return None
-        eligible = (mode in ('auto', 'gpu') and not self._graphics_failed
-                    and width * height <= 3840 * 2160
-                    and sys.byteorder == 'little')
-        if mode == 'auto':
-            eligible = (eligible and width * height >= 3840 * 2160
-                        and len(px) >= 100000)
-        if not eligible or _decorative_gpu_blocked():
-            self._release_point_graphics()
-            return None
-        if self._point_graphics is None and not _flow_graphics_preflight():
-            self._graphics_failed = True
-            return None
-        now = time.monotonic()
-        if now >= self._graphics_idle_until:
-            self._graphics_idle = (not _dynamic_animation_on()
-                                   or _flow_compute_idle())
-            self._graphics_idle_until = now + 2.0
-        if not self._graphics_idle:
-            self._release_point_graphics()
-            return None
-        try:
-            if self._point_graphics is None:
-                if not _flow_graphics_preflight():
-                    self._graphics_failed = True
-                    return None
-                self._point_graphics = _FlowPointGraphics()
-            return self._point_graphics._draw(
-                width, height, px, py, intensities, lookup, spread, self.dark)
-        except Exception:
-            LOG.debug('flow graphics unavailable; retaining CPU material', exc_info=True)
-            self._release_point_graphics()
-            self._graphics_failed = True
-            return None
+        return self._graphics_frame('_draw', width, height, px, py, intensities,
+                                    lookup, spread, self.dark, work=len(px))
 
     def _configure(self, rng: random.Random) -> None:
         """Keep a bounded seed pool and stable material identity."""
@@ -5747,15 +6651,20 @@ class _DataArtEngine(_BufferedEngine):
                 self._material_cache[rotation_key] = (self.time, angles)
                 return self._soften(QImage(previous), width, height)
             self._material_cache.pop(key, None)
-            image = QImage(bw, bh, QImage.Format_RGB32)
-            inner = QPainter(image)
-            try:
-                inner.fillRect(image.rect(), self.identity)
-                inner.setCompositionMode(self.mode)
-                inner.setPen(Qt.NoPen)
-                self._paint_field(inner, bw, bh)
-            finally:
-                inner.end()
+            layout = self._tissue_layout(bw, bh)
+            image = self._graphics_frame('_draw_tiles', bw, bh, *layout, self.dark)
+            if image is None:
+                image = QImage(bw, bh, QImage.Format_RGB32)
+                inner = QPainter(image)
+                self._tissue_pending = layout
+                try:
+                    inner.fillRect(image.rect(), self.identity)
+                    inner.setCompositionMode(self.mode)
+                    inner.setPen(Qt.NoPen)
+                    self._paint_field(inner, bw, bh)
+                finally:
+                    self._tissue_pending = None
+                    inner.end()
             self._buffer = image
             if resting:
                 self._material_cache[key] = True
@@ -5848,8 +6757,34 @@ class _DataArtEngine(_BufferedEngine):
             width, height, sx, sy, light * gain, spread=True)
 
     def _paint_tissue_facets(self, painter: QPainter, width: int,
-                             height: int) -> None:
+                             height: int, layout: Optional[tuple] = None) -> None:
         """Spin crisp cached paper locally while mouse gravity is enabled."""
+        if layout is None:
+            layout = getattr(self, '_tissue_pending', None)
+            self._tissue_pending = None
+        material, placements = (self._tissue_layout(width, height)
+                                if layout is None else layout)
+        for index, x, y, angle in placements:
+            _cx, _cy, _rx, _ry, _phase, tile, extent_x, extent_y = material[index]
+            if angle == 0.0:
+                painter.drawImage(QPointF(x - extent_x, y - extent_y), tile)
+            else:
+                painter.save()
+                try:
+                    painter.translate(x, y)
+                    painter.rotate(angle)
+                    painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+                    painter.drawImage(QPointF(-extent_x, -extent_y), tile)
+                finally:
+                    painter.restore()
+
+    def _tissue_layout(self, width: int, height: int) -> tuple:
+        """Build or reuse the paper tiles and advance this frame's spin.
+
+        Returns ``(material, placements)`` with one ``(index, x, y,
+        degrees)`` per cell; called once per frame, since it advances the
+        stored rotation.
+        """
         key = ("tissue_facets", width, height, self.size, self.density)
         material = self._material_cache.get(key)
         if material is None:
@@ -5934,6 +6869,7 @@ class _DataArtEngine(_BufferedEngine):
         if not active or self.time < previous_time:
             angles[:] = [0.0] * len(material)
         self._material_cache[rotation_key] = (self.time, angles)
+        placements = []
         for index, cell in enumerate(material):
             cx, cy, rx, ry, phase, tile, extent_x, extent_y = cell
             dx = dy = 0.0
@@ -5949,18 +6885,8 @@ class _DataArtEngine(_BufferedEngine):
                     dy = -distance_y * ry * lift - ry * 0.28 * reach
                     proximity = max(0.0, 1.0 - math.sqrt(squared) / self.gravity_radius)
                     angles[index] = (angles[index] + step * 240.0 * proximity ** 2) % 360.0
-            if angles[index] == 0.0:
-                painter.drawImage(QPointF(cx + dx - extent_x,
-                                          cy + dy - extent_y), tile)
-            else:
-                painter.save()
-                try:
-                    painter.translate(cx + dx, cy + dy)
-                    painter.rotate(angles[index])
-                    painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-                    painter.drawImage(QPointF(-extent_x, -extent_y), tile)
-                finally:
-                    painter.restore()
+            placements.append((index, cx + dx, cy + dy, angles[index]))
+        return material, placements
 
 
 
@@ -6667,7 +7593,38 @@ class _SpaceoutFieldEngine(_DataArtEngine):
         return image
 
 
-class _FungalGrowthEngine(_BufferedEngine):
+def _flatten_quadratic(x0, y0, cx, cy, x1, y1, level=5) -> list:
+    """Points along a quadratic Bézier, split where QPainter's hairline splits.
+
+    The curve is raised to a cubic, as QPainterPath stores it, and halved
+    only while a control point lies a quarter of the chord's L1 length or
+    more from the chord, up to ``level`` times; a nearly straight curve
+    stays one line, which is how Qt's cosmetic stroker draws it.
+    """
+    first = (x0 + 2.0 / 3.0 * (cx - x0), y0 + 2.0 / 3.0 * (cy - y0))
+    second = (x1 + 2.0 / 3.0 * (cx - x1), y1 + 2.0 / 3.0 * (cy - y1))
+    out = [(x0, y0)]
+    pending = [((x0, y0), first, second, (x1, y1), level)]
+    while pending:
+        a, b, c, d, depth = pending.pop()
+        dx, dy = d[0] - a[0], d[1] - a[1]
+        reach = 0.25 * (abs(dx) + abs(dy))
+        if depth and (abs(dx * (a[1] - c[1]) - dy * (a[0] - c[0])) >= reach
+                      or abs(dx * (a[1] - b[1]) - dy * (a[0] - b[0])) >= reach):
+            ab = ((a[0] + b[0]) * 0.5, (a[1] + b[1]) * 0.5)
+            bc = ((b[0] + c[0]) * 0.5, (b[1] + c[1]) * 0.5)
+            cd = ((c[0] + d[0]) * 0.5, (c[1] + d[1]) * 0.5)
+            abc = ((ab[0] + bc[0]) * 0.5, (ab[1] + bc[1]) * 0.5)
+            bcd = ((bc[0] + cd[0]) * 0.5, (bc[1] + cd[1]) * 0.5)
+            middle = ((abc[0] + bcd[0]) * 0.5, (abc[1] + bcd[1]) * 0.5)
+            pending.append((middle, bcd, cd, d, depth - 1))
+            pending.append((a, ab, abc, middle, depth - 1))
+        else:
+            out.append(d)
+    return out
+
+
+class _FungalGrowthEngine(_GraphicsBackend, _BufferedEngine):
     """Fine connected mycelial fans branch from common origins continuously.
 
     Bright tips advance along irregular filaments and fork progressively.
@@ -6682,8 +7639,16 @@ class _FungalGrowthEngine(_BufferedEngine):
     _edge_lifetime = 75.0
 
     def _shade(self, width: int, height: int) -> QImage:
-        """Render the unchanged native field into a freshly owned image."""
+        """Render the unchanged native field into a freshly owned image.
+
+        The optional graphics renderer strokes the same partial Béziers and
+        tips; any refusal keeps the QPainter path below.
+        """
         bw, bh = self.buffer_size(width, height)
+        image = self._graphics_frame('_draw_filaments', bw, bh,
+                                     build=lambda: self._fungal_strokes(bw, bh))
+        if image is not None:
+            return self._soften(image, width, height)
         image = QImage(bw, bh, QImage.Format_RGB32)
         painter = QPainter(image)
         self._owned_fungal_image = image
@@ -6696,6 +7661,72 @@ class _FungalGrowthEngine(_BufferedEngine):
             self._owned_fungal_image = None
             painter.end()
         return self._soften(image, width, height)
+
+    def _fungal_strokes(self, width: int, height: int) -> tuple:
+        """Flattened filament groups and tips for the graphics renderer.
+
+        Groups follow :meth:`_fungal_paths` (same keys, same order, same
+        colours); each partial quadratic Bézier is split into lines as Qt
+        splits it (:func:`_flatten_quadratic`).
+        """
+        np = _numpy()
+        colors = self.paint_colors
+        curves: Dict[tuple, list] = {}
+        tips = []
+        for (x0, y0, cx, cy, x1, y1, progress,
+             alpha, stroke, hue) in self.geometry(width, height):
+            control_x = x0 + progress * (cx - x0)
+            control_y = y0 + progress * (cy - y0)
+            end_x = ((1.0 - progress) ** 2 * x0
+                     + 2.0 * (1.0 - progress) * progress * cx
+                     + progress ** 2 * x1)
+            end_y = ((1.0 - progress) ** 2 * y0
+                     + 2.0 * (1.0 - progress) * progress * cy
+                     + progress ** 2 * y1)
+            curves.setdefault((hue % len(colors), stroke, alpha), []).append(
+                (x0, y0, control_x, control_y, end_x, end_y))
+            if progress < 1.0:
+                tip = _with_alpha(colors[(hue + 1) % len(colors)],
+                                  min(0.85, alpha * 1.8))
+                tips.append((end_x, end_y, max(0.45, stroke * 0.8), tip.redF(),
+                             tip.greenF(), tip.blueF(), tip.alphaF()))
+        groups, pieces, first = [], [], 0
+        for (hue, stroke, alpha), group in curves.items():
+            rows = []
+            for curve in group:
+                points = _flatten_quadratic(*curve)
+                last = len(points) - 2
+                for index in range(last + 1):
+                    rows.append((*points[index], *points[index + 1], stroke * 0.5,
+                                 (1.0 if index == 0 else 0.0)
+                                 + (2.0 if index == last else 0.0)))
+            segment = np.asarray(rows, dtype=np.float32).reshape(-1, 6)
+            if stroke <= 1.0 and len(segment):
+                for flag, head in ((1.0, 0), (2.0, 2)):
+                    rows_ = np.flatnonzero(np.fmod(segment[:, 5], 2.0 * flag) >= flag)
+                    delta = segment[rows_, 2:4] - segment[rows_, 0:2]
+                    major = np.maximum(np.abs(delta).max(axis=1), 1e-6)
+                    push = 0.5 * delta / major[:, None]
+                    if head == 0:
+                        segment[rows_, 0:2] -= push
+                    else:
+                        segment[rows_, 2:4] += push
+            margin = stroke * 0.5 + 2.0
+            color = _with_alpha(colors[hue], alpha)
+            xs = segment[:, 0:4:2]
+            ys = segment[:, 1:4:2]
+            groups.append((first, len(segment),
+                           math.floor(float(xs.min()) - margin),
+                           math.floor(float(ys.min()) - margin),
+                           math.ceil(float(xs.max()) + margin),
+                           math.ceil(float(ys.max()) + margin),
+                           color.redF(), color.greenF(), color.blueF(),
+                           color.alphaF()))
+            pieces.append(segment)
+            first += len(segment)
+        segments = (np.concatenate(pieces) if pieces
+                    else np.zeros((0, 6), dtype=np.float32))
+        return groups, segments, tips, self.dark
 
     def _configure(self, rng: random.Random) -> None:
         """Roll the first common origin and a seed for all indexed colonies."""
@@ -7819,7 +8850,7 @@ class AmbientWidget(QWidget):
                                    blink_percent=self._blink_percent,
                                    popup_wave_frequency=self._popup_wave_frequency,
                                    direction=self._direction)
-        if isinstance(self._engine, _DataArtEngine):
+        if isinstance(self._engine, _GraphicsBackend):
             self._engine._graphics_backend = self._graphics_backend
         radius_setter = getattr(self._engine, "set_gravity_radius", None)
         if radius_setter is not None:
@@ -7932,8 +8963,13 @@ class AmbientWidget(QWidget):
         mode = str(mode).lower()
         self._graphics_backend = mode if mode in ('cpu', 'auto', 'gpu') else 'cpu'
         with self._engine_lock:
-            if isinstance(self._engine, _DataArtEngine):
+            if isinstance(self._engine, _GraphicsBackend):
                 self._engine._graphics_backend = self._graphics_backend
+        if isinstance(self._engine, DriftEngine) and self._timer.isActive():
+            _retire_producer(self._producer_box)
+            self._last_frame = None
+            self._start_producer()
+            self.update()
 
     def _mutate_engine(self, change: Callable[[], None]) -> None:
         """Apply ``change`` to the engine with the shading thread locked out,
@@ -8022,7 +9058,7 @@ class AmbientWidget(QWidget):
         with self._engine_lock:
             engine.set_max_pixels(self._engine.max_pixels)
             engine.set_time(self._engine.time)
-            if isinstance(engine, _DataArtEngine):
+            if isinstance(engine, _GraphicsBackend):
                 engine._graphics_backend = self._graphics_backend
             self._engine = engine
             self._art_input = (_QueuedArtInput()
@@ -8467,7 +9503,7 @@ class AmbientWidget(QWidget):
         if self._producer_box[0] is not None:
             return
         engine = self._engine
-        if not isinstance(engine, _BufferedEngine):
+        if not isinstance(engine, _BufferedEngine) and not self._stars_on_graphics():
             return
         size = self._art_render_size(self.width(), self.height())
         producer = _FrameProducer(engine, self._engine_lock, self._rate(),
@@ -8482,6 +9518,18 @@ class AmbientWidget(QWidget):
         self._last_frame = None
         self._producer_box[0] = producer
         producer.start()
+
+    def _stars_on_graphics(self) -> bool:
+        """Whether the stratified theme should shade on a graphics thread.
+
+        Only with Animation GPU on, a renderer that could exist and no
+        earlier failure: otherwise it keeps its synchronous CPU paint.
+        """
+        engine = self._engine
+        return (isinstance(engine, DriftEngine)
+                and engine._graphics_backend == 'gpu'
+                and not engine._graphics_failed
+                and _flow_graphics_possible())
 
     def shading_thread_alive(self) -> bool:
         """Whether a shading thread is running for this backdrop.

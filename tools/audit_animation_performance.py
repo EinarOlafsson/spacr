@@ -9,8 +9,12 @@ Each theme is shaded on a thread named like the application's producer, at
 1920x1080 and 3840x2160, at its shipped density and at density 1.0, with the
 CPU renderer. Frame times are a distribution (median, p90, max) of complete
 ``advance`` plus ``shade`` calls, after warm-up. Peak RSS is reported for the
-whole run. ``--gpu`` additionally measures the optional GPU point renderer
-where a theme has one; run that only through tools/gpu_turn.sh.
+whole run. ``--gpu`` additionally measures the optional GPU renderer where
+a theme has one; run that only through tools/gpu_turn.sh. Spinn
+(``data_art_tissue_facets``) only moves under the pointer, so a pointer
+sweeps across it; without one it republishes its resting frame (~0 ms).
+``--cost-table RECEIPT`` prints Automatic's cost table from a ``--gpu``
+receipt.
 """
 from __future__ import annotations
 
@@ -30,8 +34,16 @@ GPU_COVERAGE = {
     "data_art_genetic_advection": "GPU point renderer (monochrome palettes)",
     "data_art_point_atlas": "GPU point renderer (monochrome palettes)",
     "data_art_spaceout_field": "GPU point renderer outside colour-wave events",
+    "blobs": "GPU radial-gradient discs",
+    "drift": "GPU star discs on a shading thread (Animation GPU On only)",
+    "aurora": "GPU ray texture and fold strips",
+    "data_art_fungal_growth": "GPU filament strokes and tips",
+    "data_art_tissue_facets": "GPU paper-tile atlas while the pointer spins it",
     "fractal": "CPU in this backdrop; the native spaceout fractal has its own GPU backend",
 }
+
+#: Themes that only move under the pointer; the audit moves one across them.
+POINTER_THEMES = {"data_art_tissue_facets"}
 
 
 def _measure(ambient, theme, size, density, backend, frames):
@@ -47,14 +59,19 @@ def _measure(ambient, theme, size, density, backend, frames):
     engine.set_max_pixels(size[0] * size[1])
     if hasattr(engine, "_graphics_backend"):
         engine._graphics_backend = backend
+    if theme in POINTER_THEMES:
+        engine.set_gravity_radius(0.35)
     samples, used = [], []
+    buffered = isinstance(engine, ambient._BufferedEngine)
 
     def run():
         try:
             for index in range(frames + 3):
+                if theme in POINTER_THEMES:
+                    engine.set_pointer((0.2 + 0.6 * (index % 12) / 11, 0.5))
                 begin = time.perf_counter()
                 engine.advance(1 / 30)
-                if hasattr(engine, "shade"):
+                if buffered or (backend != "cpu" and hasattr(engine, "shade")):
                     engine.shade(*size)
                 else:
                     canvas = QImage(size[0], size[1], QImage.Format_ARGB32_Premultiplied)
@@ -79,13 +96,40 @@ def _measure(ambient, theme, size, density, backend, frames):
             "gpu_frames": sum(used), "frames": len(samples)}
 
 
+def cost_table(report) -> str:
+    """The ``_GRAPHICS_COST`` literal for every theme a receipt timed on both paths."""
+    table = {}
+    for row in report["rows"]:
+        gpu = row.get("gpu")
+        if not gpu or gpu.get("gpu_frames", 0) < gpu.get("frames", 1):
+            continue
+        table.setdefault(row["theme"], []).append(
+            (row["size"][0] * row["size"][1], row["density"],
+             row["cpu"]["median_ms"], gpu["median_ms"]))
+    lines = ["_GRAPHICS_COST = {"]
+    for theme, rows in table.items():
+        lines.append(f"    {theme!r}: (")
+        lines.extend(f"        {tuple(item)!r}," for item in rows)
+        lines.append("    ),")
+    lines.append("}")
+    return "\n".join(lines)
+
+
 def main(argv=None) -> int:
     """Write the audit receipt."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
     parser.add_argument("--frames", type=int, default=12)
     parser.add_argument("--gpu", action="store_true")
+    parser.add_argument("--cost-table", type=Path, default=None, metavar="RECEIPT",
+                        help="print ambient._GRAPHICS_COST rows from a --gpu receipt and exit")
     args = parser.parse_args(argv)
+    if args.cost_table is not None:
+        print(cost_table(json.loads(args.cost_table.read_text())))
+        return 0
+    root = str(Path(__file__).resolve().parents[1])
+    if root not in sys.path:
+        sys.path.insert(0, root)
     from PySide6.QtWidgets import QApplication
 
     app = QApplication.instance() or QApplication(["spacr-animation-audit"])
@@ -102,7 +146,8 @@ def main(argv=None) -> int:
                        if hasattr(ambient, "theme_label") else theme,
                        "size": list(size), "density": density,
                        "detail": 1.0, "palette": ambient.default_palette_for(theme),
-                       "gpu_coverage": GPU_COVERAGE.get(theme, "CPU only")}
+                       "gpu_coverage": GPU_COVERAGE.get(theme, "CPU only"),
+                       "pointer": theme in POINTER_THEMES}
                 row["cpu"] = _measure(ambient, theme, size, density, "cpu", args.frames)
                 if args.gpu and theme in GPU_COVERAGE:
                     row["gpu"] = _measure(ambient, theme, size, density, "gpu", args.frames)

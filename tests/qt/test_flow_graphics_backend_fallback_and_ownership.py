@@ -233,16 +233,34 @@ def test_dynamic_off_skips_the_external_process_check(monkeypatch, qapp):
     assert made
 
 
-def test_automatic_uses_gpu_only_for_dense_4k_frames(monkeypatch, qapp):
-    candidate = engine()
-    candidate._graphics_backend = 'auto'
+def test_automatic_follows_the_measured_cost_per_theme_and_size(monkeypatch, qapp):
+    """N684: Automatic picks the GPU only where the workstation audit measured it faster."""
     monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda: False)
     monkeypatch.setattr(threading, 'current_thread',
                         lambda: SimpleNamespace(name='spacr-ambient-shade'))
-    assert candidate._graphics_point_image(1920, 1080, [0] * 200000, [], [], None, False) is None
-    assert not candidate._graphics_failed
-    candidate._graphics_point_image(3840, 2160, [0] * 200000, [], [], None, False)
-    assert candidate._graphics_failed
+
+    def asks(theme, width, height, density):
+        candidate = ambient.make_engine(theme, 'spacr', '#14171b', seed=311,
+                                        density=density)
+        candidate._graphics_backend = 'auto'
+        candidate._graphics_point_image(width, height, [0] * 200000, [], [], None, False)
+        return candidate._graphics_failed
+
+    assert not asks('data_art_genetic_advection', 1920, 1080, 1.0)
+    assert not asks('data_art_genetic_advection', 3840, 2160, 1.0)
+    assert not asks('data_art_point_atlas', 3840, 2160, 1.0)
+    assert asks('data_art_point_atlas', 1920, 1080, 1.0)
+    assert asks('data_art_impulse_lens', 3840, 2160, 1.0)
+    assert not asks('data_art_spaceout_field', 1920, 1080, 1.0)
+    assert asks('data_art_spaceout_field', 3840, 2160, 1.0)
+
+
+def test_unmeasured_themes_keep_their_documented_automatic_rule(monkeypatch, qapp):
+    monkeypatch.setitem(ambient._GRAPHICS_COST, 'data_art_impulse_lens', ())
+    candidate = engine()
+    assert not candidate._graphics_automatic(1920, 1080, 200000)
+    assert not candidate._graphics_automatic(3840, 2160, 1000)
+    assert candidate._graphics_automatic(3840, 2160, 200000)
 
 
 def test_failed_isolated_probe_is_cached_without_constructing_in_parent(monkeypatch):
