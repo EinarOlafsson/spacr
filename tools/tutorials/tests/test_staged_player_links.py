@@ -4,6 +4,8 @@ import sys
 
 import pytest
 
+pytest.importorskip("playwright", reason="the player checks drive a browser through Playwright")
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from verify_staged_lesson import check_related_links
 import verify_staged_lesson as staged

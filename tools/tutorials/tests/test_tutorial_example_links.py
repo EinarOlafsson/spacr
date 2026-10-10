@@ -4,7 +4,12 @@ import json
 from pathlib import Path
 import subprocess
 
+import shutil
+
 import pytest
+
+pytestmark = pytest.mark.skipif(shutil.which("node") is None,
+                                reason="runs the real player filter in Node.js")
 
 REPO=Path(__file__).resolve().parents[3]
 PLAYER=REPO/'docs/source/_extra/tutorials/app_v2.js'

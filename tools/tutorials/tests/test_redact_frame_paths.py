@@ -1,4 +1,8 @@
-"""Offline tests for the frame path redaction tool (item 447); no OCR model is loaded."""
+"""Offline tests for the frame path redaction tool (item 447).
+
+Most load no OCR model. redact_line verifies each painted replacement with
+OCR, so the tests that call it need rapidocr_onnxruntime and skip without it.
+"""
 import importlib.util
 import sys
 from pathlib import Path
@@ -12,6 +16,10 @@ spec = importlib.util.spec_from_file_location('redact_frame_paths', MODULE)
 redact = importlib.util.module_from_spec(spec)
 sys.modules[spec.name] = redact  # dataclasses resolve their module
 spec.loader.exec_module(redact)
+
+needs_ocr = pytest.mark.skipif(
+    importlib.util.find_spec("rapidocr_onnxruntime") is None,
+    reason="redact_line verifies its painted text with rapidocr_onnxruntime")
 
 STAGE_ROOT = '/mnt/disk9/Someone/toxoplasma_projects/tutorials/refresh_2026-09-09'
 
@@ -81,6 +89,7 @@ def _similarity(a, b):
     return float((a * b).sum() / np.sqrt((a * a).sum() * (b * b).sum()))
 
 
+@needs_ocr
 def test_redacts_only_the_local_root_and_moves_the_rest():
     font_path = _font()
     original = f'Saved to {STAGE_ROOT}/runs/a.csv and done'
@@ -97,6 +106,7 @@ def test_redacts_only_the_local_root_and_moves_the_rest():
     assert np.array_equal(before[:, :40 + 60], pixels[:, :40 + 60])
 
 
+@needs_ocr
 def test_account_name_in_a_home_path():
     font_path = _font()
     pixels, line, _ = _line_image('Reproducibility manifest: /home/olafsson/.spacr/runs/r1', font_path)

@@ -3,7 +3,9 @@ from html import escape
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import sync_playwright
+
+sync_api = pytest.importorskip("playwright.sync_api", reason="the player checks drive a browser through Playwright")
+sync_playwright = sync_api.sync_playwright
 
 
 STYLES = Path(__file__).resolve().parents[3] / 'docs/source/_extra/tutorials/styles.css'

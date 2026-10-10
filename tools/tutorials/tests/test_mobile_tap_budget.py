@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("playwright", reason="the player checks drive a browser through Playwright")
+
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
 spec = importlib.util.spec_from_file_location('mobile_tap_verifier', TOOLS / 'verify_release_candidate.py')

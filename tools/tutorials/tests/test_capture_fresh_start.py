@@ -327,4 +327,5 @@ def test_installed_app_recordings_never_record_whats_new():
     assert body.index("refuse_whats_new_titles(") < body.index("grabWindow(0)")
     terminal = (TUTORIALS / "capture_terminal_install.py").read_text()
     body = terminal[terminal.index("    def shot(self"):]
-    assert body.index("refuse_whats_new_titles(") < body.index("'import', '-window'")
+    # The grab is ffmpeg x11grab since 0fbbd1e47 (was ImageMagick import).
+    assert body.index("refuse_whats_new_titles(") < body.index("'x11grab'")
