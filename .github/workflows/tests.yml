@@ -530,6 +530,11 @@ jobs:
     needs: coverage-shards
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    # id-token lets the Codecov upload authenticate by OIDC while the
+    # repository has no CODECOV_TOKEN secret (item 688).
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v7
@@ -568,6 +573,7 @@ jobs:
             --head-sha "$SPACR_HEAD_SHA"
 
       - name: Combine process data and write coverage.py JSON
+        id: combine
         env:
           COVERAGE_FILE: ${{ runner.temp }}/spacr-coverage-combined/.coverage
           SPACR_COVERAGE_COMBINED: ${{ runner.temp }}/spacr-coverage-combined
@@ -619,6 +625,36 @@ jobs:
             --shard-count 12 \
             --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \
             --text-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.txt"
+
+      # Item 688: the same combined data, as Cobertura XML, goes to Codecov
+      # for pushes to nightly and main. Codecov is informational only
+      # (codecov.yml); the ratchet above stays the enforcing coverage check,
+      # and a Codecov outage never turns this job red.
+      - name: Write Cobertura coverage.xml for Codecov
+        id: codecov-xml
+        if: >-
+          always() && steps.combine.outcome == 'success'
+          && github.event_name == 'push'
+          && (github.ref == 'refs/heads/nightly' || github.ref == 'refs/heads/main')
+        env:
+          COVERAGE_FILE: ${{ runner.temp }}/spacr-coverage-combined/.coverage
+          SPACR_CODECOV_DIR: ${{ runner.temp }}/spacr-codecov
+        run: |
+          mkdir -p -- "$SPACR_CODECOV_DIR"
+          python -m coverage xml -o "$SPACR_CODECOV_DIR/coverage.xml"
+
+      - name: Upload combined coverage to Codecov
+        if: always() && steps.codecov-xml.outcome == 'success'
+        uses: codecov/codecov-action@v7
+        with:
+          files: ${{ runner.temp }}/spacr-codecov/coverage.xml
+          disable_search: true
+          flags: ${{ github.ref_name }}
+          name: spacr-${{ github.ref_name }}-${{ github.run_id }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}
+          fail_ci_if_error: false
+          verbose: true
 
       - name: Upload human and machine-readable coverage reports
         if: always()
