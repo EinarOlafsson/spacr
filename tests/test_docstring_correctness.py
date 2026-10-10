@@ -3804,7 +3804,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     home_ui_arrivals = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
-    assert len(home_ui_arrivals) == 9
+    # 9 -> 10 (2026-10-08, 39bfe8e19): LiveSettingsDialog.close is reviewed
+    # in this contract too, as the extractor and documentation tests read it.
+    assert len(home_ui_arrivals) == 10
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_additions.keys()
     hidden_close = json.loads((pathlib.Path(__file__).resolve().parent
@@ -3812,7 +3814,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
     assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
     assert {key: docs[key] for key in hidden_close} == hidden_close
-    assert not hidden_close.keys() & (home_ui_arrivals.keys() | worker_additions.keys())
+    assert hidden_close.keys() <= home_ui_arrivals.keys()
+    assert not hidden_close.keys() & worker_additions.keys()
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()) == 13182

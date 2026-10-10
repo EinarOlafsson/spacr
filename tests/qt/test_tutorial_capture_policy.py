@@ -92,7 +92,7 @@ def test_drift_is_refused_even_when_the_capture_command_requested_blobs(recordin
 
 
 def test_the_capture_does_not_silently_accept_another_named_appearance():
-    with pytest.raises(ValueError, match="dark mode and the Blobs"):
+    with pytest.raises(ValueError, match="does not match its declared recording profile"):
         configure_appearance("light", "blobs")
 
 

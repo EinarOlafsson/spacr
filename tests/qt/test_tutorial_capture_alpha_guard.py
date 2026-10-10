@@ -6,7 +6,6 @@ is built and refuses a frame while it is on; only a Preferences scene that
 shows the toggle itself may opt in.
 """
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -180,11 +179,21 @@ def test_capture_refresh_forces_off_before_the_window_and_passes_only_the_opt_in
     assert source.index("configure_appearance(args.theme, args.backdrop,") < \
         source.index("window = gui.MainWindow()")
     assert "'--preferences-alpha-toggle-scene', action='store_true'" in source
-    calls = re.findall(r"verify_appearance\(([^)]*)\)", source)
-    # 624134261 also passes the one allow-listed alpha lesson through.
-    assert calls == ["\n            window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene,"
-                     "\n            alpha_lesson=args.alpha_lesson,"
-                     "\n            home_preferences=args.home_preferences_only"]
+    # Parsed rather than matched: the call's other arguments now nest
+    # parentheses. 624134261 also passes the one allow-listed alpha lesson
+    # through; nothing else may reach the alpha opt-ins.
+    import ast
+    calls = [node for node in ast.walk(ast.parse(source))
+             if isinstance(node, ast.Call)
+             and getattr(node.func, "id", None) == "verify_appearance"]
+    assert len(calls) == 1
+    (call,) = calls
+    assert [ast.unparse(arg) for arg in call.args] == ["window"]
+    keywords = {kw.arg: ast.unparse(kw.value) for kw in call.keywords}
+    assert keywords["allow_alpha_toggle_scene"] == "args.preferences_alpha_toggle_scene"
+    assert keywords["alpha_lesson"] == "args.alpha_lesson"
+    assert not {k for k in keywords if "alpha" in k} - {
+        "allow_alpha_toggle_scene", "alpha_lesson"}
 
 
 def test_authoring_capture_sessions_refuse_frames_while_alpha_is_on(prefs):
