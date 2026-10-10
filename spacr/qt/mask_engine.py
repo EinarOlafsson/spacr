@@ -1120,7 +1120,11 @@ def curation_verdict(folder: str, image_path: str) -> Optional[bool]:
     :param image_path: the field.
     :returns: True for keep, False for discard, None for no row.
     """
-    row = read_curation(folder).get(os.fspath(image_path))
+    return _row_verdict(read_curation(folder).get(os.fspath(image_path)))
+
+
+def _row_verdict(row) -> Optional[bool]:
+    """Keep (True), Discard (False) or no verdict (None) from one CSV row."""
     if row is None:
         return None
     value = str(row.get(CURATION_COLUMNS[3], "")).strip().lower()
@@ -1129,6 +1133,191 @@ def curation_verdict(folder: str, image_path: str) -> Optional[bool]:
     if value in ("false", "0", "no", "discard"):
         return False
     return None
+
+
+def _first_unreviewed(fields) -> Optional[int]:
+    """The queue position of the first field with neither Keep nor Discard.
+
+    Reads the persisted ``keep_discard.csv`` of each field's folder once, so
+    verdicts recorded in an earlier session count (item 685).
+
+    :param fields: ``(folder, image path)`` pairs in queue order.
+    :returns: the zero-based index, or None when every field has a verdict
+        or there are none.
+    """
+    verdicts = {}
+    for index, (folder, image_path) in enumerate(fields):
+        if folder not in verdicts:
+            verdicts[folder] = read_curation(folder)
+        if _row_verdict(verdicts[folder].get(os.fspath(image_path))) is None:
+            return index
+    return None
+
+
+VVVV_EXPORT_FORMAT = "spacr-vvvv-export"
+VVVV_EXPORT_VERSION = 1
+
+
+def _vvvv_object_table(labels: np.ndarray, image: Optional[np.ndarray] = None,
+                      channel_names=None, classes=None, scores=None):
+    """One row per object of ``labels`` for the vvvv export (item 685).
+
+    Coordinates are image pixels with the origin at the top-left pixel's
+    corner, x to the right and y down; a centroid is the mean pixel centre
+    (``index + 0.5``) and the bounding box is half-open, ``[x0, x1)``.
+    Mean intensity is reported per channel of ``image`` as loaded, in its
+    own units.
+
+    :param labels: 2-D integer label image; 0 is background.
+    :param image: the field, 2-D or ``(height, width, channels)``, or None.
+    :param channel_names: one name per channel; ``channel_1`` ... otherwise.
+    :param classes: optional ``{label: class name}``.
+    :param scores: optional ``{label: score}``.
+    :returns: a :class:`pandas.DataFrame`.
+    """
+    import pandas as pd
+    from scipy import ndimage
+
+    labels = np.asarray(labels)
+    ids = [int(v) for v in np.unique(labels) if int(v) > 0]
+    columns = ["label", "centroid_x", "centroid_y", "area",
+               "bbox_x0", "bbox_y0", "bbox_x1", "bbox_y1"]
+    channels = []
+    if image is not None:
+        stack = np.asarray(image, dtype=np.float64)
+        if stack.ndim == 2:
+            stack = stack[..., None]
+        names = list(channel_names or ())
+        names += [f"channel_{index + 1}"
+                  for index in range(len(names), stack.shape[-1])]
+        channels = [(f"mean_intensity_{names[index]}", stack[..., index])
+                    for index in range(stack.shape[-1])]
+    table = {name: [] for name in columns}
+    for name, _plane in channels:
+        table[name] = []
+    if ids:
+        areas = ndimage.sum_labels(np.ones(labels.shape), labels, ids)
+        centres = ndimage.center_of_mass(np.ones(labels.shape), labels, ids)
+        slices = ndimage.find_objects(labels.astype(np.int64))
+        means = [ndimage.mean(plane, labels, ids) for _name, plane in channels]
+        for row, label in enumerate(ids):
+            box = slices[label - 1]
+            table["label"].append(label)
+            table["centroid_x"].append(float(centres[row][1]) + 0.5)
+            table["centroid_y"].append(float(centres[row][0]) + 0.5)
+            table["area"].append(int(areas[row]))
+            table["bbox_x0"].append(int(box[1].start))
+            table["bbox_y0"].append(int(box[0].start))
+            table["bbox_x1"].append(int(box[1].stop))
+            table["bbox_y1"].append(int(box[0].stop))
+            for (name, _plane), values in zip(channels, means):
+                table[name].append(float(np.atleast_1d(values)[row]))
+    frame = pd.DataFrame(table)
+    if classes:
+        frame["class"] = [classes.get(label, "") for label in ids]
+    if scores:
+        frame["score"] = [scores.get(label) for label in ids]
+    return frame
+
+
+def _vvvv_outlines(labels: np.ndarray) -> np.ndarray:
+    """Opaque white object outlines on a transparent RGBA background."""
+    from skimage.segmentation import find_boundaries
+
+    edge = find_boundaries(np.asarray(labels), mode="inner")
+    rgba = np.zeros(labels.shape[:2] + (4,), dtype=np.uint8)
+    rgba[edge] = (255, 255, 255, 255)
+    return rgba
+
+
+def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
+                image: Optional[np.ndarray] = None, *,
+                source_path: str = "", pixel_size=None, unit: str = "µm",
+                channel_names=None, classes=None, scores=None) -> str:
+    """Write one field for a vvvv patch watching ``root`` (item 685, alpha).
+
+    The folder ``<root>/<stem>/`` holds ``<stem>_labels.png`` (16-bit
+    labels), ``<stem>_outlines.png`` (RGBA outlines on transparency),
+    ``<stem>_objects.csv`` (:func:`_vvvv_object_table`) and
+    ``manifest.json``. Every file is written to a hidden sibling and
+    renamed into place, so a watcher never reads half a file; the manifest
+    goes last, so its change means the set is complete. The source image
+    and mask are only read.
+
+    :param root: export folder; created when missing.
+    :param image_name: the field's file name; its stem names everything.
+    :param labels: 2-D label image; ids above 65535 are refused.
+    :param image: the field as loaded, for intensities and channel count.
+    :param source_path: the field's path, recorded in the manifest.
+    :param pixel_size: ``(x, y)`` physical size of a pixel, or None.
+    :param unit: the unit of ``pixel_size``.
+    :param channel_names: names for the image's channels.
+    :param classes: optional ``{label: class name}``.
+    :param scores: optional ``{label: score}``.
+    :returns: the field's export folder.
+    :raises ValueError: for labels that are not 2-D or exceed 16 bits.
+    """
+    import datetime
+
+    from .. import tabular
+
+    labels = np.asarray(labels)
+    if labels.ndim != 2:
+        raise ValueError("vvvv export needs a 2-D label image")
+    if labels.size and (int(labels.min()) < 0 or int(labels.max()) > 65535):
+        raise ValueError("vvvv export stores labels as 16-bit PNG; "
+                         "ids must lie between 0 and 65535")
+    stem = field_stem(os.path.basename(image_name))
+    folder = os.path.join(os.fspath(root), stem)
+    os.makedirs(folder, exist_ok=True)
+    frame = _vvvv_object_table(labels, image, channel_names, classes, scores)
+    names = {
+        "labels": f"{stem}_labels.png",
+        "outlines": f"{stem}_outlines.png",
+        "objects": f"{stem}_objects.csv",
+    }
+    tabular._publish(os.path.join(folder, names["labels"]),
+                     lambda pending: imageio.imwrite(
+                         pending, labels.astype(np.uint16), format="PNG"))
+    tabular._publish(os.path.join(folder, names["outlines"]),
+                     lambda pending: imageio.imwrite(
+                         pending, _vvvv_outlines(labels), format="PNG"))
+    tabular._publish(os.path.join(folder, names["objects"]),
+                     lambda pending: tabular.write_table(
+                         frame, pending, canonicalise=False))
+    channels = [column[len("mean_intensity_"):] for column in frame.columns
+                if column.startswith("mean_intensity_")]
+    try:
+        from .. import __version__ as version
+    except ImportError:
+        version = ""
+    spacing = None
+    if pixel_size is not None:
+        spacing = {"x": float(pixel_size[0]), "y": float(pixel_size[1]),
+                   "unit": str(unit)}
+    manifest = {
+        "format": VVVV_EXPORT_FORMAT,
+        "version": VVVV_EXPORT_VERSION,
+        "image": os.path.basename(image_name),
+        "source_path": os.fspath(source_path),
+        "spacr_version": str(version),
+        "exported_at": datetime.datetime.now(datetime.timezone.utc)
+        .isoformat(timespec="seconds"),
+        "width": int(labels.shape[1]),
+        "height": int(labels.shape[0]),
+        "pixel_size": spacing,
+        "channel_names": channels,
+        "objects": int(len(frame)),
+        "coordinates": ("pixels; origin at the top-left corner of the image, "
+                        "x right, y down; centroids are pixel centres, "
+                        "bounding boxes are half-open [x0, x1)"),
+        "files": names,
+    }
+    tabular._publish(os.path.join(folder, "manifest.json"),
+                     lambda pending: Path(pending).write_text(
+                         json.dumps(manifest, indent=2, ensure_ascii=False),
+                         encoding="utf-8"))
+    return folder
 
 
 def record_curation(folder: str, image_path: str, mask_path: str,
@@ -1821,6 +2010,61 @@ def divide_object(mask: np.ndarray, p0, p1,
     if not splits:
         return mask.copy(), []
     return _fit_label_width(out, mask), splits
+
+
+def _divide_or_cut(mask: np.ndarray, p0, p1,
+                  width: float = DIVIDE_CUT_WIDTH):
+    """Divide what the segment separates and keep the cut through the rest.
+
+    Make Masks' Divide stroke (item 685). An object the line crosses
+    without separating keeps a background groove along the line, so the
+    next stroke continues the earlier one and several strokes can finish a
+    division together. An object the band would remove completely is left
+    alone, so a cut never deletes an object. Separated objects follow
+    :func:`divide_object`: the larger piece keeps its id.
+
+    :param mask: 2-D label mask; it is not modified.
+    :param p0: first end of the cut as ``(x, y)`` in pixels.
+    :param p1: second end of the cut as ``(x, y)`` in pixels.
+    :returns: ``(mask, splits, cut)``: ``splits`` as for
+        :func:`divide_object`, ``cut`` the ids that received only a groove.
+        Both empty means the mask is an unchanged copy.
+    """
+    if tuple(int(v) for v in p0) == tuple(int(v) for v in p1):
+        return mask.copy(), [], []
+    band = _segment_band(mask.shape, p0, p1, width)
+    if not band.any():
+        return mask.copy(), [], []
+    crossed = [int(v) for v in np.unique(mask[band]) if int(v) > 0]
+    if not crossed:
+        return mask.copy(), [], []
+    out = mask.astype(np.int64, copy=True)
+    free_id = next_label(mask)
+    splits, cut = [], []
+    for source in crossed:
+        body = out == source
+        remainder = body & ~band
+        pieces, count = _ndimage().label(remainder, structure=_EIGHT)
+        if count == 0:
+            continue
+        out[body & band] = 0
+        if count < 2:
+            cut.append(source)
+            continue
+        areas = np.bincount(pieces.ravel())
+        keeps = int(np.argmax(areas[1:])) + 1
+        out[body] = 0
+        out[pieces == keeps] = source
+        for piece in range(1, count + 1):
+            if piece == keeps:
+                continue
+            out[pieces == piece] = free_id
+            splits.append((source, free_id))
+            free_id += 1
+    if not splits and not cut:
+        return mask.copy(), [], []
+    return _fit_label_width(out, mask), splits, cut
+
 
 def _merge_objects_along_line(mask: np.ndarray, p0, p1):
     """Join crossed labels under the first touched ID without painting pixels.

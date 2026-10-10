@@ -91,6 +91,7 @@ GROUPS = (
         (582, "Plugin and recipe catalogue"),
         (576, "Postgres or DuckDB / Parquet measurement store"),
         (633, "Test data on seven more modules"),
+        (685, "Export masks and objects for vvvv"),
     )),
     ("Reproducibility", (
         (572, "Figure-integrity check"),

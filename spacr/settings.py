@@ -7500,6 +7500,9 @@ ALPHA_FEATURES = {
         'widgets': ('CellposeWorkbenchVirtualStain', 'MaskVirtualStainApply',
                     'MakeMasksVirtualStainApply'),
     },
+    685: {
+        'widgets': ('MakeMasksVvvvExport', 'MakeMasksVvvvExportOnSave'),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),

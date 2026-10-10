@@ -171,6 +171,7 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QSplitter,
     QStackedWidget,
+    QTabBar,
     QTabWidget,
     QVBoxLayout,
     QWidget,
@@ -2415,6 +2416,9 @@ class _MaskCanvas(QLabel):
         if not (0 <= y < h and 0 <= x < w) or int(self.mask[y, x]) <= 0:
             return False
         self._emit_stroke_start()
+        magnifier = self.magnifier
+        if magnifier is not None and magnifier.enabled:
+            magnifier.hold_auto_accept(self.mask == self.mask[y, x])
         removed = engine.erase_object_in_place(self.mask, x, y)
         if removed and removed not in self._sweep_labels:
             self._sweep_labels.append(removed)
@@ -2588,9 +2592,11 @@ class _MaskCanvas(QLabel):
 
         if (event.button() == Qt.RightButton and self.magnifier is not None
                 and self.magnifier.enabled
-                and self.magnifier.scope == "image"):
+                and self.magnifier.scope == "image"
+                and self.mode != MODE_DIVIDE):
             self.magnifier.hover(event.position())
-            self.magnifier.remove()
+            self.magnifier.remove_at(self._canvas_to_image(
+                event.position().x(), event.position().y()))
             self.update()
             return
 
@@ -2753,6 +2759,11 @@ class _MaskCanvas(QLabel):
             self.magnifier.hover(event.position())
             if event.buttons() & Qt.LeftButton:
                 self.magnifier.drag()
+            elif (self.mode == MODE_DIVIDE and self._gesture_points
+                  and self._gesture_button == Qt.RightButton
+                  and event.buttons() & Qt.RightButton):
+                self._gesture_points = [self._gesture_points[0],
+                                        event.position().toPoint()]
             self.update()
             return
         if self.mode in (MODE_ZOOM, MODE_RECROP) \
@@ -2837,7 +2848,8 @@ class _MaskCanvas(QLabel):
             return
         if (event.button() == Qt.RightButton and self.magnifier is not None
                 and self.magnifier.enabled
-                and self.magnifier.scope == "image"):
+                and self.magnifier.scope == "image"
+                and self.mode != MODE_DIVIDE):
             return
         if self.mode in (MODE_ZOOM, MODE_RECROP) \
                 and self._zoom_drag_start is not None \
@@ -2869,6 +2881,14 @@ class _MaskCanvas(QLabel):
             points, self._gesture_points = self._gesture_points, []
             merge = self._gesture_button == Qt.RightButton
             self._gesture_button = None
+            if (merge and self.mode == MODE_DIVIDE
+                    and self.magnifier is not None and self.magnifier.enabled
+                    and self.is_click(points)):
+                start = points[0]
+                self.magnifier.remove_at(
+                    self._canvas_to_image(start.x(), start.y()))
+                self.update()
+                return
             self._finish_region_gesture(points, merge=merge)
             self.update()
             return
@@ -2880,6 +2900,19 @@ class _MaskCanvas(QLabel):
             radius=int(self.brush_radius),
         )
 
+    @staticmethod
+    def is_click(points) -> bool:
+        """Whether a gesture's canvas points are a click rather than a drag.
+
+        Shorter than the platform's drag distance is a click (item 685), so
+        a right click with the magnifier on deletes in Divide / Merge while
+        a right drag still merges.
+        """
+        if len(points) < 2:
+            return True
+        travel = points[-1] - points[0]
+        return travel.manhattanLength() < QApplication.startDragDistance()
+
     def retain_label_ids(self) -> bool:
         """Retain explicit primary identities or deliberate manual groupings."""
         return bool(getattr(self, 'preserve_ids', False) or self.manual_ids)
@@ -2889,8 +2922,10 @@ class _MaskCanvas(QLabel):
 
         The mask is touched here and nowhere else for these two tools, and
         only when the gesture did something: a traced outline that enclosed
-        nothing and a line that separated nothing both leave the mask, the
-        undo history and the ledger exactly as they were.
+        nothing and a line that crossed no object both leave the mask, the
+        undo history and the ledger exactly as they were. A dividing line
+        that crosses an object without separating it is kept as a cut
+        (item 685), so the next line continues it.
 
         The path is converted to image pixels here rather than as it is
         drawn, so that a gesture whose points fall outside the pixmap loses
@@ -2923,9 +2958,9 @@ class _MaskCanvas(QLabel):
                 self._emit_stroke_end(kind="merge", target=kept,
                                       joined_labels=joined, n_objects=len(joined))
                 return
-            divided, splits = engine.divide_object(
+            divided, splits, cut = engine._divide_or_cut(
                 self.mask, image_points[0], image_points[-1])
-            if not splits:
+            if not splits and not cut:
                 return
             self._emit_stroke_start()
             self.mask = divided
@@ -2935,7 +2970,15 @@ class _MaskCanvas(QLabel):
                 target=[int(source) for source, _ in splits],
                 new_labels=[int(made) for _, made in splits],
                 n_objects=len(splits),
+                cut_labels=[int(label) for label in cut],
             )
+            if cut and not splits:
+                from ..i18n import tr
+
+                self.status.emit(tr(
+                    "Cut kept in object(s) {labels}; draw another line to "
+                    "finish dividing. Ctrl+Z to undo").format(
+                        labels=", ".join(str(label) for label in cut)))
             return
 
         filled, new_label = engine.fill_polygon(self.mask, image_points)
@@ -5569,6 +5612,7 @@ class _LiveMagnifier(QObject):
         self.overlap = _MAGNIFIER_OVERLAP_DEFAULT
         self.auto_accept = False
         self._auto_accepted = None
+        self._auto_hold = None
         self._auto_explicit_key = None
         #: The mask the canvas was last seen holding, and how many different
         #: ones it has held. See :meth:`mask_generation`.
@@ -5745,6 +5789,7 @@ class _LiveMagnifier(QObject):
         """
         self.auto_accept = bool(on)
         self._auto_accepted = None
+        self._auto_hold = None
         self._auto_explicit_key = None
         self._accept_proposed()
 
@@ -5758,6 +5803,13 @@ class _LiveMagnifier(QObject):
         if (not self.auto_accept or not self.enabled or self._cursor is None
                 or self._stroke is not None or self._waiting):
             return False
+        held = self._auto_hold
+        if commit and held is not None:
+            x, y = self._cursor
+            if (0 <= y < held.shape[0] and 0 <= x < held.shape[1]
+                    and held[y, x]):
+                return False
+            self._auto_hold = None
         whole = self.scope == "image"
         expected = self._image_key_now() if whole else self._requested_key
         explicit = (expected, self.overlap, self.save_mode, self._cursor)
@@ -5880,6 +5932,7 @@ class _LiveMagnifier(QObject):
         self._shown = None
         self._shown_image = None
         self._auto_accepted = None
+        self._auto_hold = None
         self._auto_explicit_key = None
         self._waiting.clear()
         self._requested_key = None
@@ -6291,6 +6344,36 @@ class _LiveMagnifier(QObject):
         self.remove_requested.emit(int(self._cursor[0]),
                                    int(self._cursor[1]))
         return True
+
+    def remove_at(self, point) -> bool:
+        """Ask the screen to remove the mask object at image ``point``.
+
+        A right click with the magnifier on (item 685). The clicked pixel is
+        used, not the lens position, so a locked lens deletes what was
+        clicked rather than what it is pinned over.
+
+        :param point: image ``(x, y)``, or None for a click off the image.
+        :returns: False when the magnifier is off or nothing was asked.
+        """
+        if not self.enabled or point is None or self.canvas.mask is None:
+            return False
+        self.remove_requested.emit(int(point[0]), int(point[1]))
+        return True
+
+    def hold_auto_accept(self, footprint) -> None:
+        """Keep Auto accept off the pixels of an object just deleted.
+
+        Without this, the proposal under the pointer would put the deleted
+        object straight back. Auto accept resumes once the pointer leaves
+        every held footprint; a new field or toggling releases the hold.
+
+        :param footprint: boolean image-sized array of the removed pixels.
+        """
+        footprint = np.asarray(footprint, dtype=bool)
+        held = self._auto_hold
+        if held is not None and held.shape == footprint.shape:
+            footprint = held | footprint
+        self._auto_hold = footprint
 
     def cancel_image(self) -> bool:
         """Stop waiting for the whole-image run and throw its answer away.
@@ -9020,6 +9103,16 @@ class MakeMasksScreen(QWidget):
             "one undo step, so a press by accident costs one Ctrl+Z."))
         self._btn_clear.clicked.connect(self._on_clear_mask)
         curate_row.addWidget(self._btn_clear)
+        self._btn_first_unreviewed = QPushButton(tr("First unreviewed"))
+        self._btn_first_unreviewed.setObjectName("MakeMasksFirstUnreviewed")
+        self._btn_first_unreviewed.setCursor(Qt.PointingHandCursor)
+        self._btn_first_unreviewed.setToolTip(tr(
+            "Open the first image in the queue that has neither Keep nor "
+            "Discard, as recorded in csv/keep_discard.csv. Unsaved edits "
+            "follow the same rules as Next image."))
+        self._btn_first_unreviewed.clicked.connect(self._on_first_unreviewed)
+        curate_row.insertWidget(curate_row.indexOf(self._btn_clear),
+                                self._btn_first_unreviewed)
 
         self._btn_discard = QPushButton(tr("Discard"))
         self._btn_discard.setIcon(iconset.icon("trash"))
@@ -9074,6 +9167,9 @@ class MakeMasksScreen(QWidget):
         self._virtual_stain.button.setObjectName("MakeMasksVirtualStainApply")
         _apply_alpha_widgets(self._virtual_stain.button)
         curate_row.addWidget(self._virtual_stain)
+        for button in self._build_vvvv_export_buttons():
+            curate_row.addWidget(button)
+            _apply_alpha_widgets(button)
         curate_row.addWidget(self._build_contribute_button())
 
         outer_row.addWidget(self._nav_curate_group, 0, Qt.AlignBottom)
@@ -12792,8 +12888,247 @@ class MakeMasksScreen(QWidget):
         self._flow_pane = _FlowPane()
         self._tab_prob = tabs.addTab(self._prob_pane, "Cell probability")
         self._tab_flow = tabs.addTab(self._flow_pane, "Flows")
+        tabs.tabBar().setTabButton(self._tab_flow, QTabBar.RightSide,
+                                   self._build_queue_tally())
         self._view_tabs = tabs
         return tabs
+
+    def _build_queue_tally(self) -> QWidget:
+        """The editable ``index / total`` beside the Flows tab (item 685).
+
+        Typing a 1-based position and pressing Enter opens that image. A
+        number outside the queue, or text that is not a number, puts the
+        current position back and leaves the image on screen as it was.
+        """
+        from ..i18n import tr
+
+        tally = QWidget()
+        tally.setObjectName("MakeMasksQueueTally")
+        row = QHBoxLayout(tally)
+        row.setContentsMargins(SPACING["sm"], 0, 0, 0)
+        row.setSpacing(2)
+        self._tally_index = QLineEdit("0")
+        self._tally_index.setObjectName("MakeMasksQueueIndex")
+        self._tally_index.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self._tally_index.setMaximumWidth(56)
+        self._tally_index.setToolTip(tr(
+            "Position of this image in the queue. Type a number and press "
+            "Enter to open that image."))
+        self._tally_index.returnPressed.connect(self._on_tally_entered)
+        self._tally_total = QLabel("/0")
+        self._tally_total.setObjectName("MakeMasksQueueTotal")
+        row.addWidget(self._tally_index)
+        row.addWidget(self._tally_total)
+        return tally
+
+    def _build_vvvv_export_buttons(self) -> tuple:
+        """The alpha vvvv export: Export for vvvv and Export on save (685).
+
+        Both are registered in ``spacr.settings.ALPHA_FEATURES`` and hidden
+        unless Show alpha features is on. The export folder and the
+        on-save choice are remembered between sessions.
+        """
+        from ..i18n import tr
+        from ..prefs import _s
+
+        self._btn_vvvv_export = QPushButton(tr("Export for vvvv…"))
+        self._btn_vvvv_export.setObjectName("MakeMasksVvvvExport")
+        self._btn_vvvv_export.setCursor(Qt.PointingHandCursor)
+        self._btn_vvvv_export.setToolTip(tr(
+            "Write this image's labels (16-bit PNG), outlines (RGBA PNG), "
+            "one row per object (CSV) and a manifest into a folder named "
+            "after the image, for a vvvv patch to read. Files are replaced "
+            "whole, so a watching patch never reads half a file."))
+        self._btn_vvvv_export.clicked.connect(lambda: self._on_export_vvvv())
+        self._btn_vvvv_on_save = QPushButton(tr("Export on save"))
+        self._btn_vvvv_on_save.setObjectName("MakeMasksVvvvExportOnSave")
+        self._btn_vvvv_on_save.setCheckable(True)
+        self._btn_vvvv_on_save.setCursor(Qt.PointingHandCursor)
+        self._btn_vvvv_on_save.setToolTip(tr(
+            "Export for vvvv again every time a mask is saved, so a patch "
+            "watching the export folder updates live."))
+        self._btn_vvvv_on_save.setChecked(bool(
+            _s().value("make_masks/vvvv_export_on_save", False, type=bool)
+            and self._vvvv_export_root()))
+        self._btn_vvvv_on_save.toggled.connect(self._on_vvvv_on_save_toggled)
+        return self._btn_vvvv_export, self._btn_vvvv_on_save
+
+    @staticmethod
+    def _vvvv_export_root() -> str:
+        """The remembered vvvv export folder, or ""."""
+        from ..prefs import _s
+
+        return str(_s().value("make_masks/vvvv_export_dir", "", type=str) or "")
+
+    def _ask_vvvv_export_root(self) -> str:
+        """Ask for the vvvv export folder and remember it; "" when cancelled."""
+        from ..i18n import tr
+        from ..prefs import _s
+
+        chosen = QFileDialog.getExistingDirectory(
+            self, tr("Choose the vvvv export folder"),
+            self._vvvv_export_root() or (self._folder or ""))
+        if chosen:
+            _s().setValue("make_masks/vvvv_export_dir", chosen)
+        return chosen or ""
+
+    def _on_vvvv_on_save_toggled(self, enabled: bool) -> None:
+        """Remember Export on save; choose a folder first when there is none."""
+        from ..prefs import _s
+
+        if enabled and not self._vvvv_export_root() \
+                and not self._ask_vvvv_export_root():
+            blocked = self._btn_vvvv_on_save.blockSignals(True)
+            self._btn_vvvv_on_save.setChecked(False)
+            self._btn_vvvv_on_save.blockSignals(blocked)
+            enabled = False
+        _s().setValue("make_masks/vvvv_export_on_save", bool(enabled))
+
+    def _on_export_vvvv(self, root: Optional[str] = None, *, labels=None,
+                        quiet: bool = False) -> Optional[str]:
+        """Export the field on screen for vvvv.
+
+        :param root: the export folder; asked for when None.
+        :param labels: the labels to write; the canvas mask when None.
+        :param quiet: leave the status line alone, as a save just set it.
+        :returns: the field's export folder, or None when nothing was written.
+        """
+        from ..i18n import tr
+
+        if not self._image_files or self._canvas.mask is None:
+            return None
+        if self._blind is not None:
+            self._warn(tr("vvvv export is off while blinded"),
+                       tr("Unblind this session before exporting folders "
+                          "named after source images."))
+            return None
+        if root is None:
+            root = self._ask_vvvv_export_root()
+            if not root:
+                return None
+        filename = self._image_files[self._current_index]
+        source = os.path.join(self._folder or "", filename)
+        ruler = getattr(self._canvas, "ruler", None)
+        spacing = getattr(ruler, "spacing", None)
+        try:
+            written = engine._export_vvvv(
+                root, filename,
+                self._canvas.mask if labels is None else labels,
+                self._canvas.image, source_path=source, pixel_size=spacing,
+                unit=getattr(ruler, "unit", "µm"))
+        except Exception as exc:                              # noqa: BLE001
+            self._warn(tr("vvvv export failed"), str(exc))
+            return None
+        if not quiet:
+            self._status_label.setText(tr("Exported for vvvv → {path}",
+                                          path=written))
+        return written
+
+    def _export_vvvv_on_save(self) -> Optional[str]:
+        """Export the labels just saved for vvvv, when Export on save is on.
+
+        Blinded sessions and a closed alpha gate export nothing.
+        """
+        from ..preferences import _is_alpha_visible
+
+        button = getattr(self, "_btn_vvvv_on_save", None)
+        root = self._vvvv_export_root()
+        if (button is None or not button.isChecked() or not root
+                or self._blind is not None or self._canvas.mask is None
+                or not _is_alpha_visible()):
+            return None
+        labels = engine.canonical_labels(
+            self._canvas.mask, preserve_ids=self._canvas.retain_label_ids())
+        return self._on_export_vvvv(root, labels=labels, quiet=True)
+
+    def _sync_queue_tally(self) -> None:
+        """Show the current 1-based position and the queue's length."""
+        index_edit = getattr(self, "_tally_index", None)
+        if index_edit is None:
+            return
+        total = len(self._image_files or [])
+        current = (min(self._current_index, total - 1) + 1) if total else 0
+        index_edit.setText(str(current))
+        index_edit.setEnabled(total > 0)
+        self._tally_total.setText(f"/{total}")
+        first = getattr(self, "_btn_first_unreviewed", None)
+        if first is not None:
+            first.setEnabled(total > 0 and not getattr(self, "_loading", False))
+
+    def _on_tally_entered(self) -> bool:
+        """Open the image whose 1-based position was typed in the tally.
+
+        :returns: whether another image was opened.
+        """
+        from ..i18n import tr
+
+        total = len(self._image_files or [])
+        text = self._tally_index.text().strip()
+        try:
+            wanted = int(text)
+        except ValueError:
+            wanted = 0
+        if not 1 <= wanted <= total:
+            self._sync_queue_tally()
+            self._status_label.setText(tr(
+                "Type a number from 1 to {total} to open that image.",
+                total=total) if total else tr("There are no images in the queue."))
+            return False
+        return self._go_to_index(wanted - 1)
+
+    def _go_to_index(self, index: int) -> bool:
+        """Open the field at zero-based ``index``, leaving this one properly.
+
+        The same leaving rules as Next and Previous: pending boxes are
+        saved, Save on navigation runs first (N680), and a failed save keeps
+        the field on screen. Visiting records no Keep or Discard. A field
+        cut up with Recrop is retired first, and its crops open instead.
+
+        :returns: whether another field was opened.
+        """
+        if not self._image_files or not 0 <= index < len(self._image_files):
+            self._sync_queue_tally()
+            return False
+        if not self._save_mask_if_needed() or not self._save_boxes_if_needed():
+            self._sync_queue_tally()
+            return False
+        if index == self._current_index:
+            self._sync_queue_tally()
+            return False
+        if self.finish_recrop():
+            self._sync_queue_tally()
+            return False
+        self._current_index = index
+        self._load_current()
+        self._sync_queue_tally()
+        return True
+
+    def _on_first_unreviewed(self) -> bool:
+        """Open the first field in queue order with no Keep or Discard.
+
+        :returns: whether another field was opened.
+        """
+        from ..i18n import tr
+
+        if not self._image_files:
+            self._status_label.setText(tr("There are no images in the queue."))
+            return False
+        try:
+            index = engine._first_unreviewed(
+                (folder, os.path.join(folder or "", name))
+                for folder, name in self._field_pairs())
+        except OSError as exc:
+            self._warn(tr("Cannot read review status"), str(exc))
+            return False
+        if index is None:
+            self._status_label.setText(tr(
+                "Every image in this queue has Keep or Discard."))
+            return False
+        if index == self._current_index:
+            self._status_label.setText(tr(
+                "This is the first image without Keep or Discard."))
+            return False
+        return self._go_to_index(index)
 
     def _build_view_pane(self) -> QWidget:
         """The views, with the shortcut list down their right side.
@@ -16060,6 +16395,7 @@ class MakeMasksScreen(QWidget):
                 "Magnifier: there is no mask object under the click — nothing "
                 "was removed."))
             return 0
+        self._magnifier.hold_auto_accept(mask == label)
         out = engine.erase_object_at(mask, x, y)
         changed = self._pixels_changed(out)
         self._canvas.mask = out
@@ -16608,6 +16944,7 @@ class MakeMasksScreen(QWidget):
 
     def _load_current(self):
         """Show the current field and whatever mask it already has."""
+        self._sync_queue_tally()
         if not self._image_files:
             return
         if not self._save_boxes_if_needed():
@@ -17139,6 +17476,7 @@ class MakeMasksScreen(QWidget):
             path = engine.mask_save_path(self._folder, filename,
                                          **self._layout_kwargs())
             self._save_puncta_measurements(path)
+            self._export_vvvv_on_save()
             self._status_label.setText(
                 tr("Unchanged, nothing rewritten → {path}").format(path=path))
             self._last_saved_mask = np.array(self._canvas.mask, copy=True)
@@ -17166,6 +17504,7 @@ class MakeMasksScreen(QWidget):
                            n_objects=objects)
         self._status_label.setText(f"Saved → {path}{note}")
         self._save_puncta_measurements(path)
+        self._export_vvvv_on_save()
         self._last_saved_mask = np.array(self._canvas.mask, copy=True)
         return path
 
@@ -17423,6 +17762,7 @@ class MakeMasksScreen(QWidget):
         self._btn_export_yolo.setEnabled(editable and self._blind is None
                                         and self._box_load_error is None)
         self._mode_buttons[MODE_BOX].setEnabled(editable and self._box_load_error is None)
+        self._sync_queue_tally()
 
 
 class _Sam2ClickLabel(QLabel):

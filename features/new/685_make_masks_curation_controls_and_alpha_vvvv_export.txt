@@ -2,7 +2,7 @@
 MAKE MASKS CURATION CONTROLS, PLAQUE MODEL CATEGORY AND ALPHA VVVV EXPORT
 ================================================================================
 
-Status:    not started
+Status:    in progress — parts 1-6 built; vvvv patch validation pending
 Requested: 2026-10-09 — "make this into a new feature"
 Owner:     Next session; coordinate Make Masks and model-zoo owners
 Related:   N396 queue; N448 keep/discard; N466 divider; N481 clear objects;
@@ -112,3 +112,41 @@ by export. The unspecified VVVV format remains an explicit follow-up.
 
 2026-10-09 — Registered as N685 for the next session; all six requests remain
 pending implementation and acceptance.
+
+2026-10-10 — Parts 1-6 implemented; VVVV pipeline validation outstanding.
+Done: (1) Divide keeps an incomplete cut as a background groove
+(mask_engine._divide_or_cut) and a later stroke finishes the division; one
+"divide" ledger entry/undo step per stroke, cut ids in cut_labels; a click
+or a band covering a whole object changes nothing. (2) With the magnifier on,
+a right click deletes the clicked object in region and whole-image scope and
+in Divide / Merge (a click shorter than the drag distance), using the clicked
+pixel even when the lens is locked; a right drag still merges; Auto accept
+holds off the deleted footprint until the pointer leaves it. (3) Editable
+index/total tally on the Flows tab (MakeMasksQueueIndex/MakeMasksQueueTotal);
+bad or out-of-range input restores the index and keeps the image; jumps use
+the Next/Prev leaving rules (box save, opted-in mask save from N680 when
+present) and record no verdict. (4) "First unreviewed" left of Clear all
+objects reads csv/keep_discard.csv per field folder (works after reopening);
+all-reviewed or empty queues leave the image alone. (5) model_zoo.source_of
+files a shared/community row under spaCR only when its key and sha256 match a
+bundled spaCR record, so toxoplasma_plaque_v3 from the shared catalogue lists
+once under spaCR; other community rows are unchanged. (6) Alpha vvvv export
+(ALPHA_FEATURES 685: MakeMasksVvvvExport, MakeMasksVvvvExportOnSave), hidden
+while Show alpha features is off; refused while blinded.
+Contract for vvvv users (maintainer-confirmed vvvv gamma, coordinator default
+layout, version 1): the chosen export folder holds one folder per image,
+named after the image stem. Each holds <stem>_labels.png (16-bit grey labels,
+0 background, same ids as the saved mask), <stem>_outlines.png (RGBA, opaque
+white inner object outlines on a transparent background), <stem>_objects.csv
+(label, centroid_x, centroid_y, area, bbox_x0/y0/x1/y1, mean_intensity_<channel>
+per channel, class/score columns only when supplied; pixel coordinates with
+origin at the image's top-left corner, x right, y down, centroids at pixel
+centres, half-open boxes) and manifest.json (format spacr-vvvv-export,
+version, image, source_path, spacr_version, exported_at, width, height,
+pixel_size {x, y, unit} or null, channel_names, objects, files). Every file is
+written to a hidden sibling and renamed into place; manifest.json is written
+last, so a patch should watch manifest.json and then reload the other three.
+"Export on save" re-exports after each mask save so a watching patch updates
+live. Not yet done: loading an export into a real vvvv patch to check ids,
+values, units and coordinates; class/score are not yet supplied by Make Masks.
+Tests: tests/qt/test_685_make_masks_curation_controls.py.

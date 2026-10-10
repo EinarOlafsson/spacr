@@ -262,19 +262,21 @@ def test_the_larger_piece_keeps_the_original_id(canvas):
     assert int(canvas.mask[32, 40]) == 7
 
 
-def test_a_line_that_separates_nothing_leaves_the_mask_alone(canvas, strokes):
-    """A cut that stops inside the object is a miss, not a groove.
+def test_a_line_that_separates_nothing_keeps_its_cut(canvas, strokes):
+    """A cut that stops inside the object stays as a groove (item 685).
 
-    Zeroing the pixels anyway would carve a slot into the object and call
-    it a division; leaving the mask alone means the gesture can just be
-    drawn again.
+    Several lines are sometimes needed to separate two objects, so an
+    incomplete stroke is one edit that the next stroke continues.
     """
     before = canvas.mask.copy()
     canvas.mode = MODE_DIVIDE
     drag(canvas, [(30, 16), (30, 30)])          # stops inside the waist
 
-    assert np.array_equal(canvas.mask, before)
-    assert strokes == {"started": 0, "finished": 0}
+    assert not np.array_equal(canvas.mask, before)
+    assert int(canvas.mask[30, 30]) == 0 and int(before[30, 30]) == 7
+    assert counts_by_label(canvas.mask).keys() == counts_by_label(before).keys()
+    assert strokes == {"started": 1, "finished": 1}
+    assert canvas.last_edit["detail"]["cut_labels"] == [7]
 
 
 def test_a_divide_drawn_over_background_changes_nothing(canvas, strokes):
@@ -530,9 +532,9 @@ def test_the_screen_records_a_draw(screen):
 
 
 def test_a_missed_gesture_writes_no_ledger_entry(screen):
-    """A divide that separated nothing is not a correction."""
+    """A divide over background is not a correction."""
     screen._set_mode(MODE_DIVIDE)
-    drag(screen._canvas, [(30, 16), (30, 30)])
+    drag(screen._canvas, [(2, 30), (2, 50)])
     assert list(screen._log.edits) == []
 
 

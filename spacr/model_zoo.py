@@ -2942,6 +2942,27 @@ _SPACR_OWN_SOURCES = ("remote", "bundled", "local")
 _COMMUNITY_SOURCES = ("shared", "community")
 
 
+def _is_spacr_published(entry: Any) -> bool:
+    """Whether a shared or community row is a checkpoint spaCR publishes.
+
+    Item 685: the Toxoplasma plaque model also travels in the shared
+    catalogue, where it was filed under spaCR community. A row is spaCR's
+    own only when its key AND its checksum match a
+    :data:`BUNDLED_REMOTE_MODELS` record, so an upload that merely borrows
+    a key stays a community row.
+
+    :param entry: any zoo row.
+    :returns: True for the very file a bundled record names.
+    """
+    key = str(getattr(entry, "key", "") or "")
+    sha = str(getattr(entry, "sha256", "") or "").strip().lower()
+    if not key or not sha:
+        return False
+    return any(str(record.get("key") or "") == key
+               and str(record.get("sha256") or "").strip().lower() == sha
+               for record in BUNDLED_REMOTE_MODELS)
+
+
 def source_of(entry: Any) -> str:
     """Which of :data:`ZOO_SOURCES` this row belongs under.
 
@@ -2968,6 +2989,8 @@ def source_of(entry: Any) -> str:
     kind = str(getattr(entry, "kind", "") or "")
     uri = str(getattr(entry, "uri", "") or "")
     if source in _COMMUNITY_SOURCES:
+        if _is_spacr_published(entry):
+            return "spaCR"
         return "spaCR community"
     if source == "bioimage.io" or "bioimage" in uri.lower():
         return "bioimage.io"
