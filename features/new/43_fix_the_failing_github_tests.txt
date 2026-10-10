@@ -3714,3 +3714,32 @@ nonduplicated narration staging. Whole3 owningfiles31PASS/no skips. Normal
 desktop/mobile navigation7checks pass; localmedia only. Evidence expands
 data/43_current_tutorial_guard_repair_2026-10-09/receipt.json. Full hosted
 CI/deployment remainspending; Home serialQt untouched.
+
+2026-10-10 10:07 EDT — Make Masks parent-source SIGSEGV: cause found, fix 18a308d33
+Run 37943684517 Coverage0 (test_make_masks_parent_source_race_guards
+[parent]) and Coverage7 (test_make_masks_center_pixel_puncta [False]) both
+crash in the primary-mask waitUntil. The uploaded native cores give the same
+main-thread stack: QEventLoop::exec -> sendPostedEvents -> QThreadWrapper::event
+-> QObject::event (DeferredDelete) -> ~QThreadWrapper -> Shiboken::Object::
+destroy -> releaseWrapper -> unregisterWrapper+0x50, reading the freed
+wrapper's cptr array (QtCore.abi3/libshiboken offsets matched against the
+identical 6.12.0 wheels; the collector's own gdb python diagnostic failed on
+"No module named math"). The deleted QThread is PrimaryMaskSelector's
+_SourceWorker, deleteLater'd in _finished with its Qt parent holding the last
+Python reference. Shiboken 6.12 destroy() (unchanged on upstream dev) removes
+the parent, which frees the wrapper, then calls releaseWrapper(self) whenever
+hasWrapper(cppData) finds ANY entry at that address; a stale entry at a reused
+address turns that into a use-after-free. That is why only loaded hosted
+shards with a long test history crash and every local replay passes.
+Fix (product): _retire() joins the worker and keeps a module reference to its
+wrapper until the C++ half is gone, on the finished and drained-shutdown
+paths; dead wrappers are released on the next retire. Regression
+tests/qt/test_primary_mask_worker_outlives_its_cpp_half.py checks at
+`destroyed` whether the wrapper still exists: [False] on the old code on both
+PySide 6.10 and 6.12 (the crash window, deterministic), [True] with the fix.
+Local reproduction of the SIGSEGV itself stayed negative: three parallel
+PySide 6.12 + coverage xdist replays of the crashed worker's 13-file order
+(496 passed each) and focused loops. Related selector/Make Masks/guard tests
+pass. Other parented QThread subclasses deleted via deleteLater
+(_MaskLoadWorker, _FolderJobWorker) have the same window; not changed here
+because N673 is editing make_masks.py. Item 43 stays OPEN until hosted green.
