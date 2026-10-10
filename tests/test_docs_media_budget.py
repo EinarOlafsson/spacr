@@ -711,13 +711,20 @@ def test_the_budget_module_runs_as_a_script():
     assert "OVER" not in report
 
 
-def test_docs_workflow_publishes_both_branches_without_overwriting_main():
-    """Both branch builds are required before a combined Pages artifact ships."""
+def test_docs_workflow_publishes_each_branch_to_its_own_host():
+    """Main deploys to Pages alone; nightly goes to its Hugging Face Space."""
+    import yaml
     workflow = (REPO_ROOT / ".github/workflows/docs.yml").read_text()
+    jobs = yaml.safe_load(workflow)["jobs"]
     assert "branches: [main, nightly]" in workflow
-    assert "branch: [main, nightly]" in workflow
-    assert "--main channels/docs-channel-main" in workflow
-    assert "--nightly channels/docs-channel-nightly" in workflow
     assert "--english-required" in workflow
-    assert "upload-pages-artifact" in workflow
-    assert "needs: build" in workflow
+    assert jobs["deploy-pages"]["if"] == "needs.resolve.outputs.branch == 'main'"
+    assert jobs["deploy-space"]["if"] == "needs.resolve.outputs.branch == 'nightly'"
+    pages = yaml.safe_dump(jobs["deploy-pages"])
+    assert "assemble-main" in pages and "upload-pages-artifact" in pages
+    assert "nightly" not in pages.replace("nightly redirect stub", "")
+    space = yaml.safe_dump(jobs["deploy-space"])
+    assert "secrets.HF_DOCS_TOKEN" in space and "upload-nightly" in space
+    assert "pages" not in jobs["deploy-space"].get("permissions", {})
+    for job in ("deploy-pages", "deploy-space"):
+        assert "build" in jobs[job]["needs"]

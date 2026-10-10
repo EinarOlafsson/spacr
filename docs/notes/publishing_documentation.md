@@ -1,11 +1,21 @@
 # Automatic main and nightly documentation
 
-Pushing to either `main` or `nightly` starts the **docs** workflow. It pins both
-branch heads, builds each branch's API, guides and committed tutorial player,
-and publishes them together without mixing their content:
+Pushing to either `main` or `nightly` starts the **docs** workflow for that
+branch. It builds the branch's API, guides and committed tutorial player and
+publishes it to that channel's own host, so the two channels never share a
+size budget:
 
-- Main: https://einarolafsson.github.io/spacr/
-- Nightly preview: https://einarolafsson.github.io/spacr/nightly/
+- Main: https://einarolafsson.github.io/spacr/ (GitHub Pages, main only)
+- Nightly preview: https://einarolafsson-spacr-docs-nightly.static.hf.space/
+  (Hugging Face static Space `einarolafsson/spacr-docs-nightly`)
+
+The Pages site keeps a `/nightly/` stub: `/spacr/nightly/<page>` redirects to
+the same page on the Space. A main deploy fails before upload if the Pages
+site exceeds 900 MB (`PAGES_LIMIT` in `tools/publish_docs_channels.py`); the
+step summary reports the size. The nightly upload replaces the Space's files
+(`upload_folder` with `delete_patterns`), so removed pages disappear. It needs
+the repository secret `HF_DOCS_TOKEN`: a fine-grained Hugging Face token with
+write access to that one Space.
 
 A local commit becomes public after it is pushed and the build/deployment
 succeeds. No manual documentation dispatch is needed. Include this workflow
@@ -49,10 +59,10 @@ becomes available only after its verified candidate and media references are
 committed. Missing voices must not be advertised as available.
 
 Narration and 4K recordings keep their pinned external media revisions. The
-publisher stores identical local video/poster bytes once under content hashes;
-each channel retains its own lesson mapping. A changed nightly recording cannot
-replace the main recording. Both sites are checked together against the Pages
-size budget. `channels.json` records their exact source commits.
+publisher stores local video/poster bytes under content hashes in each site's
+`_media/`; each channel retains its own lesson mapping, so a changed nightly
+recording cannot replace the main recording. Each site's `channels.json`
+records its exact source commit.
 
 Use `tools/tutorials/publish_release_candidate.py` to verify and promote a ready
 media subset. Finishing every translation and voice is not required before

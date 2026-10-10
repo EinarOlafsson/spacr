@@ -47,7 +47,7 @@ apply folder, check that Custom model points to your checkpoint and turn on save
 Preview one image, then Run: Apply writes one mask per image into apply/masks.
 Use separately labelled fields to evaluate the result.
 
-Full walkthrough: https://einarolafsson.github.io/spacr/nightly/cellpose_training.html
+Full walkthrough: https://einarolafsson-spacr-docs-nightly.static.hf.space/cellpose_training.html
 The source manifest records the original tutorial field identities and crop locations.
 '''
 

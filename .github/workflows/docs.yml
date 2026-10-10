@@ -7,45 +7,40 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# One combined Pages artifact contains both channels. Serializing the whole
-# workflow keeps an older build from replacing a newer published snapshot.
+# Each branch publishes to its own host, so each has its own size budget:
+# main to GitHub Pages (with a /nightly/ redirect stub), nightly to the
+# Hugging Face static Space einarolafsson/spacr-docs-nightly. Runs of one
+# branch queue so an older build cannot replace a newer published snapshot.
 concurrency:
-  group: docs-pages-channels
+  group: docs-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   resolve:
-    name: Pin both documentation branches
+    name: Pin the documentation branch
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:
-      main: ${{ steps.refs.outputs.main }}
-      nightly: ${{ steps.refs.outputs.nightly }}
+      branch: ${{ steps.refs.outputs.branch }}
+      sha: ${{ steps.refs.outputs.sha }}
     steps:
-      - name: Resolve source commits
+      - name: Resolve the source commit
         id: refs
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
         run: |
-          for branch in main nightly; do
-            sha=$(gh api "repos/$REPOSITORY/commits/$branch" --jq .sha)
-            echo "$branch=$sha" >> "$GITHUB_OUTPUT"
-          done
+          case "$GITHUB_REF_NAME" in
+            main|nightly) ;;
+            *) echo "::error::docs publish only main or nightly, not $GITHUB_REF_NAME"; exit 1 ;;
+          esac
+          echo "branch=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          echo "sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
 
   build:
-    name: Build ${{ matrix.branch }} documentation
+    name: Build ${{ needs.resolve.outputs.branch }} documentation
     needs: resolve
-    strategy:
-      fail-fast: false
-      matrix:
-        branch: [main, nightly]
     env:
-      DOCS_BRANCH: ${{ matrix.branch }}
-      DOCS_SHA: ${{ needs.resolve.outputs[matrix.branch] }}
+      DOCS_BRANCH: ${{ needs.resolve.outputs.branch }}
+      DOCS_SHA: ${{ needs.resolve.outputs.sha }}
       SPACR_DOCS_API_LANGUAGE: all
       QT_QPA_PLATFORM: offscreen
       OMP_NUM_THREADS: "1"
@@ -104,7 +99,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: translation-compatibility-${{ matrix.branch }}
+          name: translation-compatibility-${{ env.DOCS_BRANCH }}
           path: translation-compatibility.json
           if-no-files-found: warn
           retention-days: 14
@@ -183,16 +178,24 @@ jobs:
       - name: Upload branch site
         uses: actions/upload-artifact@v7
         with:
-          name: docs-channel-${{ matrix.branch }}
+          name: docs-channel-${{ env.DOCS_BRANCH }}
           path: docs/_build/html
           include-hidden-files: true
           retention-days: 1
 
-  deploy:
-    name: Publish main and nightly channels
-    needs: build
+  deploy-pages:
+    name: Publish main documentation to GitHub Pages
+    needs: [resolve, build]
+    if: needs.resolve.outputs.branch == 'main'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: docs-github-pages
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -203,16 +206,19 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.10"
-      - name: Download both branch sites
+      - name: Download the main site
         uses: actions/download-artifact@v8
         with:
-          pattern: docs-channel-*
-          path: channels
-      - name: Assemble independent channels
+          name: docs-channel-main
+          path: channels/docs-channel-main
+      - name: Assemble main with the nightly redirect stub and the 900 MB guard
         run: |
-          tools/run_capped.sh 4G python tools/publish_docs_channels.py assemble \
-            --main channels/docs-channel-main --nightly channels/docs-channel-nightly \
-            --output pages --base-path "/${GITHUB_REPOSITORY#*/}"
+          receipt=$(tools/run_capped.sh 4G python tools/publish_docs_channels.py assemble-main \
+            --main channels/docs-channel-main --output pages \
+            --base-path "/${GITHUB_REPOSITORY#*/}")
+          echo "$receipt"
+          size=$(python -c "import json, sys; r = json.loads(sys.argv[1]); print('{:,} of {:,} bytes'.format(r['size_bytes'], r['limit_bytes']))" "$receipt")
+          echo "### Main Pages site: $size" >> "$GITHUB_STEP_SUMMARY"
       - name: Configure Pages
         uses: actions/configure-pages@v6
       - name: Upload Pages artifact
@@ -222,3 +228,48 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5
+
+  deploy-space:
+    name: Publish nightly documentation to the Hugging Face Space
+    needs: [resolve, build]
+    if: needs.resolve.outputs.branch == 'nightly'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    concurrency:
+      group: docs-nightly-space
+      cancel-in-progress: false
+    env:
+      HF_TOKEN: ${{ secrets.HF_DOCS_TOKEN }}
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    steps:
+      - name: Require the Space write token
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::error::Repository secret HF_DOCS_TOKEN is missing: create a fine-grained Hugging Face token with write access to einarolafsson/spacr-docs-nightly only, then run gh secret set HF_DOCS_TOKEN -R EinarOlafsson/spacr"
+            exit 1
+          fi
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: tools
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+      - name: Install the Hugging Face client
+        run: python -m pip install "huggingface_hub>=0.25"
+      - name: Download the nightly site
+        uses: actions/download-artifact@v8
+        with:
+          name: docs-channel-nightly
+          path: channels/docs-channel-nightly
+      - name: Assemble the standalone nightly site
+        run: |
+          tools/run_capped.sh 4G python tools/publish_docs_channels.py assemble-nightly \
+            --nightly channels/docs-channel-nightly --output space
+      - name: Upload to the Space, deleting removed pages
+        run: |
+          revision=$(tools/run_capped.sh 4G python tools/publish_docs_channels.py upload-nightly --site space)
+          {
+            echo "### Nightly documentation"
+            echo "Space commit: $revision"
+            echo "https://einarolafsson-spacr-docs-nightly.static.hf.space/"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,10 +1,11 @@
-"""Assemble main and nightly documentation without one overwriting the other.
+"""Publish main documentation to GitHub Pages and nightly to a Hugging Face Space.
 
-Each input is a complete build of its own pinned branch. Videos with matching
-readback evidence use their immutable media-host revision. Other media bytes
-are stored by content hash so identical recordings fit only once on Pages.
-Catalogs, scripts, captions and narration pins remain branch-specific. This
-operates only on disposable build artifacts.
+Each input is a complete build of its own pinned branch. Main goes to GitHub
+Pages with a /nightly/ redirect stub; nightly is a standalone site uploaded to
+a static Space, so the two channels never share one size budget. Videos with
+matching readback evidence use their immutable media-host revision; other
+media bytes are stored by content hash. This operates only on disposable
+build artifacts.
 """
 
 from __future__ import annotations
@@ -18,6 +19,10 @@ import shutil
 
 
 MEDIA_ROOT = "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/"
+MAIN_URL = "https://einarolafsson.github.io/spacr/"
+NIGHTLY_SPACE = "einarolafsson/spacr-docs-nightly"
+NIGHTLY_URL = "https://einarolafsson-spacr-docs-nightly.static.hf.space/"
+PAGES_LIMIT = 900 * 1000 * 1000
 
 
 def verified_video_hosts(build: Path, checkpoint: Path) -> dict:
@@ -97,7 +102,7 @@ def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
     verified = json.loads(proof_path.read_text()) if proof_path.exists() else {}
     media_dir = output / "_media"
     media_dir.mkdir(exist_ok=True)
-    prefix = "../" if branch == "main" else "../../"
+    prefix = "../"
     for path in sorted(production.rglob("*")):
         if not path.is_file() or path.suffix.lower() not in {".mp4", ".jpg", ".jpeg", ".png", ".webp"}:
             continue
@@ -141,160 +146,150 @@ def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
     (tutorial / "published-media.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
 
-def share_deck_images(output: Path) -> int:
-    """Share exact presentation images while preserving each channel's deck."""
-    decks = {}
-    images = {}
-    for branch, channel in (("main", output), ("nightly", output / "nightly")):
-        root = channel / "_static/deck"
-        index = root / "index.html"
-        if not index.is_file():
-            continue
-        text = index.read_text()
-        match = re.search(r"const DECK = (.+);\n", text)
-        if match is None:
-            continue
-        deck = json.loads(match[1])
-        outside = text[:match.start(1)] + text[match.end(1):]
-        decks[branch] = (index, text, match, deck)
-        for slide in deck["slides"]:
-            for key in ("image", "thumb"):
-                relative = slide.get(key)
-                if not isinstance(relative, str) or json.dumps(relative) in outside:
-                    continue
-                path = root / relative
-                if (not path.is_file() or path.suffix.lower() not in
-                        {".jpg", ".jpeg", ".png", ".gif", ".webp"}
-                        or not path.resolve().is_relative_to(root.resolve())):
-                    continue
-                raw = path.read_bytes()
-                name = hashlib.sha256(raw).hexdigest() + path.suffix.lower()
-                images.setdefault(name, {})[branch] = (path, raw)
-    shared = {name: copies for name, copies in images.items() if len(copies) == 2}
-    if not shared:
-        return 0
-    media = output / "_deck_media"
-    media.mkdir(exist_ok=True)
-    replacements = {branch: {} for branch in decks}
-    for name, copies in shared.items():
-        raw = copies["main"][1]
-        if raw != copies["nightly"][1]:
-            raise ValueError("Presentation image hash collision")
-        (media / name).write_bytes(raw)
-        for branch, (path, _raw) in copies.items():
-            root = decks[branch][0].parent
-            prefix = "../../" if branch == "main" else "../../../"
-            replacements[branch][path.relative_to(root).as_posix()] = prefix + "_deck_media/" + name
-    for branch, (index, text, match, deck) in decks.items():
-        for slide in deck["slides"]:
-            for key in ("image", "thumb"):
-                if slide.get(key) in replacements[branch]:
-                    slide[key] = replacements[branch][slide[key]]
-        index.write_text(text[:match.start(1)] + json.dumps(deck, ensure_ascii=False)
-                         + text[match.end(1):])
-        for relative in replacements[branch]:
-            (index.parent / relative).unlink()
-    return len(shared)
+def channel_banner(branch: str, main_url: str, nightly_url: str) -> str:
+    """Return the cross-channel switcher shown at the top of every page."""
+    return (
+        '<div class="spacr-publication-channel" style="padding:.5rem 1rem;'
+        'background:#14243a;color:#fff;font:14px sans-serif">'
+        f'spaCR {branch} · <a style="color:#bcdcff" href="{main_url}">Main documentation</a>'
+        f' · <a style="color:#bcdcff" href="{nightly_url}">Nightly preview</a></div>'
+    )
 
 
-def share_identical_assets(output: Path) -> int:
-    """Serve nightly's byte-identical large assets from main's copy.
+def add_banner(channel: Path, banner: str) -> None:
+    """Insert the switcher after <body>, or above the tutorial player."""
+    for path in channel.rglob("*.html"):
+        text = path.read_text()
+        target = (r'(<main\b[^>]*id="lesson-content"[^>]*>)'
+                  if path == channel / "tutorials/index.html" and 'id="lesson-content"' in text
+                  else r"(<body\b[^>]*>)")
+        text = re.sub(target, lambda match: match[0] + banner, text, count=1)
+        path.write_text(text)
 
-    Two full channels no longer fit the Pages budget once main catches up
-    with nightly: each is about 590 MB, and most of the size is the same
-    bytes twice. Only assets with ONE known reference are shared, so the
-    rewrite can be checked exactly: the API translation catalogs, which
-    ``api_i18n.js`` loads relative to itself (about 180 MB per channel), and
-    the deck PDF, linked once from the deck page. A catalog or PDF that
-    differs stays in nightly. Returns the bytes removed from nightly.
+
+def site_size(root: Path) -> int:
+    return sum(path.stat().st_size for path in root.rglob("*") if path.is_file())
+
+
+def read_record(source: Path, branch: str) -> dict:
+    record = json.loads((source / "publication.json").read_text())
+    if record["branch"] != branch or not (source / "index.html").is_file():
+        raise ValueError(f"Missing or mismatched {branch} build")
+    return record
+
+
+def nightly_redirect(base: str, nightly_url: str) -> str:
+    """Script sending any old <base>/nightly/<path> URL to the same Space path."""
+    prefix = json.dumps(base + "/nightly")
+    return (
+        "<script>(function(){var p=location.pathname,b=" + prefix + ";"
+        "if(p===b||p.indexOf(b+'/')===0){location.replace(" + json.dumps(nightly_url)
+        + "+p.slice(b.length+1)+location.search+location.hash);}})();</script>"
+    )
+
+
+def write_nightly_stub(output: Path, base: str, nightly_url: str) -> None:
+    """Keep old /nightly/ links working: an index stub plus a 404 redirect."""
+    script = nightly_redirect(base, nightly_url)
+    stub = output / "nightly"
+    stub.mkdir()
+    (stub / "index.html").write_text(
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        f'<meta http-equiv="refresh" content="0; url={nightly_url}">'
+        f'<link rel="canonical" href="{nightly_url}">'
+        f"<title>spaCR nightly documentation moved</title>{script}</head>"
+        f'<body><p>The nightly preview moved to <a href="{nightly_url}">{nightly_url}</a>.</p>'
+        "</body></html>\n")
+    missing = output / "404.html"
+    if missing.is_file():
+        text = missing.read_text()
+        text, count = re.subn(r"(<head\b[^>]*>)", lambda match: match[0] + script, text, count=1)
+        if count != 1:
+            raise ValueError("main: 404.html has no <head>")
+        missing.write_text(text)
+    else:
+        missing.write_text(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            f"<title>Page not found · spaCR documentation</title>{script}</head>"
+            f'<body><p>Page not found. Open the <a href="{base}/">spaCR documentation</a>.</p>'
+            "</body></html>\n")
+
+
+def assemble_main(main: Path, output: Path, base_path: str = "/spacr",
+                  nightly_url: str = NIGHTLY_URL, limit: int = PAGES_LIMIT) -> dict:
+    """Build the GitHub Pages site: main only, plus a /nightly/ redirect stub.
+
+    Nightly lives on its own Hugging Face Space, so the Pages budget holds
+    one channel. ``limit`` fails the deploy before Pages would reject it.
     """
-    nightly = output / "nightly"
-    saved = 0
-    script = nightly / "_static/api_i18n.js"
-    catalogs = nightly / "_static/i18n/api"
-    lookup = "new URL(`${language}.json`, catalogRoot)"
-    if script.is_file() and catalogs.is_dir():
-        shared = []
-        for path in sorted(catalogs.glob("*.json")):
-            twin = output / "_static/i18n/api" / path.name
-            if twin.is_file() and twin.read_bytes() == path.read_bytes():
-                shared.append(path.stem)
-        if shared:
-            text = script.read_text()
-            if text.count(lookup) != 1:
-                raise ValueError("nightly: API catalog lookup changed; review the publisher")
-            # The script sits at <site>/nightly/_static/; main's catalogs at
-            # <site>/_static/i18n/api/.
-            text = text.replace(lookup, (
-                "new URL(`${language}.json`, SPACR_SHARED_CATALOGS.has(language)"
-                " ? new URL(\"../../_static/i18n/api/\", scriptUrl) : catalogRoot)"))
-            marker = "  const catalogRoot = "
-            if text.count(marker) != 1:
-                raise ValueError("nightly: API catalog root changed; review the publisher")
-            text = text.replace(marker, "  const SPACR_SHARED_CATALOGS = new Set("
-                                + json.dumps(shared) + ");\n" + marker, 1)
-            script.write_text(text)
-            for language in shared:
-                path = catalogs / f"{language}.json"
-                saved += path.stat().st_size
-                path.unlink()
-    deck = nightly / "_static/deck"
-    pdf, twin = deck / "spacr_deck.pdf", output / "_static/deck/spacr_deck.pdf"
-    if pdf.is_file() and twin.is_file() and pdf.read_bytes() == twin.read_bytes():
-        index = deck / "index.html"
-        html = index.read_text()
-        link = 'href="spacr_deck.pdf"'
-        if html.count(link) != 1:
-            raise ValueError("nightly: expected one deck PDF link")
-        index.write_text(html.replace(link, 'href="../../../_static/deck/spacr_deck.pdf"'))
-        saved += pdf.stat().st_size
-        pdf.unlink()
-    return saved
-
-
-def assemble(main: Path, nightly: Path, output: Path, base_path: str = "/spacr",
-             limit: int = 950 * 1024 * 1024) -> dict:
-    """Require both complete inputs and reject artifacts above the Pages budget."""
     if output.exists():
         raise ValueError("Output must be a new directory")
-    records = {}
-    for branch, source in (("main", main), ("nightly", nightly)):
-        record = json.loads((source / "publication.json").read_text())
-        if record["branch"] != branch or not (source / "index.html").is_file():
-            raise ValueError(f"Missing or mismatched {branch} build")
-        records[branch] = record
+    record = read_record(main, "main")
+    if (main / "nightly").exists():
+        raise ValueError("main: build already has a nightly directory")
     shutil.copytree(main, output)
-    shutil.copytree(nightly, output / "nightly")
     base = "/" + base_path.strip("/") if base_path.strip("/") else ""
-    for branch, channel in (("main", output), ("nightly", output / "nightly")):
-        share_tutorial_media(channel, output, branch)
-        banner = (
-            '<div class="spacr-publication-channel" style="padding:.5rem 1rem;'
-            'background:#14243a;color:#fff;font:14px sans-serif">'
-            f'spaCR {branch} · <a style="color:#bcdcff" href="{base}/">Main documentation</a>'
-            f' · <a style="color:#bcdcff" href="{base}/nightly/">Nightly preview</a></div>'
-        )
-        for path in channel.rglob("*.html"):
-            if branch == "main" and "nightly" in path.relative_to(output).parts:
-                continue
-            text = path.read_text()
-            target = (r'(<main\b[^>]*id="lesson-content"[^>]*>)'
-                      if path == channel / "tutorials/index.html" and 'id="lesson-content"' in text
-                      else r"(<body\b[^>]*>)")
-            text = re.sub(target, lambda match: match[0] + banner, text, count=1)
-            path.write_text(text)
-    shared_deck_images = share_deck_images(output)
-    shared_asset_bytes = share_identical_assets(output)
+    share_tutorial_media(output, output, "main")
+    add_banner(output, channel_banner("main", f"{base}/", nightly_url))
+    write_nightly_stub(output, base, nightly_url)
     (output / ".nojekyll").touch()
-    size = sum(path.stat().st_size for path in output.rglob("*") if path.is_file())
+    size = site_size(output)
     if size > limit:
-        raise ValueError(f"Combined Pages site is {size:,} bytes; budget is {limit:,}")
-    receipt = {"schema": 1, "channels": records, "size_bytes": size,
-               "media_files": len(list((output / "_media").glob("*"))),
-               "shared_deck_images": shared_deck_images,
-               "shared_asset_bytes": shared_asset_bytes}
+        raise ValueError(f"Main Pages site is {size:,} bytes; budget is {limit:,}")
+    receipt = {"schema": 2, "channels": {"main": record}, "nightly_url": nightly_url,
+               "size_bytes": size, "limit_bytes": limit,
+               "media_files": len(list((output / "_media").glob("*")))}
     (output / "channels.json").write_text(json.dumps(receipt, indent=2) + "\n")
     return receipt
+
+
+SPACE_README = """---
+title: spaCR nightly documentation
+emoji: 🔬
+colorFrom: blue
+colorTo: indigo
+sdk: static
+pinned: false
+license: mit
+short_description: Nightly preview of the spaCR documentation
+---
+
+Built from the `nightly` branch of https://github.com/EinarOlafsson/spacr by
+its docs workflow; every nightly push replaces this Space. Main documentation:
+{main_url}
+"""
+
+
+def assemble_nightly(nightly: Path, output: Path, main_url: str = MAIN_URL,
+                     nightly_url: str = NIGHTLY_URL) -> dict:
+    """Build the standalone nightly site served from the Hugging Face Space."""
+    if output.exists():
+        raise ValueError("Output must be a new directory")
+    record = read_record(nightly, "nightly")
+    shutil.copytree(nightly, output)
+    share_tutorial_media(output, output, "nightly")
+    add_banner(output, channel_banner("nightly", main_url, nightly_url))
+    (output / "README.md").write_text(SPACE_README.format(main_url=main_url))
+    receipt = {"schema": 2, "channels": {"nightly": record}, "nightly_url": nightly_url,
+               "size_bytes": site_size(output),
+               "media_files": len(list((output / "_media").glob("*")))}
+    (output / "channels.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    return receipt
+
+
+def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
+    """Replace the Space's files with ``site``; removed pages are deleted.
+
+    The token comes from ``HF_TOKEN`` (CI secret) or the local login.
+    """
+    from huggingface_hub import HfApi
+    record = json.loads((site / "channels.json").read_text())["channels"]["nightly"]
+    if not (site / "index.html").is_file() or not (site / "README.md").is_file():
+        raise ValueError("Expected an assembled nightly site")
+    info = HfApi().upload_folder(
+        repo_id=space, repo_type="space", folder_path=site, delete_patterns=["*"],
+        commit_message=f"nightly docs {record['commit'][:12]}")
+    return info.oid
 
 
 def main(argv=None) -> int:
@@ -310,11 +305,20 @@ def main(argv=None) -> int:
     prep.add_argument("--branch", choices=("main", "nightly"), required=True)
     prep.add_argument("--commit", required=True)
     prep.add_argument("--checkpoint", type=Path, default=Path("tools/tutorials/release_candidate"))
-    merge = sub.add_parser("assemble")
+    merge = sub.add_parser("assemble-main")
     merge.add_argument("--main", type=Path, required=True)
-    merge.add_argument("--nightly", type=Path, required=True)
     merge.add_argument("--output", type=Path, required=True)
     merge.add_argument("--base-path", default="/spacr")
+    merge.add_argument("--nightly-url", default=NIGHTLY_URL)
+    merge.add_argument("--limit", type=int, default=PAGES_LIMIT)
+    night = sub.add_parser("assemble-nightly")
+    night.add_argument("--nightly", type=Path, required=True)
+    night.add_argument("--output", type=Path, required=True)
+    night.add_argument("--main-url", default=MAIN_URL)
+    night.add_argument("--nightly-url", default=NIGHTLY_URL)
+    upload = sub.add_parser("upload-nightly")
+    upload.add_argument("--site", type=Path, required=True)
+    upload.add_argument("--space", default=NIGHTLY_SPACE)
     args = parser.parse_args(argv)
     if args.command == "configure":
         # Load only the compatibility extension from the publisher's tools.
@@ -337,8 +341,14 @@ def main(argv=None) -> int:
         print(source_version(args.root))
     elif args.command == "prepare":
         prepare(args.build, args.report, args.branch, args.commit, args.checkpoint)
+    elif args.command == "assemble-main":
+        print(json.dumps(assemble_main(args.main, args.output, args.base_path,
+                                       args.nightly_url, args.limit)))
+    elif args.command == "assemble-nightly":
+        print(json.dumps(assemble_nightly(args.nightly, args.output, args.main_url,
+                                          args.nightly_url)))
     else:
-        print(json.dumps(assemble(args.main, args.nightly, args.output, args.base_path)))
+        print(upload_nightly(args.site, args.space))
     return 0
 
 
