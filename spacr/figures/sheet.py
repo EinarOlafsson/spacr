@@ -127,7 +127,7 @@ def build_sheet(frame, *, width: str = "double", target: Optional[str] = None,
         rows, columns = _grid(len(supported), width)
         figure = plt.figure(figsize=(WIDTHS[width],
                                      max(rows, 1) * CELL_HEIGHT))
-        axes = figure.subplots(rows, columns, squeeze=False).ravel()
+        axes = figure.subplots(max(rows, 1), columns, squeeze=False).ravel()
         from .bundle import _register_figure_data
 
         drawn: List[Panel] = []
