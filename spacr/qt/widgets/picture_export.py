@@ -104,9 +104,54 @@ def save_picture(picture, path, dpi: Optional[int] = None) -> bool:
     if resolution <= 0:
         resolution = FALLBACK_DPI
     path = str(path)
-    if path.lower().endswith(".pdf"):
-        return _save_pdf(image, path, resolution)
-    return _save_png(image, path, resolution)
+    fmt = "pdf" if path.lower().endswith(".pdf") else "png"
+    report = None
+    try:
+        flag = os.environ.get("SPACR_FIGURE_INTEGRITY", "").strip().lower()
+        if flag in ("1", "true", "yes", "on"):
+            enabled = True
+        elif flag in ("0", "false", "no", "off"):
+            enabled = False
+        else:
+            from ..preferences import _get_figure_integrity
+            enabled = bool(_get_figure_integrity())
+        if enabled:
+            import numpy as np
+            from matplotlib.figure import Figure
+            from ...plot import _PNG_PROVENANCE_KEY, _integrity_report
+
+            rgba = image.convertToFormat(QImage.Format.Format_RGBA8888)
+            pixels = np.frombuffer(bytes(rgba.constBits()), dtype=np.uint8)
+            pixels = pixels.reshape(rgba.height(), rgba.bytesPerLine())
+            pixels = pixels[:, :rgba.width() * 4].reshape(
+                rgba.height(), rgba.width(), 4).copy()
+            figure = Figure(figsize=(rgba.width() / resolution,
+                                     rgba.height() / resolution),
+                            dpi=resolution)
+            axes = figure.add_axes([0, 0, 1, 1])
+            axes.imshow(pixels, interpolation="nearest")
+            axes.set_axis_off()
+            report = _integrity_report(figure, fmt=fmt, dpi=resolution,
+                                       destination=path)
+            if report is not None:
+                report["panels"][0]["capture"] = "rendered QImage"
+                report["panels"][0]["reproducible"] = False
+                if fmt == "png":
+                    import json
+                    image = QImage(image)
+                    image.setText(_PNG_PROVENANCE_KEY, json.dumps(report))
+    except Exception:
+        LOG.debug("could not check the rendered picture", exc_info=True)
+        report = None
+    written = (_save_pdf(image, path, resolution) if fmt == "pdf"
+               else _save_png(image, path, resolution))
+    if written and report is not None:
+        try:
+            from ...plot import _finish_integrity
+            _finish_integrity(report, path)
+        except Exception:
+            LOG.debug("could not save picture provenance", exc_info=True)
+    return written
 
 
 def _save_png(image: QImage, path: str, dpi: int) -> bool:

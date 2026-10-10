@@ -527,10 +527,24 @@ _MIN_PANEL_SIDE = 16
 _MIN_COMPARE_PIXELS = 64 * 64
 _RESAMPLE_NOTE_FACTOR = 2.0
 _SOURCE_HASH_LIMIT = 256 * 1024 * 1024
+_SPATIAL_SIDE = 128
+_SPATIAL_COMPRESSED_LIMIT = 24 * 1024
+_SPATIAL_REPORT_LIMIT = 256 * 1024
+_SPATIAL_SIDECAR_LIMIT = 1024 * 1024
+_SPATIAL_SIDECAR_MARGIN = 4096
+_SPATIAL_ATTEMPTS = 32
+_SPATIAL_PAIRS = 12
+_SPATIAL_SECONDS = 0.5
+_SOURCE_REGION_PAIRS = 8
+_SOURCE_REGION_SECONDS = 0.5
+_SOURCE_REGION_BYTES = 8 * 1024 * 1024
+_SOURCE_REGION_PIXELS = 1024 * 1024
 _LOSSY_FORMATS = frozenset({"jpg", "jpeg", "jpe", "jfif", "webp", "gif",
                             "heic", "heif", "avif"})
 _REPLAYABLE_OPS = frozenset({"select_channel", "crop", "max_project",
-                             "rescale", "to_uint8"})
+                             "rescale", "to_uint8", "read_crop_png",
+                             "merged_crop", "overlay_composite",
+                             "combined_masks"})
 
 
 def _figure_integrity_enabled(explicit=None):
@@ -890,6 +904,150 @@ def _panel_thumbnail(array):
     return layout, detail
 
 
+def _spatial_signature(array):
+    """A bounded displayed-pixel thumbnail for later visual-reuse review.
+
+    The signature makes no matching claim. Blank, nonfinite and small panels
+    have no useful spatial evidence and are left out.
+    """
+    import base64
+    import hashlib
+    import zlib
+
+    data = np.asarray(array)
+    if data.dtype.kind not in "biuf":
+        return None
+    if data.ndim not in (2, 3) or min(data.shape[:2]) < 64:
+        return None
+    if data.ndim == 3 and data.shape[2] not in (3, 4):
+        return None
+    stride = max(1, int(math.ceil(max(data.shape[:2]) / 512)))
+    sample = data[::stride, ::stride]
+    if min(sample.shape[:2]) < 16:
+        return None
+    sample = sample.astype(np.float32)
+    if not np.isfinite(sample).all():
+        return None
+    sample = cv2.resize(sample, (_SPATIAL_SIDE, _SPATIAL_SIDE),
+                        interpolation=cv2.INTER_AREA)
+    if sample.ndim == 3:
+        sample = sample[..., :3].mean(axis=-1)
+    low, high = np.percentile(sample, (1, 99))
+    if high - low < 1e-6:
+        return None
+    grey = np.clip((sample - low) * 255 / (high - low),
+                   0, 255).astype(np.uint8)
+    fine = grey.astype(np.float32)
+    fine -= cv2.GaussianBlur(fine, (0, 0), 2)
+    if float(fine.std()) < 1.0:
+        return None
+    raw = grey.tobytes()
+    compressed = zlib.compress(raw, 6)
+    if len(compressed) > _SPATIAL_COMPRESSED_LIMIT:
+        return None
+    return {"version": 1, "side": _SPATIAL_SIDE,
+            "codec": "zlib+base64 gray-u8",
+            "sha256": hashlib.sha256(raw).hexdigest(),
+            "data": base64.b64encode(compressed).decode("ascii")}
+
+
+def _decode_spatial_signature(record):
+    """Decode one bounded versioned signature or refuse malformed data."""
+    import base64
+    import binascii
+    import hashlib
+    import zlib
+
+    if not isinstance(record, dict) or (
+            record.get("version"), record.get("side"), record.get("codec")) != (
+            1, _SPATIAL_SIDE, "zlib+base64 gray-u8"):
+        raise ValueError("unknown spatial signature version")
+    data = record.get("data")
+    if not isinstance(data, str) or len(data) > 4 * (
+            (_SPATIAL_COMPRESSED_LIMIT + 2) // 3):
+        raise ValueError("spatial signature encoded size")
+    try:
+        compressed = base64.b64decode(data, validate=True)
+    except (ValueError, TypeError, binascii.Error) as error:
+        raise ValueError("malformed spatial signature") from error
+    if len(compressed) > _SPATIAL_COMPRESSED_LIMIT:
+        raise ValueError("spatial signature compressed size")
+    try:
+        stream = zlib.decompressobj()
+        raw = stream.decompress(compressed, _SPATIAL_SIDE ** 2 + 1)
+    except zlib.error as error:
+        raise ValueError("malformed spatial signature") from error
+    if (len(raw) != _SPATIAL_SIDE ** 2 or not stream.eof
+            or stream.unconsumed_tail or stream.unused_data):
+        raise ValueError("spatial signature raw size")
+    if hashlib.sha256(raw).hexdigest() != record.get("sha256"):
+        raise ValueError("spatial signature digest")
+    return np.frombuffer(raw, dtype=np.uint8).reshape(
+        _SPATIAL_SIDE, _SPATIAL_SIDE)
+
+
+def _similar_displayed_region(first, second):
+    """Find a strong localized displayed-pixel correlation, or abstain."""
+    first = _decode_spatial_signature(first)
+    second = _decode_spatial_signature(second)
+    for source, candidate in ((first, second), (second, first)):
+        source_fine = source.astype(np.float32)
+        source_fine -= cv2.GaussianBlur(source_fine, (0, 0), 2)
+        if source_fine.std() < 1.0:
+            continue
+        for quarter in range(4):
+            turned = np.rot90(candidate, quarter)
+            for reflected in (turned, turned[:, ::-1]):
+                for fraction in (0.625, 0.75, 0.875):
+                    side = int(round(_SPATIAL_SIDE * fraction))
+                    small = cv2.resize(reflected, (side, side),
+                                       interpolation=cv2.INTER_AREA)
+                    detail = small.astype(np.float32)
+                    detail -= cv2.GaussianBlur(detail, (0, 0), 2)
+                    if detail.std() < 1.0:
+                        continue
+                    _minimum, score, _low_at, (x, y) = cv2.minMaxLoc(
+                        cv2.matchTemplate(source_fine, detail,
+                                          cv2.TM_CCOEFF_NORMED))
+                    if score < 0.7:
+                        continue
+                    region = source[y:y + side, x:x + side].astype(np.float32)
+                    structure = float(cv2.matchTemplate(
+                        region, small.astype(np.float32),
+                        cv2.TM_CCOEFF_NORMED)[0, 0])
+                    if structure >= 0.7:
+                        return {"detail": round(float(score), 4),
+                                "structure": round(structure, 4),
+                                "fraction": fraction}
+    return None
+
+
+def _attach_spatial_signatures(report, arrays):
+    """Attach opt-in evidence without pushing a sidecar past its read cap."""
+    import json
+
+    used = 0
+    for panel, array in list(zip(report["panels"], arrays))[:_SPATIAL_ATTEMPTS]:
+        try:
+            signature = _spatial_signature(array)
+        except (TypeError, ValueError, cv2.error):
+            continue
+        if signature is None:
+            continue
+        amount = len(signature["data"])
+        if used + amount > _SPATIAL_REPORT_LIMIT:
+            break
+        panel["spatial_v1"] = signature
+        used += amount
+    while len(json.dumps(report, indent=2, default=str).encode()) > (
+            _SPATIAL_SIDECAR_LIMIT - _SPATIAL_SIDECAR_MARGIN):
+        for panel in reversed(report["panels"]):
+            if panel.pop("spatial_v1", None) is not None:
+                break
+        else:
+            break
+
+
 def _best_dihedral_correlation(first, second):
     """Highest correlation of ``first`` with any flip or rotation of
     ``second`` (both z-scored and square)."""
@@ -913,7 +1071,8 @@ def _figure_panels(fig):
     return found
 
 
-def _panel_record(index, axes_index, axes, artist, fig, dpi):
+def _panel_record(index, axes_index, axes, artist, fig, dpi,
+                  source_cache=None):
     """The provenance and integrity measurements for one image panel.
 
     :returns: ``(record, displayed_array)``; the record is JSON-ready.
@@ -993,11 +1152,21 @@ def _panel_record(index, axes_index, axes, artist, fig, dpi):
                                      int(round(box.height * scale))]
     except Exception:
         record["exported_pixels"] = None
-    record["source"] = [_source_record(path) for path in tag.get("source")
-                        or ()]
+    record["source"] = []
+    for path in tag.get("source") or ():
+        if source_cache is None:
+            record["source"].append(_source_record(path))
+        else:
+            if path not in source_cache:
+                source_cache[path] = _source_record(path)
+            record["source"].append(source_cache[path])
     ops = [str(step.get("op", "")) for step in record["steps"]]
     record["reproducible"] = bool(record["source"]) and all(
         op in _REPLAYABLE_OPS for op in ops)
+    if any(op in ("overlay_composite", "combined_masks") for op in ops):
+        record["reproducible"] = (record["reproducible"]
+                                  and len(record["source"]) == 1
+                                  and bool(record["source"][0].get("sha256")))
     return record, data
 
 
@@ -1233,19 +1402,173 @@ def _spacr_version():
         return "unknown"
 
 
+def _source_crop_window(panel):
+    """Return one bounded crop on one hashed source, or abstain."""
+    sources, steps = panel.get("source") or [], panel.get("steps") or []
+    if len(sources) != 1 or not isinstance(sources[0], dict):
+        return None
+    source = sources[0]
+    path, digest = source.get("path"), source.get("sha256")
+    if (not isinstance(path, str) or not path.lower().endswith((".png", ".npy"))
+            or not isinstance(digest, str) or len(digest) != 64
+            or not isinstance(source.get("bytes"), int)
+            or source["bytes"] > _SOURCE_REGION_BYTES):
+        return None
+    try:
+        int(digest, 16)
+    except ValueError:
+        return None
+    if (path.lower().endswith(".npy") and isinstance(steps, list)
+            and len(steps) == 1
+            and isinstance(steps[0], dict)
+            and steps[0].get("op") == "merged_crop"):
+        spec_data = steps[0].get("spec")
+        if not isinstance(spec_data, dict) or spec_data.get("merged_path") != path:
+            return None
+        bbox = spec_data.get("bbox")
+        size = spec_data.get("size")
+        if (not isinstance(bbox, (list, tuple)) or len(bbox) != 4
+                or any(type(value) is not int for value in bbox)
+                or not isinstance(size, (list, tuple)) or len(size) != 2
+                or any(type(value) is not int for value in size)
+                or not (0 < (bbox[1] - bbox[0]) * (bbox[3] - bbox[2])
+                        <= _SOURCE_REGION_PIXELS)
+                or not (64 <= min(size) and size[0] * size[1]
+                        <= _SOURCE_REGION_PIXELS)
+                or spec_data.get("object_type") == "cytoplasm"
+                or spec_data.get("dilate")
+                or spec_data.get("normalize_by", "png") == "fov"):
+            return None
+        try:
+            from .crops import CropError, CropSpec, MergedField, _region_for
+            spec = CropSpec(**spec_data)
+            array = np.load(path, mmap_mode="r", allow_pickle=False)
+            try:
+                if not isinstance(array, np.memmap):
+                    return None
+                field = MergedField(path, array=array, mask_dims=spec.mask_dims)
+                height, width, _channels = field.shape
+                centroid, _bounds, _mask = _region_for(field, spec)
+                y0 = max(0, int(centroid[0]) - size[1] // 2)
+                x0 = max(0, int(centroid[1]) - size[0] // 2)
+                box = (y0, min(height, int(centroid[0]) - size[1] // 2 + size[1]),
+                       x0, min(width, int(centroid[1]) - size[0] // 2 + size[0]))
+                if min(box[1] - box[0], box[3] - box[2]) < 64:
+                    return None
+                return source, box
+            finally:
+                if isinstance(array, np.memmap):
+                    array._mmap.close()
+        except (OSError, ValueError, TypeError, KeyError, IndexError,
+                AttributeError, MemoryError, EOFError, OverflowError,
+                CropError):
+            return None
+    if not path.lower().endswith(".png"):
+        return None
+    if not isinstance(steps, list) or sum(
+            isinstance(step, dict) and step.get("op") == "crop"
+            for step in steps) != 1:
+        return None
+    allowed = {"read_crop_png", "select_channel", "crop", "rescale",
+               "to_uint8"}
+    if any(not isinstance(step, dict) or step.get("op") not in allowed
+           for step in steps):
+        return None
+    for index, step in enumerate(steps):
+        if step["op"] == "read_crop_png" and (
+                index != 0 or step.get("path") != path):
+            return None
+    box = next(step.get("box") for step in steps if step["op"] == "crop")
+    if (not isinstance(box, (list, tuple)) or len(box) != 4
+            or any(type(value) is not int for value in box)):
+        return None
+    y0, y1, x0, x1 = box
+    if not (0 <= y0 < y1 and 0 <= x0 < x1
+            and min(y1 - y0, x1 - x0) >= 64):
+        return None
+    return source, tuple(box)
+
+
+def _source_regions_overlap(first, second):
+    """Require most of both explicit source windows along both axes."""
+    for lo, hi in ((0, 1), (2, 3)):
+        size_a, size_b = first[hi] - first[lo], second[hi] - second[lo]
+        shared = min(first[hi], second[hi]) - max(first[lo], second[lo])
+        if (shared < 0.75 * max(size_a, size_b)
+                or shared < 0.90 * min(size_a, size_b)):
+            return False
+    return True
+
+
+def _verified_source_region(panel, previous, first, second, deadline):
+    """Check bounded raw-source texture and exact replay for both exports."""
+    import time
+    from PIL import Image
+
+    merged = first[0]["path"].lower().endswith(".npy")
+    for source, box in (first, second):
+        if time.monotonic() >= deadline:
+            return False
+        path = source["path"]
+        if not merged:
+            try:
+                with Image.open(path) as image:
+                    width, height = image.size
+                    if (width * height > _SOURCE_REGION_PIXELS
+                            or not (box[1] <= height and box[3] <= width)):
+                        return False
+            except Image.DecompressionBombError:
+                return False
+        current = _source_record(path)
+        if (current.get("sha256") != source["sha256"]
+                or current.get("bytes") != source["bytes"]):
+            return False
+    image = (np.load(first[0]["path"], mmap_mode="r", allow_pickle=False)
+             if merged else _read_panel_source(first[0]["path"]))
+    y0 = max(first[1][0], second[1][0])
+    y1 = min(first[1][1], second[1][1])
+    x0 = max(first[1][2], second[1][2])
+    x1 = min(first[1][3], second[1][3])
+    try:
+        if merged:
+            spec = panel["steps"][0]["spec"]
+            channel = int(spec["channels"][0])
+            region = np.asarray(image[y0:y1, x0:x1, channel], dtype=np.float32)
+        else:
+            region = np.asarray(image[y0:y1, x0:x1], dtype=np.float32)
+            if region.ndim == 3:
+                region = region[..., :3].mean(axis=-1)
+    finally:
+        if isinstance(image, np.memmap):
+            image._mmap.close()
+    if (region.ndim != 2 or not np.isfinite(region).all()
+            or float(region.std()) < 1.0):
+        return False
+    for record in (panel, previous):
+        if time.monotonic() >= deadline:
+            return False
+        _rebuilt, matches = _reproduce_panel({"panels": [record]},
+                                             record["panel"])
+        if not matches:
+            return False
+    for source in (first[0], second[0]):
+        if _source_record(source["path"]).get("sha256") != source["sha256"]:
+            return False
+    return time.monotonic() < deadline
+
+
 def _prior_figure_findings(panels, destination):
-    """Find exact panel reuse in recent checked exports beside this figure.
+    """Find exact reuse and bounded displayed-region similarity nearby.
 
     Only closed, small sidecars for existing figures are considered. This is
-    intentionally an exact pixel check: approximate matches across figures
-    need stronger evidence than a single thumbnail to avoid false alarms.
-
-    A stale sidecar never reports a repeat after its figure was replaced, even
-    on filesystems with coarse modification times.
+    an advisory comparison of two validated displayed-pixel signatures, not
+    an acquisition-source or manipulation verdict. A stale figure cannot
+    report a repeat after replacement, even with coarse modification times.
     """
     import heapq
     import json
     import stat
+    import time
 
     destination = os.path.abspath(os.fspath(destination))
     folder = os.path.dirname(destination)
@@ -1270,7 +1593,8 @@ def _prior_figure_findings(panels, destination):
                 if (not stat.S_ISREG(figure_info.st_mode)
                         or figure_info.st_mtime_ns > info.st_mtime_ns):
                     continue
-                item = (info.st_mtime_ns, entry.path, previous_figure)
+                item = (info.st_mtime_ns, entry.path, previous_figure,
+                        figure_info.st_size)
                 if len(recent) < 64:
                     heapq.heappush(recent, item)
                 elif item > recent[0]:
@@ -1278,20 +1602,116 @@ def _prior_figure_findings(panels, destination):
     except OSError:
         return []
     current = {panel["displayed_sha256"]: panel for panel in panels}
-    findings, seen = [], set()
-    for _mtime, sidecar, old_figure in sorted(recent, reverse=True):
+    current_crops = {}
+    for panel in panels:
+        sources, steps = panel.get("source") or [], panel.get("steps") or []
+        if len(sources) != 1 or not steps:
+            continue
+        source, step = sources[0], steps[0]
+        if not isinstance(source, dict) or not isinstance(step, dict):
+            continue
+        path, digest = source.get("path"), source.get("sha256")
+        if not path or not digest or step.get("op") not in (
+                "read_crop_png", "merged_crop"):
+            continue
+        step_path = (step.get("path") if step["op"] == "read_crop_png"
+                     else (step.get("spec") or {}).get("merged_path"))
+        if step_path != path:
+            continue
+        key = (path, digest, json.dumps(step, sort_keys=True))
+        current_crops.setdefault(key, []).append(panel)
+    source_started = time.monotonic()
+    current_windows = [(panel, _source_crop_window(panel))
+                       for panel in panels[:_SPATIAL_ATTEMPTS]
+                       if time.monotonic() - source_started < _SOURCE_REGION_SECONDS]
+    findings, seen, seen_crops, seen_regions = [], set(), set(), set()
+    spatial_pairs = 0
+    spatial_started = time.monotonic()
+    source_pairs = 0
+    for _mtime, sidecar, old_figure, old_bytes in sorted(recent, reverse=True):
         try:
             with open(sidecar, "r", encoding="utf-8") as handle:
                 old = json.load(handle)
             if old.get("schema") != _PROVENANCE_SCHEMA:
                 continue
-            if not any(p.get("displayed_sha256") in current
-                       for p in old.get("panels", [])):
+            old_panels = old.get("panels", [])
+            crop_matches = []
+            for previous in old_panels:
+                sources, steps = (previous.get("source") or [],
+                                  previous.get("steps") or [])
+                if len(sources) != 1 or not steps:
+                    continue
+                source, step = sources[0], steps[0]
+                if not isinstance(source, dict) or not isinstance(step, dict):
+                    continue
+                path, digest = source.get("path"), source.get("sha256")
+                if not path or not digest or step.get("op") not in (
+                        "read_crop_png", "merged_crop"):
+                    continue
+                step_path = (step.get("path") if step["op"] == "read_crop_png"
+                             else (step.get("spec") or {}).get("merged_path"))
+                if step_path != path:
+                    continue
+                key = (path, digest, json.dumps(step, sort_keys=True))
+                if key in current_crops and key not in seen_crops:
+                    crop_matches.append((key, previous))
+            source_regions = []
+            if (old_bytes <= 64 * 1024 ** 2 and
+                    time.monotonic() - source_started < _SOURCE_REGION_SECONDS):
+                for panel, first in current_windows:
+                    if first is None or panel["panel"] in seen_regions:
+                        continue
+                    for previous in old_panels[:128]:
+                        if time.monotonic() - source_started >= _SOURCE_REGION_SECONDS:
+                            break
+                        if not isinstance(previous, dict):
+                            continue
+                        prior_sources = previous.get("source") or []
+                        if (len(prior_sources) != 1
+                                or not isinstance(prior_sources[0], dict)
+                                or prior_sources[0].get("sha256") != first[0]["sha256"]
+                                or os.path.splitext(str(prior_sources[0].get("path")))[1].lower()
+                                != os.path.splitext(first[0]["path"])[1].lower()):
+                            continue
+                        second = _source_crop_window(previous)
+                        if (second is None or first[0]["sha256"] != second[0]["sha256"]
+                                or first[1] == second[1]
+                                or panel["displayed_sha256"] == previous.get("displayed_sha256")
+                                or not _source_regions_overlap(first[1], second[1])):
+                            continue
+                        source_regions.append((panel, previous, first, second))
+                        if len(source_regions) + source_pairs >= _SOURCE_REGION_PAIRS:
+                            break
+                    if len(source_regions) + source_pairs >= _SOURCE_REGION_PAIRS:
+                        break
+            similar = []
+            for panel in panels:
+                if (not panel.get("spatial_v1") or panel["panel"] in seen_regions
+                        or panel["displayed_sha256"] in seen or old_bytes > 64 * 1024 ** 2):
+                    continue
+                for previous in old_panels[:128]:
+                    if (spatial_pairs >= _SPATIAL_PAIRS
+                            or time.monotonic() - spatial_started >= _SPATIAL_SECONDS):
+                        break
+                    if (not isinstance(previous, dict)
+                            or not previous.get("spatial_v1")
+                            or previous.get("displayed_sha256") == panel["displayed_sha256"]):
+                        continue
+                    spatial_pairs += 1
+                    try:
+                        matched = _similar_displayed_region(
+                            panel["spatial_v1"], previous["spatial_v1"])
+                    except (ValueError, cv2.error):
+                        continue
+                    if matched:
+                        similar.append((panel, previous, matched))
+            if (not crop_matches and not source_regions and not similar and not any(
+                    p.get("displayed_sha256") in current for p in old_panels)):
                 continue
             from .run_journal import hash_file
             if old.get("figure_sha256") != hash_file(old_figure, full=True):
                 continue
-            for previous in old.get("panels", []):
+            for previous in old_panels:
                 digest = previous.get("displayed_sha256")
                 if digest not in current or digest in seen:
                     continue
@@ -1315,7 +1735,86 @@ def _prior_figure_findings(panels, destination):
                            "the legend." if declared else
                            "If this reuse is intentional, explain it in the legend.")),
                 })
-        except (OSError, ValueError, TypeError, AttributeError):
+            for key, previous in crop_matches:
+                for panel in current_crops[key]:
+                    identity = (key, panel["panel"])
+                    if (identity in seen_crops
+                            or panel["displayed_sha256"] in seen):
+                        continue
+                    if (previous.get("displayed_sha256")
+                            == panel["displayed_sha256"]):
+                        continue
+                    seen_crops.add(identity)
+                    findings.append({
+                        "check": "cross_figure_source_crop",
+                        "severity": "note", "panels": [panel["panel"]],
+                        "prior_figure": os.path.basename(old_figure),
+                        "prior_panel": previous.get("panel"),
+                        "identical": False,
+                        "message": (
+                            f"Panel {panel['panel']} records the same source "
+                            f"bytes and crop recipe as panel {previous.get('panel')} "
+                            f"in an earlier export ({os.path.basename(old_figure)}), "
+                            "but its displayed pixels differ. Explain the reused "
+                            "source crop and the display change in the legend."),
+                    })
+            for panel, previous, first, second in source_regions:
+                if (source_pairs >= _SOURCE_REGION_PAIRS
+                        or time.monotonic() - source_started >= _SOURCE_REGION_SECONDS):
+                    break
+                if (panel["panel"] in seen_regions
+                        or panel["displayed_sha256"] in seen):
+                    continue
+                source_pairs += 1
+                try:
+                    verified = _verified_source_region(
+                        panel, previous, first, second,
+                        source_started + _SOURCE_REGION_SECONDS)
+                except (OSError, ValueError, TypeError, AttributeError,
+                        KeyError, IndexError, MemoryError):
+                    continue
+                if not verified:
+                    continue
+                from .qt.i18n import tr
+                seen_regions.add(panel["panel"])
+                findings.append({
+                    "check": "cross_figure_source_region", "severity": "note",
+                    "panels": [panel["panel"]],
+                    "prior_figure": os.path.basename(old_figure),
+                    "prior_panel": previous.get("panel"),
+                    "source_sha256": first[0]["sha256"],
+                    "source_boxes": [list(first[1]), list(second[1])],
+                    "message": tr(
+                        "Panel {panel} and panel {prior_panel} in {prior_figure} "
+                        "show overlapping regions of the same verified source "
+                        "pixels. This is a source reuse note, not an image "
+                        "manipulation verdict.", panel=panel["panel"],
+                        prior_panel=previous.get("panel"),
+                        prior_figure=os.path.basename(old_figure)),
+                })
+            if similar:
+                from .qt.i18n import tr
+            for panel, previous, matched in similar:
+                if panel["displayed_sha256"] in seen or panel["panel"] in seen_regions:
+                    continue
+                seen_regions.add(panel["panel"])
+                findings.append({
+                    "check": "similar_displayed_region", "severity": "note",
+                    "panels": [panel["panel"]],
+                    "prior_figure": os.path.basename(old_figure),
+                    "prior_panel": previous.get("panel"),
+                    "detail": matched["detail"],
+                    "structure": matched["structure"],
+                    "fraction": matched["fraction"],
+                    "message": tr(
+                        "Panel {panel} has a similar displayed region to panel "
+                        "{prior_panel} in {prior_figure}. This is a bounded "
+                        "pixel similarity note, not an acquisition or image "
+                        "manipulation verdict.", panel=panel["panel"],
+                        prior_panel=previous.get("panel"),
+                        prior_figure=os.path.basename(old_figure)),
+                })
+        except (OSError, ValueError, TypeError, AttributeError, KeyError):
             continue
         if len(seen) == len(current):
             break
@@ -1339,10 +1838,10 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
     import platform
 
     dpi = float(dpi or fig.dpi)
-    panels, arrays = [], []
+    panels, arrays, source_cache = [], [], {}
     for axes_index, axes, artist in _figure_panels(fig):
         record, data = _panel_record(len(panels), axes_index, axes, artist,
-                                     fig, dpi)
+                                     fig, dpi, source_cache)
         if data.ndim < 2 or min(data.shape[:2]) < _MIN_PANEL_SIDE:
             continue
         panels.append(record)
@@ -1355,8 +1854,6 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
                 + _duplicate_findings(panels, arrays)
                 + _lossy_findings(requested, written, panels)
                 + _resampling_findings(panels))
-    if destination is not None:
-        findings += _prior_figure_findings(panels, destination)
     run = None
     try:
         from .run_journal import current_run
@@ -1368,7 +1865,7 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
     except Exception:
         run = None
     import matplotlib
-    return {
+    report = {
         "schema": _PROVENANCE_SCHEMA,
         "created": datetime.datetime.now(datetime.timezone.utc).isoformat(
             timespec="seconds"),
@@ -1384,12 +1881,30 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
         "panels": panels,
         "integrity": {
             "checks": ["display_range", "saturation", "duplicate",
-                       "lossy_format", "resampling", "cross_figure_duplicate"],
+                       "lossy_format", "resampling", "cross_figure_duplicate",
+                       "cross_figure_source_crop", "cross_figure_source_region",
+                       "similar_displayed_region"],
             "warnings": sum(f["severity"] == "warning" for f in findings),
             "notes": sum(f["severity"] == "note" for f in findings),
             "findings": findings,
         },
     }
+    _attach_spatial_signatures(report, arrays)
+    if destination is not None:
+        findings += _prior_figure_findings(panels, destination)
+        report["integrity"]["warnings"] = sum(
+            f["severity"] == "warning" for f in findings)
+        report["integrity"]["notes"] = sum(
+            f["severity"] == "note" for f in findings)
+        _attach_spatial_signatures(report, ())
+        retained = {panel["panel"] for panel in panels
+                    if "spatial_v1" in panel}
+        findings[:] = [finding for finding in findings
+                       if finding["check"] != "similar_displayed_region"
+                       or finding["panels"][0] in retained]
+        report["integrity"]["notes"] = sum(
+            f["severity"] == "note" for f in findings)
+    return report
 
 
 def _integrity_metadata(report, fmt, existing=None):
@@ -1489,6 +2004,156 @@ def _read_panel_source(path):
         return np.array(image)
 
 
+def _overlay_replay_colored(mask, seed):
+    """Apply the original deterministic label palette to one replay mask."""
+    count = int(mask.max() + 1)
+    if count > 65536:
+        raise ValueError("overlay colour table exceeds replay budget")
+    if count <= 0:
+        cmap = ListedColormap(np.array([[0, 0, 0]]))
+    else:
+        rng = np.random.default_rng(seed)
+        hues = np.linspace(0, 1, count, endpoint=False)
+        rng.shuffle(hues)
+        sats = rng.uniform(0.70, 1.00, size=count)
+        vals = rng.uniform(0.85, 1.00, size=count)
+        colors = mpl.colors.hsv_to_rgb(np.column_stack([hues, sats, vals]))
+        cmap = ListedColormap(np.vstack([[0, 0, 0], colors]))
+    result = cmap(mask / (mask.max() + 1e-5))
+    result[..., 3] = np.where(mask > 0, 1, 0)
+    return result
+
+
+def _replay_overlay(image, step):
+    """Rebuild a merged-stack overlay from its recorded plane and filter recipe."""
+    if np.asarray(image).ndim != 3 or np.asarray(image).dtype.kind not in "uif":
+        raise ValueError("overlay source is not a numeric merged stack")
+    height, width, depth = image.shape
+    names = step.get("mask_order")
+    planes = step.get("mask_planes")
+    if (not isinstance(names, list) or len(names) > 16
+            or any(not isinstance(name, str) for name in names)
+            or len(names) != len(set(names)) or not isinstance(planes, dict)
+            or set(names) != set(planes)):
+        raise ValueError("invalid overlay mask recipe")
+    if (not height or not width or height * width * image.dtype.itemsize > 256 * 1024 ** 2
+            or height * width * (max(image.dtype.itemsize, 4) * (
+                len(names) + 5) + 32) > 1536 * 1024 ** 2):
+        raise ValueError("overlay plane exceeds the replay budget")
+    from .object_roles import ORGANELLE_ROLES
+    if set(names) - ({"cell", "nucleus", "pathogen"} | set(ORGANELLE_ROLES)):
+        raise ValueError("unknown overlay mask role")
+    indices = {}
+    for name in names:
+        index = planes[name]
+        if not isinstance(name, str) or type(index) is not int or not 0 <= index < depth:
+            raise ValueError("invalid overlay mask plane")
+        indices[name] = index
+    filters = step.get("filters") or {}
+    channels = step.get("mask_channels") or {}
+    if not isinstance(filters, dict) or not isinstance(channels, dict):
+        raise ValueError("invalid overlay filter recipe")
+    if set(filters) - set(names) or set(channels) - set(names):
+        raise ValueError("unknown overlay mask role")
+    outlines = []
+    for name in names:
+        mask = np.take(image, indices[name], axis=2)
+        if image.dtype in (np.uint8, np.uint16):
+            mask = mask.astype(np.float32)
+        if name in filters:
+            channel = channels.get(name)
+            bounds = filters[name]
+            if (type(channel) is not int or not 0 <= channel < depth
+                    or len(bounds) != 2 or any(len(pair) != 2 for pair in bounds)):
+                raise ValueError("invalid overlay filter or intensity channel")
+            intensity = np.take(image, channel, axis=2)
+            if image.dtype in (np.uint8, np.uint16):
+                intensity = intensity.astype(np.float32)
+            original_dtype = mask.dtype
+            mask_int = mask.astype(np.int64)
+            intensity = intensity.astype(np.float64)
+            kept = np.zeros_like(mask_int)
+            for label in np.unique(mask_int):
+                if label == 0:
+                    continue
+                selected = mask_int == label
+                area = np.sum(selected)
+                mean = np.mean(intensity[selected])
+                if (bounds[0][0] <= area <= bounds[0][1]
+                        and bounds[1][0] <= mean <= bounds[1][1]):
+                    kept[selected] = label
+            mask = kept.astype(original_dtype)
+        outlines.append(mask)
+
+    if step["op"] == "combined_masks":
+        if not outlines:
+            raise ValueError("combined panel has no masks")
+        combined = np.zeros_like(outlines[0], dtype=np.int64)
+        offset = 0
+        for outline in outlines:
+            labels = outline.astype(np.int64)
+            selected = labels > 0
+            if np.any(selected):
+                combined[selected] = labels[selected] + offset
+                offset += int(labels.max())
+        rgba = _overlay_replay_colored(combined, 9999)
+        blank = np.zeros((*combined.shape, 3))
+        return np.clip(blank * (1 - rgba[..., 3:])
+                       + rgba[..., :3] * rgba[..., 3:], 0, 1)
+
+    channel = step.get("channel")
+    if type(channel) is not int or not 0 <= channel < depth:
+        raise ValueError("invalid overlay image channel")
+    plane = np.take(image, channel, axis=2)
+    if image.dtype in (np.uint8, np.uint16):
+        plane = plane.astype(np.float32)
+    percentiles = step.get("percentiles")
+    if (not isinstance(percentiles, list) or len(percentiles) != 2
+            or any(not isinstance(value, (int, float))
+                   or not np.isfinite(value) for value in percentiles)
+            or not 0 <= percentiles[0] < percentiles[1] <= 100):
+        raise ValueError("invalid overlay percentiles")
+    low, high = np.percentile(plane, percentiles)
+    grey = np.clip((plane - low) / (high - low + 1e-5), 0, 1)
+    rendered = np.dstack([grey] * 3)
+    colors = outline_palette_colours(step.get("outline_palette"))
+    roles = {"cell": colors["cell"], "nucleus": colors["nucleus"],
+             "pathogen": colors["pathogen"], "organelle": colors["organelle"]}
+    for index, name in enumerate(name for name in names if name.startswith("organelle") and name != "organelle"):
+        roles[name] = _organelle_slot_colour(step.get("outline_palette"), index)
+    mapped = {channels[name]: index for index, name in enumerate(names)
+              if name in channels}
+    if step.get("all_on_all"):
+        selected = list(range(len(names)))
+    elif channel in mapped:
+        selected = [mapped[channel]]
+    elif step.get("all_outlines"):
+        selected = list(range(len(names)))
+    else:
+        selected = []
+    for index in selected:
+        mask = outlines[index]
+        if step.get("mode") == "outlines":
+            for label in np.unique(mask):
+                if label == 0:
+                    continue
+                contours, _ = cv2.findContours(
+                    (mask == label).astype(np.uint8), cv2.RETR_EXTERNAL,
+                    cv2.CHAIN_APPROX_SIMPLE)
+                cv2.drawContours(rendered, contours, -1,
+                                 mpl.colors.to_rgb(roles[names[index]]),
+                                 int(step["thickness"]))
+        else:
+            seed = (1000 + index if step.get("all_on_all") or channel not in mapped
+                    else channels[names[index]] + 1000)
+            if channel in mapped and not step.get("all_on_all"):
+                seed = 1000 + index
+            rgba = _overlay_replay_colored(mask, seed)
+            rendered = np.clip(rendered * (1 - rgba[..., 3:])
+                               + rgba[..., :3] * rgba[..., 3:], 0, 1)
+    return rendered
+
+
 def _replay_steps(image, steps):
     """Apply recorded display steps to a source array.
 
@@ -1508,6 +2173,15 @@ def _replay_steps(image, steps):
                                           _display_ranges(step["ranges"]))
         elif op == "to_uint8":
             image = (np.asarray(image) * 255).astype(np.uint8)
+        elif op == "read_crop_png":
+            from .crops import read_crop_png
+            image = read_crop_png(step["path"], fmt=int(step["format"]))
+        elif op == "merged_crop":
+            from .crops import CropSpec, extract_crop, png_view
+            spec = CropSpec(**step["spec"])
+            image = png_view(extract_crop(spec.merged_path, spec=spec))
+        elif op in ("overlay_composite", "combined_masks"):
+            image = _replay_overlay(image, step)
         else:
             raise ValueError(f"step {op!r} cannot be replayed")
     return np.asarray(image)
@@ -1532,8 +2206,42 @@ def _reproduce_panel(sidecar, panel):
     record = next(p for p in sidecar["panels"] if p["panel"] == int(panel))
     if not record.get("source"):
         raise ValueError(f"panel {panel} names no source file")
-    image = _read_panel_source(record["source"][0]["path"])
-    rebuilt = _replay_steps(image, record.get("steps") or [])
+    path = os.path.abspath(record["source"][0]["path"])
+    for step in record.get("steps") or []:
+        if step.get("op") == "read_crop_png":
+            recorded = os.path.abspath(step["path"])
+        elif step.get("op") == "merged_crop":
+            recorded = os.path.abspath(step["spec"]["merged_path"])
+        else:
+            continue
+        if recorded != path:
+            raise ValueError("crop recipe names a different source file")
+    overlay = any(step.get("op") in ("overlay_composite", "combined_masks")
+                  for step in record.get("steps") or [])
+    if overlay:
+        if len(record["source"]) != 1 or not path.lower().endswith(".npy"):
+            raise ValueError("overlay recipe needs one merged NPY source")
+        source = record["source"][0]
+        if not source.get("sha256"):
+            raise ValueError("overlay source has no full export digest")
+        current = _source_record(path)
+        for key in ("exists", "bytes", "mtime", "sha256"):
+            if key in source and current.get(key) != source[key]:
+                raise ValueError("overlay source changed since export")
+        image = np.load(path, mmap_mode="r", allow_pickle=False)
+        if not isinstance(image, np.memmap):
+            if hasattr(image, "close"):
+                image.close()
+            raise ValueError("overlay source is not a merged NPY array")
+        try:
+            rebuilt = _replay_steps(image, record.get("steps") or [])
+        finally:
+            image._mmap.close()
+        if _source_record(path).get("sha256") != source["sha256"]:
+            raise ValueError("overlay source changed during replay")
+    else:
+        image = _read_panel_source(path)
+        rebuilt = _replay_steps(image, record.get("steps") or [])
     return rebuilt, _array_digest(rebuilt) == record["displayed_sha256"]
 
 
@@ -1787,7 +2495,7 @@ def plot_image_mask_overlay(
             """Normalize the image based on given percentiles."""
             v_min, v_max = np.percentile(image, percentiles)
             image_normalized = np.clip((image - v_min) / (v_max - v_min + 1e-5), 0, 1)
-            return image_normalized
+            return image_normalized, (float(v_min), float(v_max))
 
         def _generate_contours(mask):
             """Generate contours from the mask using OpenCV."""
@@ -1820,7 +2528,8 @@ def plot_image_mask_overlay(
 
             for v in range(num_channels):
                 channel_image = image[..., v]
-                channel_image_normalized = _normalize_image(channel_image, percentiles)
+                channel_image_normalized, display_range = _normalize_image(
+                    channel_image, percentiles)
                 channel_image_rgb = np.dstack([channel_image_normalized] * 3)
 
                 current_channel = channels[v]
@@ -1873,7 +2582,27 @@ def plot_image_mask_overlay(
                                 channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
                 title = channel_to_label.get(current_channel, f'channel {current_channel}')
-                ax[v].imshow(channel_image_rgb)
+                artist = ax[v].imshow(channel_image_rgb)
+                _tag_panel(
+                    artist, source=file,
+                    steps=({"op": "overlay_composite",
+                            "channel": int(current_channel),
+                            "percentiles": [float(value) for value in percentiles],
+                            "mode": str(mode),
+                            "thickness": int(thickness),
+                            "all_on_all": bool(all_on_all),
+                            "all_outlines": bool(all_outlines),
+                            "outline_palette": str(outline_palette),
+                            "mask_order": [name for name, _channel, _color
+                                           in present_objects],
+                            "mask_channels": {name: int(channel)
+                                              for name, channel, _color
+                                              in present_objects},
+                            "mask_planes": {name: int(index)
+                                            for name, index in mask_dims.items()},
+                            "filters": filter_recipe},),
+                    display_range=display_range, channel=current_channel,
+                    raw=channel_image)
                 ax[v].set_title(title)
                 ax[v].axis('off')
 
@@ -1894,7 +2623,18 @@ def plot_image_mask_overlay(
                 blank_image = np.zeros((*combined_mask.shape, 3))
                 filled_image = _overlay_mask(blank_image, mask)
 
-                ax[-1].imshow(filled_image)
+                artist = ax[-1].imshow(filled_image)
+                _tag_panel(artist, source=file,
+                           steps=({"op": "combined_masks",
+                                   "mask_planes": {name: int(index)
+                                                   for name, index in mask_dims.items()},
+                                   "mask_order": [name for name, _channel, _color
+                                                  in present_objects],
+                                   "mask_channels": {name: int(channel)
+                                                     for name, channel, _color
+                                                     in present_objects},
+                                   "filters": filter_recipe,
+                                   "outline_palette": str(outline_palette)},))
                 ax[-1].set_title('combined objects')
                 ax[-1].axis('off')
             else:
@@ -2051,6 +2791,10 @@ def plot_image_mask_overlay(
     for ch in channels:
         if ch not in channel_to_label:
             channel_to_label[ch] = f'channel {ch}'
+
+    filter_recipe = (None if filter_dict is None else {
+        name: [[float(value) for value in bounds] for bounds in filter_dict[name]]
+        for name in mask_dims if name in filter_dict})
 
     fig = _plot_merged_plot(
         image=image,

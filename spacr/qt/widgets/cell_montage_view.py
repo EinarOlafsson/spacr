@@ -23,7 +23,7 @@ from __future__ import annotations
 import logging
 import os
 from concurrent.futures import CancelledError
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from threading import Event
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
@@ -413,6 +413,8 @@ class MontageLoad:
     :param images: the crops, one list per plan, aligned with that plan's
         ``objects`` rows. An entry is ``None`` only where a source returned
         nothing for a row.
+    :param crop_sources: source path and exact crop recipe per loaded image,
+        aligned with ``images``; missing entries make no provenance claim.
     :param sources: ``{experiment root: description}`` -- which crop source
         drew each plate, in words.
     :param error: why there is no montage, or ``''``. A SENTENCE, not an
@@ -449,6 +451,7 @@ class MontageLoad:
     shape_reason: str = ""
     objects: Any = None
     counts: Any = None
+    crop_sources: Tuple[Tuple[Any, ...], ...] = ()
 
     @property
     def ok(self) -> bool:
@@ -808,10 +811,14 @@ def _load(request, step):
             request=request, error=f"Could not select the montage: {error}")
 
     images: List[Tuple[Any, ...]] = []
+    crop_sources: List[Tuple[Any, ...]] = []
     for number, plan in enumerate(plans, 1):
         step(tr('Reading crops for montage {number} of {total}…',
                 number=number, total=len(plans)))
-        images.append(_cut(plan, sources, request, troubles, step=step))
+        per_crop = [None] * len(plan.rows())
+        images.append(_cut(plan, sources, request, troubles, step=step,
+                           provenance=per_crop))
+        crop_sources.append(tuple(per_crop))
 
     notes = tuple(route_notes) + tuple(f"NOTE {t}" for t in troubles)
     if notes:
@@ -827,7 +834,8 @@ def _load(request, step):
             if not why and not req.offers(candidate):
                 why = req.why_not(candidate)
     return MontageLoad(request=request, plans=tuple(plans),
-                       images=tuple(images), sources=described,
+                       images=tuple(images), crop_sources=tuple(crop_sources),
+                       sources=described,
                        shapes=tuple(s for s in CROP_SHAPES
                                     if s in (offered or set())),
                        shape_reason=why,
@@ -847,7 +855,8 @@ def _with_notes(plan, notes: Tuple[str, ...]):
 
 
 def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
-         troubles: List[str], *, step=None) -> Tuple[Any, ...]:
+         troubles: List[str], *, step=None,
+         provenance=None) -> Tuple[Any, ...]:
     """Cut every crop one plan names, bucketed by plate.
 
     Bucketed because ``MergedCropSource.get_many`` opens each ``.npy`` once
@@ -856,6 +865,7 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
     crops arrive one field at a time.
 
     :param step: optional cancellable stage callback before each source read.
+    :param provenance: optional list receiving one source recipe per crop.
     """
     rows = plan.rows()
     out: List[Any] = [None] * len(rows)
@@ -869,6 +879,32 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
         if choice is None:
             troubles.append(f"{root} has no crop source; its objects are blank")
             continue
+        snapshots = {}
+        if provenance is not None:
+            for position in positions:
+                try:
+                    row = rows[position]
+                    if choice.source.kind == "png":
+                        from ...crops import crop_format_for_png
+                        path = choice.source.resolve(row)
+                        recipe = {"op": "read_crop_png",
+                                  "path": os.path.abspath(path),
+                                  "format": int(crop_format_for_png(
+                                      path, choice.source.db_path))}
+                    elif choice.source.kind == "merged":
+                        spec = choice.source.spec_for(row)
+                        path = spec.merged_path
+                        recipe = {"op": "merged_crop", "spec": asdict(spec)}
+                        recipe["spec"]["merged_path"] = os.path.abspath(path)
+                    else:
+                        continue
+                    info = os.stat(path)
+                    snapshots[position] = {
+                        "path": os.path.abspath(path), "step": recipe,
+                        "size": int(info.st_size),
+                        "mtime_ns": int(info.st_mtime_ns)}
+                except (OSError, ValueError, TypeError, AttributeError):
+                    LOG.debug("could not describe the crop source", exc_info=True)
         try:
             crops = choice.source.get_many([rows[i] for i in positions])
         except Exception as error:                              # noqa: BLE001
@@ -879,6 +915,15 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
             continue
         for position, crop in zip(positions, crops):
             out[position] = crop
+            record = snapshots.get(position)
+            if provenance is not None and crop is not None and record is not None:
+                try:
+                    info = os.stat(record["path"])
+                    if (info.st_size == record["size"]
+                            and info.st_mtime_ns == record["mtime_ns"]):
+                        provenance[position] = record
+                except OSError:
+                    continue
     return tuple(out)
 
 
@@ -1579,6 +1624,7 @@ class CellMontageView(QWidget):
         self._effect: Optional[float] = None
         self._plans: Tuple[Any, ...] = ()
         self._images: Tuple[Tuple[Any, ...], ...] = ()
+        self._crop_sources: Tuple[Tuple[Any, ...], ...] = ()
         #: The load signature the crops in `_images` answer, or None.
         self._loaded_signature = None
         self._sources: Dict[str, str] = {}
@@ -2266,6 +2312,7 @@ class CellMontageView(QWidget):
             return
         self._plans = result.plans
         self._images = result.images
+        self._crop_sources = result.crop_sources
         self._loaded_signature = self._load_signature()
         self._sources = dict(result.sources)
         self._shown_key = self._key
@@ -2696,6 +2743,26 @@ class CellMontageView(QWidget):
 
         figure = montage_figure(self._plans, self._images,
                                 columns=max(self._columns, 4))
+        from ...plot import _figure_integrity_enabled, _tag_panel
+        if _figure_integrity_enabled() and self._crop_sources:
+            artists = iter(artist for axes in figure.axes
+                           for artist in axes.images)
+            for crops, records in zip(self._images, self._crop_sources):
+                for crop, record in zip(crops, records):
+                    if crop is None:
+                        continue
+                    artist = next(artists)
+                    if record is None:
+                        continue
+                    try:
+                        info = os.stat(record["path"])
+                    except OSError:
+                        continue
+                    if (info.st_size != record["size"]
+                            or info.st_mtime_ns != record["mtime_ns"]):
+                        continue
+                    _tag_panel(artist, source=record["path"],
+                               steps=(record["step"],))
         written = save_figure(figure, path, close=True)
         self._set_status(f"{self._summary()} — saved to {written}")
         return written
@@ -3061,6 +3128,7 @@ class CellMontageView(QWidget):
         must not survive it.
         """
         self._plans, self._images, self._sources = (), (), {}
+        self._crop_sources = ()
         self._loaded_signature = None
         self._shown_key = ""
         self._caption.setPlainText("")

@@ -535,6 +535,160 @@ def test_the_figure_goes_through_save_figure_and_carries_the_caption(
     assert any("INFERRED, not observed" in t for t in seen["texts"])
 
 
+@pytest.mark.parametrize("with_png,suffix", [(True, ".png"), (False, ".npy")])
+def test_checked_montage_replays_the_actual_loaded_crop_source(
+        qtbot, tmp_path, monkeypatch, with_png, suffix):
+    import json
+    from spacr.plot import _reproduce_panel
+
+    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=with_png)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    written = view.save(str(tmp_path / "checked-montage.png"))
+    with open(written + ".provenance.json", encoding="utf-8") as handle:
+        report = json.load(handle)
+    panel = report["panels"][0]
+    assert panel["source"][0]["path"].endswith(suffix)
+    assert panel["source"][0]["sha256"]
+    assert panel["reproducible"] is True
+    rebuilt, matches = _reproduce_panel(report, panel["panel"])
+    assert matches is True
+    assert rebuilt.shape == tuple(panel["shape"])
+    tampered = json.loads(json.dumps(report))
+    step = tampered["panels"][0]["steps"][0]
+    if with_png:
+        step["path"] = str(tmp_path / "other.png")
+    else:
+        step["spec"]["merged_path"] = str(tmp_path / "other.npy")
+    with pytest.raises(ValueError, match="different source"):
+        _reproduce_panel(tampered, panel["panel"])
+
+
+def test_real_merged_montage_notes_only_verified_overlapping_source_windows(
+        qtbot, tmp_path, monkeypatch):
+    import json
+    from pathlib import Path
+    from spacr import plot
+
+    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
+    view, _root, db_path, _csv = _view(qtbot, tmp_path, with_png=False)
+    with sqlite3.connect(db_path) as connection:
+        for index in range(4):
+            connection.execute(f'ALTER TABLE png_list ADD COLUMN "bbox-{index}" INTEGER')
+        for label in range(1, OBJECTS_PER_WELL + 1):
+            index = label - 1
+            y0 = 4 + (index // 4) * 22
+            x0 = 4 + (index % 4) * 26
+            connection.execute(
+                'UPDATE png_list SET "bbox-0"=?, "bbox-1"=?, '
+                '"bbox-2"=?, "bbox-3"=? WHERE cell_id=?',
+                (y0, x0, y0 + 18, x0 + 20, f"o{label}"))
+
+    def export(name, size):
+        view._picture_settings["crop_size"] = size
+        view.set_coefficient(GENE_KEY)
+        assert view.build() is True
+        written = view.save(str(tmp_path / name))
+        with open(written + ".provenance.json", encoding="utf-8") as handle:
+            return json.load(handle)
+
+    first = export("first.png", 96)
+    assert first["panels"][0]["steps"][0]["op"] == "merged_crop"
+    assert first["panels"][0]["steps"][0]["spec"]["bbox"]
+    malformed = json.loads(json.dumps(first["panels"][0]))
+    malformed["steps"] = {"op": "merged_crop"}
+    assert plot._source_crop_window(malformed) is None
+    malformed = json.loads(json.dumps(first["panels"][0]))
+    malformed["steps"][0]["spec"]["bbox"] = None
+    assert plot._source_crop_window(malformed) is None
+    later = export("later.png", 128)
+    notes = [finding for finding in later["integrity"]["findings"]
+             if finding["check"] == "cross_figure_source_region"]
+    assert notes
+    assert all(finding["severity"] == "note" for finding in notes)
+    assert all("same verified source pixels" in finding["message"]
+               for finding in notes)
+
+    sidecar = next(tmp_path.glob("first.*.provenance.json"))
+    tampered = json.loads(sidecar.read_text(encoding="utf-8"))
+    for panel in tampered["panels"]:
+        panel["displayed_sha256"] = "0" * 64
+    sidecar.write_text(json.dumps(tampered), encoding="utf-8")
+    assert not any(finding["check"] == "cross_figure_source_region"
+                   and finding["prior_figure"].startswith("first.")
+                   for finding in export("replay-tampered.png", 128)
+                   ["integrity"]["findings"])
+
+    for name in {panel["source"][0]["path"] for panel in first["panels"]
+                 if panel["source"]}:
+        source = Path(name)
+        pixels = np.load(source, allow_pickle=False)
+        pixels[0, 0, 0] += 1
+        np.save(source, pixels)
+    assert not any(finding["check"] == "cross_figure_source_region"
+                   for finding in export("source-changed.png", 96)
+                   ["integrity"]["findings"])
+
+    monkeypatch.setattr(plot, "_SOURCE_REGION_BYTES", 0)
+    assert not any(finding["check"] == "cross_figure_source_region"
+                   for finding in export("capped.png", 128)
+                   ["integrity"]["findings"])
+
+
+def test_montage_does_not_claim_a_crop_source_replaced_after_loading(
+        qtbot, tmp_path, monkeypatch):
+    import json
+    from pathlib import Path
+
+    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    source = Path(view._crop_sources[0][0]["path"])
+    before = source.stat()
+    source.write_bytes(source.read_bytes() + b"changed after load")
+    os.utime(source, ns=(before.st_atime_ns, before.st_mtime_ns + 1_000_000_000))
+    written = view.save(str(tmp_path / "changed-montage.png"))
+    with open(written + ".provenance.json", encoding="utf-8") as handle:
+        report = json.load(handle)
+    assert report["panels"][0]["source"] == []
+    assert report["panels"][0]["reproducible"] is False
+
+
+def test_crop_replaced_during_read_is_not_recorded_as_its_source(tmp_path):
+    from pathlib import Path
+    from types import SimpleNamespace
+    from PIL import Image
+    from spacr.crops import read_crop_png
+    from spacr.qt.widgets import cell_montage_view as montage
+
+    path = Path(tmp_path / "crop.png")
+    Image.fromarray(np.full((24, 28, 3), 32, dtype=np.uint8)).save(path)
+
+    class Source:
+        kind = "png"
+        db_path = None
+
+        def resolve(self, _row):
+            return str(path)
+
+        def get_many(self, rows):
+            pixels = [read_crop_png(str(path)) for _row in rows]
+            before = path.stat()
+            path.write_bytes(path.read_bytes() + b"changed during read")
+            os.utime(path, ns=(before.st_atime_ns,
+                               before.st_mtime_ns + 1_000_000_000))
+            return pixels
+
+    plan = SimpleNamespace(rows=lambda: [{"montage_source_root": "root"}])
+    records = [None]
+    crops = montage._cut(plan, {"root": SimpleNamespace(source=Source())},
+                         None, [], provenance=records)
+    assert len(crops) == 1 and crops[0].shape == (24, 28, 3)
+    assert records == [None]
+
+
 def test_the_figure_draws_a_panel_for_every_selected_object(qtbot, tmp_path):
     view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
     view.set_coefficient(GENE_KEY)

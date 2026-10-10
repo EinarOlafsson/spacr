@@ -14,6 +14,8 @@ nothing else.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import re
 
@@ -76,6 +78,40 @@ def test_a_pdf_is_a_page_the_pictures_own_shape(app, tmp_path):
     height = float(box.group(4)) - float(box.group(2))
     assert width > 0 and height > 0
     assert height / width == pytest.approx(2.0, rel=0.02)
+
+
+@pytest.mark.parametrize("suffix", ["png", "pdf"])
+def test_checked_picture_export_records_the_actual_rendered_pixels(
+        app, tmp_path, monkeypatch, suffix):
+    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
+    picture = a_picture(72, 48)
+    path = tmp_path / f"field.{suffix}"
+    assert picture_export.save_picture(picture, str(path), dpi=150)
+    report = json.loads((tmp_path / f"field.{suffix}.provenance.json").read_text())
+    assert report["figure_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert report["format"] == suffix
+    panel, = report["panels"]
+    assert panel["capture"] == "rendered QImage"
+    assert panel["source"] == []
+    assert panel["reproducible"] is False
+    assert panel["shape"] == [48, 72, 4]
+    if suffix == "png":
+        embedded = json.loads(QImage(str(path)).text("spaCR provenance"))
+        assert embedded["panels"][0]["displayed_sha256"] == panel["displayed_sha256"]
+    assert picture.size().width() == 72
+    assert picture.size().height() == 48
+
+
+def test_unchecked_or_failed_picture_export_never_publishes_a_sidecar(
+        app, tmp_path, monkeypatch):
+    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "0")
+    plain = tmp_path / "plain.png"
+    assert picture_export.save_picture(a_picture(), str(plain))
+    assert not (tmp_path / "plain.png.provenance.json").exists()
+    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
+    missing = tmp_path / "missing" / "field.png"
+    assert not picture_export.save_picture(a_picture(), str(missing))
+    assert not (tmp_path / "missing" / "field.png.provenance.json").exists()
 
 
 def test_an_empty_view_saves_nothing_rather_than_an_empty_file(app, tmp_path):
