@@ -1,9 +1,8 @@
 FIGURE-INTEGRITY GUARD: DISPLAY RANGES, SATURATION, LOSSY FORMATS, PROVENANCE
 
-Status: DONE (alpha) 2026-09-26 (evidence 2964f0a0c) — (see the note of that date). A
-checked export in spacr.plot.save_figure (and the Save figure dialog) warns
-on mismatched display ranges, saturation/clipping, repeated panels and lossy
-formats, and stamps provenance into the file metadata and a sidecar.
+Status: DONE (alpha) 2026-10-10 (see the note of that date): cross-figure index,
+region-reuse, splice and camera bit-depth checks, traced overlay/montage/picture
+exports and the remaining matplotlib writers. Known limits are listed in that note.
 VERIFIED 2026-10-04: test_figure_integrity_guard, qt figure-integrity gate + notice pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
@@ -221,3 +220,55 @@ Source remains private pending normal plot tr ownership/review; preserveN658.
 Broader arbitrary source-splice and heavy-noise scope staysOPEN. Existing probe
 false-matches distinct shared-label controls (2/40 nucleus,14/40cell,10/40pathogen)
 and heavy-noise recall is inadequate, so no forensic verdict is introduced.
+
+2026-10-10 — CROSS-FIGURE INDEX, REGION REUSE, SPLICES, BIT DEPTH, EXPORT PATHS
+Commits on nightly: a9e52a382 (integrates the private packet
+data/572_current_merged_source_handoff_2026-10-09 unchanged in substance:
+overlay, cell-montage and picture-export tracing plus the source-crop/region
+notes) and f317b81d4 (everything below). All in spacr/plot.py; no new module.
+    region_reuse (warning; note when both panels trace to one source): a panel
+      showing a cropped/rezoomed region of another panel, searched both ways
+      at 28 scales and four shape-preserving flips on band-pass images, refined
+      at 256 px, then confirmed by an affine ECC alignment and the agreement of
+      the pixel-scale residual on flat pixels (gain-corrected). The region must
+      be at least 48 displayed pixels per side. A 2 s budget per figure; the
+      report records pairs checked and skipped (integrity.region_search).
+    splice (warning): a copied patch inside one panel (sharp autocorrelation
+      peak of the fine texture band, no lattice echo, confirmed by 9x9 window
+      agreement over >= 1 % of the panel), or a straight full-length seam with
+      a background step or a change in matched-intensity noise. Padding,
+      noise-free pictures and pixel-replicated enlargements are excluded.
+    cross_figure_index (warning; note for declared same source): every checked
+      export appends its panel digests and a 64-bit block hash to
+      .spacr_figure_index.jsonl beside the figure, in the open run folder and
+      in SPACR_FIGURE_INDEX when set (bounded to 4 MiB, newest half kept).
+      Candidates (same digest, or hash within 10 bits under any flip/rotation)
+      are confirmed against the prior sidecar's signature with the within-
+      figure repeat test, and only when the prior figure still hashes to what
+      the index and sidecar recorded.
+    bit_depth (warning): Micro-Manager BitDepth (TIFF tag 51123, per plane or
+      Summary) and a caller-declared _tag_panel(significant_bits=...) now set
+      the saturation ceiling like OME SignificantBits; pixels above any
+      declared depth are reported instead of silently falling back.
+    Export paths: _checked_savefig now covers the Figure-settings fallback
+      writer (e.g. JPEG/EPS) and the gene-measurement sweep writer; with
+      save_figure, the Save-figure dialog, the cell montage and the picture
+      right-click save, every matplotlib/picture export path in the GUI is
+      checked when the alpha toggle is on.
+Validation (CPU; features/data/572_regions_splices_index_2026-10-10, the
+2026-09-26 harness extended, N=60 per condition): controls (6 fields, 12
+similar cell crops, two channels, 4x256 fields) 0 warnings; 75 % crop re-zoomed
+59/60 (was 0/200), 50 % crop 52/60, 90 % crop 60/60; splice noise-level 58/60,
+background offset 60/60, 40-px clone 60/60; all earlier conditions unchanged.
+Export of 6x512x512 panels with the check on: 2.45 s median (0.31 s off).
+Tests: tests/test_figure_integrity_regions_splices_f572.py,
+tests/test_figure_integrity_traced_edges_f572.py,
+tests/qt/test_figure_integrity_export_paths_f572.py; every added line and
+branch in the touched modules is covered by the owning tests (662 passed).
+Known limits: repeats or reused regions with heavy added noise (15 % of range,
+or 5 % on a re-zoomed crop) are missed; without camera metadata the ceiling is
+still the storage type (no inference from pixel values); the report.py PDF and
+pyqtgraph fast-plot exports hold rendered plots, not image data, and are not
+checked; the new tr() captions in plot.py await the catalog lane (the runtime
+extractor does not scan plot.py).
+
