@@ -1,0 +1,33 @@
+{
+  "source_commit": "bd22c05bd2733ad1e81c11e289e2962ad765af8a",
+  "result": "PASS",
+  "cases": [
+    {
+      "size": [
+        640,
+        360
+      ],
+      "density": 0.1,
+      "actual_graphics": false,
+      "image_sha256": "8657325e46d9cfcc6efdf1438574006641e5e38405395d3beff17ce81e8a8d54"
+    },
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "actual_graphics": false,
+      "image_sha256": "a2eec015b1b1fdcec24a45339d9a03d421a9aa20fa19f504ede3ffaad59707e2"
+    },
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "actual_graphics": true,
+      "image_sha256": "6aace01c0da6b59a15d10d9707ebe92e3840a588d83a1a9e861ace67150e56bd"
+    }
+  ]
+}

@@ -76,3 +76,30 @@ engine lock on start. 18 CPU/Qt fallback/ownership checks pass. The later
 private blink fix (e91593c76) was not reachable; the random-palette path
 still releases graphics and draws on CPU. Native GPU timing of this exact
 source, other vendors and platforms remain unmeasured.
+
+2026-10-10 — WORKSTATION GPU CHECKS (RTX 3090 Ti, Linux X11, source d1dca29cb)
+    Through tools/gpu_turn.sh; moderngl 5.13.0 installed in the WS spacr env
+    with the maintainer's OK (hardware EGL context on the 3090 Ti).
+    Audit: tools/audit_animation_performance.py --gpu --frames 24, 40 rows
+    (every theme at 1920x1080 and 3840x2160, shipped and full density),
+    peak RSS 443 MiB. Receipt: features/data/684_animation_gpu_audit_2026-10-10/.
+    GPU rendered every frame (gpu_frames 24/24) for impulse_lens,
+    genetic_advection, point_atlas and spaceout_field. fractal shows
+    gpu_frames=0 in all four rows: this backdrop is CPU by design (receipt:
+    'the native spaceout fractal has its own GPU backend'), so it is a label,
+    not a fallback. GPU is SLOWER than CPU for genetic_advection at every size
+    (4K full: 16.5 ms vs 9.8 ms) and for point_atlas except 1080p full.
+    aurora is the slowest theme and has no GPU path: 61 ms/frame at 4K full
+    (~16 fps). tissue_facets reports 0.00 ms in every row, i.e. it does not
+    render in this offscreen audit; worth a look.
+    Pixel parity (679 check_application_flow_gpu_r9, native X11): PASS, 24
+    native engine cases, 192/192 exact moving frames, owner-thread resource
+    release verified; 3 Automatic renderer cases PASS (sparse field CPU,
+    dense 4K hardware). In the native engine GPU complete time also exceeds
+    CPU at these sizes (spaceout 4K full 16 vs 7 ms), consistent with
+    Automatic choosing CPU for sparse scenes.
+    NOT DONE on WS: the interactive native checks (Preferences > Performance
+    GPU On/Automatic/Off with hide/show/resize and Measure/mask jobs; window
+    edge snapping, Window > Snap actions, F11 restore). They need a person at
+    the WS display: no xdotool/wmctrl here and installing system packages is
+    out of scope. Only X11 is available on WS (no Wayland/Windows/macOS).
