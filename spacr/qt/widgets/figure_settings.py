@@ -2315,6 +2315,38 @@ def _show_canvas_menu(canvas, position):
     return menu
 
 
+def _show_rendered_figure_menu(widget, figure, position, repaint):
+    """Open the shared figure menu for a figure shown as a rendered picture.
+
+    For a figure a screen shows as a pixmap on a label (a search's trial
+    thumbnails, its summary panel) rather than on a canvas: the menu edits
+    the live figure, and ``repaint`` puts the new rendering on screen after
+    every change. A house "Graph type" replacement is drawn onto the same
+    figure, as on a canvas.
+
+    :param widget: the widget showing the picture; parent of the menu.
+    :param figure: the live matplotlib figure behind the picture.
+    :param position: global position the menu opens at.
+    :param repaint: called with ``figure`` after each change.
+    :returns: the menu.
+    """
+    def _changed(preview=False):
+        """Redraw the figure after a menu edit; adopt a replacement's recipe."""
+        if preview is not None and not isinstance(preview, bool):
+            recipe = getattr(preview, "_spacr_replot", None) or {}
+            figure._spacr_replot = recipe
+            figure._spacr_data = None
+            _retype(figure, _house_kind(recipe.get("graph_type")), None)
+        repaint(figure)
+
+    menu = build_figure_context_menu(
+        widget, figure, on_change=_changed,
+        open_settings=partial(_open_editor, figure, widget,
+                              lambda **_k: repaint(figure)))
+    _exec_menu(menu, position)
+    return menu
+
+
 def _exec_menu(menu, position) -> None:
     """Show ``menu`` modally at ``position``."""
     menu.exec(position)

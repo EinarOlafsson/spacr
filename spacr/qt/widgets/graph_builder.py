@@ -566,6 +566,23 @@ def _canvas_class():
             from .figure_settings import _attach_figure_menu
             _attach_figure_menu(self)
 
+        def _styled_draw(self):
+            """Apply the user's figure settings to new content, then draw.
+
+            Every screen on this canvas draws into its figure again and
+            again; the Preferences figure settings reach each new drawing
+            here, once, so a right-click edit survives the next repaint.
+            """
+            try:
+                from ...figures.style import _style_new_content
+                _style_new_content(self.figure)
+            except Exception:
+                LOG.debug("could not apply the figure settings",
+                          exc_info=True)
+            super().draw()
+
+        draw = _styled_draw
+
         def paintEvent(self, event):  # noqa: N802 - Qt name
             """Draw the page panel, then let matplotlib draw over it."""
             if self._spacr_panel:

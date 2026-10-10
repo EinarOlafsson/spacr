@@ -475,6 +475,43 @@ class SearchRequest:
 
 
 
+def _trial_figure(trial: Trial, metric: str):
+    """Draw ONE trial's embedding on a new figure, or None without one.
+
+    Pure matplotlib, no Qt and no pyplot, so it is safe on a worker thread.
+    The figure registers its embedding as tidy data and carries the user's
+    figure settings, so the figure menu can edit it, change its graph type,
+    test it and save it as a zip.
+
+    :param trial: the trial to draw; needs an ``embedding`` in
+        ``extra_metrics`` and a score.
+    :param metric: the metric name shown with the score in the title.
+    :returns: the figure, or None when the trial has nothing to draw.
+    """
+    embedding = trial.extra_metrics.get("embedding")
+    if embedding is None or trial.score is None:
+        return None
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(3.2, 2.6))
+    from ...figures.bundle import _register_figure_data
+    _register_figure_data(figure, lambda: {"embedding_1": [float(p[0]) for p in embedding], "embedding_2": [float(p[1]) for p in embedding]}, x="embedding_1", y="embedding_2", kind="scatter")
+    axis = figure.add_subplot(111)
+    count = len(embedding)
+    axis.scatter([point[0] for point in embedding],
+                 [point[1] for point in embedding],
+                 c=list(range(count)), cmap="viridis",
+                 s=4, alpha=0.8, edgecolors="none")
+    axis.set_xticks([])
+    axis.set_yticks([])
+    axis.set_title(f"{format_params(trial.params)}\n"
+                   f"{metric}={float(trial.score):.3f}", fontsize=7)
+    figure.tight_layout()
+    from ...figures.style import _apply_user_style
+    _apply_user_style(figure, "scatter")
+    return figure
+
+
 def render_trial_figure(trial: Trial, metric: str, png_path: str) -> bool:
     """Draw ONE trial's embedding and write it to ``png_path``.
 
@@ -492,27 +529,11 @@ def render_trial_figure(trial: Trial, metric: str, png_path: str) -> bool:
     :param metric: the metric name shown with the score in the figure title.
     :param png_path: where the PNG is written.
     """
-    embedding = trial.extra_metrics.get("embedding")
-    if embedding is None or trial.score is None:
-        return False
     import matplotlib
     matplotlib.use("Agg", force=False)
-    from matplotlib.figure import Figure
-
-    figure = Figure(figsize=(3.2, 2.6))
-    from ...figures.bundle import _register_figure_data
-    _register_figure_data(figure, lambda: {"embedding_1": [float(p[0]) for p in embedding], "embedding_2": [float(p[1]) for p in embedding]}, x="embedding_1", y="embedding_2", kind="scatter")
-    axis = figure.add_subplot(111)
-    count = len(embedding)
-    axis.scatter([point[0] for point in embedding],
-                 [point[1] for point in embedding],
-                 c=list(range(count)), cmap="viridis",
-                 s=4, alpha=0.8, edgecolors="none")
-    axis.set_xticks([])
-    axis.set_yticks([])
-    axis.set_title(f"{format_params(trial.params)}\n"
-                   f"{metric}={float(trial.score):.3f}", fontsize=7)
-    figure.tight_layout()
+    figure = _trial_figure(trial, metric)
+    if figure is None:
+        return False
     from ..widgets.figure_queue import render_figure_to_png
     return bool(render_figure_to_png(figure, png_path))
 
@@ -735,6 +756,10 @@ class HyperparamPanel(QWidget):
         self._worker: Optional[_SearchWorker] = None
         self._result: Optional[SearchResult] = None
         self._live_trials: List[Trial] = []
+        self._grid_trials: Dict[int, Trial] = {}
+        self._trial_figures: Dict[int, Any] = {}
+        self._preview_figure = None
+        self._search_metric = "score"
         self._best_so_far: Optional[float] = None
         self._search_fn = None
         self._apply_cb: Optional[Callable[[Dict[str, Any]], Any]] = None
@@ -1193,8 +1218,13 @@ class HyperparamPanel(QWidget):
             self._figure_grid = SearchFigureGrid(parent=self._preview_stack)
             self._figure_grid.setVisible(False)
             self._figure_grid.cell_clicked.connect(self._open_trial_figure)
+            self._figure_grid.cell_menu_requested.connect(
+                self._trial_figure_menu)
             preview_column.addWidget(self._figure_grid, 1)
             self._preview = QLabel("No search has been run yet.")
+            self._preview.setContextMenuPolicy(Qt.CustomContextMenu)
+            self._preview.customContextMenuRequested.connect(
+                self._preview_figure_menu)
             self._preview.setAlignment(Qt.AlignCenter)
             self._preview.setMinimumWidth(220)
             self._preview.setSizePolicy(
@@ -1734,6 +1764,9 @@ class HyperparamPanel(QWidget):
         )
         self._result = None
         self._live_trials = []
+        self._grid_trials = {}
+        self._trial_figures = {}
+        self._preview_figure = None
         self._table.setRowCount(0)
         self._apply_btn.setEnabled(False)
         self._notes.setText("")
@@ -1767,6 +1800,8 @@ class HyperparamPanel(QWidget):
             f"Running {search_label}, ranked by "
             f"{request.criterion}…")
 
+        self._search_metric = str(getattr(request, "criterion", "score")
+                                  or "score")
         worker = _SearchWorker(request, self._search_fn, self)
         worker.trial_ready.connect(self._on_trial_ready)
         worker.finished.connect(self._on_worker_finished)
@@ -1862,7 +1897,9 @@ class HyperparamPanel(QWidget):
                                  else max(self._best_so_far, float(trial.score)))
         if png_path and self._figure_grid is not None:
             try:
-                self._figure_grid.add_figure(png_path, dict(trial.params))
+                cell = self._figure_grid.add_figure(png_path,
+                                                    dict(trial.params))
+                self._grid_trials[int(cell)] = trial
             except Exception:
                 LOG.debug("could not place the trial figure", exc_info=True)
         sorting = self._table.isSortingEnabled()
@@ -2352,7 +2389,62 @@ class HyperparamPanel(QWidget):
         if pm.isNull():
             self._preview.setText("Could not render the preview.")
             return
+        self._preview_figure = fig
         self._preview.setPixmap(pm)
+
+    def _preview_figure_menu(self, point) -> None:
+        """Open the figure menu on the summary panel at a right-click.
+
+        The summary is shown as a rendered picture, so the menu edits the
+        live figure behind it and the picture is re-rendered after each
+        change: Edit, Change graph type, Statistics and Save zip all work
+        here as on any figure canvas.
+
+        :param point: the click, in the preview label's coordinates.
+        """
+        figure = self._preview_figure
+        if figure is None:
+            return
+        from ..widgets.figure_settings import _show_rendered_figure_menu
+
+        def _repaint(fig):
+            """Put the edited summary back on the label."""
+            pixmap = figure_to_pixmap(fig)
+            if not pixmap.isNull():
+                self._preview.setPixmap(pixmap)
+
+        _show_rendered_figure_menu(self._preview, figure,
+                                   self._preview.mapToGlobal(point), _repaint)
+
+    def _trial_figure_menu(self, index: int, position) -> None:
+        """Open the figure menu on one trial's figure at a right-click.
+
+        The grid holds rendered pictures; the trial's figure is drawn again
+        from its embedding the first time its menu opens and kept, so edits
+        accumulate and the grid cell shows each one.
+
+        :param index: the grid cell, as the grid numbered it.
+        :param position: the global position of the click.
+        """
+        figure = self._trial_figures.get(index)
+        if figure is None:
+            trial = self._grid_trials.get(index)
+            if trial is None:
+                return
+            figure = _trial_figure(trial, self._search_metric)
+            if figure is None:
+                return
+            self._trial_figures[index] = figure
+        from ..widgets.figure_settings import _show_rendered_figure_menu
+
+        def _repaint(fig):
+            """Put the edited trial figure back in its grid cell."""
+            if self._figure_grid is not None:
+                self._figure_grid._set_cell_pixmap(index,
+                                                   figure_to_pixmap(fig))
+
+        _show_rendered_figure_menu(self._figure_grid, figure, position,
+                                   _repaint)
 
 
     @property

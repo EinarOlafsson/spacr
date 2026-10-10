@@ -373,6 +373,57 @@ def _apply_user_style(figure, kind: Optional[str] = None, *,
     return changed
 
 
+_STYLED_CONTENT = "_spacr_styled_content"
+
+
+def _content_signature(figure) -> tuple:
+    """What a figure has drawn on it, as far as restyling cares.
+
+    One entry per axes: the axes itself and how many lines, collections,
+    patches and images it holds. Statistics annotations (gid
+    ``spacr-stats``) and texts are left out, so a test drawn from the figure
+    menu or a retitled axis does not count as new content.
+    """
+    signature = []
+    for axes in figure.axes:
+        count = 0
+        for group in (axes.lines, axes.collections, axes.patches,
+                      axes.images):
+            count += sum(1 for artist in group
+                         if artist.get_gid() != "spacr-stats")
+        signature.append((id(axes), count))
+    return tuple(signature)
+
+
+def _style_new_content(figure, kind: Optional[str] = None) -> dict:
+    """Apply the user's figure settings to whatever was drawn since last time.
+
+    For a canvas that a screen draws into again and again (control charts,
+    dose response, PCA, the Feature Explorer and every other screen on the
+    shared menu canvas): the canvas calls this before each draw, and the
+    settings are applied only when the figure holds new content, so a
+    right-click edit is not undone by the next repaint.
+
+    :param figure: the matplotlib figure about to be drawn.
+    :param kind: graph kind whose per-graph settings apply.
+    :returns: the settings that were applied, empty when nothing was new.
+    """
+    if figure is None:
+        return {}
+    try:
+        signature = _content_signature(figure)
+    except Exception:
+        return {}
+    if not signature or getattr(figure, _STYLED_CONTENT, None) == signature:
+        return {}
+    applied = _apply_user_style(figure, kind, force=True)
+    try:
+        setattr(figure, _STYLED_CONTENT, _content_signature(figure))
+    except Exception:
+        pass
+    return applied
+
+
 def _restyle(figure, changed: dict) -> None:
     """Write each changed setting onto the figure's artists."""
     from ..figure_style import SPINE_PRESETS

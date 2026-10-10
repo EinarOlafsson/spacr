@@ -31,7 +31,7 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
-from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QPoint, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QFrame, QGridLayout, QLabel, QScrollArea, QSizePolicy, QVBoxLayout,
@@ -229,10 +229,14 @@ class SearchFigureGrid(QWidget):
     :param parameters: the searched parameter names, in the order that
         decides the axes. May be set later with :meth:`set_parameters`.
     :param parent: optional Qt parent.
-    :ivar cell_clicked: emitted with the index of a clicked figure.
+    :ivar cell_clicked: emitted with the index of a figure clicked with the
+        left button.
+    :ivar cell_menu_requested: emitted with the index of a right-clicked
+        figure and the global position of the click, for the figure menu.
     """
 
     cell_clicked = Signal(int)
+    cell_menu_requested = Signal(int, QPoint)
 
     def __init__(self,
                  parameters: Optional[Sequence[str]] = None,
@@ -431,8 +435,33 @@ class SearchFigureGrid(QWidget):
             label.setText(cell.caption or "no figure")
             label.setWordWrap(True)
         label.mouseReleaseEvent = (
-            lambda _event, i=index: self.cell_clicked.emit(i))
+            lambda event, i=index: self._cell_released(i, event))
+        label.contextMenuEvent = (
+            lambda event, i=index: self.cell_menu_requested.emit(
+                i, event.globalPos()))
         return label
+
+    def _cell_released(self, index: int, event) -> None:
+        """Emit :attr:`cell_clicked` for a left-button release only.
+
+        A right-click opens the figure menu instead, so it must not also
+        open the figure in the desktop viewer.
+        """
+        button = getattr(event, "button", None)
+        if callable(button) and button() != Qt.LeftButton:
+            return
+        self.cell_clicked.emit(index)
+
+    def _set_cell_pixmap(self, index: int, pixmap: QPixmap) -> None:
+        """Show ``pixmap`` in cell ``index``: the figure after an edit.
+
+        :param index: the cell, as :meth:`add_figure` returned it.
+        :param pixmap: the new rendering; a null pixmap is ignored.
+        """
+        if not 0 <= index < len(self._cells) or pixmap is None or pixmap.isNull():
+            return
+        self._cells[index].pixmap = pixmap
+        self.relayout()
 
     def _update_empty(self) -> None:
         """Show the placeholder only while there is nothing to compare."""
