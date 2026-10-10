@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -225,6 +225,10 @@ msgstr "**Marghyrningur gegnum sýnina**: smelltu á hornin á skjánum og smell
 
 msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
 msgstr "**Sporvala með handföngum** og **Kassi með handföngum**: dragðu rétthyrning yfir þýði og formið er aðlagað hlutunum sem hann rammar inn. Togaðu í flatar- eða geislahandfang til að breyta stærðinni, eða dragðu miðjuhandfangið til að færa það. Hlið sem teiknuð eru í gegnum sýnina eru líka færð með miðjuhandfanginu."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's shape. Every edge and surface carries evenly spaced anchors, including along the depth axis. Drag an anchor, or click a surface (Ctrl-click for several) and drag or turn the mouse wheel to move the selected surfaces together. The axis list beside **Edit** limits the movement to X, Y, Z or the view plane. **Anchor density** and **Show gate anchors** in the gate settings set how many anchors appear and whether they show; neither changes the gate. A curved gate becomes a piecewise-linear boundary at its first edit, and counts and exports use that edited boundary. Edited gates are saved and loaded with the gate file, and **Undo** and **Redo** step through the edits."
+msgstr "Veldu **Breyta** við hliðina á **Snúa** og **Teikna** til að breyta lögun teiknaðra 3D-valmarka. Hver brún og hver flötur ber jafndreifð akkeri, einnig eftir dýptarásnum. Dragðu akkeri, eða smelltu á flöt (Ctrl-click fyrir fleiri) og dragðu eða snúðu músarhjólinu til að færa valda fleti saman. Ásalistinn við hliðina á **Breyta** takmarkar hreyfinguna við X, Y, Z eða sjónplanið. **Þéttleiki akkera** og **Sýna akkeri valmarka** í stillingum valmarka ákvarða hve mörg akkeri birtast og hvort þau sjást; hvorug stillingin breytir valmörkunum. Bogin valmörk verða að bútalínulegum mörkum við fyrstu breytingu, og talningar og útflutningur nota þessi breyttu mörk. Breytt valmörk eru vistuð og hlaðin með valmarkaskránni, og **Afturkalla** og **Endurtaka** fara skref fyrir skref í gegnum breytingarnar."
 
 msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
 msgstr "Á meðan þú teiknar eða lagar form eru hlutirnir innan þess auðkenndir. Tvísmelltu á heiti hliðs í hliðatöflunni til að endurnefna það; hlið sem byggð eru á því fylgja nýja heitinu. Hlið teiknuð í þrívídd eru vistuð, hlaðin og flutt út eins og tvívíð hlið, með sömu aðildardálkum."

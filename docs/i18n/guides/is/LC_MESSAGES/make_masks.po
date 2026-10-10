@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -92,6 +92,14 @@ msgstr "Notaðu **Halda** eða **Henda** til að skrá grisjunarúrskurð fyrir 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
 msgstr "**Vista grímu**, **Fyrri mynd** og **Næsta mynd** eru í efstu aðgerðalínunni með breytingaverkfærunum. Skrunaðu línunni lárétt í mjóum glugga til að ná í stýringar utan sýnilega svæðisins."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**Vista við flakk**, á eftir **Næsta mynd**, vistar breytta grímu áður en **Halda**, **Henda**, **Næsta mynd** eða **Fyrri mynd** færir sig áfram. Sjálfgefið er slökkt á því og stillingin geymist milli lota. Ef vistunin mistekst helst myndin opin og enginn úrskurður er skráður. **Sleppa** skrifar aldrei grímu."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged."
+msgstr "**Opna 3D-mynd…** opnar TIFF-skrá með þremur rúmásum í 3D-grímuritlinum; stöflum með tíma, rásum eða RGB er hafnað. Snúðu sjónarhorninu, teiknaðu hlut og dragðu síðan akkeri hans, eða veldu fleti (Ctrl-click fyrir fleiri) og dragðu þá eða snúðu músarhjólinu. **Þéttleiki akkera** ákvarðar hve mörg akkeri hver brún og hver flötur fær, og með **Sýna akkeri** má fela þau. Breytingar breyta sjálfum voxelum grímunnar, halda ásaröð og voxel-bili myndarinnar og skrifa aldrei yfir annan hlut. **Vista 3D-grímu** skrifar merkin og breytanleg mörk þeirra; 2D-myndin og -gríman haldast óbreyttar."
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "Til að prófa skjáinn án eigin gagna sækir **Hlaða prófunargögnum...** tíu óhlutuð sjónsvið með Toxoplasma-bólum, með grisjuðu grímunum þeirra geymdum sér í ``ground_truth_masks/``, og opnar það fyrsta. Örin á sama hnappi býður upp á úrtak sjónsviða úr gagnasafninu sem hvert birt líkan var þjálfað á."

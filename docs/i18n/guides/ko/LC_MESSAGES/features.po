@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,7 +22,8 @@ msgstr ""
 msgid "Capabilities"
 msgstr "기능"
 
-msgid "spaCR follows an image-based screen from raw microscopy files to a ranked hit list. This page gives the full map; the :doc:`Python API quickstart <python_api>` and interactive tutorials show the individual routes."
+#, fuzzy
+msgid "spaCR processes an image-based screen from raw microscopy files to a ranked hit list. This page lists its capabilities by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
 msgstr "spaCR은 이미지 기반 스크린을 원시 현미경 파일부터 순위가 매겨진 히트 목록까지 따라갑니다. 이 페이지는 전체 지도를 제공하며, :doc:`Python API 빠른 시작 <python_api>` 과 대화형 튜토리얼에서 개별 경로를 보여 줍니다."
 
 msgid "Core screen workflow"
@@ -34,13 +35,15 @@ msgstr "마스크"
 msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
 msgstr "마스크 모듈은 TIFF, OME-TIFF, LIF, CZI, ND2 획득 데이터를 준비하고 Cellpose로 세포, 핵, 병원체, 세포소기관을 분할합니다. 2차원, 볼륨, 시계열 데이터를 지원하고, 객체 직경을 추정하며, 레이어 뷰어나 napari와 마스크 수정 사항을 주고받을 수 있습니다."
 
-msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` asks for -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
+#, fuzzy
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
 msgstr "객체는 네 가지로 고정되어 있지 않습니다. 프로젝트에는 세포, 핵, 병원체, 이들로부터 유도된 세포질, 그리고 ``number_of_organelles`` 가 요청하는 만큼의 세포소기관 슬롯이 있습니다. 슬롯 수는 0개부터 26개까지입니다. 각 슬롯은 독립적이며 자체 채널, 직경, 검출 방법, 형태를 가집니다."
 
 msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
 msgstr "슬롯에는 형태 프리셋이 지정됩니다. 점상, 소포상, 구형, 섬유상, 관상, 그물상, 납작주머니상, 고리형, 초승달형 또는 사용자 지정이며, 프리셋이 spots, network, irregular, ring 중 하나의 검출 전략을 선택합니다."
 
-msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and a hidden object's answers are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
+#, fuzzy
+msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and the values of a hidden object are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
 msgstr "마스크 생성은 객체별 설정을 **Per-object settings** 아래의 표 하나로 배치하며, 채널이 설정된 객체마다 열이 하나씩 있고 세포 열은 항상 표시됩니다. 객체의 채널은 일반 양식에서 설정하며, 숨겨진 객체의 입력값은 채널이 다시 설정될 때를 위해 보존됩니다. 모든 객체에는 **배경 제거** 확인란이 있고, 세포 열에는 **세포 조정** 도 있습니다. **필터 추가** 는 면적이나 평균 강도 같은 scikit-image regionprop으로 객체를 거르는 행을 추가합니다. 각 객체의 칸에는 ``200 – 5000``, 최솟값만(``200``), 최댓값만(``– 5000``) 또는 필터 없음을 뜻하는 빈칸을 입력합니다. 이 행들이 ``object_filters`` 설정입니다. 객체에 Cellpose 3 모델을 선택하면 해당 백엔드의 자체 설정이 있는 **Cellpose 3** 범주가 표시됩니다. **품질 관리** 에는 분할 검사와 함께 출력, 저장, 실행, 안정성 설정이 있습니다."
 
 msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
@@ -58,7 +61,8 @@ msgstr "측정 모듈의 설정은 **입력 및 실험**, **마스크 및 채널
 msgid "Annotate and Classify"
 msgstr "어노테이션과 분류"
 
-msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are kept and inform the next round of training. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
+#, fuzzy
+msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are stored; in a two-class column, the next training round uses a rejected suggestion as an example of the other class. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
 msgstr "어노테이션 모듈은 키보드로 조작하는 크롭 격자를 제공하고, 레이블을 프로젝트 데이터베이스에 직접 기록하며, 불확실성에 따라 능동 학습 대기열의 순위를 매길 수 있습니다. 한 페이지에는 들어갈 수 있는 만큼의 크롭이 표시되며 스크롤되지 않고, 나머지는 다음 페이지에 있습니다. **제안...** 을 실행하면 제안된 크롭에 **?** 배지가 붙습니다. 크롭을 클릭하거나 **Y** 를 눌러 확인하고, 마우스 오른쪽 버튼으로 클릭하거나 **N** 을 눌러 거부하며, **U** 로 실행 취소합니다. **페이지 나머지 확인** 과 **페이지 나머지 거부** 는 남은 제안을 한 번에 판정합니다. 거부 결과는 보존되어 다음 학습 라운드에 반영됩니다. 분류 모듈은 측정 표를 바탕으로 PyTorch 이미지 모델이나 고전적 모델 및 부스팅 모델을 학습합니다. 체크포인트에는 데이터 세트, 분할 규칙, 클래스 균형, 홀드아웃 지표가 기록됩니다. 분류의 **Essentials** 뷰에는 두 계열 중 하나를 선택하고 학습하는 데 필요한 항목이 있습니다. ResNet이나 MaxViT 같은 이미지 모델, 또는 XGBoost나 랜덤 포레스트 같은 표 형식 모델이며, 선택하지 않은 계열의 설정은 회색으로 표시됩니다."
 
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
@@ -113,11 +117,12 @@ msgid "How a module is reached"
 msgstr "모듈에 도달하는 방법"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+#, fuzzy
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
 msgstr "홈 화면은 모듈을 **핵심**, **데이터**, **도구**, **생물체** 의 네 범주로 나누며, 스물한 개 모듈이 이 중 한 범주에 타일을 갖습니다. 핵심은 순서대로 실행하는 처리 파이프라인이고 데이터는 그 입력과 출력을 포함합니다. 도구는 파이프라인의 자동 단계가 아니라 프로젝트에 사용하는 도구입니다. 생물체는 톡소플라스마 안내와 사용 가능한 분석을 엽니다. 예정된 분석은 출시 예정으로 표시됩니다. 마스크 만들기는 **도구** 에 있습니다."
 
-msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
-msgstr "타일만이 유일한 진입로는 아니며, 대부분의 모듈에는 타일이 없습니다. 타일은 “여기서 시작하세요”라는 뜻이지만, 다른 사람이 시작한 실행에 관한 질문에 답하는 모듈은 출발점이 아닙니다. 이런 모듈은 대신 다음 위치에서 열립니다."
+msgid "Most modules do not have a tile; they inspect or extend work started in another module. They open from:"
+msgstr ""
 
 msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
 msgstr "**호스트 모듈 헤더의 버튼** -- 호스트 설정 옆의 페이지로 열리며, 이미 같은 프로젝트를 가리키고 있습니다. Investigate Hit과 Prediction Profiler는 회귀에서, 형식 변환기와 외부 마스크는 가져오기에서, Layer Viewer, Control Charts, Outliers는 QC에서 열립니다."
@@ -128,7 +133,8 @@ msgstr "**도움말 메뉴** -- 특정 모듈에 속하기보다 이미 있는 �
 msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
 msgstr "**명령 팔레트** (Ctrl+K) -- 타일 여부와 관계없이 모든 모듈에 도달합니다. 예외가 없는 유일한 경로이며, 키보드 사용자의 탐색 수단입니다."
 
-msgid "None of them is second-class: they are shipped, translated and documented like any other module, and the ones that are pipelines still run headlessly under ``spacr-run``."
+#, fuzzy
+msgid "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``."
 msgstr "이들 중 어느 것도 부차적이지 않습니다. 다른 모듈과 똑같이 배포되고, 번역되고, 문서화되며, 파이프라인에 해당하는 모듈은 여전히 ``spacr-run`` 으로 헤드리스 실행됩니다."
 
 msgid "Host"
@@ -203,6 +209,10 @@ msgstr "**어노테이션** 에서는 **U** 와 Ctrl+Z가 마지막 레이블을
 msgid "the **Make Masks** editor keeps its own **Undo** and **Redo**."
 msgstr "**마스크 만들기** 편집기에는 자체 **실행 취소** 와 **다시 실행** 이 있습니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Edit** menu has **Undo** and **Redo** for the editor on screen. They act on a focused text field first, otherwise on the screen's own history, and are greyed out when there is nothing to undo or redo."
+msgstr "**편집** 메뉴에는 화면의 편집기에 쓰는 **실행 취소** 와 **다시 실행** 이 있습니다. 이 명령은 먼저 포커스가 있는 텍스트 필드에 적용되고, 그렇지 않으면 화면 자체의 기록에 적용되며, 실행 취소하거나 다시 실행할 내용이 없으면 회색으로 표시됩니다."
+
 msgid "Running jobs"
 msgstr "실행 중인 작업"
 
@@ -238,12 +248,12 @@ msgid "Data-art themes"
 msgstr "데이터 아트 테마"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+#, fuzzy
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
 msgstr "**환경설정** → **모양** 에서 **테마** 는 인터페이스 팔레트를 선택하며, 열 가지 야간 팔레트도 계속 사용할 수 있습니다. **애니메이션** 은 장식용 배경을 독립적으로 선택하고, **없음** 은 이를 중지합니다. 이 배경은 프로젝트 측정값을 표시하지 않습니다. 기본값은 주 창에서 **spaCR field**, 설정 창 배경에서 **spaCR stratified** 입니다."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The ordinary animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, and **None**, in that order. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are available with **Spaceout** enabled in both the main Animation menu and the Settings backdrop menu."
-msgstr "일반 애니메이션 메뉴에는 **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, **없음** 이 순서대로 표시됩니다. **Spaceout** 을 활성화하면 기본 애니메이션 메뉴와 Backdrop 설정 메뉴 모두에서 **spaCR growth**, **spaCR aurora**, **spaCR spinn** 을 사용할 수 있습니다."
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
+msgstr ""
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — 선명한 중력 점장으로 선택적인 국소 마우스 영향과 퍼져 나가는 파문을 제공합니다."
@@ -288,10 +298,6 @@ msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field
 msgstr "**팝업 파동 빈도** 는 **spaCR field** 에서 자동 파동이 시작되는 분당 횟수를 설정합니다. 기본값은 **분당 5회** 이며, **0** 은 팝업 파동을 끕니다. 활성화하면 팝업을 여는 즉시 중심에서 첫 파동이 시작되고, 이후 선택한 빈도로 파동이 발생합니다. 팝업을 이동하면 새 파동의 시작점이 이동합니다. 팝업을 닫으면 새 파동은 중단되고 기존 파동은 사라집니다. 이 제어는 마우스 중력, 점 깜빡임, 밀도, 그리기 세부 사항과 독립적입니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Field ripples** enables waves caused by clicks, opening or closing containers, and snapping the window, as well as automatic popup waves. Turning Mouse gravity radius down to **0** leaves these ripples available. Turn Field ripples off to stop them while retaining mouse attraction; Popup wave frequency controls the rate of automatic waves when ripples are on."
-msgstr "**필드 물결** 는 클릭, 컨테이너 열기와 닫기, 창 스냅으로 발생하는 파동과 자동 팝업 파동을 활성화합니다. 마우스 중력 반경 를 **0** 으로 낮춰도 이러한 파동을 사용할 수 있습니다. 마우스 인력을 유지하면서 파동을 멈추려면 필드 물결 를 끄세요. 파동이 켜져 있을 때 팝업 파동 빈도 가 자동 파동의 빈도를 제어합니다."
-
-# AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
 msgstr "**적용** 을 눌러 변경사항을 미리 적용해도 환경설정 창은 열린 상태로 유지됩니다. 별도의 질문 창에서 **유지** 또는 **되돌리기** 를 선택합니다. 되돌리면 저장된 설정과 현재 적용된 설정이 복원되며, 편집한 컨트롤 값은 다시 변경하거나 적용할 수 있도록 남아 있습니다. 질문 창을 닫아도 되돌립니다. **저장** 은 변경사항을 유지하고 환경설정 창을 닫습니다."
 
@@ -300,16 +306,13 @@ msgid "**Preferences** keeps four lines of help visible below the settings. Long
 msgstr "**환경설정** 은 설정 아래에 도움말 네 줄을 계속 표시합니다. 긴 도움말은 대화 상자를 움직이지 않고 영역 안에서 스크롤됩니다. 영역의 좁은 위쪽 가장자리를 끌어 높이를 늘리거나 줄이세요. 환경 설정은 선택한 높이를 기억합니다. 포인터를 컨트롤에서 도움말 영역으로 옮겨도 해당 도움말을 계속 읽고 스크롤할 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings animation speed**, **Settings animation size**, **Settings animation detail** and **Settings animation density** change only the settings-window backdrop. Its sliders retain their values when the backdrop is **None**, while the controls are disabled. Choosing a compatible backdrop enables them again. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+#, fuzzy
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
 msgstr "**Backdrop 설정** 은 환경설정을 적용하거나 저장할 때 모두 주 창의 애니메이션과 독립적으로 유지됩니다. **없음** 은 팝업 움직임을 끄면서 파란 테두리는 유지합니다. **설정 창 애니메이션 속도**, **설정 창 애니메이션 크기**, **설정 창 애니메이션 세부 수준**, **설정 창 애니메이션 밀도** 는 설정 창의 배경만 변경합니다. 배경이 **없음** 이면 컨트롤은 비활성화되지만 슬라이더 값은 유지됩니다. 호환되는 배경을 선택하면 다시 활성화됩니다. **설정 배경 어두움** 은 애니메이션 위 설정 카드의 불투명도를 **0%** 부터 **100%** 까지 조절하며, 기본값은 **85%** 입니다. 이 값은 **페이지 불투명도** 와 함께 적용됩니다. 설정 배경이 **없음** 이어도 페이지 불투명도는 적용됩니다. 어두움 값이 높을수록 애니메이션을 더 많이 가려 텍스트를 읽기 쉽게 합니다. 팝업은 자신이 속한 spaCR 창 앞에만 유지되며, 모든 창 위에 항상 표시하는 전역 플래그를 사용하지 않으므로 다른 앱이 덮을 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
 msgstr "**spaCR field** 의 비어 있는 배경 영역에서 마우스 왼쪽 버튼을 누른 채 드래그하면 국소적인 점 무리를 당길 수 있습니다. 버튼을 놓으면 전체 패턴을 다시 시작하지 않고 부드럽게 돌아갑니다. 이 배경 제스처는 과학 이미지 캔버스와 컨트롤의 조작 제스처를 계속 사용할 수 있게 합니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Start ``spaceout --fresh`` for the separate Spaceout mode. Its default **spaCR field phenomena** backdrop adds changing motion to the field. Under **Preferences** → **Appearance** → **spaCR field**, eight independent switches control **Random attractors**, **Relaxation**, **Elastic release**, **Vortices**, **Density pulses**, **Density waves**, **Colour waves** and **Spirals**. All eight start on. **Apply** previews the edited switches; **Revert** restores the previous values, and **Save** keeps them. The ordinary ``spacr`` launcher uses its own background choice and hides this Spaceout-only section. To choose the fractal instead, select it in Spaceout's **Animation** menu."
-msgstr "별도의 Spaceout 모드를 시작하려면 ``spaceout --fresh`` 를 실행하세요. 기본 배경인 **spaCR 필드 현상** 는 필드에 변화하는 움직임을 추가합니다. **환경설정** → **모양** → **spaCR field** 의 독립적인 스위치 여덟 개가 **무작위 인력점**, **완화**, **탄성 복귀**, **소용돌이**, **밀도 맥동**, **밀도 파동**, **색상 파동**, **나선** 를 제어합니다. 여덟 개 모두 처음에는 켜져 있습니다. **적용** 는 편집한 스위치를 미리 보여 주고, **되돌리기** 는 이전 값을 복원하며, **저장** 는 변경 내용을 유지합니다. 일반 ``spacr`` 실행기는 자체 배경 선택을 사용하고 Spaceout 전용 영역을 숨깁니다. 프랙탈을 선택하려면 Spaceout의 **애니메이션** 메뉴에서 선택하세요."
 
 msgid "Arranging the window"
 msgstr "창 배치"
@@ -354,11 +357,12 @@ msgstr "이 화면에서 Cellpose-SAM을 실행하면 마스크 옆에 두 가�
 msgid "Settings that apply"
 msgstr "적용되는 설정"
 
-msgid "The settings panel carries a control when it applies to the run being set up and leaves it off the form when it does not:"
+#, fuzzy
+msgid "The settings panel shows a control only when it applies to the run being set up:"
 msgstr "설정 패널은 컨트롤이 설정 중인 실행에 적용될 때 표시하고, 적용되지 않을 때는 양식에서 뺍니다."
 
-msgid "a slot past ``number_of_organelles`` takes its whole block of settings with it, its channel included -- a slot the run does not have is not a slot with its channel left showing;"
-msgstr "``number_of_organelles`` 를 넘는 슬롯은 채널을 포함한 설정 묶음 전체와 함께 사라집니다. 실행에 없는 슬롯이 채널만 표시된 채 남아 있지 않습니다."
+msgid "the settings of a slot past ``number_of_organelles``, its channel included, are removed from the form;"
+msgstr ""
 
 msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
 msgstr "채널이 어떤 평면도 가리키지 않는 객체는 실행에 전혀 포함되지 않으므로 그 설정도 양식에 없습니다."
@@ -417,10 +421,6 @@ msgid "Right-click any figure in spaCR, in a module's figure list or in an embed
 msgstr "spaCR의 아무 그림이나 오른쪽 클릭하면 그림 메뉴가 열립니다. 모듈의 그림 목록이나 Graph Builder, UMAP 탐색기, 학습 비교 같은 내장 그래프에서도 마찬가지입니다. Volcano 탐색기와 Gate Editor는 자체 오른쪽 클릭 메뉴를 유지하며 여기에 이 항목들을 추가합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The Gate Editor draws its 2D and 3D plots on an opaque card with rounded corners, so the page animation stays behind the surrounding controls. Right-click inside the plot to open its graph and figure actions; right-click an axis to change that measurement's scale, limits or cutoffs."
-msgstr "Gate Editor 는 모서리가 둥근 불투명 카드에 2D 및 3D 플롯을 그리므로 페이지 애니메이션이 주변 컨트롤 뒤에 유지됩니다. 플롯 내부를 마우스 오른쪽 버튼으로 클릭하면 그래프와 그림 작업이 열립니다. 축을 마우스 오른쪽 버튼으로 클릭하면 해당 측정의 스케일, 한계 또는 임계값을 변경할 수 있습니다."
-
-# AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
 msgstr "**그림 편집…** 는 이 그림의 제목, 축 레이블, 범위, 척도, 글꼴, 색상, 범례, 크기, 해상도를 바꿉니다. 변경 사항은 바로 나타납니다."
 
@@ -467,7 +467,8 @@ msgstr "작업자와 여유 메모리"
 msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
 msgstr "모듈이 작업자를 시작하기 전에 spaCR은 시야, 마스크, 잘라낸 이미지 배치, 표와 같은 입력 하나에 작업자마다 필요한 메모리를 추정합니다. 설정한 ``n_jobs`` 로 인해 컴퓨터 RAM의 여유가 12.5% 미만이 된다면, 팝업에 추정값, 여유 메모리, 들어갈 수 있는 작업자 수가 표시됩니다. **워커 프로세스 N개 사용 (권장)** 를 선택해 그 수로 실행하거나 직접 정한 수를 유지합니다. 이때 측정은 여유 메모리가 예비량 아래로 떨어질 때마다 새 시야 처리를 일시 중지합니다. **애플리케이션을 닫아 RAM 확보…** 는 사용자 자신의 가장 큰 프로그램을 나열합니다. 처음에는 아무것도 선택되어 있지 않으며, 선택한 프로그램에만 확인 후 종료를 요청합니다. 대개 먼저 저장할 수 있지만 저장하지 않은 작업은 여전히 잃을 수 있습니다."
 
-msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+#, fuzzy
+msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
 msgstr "GUI 없이 시작한 실행은 ``n_jobs`` 를 안전한 수로 낮추고 경고를 출력합니다. **고급** 에서 ``ram_guard`` 를 끄면 ``n_jobs`` 가 그대로 유지되며, 측정은 여유 메모리가 예비량보다 적은 동안 여전히 기다립니다."
 
 # AI technical review (Codex), no native-speaker signoff.

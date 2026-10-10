@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -22,8 +22,8 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "CV मॉडल समझाएँ और हिट की जाँच करें"
 
-msgid "spaCR separates three questions that are easy to blur together:"
-msgstr "spaCR तीन ऐसे प्रश्नों को अलग करता है जिन्हें आपस में मिलाना आसान है:"
+msgid "spaCR provides three separate analyses that answer different questions:"
+msgstr ""
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "सक्रियण या अवरोधन मानचित्र दिखाते हैं कि दृष्टि मॉडल ने **कहाँ** ध्यान दिया;"
@@ -73,7 +73,8 @@ msgstr "**प्रतिगमन** शीर्षपट्टी से **ह
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "मापन डेटाबेस, मूल प्रति-ऑब्जेक्ट पूर्वानुमान CSV और प्रति-कूप गाइड-अंश CSV दें। जोड़ स्पष्ट ऑब्जेक्ट और प्लेट/पंक्ति/स्तंभ कुंजियों का उपयोग करते हैं। डुप्लिकेट ऑब्जेक्ट कुंजियाँ या डुप्लिकेट कूप/गाइड अंश रन को रोक देते हैं।"
 
-msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+#, fuzzy
+msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
 msgstr "पहला आउटपुट एक ईमानदार समीक्षा कतार है: लक्ष्य वाले कूपों की कोशिकाएँ प्रतिगमन की प्रभाव दिशा में क्रमबद्ध होती हैं, और उनके बगल में कूप-स्तरीय लक्ष्य-गाइड अंश दिखाया जाता है। इसके बाद वैकल्पिक एट्रिब्यूशन मॉडल:"
 
 msgid "treats wells as bags and cells as instances;"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -34,7 +34,8 @@ msgstr "Keyrslusnið lýsir *hvernig á að ná í reikniafl*, ekki greiningu. S
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
 
-msgid "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code."
+#, fuzzy
+msgid "Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a detached background process (output redirected to a log, stdin closed) so it continues if the SSH connection drops, and records its exit code."
 msgstr "Hleður litlu JSON-skránni með útleystu stillingunum upp yfir SSH, ræsir ``spacr-run`` í varanlegu bakgrunnsferli og skráir útgöngukóða þess."
 
 msgid "``Slurm cluster``"
@@ -46,7 +47,8 @@ msgstr "Hleður stillingum upp, sendir ``sbatch``-skriftu, kannar ``squeue`` og 
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
 
-msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a safe job identifier and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
+#, fuzzy
+msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "Keyrir stillt viðfangasniðmát fyrir sendingu/stöðu/afturköllun. Þetta styður skýja-CLI og staðbundna tímaáætlara án þess að fella auðkenni framleiðenda inn í spaCR. Skipunin verður að prenta öruggt auðkenni verks og stöðuskipunin ætti að prenta hefðbundna stöðu eins og ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` eða ``CANCELLED``."
 
 msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."

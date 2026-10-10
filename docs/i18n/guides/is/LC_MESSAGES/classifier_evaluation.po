@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: is\n"
@@ -22,7 +22,8 @@ msgstr ""
 msgid "Classifier evaluation workbench"
 msgstr "Vinnuborð fyrir mat á flokkurum"
 
-msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead, because judging a classifier is the sentence after training one. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
+#, fuzzy
+msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
 msgstr "Víxlsannprófun flokkara varðveitir allar líkur utan hluta (out-of-fold) í stað þess að draga hvern hluta saman í eina nákvæmnistölu. Vinnuborðið hefur engan eigin reit: það opnast úr haus **Flokkun**, því að mat á flokkara er næsta skref eftir að hann er þjálfaður. Ýttu þar á **Mat á flokkara** og slepptu möppu með líkani/niðurstöðum á síðuna. Skönnunin keyrir í bakgrunni og finnur allar ``evaluation_manifest.json`` undir þeirri möppu."
 
 msgid "The workbench shows:"
@@ -67,7 +68,8 @@ msgstr "Hópuð og hreiðruð víxlsannprófun"
 msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
 msgstr "``cross_validation_folds`` stjórnar ytri hlutunum og ``cv_group_by`` heldur tengdum sjónsviðum, brunnum eða plötum saman. Sjálfgildið er víxlsannprófun hópuð eftir brunnum. Stilltu ``nested_cv_inner_folds`` á tvo eða fleiri til að virkja raunverulega hreiðraða víxlsannprófun."
 
-msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This is fast and useful for routine comparisons, but can give a slightly optimistic estimate when many choices are made against that fold."
+#, fuzzy
+msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
 msgstr "Í venjulegri víxlsannprófun er ytri sannprófunarhlutinn notaður bæði til að velja vistunarpunkt og til að tilkynna frammistöðu. Þetta er fljótlegt og gagnlegt fyrir venjubundinn samanburð en getur gefið örlítið bjartsýnt mat þegar mörg val eru gerð gagnvart þeim hluta."
 
 msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
@@ -76,7 +78,8 @@ msgstr "Í hreiðraðri víxlsannprófun er hverri ytri þjálfunarskiptingu ski
 msgid "Leakage protection"
 msgstr "Vörn gegn leka"
 
-msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises an actionable error before model fitting. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
+#, fuzzy
+msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises ``LeakageError`` before model fitting; the message lists the overlap counts per level. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
 msgstr "Fyrir þjálfun athugar spaCR nákvæmar slóðir, gagnaaukningarfjölskyldur, hluti og stillt hópunarstig báðum megin við hverja skiptingu. Með ``evaluation_fail_on_leakage=True`` (sjálfgildið) kastar öll vernduð skörun villu sem hægt er að bregðast við áður en líkanið er mátað. Gagnaaukningar eru búnar til eftir skiptingu þannig að umbreytt afrit komast ekki inn í geymdan hluta."
 
 msgid "Temperature calibration"

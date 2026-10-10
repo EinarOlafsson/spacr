@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -46,7 +46,8 @@ msgstr "útgáfur pakka, spaCR, Git og stýrikerfis;"
 msgid "declared seeds and runtime random-state identifiers."
 msgstr "uppgefin fræ og auðkenni slembistöðu við keyrslu."
 
-msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt folders stay visible rather than disappearing."
+#, fuzzy
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
 msgstr "Leitarorð eru sameinuð: ``adamw plate_03 warning`` sýnir aðeins skráningar sem innihalda öll þrjú orðin einhvers staðar í stillingum, slóðum, viðvörunum, villum eða umhverfisgögnum. Hægt er að beita síum á einingu og stöðu á sama tíma. Truflaðar og skemmdar möppur haldast sýnilegar í stað þess að hverfa."
 
 msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
@@ -58,7 +59,8 @@ msgstr "Hægrismelltu á valdar raðir til að opna möppur þeirra eða eyða �
 msgid "Storage: pruning and caches"
 msgstr "Geymsla: grisjun og skyndiminni"
 
-msgid "**Preferences → Storage** keeps the spaCR home folder from growing without bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+#, fuzzy
+msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
 msgstr "**Kjörstillingar → Geymsla** kemur í veg fyrir að heimamappa spaCR vaxi takmarkalaust. Fyrir daglega annála, keyrsluannála (``~/.spacr/logs/runs``) og keyrslumöppur (``~/.spacr/runs``) heldur hún tvenn mörk: **Halda**, aldur í dögum þar sem engu er nokkru sinni eytt, og **Hámark**, stærð þar yfir sem elstu eldri færslum er eytt (**ekkert hámark** eyðir öllum eldri færslum). Keyrslunni sem er í gangi og opnum annálaskrám er aldrei eytt. **Grisja núna…** telur upp það sem mörkin myndu eyða og spyr áður en eytt er; ekkert er grisjað sjálfkrafa."
 
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
@@ -71,6 +73,7 @@ msgstr "**Kjörstillingar → Annálaskráning → Annálsskrár** hefur **Tæma
 msgid "Headless search"
 msgstr "Leit án myndræns viðmóts"
 
-msgid ":func:`spacr.run_journal.search_runs` provides the same resilient records without Qt:"
+#, fuzzy
+msgid ":func:`spacr.run_journal.search_runs` returns the same records as the dashboard, including corrupt and interrupted runs, without Qt:"
 msgstr ":func:`spacr.run_journal.search_runs` veitir sömu traustu skráningarnar án Qt:"
 

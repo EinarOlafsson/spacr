@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -92,6 +92,14 @@ msgstr "**유지** 또는 **버리기** 로 시야 단위의 선별 판정을 �
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
 msgstr "**마스크 저장**, **이전 이미지**, **다음 이미지**\\ 는 편집 도구와 함께 상단 작업 행에 있습니다. 창이 좁으면 이 행을 가로로 스크롤하여 보이는 영역 밖의 컨트롤을 사용할 수 있습니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**다음 이미지** 뒤에 있는 **이동 시 저장** 은 **유지**, **버리기**, **다음 이미지** 또는 **이전 이미지** 가 다음으로 넘어가기 전에 편집한 마스크를 저장합니다. 기본적으로 꺼져 있으며 세션 간에 기억됩니다. 저장에 실패하면 이미지는 열린 상태로 유지되고 판정은 기록되지 않습니다. **건너뛰기** 는 마스크를 기록하지 않습니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged."
+msgstr "**3D 이미지 열기…** 는 공간 축이 세 개인 TIFF를 3D 마스크 편집기에서 엽니다. 시간, 채널 및 RGB 스택은 거부됩니다. 보기를 회전하고 객체를 그린 다음, 앵커를 끌거나 표면을 선택하고(여러 개는 Ctrl-click) 끌거나 마우스 휠을 돌립니다. **앵커 밀도** 는 각 모서리와 표면에 배치되는 앵커 수를 설정하며, **앵커 표시** 로 앵커를 숨길 수 있습니다. 편집은 마스크 복셀 자체를 변경하고, 이미지의 축 순서와 복셀 간격을 유지하며, 다른 객체를 덮어쓰지 않습니다. **3D 마스크 저장** 은 레이블과 편집 가능한 경계를 기록하며, 2D 이미지와 마스크는 변경되지 않습니다."
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트에서 시야 표본을 제공합니다."

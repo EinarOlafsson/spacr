@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -34,7 +34,8 @@ msgstr "실행 프로필은 분석이 아니라 *계산 자원에 접근하는 �
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
 
-msgid "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code."
+#, fuzzy
+msgid "Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a detached background process (output redirected to a log, stdin closed) so it continues if the SSH connection drops, and records its exit code."
 msgstr "확정된 작은 설정 JSON을 SSH로 업로드하고, 지속되는 백그라운드 프로세스에서 ``spacr-run`` 을 시작하며, 그 종료 코드를 기록합니다."
 
 msgid "``Slurm cluster``"
@@ -46,7 +47,8 @@ msgstr "설정을 업로드하고, ``sbatch`` 스크립트를 제출하고, ``sq
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
 
-msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a safe job identifier and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
+#, fuzzy
+msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "구성된 제출/상태/취소 인수 템플릿을 실행합니다. 이를 통해 공급업체 자격 증명을 spaCR에 넣지 않고도 클라우드 CLI와 사이트별 스케줄러를 지원합니다. 명령은 안전한 작업 식별자를 출력해야 하며, 상태 명령은 ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED``, ``CANCELLED`` 와 같은 일반적인 상태를 출력해야 합니다."
 
 msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -92,6 +92,14 @@ msgstr "Use **Manter** ou **Descartar** para registrar um veredito de curadoria 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
 msgstr "**Gravar máscara**, **Imagem anterior** e **Próxima imagem** compartilham a linha superior de ações com as ferramentas de edição. Role essa linha horizontalmente em uma janela estreita para alcançar controles fora da área visível."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**Salvar ao navegar**, logo após **Próxima imagem**, salva uma máscara editada antes que **Manter**, **Descartar**, **Próxima imagem** ou **Imagem anterior** avance. A opção fica desativada por padrão e é lembrada entre sessões. Se o salvamento falhar, a imagem permanece aberta e nenhum veredito é registrado. **Ignorar** nunca grava uma máscara."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged."
+msgstr "**Abrir imagem 3D…** abre um TIFF com três eixos espaciais no editor de máscaras 3D; pilhas de tempo, de canal e RGB são recusadas. Gire a vista, desenhe um objeto e depois arraste suas âncoras, ou selecione superfícies (Ctrl-click para várias) e arraste-as ou gire a roda do mouse. **Densidade de âncoras** define quantas âncoras cada aresta e cada superfície recebem, e **Mostrar âncoras** permite ocultá-las. As edições alteram os próprios voxels da máscara, mantêm a ordem dos eixos e o espaçamento de voxel da imagem e nunca sobrescrevem outro objeto. **Salvar máscara 3D** grava os rótulos e seu contorno editável; a imagem e a máscara 2D permanecem inalteradas."
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "Para experimentar a tela sem dados próprios, **Carregar dados de teste...** baixa dez campos não segmentados de vacúolos de Toxoplasma, com suas máscaras curadas guardadas à parte em ``ground_truth_masks/``, e abre o primeiro. A seta do mesmo botão oferece uma amostra de campos do conjunto de dados com o qual cada modelo publicado foi treinado."

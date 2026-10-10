@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -46,7 +46,8 @@ msgstr "Paket-, spaCR-, Git- und Plattformversionen;"
 msgid "declared seeds and runtime random-state identifiers."
 msgstr "deklarierte Seeds und Kennungen des Laufzeit-Zufallszustands."
 
-msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt folders stay visible rather than disappearing."
+#, fuzzy
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
 msgstr "Suchbegriffe werden kombiniert: ``adamw plate_03 warning`` zeigt nur Einträge, die alle drei Begriffe irgendwo in Einstellungen, Pfaden, Warnungen, Fehlern oder Umgebungsdaten enthalten. Modul- und Statusfilter können gleichzeitig angewendet werden. Unterbrochene und beschädigte Ordner bleiben sichtbar, statt zu verschwinden."
 
 msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
@@ -58,7 +59,8 @@ msgstr "Klicken Sie mit der rechten Maustaste auf ausgewählte Zeilen, um deren 
 msgid "Storage: pruning and caches"
 msgstr "Speicher: Bereinigung und Caches"
 
-msgid "**Preferences → Storage** keeps the spaCR home folder from growing without bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+#, fuzzy
+msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
 msgstr "**Einstellungen → Speicher** verhindert, dass der spaCR-Basisordner unbegrenzt wächst. Für tägliche Protokolle, Ausführungsprotokolle (``~/.spacr/logs/runs``) und Ausführungsordner (``~/.spacr/runs``) gibt es zwei Grenzen: **Behalten**, ein Alter in Tagen, innerhalb dessen nie etwas gelöscht wird, und **Obergrenze**, eine Größe, oberhalb derer die ältesten der älteren Einträge gelöscht werden (**keine Obergrenze** löscht jeden älteren Eintrag). Die laufende Ausführung und geöffnete Protokolldateien werden nie gelöscht. **Jetzt bereinigen…** listet auf, was die Grenzen löschen würden, und fragt vor dem Löschen nach; es wird nie automatisch bereinigt."
 
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
@@ -71,6 +73,7 @@ msgstr "**Einstellungen → Protokollierung → Protokolldateien** enthält **Al
 msgid "Headless search"
 msgstr "Suche ohne GUI"
 
-msgid ":func:`spacr.run_journal.search_runs` provides the same resilient records without Qt:"
+#, fuzzy
+msgid ":func:`spacr.run_journal.search_runs` returns the same records as the dashboard, including corrupt and interrupted runs, without Qt:"
 msgstr ":func:`spacr.run_journal.search_runs` liefert dieselben robusten Einträge ohne Qt:"
 

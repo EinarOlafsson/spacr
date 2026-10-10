@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -82,6 +82,7 @@ msgstr "स्पष्ट फ़ंक्शन तर्कों के ल�
 msgid "Follow the video"
 msgstr "वीडियो के साथ अभ्यास करें"
 
-msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
+#, fuzzy
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
 msgstr "`AnnData वीडियो <tutorials/#lesson=59_anndata_export>`__ डाउनलोड योग्य मापन उदाहरण के साथ इन नियंत्रणों को क्रम से समझाता है। यह संयुक्त, केवल-कोशिका और केवल-केंद्रक निर्यात दिखाता है और अनुपस्थित-मान नीतियों की तुलना करता है। सामान्य निर्यातक पूरी तरह अनुपस्थित मेटाडेटा को सीधे संभाल लेता है। यदि प्रतिस्थापन फ़ाइल लिखना विफल हो जाता है, तो मौजूदा पूर्ण आउटपुट सुरक्षित रहता है।"
 

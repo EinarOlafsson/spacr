@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -46,7 +46,8 @@ msgstr "पैकेज, spaCR, Git और प्लेटफ़ॉर्म स
 msgid "declared seeds and runtime random-state identifiers."
 msgstr "घोषित सीड और रनटाइम रैंडम-अवस्था पहचानकर्ता।"
 
-msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt folders stay visible rather than disappearing."
+#, fuzzy
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
 msgstr "खोज शब्द संयुक्त रूप से लागू होते हैं: ``adamw plate_03 warning`` केवल वे रिकॉर्ड दिखाता है जिनमें तीनों शब्द सेटिंग्स, पथों, चेतावनियों, विफलताओं या परिवेश डेटा में कहीं भी हों। मॉड्यूल और स्थिति फ़िल्टर एक साथ लागू किए जा सकते हैं। बाधित और दूषित फ़ोल्डर गायब होने के बजाय दिखाई देते रहते हैं।"
 
 msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
@@ -58,7 +59,8 @@ msgstr "चुनी गई पंक्तियों पर राइट-क�
 msgid "Storage: pruning and caches"
 msgstr "भंडारण: छँटाई और कैश"
 
-msgid "**Preferences → Storage** keeps the spaCR home folder from growing without bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+#, fuzzy
+msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
 msgstr "**प्राथमिकताएं → भंडारण** spaCR होम फ़ोल्डर को असीमित बढ़ने से रोकता है। दैनिक लॉग, रन लॉग (``~/.spacr/logs/runs``) और रन फ़ोल्डरों (``~/.spacr/runs``) के लिए यह दो सीमाएँ रखता है: **रखें**, दिनों में एक आयु जिसके भीतर कुछ भी कभी नहीं हटाया जाता, और **ऊपरी सीमा**, एक आकार जिसके ऊपर पुरानी प्रविष्टियों में सबसे पुरानी हटाई जाती हैं (**कोई सीमा नहीं** हर पुरानी प्रविष्टि हटा देता है)। चल रहा रन और खुली लॉग फ़ाइलें कभी नहीं हटाई जातीं। **अभी छाँटें…** बताता है कि सीमाएँ क्या हटाएँगी और हटाने से पहले पूछता है; कुछ भी स्वचालित रूप से नहीं छाँटा जाता।"
 
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
@@ -71,6 +73,7 @@ msgstr "**प्राथमिकताएं → लॉगिंग → लॉ
 msgid "Headless search"
 msgstr "हेडलेस खोज"
 
-msgid ":func:`spacr.run_journal.search_runs` provides the same resilient records without Qt:"
+#, fuzzy
+msgid ":func:`spacr.run_journal.search_runs` returns the same records as the dashboard, including corrupt and interrupted runs, without Qt:"
 msgstr ":func:`spacr.run_journal.search_runs` Qt के बिना वही भरोसेमंद रिकॉर्ड प्रदान करता है:"
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -34,7 +34,8 @@ msgstr "निष्पादन प्रोफ़ाइल बताती ह
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
 
-msgid "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code."
+#, fuzzy
+msgid "Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a detached background process (output redirected to a log, stdin closed) so it continues if the SSH connection drops, and records its exit code."
 msgstr "छोटी निर्धारित सेटिंग JSON को SSH पर अपलोड करता है, एक टिकाऊ बैकग्राउंड प्रक्रिया में ``spacr-run`` शुरू करता है और उसका निकास कोड दर्ज करता है।"
 
 msgid "``Slurm cluster``"
@@ -46,7 +47,8 @@ msgstr "सेटिंग्स अपलोड करता है, एक ``s
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
 
-msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a safe job identifier and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
+#, fuzzy
+msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "विन्यस्त सबमिट/स्थिति/रद्द तर्क टेम्पलेट चलाता है। यह spaCR में विक्रेता क्रेडेंशियल डाले बिना क्लाउड CLI और साइट-विशिष्ट शेड्यूलर का समर्थन करता है। कमांड को एक सुरक्षित कार्य पहचानकर्ता छापना चाहिए और स्थिति कमांड को ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` या ``CANCELLED`` जैसी पारंपरिक स्थिति छापनी चाहिए।"
 
 msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."

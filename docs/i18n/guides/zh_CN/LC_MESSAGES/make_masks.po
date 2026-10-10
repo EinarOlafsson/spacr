@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -92,6 +92,14 @@ msgstr "使用 **保留** 或 **放弃** 记录视野级的整理结论并前进
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
 msgstr "**保存掩膜**、**上一张图像** 和 **下一张图像** 与编辑工具共用顶部操作栏。窗口较窄时，可水平滚动此栏以访问可见区域以外的控件。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "位于 **下一张图像** 之后的 **导航时保存** 会在 **保留**、**放弃**、**下一张图像** 或 **上一张图像** 切换之前保存已编辑的掩膜。该选项默认关闭，并在会话之间保留。如果保存失败，图像保持打开，且不记录任何判定。**跳过** 从不写入掩膜。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged."
+msgstr "**打开 3D 图像…** 会在 3D 掩膜编辑器中打开具有三个空间轴的 TIFF；时间、通道和 RGB 堆栈会被拒绝。旋转视图并绘制对象，然后拖动其锚点，或选择表面（Ctrl-click 可选择多个）并拖动它们或转动鼠标滚轮。**锚点密度** 设置每条边和每个表面上的锚点数量，**显示锚点** 可将锚点隐藏。编辑会直接更改掩膜体素本身，保留图像的轴顺序和体素间距，并且绝不会覆盖其他对象。**保存 3D 掩膜** 写入标签及其可编辑边界；2D 图像和掩膜保持不变。"
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。同一按钮上的箭头可打开每个已发布模型所用训练数据集中的视野样本。"

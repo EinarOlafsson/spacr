@@ -11,20 +11,24 @@ settings and **F11** for full screen, followed by the keys of the screen you
 are on.
 
 To change a key, choose **Change shortcuts…** in the cheat sheet. The
-**Change shortcuts** window has one row per window-wide action, with its
+**Change shortcuts** window has one row per action, with its
 **Default** key and the **Shortcut** in use. Click a shortcut and press the
 new key, or clear it to leave the action without a key. **Restore defaults**
 puts every row back to its default key.
 
-If a key is already used by another action, or by a key of one of the
-screens, the line under the table names the actions that share it, and
+If a key is already used by another action that is active at the same
+time, the line under the table names the actions that share it, and
 **Save** stays unavailable until the conflict is resolved. Saved keys apply
 straight away, also to the matching menu items, and the cheat sheet shows
 them. They are kept with your preferences and read the same on Linux, macOS
 and Windows.
 
-Keys that belong to one screen, such as Annotate's labelling keys or the
-Make Masks editing keys, are listed in the cheat sheet but cannot be changed.
+Keys that belong to one screen, such as Annotate's labelling keys, the Make
+Masks editing keys and the field browser's keys, have their own rows, with
+the screen named in the **Scope** column. A screen key may match a key of
+another screen, but not a window-wide key or another key on the same screen.
+Changed screen keys apply at once to screens that are open and to screens
+opened later, and the screen's key legend shows them.
 
 Settings templates
 ------------------

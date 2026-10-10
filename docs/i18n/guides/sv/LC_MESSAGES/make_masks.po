@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -92,6 +92,14 @@ msgstr "Använd **Behåll** eller **Kassera** för att registrera ett kureringsb
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
 msgstr "**Spara mask**, **Föregående bild** och **Nästa bild** finns på den översta åtgärdsraden tillsammans med redigeringsverktygen. Rulla raden i sidled i ett smalt fönster för att nå kontroller utanför det synliga området."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**Spara vid navigering**, efter **Nästa bild**, sparar en redigerad mask innan **Behåll**, **Kassera**, **Nästa bild** eller **Föregående bild** går vidare. Det är avstängt som standard och kommer ihåg mellan sessioner. Om sparningen misslyckas förblir bilden öppen och inget beslut registreras. **Hoppa över** skriver aldrig någon mask."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged."
+msgstr "**Öppna 3D-bild…** öppnar en TIFF med tre rumsliga axlar i 3D-maskredigeraren; tids-, kanal- och RGB-stackar avvisas. Rotera vyn, rita ett objekt och dra sedan dess ankare, eller markera ytor (Ctrl-click för flera) och dra dem eller vrid på mushjulet. **Ankartäthet** anger hur många ankare varje kant och yta får, och med **Visa ankare** kan de döljas. Redigeringar ändrar själva maskens voxlar, behåller bildens axelordning och voxelavstånd och skriver aldrig över ett annat objekt. **Spara 3D-mask** skriver etiketterna och deras redigerbara gräns; 2D-bilden och masken förblir oförändrade."
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "För att prova skärmen utan egna data laddar **Ladda testdata...** ner tio osegmenterade fält med Toxoplasma-vakuoler, med deras kurerade masker undanlagda i ``ground_truth_masks/``, och öppnar det första. Pilen på samma knapp erbjuder ett urval fält från den datamängd som varje publicerad modell tränades på."

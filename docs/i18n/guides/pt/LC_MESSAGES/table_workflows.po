@@ -1,5 +1,5 @@
 # spaCR user guide translation (pt).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -225,6 +225,10 @@ msgstr "**Polígono pela vista**: clique nos cantos na tela e depois clique nova
 
 msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
 msgstr "**Elipsoide com alças** e **Caixa com alças**: arraste um retângulo sobre uma população e a forma é ajustada aos objetos que ele enquadra. Puxe uma alça de face ou de raio para redimensioná-la, ou arraste a alça central para movê-la. Gates desenhados através da vista também se movem pela alça central."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's shape. Every edge and surface carries evenly spaced anchors, including along the depth axis. Drag an anchor, or click a surface (Ctrl-click for several) and drag or turn the mouse wheel to move the selected surfaces together. The axis list beside **Edit** limits the movement to X, Y, Z or the view plane. **Anchor density** and **Show gate anchors** in the gate settings set how many anchors appear and whether they show; neither changes the gate. A curved gate becomes a piecewise-linear boundary at its first edit, and counts and exports use that edited boundary. Edited gates are saved and loaded with the gate file, and **Undo** and **Redo** step through the edits."
+msgstr "Escolha **Editar** ao lado de **Girar** e **Desenhar** para alterar a forma de um gate 3D desenhado. Cada aresta e cada superfície têm âncoras espaçadas uniformemente, inclusive ao longo do eixo de profundidade. Arraste uma âncora, ou clique em uma superfície (Ctrl-click para várias) e arraste ou gire a roda do mouse para mover juntas as superfícies selecionadas. A lista de eixos ao lado de **Editar** limita o movimento a X, Y, Z ou ao plano da vista. **Densidade de âncoras** e **Mostrar âncoras dos gates**, nas configurações de gate, definem quantas âncoras aparecem e se são exibidas; nenhum dos dois altera o gate. Um gate curvo se torna um contorno linear por partes na primeira edição, e as contagens e exportações usam esse contorno editado. Os gates editados são salvos e carregados com o arquivo de gates, e **Desfazer** e **Refazer** percorrem as edições passo a passo."
 
 msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
 msgstr "Enquanto você desenha ou ajusta uma forma, os objetos dentro dela ficam destacados. Clique duas vezes no nome de um gate na tabela de gates para renomeá-lo; os gates construídos a partir dele seguem o novo nome. Gates desenhados em 3D são salvos, carregados e exportados como os gates 2D, com as mesmas colunas de pertencimento."

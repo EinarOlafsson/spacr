@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -92,6 +92,14 @@ msgstr "फ़ील्ड-स्तरीय क्यूरेशन निर
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
 msgstr "**मास्क सहेजें**, **पिछली छवि** और **अगली छवि** संपादन उपकरणों के साथ ऊपर की एक ही कार्रवाई पंक्ति में हैं। संकरी विंडो में दिखाई न देने वाले नियंत्रण तक पहुँचने के लिए इस पंक्ति को क्षैतिज रूप से स्क्रॉल करें।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**अगली छवि** के बाद स्थित **नेविगेट करते समय सहेजें**, **रखें**, **त्यागें**, **अगली छवि** या **पिछली छवि** के आगे बढ़ने से पहले संपादित मास्क को सहेजता है। यह डिफ़ॉल्ट रूप से बंद रहता है और सत्रों के बीच याद रखा जाता है। यदि सहेजना विफल हो, तो छवि खुली रहती है और कोई निर्णय दर्ज नहीं होता। **छोड़ें** कभी मास्क नहीं लिखता।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged."
+msgstr "**3D छवि खोलें…** तीन स्थानिक अक्षों वाली TIFF को 3D मास्क संपादक में खोलता है; समय, चैनल और RGB स्टैक अस्वीकार किए जाते हैं। दृश्य घुमाएँ, कोई ऑब्जेक्ट बनाएँ, फिर उसके एंकर खींचें, या सतहें चुनें (कई के लिए Ctrl-click) और उन्हें खींचें या माउस व्हील घुमाएँ। **एंकर घनत्व** तय करता है कि हर किनारे और सतह को कितने एंकर मिलें, और **एंकर दिखाएँ** से उन्हें छिपाया जा सकता है। संपादन मास्क के वॉक्सेल को ही बदलते हैं, छवि का अक्ष क्रम और वॉक्सेल अंतराल बनाए रखते हैं, और किसी दूसरे ऑब्जेक्ट को कभी अधिलेखित नहीं करते। **3D मास्क सहेजें** लेबल और उनकी संपादन योग्य सीमा लिखता है; 2D छवि और मास्क अपरिवर्तित रहते हैं।"
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "अपने डेटा के बिना स्क्रीन आज़माने के लिए **परीक्षण डेटा लोड करें...** दस बिना विभाजित टोक्सोप्लाज़्मा रिक्तिका फ़ील्ड डाउनलोड करता है, उनके क्यूरेट किए गए मास्क ``ground_truth_masks/`` में अलग रखता है, और पहला फ़ील्ड खोलता है। उसी बटन पर बना तीर हर प्रकाशित मॉडल जिस डेटासेट पर प्रशिक्षित हुआ उससे फ़ील्ड का एक नमूना प्रस्तुत करता है।"

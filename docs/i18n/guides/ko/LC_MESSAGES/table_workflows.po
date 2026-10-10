@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -225,6 +225,10 @@ msgstr "**뷰를 관통하는 다각형** : 화면에서 꼭짓점을 클릭한 
 
 msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
 msgstr "**핸들이 있는 타원체** 와 **핸들이 있는 상자** : 집단 위로 사각형을 끌면 모양이 그 안의 객체에 맞춰집니다. 면 또는 반지름 핸들을 당겨 크기를 바꾸거나, 가운데 핸들을 끌어 이동합니다. 보기를 관통해 그린 게이트도 가운데 핸들로 이동합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's shape. Every edge and surface carries evenly spaced anchors, including along the depth axis. Drag an anchor, or click a surface (Ctrl-click for several) and drag or turn the mouse wheel to move the selected surfaces together. The axis list beside **Edit** limits the movement to X, Y, Z or the view plane. **Anchor density** and **Show gate anchors** in the gate settings set how many anchors appear and whether they show; neither changes the gate. A curved gate becomes a piecewise-linear boundary at its first edit, and counts and exports use that edited boundary. Edited gates are saved and loaded with the gate file, and **Undo** and **Redo** step through the edits."
+msgstr "그린 3D 게이트의 모양을 바꾸려면 **회전** 및 **그리기** 옆의 **편집** 을 선택합니다. 모든 모서리와 표면에는 깊이 축 방향을 포함하여 균일한 간격의 앵커가 있습니다. 앵커를 끌거나, 표면을 클릭하고(여러 개는 Ctrl-click) 끌거나 마우스 휠을 돌려 선택한 표면을 함께 이동합니다. **편집** 옆의 축 목록은 이동을 X, Y, Z 또는 보기 평면으로 제한합니다. 게이트 설정의 **앵커 밀도** 와 **게이트 앵커 표시** 는 표시되는 앵커 수와 표시 여부를 설정하며, 둘 다 게이트를 변경하지 않습니다. 곡선 게이트는 처음 편집할 때 구간별 선형 경계가 되며, 개수 집계와 내보내기에는 이 편집된 경계가 사용됩니다. 편집한 게이트는 게이트 파일과 함께 저장되고 로드되며, **실행 취소** 와 **다시 실행** 으로 편집 내용을 단계별로 오갈 수 있습니다."
 
 msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
 msgstr "모양을 그리거나 조정하는 동안 그 안의 객체가 강조 표시됩니다. 게이트 표에서 게이트 이름을 두 번 클릭하면 이름을 바꿀 수 있으며, 이를 바탕으로 만든 게이트도 새 이름을 따릅니다. 3D로 그린 게이트는 2D 게이트와 마찬가지로 같은 소속 열과 함께 저장, 로드, 내보내기됩니다."

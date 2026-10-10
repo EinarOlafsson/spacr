@@ -1,5 +1,5 @@
 # spaCR user guide translation (sv).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -225,6 +225,10 @@ msgstr "**Polygon genom vyn**: klicka ut hörnen på skärmen och klicka sedan p
 
 msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
 msgstr "**Ellipsoid med handtag** och **Låda med handtag**: dra en rektangel över en population så anpassas formen till de objekt den ramar in. Dra i ett sid- eller radiehandtag för att ändra storleken, eller dra i mitthandtaget för att flytta den. Grindar som ritats genom vyn flyttas också med sitt mitthandtag."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's shape. Every edge and surface carries evenly spaced anchors, including along the depth axis. Drag an anchor, or click a surface (Ctrl-click for several) and drag or turn the mouse wheel to move the selected surfaces together. The axis list beside **Edit** limits the movement to X, Y, Z or the view plane. **Anchor density** and **Show gate anchors** in the gate settings set how many anchors appear and whether they show; neither changes the gate. A curved gate becomes a piecewise-linear boundary at its first edit, and counts and exports use that edited boundary. Edited gates are saved and loaded with the gate file, and **Undo** and **Redo** step through the edits."
+msgstr "Välj **Redigera** bredvid **Vrid** och **Rita** för att ändra formen på en ritad 3D-gate. Varje kant och yta har jämnt fördelade ankare, även längs djupaxeln. Dra ett ankare, eller klicka på en yta (Ctrl-click för flera) och dra eller vrid på mushjulet för att flytta de markerade ytorna tillsammans. Axellistan bredvid **Redigera** begränsar rörelsen till X, Y, Z eller vyplanet. **Ankartäthet** och **Visa gateankare** i gateinställningarna anger hur många ankare som visas och om de syns; ingen av dem ändrar gaten. En böjd gate blir en styckvis linjär gräns vid första redigeringen, och räkningar och exporter använder den redigerade gränsen. Redigerade gates sparas och läses in med gatefilen, och med **Ångra** och **Gör om** stegar du genom redigeringarna."
 
 msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
 msgstr "Medan du ritar eller justerar en form markeras objekten inuti den. Dubbelklicka på en grinds namn i grindtabellen för att byta namn på den; grindar som byggts av den följer det nya namnet. Grindar som ritats i 3D sparas, läses in och exporteras som 2D-grindar, med samma medlemskapskolumner."

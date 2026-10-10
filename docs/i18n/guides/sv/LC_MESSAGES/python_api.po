@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -32,8 +32,8 @@ msgstr "Installera spaCR"
 msgid "Use the typed workflow configuration"
 msgstr "Använd den typade arbetsflödeskonfigurationen"
 
-msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
-msgstr "API:ts toppnivå innehåller ett litet, stabilt gränssnitt för de viktigaste arbetsflödena. Typade fält täcker de val som de flesta skript gör; ``extra`` tar emot avancerade inställningar men vägrar ett andra värde för ett befintligt typat fält."
+msgid "The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with ``run_mask`` and ``run_measure``. Typed fields cover the commonly set options; ``extra`` accepts any other setting and raises ``ValueError`` if it repeats a typed field."
+msgstr ""
 
 msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
 msgstr "Anropa ``mask.to_settings()`` när en fullständig ordlista behövs för en sparad inställningsfil. Den expanderas via samma standardvärden som GUI:t använder."
@@ -62,7 +62,8 @@ msgstr "Mätning skriver ``measurements/measurements.db`` och de upplösta inst�
 msgid "Run the same contract from a shell"
 msgstr "Kör samma kontrakt från ett skal"
 
-msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
+#, fuzzy
+msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
 msgstr "Kommandot utan grafiskt gränssnitt är användbart i en schemaläggare eftersom det validerar inställningarnas namn och värden innan den tunga pipelinestacken importeras."
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -76,7 +77,8 @@ msgstr "Booleska värden i CSV-filer med inställningar är skiftlägesokänslig
 msgid "Command-line overrides are applied after the file:"
 msgstr "Åsidosättningar på kommandoraden tillämpas efter filen:"
 
-msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+#, fuzzy
+msgid "Unknown settings and values that cannot be converted are refused; an unknown name is reported with the closest known setting when one exists. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
 msgstr "Okända inställningar och värden som inte kan konverteras avvisas med ett förslag. Använd ``spacr-doctor`` när problemet är miljön snarare än en inställning."
 
 msgid "Continue from notebooks"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: sv\n"
@@ -22,7 +22,8 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "Kontrollpunkter och återupptagning"
 
-msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+#, fuzzy
+msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
 msgstr "spaCR sparar kontrollpunkter för långvarigt arbete först när en säker enhet är klar. En kontrollpunkt innebär aldrig att en skrivning avbryts halvvägs: den innebär att ett senare anrop kan visa vilka fält, försök eller plattjobb som blev klara och fortsätta efter dem. Qt-knappen **Stoppa** använder samma gränser: den begär samarbetsvillig avbrytning, låter den aktuella säkra enheten bli klar och behåller kontrollpunkten till nästa körning. Se :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
@@ -43,7 +44,8 @@ msgstr "Aktivera ``resume`` under **Postprocessing → Körning och tillförlitl
 msgid "Format Converter"
 msgstr "Formatkonverterare"
 
-msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+#, fuzzy
+msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
 msgstr "Aktivera reglaget **Återuppta** i Apple-stil. Konverteraren skriver ``.spacr_conversion.checkpoint.json`` efter att ett helt fält är klart. Återupptagningen öppnar varje måls TIFF-metadata igen innan fältet godtas och reparerar atomiskt ett saknat eller skadat mål. Källans identitet och hela mappningsplanen måste stämma."
 
 msgid "Image UMAP search"

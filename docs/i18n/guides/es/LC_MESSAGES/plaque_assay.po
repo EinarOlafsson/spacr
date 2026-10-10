@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -166,7 +166,8 @@ msgstr "Cambiar la selección mientras se ejecuta una vista previa"
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "Cambiar el origen, la imagen seleccionada o el modo abandona la vista previa anterior. Su resultado tardío no puede sustituir la vista recién seleccionada. Una carpeta de origen vacía borra la máscara, las vistas de objetos y las tablas de figuras anteriores. Inicie una nueva vista previa para la selección deseada después de que se cargue. La cancelación descarta el resultado anterior; la llamada al modelo en curso termina antes de que **Ejecutar vista previa** y los controles de pocillos vuelvan a estar disponibles. Espere a esos controles antes de volver a ejecutar con otra configuración."
 
-msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving happens in the background so the image remains responsive; a queued save is not yet a completed write."
+#, fuzzy
+msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
 msgstr "Después de elegir **Guardar anotaciones**, espere la confirmación de guardado en el estado de la vista previa antes de iniciar el análisis por lotes. El guardado se realiza en segundo plano para que la imagen siga respondiendo; un guardado en cola todavía no es una escritura completada."
 
 msgid "Python preview contracts"

@@ -2,7 +2,7 @@
 REBINDABLE SHORTCUTS
 ================================================================================
 
-Status:    OPEN 2026-10-10 — per-screen rebinding and nine-language captions published; user-guide page update pending.
+Status:    OPEN 2026-10-10 — implementation, captions, API page and user guide published; only a native macOS/Windows key check by the maintainer is left
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -43,3 +43,13 @@ one report-only compact XFAIL predates this item: N677's Organism tour
 paragraph, Box tool, spaCR blobs). Left: docs/source/shortcuts_and_templates.rst
 still says per-screen keys cannot be changed; update it and its nine guide
 catalogs. No native-speaker review; no native macOS/Windows key check.
+
+2026-10-10 — Docs and API follow-up. The module docstring's rewritten
+paragraph has reviewed API translations in nine locales (retired the old
+records in place) and the API catalogs were regenerated (36579507d).
+tests/qt/test_screen_shortcut_rebinding.py's no-application test now asserts
+nothing is refreshed (suite-hygiene guard). docs/source/shortcuts_and_templates.rst
+now describes per-screen rows, the Scope column and same-screen conflicts,
+with reviewed translations in all nine guide catalogs. Left: press-testing
+rebound keys on native macOS and Windows (Cmd/Ctrl mapping), which needs the
+maintainer's machines.

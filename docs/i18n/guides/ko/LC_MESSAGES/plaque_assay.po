@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -166,7 +166,8 @@ msgstr "미리보기 실행 중 선택 변경"
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "소스, 선택한 이미지 또는 모드를 바꾸면 이전 미리보기는 폐기됩니다. 늦게 도착한 이전 결과는 새로 선택한 뷰를 대체할 수 없습니다. 빈 소스 폴더는 이전 마스크, 객체 뷰, 그림 표를 지웁니다. 로드가 끝나면 원하는 선택에 대해 새 미리보기를 시작합니다. 취소하면 이전 결과가 버려지며, 현재 모델 호출이 끝나야 **미리보기 실행** 과 웰 컨트롤을 다시 사용할 수 있습니다. 변경한 설정으로 다시 실행하기 전에 이 컨트롤이 사용 가능해질 때까지 기다립니다."
 
-msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving happens in the background so the image remains responsive; a queued save is not yet a completed write."
+#, fuzzy
+msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
 msgstr "**주석 저장** 을 선택한 후에는 일괄 분석을 시작하기 전에 미리보기 상태에 저장 확인이 표시될 때까지 기다립니다. 저장은 백그라운드에서 이루어지므로 이미지는 계속 반응하지만, 대기 중인 저장은 아직 완료된 쓰기가 아닙니다."
 
 msgid "Python preview contracts"

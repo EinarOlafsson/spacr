@@ -2,7 +2,7 @@
 FIGURE PREFERENCES THAT CONTROL EVERY FIGURE; RIGHT-CLICK CHANGE-GRAPH; ONE ZIP
 ================================================================================
 
-Status:    DONE 2026-10-05 — parts A, B and C landed.
+Status:    OPEN 2026-10-10 — native training and line exports published; parity audit of the remaining figure producers is left
 Requested: 2026-10-04 — "make sure the figure settings in preferences actually
            control figures in spacr and are comprehensive enough. The user
            should always be able to right click and change parameters for
@@ -401,3 +401,18 @@ PART C — WHAT IS LEFT
 
 2026-10-08 Home current CI follow-up:
 Drawn-row CSV correctness child repaired and tested: single regression sidecars contain exact renderer panel.data rather than fullinput with unusedIntercept; editable ZIP retains fullsource data.csv and separately exports drawn_data.csv. Retyping clears stale drawnrows and failed retype restores olddrawn data. Included in final395PASS current-source cohort; prior focused source-added25 executablelines and touchingarcs observed. API/runtime allmaps unchanged. Workstation preserve this child with private producer-wide training/source export repair; parentN658 remains OPEN.
+
+2026-10-10 — Codex's private 4a6d8aa92 (native training-curve and grouped/
+numeric line recipes: spacr/figures/bundle.py, spacr/plot.py,
+spacr/train_compare.py, spacr/qt/screens/train_compare.py and three new
+recipe test files) ported onto nightly. One conflict in bundle._save_zip was
+resolved by keeping both the newer drawn_data.csv sidecar and Codex's
+canonicalise=False source CSV (the drawn rows are now also written without
+renaming, so the two CSVs share column names). Public callable contracts are
+unchanged. Checks (CUDA hidden, offscreen): the four owning files plus every
+bundle/recipe/drawn test 265 PASS; every figure, plot, graph, training and
+zip test 3,916 PASS. Four figure-writer guards fail identically on nightly
+before this change (raw savefig in plot.py, picture_export.save_picture,
+gene_measurement_sweep ALLOWED entry) and belong to F572. Left: audit the
+remaining figure producers for native export parity; no producer list
+exists yet, so this item stays open.

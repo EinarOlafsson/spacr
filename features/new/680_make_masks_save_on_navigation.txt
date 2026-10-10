@@ -2,7 +2,7 @@
 OPTIONAL SAVE ON NAVIGATION IN MAKE MASKS
 ================================================================================
 
-Status:    COMPLETE 100% 2026-10-10 — published on nightly with nine-language captions
+Status:    COMPLETE 100% 2026-10-10 — published on nightly with nine-language captions and user guide
 Requested: 2026-10-08 — save edited masks before leaving with Keep, Next or Previous
 Owner:     Home CPU Qt lane; workstation owns translated captions and guides
 
@@ -52,3 +52,6 @@ run_capped 8G/16G, CUDA hidden, offscreen: 25 save-on-navigation and Box
 boundary cases PASS; all Make Masks Qt files PASS; i18n catalog, caption
 ratchet/arrival and syntax guards PASS (pre-existing report-only XFAILs only).
 No native-speaker review of the two captions; no hosted CI claim.
+
+2026-10-10 — docs/source/make_masks.rst describes Save on navigation, with
+reviewed translations in all nine guide catalogs.

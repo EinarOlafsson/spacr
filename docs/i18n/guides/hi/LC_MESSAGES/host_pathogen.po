@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -88,7 +88,8 @@ msgstr "रिपोर्ट की व्याख्या करें"
 msgid "The output directory ``results/host_pathogen`` contains ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` and the exact ``settings.json``. With multiple input projects, the combined report is saved under the first project. Database paths separate sources even when plate or field identifiers repeat."
 msgstr "आउटपुट निर्देशिका ``results/host_pathogen`` में ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` और सटीक ``settings.json`` होते हैं। कई इनपुट प्रोजेक्ट होने पर संयुक्त रिपोर्ट पहले प्रोजेक्ट के अंतर्गत सहेजी जाती है। प्लेट या फ़ील्ड पहचानकर्ता दोहराए जाने पर भी डेटाबेस पथ स्रोतों को अलग रखते हैं।"
 
-msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These denominators answer different questions and should be reported explicitly."
+#, fuzzy
+msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These fractions use different denominators, so report each denominator explicitly."
 msgstr "असंबद्ध रिक्तिकाएँ तथा अनुपस्थित, अमान्य या शून्य मेज़बान-संदर्भ तीव्रताएँ अज्ञात मार्कर स्थितियाँ देती हैं। संयुक्त मार्कर अंशों के हर में अज्ञात रिक्तिकाएँ शामिल होती हैं; प्रतिकृति अंश केवल गिनती वाली रिक्तिकाओं का उपयोग करते हैं। मेज़बान संक्रमण अंश सुरक्षित रखी गई मापी गई मेज़बान कोशिकाओं का वर्णन करते हैं। ये हर अलग-अलग प्रश्नों का उत्तर देते हैं और रिपोर्ट में इन्हें स्पष्ट रूप से बताया जाना चाहिए।"
 
 msgid "For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and :func:`spacr.host_pathogen.summarize_tables`. The headless module name is ``host_pathogen`` in ``spacr-run``."

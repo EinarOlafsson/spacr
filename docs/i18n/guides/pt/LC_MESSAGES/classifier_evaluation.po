@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: pt\n"
@@ -22,7 +22,8 @@ msgstr ""
 msgid "Classifier evaluation workbench"
 msgstr "Bancada de avaliação de classificadores"
 
-msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead, because judging a classifier is the sentence after training one. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
+#, fuzzy
+msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
 msgstr "A validação cruzada de classificadores mantém cada probabilidade fora da dobra, em vez de reduzir uma dobra a um único número de acurácia. A bancada não tem bloco próprio: ela é aberta pelo cabeçalho de **Classificar**, porque julgar um classificador é o passo seguinte ao seu treinamento. Clique ali em **Avaliação do classificador** e solte uma pasta de modelo/resultados na página. A varredura roda em segundo plano e encontra cada ``evaluation_manifest.json`` abaixo dessa pasta."
 
 msgid "The workbench shows:"
@@ -67,7 +68,8 @@ msgstr "Validação cruzada agrupada e aninhada"
 msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
 msgstr "``cross_validation_folds`` controla as dobras externas e ``cv_group_by`` mantém juntos os campos, poços ou placas relacionados. O padrão é a validação cruzada agrupada por poço. Defina ``nested_cv_inner_folds`` como dois ou mais para ativar uma validação cruzada realmente aninhada."
 
-msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This is fast and useful for routine comparisons, but can give a slightly optimistic estimate when many choices are made against that fold."
+#, fuzzy
+msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
 msgstr "Na validação cruzada comum, a dobra de validação externa é usada para a seleção do ponto de verificação e para o desempenho informado. Isso é rápido e útil para comparações rotineiras, mas pode gerar uma estimativa um pouco otimista quando muitas escolhas são feitas com base nessa dobra."
 
 msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
@@ -76,7 +78,8 @@ msgstr "Na validação cruzada aninhada, cada partição de treinamento externa 
 msgid "Leakage protection"
 msgstr "Proteção contra vazamento"
 
-msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises an actionable error before model fitting. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
+#, fuzzy
+msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises ``LeakageError`` before model fitting; the message lists the overlap counts per level. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
 msgstr "Antes do treinamento, o spaCR verifica os caminhos exatos, as famílias de aumento, os objetos e o nível de agrupamento configurado dos dois lados de cada divisão. Com ``evaluation_fail_on_leakage=True`` (o padrão), qualquer sobreposição protegida gera um erro com orientação antes do ajuste do modelo. Os aumentos são gerados após a divisão, de modo que cópias transformadas não podem entrar em uma dobra reservada."
 
 msgid "Temperature calibration"

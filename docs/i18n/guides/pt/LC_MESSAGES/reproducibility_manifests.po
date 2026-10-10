@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: pt\n"
@@ -37,7 +37,8 @@ msgstr "As configurações resolvidas completas usadas pelo pipeline."
 msgid "``manifest.json``"
 msgstr "``manifest.json``"
 
-msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and an exception traceback."
+#, fuzzy
+msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and, for a failed run, the exception traceback."
 msgstr "Um registro versionado, gravado de forma atômica, com o módulo, os carimbos de data/hora, o status, o hash das configurações, as sementes aleatórias declaradas, os identificadores de estado aleatório de Python/NumPy/Torch, as versões do spaCR e do Git, as versões de todos os pacotes instalados, os hashes de modelos, entradas e saídas, os avisos e um rastreamento da exceção."
 
 msgid "``log.txt``"
@@ -67,7 +68,8 @@ msgstr "Proveniência dos arquivos"
 msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
 msgstr "O spaCR descobre recursivamente os caminhos existentes nas configurações, inclusive caminhos aninhados em listas de placas. Cada arquivo de entrada comum recebe um resumo SHA-256 completo, o tamanho, o carimbo de data/hora de modificação e a chave de configuração que o selecionou. Os arquivos criados ou modificados sob essas raízes durante a execução são registrados como saídas. Links simbólicos, pastas de controle de versão, caches e o próprio diário de execuções são excluídos."
 
-msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. These make it cheap to establish whether two complete sets match while retaining the per-file records needed to locate a difference."
+#, fuzzy
+msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. Comparing these single digests shows whether two complete sets match; the per-file records identify which files differ."
 msgstr "O manifesto também inclui os valores agregados determinísticos ``input_tree_sha256`` e ``output_tree_sha256``. Eles permitem verificar com pouco custo se dois conjuntos completos coincidem, mantendo os registros por arquivo necessários para localizar uma diferença."
 
 msgid "Crash and failure behavior"

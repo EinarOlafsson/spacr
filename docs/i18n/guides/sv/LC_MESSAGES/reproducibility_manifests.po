@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: sv\n"
@@ -37,7 +37,8 @@ msgstr "De fullständiga upplösta inställningar som pipelinen använde."
 msgid "``manifest.json``"
 msgstr "``manifest.json``"
 
-msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and an exception traceback."
+#, fuzzy
+msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and, for a failed run, the exception traceback."
 msgstr "En versionerad, atomiskt skriven post med modul, tidsstämplar, status, inställningshash, deklarerade slumpfrön, identifierare för slumptillstånd i Python/NumPy/Torch, spaCR- och Git-versioner, versioner av alla installerade paket, modellhashar, indatahashar, utdatahashar, varningar och en undantagsspårning (traceback)."
 
 msgid "``log.txt``"
@@ -67,7 +68,8 @@ msgstr "Filhärkomst"
 msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
 msgstr "spaCR hittar rekursivt befintliga sökvägar i inställningarna, även sökvägar som ligger i plattlistor. Varje vanlig indatafil får en fullständig SHA-256-sammanfattning, storlek, ändringstidsstämpel och den inställningsnyckel som valde den. Filer som skapas eller ändras under dessa rötter under körningen registreras som utdata. Symboliska länkar, versionshanteringsmappar, cachar och själva körningsjournalen undantas."
 
-msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. These make it cheap to establish whether two complete sets match while retaining the per-file records needed to locate a difference."
+#, fuzzy
+msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. Comparing these single digests shows whether two complete sets match; the per-file records identify which files differ."
 msgstr "Manifestet innehåller också deterministiska sammanfattande värden, ``input_tree_sha256`` och ``output_tree_sha256``. De gör det billigt att fastställa om två kompletta uppsättningar stämmer överens, samtidigt som posterna per fil som behövs för att hitta en skillnad behålls."
 
 msgid "Crash and failure behavior"

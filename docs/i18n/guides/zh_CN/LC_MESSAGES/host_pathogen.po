@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -88,7 +88,8 @@ msgstr "解读报告"
 msgid "The output directory ``results/host_pathogen`` contains ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` and the exact ``settings.json``. With multiple input projects, the combined report is saved under the first project. Database paths separate sources even when plate or field identifiers repeat."
 msgstr "输出目录 ``results/host_pathogen`` 包含 ``vacuoles.csv``、``cells.csv``、``wells.csv``、``marker_states.csv``、``replication_distribution.csv``、``orphan_parasites.csv`` 以及确切的 ``settings.json``。有多个输入项目时，合并报告保存在第一个项目下。即使孔板或视野标识重复，数据库路径也能区分来源。"
 
-msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These denominators answer different questions and should be reported explicitly."
+#, fuzzy
+msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These fractions use different denominators, so report each denominator explicitly."
 msgstr "未关联的纳虫泡以及缺失、无效或为零的宿主参照强度会产生未知的标记状态。联合标记比例的分母包含未知纳虫泡；复制比例只使用有计数的纳虫泡。宿主感染比例描述保留的已测量宿主细胞。这些分母回答的是不同的问题，应在报告中明确说明。"
 
 msgid "For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and :func:`spacr.host_pathogen.summarize_tables`. The headless module name is ``host_pathogen`` in ``spacr-run``."

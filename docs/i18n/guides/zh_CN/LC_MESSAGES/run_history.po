@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -46,7 +46,8 @@ msgstr "软件包、spaCR、Git 和平台版本；"
 msgid "declared seeds and runtime random-state identifiers."
 msgstr "声明的随机种子和运行时随机状态标识。"
 
-msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt folders stay visible rather than disappearing."
+#, fuzzy
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
 msgstr "搜索词会组合使用：``adamw plate_03 warning`` 只显示在设置、路径、警告、失败或环境数据中任意位置同时包含这三个词的记录。模块和状态过滤器可以同时应用。中断和损坏的文件夹会保持可见，而不会消失。"
 
 msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
@@ -58,7 +59,8 @@ msgstr "右键单击所选行可打开或删除其文件夹；**全部清除** �
 msgid "Storage: pruning and caches"
 msgstr "存储：清理与缓存"
 
-msgid "**Preferences → Storage** keeps the spaCR home folder from growing without bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+#, fuzzy
+msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
 msgstr "**偏好 → 存储** 可防止 spaCR 主文件夹无限增长。对于每日日志、运行日志（``~/.spacr/logs/runs``）和运行文件夹（``~/.spacr/runs``），它设有两个限制：**保留**，即以天为单位的期限，期限内的内容绝不删除；以及 **上限**，即大小上限，超过时会删除较早条目中最旧的部分（**无上限** 会删除所有较早条目）。正在进行的运行和打开的日志文件绝不会被删除。**立即清理…** 会列出这些限制将删除的内容，并在删除前询问；不会自动清理任何内容。"
 
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
@@ -71,6 +73,7 @@ msgstr "**偏好 → 日志 → 日志文件** 中有 **清空所有日志…** 
 msgid "Headless search"
 msgstr "无界面搜索"
 
-msgid ":func:`spacr.run_journal.search_runs` provides the same resilient records without Qt:"
+#, fuzzy
+msgid ":func:`spacr.run_journal.search_runs` returns the same records as the dashboard, including corrupt and interrupted runs, without Qt:"
 msgstr ":func:`spacr.run_journal.search_runs` 在不使用 Qt 的情况下提供同样可靠的记录："
 

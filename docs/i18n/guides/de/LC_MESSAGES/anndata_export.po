@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: de\n"
@@ -82,6 +82,7 @@ msgstr "Explizite Funktionsargumente finden Sie unter :func:`spacr.anndata_expor
 msgid "Follow the video"
 msgstr "Dem Video folgen"
 
-msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
+#, fuzzy
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
 msgstr "Das `AnnData-Video <tutorials/#lesson=59_anndata_export>`__ führt anhand des herunterladbaren Messbeispiels durch diese Bedienelemente. Es zeigt verknüpfte Exporte sowie reine Zell- und reine Zellkernexporte und vergleicht die Richtlinien für fehlende Werte. Der normale Exporter verarbeitet vollständig fehlende Metadaten direkt. Schlägt das Schreiben einer Ersatzdatei fehl, bleibt eine vorhandene, vollständige Ausgabe erhalten."
 

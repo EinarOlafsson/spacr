@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -32,8 +32,8 @@ msgstr "spaCR installieren"
 msgid "Use the typed workflow configuration"
 msgstr "Die typisierte Workflow-Konfiguration verwenden"
 
-msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
-msgstr "Die API der obersten Ebene enthält eine kleine, stabile Schnittstelle für die wichtigsten Workflows. Typisierte Felder decken die Entscheidungen ab, die die meisten Skripte treffen; ``extra`` nimmt erweiterte Einstellungen an, weist aber einen zweiten Wert für ein bereits vorhandenes typisiertes Feld zurück."
+msgid "The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with ``run_mask`` and ``run_measure``. Typed fields cover the commonly set options; ``extra`` accepts any other setting and raises ``ValueError`` if it repeats a typed field."
+msgstr ""
 
 msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
 msgstr "Rufen Sie ``mask.to_settings()`` auf, wenn für eine gespeicherte Einstellungsdatei ein vollständiges Dictionary benötigt wird. Es wird über dieselben Voreinstellungen erweitert, die auch die GUI verwendet."
@@ -62,7 +62,8 @@ msgstr "Die Messung schreibt ``measurements/measurements.db`` und die aufgelöst
 msgid "Run the same contract from a shell"
 msgstr "Denselben Vertrag aus einer Shell ausführen"
 
-msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
+#, fuzzy
+msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
 msgstr "Der Befehl ohne GUI ist in einem Scheduler nützlich, weil er Einstellungsnamen und -werte validiert, bevor der umfangreiche Pipeline-Stack importiert wird."
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -76,7 +77,8 @@ msgstr "Boolesche Werte in Einstellungs-CSV-Dateien unterscheiden nicht zwischen
 msgid "Command-line overrides are applied after the file:"
 msgstr "Überschreibungen über die Befehlszeile werden nach der Datei angewendet:"
 
-msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+#, fuzzy
+msgid "Unknown settings and values that cannot be converted are refused; an unknown name is reported with the closest known setting when one exists. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
 msgstr "Unbekannte Einstellungen und nicht konvertierbare Werte werden mit einem Vorschlag abgelehnt. Verwenden Sie ``spacr-doctor``, wenn das Problem in der Umgebung und nicht in einer Einstellung liegt."
 
 msgid "Continue from notebooks"

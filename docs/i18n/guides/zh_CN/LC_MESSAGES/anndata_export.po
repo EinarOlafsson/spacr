@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -82,6 +82,7 @@ msgstr "关于显式的函数参数，请参阅 :func:`spacr.anndata_export.expo
 msgid "Follow the video"
 msgstr "观看视频"
 
-msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
+#, fuzzy
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
 msgstr "`AnnData 视频 <tutorials/#lesson=59_anndata_export>`__ 使用可下载的测量示例逐一讲解这些控件。视频展示了联合导出、仅细胞导出和仅细胞核导出，并比较了各种缺失值策略。常规导出器可直接处理完全缺失的元数据。如果写入替换文件失败，现有的已完成输出会被保留。"
 

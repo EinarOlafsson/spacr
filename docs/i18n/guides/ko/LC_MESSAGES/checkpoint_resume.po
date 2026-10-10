@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -22,7 +22,8 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "체크포인트와 재개"
 
-msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+#, fuzzy
+msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
 msgstr "spaCR은 긴 작업에서 안전한 단위가 끝난 뒤에만 체크포인트를 저장합니다. 체크포인트는 쓰기 도중에 강제로 중단한다는 뜻이 아닙니다. 나중에 호출했을 때 어떤 시야, 시행 또는 플레이트 작업이 완료되었는지 증명하고 그 이후부터 계속할 수 있다는 뜻입니다. Qt의 **중지** 버튼도 같은 경계를 사용합니다. 협력적 취소를 요청하고, 현재의 안전한 단위가 끝나도록 한 뒤, 다음 실행을 위해 체크포인트를 유지합니다. :doc:`threading_cancellation_audit` 를 참조합니다."
 
 msgid "Supported workflows"
@@ -43,7 +44,8 @@ msgstr "**Postprocessing → 실행 환경 및 안정성** 에서 ``resume`` 을
 msgid "Format Converter"
 msgstr "형식 변환기"
 
-msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+#, fuzzy
+msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
 msgstr "Apple 스타일의 **재개** 스위치를 켭니다. 변환기는 시야 전체가 완료된 뒤 ``.spacr_conversion.checkpoint.json`` 을 씁니다. 재개 시에는 시야를 수락하기 전에 각 대상의 TIFF 메타데이터를 다시 열고, 누락되었거나 손상된 대상을 원자적으로 복구합니다. 소스 식별 정보와 전체 매핑 계획이 일치해야 합니다."
 
 msgid "Image UMAP search"

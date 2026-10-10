@@ -106,6 +106,20 @@ Open a field and save an edit
 row with the editing tools. Scroll that row horizontally on a narrow window
 to reach controls outside the visible area.
 
+**Save on navigation**, after **Next image**, saves an edited mask before
+**Keep**, **Discard**, **Next image** or **Previous image** moves on. It is
+off by default and remembered between sessions. If the save fails, the image
+stays open and no verdict is recorded. **Skip** never writes a mask.
+
+**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask
+editor; time, channel and RGB stacks are refused. Rotate the view, draw an
+object, then drag its anchors or select surfaces (Ctrl-click for several)
+and drag them or turn the mouse wheel. **Anchor density** sets how many
+anchors each edge and surface gets, and **Show anchors** hides them. Edits
+change the mask voxels themselves, keep the image's axis order and voxel
+spacing, and never overwrite another object. **Save 3D mask** writes the
+labels and their editable boundary; the 2D image and mask stay unchanged.
+
 To try the screen without your own data, **Load test data…** downloads ten
 unsegmented Toxoplasma vacuole fields, with their curated masks kept apart
 in ``ground_truth_masks/``, and opens the first. The arrow on the same

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -22,7 +22,8 @@ msgstr ""
 msgid "Classifier evaluation workbench"
 msgstr "분류기 평가 워크벤치"
 
-msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead, because judging a classifier is the sentence after training one. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
+#, fuzzy
+msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
 msgstr "분류기 교차 검증은 각 폴드를 정확도 숫자 하나로 줄이지 않고 모든 폴드 외(out-of-fold) 확률을 보존합니다. 워크벤치에는 자체 타일이 없습니다. 분류기를 평가하는 일은 학습 바로 다음 단계이므로 **분류** 헤더에서 열립니다. 그곳에서 **분류기 평가** 를 누르고 모델/결과 폴더를 페이지에 끌어다 놓습니다. 검색은 백그라운드에서 실행되며 해당 폴더 아래의 모든 ``evaluation_manifest.json`` 을 찾습니다."
 
 msgid "The workbench shows:"
@@ -67,7 +68,8 @@ msgstr "그룹 교차 검증과 중첩 교차 검증"
 msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
 msgstr "``cross_validation_folds`` 는 외부 폴드를 제어하고, ``cv_group_by`` 는 관련된 시야, 웰 또는 플레이트를 함께 묶어 둡니다. 기본값은 웰 그룹 교차 검증입니다. 진정한 중첩 교차 검증을 사용하려면 ``nested_cv_inner_folds`` 를 2 이상으로 설정합니다."
 
-msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This is fast and useful for routine comparisons, but can give a slightly optimistic estimate when many choices are made against that fold."
+#, fuzzy
+msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
 msgstr "일반 교차 검증에서는 외부 검증 폴드가 체크포인트 선택과 성능 보고에 모두 사용됩니다. 빠르고 일상적인 비교에 유용하지만, 그 폴드에 맞춰 많은 선택을 하면 추정치가 약간 낙관적일 수 있습니다."
 
 msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
@@ -76,7 +78,8 @@ msgstr "중첩 교차 검증에서는 각 외부 학습 분할을 다시 나눕�
 msgid "Leakage protection"
 msgstr "누수 방지"
 
-msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises an actionable error before model fitting. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
+#, fuzzy
+msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises ``LeakageError`` before model fitting; the message lists the overlap counts per level. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
 msgstr "학습 전에 spaCR은 모든 분할의 양쪽에서 정확한 경로, 증강 계열, 객체, 구성된 그룹 수준을 확인합니다. ``evaluation_fail_on_leakage=True`` (기본값)이면 보호 대상의 겹침이 있을 때 모델 적합 전에 조치 가능한 오류가 발생합니다. 증강은 분할 후에 생성되므로 변환된 복사본이 홀드아웃 폴드에 들어갈 수 없습니다."
 
 msgid "Temperature calibration"

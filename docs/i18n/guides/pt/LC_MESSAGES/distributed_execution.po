@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -34,7 +34,8 @@ msgstr "Um perfil de execução descreve *como chegar aos recursos de computaç�
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
 
-msgid "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code."
+#, fuzzy
+msgid "Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a detached background process (output redirected to a log, stdin closed) so it continues if the SSH connection drops, and records its exit code."
 msgstr "Envia por SSH o pequeno JSON de configurações resolvidas, inicia ``spacr-run`` em um processo durável em segundo plano e registra seu código de saída."
 
 msgid "``Slurm cluster``"
@@ -46,7 +47,8 @@ msgstr "Envia as configurações, submete um script ``sbatch``, consulta ``squeu
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
 
-msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a safe job identifier and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
+#, fuzzy
+msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "Executa modelos de argumentos configurados para enviar, consultar o status e cancelar. Isso dá suporte a CLIs de nuvem e agendadores específicos de cada instituição sem incorporar credenciais de fornecedores ao spaCR. O comando deve imprimir um identificador de trabalho seguro, e o comando de status deve imprimir um estado convencional, como ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` ou ``CANCELLED``."
 
 msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."

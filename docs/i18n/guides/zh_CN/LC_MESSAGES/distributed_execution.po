@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -34,7 +34,8 @@ msgstr "执行配置文件描述的是 *如何访问计算资源*，而不是分
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
 
-msgid "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code."
+#, fuzzy
+msgid "Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a detached background process (output redirected to a log, stdin closed) so it continues if the SSH connection drops, and records its exit code."
 msgstr "通过 SSH 上传解析后的小型设置 JSON，在持久的后台进程中启动 ``spacr-run``，并记录其退出码。"
 
 msgid "``Slurm cluster``"
@@ -46,7 +47,8 @@ msgstr "上传设置，提交 ``sbatch`` 脚本，先轮询 ``squeue`` 再轮询
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
 
-msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a safe job identifier and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
+#, fuzzy
+msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "运行配置的提交/状态/取消参数模板。这样无需在 spaCR 中嵌入厂商凭据即可支持云 CLI 和站点特定的调度器。命令必须输出一个安全的作业标识符，状态命令应输出常规状态，例如 ``PENDING``、``RUNNING``、``SUCCEEDED``、``FAILED`` 或 ``CANCELLED``。"
 
 msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."

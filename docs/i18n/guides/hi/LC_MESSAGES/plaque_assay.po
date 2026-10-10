@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -166,7 +166,8 @@ msgstr "पूर्वावलोकन चलते समय चयन ब�
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "स्रोत, चुनी गई छवि या मोड बदलने से पिछला पूर्वावलोकन छोड़ दिया जाता है। उसका देर से आया परिणाम नए चुने गए दृश्य की जगह नहीं ले सकता। खाली स्रोत फ़ोल्डर पिछला मास्क, ऑब्जेक्ट दृश्य और चित्र तालिकाएँ साफ़ करता है। लोड होने के बाद इच्छित चयन के लिए नया पूर्वावलोकन शुरू करें। रद्द करने पर पुराना परिणाम हटा दिया जाता है; वर्तमान मॉडल कॉल पूरा होने के बाद ही **पूर्वावलोकन चलाएँ** और कूप नियंत्रण फिर उपलब्ध होते हैं। बदली हुई सेटिंग्स के साथ फिर से चलाने से पहले उन नियंत्रणों की प्रतीक्षा करें।"
 
-msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving happens in the background so the image remains responsive; a queued save is not yet a completed write."
+#, fuzzy
+msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
 msgstr "**एनोटेशन सहेजें** चुनने के बाद बैच विश्लेषण शुरू करने से पहले पूर्वावलोकन स्थिति में सहेजने की पुष्टि की प्रतीक्षा करें। सहेजना बैकग्राउंड में होता है ताकि छवि प्रतिक्रियाशील रहे; कतार में लगा सहेजना अभी पूर्ण लेखन नहीं है।"
 
 msgid "Python preview contracts"

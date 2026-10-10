@@ -212,6 +212,10 @@ settings panel, in the Gate Editor and in Annotate:
   Ctrl+Y puts it back;
 - the **Make Masks** editor keeps its own **Undo** and **Redo**.
 
+The **Edit** menu has **Undo** and **Redo** for the editor on screen. They
+act on a focused text field first, otherwise on the screen's own history, and
+are greyed out when there is nothing to undo or redo.
+
 Running jobs
 ------------
 

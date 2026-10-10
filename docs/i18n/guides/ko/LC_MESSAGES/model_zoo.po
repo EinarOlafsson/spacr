@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -156,6 +156,23 @@ msgstr "HOECHST 채널만으로 예측한 톡소플라스마 PV 마스크; 학�
 
 msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
 msgstr "웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.569, 기본 cpsam_v2는 0.002"
+
+#, fuzzy
+msgid "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
+msgstr "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
+
+msgid "496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups"
+msgstr ""
+
+msgid "Stock was not evaluated in this run; see the named incumbent comparison on the model card"
+msgstr ""
+
+#, fuzzy
+msgid "``toxoplasma_well_detector_v3`` (YOLO11n (fine-tuned from detector v3))"
+msgstr "``toxoplasma_well_detector_v1`` (YOLO11n)"
+
+msgid "452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization"
+msgstr ""
 
 msgid "Models are hosted on their author's own Hugging Face account, so contributing one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
 msgstr "모델은 작성자 자신의 Hugging Face 계정에 호스팅되므로, 모델을 기여한다고 해서 다른 사람에게 쓰기 권한을 넘기는 것은 아닙니다. ``spacr.model_zoo`` 의 ``publish_model`` 이 업로드를 수행하고 추가할 카탈로그 행을 출력합니다."
@@ -412,6 +429,112 @@ msgstr "**학습 데이터.** 톡소플라스마 급속 증식형의 기생포�
 msgid "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
 msgstr "**측정 결과.** 기준 웰 11개에서 IoU 0.5 기준 F1 0.854, 기본 cpsam_v2는 0.765; AJI 0.776 대 0.505"
 
+msgid "Published scorecard"
+msgstr ""
+
+msgid "Metric"
+msgstr ""
+
+#, fuzzy
+msgid "This model"
+msgstr "모델"
+
+msgid "Stock"
+msgstr ""
+
+msgid "Difference"
+msgstr ""
+
+msgid "f1"
+msgstr "f1"
+
+msgid "0.8536"
+msgstr "0.8536"
+
+msgid "0.7648"
+msgstr "0.7648"
+
+msgid "0.0888"
+msgstr "0.0888"
+
+msgid "aji"
+msgstr ""
+
+msgid "0.7755"
+msgstr "0.7755"
+
+msgid "0.5050"
+msgstr "0.5050"
+
+msgid "0.2705"
+msgstr "0.2705"
+
+msgid "dice"
+msgstr ""
+
+msgid "0.8905"
+msgstr "0.8905"
+
+msgid "0.6431"
+msgstr "0.6431"
+
+msgid "0.2474"
+msgstr "0.2474"
+
+msgid "precision"
+msgstr ""
+
+msgid "0.8493"
+msgstr "0.8493"
+
+msgid "0.7539"
+msgstr "0.7539"
+
+msgid "0.0954"
+msgstr "0.0954"
+
+msgid "recall"
+msgstr ""
+
+msgid "0.8580"
+msgstr "0.8580"
+
+msgid "0.7760"
+msgstr "0.7760"
+
+msgid "0.0820"
+msgstr "0.0820"
+
+msgid "pixel_iou"
+msgstr ""
+
+msgid "0.8055"
+msgstr "0.8055"
+
+msgid "0.5239"
+msgstr "0.5239"
+
+msgid "0.2816"
+msgstr "0.2816"
+
+msgid "mAP"
+msgstr ""
+
+msgid "0.4921"
+msgstr "0.4921"
+
+msgid "0.3620"
+msgstr "0.3620"
+
+msgid "0.1301"
+msgstr "0.1301"
+
+msgid "Evaluation set: ``pv_r7_test``; version ``r7-published-truth``; 10 scored fields and 683 annotated objects."
+msgstr ""
+
+msgid "Scorecard metrics are means over nonempty fields, not pooled object counts; see aggregation.json."
+msgstr ""
+
 # AI technical review (Codex), no native-speaker signoff.
 msgid "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate"
 msgstr "여기서는 최신 모델이 최선이 아닙니다: 학습에 사용된 새 플레이트에서 학습에 포함하지 않은 시야 20개에 대해 7라운드의 F1은 0.748로 6라운드의 0.899보다 낮습니다(재현율 0.636 대 0.829) -- 이 플레이트에는 toxoplasma_pv_v3를 우선 사용하세요."
@@ -431,6 +554,11 @@ msgstr "새 플레이트에서의 성능 저하는 조사 중입니다. 7라운�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``."
 msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_ 에 ``cpsam_v2_toxo_r7`` 로 게시되었습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v4 (round 7)"
+msgstr "Toxoplasma PV v4(7라운드)"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
@@ -531,4 +659,134 @@ msgstr "`einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/ein
 
 msgid "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
 msgstr "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
+
+#, fuzzy
+msgid "Toxoplasma Plaque v3 (Gel Doc r5 candidate)"
+msgstr "Toxoplasma Plaque v2(5라운드)"
+
+#, fuzzy
+msgid "**Architecture.** Cellpose-SAM (cpsam, Cellpose 4.0.9)"
+msgstr "**아키텍처.** Cellpose-SAM (cpsam)"
+
+msgid "**Trained on.** 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups"
+msgstr ""
+
+msgid "**Measured.** Stock was not evaluated in this run; see the named incumbent comparison on the model card."
+msgstr ""
+
+msgid "0.6419"
+msgstr "0.6419"
+
+msgid "not measured"
+msgstr ""
+
+msgid "0.6943"
+msgstr "0.6943"
+
+msgid "0.5968"
+msgstr "0.5968"
+
+msgid "ap"
+msgstr ""
+
+msgid "0.4726"
+msgstr "0.4726"
+
+msgid "true_positives"
+msgstr ""
+
+msgid "302"
+msgstr "302"
+
+msgid "false_positives"
+msgstr ""
+
+msgid "133"
+msgstr "133"
+
+msgid "false_negatives"
+msgstr ""
+
+msgid "204"
+msgstr "204"
+
+msgid "Evaluation set: ``geldoc_heldout_min_size_0``; version ``20261007T205603``; 18 scored fields and 506 annotated objects."
+msgstr ""
+
+msgid "Candidate, not promoted; independent literature uncertainty gate did not pass."
+msgstr ""
+
+msgid "Gel Doc score requires min_size=0; min_size=150 gives F1 0.1041."
+msgstr ""
+
+msgid "Stock not measured; comparison baseline is incumbent r3."
+msgstr ""
+
+msgid "Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2."
+msgstr ""
+
+#, fuzzy
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc>`_, as ``cpsam_plaque_r5_geldoc``."
+msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_ 에 ``cpsam_plaque_r5`` 로 게시되었습니다."
+
+msgid "Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5 candidate)"
+msgstr ""
+
+msgid "SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c``."
+msgstr ""
+
+#, fuzzy
+msgid "Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)"
+msgstr "``toxoplasma_well_detector_v1`` (YOLO11n)"
+
+#, fuzzy
+msgid "**Architecture.** YOLO11n (fine-tuned from detector v3)"
+msgstr "**아키텍처.** YOLO11n"
+
+msgid "**Trained on.** 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization"
+msgstr ""
+
+msgid "mAP50"
+msgstr ""
+
+msgid "0.9940"
+msgstr "0.9940"
+
+msgid "mAP50_95"
+msgstr ""
+
+msgid "0.8842"
+msgstr "0.8842"
+
+msgid "0.9698"
+msgstr "0.9698"
+
+msgid "0.9979"
+msgstr "0.9979"
+
+msgid "Evaluation set: ``detector_v3_validation_figure_clean``; version ``20261007T205603``; 73 scored fields and 191 annotated objects."
+msgstr ""
+
+msgid "Candidate, not promoted: clean incumbent-validation mAP50-95 regresses."
+msgstr ""
+
+#, fuzzy
+msgid "Gel Doc plates selected best.pt, so their scores are validation rather than independent test."
+msgstr "홀드아웃 분할로 체크포인트를 선택하므로 독립 테스트 세트가 아니라 검증 데이터"
+
+msgid "Distinct from the YOLO26 checkpoint also historically called detector v4."
+msgstr ""
+
+msgid "Locates wells, not plaques; one class plaque_well (0)."
+msgstr ""
+
+#, fuzzy
+msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc>`_, as ``yolo_welldetect_v4_geldoc.pt``."
+msgstr "`einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_ 에 ``yolo_welldetect_v3.pt`` 로 게시되었습니다."
+
+msgid "Published scorecard for Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)"
+msgstr ""
+
+msgid "SHA-256 ``046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18``."
+msgstr ""
 

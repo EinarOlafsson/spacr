@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -32,8 +32,8 @@ msgstr "Instalar spaCR"
 msgid "Use the typed workflow configuration"
 msgstr "Usar la configuración tipada del flujo de trabajo"
 
-msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
-msgstr "La API de nivel superior contiene una interfaz pequeña y estable para los principales flujos de trabajo. Los campos tipados cubren las opciones que usan la mayoría de los scripts; ``extra`` acepta configuración avanzada pero rechaza un segundo valor para un campo tipado existente."
+msgid "The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with ``run_mask`` and ``run_measure``. Typed fields cover the commonly set options; ``extra`` accepts any other setting and raises ``ValueError`` if it repeats a typed field."
+msgstr ""
 
 msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
 msgstr "Llame a ``mask.to_settings()`` cuando necesite un diccionario completo para un archivo de configuración guardado. Se completa con los mismos valores predeterminados que usa la interfaz gráfica."
@@ -62,7 +62,8 @@ msgstr "Medición escribe ``measurements/measurements.db`` y la configuración r
 msgid "Run the same contract from a shell"
 msgstr "Ejecutar el mismo contrato desde una terminal"
 
-msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
+#, fuzzy
+msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
 msgstr "El comando sin interfaz gráfica es útil en un planificador porque valida los nombres y valores de configuración antes de importar la pesada pila de la canalización."
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -76,7 +77,8 @@ msgstr "Los valores booleanos de los archivos CSV de ajustes no distinguen entre
 msgid "Command-line overrides are applied after the file:"
 msgstr "Las anulaciones de línea de comandos se aplican después del archivo:"
 
-msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+#, fuzzy
+msgid "Unknown settings and values that cannot be converted are refused; an unknown name is reported with the closest known setting when one exists. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
 msgstr "Los ajustes desconocidos y los valores que no pueden convertirse se rechazan con una sugerencia. Use ``spacr-doctor`` cuando el problema sea el entorno y no un ajuste."
 
 msgid "Continue from notebooks"

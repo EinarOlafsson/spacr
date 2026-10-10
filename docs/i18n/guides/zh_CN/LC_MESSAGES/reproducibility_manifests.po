@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -37,7 +37,8 @@ msgstr "流程所用的完整解析后设置。"
 msgid "``manifest.json``"
 msgstr "``manifest.json``"
 
-msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and an exception traceback."
+#, fuzzy
+msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and, for a failed run, the exception traceback."
 msgstr "带版本、以原子方式写入的记录，内容包括模块、时间戳、状态、设置哈希、声明的随机种子、Python/NumPy/Torch 随机状态标识、spaCR 和 Git 版本、所有已安装软件包的版本、模型哈希、输入哈希、输出哈希、警告以及异常回溯。"
 
 msgid "``log.txt``"
@@ -67,7 +68,8 @@ msgstr "文件来源"
 msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
 msgstr "spaCR 会递归地发现设置中已存在的路径，包括嵌套在孔板列表中的路径。每个常规输入文件都会记录完整的 SHA-256 摘要、大小、修改时间戳以及选中它的设置键。运行期间在这些根目录下创建或修改的文件会被记录为输出。符号链接、版本控制文件夹、缓存以及运行日志本身不在其列。"
 
-msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. These make it cheap to establish whether two complete sets match while retaining the per-file records needed to locate a difference."
+#, fuzzy
+msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. Comparing these single digests shows whether two complete sets match; the per-file records identify which files differ."
 msgstr "清单还包含确定性的汇总值 ``input_tree_sha256`` 和 ``output_tree_sha256``。借助它们可以低成本地确认两个完整集合是否一致，同时保留定位差异所需的逐文件记录。"
 
 msgid "Crash and failure behavior"

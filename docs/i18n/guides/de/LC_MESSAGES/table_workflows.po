@@ -1,5 +1,5 @@
 # spaCR user guide translation (de).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -225,6 +225,10 @@ msgstr "**Polygon durch die Ansicht**: Klicken Sie die Ecken auf dem Bildschirm 
 
 msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
 msgstr "**Ellipsoid mit Griffen** und **Quader mit Griffen**: Ziehen Sie ein Rechteck über eine Population, und die Form wird an die umrahmten Objekte angepasst. Ziehen Sie an einem Flächen- oder Radiusgriff, um die Größe zu ändern, oder ziehen Sie den Mittelpunktgriff, um sie zu verschieben. Durch die Ansicht gezeichnete Gates lassen sich ebenfalls über ihren Mittelpunktgriff verschieben."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's shape. Every edge and surface carries evenly spaced anchors, including along the depth axis. Drag an anchor, or click a surface (Ctrl-click for several) and drag or turn the mouse wheel to move the selected surfaces together. The axis list beside **Edit** limits the movement to X, Y, Z or the view plane. **Anchor density** and **Show gate anchors** in the gate settings set how many anchors appear and whether they show; neither changes the gate. A curved gate becomes a piecewise-linear boundary at its first edit, and counts and exports use that edited boundary. Edited gates are saved and loaded with the gate file, and **Undo** and **Redo** step through the edits."
+msgstr "Wählen Sie **Bearbeiten** neben **Drehen** und **Zeichnen**, um die Form eines gezeichneten 3D-Gates zu ändern. Jede Kante und Oberfläche trägt gleichmäßig verteilte Anker, auch entlang der Tiefenachse. Ziehen Sie einen Anker, oder klicken Sie auf eine Oberfläche (Ctrl-click für mehrere) und ziehen Sie oder drehen Sie das Mausrad, um die ausgewählten Oberflächen gemeinsam zu verschieben. Die Achsenliste neben **Bearbeiten** beschränkt die Bewegung auf X, Y, Z oder die Ansichtsebene. **Ankerdichte** und **Gate-Anker anzeigen** in den Gate-Einstellungen legen fest, wie viele Anker erscheinen und ob sie angezeigt werden; keine der beiden Einstellungen ändert das Gate. Ein gekrümmtes Gate wird bei seiner ersten Bearbeitung zu einer stückweise linearen Begrenzung, und Zählungen und Exporte verwenden diese bearbeitete Begrenzung. Bearbeitete Gates werden mit der Gate-Datei gespeichert und geladen, und **Rückgängig** und **Wiederherstellen** gehen die Bearbeitungen Schritt für Schritt durch."
 
 msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
 msgstr "Während Sie eine Form zeichnen oder anpassen, werden die Objekte darin hervorgehoben. Doppelklicken Sie in der Gate-Tabelle auf den Namen eines Gates, um es umzubenennen; daraus abgeleitete Gates übernehmen den neuen Namen. In 3D gezeichnete Gates werden wie 2D-Gates gespeichert, geladen und exportiert, mit denselben Zugehörigkeitsspalten."

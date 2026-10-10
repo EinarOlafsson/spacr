@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -32,8 +32,8 @@ msgstr "Setja spaCR upp"
 msgid "Use the typed workflow configuration"
 msgstr "Nota tögguðu verkflæðisstillingarnar"
 
-msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
-msgstr "API-ið á efsta stigi inniheldur lítið, stöðugt viðmót fyrir helstu verkflæðin. Tagaðir reitir ná yfir þau val sem flestar skriftur gera; ``extra`` tekur við ítarlegum stillingum en hafnar öðru gildi fyrir fyrirliggjandi tagaðan reit."
+msgid "The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with ``run_mask`` and ``run_measure``. Typed fields cover the commonly set options; ``extra`` accepts any other setting and raises ``ValueError`` if it repeats a typed field."
+msgstr ""
 
 msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
 msgstr "Kallaðu á ``mask.to_settings()`` þegar þörf er á heildarorðabók fyrir vistaða stillingaskrá. Hún er útvíkkuð með sömu sjálfgildum og myndræna viðmótið notar."
@@ -62,7 +62,8 @@ msgstr "Mæling skrifar ``measurements/measurements.db`` og útleystu stillingar
 msgid "Run the same contract from a shell"
 msgstr "Keyra sama samning úr skel"
 
-msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
+#, fuzzy
+msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
 msgstr "Skipunin án myndræns viðmóts er gagnleg í tímaáætlunarkerfi vegna þess að hún sannprófar heiti og gildi stillinga áður en þungi vinnslustaflinn er fluttur inn."
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -76,7 +77,8 @@ msgstr "Bool-gildi í CSV-stillingaskrám eru óháð hástöfum og lágstöfum.
 msgid "Command-line overrides are applied after the file:"
 msgstr "Yfirskriftum á skipanalínu er beitt á eftir skránni:"
 
-msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+#, fuzzy
+msgid "Unknown settings and values that cannot be converted are refused; an unknown name is reported with the closest known setting when one exists. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
 msgstr "Óþekktum stillingum og gildum sem ekki er hægt að umbreyta er hafnað með tillögu. Notaðu ``spacr-doctor`` þegar vandamálið liggur í umhverfinu frekar en í stillingu."
 
 msgid "Continue from notebooks"

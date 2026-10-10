@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-10 13:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -80,7 +80,8 @@ msgstr "``pathogen_channel_<channel>_periphery_mean``"
 msgid "For example, a channel 2 pathogen mean of 12 and cytoplasm mean of 4 produces ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. If channel 3 has means of 100 and 4, its separate column is ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Calculating channel 3 retains the channel 2 result. These are illustrative intensities, not experiment data."
 msgstr "Par exemple, une moyenne du pathogène de 12 et une moyenne du cytoplasme de 4 dans le canal 2 donnent ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. Si le canal 3 a des moyennes de 100 et 4, sa colonne distincte est ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Le calcul du canal 3 conserve le résultat du canal 2. Ce sont des intensités d’illustration, pas des données expérimentales."
 
-msgid "The calculation produces fifteen auxiliary ratios per channel. It does not creates constant-one pathogen/nucleus slope columns; these ratios do not estimate a spatial slope. Genuine slope columns already supplied by the caller are preserved. When comparing historical exports, check whether their auxiliary column names identify a channel before combining runs."
+#, fuzzy
+msgid "The calculation produces fifteen auxiliary ratios per channel. It does not create constant-one pathogen/nucleus slope columns; these ratios do not estimate a spatial slope. Genuine slope columns already supplied by the caller are preserved. When comparing historical exports, check whether their auxiliary column names identify a channel before combining runs."
 msgstr "Le calcul produit quinze rapports auxiliaires par canal. Il ne crée pas de colonnes de pente pathogène/noyau constantes égales à un ; ces rapports n’estiment pas de pente spatiale. Les véritables colonnes de pente déjà fournies par l’appelant sont conservées. Lorsque vous comparez des exports historiques, vérifiez si leurs noms de colonnes auxiliaires identifient un canal avant de combiner des exécutions."
 
 msgid "Saved results"
