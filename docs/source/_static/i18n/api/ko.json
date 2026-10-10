@@ -71142,6 +71142,28 @@
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
       ]
     },
+    "spacr.qt.app.MainWindow.snap_window": {
+      "source_blocks_sha256": [
+        "e0ecc9ef7cad2e215b4d877961ac2d4ba9c26268ead9339636bcc74e8cb7e888",
+        "8b7fac6a451678095ed602f49ae87b7d7e8c60b56bbca4521d79705c58aaf9a8",
+        "9c388fafb53fd0011815981f6ff7d7f41ad0454b1c2e222154bdf98af97d1b70",
+        "c6d3eb0ddbf8e0ed1ef03ebdf34229c965a09b08922a8fd8840ce2300a06e88d",
+        "33317af6061eb6e05239866d6f3a526a9b87d8d639e67b41b0a0fc832c06be04",
+        "563b67a325934a8a1f252cc427aed12a9353a8e8f5e2148acd83716bf79ef7aa",
+        "5460b2d48f6442bb86c69cbc8b08ee544f38bed1f4416f243765354d3fbe111e"
+      ],
+      "source_sha256": "cc643da3c86c9132f76ab89b5a6a60caa514d8006d13a308688c687509157406",
+      "text": "창을 스크린의 작업 영역의 한쪽으로 옮기십시오.\n\n``\"up\"`` 최대화 (플랫폼 자체의 최대화 상태, 작업 바, 도크 또는 패널을 제외하는 작업 영역 내부); ``\"left\"`` 및 ``\"right\"``은 왼쪽 또는 오른쪽 절반과 ``\"down\"``은 :meth:`QScreen.availableGeometry`의 낮은 절반을 가져옵니다. 전체 응용 프로그램 보기는 별도의 상태(:meth:`toggle_fullscreen`)이며, 시작되면 먼저 남겨집니다. 작업 영역은 논리적 픽셀에 있으므로 디스플레이 스케일링은 Qt입니다.\n\n첫 번째 스냅 이전의 크기는 ``_snap_restore``로 유지되며 창이 막대기에서 끌려 나가거나 복원되면 반환됩니다.\n\nWayland에서 클라이언트는 자신의 최고 수준의 창을 배치 할 수 없습니다 : 반 플레이트는 크기로 적용되며 작곡가는 위치를 결정합니다, 그래서 그들은 ``False``을보고합니다. 최대화는 모든 작곡가의 명예에 대한 국가 요구입니다. 웨일랜드의 타이틀 바를 끌어내는 것은 ``startSystemMove``을 통과하고 작곡가의 자신의 스냅을 대신합니다.\n\n:param edge: ``\"left\"``, ``\"right\"``, ``\"up\"`` 또는 ``\"down\"``\n:param screen: 애플리케이션 뷰를 눌러; 창 자체의 기본.\n:returns: 요청된 지질학이 적용되었는지 여부.",
+      "translation_source_blocks_sha256": [
+        "e0ecc9ef7cad2e215b4d877961ac2d4ba9c26268ead9339636bcc74e8cb7e888",
+        "f21a222f6b4fabb64ed78690e49a44a6a8fa00103a2467005b8307873107cbad",
+        "9c388fafb53fd0011815981f6ff7d7f41ad0454b1c2e222154bdf98af97d1b70",
+        "c6d3eb0ddbf8e0ed1ef03ebdf34229c965a09b08922a8fd8840ce2300a06e88d",
+        "33317af6061eb6e05239866d6f3a526a9b87d8d639e67b41b0a0fc832c06be04",
+        "e75413888dd40c135c8c8b06d92df608faa5f3f61b4f9a29853583b3169a9afd",
+        "5460b2d48f6442bb86c69cbc8b08ee544f38bed1f4416f243765354d3fbe111e"
+      ]
+    },
     "spacr.qt.app.MainWindow.stylesheet_roots": {
       "source_blocks_sha256": [
         "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
@@ -71176,12 +71198,14 @@
     },
     "spacr.qt.app.MainWindow.toggle_fullscreen": {
       "source_blocks_sha256": [
-        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423"
+        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423",
+        "9bbfa607fa128931f01dcce5cf4e771bf75eaf81c005e52907a5ddbeeee9f37e"
       ],
-      "source_sha256": "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423",
-      "text": "진짜 전체 화면을 입력하거나 떠나십시오.이 화면이 지금 완전한지 여부를 반환합니다.",
+      "source_sha256": "7c1c49a0b8447e0cae7b4562316d3c47ac55e5bc4202cced138aa10ea09879f5",
+      "text": "진짜 전체 화면을 입력하거나 떠나십시오.이 화면이 지금 완전한지 여부를 반환합니다.\n\n남기기 전에 상태로 돌아갑니다 : 최대화, 꼬리, 또는 일반 창. 상단 스냅에 관계없이, 최대화.",
       "translation_source_blocks_sha256": [
-        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423"
+        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423",
+        "9bbfa607fa128931f01dcce5cf4e771bf75eaf81c005e52907a5ddbeeee9f37e"
       ]
     },
     "spacr.qt.app.MainWindow.wheelEvent": {
@@ -87862,6 +87886,16 @@
       "translation_source_blocks_sha256": [
         "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
         "7d0d72d6da06a84a5ac615433d26d4801b6c6abde417bd3fa1860d8b82f8f806"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._density_follows_theme": {
+      "source_blocks_sha256": [
+        "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d"
+      ],
+      "source_sha256": "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d",
+      "text": "새로운 테마의 기본을 표시하지만 밀도는 결코 선택되지 않았습니다.",
+      "translation_source_blocks_sha256": [
+        "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says": {
@@ -121862,6 +121896,18 @@
         "13abe22d9969b02d885aafeadc22cb9981addc13d9278cad7cc8a13890514595"
       ]
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_click_ripples": {
+      "source_blocks_sha256": [
+        "95287e10199c3d06a1bfcc53ba24f7adba0f3adcb086b15254d29fc6bdd6946d",
+        "74b841fb199e0fe22ac34717a3f97056b55b678dc860d6b8bb9442c7ee4ad832"
+      ],
+      "source_sha256": "863571f99ca89b581a8364294b0cfc03ab02723bbb327df5310ba5b18e59db2d",
+      "text": "마우스 클릭 위치에서 스위치 리플; 다른 리플은 변하지 않습니다.\n\n:param enabled: 배경 클릭이 리플을 보내는지 여부.",
+      "translation_source_blocks_sha256": [
+        "95287e10199c3d06a1bfcc53ba24f7adba0f3adcb086b15254d29fc6bdd6946d",
+        "74b841fb199e0fe22ac34717a3f97056b55b678dc860d6b8bb9442c7ee4ad832"
+      ]
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.set_density": {
       "source_blocks_sha256": [
         "a63d075fb31d6aa92d301fe80e01099523f020fa28f08579322d215bd97546d1",
@@ -123257,13 +123303,15 @@
     "spacr.qt.widgets.ambient.preferred_motion": {
       "source_blocks_sha256": [
         "c92af42e681aac467ad8a2cab15dd9fee68fce0bae6481fcd07d7ade25f0953f",
-        "413a57c93e4b613acf4873d960ebc975982e8f407b416a525a50a702a6a17ca3"
+        "413a57c93e4b613acf4873d960ebc975982e8f407b416a525a50a702a6a17ca3",
+        "d4aecb44eaa8901d490a9fa94775eb5611fe81ed4879f9b65b51720767d1f53d"
       ],
-      "source_sha256": "28c779270ae94d017cabc512e0d3a046a711ec28ec69c1e9602d0bb2b7fc95d4",
-      "text": "애니메이션은 사용자의 선호도에서 제어됩니다.\n\n모든 설치 사이트에 의해 통과되는 대신 여기를 읽으십시오, 같은 이유로 :func:`_theme_background` : 환경 위젯을 구축하는 두 개의 호출자는 모듈 응용 프로그램 보기 및 홈이며, 그들 중 어느 것도 애니메이션의 버튼이 무엇인지 아는 사업이 없습니다.",
+      "source_sha256": "8c5d49665925a3d381841823dca42c28d7d3511a545d079fb640159730692b73",
+      "text": "애니메이션은 사용자의 선호도에서 제어됩니다.\n\n모든 설치 사이트에 의해 통과되는 대신 여기를 읽으십시오, 같은 이유로 :func:`_theme_background` : 환경 위젯을 구축하는 두 개의 호출자는 모듈 응용 프로그램 보기 및 홈이며, 그들 중 어느 것도 애니메이션의 버튼이 무엇인지 아는 사업이 없습니다.\n\n:param theme: 건설되는 테마, 자신의 기본 밀도가 적용되지만 밀도가 저장되지 않았습니다.",
       "translation_source_blocks_sha256": [
         "c92af42e681aac467ad8a2cab15dd9fee68fce0bae6481fcd07d7ade25f0953f",
-        "4d0534bf5a4278470eee32f1332d2d4817a8b122a70fc382b293d6e5eaf00721"
+        "4d0534bf5a4278470eee32f1332d2d4817a8b122a70fc382b293d6e5eaf00721",
+        "d4aecb44eaa8901d490a9fa94775eb5611fe81ed4879f9b65b51720767d1f53d"
       ]
     },
     "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops": {

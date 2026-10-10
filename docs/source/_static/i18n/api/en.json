@@ -43948,6 +43948,19 @@
       "source_sha256": "8996292a34c56e1b2d02b81caabb6ecf4ea4eaeed0932c47c62f30b18b06f93a",
       "text": "Open Preferences, on a named tab, with a named row marked.\n\nThe route the Help search field takes for a preference result: the\ndialog carries nine tabs and a result that opened it on whichever\none it happened to start with has answered half the question.\n\nFound by OBJECT NAME rather than by tab index or caption. An index\nmoves whenever a tab is added, and a caption is translated -- a\nKorean interface would have matched nothing. Every page sets its own\n``PreferencesTab*`` name, and ``tools/build_help_search_index.py``\nreads those same names out of this dialog's source, so the two ends\nof the hand-off are the same string by construction.\n\n:param tab: the page's object name, e.g. ``\"PreferencesTabTheme\"``;\n    ``\"\"`` opens the dialog as it opens from the menu.\n:param label: the row caption to mark; ``\"\"`` marks nothing.\n:returns: True when the named tab was found and shown."
     },
+    "spacr.qt.app.MainWindow.snap_window": {
+      "source_blocks_sha256": [
+        "e0ecc9ef7cad2e215b4d877961ac2d4ba9c26268ead9339636bcc74e8cb7e888",
+        "8b7fac6a451678095ed602f49ae87b7d7e8c60b56bbca4521d79705c58aaf9a8",
+        "9c388fafb53fd0011815981f6ff7d7f41ad0454b1c2e222154bdf98af97d1b70",
+        "c6d3eb0ddbf8e0ed1ef03ebdf34229c965a09b08922a8fd8840ce2300a06e88d",
+        "33317af6061eb6e05239866d6f3a526a9b87d8d639e67b41b0a0fc832c06be04",
+        "563b67a325934a8a1f252cc427aed12a9353a8e8f5e2148acd83716bf79ef7aa",
+        "5460b2d48f6442bb86c69cbc8b08ee544f38bed1f4416f243765354d3fbe111e"
+      ],
+      "source_sha256": "cc643da3c86c9132f76ab89b5a6a60caa514d8006d13a308688c687509157406",
+      "text": "Snap the window to one side of a screen's work area.\n\n``\"up\"`` maximises (the platform's own maximised state, inside the\nwork area that excludes the taskbar, dock or panels); ``\"left\"`` and\n``\"right\"`` take the left or right half and ``\"down\"`` the lower half\nof :meth:`QScreen.availableGeometry`. Full screen is a separate\nstate (:meth:`toggle_fullscreen`) and is left first if it is on.\nWork areas are in logical pixels, so display scaling is Qt's.\n\nThe size before the first snap is kept in ``_snap_restore`` and comes\nback when the window is dragged off its tile or restored.\n\nOn Wayland a client cannot place its own top-level window: the half\ntiles are applied as a size and the compositor decides the position,\nso they report ``False``. Maximising is a state request every\ncompositor honours. Dragging the title bar on Wayland goes through\n``startSystemMove`` and the compositor's own snapping instead.\n\n:param edge: ``\"left\"``, ``\"right\"``, ``\"up\"`` or ``\"down\"``.\n:param screen: the screen to snap on; defaults to the window's own.\n:returns: whether the requested geometry was applied."
+    },
     "spacr.qt.app.MainWindow.stylesheet_roots": {
       "source_blocks_sha256": [
         "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
@@ -43970,10 +43983,11 @@
     },
     "spacr.qt.app.MainWindow.toggle_fullscreen": {
       "source_blocks_sha256": [
-        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423"
+        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423",
+        "9bbfa607fa128931f01dcce5cf4e771bf75eaf81c005e52907a5ddbeeee9f37e"
       ],
-      "source_sha256": "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423",
-      "text": "Enter or leave true fullscreen. Returns whether it is now full."
+      "source_sha256": "7c1c49a0b8447e0cae7b4562316d3c47ac55e5bc4202cced138aa10ea09879f5",
+      "text": "Enter or leave true fullscreen. Returns whether it is now full.\n\nLeaving returns to the state before: maximised, a tile, or the\nordinary window. Independent of the top snap, which maximises."
     },
     "spacr.qt.app.MainWindow.wheelEvent": {
       "source_blocks_sha256": [
@@ -54534,6 +54548,13 @@
       ],
       "source_sha256": "00d085a377d22d4b1e60a4f655c0860df7e61a57c721b034b2a52b11528275a0",
       "text": "Hold the DEBUG file switch on while verbose is on.\n\nVerbose adds DEBUG to the log files whatever the switch says,\nso the switch shows that and cannot be changed. When verbose\ngoes off, the switch is given back with the user's own choice."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._density_follows_theme": {
+      "source_blocks_sha256": [
+        "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d"
+      ],
+      "source_sha256": "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d",
+      "text": "Show the new theme's own default while density was never chosen."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says": {
       "source_blocks_sha256": [
@@ -76398,6 +76419,14 @@
       "source_sha256": "fa5efe1d00cae0ed932b59884e4096fc5cb5d3bcbfa1ff7c03007a3eb122e475",
       "text": "Keep the retired softening control compatible with older callers.\n\n:param value: a legacy value; displayed themes remain unsoftened."
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_click_ripples": {
+      "source_blocks_sha256": [
+        "95287e10199c3d06a1bfcc53ba24f7adba0f3adcb086b15254d29fc6bdd6946d",
+        "74b841fb199e0fe22ac34717a3f97056b55b678dc860d6b8bb9442c7ee4ad832"
+      ],
+      "source_sha256": "863571f99ca89b581a8364294b0cfc03ab02723bbb327df5310ba5b18e59db2d",
+      "text": "Switch ripples at mouse-click positions; other ripples are unchanged.\n\n:param enabled: whether a background click sends a ripple."
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.set_density": {
       "source_blocks_sha256": [
         "a63d075fb31d6aa92d301fe80e01099523f020fa28f08579322d215bd97546d1",
@@ -77315,10 +77344,11 @@
     "spacr.qt.widgets.ambient.preferred_motion": {
       "source_blocks_sha256": [
         "c92af42e681aac467ad8a2cab15dd9fee68fce0bae6481fcd07d7ade25f0953f",
-        "413a57c93e4b613acf4873d960ebc975982e8f407b416a525a50a702a6a17ca3"
+        "413a57c93e4b613acf4873d960ebc975982e8f407b416a525a50a702a6a17ca3",
+        "d4aecb44eaa8901d490a9fa94775eb5611fe81ed4879f9b65b51720767d1f53d"
       ],
-      "source_sha256": "28c779270ae94d017cabc512e0d3a046a711ec28ec69c1e9602d0bb2b7fc95d4",
-      "text": "The animation controls, from the user's preferences.\n\nRead here rather than passed in by every install site, for the same\nreason :func:`_theme_background` is: the two callers that build ambient\nwidgets are a module screen and Home, and neither of them has any\nbusiness knowing what the animation's knobs are called. Falls back to\nthe shipped defaults if preferences cannot be read at all."
+      "source_sha256": "8c5d49665925a3d381841823dca42c28d7d3511a545d079fb640159730692b73",
+      "text": "The animation controls, from the user's preferences.\n\nRead here rather than passed in by every install site, for the same\nreason :func:`_theme_background` is: the two callers that build ambient\nwidgets are a module screen and Home, and neither of them has any\nbusiness knowing what the animation's knobs are called. Falls back to\nthe shipped defaults if preferences cannot be read at all.\n\n:param theme: the theme being built, whose own default density applies\n    while no density was saved."
     },
     "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops": {
       "source_blocks_sha256": [

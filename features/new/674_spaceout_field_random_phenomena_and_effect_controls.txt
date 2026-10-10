@@ -2,7 +2,7 @@
 DEFAULT SPACEOUT FIELD WITH ELEGANT RANDOM PHENOMENA
 ================================================================================
 
-Status:    in progress
+Status:    in progress — unchanged by N684 apart from GPU and Dynamic animation; aesthetic acceptance open
 Requested: 2026-10-08
 Owner:     Home/root and reused CPU theme/preferences lanes; workstation API/docs/translations/tutorials
 
@@ -31,3 +31,8 @@ Focused capped CPU/Qt checks cover fresh Spaceout defaults and ordinary-mode exc
 2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
 
 2026-10-08 23:01 EDT — Signed 3D relief projection, normal-based lighting, stronger vortex rotation, richer colour-wave/spiral traversal and first-minute geometry scheduling implemented. All existing switches, grain count, bounds, clock seeks and calm/disabled equivalence retained. Owning47PASS; actual1280x720 previews inspected. Native/user visual and current hosted acceptance remain pending.
+
+2026-10-10 — N684: Spaceout field frames use the GPU point renderer when
+no colour-wave/spiral event is active and Animation GPU allows it; colour
+events stay on the CPU path. Dynamic animation pauses it during CPU-heavy
+jobs. Phenomena unchanged; human aesthetic acceptance remains open.

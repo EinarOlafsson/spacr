@@ -2,7 +2,7 @@
 ANIMATION DEFAULTS, CLICK RIPPLES, WINDOW SNAPPING AND DYNAMIC GPU USE
 ================================================================================
 
-Status:    not started
+Status:    in progress — code, Preferences, policy and bounded tests delivered 2026-10-10; native platform/GPU acceptance open
 Requested: 2026-10-09 — "make all of this into a new feature item for the next session to implement."
 Owner:     Next session; coordinate Home window/theme changes and workstation GPU work
 Related:   N666 snapping; N670 ripples; N679 GPU renderers; N663 performance
@@ -119,3 +119,48 @@ No existing parent is closed, and no native/GPU acceptance is claimed.
 
 2026-10-09 — Registered as N684 for the next session. The latest 25% flow
 density request supersedes an earlier 10% request for that theme only.
+
+2026-10-10 — Implemented on nightly (Claude animation lane).
+Defaults: "spaCR flow" is read as spaCR field (data_art_impulse_lens), the
+theme whose earlier 10% default this request supersedes. It now defaults to
+25% density on profiles that never saved one; every other theme keeps 10%,
+and an untouched density keeps following the selected theme's default (the
+Preferences slider follows the theme combo until moved). The animation
+background defaults to #191919 (RGB 25,25,25) on Dark when nothing was
+chosen; Light keeps its page colour; an explicit "Theme colour" choice is
+now stored as such. Saved densities/backgrounds are never rewritten. Mouse
+gravity default unchanged (15%), still awaiting the user's value.
+Window: drag-to-top and Window > Snap up maximise to the work area; Snap
+left/right/down take halves; full screen stays separate (F11, corner mark,
+Window menu) and returns to the prior maximised/tiled state. Restore
+geometry, screen under the pointer and Wayland startSystemMove kept.
+Ripples: the Field ripples on/off switch became a 0-200% slider (0 = Off),
+migrating a saved "off" to 0 once. New "Click ripples" switch, default ON
+(user gave no default). Click ripples are committed 120 ms after release;
+any container, window-edge or popup-close ripple during that click
+suppresses it; drags are not clicks; later clicks are unaffected.
+GPU: N679's moderngl point renderer is integrated for field, advection,
+waves and Spaceout field (monochrome palettes, outside colour events).
+Performance > "Animation GPU" slider: Off (CPU) / Automatic (dense 4K only,
+where measured faster) / On (default). Missing moderngl, software GL,
+macOS (GL 4.1 < 4.3), probe timeout or context failure fall back to CPU.
+Dynamic animation (Performance, default on): run-registry jobs classify
+as CPU (measure, umap, ...) or GPU (mask, cellpose, classify, ... when a GPU
+exists). CPU work pauses every animation; GPU work disables decorative GPU
+and pauses GPU-backed Spaceout fractals; CPU wins on overlap; state is
+recomputed from all live jobs so finishing/failing/cancelled jobs release
+only their own hold; nothing is written to Preferences. External/headless
+processes are seen only via NVML compute processes (NVIDIA; own PID
+excluded); external CPU load is not observed. Off keeps capability fallback.
+Audit: tools/audit_animation_performance.py; CPU receipt for all 11
+animations at 1080p/4K in data/684_animation_cpu_audit_2026-10-10
+(Ryzen 9 5950X, offscreen). Aurora is the costliest (35-99 ms at 4K).
+Tests: test_animation_defaults_ripples_and_dynamic_gpu_n684.py,
+test_flow_graphics_backend_fallback_and_ownership.py,
+test_window_snap_four_directions_n684.py plus updated owning files.
+Still open (not claimed): native snapping/fullscreen/restore on Windows,
+Linux compositors and macOS; native GPU timing on this integrated source and
+other vendors; GPU renderers for blobs, stratified, aurora, growth, spinn,
+random/colour-event palettes and the backdrop fractal (CPU only today);
+confirmation that "spaCR flow" means spaCR field; the gravity default;
+tutorials showing the new Window-menu snap actions (lane spacr-d7).

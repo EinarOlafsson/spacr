@@ -71142,6 +71142,28 @@
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
       ]
     },
+    "spacr.qt.app.MainWindow.snap_window": {
+      "source_blocks_sha256": [
+        "e0ecc9ef7cad2e215b4d877961ac2d4ba9c26268ead9339636bcc74e8cb7e888",
+        "8b7fac6a451678095ed602f49ae87b7d7e8c60b56bbca4521d79705c58aaf9a8",
+        "9c388fafb53fd0011815981f6ff7d7f41ad0454b1c2e222154bdf98af97d1b70",
+        "c6d3eb0ddbf8e0ed1ef03ebdf34229c965a09b08922a8fd8840ce2300a06e88d",
+        "33317af6061eb6e05239866d6f3a526a9b87d8d639e67b41b0a0fc832c06be04",
+        "563b67a325934a8a1f252cc427aed12a9353a8e8f5e2148acd83716bf79ef7aa",
+        "5460b2d48f6442bb86c69cbc8b08ee544f38bed1f4416f243765354d3fbe111e"
+      ],
+      "source_sha256": "cc643da3c86c9132f76ab89b5a6a60caa514d8006d13a308688c687509157406",
+      "text": "Ajustar la ventana a un lado del área de trabajo de una cribado.\n\n``\"up\"`` maximiza (el propio estado maximizado de la plataforma, dentro del área de trabajo que excluye la barra de tareas, muelle o paneles); ``\"left\"`` y ``\"right\"`` toman la mitad izquierda o derecha y ``\"down\"`` la mitad inferior de :meth:`QScreen.availableGeometry`. La vista de aplicación completa es un estado separado (:meth:`toggle_fullscreen`) y se deja primero si está encendido. Las áreas de trabajo están en píxeles lógicos, por lo que el escalado de visualización es Qt.\n\nEl tamaño antes del primer snap se mantiene en ``_snap_restore`` y vuelve cuando la ventana se arrastra de su azulejo o se restaura.\n\nEn Wayland un cliente no puede colocar su propia ventana de nivel superior: las medias teselas se aplican como un tamaño y el compositor decide la posición, por lo que reportan ``False``. Maximizar es una petición de estado cada compositor honores. Arrastrando la barra de título en Waylandia pasa a través de ``startSystemMove`` y el propio compositor chasquido en su lugar.\n\n:param edge: ``\"left\"``, ``\"right\"``, ``\"up\"`` o ``\"down\"``.\n:param screen: la vista de la aplicación para ajustarla; por defecto a la propia ventana.\n:returns: si se aplicó la geometría solicitada.",
+      "translation_source_blocks_sha256": [
+        "e0ecc9ef7cad2e215b4d877961ac2d4ba9c26268ead9339636bcc74e8cb7e888",
+        "f21a222f6b4fabb64ed78690e49a44a6a8fa00103a2467005b8307873107cbad",
+        "9c388fafb53fd0011815981f6ff7d7f41ad0454b1c2e222154bdf98af97d1b70",
+        "c6d3eb0ddbf8e0ed1ef03ebdf34229c965a09b08922a8fd8840ce2300a06e88d",
+        "33317af6061eb6e05239866d6f3a526a9b87d8d639e67b41b0a0fc832c06be04",
+        "e75413888dd40c135c8c8b06d92df608faa5f3f61b4f9a29853583b3169a9afd",
+        "5460b2d48f6442bb86c69cbc8b08ee544f38bed1f4416f243765354d3fbe111e"
+      ]
+    },
     "spacr.qt.app.MainWindow.stylesheet_roots": {
       "source_blocks_sha256": [
         "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
@@ -71176,12 +71198,14 @@
     },
     "spacr.qt.app.MainWindow.toggle_fullscreen": {
       "source_blocks_sha256": [
-        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423"
+        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423",
+        "9bbfa607fa128931f01dcce5cf4e771bf75eaf81c005e52907a5ddbeeee9f37e"
       ],
-      "source_sha256": "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423",
-      "text": "Introduzca o deje la pantalla completa verdadera. Devuelve si ahora está llena.",
+      "source_sha256": "7c1c49a0b8447e0cae7b4562316d3c47ac55e5bc4202cced138aa10ea09879f5",
+      "text": "Introduzca o deje la pantalla completa verdadera. Devuelve si ahora está llena.\n\nDejando los retornos al estado antes: maximizado, un azulejo, o la ventana ordinaria. Independientemente del snap superior, que maximiza.",
       "translation_source_blocks_sha256": [
-        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423"
+        "77dfb41fc4dad70950d9c49bb9bcc33b0725bcc78d31cde093e212d88a502423",
+        "9bbfa607fa128931f01dcce5cf4e771bf75eaf81c005e52907a5ddbeeee9f37e"
       ]
     },
     "spacr.qt.app.MainWindow.wheelEvent": {
@@ -87862,6 +87886,16 @@
       "translation_source_blocks_sha256": [
         "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
         "7d0d72d6da06a84a5ac615433d26d4801b6c6abde417bd3fa1860d8b82f8f806"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._density_follows_theme": {
+      "source_blocks_sha256": [
+        "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d"
+      ],
+      "source_sha256": "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d",
+      "text": "Mostrar el propio tema por defecto mientras que la densidad nunca fue elegida.",
+      "translation_source_blocks_sha256": [
+        "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says": {
@@ -121862,6 +121896,18 @@
         "13abe22d9969b02d885aafeadc22cb9981addc13d9278cad7cc8a13890514595"
       ]
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_click_ripples": {
+      "source_blocks_sha256": [
+        "95287e10199c3d06a1bfcc53ba24f7adba0f3adcb086b15254d29fc6bdd6946d",
+        "74b841fb199e0fe22ac34717a3f97056b55b678dc860d6b8bb9442c7ee4ad832"
+      ],
+      "source_sha256": "863571f99ca89b581a8364294b0cfc03ab02723bbb327df5310ba5b18e59db2d",
+      "text": "Cambiar ondas en las posiciones del ratón-clic; otras ondas no cambian.\n\n:param enabled: si un clic de fondo envía una onda.",
+      "translation_source_blocks_sha256": [
+        "95287e10199c3d06a1bfcc53ba24f7adba0f3adcb086b15254d29fc6bdd6946d",
+        "74b841fb199e0fe22ac34717a3f97056b55b678dc860d6b8bb9442c7ee4ad832"
+      ]
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.set_density": {
       "source_blocks_sha256": [
         "a63d075fb31d6aa92d301fe80e01099523f020fa28f08579322d215bd97546d1",
@@ -123257,13 +123303,15 @@
     "spacr.qt.widgets.ambient.preferred_motion": {
       "source_blocks_sha256": [
         "c92af42e681aac467ad8a2cab15dd9fee68fce0bae6481fcd07d7ade25f0953f",
-        "413a57c93e4b613acf4873d960ebc975982e8f407b416a525a50a702a6a17ca3"
+        "413a57c93e4b613acf4873d960ebc975982e8f407b416a525a50a702a6a17ca3",
+        "d4aecb44eaa8901d490a9fa94775eb5611fe81ed4879f9b65b51720767d1f53d"
       ],
-      "source_sha256": "28c779270ae94d017cabc512e0d3a046a711ec28ec69c1e9602d0bb2b7fc95d4",
-      "text": "La animación controla, desde las preferencias del usuario.\n\nLea aquí en lugar de pasar por cada sitio de instalación, por la misma razón :func:`_theme_background` es: los dos llamantes que construyen widgets ambiente son una vista de aplicación de módulo y Home, y ninguno de ellos tiene ningún negocio saber lo que los botones de la animación se llaman. Cae de nuevo a los predeterminados enviados si las preferencias no se pueden leer en absoluto.",
+      "source_sha256": "8c5d49665925a3d381841823dca42c28d7d3511a545d079fb640159730692b73",
+      "text": "La animación controla, desde las preferencias del usuario.\n\nLea aquí en lugar de pasar por cada sitio de instalación, por la misma razón :func:`_theme_background` es: los dos llamantes que construyen widgets ambiente son una vista de aplicación de módulo y Home, y ninguno de ellos tiene ningún negocio saber lo que los botones de la animación se llaman. Cae de nuevo a los predeterminados enviados si las preferencias no se pueden leer en absoluto.\n\n:param theme: el tema que se está construyendo, cuya propia densidad predeterminada se aplica mientras que no se ha guardado densidad.",
       "translation_source_blocks_sha256": [
         "c92af42e681aac467ad8a2cab15dd9fee68fce0bae6481fcd07d7ade25f0953f",
-        "4d0534bf5a4278470eee32f1332d2d4817a8b122a70fc382b293d6e5eaf00721"
+        "4d0534bf5a4278470eee32f1332d2d4817a8b122a70fc382b293d6e5eaf00721",
+        "d4aecb44eaa8901d490a9fa94775eb5611fe81ed4879f9b65b51720767d1f53d"
       ]
     },
     "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops": {

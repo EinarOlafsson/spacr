@@ -2,7 +2,7 @@
 GPU ACCELERATION FOR DATA FLOW THEMES WITH CPU FALLBACK
 ================================================================================
 
-Status:    open
+Status:    in progress — renderer integrated and on by default 2026-10-10; native acceptance of integrated source open
 Requested: 2026-10-08
 Owner:     Workstation GPU lane; Home integration and CI
 Related:   N663 theme performance; N674 Spaceout field; N43 GitHub checks
@@ -63,3 +63,16 @@ is justified. Point-framebuffer followup queued through unchanged guards;
 portable evidence is data/679_paired_graphics_GPU_prototype_2026-10-08.
 
 2026-10-08 20:22 EDT — Native fullengine R6 192 moving frames exact; portable proof published. R7 negative random-advection blinking crash retained; sourcefix e91593c76/42 complete CPU checks PASS. Native R8 GUI/events acceptance queued through unchanged guard. Renderer source remains private, parent PARTIAL.
+
+2026-10-10 — The privately prepared renderer (payload in
+data/679_native_application_engine_GPU_2026-10-08) is integrated on nightly
+instead of redone. Changes on integration: preference renamed
+prefs/animation_gpu with CPU/Automatic/On (default On, per N684);
+Automatic covers every point family at dense 4K; moderngl absence is
+detected in-process (no child probe); Windows/macOS use their default
+standalone GL backend; NVML ignores this process and treats missing NVML
+as no external load; probe runs before the NVML query and outside the
+engine lock on start. 18 CPU/Qt fallback/ownership checks pass. The later
+private blink fix (e91593c76) was not reachable; the random-palette path
+still releases graphics and draws on CPU. Native GPU timing of this exact
+source, other vendors and platforms remain unmeasured.
