@@ -1,0 +1,14 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source_sha256": "43d04f0fd02036ba7f5d48ab3e910d7b6fa601fcaabe433e18ff0109b9b733f5",
+      "table": "ui",
+      "translation": "Charger une série publique de plaques : tous les puits des 24 plaques de composés CPJUMP1 de la Cell Painting Gallery (CC0), avec les puits DMSO et de contrôle positif marqués, et tracer les puits DMSO plaque par plaque sur la carte de contrôle. Environ 2 MB, mis en cache ensuite."
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

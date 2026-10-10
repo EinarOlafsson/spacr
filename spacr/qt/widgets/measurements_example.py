@@ -14,11 +14,16 @@ Tabulate, Graph Builder and the rest; what differs is only which field is
 filled and which method opens it. So a screen passes that one difference as
 a callback and nothing else.
 
-THE DOWNLOAD IS THE EXISTING ONE. Nothing new is published: the archive,
-the worker and the progress dialog are
-:func:`spacr.qt.hf_download.download_annotate_example`, the same call
-Classify's button makes, and a plate already unpacked by any of them is
+THE DOWNLOAD IS THE EXISTING ONE. The archive, the worker and the progress
+dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same
+call Classify's button makes, and a plate already unpacked by any of them is
 reused without touching the network.
+
+Two public sets have buttons of their own, fetched through the example-set
+registry (:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose`` (LINCS Cell
+Painting, ``einarolafsson/spacr-example-dose``) for Dose-Response, Prediction
+Profiler, Run Compare, Run History and Training Runs, and ``control_chart``
+(CPJUMP1, ``einarolafsson/spacr-example-control-chart``) for Control Chart.
 """
 from __future__ import annotations
 
@@ -171,8 +176,8 @@ def _report(screen, message: str) -> None:
     LOG.warning("%s", message)
 
 
+_DOSE_KEY = "dose"
 _DOSE_FOLDER = "dose_response_lincs"
-_DOSE_REPO = "einarolafsson/spacr-example-dose"
 _DOSE_PLATE = "dose_plate.csv"
 _DOSE_RESPONSE = "Cells_Number_Object_Number"
 _DOSE_PROFILER_RUN = "regression_dmso_normalised"
@@ -188,6 +193,31 @@ def _dose_example_folder() -> Path:
     from them.
     """
     return example_measurements_folder().parent / _DOSE_FOLDER
+
+
+def _fetch_example_set(key: str, folder: Path) -> None:
+    """Download the registered example set ``key`` and unpack it in ``folder``.
+
+    The set's one archive comes from its dataset repository through
+    :func:`spacr.example_archives.download_archive`, is unpacked with the
+    path filter of :func:`spacr.example_archives.extract_example_archive`,
+    and is then deleted.
+
+    :param key: an :data:`spacr.example_archives.EXAMPLE_SETS` key.
+    :param folder: where the set is unpacked.
+    """
+    from ...example_archives import (download_archive, example_set,
+                                     extract_example_archive)
+
+    entry = example_set(key)
+    folder = Path(folder)
+    folder.mkdir(parents=True, exist_ok=True)
+    archive = download_archive(entry.repo, entry.archive, folder,
+                               chunk_size=1 << 20)
+    try:
+        extract_example_archive(archive, folder)
+    finally:
+        Path(archive).unlink(missing_ok=True)
 
 
 def _install_dose_test_data_button(screen, layout, apply: Callable[[Path], Any],
@@ -222,11 +252,8 @@ def _install_dose_test_data_button(screen, layout, apply: Callable[[Path], Any],
 
 
 def _fetch_dose_example(folder: Path) -> None:
-    """Download the dose example from its dataset repository into ``folder``."""
-    from huggingface_hub import snapshot_download
-
-    snapshot_download(repo_id=_DOSE_REPO, repo_type="dataset",
-                      local_dir=str(folder))
+    """Download the dose example (``einarolafsson/spacr-example-dose``)."""
+    _fetch_example_set(_DOSE_KEY, folder)
 
 
 def _load_dose_test_data(screen, *, ask=None) -> bool:
@@ -242,10 +269,12 @@ def _load_dose_test_data(screen, *, ask=None) -> bool:
         try:
             (ask or _fetch_dose_example)(folder)
         except Exception as exc:
-            _report(screen, tr("The test data could not be downloaded: "
-                               "{detail}", detail=str(exc) or
-                               exc.__class__.__name__))
+            _report(screen, _download_failure(exc))
             return False
+    if not (folder / _DOSE_PLATE).is_file():
+        _report(screen, tr("The test data could not be downloaded: {detail}",
+                           detail=str(folder / _DOSE_PLATE)))
+        return False
     apply = getattr(screen, "_dose_test_data_apply", None)
     try:
         if apply is not None:
@@ -317,3 +346,101 @@ def _journal_dose_runs(folder: Path) -> int:
         written.append(Path(run.dir).name)
     mark.write_text("\n".join(written) + "\n", encoding="utf-8")
     return len(written)
+
+
+def _download_failure(exc: BaseException) -> str:
+    """The message a failed example download is reported with."""
+    from ...example_archives import explain_download_failure
+
+    try:
+        detail = explain_download_failure(exc)
+    except Exception:
+        detail = str(exc) or exc.__class__.__name__
+    return tr("The test data could not be downloaded: {detail}", detail=detail)
+
+
+_CONTROL_CHART_KEY = "control_chart"
+_CONTROL_CHART_FOLDER = "control_chart_cpjump1"
+_CONTROL_CHART_TABLE = "control_chart_wells.csv"
+_CONTROL_CHART_VALUE = "Cells_Number_Object_Number"
+_CONTROL_CHART_NEGATIVE = "negcon"
+_CONTROL_CHART_POSITIVE = "poscon_cp"
+
+
+def _control_chart_example_folder() -> Path:
+    """The Control Chart example's folder, beside the shared example plate.
+
+    Every well of the 24 CPJUMP1 compound plates (Cell Painting Gallery
+    cpg0000-jump-pilot, CC0 1.0), cut to plate, well and control metadata and
+    eleven CellProfiler features.
+    """
+    return example_measurements_folder().parent / _CONTROL_CHART_FOLDER
+
+
+def _install_control_chart_test_data_button(
+        screen, layout, apply: Callable[[Path], Any], *,
+        say: Optional[Callable[[str], Any]] = None,
+        index: Optional[int] = None):
+    """Add a "Load test data…" button that hands the CPJUMP1 table to ``apply``.
+
+    :param screen: the screen the button, callback and reporter are kept on.
+    :param layout: the box layout the button goes into.
+    :param apply: called as ``apply(table)`` with ``control_chart_wells.csv``.
+    :param say: where a failure is reported; logged when omitted.
+    :param index: position in ``layout``; appended when omitted.
+    :returns: the button. The caller names it.
+    """
+    from PySide6.QtWidgets import QPushButton
+
+    button = QPushButton(tr("Load test data…"), screen)
+    button.setToolTip(tr(
+        "Load a public plate series: every well of the 24 CPJUMP1 compound "
+        "plates of the Cell Painting Gallery (CC0), with DMSO and "
+        "positive-control wells marked, and chart the DMSO wells plate by "
+        "plate. About 2 MB, cached afterwards."))
+    screen._control_chart_test_data_apply = apply
+    screen._test_data_say = say
+    button.clicked.connect(
+        lambda _checked=False: _load_control_chart_test_data(screen))
+    if layout is not None:
+        if index is None:
+            layout.addWidget(button)
+        else:
+            layout.insertWidget(index, button)
+    return button
+
+
+def _fetch_control_chart_example(folder: Path) -> None:
+    """Download the CPJUMP1 table (``einarolafsson/spacr-example-control-chart``)."""
+    _fetch_example_set(_CONTROL_CHART_KEY, folder)
+
+
+def _load_control_chart_test_data(screen, *, ask=None) -> bool:
+    """Reuse or fetch the CPJUMP1 table, then hand it to the screen.
+
+    :param screen: a screen :func:`_install_control_chart_test_data_button`
+        was called on.
+    :param ask: replaces the download, called with the folder. For tests.
+    :returns: whether the screen received the table.
+    """
+    folder = _control_chart_example_folder()
+    table = folder / _CONTROL_CHART_TABLE
+    if not table.is_file():
+        try:
+            (ask or _fetch_control_chart_example)(folder)
+        except Exception as exc:
+            _report(screen, _download_failure(exc))
+            return False
+    if not table.is_file():
+        _report(screen, tr("The test data could not be downloaded: {detail}",
+                           detail=str(table)))
+        return False
+    apply = getattr(screen, "_control_chart_test_data_apply", None)
+    try:
+        if apply is not None:
+            apply(table)
+    except Exception as exc:
+        LOG.exception("the screen could not open the control chart example")
+        _report(screen, str(exc) or exc.__class__.__name__)
+        return False
+    return True

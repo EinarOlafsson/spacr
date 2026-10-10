@@ -41,9 +41,11 @@ LOG = logging.getLogger("spacr.example_archives")
 
 __all__ = [
     "ANNOTATE_EXAMPLE_REPO",
+    "CONTROL_CHART_EXAMPLE_REPO",
     "DATASET_PLACEHOLDER",
     "DATASET_REPO",
     "DATASET_SUB",
+    "DOSE_EXAMPLE_REPO",
     "EXAMPLE_ARCHIVES",
     "EXAMPLE_SETS",
     "ExampleSet",
@@ -129,6 +131,18 @@ OPS_EXAMPLE_REPO = "einarolafsson/spacr-example-ops"
 #: well, cut from the same published screen as :data:`OPS_EXAMPLE_REPO`.
 STITCH_EXAMPLE_REPO = "einarolafsson/spacr-example-stitch"
 
+#: Dose-Response's example: four replicate A549 plates of one LINCS Cell
+#: Painting plate map (Cell Painting Gallery cpg0004-lincs, CC0 1.0), as
+#: well-level profiles, with the regression and training runs that Prediction
+#: Profiler, Run Compare, Run History and Training Runs open. See
+#: ``tools/build_dose_example_dataset.py``.
+DOSE_EXAMPLE_REPO = "einarolafsson/spacr-example-dose"
+
+#: Control Chart's example: every well of the 24 CPJUMP1 compound plates
+#: (Cell Painting Gallery cpg0000-jump-pilot, CC0 1.0), with their DMSO and
+#: positive-control wells. See ``tools/build_control_chart_example_dataset.py``.
+CONTROL_CHART_EXAMPLE_REPO = "einarolafsson/spacr-example-control-chart"
+
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
 
@@ -177,6 +191,8 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     INVASION_EXAMPLE_REPO: "spacr-example-invasion.tar",
     OPS_EXAMPLE_REPO: "spacr-example-ops.tar",
     STITCH_EXAMPLE_REPO: "spacr-example-stitch.tar",
+    DOSE_EXAMPLE_REPO: "spacr-example-dose.tar",
+    CONTROL_CHART_EXAMPLE_REPO: "spacr-example-control-chart.tar",
 }
 
 
@@ -343,14 +359,36 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         folder="ops_screen",
         in_default=False,
     ),
+    ExampleSet(
+        key="dose",
+        repo=DOSE_EXAMPLE_REPO,
+        summary="Dose-Response example: four replicate A549 plates of the "
+                "LINCS Cell Painting set (CC0), 56 compounds at six doses, "
+                "with regression and training runs made from them.",
+        bytes=266_000,
+        markers=("dose_plate.csv", "runs/*/results.csv"),
+        folder="dose_response_lincs",
+        in_default=False,
+    ),
+    ExampleSet(
+        key="control_chart",
+        repo=CONTROL_CHART_EXAMPLE_REPO,
+        summary="Control Chart example: 9,131 wells of the 24 CPJUMP1 "
+                "compound plates (CC0), DMSO and positive-control wells "
+                "marked.",
+        bytes=1_600_000,
+        markers=("control_chart_wells.csv",),
+        folder="control_chart_cpjump1",
+        in_default=False,
+    ),
 )
 
 
 def example_set(key: str) -> ExampleSet:
     """The set called ``key``.
 
-    :param key: ``import``, ``mask``, ``measure``, ``annotate``,
-        ``replication``, ``recruitment`` or ``invasion``.
+    :param key: an :data:`EXAMPLE_SETS` key, such as ``import``, ``mask``,
+        ``measure``, ``annotate``, ``dose`` or ``control_chart``.
     :raises KeyError: naming the keys that do exist. A typo that returned
         ``None`` would download nothing and report success, which is the one
         outcome a download command must never produce.

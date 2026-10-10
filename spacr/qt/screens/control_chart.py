@@ -51,8 +51,10 @@ from PySide6.QtWidgets import (
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
-from ..i18n import tr
-from ..widgets.measurements_example import EXAMPLE_TABLE, install_test_data_button
+from ..i18n import set_translatable_text, tr
+from ..widgets.measurements_example import (
+    _CONTROL_CHART_NEGATIVE, _CONTROL_CHART_POSITIVE, _CONTROL_CHART_VALUE,
+    _install_control_chart_test_data_button)
 from ..job_runner import JobRunner
 from ..theme import (RADIUS, SPACING, active_palette, block_surface,
                      register_widget_qss)
@@ -443,10 +445,8 @@ class ControlChartScreen(QWidget):
         load.setToolTip("A measurements.db, or a CSV of per-well values")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
-        example = install_test_data_button(
-            self, head, lambda _folder, db: self.load_path(
-                str(db), table=EXAMPLE_TABLE),
-            say=self._source.setText)
+        example = _install_control_chart_test_data_button(
+            self, head, self._open_test_data, say=self._source.setText)
         example.setObjectName("ControlChartTestDataButton")
 
         export = QPushButton("Export points…", self)
@@ -814,6 +814,43 @@ class ControlChartScreen(QWidget):
         self.sar_table.setMinimumHeight(90)
         layout.addWidget(self.sar_table, 1)
         return body
+
+    def _open_test_data(self, table) -> None:
+        """Chart the CPJUMP1 example: DMSO wells, cell number, plate by plate.
+
+        The table is small (9,131 wells), so it is read here rather than on
+        the worker, and the pickers are set before the one recompute: plate
+        ``plate``, run order ``run_order``, measurement
+        ``Cells_Number_Object_Number``, control ``well_type`` = ``negcon``,
+        with ``poscon_cp`` and ``negcon`` offered for Z'.
+
+        :param table: the example's ``control_chart_wells.csv``.
+        """
+        frame = pd.read_csv(table)
+        self._path = str(table)
+        self._table_picker.clear()
+        self._table_picker.setVisible(False)
+        self._frame = frame
+        self._loading = True
+        try:
+            self._refill_pickers(frame)
+            self._plate.setCurrentText("plate")
+            self._order.setCurrentText("run_order")
+            self._value.setCurrentText(_CONTROL_CHART_VALUE)
+            self._control_column.setCurrentText("well_type")
+            self._refill_levels(frame)
+            for row in range(self._levels.count()):
+                item = self._levels.item(row)
+                item.setSelected(item.text() == _CONTROL_CHART_NEGATIVE)
+            self._positive.setCurrentText(_CONTROL_CHART_POSITIVE)
+            self._negative.setCurrentText(_CONTROL_CHART_NEGATIVE)
+        finally:
+            self._loading = False
+        set_translatable_text(
+            self._source, "{name} · {rows} rows × {columns} columns",
+            name=os.path.basename(str(table)), rows=f"{len(frame):,}",
+            columns=len(frame.columns))
+        self.recompute()
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Chart ``frame``. The one call a host needs.

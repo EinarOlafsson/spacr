@@ -13,6 +13,7 @@ and eleven CellProfiler features. From that one table the script derives:
 * ``runs/<run>/results.csv`` (two runs)   Prediction Profiler, Run Compare,
                                            Run History (registered at load)
 * ``training/model/...`` + ``settings/``   Training Runs
+* ``README.md`` (dataset card) and ``spacr-example-dose.tar`` (all of it)
 
 Usage: python tools/build_dose_example_dataset.py [dest] [--cache DIR]
 """
@@ -39,28 +40,71 @@ FEATURES = (
     "Cytoplasm_Granularity_1_Mito",
 )
 RESPONSE = "Cells_Number_Object_Number"
-README = """\
-spaCR dose-response example (staged for einarolafsson/spacr-example-dose)
+CARD = """\
+---
+license: cc0-1.0
+pretty_name: spaCR Dose-Response example (LINCS Cell Painting, A549)
+tags:
+- spacr
+- cell-painting
+- dose-response
+- high-content-screening
+size_categories:
+- 1K<n<10K
+---
 
-Source: Cell Painting Gallery, cpg0004-lincs, batch
-2016_04_01_a549_48hr_batch1, plates SQ00014812-SQ00014815 (four replicates of
-plate map C-7161-01-LM6-022). A549 cells, 48 h, 56 compounds at six doses
-(0.041-10 uM) and DMSO vehicle wells (dose 0). Well-level CellProfiler
-profiles (median per well), cut to eleven features.
-Licence: CC0 1.0 (Cell Painting Gallery). Cite: Way GP et al. (2022) Cell
-Systems 13:911-923; Cell Painting Gallery, Weisbart E et al. (2024) Nat
-Methods.
+# spaCR — Dose-Response example (LINCS Cell Painting)
 
-dose_plate.csv      plate, well, compound, moa, dose_uM, features.
-                    Cells_Number_Object_Number is the per-well median CellProfiler
-                    object number, which tracks how many cells a field holds.
-runs/*/results.csv  OLS of that response on each compound's scaled log10 dose
-                    (0 = vehicle or another compound, 1 = 10 uM): raw, and
-                    divided by each plate's DMSO median.
-training/           logistic regression (SGD) told DMSO from >=3.3 uM wells on
-                    plates 12-14, validated on plate 15; two learning rates.
-Built by tools/build_dose_example_dataset.py.
+Well-level Cell Painting profiles of one LINCS plate map, four replicate
+plates, cut to plate, well, compound, dose and eleven CellProfiler features,
+with two regression runs and two training runs made from them. It is the data
+behind **Load test data…** on spaCR's Dose-Response, Prediction Profiler, Run
+Compare, Run History and Training Runs screens (alpha features).
+
+{n_wells:,} wells: {n_curves} compounds at six doses (55 from 0.041 to
+10 µM, one from 0.033 to 8.1 µM), MG-132 and bortezomib at one dose (20 µM)
+as positive controls, and DMSO vehicle wells (dose 0). `{archive}` (one
+uncompressed tar, what spaCR downloads) holds everything; `dose_plate.csv` is
+also published loose.
+
+## Source
+
+* Cell Painting Gallery `cpg0004-lincs`, batch `2016_04_01_a549_48hr_batch1`,
+  file `broad/workspace/profiles/2016_04_01_a549_48hr_batch1/<plate>/<plate>_augmented.csv.gz`
+  (median-aggregated, well-level CellProfiler profiles).
+* Plates **SQ00014812, SQ00014813, SQ00014814, SQ00014815**: four replicates
+  of plate map **C-7161-01-LM6-022**. A549 cells, 48 h.
+
+## Files
+
+* `dose_plate.csv`: `plate`, `well`, `compound`, `moa`, `dose_uM`, then
+  {features}. `Cells_Number_Object_Number` is CellProfiler's median object
+  number per well, which rises with the number of cells in a field; it is the
+  response the Dose-Response button fits.
+* `runs/<run>/results.csv` and `settings.json`: ordinary least squares of
+  that response on each compound's scaled log10 dose (0 = vehicle or another
+  compound, 0.1–1 = 0.041–10 µM), raw (`regression_raw`) and divided by each
+  plate's DMSO median (`regression_dmso_normalised`). Derived here, not part
+  of the source.
+* `training/`: logistic regression (SGD) telling DMSO from ≥3.3 µM wells,
+  trained on SQ00014812–14 and validated on SQ00014815, 20 epochs at learning
+  rate 0.01 and 40 epochs at 0.001, in spaCR's training layout. Derived here.
+
+## Licence and citation
+
+CC0 1.0, as the Cell Painting Gallery publishes it. Please cite:
+
+* Way GP, Natoli T, Adeboye A, et al. Morphology and gene expression profiling
+  provide complementary information for mapping cell state. *Cell Systems*
+  13(11), 911–923 (2022). doi:10.1016/j.cels.2022.10.001
+* Weisbart E, Kumar A, Arevalo J, et al. Cell Painting Gallery: an open
+  resource for image-based profiling. *Nature Methods* 21, 1775–1777 (2024).
+  doi:10.1038/s41592-024-02399-z
+
+Built by `tools/build_dose_example_dataset.py` in
+[spaCR](https://github.com/EinarOlafsson/spacr).
 """
+ARCHIVE = "spacr-example-dose.tar"
 
 
 def _plates(cache: Path) -> pd.DataFrame:
@@ -174,8 +218,32 @@ def build(dest: Path, cache: Path) -> Path:
     _regression(plate, False, dest / "runs" / "regression_raw")
     _regression(plate, True, dest / "runs" / "regression_dmso_normalised")
     _training(plate, dest / "training")
-    (dest / "README.txt").write_text(README)
+    dosed = plate[plate["dose_uM"] > 0].groupby("compound")["dose_uM"]
+    (dest / "README.md").write_text(CARD.format(
+        n_wells=len(plate), n_compounds=dosed.ngroups,
+        n_curves=int((dosed.nunique() >= 6).sum()), archive=ARCHIVE,
+        features=", ".join(f"`{f}`" for f in FEATURES)), encoding="utf-8")
+    _archive(dest)
     return dest
+
+
+def _archive(dest: Path) -> Path:
+    """Tar every file of the set, relative to ``dest``, with fixed owners."""
+    import tarfile
+
+    path = dest / ARCHIVE
+    names = sorted(p for p in dest.rglob("*")
+                   if p.is_file() and p.name != ARCHIVE
+                   and not p.name.startswith("."))
+    with tarfile.open(path, "w", format=tarfile.PAX_FORMAT) as tar:
+        for name in names:
+            info = tar.gettarinfo(str(name), arcname=str(name.relative_to(dest)))
+            info.uid = info.gid = 0
+            info.uname = info.gname = ""
+            info.mtime = 0
+            with name.open("rb") as handle:
+                tar.addfile(info, handle)
+    return path
 
 
 if __name__ == "__main__":

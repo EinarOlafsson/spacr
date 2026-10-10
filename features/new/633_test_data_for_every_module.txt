@@ -1,10 +1,15 @@
 633 Test data for every module and submodule
 
-Status: DONE (alpha) 2026-10-05 — the user accepts the available alpha test
-        data as complete for this item. The multi-dose demonstration plate is
-        unavailable; Dose-Response, Investigate Hit and related demos remain
-        without that example and are not claimed tested with it.
+Status: ALPHA 2026-10-10, 95% -- the dose and control-chart example sets are
+        published and registered; every listed screen now loads working
+        example data except Investigate Hit, which needs a pooled-screen
+        example (see the 2026-10-10 note). Not COMPLETE: Investigate Hit open.
 
+Superseded status (2026-10-05): DONE (alpha) -- the user accepts the available
+        alpha test data as complete for this item. The multi-dose
+        demonstration plate is unavailable; Dose-Response, Investigate Hit
+        and related demos remain without that example and are not claimed
+        tested with it.
 Previous status (superseded 2026-10-04): IMPLEMENTED AS ALPHA 2026-10-03; Investigate Hit still BLOCKED (see third pass)
 
 Request (maintainer, verbatim):
@@ -175,3 +180,77 @@ The user directed this item to 100% with the multi-dose plate unavailable.
 The alpha examples that exist remain as recorded above. No concentration
 plate or derived Dose-Response, Investigate Hit, compare or history example
 was invented or published to satisfy the status change.
+
+2026-10-10 -- DOSE AND CONTROL-CHART SETS PUBLISHED (maintainer decision of
+2026-10-10: use cpg0004 LINCS, CC0, publish as spaCR example data)
+Hugging Face dataset repos (public, CC0 1.0, dataset cards with source, plate
+IDs, licence and citations):
+- einarolafsson/spacr-example-dose
+  https://huggingface.co/datasets/einarolafsson/spacr-example-dose
+  commit 783c47708156c4113951f28ca9731357bf85a034. Cell Painting Gallery
+  cpg0004-lincs, batch 2016_04_01_a549_48hr_batch1, plates SQ00014812,
+  SQ00014813, SQ00014814, SQ00014815 (four replicates of plate map
+  C-7161-01-LM6-022), A549 48 h; 1,536 wells, 56 compounds at six doses
+  (0.041-10 uM; one 0.033-8.1 uM), MG-132 and bortezomib at 20 uM, DMSO.
+  Files: README.md (card), spacr-example-dose.tar (266 kB: dose_plate.csv,
+  runs/, training/, README.md), dose_plate.csv loose. Rebuilt from the
+  Gallery by tools/build_dose_example_dataset.py; byte-identical to the set
+  staged on 2026-10-03.
+- einarolafsson/spacr-example-control-chart
+  https://huggingface.co/datasets/einarolafsson/spacr-example-control-chart
+  commit 3e1d0f65141d4ee0519af0e49b1efa056e7351f2. cpg0000-jump-pilot
+  source_4 batch 2020_11_04_CPJUMP1, all 24 compound plates (BR00116991-95,
+  BR00117008-13, -15-17, -19, -24-26, -50-55), 9,131 wells, well_type
+  negcon/poscon_cp/poscon_diverse/poscon_orf/trt, eleven features, plate
+  conditions from the CPJUMP1 paper's experiment metadata. 1.6 MB tar.
+  The four plates staged on 2026-10-03 (BR00117010-13) were NOT enough:
+  Control Chart refuses fewer than MIN_BASELINE = 8 plates. Built by the new
+  tools/build_control_chart_example_dataset.py.
+Registry: spacr/example_archives.py EXAMPLE_SETS gains "dose"
+(dose_response_lincs/) and "control_chart" (control_chart_cpjump1/), both
+in_default=False, so `spacr-download dose control_chart` works too. The
+buttons fetch through download_archive + extract_example_archive (one tar,
+path filter) instead of snapshot_download.
+Screens: Dose-Response, Prediction Profiler, Run Compare, Run History and
+Training Runs read the dose set (unchanged buttons). Control Chart's
+ControlChartTestDataButton now opens control_chart_wells.csv with plate,
+run_order, Cells_Number_Object_Number, well_type = negcon, Z' poscon_cp vs
+negcon preselected (it opened the annotate plate before).
+Fix: LINCS has 59 compound levels, over the 50-level category limit, so the
+Dose-Response group picker did not offer "compound" and the example fitted
+one pooled curve (refused as non-monotone). The example now adds "compound"
+to the picker.
+End to end (headless, real download from HF into a scratch folder):
+Dose-Response fits 59 groups (5 fitted, 28 unbounded, 26 refused as
+non-monotone or single-dose: honest results on real data); Profiler ranks 56
+compounds; Run Compare shows 2 runs; Run History journals 2 runs; Training
+Runs shows 2 runs; Control Chart charts 24 plates (33 rule violations: the
+series mixes A549/U2OS, 24/48 h and seeding densities, as the card says).
+Tests: tests/qt/test_test_data_for_every_module.py (registry, archive fetch,
+CPJUMP1 load while hidden, failed download, compound grouping past the
+category limit); tests/test_cli_download.py piece counts 18 -> 20.
+i18n: one new caption (Control Chart button tooltip). Reviewed records in
+docs/i18n/reviewed/runtime/<9 locales>/2026-10-10-control-chart-cpjump1-
+example.json; en.py regenerated with --sources-only. The nine language
+catalogs were NOT regenerated: on this nightly a full build also
+machine-translates ~45 measurement-store migration captions (576) that have
+no reviewed records, and test_i18n_caption_arrivals.py already fails 7 tests
+on clean nightly for that reason. The next catalog regeneration picks the
+reviewed tooltip up; until then it shows in English.
+
+Investigate Hit: STILL NO EXAMPLE. LINCS does not satisfy it. The screen
+(spacr.hit_investigation.investigate_hit) needs: (1) a per-cell measurements
+database over >= 6 wells, including both target-free and target-containing
+wells so every cross-fit fold has both kinds; (2) per-cell cross-validated
+predictions with a phenotype score column; (3) a sequencing-derived
+guide-fraction table, one fraction per well and guide; (4) a Regression
+results folder naming the hit gene and its guides. LINCS is an arrayed
+compound screen: no guides, so (3) and (4) cannot exist; the published
+profiles are per well, so (1) and (2) are missing too (single-cell SQLite
+backends exist per plate, several GB each, but still without guides).
+Candidate that does fit: the maintainer's own published TSG101 pooled screen
+(einarolafsson/spacr-example-screen plateN-measurements.tar, ~0.5 GB each;
+per-cell scores plateN_dv.csv and per-well guide counts
+plate_N_unique_combinations.csv from the example-data release). A cut of
+plate 1 (>= 6 wells with and without the hit's guides) plus a Regression run
+on it would make a small Investigate Hit set; not built here.

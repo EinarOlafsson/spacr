@@ -10,6 +10,7 @@ reaches the screen.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 from PySide6.QtWidgets import QPushButton
@@ -24,7 +25,6 @@ BUTTONS = {
     "trellis": "TrellisTestDataButton",
     "feature_explorer": "FeatureExplorerTestDataButton",
     "outliers": "OutliersTestDataButton",
-    "control_chart": "ControlChartTestDataButton",
     "data_manager": "DataManagerTestDataButton",
     "embeddings": "EmbeddingsTestDataButton",
     "power": "PowerTestDataButton",
@@ -48,6 +48,9 @@ DOSE_BUTTONS = {
     "train_compare": "TrainCompareTestDataButton",
 }
 
+#: Control Chart's alpha button, which opens the CPJUMP1 example.
+CONTROL_CHART_BUTTON = "ControlChartTestDataButton"
+
 
 
 #: Screens whose catalog entry is an alpha stage, built from their own factory.
@@ -69,7 +72,7 @@ def _build(qtbot, key):
 
 def _reached(key, screen, folder, database) -> bool:
     """Whether the example reached the screen's own source field."""
-    if key in ("trellis", "feature_explorer", "outliers", "control_chart"):
+    if key in ("trellis", "feature_explorer", "outliers"):
         return screen._path == str(database)
     if key == "data_manager":
         return screen._root == str(folder)
@@ -91,7 +94,7 @@ def test_every_button_is_registered_as_alpha():
 
     assert set(ALPHA_FEATURES[633]["widgets"]) == (
         set(BUTTONS.values()) | set(IMPORT_BUTTONS.values())
-        | set(DOSE_BUTTONS.values()))
+        | set(DOSE_BUTTONS.values()) | {CONTROL_CHART_BUTTON})
 
 
 @pytest.mark.parametrize("key", sorted(BUTTONS))
@@ -339,3 +342,175 @@ def test_a_missing_dose_example_is_fetched_and_a_failure_is_reported(
     assert mx._load_dose_test_data(
         screen, ask=lambda target: _write_dose_example(target)) is True
     assert screen._frame is not None
+
+
+def test_dose_example_set_is_registered_with_its_archive():
+    """The dose and control chart sets are in the example-set registry."""
+    from spacr.example_archives import (CONTROL_CHART_EXAMPLE_REPO,
+                                        DOSE_EXAMPLE_REPO, example_set)
+
+    dose = example_set("dose")
+    assert dose.repo == DOSE_EXAMPLE_REPO == "einarolafsson/spacr-example-dose"
+    assert dose.archive == "spacr-example-dose.tar"
+    assert dose.folder == mx._DOSE_FOLDER
+    chart = example_set("control_chart")
+    assert chart.repo == CONTROL_CHART_EXAMPLE_REPO
+    assert chart.repo == "einarolafsson/spacr-example-control-chart"
+    assert chart.archive == "spacr-example-control-chart.tar"
+    assert chart.folder == mx._CONTROL_CHART_FOLDER
+    assert not dose.in_default and not chart.in_default
+
+
+def _tar_of(folder, files, archive):
+    """Write ``files`` (relative path -> text) into the tar ``archive``."""
+    import tarfile
+
+    staging = archive.parent / "staging"
+    for name, text in files.items():
+        path = staging / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+    with tarfile.open(archive, "w") as tar:
+        for name in files:
+            tar.add(staging / name, arcname=name)
+    return archive
+
+
+def test_the_dose_fetch_downloads_and_unpacks_the_registered_archive(
+        tmp_path, monkeypatch):
+    """The fetch asks for the registry's repo and archive and unpacks it."""
+    from spacr import example_archives
+
+    source = tmp_path / "hub"
+    source.mkdir()
+    archive = _tar_of(source, {"dose_plate.csv": "plate,compound\n",
+                               "runs/r/results.csv": "feature\n"},
+                      source / "spacr-example-dose.tar")
+    asked = []
+
+    def fake_download(repo, name, dest, **_kwargs):
+        """Copy the local archive where the real download would write it."""
+        import shutil
+
+        asked.append((repo, name))
+        return Path(shutil.copy(archive, Path(dest) / name))
+
+    monkeypatch.setattr(example_archives, "download_archive", fake_download)
+    folder = tmp_path / "example_data" / mx._DOSE_FOLDER
+    mx._fetch_dose_example(folder)
+    assert asked == [("einarolafsson/spacr-example-dose",
+                      "spacr-example-dose.tar")]
+    assert (folder / "dose_plate.csv").is_file()
+    assert (folder / "runs" / "r" / "results.csv").is_file()
+    assert not (folder / "spacr-example-dose.tar").exists()
+
+
+def _write_control_chart_example(folder):
+    """Write a CPJUMP1-shaped table: ten plates, DMSO and positive wells."""
+    import numpy as np
+    import pandas as pd
+
+    rng = np.random.default_rng(0)
+    rows = []
+    for index in range(10):
+        plate = f"BR{index:08d}"
+        for well in range(12):
+            kind = "negcon" if well < 6 else ("poscon_cp" if well < 9 else "trt")
+            value = (100.0 if kind == "negcon" else 60.0) + rng.normal(0, 2)
+            if index == 9 and kind == "negcon":
+                value += 40.0
+            rows.append((plate, index + 1, "A549 48-hour Compound", "A549",
+                         48, f"A{well + 1:02d}", kind, "DMSO", "DMSO", value,
+                         4000.0 + rng.normal(0, 50)))
+    frame = pd.DataFrame(rows, columns=[
+        "plate", "run_order", "plate_condition", "cell_line", "timepoint_h",
+        "well", "well_type", "pert_iname", "broad_sample",
+        mx._CONTROL_CHART_VALUE, "Cells_AreaShape_Area"])
+    folder.mkdir(parents=True)
+    frame.to_csv(folder / mx._CONTROL_CHART_TABLE, index=False)
+    return folder
+
+
+def test_control_chart_button_charts_the_cpjump1_example_while_hidden(
+        qtbot, tmp_path, monkeypatch):
+    """Off hides it, on shows it, and a load charts the DMSO wells."""
+    from spacr.qt import preferences
+    from spacr.qt.screens.control_chart import ControlChartScreen
+
+    folder = _write_control_chart_example(
+        tmp_path / "example_data" / mx._CONTROL_CHART_FOLDER)
+    monkeypatch.setattr(mx, "example_measurements_folder",
+                        lambda: folder.parent / "plate1")
+    screen = ControlChartScreen(threaded=False)
+    qtbot.addWidget(screen)
+    found = screen.findChildren(QPushButton, CONTROL_CHART_BUTTON)
+    assert len(found) == 1
+    button = found[0]
+    assert "test data" in button.text().lower()
+
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
+    preferences._apply_alpha_widgets(screen)
+    assert button.isHidden()
+
+    def refuse(_folder):
+        """Fail if the cached example is downloaded again."""
+        raise AssertionError("downloaded a cached example")
+
+    assert mx._load_control_chart_test_data(screen, ask=refuse) is True
+    qtbot.waitUntil(lambda: screen._result is not None, timeout=20_000)
+    spec = screen.spec()
+    assert spec.plate == "plate" and spec.order == "run_order"
+    assert spec.value == mx._CONTROL_CHART_VALUE
+    assert spec.control_column == "well_type"
+    assert spec.control_levels == ("negcon",)
+    assert spec.positive_levels == ("poscon_cp",)
+    assert spec.negative_levels == ("negcon",)
+    assert len(screen._result.plates) == 10
+    assert screen._path == str(folder / mx._CONTROL_CHART_TABLE)
+
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: True)
+    preferences._apply_alpha_widgets(screen)
+    assert not button.isHidden()
+
+
+def test_a_missing_control_chart_example_is_fetched_and_a_failure_is_said(
+        qtbot, tmp_path, monkeypatch):
+    """No cached table asks the downloader; a failed download is said."""
+    from spacr.qt.screens.control_chart import ControlChartScreen
+
+    folder = tmp_path / "example_data" / mx._CONTROL_CHART_FOLDER
+    monkeypatch.setattr(mx, "example_measurements_folder",
+                        lambda: folder.parent / "plate1")
+    screen = ControlChartScreen(threaded=False)
+    qtbot.addWidget(screen)
+    said = []
+    screen._test_data_say = said.append
+
+    def offline(_folder):
+        """Stand in for an unreachable dataset repository."""
+        raise OSError("offline")
+
+    assert mx._load_control_chart_test_data(screen, ask=offline) is False
+    assert said and "offline" in said[-1]
+    assert mx._load_control_chart_test_data(
+        screen, ask=_write_control_chart_example) is True
+    assert screen._result is not None
+
+
+def test_the_dose_example_groups_by_compound_past_the_category_limit(
+        qtbot, tmp_path, monkeypatch):
+    """LINCS has 59 compounds, past the 50-level category limit: still grouped."""
+    import pandas as pd
+
+    folder = _write_dose_example(tmp_path / "example_data" / mx._DOSE_FOLDER)
+    plate = pd.read_csv(folder / mx._DOSE_PLATE)
+    extra = pd.concat(
+        [plate[plate["compound"] == "alpha"].assign(compound=f"c{index:02d}")
+         for index in range(60)], ignore_index=True)
+    pd.concat([plate, extra], ignore_index=True).to_csv(
+        folder / mx._DOSE_PLATE, index=False)
+    monkeypatch.setattr(mx, "example_measurements_folder",
+                        lambda: folder.parent / "plate1")
+    screen = _build_from_app(qtbot, "dose_response")
+    assert mx._load_dose_test_data(screen, ask=None) is True
+    assert screen.spec().group == "compound"

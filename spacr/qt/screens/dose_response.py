@@ -886,6 +886,10 @@ class DoseResponseScreen(QWidget):
         self._path = path
         self._table_picker.setVisible(False)
         self.set_frame(frame)
+        if self.group_picker.findData("compound") < 0:
+            offered = [self.group_picker.itemData(index)
+                       for index in range(self.group_picker.count())]
+            self._refill(self.group_picker, [*offered, "compound"])
         for picker, value in ((self.concentration_picker, "dose_uM"),
                               (self.response_picker, _DOSE_RESPONSE),
                               (self.group_picker, "compound")):
