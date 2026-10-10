@@ -7183,6 +7183,14 @@ class _MeasurementMigrationDialog(QDialog):
     """Explicit, nonblocking copy between already supported measurement stores."""
 
     def __init__(self, target: str = "") -> None:
+        """Build the dialog, preselecting ``target`` as the destination store.
+
+        Parameters
+        ----------
+        target : str, optional
+            Destination store path or connection string shown in the
+            destination field. Empty leaves the field blank.
+        """
         super().__init__()
         from ..i18n import tr
 
