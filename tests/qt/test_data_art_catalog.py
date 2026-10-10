@@ -61,7 +61,7 @@ def test_retained_data_art_choices_are_separate_from_ten_night_themes():
     assert len({theme.palette_for(key)["accent"] for key in expected}) == len(expected)
 
 
-@pytest.mark.parametrize("key", set(ambient.SPACEOUT_ONLY_THEMES) & set(catalog.DATA_ART_THEME_KEYS))
+@pytest.mark.parametrize("key", sorted(set(ambient.SPACEOUT_ONLY_THEMES) & set(catalog.DATA_ART_THEME_KEYS)))
 def test_saved_spaceout_preset_falls_back_in_an_ordinary_launch(private_store, key):
     settings = private_store._settings()
     settings.setValue(private_store._KEY_THEME, key)
