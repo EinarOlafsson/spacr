@@ -13273,7 +13273,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 299,
+    "line": 301,
     "module": "spacr.qt.widgets.measurements_example",
     "nested": false,
     "qualname": "_dose_runs"
@@ -48737,7 +48737,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 298,
+    "line": 300,
     "module": "spacr.qt.widgets.measurements_example",
     "nested": false,
     "qualname": "_dose_runs"
@@ -48746,7 +48746,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 343,
+    "line": 345,
     "module": "spacr.qt.widgets.measurements_example",
     "nested": false,
     "qualname": "_journal_dose_runs"

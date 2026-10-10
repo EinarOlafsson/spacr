@@ -1037,9 +1037,18 @@ def test_theme_switch_reaches_the_painted_output(qtbot):
 # ---------------------------------------------------------------------------
 
 def test_it_follows_the_app_palette_when_the_host_did_not_pick_a_colour(qtbot,
-                                                                       qapp):
+                                                                       qapp,
+                                                                       monkeypatch):
     """Without this, a dark-to-light switch leaves a black rectangle on a
-    white page — exactly the bug the DNA rain had."""
+    white page — exactly the bug the DNA rain had.
+
+    Since N684 a profile that never chose a fill gets the shipped dark
+    default, so following the page is what the Theme colour choice does.
+    """
+    import spacr.qt.preferences as preferences
+
+    monkeypatch.setattr(preferences, "_ambient_background_choice",
+                        lambda: None)
     widget = AmbientWidget(seed=1)
     qtbot.addWidget(widget)
     widget.set_background_color("#000000")

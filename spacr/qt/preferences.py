@@ -2593,10 +2593,13 @@ def _migrate_field_ripples_switch() -> None:
 
     The slider's zero is now "off". A profile that had switched ripples
     off keeps them off by storing zero once; a profile that had them on
-    keeps its intensity. Runs once per store.
+    keeps its intensity. Runs once per store that still holds the retired
+    switch; a store without it has nothing to fold, so reading stays a read.
     """
     settings = _settings()
     if _as_bool(settings.value(_KEY_FIELD_RIPPLES_SLIDER, False), False):
+        return
+    if not settings.contains(_KEY_FIELD_RIPPLES):
         return
     if not _as_bool(settings.value(_KEY_FIELD_RIPPLES, True), True):
         settings.setValue(_KEY_FIELD_RIPPLE_INTENSITY, 0.0)
@@ -7783,6 +7786,7 @@ PREFERENCE_TIPS = {
     "Animation colours": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
     "Animation background": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
     "Mouse gravity radius": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
+    "Animation GPU": "Where animations are drawn. Off draws on the CPU. Automatic uses the GPU only for dense, high-resolution frames, where it measured faster. On uses the GPU whenever the theme has a GPU renderer. Unsupported graphics or a failed GPU start always fall back to the CPU.",
     "Field ripples": "Ripples from clicks, opening or closing containers, and window snapping. Independent of mouse gravity.",
     "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
     "Backend": "Which renderer draws the fractal. GPU is a shader and is far cheaper; it needs vispy and a real display, and falls back to the CPU renderer when either is missing. Automatic picks the GPU when it can and says below which one this machine will get.",
