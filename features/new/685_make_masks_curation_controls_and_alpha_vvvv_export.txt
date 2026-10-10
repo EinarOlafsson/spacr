@@ -124,8 +124,8 @@ pixel even when the lens is locked; a right drag still merges; Auto accept
 holds off the deleted footprint until the pointer leaves it. (3) Editable
 index/total tally on the Flows tab (MakeMasksQueueIndex/MakeMasksQueueTotal);
 bad or out-of-range input restores the index and keeps the image; jumps use
-the Next/Prev leaving rules (box save, opted-in mask save from N680 when
-present) and record no verdict. (4) "First unreviewed" left of Clear all
+the Next/Prev leaving rules (box save and N680 Save on navigation, when
+enabled) and record no verdict. (4) "First unreviewed" left of Clear all
 objects reads csv/keep_discard.csv per field folder (works after reopening);
 all-reviewed or empty queues leave the image alone. (5) model_zoo.source_of
 files a shared/community row under spaCR only when its key and sha256 match a

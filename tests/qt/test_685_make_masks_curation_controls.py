@@ -467,3 +467,37 @@ def test_export_on_save_follows_every_save(screen, alpha, tmp_path, monkeypatch)
     assert screen._export_vvvv_on_save() is None
     screen._blind = None
     screen._btn_vvvv_on_save.setChecked(False)
+
+
+def test_a_jump_saves_pending_edits_with_save_on_navigation(screen, folder):
+    screen._btn_save_on_navigation.setChecked(True)
+    screen._tally_index.setText("3")
+    assert screen._on_tally_entered()
+    saved = imageio.imread(engine.mask_save_path(str(folder), "img_00.tif"))
+    assert labels_of(saved) and int(saved[6, 6]) > 0
+    assert engine.read_curation(str(folder)) == {}
+    screen._btn_save_on_navigation.setChecked(False)
+
+
+@pytest.mark.parametrize("how", ["tally", "first_unreviewed"])
+def test_a_failed_save_on_navigation_keeps_the_field(screen, folder,
+                                                       monkeypatch, how):
+    screen._btn_save_on_navigation.setChecked(True)
+    mask = screen._canvas.mask.copy()
+
+    def fail(*_args, **_kwargs):
+        raise OSError("read-only")
+
+    monkeypatch.setattr(engine, "save_mask", fail)
+    monkeypatch.setattr(screen, "_warn", lambda *args: None)
+    path = str(folder / "img_00.tif")
+    engine.record_curation(str(folder), path, path, 1, True)
+    if how == "tally":
+        screen._tally_index.setText("4")
+        assert screen._on_tally_entered() is False
+    else:
+        assert screen._on_first_unreviewed() is False
+    assert screen._current_index == 0
+    np.testing.assert_array_equal(screen._canvas.mask, mask)
+    assert screen._tally_index.text() == "1"
+    screen._btn_save_on_navigation.setChecked(False)
