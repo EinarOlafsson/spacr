@@ -3259,11 +3259,7 @@ class MainWindow(QMainWindow):
             kind = event.type()
             if (kind == QEvent.Type.MouseButtonDblClick
                     and event.button() == Qt.MouseButton.LeftButton):
-                minimum = getattr(self, "_snap_minimum", None)
-                if minimum is not None:
-                    self.setMinimumSize(minimum)
-                    self._snap_minimum = None
-                self.showNormal() if self.isMaximized() else self.showMaximized()
+                self._toggle_maximised()
                 return True
             if (kind == QEvent.Type.MouseButtonPress
                     and event.button() == Qt.MouseButton.LeftButton
@@ -3273,10 +3269,7 @@ class MainWindow(QMainWindow):
                 minimum = getattr(self, "_snap_minimum", None)
                 if self.isMaximized() or minimum is not None:
                     fraction = event.position().x() / max(1, self.width())
-                    self.showNormal()
-                    if minimum is not None:
-                        self.setMinimumSize(minimum)
-                        self._snap_minimum = None
+                    self._leave_snap()
                     self.move(event.globalPosition().toPoint().x()
                               - int(self.width() * fraction),
                               event.globalPosition().toPoint().y()
@@ -3304,8 +3297,10 @@ class MainWindow(QMainWindow):
     def _snap_to_screen_edge(self, point) -> bool:
         """Snap a completed title drag to the screen containing ``point``.
 
-        The top enters fullscreen; the other three edges use halves of the
-        available desktop. Ordinary releases leave the window where it is.
+        The top maximises to the work area, the sides take halves and the
+        bottom takes the lower half (:meth:`snap_window`). Full screen is not
+        a drag target; it stays on F11, the corner mark and the Window menu.
+        Ordinary releases leave the window where it is.
 
         :param point: released pointer position in global logical pixels.
         :returns: whether an edge target was applied.
@@ -3316,49 +3311,151 @@ class MainWindow(QMainWindow):
         desktop = screen.availableGeometry()
         if not desktop.adjusted(-12, -12, 12, 12).contains(point):
             return False
-        edge = None
-        target = desktop.__class__(desktop)
+        direction = None
         if point.y() <= desktop.top() + 12:
-            edge = "top"
-            minimum = getattr(self, "_snap_minimum", None)
-            if minimum is not None:
-                self.setMinimumSize(minimum)
-                self._snap_minimum = None
-            self.showFullScreen()
+            direction = "up"
         elif point.x() <= desktop.left() + 12:
-            edge = "left"
-            target.setWidth(desktop.width() // 2)
+            direction = "left"
         elif point.x() >= desktop.right() - 12:
-            edge = "right"
-            target.setLeft(desktop.left() + desktop.width() // 2)
+            direction = "right"
         elif point.y() >= desktop.bottom() - 12:
-            edge = "bottom"
-            target.setTop(desktop.top() + desktop.height() // 2)
-        if edge is None:
+            direction = "down"
+        if direction is None:
             from .widgets.ambient import field_ripple_for_widget
 
             field_ripple_for_widget(self)
             return False
-        if edge != "top":
-            self.showNormal()
-            if getattr(self, "_snap_minimum", None) is None:
-                self._snap_minimum = self.minimumSize()
-            minimum = self._snap_minimum
-            self.setMinimumSize(min(minimum.width(), target.width()),
-                                min(minimum.height(), target.height()))
-            self.setGeometry(target)
-        if edge != "top":
-            from .widgets.ambient import field_ripple_for_widget
+        return self.snap_window(direction, screen=screen)
 
-            field_ripple_for_widget(self, edge=edge)
-        return True
+    _SNAP_RIPPLE_EDGES = {"left": "left", "right": "right",
+                          "up": "top", "down": "bottom"}
 
-    def toggle_fullscreen(self, *_args) -> bool:
-        """Enter or leave true fullscreen. Returns whether it is now full."""
+    def snap_window(self, edge, screen=None) -> bool:
+        """Snap the window to one side of a screen's work area.
+
+        ``"up"`` maximises (the platform's own maximised state, inside the
+        work area that excludes the taskbar, dock or panels); ``"left"`` and
+        ``"right"`` take the left or right half and ``"down"`` the lower half
+        of :meth:`QScreen.availableGeometry`. Full screen is a separate
+        state (:meth:`toggle_fullscreen`) and is left first if it is on.
+        Work areas are in logical pixels, so display scaling is Qt's.
+
+        The size before the first snap is kept in ``_snap_restore`` and comes
+        back when the window is dragged off its tile or restored.
+
+        On Wayland a client cannot place its own top-level window: the half
+        tiles are applied as a size and the compositor decides the position,
+        so they report ``False``. Maximising is a state request every
+        compositor honours. Dragging the title bar on Wayland goes through
+        ``startSystemMove`` and the compositor's own snapping instead.
+
+        :param edge: ``"left"``, ``"right"``, ``"up"`` or ``"down"``.
+        :param screen: the screen to snap on; defaults to the window's own.
+        :returns: whether the requested geometry was applied.
+        """
+        ripple = self._SNAP_RIPPLE_EDGES.get(edge)
+        if ripple is None:
+            return False
+        if screen is None:
+            screen = self.screen()
+        if screen is None:
+            return False
+        desktop = screen.availableGeometry()
+        if desktop.isEmpty():
+            return False
+        if getattr(self, "_snap_restore", None) is None:
+            if self.isFullScreen() or self.isMaximized():
+                before = self.normalGeometry()
+            else:
+                before = self.geometry()
+            self._snap_restore = before if before.isValid() else None
         if self.isFullScreen():
             self.showNormal()
+        if ripple == "top":
+            minimum = getattr(self, "_snap_minimum", None)
+            if minimum is not None:
+                self.setMinimumSize(minimum)
+                self._snap_minimum = None
+            already = self.isMaximized()
+            if not already:
+                current = self.screen()
+                if current is not None and current is not screen:
+                    self.move(desktop.topLeft())
+                self.showMaximized()
+            else:
+                from .widgets.ambient import field_ripple_for_widget
+
+                field_ripple_for_widget(self, edge=ripple)
+            return self.isMaximized()
+        target = desktop.__class__(desktop)
+        if ripple == "left":
+            target.setWidth(desktop.width() // 2)
+        elif ripple == "right":
+            target.setLeft(desktop.left() + desktop.width() // 2)
+        else:
+            target.setTop(desktop.top() + desktop.height() // 2)
+        if self.isMaximized():
+            self.showNormal()
+        if getattr(self, "_snap_minimum", None) is None:
+            self._snap_minimum = self.minimumSize()
+        minimum = self._snap_minimum
+        self.setMinimumSize(min(minimum.width(), target.width()),
+                            min(minimum.height(), target.height()))
+        self.setGeometry(target)
+        from .widgets.ambient import field_ripple_for_widget
+
+        field_ripple_for_widget(self, edge=ripple)
+        if QApplication.platformName().lower().startswith("wayland"):
+            return False
+        return self.geometry() == target
+
+    def _leave_snap(self, place: bool = False) -> None:
+        """Return a maximised or tiled window to its size before the snap.
+
+        :param place: also put it back where it was. A drag passes ``False``
+            because the pointer decides where the window goes.
+        """
+        self.showNormal()
+        minimum = getattr(self, "_snap_minimum", None)
+        if minimum is not None:
+            self.setMinimumSize(minimum)
+            self._snap_minimum = None
+        restore = getattr(self, "_snap_restore", None)
+        self._snap_restore = None
+        if restore is not None and restore.isValid():
+            if place:
+                self.setGeometry(restore)
+            else:
+                self.resize(restore.size())
+
+    def toggle_fullscreen(self, *_args) -> bool:
+        """Enter or leave true fullscreen. Returns whether it is now full.
+
+        Leaving returns to the state before: maximised, a tile, or the
+        ordinary window. Independent of the top snap, which maximises.
+        """
+        if self.isFullScreen():
+            before = getattr(self, "_before_fullscreen", None) or (False, None, None)
+            self._before_fullscreen = None
+            maximised, geometry, minimum = before
+            if maximised:
+                self.setWindowState(
+                    (self.windowState() & ~Qt.WindowState.WindowFullScreen)
+                    | Qt.WindowState.WindowMaximized)
+                self.show()
+            else:
+                self.showNormal()
+                if minimum is not None and geometry is not None:
+                    self._snap_minimum = minimum
+                    self.setMinimumSize(min(minimum.width(), geometry.width()),
+                                        min(minimum.height(), geometry.height()))
+                if geometry is not None and geometry.isValid():
+                    self.setGeometry(geometry)
         else:
             minimum = getattr(self, "_snap_minimum", None)
+            maximised = self.isMaximized()
+            geometry = None if maximised else self.geometry()
+            self._before_fullscreen = (maximised, geometry, minimum)
             if minimum is not None:
                 self.setMinimumSize(minimum)
                 self._snap_minimum = None
@@ -3862,6 +3959,26 @@ class MainWindow(QMainWindow):
         self._act_fullscreen = act_full
         menu.addAction(act_full)
 
+        snaps = (("left", tr("Snap left"), "SnapLeftAction",
+                  tr("Fill the left half of this screen's work area.")),
+                 ("right", tr("Snap right"), "SnapRightAction",
+                  tr("Fill the right half of this screen's work area.")),
+                 ("up", tr("Snap up"), "SnapUpAction",
+                  tr("Maximise to this screen's work area. Full screen is "
+                     "separate.")),
+                 ("down", tr("Snap down"), "SnapDownAction",
+                  tr("Fill the lower half of this screen's work area.")))
+        self._act_snaps = {}
+        for edge, label, name, tip in snaps:
+            action = QAction(label, self)
+            action.setObjectName(name)
+            action.setStatusTip(tip)
+            action.setMenuRole(QAction.MenuRole.NoRole)
+            action.triggered.connect(
+                lambda _checked=False, edge=edge: self.snap_window(edge))
+            menu.addAction(action)
+            self._act_snaps[edge] = action
+
         act_jobs = QAction(tr("Jobs"), self)
         act_jobs.setObjectName("ShowJobsAction")
         act_jobs.setStatusTip(tr(
@@ -3931,8 +4048,15 @@ class MainWindow(QMainWindow):
         button they replace is a single control.
         """
         if self.isMaximized():
-            self.showNormal()
+            if getattr(self, "_snap_restore", None) is not None:
+                self._leave_snap(place=True)
+            else:
+                self.showNormal()
         else:
+            minimum = getattr(self, "_snap_minimum", None)
+            if minimum is not None:
+                self.setMinimumSize(minimum)
+                self._snap_minimum = None
             self.showMaximized()
         return self.isMaximized()
 

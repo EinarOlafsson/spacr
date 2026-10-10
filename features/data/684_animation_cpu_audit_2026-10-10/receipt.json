@@ -1,0 +1,773 @@
+{
+  "schema": 1,
+  "source_commit": "6578ba23648a944dfa05a5c93aa539364ca214b1",
+  "machine": "x86_64",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+  "python": "3.12.4",
+  "qt_platform": "offscreen",
+  "display_scaling": 1.0,
+  "peak_rss_mib": 326.1,
+  "qualification": "Offscreen shading-thread cost only; no displayed frame rate, compositor or native-display claim.",
+  "rows": [
+    {
+      "theme": "data_art_impulse_lens",
+      "label": "spaCR field",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.25,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 16.132,
+        "p90_ms": 18.713,
+        "max_ms": 32.804,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "label": "spaCR field",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 14.455,
+        "p90_ms": 60.795,
+        "max_ms": 145.987,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "label": "spaCR field",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.25,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 7.579,
+        "p90_ms": 8.675,
+        "max_ms": 174.204,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "label": "spaCR field",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 21.143,
+        "p90_ms": 27.689,
+        "max_ms": 29.312,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "label": "spaCR advection",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 2.691,
+        "p90_ms": 2.803,
+        "max_ms": 3.018,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "label": "spaCR advection",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 14.156,
+        "p90_ms": 17.881,
+        "max_ms": 19.689,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "label": "spaCR advection",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 5.013,
+        "p90_ms": 5.351,
+        "max_ms": 5.751,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "label": "spaCR advection",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 16.779,
+        "p90_ms": 18.065,
+        "max_ms": 20.422,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "label": "spaCR waves",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 1.685,
+        "p90_ms": 3.066,
+        "max_ms": 3.251,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "label": "spaCR waves",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 5.04,
+        "p90_ms": 7.363,
+        "max_ms": 9.337,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "label": "spaCR waves",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 4.763,
+        "p90_ms": 5.408,
+        "max_ms": 7.02,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "label": "spaCR waves",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer (monochrome palettes)",
+      "cpu": {
+        "median_ms": 14.284,
+        "p90_ms": 16.68,
+        "max_ms": 19.833,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "blobs",
+      "label": "spaCR blobs",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.093,
+        "p90_ms": 0.095,
+        "max_ms": 0.123,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "blobs",
+      "label": "spaCR blobs",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.446,
+        "p90_ms": 0.45,
+        "max_ms": 0.673,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "blobs",
+      "label": "spaCR blobs",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.15,
+        "p90_ms": 0.152,
+        "max_ms": 0.177,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "blobs",
+      "label": "spaCR blobs",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.699,
+        "p90_ms": 0.717,
+        "max_ms": 0.759,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "drift",
+      "label": "spaCR stratified",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.162,
+        "p90_ms": 0.18,
+        "max_ms": 0.306,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "drift",
+      "label": "spaCR stratified",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 1.155,
+        "p90_ms": 1.189,
+        "max_ms": 1.329,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "drift",
+      "label": "spaCR stratified",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.215,
+        "p90_ms": 0.225,
+        "max_ms": 0.339,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "drift",
+      "label": "spaCR stratified",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 1.247,
+        "p90_ms": 1.326,
+        "max_ms": 1.391,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "label": "spaCR field phenomena",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer outside colour-wave events",
+      "cpu": {
+        "median_ms": 1.116,
+        "p90_ms": 1.625,
+        "max_ms": 1.748,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "label": "spaCR field phenomena",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer outside colour-wave events",
+      "cpu": {
+        "median_ms": 2.604,
+        "p90_ms": 3.976,
+        "max_ms": 5.011,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "label": "spaCR field phenomena",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer outside colour-wave events",
+      "cpu": {
+        "median_ms": 6.103,
+        "p90_ms": 7.152,
+        "max_ms": 9.57,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "label": "spaCR field phenomena",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "GPU point renderer outside colour-wave events",
+      "cpu": {
+        "median_ms": 11.838,
+        "p90_ms": 14.215,
+        "max_ms": 16.983,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "label": "spaCR growth",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.66,
+        "p90_ms": 0.692,
+        "max_ms": 0.777,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "label": "spaCR growth",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.805,
+        "p90_ms": 0.879,
+        "max_ms": 0.96,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "label": "spaCR growth",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 4.55,
+        "p90_ms": 5.514,
+        "max_ms": 7.248,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "label": "spaCR growth",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 6.123,
+        "p90_ms": 6.562,
+        "max_ms": 8.484,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "aurora",
+      "label": "spaCR aurora",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 17.852,
+        "p90_ms": 18.655,
+        "max_ms": 22.431,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "aurora",
+      "label": "spaCR aurora",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 39.454,
+        "p90_ms": 43.816,
+        "max_ms": 46.028,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "aurora",
+      "label": "spaCR aurora",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 34.478,
+        "p90_ms": 37.502,
+        "max_ms": 38.897,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "aurora",
+      "label": "spaCR aurora",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 99.371,
+        "p90_ms": 103.112,
+        "max_ms": 105.559,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "label": "spaCR spinn",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.006,
+        "p90_ms": 0.007,
+        "max_ms": 0.008,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "label": "spaCR spinn",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.006,
+        "p90_ms": 0.007,
+        "max_ms": 0.008,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "label": "spaCR spinn",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.007,
+        "p90_ms": 0.007,
+        "max_ms": 0.008,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "label": "spaCR spinn",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "spacr",
+      "gpu_coverage": "CPU only",
+      "cpu": {
+        "median_ms": 0.004,
+        "p90_ms": 0.004,
+        "max_ms": 0.005,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "fractal",
+      "label": "spaCR fractals",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "rainbow",
+      "gpu_coverage": "CPU in this backdrop; the native spaceout fractal has its own GPU backend",
+      "cpu": {
+        "median_ms": 3.421,
+        "p90_ms": 3.431,
+        "max_ms": 3.516,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "fractal",
+      "label": "spaCR fractals",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "rainbow",
+      "gpu_coverage": "CPU in this backdrop; the native spaceout fractal has its own GPU backend",
+      "cpu": {
+        "median_ms": 5.964,
+        "p90_ms": 8.423,
+        "max_ms": 10.574,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "fractal",
+      "label": "spaCR fractals",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "detail": 1.0,
+      "palette": "rainbow",
+      "gpu_coverage": "CPU in this backdrop; the native spaceout fractal has its own GPU backend",
+      "cpu": {
+        "median_ms": 3.702,
+        "p90_ms": 4.14,
+        "max_ms": 6.012,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    },
+    {
+      "theme": "fractal",
+      "label": "spaCR fractals",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "detail": 1.0,
+      "palette": "rainbow",
+      "gpu_coverage": "CPU in this backdrop; the native spaceout fractal has its own GPU backend",
+      "cpu": {
+        "median_ms": 4.345,
+        "p90_ms": 9.183,
+        "max_ms": 10.683,
+        "gpu_frames": 0,
+        "frames": 12
+      }
+    }
+  ]
+}

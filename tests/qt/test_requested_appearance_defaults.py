@@ -21,7 +21,7 @@ def test_fresh_requested_defaults(empty_store, qapp):
     assert prefs.get_theme_choice() == "dark"
     assert prefs.get_ambient_animation() == "data_art_impulse_lens"
     assert prefs.get_ambient_palette() == "spacr"
-    assert prefs.get_ambient_density() == 0.1
+    assert prefs.get_ambient_density() == 0.25
     assert prefs._ambient_blink_percent() == 0.0
     assert prefs._ambient_gravity_radius() == 0.15
     assert prefs._field_popup_wave_frequency() == 5.0
@@ -49,7 +49,7 @@ def test_reset_restores_requested_controls_without_writing(empty_store, qtbot):
     qtbot.addWidget(dialog)
     assert dialog.findChild(QWidget, "SettingAnimationsEnabled") is None
     dialog.findChild(QPushButton, "PreferencesReset").click()
-    for name, value in (("AmbientDensity", 10), ("AmbientGravityRadius", 15),
+    for name, value in (("AmbientDensity", 25), ("AmbientGravityRadius", 15),
                         ("RimLag", 50), ("RimPeriod", 15)):
         assert dialog.findChild(QSlider, name).value() == value
     assert dialog.findChild(QComboBox, "PopupBackdrop").currentData() == "drift"

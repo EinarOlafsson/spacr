@@ -2475,7 +2475,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # equals the previous pin; docless/required/ghost-parameter gates remain.
     # 2026-10-05: one function and six optional CpuParams fields, proved
     # against the prior digest in features/data/661_source_delta_2026-10-05.json.
-    assert len(callables) == len(by_symbol) == 9991
+    # 2026-10-10 item 684: +2/-0, MainWindow.snap_window and
+    # AmbientWidget.set_click_ripples, both with documented parameters.
+    assert len(callables) == len(by_symbol) == 9993
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four

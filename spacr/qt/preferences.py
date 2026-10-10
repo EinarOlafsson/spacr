@@ -220,6 +220,13 @@ _KEY_AMBIENT_BLINK_PERCENT = "prefs/ambient_blink_percent"
 _KEY_FIELD_POPUP_WAVES = "prefs/field_popup_wave_frequency"
 _KEY_FIELD_RIPPLES = "prefs/field_ripples"
 _KEY_FIELD_RIPPLE_INTENSITY = "prefs/field_ripple_intensity"
+_KEY_FIELD_RIPPLES_SLIDER = "prefs/field_ripples_slider_migrated"
+_KEY_FIELD_CLICK_RIPPLES = "prefs/field_click_ripples"
+_KEY_ANIMATION_GPU = "prefs/animation_gpu"
+_KEY_DYNAMIC_ANIMATION = "prefs/dynamic_animation"
+#: Animation renderers in slider order; mirrors ``ambient.GRAPHICS_BACKENDS``.
+GRAPHICS_BACKENDS = ("cpu", "auto", "gpu")
+DEFAULT_GRAPHICS_BACKEND = "gpu"
 _KEY_AMBIENT_GRAVITY_RADIUS = "prefs/ambient_gravity_radius"
 _KEY_AMBIENT_DRIFT_DIR = "prefs/ambient_drift_direction"
 #: Which generation of the motion keys the store was last written by. Only
@@ -2261,23 +2268,37 @@ def _set_ambient_custom_colors(colors):
     settings.sync()
 
 
+#: The spaCR animation background on a fresh profile: RGB 25, 25, 25.
+DEFAULT_AMBIENT_BACKGROUND = "#191919"
+#: Stored when the user explicitly chose "Theme colour".
+_THEME_COLOUR_BACKGROUND = "theme"
+
+
 def _ambient_background_choice():
-    """Read an optional opaque animation fill; None follows the page theme."""
+    """Read the animation fill; None follows the page theme.
+
+    A profile that never chose a fill gets :data:`DEFAULT_AMBIENT_BACKGROUND`;
+    an explicit Theme colour choice is remembered as such.
+    """
     from PySide6.QtGui import QColor
 
     value = _settings().value(_KEY_AMBIENT_BACKGROUND, None)
+    if value is None:
+        return DEFAULT_AMBIENT_BACKGROUND
+    if str(value) == _THEME_COLOUR_BACKGROUND:
+        return None
     color = QColor(str(value)) if value else QColor()
     return color.name() if color.isValid() else None
 
 
 def _set_ambient_background_choice(value):
-    """Persist an optional animation fill, rejecting invalid colours."""
+    """Persist an animation fill or the explicit Theme colour (None)."""
     from PySide6.QtGui import QColor
 
     if value is None:
         _restore_brand_palette_once()
         settings = _settings()
-        settings.remove(_KEY_AMBIENT_BACKGROUND)
+        settings.setValue(_KEY_AMBIENT_BACKGROUND, _THEME_COLOUR_BACKGROUND)
     else:
         color = QColor(value)
         if not color.isValid():
@@ -2294,7 +2315,9 @@ def _effective_ambient_background():
     from .theme import active_page_colour
 
     chosen = _ambient_background_choice()
-    if chosen is None:
+    if chosen is None or (
+            not _stored(_KEY_AMBIENT_BACKGROUND)
+            and resolve_effective_theme() == "light"):
         return QColor(active_page_colour())
     color = QColor(chosen).toHsl()
     lightness = color.lightness()
@@ -2490,15 +2513,35 @@ def set_ambient_resolution(value: float) -> None:
     _set_ambient_multiplier(_KEY_AMBIENT_RESOLUTION, 3, value)
 
 
-def get_ambient_density() -> float:
+def _stored(key: str) -> bool:
+    """Whether ``key`` holds a saved value, for any settings-like store."""
+    return _settings().value(key, None) is not None
+
+
+def get_ambient_density(theme=None) -> float:
     """How many elements the animated background draws — blobs, curtains,
     ripple sources, stars, discs, cells — as a multiplier on each
     animation's own count. 1.0 is as designed.
 
     Density determines the population independently of detail. Render
     sampling and the native screen-pixel budget bound the combined work.
+
+    :param theme: whose shipped default to use while no density was saved;
+        ``None`` means the saved animation.
     """
+    if not _stored(_KEY_AMBIENT_DENSITY):
+        return _default_ambient_density(theme)
     return _ambient_multiplier(_KEY_AMBIENT_DENSITY, 4)
+
+
+def _default_ambient_density(theme=None) -> float:
+    """The shipped density for ``theme`` (default: the saved animation)."""
+    try:
+        from .widgets.ambient import _default_density_for
+
+        return _default_density_for(get_ambient_theme() if theme is None else theme)
+    except Exception:
+        return _ambient_ranges()[4][1]
 
 
 def set_ambient_density(value: float) -> None:
@@ -2507,8 +2550,16 @@ def set_ambient_density(value: float) -> None:
     :param value: the multiplier on each animation's own element count (1.0 is
         as designed); clamped to ``DENSITY_RANGE`` from
         :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
-        ``DEFAULT_DENSITY``.
+        ``DEFAULT_DENSITY``. A profile that never chose a density and
+        stores its theme's own default keeps following per-theme defaults.
     """
+    try:
+        unchanged = (not _stored(_KEY_AMBIENT_DENSITY)
+                     and abs(float(value) - _default_ambient_density()) < 0.005)
+    except (TypeError, ValueError):
+        unchanged = False
+    if unchanged:
+        return
     _set_ambient_multiplier(_KEY_AMBIENT_DENSITY, 4, value)
 
 
@@ -2541,15 +2592,74 @@ def _set_ambient_blink_percent(value: float) -> None:
                          max(0.0, min(10.0, value)))
 
 
+def _migrate_field_ripples_switch() -> None:
+    """Fold the retired Field ripples on/off switch into the ripple slider.
+
+    The slider's zero is now "off". A profile that had switched ripples
+    off keeps them off by storing zero once; a profile that had them on
+    keeps its intensity. Runs once per store.
+    """
+    settings = _settings()
+    if _as_bool(settings.value(_KEY_FIELD_RIPPLES_SLIDER, False), False):
+        return
+    if not _as_bool(settings.value(_KEY_FIELD_RIPPLES, True), True):
+        settings.setValue(_KEY_FIELD_RIPPLE_INTENSITY, 0.0)
+    settings.remove(_KEY_FIELD_RIPPLES)
+    settings.setValue(_KEY_FIELD_RIPPLES_SLIDER, True)
+    settings.sync()
+
+
 def _field_ripples_enabled() -> bool:
-    """Whether clicks, containers and window changes send spaCR field ripples."""
-    return _as_bool(_settings().value(_KEY_FIELD_RIPPLES, True), True)
+    """Whether field ripples are on: the Field ripples slider is above zero."""
+    return _field_ripple_intensity() > 0.0
+
+
+def _field_click_ripples() -> bool:
+    """Whether a mouse click sends a ripple from its position (default on)."""
+    return _as_bool(_settings().value(_KEY_FIELD_CLICK_RIPPLES, True), True)
+
+
+def _set_field_click_ripples(value: bool) -> None:
+    """Persist the click-ripple switch independently of the ripple slider."""
+    _settings().setValue(_KEY_FIELD_CLICK_RIPPLES, bool(value))
+    _settings().sync()
+
+
+def _flow_graphics_backend() -> str:
+    """Return the animation renderer: ``cpu`` (off), ``auto`` or ``gpu``.
+
+    GPU is requested by default. Unsupported hardware, a missing optional
+    ``moderngl`` package or a failed context keeps the CPU renderer.
+    """
+    value = str(_settings().value(_KEY_ANIMATION_GPU,
+                                  DEFAULT_GRAPHICS_BACKEND)).lower()
+    return value if value in GRAPHICS_BACKENDS else DEFAULT_GRAPHICS_BACKEND
+
+
+def _set_flow_graphics_backend(value) -> None:
+    """Store a validated animation renderer without changing motion."""
+    value = str(value).lower()
+    _settings().setValue(_KEY_ANIMATION_GPU, value if value in GRAPHICS_BACKENDS
+                         else DEFAULT_GRAPHICS_BACKEND)
+    _settings().sync()
+
+
+def _dynamic_animation_enabled() -> bool:
+    """Whether running analysis may pause animation or its GPU use (default on)."""
+    return _as_bool(_settings().value(_KEY_DYNAMIC_ANIMATION, True), True)
+
+
+def _set_dynamic_animation_enabled(value: bool) -> None:
+    """Persist the Dynamic animation switch."""
+    _settings().setValue(_KEY_DYNAMIC_ANIMATION, bool(value))
+    _settings().sync()
 
 
 def _field_ripple_intensity() -> float:
-    """Read finite ripple amplitude independently of mouse gravity."""
+    """Read the Field ripples slider; zero is off, one is the default."""
     import math
 
+    _migrate_field_ripples_switch()
     try:
         value = float(_settings().value(_KEY_FIELD_RIPPLE_INTENSITY, 1.0))
     except (TypeError, ValueError):
@@ -2558,7 +2668,8 @@ def _field_ripple_intensity() -> float:
 
 
 def _set_field_ripple_intensity(value: float) -> None:
-    """Persist ripple amplitude; zero is calm and one is the default."""
+    """Persist ripple amplitude; zero is off and one is the default."""
+    _migrate_field_ripples_switch()
     _settings().setValue(_KEY_FIELD_RIPPLE_INTENSITY, float(value))
     _settings().sync()
 
@@ -2581,9 +2692,11 @@ def _set_spaceout_field_effects(effects: dict[str, bool]) -> None:
 
 
 def _set_field_ripples_enabled(value: bool) -> None:
-    """Persist the ripple switch independently of mouse gravity."""
-    _settings().setValue(_KEY_FIELD_RIPPLES, bool(value))
-    _settings().sync()
+    """Switch ripples through the slider: off stores zero, on restores 100%."""
+    if not value:
+        _set_field_ripple_intensity(0.0)
+    elif _field_ripple_intensity() <= 0.0:
+        _set_field_ripple_intensity(1.0)
 
 
 def _field_popup_wave_frequency() -> float:
@@ -2755,6 +2868,14 @@ def apply_ambient_preferences(app=None) -> None:
     direction = get_ambient_drift_direction()
     background = _effective_ambient_background()
     field_effects = _spaceout_field_effects()
+    try:
+        from .widgets.ambient import _animation_resource_policy
+
+        policy = _animation_resource_policy()
+        if policy is not None:
+            policy.set_enabled(_dynamic_animation_enabled())
+    except Exception:
+        LOG.debug("could not apply Dynamic animation", exc_info=True)
     for widget in widgets:
         try:
             if not isinstance(widget, AmbientWidget):
@@ -2763,6 +2884,11 @@ def apply_ambient_preferences(app=None) -> None:
                 continue
             widget.set_ripples_enabled(_field_ripples_enabled())
             widget._set_ripple_intensity(_field_ripple_intensity())
+            for name, value in (("set_click_ripples", _field_click_ripples()),
+                                ("_set_graphics_backend", _flow_graphics_backend())):
+                setter = getattr(widget, name, None)
+                if setter is not None:
+                    setter(value)
             widget.set_field_effects(field_effects)
             if widget.property("spacrSetupBackdrop"):
                 continue
@@ -2789,7 +2915,8 @@ def apply_ambient_preferences(app=None) -> None:
                             widget.set_background_color(background)
                 widget.set_blur(blur)
                 motion = _popup_backdrop_motion() if popup else {
-                    "speed": speed, "size": size, "resolution": resolution, "density": density}
+                    "speed": speed, "size": size, "resolution": resolution,
+                    "density": get_ambient_density(selected_theme)}
                 widget.set_speed(motion["speed"])
                 widget.set_size_scale(motion["size"])
                 widget.set_resolution(motion["resolution"])
@@ -8488,6 +8615,23 @@ class PreferencesDialog:
             "independently of detail; rendering stays within the screen's "
             "pixel budget.")
 
+        density_follows_theme = [not _stored(_KEY_AMBIENT_DENSITY),
+                                 get_ambient_theme()]
+
+        def _density_follows_theme(*_args):
+            """Show the new theme's own default while density was never chosen."""
+            theme_key = ambient_theme_combo.currentData()
+            follows, previous = density_follows_theme
+            if theme_key is None or theme_key == NO_ANIMATION:
+                return
+            if follows and density_slider.value() == int(round(
+                    _default_ambient_density(previous) * 100)):
+                density_slider.setValue(int(round(
+                    _default_ambient_density(theme_key) * 100)))
+            density_follows_theme[1] = theme_key
+
+        ambient_theme_combo.currentIndexChanged.connect(_density_follows_theme)
+
         blink_slider = QSlider(Qt.Horizontal)
         blink_slider.setObjectName("AmbientBlinkPercent")
         blink_slider.setRange(0, 601)
@@ -8526,25 +8670,46 @@ class PreferencesDialog:
         blink_column.addWidget(blink_value)
         animation.addRow(tr("Dot blinking"), _hbox_wrap(blink_column))
 
-        ripples_check = Toggle()
-        ripples_check.setObjectName("FieldRipplesEnabled")
-        ripples_check.setAccessibleName(tr("Field ripples"))
-        ripples_check.setChecked(_field_ripples_enabled())
-        ripples_check.setToolTip(tr(
-            "Ripples from clicks, opening or closing containers, and window "
-            "snapping. Independent of mouse gravity."))
-        animation.addRow(tr("Field ripples"), ripples_check)
-
+        ripples_tip = tr(
+            "Strength of ripples from clicks, opening or closing containers, "
+            "popups and window snapping. Zero turns ripples off. Independent "
+            "of mouse gravity and animation density.")
+        ripples_slider = QSlider(Qt.Horizontal)
+        ripples_slider.setObjectName("FieldRipples")
+        ripples_slider.setAccessibleName(tr("Field ripples"))
+        ripples_slider.setRange(0, 200)
+        ripples_slider.setSingleStep(5)
+        ripples_slider.setPageStep(25)
+        ripples_slider.setToolTip(ripples_tip)
         ripple_intensity_value = QDoubleSpinBox()
         ripple_intensity_value.setObjectName("FieldRippleIntensity")
-        ripple_intensity_value.setAccessibleName(tr("Ripple intensity"))
+        ripple_intensity_value.setAccessibleName(tr("Field ripples"))
         ripple_intensity_value.setRange(0.0, 200.0)
         ripple_intensity_value.setDecimals(0)
-        ripple_intensity_value.setSingleStep(10.0)
+        ripple_intensity_value.setSingleStep(5.0)
         ripple_intensity_value.setSuffix("%")
+        ripple_intensity_value.setSpecialValueText(tr("Off"))
+        ripple_intensity_value.setToolTip(ripples_tip)
+        ripples_slider.valueChanged.connect(
+            lambda value: ripple_intensity_value.setValue(float(value)))
+        ripple_intensity_value.valueChanged.connect(
+            lambda value: ripples_slider.setValue(int(round(value))))
         ripple_intensity_value.setValue(_field_ripple_intensity() * 100.0)
-        ripple_intensity_value.setToolTip(ripples_check.toolTip())
-        animation.addRow(tr("Ripple intensity"), ripple_intensity_value)
+        ripples_column = QVBoxLayout()
+        ripples_column.setContentsMargins(0, 0, 0, 0)
+        ripples_column.addWidget(ripples_slider)
+        ripples_column.addWidget(ripple_intensity_value)
+        animation.addRow(tr("Field ripples"), _hbox_wrap(ripples_column))
+
+        click_ripples_check = Toggle()
+        click_ripples_check.setObjectName("FieldClickRipples")
+        click_ripples_check.setAccessibleName(tr("Click ripples"))
+        click_ripples_check.setChecked(_field_click_ripples())
+        click_ripples_check.setToolTip(tr(
+            "A mouse click on the background sends a ripple from where you "
+            "clicked. A click that opens or closes a container sends only "
+            "that container's ripple."))
+        animation.addRow(tr("Click ripples"), click_ripples_check)
 
         popup_waves_slider = QSlider(Qt.Horizontal)
         popup_waves_slider.setObjectName("FieldPopupWaveFrequency")
@@ -8602,6 +8767,8 @@ class PreferencesDialog:
             field = ambient_theme_combo.currentData() in (
                 "data_art_impulse_lens", "data_art_spaceout_field")
             ripple_intensity_value.setEnabled(field)
+            ripples_slider.setEnabled(field)
+            click_ripples_check.setEnabled(field)
             popup_waves_slider.setEnabled(field)
             popup_waves_value.setEnabled(field)
             gravity_slider.setEnabled(on)
@@ -9455,10 +9622,47 @@ class PreferencesDialog:
                 mode_combo.setCurrentIndex(i); break
         performance.addRow(tr("Performance"), mode_combo)
 
+        gpu_labels = (tr("Off (CPU)"), tr("Automatic"), tr("On"))
+        gpu_slider = QSlider(Qt.Horizontal)
+        gpu_slider.setObjectName("AnimationGpu")
+        gpu_slider.setAccessibleName(tr("Animation GPU"))
+        gpu_slider.setRange(0, len(GRAPHICS_BACKENDS) - 1)
+        gpu_slider.setPageStep(1)
+        gpu_slider.setTickPosition(QSlider.TicksBelow)
+        gpu_slider.setTickInterval(1)
+        gpu_value = QLabel()
+        gpu_value.setObjectName("AnimationGpuValue")
+        gpu_slider.setToolTip(tr(
+            "Where animations are drawn. Off draws on the CPU. Automatic uses "
+            "the GPU only for dense, high-resolution frames, where it measured "
+            "faster. On uses the GPU whenever the theme has a GPU renderer. "
+            "Unsupported graphics or a failed GPU start always fall back to "
+            "the CPU."))
+        gpu_slider.valueChanged.connect(
+            lambda position: gpu_value.setText(gpu_labels[position]))
+        gpu_slider.setValue(GRAPHICS_BACKENDS.index(_flow_graphics_backend()))
+        gpu_value.setText(gpu_labels[gpu_slider.value()])
+        gpu_column = QVBoxLayout()
+        gpu_column.setContentsMargins(0, 0, 0, 0)
+        gpu_column.addWidget(gpu_slider)
+        gpu_column.addWidget(gpu_value)
+
+        dynamic_animation_check = Toggle()
+        dynamic_animation_check.setObjectName("DynamicAnimation")
+        dynamic_animation_check.setAccessibleName(tr("Dynamic animation"))
+        dynamic_animation_check.setChecked(_dynamic_animation_enabled())
+        dynamic_animation_check.setToolTip(tr(
+            "While a CPU-heavy job such as Measure runs, the animation pauses. "
+            "While a GPU job such as mask generation runs, animations stop "
+            "using the GPU. Your saved animation settings return when the "
+            "jobs end. Off keeps animations running unchanged."))
+
         mode_note_label = QLabel()
         mode_note_label.setObjectName("PerformanceLevelNote")
         mode_note_label.setWordWrap(True)
         performance.addRow("", mode_note_label)
+        performance.addRow(tr("Animation GPU"), _hbox_wrap(gpu_column))
+        performance.addRow(tr("Dynamic animation"), dynamic_animation_check)
 
         def _sync_mode_note(*_args):
             """Say which hardware the selected mode is for.
@@ -10182,8 +10386,10 @@ class PreferencesDialog:
                 density_slider.setValue(
                     int(round(get_ambient_density() * 100)))
                 blink_value.setValue(_ambient_blink_percent())
-                ripples_check.setChecked(_field_ripples_enabled())
                 ripple_intensity_value.setValue(_field_ripple_intensity() * 100.0)
+                click_ripples_check.setChecked(_field_click_ripples())
+                gpu_slider.setValue(GRAPHICS_BACKENDS.index(_flow_graphics_backend()))
+                dynamic_animation_check.setChecked(_dynamic_animation_enabled())
                 for key, enabled in _spaceout_field_effects().items():
                     if key in spaceout_field_checks:
                         spaceout_field_checks[key].setChecked(enabled)
@@ -10276,8 +10482,10 @@ class PreferencesDialog:
             set_ambient_resolution(resolution_slider.value() / 100.0)
             set_ambient_density(density_slider.value() / 100.0)
             _set_ambient_blink_percent(blink_value.value())
-            _set_field_ripples_enabled(ripples_check.isChecked())
             _set_field_ripple_intensity(ripple_intensity_value.value() / 100.0)
+            _set_field_click_ripples(click_ripples_check.isChecked())
+            _set_flow_graphics_backend(GRAPHICS_BACKENDS[gpu_slider.value()])
+            _set_dynamic_animation_enabled(dynamic_animation_check.isChecked())
             if spaceout_field_checks:
                 _set_spaceout_field_effects({
                     key: check.isChecked()

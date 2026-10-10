@@ -216,7 +216,7 @@ from typing import (Callable, Dict, List, NamedTuple, Optional, Sequence,
                     Tuple, Union)
 
 from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
-                            QRect, QRectF, Qt, QTimer)
+                            QRect, QRectF, Qt, QTimer, Signal)
 from PySide6.QtGui import (QBrush, QColor, QCursor, QImage,
                            QLinearGradient, QPainter, QPainterPath, QPen,
                            QPixmap, QPolygonF, QRadialGradient, QTransform)
@@ -4963,6 +4963,236 @@ class _SatinCompiler:
 _SATIN_COMPILER = _SatinCompiler()
 
 
+_FLOW_GRAPHICS_PROBE = None
+_FLOW_GRAPHICS_PROBE_LOCK = threading.Lock()
+
+#: Renderer names that are software rasterisers, refused as "GPU".
+_SOFTWARE_RENDERERS = ("llvmpipe", "softpipe", "software", "swrast",
+                       "microsoft basic render", "apple software")
+
+#: Selectable decorative-animation renderers, in slider order.
+GRAPHICS_BACKENDS: Tuple[str, ...] = ("cpu", "auto", "gpu")
+DEFAULT_GRAPHICS_BACKEND = "gpu"
+
+#: Per-theme density defaults for profiles that never saved a density.
+#: spaCR field asked for 25 % (N684); every other theme keeps DEFAULT_DENSITY.
+_THEME_DEFAULT_DENSITY = {"data_art_impulse_lens": 0.25}
+
+
+def _default_density_for(theme) -> float:
+    """Return the shipped density for ``theme`` when nothing was saved."""
+    return _THEME_DEFAULT_DENSITY.get(theme, DEFAULT_DENSITY)
+
+
+def _graphics_context_options():
+    """Return moderngl standalone options for this platform.
+
+    Linux uses headless EGL, which needs no window or X connection.
+    Windows (WGL) and macOS (CGL) use the default standalone backend;
+    macOS caps desktop OpenGL at 4.1, so the 4.3 storage-buffer shader
+    is refused there and the CPU renderer stays in use.
+    """
+    if sys.platform.startswith("linux"):
+        return {"standalone": True, "require": 430, "backend": "egl"}
+    return {"standalone": True, "require": 430}
+
+
+def _flow_graphics_preflight():
+    """Probe an optional hardware OpenGL context in a separate process.
+
+    The result is cached for this application process. A missing
+    dependency, unsupported driver, software renderer, timeout or failed
+    child keeps the CPU renderer. The probe runs in a child so a driver
+    crash during context creation cannot take the application down.
+    """
+    global _FLOW_GRAPHICS_PROBE
+    import importlib.util
+    import subprocess
+
+    with _FLOW_GRAPHICS_PROBE_LOCK:
+        if _FLOW_GRAPHICS_PROBE is None and importlib.util.find_spec("moderngl") is None:
+            _FLOW_GRAPHICS_PROBE = False
+        if _FLOW_GRAPHICS_PROBE is None:
+            script = (
+                "import moderngl; "
+                f"c=moderngl.create_context(**{_graphics_context_options()!r}); "
+                "r=str(c.info['GL_RENDERER']).lower(); "
+                f"assert not any(x in r for x in {_SOFTWARE_RENDERERS!r}); "
+                "c.release(); print('hardware-gl-ok')"
+            )
+            try:
+                result = subprocess.run(
+                    [sys.executable, '-c', script], capture_output=True,
+                    text=True, timeout=5, check=False)
+                _FLOW_GRAPHICS_PROBE = (
+                    result.returncode == 0
+                    and result.stdout.strip() == 'hardware-gl-ok')
+            except (OSError, subprocess.TimeoutExpired):
+                _FLOW_GRAPHICS_PROBE = False
+        return _FLOW_GRAPHICS_PROBE
+
+
+def _flow_compute_idle():
+    """Whether no OTHER process is running compute work on an NVIDIA GPU.
+
+    This is the external-process half of Dynamic animation. NVML lists
+    compute processes on every device without importing PyTorch, so a
+    headless spaCR command line, a training script or another
+    application's CUDA job is seen even though spaCR did not start it.
+    This spaCR process is excluded: its own analysis jobs are tracked
+    through the run registry instead, and a CUDA context kept alive after
+    a finished job must not hold decoration off forever.
+
+    Without NVML (no NVIDIA driver, or the binding is not installed)
+    nothing external can be observed and the answer is True. A query
+    that fails after NVML started answers False, keeping the GPU for
+    analysis.
+    """
+    import os
+
+    try:
+        import pynvml
+    except Exception:
+        return True
+    try:
+        pynvml.nvmlInit()
+    except Exception:
+        return True
+    own = os.getpid()
+    try:
+        for index in range(pynvml.nvmlDeviceGetCount()):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(index)
+            for process in pynvml.nvmlDeviceGetComputeRunningProcesses(handle):
+                if getattr(process, "pid", None) != own:
+                    return False
+        return True
+    except Exception:
+        return False
+    finally:
+        try:
+            pynvml.nvmlShutdown()
+        except Exception:
+            pass
+
+
+class _FlowPointGraphics:
+    """Render monotonic packed grains in a producer-owned OpenGL framebuffer.
+
+    The context, buffers and framebuffer belong to the constructing thread.
+    Each returned RGB32 image owns its pixels; later frames cannot modify it.
+    """
+
+    def __init__(self):
+        """Create the optional EGL context after a successful isolated probe."""
+        import moderngl
+
+        self._owner = threading.get_ident()
+        self._gl = moderngl
+        self._resources = []
+        self._context = None
+        self._framebuffer = None
+        self._texture = None
+        self._size = None
+        self._lookup_bytes = None
+        try:
+            self._context = moderngl.create_context(
+                **_graphics_context_options())
+            self._program = self._context.program(vertex_shader='''
+                #version 430
+                in ivec3 position;
+                uniform vec2 canvas;
+                uniform bool spread;
+                flat out uint level;
+                void main() {
+                    gl_Position = vec4((vec2(position.xy) + vec2(0.5)) /
+                        canvas * 2.0 - 1.0, 0.0, 1.0);
+                    gl_PointSize = spread ? 3.0 : 1.0;
+                    level = uint(position.z);
+                }
+            ''', fragment_shader='''
+                #version 430
+                layout(std430,binding=2) readonly buffer Palette { uint palette[]; };
+                uniform bool spread;
+                flat in uint level;
+                out vec4 colour;
+                void main() {
+                    ivec2 delta = spread ? ivec2(floor(gl_PointCoord * 3.0)) -
+                        ivec2(1) : ivec2(0);
+                    uint offset = (delta.x == 0 && delta.y == 0) ? 0u :
+                        ((delta.x != 0 && delta.y != 0) ? 512u : 256u);
+                    uint word = palette[offset + level];
+                    colour = vec4(float(word & 255u), float((word >> 8u) & 255u),
+                        float((word >> 16u) & 255u), float((word >> 24u) & 255u)) / 255.0;
+                }
+            ''')
+            self._resources.append(self._program)
+            self._vertices = self._context.buffer(reserve=12)
+            self._resources.append(self._vertices)
+            self._palette = self._context.buffer(reserve=768 * 4)
+            self._resources.append(self._palette)
+            self._vao = self._context.vertex_array(
+                self._program, [(self._vertices, '3i', 'position')])
+            self._resources.append(self._vao)
+            self._context.enable(moderngl.PROGRAM_POINT_SIZE | moderngl.BLEND)
+        except Exception:
+            self._close()
+            raise
+
+    def _draw(self, width, height, px, py, intensities, lookup, spread, dark):
+        """Stamp grains and read them directly into a newly owned QImage."""
+        if threading.get_ident() != self._owner:
+            raise RuntimeError('flow graphics context belongs to another thread')
+        np = _numpy()
+        if self._size != (width, height):
+            if self._framebuffer is not None:
+                self._framebuffer.release()
+                self._texture.release()
+            self._texture = self._context.texture((width, height), 4, dtype='f1')
+            self._framebuffer = self._context.framebuffer([self._texture])
+            self._size = width, height
+        levels = np.arange(256, dtype=np.uint8)
+        table = np.concatenate((lookup, lookup[np.rint(levels * .68).astype(np.uint8)],
+                                lookup[np.rint(levels * .24).astype(np.uint8)]))
+        raw = table.tobytes()
+        if raw != self._lookup_bytes:
+            self._palette.write(raw)
+            self._lookup_bytes = raw
+        points = np.empty((len(px), 3), dtype=np.int32)
+        points[:, 0], points[:, 1], points[:, 2] = px, py, intensities
+        raw = points.tobytes()
+        if len(raw) > self._vertices.size:
+            self._vertices.orphan(len(raw))
+        if raw:
+            self._vertices.write(raw)
+        self._palette.bind_to_storage_buffer(2)
+        self._framebuffer.use()
+        self._context.viewport = (0, 0, width, height)
+        self._context.blend_equation = self._gl.MAX if dark else self._gl.MIN
+        background = 0.0 if dark else 1.0
+        self._framebuffer.clear(background, background, background, 1.0)
+        self._program['canvas'].value = float(width), float(height)
+        self._program['spread'].value = bool(spread)
+        if len(points):
+            self._vao.render(mode=self._gl.POINTS, vertices=len(points))
+        image = QImage(width, height, QImage.Format_RGB32)
+        self._framebuffer.read_into(image.bits(), components=4, alignment=1)
+        return image
+
+    def _close(self):
+        """Release all graphics resources on the constructing thread."""
+        if threading.get_ident() != self._owner:
+            raise RuntimeError('flow graphics release belongs to another thread')
+        for resource in (self._framebuffer, self._texture, *reversed(self._resources),
+                         self._context):
+            if resource is not None:
+                try:
+                    resource.release()
+                except Exception:
+                    LOG.debug('could not release a flow graphics resource', exc_info=True)
+        self._resources = []
+        self._context = self._framebuffer = self._texture = None
+
+
 class _DataArtEngine(_BufferedEngine):
     """Retained crisp procedural materials with native display sampling.
 
@@ -4990,7 +5220,59 @@ class _DataArtEngine(_BufferedEngine):
         self.gravity_radius = 0.0
         self.ripples_enabled = True
         self._ripple_intensity = 1.0
+        self._graphics_backend = 'cpu'
+        self._point_graphics = None
+        self._graphics_failed = False
+        self._graphics_idle_until = 0.0
+        self._graphics_idle = False
         super().__init__(*args, **kwargs)
+
+    def _release_point_graphics(self):
+        """Release this producer's renderer without crossing thread ownership."""
+        renderer = self._point_graphics
+        if renderer is not None and renderer._owner == threading.get_ident():
+            renderer._close()
+            self._point_graphics = None
+
+    def _graphics_point_image(self, width, height, px, py, intensities,
+                              lookup, spread):
+        """Use optional graphics only for supported producer-thread material."""
+        mode = self._graphics_backend
+        if threading.current_thread().name != 'spacr-ambient-shade':
+            return None
+        eligible = (mode in ('auto', 'gpu') and not self._graphics_failed
+                    and width * height <= 3840 * 2160
+                    and sys.byteorder == 'little')
+        if mode == 'auto':
+            eligible = (eligible and width * height >= 3840 * 2160
+                        and len(px) >= 100000)
+        if not eligible or _decorative_gpu_blocked():
+            self._release_point_graphics()
+            return None
+        if self._point_graphics is None and not _flow_graphics_preflight():
+            self._graphics_failed = True
+            return None
+        now = time.monotonic()
+        if now >= self._graphics_idle_until:
+            self._graphics_idle = (not _dynamic_animation_on()
+                                   or _flow_compute_idle())
+            self._graphics_idle_until = now + 2.0
+        if not self._graphics_idle:
+            self._release_point_graphics()
+            return None
+        try:
+            if self._point_graphics is None:
+                if not _flow_graphics_preflight():
+                    self._graphics_failed = True
+                    return None
+                self._point_graphics = _FlowPointGraphics()
+            return self._point_graphics._draw(
+                width, height, px, py, intensities, lookup, spread, self.dark)
+        except Exception:
+            LOG.debug('flow graphics unavailable; retaining CPU material', exc_info=True)
+            self._release_point_graphics()
+            self._graphics_failed = True
+            return None
 
     def _configure(self, rng: random.Random) -> None:
         """Keep a bounded seed pool and stable material identity."""
@@ -5138,8 +5420,13 @@ class _DataArtEngine(_BufferedEngine):
                 self._pointer_impulse_time = self.time
                 self._pointer_impulse_origin = self.pointer
 
-    def _add_impulse(self, point, strength: float = 1.0) -> None:
-        """Remember a bounded, finite gravity burst in animation time."""
+    def _add_impulse(self, point, strength: float = 1.0, ripple: bool = True) -> None:
+        """Remember a bounded, finite gravity burst in animation time.
+
+        ``ripple`` false keeps the burst without its travelling wave; click
+        waves are published separately so a container's own wave can
+        replace them.
+        """
         if (self.gravity_radius <= 0.0 or self.family != "impulse_lens"
                 or point is None):
             return
@@ -5158,7 +5445,7 @@ class _DataArtEngine(_BufferedEngine):
         self._gravity_ripple_impulses = {
             id(event): event for event in self._gravity_impulses
             if id(event) in self._gravity_ripple_impulses}
-        if self.ripples_enabled:
+        if self.ripples_enabled and ripple:
             self._gravity_ripple_impulses[id(impulse)] = impulse
 
     def _normalise_wave_origin(self, point):
@@ -5310,6 +5597,7 @@ class _DataArtEngine(_BufferedEngine):
                         spread: bool = False) -> QImage:
         """Stamp circular antialiased grains without a full-size float field."""
         if self._random_palette:
+            self._release_point_graphics()
             image = self._colored_point_material(width, height, x, y, light, spread)
             self._flicker_field_dots(image, x, y)
             return image
@@ -5330,6 +5618,11 @@ class _DataArtEngine(_BufferedEngine):
             ink = 0.78 * primary + 0.22 * accent
             value = ink * levels if self.dark else 255.0 - (255.0 - ink) * levels
             lookup |= np.asarray(value, dtype=np.uint32) << shift
+        image = self._graphics_point_image(
+            width, height, px, py, intensities, lookup, spread)
+        if image is not None:
+            self._flicker_field_dots(image, px, py)
+            return image
         image = QImage(width, height, QImage.Format_RGB32)
         flat = np.frombuffer(image.bits(), dtype=np.uint32,
                              count=width * height)
@@ -7020,7 +7313,7 @@ class Motion(NamedTuple):
     direction: str
 
 
-def preferred_motion() -> Motion:
+def preferred_motion(theme: Optional[str] = None) -> Motion:
     """The animation controls, from the user's preferences.
 
     Read here rather than passed in by every install site, for the same
@@ -7028,9 +7321,12 @@ def preferred_motion() -> Motion:
     widgets are a module screen and Home, and neither of them has any
     business knowing what the animation's knobs are called. Falls back to
     the shipped defaults if preferences cannot be read at all.
+
+    :param theme: the theme being built, whose own default density applies
+        while no density was saved.
     """
     fallback = Motion(DEFAULT_BLUR, DEFAULT_SPEED, DEFAULT_SIZE,
-                      DEFAULT_RESOLUTION, DEFAULT_DENSITY,
+                      DEFAULT_RESOLUTION, _default_density_for(theme),
                       DEFAULT_DRIFT_DIRECTION)
     try:
         from ..preferences import (get_ambient_density,
@@ -7039,7 +7335,7 @@ def preferred_motion() -> Motion:
                                    get_ambient_speed)
         return Motion(DEFAULT_BLUR, get_ambient_speed(),
                       get_ambient_size(), get_ambient_resolution(),
-                      get_ambient_density(), get_ambient_drift_direction())
+                      get_ambient_density(theme), get_ambient_drift_direction())
     except Exception:
         return fallback
 
@@ -7170,8 +7466,7 @@ class _QueuedArtInput:
         for click_serial, point in clicks:
             if (click_serial > self._applied_click_serial and not discard_clicks
                     and engine.name in _FIELD_THEMES):
-                engine._add_impulse(point, strength=1.0)
-                engine._add_ripple(point)
+                engine._add_impulse(point, strength=1.0, ripple=False)
         if clicks:
             self._applied_click_serial = clicks[-1][0]
         self._applied_elapsed = elapsed
@@ -7305,20 +7600,28 @@ class _FrameProducer:
         fast as it can rather than falling further behind a schedule it cannot
         keep.
         """
-        while not self._stop.is_set():
-            started = time.monotonic()
-            width, height = self.size
-            image = None
-            if width > 0 and height > 0:
-                with self._engine_lock:
-                    if self._queued_input is not None:
-                        self._queued_input._consume(self._engine)
-                    image = self._engine.shade(width, height)
-            if image is not None:
-                self.publish(image)
-                self.frames_shaded += 1
-            remaining = self._interval - (time.monotonic() - started)
-            self._stop.wait(remaining if remaining > 0 else 0.0)
+        try:
+            if getattr(self._engine, "_graphics_backend", "cpu") == "gpu":
+                _flow_graphics_preflight()
+            while not self._stop.is_set():
+                started = time.monotonic()
+                width, height = self.size
+                image = None
+                if width > 0 and height > 0:
+                    with self._engine_lock:
+                        if self._queued_input is not None:
+                            self._queued_input._consume(self._engine)
+                        image = self._engine.shade(width, height)
+                if image is not None:
+                    self.publish(image)
+                    self.frames_shaded += 1
+                remaining = self._interval - (time.monotonic() - started)
+                self._stop.wait(remaining if remaining > 0 else 0.0)
+        finally:
+            with self._engine_lock:
+                release = getattr(self._engine, '_release_point_graphics', None)
+                if release is not None:
+                    release()
 
 
 def _retire_producer(box: List[Optional[_FrameProducer]]) -> None:
@@ -7434,6 +7737,9 @@ class AmbientWidget(QWidget):
         self._legacy_input = _QueuedArtInput()
         self._art_input = None
         self._pending_art_impulses: List[Tuple[float, float]] = []
+        self._click_candidate = None
+        self._click_press = QPoint()
+        self._popup_was_open = False
         self._interaction_app = None
         self._field_grab = None
         self._separate_theme = bool(
@@ -7447,7 +7753,7 @@ class AmbientWidget(QWidget):
         self._palette = coerce_palette(self._theme, palette)
         self._seed = seed
         asked = (blur, speed, size, resolution, density, direction)
-        stored = preferred_motion() if None in asked else None
+        stored = preferred_motion(self._theme) if None in asked else None
         self._blur = DEFAULT_BLUR
         self._speed = _clamp(stored.speed if speed is None else speed,
                              *SPEED_RANGE)
@@ -7469,9 +7775,13 @@ class AmbientWidget(QWidget):
         from ..preferences import _field_ripple_intensity
 
         self._ripple_intensity = _field_ripple_intensity()
-        from ..preferences import _spaceout_field_effects
+        from ..preferences import _field_click_ripples
+
+        self._click_ripples = _field_click_ripples()
+        from ..preferences import _spaceout_field_effects, _flow_graphics_backend
 
         self._field_effects = _spaceout_field_effects()
+        self._graphics_backend = _flow_graphics_backend()
         if blink_percent is None:
             from ..preferences import _ambient_blink_percent
 
@@ -7509,6 +7819,8 @@ class AmbientWidget(QWidget):
                                    blink_percent=self._blink_percent,
                                    popup_wave_frequency=self._popup_wave_frequency,
                                    direction=self._direction)
+        if isinstance(self._engine, _DataArtEngine):
+            self._engine._graphics_backend = self._graphics_backend
         radius_setter = getattr(self._engine, "set_gravity_radius", None)
         if radius_setter is not None:
             radius_setter(self._gravity_radius)
@@ -7615,6 +7927,14 @@ class AmbientWidget(QWidget):
         self._mutate_engine(
             lambda: self._engine.set_colors(palette_colors(self._theme, name)))
 
+    def _set_graphics_backend(self, mode):
+        """Offer a backend choice; the producer owns context creation/retirement."""
+        mode = str(mode).lower()
+        self._graphics_backend = mode if mode in ('cpu', 'auto', 'gpu') else 'cpu'
+        with self._engine_lock:
+            if isinstance(self._engine, _DataArtEngine):
+                self._engine._graphics_backend = self._graphics_backend
+
     def _mutate_engine(self, change: Callable[[], None]) -> None:
         """Apply ``change`` to the engine with the shading thread locked out,
         re-shade once, and repaint.
@@ -7702,6 +8022,8 @@ class AmbientWidget(QWidget):
         with self._engine_lock:
             engine.set_max_pixels(self._engine.max_pixels)
             engine.set_time(self._engine.time)
+            if isinstance(engine, _DataArtEngine):
+                engine._graphics_backend = self._graphics_backend
             self._engine = engine
             self._art_input = (_QueuedArtInput()
                                if self._theme.startswith("data_art_") else None)
@@ -8191,6 +8513,8 @@ class AmbientWidget(QWidget):
         """
         if not self._animating or not self.isVisible():
             return False
+        if _animation_paused_for_work():
+            return False
         window = self.window()
         if window is not None and window.isMinimized():
             return False
@@ -8240,6 +8564,47 @@ class AmbientWidget(QWidget):
                 self._engine_lock.release()
         self.update()
 
+    def _schedule_click_ripple(self) -> None:
+        """Commit the pending click ripple once the click has settled."""
+        candidate = self._click_candidate
+        if candidate is None:
+            return
+        QTimer.singleShot(CLICK_RIPPLE_SETTLE_MS, self,
+                          partial(self._commit_click_ripple, candidate))
+
+    def _commit_click_ripple(self, candidate) -> bool:
+        """Emit one click ripple unless its click produced a container ripple.
+
+        :param candidate: ``(point, container count at press)``.
+        :returns: whether the click ripple was published.
+        """
+        if candidate is not self._click_candidate:
+            return False
+        self._click_candidate = None
+        point, seen = candidate
+        if (seen != _CONTAINER_RIPPLES[0] or not self._ripples_enabled
+                or not self._click_ripples or self._ripple_intensity <= 0.0
+                or self._art_input is None or self._theme not in _FIELD_THEMES
+                or not self._should_run()):
+            return False
+        self._art_input._offer_boundary_waves((point,))
+        if self._engine_lock.acquire(blocking=False):
+            try:
+                self._art_input._consume(self._engine)
+            finally:
+                self._engine_lock.release()
+        self.update()
+        return True
+
+    def set_click_ripples(self, enabled: bool) -> None:
+        """Switch ripples at mouse-click positions; other ripples are unchanged.
+
+        :param enabled: whether a background click sends a ripple.
+        """
+        self._click_ripples = bool(enabled)
+        if not self._click_ripples:
+            self._click_candidate = None
+
     def _ripple_from_edge(self, edge, strength=1.0) -> None:
         """Send field waves inward from a settled window edge."""
         segments = {
@@ -8280,7 +8645,8 @@ class AmbientWidget(QWidget):
 
     def _publish_boundary_ripples(self, segments, strength) -> None:
         """Queue release feedback even with mouse gravity disabled."""
-        if (not self._ripples_enabled or self._theme not in _FIELD_THEMES
+        if (not self._ripples_enabled or self._ripple_intensity <= 0.0
+                or self._theme not in _FIELD_THEMES
                 or not self._should_run()
                 or self._art_input is None or not math.isfinite(strength)
                 or strength <= 0.0 or not segments):
@@ -8314,6 +8680,7 @@ class AmbientWidget(QWidget):
         :param event: the Qt show event.
         """
         super().showEvent(event)
+        _animation_resource_policy()
         window = self.window()
         watched = self._watched() if self._watched is not None else None
         if window is not None and window is not watched:
@@ -8383,10 +8750,14 @@ class AmbientWidget(QWidget):
                     self.window().mapFromGlobal(event.globalPosition().toPoint()))
                 background = (self._field_grab_background(obj) and
                               self._field_grab_background(hit if hit is not None else obj))
-                if (background and (self._ripples_enabled or self._gravity_radius > 0.0)
+                if (background and self._gravity_radius > 0.0
                         and (not self._pending_art_impulses
                         or self._pending_art_impulses[-1] != point)):
                     self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
+                if (background and self._ripples_enabled and self._click_ripples
+                        and self._ripple_intensity > 0.0):
+                    self._click_candidate = (point, _CONTAINER_RIPPLES[0])
+                    self._click_press = event.globalPosition().toPoint()
                 if background:
                     self._field_grab = (point, (0.0, 0.0))
                     self._offer_field_grab()
@@ -8407,6 +8778,10 @@ class AmbientWidget(QWidget):
               and event.button() == Qt.LeftButton):
             self._field_grab = None
             self._offer_field_grab()
+            moved = event.globalPosition().toPoint() - self._click_press
+            if moved.manhattanLength() > QApplication.startDragDistance():
+                self._click_candidate = None
+            self._schedule_click_ripple()
         elif (etype == QEvent.WindowDeactivate and obj is watched
               and grab is not None):
             self._field_grab = None
@@ -8503,9 +8878,13 @@ class AmbientWidget(QWidget):
                    if isinstance(self._engine, _DataArtEngine)
                    and self._engine.interactive and self._gravity_radius > 0.0 else None)
         if self._art_input is not None:
+            popup_origin = self._popup_wave_origin_for_tick()
+            if self._popup_was_open and popup_origin is None:
+                _note_container_ripple()
+            self._popup_was_open = popup_origin is not None
             self._art_input._offer(step, pointer, tuple(self._pending_art_impulses),
                                    grab=self._field_grab,
-                                   popup_origin=self._popup_wave_origin_for_tick(),
+                                   popup_origin=popup_origin,
                                    popup_id=self._popup_wave_popup_id)
             self._pending_art_impulses.clear()
             if self._engine_lock.acquire(blocking=False):
@@ -9014,6 +9393,239 @@ class _FractalTracksItsHost(QObject):
         return False
 
 
+#: Container, window-edge and popup ripples published so far. A click
+#: ripple is committed only if this did not change during its interaction.
+_CONTAINER_RIPPLES = [0]
+
+#: Milliseconds after a release before a click ripple is committed. Long
+#: enough for the click's own handlers and their zero-delay container
+#: ripples and for the next animation tick to notice a closed popup.
+CLICK_RIPPLE_SETTLE_MS = 120
+
+
+def _note_container_ripple() -> None:
+    """Record that some container produced its own ripple just now."""
+    _CONTAINER_RIPPLES[0] += 1
+
+
+#: Pipeline keys whose analysis runs on the GPU when one is present.
+_GPU_JOB_KEYS = frozenset((
+    "mask", "timelapse", "cellpose_masks", "train_cellpose", "classify",
+    "classify_merged", "activation", "make_masks", "sam", "train",
+    "embeddings", "deep_spacr"))
+
+#: Pipeline keys whose analysis is CPU bound.
+_CPU_JOB_KEYS = frozenset((
+    "measure", "motility", "illumination", "umap", "map_barcodes",
+    "ml_analyze", "regression", "recruitment", "foreign", "align", "ops",
+    "convert", "invasion", "replication", "analyze_plaques", "barcode_qc",
+    "explain_cv", "anndata_export", "external_masks"))
+
+_RESOURCE_POLICY = None
+
+
+def _analysis_gpu_present() -> bool:
+    """Whether analysis jobs here can run on a GPU at all.
+
+    PyTorch is consulted only when something already imported it; NVML is
+    used otherwise, so asking never pulls a deep-learning stack into the
+    GUI. Without either, GPU-capable jobs run on the CPU and count as
+    CPU-heavy work.
+    """
+    torch = sys.modules.get("torch")
+    if torch is not None:
+        try:
+            if torch.cuda.is_available():
+                return True
+            mps = getattr(getattr(torch, "backends", None), "mps", None)
+            return bool(mps is not None and mps.is_available())
+        except Exception:
+            return False
+    try:
+        import pynvml
+
+        pynvml.nvmlInit()
+        try:
+            return pynvml.nvmlDeviceGetCount() > 0
+        finally:
+            pynvml.nvmlShutdown()
+    except Exception:
+        return False
+
+
+def _job_resource(app_key, gpu_present: bool) -> Optional[str]:
+    """Classify one running job as ``"cpu"``, ``"gpu"`` or ``None``."""
+    key = str(app_key or "").split(":", 1)[0].strip().lower()
+    if key in _GPU_JOB_KEYS:
+        return "gpu" if gpu_present else "cpu"
+    if key in _CPU_JOB_KEYS:
+        return "cpu"
+    return None
+
+
+class _AnimationResourcePolicy(QObject):
+    """Dynamic animation: yield decorative work to running analysis.
+
+    Signals covered: every job started through
+    :func:`spacr.qt.bridge.make_thread` and every external job tracked with
+    ``_track_external_job`` is registered in the process-wide run registry
+    and removed when it finishes, fails or is cancelled. The policy
+    recomputes from the full set on each ``changed`` signal, so one job
+    ending never releases a guard another job still holds. Housekeeping
+    jobs (``user_visible`` false) and unknown keys are ignored.
+
+    A CPU-heavy job pauses every animation; a GPU job switches decorative
+    rendering to the CPU and pauses GPU-backed spaceout fractals. CPU work
+    takes precedence when both run. Nothing is written to Preferences:
+    the user's saved theme and backend come back when the jobs end.
+    External or headless processes are seen only on NVIDIA hardware,
+    through NVML's compute-process list (see :func:`_flow_compute_idle`);
+    CPU load from other processes is not observed.
+    """
+
+    changed = Signal()
+
+    def __init__(self, parent=None):
+        """Read the saved switch and start with nothing running."""
+        super().__init__(parent)
+        try:
+            from ..preferences import _dynamic_animation_enabled
+
+            self.enabled = bool(_dynamic_animation_enabled())
+        except Exception:
+            self.enabled = True
+        self.cpu_busy = False
+        self.gpu_busy = False
+        self._attached = False
+        self._paused_fractals = []
+
+    def attach(self) -> None:
+        """Follow the run registry; idempotent."""
+        if self._attached:
+            return
+        try:
+            from ..bridge import registry
+
+            registry().changed.connect(self._recompute)
+            self._attached = True
+        except Exception:
+            LOG.debug("could not follow the run registry", exc_info=True)
+        self._recompute()
+
+    def set_enabled(self, enabled: bool) -> None:
+        """Turn the workload policy on or off and apply it at once."""
+        enabled = bool(enabled)
+        if enabled != self.enabled:
+            self.enabled = enabled
+            self._apply()
+
+    def pauses_animation(self) -> bool:
+        """Whether CPU-heavy work currently pauses every animation."""
+        return self.enabled and self.cpu_busy
+
+    def blocks_gpu(self) -> bool:
+        """Whether decorative GPU rendering must step aside right now."""
+        return self.enabled and (self.cpu_busy or self.gpu_busy)
+
+    def _kinds(self):
+        """Resource kinds of the user-visible jobs running now."""
+        try:
+            from ..bridge import registry
+
+            handles = registry().active()
+        except Exception:
+            return set()
+        visible = [handle for handle in handles
+                   if getattr(handle, "user_visible", True)]
+        if not visible:
+            return set()
+        gpu_present = _analysis_gpu_present()
+        return {kind for kind in (_job_resource(getattr(handle, "app_key", ""),
+                                                gpu_present)
+                                  for handle in visible) if kind}
+
+    def _recompute(self, *_args) -> None:
+        """Recount running work and apply any change."""
+        kinds = self._kinds()
+        cpu, gpu = "cpu" in kinds, "gpu" in kinds
+        if (cpu, gpu) != (self.cpu_busy, self.gpu_busy):
+            self.cpu_busy, self.gpu_busy = cpu, gpu
+            self._apply()
+        elif self.blocks_gpu():
+            self._hold_fractals()
+
+    def _apply(self) -> None:
+        """Push the current decision to every live animation."""
+        app = QApplication.instance()
+        if app is not None:
+            for widget in list(app.allWidgets()):
+                if isinstance(widget, AmbientWidget):
+                    try:
+                        widget._sync_run_state()
+                    except RuntimeError:
+                        continue
+        if self.blocks_gpu():
+            self._hold_fractals()
+        else:
+            self._release_fractals()
+        self.changed.emit()
+
+    def _hold_fractals(self) -> None:
+        """Pause fractals the current work forbids; remember only those."""
+        for widget in _live_spaceout_fractals():
+            try:
+                wanted = (self.pauses_animation()
+                          or getattr(widget, "backend_name", "") == "gpu")
+                if (wanted and widget not in self._paused_fractals
+                        and not widget.is_paused() and widget.pause()):
+                    self._paused_fractals.append(widget)
+            except RuntimeError:
+                continue
+            except Exception:
+                LOG.debug("could not pause a fractal for a job", exc_info=True)
+
+    def _release_fractals(self) -> None:
+        """Resume exactly the fractals this policy paused."""
+        held, self._paused_fractals = self._paused_fractals, []
+        for widget in held:
+            try:
+                widget.resume()
+            except RuntimeError:
+                continue
+            except Exception:
+                LOG.debug("could not resume a fractal", exc_info=True)
+
+
+def _animation_resource_policy() -> Optional[_AnimationResourcePolicy]:
+    """The process-wide Dynamic animation policy, once Qt is running."""
+    global _RESOURCE_POLICY
+    if _RESOURCE_POLICY is None:
+        app = QApplication.instance()
+        if app is None:
+            return None
+        _RESOURCE_POLICY = _AnimationResourcePolicy(app)
+        _RESOURCE_POLICY.attach()
+    return _RESOURCE_POLICY
+
+
+def _dynamic_animation_on() -> bool:
+    """Whether the workload policy is switched on, without creating it."""
+    policy = _RESOURCE_POLICY
+    return True if policy is None else policy.enabled
+
+
+def _decorative_gpu_blocked() -> bool:
+    """Whether running analysis currently forbids decorative GPU work."""
+    policy = _RESOURCE_POLICY
+    return bool(policy is not None and policy.blocks_gpu())
+
+
+def _animation_paused_for_work() -> bool:
+    """Whether CPU-heavy analysis currently pauses every animation."""
+    policy = _RESOURCE_POLICY
+    return bool(policy is not None and policy.pauses_animation())
+
+
 def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
     """Publish settled window or panel feedback to its visible field backdrop.
 
@@ -9023,6 +9635,7 @@ def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
     :param strength: positive enables release feedback; zero disables it.
     :returns: None.
     """
+    _note_container_ripple()
     try:
         window = widget.window()
         backdrops = window.findChildren(AmbientWidget)

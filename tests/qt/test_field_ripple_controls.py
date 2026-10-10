@@ -3,11 +3,10 @@
 import numpy as np
 import pytest
 from PySide6.QtCore import QRect, QSettings, Qt
-from PySide6.QtWidgets import QDialogButtonBox, QWidget
+from PySide6.QtWidgets import QDialogButtonBox, QSlider, QWidget
 
 from spacr.qt import preferences as prefs
 from spacr.qt.widgets import ambient
-from spacr.qt.widgets.toggle import Toggle
 
 
 @pytest.fixture(autouse=True)
@@ -36,6 +35,7 @@ def _field(qtbot, gravity_radius=0):
 def test_actual_click_creates_visible_ripples_with_gravity_disabled(qtbot, radius):
     host, field = _field(qtbot, radius)
     qtbot.mouseClick(host, Qt.LeftButton, pos=host.rect().center())
+    qtbot.waitUntil(lambda: bool(field.engine._popup_waves))
     field._on_tick()
     field._timer.stop()
     assert field.engine.gravity_radius == 0
@@ -236,15 +236,15 @@ def test_preferences_cancel_and_save_update_existing_fields(
     _host, field = _field(qtbot)
     dialog = prefs.PreferencesDialog()
     qtbot.addWidget(dialog)
-    toggle = dialog.findChild(Toggle, "FieldRipplesEnabled")
-    assert toggle.isChecked()
-    toggle.setChecked(False)
+    slider = dialog.findChild(QSlider, "FieldRipples")
+    assert slider.value() == 100
+    slider.setValue(0)
     dialog.reject()
     assert prefs._field_ripples_enabled()
     assert field.engine.ripples_enabled
     accepted = prefs.PreferencesDialog()
     qtbot.addWidget(accepted)
-    accepted.findChild(Toggle, "FieldRipplesEnabled").setChecked(False)
+    accepted.findChild(QSlider, "FieldRipples").setValue(0)
     accepted.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
     assert not prefs._field_ripples_enabled()
     assert not field.engine.ripples_enabled

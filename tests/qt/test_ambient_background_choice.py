@@ -41,6 +41,9 @@ def test_background_choice_is_optional_matte_and_constrained_by_page(
     monkeypatch.setattr(preferences, "resolve_effective_theme", lambda: "dark")
     from spacr.qt.theme import active_page_colour
 
+    assert preferences._ambient_background_choice() == "#191919"
+    assert preferences._effective_ambient_background() == QColor(25, 25, 25)
+    preferences._set_ambient_background_choice(None)
     assert preferences._ambient_background_choice() is None
     assert preferences._effective_ambient_background() == QColor(active_page_colour())
     preferences._set_ambient_background_choice("#dddddd")
@@ -80,18 +83,19 @@ def test_background_picker_is_independent_of_palette_and_cancelable(
     choose = dialog.findChild(QPushButton, "AmbientBackgroundColor")
     reset = dialog.findChild(QPushButton, "AmbientBackgroundReset")
     assert choose.isEnabled()
-    assert not reset.isEnabled()
+    assert "#191919" in choose.text()
+    assert reset.isEnabled()
     monkeypatch.setattr(QColorDialog, "getColor", lambda *_args: QColor())
     choose.click()
-    assert not reset.isEnabled()
+    assert "#191919" in choose.text()
     monkeypatch.setattr(QColorDialog, "getColor",
                         lambda *_args: QColor("#3a3a3a"))
     choose.click()
     assert "#3a3a3a" in choose.text()
     assert reset.isEnabled()
-    assert preferences._ambient_background_choice() is None
+    assert preferences._ambient_background_choice() == "#191919"
     dialog.reject()
-    assert preferences._ambient_background_choice() is None
+    assert preferences._ambient_background_choice() == "#191919"
 
     saved = preferences.PreferencesDialog()
     qtbot.addWidget(saved)
@@ -160,7 +164,7 @@ def test_apply_revert_restores_background_and_unchanged_apply_does_not_reshade(
     assert preferences._ambient_background_choice() == "#454545"
     assert widget.background_color() != initial
     _answer(question, "Revert", qtbot)
-    assert preferences._ambient_background_choice() is None
+    assert preferences._ambient_background_choice() == preferences.DEFAULT_AMBIENT_BACKGROUND
     assert widget.background_color() == QColor(
         preferences._effective_ambient_background())
 

@@ -251,6 +251,7 @@ setup(
             'win10toast>=0.9; platform_system == "Windows"',
         ],
         'flowview': ['PySide6>=6.6,<7'],
+        'flow-gpu': ['moderngl>=5.12,<6'],
         'fractal': ['vispy>=0.14,<1.0'],
         'tutorial': [
             'PySide6>=6.6,<7',
