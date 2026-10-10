@@ -1,6 +1,6 @@
 A POSTGRES OR DUCKDB/PARQUET MEASUREMENT BACKEND
 
-Status: PARTIAL (alpha) 2026-10-08 — backend-aware reads delivered; classifier writes, migration UI and complete backend acceptance remain.
+Status: DONE (alpha) 2026-10-10 — classification and regression routed through DuckDB, Parquet and PostgreSQL; alpha migration action on Measure; per-backend suites pass incl. a real PostgreSQL server. Non-English captions for the new strings follow in the translation lane.
 VERIFIED 2026-10-04: test_measurement_backends, qt/test_measurement_backend_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
@@ -110,3 +110,38 @@ mustbeowned, plus backend/src tooltip corrections. Sourceprivatepending matching
 artifacts; no global/GPU/externalatomicity completion. SessionSpawnProcess1
 non-failing note preserved and being traced. See consolidated_backend_gui_
 migration_2026-10-08 and576_consolidated_home_readback_2026-10-09 receipts.
+
+2026-10-10 Claude (F576 lane) — PUBLISHED ON NIGHTLY (868adff0f)
+The private consolidated candidate (576_consolidated_backend_gui_migration_
+2026-10-08) applied cleanly on current nightly and is now public:
+- Classification: generate_ml_scores reads the store chosen by
+  measurement_backend (duplicate stores read once); merge_prediction_results
+  and migrate_prediction_columns update DuckDB and PostgreSQL in one native
+  transaction and publish Parquet as a manifest snapshot.
+- Regression: paired inputs carry score_table/count_table for any store;
+  PostgreSQL counts need a local output folder (src), refused otherwise.
+- Settings UI: Measure's measurement_backend_target box has the alpha
+  "Migrate measurement store…" action (MeasurementMigrationAction,
+  registered in ALPHA_FEATURES[576] 'widgets'). It copies every table into
+  a NEW destination (local destinations must not exist; a PostgreSQL one
+  must be empty), never changes the source, and does not switch the
+  active backend.
+PER-BACKEND SUITES (CPU, CUDA hidden, run_capped 8G, -n 4): 34 files incl.
+measurement-backend, classification (classify_merged, classify_controls,
+predictions, ml_scores), regression and settings-model suites — 5091
+passed, 0 failed, 0 PostgreSQL skips, against a throwaway PostgreSQL 18
+server (initdb in /mnt/wd4tb/scratch/f576/pg, unix socket, no root) via
+SPACR_TEST_POSTGRES_DSN; DuckDB 1.5.6 and psycopg 3.3.6 from a --target
+dir. Without the DSN the real-server cases skip and mocks cover the code.
+COVERAGE: every added line and branch in the 9 touched spacr modules is
+covered by the targeted run (new tests test_f576_cov_store_edges,
+test_f576_cov_predictions, qt/test_f576_cov_settings_model,
+qt/test_f576_cov_file_list).
+I18N: English API and runtime manifests regenerated (--sources-only). The
+five CSV-only Regression captions this replaces moved to retired_records in
+each locale (originals in archive/2026-10-10-f576-store-tables).
+CI: DuckDB/Parquet already run in tests.yml (databases extra). PostgreSQL is
+NOT added to CI: a service container is cheap, but the workflows belong to
+the CI lane; hand it over there if wanted.
+LEFT: translations of the ~37 new captions into the nine locales (docs and
+translation lane).
