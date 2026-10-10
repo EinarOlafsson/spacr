@@ -19,11 +19,13 @@ dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same
 call Classify's button makes, and a plate already unpacked by any of them is
 reused without touching the network.
 
-Two public sets have buttons of their own, fetched through the example-set
+Three public sets have buttons of their own, fetched through the example-set
 registry (:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose`` (LINCS Cell
 Painting, ``einarolafsson/spacr-example-dose``) for Dose-Response, Prediction
-Profiler, Run Compare, Run History and Training Runs, and ``control_chart``
-(CPJUMP1, ``einarolafsson/spacr-example-control-chart``) for Control Chart.
+Profiler, Run Compare, Run History and Training Runs, ``control_chart``
+(CPJUMP1, ``einarolafsson/spacr-example-control-chart``) for Control Chart,
+and ``hit`` (a cut of the TSG101 screen, ``einarolafsson/spacr-example-hit``)
+for Investigate Hit.
 """
 from __future__ import annotations
 
@@ -441,6 +443,101 @@ def _load_control_chart_test_data(screen, *, ask=None) -> bool:
             apply(table)
     except Exception as exc:
         LOG.exception("the screen could not open the control chart example")
+        _report(screen, str(exc) or exc.__class__.__name__)
+        return False
+    return True
+
+
+_HIT_KEY = "hit"
+_HIT_FOLDER = "hit_example"
+_HIT_RECORD = "hit.json"
+
+
+def _hit_example_folder() -> Path:
+    """The Investigate Hit example's folder, beside the shared example plate.
+
+    Thirty wells (fields 1-4) of plate 1 of the published TSG101 recruitment
+    screen: the Measure database, the per-cell predictions, the guide counts,
+    a Regression run made from them that names GRA14 (239740), and
+    ``hit.json`` naming the hit and the files.
+    """
+    return example_measurements_folder().parent / _HIT_FOLDER
+
+
+def _install_hit_test_data_button(screen, layout,
+                                  apply: Callable[[Path, Dict[str, Any]], Any],
+                                  *, say: Optional[Callable[[str], Any]] = None,
+                                  index: Optional[int] = None):
+    """Add a "Load test data…" button that hands the hit example to ``apply``.
+
+    :param screen: the widget the button, callback and reporter are kept on.
+    :param layout: the box layout the button goes into.
+    :param apply: called as ``apply(folder, hit)`` with the example folder
+        and the hit record read from its ``hit.json``.
+    :param say: where a failure is reported; logged when omitted.
+    :param index: position in ``layout``; appended when omitted.
+    :returns: the button. The caller names it.
+    """
+    from PySide6.QtWidgets import QPushButton
+
+    button = QPushButton(tr("Load test data…"), screen)
+    button.setToolTip(tr(
+        "Load a cut of the published TSG101 recruitment screen: 2,608 cells "
+        "in 30 wells of plate 1 with their predictions and guide fractions, "
+        "and a Regression run made from them that names GRA14 (239740) as "
+        "the hit. About 28 MB, cached afterwards."))
+    screen._hit_test_data_apply = apply
+    screen._test_data_say = say
+    button.clicked.connect(lambda _checked=False: _load_hit_test_data(screen))
+    if layout is not None:
+        if index is None:
+            layout.addWidget(button)
+        else:
+            layout.insertWidget(index, button)
+    return button
+
+
+def _fetch_hit_example(folder: Path) -> None:
+    """Download the hit example (``einarolafsson/spacr-example-hit``).
+
+    Its settings files carry ``<dataset>`` where the unpack location goes;
+    that is filled in here.
+    """
+    from ...example_archives import make_the_example_paths_absolute
+
+    _fetch_example_set(_HIT_KEY, folder)
+    make_the_example_paths_absolute(folder)
+
+
+def _load_hit_test_data(screen, *, ask=None) -> bool:
+    """Reuse or fetch the hit example, then hand it to the screen.
+
+    :param screen: a widget :func:`_install_hit_test_data_button` was called
+        on.
+    :param ask: replaces the download, called with the folder. For tests.
+    :returns: whether the screen received the example.
+    """
+    import json
+
+    folder = _hit_example_folder()
+    record = folder / _HIT_RECORD
+    if not record.is_file():
+        try:
+            (ask or _fetch_hit_example)(folder)
+        except Exception as exc:
+            _report(screen, _download_failure(exc))
+            return False
+    if not record.is_file():
+        _report(screen, tr("The test data could not be downloaded: {detail}",
+                           detail=str(record)))
+        return False
+    apply = getattr(screen, "_hit_test_data_apply", None)
+    try:
+        hit = json.loads(record.read_text(encoding="utf-8"))
+        if apply is not None:
+            apply(folder, hit)
+    except Exception as exc:
+        LOG.exception("the screen could not open the hit example")
         _report(screen, str(exc) or exc.__class__.__name__)
         return False
     return True

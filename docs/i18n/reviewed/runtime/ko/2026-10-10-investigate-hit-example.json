@@ -1,0 +1,21 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source_sha256": "235a030f6880899bdd582d779b6691c16049ab10b4cf49aedae1c7a264c49312",
+      "table": "ui",
+      "translation": "공개된 TSG101 모집 스크린의 일부를 불러옵니다: 플레이트 1의 웰 30개에 있는 세포 2,608개와 그 예측값 및 가이드 비율, 그리고 이 데이터로 수행해 GRA14(239740)를 히트로 지목한 회귀 분석 실행입니다. 약 28 MB이며 이후 캐시됩니다."
+    },
+    {
+      "key": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source_sha256": "03d3fa239d0100288c638e6eba5bb680b722d9ee6e0ed941012c4c16815abe8a",
+      "table": "ui",
+      "translation": "예제 히트 {gene}을(를) 불러왔습니다. '히트 조사'를 누르세요."
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

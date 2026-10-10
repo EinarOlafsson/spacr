@@ -1,0 +1,21 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source_sha256": "235a030f6880899bdd582d779b6691c16049ab10b4cf49aedae1c7a264c49312",
+      "table": "ui",
+      "translation": "加载已发表 TSG101 募集筛选的一个子集：第 1 板 30 个孔中的 2,608 个细胞及其预测值和向导比例，以及由这些数据完成、将 GRA14（239740）判定为命中的回归运行。约 28 MB，之后会缓存。"
+    },
+    {
+      "key": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source_sha256": "03d3fa239d0100288c638e6eba5bb680b722d9ee6e0ed941012c4c16815abe8a",
+      "table": "ui",
+      "translation": "已加载示例命中 {gene}。请点击“调查命中”。"
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

@@ -312,12 +312,16 @@ class _Mixture:
         objects without the morphology having to carry that information. The
         fraction is clipped away from 0 and 1 first, where the logit diverges,
         and the final exponent is clipped so an extreme log-odds saturates to 0
-        or 1 instead of overflowing.
+        or 1 instead of overflowing. A missing or infinite feature value is
+        replaced by the fitted median, as :func:`_fit_mixture` does for the
+        training objects, so one undefined measurement (a Pearson correlation
+        of a constant channel) cannot leave its object without a probability.
 
         :param values: the per-object score.
         :param fractions: each object's guide fraction in its well.
         :returns: the probabilities.
         """
+        values = np.where(np.isfinite(values), values, self.median)
         x = (values - self.median) / self.scale
         covariate = np.log(
             np.clip(fractions, 1e-3, 1 - 1e-3) /

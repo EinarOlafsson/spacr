@@ -562,6 +562,12 @@ class InvestigateHitPanel(QWidget):
                        self.undo_button, self.umap_button):
             actions.addWidget(button)
         actions.addStretch(1); outer.addLayout(actions)
+        from ..widgets.measurements_example import _install_hit_test_data_button
+        example = _install_hit_test_data_button(
+            self, actions, self._load_example,
+            say=lambda message: self.status.setText(message),
+            index=actions.count() - 1)
+        example.setObjectName("InvestigateHitTestDataButton")
         self.status = QLabel(
             "Candidate probabilities are weakly supervised hit-like morphology, not observed guide identity.")
         self.status.setWordWrap(True); self.status.setObjectName("Muted")
@@ -617,6 +623,32 @@ class InvestigateHitPanel(QWidget):
         self.gene.setProperty("source_guide_agreement", guide_agreement)
         self.gene.setProperty("source_n_guides", n_guides)
         self.gene.setProperty("source_well_support", well_support)
+
+    def _load_example(self, folder, hit: Dict[str, Any]) -> None:
+        """Fill the form from the downloaded Investigate Hit example.
+
+        :param folder: the unpacked example folder.
+        :param hit: its ``hit.json``: the file names relative to ``folder``,
+            the hit gene, its guides, score column and the regression's
+            effect, adjusted P value and support.
+        """
+        root = str(folder)
+        self.database.setText(os.path.join(root, hit["db_path"]))
+        self.predictions.setText(os.path.join(root, hit["predictions_file"]))
+        self.fractions.setText(os.path.join(root, hit["guide_fractions_file"]))
+        self._refresh_prediction_columns()
+        self.configure_hit(
+            folder=os.path.join(root, hit["results_folder"]),
+            gene=str(hit["target_gene"]),
+            effect=float(hit.get("hit_effect", 0.0)),
+            guides=tuple(hit["target_guides"]),
+            fdr=float(hit.get("hit_fdr", float("nan"))),
+            phenotype=str(hit.get("score_column", "")),
+            n_guides=int(hit.get("hit_n_guides", len(hit["target_guides"]))),
+            well_support=int(hit.get("hit_well_support", 0)))
+        self.status.setText(tr(
+            "Loaded the example hit {gene}. Press Investigate hit.",
+            gene=str(hit["target_gene"])))
 
     def _refresh_prediction_columns(self) -> None:
         """Offer the score columns of the chosen prediction file.

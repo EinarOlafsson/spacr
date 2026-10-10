@@ -1,0 +1,21 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source_sha256": "235a030f6880899bdd582d779b6691c16049ab10b4cf49aedae1c7a264c49312",
+      "table": "ui",
+      "translation": "Läs in ett utdrag ur den publicerade TSG101-rekryteringsscreenen: 2 608 celler i 30 brunnar på platta 1 med sina prediktioner och guideandelar, samt en regressionskörning gjord på dem som pekar ut GRA14 (239740) som träff. Cirka 28 MB, cachas därefter."
+    },
+    {
+      "key": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source_sha256": "03d3fa239d0100288c638e6eba5bb680b722d9ee6e0ed941012c4c16815abe8a",
+      "table": "ui",
+      "translation": "Exempelträffen {gene} har lästs in. Klicka på ”Undersök träff”."
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

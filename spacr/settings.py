@@ -7689,7 +7689,8 @@ ALPHA_FEATURES = {
                     'ProjectBrowserTestDataButton',
                     'DoseResponseTestDataButton', 'ProfilerTestDataButton',
                     'RunCompareTestDataButton', 'RunHistoryTestDataButton',
-                    'TrainCompareTestDataButton'),
+                    'TrainCompareTestDataButton',
+                    'InvestigateHitTestDataButton'),
     },
 }
 

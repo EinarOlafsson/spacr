@@ -458,6 +458,25 @@ def test_a_flat_contrast_still_fits_a_mixture():
     assert np.isfinite(mixture.predict(values, fractions)).all()
 
 
+def test_a_missing_feature_of_a_held_out_object_still_gets_a_probability():
+    """A NaN feature is filled with the fitted median when predicting.
+
+    Measure leaves a Pearson correlation undefined for a constant channel; one
+    such cell in a held-out well used to make cross-fitting fail outright.
+    """
+    rng = np.random.default_rng(1)
+    values = rng.normal(size=(40, 3))
+    fractions = np.tile([0.0, 0.4], 20)
+    mixture = ha._fit_mixture(values, fractions, max_iter=5)
+    held_out = values[:4].copy()
+    held_out[0, 1] = np.nan
+    held_out[1, 2] = np.inf
+
+    probability = mixture.predict(held_out, fractions[:4])
+
+    assert np.isfinite(probability).all()
+
+
 def test_a_guide_with_no_column_of_its_own_is_skipped(hit_frame):
     """A guide absent from the widened table contributes no evidence row."""
     frame = hit_frame.copy()

@@ -51,6 +51,9 @@ DOSE_BUTTONS = {
 #: Control Chart's alpha button, which opens the CPJUMP1 example.
 CONTROL_CHART_BUTTON = "ControlChartTestDataButton"
 
+#: Investigate Hit's alpha button, which opens the TSG101 screen cut.
+HIT_BUTTON = "InvestigateHitTestDataButton"
+
 
 
 #: Screens whose catalog entry is an alpha stage, built from their own factory.
@@ -94,7 +97,7 @@ def test_every_button_is_registered_as_alpha():
 
     assert set(ALPHA_FEATURES[633]["widgets"]) == (
         set(BUTTONS.values()) | set(IMPORT_BUTTONS.values())
-        | set(DOSE_BUTTONS.values()) | {CONTROL_CHART_BUTTON})
+        | set(DOSE_BUTTONS.values()) | {CONTROL_CHART_BUTTON, HIT_BUTTON})
 
 
 @pytest.mark.parametrize("key", sorted(BUTTONS))
@@ -514,3 +517,134 @@ def test_the_dose_example_groups_by_compound_past_the_category_limit(
     screen = _build_from_app(qtbot, "dose_response")
     assert mx._load_dose_test_data(screen, ask=None) is True
     assert screen.spec().group == "compound"
+
+
+def _write_hit_example(folder):
+    """Write a hit-example-shaped folder: the record and its named files."""
+    folder = Path(folder)
+    (folder / "measurements").mkdir(parents=True)
+    (folder / "measurements" / "measurements.db").write_bytes(b"")
+    (folder / "results" / "ols").mkdir(parents=True)
+    (folder / "results" / "ols" / "results.csv").write_text("feature\n")
+    (folder / "plate1_dv.csv").write_text("path,pred,cv_predictions\n")
+    (folder / "guide_fractions.csv").write_text("prc,grna,fraction\n")
+    (folder / mx._HIT_RECORD).write_text(json.dumps({
+        "target_gene": "239740", "target_guides": ["239740_1"],
+        "score_column": "pred", "hit_direction": "positive",
+        "results_folder": "results/ols",
+        "db_path": "measurements/measurements.db",
+        "predictions_file": "plate1_dv.csv",
+        "guide_fractions_file": "guide_fractions.csv",
+        "hit_effect": 0.48, "hit_fdr": 0.04, "hit_n_guides": 1,
+        "hit_well_support": 16}))
+    return folder
+
+
+def _hit_panel(qtbot):
+    """Build Investigate Hit the way the app registry does."""
+    from spacr.qt.screens.investigate_hit import _make_screen
+
+    screen = _make_screen("investigate_hit")
+    qtbot.addWidget(screen)
+    return screen
+
+
+def test_hit_example_set_is_registered_with_its_archive():
+    """The Investigate Hit set is in the registry, not in the default fetch."""
+    from spacr.example_archives import HIT_EXAMPLE_REPO, example_set
+
+    hit = example_set("hit")
+    assert hit.repo == HIT_EXAMPLE_REPO == "einarolafsson/spacr-example-hit"
+    assert hit.archive == "spacr-example-hit.tar"
+    assert hit.folder == mx._HIT_FOLDER
+    assert not hit.in_default
+
+
+def test_investigate_hit_button_fills_the_form_while_hidden(
+        qtbot, tmp_path, monkeypatch):
+    """Off hides it, on shows it, and a load fills every input of the hit."""
+    from spacr.qt import preferences
+
+    folder = _write_hit_example(tmp_path / "example_data" / mx._HIT_FOLDER)
+    monkeypatch.setattr(mx, "example_measurements_folder",
+                        lambda: folder.parent / "plate1")
+    screen = _hit_panel(qtbot)
+    found = screen.findChildren(QPushButton, HIT_BUTTON)
+    assert len(found) == 1
+    button = found[0]
+    assert "test data" in button.text().lower()
+
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
+    preferences._apply_alpha_widgets(screen)
+    assert button.isHidden()
+
+    def refuse(_folder):
+        """Fail if the cached example is downloaded again."""
+        raise AssertionError("downloaded a cached example")
+
+    panel = screen.investigate
+    assert mx._load_hit_test_data(panel, ask=refuse) is True
+    assert panel.database.text() == str(
+        folder / "measurements" / "measurements.db")
+    assert panel.predictions.text() == str(folder / "plate1_dv.csv")
+    assert panel.fractions.text() == str(folder / "guide_fractions.csv")
+    assert panel.regression_folder.text() == str(folder / "results" / "ols")
+    assert panel.gene.text() == "239740"
+    assert panel.guides.text() == "239740_1"
+    assert panel.score.currentText() == "pred"
+    assert panel.direction.currentText() == "positive"
+    assert panel.gene.property("source_well_support") == 16
+    assert "239740" in panel.status.text()
+
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: True)
+    preferences._apply_alpha_widgets(screen)
+    assert not button.isHidden()
+
+
+def test_a_missing_hit_example_is_fetched_and_a_failure_is_said(
+        qtbot, tmp_path, monkeypatch):
+    """No cached record asks the downloader; a failed download is said."""
+    folder = tmp_path / "example_data" / mx._HIT_FOLDER
+    monkeypatch.setattr(mx, "example_measurements_folder",
+                        lambda: folder.parent / "plate1")
+    panel = _hit_panel(qtbot).investigate
+
+    def offline(_folder):
+        """Stand in for an unreachable dataset repository."""
+        raise OSError("offline")
+
+    assert mx._load_hit_test_data(panel, ask=offline) is False
+    assert "offline" in panel.status.text()
+    assert mx._load_hit_test_data(panel, ask=_write_hit_example) is True
+    assert panel.gene.text() == "239740"
+
+
+def test_the_hit_fetch_unpacks_the_archive_and_fills_the_settings_path(
+        tmp_path, monkeypatch):
+    """The fetch asks for the registry's archive and points settings home."""
+    from spacr import example_archives
+
+    source = tmp_path / "hub"
+    source.mkdir()
+    archive = _tar_of(source, {
+        "hit.json": "{}",
+        "settings/regression.csv": "Key,Value\nsrc,<dataset>\n"},
+        source / "spacr-example-hit.tar")
+    asked = []
+
+    def fake_download(repo, name, dest, **_kwargs):
+        """Copy the local archive where the real download would write it."""
+        import shutil
+
+        asked.append((repo, name))
+        return Path(shutil.copy(archive, Path(dest) / name))
+
+    monkeypatch.setattr(example_archives, "download_archive", fake_download)
+    folder = tmp_path / "example_data" / mx._HIT_FOLDER
+    mx._fetch_hit_example(folder)
+    assert asked == [("einarolafsson/spacr-example-hit",
+                      "spacr-example-hit.tar")]
+    assert (folder / "hit.json").is_file()
+    settings = (folder / "settings" / "regression.csv").read_text()
+    assert f"src,{folder}" in settings
+    assert not (folder / "spacr-example-hit.tar").exists()

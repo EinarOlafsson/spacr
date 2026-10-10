@@ -49,6 +49,7 @@ __all__ = [
     "EXAMPLE_ARCHIVES",
     "EXAMPLE_SETS",
     "ExampleSet",
+    "HIT_EXAMPLE_REPO",
     "IMPORT_EXAMPLE_REPO",
     "INVASION_EXAMPLE_REPO",
     "HOST_PATHOGEN_EXAMPLE_REPO",
@@ -143,6 +144,13 @@ DOSE_EXAMPLE_REPO = "einarolafsson/spacr-example-dose"
 #: positive-control wells. See ``tools/build_control_chart_example_dataset.py``.
 CONTROL_CHART_EXAMPLE_REPO = "einarolafsson/spacr-example-control-chart"
 
+#: Investigate Hit's example: 30 wells (fields 1-4) of plate 1 of the
+#: published TSG101 recruitment screen (:data:`spacr.screen_data.SCREEN_REPO`)
+#: with their per-cell predictions and guide counts, and a Regression run made
+#: from them that names GRA14 (239740). See
+#: ``tools/build_hit_example_dataset.py``.
+HIT_EXAMPLE_REPO = "einarolafsson/spacr-example-hit"
+
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
 
@@ -193,6 +201,7 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     STITCH_EXAMPLE_REPO: "spacr-example-stitch.tar",
     DOSE_EXAMPLE_REPO: "spacr-example-dose.tar",
     CONTROL_CHART_EXAMPLE_REPO: "spacr-example-control-chart.tar",
+    HIT_EXAMPLE_REPO: "spacr-example-hit.tar",
 }
 
 
@@ -381,6 +390,17 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         folder="control_chart_cpjump1",
         in_default=False,
     ),
+    ExampleSet(
+        key="hit",
+        repo=HIT_EXAMPLE_REPO,
+        summary="Investigate Hit example: 2,608 cells in 30 wells of the "
+                "TSG101 recruitment screen, plate 1, with their predictions, "
+                "guide fractions and a Regression run naming GRA14.",
+        bytes=27_791_360,
+        markers=("hit.json", "measurements/measurements.db"),
+        folder="hit_example",
+        in_default=False,
+    ),
 )
 
 
@@ -388,7 +408,7 @@ def example_set(key: str) -> ExampleSet:
     """The set called ``key``.
 
     :param key: an :data:`EXAMPLE_SETS` key, such as ``import``, ``mask``,
-        ``measure``, ``annotate``, ``dose`` or ``control_chart``.
+        ``measure``, ``annotate``, ``dose``, ``control_chart`` or ``hit``.
     :raises KeyError: naming the keys that do exist. A typo that returned
         ``None`` would download nothing and report success, which is the one
         outcome a download command must never produce.

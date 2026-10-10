@@ -1,9 +1,13 @@
 633 Test data for every module and submodule
 
-Status: ALPHA 2026-10-10, 95% -- the dose and control-chart example sets are
-        published and registered; every listed screen now loads working
-        example data except Investigate Hit, which needs a pooled-screen
-        example (see the 2026-10-10 note). Not COMPLETE: Investigate Hit open.
+Status: COMPLETE 100% (alpha) 2026-10-10 -- every listed screen loads working
+        example data. Investigate Hit, the last one, now opens a cut of the
+        TSG101 screen (einarolafsson/spacr-example-hit; see the second
+        2026-10-10 note).
+
+Superseded status (2026-10-10, earlier): ALPHA, 95% -- the dose and
+        control-chart example sets are published and registered; every listed
+        screen loaded working example data except Investigate Hit.
 
 Superseded status (2026-10-05): DONE (alpha) -- the user accepts the available
         alpha test data as complete for this item. The multi-dose
@@ -254,3 +258,61 @@ per-cell scores plateN_dv.csv and per-well guide counts
 plate_N_unique_combinations.csv from the example-data release). A cut of
 plate 1 (>= 6 wells with and without the hit's guides) plus a Regression run
 on it would make a small Investigate Hit set; not built here.
+
+2026-10-10 -- INVESTIGATE HIT EXAMPLE PUBLISHED (maintainer approval of
+2026-10-10: cut the already-public TSG101 pooled screen)
+Hugging Face dataset repo (public, MIT like the maintainer's other spaCR
+example sets; spacr-example-screen itself has no card or licence tag):
+- einarolafsson/spacr-example-hit
+  https://huggingface.co/datasets/einarolafsson/spacr-example-hit
+  commit f9a4a0940d1c87b35781705903a752fcb47e24f1. Files: README.md (card:
+  source, licence, spaCR citation, what was cut), spacr-example-hit.tar
+  (27,791,360 bytes, one uncompressed tar), guide_fractions.csv loose.
+Source: spacr-example-screen plate1-measurements.tar (60,816 cells), with
+plate1_dv.csv (per-cell CV predictions, pred) and
+plate_1_unique_combinations.csv from the example-data release.
+Cut, by fixed rules (tools/build_hit_example_dataset.py): 30 wells -- c1
+(SAG1-enriched), c2 (GRA14-enriched) and c3 (mixed) of rows r1-r8, plus the
+six imaged wells with no GRA14 read at all (r16c7, r7c18, r14c19, r1c23,
+r3c23, r3c24) -- and fields f1-f4 of each; every database row of those fields
+(cell 2,608, nucleus 3,606, pathogen 5,456, cytoplasm 2,608, png_list 2,608),
+the matching 2,608 prediction rows and the 9,032 read-count rows of those
+wells.
+Made by spaCR on the cut, not by hand: spacr.ml.perform_regression (OLS, well
+level, mean pred, fraction threshold 0.02, control columns kept) wrote
+results/ols/, which names gene 239740 (GRA14, the screen's positive
+control; TSG101 is the host reporter, not a guide target) with guide
+239740_1: effect 0.482, p 0.0062, BH-adjusted 0.040, 16 supporting wells.
+Its regression_data.csv is the guide-fraction table (guide_fractions.csv;
+guides under 2 % of a well's reads count as absent: 16 GRA14 wells, 14
+GRA14-free). The scores are the screen's own spaCR CV predictions, cut to the
+kept cells (re-scoring would need the 8.9 GB crops and a GPU). hit.json names
+the hit and the files; build paths in settings/text outputs are replaced by
+<dataset>, filled in on download.
+Registry: EXAMPLE_SETS gains "hit" (hit_example/, in_default=False), so
+`spacr-download hit` works; tests/test_cli_download.py pieces 20 -> 21.
+Screen: InvestigateHitTestDataButton (ALPHA_FEATURES[633]) on Investigate
+Hit's action row; it downloads through download_archive +
+extract_example_archive, fills <dataset>, then fills database, predictions,
+fractions, regression folder, gene, guides, score column (pred), direction
+and the regression's effect, adjusted P and support.
+Fix found by the end-to-end run: _Mixture.predict did not fill missing
+feature values (training did), so one cell with an undefined pathogen
+Pearson correlation in a held-out well made cross-fitting fail with "left
+cells without probabilities". predict now fills with the fitted median.
+Test: tests/test_cov_w2_5_hit_attribution.py.
+End to end (headless, offscreen, real download from HF into a scratch
+folder, CPU): the button fetched and opened the set in 5.8 s; Investigate hit
+with the screen's defaults (5,000 bootstraps, 10,000 permutations, 100
+pipeline permutations) ran in 24.6 min and filled every tab: 2,608 cells over
+30 wells cross-fitted by well, 30 well rows, 1 guide row, 5 threshold rows,
+96 gallery rows, a versioned attribution run stored. Result on this cut:
+hit-like prevalence difference -0.024 (95 % CI -0.137 to 0.103, permutation
+P 0.72): the morphology alone does not separate GRA14 wells from GRA14-free
+wells here, which the screen reports as such.
+Tests: tests/qt/test_test_data_for_every_module.py (registry, alpha gate and
+form fill while hidden, failed download, fetch fills <dataset>).
+i18n: two new captions (button tooltip, loaded status). Reviewed records in
+docs/i18n/reviewed/runtime/<9 locales>/2026-10-10-investigate-hit-example.json;
+en.py regenerated with --sources-only (catalogs not regenerated, as in the
+previous note).
