@@ -4,7 +4,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. |Website| image:: https://img.shields.io/badge/Website-spaCR-0A7BBB
    :target: https://einarolafsson.github.io/projects/spacr/
-   :alt: spaCR website
+   :alt: Vefsíða spaCR
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
    :alt: API-skjöl
@@ -19,7 +19,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
    :alt: Python 3.9 til 3.14
 .. |Coverage| image:: https://codecov.io/gh/EinarOlafsson/spacr/branch/nightly/graph/badge.svg
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
-   :alt: Codecov coverage
+   :alt: Prófunarþekja á Codecov
 .. |Test counts| image:: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FEinarOlafsson%2Fspacr%2Fnightly%2Fdocs%2Fsource%2F_static%2Ftest-counts.json&cacheSeconds=300
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
    :alt: Prófunarsafn

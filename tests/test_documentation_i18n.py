@@ -4227,7 +4227,9 @@ def test_localized_readmes_keep_the_badge_row_structurally_intact():
     # nine are held to.
     expected = (ROOT / "README.rst").read_text(
         encoding="utf-8").splitlines()[0]
-    assert expected.startswith("|Platforms|") and expected.endswith(
+    # |Website| leads the row since N687 (2026-10-10); |Coverage| follows
+    # |Test counts| since N688.
+    assert expected.startswith("|Website|") and expected.endswith(
         "|PyPI rank|"), expected
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
         assert path.read_text(encoding="utf-8").splitlines()[0] == expected, (
@@ -4246,13 +4248,14 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     )
 
     canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    # 22 since 2026-10-10: |Website| (N687) and |Coverage| (N688) joined.
     # 20 since the maintainer's 2026-09-16 badge edits: 19 badge alts plus
     # the logo's. It was 14 -- 13 plus the logo -- from the bioRxiv preprint
     # badge until conda-forge downloads and release date, PyPI downloads and
     # rank, Platforms and Cite arrived together.
     assert len(_readme_substitution_alt_text(
         canonical, README_BADGE_SUBSTITUTIONS,
-    )) + int(bool(_readme_logo_alt_text(canonical))) == 20
+    )) + int(bool(_readme_logo_alt_text(canonical))) == 22
     assert len(_readme_substitution_alt_text(
         canonical, README_INSTALLER_SUBSTITUTIONS,
     )) == 4
@@ -4297,7 +4300,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert len(alt_text) == len(
             re.findall(r"(?m)^   :alt: (.+)$", canonical)
         ) + len(canonical_alt) == (
-                20 + len(module_names) + 4 + 5)
+                22 + len(module_names) + 4 + 5)
         assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
         assert "logo_spacr_readme.png" not in text
         assert all(
