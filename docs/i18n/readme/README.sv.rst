@@ -84,7 +84,7 @@ Make Masks korrigerar segmenteringsmasker och annoterar oberoende, klassmärkta 
 
 Se `funktionsguiden <../../source/features.rst>`_ för varje verktyg.
 
-Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckkoder och brunnsidentifierare ligger i ett och samma SQLite-projekt.
+Bilder, masker och bildutsnitt är filer på disk. Mätningar, annoteringar och modellprediktioner är tabeller i projektets SQLite-databas ``measurements.db``.
 
 Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.
 

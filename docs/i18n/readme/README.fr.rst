@@ -84,7 +84,7 @@ Make Masks corrige les masques de segmentation et annote des rectangles indépen
 
 Chaque outil est décrit dans le `guide des fonctionnalités <../../source/features.rst>`_.
 
-Les images, masques, vignettes, mesures, annotations, prédictions, codes-barres et identifiants de puits résident dans un seul projet SQLite.
+Les images, masques et vignettes sont des fichiers sur disque. Les mesures, annotations et prédictions du modèle sont des tables de la base de données SQLite ``measurements.db`` du projet.
 
 Fonctionne comme une application de bureau ou sans interface graphique sur un poste de travail, un serveur ou un cluster.
 

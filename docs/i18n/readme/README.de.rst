@@ -84,7 +84,7 @@ Make Masks korrigiert Segmentierungsmasken und annotiert mit dem Werkzeug **Box*
 
 Einzelheiten zu jedem Werkzeug stehen im `Funktionsleitfaden <../../source/features.rst>`_.
 
-Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Well-Identifikatoren liegen in einem einzigen SQLite-Projekt.
+Bilder, Masken und Bildausschnitte sind Dateien auf der Festplatte. Messungen, Annotationen und Modellvorhersagen sind Tabellen in der SQLite-Datenbank ``measurements.db`` des Projekts.
 
 Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.
 

@@ -84,7 +84,7 @@ Make Masks corrige máscaras de segmentación y anota rectángulos independiente
 
 Consulte la `guía de funciones <../../source/features.rst>`_ para conocer cada herramienta.
 
-Imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo residen en un único proyecto SQLite.
+Las imágenes, máscaras y recortes son archivos en disco. Las mediciones, anotaciones y predicciones del modelo son tablas de la base de datos SQLite ``measurements.db`` del proyecto.
 
 Se ejecuta como una aplicación de escritorio o sin interfaz gráfica en una estación de trabajo, servidor o clúster.
 

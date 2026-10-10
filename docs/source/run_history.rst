@@ -32,8 +32,8 @@ journal folders; outputs written into your projects are not touched.
 Storage: pruning and caches
 ---------------------------
 
-**Preferences → Storage** keeps the spaCR home folder from growing without
-bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders
+**Preferences → Storage** sets the limits used when pruning the spaCR home
+folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders
 (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which
 nothing is ever deleted, and **Cap**, a size above which the oldest older
 entries are deleted (**no cap** deletes every older entry). The run in

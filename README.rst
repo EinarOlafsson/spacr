@@ -91,8 +91,9 @@ their own labels and history without changing source images or masks.
 
 See the `feature guide <docs/source/features.rst>`_ for each tool.
 
-Images, masks, crops, measurements, annotations, predictions, barcodes and
-well identifiers live in one SQLite project.
+Images, masks and crops are files on disk. Measurements, annotations and
+model predictions are tables in the project's ``measurements.db`` SQLite
+database.
 
 Runs as a desktop application or headlessly on a workstation, server or
 cluster.

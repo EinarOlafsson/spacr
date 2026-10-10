@@ -7236,16 +7236,16 @@ REVIEWED_README_BLOCKS_ARCHIVE = {
 # decision recorded in instruction 316; not a native-speaker review.
 # ============================================================================
 REVIEWED_README_BLOCKS.update({
-    'Images, masks, crops, measurements, annotations, predictions, barcodes and well identifiers live in one SQLite project.': {
-        'sv': 'Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckkoder och brunnsidentifierare ligger i ett och samma SQLite-projekt.',
-        'de': 'Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Well-Identifikatoren liegen in einem einzigen SQLite-Projekt.',
-        'es': 'Imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo residen en un único proyecto SQLite.',
-        'zh_CN': '图像、掩膜、裁剪图像块、测量值、标注、预测、条形码和微孔标识符都存放在同一个 SQLite 项目中。',
-        'pt': 'Imagens, máscaras, recortes, medições, anotações, previsões, códigos de barras e identificadores de poço ficam em um único projeto SQLite.',
-        'hi': 'छवियाँ, मास्क, क्रॉप, मापन, एनोटेशन, भविष्यवाणियाँ, बारकोड और वेल पहचानकर्ता एक ही SQLite परियोजना में रहते हैं।',
-        'ko': '이미지, 마스크, 크롭, 측정값, 주석, 예측, 바코드 및 웰 식별자가 하나의 SQLite 프로젝트에 저장됩니다.',
-        'is': 'Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.',
-        'fr': 'Les images, masques, vignettes, mesures, annotations, prédictions, codes-barres et identifiants de puits résident dans un seul projet SQLite.',
+    "Images, masks and crops are files on disk. Measurements, annotations and model predictions are tables in the project's ``measurements.db`` SQLite database.": {
+        'sv': 'Bilder, masker och bildutsnitt är filer på disk. Mätningar, annoteringar och modellprediktioner är tabeller i projektets SQLite-databas ``measurements.db``.',
+        'de': 'Bilder, Masken und Bildausschnitte sind Dateien auf der Festplatte. Messungen, Annotationen und Modellvorhersagen sind Tabellen in der SQLite-Datenbank ``measurements.db`` des Projekts.',
+        'es': 'Las imágenes, máscaras y recortes son archivos en disco. Las mediciones, anotaciones y predicciones del modelo son tablas de la base de datos SQLite ``measurements.db`` del proyecto.',
+        'zh_CN': '图像、掩膜和裁剪图像块是磁盘上的文件。测量值、标注和模型预测是项目 SQLite 数据库 ``measurements.db`` 中的表。',
+        'pt': 'Imagens, máscaras e recortes são arquivos em disco. Medições, anotações e previsões do modelo são tabelas do banco de dados SQLite ``measurements.db`` do projeto.',
+        'hi': 'छवियाँ, मास्क और क्रॉप डिस्क पर फ़ाइलें हैं। मापन, एनोटेशन और मॉडल पूर्वानुमान परियोजना के SQLite डेटाबेस ``measurements.db`` में तालिकाएँ हैं।',
+        'ko': '이미지, 마스크, 크롭은 디스크에 있는 파일입니다. 측정값, 주석, 모델 예측은 프로젝트의 SQLite 데이터베이스 ``measurements.db``\\ 에 있는 테이블입니다.',
+        'is': 'Myndir, grímur og myndúrklippur eru skrár á diski. Mælingar, merkingar og spár líkana eru töflur í SQLite-gagnagrunni verkefnisins, ``measurements.db``.',
+        'fr': 'Les images, masques et vignettes sont des fichiers sur disque. Les mesures, annotations et prédictions du modèle sont des tables de la base de données SQLite ``measurements.db`` du projet.',
     },
     'Runs as a desktop application or headlessly on a workstation, server or cluster.': {
         'sv': 'Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.',

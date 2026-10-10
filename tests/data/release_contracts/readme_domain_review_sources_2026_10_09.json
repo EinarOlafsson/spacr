@@ -20,7 +20,7 @@
   "For the PyPI release, install spaCR with pip inside a Conda environment. Python 3.12 has the widest choice of optional scientific packages:",
   "Generate a hardware report and attach it to a performance-related issue",
   "If spaCR contributes to your research, cite:",
-  "Images, masks, crops, measurements, annotations, predictions, barcodes and well identifiers live in one SQLite project.",
+  "Images, masks and crops are files on disk. Measurements, annotations and model predictions are tables in the project's ``measurements.db`` SQLite database.",
   "Install from source",
   "Install from source (light)",
   "Make Masks corrects segmentation masks and annotates independent, class-labelled rectangles with the **Box** tool for YOLO export. Boxes keep their own labels and history without changing source images or masks.",

@@ -84,7 +84,7 @@ Make Masks leiðréttir skiptingargrímur og merkir sjálfstæða rétthyrninga 
 
 Hvert verkfæri er útskýrt í `eiginleikahandbókinni <../../source/features.rst>`_.
 
-Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.
+Myndir, grímur og myndúrklippur eru skrár á diski. Mælingar, merkingar og spár líkana eru töflur í SQLite-gagnagrunni verkefnisins, ``measurements.db``.
 
 Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.
 
