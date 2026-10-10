@@ -274,7 +274,7 @@ def _check(folder: Path, hit: dict) -> dict:
 
 CARD = """\
 ---
-license: mit
+license: cc-by-4.0
 pretty_name: spaCR Investigate Hit example (TSG101 recruitment screen, plate 1 cut)
 tags:
 - spacr
@@ -350,8 +350,10 @@ full plates in spacr-example-screen for analysis.
 
 ## Licence and citation
 
-MIT, as the maintainer's other spaCR example sets
-(spacr-example-annotate, spacr-example-recruitment). Please cite spaCR:
+CC BY 4.0, as the source screen. When you use these data, please credit the
+TSG101 recruitment screen
+([einarolafsson/spacr-example-screen](https://huggingface.co/datasets/einarolafsson/spacr-example-screen),
+Olafsson EB et al.) and cite spaCR:
 
 * Olafsson EB, Arnold C-S, Kellermeier JA, Rimple PA, Kaur H, Wang Y,
   Sexton JZ, Svärd S, Carruthers VB, O'Meara MJ. spaCR: spatial phenotype

@@ -261,8 +261,8 @@ on it would make a small Investigate Hit set; not built here.
 
 2026-10-10 -- INVESTIGATE HIT EXAMPLE PUBLISHED (maintainer approval of
 2026-10-10: cut the already-public TSG101 pooled screen)
-Hugging Face dataset repo (public, MIT like the maintainer's other spaCR
-example sets; spacr-example-screen itself has no card or licence tag):
+Hugging Face dataset repo (public; first published as MIT, relicensed CC BY
+4.0 the same day -- see the licence note below):
 - einarolafsson/spacr-example-hit
   https://huggingface.co/datasets/einarolafsson/spacr-example-hit
   commit f9a4a0940d1c87b35781705903a752fcb47e24f1. Files: README.md (card:
@@ -316,3 +316,25 @@ i18n: two new captions (button tooltip, loaded status). Reviewed records in
 docs/i18n/reviewed/runtime/<9 locales>/2026-10-10-investigate-hit-example.json;
 en.py regenerated with --sources-only (catalogs not regenerated, as in the
 previous note).
+
+2026-10-10 -- LICENCE: CC BY 4.0 FOR THE SCREEN-DERIVED DATA (maintainer
+decision of 2026-10-10)
+- einarolafsson/spacr-example-hit: card tag and text now cc-by-4.0, crediting
+  the TSG101 recruitment screen (einarolafsson/spacr-example-screen) and spaCR
+  (Zenodo concept DOI 10.5281/zenodo.21343316). HF commit
+  f141d22022e41461e170c95ef986b14cc48bb6b6. The tar was rebuilt by the
+  builder so its inner README.md carries the same licence; data, size
+  (27,791,360 bytes) and Regression/check results unchanged. A fresh download
+  through the button loads and fills the form.
+- einarolafsson/spacr-example-screen: first dataset card (README.md,
+  license: cc-by-4.0) describing what the archives were inspected to hold:
+  per plate a measurements tar (measurements/measurements.db: cell,
+  cytoplasm, nucleus, pathogen, png_list, settings; plate 1 has 60,816 cells
+  in 342 wells) and a data tar (224 x 224 px single-cell PNG crops under
+  data/{single,multiple}_nucleus/{single,multiple}_pathogen(s)/), sizes
+  per file, no merged/ stacks, and the same attribution. HF commit
+  ec328b0f411c0ea46ceccb51aa867028b59af202; the eight data archives are
+  untouched (sizes unchanged).
+- tools/build_hit_example_dataset.py writes CC BY 4.0 from now on.
+  spacr/example_archives.py and the tests carry no licence text for these
+  sets, so nothing else changed.
