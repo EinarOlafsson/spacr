@@ -1,0 +1,125 @@
+================================================================================
+WEBSITE V2: spaCR FLOW THEME, OPEN SANS, A MODEL SHOWCASE AND RELEASE SYNC
+================================================================================
+
+Status:    not started
+Requested: 2026-10-10 — "for the new website i want a spacr flow type theme. i
+           want the font to be open sans relular and opens sans ligh (regular
+           for titles and regular for the rest) / I like the way you show object
+           detection. show this for the the cross channel models (use the same
+           image to show many object classes (hoechst to nuclei, parasite, cell;
+           cell masks to toxo, nuclei, cell; etc.) also show plaque model) /
+           make sure the language you use does not sound ai generated. make sure
+           to link to all papers that use spacr. / make sure the page looks
+           elegant. / make sure there is a automated mechanism to update the
+           page when spacr is released. / make sure the spacr readme links to
+           this page prominently"
+Owner:     Home (site build); WS (README/docs link, translations)
+Related:   N686 (site v1, live at https://einarolafsson.github.io/, sources in
+           the private repo EinarOlafsson/site-src); N678 (factual language);
+           N674/N684 (spaCR flow-field themes)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+N686 shipped v1: a WebGL ambient blob/ripple background, one image/mask/flow
+before-after slider, the spaCR, live_cell and Cellect pages (the last two
+password-protected with StatiCrypt), and a build that refreshes version,
+installers and DOI from PyPI/GitHub/Zenodo daily at 06:17 UTC. The README
+does not link to the site. No page shows the cross-channel models or the
+plaque model, and no page lists the papers that use spaCR.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The cross-channel models (one stain predicting several object classes) and
+the plaque model are spaCR's distinctive results and are invisible to
+visitors. A daily rebuild can lag a release by up to 24 h. Readers of the
+README cannot find the site.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Theme: replace the v1 background with a spaCR flow-field theme, ported
+   from the app's flow/advection themes (spacr/qt/widgets/ambient.py and the
+   N674/N684 flow code): particles advected along a curl/flow field in the
+   spaCR palette, reacting to the pointer. Keep pause, reduced-motion and
+   no-WebGL fallbacks.
+
+2. Typography: Open Sans, self-hosted (woff2 subsets, no Google request),
+   weights 400 (Regular) and 300 (Light). Interpretation of the request
+   (the second "regular" read as a slip for "light"): titles and headings in
+   Open Sans Regular 400; body text in Open Sans Light 300. Check contrast of
+   300-weight body text in both themes (WCAG AA).
+
+3. Model showcase, in the v1 object-detection style (image, then the
+   detected objects outlined and labelled per class, with a slider/toggle):
+   - Cross-channel models: one field of view per input channel, showing
+     every object class predicted from that one channel, e.g. Hoechst ->
+     nuclei, parasite, cell; cell-mask stain -> Toxoplasma, nuclei, cell; and
+     every other input->classes pairing the published cross-channel models
+     support (enumerate them from spaCR's model zoo/model cards, do not
+     guess).
+   - The Toxoplasma plaque model on a plaque-assay well.
+   Outputs come from running the published models on real images with
+   spaCR itself (CPU, or GPU only via tools/gpu_turn.sh), saved as small
+   WebP/AVIF overlays plus the per-class object counts. Each figure states
+   the model name/version, input channel and image source.
+
+4. Papers: a "Papers using spaCR" list linking every published paper and
+   preprint that uses or cites spaCR, found through the concept DOI
+   10.5281/zenodo.<concept> and the spaCR paper's DOI on OpenAlex, Crossref,
+   Semantic Scholar and Google Scholar; verified by reading each paper
+   (cites or uses spaCR, not a name collision). The build refreshes the list
+   from OpenAlex/Semantic Scholar and keeps a hand-verified allowlist so a
+   false match never appears automatically.
+
+5. Language: rewrite all site copy in the plain, factual N678 style (what
+   the software does, inputs, outputs, numbers with sources). No slogans,
+   metaphors, "unlock", "seamless", "powerful", "journey", rule-of-three
+   flourishes or em-dash-heavy rhythm. Read every sentence aloud-test it.
+
+6. Elegance: generous whitespace, a restrained palette, one accent, a
+   consistent 8 px spacing scale, aligned grids, subtle motion; review at
+   375, 768, 1280 and 1920 px in both themes; Lighthouse mobile
+   performance >= 90 and accessibility >= 95 on every page (fix the v1
+   Cellect lock page at 85).
+
+7. Release sync: the site must update when spaCR is released without a
+   human step. Either (a) release.yml sends repository_dispatch
+   (event spacr-release) to EinarOlafsson/site-src after publication, using
+   a fine-grained token secret limited to site-src, or (b) site-src polls
+   PyPI and the GitHub releases API hourly and rebuilds only when the
+   version changed. Prefer (a) with (b) as the fallback; (b) alone needs no
+   new secret. Verify with a dry-run dispatch and record the latency.
+
+8. README: a prominent link near the top of README.rst (badge plus a
+   one-line "Website" link) and in the 9 localized READMEs; also
+   setup.py project_urls "Website" and the docs landing page (WS lane;
+   coordinate with N686's handover).
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- The live site uses Open Sans 400/300 as specified (computed styles in a
+  headless browser) and the flow-field background.
+- The showcase shows at least the Hoechst and cell-mask cross-channel
+  examples and the plaque model, each with model name/version and counts.
+- Every listed paper links to its DOI and was checked to use or cite spaCR.
+- After a spaCR release (or a dry-run dispatch), the site shows the new
+  version within the stated latency with no manual step.
+- README.rst links to the site above the fold on GitHub.
+- Lighthouse mobile: performance >= 90, accessibility >= 95 on every page.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- Fonts are not loaded from Google Fonts at runtime (privacy and speed);
+  they are self-hosted.
+- Model outputs are not mocked or drawn by hand; only real model runs.
+- Papers are not listed from search hits alone; each is verified.
