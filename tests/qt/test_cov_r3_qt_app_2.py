@@ -207,7 +207,7 @@ def test_a_wheel_that_carried_no_notch_is_handed_on(win, monkeypatch):
 
 
 def test_the_cellpose_workbench_is_wired_to_the_window_that_built_it(
-        win, monkeypatch):
+        win, monkeypatch, qtbot):
     """Train Cellpose is built by hand so its two signals stay visible.
 
     The screen reports a failed training run and asks to be submitted to a
@@ -222,6 +222,7 @@ def test_the_cellpose_workbench_is_wired_to_the_window_that_built_it(
         lambda key, settings: submissions.append((key, settings)))
 
     screen = win._build_screen("train_cellpose")
+    qtbot.addWidget(screen)
 
     from spacr.qt.screens.train_cellpose import CellposeWorkbenchScreen
     assert isinstance(screen, CellposeWorkbenchScreen)

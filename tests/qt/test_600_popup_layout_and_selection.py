@@ -109,13 +109,19 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
 
     for button in steps:
         assert screen._tool_row_layout.indexOf(button) >= 0
-    # With alpha features shown, the alpha SAM2 seeds button (556, 451c67deb)
-    # and the virtual-stain apply control (18d43544f) sit before Upload data.
-    assert widgets(curate) == [screen._btn_clear, screen._btn_discard,
+    # With alpha features shown, the alpha SAM2 seeds button (556, 451c67deb),
+    # the virtual-stain apply control (18d43544f) and the alpha vvvv export
+    # pair (N685, 03a8cc8d6) sit before Upload data; First unreviewed (N685)
+    # leads the row.
+    assert widgets(curate) == [screen._btn_first_unreviewed,
+                               screen._btn_clear, screen._btn_discard,
                                screen._btn_keep, screen._btn_skip,
                                screen._btn_blind,
                                screen._btn_rois, screen._btn_sam2,
-                               screen._virtual_stain, screen._btn_contribute]
+                               screen._virtual_stain,
+                               screen._btn_vvvv_export,
+                               screen._btn_vvvv_on_save,
+                               screen._btn_contribute]
     # One widget each, so neither group can wrap apart.
     for group in (curate,):
         for button in widgets(group):

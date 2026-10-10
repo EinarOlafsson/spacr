@@ -114,6 +114,8 @@ def home(request, qapp, qt_theme_applied):
 
     page.hide()
     bar.hide()
+    page.deleteLater()
+    bar.deleteLater()
     qapp.processEvents()
 
 

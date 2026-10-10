@@ -1214,7 +1214,14 @@ class _WorkerStartGate:
 
     One gate belongs to one processing pool. Existing workers incur no task
     delay. Injecting clock and sleep allows deterministic scheduling checks.
+    ``idle`` is an optional predicate set by the pool owner: once it holds,
+    no queued work remains for a waiting start, so the wait ends at once and
+    the late worker sees only its pool's exit signal. Without it a pool that
+    finished its work early still joined every paced thread at shutdown,
+    about ten seconds per unused worker.
     """
+
+    idle = None
 
     def __init__(self, delay=10.0, *, clock=None, sleep=None):
         """Store a nonnegative interval and a parent/thread-owned start lock."""
@@ -1243,6 +1250,8 @@ class _WorkerStartGate:
                 while True:
                     remaining = deadline - self._clock()
                     if remaining <= 0:
+                        break
+                    if self.idle is not None and self.idle():
                         break
                     self._sleep(min(0.05, remaining))
                     checkpoint()
@@ -1840,10 +1849,24 @@ def _parallel_thread_executor(max_workers=None, thread_name_prefix='',
     """Start processing threads ten seconds apart, preserving executor limits."""
     from concurrent.futures import ThreadPoolExecutor
 
-    return _ParallelExecutor(ThreadPoolExecutor(
+    gate = gate or _WorkerStartGate()
+    executor = ThreadPoolExecutor(
         max_workers=max_workers, thread_name_prefix=thread_name_prefix,
         initializer=_initialize_staggered_thread,
-        initargs=(gate or _WorkerStartGate(), initializer, initargs)))
+        initargs=(gate, initializer, initargs))
+
+    def idle():
+        """Report a pool that is shutting down with no queued work left.
+
+        Shutdown queues one exit sentinel after any pending work, and each
+        exiting worker puts it back, so one remaining item is that sentinel.
+        """
+        queue = getattr(executor, '_work_queue', None)
+        return bool(getattr(executor, '_shutdown', False)) and (
+            queue is not None and queue.qsize() <= 1)
+
+    gate.idle = idle
+    return _ParallelExecutor(executor)
 
 
 def _parallel_process_executor(max_workers=None, mp_context=None,

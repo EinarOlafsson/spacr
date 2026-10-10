@@ -17081,6 +17081,7 @@ class MakeMasksScreen(QWidget):
         if self._comparison_worker is not None:
             self._comparison_worker.close(timeout=0)
         self.close_folded()
+        self._release_folded()
         self._pending_load = None
         worker, self._load_worker = self._load_worker, None
         if worker is not None:
@@ -17092,6 +17093,29 @@ class MakeMasksScreen(QWidget):
                 worker.setParent(None)
         self._loading = False
         super().closeEvent(event)
+
+    def _release_folded(self) -> None:
+        """Delete the closed folded modules this screen built and still owns.
+
+        A folded module that never became a page has no parent, so closing
+        this screen hid it but nothing deleted it: every Make Masks screen
+        that was closed left its Cellpose workbench, Model Zoo and Compare
+        windows alive for the rest of the process. A module with a thread
+        that is still running is left alone, because deleting a running
+        QThread aborts the process; the next screen builds its own.
+        """
+        owned = list(self._fold_dialogs.values()) + list(self._fold_screens.values())
+        self._fold_dialogs = {}
+        self._fold_screens = {}
+        for widget in owned:
+            try:
+                if widget.parent() is not None or any(
+                        thread.isRunning()
+                        for thread in widget.findChildren(QThread)):
+                    continue
+                widget.deleteLater()
+            except RuntimeError:
+                continue
 
     def _load_pair(self, folder: str, filename: str, token: int) -> None:
         """Decode and apply a small pair synchronously."""

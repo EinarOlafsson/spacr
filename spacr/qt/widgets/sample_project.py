@@ -404,9 +404,12 @@ def offer_a_sample_project(window, opener: Callable[[str], object],
     :returns: the module key opened, or ``""`` when nothing was chosen.
     """
     dialog = SampleProjectDialog(window, entries)
-    if dialog.exec() != QDialog.Accepted:
-        return ""
-    entry = dialog.selected() or {}
+    try:
+        if dialog.exec() != QDialog.Accepted:
+            return ""
+        entry = dialog.selected() or {}
+    finally:
+        dialog.deleteLater()
     keys = list(entry.get("modules") or ())
     if not keys:
         return ""

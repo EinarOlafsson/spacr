@@ -1393,10 +1393,16 @@ class TestPanelSettings:
     def test_a_bad_field_kind_is_rejected_loudly(self, qtbot, monkeypatch):
         """The compartment table is hand-written; a typo in the ``kind``
         column must fail at construction rather than silently skip a knob."""
+        from PySide6.QtWidgets import QApplication
+
         monkeypatch.setattr(LP, "COMPARTMENT_FIELDS",
                             (("min_area", "Min area", "wobble", None),))
+        before = set(QApplication.topLevelWidgets())
         with pytest.raises(ValueError, match="wobble"):
             LP.LivePreviewPanel()
+        for half_built in set(QApplication.topLevelWidgets()) - before:
+            if isinstance(half_built, LP.LivePreviewPanel):
+                qtbot.addWidget(half_built)
 
     def test_tooltips_fall_back_when_spacr_descriptions_are_unavailable(
             self, qtbot, monkeypatch):

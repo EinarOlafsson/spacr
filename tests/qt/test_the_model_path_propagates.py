@@ -23,8 +23,10 @@ CUSTOM = "/mnt/models/.spacr/models/toxoplasma_pv_v1.pth"
 
 
 @pytest.fixture
-def panel(qapp):
-    return LivePreviewPanel()
+def panel(qapp, qtbot):
+    made = LivePreviewPanel()
+    qtbot.addWidget(made)
+    return made
 
 
 def test_a_custom_pathogen_model_reaches_the_pathogen_field(panel):

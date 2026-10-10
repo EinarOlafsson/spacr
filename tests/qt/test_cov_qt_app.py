@@ -844,6 +844,7 @@ def home_page(qapp, qt_theme_applied):
     qapp.processEvents()
     yield page
     page.hide()
+    page.deleteLater()
     qapp.processEvents()
 
 

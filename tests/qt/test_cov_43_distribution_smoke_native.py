@@ -55,9 +55,18 @@ def test_a_failed_pipeline_is_written_and_leaves_the_event_loop(tmp_path):
 
 
 def _frozen_cpu(monkeypatch, tmp_path):
-    """Make this interpreter look like a frozen CPU artifact rooted at /."""
+    """Make this interpreter look like a frozen CPU artifact rooted at /.
+
+    The artifact's own metadata matches its package, so the version check is
+    pinned to agree; a source checkout's older editable install metadata
+    must not decide these cases. The mismatch case below overrides it.
+    """
     import torch
 
+    import spacr
+    import spacr.version
+
+    monkeypatch.setattr(spacr.version, "get_version", lambda: spacr.__version__)
     monkeypatch.setenv("SPACR_DEVICE", "cpu")
     for name in ("CUDA_VISIBLE_DEVICES", "HIP_VISIBLE_DEVICES",
                  "ROCR_VISIBLE_DEVICES"):

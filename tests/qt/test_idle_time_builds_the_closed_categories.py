@@ -400,17 +400,22 @@ def test_the_prebuild_shows_or_opens_nothing_outside_the_categories(qtbot):
                 node = node.parentWidget()
             return True
 
-        before = {id(each): each.isHidden()
+        # Keyed by the wrapper, not id(): the idle build deletes and makes
+        # widgets, and a new widget can reuse a deleted one's address, which
+        # made an unrelated new widget's state look like a changed old one.
+        before = {each: each.isHidden()
                   for each in screen.findChildren(QWidget) if outside(each)}
         shut = {id(section): section.is_expanded()
                 for section in screen.rendered_settings_sections()}
         _until_built(screen)
         assert _waiting(screen) == []
-        after = {id(each): each.isHidden()
+        after = {each: each.isHidden()
                  for each in screen.findChildren(QWidget)
-                 if id(each) in before}
-        assert after == {key: value for key, value in before.items()
-                         if key in after}
+                 if each in before}
+        changed = sorted(
+            f"{type(each).__name__}:{each.objectName()}"
+            for each, hidden in after.items() if hidden != before[each])
+        assert changed == []
         assert {id(section): section.is_expanded()
                 for section in screen.rendered_settings_sections()
                 if id(section) in shut} == shut

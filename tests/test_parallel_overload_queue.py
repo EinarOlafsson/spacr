@@ -538,3 +538,35 @@ def test_sweep_child_reports_explicit_overload_without_losing_original_traceback
     assert row['_overload'] is expected
     assert row['status'] == 'failed' and row['error_type'] == type(error).__name__
     assert type(error).__name__ in (tmp_path / 'error.txt').read_text()
+
+
+def test_finished_thread_pool_does_not_join_unused_paced_starts():
+    gate = _WorkerStartGate()
+    started = time.monotonic()
+    with _parallel_thread_executor(4, gate=gate) as pool:
+        assert list(pool.map(abs, [-1, -2, -3, -4])) == [1, 2, 3, 4]
+    assert time.monotonic() - started < 5
+    assert gate.delay == 10.0
+
+
+def test_shutdown_still_paces_a_start_that_has_queued_work():
+    import threading
+    starts = []
+    class ObservedGate(_WorkerStartGate):
+        def start(self, call):
+            def deploy():
+                starts.append(time.monotonic())
+                return call()
+            return super().start(deploy)
+    release = threading.Event()
+    pool = _parallel_thread_executor(2, gate=ObservedGate(delay=1.0))
+    first = pool.submit(release.wait, 30)
+    second = pool.submit(abs, -5)
+    pool.shutdown(wait=False)
+    try:
+        assert second.result(timeout=10) == 5
+    finally:
+        release.set()
+    pool.shutdown(wait=True)
+    assert first.result() is True
+    assert len(starts) == 2 and starts[1] - starts[0] >= 0.9
