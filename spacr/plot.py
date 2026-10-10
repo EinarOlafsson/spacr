@@ -6908,7 +6908,8 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
     with figure_style(theme_target()):
         fig = plt.figure(figsize=(10, 6))
         from .figures.bundle import _register_figure_data
-        _register_figure_data(fig, df, x=grouping_column, y=data_column, kind=graph_type)
+        _register_figure_data(fig, df, x=grouping_column, y=data_column,
+                              kind=graph_type, house_graph_type=graph_type)
 
         if colors:
             color_palette = colors
@@ -7260,7 +7261,7 @@ class spacrGraph:
         :raises ValueError: if ``representation`` is not ``'object'``,
             ``'well'`` or ``'plate'``.
         """
-        df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
+        df = self.df.dropna(subset=[self.grouping_column] + self.data_column).copy()
 
         if self.representation == 'object':
             group_cols = None
@@ -7731,7 +7732,10 @@ class spacrGraph:
             if ax is None:
                 self.fig, ax = plt.subplots(figsize=(self.fig_height, self.fig_width))
                 from .figures.bundle import _register_figure_data
-                _register_figure_data(self.fig, self.df, x=self.grouping_column, y=self.data_column[0] if self.data_column else "", kind=str(getattr(self, "graph_type", "") or ""))
+                _register_figure_data(self.fig, self.df, x=self.grouping_column,
+                                      y=self.data_column[0] if self.data_column else "",
+                                      kind=str(getattr(self, "graph_type", "") or ""),
+                                      house_graph_type=self.graph_type)
             else:
                 self.fig = ax.figure
 
@@ -7806,6 +7810,30 @@ class spacrGraph:
                 self._save_results()
 
             ax.margins(x=0.12)
+
+            if self.graph_type in ('line', 'line_std'):
+                from .figures.bundle import _register_figure_data
+                numeric = len(self.data_column) >= 2
+                _register_figure_data(
+                    self.fig, self.raw_df.copy(),
+                    x=self.data_column[0] if numeric else self.grouping_column,
+                    y=self.data_column[1] if numeric else self.data_column[0],
+                    hue=self.grouping_column if numeric and self.graph_type == 'line' else '',
+                    kind='line', grouped_line={
+                        'mode': ('std_area' if self.graph_type == 'line_std'
+                                 else 'numeric' if numeric else 'groups'),
+                        'grouping_column': self.grouping_column,
+                        'columns': list(self.data_column),
+                        'representation': self.representation,
+                        'summary_func': self.summary_func or 'mean',
+                        'order': list(self.order),
+                        'log_x': self.log_x, 'log_y': self.log_y,
+                        'remove_outliers': self.remove_outliers,
+                        'palette': [line.get_color() for line in ax.lines
+                                    if len(line.get_xdata()) > 0],
+                        'band_color': ROLES['highlight'],
+                        'band_width': WEIGHTS['data'],
+                    })
 
     def _comparison_pairs(self):
         """The pairwise rows of ``results_df``, as ``(group_a, group_b, p)``.
@@ -8096,7 +8124,7 @@ class spacrGraph:
         sns.lineplot(
             data=self.df, x=x_axis_column, y=y_axis_column, hue=hue,
             palette=line_palette, ax=ax, marker='o', linewidth=1,
-            markersize=6)
+            markersize=6, seed=0)
 
         ax.set_xlabel(f"{x_axis_column}")
         ax.set_ylabel(f"{y_axis_column}")

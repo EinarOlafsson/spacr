@@ -1274,9 +1274,17 @@ def _curve_frame(comparison, metric: str) -> pd.DataFrame:
     :param metric: the metric column drawn.
     :returns: the rows every drawn curve was made from.
     """
-    rows = [pd.DataFrame({"epoch": s.epochs, metric: s.values(metric),
-                          "series": s.label, "split": s.split})
-            for s in comparison.series if s.has(metric)]
+    rows = []
+    for series in comparison.series:
+        frame = series.frame.copy()
+        frame['series'] = series.label
+        frame['split'] = series.split
+        frame['run_id'] = series.run_id
+        frame['fold'] = series.fold
+        frame['kind'] = series.kind
+        if 'n_folds' not in frame:
+            frame['n_folds'] = series.n_folds
+        rows.append(frame)
     return (pd.concat(rows, ignore_index=True) if rows
             else pd.DataFrame(columns=["epoch", metric, "series", "split"]))
 
@@ -1319,15 +1327,17 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
             fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
-    from .figures.bundle import _register_figure_data
-    _register_figure_data(fig, lambda: _curve_frame(comparison, metric),
-                          x="epoch", y=metric, hue="series", kind="line")
-
     wanted = comparison.series
     if labels is not None:
         keep = list(labels)
         wanted = [s for s in wanted if s.label in keep]
     drawn = [s for s in wanted if s.has(metric)]
+    from .figures.bundle import _register_figure_data
+    recipe = {'curves': [], 'band': bool(band), 'mark_best': bool(mark_best),
+              'direction': metric_direction(metric)}
+    _register_figure_data(fig, lambda: _curve_frame(comparison, metric),
+                          x="epoch", y=metric, hue="series", kind="line",
+                          training_curves=recipe)
 
     mapping: Dict[str, Series] = {}
     if not drawn:
@@ -1350,17 +1360,22 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
         line, = ax.plot(eps, vals, style, color=colour, linewidth=width,
                         alpha=alpha, label=s.label)
         line.set_picker(6)
+        recipe['curves'].append({'label': s.label, 'kind': s.kind,
+                                'color': colour, 'linestyle': style,
+                                'linewidth': width, 'alpha': alpha})
         mapping[s.label] = s
         if band and s.kind == "mean":
             sd = s.sd(metric)
             if sd is not None and np.isfinite(sd).any():
-                ax.fill_between(eps, vals - sd, vals + sd, color=colour,
-                                alpha=0.15, linewidth=0)
+                area = ax.fill_between(eps, vals - sd, vals + sd, color=colour,
+                                       alpha=0.15, linewidth=0)
+                area.set_gid('spacr-training-band:' + s.label)
         if mark_best:
             best = s.best(metric)
             if best is not None:
-                ax.plot([best["epoch"]], [best["value"]], "o", color=colour,
-                        markersize=5, alpha=alpha)
+                marker, = ax.plot([best["epoch"]], [best["value"]], "o",
+                                  color=colour, markersize=5, alpha=alpha)
+                marker.set_gid('spacr-training-best:' + s.label)
 
     ax.set_xlabel("epoch")
     ax.set_ylabel(metric)
