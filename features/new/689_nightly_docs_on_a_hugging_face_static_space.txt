@@ -1,0 +1,66 @@
+================================================================================
+NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
+================================================================================
+
+Status:    not started
+Requested: 2026-10-10 — "Can you host the docs on huggingface? Removing docs
+           from nightly sees like a bad idea as my process is to change nightly
+           (including docs) then push and merge with main"; chose "Nightly on
+           HF, main on GitHub".
+Owner:     Home (CI/deploy); WS (docs links, translations)
+Related:   WS HANDOFF note 2026-10-10 (combined Pages site 960 of 996 MB; 54c0b404e
+           serves nightly's identical catalogs from main as a stopgap); N686/N687
+           website links to docs channels.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+.github/workflows/docs.yml builds main and nightly docs and publishes both
+channels into one GitHub Pages site (concurrency docs-pages-channels). Each
+channel is ~590 MB, so the combined site sits at 960 MB against GitHub's
+~1 GB Pages limit, with ~36 MB margin that disappears as nightly's
+translation catalogs diverge from main.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The maintainer edits nightly first, docs included, then merges to main, so
+nightly docs must stay complete. When the combined site overflows, the docs
+deploy fails for both channels.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Create a public Hugging Face static Space (sdk: static) for nightly docs,
+   e.g. einarolafsson/spacr-docs-nightly, served at its *.static.hf.space URL.
+   Large binaries via Git LFS/Xet as HF requires.
+2. docs.yml: main builds deploy to GitHub Pages as now (main only); nightly
+   builds upload the full nightly site to the Space with huggingface_hub
+   (upload_folder with delete_patterns so removed pages disappear). Auth via
+   a repository secret (HF token scoped to that Space only, write).
+3. Keep the GitHub Pages /nightly/ path as a redirect stub to the Space so
+   existing links keep working; revert 54c0b404e's main-catalog sharing once
+   nightly no longer shares the Pages budget.
+4. Update every link to nightly docs: README channel links, docs version
+   switcher, tutorials portal, site-src (N687), tests that pin URLs.
+5. Size guard: a CI check that fails before deploy if the main Pages site
+   exceeds 900 MB, so the next overflow is caught early.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- A nightly push updates the Space; its URL serves the new build.
+- A main push updates GitHub Pages; the Pages artifact holds main only.
+- The old /nightly/ URLs redirect to the Space.
+- The docs workflow's Pages size is reported and under the guard.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- Nightly docs are not trimmed (maintainer: nightly docs stay complete).
+- Main docs do not move; their public URL stays unchanged.

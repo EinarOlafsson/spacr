@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-598 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
+599 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -869,3 +869,4 @@ NEW FEATURES
   686  A FREE WEBSITE FOR spaCR AND THE MAINTAINER'S OTHER PROJECTS, WITH RICH EFFECTS
   687  WEBSITE V2: spaCR FLOW THEME, OPEN SANS, A MODEL SHOWCASE AND RELEASE SYNC
   688  CODECOV FOR spaCR, WITH A README BADGE
+  689  NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
