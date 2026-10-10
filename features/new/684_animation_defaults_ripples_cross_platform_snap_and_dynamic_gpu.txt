@@ -296,3 +296,24 @@ handles the queue.
     5.1 ms), impulse_lens at 4K full now CPU (5.0 vs 9.1 ms), blobs/aurora/
     spinning paper GPU at 1080p and 4K; tests updated to the measured winners
     (74 passed, CPU only). Native desktop checks remain on the maintainer's list.
+
+2026-10-10 — Growth refused every frame in the WS round-2 parity run
+(NVIDIA EGL, 0/8; the other seven themes passed). Not reproducible here:
+growth renders and passes on Mesa llvmpipe with numpy 1.26/PySide6 6.10
+and numpy 2.5/PySide6 6.11 (moderngl 5.13), through the tool's own
+producer-thread route. Changes so the next run names the cause: every
+refusal stores its reason in _graphics_refusal and logs it once per
+theme as a WARNING "<theme> animation stays on the CPU: <reason>" (a draw
+error gives the method, failing function and line, exception type and
+message); the parity receipt lists refusal_reasons per row. Defensive:
+vertex arrays bind only the inputs a shader linker kept (the capsule
+shader's caps input is unused, which a driver may drop). Test:
+tests/qt/test_growth_gpu_on_software_gl_n684.py (llvmpipe child process;
+skipped without moderngl/Mesa EGL).
+WS re-run, growth only (CUDA_VISIBLE_DEVICES unset):
+    QT_QPA_PLATFORM=offscreen tools/gpu_turn.sh n684-gpu-parity-growth \
+      tools/run_capped.sh 8G python tools/verify_animation_gpu_parity.py \
+      features/data/684_animation_gpu_parity_2026-10-10_growth/receipt.json \
+      --themes data_art_fungal_growth --images 2>&1 | tee growth_parity.log
+    grep "stays on the CPU" growth_parity.log; the receipt rows'
+    refusal_reasons hold the same text.

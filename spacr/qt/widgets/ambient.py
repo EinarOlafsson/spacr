@@ -1656,6 +1656,7 @@ class _GraphicsBackend:
     _graphics_failed = False
     _graphics_idle_until = 0.0
     _graphics_idle = False
+    _graphics_refusal = None
 
     def _graphics_automatic(self, width, height, work=0) -> bool:
         """Whether Automatic picks the graphics path for this frame.
@@ -1684,25 +1685,43 @@ class _GraphicsBackend:
             renderer._close()
             self._point_graphics = None
 
+    def _refuse(self, reason):
+        """Record why this frame stays on the CPU; log each new reason once."""
+        if reason != self._graphics_refusal:
+            self._graphics_refusal = reason
+            key = (getattr(self, "name", type(self).__name__), reason)
+            if key not in _GRAPHICS_REFUSALS_LOGGED:
+                _GRAPHICS_REFUSALS_LOGGED.add(key)
+                LOG.warning('%s animation stays on the CPU: %s', *key)
+        return None
+
     def _graphics_renderer(self, width, height, work=0):
-        """Return the producer's renderer for this frame, or ``None`` for CPU."""
+        """Return the producer's renderer for this frame, or ``None`` for CPU.
+
+        Every ``None`` leaves its reason in ``_graphics_refusal``.
+        """
         mode = self._graphics_backend
         if mode not in ('auto', 'gpu'):
             self._release_point_graphics()
+            self._graphics_refusal = None
             return None
         if threading.current_thread().name != 'spacr-ambient-shade':
             return None
-        eligible = (mode in ('auto', 'gpu') and not self._graphics_failed
-                    and width * height <= 3840 * 2160
-                    and sys.byteorder == 'little')
-        if mode == 'auto':
-            eligible = eligible and self._graphics_automatic(width, height, work)
-        if not eligible or _decorative_gpu_blocked():
-            self._release_point_graphics()
+        if self._graphics_failed:
             return None
+        if width * height > 3840 * 2160 or sys.byteorder != 'little':
+            self._release_point_graphics()
+            return self._refuse('canvas larger than 3840x2160 or big-endian host')
+        if mode == 'auto' and not self._graphics_automatic(width, height, work):
+            self._release_point_graphics()
+            self._graphics_refusal = 'automatic chose the CPU'
+            return None
+        if _decorative_gpu_blocked():
+            self._release_point_graphics()
+            return self._refuse('Dynamic animation holds the GPU for analysis')
         if self._point_graphics is None and not _flow_graphics_preflight():
             self._graphics_failed = True
-            return None
+            return self._refuse('no hardware OpenGL 4.3 context (probe failed)')
         now = time.monotonic()
         if now >= self._graphics_idle_until:
             self._graphics_idle = (not _dynamic_animation_on()
@@ -1710,15 +1729,17 @@ class _GraphicsBackend:
             self._graphics_idle_until = now + 2.0
         if not self._graphics_idle:
             self._release_point_graphics()
-            return None
+            return self._refuse('another process is computing on the GPU')
         if self._point_graphics is None:
             try:
                 self._point_graphics = _FlowPointGraphics()
-            except Exception:
+            except Exception as error:
                 LOG.debug('flow graphics unavailable; retaining CPU material',
                           exc_info=True)
                 self._graphics_failed = True
-                return None
+                return self._refuse(f'context creation failed: '
+                                    f'{type(error).__name__}: {error}')
+        self._graphics_refusal = None
         return self._point_graphics
 
     def _graphics_frame(self, method, width, height, *args, work=0, build=None):
@@ -1735,11 +1756,19 @@ class _GraphicsBackend:
             if build is not None:
                 args = tuple(build())
             return getattr(renderer, method)(width, height, *args)
-        except Exception:
+        except Exception as error:
             LOG.debug('flow graphics unavailable; retaining CPU material', exc_info=True)
             self._release_point_graphics()
             self._graphics_failed = True
-            return None
+            import traceback
+
+            where = traceback.extract_tb(error.__traceback__)[-1]
+            return self._refuse(f'{method} failed in {where.name} line {where.lineno}: '
+                                f'{type(error).__name__}: {str(error)[:600]}')
+
+
+#: ``(theme, reason)`` pairs already logged, so each is reported once.
+_GRAPHICS_REFUSALS_LOGGED: set = set()
 
 
 def _flow_graphics_possible() -> bool:
@@ -5850,12 +5879,35 @@ class _FlowPointGraphics:
             buffer.write(raw)
         return buffer
 
+    @staticmethod
+    def _active_layout(program, layout, names):
+        """Drop attributes the shader linker removed, keeping the stride.
+
+        A driver may optimise away an input whose value never reaches the
+        output, and a binding should not depend on that choice. Each such
+        attribute becomes padding.
+        """
+        formats, _slash, divisor = layout.partition('/')
+        parts = formats.split()
+        kept, active = [], []
+        for part, name in zip(parts, names):
+            if name in program:
+                kept.append(part)
+                active.append(name)
+            else:
+                count = int(part[:-1] or 1)
+                size = {'f': 4, 'i': 4, 'u': 4}.get(part[-1], 4)
+                kept.append(f'{count * size}x')
+        layout = ' '.join(kept) + (f'/{divisor}' if divisor else '')
+        return layout, tuple(active)
+
     def _array(self, program, buffer, layout, *names):
         """A vertex array over one stream, cached per program and layout."""
         arrays = self.__dict__.setdefault('_arrays', {})
         key = (id(program), id(buffer), layout, names)
         array = arrays.get(key)
         if array is None:
+            layout, names = self._active_layout(program, layout, names)
             array = self._context.vertex_array(program, [(buffer, layout, *names)])
             self._resources.append(array)
             arrays[key] = array

@@ -7,7 +7,8 @@ with it on (the moderngl renderer). Both shade on a thread named like the
 application's producer, which is the only thread the renderer accepts.
 Each frame pair is compared channel by channel; the run also times both
 paths. A frame the renderer refused (no context, a probe failure, a busy
-GPU, a draw error) is recorded as refused, never as a pass.
+GPU, a draw error) is recorded as refused, never as a pass, with the
+engine's reason (``refusal_reasons``) in its row.
 
 Workstation (hardware GL), through the GPU queue:
 
@@ -226,7 +227,7 @@ def main(argv=None) -> int:
                 size = tuple(int(part) for part in text.lower().split("x"))
                 for density in densities:
                     cpu, gpu = _engines(ambient, theme, background, density, size)
-                    pairs, cpu_ms, gpu_ms, refused = [], [], [], 0
+                    pairs, cpu_ms, gpu_ms, refused, reasons = [], [], [], 0, []
                     for moment in args.times:
                         for engine in (cpu, gpu):
                             engine.set_time(moment)
@@ -238,6 +239,7 @@ def main(argv=None) -> int:
                         gpu_image, _, used = _frame(gpu, size)
                         if not used or gpu._graphics_failed:
                             refused += 1
+                            reasons.append(gpu._graphics_refusal or "renderer not created")
                             continue
                         pairs.append(_compare(cpu_image, gpu_image))
                         if args.images:
@@ -261,7 +263,9 @@ def main(argv=None) -> int:
                     ok = ok and passed
                     row = {"theme": theme, "background": background,
                            "size": list(size), "density": density,
-                           "refused": refused, "pairs": pairs, "passed": passed,
+                           "refused": refused,
+                           "refusal_reasons": sorted(set(reasons)),
+                           "pairs": pairs, "passed": passed,
                            "cpu_median_ms": round(statistics.median(cpu_ms), 3),
                            "gpu_median_ms": round(statistics.median(gpu_ms), 3),
                            "gpu_p90_ms": round(sorted(gpu_ms)[int(0.9 * (len(gpu_ms) - 1))], 3)}
