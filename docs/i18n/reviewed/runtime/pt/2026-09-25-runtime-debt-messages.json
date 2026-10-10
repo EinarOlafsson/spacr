@@ -6,13 +6,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
-      "translation": "'bundled' é o modelo histórico de placas de lise incluído no pacote. É mantido para que uma execução antiga possa ser reproduzida; ele perde cerca de um terço das placas em imagens da literatura. toxoplasma_plaque_v2 é o modelo atual."
-    },
-    {
-      "table": "ui",
       "key": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source_sha256": "6bb03c4c83ee5abfe966cec2eb0878d7f3c36ffc82070615ad7f4abfef8afe6d",
@@ -1633,6 +1626,14 @@
         "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
         "translation": "Executa o método de CPU escolhido em Método de detecção na imagem inteira e rotula o que ele encontra, respeitando a área mínima acima. Tudo o que o método lê pertence a essa categoria: o algoritmo do nível, a correção, a suavização, qual lado é o objeto, o preenchimento de buracos, a separação de um par que se toca e a remoção do que a borda cortou. Com o Cellpose ou um backend escolhido, este botão recorre ao Otsu, porque esses têm seu próprio botão Detecção de objetos."
       }
+    },
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
+      "translation": "'bundled' é o modelo histórico de placas de lise incluído no pacote. É mantido para que uma execução antiga possa ser reproduzida; ele perde cerca de um terço das placas em imagens da literatura. toxoplasma_plaque_v2 é o modelo atual.",
+      "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",

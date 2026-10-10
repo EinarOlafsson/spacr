@@ -2017,13 +2017,22 @@ def _splice_findings(panels, arrays):
                 "panels": [panel["panel"]], "axis": seam["axis"],
                 "position": position, "offset": seam["offset"],
                 "noise_ratio": seam["noise_ratio"],
-                "message": tr(
-                    "Panel {panel}: a straight {axis} seam at pixel {position} "
-                    "separates areas with a different background level or "
-                    "noise, as when two images are butted together. If the "
-                    "panel combines images, separate them with a visible line "
-                    "and say so in the legend.", panel=panel["panel"],
-                    axis=tr(seam["axis"]), position=position),
+                # One sentence per direction: a translated adjective dropped
+                # into {axis} could not agree with the noun it describes.
+                "message": (tr(
+                    "Panel {panel}: a straight vertical seam at pixel "
+                    "{position} separates areas with a different background "
+                    "level or noise, as when two images are butted together. "
+                    "If the panel combines images, separate them with a "
+                    "visible line and say so in the legend.",
+                    panel=panel["panel"], position=position)
+                    if seam["axis"] == "vertical" else tr(
+                    "Panel {panel}: a straight horizontal seam at pixel "
+                    "{position} separates areas with a different background "
+                    "level or noise, as when two images are butted together. "
+                    "If the panel combines images, separate them with a "
+                    "visible line and say so in the legend.",
+                    panel=panel["panel"], position=position)),
             })
     return findings
 

@@ -4088,6 +4088,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths = set((ROOT / "spacr" / "qt").rglob("*.py"))
     paths.add(ROOT / "spacr" / "model_compare.py")
     paths.add(ROOT / "spacr" / "embeddings.py")
+    # Figure integrity (F572) and other plot captions go through tr() too.
+    paths.add(ROOT / "spacr" / "plot.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):

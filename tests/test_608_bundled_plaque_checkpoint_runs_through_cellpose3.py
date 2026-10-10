@@ -62,10 +62,10 @@ def test_the_default_is_a_cellpose_sam_zoo_model_not_the_bundled_one():
     from spacr.model_zoo import catalogue
     from spacr.settings import get_analyze_plaque_settings
 
-    assert SUB.DEFAULT_PLAQUE_MODEL == "toxoplasma_plaque_v2"
-    assert get_analyze_plaque_settings({})["plaque_model"] == "toxoplasma_plaque_v2"
-    assert SUB._requested_plaque_model({}) == "toxoplasma_plaque_v2"
-    assert SUB._requested_plaque_model({"plaque_model": ""}) == "toxoplasma_plaque_v2"
+    assert SUB.DEFAULT_PLAQUE_MODEL == "toxoplasma_plaque_v3"
+    assert get_analyze_plaque_settings({})["plaque_model"] == "toxoplasma_plaque_v3"
+    assert SUB._requested_plaque_model({}) == "toxoplasma_plaque_v3"
+    assert SUB._requested_plaque_model({"plaque_model": ""}) == "toxoplasma_plaque_v3"
     entry = next(e for e in catalogue(remote=True)
                  if e.key == SUB.DEFAULT_PLAQUE_MODEL)
     assert entry.kind == "cellpose"
@@ -111,7 +111,7 @@ def test_without_the_backend_the_refusal_says_what_to_do(cellpose3):
     with pytest.raises(SUB.Cellpose3Checkpoint) as excinfo:
         SUB._plaque_cellpose_model("/m/old.CP_model")
     text = str(excinfo.value)
-    assert "toxoplasma_plaque_v2" in text
+    assert "toxoplasma_plaque_v3" in text
     assert "Cellpose 3 backend" in text
     assert isinstance(excinfo.value.__cause__, ValueError)
 

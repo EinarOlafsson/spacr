@@ -1,0 +1,658 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "export_vvvv",
+      "source": "Export vvvv",
+      "source_sha256": "e2f4fe6973b456adb9b5dedc333f14e22f2c7919574d2d743ab73f96ceb7eafd",
+      "translation": "Exportar vvvv"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "export_vvvv",
+      "source": "Also write every processed 2-D field for vvvv gamma, one folder per field and object type: <stem>_labels.png (16-bit labels, 0 is background), <stem>_outlines.png, <stem>_image.png, <stem>_objects.csv (label, centroid, area, bounding box and mean intensity per channel in pixel coordinates; Measure appends its own per-object measurements), manifest.json, README.txt and <stem>.vl, a vvvv gamma project that shows them. Mask Generation writes to <src>/vvvv/mask/<object>, Measure to vvvv/measure/<object> beside merged/. Images and masks are only read. Default False.",
+      "source_sha256": "a6fd83911903716fc50fa6234ae01d1806c390b1bc4b079652d8ba33b38271f3",
+      "translation": "También escribe cada campo 2-D procesado para vvvv gamma, una carpeta por campo y tipo de objeto: <stem>_labels.png (etiquetas de 16 bits, 0 es el fondo), <stem>_outlines.png, <stem>_image.png, <stem>_objects.csv (etiqueta, centroide, área, cuadro delimitador e intensidad media por canal en coordenadas de píxel; Measure añade sus propias mediciones por objeto), manifest.json, README.txt y <stem>.vl, un proyecto de vvvv gamma que los muestra. La generación de máscaras escribe en <src>/vvvv/mask/<object>, Measure en vvvv/measure/<object> junto a merged/. Las imágenes y las máscaras solo se leen. Por defecto False."
+    },
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
+      "source_sha256": "033974a0333a8d22dae58bb647b5e3e5944152cfe72220c27ca1ac7b892885c2",
+      "translation": "'bundled' es el modelo de placas empaquetado histórico. Se conserva para poder reproducir ejecuciones antiguas; no detecta aproximadamente un tercio de las placas en imágenes de la literatura. toxoplasma_plaque_v3 es el modelo actual."
+    },
+    {
+      "table": "ui",
+      "key": ", allowing flips, rotations and contrast changes",
+      "source": ", allowing flips, rotations and contrast changes",
+      "source_sha256": "b11afbb300ee9b5588fe592b099c9d8ee6950143ad4ca5ac386bdad3ba734b2f",
+      "translation": ", permitiendo volteos, rotaciones y cambios de contraste"
+    },
+    {
+      "table": "ui",
+      "key": "A mouse click on the background sends a ripple from where you clicked. A click that opens or closes a container sends only that container's ripple.",
+      "source": "A mouse click on the background sends a ripple from where you clicked. A click that opens or closes a container sends only that container's ripple.",
+      "source_sha256": "5af8a6a67144ebff700a4099fff4a7db19142c0f456d0190ee487edbf56fff25",
+      "translation": "Un clic del ratón sobre el fondo envía una ondulación desde donde hizo clic. Un clic que abre o cierra un contenedor envía solo la ondulación de ese contenedor."
+    },
+    {
+      "table": "ui",
+      "key": "A table finished copying.",
+      "source": "A table finished copying.",
+      "source_sha256": "5093d9b51692630dbea567dc4155bc72e9c4b8d6093e54d88d5afd6bf8a46f41",
+      "translation": "Se ha terminado de copiar una tabla."
+    },
+    {
+      "table": "ui",
+      "key": "Add count store folder",
+      "source": "Add count store folder",
+      "source_sha256": "7a8a0468f672d8b4197bc804c6a642ba581aa97941558fc1363d443d89b18583",
+      "translation": "Añadir carpeta del almacén de recuentos"
+    },
+    {
+      "table": "ui",
+      "key": "Add count store folder…",
+      "source": "Add count store folder…",
+      "source_sha256": "3db82321f11ef6588749e32360e84c560ea8a3465e2c48ae6ddae89e20e27d4e",
+      "translation": "Añadir carpeta del almacén de recuentos..."
+    },
+    {
+      "table": "ui",
+      "key": "Add count tables",
+      "source": "Add count tables",
+      "source_sha256": "b245672d38984d71cfe8a0f171af2ee4216b624ad6ee15724ee90d43d167366c",
+      "translation": "Añadir tablas de recuentos"
+    },
+    {
+      "table": "ui",
+      "key": "Add count tables…",
+      "source": "Add count tables…",
+      "source_sha256": "574fa7c9bf0c601b0144f29930fe2f54e7bf4f58815f6062570b087fb2626fe5",
+      "translation": "Añadir tablas de recuentos..."
+    },
+    {
+      "table": "ui",
+      "key": "Add score store folder",
+      "source": "Add score store folder",
+      "source_sha256": "256a1843a30ef5bff947de1a6b29c678476175a88025940e89fc0c6d6c4da1c7",
+      "translation": "Añadir carpeta del almacén de puntuaciones"
+    },
+    {
+      "table": "ui",
+      "key": "Add score store folder…",
+      "source": "Add score store folder…",
+      "source_sha256": "b4ba1b5089bf86d3c800f0c73e9bc3923874cef273a77aad182fa499b5852eaa",
+      "translation": "Añadir carpeta del almacén de puntuaciones..."
+    },
+    {
+      "table": "ui",
+      "key": "Add score tables",
+      "source": "Add score tables",
+      "source_sha256": "1bde30f6ee928608e49a9824a9c827566b2c2c99a76f9c9e99dcc5c9ff866c72",
+      "translation": "Añadir tablas de puntuaciones"
+    },
+    {
+      "table": "ui",
+      "key": "Add score tables…",
+      "source": "Add score tables…",
+      "source_sha256": "d7f3de41994b67541c25a7fb6b6eb01e748641116426574f2a538c85b445126a",
+      "translation": "Añadir tablas de puntuaciones..."
+    },
+    {
+      "table": "ui",
+      "key": "Animation GPU",
+      "source": "Animation GPU",
+      "source_sha256": "76dad508adef129161c64b7d154920295f3f734d5c15c3d7c41d4bee01bca67d",
+      "translation": "GPU de animación"
+    },
+    {
+      "table": "ui",
+      "key": "Both source and destination are required.",
+      "source": "Both source and destination are required.",
+      "source_sha256": "7caaa3527f888b18e1d683460ced89da541249ffcb281dece94987ee7f8c2623",
+      "translation": "Se requieren el origen y el destino."
+    },
+    {
+      "table": "ui",
+      "key": "Cannot read review status",
+      "source": "Cannot read review status",
+      "source_sha256": "96a23e17de081545c23eda346946b15f084b3b36e52cf4d48923cb4be30ea1ce",
+      "translation": "No se puede leer el estado de la revisión"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a .parquetdb store folder.",
+      "source": "Choose a .parquetdb store folder.",
+      "source_sha256": "c37df959b86698b5dbe8262d7671add45a3bb89ab283056e8256fb614ff69241",
+      "translation": "Elija una carpeta de almacén .parquetdb."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the vvvv export folder",
+      "source": "Choose the vvvv export folder",
+      "source_sha256": "ce85ced1805a3a10b40c597f40f009b56002456ae990a68d9d38f686d8d46e76",
+      "translation": "Elija la carpeta de exportación de vvvv"
+    },
+    {
+      "table": "ui",
+      "key": "Click ripples",
+      "source": "Click ripples",
+      "source_sha256": "d15f0e6a1dcf8093eac31ed5bcb3499b70dc16d43b8c780b78171742cc28ebb1",
+      "translation": "Ondulaciones al hacer clic"
+    },
+    {
+      "table": "ui",
+      "key": "Confirm measurement copy",
+      "source": "Confirm measurement copy",
+      "source_sha256": "4278252051e2cb788841a9c8538fecdf7dee909e25d8e4524026490df1ad3974",
+      "translation": "Confirmar copia de mediciones"
+    },
+    {
+      "table": "ui",
+      "key": "Copied {count} table(s). The original remains unchanged.",
+      "source": "Copied {count} table(s). The original remains unchanged.",
+      "source_sha256": "7424ce8d2c5b20cc13e4cc1ded8dcb13cade90aa8a9dbda28d4237ecfc5578c7",
+      "translation": "Se copiaron {count} tabla(s). El original no se ha modificado."
+    },
+    {
+      "table": "ui",
+      "key": "Copies tables into a new destination. The original is not changed; this does not switch the active measurement backend.",
+      "source": "Copies tables into a new destination. The original is not changed; this does not switch the active measurement backend.",
+      "source_sha256": "d8fcd221fede3d2ed2084efc65592a574e566e9b5675db23b5a4f10b267fae48",
+      "translation": "Copia las tablas en un destino nuevo. El original no se modifica; esto no cambia el backend de mediciones activo."
+    },
+    {
+      "table": "ui",
+      "key": "Copy every table from the selected source into a new destination? Existing local destinations are refused. A PostgreSQL destination must have no tables.",
+      "source": "Copy every table from the selected source into a new destination? Existing local destinations are refused. A PostgreSQL destination must have no tables.",
+      "source_sha256": "b7eecddcbc389099ef6a90fdc748c0a254df5311d2fef9d2919e0cef73a7ed13",
+      "translation": "¿Copiar todas las tablas del origen seleccionado en un destino nuevo? Se rechazan los destinos locales que ya existen. Un destino PostgreSQL no debe contener tablas."
+    },
+    {
+      "table": "ui",
+      "key": "Copy tables",
+      "source": "Copy tables",
+      "source_sha256": "876b2f6cd3ff5137357bc4fd7b78ae313fdc54b5a4b08d559c14b118c4c6318e",
+      "translation": "Copiar tablas"
+    },
+    {
+      "table": "ui",
+      "key": "Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores.",
+      "source": "Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores.",
+      "source_sha256": "d905bfbe4763fc99de92b95c23e757d8a8dad550b0f72e16a68ad1fe1c2e73b4",
+      "translation": "Copiar tablas entre almacenes SQLite, DuckDB, Parquet y PostgreSQL."
+    },
+    {
+      "table": "ui",
+      "key": "Copy to",
+      "source": "Copy to",
+      "source_sha256": "a8dd595b66f021ea306568c1a3e0e9e27e579faa4d4456cd9ab413fd1ba46b37",
+      "translation": "Copiar a"
+    },
+    {
+      "table": "ui",
+      "key": "Copying tables…",
+      "source": "Copying tables…",
+      "source_sha256": "aba3186b8b26540ee8d4449d5d1dd8077a159c8e7277aa256f9f0263d1630aa7",
+      "translation": "Copiando tablas..."
+    },
+    {
+      "table": "ui",
+      "key": "Could not read columns from {sources}",
+      "source": "Could not read columns from {sources}",
+      "source_sha256": "58cfa02a51c892fa82eb4176d5472cbf59e676d065dc2ad1894992ac9ef77db2",
+      "translation": "No se pudieron leer las columnas de {sources}"
+    },
+    {
+      "table": "ui",
+      "key": "Count source",
+      "source": "Count source",
+      "source_sha256": "2456c0e51400b21ac5dac18a1bbdc90dfd98579fd81c1bdd354153590724b923",
+      "translation": "Origen de recuentos"
+    },
+    {
+      "table": "ui",
+      "key": "Count table",
+      "source": "Count table",
+      "source_sha256": "e4b73b938f1698f30602698742ee0d41fd1726894b858b4ab7973ea4314ccbf1",
+      "translation": "Tabla de recuentos"
+    },
+    {
+      "table": "ui",
+      "key": "Cut kept in object(s) {labels}; draw another line to finish dividing. Ctrl+Z to undo",
+      "source": "Cut kept in object(s) {labels}; draw another line to finish dividing. Ctrl+Z to undo",
+      "source_sha256": "6c8256555b9962ca15f67e7a6db69a3d2ac40f01e5503cd6caafbd927cd84e4e",
+      "translation": "Corte conservado en el/los objeto(s) {labels}; dibuje otra línea para terminar de dividir. Ctrl+Z para deshacer"
+    },
+    {
+      "table": "ui",
+      "key": "Dynamic animation",
+      "source": "Dynamic animation",
+      "source_sha256": "00404dd4b4540aa5411fec10d844b49dfa4d19c8d8c5a7510ac12a03feb07757",
+      "translation": "Animación dinámica"
+    },
+    {
+      "table": "ui",
+      "key": "Every image in this queue has Keep or Discard.",
+      "source": "Every image in this queue has Keep or Discard.",
+      "source_sha256": "1b8a62462eb92fca9a5957e5dd390c09545846a7e4d30201e093a00d9fcadbd2",
+      "translation": "Todas las imágenes de esta cola tienen Mantener o Descartar."
+    },
+    {
+      "table": "ui",
+      "key": "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
+      "source": "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
+      "source_sha256": "c4ba2125608536b61c0895925372ab0a04411b91057bf597aabc97fcf795538d",
+      "translation": "URL de PostgreSQL o archivo .db, .duckdb o .parquetdb existente"
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source_sha256": "34605d49608db193fc1720df64d8f24abbc93ad6ab8dc95a6b6da5e48237ebdd",
+      "translation": "Vuelve a exportar para vvvv cada vez que se guarda una máscara, de modo que un patch de vvvv que vigila la carpeta de exportación se actualiza en directo."
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv…",
+      "source": "Export for vvvv…",
+      "source_sha256": "ca2ddf0de427fcd43768d1e8bfe5633f84d9315421eac82f318787c8471d24fc",
+      "translation": "Exportar para vvvv..."
+    },
+    {
+      "table": "ui",
+      "key": "Export on save",
+      "source": "Export on save",
+      "source_sha256": "f92285a0d62006fed9ed718bc9c64978c538afbb5635a957082076a68c2692e7",
+      "translation": "Exportar al guardar"
+    },
+    {
+      "table": "ui",
+      "key": "Exported for vvvv → {path}",
+      "source": "Exported for vvvv → {path}",
+      "source_sha256": "4c4a4f491fba7a949f6be8d3a7c9c7c26605fb96c63f17b24a0ff89598b7bb71",
+      "translation": "Exportado para vvvv → {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Fill the left half of this screen's work area.",
+      "source": "Fill the left half of this screen's work area.",
+      "source_sha256": "35c845f2e3f75913f677c990de0edd3959cf0b65eaee82390aa4f1d8d5191771",
+      "translation": "Llena la mitad izquierda del área de trabajo de esta pantalla."
+    },
+    {
+      "table": "ui",
+      "key": "Fill the lower half of this screen's work area.",
+      "source": "Fill the lower half of this screen's work area.",
+      "source_sha256": "7a1e434162048b4aa55d7c04e1c413b429d333921491822e9cf15e0e94eaaa8a",
+      "translation": "Llena la mitad inferior del área de trabajo de esta pantalla."
+    },
+    {
+      "table": "ui",
+      "key": "Fill the right half of this screen's work area.",
+      "source": "Fill the right half of this screen's work area.",
+      "source_sha256": "6643e352491cd61e03ace73d078c5e1acb67259ecb2b3d9bcedf28ad51dceb8e",
+      "translation": "Llena la mitad derecha del área de trabajo de esta pantalla."
+    },
+    {
+      "table": "ui",
+      "key": "First unreviewed",
+      "source": "First unreviewed",
+      "source_sha256": "e6201ffe2d0b527ce2acf68411ae779a785700c09a53e3c6f3f0baeea9fa33d4",
+      "translation": "Primera sin revisar"
+    },
+    {
+      "table": "ui",
+      "key": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source_sha256": "235a030f6880899bdd582d779b6691c16049ab10b4cf49aedae1c7a264c49312",
+      "translation": "Cargar un recorte del cribado publicado de reclutamiento de TSG101: 2608 células en 30 pocillos de la placa 1 con sus predicciones y fracciones de guías, y una ejecución de regresión hecha con ellas que señala GRA14 (239740) como el hallazgo. Unos 28 MB; después queda en caché."
+    },
+    {
+      "table": "ui",
+      "key": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source_sha256": "43d04f0fd02036ba7f5d48ab3e910d7b6fa601fcaabe433e18ff0109b9b733f5",
+      "translation": "Cargar una serie pública de placas: todos los pocillos de las 24 placas de compuestos CPJUMP1 de la Cell Painting Gallery (CC0), con los pocillos de DMSO y de control positivo marcados, y representar los pocillos de DMSO placa por placa en el gráfico. Unos 2 MB; después se guarda en caché."
+    },
+    {
+      "table": "ui",
+      "key": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source_sha256": "03d3fa239d0100288c638e6eba5bb680b722d9ee6e0ed941012c4c16815abe8a",
+      "translation": "Hallazgo de ejemplo {gene} cargado. Pulse «Investigar el hallazgo»."
+    },
+    {
+      "table": "ui",
+      "key": "Maximise to this screen's work area. Full screen is separate.",
+      "source": "Maximise to this screen's work area. Full screen is separate.",
+      "source_sha256": "7d382883b7a6710390c063835ef58120fe202a7106df08e97e7f5e4288f06a51",
+      "translation": "Maximiza la ventana al área de trabajo de esta pantalla. La pantalla completa es una opción aparte."
+    },
+    {
+      "table": "ui",
+      "key": "Migrate measurement store",
+      "source": "Migrate measurement store",
+      "source_sha256": "c8034fa8bb3a116041ce7403d9c7559ee7a402748ae7f3a8d25e794f062b68a0",
+      "translation": "Migrar almacén de mediciones"
+    },
+    {
+      "table": "ui",
+      "key": "Migrate measurement store…",
+      "source": "Migrate measurement store…",
+      "source_sha256": "3061e256bc28ae56fa4a766fa2139ad6bed05791c4e05690a798f3a7341d0f39",
+      "translation": "Migrar almacén de mediciones..."
+    },
+    {
+      "table": "ui",
+      "key": "Migration stopped. The source is unchanged and no local destination was published.",
+      "source": "Migration stopped. The source is unchanged and no local destination was published.",
+      "source_sha256": "3f8c84039da9791f117f35f3fd6a6656bb6cd2defcb578aaf97a8fc955e14b96",
+      "translation": "Migración detenida. El origen no ha cambiado y no se ha publicado ningún destino local."
+    },
+    {
+      "table": "ui",
+      "key": "Migration stopped. The source is unchanged. The empty PostgreSQL destination may contain partial new tables.",
+      "source": "Migration stopped. The source is unchanged. The empty PostgreSQL destination may contain partial new tables.",
+      "source_sha256": "660664b550e6b34e107d27912032a78284c05855a841734d474f38cb9658bbda",
+      "translation": "Migración detenida. El origen no ha cambiado. El destino PostgreSQL que estaba vacío puede contener tablas nuevas incompletas."
+    },
+    {
+      "table": "ui",
+      "key": "Name the table for {sources} before running.",
+      "source": "Name the table for {sources} before running.",
+      "source_sha256": "db7b344fd012090cb618c8de8bfd2d76e7a9952130911bd01b22b72b833c10ad",
+      "translation": "Asigne un nombre a la tabla de {sources} antes de ejecutar."
+    },
+    {
+      "table": "ui",
+      "key": "New destination store",
+      "source": "New destination store",
+      "source_sha256": "238842a1464ed2169bdd04bd235276beb455558d58435cb6b6ec7792a7cba838",
+      "translation": "Nuevo almacén de destino"
+    },
+    {
+      "table": "ui",
+      "key": "No {what} {current!r} in the {kind}.",
+      "source": "No {what} {current!r} in the {kind}.",
+      "source_sha256": "c134f156813a17cf6c156050e3a15a0d42d5acf45d8df2f5972df699eda300d7",
+      "translation": "No se encontró {what} {current!r} en {kind}."
+    },
+    {
+      "table": "ui",
+      "key": "No {what} {current!r} in the {kind}. Did you mean {suggestion!r}?",
+      "source": "No {what} {current!r} in the {kind}. Did you mean {suggestion!r}?",
+      "source_sha256": "6e3cf7a46e8ffecced8b56a575cc9e0ed04a6ef175e8d272d409468696d3c9e8",
+      "translation": "No se encontró {what} {current!r} en {kind}. ¿Quiso decir {suggestion!r}?"
+    },
+    {
+      "table": "ui",
+      "key": "Off (CPU)",
+      "source": "Off (CPU)",
+      "source_sha256": "5f68f15cade8808f4cdaaae7088a72171ba72f3f0a8863dd3cf6a27fcc5416b7",
+      "translation": "Desactivado (CPU)"
+    },
+    {
+      "table": "ui",
+      "key": "On",
+      "source": "On",
+      "source_sha256": "130011756125313c72f2cab730db4347e2841526d236a89cb25f38789fa49229",
+      "translation": "Activado"
+    },
+    {
+      "table": "ui",
+      "key": "Open the first image in the queue that has neither Keep nor Discard. Verdicts saved in earlier sessions count. Unsaved edits are handled as when moving to any other image.",
+      "source": "Open the first image in the queue that has neither Keep nor Discard. Verdicts saved in earlier sessions count. Unsaved edits are handled as when moving to any other image.",
+      "source_sha256": "8011696f9c4763a8b06d83ece3a63e4d3c4d5429571011532f97edea87c487f6",
+      "translation": "Abre la primera imagen de la cola que no tiene ni Mantener ni Descartar. Cuentan los veredictos guardados en sesiones anteriores. Las ediciones sin guardar se tratan igual que al pasar a cualquier otra imagen."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} and panel {prior_panel} in {prior_figure} show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+      "source": "Panel {panel} and panel {prior_panel} in {prior_figure} show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+      "source_sha256": "7a9d5af7a6e926a80c4dfd464b6e3d5d5e35f67e945aa123b674ac8eb0ea4786",
+      "translation": "El panel {panel} y el panel {prior_panel} de {prior_figure} muestran regiones superpuestas de los mismos píxeles de origen verificados. Es una nota de reutilización de origen, no un veredicto de manipulación de imágenes."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} has a similar displayed region to panel {prior_panel} in {prior_figure}. This is a bounded pixel similarity note, not an acquisition or image manipulation verdict.",
+      "source": "Panel {panel} has a similar displayed region to panel {prior_panel} in {prior_figure}. This is a bounded pixel similarity note, not an acquisition or image manipulation verdict.",
+      "source_sha256": "666c5f4c6a3a6c908481200656b43b9dbce3b88fcffc7cafdbb85c9372a11fac",
+      "translation": "El panel {panel} muestra una región similar a la del panel {prior_panel} de {prior_figure}. Es una nota de similitud de píxeles acotada, no un veredicto sobre la adquisición ni sobre manipulación de imágenes."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} shows a region of panel {other} (rows {top}-{bottom}, columns {left}-{right}) at {zoom}x magnification. If it is an inset or a zoom, mark the region and say so in the legend.",
+      "source": "Panel {panel} shows a region of panel {other} (rows {top}-{bottom}, columns {left}-{right}) at {zoom}x magnification. If it is an inset or a zoom, mark the region and say so in the legend.",
+      "source_sha256": "90507a300248e2974cfc3d6ee5929b012bd433d42c0df7dfc4760c6a976b2de3",
+      "translation": "El panel {panel} muestra una región del panel {other} (filas {top}-{bottom}, columnas {left}-{right}) con un aumento de {zoom}x. Si es un recuadro ampliado o un zoom, marque la región e indíquelo en la leyenda."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} shows the same image as panel {prior_panel} in an earlier export ({prior_figure}){how}. If the reuse is intentional, explain it in the legend.",
+      "source": "Panel {panel} shows the same image as panel {prior_panel} in an earlier export ({prior_figure}){how}. If the reuse is intentional, explain it in the legend.",
+      "source_sha256": "e87ad0ed3345e6e192e2e24807d54bc9969ea58508c1482dcfcfb9c5077e4123",
+      "translation": "El panel {panel} muestra la misma imagen que el panel {prior_panel} en una exportación anterior ({prior_figure}){how}. Si la reutilización es intencionada, explíquela en la leyenda."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: a straight horizontal seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source": "Panel {panel}: a straight horizontal seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source_sha256": "b4dff4a3de8045aa35112bf2e63103643ce4711d9560b4f5293d43434d1719b3",
+      "translation": "Panel {panel}: una línea de unión horizontal recta en el píxel {position} separa zonas con distinto nivel de fondo o de ruido, como cuando se yuxtaponen dos imágenes. Si el panel combina imágenes, sepárelas con una línea visible e indíquelo en la leyenda."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: a straight vertical seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source": "Panel {panel}: a straight vertical seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source_sha256": "caa74df06cb5057633e230975e8866a3dfad51430ad30e7c0535f6e6f2e693b7",
+      "translation": "Panel {panel}: una línea de unión vertical recta en el píxel {position} separa zonas con distinto nivel de fondo o de ruido, como cuando se yuxtaponen dos imágenes. Si el panel combina imágenes, sepárelas con una línea visible e indíquelo en la leyenda."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: the region at rows {top}-{bottom}, columns {left}-{right} repeats {down} rows down and {across} columns across in the same image. Check the source image for a copied patch.",
+      "source": "Panel {panel}: the region at rows {top}-{bottom}, columns {left}-{right} repeats {down} rows down and {across} columns across in the same image. Check the source image for a copied patch.",
+      "source_sha256": "67fd40d15babeebd3a886f0e9a8b03d8ef22a7c79e6bb3e26e6368bec848cfcf",
+      "translation": "Panel {panel}: la región de las filas {top}-{bottom}, columnas {left}-{right} se repite {down} filas más abajo y {across} columnas más a la derecha en la misma imagen. Revise la imagen de origen por si hay un fragmento copiado."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: the source metadata ({metadata}) declares {bits}-bit camera data, but pixel values reach {peak}. The image was rescaled after acquisition or the metadata is wrong; saturation was checked against the storage type instead.",
+      "source": "Panel {panel}: the source metadata ({metadata}) declares {bits}-bit camera data, but pixel values reach {peak}. The image was rescaled after acquisition or the metadata is wrong; saturation was checked against the storage type instead.",
+      "source_sha256": "70a72f31fabe29b211e13e5e04098f463b4aa140d2261bf06add673d2188f4c3",
+      "translation": "Panel {panel}: los metadatos de origen ({metadata}) declaran datos de cámara de {bits} bits, pero los valores de píxel alcanzan {peak}. La imagen se reescaló después de la adquisición o los metadatos son erróneos; por ello, la saturación se comprobó con respecto al tipo de almacenamiento."
+    },
+    {
+      "table": "ui",
+      "key": "Position of this image in the queue. Type a number and press Enter to open that image.",
+      "source": "Position of this image in the queue. Type a number and press Enter to open that image.",
+      "source_sha256": "9e08a4cf0ffeaef9b3444cb8eab57ca137c50883d3052eddbd6fae62f9be97de",
+      "translation": "Posición de esta imagen en la cola. Escriba un número y pulse Intro para abrir esa imagen."
+    },
+    {
+      "table": "ui",
+      "key": "Read from",
+      "source": "Read from",
+      "source_sha256": "26da1ae26f4836d2f09fca20a31e30cf94f8f39f1fee159889215e2dc2661330",
+      "translation": "Leer de"
+    },
+    {
+      "table": "ui",
+      "key": "Read input table column names and choose a column.",
+      "source": "Read input table column names and choose a column.",
+      "source_sha256": "25a8d33d30b13ee51e29d9b15cd514be4333e685e68f47ffebdd15adba2558ed",
+      "translation": "Lea los nombres de las columnas de la tabla de entrada y elija una columna."
+    },
+    {
+      "table": "ui",
+      "key": "Score source",
+      "source": "Score source",
+      "source_sha256": "f873df15ffb7861eac834ff31552eb79f8809a64632e503dbbc1250b6511fc82",
+      "translation": "Origen de puntuaciones"
+    },
+    {
+      "table": "ui",
+      "key": "Score table",
+      "source": "Score table",
+      "source_sha256": "85d977c1a71a7384106394ae97daa63fa42705c815ce22323720f3dcf5888357",
+      "translation": "Tabla de puntuaciones"
+    },
+    {
+      "table": "ui",
+      "key": "Snap down",
+      "source": "Snap down",
+      "source_sha256": "11e9ba100badc60369e4c3357963771f46d8f5da579ae6956148efee74173039",
+      "translation": "Ajustar abajo"
+    },
+    {
+      "table": "ui",
+      "key": "Snap left",
+      "source": "Snap left",
+      "source_sha256": "75ad8bfe476cadc279eeabc97f6dce67e869e21d7f784d5e8c84419443b0a970",
+      "translation": "Ajustar a la izquierda"
+    },
+    {
+      "table": "ui",
+      "key": "Snap right",
+      "source": "Snap right",
+      "source_sha256": "639801497b6ff07dcba3059ee081284d0e2dc6fe1cfc81fd92946622d63a1d3f",
+      "translation": "Ajustar a la derecha"
+    },
+    {
+      "table": "ui",
+      "key": "Snap up",
+      "source": "Snap up",
+      "source_sha256": "c9cad67449c7bcba1d2e49fa163800632dca0fa89b966b647ced118e0e016833",
+      "translation": "Ajustar arriba"
+    },
+    {
+      "table": "ui",
+      "key": "Source and destination must be different stores.",
+      "source": "Source and destination must be different stores.",
+      "source_sha256": "755c102c944adfbce02dd87e747f67cac1891fdefb748ba5cadf76775f399c51",
+      "translation": "El origen y el destino deben ser almacenes distintos."
+    },
+    {
+      "table": "ui",
+      "key": "Strength of ripples from clicks, opening or closing containers, popups and window snapping. Zero turns ripples off. Independent of mouse gravity and animation density.",
+      "source": "Strength of ripples from clicks, opening or closing containers, popups and window snapping. Zero turns ripples off. Independent of mouse gravity and animation density.",
+      "source_sha256": "a1e07ce9039068adfe06b134257619c8a95a5f783459f5661032542ca410b127",
+      "translation": "Intensidad de las ondulaciones causadas por clics, la apertura o el cierre de contenedores, las ventanas emergentes y el ajuste de ventanas. Cero desactiva las ondulaciones. Independiente de la gravedad del ratón y de la densidad de animación."
+    },
+    {
+      "table": "ui",
+      "key": "Table name for store",
+      "source": "Table name for store",
+      "source_sha256": "7799f72b34405dcf86e55166bb5aa0c64f97b6e6bf87558cb9cde2d540810ab2",
+      "translation": "Nombre de la tabla para el almacén"
+    },
+    {
+      "table": "ui",
+      "key": "The destination already exists. Choose a new store.",
+      "source": "The destination already exists. Choose a new store.",
+      "source_sha256": "4bb3b98ce1949f911f70d935cc1c08f7151ef8f4cf495542b9160629e801213a",
+      "translation": "El destino ya existe. Elija un almacén nuevo."
+    },
+    {
+      "table": "ui",
+      "key": "The destination parent folder does not exist.",
+      "source": "The destination parent folder does not exist.",
+      "source_sha256": "ec1317175a9a1dd3b7c6b1adb09dc6cd9950cce849746d8ac3788fa69155d601",
+      "translation": "La carpeta superior del destino no existe."
+    },
+    {
+      "table": "ui",
+      "key": "The source measurement store does not exist.",
+      "source": "The source measurement store does not exist.",
+      "source_sha256": "e573d127eff82af9cc2332dba468364be1adc9d075b9fa4c54e9347748dfd4dc",
+      "translation": "El almacén de mediciones de origen no existe."
+    },
+    {
+      "table": "ui",
+      "key": "There are no images in the queue.",
+      "source": "There are no images in the queue.",
+      "source_sha256": "1c4ee5cf983027834faf5da21804269cfc30aa8fc0f3744b97e4c6c384dd7dae",
+      "translation": "No hay imágenes en la cola."
+    },
+    {
+      "table": "ui",
+      "key": "This is the first image without Keep or Discard.",
+      "source": "This is the first image without Keep or Discard.",
+      "source_sha256": "54592d219433ab56dcf79f365f535dc2abffce133e8cc7d8a2280a1103825060",
+      "translation": "Esta es la primera imagen sin Mantener ni Descartar."
+    },
+    {
+      "table": "ui",
+      "key": "Type a number from 1 to {total} to open that image.",
+      "source": "Type a number from 1 to {total} to open that image.",
+      "source_sha256": "2ecdd8c943a6cf87be3d78ee4f33ebf9e0ea4461c167bdc5c4fd7d0b2824ecf0",
+      "translation": "Escriba un número de 1 a {total} para abrir esa imagen."
+    },
+    {
+      "table": "ui",
+      "key": "Unblind this session before exporting folders named after source images.",
+      "source": "Unblind this session before exporting folders named after source images.",
+      "source_sha256": "d9a11391072e926087aaa947ddbd696ef64bef096e7a7ebba4747cdfae5437ea",
+      "translation": "Desenmascare esta sesión antes de exportar carpetas con nombres de imágenes de origen."
+    },
+    {
+      "table": "ui",
+      "key": "Use a database file, a .parquetdb folder, or a PostgreSQL URL.",
+      "source": "Use a database file, a .parquetdb folder, or a PostgreSQL URL.",
+      "source_sha256": "68fe654a98b656ae7942d0df6b63f832f58a06573e3ddc617dbc4bdab9862c51",
+      "translation": "Utilice un archivo de base de datos, una carpeta .parquetdb o una URL de PostgreSQL."
+    },
+    {
+      "table": "ui",
+      "key": "Where animations are drawn. Off draws on the CPU. Automatic uses the GPU only for dense, high-resolution frames, where it measured faster. On uses the GPU whenever the theme has a GPU renderer. Unsupported graphics or a failed GPU start always fall back to the CPU.",
+      "source": "Where animations are drawn. Off draws on the CPU. Automatic uses the GPU only for dense, high-resolution frames, where it measured faster. On uses the GPU whenever the theme has a GPU renderer. Unsupported graphics or a failed GPU start always fall back to the CPU.",
+      "source_sha256": "e723553a52f4ad2ac4ebdfd37bcf43e5bba7e3b6d293c27ad5f49169a311ba4d",
+      "translation": "Dónde se dibujan las animaciones. Desactivado dibuja en la CPU. Automático usa la GPU solo para fotogramas densos de alta resolución, donde se midió que es más rápida. Activado usa la GPU siempre que el tema tiene un renderizador GPU. Si los gráficos no son compatibles o la GPU no logra iniciarse, siempre se vuelve a la CPU."
+    },
+    {
+      "table": "ui",
+      "key": "While a CPU-heavy job such as Measure runs, the animation pauses. While a GPU job such as mask generation runs, animations stop using the GPU. Your saved animation settings return when the jobs end. Off keeps animations running unchanged.",
+      "source": "While a CPU-heavy job such as Measure runs, the animation pauses. While a GPU job such as mask generation runs, animations stop using the GPU. Your saved animation settings return when the jobs end. Off keeps animations running unchanged.",
+      "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+      "translation": "Mientras se ejecuta un trabajo que exige mucha CPU, como Measure, la animación se pausa. Mientras se ejecuta un trabajo de GPU, como la generación de máscaras, las animaciones dejan de usar la GPU. Sus ajustes de animación guardados se restablecen cuando terminan los trabajos. Desactivado mantiene las animaciones funcionando sin cambios."
+    },
+    {
+      "table": "ui",
+      "key": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source_sha256": "6347a688735eda0a24506ee8fe503ae0e6dfa9c812b032fb626e83d2a5bd03f7",
+      "translation": "Escribe las etiquetas de esta imagen (16-bit PNG), los contornos (RGBA PNG), una fila por objeto (CSV) y un manifiesto en una carpeta con el nombre de la imagen, para que los lea un patch de vvvv. Los archivos se reemplazan enteros, de modo que un patch que vigile la carpeta nunca lee un archivo a medias."
+    },
+    {
+      "table": "ui",
+      "key": "vvvv export failed",
+      "source": "vvvv export failed",
+      "source_sha256": "99c8a97db1342f2f3cd11bcc83ff33ffb0faaf051cc8f34a75ce9b3995469544",
+      "translation": "Falló la exportación para vvvv"
+    },
+    {
+      "table": "ui",
+      "key": "vvvv export is off while blinded",
+      "source": "vvvv export is off while blinded",
+      "source_sha256": "18d4900689741d5b0b638cf589b5f3c1f94f94e4ef0c349094703382753f6bb5",
+      "translation": "La exportación para vvvv está desactivada mientras se trabaja a ciegas"
+    },
+    {
+      "table": "ui",
+      "key": "{count} column(s) in the {kind}:",
+      "source": "{count} column(s) in the {kind}:",
+      "source_sha256": "90e184bbe7ce0a7a62d6953512bebb12ee2f33a23c5f9becbe54d91134864d29",
+      "translation": "{count} columna(s) en {kind}:"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, which also segments Gel Doc wells; 'toxoplasma_plaque_v2' is the previous default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v3'.",
+      "source_sha256": "256a3da363e13c789bd2d75627b90461ce000635655c63c04293d08fb9fe07cd",
+      "translation": "Punto de control de Cellpose para segmentar placas: una clave del catálogo de modelos descarga, en el primer uso, un punto de control verificado mediante suma de comprobación. 'toxoplasma_plaque_v3' es cpsam_plaque_r5_geldoc, que también segmenta pocillos de Gel Doc; 'toxoplasma_plaque_v2' es el valor predeterminado anterior. Una ruta del sistema de archivos selecciona un punto de control propio. 'bundled' es el modelo histórico incluido en el paquete, un punto de control de Cellpose 3 que requiere Cellpose 3. Cambiarlo puede modificar todos los recuentos de placas; las ejecuciones registradas deben conservar el valor elegido. Valor predeterminado 'toxoplasma_plaque_v3'."
+    }
+  ]
+}

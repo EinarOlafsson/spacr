@@ -1405,7 +1405,7 @@ def _resolve_training_base(requested):
 #: The plaque model a run segments with when none is named: cpsam_plaque_r5,
 #: trained on the curated v5 set. ``'bundled'`` is not the default because
 #: the bundled checkpoint is a Cellpose 3 model, and the Cellpose 4 spaCR installs refuses to load it.
-DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v2'
+DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v3'
 
 
 class Cellpose3Checkpoint(ValueError):
@@ -1524,7 +1524,10 @@ def _resolve_plaque_model(settings, fetch=True):
     THE DEFAULT IS NOT ``'bundled'``, though keeping it would avoid changing
     counts behind anyone's back: the bundled checkpoint is a Cellpose 3 model
     and the Cellpose 4 spaCR installs will not load it, so a default run on it
-    fails. ``toxoplasma_plaque_v2`` (cpsam_plaque_r5) is the default instead.
+    fails. ``toxoplasma_plaque_v3`` (cpsam_plaque_r5_geldoc) is the default
+    instead: on 263 held-out fields it scores F1 0.844 against
+    ``toxoplasma_plaque_v2``'s 0.799, and 0.913 against 0.013 on Gel Doc
+    wells (2026-10-10, features/data/model_compare_2026-10-10).
 
     :param settings: the plaque settings dict.
     :param fetch: download what is not here -- the bundled pack through

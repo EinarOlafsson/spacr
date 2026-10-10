@@ -6,13 +6,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
-      "translation": "'bundled' 是历史上随包提供的蚀斑模型。保留它是为了能够重现旧的运行；在文献图像上它会漏掉约三分之一的蚀斑。toxoplasma_plaque_v2 是当前模型。"
-    },
-    {
-      "table": "ui",
       "key": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source_sha256": "6bb03c4c83ee5abfe966cec2eb0878d7f3c36ffc82070615ad7f4abfef8afe6d",
@@ -1549,6 +1542,14 @@
         "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
         "translation": "在整幅图像上运行“检测方法”下所选的 CPU 方法，并标记其找到的内容，同时遵守上面的最小面积。该方法读取的所有内容都属于该类别：阈值水平的算法、校正、平滑、哪一侧为对象、填充孔洞、拆分相接触的一对对象，以及丢弃被边框截断的部分。若选择了 Cellpose 或某个后端，此按钮会退回使用 Otsu，因为它们有自己的“对象检测”按钮。"
       }
+    },
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
+      "translation": "'bundled' 是历史上随包提供的蚀斑模型。保留它是为了能够重现旧的运行；在文献图像上它会漏掉约三分之一的蚀斑。toxoplasma_plaque_v2 是当前模型。",
+      "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",

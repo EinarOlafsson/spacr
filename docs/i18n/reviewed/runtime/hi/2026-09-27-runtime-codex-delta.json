@@ -997,13 +997,6 @@
       "translation": "उन अधिकांश स्थितियों में उपयुक्त जहाँ Otsu उपयुक्त है; यह पारंपरिक Ridler-Calvard पुनरावृत्ति है: स्तर वहाँ स्थिर होता है जहाँ वह अपने दोनों ओर के दो औसतों का औसत हो। Otsu गलत लगे तो उचित दूसरी जाँच है।"
     },
     {
-      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
-      "table": "ui",
-      "translation": "'bundled' पहले से पैक किया गया ऐतिहासिक प्लाक मॉडल है। पुराने रन दोहराने के लिए इसे रखा गया है; साहित्य के चित्रों पर यह लगभग एक-तिहाई प्लाक चूकता है। toxoplasma_plaque_v2 वर्तमान मॉडल है।"
-    },
-    {
       "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
       "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
       "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
@@ -1179,6 +1172,14 @@
       "source_sha256": "6eaaea0282c282c44b813c237e745549466d706e066e6dfc14d15529d80d0d6e",
       "table": "setting_tooltips",
       "translation": "PyTorch के माध्यम से CUDA GPU पर प्रति-वस्तु तीव्रता के आँकड़े, GLCM समरूपता और Zernike आघूर्ण गणना करता है। दृश्य क्षेत्र की वस्तुएँ एक-एक करके नहीं, सभी एक साथ संसाधित होती हैं। मान फ़्लोटिंग-पॉइंट सहनशीलता के भीतर CPU रन से मेल खाते हैं। वॉक्सेल अंतराल के बिना 2-D मास्क के लिए लागू है; अन्य मामलों में, PyTorch न होने पर या कोई CUDA डिवाइस दिखाई न देने पर सामान्य रूप से CPU पर मापता है। डिफ़ॉल्ट: False।"
+    },
+    {
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
+      "table": "ui",
+      "translation": "'bundled' पहले से पैक किया गया ऐतिहासिक प्लाक मॉडल है। पुराने रन दोहराने के लिए इसे रखा गया है; साहित्य के चित्रों पर यह लगभग एक-तिहाई प्लाक चूकता है। toxoplasma_plaque_v2 वर्तमान मॉडल है।",
+      "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",

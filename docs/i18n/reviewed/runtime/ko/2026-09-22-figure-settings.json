@@ -281,13 +281,16 @@
       "source": "Figure mode, text detection: Use the row label printed to the left of each image as part of its condition. Default True.",
       "source_sha256": "bbe9791694ee60c254cc9012fb5a148ccd7e39879d273364fa4693ac882f4aed",
       "translation": "논문 그림 모드, 텍스트 감지: 각 이미지 왼쪽에 인쇄된 행 라벨을 해당 조건의 일부로 사용합니다. 기본값 True."
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "plaque_model",
       "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v2' is cpsam_plaque_r5, trained on the curated v5 set), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v2'.",
       "source_sha256": "ee38a3079dc7236266c01be3dbf95be36877398aa74c0acbdfa4e4dbd52fcb16",
-      "translation": "플라크를 분할하는 Cellpose 체크포인트입니다. 모델 저장소 키를 지정하면 처음 사용할 때 체크섬을 검증한 체크포인트를 다운로드합니다. 'toxoplasma_plaque_v2'는 검토된 v5 데이터로 학습한 cpsam_plaque_r5입니다. 파일 시스템 경로를 지정하면 사용자 체크포인트를 선택합니다. 'bundled'는 과거에 패키지에 포함된 모델이며, Cellpose 3이 필요한 Cellpose 3 체크포인트입니다. 모델을 바꾸면 모든 플라크 계수가 달라질 수 있으므로 기록된 실행에서는 선택한 값을 보존해야 합니다. 기본값 'toxoplasma_plaque_v2'."
+      "translation": "플라크를 분할하는 Cellpose 체크포인트입니다. 모델 저장소 키를 지정하면 처음 사용할 때 체크섬을 검증한 체크포인트를 다운로드합니다. 'toxoplasma_plaque_v2'는 검토된 v5 데이터로 학습한 cpsam_plaque_r5입니다. 파일 시스템 경로를 지정하면 사용자 체크포인트를 선택합니다. 'bundled'는 과거에 패키지에 포함된 모델이며, Cellpose 3이 필요한 Cellpose 3 체크포인트입니다. 모델을 바꾸면 모든 플라크 계수가 달라질 수 있으므로 기록된 실행에서는 선택한 값을 보존해야 합니다. 기본값 'toxoplasma_plaque_v2'.",
+      "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
     }
   ]
 }

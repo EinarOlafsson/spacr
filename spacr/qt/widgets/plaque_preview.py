@@ -163,7 +163,7 @@ PAPERS_REQUIREMENT = "spacr[papers]"
 PAPERS_PACKAGES = (("ultralytics", "ultralytics"),
                    ("rapidocr_onnxruntime", "RapidOCR"))
 
-DEFAULT_PLAQUE_MODEL = "toxoplasma_plaque_v2"
+DEFAULT_PLAQUE_MODEL = "toxoplasma_plaque_v3"
 DEFAULT_DETECTOR = "toxoplasma_well_detector_v2"
 DEFAULT_SIZES = (640, 1280)
 
@@ -824,7 +824,7 @@ def detector_choices(entries: Optional[Iterable[Any]] = None) -> List[str]:
 BUNDLED_NOTE = ("'bundled' is the historical packaged plaque model. It is "
                 "kept so an old run can be reproduced; it misses about a "
                 "third of the plaques on literature images. "
-                "toxoplasma_plaque_v2 is the current model.")
+                "toxoplasma_plaque_v3 is the current model.")
 
 
 def resolve_plaque_model(settings: Dict[str, Any]) -> Tuple[str, str, Any]:

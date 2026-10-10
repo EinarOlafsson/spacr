@@ -6,13 +6,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
-      "translation": "'bundled'는 과거에 패키지된 플라크 모델입니다. 이전 실행을 재현할 수 있도록 유지되며, 문헌 이미지에서 플라크의 약 3분의 1을 놓칩니다. 현재 모델은 toxoplasma_plaque_v2 입니다."
-    },
-    {
-      "table": "ui",
       "key": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source_sha256": "6bb03c4c83ee5abfe966cec2eb0878d7f3c36ffc82070615ad7f4abfef8afe6d",
@@ -3243,6 +3236,14 @@
         "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
         "translation": "검출 방법에서 선택한 CPU 방법을 이미지 전체에 실행하고, 위의 최소 면적을 지키며 찾은 것에 레이블을 지정합니다. 방법이 읽는 모든 항목은 그 범주의 설정입니다: 수준 알고리즘, 보정, 평활화, 어느 쪽이 객체인지, 구멍 채우기, 맞닿은 쌍 분할, 프레임에 잘린 객체 제외. Cellpose나 백엔드를 선택한 경우 이 버튼은 Otsu로 대체됩니다. 그것들에는 자체 객체 검출 버튼이 있기 때문입니다."
       }
+    },
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
+      "translation": "'bundled'는 과거에 패키지된 플라크 모델입니다. 이전 실행을 재현할 수 있도록 유지되며, 문헌 이미지에서 플라크의 약 3분의 1을 놓칩니다. 현재 모델은 toxoplasma_plaque_v2 입니다.",
+      "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

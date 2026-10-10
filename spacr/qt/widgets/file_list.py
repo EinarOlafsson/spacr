@@ -1035,7 +1035,11 @@ class PairedFileTableWidget(QWidget):
             title, filters = ("Add measurements databases",
                               "Databases (*.db *.sqlite *.sqlite3)")
         else:
-            title, filters = (tr("Add {side} tables", side=side),
+            # Whole captions per side: "{side}" would insert the untranslated
+            # English word into every locale's sentence.
+            title = (tr("Add score tables") if side == "score"
+                     else tr("Add count tables"))
+            title, filters = (title,
                               "Tables (*.csv *.tsv *.txt *.parquet *.feather "
                               "*.xlsx *.db *.sqlite *.sqlite3 *.duckdb "
                               "*.ddb);;All files (*)")
@@ -1047,7 +1051,8 @@ class PairedFileTableWidget(QWidget):
     def _pick_store_folder(self, side: str) -> None:
         """Add a Parquet store folder to the selected input side."""
         path = QFileDialog.getExistingDirectory(
-            self, tr("Add {side} store folder", side=side))
+            self, tr("Add score store folder") if side == "score"
+            else tr("Add count store folder"))
         if not path:
             return
         if not path.lower().endswith('.parquetdb'):
