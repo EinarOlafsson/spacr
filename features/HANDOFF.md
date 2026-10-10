@@ -1,5 +1,23 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-10 — WS: Pages budget fixed with a 36 MB margin (maintainer decision pending)
+
+Docs "Publish main and nightly channels" failed: combined Pages site
+1,161,825,771 bytes vs the 996,147,200 budget (run 37943684213). Main caught
+up with nightly at 1.5.1.4; each channel is ~590 MB, 522 MB byte-identical.
+54c0b404e (tools/publish_docs_channels.py share_identical_assets): nightly
+loads byte-identical API catalogs from main's _static/i18n/api and links
+main's deck PDF. Reassembled locally from that run's artifacts: 959.9 MB.
+MARGIN ~36 MB only: any nightly catalog that diverges from main (~18-25 MB
+per language) is no longer shared and the site regrows. Two options for
+the maintainer (Home takes the decision; nothing dropped yet):
+  (a) lower the per-channel size (API catalogs 171 MB, deck 67 MB,
+      tutorial example zips ~63 MB per channel);
+  (b) drop nightly's _modules source pages (~123 MB per channel).
+Also on WS today: 60bad1afe / afad87029 README links and archived installers
+for 1.5.1.4; 54c545251 three drifted guard tests. The live-site installer test
+passes only after a successful docs deploy (run 38052976820 watched).
+
 ## 2026-10-09 16:36 EDT — Make Masks and alpha VVVV export requests registered
 
 N685: features/new/685_make_masks_curation_controls_and_alpha_vvvv_export.txt.
