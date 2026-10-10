@@ -2,7 +2,7 @@
 OPTIONAL SAVE ON NAVIGATION IN MAKE MASKS
 ================================================================================
 
-Status:    in progress — private implementation validated; integration pending
+Status:    COMPLETE 100% 2026-10-10 — published on nightly with nine-language captions
 Requested: 2026-10-08 — save edited masks before leaving with Keep, Next or Previous
 Owner:     Home CPU Qt lane; workstation owns translated captions and guides
 
@@ -41,3 +41,14 @@ test_make_masks_save_on_navigation.py passed the focused 25-case cohort in
 published-source or hosted-CI verdict. New visible strings are the button
 "Save on navigation" and its tooltip; literal Qt objectName is
 MakeMasksSaveOnNavigate; QSettings key is make_masks/save_on_navigation.
+
+2026-10-10 — Published. Codex's private f6761f6/e113e3f source and its test
+file ported onto current nightly (clean apply). Both new captions have
+AI-reviewed records in all nine runtime locales
+(docs/i18n/reviewed/runtime/*/2026-10-10-make-masks-save-on-navigation.json),
+catalogs regenerated with tools/build_i18n_catalogs.py (UI 7287 to 7289) and
+both arrivals recorded in the runtime caption arrival ledger. Checks under
+run_capped 8G/16G, CUDA hidden, offscreen: 25 save-on-navigation and Box
+boundary cases PASS; all Make Masks Qt files PASS; i18n catalog, caption
+ratchet/arrival and syntax guards PASS (pre-existing report-only XFAILs only).
+No native-speaker review of the two captions; no hosted CI claim.

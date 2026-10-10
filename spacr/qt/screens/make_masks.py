@@ -8617,6 +8617,7 @@ class MakeMasksScreen(QWidget):
         #: lets a save that changed nothing leave that file alone.
         self._loaded_mask: Optional[np.ndarray] = None
         self._loaded_from_save_path = False
+        self._last_saved_mask: Optional[np.ndarray] = None
         #: The masks folder of a sibling-layout session, which is beside the
         #: images rather than beneath them; ``None`` means ``<folder>/masks``.
         #: Set with the folder by :meth:`_open_folder`, so no field of one
@@ -8997,6 +8998,22 @@ class MakeMasksScreen(QWidget):
         self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
 
+        from ..prefs import _s
+
+        self._btn_save_on_navigation = QPushButton(tr("Save on navigation"))
+        self._btn_save_on_navigation.setObjectName("MakeMasksSaveOnNavigate")
+        self._btn_save_on_navigation.setCheckable(True)
+        self._btn_save_on_navigation.setCursor(Qt.PointingHandCursor)
+        self._btn_save_on_navigation.setToolTip(tr(
+            "Save an edited mask before Keep, Discard, Next or Previous. "
+            "If saving fails, stay on this image without recording a verdict. "
+            "Off by default; Skip still writes no mask."))
+        self._btn_save_on_navigation.setChecked(bool(_s().value(
+            "make_masks/save_on_navigation", False, type=bool)))
+        self._btn_save_on_navigation.toggled.connect(
+            lambda enabled: _s().setValue(
+                "make_masks/save_on_navigation", bool(enabled)))
+
         self._btn_clear = QPushButton(tr("Clear all objects"))
         self._btn_clear.setObjectName("DangerButton")
         self._btn_clear.setCursor(Qt.PointingHandCursor)
@@ -9035,7 +9052,8 @@ class MakeMasksScreen(QWidget):
         self._btn_save.setIcon(iconset.contrast_icon("save"))
         self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.clicked.connect(self._on_save)
-        for button in (self._btn_save, self._btn_prev, self._btn_next):
+        for button in (self._btn_save, self._btn_prev, self._btn_next,
+                       self._btn_save_on_navigation):
             button.setMinimumHeight(32)
             self.add_toolbar_action(button)
 
@@ -10887,7 +10905,7 @@ class MakeMasksScreen(QWidget):
         :param keep: True for Keep, False for Discard.
         :returns: the CSV's path, or None when there was nothing to record.
         """
-        if not self._save_boxes_if_needed():
+        if not self._save_mask_if_needed() or not self._save_boxes_if_needed():
             return None
         image_path, mask_path = self._curation_paths()
         if image_path is None:
@@ -16768,6 +16786,7 @@ class MakeMasksScreen(QWidget):
         self._log = None
         self._loaded_mask = None
         self._loaded_from_save_path = False
+        self._last_saved_mask = None
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         self._warn("Load failed", str(error))
@@ -16797,6 +16816,7 @@ class MakeMasksScreen(QWidget):
         self._canvas.ruler.calibrate_from_file(
             os.path.join(self._folder or "", filename), image.shape)
         self._loaded_mask = np.array(mask, copy=True)
+        self._last_saved_mask = self._loaded_mask
         self._loaded_from_save_path = os.path.isfile(engine.mask_save_path(
             self._folder, filename, **self._layout_kwargs()))
         self._recrop_children = []
@@ -16991,7 +17011,7 @@ class MakeMasksScreen(QWidget):
 
     def _on_prev(self):
         """Go to the previous field, retiring this one if it was cut up."""
-        if not self._save_boxes_if_needed():
+        if not self._save_mask_if_needed() or not self._save_boxes_if_needed():
             return
         self.finish_recrop()
         if not self._image_files or self._current_index <= 0:
@@ -17001,6 +17021,12 @@ class MakeMasksScreen(QWidget):
 
     def _on_next(self):
         """Go to the next field, retiring this one if it was cut up."""
+        self._move_next(save_mask=True)
+
+    def _move_next(self, *, save_mask: bool):
+        """Advance after optionally saving mask edits; Skip never writes one."""
+        if save_mask and not self._save_mask_if_needed():
+            return
         if not self._save_boxes_if_needed():
             return
         if self.finish_recrop():
@@ -17032,6 +17058,20 @@ class MakeMasksScreen(QWidget):
         return (os.path.isfile(path) and loaded.shape == mask.shape
                 and bool(np.array_equal(loaded, mask)))
 
+    def _save_mask_if_needed(self) -> bool:
+        """Save edited mask pixels before navigation when the user opted in."""
+        if not self._btn_save_on_navigation.isChecked():
+            return True
+        if not self._image_files or self._canvas.mask is None:
+            return True
+        if self._loading or self._last_saved_mask is None:
+            return False
+        mask = self._canvas.mask
+        saved = self._last_saved_mask
+        if saved.shape == mask.shape and np.array_equal(saved, mask):
+            return True
+        return self._save_mask() is not None
+
     def _on_skip(self) -> None:
         """Record the field on screen as skipped and move to the next one.
 
@@ -17059,7 +17099,7 @@ class MakeMasksScreen(QWidget):
             return
         judged = os.path.basename(filename)
         was = self._current_index
-        self._on_next()
+        self._move_next(save_mask=False)
         if self._current_index != was:
             now = os.path.basename(self._image_files[self._current_index])
             self._status_label.setText(
@@ -17084,8 +17124,12 @@ class MakeMasksScreen(QWidget):
         """
         if self._canvas.mode == MODE_BOX:
             return self._on_save_boxes()
+        return self._save_mask()
+
+    def _save_mask(self):
+        """Save the visible mask regardless of the selected editing tool."""
         if not self._image_files or self._canvas.mask is None:
-            return
+            return None
         if self._save_would_change_nothing():
             from ..i18n import tr
 
@@ -17097,7 +17141,8 @@ class MakeMasksScreen(QWidget):
             self._save_puncta_measurements(path)
             self._status_label.setText(
                 tr("Unchanged, nothing rewritten → {path}").format(path=path))
-            return
+            self._last_saved_mask = np.array(self._canvas.mask, copy=True)
+            return path
         preserve_ids = self._canvas.retain_label_ids()
         try:
             self._validate_secondary_save()
@@ -17111,7 +17156,7 @@ class MakeMasksScreen(QWidget):
             )
         except Exception as e:
             self._warn("Save failed", str(e))
-            return
+            return None
         edits = len(self._log) if self._log is not None else 0
         note = f"  ({edits} edit(s) recorded)" if edits else ""
         written = engine.canonical_labels(self._canvas.mask,
@@ -17121,6 +17166,8 @@ class MakeMasksScreen(QWidget):
                            n_objects=objects)
         self._status_label.setText(f"Saved → {path}{note}")
         self._save_puncta_measurements(path)
+        self._last_saved_mask = np.array(self._canvas.mask, copy=True)
+        return path
 
     def _save_puncta_measurements(self, mask_path):
         """Save source-bound centre measurements only for an unchanged full detection.
