@@ -1,0 +1,25 @@
+{
+ "mode": "fixed_map",
+ "interval_s": 3.0,
+ "fields": {
+  "A01": {
+   "result_after_arrival_s": 16.106
+  },
+  "A02": {
+   "result_after_arrival_s": 13.105
+  },
+  "A03": {
+   "result_after_arrival_s": 10.105
+  },
+  "A04": {
+   "result_after_arrival_s": 7.104
+  },
+  "A05": {
+   "result_after_arrival_s": 4.103
+  },
+  "A06": {
+   "result_after_arrival_s": 1.103
+  }
+ },
+ "max_s": 16.106
+}

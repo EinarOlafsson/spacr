@@ -1,0 +1,1830 @@
+{
+ "shape": [
+  4,
+  50,
+  2048,
+  2048
+ ],
+ "dtype": "uint16",
+ "model_inputs": [
+  [
+   50,
+   2048,
+   2048,
+   1
+  ],
+  [
+   50,
+   2048,
+   2048,
+   1
+  ],
+  [
+   50,
+   2048,
+   2048,
+   1
+  ],
+  [
+   50,
+   2048,
+   2048,
+   1
+  ]
+ ],
+ "file_bytes": 1677773528,
+ "writer_rate_planes_per_s": 10.0,
+ "result": {
+  "done": [
+   "embryo01"
+  ],
+  "failed": [],
+  "incomplete": []
+ },
+ "writer_seconds": 20.647,
+ "completion_checks": [
+  {
+   "at": 1791639655.9343884,
+   "seconds": 0.113,
+   "reason": null
+  }
+ ],
+ "premature_ready": 0,
+ "start_after_writer_closed_s": 2.636,
+ "done_after_writer_closed_s": 108.208,
+ "ledger_waited_s": 2.115,
+ "ledger_seconds": 105.565,
+ "phases": [
+  {
+   "phase": "_watch_copy_snapshot",
+   "start": 2.642,
+   "seconds": 1.23,
+   "rss_before_mib": 860.0,
+   "peak_rss_mib": 860.0
+  },
+  {
+   "phase": "_watch_vendor_stage",
+   "start": 3.872,
+   "seconds": 1.564,
+   "rss_before_mib": 860.0,
+   "peak_rss_mib": 872.2
+  },
+  {
+   "phase": "preprocess_generate_masks",
+   "start": 5.439,
+   "seconds": 97.534,
+   "rss_before_mib": 864.6,
+   "peak_rss_mib": 5744.0
+  },
+  {
+   "phase": "_watch_collection_artifacts",
+   "start": 102.977,
+   "seconds": 5.212,
+   "rss_before_mib": 2501.1,
+   "peak_rss_mib": 2501.1
+  },
+  {
+   "phase": "_watch_collect",
+   "start": 108.198,
+   "seconds": 0.01,
+   "rss_before_mib": 901.1,
+   "peak_rss_mib": 901.1
+  }
+ ],
+ "process_maxrss_mib": 5789.2,
+ "watch_total_s": 144.043,
+ "peak_stack": [
+  "_hooks.py:512:__call__",
+  "_manager.py:120:_hookexec",
+  "_callers.py:121:_multicall",
+  "python.py:157:pytest_pyfunc_call",
+  "test_bench_large.py:113:test_large_vendor_volume",
+  "core.py:3529:_watch_folder_and_analyse",
+  "core.py:2414:_watch_run_field",
+  "core.py:1610:_watch_analyse_field",
+  "test_bench_large.py:74:wrapper",
+  "core.py:443:preprocess_generate_masks",
+  "io.py:4092:preprocess_img_data",
+  "io.py:3945:_preprocess_mapped_volume_series",
+  "io.py:1838:_normalize_img_channels",
+  "exposure.py:605:rescale_intensity"
+ ],
+ "timeline": [
+  {
+   "t": -20.82,
+   "rss_mib": 787,
+   "stack": [
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:101:test_large_vendor_volume",
+    "subprocess.py:1026:__init__",
+    "subprocess.py:1914:_execute_child"
+   ]
+  },
+  {
+   "t": -19.81,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -18.8,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -17.79,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -16.78,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -15.78,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -14.77,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -13.76,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -12.76,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -11.75,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -10.75,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -9.74,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -8.73,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -7.73,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -6.72,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -5.71,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -4.71,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -3.7,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -2.7,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -1.69,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": -0.68,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 0.32,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 1.33,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 2.33,
+   "rss_mib": 834,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 3.34,
+   "rss_mib": 860,
+   "stack": [
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3529:_watch_folder_and_analyse",
+    "core.py:2376:_watch_run_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:2273:_watch_copy_snapshot"
+   ]
+  },
+  {
+   "t": 4.34,
+   "rss_mib": 864,
+   "stack": [
+    "test_bench_large.py:74:wrapper",
+    "core.py:1397:_watch_vendor_stage",
+    "tiff_io.py:38:write_tiff",
+    "tifffile.py:1251:imwrite",
+    "tifffile.py:3244:write",
+    "tifffile.py:14302:write_array"
+   ]
+  },
+  {
+   "t": 5.35,
+   "rss_mib": 864,
+   "stack": [
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3529:_watch_folder_and_analyse",
+    "core.py:2392:_watch_run_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:1398:_watch_vendor_stage",
+    "core.py:1924:_watch_artifact_sha256"
+   ]
+  },
+  {
+   "t": 6.37,
+   "rss_mib": 891,
+   "stack": [
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3860:_preprocess_mapped_volume_series",
+    "tifffile.py:11834:asarray",
+    "tifffile.py:4255:asarray",
+    "tifffile.py:14210:read_array"
+   ]
+  },
+  {
+   "t": 7.37,
+   "rss_mib": 1674,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3886:_preprocess_mapped_volume_series",
+    "io.py:3526:_volume_file_hash"
+   ]
+  },
+  {
+   "t": 8.38,
+   "rss_mib": 914,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3873:_preprocess_mapped_volume_series",
+    "core.py:1924:_watch_artifact_sha256"
+   ]
+  },
+  {
+   "t": 9.39,
+   "rss_mib": 1122,
+   "stack": [
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3860:_preprocess_mapped_volume_series",
+    "tifffile.py:11834:asarray",
+    "tifffile.py:4255:asarray",
+    "tifffile.py:14210:read_array"
+   ]
+  },
+  {
+   "t": 10.39,
+   "rss_mib": 1266,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3892:_preprocess_mapped_volume_series",
+    "io.py:3526:_volume_file_hash"
+   ]
+  },
+  {
+   "t": 11.41,
+   "rss_mib": 1667,
+   "stack": [
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1775:_normalize_img_channels",
+    "io.py:3933:load_channel"
+   ]
+  },
+  {
+   "t": 12.42,
+   "rss_mib": 2506,
+   "stack": [
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1790:_normalize_img_channels",
+    "io.py:2016:_native_nonzero_vector",
+    "memmap.py:335:__getitem__"
+   ]
+  },
+  {
+   "t": 13.43,
+   "rss_mib": 3638,
+   "stack": [
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1790:_normalize_img_channels",
+    "io.py:2016:_native_nonzero_vector",
+    "memmap.py:335:__getitem__"
+   ]
+  },
+  {
+   "t": 14.44,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1797:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 15.45,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 16.46,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 17.47,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 18.48,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 19.49,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 20.5,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 21.5,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 22.51,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 23.52,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 24.53,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 25.54,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 26.55,
+   "rss_mib": 4079,
+   "stack": [
+    "io.py:1803:_normalize_img_channels",
+    "function_base.py:4283:percentile",
+    "function_base.py:4555:_quantile_unchecked",
+    "function_base.py:3823:_ureduce",
+    "function_base.py:4722:_quantile_ureduce_func",
+    "function_base.py:4824:_quantile"
+   ]
+  },
+  {
+   "t": 27.56,
+   "rss_mib": 2662,
+   "stack": [
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1838:_normalize_img_channels",
+    "exposure.py:605:rescale_intensity"
+   ]
+  },
+  {
+   "t": 28.56,
+   "rss_mib": 3072,
+   "stack": [
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1838:_normalize_img_channels",
+    "exposure.py:605:rescale_intensity"
+   ]
+  },
+  {
+   "t": 29.57,
+   "rss_mib": 3466,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1837:_normalize_img_channels"
+   ]
+  },
+  {
+   "t": 30.57,
+   "rss_mib": 3919,
+   "stack": [
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1838:_normalize_img_channels",
+    "exposure.py:605:rescale_intensity"
+   ]
+  },
+  {
+   "t": 31.57,
+   "rss_mib": 4276,
+   "stack": [
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1838:_normalize_img_channels",
+    "exposure.py:601:rescale_intensity",
+    "fromnumeric.py:2169:clip",
+    "fromnumeric.py:59:_wrapfunc",
+    "_methods.py:99:_clip"
+   ]
+  },
+  {
+   "t": 32.58,
+   "rss_mib": 4752,
+   "stack": [
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1838:_normalize_img_channels",
+    "exposure.py:604:rescale_intensity"
+   ]
+  },
+  {
+   "t": 33.58,
+   "rss_mib": 5136,
+   "stack": [
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1838:_normalize_img_channels",
+    "exposure.py:605:rescale_intensity"
+   ]
+  },
+  {
+   "t": 34.59,
+   "rss_mib": 5536,
+   "stack": [
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1838:_normalize_img_channels",
+    "exposure.py:601:rescale_intensity",
+    "fromnumeric.py:2169:clip",
+    "fromnumeric.py:59:_wrapfunc",
+    "_methods.py:99:_clip"
+   ]
+  },
+  {
+   "t": 35.62,
+   "rss_mib": 5712,
+   "stack": [
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3945:_preprocess_mapped_volume_series",
+    "io.py:1855:_normalize_img_channels",
+    "weakref.py:590:__call__",
+    "io.py:1892:_finalize_native_memmap"
+   ]
+  },
+  {
+   "t": 36.63,
+   "rss_mib": 4080,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3953:_preprocess_mapped_volume_series",
+    "io.py:3526:_volume_file_hash"
+   ]
+  },
+  {
+   "t": 37.65,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 38.65,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 39.66,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 40.67,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 41.68,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 42.69,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 43.7,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 44.71,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 45.71,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 46.72,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 47.73,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 48.74,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 49.75,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 50.76,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 51.78,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 52.78,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 53.79,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 54.81,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1212:write"
+   ]
+  },
+  {
+   "t": 55.81,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 56.82,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 57.83,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 58.83,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 59.84,
+   "rss_mib": 4084,
+   "stack": [
+    "io.py:2068:_replace_atomically",
+    "io.py:2089:<lambda>",
+    "npyio.py:710:savez_compressed",
+    "npyio.py:743:_savez",
+    "format.py:735:write_array",
+    "__init__.py:1214:write"
+   ]
+  },
+  {
+   "t": 60.89,
+   "rss_mib": 4084,
+   "stack": [
+    "core.py:2414:_watch_run_field",
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:443:preprocess_generate_masks",
+    "io.py:4092:preprocess_img_data",
+    "io.py:3966:_preprocess_mapped_volume_series"
+   ]
+  },
+  {
+   "t": 61.95,
+   "rss_mib": 885,
+   "stack": [
+    "core.py:3529:_watch_folder_and_analyse",
+    "core.py:2414:_watch_run_field",
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1328:generate_cellpose_masks_sam"
+   ]
+  },
+  {
+   "t": 62.96,
+   "rss_mib": 887,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1429:generate_cellpose_masks_sam",
+    "contextlib.py:137:__enter__",
+    "object.py:1214:_mask_archive_arrays",
+    "__init__.py:989:read",
+    "__init__.py:1065:_read1"
+   ]
+  },
+  {
+   "t": 63.96,
+   "rss_mib": 887,
+   "stack": [
+    "object.py:1429:generate_cellpose_masks_sam",
+    "contextlib.py:137:__enter__",
+    "object.py:1214:_mask_archive_arrays",
+    "__init__.py:989:read",
+    "__init__.py:1079:_read1",
+    "__init__.py:1004:_update_crc"
+   ]
+  },
+  {
+   "t": 64.97,
+   "rss_mib": 887,
+   "stack": [
+    "object.py:1429:generate_cellpose_masks_sam",
+    "contextlib.py:137:__enter__",
+    "object.py:1214:_mask_archive_arrays",
+    "__init__.py:989:read",
+    "__init__.py:1079:_read1",
+    "__init__.py:1004:_update_crc"
+   ]
+  },
+  {
+   "t": 65.98,
+   "rss_mib": 1183,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1476:generate_cellpose_masks_sam",
+    "fromnumeric.py:192:take",
+    "fromnumeric.py:59:_wrapfunc"
+   ]
+  },
+  {
+   "t": 66.99,
+   "rss_mib": 2827,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:328:_unique1d"
+   ]
+  },
+  {
+   "t": 68.0,
+   "rss_mib": 2987,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 69.01,
+   "rss_mib": 2987,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 70.02,
+   "rss_mib": 3603,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1256:segment_3d",
+    "zstack.py:1023:flag_truncated_z",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 71.02,
+   "rss_mib": 3411,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 72.03,
+   "rss_mib": 3371,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 73.04,
+   "rss_mib": 3777,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1542:generate_cellpose_masks_sam",
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:1002:relabel_volume"
+   ]
+  },
+  {
+   "t": 74.05,
+   "rss_mib": 4571,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 75.05,
+   "rss_mib": 4471,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 76.06,
+   "rss_mib": 4471,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 77.07,
+   "rss_mib": 5071,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 78.07,
+   "rss_mib": 4471,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 79.08,
+   "rss_mib": 4843,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:352:_unique1d"
+   ]
+  },
+  {
+   "t": 80.09,
+   "rss_mib": 4798,
+   "stack": [
+    "core.py:2414:_watch_run_field",
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1749:generate_cellpose_masks_sam",
+    "mask_io.py:99:_as_uint16_mask"
+   ]
+  },
+  {
+   "t": 81.1,
+   "rss_mib": 3931,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1476:generate_cellpose_masks_sam",
+    "fromnumeric.py:192:take",
+    "fromnumeric.py:59:_wrapfunc"
+   ]
+  },
+  {
+   "t": 82.11,
+   "rss_mib": 2984,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 83.12,
+   "rss_mib": 2984,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 84.13,
+   "rss_mib": 2984,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 85.13,
+   "rss_mib": 3607,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1256:segment_3d",
+    "zstack.py:1023:flag_truncated_z",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:352:_unique1d"
+   ]
+  },
+  {
+   "t": 86.14,
+   "rss_mib": 3411,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 87.15,
+   "rss_mib": 3371,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 88.15,
+   "rss_mib": 3639,
+   "stack": [
+    "object.py:955:_segment_timepoints_with_t",
+    "zstack.py:2195:segment_4d",
+    "zstack.py:1253:segment_3d",
+    "zstack.py:994:relabel_volume",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:352:_unique1d"
+   ]
+  },
+  {
+   "t": 89.16,
+   "rss_mib": 5171,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 90.17,
+   "rss_mib": 4471,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 91.18,
+   "rss_mib": 4471,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 92.18,
+   "rss_mib": 5071,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 93.19,
+   "rss_mib": 4471,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 94.2,
+   "rss_mib": 4471,
+   "stack": [
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1721:generate_cellpose_masks_sam",
+    "io.py:5138:_save_object_counts_to_database",
+    "io.py:5131:_count_objects",
+    "arraysetops.py:274:unique",
+    "arraysetops.py:336:_unique1d"
+   ]
+  },
+  {
+   "t": 95.21,
+   "rss_mib": 4671,
+   "stack": [
+    "test_bench_large.py:74:wrapper",
+    "core.py:525:preprocess_generate_masks",
+    "object.py:1727:generate_cellpose_masks_sam",
+    "io.py:4357:_get_avg_object_size",
+    "_regionprops.py:1382:regionprops",
+    "_measurements.py:309:find_objects"
+   ]
+  },
+  {
+   "t": 96.22,
+   "rss_mib": 1696,
+   "stack": [
+    "weakref.py:590:__call__",
+    "object.py:1158:_close_native_mask_workspace",
+    "tempfile.py:950:cleanup",
+    "tempfile.py:930:_rmtree",
+    "shutil.py:759:rmtree",
+    "shutil.py:698:_rmtree_safe_fd"
+   ]
+  },
+  {
+   "t": 97.24,
+   "rss_mib": 1638,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:615:preprocess_generate_masks",
+    "io.py:5444:_load_and_concatenate_arrays",
+    "fromnumeric.py:192:take",
+    "fromnumeric.py:59:_wrapfunc"
+   ]
+  },
+  {
+   "t": 98.25,
+   "rss_mib": 2900,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:615:preprocess_generate_masks",
+    "io.py:5510:_load_and_concatenate_arrays",
+    "io.py:5272:_save_array_atomic",
+    "io.py:2070:_replace_atomically"
+   ]
+  },
+  {
+   "t": 99.25,
+   "rss_mib": 2882,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:615:preprocess_generate_masks",
+    "io.py:5444:_load_and_concatenate_arrays",
+    "fromnumeric.py:192:take",
+    "fromnumeric.py:59:_wrapfunc"
+   ]
+  },
+  {
+   "t": 100.26,
+   "rss_mib": 2900,
+   "stack": [
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:615:preprocess_generate_masks",
+    "io.py:5510:_load_and_concatenate_arrays",
+    "io.py:5272:_save_array_atomic",
+    "io.py:2070:_replace_atomically"
+   ]
+  },
+  {
+   "t": 101.27,
+   "rss_mib": 3300,
+   "stack": [
+    "io.py:5510:_load_and_concatenate_arrays",
+    "io.py:5272:_save_array_atomic",
+    "io.py:2068:_replace_atomically",
+    "io.py:5273:<lambda>",
+    "npyio.py:546:save",
+    "format.py:730:write_array"
+   ]
+  },
+  {
+   "t": 102.28,
+   "rss_mib": 3300,
+   "stack": [
+    "core.py:3529:_watch_folder_and_analyse",
+    "core.py:2414:_watch_run_field",
+    "core.py:1610:_watch_analyse_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:615:preprocess_generate_masks",
+    "io.py:5506:_load_and_concatenate_arrays"
+   ]
+  },
+  {
+   "t": 103.29,
+   "rss_mib": 2501,
+   "stack": [
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3529:_watch_folder_and_analyse",
+    "core.py:2417:_watch_run_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:1953:_watch_collection_artifacts",
+    "core.py:1918:_watch_artifact_sha256"
+   ]
+  },
+  {
+   "t": 104.31,
+   "rss_mib": 901,
+   "stack": [
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3529:_watch_folder_and_analyse",
+    "core.py:2417:_watch_run_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:1993:_watch_collection_artifacts",
+    "core.py:1924:_watch_artifact_sha256"
+   ]
+  },
+  {
+   "t": 105.31,
+   "rss_mib": 901,
+   "stack": [
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3529:_watch_folder_and_analyse",
+    "core.py:2417:_watch_run_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:2018:_watch_collection_artifacts",
+    "core.py:1924:_watch_artifact_sha256"
+   ]
+  },
+  {
+   "t": 106.32,
+   "rss_mib": 901,
+   "stack": [
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3529:_watch_folder_and_analyse",
+    "core.py:2417:_watch_run_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:2018:_watch_collection_artifacts",
+    "core.py:1924:_watch_artifact_sha256"
+   ]
+  },
+  {
+   "t": 107.33,
+   "rss_mib": 901,
+   "stack": [
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3529:_watch_folder_and_analyse",
+    "core.py:2417:_watch_run_field",
+    "test_bench_large.py:74:wrapper",
+    "core.py:2044:_watch_collection_artifacts",
+    "core.py:1924:_watch_artifact_sha256"
+   ]
+  },
+  {
+   "t": 108.33,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 109.34,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 110.34,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 111.35,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 112.36,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 113.36,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 114.37,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 115.38,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 116.38,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 117.39,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 118.4,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 119.4,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 120.41,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 121.41,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  },
+  {
+   "t": 122.42,
+   "rss_mib": 901,
+   "stack": [
+    "_hooks.py:512:__call__",
+    "_manager.py:120:_hookexec",
+    "_callers.py:121:_multicall",
+    "python.py:157:pytest_pyfunc_call",
+    "test_bench_large.py:113:test_large_vendor_volume",
+    "core.py:3542:_watch_folder_and_analyse"
+   ]
+  }
+ ]
+}

@@ -953,9 +953,12 @@ def _watch_observed_field_of(name, settings, cache, series):
     :param name: image name relative to the watched source folder.
     :param settings: watch filename convention.
     :param cache: reusable compiled filename patterns.
-    :param series: whether the map declares whole timelapse fields.
+    :param series: whether the map declares whole timelapse fields, or
+        ``'vendor'`` when each self-describing stack is one whole field.
     :returns: the observed field key and channel ID.
     """
+    if series == 'vendor':
+        return _watch_vendor_key(name), None
     if series:
         try:
             key, channel, _time = _watch_series_field_of(name, settings, cache)
@@ -1217,8 +1220,8 @@ def _watch_stage_volumes(field_dir, plan):
 
     shapes, dtypes, digests = set(), set(), {}
     for output, names in plan:
-        planes = []
-        for name in names:
+        volume = None
+        for index, name in enumerate(names):
             checkpoint()
             path = os.path.join(field_dir, '.watch_planar', name)
             with tifffile.TiffFile(path) as image:
@@ -1231,12 +1234,199 @@ def _watch_stage_volumes(field_dir, plan):
             dtypes.add(plane.dtype.str)
             if len(shapes) != 1 or len(dtypes) != 1:
                 raise ValueError('watch_folder: native Z planes differ in shape or dtype.')
-            planes.append(plane)
-        write_tiff(os.path.join(field_dir, output), np.stack(planes),
-                   metadata={'axes': 'ZYX'})
+            if volume is None:
+                volume = np.empty((len(names), *plane.shape), plane.dtype)
+            volume[index] = plane
+            del plane
+        write_tiff(os.path.join(field_dir, output), volume, metadata={'axes': 'ZYX'})
+        del volume
         checkpoint()
         digests[output] = _watch_artifact_sha256(os.path.join(field_dir, output))
     return digests
+
+
+_WATCH_VENDOR_SUFFIXES = ('.ome.tiff', '.ome.tif', '.tiff', '.tif')
+
+
+def _watch_vendor_key(name):
+    """Name the field and plate token of one self-describing vendor stack.
+
+    :param name: acquired stack basename or relative path.
+    :returns: the stem without its TIFF or OME-TIFF suffix, keeping only
+        letters and digits so derived CellVoyager names parse unambiguously.
+    """
+    import re
+
+    stem = os.path.basename(name)
+    for suffix in _WATCH_VENDOR_SUFFIXES:
+        if stem.lower().endswith(suffix):
+            stem = stem[:-len(suffix)]
+            break
+    return re.sub(r'[^A-Za-z0-9]+', '', stem) or 'field'
+
+
+def _watch_vendor_layout(handle, mode):
+    """Check that a TIFF declares the complete axes a vendor watch mode needs.
+
+    The stack's own OME, ImageJ or shaped metadata is the acquisition's
+    completion signal: it states every plane, and the file is complete only
+    when each declared plane has its own page inside the file.
+
+    :param handle: an open :class:`tifffile.TiffFile`.
+    :param mode: ``'timelapse'`` (T, optional C and projected Z),
+        ``'volume'`` (Z and optional C, T1) or ``'series'`` (T and Z,
+        optional C).
+    :returns: ``(series, axes, shape)`` of the single declared series.
+    :raises ValueError: when the axes are undeclared, unsupported or too short
+        for the mode, or a declared plane is not yet in the file.
+    """
+    if not (handle.is_ome or handle.is_imagej or handle.is_shaped):
+        raise ValueError('the TIFF does not declare its dimensions (OME, ImageJ '
+                         'or shaped metadata is required)')
+    if len(handle.series) != 1:
+        raise ValueError(f'the TIFF declares {len(handle.series)} series; one '
+                         'field per file is required')
+    series = handle.series[0]
+    axes, shape = str(series.axes or ''), tuple(int(size) for size in series.shape)
+    if (not axes.endswith('YX') or len(set(axes)) != len(axes)
+            or set(axes) - set('TZCYX')):
+        raise ValueError(f'declared axes {axes!r} must be T, Z and C before YX')
+    sizes = dict(zip(axes, shape))
+    times, planes = sizes.get('T', 1), sizes.get('Z', 1)
+    needed = {'timelapse': times >= 2, 'volume': planes >= 2 and times == 1,
+              'series': times >= 2 and planes >= 2}[mode]
+    if not needed:
+        raise ValueError(f'declared axes {axes!r} with shape {shape} do not fit '
+                         f'the {mode} watch mode')
+    declared = int(np.prod(shape[:-2], dtype=np.int64))
+    pages = series.pages
+    try:
+        present = sum(pages[index] is not None for index in range(declared))
+    except (IndexError, ValueError, OSError) as exc:
+        raise ValueError(f'declared planes are not all in the file yet ({exc})') from None
+    if len(pages) != declared or present != declared:
+        raise ValueError(f'{present} of {declared} declared planes are in the file')
+    return series, axes, shape
+
+
+def _watch_vendor_unreadable(path, mode):
+    """Why a self-describing vendor stack is not complete, or None.
+
+    Every declared plane is decoded one page at a time, so a growing or
+    truncated stack waits while memory stays at one plane.
+
+    :param path: acquired stack.
+    :param mode: vendor watch mode of :func:`_watch_vendor_layout`.
+    :returns: None when every declared plane reads whole, else the reason.
+    """
+    import tifffile
+
+    from .cancellation import PipelineCancelled, checkpoint
+
+    if not path.lower().endswith(('.tif', '.tiff')):
+        return ('without conversion_map.csv only self-describing TIFF or '
+                'OME-TIFF stacks can be watched; convert other formats first')
+    try:
+        with tifffile.TiffFile(path) as handle:
+            series, _axes, shape = _watch_vendor_layout(handle, mode)
+            for index in range(len(series.pages)):
+                checkpoint()
+                plane = series.pages[index].asarray()
+                if plane.shape[-2:] != shape[-2:] or plane.size == 0:
+                    return f'declared plane {index + 1} does not read whole'
+    except PipelineCancelled:
+        raise
+    except Exception as exc:
+        return f'{type(exc).__name__}: {exc}'
+    return None
+
+
+def _watch_vendor_stage(field_dir, source, key, mode, settings):
+    """Split a private vendor stack copy into exact Convert-named planes.
+
+    :param field_dir: private field directory.
+    :param source: the verified private copy under ``.watch_vendor``.
+    :param key: field key, also used as the plate token.
+    :param mode: vendor watch mode of :func:`_watch_vendor_layout`.
+    :param settings: watch settings with zero-based selected channels.
+    :returns: ``(plane SHA256 by name, plan)``. The plan is the native Z
+        ``[[volume, [planes by Z]], ...]`` list, the native series inventory,
+        or None for a projected timelapse.
+    :raises ValueError: when the copy no longer declares a complete stack or
+        a selected channel is outside its declared channels.
+    """
+    import ast
+    import csv
+    import hashlib
+    import io as standard_io
+
+    import tifffile
+
+    from .cancellation import checkpoint
+    from .convert import MAP_FILENAME, target_name
+    from .io import _escaped_field_stem
+    from .tiff_io import write_tiff
+
+    planar = field_dir if mode != 'volume' else os.path.join(field_dir, '.watch_planar')
+    os.makedirs(planar, exist_ok=True)
+    rows, digests = [], {}
+    with tifffile.TiffFile(source) as handle:
+        series, axes, shape = _watch_vendor_layout(handle, mode)
+        sizes = dict(zip(axes, shape))
+        selected = settings.get('channels', [0])
+        if isinstance(selected, str):
+            try:
+                selected = ast.literal_eval(selected)
+            except (ValueError, SyntaxError):
+                selected = None
+        if (not isinstance(selected, (list, tuple)) or not selected
+                or any(type(value) is not int or value < 0
+                       or value >= sizes.get('C', 1) for value in selected)):
+            raise ValueError(f'channels must be zero-based positions within the '
+                             f"stack's {sizes.get('C', 1)} declared channel(s).")
+        for index, position in enumerate(np.ndindex(*shape[:-2])):
+            checkpoint()
+            place = dict(zip(axes, position))
+            numbers = {'channel': place.get('C', 0) + 1, 'z': place.get('Z', 0) + 1,
+                       't': place.get('T', 0) + 1}
+            name = target_name(key, 'A01', 1, **numbers)
+            plane = series.pages[index].asarray()
+            if plane.shape != shape[-2:]:
+                raise ValueError(f'declared plane {index + 1} does not read whole.')
+            path = os.path.join(planar, name)
+            write_tiff(path, plane, metadata={'axes': 'YX'})
+            digests[name] = _watch_artifact_sha256(path)
+            rows.append({'target': name, 'source': os.path.basename(source),
+                         'plate': key, 'well': 'A01', 'field': 1, **numbers})
+    if mode == 'timelapse':
+        return digests, None
+    if mode == 'volume':
+        volumes = {}
+        for row in rows:
+            volumes.setdefault(row['channel'], {})[row['z']] = row['target']
+        return digests, [[planes[1], [planes[z] for z in sorted(planes)]]
+                         for _channel, planes in sorted(volumes.items())]
+    roles = ('nucleus_channel', 'cell_channel', 'pathogen_channel',
+             *(f'{role}_channel' for role in ORGANELLE_ROLES))
+    chosen = [settings.get(role) for role in roles if settings.get(role) is not None]
+    if not chosen or any(type(index) is not int or index < 0
+                         or index >= sizes.get('C', 1) for index in chosen):
+        raise ValueError('native series object channels must index the '
+                         "stack's declared channels.")
+    output = standard_io.StringIO(newline='')
+    writer = csv.DictWriter(output, fieldnames=list(rows[0]), lineterminator='\n')
+    writer.writeheader()
+    writer.writerows(rows)
+    data = output.getvalue().encode('utf-8')
+    with open(os.path.join(field_dir, MAP_FILENAME), 'xb') as handle:
+        handle.write(data)
+        handle.flush()
+        os.fsync(handle.fileno())
+    times = sorted({row['t'] for row in rows})
+    return digests, {
+        'names': sorted(digests), 'map_sha256': hashlib.sha256(data).hexdigest(),
+        'stacks': sorted(_escaped_field_stem(key, 'A01', 1, t) + '.npy' for t in times),
+        'archive': _escaped_field_stem(key, 'A01', 1, '') + 'norm_timelapse.npz'}
 
 
 def _watch_check_map(context):
@@ -1739,7 +1929,7 @@ def _watch_artifact_sha256(path):
 
 def _watch_collection_artifacts(field_dir, *, volume_plan=None,
                                 snapshots=None, derived=None,
-                                native_series_plan=None):
+                                native_series_plan=None, vendor=None):
     """Fingerprint outputs and native-volume inputs at the collection boundary.
 
     :param field_dir: completed field staging directory.
@@ -1747,10 +1937,22 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
     :param snapshots: source-plane SHA256 values recorded before analysis.
     :param derived: assembled-volume SHA256 values recorded before analysis.
     :param native_series_plan: exact native T-by-Z source and output inventory.
+    :param vendor: SHA256 of the private vendor stack copy each derived plane
+        was split from, when the field came from a self-describing stack.
     :returns: relative artifact paths mapped to SHA256 values.
     :raises ValueError: when no usable outputs exist or an output is unsafe.
     """
     artifacts = {}
+    if vendor is not None:
+        copies = os.path.join(field_dir, '.watch_vendor')
+        if os.path.islink(copies) or not os.path.isdir(copies) or set(
+                os.listdir(copies)) != set(vendor):
+            raise ValueError('Collection vendor stack copy is missing or unsafe.')
+        for name in sorted(vendor):
+            relative = os.path.join('.watch_vendor', name)
+            artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
+            if artifacts[relative] != vendor[name]:
+                raise ValueError('Collection vendor stack copy changed after its snapshot.')
     planar = os.path.join(field_dir, '.watch_planar')
     if volume_plan is not None and os.path.lexists(planar):
         if os.path.islink(planar) or not os.path.isdir(planar):
@@ -1912,7 +2114,7 @@ def _watch_snapshot_database(field_dir):
 
 def _watch_validate_collection(field_dir, work, saved, *, verify_staged,
                                volume_plan=None, snapshots=None, derived=None,
-                               native_series_plan=None):
+                               native_series_plan=None, vendor=None):
     """Refuse altered checkpoints or conflicting combined files before writes.
 
     :param field_dir: completed field staging directory.
@@ -1923,12 +2125,14 @@ def _watch_validate_collection(field_dir, work, saved, *, verify_staged,
     :param snapshots: original mapped plane hashes bound before analysis.
     :param derived: derived volume hashes bound before analysis.
     :param native_series_plan: exact native T-by-Z source/output inventory.
+    :param vendor: private vendor stack copy hashes, when used.
     :returns: None when collection can safely continue.
     :raises ValueError: for missing/changed outputs or conflicting combined files.
     """
     if verify_staged and _watch_collection_artifacts(
             field_dir, volume_plan=volume_plan, snapshots=snapshots,
-            derived=derived, native_series_plan=native_series_plan) != saved:
+            derived=derived, native_series_plan=native_series_plan,
+            vendor=vendor) != saved:
         raise ValueError('Collection checkpoint artifacts changed; preserved outputs '
                          'must be recovered before resuming this workspace.')
     tracks_target = os.path.join(work, 'tracks')
@@ -1963,7 +2167,8 @@ def _watch_check_settings(settings):
     :returns: ``(src, pipeline, settle seconds, poll seconds, idle seconds)``.
     :raises ValueError: for a list of folders, a missing folder, an unknown
         ``watch_pipeline``, a bad number or an unsupported T/Z recipe.
-        Timelapse and native volumes require a complete fixed Convert map later.
+        Timelapse and native volumes later need a complete fixed Convert map,
+        or self-describing TIFF/OME-TIFF stacks of one field each.
     """
     from .utils import normalize_src_path
 
@@ -2127,6 +2332,8 @@ def _watch_run_field(key, members, signature, context):
         entry.pop('snapshot_sha256', None)
         entry.pop('source_identity', None)
         entry.pop('derived_sha256', None)
+        entry.pop('vendor_sha256', None)
+        entry.pop('vendor_plan', None)
         entry.update(status='running', files=signature,
                      first_seen=min(seen[name]['first'] for name, _c in members),
                      stable_since=arrived, started=time.time(), error=None)
@@ -2137,7 +2344,14 @@ def _watch_run_field(key, members, signature, context):
     field_dir = os.path.join(context['work'], 'fields', key)
     volume_plan = context.get('volume_plan')
     native_series_plan = context.get('native_series_plan')
-    series_field = native_series_plan[key] if native_series_plan is not None else None
+    vendor = context.get('vendor')
+    if vendor is not None and saved_collection is not None and entry.get('vendor_plan'):
+        if vendor == 'volume':
+            volume_plan[key] = entry['vendor_plan']
+        elif vendor == 'series':
+            native_series_plan[key] = entry['vendor_plan']
+    series_field = (native_series_plan.get(key)
+                    if native_series_plan is not None else None)
     try:
         identities = {name: seen[name].get('identity') for name, _channel in members}
         if saved_collection is not None:
@@ -2150,7 +2364,10 @@ def _watch_run_field(key, members, signature, context):
                 shutil.rmtree(field_dir)
             os.makedirs(field_dir)
             snapshot_dir = field_dir
-            if volume_plan is not None:
+            if vendor is not None:
+                snapshot_dir = os.path.join(field_dir, '.watch_vendor')
+                os.mkdir(snapshot_dir)
+            elif volume_plan is not None:
                 snapshot_dir = os.path.join(field_dir, '.watch_planar')
                 os.mkdir(snapshot_dir)
             print(f'watch_folder: analysing {key} ({len(members)} file(s)).')
@@ -2168,7 +2385,19 @@ def _watch_run_field(key, members, signature, context):
                 _watch_defer_snapshot(key, members, field_dir, context)
                 return
             _watch_check_map(context)
-            if series_field is not None:
+            if vendor is not None:
+                entry['vendor_sha256'] = {os.path.basename(name): digest
+                                          for name, digest in snapshots.items()}
+                (name, _channel), = members
+                snapshots, vendor_plan = _watch_vendor_stage(
+                    field_dir, os.path.join(snapshot_dir, os.path.basename(name)),
+                    key, vendor, context['settings'])
+                entry['vendor_plan'] = vendor_plan
+                if vendor == 'volume':
+                    volume_plan[key] = vendor_plan
+                elif vendor == 'series':
+                    series_field = native_series_plan[key] = vendor_plan
+            elif series_field is not None:
                 from .convert import MAP_FILENAME
 
                 with open(os.path.join(field_dir, MAP_FILENAME), 'xb') as handle:
@@ -2188,7 +2417,8 @@ def _watch_run_field(key, members, signature, context):
                 'artifacts': _watch_collection_artifacts(
                     field_dir, volume_plan=volume_plan[key] if volume_plan else None,
                     snapshots=snapshots, derived=derived,
-                    native_series_plan=series_field),
+                    native_series_plan=series_field,
+                    vendor=entry.get('vendor_sha256')),
                 'analysis_seconds': time.time() - entry['started']}
             _watch_save_ledger(context['ledger_path'], ledger)
         collection_started = time.time()
@@ -2198,7 +2428,8 @@ def _watch_run_field(key, members, signature, context):
             volume_plan=volume_plan[key] if volume_plan else None,
             snapshots=entry.get('snapshot_sha256'),
             derived=entry.get('derived_sha256'),
-            native_series_plan=series_field)
+            native_series_plan=series_field,
+            vendor=entry.get('vendor_sha256'))
         _watch_check_map(context)
         database_relative = os.path.join('.watch_collection', 'measurements.db')
         database_snapshot = (os.path.join(field_dir, database_relative)
@@ -2256,6 +2487,13 @@ def _watch_ready_fields(context, now):
     waiting = sum(entry.get('status') == 'waiting' and key not in groups
                   for key, entry in fields.items())
     for key, members in sorted(groups.items()):
+        if context.get('vendor') is not None:
+            for name, _channel in members:
+                if _watch_field_of(name, context['settings'], context['patterns'])[1] is not None:
+                    raise ValueError(f'watch_folder: {name} is one plane of a per-plane '
+                                     'series; per-plane T/Z series need a fixed Convert map '
+                                     '(conversion_map.csv) declaring every plane before '
+                                     'the watch starts. Existing results are preserved.')
         if manifest is not None and (key not in manifest or
                 {os.path.basename(name) for name, _channel in members} != manifest[key]):
             waiting += 1
@@ -2316,7 +2554,8 @@ def _watch_ready_fields(context, now):
         for name, _channel in members:
             if seen[name]['readable']:
                 continue
-            unreadable = _watch_unreadable(os.path.join(context['src'], name))
+            unreadable = context.get('unreadable', _watch_unreadable)(
+                os.path.join(context['src'], name))
             if unreadable is not None:
                 seen[name]['changed'] = now
                 print(f'watch_folder: {name} cannot be read yet '
@@ -2993,7 +3232,11 @@ def _watch_folder_and_analyse(settings, analyse=None):
     The folder ``src`` is scanned every ``watch_poll_seconds``. A file is
     ready once its size and modification time have not changed for
     ``watch_settle_seconds`` and it reads whole. With a fixed Convert map,
-    every mapped channel, Z plane and timepoint must be present. Without a map, a known
+    every mapped channel, Z plane and timepoint must be present. Without a map,
+    a timelapse, ``z_stack`` or ``t_stack`` watch takes each TIFF/OME-TIFF stack
+    as one field once every plane its OME, ImageJ or shaped metadata declares
+    is in the file and decodes; the stack is split privately into Convert
+    planes for the same mapped route. Per-plane files then stop the watch. Without a map, a known
     numeric convention must supply the documented channel origin through the
     highest selected position; an unknown origin is refused before output.
     Fields are told apart by the ``metadata_type`` or ``custom_regex`` filename
@@ -3064,14 +3307,31 @@ def _watch_folder_and_analyse(settings, analyse=None):
         src, {**settings, 'timelapse': True} if native_series else settings)
     native_volume = _watch_truthy(settings.get('z_stack', False))
     volume_plan, native_series_plan = None, None
+    vendor = None
+    if manifest is None and (series or native_volume):
+        vendor = ('series' if native_series else 'volume' if native_volume
+                  else 'timelapse')
+        if (str(settings.get('metadata_type', 'cellvoyager')).lower() != 'cellvoyager'
+                or settings.get('custom_regex') not in (None, '', 'None')):
+            raise ValueError('watch_folder: without conversion_map.csv, a T or Z '
+                             'watch reads each self-describing TIFF/OME-TIFF stack '
+                             'as one field and needs the CellVoyager convention '
+                             'for its derived planes.')
+        planar = [name for name in _watch_images(src)
+                  if _watch_field_of(name, settings, {})[1] is not None]
+        if planar:
+            raise ValueError(f'watch_folder: {planar[0]} is one plane of a per-plane '
+                             'series; per-plane T/Z series need a fixed Convert map '
+                             '(conversion_map.csv) declaring every plane before the '
+                             'watch starts.')
     if native_series:
         from .psf_pipeline import processing_requested
         from .zstack import plan_4d_from_settings
 
-        if (manifest is None or str(settings.get('metadata_type', 'cellvoyager')).lower()
+        if (str(settings.get('metadata_type', 'cellvoyager')).lower()
                 != 'cellvoyager' or settings.get('custom_regex') not in (None, '', 'None')):
             raise ValueError('watch_folder: native T-by-Z requires a fixed Convert '
-                             'map and CellVoyager target names.')
+                             'map or self-describing stacks, and CellVoyager target names.')
         if (pipeline != 'mask' or _watch_truthy(settings.get('microscope_feedback', False))
                 or _watch_truthy(settings.get('apply_model_to_dataset', False))
                 or _watch_truthy(settings.get('generate_training_dataset', False))
@@ -3089,11 +3349,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
                 or plan.z_mode != 'volumetric' or plan.frame_interval_s is None):
             raise ValueError('watch_folder: native T-by-Z needs explicit TZYX axes, '
                              'frame interval and volumetric Z spacing.')
-        native_series_plan = _watch_native_series_plan(src, settings, manifest, map_sha256)
+        native_series_plan = (_watch_native_series_plan(src, settings, manifest, map_sha256)
+                              if manifest is not None else {})
     if native_volume and not native_series:
-        if manifest is None:
-            raise ValueError('watch_folder: z_stack requires a fixed Convert '
-                             'conversion_map.csv declaring every T1 C x Z plane.')
         if (str(settings.get('metadata_type', 'cellvoyager')).lower() != 'cellvoyager'
                 or settings.get('custom_regex') not in (None, '', 'None')):
             raise ValueError('watch_folder: native Z requires the CellVoyager '
@@ -3109,11 +3367,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
             raise ValueError('watch_folder: native Z raw-volume ingest does not '
                              'support illumination or PSF preprocessing.')
         plan_from_settings({**settings, 'z_axis': 0})
-        volume_plan = _watch_volume_plan(src, settings, manifest, map_sha256)
+        volume_plan = (_watch_volume_plan(src, settings, manifest, map_sha256)
+                       if manifest is not None else {})
     if series:
-        if manifest is None:
-            raise ValueError('watch_folder: timelapse requires a fixed Convert '
-                             'conversion_map.csv declaring the complete field series.')
         if (str(settings.get('metadata_type', 'cellvoyager')).lower() != 'cellvoyager'
                 or settings.get('custom_regex') not in (None, '', 'None')):
             raise ValueError('watch_folder: mapped timelapse requires the '
@@ -3123,7 +3379,7 @@ def _watch_folder_and_analyse(settings, analyse=None):
             raise ValueError('watch_folder: mapped timelapse supports mask or '
                              'mask_measure without microscope feedback.')
     source_channels = (_watch_source_channels(settings)
-                       if manifest is None else None)
+                       if manifest is None and vendor is None else None)
     measure_sha256 = None
     if pipeline in ('mask_measure', 'mask_measure_classify'):
         measure_recipe, measure_sha256 = _watch_measure_recipe(settings)
@@ -3156,6 +3412,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
     if ledger['fields'] and ledger.get('normalization_pool') != normalization_pool:
         raise ValueError('watch_folder: normalization pool differs or its provenance '
                          'is unknown; use a separate watch workspace.')
+    if ledger['fields'] and ledger.get('vendor_stacks') != vendor:
+        raise ValueError('watch_folder: the saved record was made with a different '
+                         'stack ingest; use a separate watch workspace.')
     if ledger['fields'] and ledger.get('pipeline') != pipeline:
         raise ValueError(
             'watch_folder: the saved pipeline differs or is unknown; use a '
@@ -3191,6 +3450,8 @@ def _watch_folder_and_analyse(settings, analyse=None):
     ledger['mask_settings_sha256'] = mask_sha256
     ledger['conversion_map_sha256'] = map_sha256
     ledger['pipeline'] = pipeline
+    if vendor is not None:
+        ledger['vendor_stacks'] = vendor
     if normalization_pool is not None:
         ledger['normalization_pool'] = normalization_pool
         cohorts = ledger.setdefault('normalization_cohorts', {})
@@ -3213,9 +3474,17 @@ def _watch_folder_and_analyse(settings, analyse=None):
                'manifest': manifest, 'map_sha256': map_sha256,
                'volume_plan': volume_plan,
                'native_series_plan': native_series_plan,
-               'series': series,
+               'series': 'vendor' if vendor is not None else series,
+               'vendor': vendor,
                'normalization_pool': normalization_pool,
                'microscope': None}
+    if vendor is not None:
+        from functools import partial
+
+        context['unreadable'] = partial(_watch_vendor_unreadable, mode=vendor)
+        print(f'watch_folder: no conversion_map.csv; each TIFF/OME-TIFF stack is '
+              f'one field, taken once every plane its metadata declares is in '
+              f'the file and reads whole ({vendor}).')
     if normalization_pool is not None:
         _watch_closed_pool_resume(context)
     _watch_save_ledger(ledger_path, ledger)
@@ -3284,7 +3553,7 @@ def _watch_folder_and_analyse(settings, analyse=None):
     failed = sorted(key for key, entry in fields.items()
                     if entry.get('status') == 'failed')
     observed_keys = {
-        _watch_observed_field_of(name, settings, context['patterns'], series)[0]
+        _watch_observed_field_of(name, settings, context['patterns'], context['series'])[0]
         for name in context['seen']}
     incomplete = sorted(
         observed_keys | set(manifest or {}) |

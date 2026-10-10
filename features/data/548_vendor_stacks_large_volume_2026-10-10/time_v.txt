@@ -1,0 +1,6 @@
+/mnt/firecuda2/codex/scratch-docs/f548-large/ser200.log:	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:31.14
+/mnt/firecuda2/codex/scratch-docs/f548-large/ser200.log:	Maximum resident set size (kbytes): 5928192
+/mnt/firecuda2/codex/scratch-docs/f548-large/vol200_after.log:	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:15.56
+/mnt/firecuda2/codex/scratch-docs/f548-large/vol200_after.log:	Maximum resident set size (kbytes): 10735708
+/mnt/firecuda2/codex/scratch-docs/f548-large/vol200.log:	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:34.00
+/mnt/firecuda2/codex/scratch-docs/f548-large/vol200.log:	Maximum resident set size (kbytes): 27078776

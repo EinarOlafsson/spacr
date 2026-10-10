@@ -1823,8 +1823,11 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
             if workspace_dir is None:
                 for array_index in range(single_channel.shape[0]):
                     arr_2d = single_channel[array_index]
-                    arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
-                    normalized_stack[array_index, ..., output_column] = arr_2d_normalized
+                    for plane_index in np.ndindex(*arr_2d.shape[:-2]):
+                        normalized_stack[(array_index, *plane_index, Ellipsis, output_column)] = (
+                            exposure.rescale_intensity(
+                                arr_2d[plane_index], in_range=(global_lower, global_upper),
+                                out_range=(0, 1)))
             else:
                 for time_index in range(single_channel.shape[0]):
                     for z_index in range(single_channel.shape[1]):

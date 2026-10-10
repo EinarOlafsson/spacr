@@ -188,9 +188,9 @@ def test_mapped_series_requires_a_dense_time_and_plane_grid(tmp_path, kind):
 
 
 def test_unmapped_timelapse_and_plain_map_time_series_are_refused(tmp_path):
-    with pytest.raises(ValueError, match='conversion_map.csv'):
-        core._watch_folder_and_analyse(dict(MASK, **_fast(tmp_path), timelapse=True),
-                                       Recorder())
+    empty = core._watch_folder_and_analyse(dict(MASK, **_fast(tmp_path), timelapse=True),
+                                           Recorder())
+    assert not empty['done'] and not empty['incomplete']
     output, _rows_ = _converted_series(tmp_path)
     with pytest.raises(ValueError, match='invalid conversion_map.csv'):
         core._watch_folder_and_analyse(dict(MASK, **_fast(output)), Recorder())

@@ -1,0 +1,25 @@
+{
+ "mode": "per_field",
+ "interval_s": 3.0,
+ "fields": {
+  "A01": {
+   "result_after_arrival_s": 1.517
+  },
+  "A02": {
+   "result_after_arrival_s": 1.08
+  },
+  "A03": {
+   "result_after_arrival_s": 0.995
+  },
+  "A04": {
+   "result_after_arrival_s": 0.903
+  },
+  "A05": {
+   "result_after_arrival_s": 1.062
+  },
+  "A06": {
+   "result_after_arrival_s": 1.017
+  }
+ },
+ "max_s": 1.517
+}

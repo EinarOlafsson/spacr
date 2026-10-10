@@ -256,7 +256,7 @@ def test_a_field_is_appended_to_the_combined_database_once(tmp_path):
 
 
 @pytest.mark.parametrize("extra, message", [
-    ({"timelapse": True}, "timelapse"),
+    ({"timelapse": True, "t_stack": True}, "timelapse"),
     ({"z_stack": "True"}, "z_stack"),
     ({"watch_pipeline": "classify"}, "watch_pipeline"),
     ({"watch_settle_seconds": "soon"}, "watch_settle_seconds"),
