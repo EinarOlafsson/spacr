@@ -201,3 +201,32 @@ password and open with the right one, Cellect sealed images and 3D model
 decrypt). Lighthouse mobile (performance/accessibility): home 100/100,
 spaCR 99/100, live_cell lock 100/100, Cellect lock 100/100 (was 85).
 
+
+2026-10-10 (later) — Maintainer feedback applied and redeployed (site-src
+main). Papers: cp_measure (arXiv 2507.01163) removed; it cites spaCR but
+does not use it. The list is now papers whose methods use spaCR (5); each
+entry in site-src data/papers.json quotes the evidence with its location
+(section; page and lines where the PDF was retrievable, e.g. Rimple et al.
+preprint p. 20, lines 434-442), and the build refuses cite-only entries.
+GRA8 (Kaur et al.) is kept on "analysis performed as described in (33)",
+where ref. 33 is the spaCR preprint; maintainer may want to confirm.
+spaCR page restructured as deep-linkable, keyboard-accessible tabs
+(#overview, #pipeline, #models, #screen, #phenotypes, #assays, #papers,
+#install, #cite): stat tiles (models, papers, lessons, languages, tests,
+fetched at build time); a five-panel strip that follows one field
+(example screen plate 1, H02, field 4, a GRA14 well) from image to masks,
+measurements, classifier scores and the GRA14 hit; screen volcano and app
+views; image UMAP; dose-response (SNX-2112 EC50 0.299 uM), control chart
+and hit volcano computed with spaCR on CPU from spacr-example-dose,
+-control-chart and -hit; paper cards with CC BY/CC0 figure thumbnails or
+journal/year badges (EAF1 preprint and Cell Reports are CC BY-NC-ND, so
+badges only); installers as OS tiles. Inline links are italic in the body
+colour with an underline that draws in on hover and on focus. No time-lapse
+loop: spaCR's public data has no time-lapse example. spaCR issues found
+while running the examples: Dose-Response "Load test data" fits nothing
+(compound not treated as categorical); Control Chart test-data button loads
+the Measure example; spacr.ml.perform_regression blocks headless on
+plt.show() unless MPLBACKEND=Agg.
+Verified live: 95/95 headless checks (adds tab deep links, arrow keys,
+#cite scroll, link styling); Lighthouse mobile home 100/100, spaCR
+95/100, live_cell lock 100/100, Cellect lock 100/100.
