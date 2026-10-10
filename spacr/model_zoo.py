@@ -693,6 +693,62 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         ),
     },
     {
+        "key": "toxoplasma_pv_v5",
+        "name": "cpsam_v2_toxo_r8",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r8",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-pv-segmentation-cpsam-r8/resolve/main/"
+               "weights/cpsam_v2_toxo_r8",
+        "sha256":
+            "a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c",
+        "size_bytes": 1218639811,
+        "metrics": {'n_train': '202 fields',
+         'train_objects': '9,276',
+         'n_test': '50 fields (whole acquisitions/papers held out)',
+         'test_objects': '3,530',
+         'cv': 'no (grouped train/validation/test)',
+         'f1': {'finetuned': 0.7921, 'vanilla': 0.5586, 'delta': 0.2335},
+         'precision': {'finetuned': 0.7531, 'vanilla': 0.4635, 'delta': 0.2896},
+         'recall': {'finetuned': 0.8354, 'vanilla': 0.7028, 'delta': 0.1326},
+         'aji': 'not recorded',
+         'dice': 'not recorded',
+         'stock_f1': '0.5586',
+         'stock_aji': 'not recorded',
+         'stock_dice': 'not recorded',
+         'train_loss': 'see training/epoch_history.json',
+         'val_loss': 'see training/epoch_history.json',
+         'best_epoch': '20 / 100',
+         'holdout': 'retrain_20261009_pv_test',
+         'holdout_version': '2026-10-09',
+         'n_fields': 50,
+         'n_objects': 3530},
+        "display_name": "Toxoplasma PV v5 (round 8, alternative)",
+        "architecture": "Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)",
+        "dataset": "285 curated PV fields (lab fields and published-figure "
+                   "crops), 13,814 vacuoles; 202 train / 33 validation / 50 test "
+                   "grouped by acquisition and paper",
+        "versus_stock": "F1 0.792 against stock cpsam_v2's 0.559 on "
+                        "the 50 held-out fields at IoU 0.5",
+        "trained_on": (
+            "Toxoplasma parasitophorous vacuoles from lab immunofluorescence and "
+            "DsRed fields and published-figure crops. Round 8, cellpose 4.0.9, "
+            "best of 100 epochs (epoch 20), base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "ALTERNATIVE, NOT BETTER: on the 15 test fields round 7 never saw it "
+            "scores F1 0.536 against toxoplasma_pv_v4's "
+            "0.525 -- a tie; prefer toxoplasma_pv_v4",
+            "35 of the 50 test fields were in round 7's training or validation "
+            "set, so the all-field comparison (0.792 against 0.851) favours "
+            "toxoplasma_pv_v4 and is not a fair test",
+            "weak on published-figure crops (F1 0.440 on 14 literature fields), "
+            "as is every PV model",
+        ),
+    },
+    {
         "key": "live_cell_v1",
         "name": "live_cell_v1",
         "kind": "cellpose",
@@ -926,6 +982,50 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                'Gel Doc score requires min_size=0; min_size=150 gives F1 0.1041.',
                'Stock not measured; comparison baseline is incumbent r3.',
                'Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2.']},
+    {'key': 'toxoplasma_plaque_v4',
+     'name': 'cpsam_plaque_r6',
+     'remote_name': 'cpsam_plaque_r6',
+     'kind': 'cellpose',
+     'repo_id': 'einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6',
+     'repo_type': 'model',
+     'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/weights/cpsam_plaque_r6',
+     'sha256': '00f4a86ba1502fd583231e54bc6538f595f67c86cd4f9ee5c415f6f788a0c171',
+     'size_bytes': 1218641683,
+     'metrics': {'f1': {'finetuned': 0.8127, 'vanilla': 0.3003, 'delta': 0.5124},
+                 'precision': {'finetuned': 0.8232, 'vanilla': 0.2235, 'delta': 0.5997},
+                 'recall': {'finetuned': 0.8025, 'vanilla': 0.4576, 'delta': 0.3448},
+                 'holdout': 'retrain_20261009_plaque_test',
+                 'holdout_version': '2026-10-09',
+                 'n_fields': 263,
+                 'n_objects': 12792,
+                 'n_train': '335 fields; 5 reviewed skips excluded',
+                 'train_objects': '16467',
+                 'n_test': '263 fields: 3 held-out Gel Doc plates plus the r5 evaluation split',
+                 'test_objects': '12792',
+                 'cv': 'no',
+                 'aji': 'not recorded',
+                 'dice': 'not recorded',
+                 'stock_f1': '0.3003',
+                 'stock_aji': 'not measured',
+                 'stock_dice': 'not measured',
+                 'train_loss': 'see training/epoch_history.json',
+                 'val_loss': 'see training/epoch_history.json',
+                 'best_epoch': '130 / 180'},
+     'display_name': 'Toxoplasma Plaque v4 (round 6, alternative)',
+     'architecture': 'Cellpose-SAM (cpsam, Cellpose 4.0.9)',
+     'dataset': '663 curated plaque fields from four domains (published-figure wells, Gel Doc '
+                'wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 '
+                'validation / 263 test',
+     'versus_stock': 'F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5',
+     'trained_on': 'Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates '
+                   'and staged literature crops; round 6, best of 180 epochs (epoch 130), base cpsam',
+     'trained_by': 'einarolafsson',
+     'notes': ['Alternative, not better: F1 0.813 against toxoplasma_plaque_v3 0.844 on the same '
+               'held-out fields, lower on every source (Gel Doc 0.826 against 0.917).',
+               'Above the spaCR default toxoplasma_plaque_v2 overall (0.798) and on Gel Doc wells, '
+               'where v2 scores 0.013.',
+               'Fine-tuned from first-generation cpsam, not cpsam_v2.',
+               'Published-figure literature crops stay hard (F1 0.535).']},
     {'key': 'toxoplasma_well_detector_v3',
      'name': 'yolo_welldetect_v4_geldoc.pt',
      'remote_name': 'yolo_welldetect_v4_geldoc.pt',

@@ -6,7 +6,7 @@
       "source": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
       "source_sha256": "235a030f6880899bdd582d779b6691c16049ab10b4cf49aedae1c7a264c49312",
       "table": "ui",
-      "translation": "प्रकाशित TSG101 रिक्रूटमेंट स्क्रीन का एक अंश लोड करें: प्लेट 1 के 30 वेल में 2,608 कोशिकाएँ, उनकी भविष्यवाणियों और गाइड अंशों के साथ, और उनसे बना एक रिग्रेशन रन जो GRA14 (239740) को हिट बताता है। लगभग 28 MB, बाद में कैश में रहता है।"
+      "translation": "प्रकाशित TSG101 रिक्रूटमेंट स्क्रीनिंग का एक अंश लोड करें: प्लेट 1 के 30 वेल में 2,608 कोशिकाएँ, उनकी भविष्यवाणियों और गाइड अंशों के साथ, और उनसे बना एक रिग्रेशन रन जो GRA14 (239740) को हिट बताता है। लगभग 28 MB, बाद में कैश में रहता है।"
     },
     {
       "key": "Loaded the example hit {gene}. Press Investigate hit.",

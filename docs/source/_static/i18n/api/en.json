@@ -14675,11 +14675,11 @@
     "spacr.example_archives.example_set": {
       "source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
-        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
+        "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ],
-      "source_sha256": "835bc56de2bfedaa226ad998ebba8587e0b2fdfdf6922c3e45a6d00e0e9ecb75",
-      "text": "The set called ``key``.\n\n:param key: ``import``, ``mask``, ``measure``, ``annotate``,\n    ``replication``, ``recruitment`` or ``invasion``.\n:raises KeyError: naming the keys that do exist. A typo that returned\n    ``None`` would download nothing and report success, which is the one\n    outcome a download command must never produce."
+      "source_sha256": "735c94dee3087069fed735729956f2ea70a492eec2edc37e8df3c2a870d9abe8",
+      "text": "The set called ``key``.\n\n:param key: an :data:`EXAMPLE_SETS` key, such as ``import``, ``mask``,\n    ``measure``, ``annotate``, ``dose``, ``control_chart`` or ``hit``.\n:raises KeyError: naming the keys that do exist. A typo that returned\n    ``None`` would download nothing and report success, which is the one\n    outcome a download command must never produce."
     },
     "spacr.example_archives.example_set_folder": {
       "source_blocks_sha256": [
@@ -99035,10 +99035,11 @@
         "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
         "f350ab15190913cb5a93bf9dd3d402c1c6c225ae4be6af6c9419242af2786b6e",
         "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
-        "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923"
+        "8d7703dde8e227af9a9a7d4e87678c61cf0752cbe88b2a175264d85b2a38b2d2",
+        "832feba1f5b08c47a7ab9640073ad512503c55fc44ff3f0627c4e15c579e46cc"
       ],
-      "source_sha256": "a776ae68b80affa923c8a943668486f6705e8fa701f73f9e2c285561036d6b63",
-      "text": "One \"Load test data…\" button for every screen that reads a measurements DB.\n\nThe Annotate example (``einarolafsson/spacr-example-annotate``) is a real\nplate: ``measurements/measurements.db`` with its cell, cytoplasm, nucleus and\npathogen tables, and the 2,341 crops under ``data/`` it indexes. Annotate and\nClassify already fetch it into the shared example plate folder\n(:func:`spacr.example_archives.example_plate_folder`). Every other screen\nthat opens a measurements database can be shown working on the same plate,\nso this module fetches it once and hands it to whichever screen asked.\n\nONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the\nbutton's busy state and the failure message are the same for Plate Viewer,\nTabulate, Graph Builder and the rest; what differs is only which field is\nfilled and which method opens it. So a screen passes that one difference as\na callback and nothing else.\n\nTHE DOWNLOAD IS THE EXISTING ONE. Nothing new is published: the archive,\nthe worker and the progress dialog are\n:func:`spacr.qt.hf_download.download_annotate_example`, the same call\nClassify's button makes, and a plate already unpacked by any of them is\nreused without touching the network."
+      "source_sha256": "489cf0a2b46933da128810c3566ccec2800d3d1312d7eb267888534a86e55bda",
+      "text": "One \"Load test data…\" button for every screen that reads a measurements DB.\n\nThe Annotate example (``einarolafsson/spacr-example-annotate``) is a real\nplate: ``measurements/measurements.db`` with its cell, cytoplasm, nucleus and\npathogen tables, and the 2,341 crops under ``data/`` it indexes. Annotate and\nClassify already fetch it into the shared example plate folder\n(:func:`spacr.example_archives.example_plate_folder`). Every other screen\nthat opens a measurements database can be shown working on the same plate,\nso this module fetches it once and hands it to whichever screen asked.\n\nONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the\nbutton's busy state and the failure message are the same for Plate Viewer,\nTabulate, Graph Builder and the rest; what differs is only which field is\nfilled and which method opens it. So a screen passes that one difference as\na callback and nothing else.\n\nTHE DOWNLOAD IS THE EXISTING ONE. The archive, the worker and the progress\ndialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same\ncall Classify's button makes, and a plate already unpacked by any of them is\nreused without touching the network.\n\nThree public sets have buttons of their own, fetched through the example-set\nregistry (:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose`` (LINCS Cell\nPainting, ``einarolafsson/spacr-example-dose``) for Dose-Response, Prediction\nProfiler, Run Compare, Run History and Training Runs, ``control_chart``\n(CPJUMP1, ``einarolafsson/spacr-example-control-chart``) for Control Chart,\nand ``hit`` (a cut of the TSG101 screen, ``einarolafsson/spacr-example-hit``)\nfor Investigate Hit."
     },
     "spacr.qt.widgets.measurements_example.example_measurements_db": {
       "source_blocks_sha256": [

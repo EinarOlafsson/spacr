@@ -13,7 +13,7 @@
       "source": "Loaded the example hit {gene}. Press Investigate hit.",
       "source_sha256": "03d3fa239d0100288c638e6eba5bb680b722d9ee6e0ed941012c4c16815abe8a",
       "table": "ui",
-      "translation": "已加载示例命中 {gene}。请点击“调查命中”。"
+      "translation": "已加载示例命中 {gene}。请按“调查命中”。"
     }
   ],
   "review_scope": "AI technical review; no native-speaker signoff.",

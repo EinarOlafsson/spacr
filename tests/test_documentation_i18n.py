@@ -266,7 +266,11 @@ TOOLS = ROOT / "tools"
 # A further 15 Apply, blinking, popup-wave and renderer contracts enter
 # the same dated source-reviewed inventory; none of the prior rows retire.
 # One further nested background picker enters with unchanged existing prose.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_215
+# 2026-10-10 item 684 (bd22c05bd): +3/-0, MainWindow.snap_window,
+# AmbientWidget.set_click_ripples and the nested Preferences helper
+# _build_the_dialog._density_follows_theme, as test_api_i18n_extractor
+# already counts; all 13,215 prior symbols unchanged.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_218
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",

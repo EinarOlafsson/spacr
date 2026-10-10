@@ -203,6 +203,49 @@ Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://hugging
 
 SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.
 
+Toxoplasma PV v5 (round 8, alternative)
+---------------------------------------
+
+**Architecture.** Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)
+
+**Trained on.** Toxoplasma parasitophorous vacuoles from lab immunofluorescence and DsRed fields and published-figure crops. Round 8, cellpose 4.0.9, best of 100 epochs (epoch 20), base cpsam_v2
+
+**Measured.** F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - f1
+     - 0.7921
+     - 0.5586
+     - 0.2335
+   * - precision
+     - 0.7531
+     - 0.4635
+     - 0.2896
+   * - recall
+     - 0.8354
+     - 0.7028
+     - 0.1326
+
+Evaluation set: ``retrain_20261009_pv_test``; version ``2026-10-09``; 50 scored fields and 3530 annotated objects.
+
+* ALTERNATIVE, NOT BETTER: on the 15 test fields round 7 never saw it scores F1 0.536 against toxoplasma_pv_v4's 0.525 -- a tie; prefer toxoplasma_pv_v4
+* 35 of the 50 test fields were in round 7's training or validation set, so the all-field comparison (0.792 against 0.851) favours toxoplasma_pv_v4 and is not a fair test
+* weak on published-figure crops (F1 0.440 on 14 literature fields), as is every PV model
+
+Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r8 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8>`_, as ``cpsam_v2_toxo_r8``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/scorecard.png
+   :alt: Published scorecard for Toxoplasma PV v5 (round 8, alternative)
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/blob/main/scorecard.csv
+
+SHA-256 ``a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c``.
+
 Live cell v1 (phase, brightfield, DIC)
 --------------------------------------
 
@@ -333,6 +376,50 @@ Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <http
    :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/blob/main/scorecard.csv
 
 SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c``.
+
+Toxoplasma Plaque v4 (round 6, alternative)
+-------------------------------------------
+
+**Architecture.** Cellpose-SAM (cpsam, Cellpose 4.0.9)
+
+**Trained on.** Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates and staged literature crops; round 6, best of 180 epochs (epoch 130), base cpsam
+
+**Measured.** F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - f1
+     - 0.8127
+     - 0.3003
+     - 0.5124
+   * - precision
+     - 0.8232
+     - 0.2235
+     - 0.5997
+   * - recall
+     - 0.8025
+     - 0.4576
+     - 0.3448
+
+Evaluation set: ``retrain_20261009_plaque_test``; version ``2026-10-09``; 263 scored fields and 12792 annotated objects.
+
+* Alternative, not better: F1 0.813 against toxoplasma_plaque_v3 0.844 on the same held-out fields, lower on every source (Gel Doc 0.826 against 0.917).
+* Above the spaCR default toxoplasma_plaque_v2 overall (0.798) and on Gel Doc wells, where v2 scores 0.013.
+* Fine-tuned from first-generation cpsam, not cpsam_v2.
+* Published-figure literature crops stay hard (F1 0.535).
+
+Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6>`_, as ``cpsam_plaque_r6``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/scorecard.png
+   :alt: Published scorecard for Toxoplasma Plaque v4 (round 6, alternative)
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/blob/main/scorecard.csv
+
+SHA-256 ``00f4a86ba1502fd583231e54bc6538f595f67c86cd4f9ee5c415f6f788a0c171``.
 
 Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)
 ------------------------------------------------------

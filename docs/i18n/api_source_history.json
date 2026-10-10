@@ -37,27 +37,6 @@
       "source_sha256": "1be9dae75de7fbf11a2aaa3bae6b864f47d9eb4950d079667528a450cd8f5811",
       "text": "Editable one-row-per-plate score / count / database input contract.\n\nA row is ONE PLATE: its score CSV, its count CSV, and the measurements\ndatabase that plate's per-object tables live in. All three columns are\nfilled BY ADDITION -- every arrival re-proposes the whole table from\nfilename tokens -- so databases dropped in the opposite order to the CSVs\nstill land on the right plates. That is the rule, and the\nthird column obeys it rather than keeping a list of its own.\n\nA plate with NO database is legal and is not an error: the regression is\nfitted on scores and counts. The database is what makes that plate's\nmeasurements available downstream, so its absence disables the plate\nthere instead of failing the run.\n\n:param value: the table already saved, one entry per plate. Everything\n    that arrives afterwards RE-PROPOSES the whole table from filename\n    tokens rather than appending, which is what lets databases dropped in\n    the opposite order to the CSVs still land on the right plates.\n:param parent: parent widget.\nBuild the one-row-per-plate table.\n\n:param value: the rows already saved.\n:param parent: parent widget."
     },
-    "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805": {
-      "source_blocks_sha256": [
-        "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
-        "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
-        "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
-        "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
-        "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
-        "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
-        "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
-        "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
-        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
-        "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
-        "57789cb3e56114c2ac0b6da7897da3ab981774d3cce81cbfe4a88b60b4475ecf",
-        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
-        "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-        "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b"
-      ],
-      "source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
-      "text": "Keyboard-first shortcuts for the spaCR Qt GUI.\n\nRegisters global :class:`QShortcut` bindings on the main window so\nthe whole app is usable without a mouse:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Switch to the Nth app in the sidebar\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1  / ?       Show the shortcuts cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %\n    Ctrl+/        Open the AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n    Esc           Close any open dialog / popup\n\n:func:`install` is called once from ``MainWindow.__init__``. Every\nbinding is documented in :data:`SHORTCUTS` so the cheat-sheet\ndialog stays in sync with what's actually wired up.\n\nEvery window-wide key can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser) keep their\ndefaults and are listed as taken."
-    },
     "64e2d6a847a7e26e3e5a918dae1ae92104ced69f13a832eea5ab5c2d2762ee63": {
       "source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
@@ -66,6 +45,15 @@
       ],
       "source_sha256": "64e2d6a847a7e26e3e5a918dae1ae92104ced69f13a832eea5ab5c2d2762ee63",
       "text": "Read paired inputs and resolve plate identity without filename guesses.\n\nResolution order is own column, partner column, then pair-row order.\nConflicting declarations are refused. Returns ``(count_frame,\nscore_frame, audit_rows)``.\n\n:param pairs: sequence of mappings with ``'score'`` and ``'count'`` table\n    paths (either may be empty), as returned by\n    :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'``\n    is overwritten with the resolved plate label."
+    },
+    "835bc56de2bfedaa226ad998ebba8587e0b2fdfdf6922c3e45a6d00e0e9ecb75": {
+      "source_blocks_sha256": [
+        "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
+        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
+        "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
+      ],
+      "source_sha256": "835bc56de2bfedaa226ad998ebba8587e0b2fdfdf6922c3e45a6d00e0e9ecb75",
+      "text": "The set called ``key``.\n\n:param key: ``import``, ``mask``, ``measure``, ``annotate``,\n    ``replication``, ``recruitment`` or ``invasion``.\n:raises KeyError: naming the keys that do exist. A typo that returned\n    ``None`` would download nothing and report success, which is the one\n    outcome a download command must never produce."
     },
     "972479829694da6a3e5af23fd459b47cfd9c43e0225247f18b2b9ce90c61d606": {
       "source_blocks_sha256": [
@@ -111,6 +99,16 @@
       ],
       "source_sha256": "a53c351484c73dc153ba79e984302b577379ac740f8700418973f27400836bb5",
       "text": "Put a legacy prediction column back into the encoding it claims to be in.\n\n:func:`spacr.utils.add_column_to_database` --- the ML stage's old write\npath --- replaced every ``0`` with a ``2`` on the way into the database,\nbecause the Annotate app labels classes 1 and 2. Nothing else did that, so\n``png_list.predictions`` said ``2`` where ``results.csv`` from the very same\nrun said ``0``: one number, two meanings, depending on which file you\nopened. This repairs it, so a database written before the change reads\ncorrectly with no manual action --- the same repair-on-read contract\n:func:`spacr.utils.rename_columns_in_db` has, and the same properties:\n\n* **Idempotent.** After the repair the column holds 0s and 1s, which is not\n  the encoding this looks for, so a second pass does nothing.\n* **Never destructive.** The substitution is only reversed when the column\n  holds nothing but 1s and 2s. A three-class model's genuine class 2 is\n  indistinguishable from a mangled 0, and guessing would be worse than\n  leaving it exactly as it is.\n* **All or nothing.** One explicit transaction, rolled back on any error.\n  The driver opens one for DML by itself, but not for the ``PRAGMA``/DDL\n  this shares a connection with, and a half-repaired column would be a\n  column in two encodings at once.\n\n:param db_path: SQLite file. A missing file is a no-op.\n:param table: table to migrate. Default ``'png_list'``.\n:param verbose: print each repair.\n:returns: list of ``(table, column, rows_repaired)``."
+    },
+    "a776ae68b80affa923c8a943668486f6705e8fa701f73f9e2c285561036d6b63": {
+      "source_blocks_sha256": [
+        "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
+        "f350ab15190913cb5a93bf9dd3d402c1c6c225ae4be6af6c9419242af2786b6e",
+        "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
+        "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923"
+      ],
+      "source_sha256": "a776ae68b80affa923c8a943668486f6705e8fa701f73f9e2c285561036d6b63",
+      "text": "One \"Load test data…\" button for every screen that reads a measurements DB.\n\nThe Annotate example (``einarolafsson/spacr-example-annotate``) is a real\nplate: ``measurements/measurements.db`` with its cell, cytoplasm, nucleus and\npathogen tables, and the 2,341 crops under ``data/`` it indexes. Annotate and\nClassify already fetch it into the shared example plate folder\n(:func:`spacr.example_archives.example_plate_folder`). Every other screen\nthat opens a measurements database can be shown working on the same plate,\nso this module fetches it once and hands it to whichever screen asked.\n\nONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the\nbutton's busy state and the failure message are the same for Plate Viewer,\nTabulate, Graph Builder and the rest; what differs is only which field is\nfilled and which method opens it. So a screen passes that one difference as\na callback and nothing else.\n\nTHE DOWNLOAD IS THE EXISTING ONE. Nothing new is published: the archive,\nthe worker and the progress dialog are\n:func:`spacr.qt.hf_download.download_annotate_example`, the same call\nClassify's button makes, and a plate already unpacked by any of them is\nreused without touching the network."
     },
     "d5e151d97dc58062102a046d3f69ad6abbf220f52505b62280a0aaf38d8c6c99": {
       "source_blocks_sha256": [

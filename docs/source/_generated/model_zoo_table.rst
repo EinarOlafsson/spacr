@@ -41,6 +41,10 @@
        (Cellpose-SAM (cpsam_v2))
      - round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7
      - F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505
+   * - ``toxoplasma_pv_v5``
+       (Cellpose-SAM (cpsam_v2, Cellpose 4.0.9))
+     - 285 curated PV fields (lab fields and published-figure crops), 13,814 vacuoles; 202 train / 33 validation / 50 test grouped by acquisition and paper
+     - F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5
    * - ``live_cell_v1``
        (Cellpose-SAM (cpsam_v2))
      - 11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset
@@ -61,6 +65,10 @@
        (Cellpose-SAM (cpsam, Cellpose 4.0.9))
      - 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups
      - Stock was not evaluated in this run; see the named incumbent comparison on the model card
+   * - ``toxoplasma_plaque_v4``
+       (Cellpose-SAM (cpsam, Cellpose 4.0.9))
+     - 663 curated plaque fields from four domains (published-figure wells, Gel Doc wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 validation / 263 test
+     - F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5
    * - ``toxoplasma_well_detector_v3``
        (YOLO11n (fine-tuned from detector v3))
      - 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization

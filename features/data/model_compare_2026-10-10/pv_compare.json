@@ -1,0 +1,1997 @@
+{
+ "kind": "pv",
+ "n_test": 50,
+ "eval_options": {
+  "normalize": true,
+  "min_size": 15,
+  "max_size_fraction": 1.0
+ },
+ "models": {
+  "new_r8_best": {
+   "weights": "pv_best",
+   "seconds": 135.5,
+   "overall": {
+    "n_images": 50,
+    "f1": 0.7921031426269137,
+    "precision": 0.7530643513789581,
+    "recall": 0.8354107648725212,
+    "tp": 2949,
+    "fp": 967,
+    "fn": 581
+   },
+   "by_source": {
+    "lab": {
+     "n_images": 36,
+     "f1": 0.8203714451538016,
+     "precision": 0.7728266812465828,
+     "recall": 0.8741496598639455,
+     "tp": 2827,
+     "fp": 831,
+     "fn": 407
+    },
+    "literature": {
+     "n_images": 14,
+     "f1": 0.4404332129963899,
+     "precision": 0.4728682170542636,
+     "recall": 0.41216216216216217,
+     "tp": 122,
+     "fp": 136,
+     "fn": 174
+    }
+   },
+   "peak_gpu_mib": 2330,
+   "excluding_r7_train_or_validation": {
+    "n_images": 15,
+    "f1": 0.535575679172057,
+    "precision": 0.5447368421052632,
+    "recall": 0.5267175572519084,
+    "tp": 207,
+    "fp": 173,
+    "fn": 186
+   },
+   "per_image": [
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_J21_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 41,
+     "fp": 14,
+     "fn": 8
+    },
+    {
+     "stem": "plate5_A15_9",
+     "source": "lab",
+     "group": "plate5_A15_9__plate5",
+     "r7": "train",
+     "tp": 32,
+     "fp": 8,
+     "fn": 5
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_M16_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 183,
+     "fp": 46,
+     "fn": 16
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_O21_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 121,
+     "fp": 19,
+     "fn": 17
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_A04_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 78,
+     "fp": 57,
+     "fn": 20
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_F23_013",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 1,
+     "fp": 7,
+     "fn": 3
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-091__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 2,
+     "fn": 1
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-088__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 3,
+     "fp": 0,
+     "fn": 3
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_L17_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 41,
+     "fp": 10,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__HFFtubulin_20230922_175830__plate1_L02_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "validation",
+     "tp": 0,
+     "fp": 0,
+     "fn": 1
+    },
+    {
+     "stem": "RH__dsred__cellmaskESCRT_20230915_123304__plate1_A05_004",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 47,
+     "fp": 14,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_E22_002",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 183,
+     "fp": 38,
+     "fn": 31
+    },
+    {
+     "stem": "plate2_F20_5",
+     "source": "lab",
+     "group": "plate2_F20_5__plate2",
+     "r7": "train",
+     "tp": 29,
+     "fp": 8,
+     "fn": 8
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_K17_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 104,
+     "fp": 32,
+     "fn": 5
+    },
+    {
+     "stem": "PMC11999461__tmp8lq77p7k_p-006__p1",
+     "source": "literature",
+     "group": "PMC11999461",
+     "r7": null,
+     "tp": 6,
+     "fp": 3,
+     "fn": 63
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_N17_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 61,
+     "fp": 28,
+     "fn": 38
+    },
+    {
+     "stem": "plate7_E16_4",
+     "source": "lab",
+     "group": "plate7_E16_4__plate7",
+     "r7": "train",
+     "tp": 42,
+     "fp": 16,
+     "fn": 6
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_P20_006",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 27,
+     "fp": 5,
+     "fn": 6
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C07_008",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 77,
+     "fp": 9,
+     "fn": 7
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-089__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 1,
+     "fn": 0
+    },
+    {
+     "stem": "plate7_F17_15",
+     "source": "lab",
+     "group": "plate7_F17_15__plate7",
+     "r7": "test",
+     "tp": 85,
+     "fp": 37,
+     "fn": 12
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_M20_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 97,
+     "fp": 20,
+     "fn": 6
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_L18_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 105,
+     "fp": 23,
+     "fn": 9
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-127__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 17,
+     "fp": 25,
+     "fn": 15
+    },
+    {
+     "stem": "PMC13043914__tmpoc_1lvnq_p-017__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 30,
+     "fp": 7,
+     "fn": 3
+    },
+    {
+     "stem": "PMC13043914__tmpdzh3cxs2_p-002__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 0,
+     "fp": 30,
+     "fn": 0
+    },
+    {
+     "stem": "plate3_E15_15",
+     "source": "lab",
+     "group": "plate3_E15_15__plate3",
+     "r7": "train",
+     "tp": 120,
+     "fp": 29,
+     "fn": 13
+    },
+    {
+     "stem": "PMC11999461__tmp8lq77p7k_p-009__p3",
+     "source": "literature",
+     "group": "PMC11999461",
+     "r7": null,
+     "tp": 51,
+     "fp": 6,
+     "fn": 13
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_B22_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 113,
+     "fp": 42,
+     "fn": 59
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D13_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 130,
+     "fp": 17,
+     "fn": 5
+    },
+    {
+     "stem": "RH__dsred__cellmaskESCRT_20230915_123304__plate1_P01_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 12,
+     "fp": 10,
+     "fn": 13
+    },
+    {
+     "stem": "plate4_A11_7",
+     "source": "lab",
+     "group": "plate4_A11_7__plate4",
+     "r7": "validation",
+     "tp": 115,
+     "fp": 29,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C01_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 113,
+     "fp": 32,
+     "fn": 11
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-121__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 11,
+     "fp": 21,
+     "fn": 24
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-098__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 21,
+     "fn": 7
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-093__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 5,
+     "fn": 1
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-099__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 1,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_H17_010",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 6,
+     "fp": 0,
+     "fn": 1
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_D13_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 0,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_H08_011",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 1,
+     "fp": 1,
+     "fn": 0
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_E09_006",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 129,
+     "fp": 17,
+     "fn": 6
+    },
+    {
+     "stem": "PMC13043914__tmpdzh3cxs2_p-001__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 0,
+     "fp": 11,
+     "fn": 0
+    },
+    {
+     "stem": "PMC13003711__tmpm1s55st1_p-001__p0",
+     "source": "literature",
+     "group": "PMC13003711",
+     "r7": null,
+     "tp": 4,
+     "fp": 3,
+     "fn": 37
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_B05_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 43,
+     "fp": 35,
+     "fn": 2
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D14_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 147,
+     "fp": 31,
+     "fn": 4
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C16_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 241,
+     "fp": 51,
+     "fn": 40
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D19_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 161,
+     "fp": 24,
+     "fn": 27
+    },
+    {
+     "stem": "plate6_L03_12",
+     "source": "lab",
+     "group": "plate6_L03_12__plate6",
+     "r7": "train",
+     "tp": 56,
+     "fp": 16,
+     "fn": 6
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_J01_008",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 82,
+     "fp": 26,
+     "fn": 1
+    },
+    {
+     "stem": "RH__abTg__HFFtubulin_20230922_175830__plate1_K08_012",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "validation",
+     "tp": 4,
+     "fp": 80,
+     "fn": 0
+    }
+   ]
+  },
+  "toxoplasma_pv_v4": {
+   "weights": "cpsam_v2_toxo_r7",
+   "seconds": 112.1,
+   "overall": {
+    "n_images": 50,
+    "f1": 0.8506426355443936,
+    "precision": 0.8888545847483791,
+    "recall": 0.8155807365439094,
+    "tp": 2879,
+    "fp": 360,
+    "fn": 651
+   },
+   "by_source": {
+    "lab": {
+     "n_images": 36,
+     "f1": 0.8828174352495262,
+     "precision": 0.9021949644932215,
+     "recall": 0.8642547928262214,
+     "tp": 2795,
+     "fp": 303,
+     "fn": 439
+    },
+    "literature": {
+     "n_images": 14,
+     "f1": 0.38443935926773454,
+     "precision": 0.5957446808510638,
+     "recall": 0.28378378378378377,
+     "tp": 84,
+     "fp": 57,
+     "fn": 212
+    }
+   },
+   "peak_gpu_mib": 2339,
+   "excluding_r7_train_or_validation": {
+    "n_images": 15,
+    "f1": 0.525,
+    "precision": 0.680161943319838,
+    "recall": 0.42748091603053434,
+    "tp": 168,
+    "fp": 79,
+    "fn": 225
+   },
+   "per_image": [
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_J21_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 44,
+     "fp": 3,
+     "fn": 5
+    },
+    {
+     "stem": "plate5_A15_9",
+     "source": "lab",
+     "group": "plate5_A15_9__plate5",
+     "r7": "train",
+     "tp": 35,
+     "fp": 3,
+     "fn": 2
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_M16_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 184,
+     "fp": 26,
+     "fn": 15
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_O21_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 118,
+     "fp": 6,
+     "fn": 20
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_A04_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 79,
+     "fp": 25,
+     "fn": 19
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_F23_013",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 2,
+     "fp": 2,
+     "fn": 2
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-091__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 2,
+     "fn": 1
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-088__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 1,
+     "fp": 1,
+     "fn": 5
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_L17_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 39,
+     "fp": 2,
+     "fn": 9
+    },
+    {
+     "stem": "RH__abTg__HFFtubulin_20230922_175830__plate1_L02_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "validation",
+     "tp": 1,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "RH__dsred__cellmaskESCRT_20230915_123304__plate1_A05_004",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 50,
+     "fp": 1,
+     "fn": 4
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_E22_002",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 186,
+     "fp": 20,
+     "fn": 28
+    },
+    {
+     "stem": "plate2_F20_5",
+     "source": "lab",
+     "group": "plate2_F20_5__plate2",
+     "r7": "train",
+     "tp": 27,
+     "fp": 6,
+     "fn": 10
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_K17_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 100,
+     "fp": 3,
+     "fn": 9
+    },
+    {
+     "stem": "PMC11999461__tmp8lq77p7k_p-006__p1",
+     "source": "literature",
+     "group": "PMC11999461",
+     "r7": null,
+     "tp": 4,
+     "fp": 1,
+     "fn": 65
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_N17_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 71,
+     "fp": 11,
+     "fn": 28
+    },
+    {
+     "stem": "plate7_E16_4",
+     "source": "lab",
+     "group": "plate7_E16_4__plate7",
+     "r7": "train",
+     "tp": 40,
+     "fp": 10,
+     "fn": 8
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_P20_006",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 26,
+     "fp": 1,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C07_008",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 73,
+     "fp": 2,
+     "fn": 11
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-089__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "plate7_F17_15",
+     "source": "lab",
+     "group": "plate7_F17_15__plate7",
+     "r7": "test",
+     "tp": 84,
+     "fp": 22,
+     "fn": 13
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_M20_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 94,
+     "fp": 11,
+     "fn": 9
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_L18_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 105,
+     "fp": 10,
+     "fn": 9
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-127__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 11,
+     "fp": 17,
+     "fn": 21
+    },
+    {
+     "stem": "PMC13043914__tmpoc_1lvnq_p-017__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 30,
+     "fp": 3,
+     "fn": 3
+    },
+    {
+     "stem": "PMC13043914__tmpdzh3cxs2_p-002__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 0,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "plate3_E15_15",
+     "source": "lab",
+     "group": "plate3_E15_15__plate3",
+     "r7": "train",
+     "tp": 105,
+     "fp": 6,
+     "fn": 28
+    },
+    {
+     "stem": "PMC11999461__tmp8lq77p7k_p-009__p3",
+     "source": "literature",
+     "group": "PMC11999461",
+     "r7": null,
+     "tp": 14,
+     "fp": 8,
+     "fn": 50
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_B22_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 139,
+     "fp": 26,
+     "fn": 33
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D13_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 124,
+     "fp": 8,
+     "fn": 11
+    },
+    {
+     "stem": "RH__dsred__cellmaskESCRT_20230915_123304__plate1_P01_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 9,
+     "fp": 3,
+     "fn": 16
+    },
+    {
+     "stem": "plate4_A11_7",
+     "source": "lab",
+     "group": "plate4_A11_7__plate4",
+     "r7": "validation",
+     "tp": 106,
+     "fp": 8,
+     "fn": 16
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C01_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 103,
+     "fp": 7,
+     "fn": 21
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-121__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 6,
+     "fp": 9,
+     "fn": 29
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-098__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 3,
+     "fp": 6,
+     "fn": 4
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-093__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 1,
+     "fn": 1
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-099__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 1,
+     "fp": 1,
+     "fn": 6
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_H17_010",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 6,
+     "fp": 0,
+     "fn": 1
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_D13_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 0,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_H08_011",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 1,
+     "fp": 1,
+     "fn": 0
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_E09_006",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 119,
+     "fp": 4,
+     "fn": 16
+    },
+    {
+     "stem": "PMC13043914__tmpdzh3cxs2_p-001__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 0,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "PMC13003711__tmpm1s55st1_p-001__p0",
+     "source": "literature",
+     "group": "PMC13003711",
+     "r7": null,
+     "tp": 14,
+     "fp": 8,
+     "fn": 27
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_B05_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 43,
+     "fp": 8,
+     "fn": 2
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D14_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 136,
+     "fp": 15,
+     "fn": 15
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C16_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 238,
+     "fp": 28,
+     "fn": 43
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D19_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 172,
+     "fp": 10,
+     "fn": 16
+    },
+    {
+     "stem": "plate6_L03_12",
+     "source": "lab",
+     "group": "plate6_L03_12__plate6",
+     "r7": "train",
+     "tp": 56,
+     "fp": 7,
+     "fn": 6
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_J01_008",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 76,
+     "fp": 8,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__HFFtubulin_20230922_175830__plate1_K08_012",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "validation",
+     "tp": 4,
+     "fp": 0,
+     "fn": 0
+    }
+   ]
+  },
+  "toxoplasma_pv_v3": {
+   "weights": "cpsam_v2_toxo_r6",
+   "seconds": 104.8,
+   "overall": {
+    "n_images": 50,
+    "f1": 0.8525258407337313,
+    "precision": 0.8769092542677448,
+    "recall": 0.8294617563739377,
+    "tp": 2928,
+    "fp": 411,
+    "fn": 602
+   },
+   "by_source": {
+    "lab": {
+     "n_images": 36,
+     "f1": 0.8868834604014315,
+     "precision": 0.8925775133103664,
+     "recall": 0.8812615955473099,
+     "tp": 2850,
+     "fp": 343,
+     "fn": 384
+    },
+    "literature": {
+     "n_images": 14,
+     "f1": 0.35294117647058826,
+     "precision": 0.5342465753424658,
+     "recall": 0.2635135135135135,
+     "tp": 78,
+     "fp": 68,
+     "fn": 218
+    }
+   },
+   "peak_gpu_mib": 2339,
+   "excluding_r7_train_or_validation": {
+    "n_images": 15,
+    "f1": 0.5,
+    "precision": 0.6352941176470588,
+    "recall": 0.4122137404580153,
+    "tp": 162,
+    "fp": 93,
+    "fn": 231
+   },
+   "per_image": [
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_J21_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 44,
+     "fp": 3,
+     "fn": 5
+    },
+    {
+     "stem": "plate5_A15_9",
+     "source": "lab",
+     "group": "plate5_A15_9__plate5",
+     "r7": "train",
+     "tp": 34,
+     "fp": 4,
+     "fn": 3
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_M16_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 184,
+     "fp": 24,
+     "fn": 15
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_O21_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 122,
+     "fp": 9,
+     "fn": 16
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_A04_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 80,
+     "fp": 24,
+     "fn": 18
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_F23_013",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 2,
+     "fp": 0,
+     "fn": 2
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-091__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 1,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-088__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 0,
+     "fn": 6
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_L17_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 37,
+     "fp": 1,
+     "fn": 11
+    },
+    {
+     "stem": "RH__abTg__HFFtubulin_20230922_175830__plate1_L02_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "validation",
+     "tp": 1,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "RH__dsred__cellmaskESCRT_20230915_123304__plate1_A05_004",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 50,
+     "fp": 2,
+     "fn": 4
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_E22_002",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 190,
+     "fp": 21,
+     "fn": 24
+    },
+    {
+     "stem": "plate2_F20_5",
+     "source": "lab",
+     "group": "plate2_F20_5__plate2",
+     "r7": "train",
+     "tp": 27,
+     "fp": 7,
+     "fn": 10
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_K17_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 105,
+     "fp": 6,
+     "fn": 4
+    },
+    {
+     "stem": "PMC11999461__tmp8lq77p7k_p-006__p1",
+     "source": "literature",
+     "group": "PMC11999461",
+     "r7": null,
+     "tp": 1,
+     "fp": 0,
+     "fn": 68
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_N17_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 75,
+     "fp": 9,
+     "fn": 24
+    },
+    {
+     "stem": "plate7_E16_4",
+     "source": "lab",
+     "group": "plate7_E16_4__plate7",
+     "r7": "train",
+     "tp": 38,
+     "fp": 9,
+     "fn": 10
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_P20_006",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 26,
+     "fp": 2,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C07_008",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 76,
+     "fp": 2,
+     "fn": 8
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-089__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 25,
+     "fn": 0
+    },
+    {
+     "stem": "plate7_F17_15",
+     "source": "lab",
+     "group": "plate7_F17_15__plate7",
+     "r7": "test",
+     "tp": 84,
+     "fp": 25,
+     "fn": 13
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_M20_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 95,
+     "fp": 14,
+     "fn": 8
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_L18_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 104,
+     "fp": 11,
+     "fn": 10
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-127__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 2,
+     "fn": 32
+    },
+    {
+     "stem": "PMC13043914__tmpoc_1lvnq_p-017__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 27,
+     "fp": 3,
+     "fn": 6
+    },
+    {
+     "stem": "PMC13043914__tmpdzh3cxs2_p-002__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 0,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "plate3_E15_15",
+     "source": "lab",
+     "group": "plate3_E15_15__plate3",
+     "r7": "train",
+     "tp": 111,
+     "fp": 16,
+     "fn": 22
+    },
+    {
+     "stem": "PMC11999461__tmp8lq77p7k_p-009__p3",
+     "source": "literature",
+     "group": "PMC11999461",
+     "r7": null,
+     "tp": 16,
+     "fp": 9,
+     "fn": 48
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_B22_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 142,
+     "fp": 29,
+     "fn": 30
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D13_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 127,
+     "fp": 10,
+     "fn": 8
+    },
+    {
+     "stem": "RH__dsred__cellmaskESCRT_20230915_123304__plate1_P01_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 12,
+     "fp": 3,
+     "fn": 13
+    },
+    {
+     "stem": "plate4_A11_7",
+     "source": "lab",
+     "group": "plate4_A11_7__plate4",
+     "r7": "validation",
+     "tp": 112,
+     "fp": 16,
+     "fn": 10
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C01_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 103,
+     "fp": 10,
+     "fn": 21
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-121__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 14,
+     "fp": 19,
+     "fn": 21
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-098__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 4,
+     "fp": 2,
+     "fn": 3
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-093__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 0,
+     "fn": 1
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-099__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 1,
+     "fp": 1,
+     "fn": 6
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_H17_010",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 6,
+     "fp": 0,
+     "fn": 1
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_D13_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 0,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_H08_011",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 0,
+     "fp": 0,
+     "fn": 1
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_E09_006",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 126,
+     "fp": 5,
+     "fn": 9
+    },
+    {
+     "stem": "PMC13043914__tmpdzh3cxs2_p-001__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 0,
+     "fp": 0,
+     "fn": 0
+    },
+    {
+     "stem": "PMC13003711__tmpm1s55st1_p-001__p0",
+     "source": "literature",
+     "group": "PMC13003711",
+     "r7": null,
+     "tp": 14,
+     "fp": 7,
+     "fn": 27
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_B05_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 42,
+     "fp": 10,
+     "fn": 3
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D14_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 143,
+     "fp": 16,
+     "fn": 8
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C16_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 243,
+     "fp": 28,
+     "fn": 38
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D19_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 171,
+     "fp": 10,
+     "fn": 17
+    },
+    {
+     "stem": "plate6_L03_12",
+     "source": "lab",
+     "group": "plate6_L03_12__plate6",
+     "r7": "train",
+     "tp": 55,
+     "fp": 7,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_J01_008",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 79,
+     "fp": 10,
+     "fn": 4
+    },
+    {
+     "stem": "RH__abTg__HFFtubulin_20230922_175830__plate1_K08_012",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "validation",
+     "tp": 4,
+     "fp": 0,
+     "fn": 0
+    }
+   ]
+  },
+  "stock_cpsam_v2": {
+   "weights": "cpsam_v2",
+   "seconds": 119.1,
+   "overall": {
+    "n_images": 50,
+    "f1": 0.5585950692333671,
+    "precision": 0.4634784233140295,
+    "recall": 0.7028328611898017,
+    "tp": 2481,
+    "fp": 2872,
+    "fn": 1049
+   },
+   "by_source": {
+    "lab": {
+     "n_images": 36,
+     "f1": 0.5697788697788698,
+     "precision": 0.47268650631879333,
+     "recall": 0.7170686456400742,
+     "tp": 2319,
+     "fp": 2587,
+     "fn": 915
+    },
+    "literature": {
+     "n_images": 14,
+     "f1": 0.4360699865410498,
+     "precision": 0.3624161073825503,
+     "recall": 0.5472972972972973,
+     "tp": 162,
+     "fp": 285,
+     "fn": 134
+    }
+   },
+   "peak_gpu_mib": 2354,
+   "excluding_r7_train_or_validation": {
+    "n_images": 15,
+    "f1": 0.5079702444208289,
+    "precision": 0.43613138686131386,
+    "recall": 0.6081424936386769,
+    "tp": 239,
+    "fp": 309,
+    "fn": 154
+   },
+   "per_image": [
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_J21_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 20,
+     "fp": 151,
+     "fn": 29
+    },
+    {
+     "stem": "plate5_A15_9",
+     "source": "lab",
+     "group": "plate5_A15_9__plate5",
+     "r7": "train",
+     "tp": 31,
+     "fp": 12,
+     "fn": 6
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_M16_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 169,
+     "fp": 118,
+     "fn": 30
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_O21_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 108,
+     "fp": 104,
+     "fn": 30
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_A04_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 46,
+     "fp": 78,
+     "fn": 52
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_F23_013",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 0,
+     "fp": 75,
+     "fn": 4
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-091__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 25,
+     "fn": 1
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-088__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 6,
+     "fp": 1,
+     "fn": 0
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_L17_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 25,
+     "fp": 101,
+     "fn": 23
+    },
+    {
+     "stem": "RH__abTg__HFFtubulin_20230922_175830__plate1_L02_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "validation",
+     "tp": 1,
+     "fp": 77,
+     "fn": 0
+    },
+    {
+     "stem": "RH__dsred__cellmaskESCRT_20230915_123304__plate1_A05_004",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 49,
+     "fp": 16,
+     "fn": 5
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_E22_002",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 177,
+     "fp": 68,
+     "fn": 37
+    },
+    {
+     "stem": "plate2_F20_5",
+     "source": "lab",
+     "group": "plate2_F20_5__plate2",
+     "r7": "train",
+     "tp": 21,
+     "fp": 5,
+     "fn": 16
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_K17_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 73,
+     "fp": 84,
+     "fn": 36
+    },
+    {
+     "stem": "PMC11999461__tmp8lq77p7k_p-006__p1",
+     "source": "literature",
+     "group": "PMC11999461",
+     "r7": null,
+     "tp": 48,
+     "fp": 6,
+     "fn": 21
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_N17_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 62,
+     "fp": 34,
+     "fn": 37
+    },
+    {
+     "stem": "plate7_E16_4",
+     "source": "lab",
+     "group": "plate7_E16_4__plate7",
+     "r7": "train",
+     "tp": 32,
+     "fp": 29,
+     "fn": 16
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_P20_006",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 17,
+     "fp": 25,
+     "fn": 16
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C07_008",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 48,
+     "fp": 117,
+     "fn": 36
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-089__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 5,
+     "fn": 0
+    },
+    {
+     "stem": "plate7_F17_15",
+     "source": "lab",
+     "group": "plate7_F17_15__plate7",
+     "r7": "test",
+     "tp": 77,
+     "fp": 24,
+     "fn": 20
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_M20_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 63,
+     "fp": 68,
+     "fn": 40
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_L18_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 76,
+     "fp": 114,
+     "fn": 38
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-127__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 1,
+     "fp": 13,
+     "fn": 31
+    },
+    {
+     "stem": "PMC13043914__tmpoc_1lvnq_p-017__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 3,
+     "fp": 47,
+     "fn": 30
+    },
+    {
+     "stem": "PMC13043914__tmpdzh3cxs2_p-002__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 0,
+     "fp": 37,
+     "fn": 0
+    },
+    {
+     "stem": "plate3_E15_15",
+     "source": "lab",
+     "group": "plate3_E15_15__plate3",
+     "r7": "train",
+     "tp": 105,
+     "fp": 15,
+     "fn": 28
+    },
+    {
+     "stem": "PMC11999461__tmp8lq77p7k_p-009__p3",
+     "source": "literature",
+     "group": "PMC11999461",
+     "r7": null,
+     "tp": 57,
+     "fp": 10,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_B22_009",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 122,
+     "fp": 114,
+     "fn": 50
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D13_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 95,
+     "fp": 86,
+     "fn": 40
+    },
+    {
+     "stem": "RH__dsred__cellmaskESCRT_20230915_123304__plate1_P01_005",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 9,
+     "fp": 13,
+     "fn": 16
+    },
+    {
+     "stem": "plate4_A11_7",
+     "source": "lab",
+     "group": "plate4_A11_7__plate4",
+     "r7": "validation",
+     "tp": 89,
+     "fp": 25,
+     "fn": 33
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C01_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 82,
+     "fp": 108,
+     "fn": 42
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-121__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 19,
+     "fp": 44,
+     "fn": 16
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-098__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 40,
+     "fn": 7
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-093__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 9,
+     "fn": 1
+    },
+    {
+     "stem": "PMC12147184__tmp2kfjuk53_p-099__p0",
+     "source": "literature",
+     "group": "PMC12147184",
+     "r7": null,
+     "tp": 0,
+     "fp": 3,
+     "fn": 7
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_H17_010",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 3,
+     "fp": 73,
+     "fn": 4
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_D13_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 0,
+     "fp": 68,
+     "fn": 0
+    },
+    {
+     "stem": "RH__abTg__HELAtubulin_20230923_114209__plate1_H08_011",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 0,
+     "fp": 101,
+     "fn": 1
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_E09_006",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 99,
+     "fp": 114,
+     "fn": 36
+    },
+    {
+     "stem": "PMC13043914__tmpdzh3cxs2_p-001__p0",
+     "source": "literature",
+     "group": "PMC13043914",
+     "r7": null,
+     "tp": 0,
+     "fp": 24,
+     "fn": 0
+    },
+    {
+     "stem": "PMC13003711__tmpm1s55st1_p-001__p0",
+     "source": "literature",
+     "group": "PMC13003711",
+     "r7": null,
+     "tp": 28,
+     "fp": 21,
+     "fn": 13
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_B05_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 30,
+     "fp": 109,
+     "fn": 15
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D14_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 120,
+     "fp": 75,
+     "fn": 31
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_C16_003",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 228,
+     "fp": 95,
+     "fn": 53
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_D19_007",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 147,
+     "fp": 77,
+     "fn": 41
+    },
+    {
+     "stem": "plate6_L03_12",
+     "source": "lab",
+     "group": "plate6_L03_12__plate6",
+     "r7": "train",
+     "tp": 50,
+     "fp": 7,
+     "fn": 12
+    },
+    {
+     "stem": "RH__abTg__TSG101RH111523_20231115_162716__plate1_J01_008",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "train",
+     "tp": 42,
+     "fp": 93,
+     "fn": 41
+    },
+    {
+     "stem": "RH__abTg__HFFtubulin_20230922_175830__plate1_K08_012",
+     "source": "lab",
+     "group": "RH__plate1",
+     "r7": "validation",
+     "tp": 3,
+     "fp": 114,
+     "fn": 1
+    }
+   ]
+  }
+ },
+ "r7_overlap_counts": {
+  "train": 32,
+  "validation": 3,
+  "test": 1,
+  "null": 14
+ }
+}
