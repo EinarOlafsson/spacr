@@ -197,6 +197,61 @@ def share_deck_images(output: Path) -> int:
     return len(shared)
 
 
+def share_identical_assets(output: Path) -> int:
+    """Serve nightly's byte-identical large assets from main's copy.
+
+    Two full channels no longer fit the Pages budget once main catches up
+    with nightly: each is about 590 MB, and most of the size is the same
+    bytes twice. Only assets with ONE known reference are shared, so the
+    rewrite can be checked exactly: the API translation catalogs, which
+    ``api_i18n.js`` loads relative to itself (about 180 MB per channel), and
+    the deck PDF, linked once from the deck page. A catalog or PDF that
+    differs stays in nightly. Returns the bytes removed from nightly.
+    """
+    nightly = output / "nightly"
+    saved = 0
+    script = nightly / "_static/api_i18n.js"
+    catalogs = nightly / "_static/i18n/api"
+    lookup = "new URL(`${language}.json`, catalogRoot)"
+    if script.is_file() and catalogs.is_dir():
+        shared = []
+        for path in sorted(catalogs.glob("*.json")):
+            twin = output / "_static/i18n/api" / path.name
+            if twin.is_file() and twin.read_bytes() == path.read_bytes():
+                shared.append(path.stem)
+        if shared:
+            text = script.read_text()
+            if text.count(lookup) != 1:
+                raise ValueError("nightly: API catalog lookup changed; review the publisher")
+            # The script sits at <site>/nightly/_static/; main's catalogs at
+            # <site>/_static/i18n/api/.
+            text = text.replace(lookup, (
+                "new URL(`${language}.json`, SPACR_SHARED_CATALOGS.has(language)"
+                " ? new URL(\"../../_static/i18n/api/\", scriptUrl) : catalogRoot)"))
+            marker = "  const catalogRoot = "
+            if text.count(marker) != 1:
+                raise ValueError("nightly: API catalog root changed; review the publisher")
+            text = text.replace(marker, "  const SPACR_SHARED_CATALOGS = new Set("
+                                + json.dumps(shared) + ");\n" + marker, 1)
+            script.write_text(text)
+            for language in shared:
+                path = catalogs / f"{language}.json"
+                saved += path.stat().st_size
+                path.unlink()
+    deck = nightly / "_static/deck"
+    pdf, twin = deck / "spacr_deck.pdf", output / "_static/deck/spacr_deck.pdf"
+    if pdf.is_file() and twin.is_file() and pdf.read_bytes() == twin.read_bytes():
+        index = deck / "index.html"
+        html = index.read_text()
+        link = 'href="spacr_deck.pdf"'
+        if html.count(link) != 1:
+            raise ValueError("nightly: expected one deck PDF link")
+        index.write_text(html.replace(link, 'href="../../../_static/deck/spacr_deck.pdf"'))
+        saved += pdf.stat().st_size
+        pdf.unlink()
+    return saved
+
+
 def assemble(main: Path, nightly: Path, output: Path, base_path: str = "/spacr",
              limit: int = 950 * 1024 * 1024) -> dict:
     """Require both complete inputs and reject artifacts above the Pages budget."""
@@ -229,13 +284,15 @@ def assemble(main: Path, nightly: Path, output: Path, base_path: str = "/spacr",
             text = re.sub(target, lambda match: match[0] + banner, text, count=1)
             path.write_text(text)
     shared_deck_images = share_deck_images(output)
+    shared_asset_bytes = share_identical_assets(output)
     (output / ".nojekyll").touch()
     size = sum(path.stat().st_size for path in output.rglob("*") if path.is_file())
     if size > limit:
         raise ValueError(f"Combined Pages site is {size:,} bytes; budget is {limit:,}")
     receipt = {"schema": 1, "channels": records, "size_bytes": size,
                "media_files": len(list((output / "_media").glob("*"))),
-               "shared_deck_images": shared_deck_images}
+               "shared_deck_images": shared_deck_images,
+               "shared_asset_bytes": shared_asset_bytes}
     (output / "channels.json").write_text(json.dumps(receipt, indent=2) + "\n")
     return receipt
 

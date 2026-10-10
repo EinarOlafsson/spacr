@@ -367,3 +367,47 @@ def test_deck_sharing_preserves_additional_literal_uses_and_unrecognized_decks(t
     assert receipt['shared_deck_images'] == 0
     for root in (output, output / 'nightly'):
         assert (root / '_static/deck/image.jpg').read_bytes() == b'image'
+
+
+def _assets(root, catalogs, pdf):
+    static = root / '_static'
+    (static / 'i18n/api').mkdir(parents=True)
+    for language, payload in catalogs.items():
+        (static / 'i18n/api' / f'{language}.json').write_text(payload)
+    (static / 'api_i18n.js').write_text(
+        '  const catalogRoot = new URL("./i18n/api/", scriptUrl);\n'
+        '    const url = new URL(`${language}.json`, catalogRoot);\n')
+    (static / 'deck').mkdir()
+    (static / 'deck/spacr_deck.pdf').write_bytes(pdf)
+    (static / 'deck/index.html').write_text('<a id="pdf" href="spacr_deck.pdf" download>PDF</a>')
+
+
+def test_identical_catalogs_and_deck_pdf_are_served_once_from_main(tmp_path):
+    main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
+    _assets(main, {'de': 'same', 'fr': 'main fr'}, b'deck')
+    _assets(nightly, {'de': 'same', 'fr': 'nightly fr'}, b'deck')
+    output = tmp_path / 'pages'
+    receipt = assemble(main, nightly, output)
+    script = (output / 'nightly/_static/api_i18n.js').read_text()
+    assert 'new Set(["de"])' in script
+    assert 'new URL("../../_static/i18n/api/", scriptUrl) : catalogRoot' in script
+    assert not (output / 'nightly/_static/i18n/api/de.json').exists()
+    assert (output / 'nightly/_static/i18n/api/fr.json').read_text() == 'nightly fr'
+    assert (output / '_static/i18n/api/de.json').read_text() == 'same'
+    assert (output / '_static/api_i18n.js').read_text().count('SPACR_SHARED') == 0
+    deck = (output / 'nightly/_static/deck/index.html').read_text()
+    assert 'href="../../../_static/deck/spacr_deck.pdf"' in deck
+    assert not (output / 'nightly/_static/deck/spacr_deck.pdf').exists()
+    assert receipt['shared_asset_bytes'] == len('same') + len(b'deck')
+
+
+def test_a_changed_deck_pdf_or_unknown_lookup_is_not_shared(tmp_path):
+    main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
+    _assets(main, {'de': 'same'}, b'main deck')
+    _assets(nightly, {'de': 'same'}, b'nightly deck')
+    receipt = assemble(main, nightly, tmp_path / 'pages')
+    assert (tmp_path / 'pages/nightly/_static/deck/spacr_deck.pdf').read_bytes() == b'nightly deck'
+    assert receipt['shared_asset_bytes'] == len('same')
+    (nightly / '_static/api_i18n.js').write_text('const other = 1;\n')
+    with pytest.raises(ValueError, match='catalog lookup changed'):
+        assemble(main, nightly, tmp_path / 'pages2')
