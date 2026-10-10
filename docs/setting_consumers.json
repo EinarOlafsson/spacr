@@ -8270,7 +8270,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 1550,
+    "line": 1650,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_classifier_training"
@@ -8279,7 +8279,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 1551,
+    "line": 1651,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_classifier_training"
@@ -12800,7 +12800,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 1533,
+    "line": 1633,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_cellpose_training"
@@ -12809,7 +12809,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "diameter",
-    "line": 1534,
+    "line": 1634,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_cellpose_training"
@@ -14000,7 +14000,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "epochs",
-    "line": 1554,
+    "line": 1654,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_classifier_training"
@@ -14009,7 +14009,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "epochs",
-    "line": 1555,
+    "line": 1655,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_classifier_training"
@@ -16448,7 +16448,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grayscale",
-    "line": 1537,
+    "line": 1637,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_cellpose_training"
@@ -16457,7 +16457,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grayscale",
-    "line": 1537,
+    "line": 1637,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_cellpose_training"
@@ -19242,7 +19242,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "image_size",
-    "line": 1552,
+    "line": 1652,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_classifier_training"
@@ -19251,7 +19251,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "image_size",
-    "line": 1553,
+    "line": 1653,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_classifier_training"
@@ -25270,7 +25270,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_type",
-    "line": 1548,
+    "line": 1648,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_classifier_training"
@@ -25279,7 +25279,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "model_type",
-    "line": 1549,
+    "line": 1649,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_classifier_training"
@@ -25666,7 +25666,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_epochs",
-    "line": 1535,
+    "line": 1635,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_cellpose_training"
@@ -25675,7 +25675,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_epochs",
-    "line": 1536,
+    "line": 1636,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_cellpose_training"
@@ -29667,7 +29667,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_filters",
-    "line": 3270,
+    "line": 3326,
     "module": "spacr.qt.mask_engine",
     "nested": false,
     "qualname": "settings_filters"
@@ -48206,7 +48206,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1526,
+    "line": 1626,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_cellpose_training"
@@ -48215,7 +48215,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1545,
+    "line": 1645,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_classifier_training"
@@ -51580,7 +51580,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_size",
-    "line": 1530,
+    "line": 1630,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_cellpose_training"
@@ -59105,7 +59105,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "width_height",
-    "line": 1530,
+    "line": 1630,
     "module": "spacr.model_zoo",
     "nested": false,
     "qualname": "_describe_cellpose_training"
