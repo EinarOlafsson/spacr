@@ -214,7 +214,9 @@
       "source_sha256": "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b",
       "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
       "translation": "विंडो भर में लागू हर कुंजी दोबारा निर्धारित हो सकती है। संदर्भ पत्र में \"Change shortcuts…\" बटन है, जो विंडो की सभी क्रियाओं की तालिका खोलता है। वहाँ टाइप की गई कुंजी डिफ़ॉल्ट को बदलती है; दूसरी क्रिया द्वारा पहले से उपयोग की गई कुंजी टकराव के रूप में दिखाई जाती है और सहेजी नहीं जा सकती। बदलाव प्राथमिकता भंडार में :data:`_KEYMAP_KEY` के अंतर्गत Qt की पोर्टेबल वर्तनी में रहते हैं, इसलिए एक प्लेटफ़ॉर्म पर सहेजा कुंजी मानचित्र दूसरे पर भी उसी तरह पढ़ता है। Annotate, Make Masks और दृश्य क्षेत्र ब्राउज़र जैसी एक अनुप्रयोग स्क्रीन की कुंजियाँ अपने डिफ़ॉल्ट रखती हैं और उपयोग में दिखती हैं।",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N656 made per-screen keys rebindable, so the sentence saying they keep their defaults was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.theme#1",

@@ -1,0 +1,13 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) have separate editable rows and saved overrides, applied to both existing and new application views.",
+      "label": "spacr.qt.shortcuts#14",
+      "source": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser) have separate editable rows and saved overrides, applied to both existing and new screens.",
+      "source_sha256": "de950a18f89d45c160ffc50e17f4bec0cc2d2541ea0dc776a8d4d5f7a3365c25",
+      "translation": "窗口级快捷键均可重新绑定。速查表中的 \"Change shortcuts…\" 按钮会打开窗口级操作表；在其中输入的按键替换默认键，已被另一操作占用的按键会提示冲突且无法保存。改写值以 Qt 的可移植表示法保存在首选项的 :data:`_KEYMAP_KEY` 下，因此在一个平台保存的键位映射在其他平台读取时相同。仅属于一个视图的按键（Annotate、Make Masks、视野浏览器）拥有各自可编辑的行和已保存的改写值，并同时应用于现有视图和新视图。"
+    }
+  ],
+  "schema": 1
+}

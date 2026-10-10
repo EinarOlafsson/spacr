@@ -214,7 +214,9 @@
       "source_sha256": "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b",
       "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
       "translation": "窗口级快捷键均可重新绑定。速查表中的 \"Change shortcuts…\" 按钮会打开窗口级操作表；在其中输入的按键替换默认键，已被另一操作占用的按键会提示冲突且无法保存。改写值以 Qt 的可移植表示法保存在首选项的 :data:`_KEYMAP_KEY` 下，因此在一个平台保存的键位映射在其他平台读取时相同。仅属于一个应用视图的按键，例如 Annotate、Make Masks 和视野浏览器，保留默认值，并列为已占用。",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N656 made per-screen keys rebindable, so the sentence saying they keep their defaults was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.theme#1",

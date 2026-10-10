@@ -1,0 +1,13 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) have separate editable rows and saved overrides, applied to both existing and new application views.",
+      "label": "spacr.qt.shortcuts#14",
+      "source": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser) have separate editable rows and saved overrides, applied to both existing and new screens.",
+      "source_sha256": "de950a18f89d45c160ffc50e17f4bec0cc2d2541ea0dc776a8d4d5f7a3365c25",
+      "translation": "Cada tecla global de la ventana puede reasignarse. La hoja de referencia contiene un botón \"Change shortcuts…\" que abre una tabla de las acciones globales de la ventana; una tecla introducida allí reemplaza la predeterminada, una tecla ya usada por otra acción se indica como conflicto y no puede guardarse. Las modificaciones se almacenan en Preferencias bajo :data:`_KEYMAP_KEY`, en la notación portátil de Qt, para que un mapa de teclas guardado en una plataforma se lea igual en las otras. Las teclas de una única vista (Annotate, Make Masks, el navegador de campos) tienen filas editables propias y modificaciones guardadas, que se aplican tanto a las vistas existentes como a las nuevas."
+    }
+  ],
+  "schema": 1
+}

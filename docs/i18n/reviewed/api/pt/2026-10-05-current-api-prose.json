@@ -214,7 +214,9 @@
       "source_sha256": "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b",
       "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
       "translation": "Cada tecla global da janela pode ser reatribuída. A folha de referência inclui um botão \"Change shortcuts…\" que abre uma tabela das ações globais da janela; uma tecla introduzida ali substitui a predefinição, uma tecla já usada por outra ação é indicada como conflito e não pode ser guardada. As alterações são mantidas nas Preferências sob :data:`_KEYMAP_KEY`, na notação portátil do Qt, para que um mapa de teclas guardado numa plataforma seja lido da mesma forma nas outras. Teclas de uma única vista da aplicação, como Annotate, Make Masks ou o navegador de campos, mantêm as predefinições e são listadas como ocupadas.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N656 made per-screen keys rebindable, so the sentence saying they keep their defaults was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.theme#1",

@@ -115253,10 +115253,10 @@
         "57789cb3e56114c2ac0b6da7897da3ab981774d3cce81cbfe4a88b60b4475ecf",
         "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-        "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b"
+        "de950a18f89d45c160ffc50e17f4bec0cc2d2541ea0dc776a8d4d5f7a3365c25"
       ],
-      "source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
-      "text": "spaCR Qt GUI 的键盘优先快捷键。\n\n在主窗口上注册全局 :class:`QShortcut` 绑定，使整个应用无需鼠标即可使用：\n\n    Ctrl+0        返回主页（在 macOS 上，Cmd+H 用于隐藏应用）\n    Ctrl+1..9     切换到侧栏中的第 N 个应用\n    Ctrl+K        打开命令面板\n    Ctrl+Shift+H  通过帮助菜单旁的搜索框搜索 spaCR\n    F1  / ?       显示快捷键速查表\n    Ctrl+P        打开偏好设置\n    Ctrl+Alt+0    将界面（GUI）、字体和预览的缩放比例恢复为 100 %\n    Ctrl+/        打开 AI 控制台\n    Ctrl+End      跳到控制台的最新一行\n    F11           切换全屏模式\n    Esc           关闭任何已打开的对话框或弹出窗口\n\n:func:`install` 在 ``MainWindow.__init__`` 中调用一次。每个绑定都记录在 :data:`SHORTCUTS` 中，使速查表对话框始终与实际连接的快捷键保持同步。\n\n窗口级快捷键均可重新绑定。速查表中的 \"Change shortcuts…\" 按钮会打开窗口级操作表；在其中输入的按键替换默认键，已被另一操作占用的按键会提示冲突且无法保存。改写值以 Qt 的可移植表示法保存在首选项的 :data:`_KEYMAP_KEY` 下，因此在一个平台保存的键位映射在其他平台读取时相同。仅属于一个应用视图的按键，例如 Annotate、Make Masks 和视野浏览器，保留默认值，并列为已占用。",
+      "source_sha256": "625d90fc6093f086ee76bae19436af671eeaac38ee1e39db5bed502a3cbe6999",
+      "text": "spaCR Qt GUI 的键盘优先快捷键。\n\n在主窗口上注册全局 :class:`QShortcut` 绑定，使整个应用无需鼠标即可使用：\n\n    Ctrl+0        返回主页（在 macOS 上，Cmd+H 用于隐藏应用）\n    Ctrl+1..9     切换到侧栏中的第 N 个应用\n    Ctrl+K        打开命令面板\n    Ctrl+Shift+H  通过帮助菜单旁的搜索框搜索 spaCR\n    F1  / ?       显示快捷键速查表\n    Ctrl+P        打开偏好设置\n    Ctrl+Alt+0    将界面（GUI）、字体和预览的缩放比例恢复为 100 %\n    Ctrl+/        打开 AI 控制台\n    Ctrl+End      跳到控制台的最新一行\n    F11           切换全屏模式\n    Esc           关闭任何已打开的对话框或弹出窗口\n\n:func:`install` 在 ``MainWindow.__init__`` 中调用一次。每个绑定都记录在 :data:`SHORTCUTS` 中，使速查表对话框始终与实际连接的快捷键保持同步。\n\n窗口级快捷键均可重新绑定。速查表中的 \"Change shortcuts…\" 按钮会打开窗口级操作表；在其中输入的按键替换默认键，已被另一操作占用的按键会提示冲突且无法保存。改写值以 Qt 的可移植表示法保存在首选项的 :data:`_KEYMAP_KEY` 下，因此在一个平台保存的键位映射在其他平台读取时相同。仅属于一个视图的按键（Annotate、Make Masks、视野浏览器）拥有各自可编辑的行和已保存的改写值，并同时应用于现有视图和新视图。",
       "translation_source_blocks_sha256": [
         "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
         "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
@@ -115272,7 +115272,7 @@
         "63c7624f5ce53bc4193451cf13af672420ca216ccda339640281608f02cbfb1e",
         "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-        "8834085039cf1caeb585d1a4233581e445debfb79885f0adcfebe4ea52089afc"
+        "b72f14e1bbd813923b82c023b4322d643e59d64d1c149a09e3010444e0dfcf14"
       ]
     },
     "spacr.qt.shortcuts.ShortcutOverlay": {

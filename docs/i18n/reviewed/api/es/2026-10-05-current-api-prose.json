@@ -214,7 +214,9 @@
       "source_sha256": "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b",
       "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
       "translation": "Cada tecla global de la ventana puede reasignarse. La hoja de referencia contiene un botón \"Change shortcuts…\" que abre una tabla de las acciones globales de la ventana; una tecla introducida allí reemplaza la predeterminada, una tecla ya usada por otra acción se indica como conflicto y no puede guardarse. Las modificaciones se almacenan en Preferencias bajo :data:`_KEYMAP_KEY`, en la notación portátil de Qt, para que un mapa de teclas guardado en una plataforma se lea igual en las otras. Las teclas de una única vista de la aplicación, como Annotate, Make Masks o el navegador de campos, conservan sus valores predeterminados y se enumeran como ocupadas.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N656 made per-screen keys rebindable, so the sentence saying they keep their defaults was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.theme#1",

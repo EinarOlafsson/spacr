@@ -214,7 +214,9 @@
       "source_sha256": "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b",
       "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
       "translation": "Varje fönstergemensam tangent kan tilldelas på nytt. Lathunden har en knapp \"Change shortcuts…\" som öppnar en tabell över fönstergemensamma åtgärder. En tangent som skrivs in där ersätter standarden; en tangent som redan används av en annan åtgärd anges som en konflikt och kan inte sparas. Ändringarna lagras under :data:`_KEYMAP_KEY` i Inställningar med Qt:s plattformsoberoende notation, så att en tangentuppsättning sparad på en plattform läses likadant på andra. Tangenter som hör till en enda programvy, som Annotate, Make Masks eller bildfältsbläddraren, behåller sina standarder och listas som upptagna.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N656 made per-screen keys rebindable, so the sentence saying they keep their defaults was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.theme#1",

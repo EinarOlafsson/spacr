@@ -322,4 +322,7 @@ def test_update_without_an_application_is_a_safe_noop(monkeypatch):
         def instance():
             return None
     monkeypatch.setattr(S, "QApplication", NoApplication)
-    S._apply_screen_keymaps()
+    visited = []
+    monkeypatch.setattr(S, "_refresh_screen_hints", visited.append)
+    assert S._apply_screen_keymaps() is None
+    assert visited == []
