@@ -558,3 +558,43 @@ def test_the_compare_window_zooms_both_views_and_nothing_once_emptied(qtbot):
     assert not first._user_zoomed
     window.views = [first, second]
     window.close()
+
+
+def test_release_folded_deletes_only_closed_unparented_idle_modules(qtbot):
+    """N47: a closed screen deletes the folded modules it alone owns, and
+    leaves a parented module, one with a running thread, and one whose C++
+    object is already gone."""
+    import types
+
+    from PySide6.QtCore import QThread
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    class Gone:
+        def parent(self):
+            raise RuntimeError("Internal C++ object already deleted.")
+
+    idle = QWidget()
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    parented = QWidget(parent)
+    busy = QWidget()
+    qtbot.addWidget(busy)
+    thread = QThread(busy)
+    thread.start()
+    destroyed = []
+    idle.destroyed.connect(lambda *_: destroyed.append("idle"))
+    holder = types.SimpleNamespace(
+        _fold_dialogs={"zoo": idle, "gone": Gone()},
+        _fold_screens={"compare": parented, "workbench": busy})
+    try:
+        MakeMasksScreen._release_folded(holder)
+        qtbot.waitUntil(lambda: destroyed == ["idle"], timeout=2000)
+    finally:
+        thread.quit()
+        thread.wait(2000)
+
+    assert holder._fold_dialogs == {} and holder._fold_screens == {}
+    assert parented.parent() is parent
+    assert busy.findChild(QThread) is thread

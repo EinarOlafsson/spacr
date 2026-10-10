@@ -2873,7 +2873,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 1953,
+    "line": 1976,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -7772,7 +7772,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "chunk_size",
-    "line": 1939,
+    "line": 1962,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -29667,7 +29667,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_filters",
-    "line": 2675,
+    "line": 3270,
     "module": "spacr.qt.mask_engine",
     "nested": false,
     "qualname": "settings_filters"
@@ -48809,7 +48809,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1945,
+    "line": 1968,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -48818,7 +48818,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1947,
+    "line": 1970,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"

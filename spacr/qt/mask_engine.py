@@ -1274,6 +1274,10 @@ class _VlWriter:
     """
 
     def __init__(self, seed: str):
+        """Start a document whose element ids derive from ``seed``.
+
+        :param seed: text that makes the ids of this export reproducible.
+        """
         import xml.etree.ElementTree as ElementTree
 
         self.et = ElementTree
@@ -1282,6 +1286,10 @@ class _VlWriter:
         self.links = []
 
     def new_id(self) -> str:
+        """The next reproducible version-4 GUID for an element of this document.
+
+        :returns: the GUID text.
+        """
         self.count += 1
         raw = bytearray(hashlib.sha256(
             f"{self.seed}/{self.count}".encode("utf-8")).digest()[:16])
@@ -1298,11 +1306,25 @@ class _VlWriter:
         return text
 
     def sub(self, parent, tag: str, **attrs):
+        """Append a child element, leaving out attributes whose value is None.
+
+        :param parent: the parent element.
+        :param tag: the child tag.
+        :returns: the new element.
+        """
         return self.et.SubElement(parent, tag, {k: str(v) for k, v in attrs.items()
                                                 if v is not None})
 
     def type_annotation(self, parent, category: str, dependency: str,
                         name: str):
+        """Annotate ``parent`` with the vvvv type it carries.
+
+        :param parent: the element to annotate.
+        :param category: the type's category.
+        :param dependency: the library the type comes from.
+        :param name: the type name.
+        :returns: the annotation element.
+        """
         note = self.sub(parent, "{property}TypeAnnotation",
                         LastCategoryFullName=category,
                         LastDependency=dependency)
@@ -1360,6 +1382,11 @@ class _VlWriter:
         return pad_id
 
     def link(self, source: str, sink: str) -> None:
+        """Remember one link from an output pin to an input pin.
+
+        :param source: the output pin id.
+        :param sink: the input pin id.
+        """
         self.links.append((source, sink))
 
 
@@ -1395,9 +1422,20 @@ def _vvvv_project_document(stem: str, width: int, height: int,
     core, basics, skia = "VL.CoreLib.vl", "CoreLibBasics.vl", "VL.Skia.vl"
 
     def num(value: float) -> str:
+        """A number as vvvv writes it.
+
+        :param value: the number.
+        :returns: the text.
+        """
         return f"{value:.9g}"
 
     def vec(x: float, y: float) -> str:
+        """A 2-D vector as vvvv writes it.
+
+        :param x: horizontal component.
+        :param y: vertical component.
+        :returns: the text.
+        """
         return f"{num(x)}, {num(y)}"
 
     doc = et.Element("Document", {"xmlns:r": "reflection",
@@ -1539,6 +1577,12 @@ def _vvvv_project_document(stem: str, width: int, height: int,
                   ("Index", "InputPin", False), ("Result", "OutputPin", False)]
 
     def cell(column: str, x: int):
+        """Patch the node that reads one column of the current row.
+
+        :param column: the column name.
+        :param x: the node's horizontal position.
+        :returns: the slice node's result pin.
+        """
         index = vl.pad(body, f"{x + 40},360,35,15", str(columns.index(column)),
                        "Primitive", core, "Integer32", "Index")
         node = vl.node(body, f"{x},380,55,19", "Collections.Spread", core,
@@ -1548,6 +1592,12 @@ def _vvvv_project_document(stem: str, width: int, height: int,
         return node["Result"]
 
     def number(column: str, x: int):
+        """Patch the parse of one numeric column of the current row.
+
+        :param column: the column name.
+        :param x: the node's horizontal position.
+        :returns: the parsed value pin.
+        """
         parse = vl.node(body, f"{x},410,55,19", "System.Conversion", core,
                         call, "TryParse", [("String", "InputPin", False),
                                            ("Value", "OutputPin", False),
@@ -1738,6 +1788,12 @@ def _vvvv_publisher(tabular):
     import time
 
     def publish(target, write):
+        """Publish ``target``, retrying while another process holds it.
+
+        :param target: the destination path.
+        :param write: writes the temporary file that replaces it.
+        :returns: what the publish returns.
+        """
         for attempt in range(20):
             try:
                 return tabular._publish(target, write)

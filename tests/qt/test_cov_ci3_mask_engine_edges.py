@@ -261,3 +261,27 @@ def test_merge_with_exact_ids_keeps_a_new_objects_own_id():
     assert (out[6:8, 6:8] == 12).all()
     assert (out[0:3, 0:3] == 6).all()
     assert set(np.unique(out)) == {0, 6, 12}
+
+
+def test_a_vvvv_node_that_is_not_fixed_carries_no_node_flag():
+    """N685's vvvv writer marks a node fixed only when asked."""
+    from spacr.qt.mask_engine import _VlWriter
+
+    writer = _VlWriter("seed")
+    root = writer.et.Element("Patch")
+    pins = writer.node(root, "0,0,10,10", "Primitive", "Builtin",
+                       "OperationCallFlag", "Plus",
+                       [("Input", "InputPin", False, "1",
+                         ("Primitive", "CoreLibBasics.vl", "Integer32"))],
+                       fixed=False)
+    fixed = writer.node(root, "0,20,10,10", "Primitive", "Builtin",
+                        "OperationCallFlag", "Plus", [])
+
+    first, second = root.findall("Node")
+    flags = [[choice.get("Kind") for choice in node.iter("Choice")]
+             for node in (first, second)]
+    assert "NodeFlag" not in flags[0] and "NodeFlag" in flags[1]
+    pin = first.find("Pin")
+    assert pin.get("Id") == pins["Input"] and pin.get("DefaultValue") == "1"
+    assert pin.find("{property}TypeAnnotation") is not None
+    assert fixed == {}

@@ -32,13 +32,12 @@ def _spacr() -> pathlib.Path:
 #: ADD TO THIS ONLY WITH THE REASON WRITTEN AT THE CALL SITE TOO. A dict entry
 #: is a promise that a comment beside the code makes the same argument.
 ALLOWED = {
-    "plot.py": (1, "`save_figure` itself -- the one writer"),
+    "plot.py": (2, "`save_figure` itself -- the one writer -- and "
+                   "`_checked_savefig` (F572), which gives writers that keep "
+                   "their own export rule, such as the gene measurement "
+                   "sweep, the same figure-integrity check"),
     "report.py": (2, "PdfPages.savefig: pages of a multi-page book, not a "
                      "file a format preference can name"),
-    "gene_measurement_sweep.py": (
-        1, "`_write` IS the sweep's export rule and has already flipped the "
-           "figure ground, each axes ground and every piece of chrome; the "
-           "shared writer would repaint a second time"),
     "qt/widgets/save_figure_dialog.py": (
         1, "the user chose the format, the DPI and the page in this dialog "
            "and is looking at the preview; overriding them would write "

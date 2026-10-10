@@ -272,9 +272,20 @@ def test_every_kept_figure_goes_through_the_helper(module_name):
     """
     sites = _raw_savefig_sites(module_name)
     if module_name == "plot":
-        assert len(sites) == 1, (
+        import inspect
+
+        from spacr import plot
+
+        owners = {}
+        for name in ("save_figure", "_checked_savefig"):
+            lines, start = inspect.getsourcelines(getattr(plot, name))
+            owners[name] = range(start, start + len(lines))
+        outside = [line for line in sites
+                   if not any(line in span for span in owners.values())]
+        assert len(sites) == 2 and not outside, (
             f"spacr.plot has {len(sites)} raw savefig calls at lines "
-            f"{sites}; only save_figure's own is allowed")
+            f"{sites}; only save_figure's own and _checked_savefig's "
+            f"(F572's integrity-checked writer) are allowed")
         return
     assert not sites, (
         f"spacr.{module_name} still writes figures directly at lines "

@@ -296,9 +296,21 @@ def test_real_harmony_index_declares_every_field(tmp_path):
     assert fields[0]['planes'][(0, 0, 0)] == ('r01c02f01p01-ch1sk1fk1fl1.tiff', ('page', 0))
 
 
+
+def _modern_czifile():
+    """Skip unless czifile has ``CziImage`` (2026.3.12, Python 3.12+).
+
+    Python 3.9 still installs czifile 2019, which imports but cannot read
+    scenes; the watch refuses it and these tests would only wait.
+    """
+    czifile = pytest.importorskip('czifile')
+    if not hasattr(czifile, 'CziImage'):
+        pytest.skip('czifile>=2026.3.12 is needed to read CZI scenes')
+    return czifile
+
 def test_czi_scenes_are_fields_and_wait_while_the_file_grows(tmp_path, fake_model,
                                                              monkeypatch):
-    pytest.importorskip('czifile')
+    _modern_czifile()
     seen = _model(monkeypatch)
     data = (DATA / 'zeiss_czi' / 'two_scenes_tzc.czi').read_bytes()
     stacks = {('twoscenestzc', 'A01', scene + 1): np.stack([np.stack([np.stack([
@@ -332,7 +344,7 @@ def test_czi_scenes_are_fields_and_wait_while_the_file_grows(tmp_path, fake_mode
 
 
 def test_czi_timelapse_scenes_match_the_projected_batch(tmp_path, real_pipeline):
-    pytest.importorskip('czifile')
+    _modern_czifile()
     stacks = {('twoscenestc', 'A01', scene + 1): np.stack([np.stack([
         czi_plane(scene, t, 0, c) for c in range(2)])[None] for t in range(3)])
         for scene in range(2)}
@@ -508,7 +520,7 @@ def test_a_growing_czi_is_taken_only_after_it_settles(tmp_path):
     import threading
     import time
 
-    pytest.importorskip('czifile')
+    _modern_czifile()
     data = (DATA / 'zeiss_czi' / 'two_scenes_tc.czi').read_bytes()
     path = tmp_path / 'grow.czi'
     path.write_bytes(data[:4096])

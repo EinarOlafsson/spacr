@@ -2599,7 +2599,7 @@ def _migrate_field_ripples_switch() -> None:
     settings = _settings()
     if _as_bool(settings.value(_KEY_FIELD_RIPPLES_SLIDER, False), False):
         return
-    if not settings.contains(_KEY_FIELD_RIPPLES):
+    if settings.value(_KEY_FIELD_RIPPLES, None) is None:
         return
     if not _as_bool(settings.value(_KEY_FIELD_RIPPLES, True), True):
         settings.setValue(_KEY_FIELD_RIPPLE_INTENSITY, 0.0)
