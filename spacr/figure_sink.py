@@ -223,6 +223,10 @@ class _ShowOnlyWhereItReturns:
     """
 
     def __enter__(self):
+        """Replace ``pyplot.show`` with a no-op when showing would block.
+
+        :returns: this guard.
+        """
         import matplotlib.pyplot as pyplot
 
         self._pyplot = pyplot
@@ -234,9 +238,17 @@ class _ShowOnlyWhereItReturns:
 
     @staticmethod
     def _skip(*_args, **_kwargs):
+        """Stand in for ``pyplot.show`` and draw nothing.
+
+        :returns: None, as ``pyplot.show`` does under Agg.
+        """
         return None
 
     def __exit__(self, *_exc_info):
+        """Restore ``pyplot.show`` unless something else replaced it since.
+
+        :returns: False, so an exception from the run propagates.
+        """
         if self._original is not None and self._pyplot.show is self._skip:
             self._pyplot.show = self._original
         return False
