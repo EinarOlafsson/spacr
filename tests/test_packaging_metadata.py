@@ -1652,6 +1652,10 @@ def test_the_citation_version_doi_is_the_one_for_the_version_it_claims():
             f"spaCR {version} is not tagged yet, so its Zenodo DOI cannot "
             f"exist; this check resumes once v{version} is released. "
             f"CITATION.cff currently names spaCR {named}.")
+    assert not str(entry["description"]).startswith("Version DOI: pending for "), (
+        f"spaCR {version} is released but CITATION.cff still carries the "
+        f"pending marker from `packaging/release.py bump`; run "
+        f"`packaging/release.py sync-release-metadata` to record its DOI.")
     assert named == version, (
         f"CITATION.cff says version {version!r} but its version DOI "
         f"{entry['value']!r} is described as belonging to spaCR {named!r}. A "

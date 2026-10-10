@@ -328,6 +328,18 @@ def bump_release(
             citation_text, "version", new, citation_path)
         citation_text = _replace_citation_field(
             citation_text, "date-released", released, citation_path)
+        # The tag is cut from this file, and Zenodo mints the new version
+        # DOI only after that release exists. Leaving the previous DOI here
+        # tagged v1.5.1.4 as "this release, spaCR 1.5.1.3"; the concept DOI
+        # is correct for every version until sync-release-metadata records
+        # the minted one.
+        if CITATION_VERSION_DOI_ENTRY.search(citation_text):
+            citation_text = _citation_version_doi(
+                citation_text, new, ZENODO_CONCEPT_DOI,
+                CITATION_PENDING_DOI_DESCRIPTION, citation_path)
+        elif re.search(r'^doi:', citation_text, re.MULTILINE):
+            citation_text = _replace_citation_field(
+                citation_text, "doi", ZENODO_CONCEPT_DOI, citation_path)
 
     setup_path.write_text(updated_setup, encoding="utf-8")
     citation_path.write_text(citation_text, encoding="utf-8")
@@ -966,6 +978,34 @@ RECIPE_SHA256 = re.compile(
     re.MULTILINE)
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 DOI_PATTERN = re.compile(r"^10\.\d{4,9}/\S+$")
+#: The version-DOI description once Zenodo has minted it, and while it has not.
+#: Both name the release, so CITATION_VERSION_DOI_ENTRY finds either.
+CITATION_VERSION_DOI_DESCRIPTION = (
+    "Version DOI: this release, spaCR {version}. Cite this to point at the "
+    "exact code a result came from.")
+CITATION_PENDING_DOI_DESCRIPTION = (
+    "Version DOI: pending for spaCR {version}. Zenodo mints it after the "
+    "GitHub release; until then this is the concept DOI.")
+
+
+def citation_doi_is_pending(text: str, citation_path: Path = Path("CITATION.cff")) -> bool:
+    """Whether ``CITATION.cff`` still waits for its release's version DOI."""
+    entry = _single(CITATION_VERSION_DOI_ENTRY, text,
+                    "version-DOI identifier", citation_path)
+    return entry.group("before").startswith("Version DOI: pending for ")
+
+
+def _citation_version_doi(text: str, version: str, doi: str, description: str,
+                          citation_path: Path) -> str:
+    """Set the top-level ``doi:`` and the version-DOI entry for ``version``."""
+    text = _replace_citation_field(text, "doi", doi, citation_path)
+    entry = _single(CITATION_VERSION_DOI_ENTRY, text,
+                    "version-DOI identifier", citation_path)
+    described = description.format(version=version)
+    start = entry.start("before")
+    return (text[:entry.start("value")] + doi
+            + text[entry.end("value"):start] + described
+            + text[entry.end("after"):])
 
 
 class MetadataNotReady(RuntimeError):
@@ -1143,12 +1183,8 @@ def updated_citation_text(
     text = _replace_citation_field(text, "version", version, citation_path)
     text = _replace_citation_field(
         text, "date-released", metadata["released"], citation_path)
-    text = _replace_citation_field(text, "doi", doi, citation_path)
-    entry = _single(CITATION_VERSION_DOI_ENTRY, text,
-                    "version-DOI identifier", citation_path)
-    return (text[:entry.start("value")] + doi
-            + text[entry.end("value"):entry.start("named")] + version
-            + text[entry.end("named"):])
+    return _citation_version_doi(text, version, doi,
+                                 CITATION_VERSION_DOI_DESCRIPTION, citation_path)
 
 
 def updated_recipe_text(

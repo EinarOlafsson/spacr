@@ -310,3 +310,69 @@ def test_the_release_workflow_records_the_doi_after_the_github_release():
     assert "git rebase" in script, "a raced push must rebase and retry"
     assert "CITATION.cff conda-forge/recipe/recipe.yaml" in script
     assert "Co-Authored-By" not in script
+
+
+PENDING = (CITATION
+           .replace('version: "1.5.1.0"', 'version: "1.5.1.1"')
+           .replace(f'doi: "{OLD_DOI}"', f'doi: "{CONCEPT_DOI}"')
+           .replace(f'value: "{OLD_DOI}"', f'value: "{CONCEPT_DOI}"')
+           .replace("Version DOI: this release, spaCR 1.5.0.9. Cite this to point "
+                    "at the exact code a result came from.",
+                    "Version DOI: pending for spaCR 1.5.1.1. Zenodo mints it after "
+                    "the GitHub release; until then this is the concept DOI."))
+
+
+def test_bump_marks_the_version_doi_pending_instead_of_keeping_the_old_one(tmp_path):
+    """v1.5.1.4 was tagged naming 1.5.1.3's DOI as 'this release'.
+
+    The bump cannot know the new DOI, so it must not leave another release's
+    DOI described as this one: it points both DOI fields at the concept DOI
+    and says the version DOI is pending.
+    """
+    helper = _release_module()
+    root = _tree(tmp_path, recipe=False)
+    (root / "setup.py").write_text('VERSION = "1.5.1.0"\n', encoding="utf-8")
+    citation = root / "CITATION.cff"
+    citation.write_text(CITATION.replace("spaCR 1.5.0.9.", "spaCR 1.5.1.0."),
+                        encoding="utf-8")
+    helper.bump_release(root / "setup.py", citation, "1.5.1.1",
+                        release_date="2026-09-30")
+    text = citation.read_text(encoding="utf-8")
+    assert OLD_DOI not in text
+    assert text.count(CONCEPT_DOI) == 3
+    assert "Version DOI: pending for spaCR 1.5.1.1." in text
+    assert helper.citation_doi_is_pending(text)
+    assert 'version: "1.5.1.1"' in text and '"2026-09-30"' in text
+    # An idempotent rerun of the same bump changes nothing.
+    helper.bump_release(root / "setup.py", citation, "1.5.1.1",
+                        release_date="2026-09-30", allow_current=True)
+    assert citation.read_text(encoding="utf-8") == text
+
+
+def test_sync_fills_a_pending_version_doi(tmp_path):
+    helper = _release_module()
+    root = _tree(tmp_path, recipe=False)
+    (root / "CITATION.cff").write_text(PENDING, encoding="utf-8")
+    (root / "setup.py").write_text('VERSION = "1.5.1.1"\n', encoding="utf-8")
+    changed = helper.sync_release_metadata(root, {
+        "version": "1.5.1.1", "doi": NEW_DOI,
+        "released": "2026-10-01", "sha256": NEW_SHA})
+    assert [path.name for path in changed] == ["CITATION.cff"]
+    text = (root / "CITATION.cff").read_text(encoding="utf-8")
+    assert not helper.citation_doi_is_pending(text)
+    assert text.count(NEW_DOI) == 2 and text.count(CONCEPT_DOI) == 1
+    assert ("Version DOI: this release, spaCR 1.5.1.1. Cite this to point at "
+            "the exact code a result came from.") in text
+
+
+def test_the_pending_file_is_valid_citation_metadata(tmp_path):
+    """Between bump and sync the file must still parse with one version entry."""
+    yaml = pytest.importorskip("yaml")
+    import re
+
+    citation = yaml.safe_load(PENDING)
+    version_dois = [
+        entry for entry in citation["identifiers"]
+        if re.search(r"\bspaCR\s+\d[\d.]*", entry.get("description", ""))]
+    assert len(version_dois) == 1
+    assert version_dois[0]["value"] == citation["doi"] == CONCEPT_DOI

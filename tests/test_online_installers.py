@@ -836,7 +836,10 @@ def test_release_helper_bumps_setup_and_citation_together(tmp_path):
     assert helper.read_package_version(package_version) == "1.2.4"
     assert 'version: "1.2.4"' in _text(citation)
     assert 'date-released: "2026-08-29"' in _text(citation)
-    assert 'doi: "10.5281/zenodo.99999999"' in _text(citation)
+    # The previous release's DOI must not survive the bump; the concept DOI
+    # stands in until sync-release-metadata records the minted one.
+    assert 'doi: "10.5281/zenodo.99999999"' not in _text(citation)
+    assert f'doi: "{helper.ZENODO_CONCEPT_DOI}"' in _text(citation)
 
     # A workflow rerun must not rewrite the historical release date.
     citation_after_bump = _text(citation)
