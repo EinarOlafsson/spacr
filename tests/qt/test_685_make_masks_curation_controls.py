@@ -350,8 +350,8 @@ def test_vvvv_export_writes_the_agreed_folder(tmp_path):
     folder = Path(folder)
     assert folder == tmp_path / "out" / "img_00"
     assert sorted(p.name for p in folder.iterdir()) == [
-        "img_00_labels.png", "img_00_objects.csv", "img_00_outlines.png",
-        "manifest.json"]
+        "README.txt", "img_00.vl", "img_00_image.png", "img_00_labels.png",
+        "img_00_objects.csv", "img_00_outlines.png", "manifest.json"]
     saved = imageio.imread(folder / "img_00_labels.png")
     assert saved.dtype == np.uint16
     np.testing.assert_array_equal(saved, labels)

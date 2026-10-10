@@ -1230,6 +1230,570 @@ def _vvvv_outlines(labels: np.ndarray) -> np.ndarray:
     return rgba
 
 
+_VVVV_GAMMA_VERSION = "7.4"
+_VVVV_LANGUAGE_VERSION = "2025.7.4"
+_VL_ID_DIGITS = ("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                 "abcdefghijklmnopqrstuvwxyz0123456789")
+
+
+def _vvvv_display_image(image: np.ndarray) -> np.ndarray:
+    """The field as 8-bit RGB for the vvvv patch to draw.
+
+    Each channel is stretched between its 1st and 99.9th percentile, as
+    Make Masks draws it; one channel is grey, two or three channels fill
+    red, green and blue in order and only the first three are used.
+    """
+    stack = np.asarray(image, dtype=np.float64)
+    if stack.ndim == 2:
+        stack = stack[..., None]
+    planes = []
+    for index in range(min(stack.shape[-1], 3)):
+        plane = stack[..., index]
+        finite = plane[np.isfinite(plane)]
+        lo = float(np.percentile(finite, 1.0)) if finite.size else 0.0
+        hi = float(np.percentile(finite, 99.9)) if finite.size else 1.0
+        if hi <= lo:
+            hi = lo + 1.0
+        scaled = (np.clip(np.nan_to_num(plane, nan=lo), lo, hi) - lo) / (hi - lo)
+        planes.append(np.round(scaled * 255.0).astype(np.uint8))
+    if len(planes) == 1:
+        planes = planes * 3
+    while len(planes) < 3:
+        planes.append(np.zeros_like(planes[0]))
+    return np.stack(planes, axis=-1)
+
+
+class _VlWriter:
+    """Builds a vvvv gamma ``.vl`` document (item 685, alpha).
+
+    The element and attribute forms copy the documents vvvv gamma 7.4
+    ships in its ``packs/*/help`` folders. An id is a version-4 GUID in
+    vvvv's encoding: the GUID's 16 bytes as two 64-bit halves, each
+    written as 11 base-62 digits over ``A-Z a-z 0-9``. The GUIDs are
+    derived from ``seed``, so the same export writes the same file.
+    """
+
+    def __init__(self, seed: str):
+        import xml.etree.ElementTree as ElementTree
+
+        self.et = ElementTree
+        self.seed = seed
+        self.count = 0
+        self.links = []
+
+    def new_id(self) -> str:
+        self.count += 1
+        raw = bytearray(hashlib.sha256(
+            f"{self.seed}/{self.count}".encode("utf-8")).digest()[:16])
+        raw[7] = (raw[7] & 0x0F) | 0x40
+        raw[8] = (raw[8] & 0x3F) | 0x80
+        text = ""
+        for half in (raw[:8], raw[8:]):
+            value = int.from_bytes(half, "big")
+            digits = []
+            for _ in range(11):
+                value, digit = divmod(value, 62)
+                digits.append(_VL_ID_DIGITS[digit])
+            text += "".join(reversed(digits))
+        return text
+
+    def sub(self, parent, tag: str, **attrs):
+        return self.et.SubElement(parent, tag, {k: str(v) for k, v in attrs.items()
+                                                if v is not None})
+
+    def type_annotation(self, parent, category: str, dependency: str,
+                        name: str):
+        note = self.sub(parent, "{property}TypeAnnotation",
+                        LastCategoryFullName=category,
+                        LastDependency=dependency)
+        self.sub(note, "Choice", Kind="TypeFlag", Name=name)
+        return note
+
+    def node(self, parent, bounds: str, category: str, dependency: str,
+             kind: str, name: str, pins, *, fixed: bool = True,
+             position_pin: bool = False):
+        """A node and its pins.
+
+        ``pins`` holds ``(name, kind, hidden)``, optionally followed by a
+        default value and its ``(category, dependency, type)``.
+
+        :returns: ``{pin name: pin id}``.
+        """
+        node = self.sub(parent, "Node", Bounds=bounds, Id=self.new_id())
+        ref = self.sub(node, "{property}NodeReference",
+                       LastCategoryFullName=category,
+                       LastDependency=dependency)
+        if fixed:
+            self.sub(ref, "Choice", Kind="NodeFlag", Name="Node", Fixed="true")
+        self.sub(ref, "Choice", Kind=kind, Name=name)
+        if position_pin:
+            self.sub(ref, "PinReference", Kind="InputPin", Name="Position")
+        ids = {}
+        for pin_name, pin_kind, hidden, *default in pins:
+            ids[pin_name] = self.new_id()
+            pin = self.sub(node, "Pin", Id=ids[pin_name], Name=pin_name,
+                           Kind=pin_kind,
+                           DefaultValue=default[0] if default else None,
+                           IsHidden="true" if hidden else None)
+            if len(default) > 1:
+                self.type_annotation(pin, *default[1])
+        return ids
+
+    def pad(self, parent, bounds: str, value: str, category: str,
+            dependency: str, type_name: str, comment: Optional[str] = None,
+            *, note_size: Optional[int] = None) -> str:
+        """An IOBox holding ``value``; a note when ``note_size`` is set."""
+        pad_id = self.new_id()
+        pad = self.sub(parent, "Pad", Id=pad_id, Comment=comment,
+                       Bounds=bounds, ShowValueBox="true", isIOBox="true",
+                       Value=value)
+        self.type_annotation(pad, category, dependency, type_name)
+        if note_size is not None:
+            settings = self.sub(pad, "{property}ValueBoxSettings")
+            size = self.sub(settings, "{property}fontsize",
+                            **{"{property}Type": "Int32"})
+            size.text = str(note_size)
+            kind = self.sub(settings, "{property}stringtype",
+                            **{"{property}Assembly": "VL.Core",
+                               "{property}Type": "VL.Core.StringType"})
+            kind.text = "Comment"
+        return pad_id
+
+    def link(self, source: str, sink: str) -> None:
+        self.links.append((source, sink))
+
+
+def _vvvv_project_document(stem: str, width: int, height: int,
+                           names: Dict[str, str], columns) -> str:
+    """The vvvv gamma patch that shows one exported field (item 685).
+
+    The patch runs as the document's Application: it draws
+    ``names["image"]`` with ``names["outlines"]`` on top in a Skia
+    Renderer window, marks every row of ``names["objects"]`` with a circle
+    at its centroid and its label (and class, when the table has one), and
+    reads ``manifest.json`` and the table every frame and reloads the
+    images whenever the manifest changes. Paths are relative to the
+    document, so the folder can be moved or copied whole.
+
+    :param stem: the field's stem, for the window title.
+    :param width: image width in pixels.
+    :param height: image height in pixels.
+    :param names: the export's file names, keyed as in the manifest.
+    :param columns: the objects table's column names, in order.
+    :returns: the document as UTF-8 text with a byte-order mark.
+    """
+    vl = _VlWriter(f"spacr-vvvv/{stem}/{width}x{height}/{','.join(columns)}")
+    et = vl.et
+    et.register_namespace("p", "property")
+    columns = list(columns)
+    height = max(int(height), 1)
+    width = max(int(width), 1)
+    scale = 2.0 / height
+    marker = max(3.0, height / 100.0)
+    font = max(8.0, height / 45.0)
+    stroke = max(1.0, height / 400.0)
+    core, basics, skia = "VL.CoreLib.vl", "CoreLibBasics.vl", "VL.Skia.vl"
+
+    def num(value: float) -> str:
+        return f"{value:.9g}"
+
+    def vec(x: float, y: float) -> str:
+        return f"{num(x)}, {num(y)}"
+
+    doc = et.Element("Document", {"xmlns:r": "reflection",
+                                  "Id": vl.new_id(),
+                                  "LanguageVersion": _VVVV_LANGUAGE_VERSION,
+                                  "Version": "0.128"})
+    vl.sub(doc, "NugetDependency", Id=vl.new_id(), Location="VL.CoreLib",
+           Version=_VVVV_LANGUAGE_VERSION)
+    vl.sub(doc, "NugetDependency", Id=vl.new_id(), Location="VL.Skia",
+           Version=_VVVV_LANGUAGE_VERSION)
+    top = vl.sub(doc, "Patch", Id=vl.new_id())
+    vl.sub(top, "Canvas", Id=vl.new_id(), DefaultCategory="Main",
+           CanvasType="FullCategory")
+    app = vl.sub(top, "Node", Name="Application", Bounds="100,100",
+                 Id=vl.new_id())
+    ref = vl.sub(app, "{property}NodeReference")
+    vl.sub(ref, "Choice", Kind="ContainerDefinition", Name="Process")
+    vl.sub(ref, "FullNameCategoryReference", ID="Primitive")
+    patch = vl.sub(app, "Patch", Id=vl.new_id())
+    canvas = vl.sub(patch, "Canvas", Id=vl.new_id(), CanvasType="Group")
+
+    flag = "ProcessAppFlag"
+    call = "OperationCallFlag"
+    hidden_context = ("Node Context", "InputPin", True)
+
+    vl.pad(canvas, "40,30,620,60",
+           f"spaCR export of {stem}: the image with object outlines and one "
+           "marker per row of the objects table. The patch reads "
+           "manifest.json and the objects table every frame and reloads the "
+           "images when the manifest changes, so a new spaCR export shows "
+           "at once.", "Primitive", core, "String", note_size=9)
+
+    manifest_path = vl.pad(canvas, "60,110,160,15", "manifest.json", "IO",
+                           basics, "Path", "manifest")
+    reader_pins = [hidden_context, ("File Path", "InputPin", False),
+                   ("Encoding", "InputPin", False),
+                   ("Read", "InputPin", False, "True",
+                    ("Primitive", basics, "Boolean")),
+                   ("Output", "OutputPin", False)]
+    manifest = vl.node(canvas, "60,180,110,19", "IO", core, flag,
+                       "FileReader (String)", reader_pins)
+    vl.link(manifest_path, manifest["File Path"])
+    changed = vl.node(canvas, "60,220,65,19", "Control", core, flag,
+                      "Changed", [
+                          hidden_context,
+                          ("Changed On Create", "InputPin", True),
+                          ("Value", "InputPin", False),
+                          ("Result", "OutputPin", False),
+                          ("Unchanged", "OutputPin", False)])
+    vl.link(manifest["Output"], changed["Value"])
+
+    image_pins = [hidden_context, ("Filename", "InputPin", False),
+                  ("Load", "InputPin", False), ("Output", "OutputPin", False)]
+    draw_pins = [hidden_context, ("Image", "InputPin", False),
+                 ("Position", "InputPin", False), ("Size", "InputPin", False),
+                 ("Size Mode", "InputPin", False),
+                 ("Anchor", "InputPin", False), ("Paint", "InputPin", False),
+                 ("Enabled", "InputPin", False), ("Output", "OutputPin", False),
+                 ("Actual Bounds", "OutputPin", False)]
+    origin = vl.pad(canvas, "300,300,60,22", vec(0, 0), "2D", basics,
+                    "Vector2", "Position")
+    extent = vl.pad(canvas, "370,300,80,22", vec(width, height), "2D",
+                    basics, "Vector2", "Size")
+    size_mode = vl.pad(canvas, "460,300,84,15", "Size", "Graphics.Skia",
+                       skia, "SizeMode", "Size Mode")
+    top_left = vl.pad(canvas, "550,300,85,15", "TopLeft", "2D", basics,
+                      "RectangleAnchor", "Anchor")
+    layers = []
+    for index, key in enumerate(("image", "outlines")):
+        x = 60 + 140 * index
+        path = vl.pad(canvas, f"{x},260,150,15", names[key], "IO", basics,
+                      "Path", key)
+        reader = vl.node(canvas, f"{x},290,85,19", "Graphics.Skia.IO", skia,
+                         flag, "ImageReader", image_pins)
+        vl.link(path, reader["Filename"])
+        vl.link(changed["Result"], reader["Load"])
+        draw = vl.node(canvas, f"{x},340,125,19", "Graphics.Skia.Layers",
+                       skia, flag, "DrawImage", draw_pins, position_pin=True)
+        vl.link(reader["Output"], draw["Image"])
+        vl.link(origin, draw["Position"])
+        vl.link(extent, draw["Size"])
+        vl.link(size_mode, draw["Size Mode"])
+        vl.link(top_left, draw["Anchor"])
+        layers.append(draw["Output"])
+
+    table_path = vl.pad(canvas, "660,110,170,15", names["objects"], "IO",
+                        basics, "Path", "objects")
+    table = vl.node(canvas, "660,180,110,19", "IO", core, flag,
+                    "FileReader (String)", reader_pins)
+    vl.link(table_path, table["File Path"])
+    lines = vl.node(canvas, "660,220,75,19", "Primitive.String", core, call,
+                    "SplitToLines", [("Input", "StateInputPin", False),
+                                     ("Remove Empty Lines", "InputPin", False),
+                                     ("Output", "StateOutputPin", False)])
+    vl.link(table["Output"], lines["Input"])
+    no_empty = vl.pad(canvas, "760,200,35,15", "True", "Primitive", core,
+                      "Boolean", "Remove Empty Lines")
+    vl.link(no_empty, lines["Remove Empty Lines"])
+    skip = vl.node(canvas, "660,250,45,19", "Collections.Spread", core, call,
+                   "Skip", [("Input", "StateInputPin", False),
+                            ("Count", "InputPin", False),
+                            ("Output", "StateOutputPin", False)])
+    vl.link(lines["Output"], skip["Input"])
+    header = vl.pad(canvas, "720,240,35,15", "1", "Primitive", core,
+                    "Integer32", "Count")
+    vl.link(header, skip["Count"])
+
+    region = vl.sub(canvas, "Node", Bounds="650,290,600,370", Id=vl.new_id())
+    ref = vl.sub(region, "{property}NodeReference",
+                 LastCategoryFullName="Primitive", LastDependency="Builtin")
+    vl.sub(ref, "Choice", Kind="StatefulRegion", Name="Region (Stateful)",
+           Fixed="true")
+    vl.sub(ref, "Choice", Kind="ApplicationStatefulRegion", Name="ForEach")
+    vl.sub(ref, "CategoryReference", Kind="Category", Name="Primitive")
+    vl.sub(region, "Pin", Id=vl.new_id(), Name="Break", Kind="OutputPin")
+    row_in = vl.new_id()
+    vl.sub(region, "ControlPoint", Id=row_in, Bounds="664,296",
+           Alignment="Top")
+    row_out = vl.new_id()
+    vl.sub(region, "ControlPoint", Id=row_out, Bounds="664,654",
+           Alignment="Bottom")
+    body = vl.sub(region, "Patch", Id=vl.new_id(), ManuallySortedPins="true")
+    for part in ("Create", "Update", "Dispose"):
+        vl.sub(body, "Patch", Id=vl.new_id(), Name=part,
+               ManuallySortedPins="true")
+    vl.link(skip["Output"], row_in)
+
+    split = vl.node(body, "662,330,55,19", "Primitive.String", basics, call,
+                    "Split (String)", [("Input", "StateInputPin", False),
+                                       ("Separator", "InputPin", False),
+                                       ("Options", "InputPin", False),
+                                       ("Output", "StateOutputPin", False)])
+    vl.link(row_in, split["Input"])
+    comma = vl.pad(body, "720,310,35,15", ",", "Primitive", core, "String",
+                   "Separator")
+    vl.link(comma, split["Separator"])
+    slice_pins = [("Input", "StateInputPin", False),
+                  ("Default Value", "InputPin", False),
+                  ("Index", "InputPin", False), ("Result", "OutputPin", False)]
+
+    def cell(column: str, x: int):
+        index = vl.pad(body, f"{x + 40},360,35,15", str(columns.index(column)),
+                       "Primitive", core, "Integer32", "Index")
+        node = vl.node(body, f"{x},380,55,19", "Collections.Spread", core,
+                       call, "GetSlice", slice_pins)
+        vl.link(split["Output"], node["Input"])
+        vl.link(index, node["Index"])
+        return node["Result"]
+
+    def number(column: str, x: int):
+        parse = vl.node(body, f"{x},410,55,19", "System.Conversion", core,
+                        call, "TryParse", [("String", "InputPin", False),
+                                           ("Value", "OutputPin", False),
+                                           ("Success", "OutputPin", False)])
+        vl.link(cell(column, x), parse["String"])
+        return parse["Value"]
+
+    label = cell("label", 662)
+    centre_x = number("centroid_x", 760)
+    centre_y = number("centroid_y", 860)
+    join = vl.node(body, "760,450,85,19", "2D.Vector2", core, call,
+                   "Vector (Join)", [("X", "InputPin", False),
+                                     ("Y", "InputPin", False),
+                                     ("Output", "StateOutputPin", False)])
+    vl.link(centre_x, join["X"])
+    vl.link(centre_y, join["Y"])
+
+    ring = vl.node(body, "960,440,65,19", "Graphics.Skia.Paint", skia, flag,
+                   "Stroke", [hidden_context, ("Input", "InputPin", False),
+                              ("Color", "InputPin", False),
+                              ("Stroke Width", "InputPin", False),
+                              ("Join", "InputPin", False),
+                              ("Cap", "InputPin", False),
+                              ("Miter", "InputPin", False),
+                              ("Output", "OutputPin", False)])
+    vl.link(vl.pad(body, "990,400,110,15", "1, 0.85, 0, 1", "Color", core,
+                   "RGBA", "Color"), ring["Color"])
+    vl.link(vl.pad(body, "1110,400,40,15", num(stroke), "Primitive", core,
+                   "Float32", "Stroke Width"), ring["Stroke Width"])
+    circle = vl.node(body, "760,500,85,19", "Graphics.Skia.Layers", skia, flag,
+                     "Circle", [hidden_context,
+                                ("Position", "InputPin", False),
+                                ("Radius", "InputPin", False),
+                                ("Anchor", "InputPin", False),
+                                ("Paint", "InputPin", False),
+                                ("Enabled", "InputPin", False),
+                                ("Output", "OutputPin", False)])
+    vl.link(join["Output"], circle["Position"])
+    vl.link(vl.pad(body, "860,480,40,15", num(marker), "Primitive", core,
+                   "Float32", "Radius"), circle["Radius"])
+    vl.link(ring["Output"], circle["Paint"])
+
+    text_pins = [hidden_context,
+                 ("Position", "InputPin", False), ("Size", "InputPin", False),
+                 ("Anchor", "InputPin", False), ("Text", "InputPin", False),
+                 ("Paint", "InputPin", False), ("Enabled", "InputPin", False),
+                 ("Output", "OutputPin", False),
+                 ("Baseline Position", "OutputPin", False)]
+    font_pins = [hidden_context, ("Input", "InputPin", False),
+                 ("Family Name", "InputPin", False),
+                 ("Style", "InputPin", False), ("Size", "InputPin", False),
+                 ("Color", "InputPin", False),
+                 ("Line Height in em", "InputPin", False),
+                 ("Horizontal Alignment", "InputPin", False),
+                 ("Vertical Alignment", "InputPin", False),
+                 ("Show Helpers", "InputPin", False),
+                 ("Output", "OutputPin", False)]
+    enums = "Graphics.Skia.Unwrapped.Enums"
+    font_size = vl.pad(body, "960,480,40,15", num(font), "Primitive", core,
+                       "Float32", "Size")
+    ink = vl.pad(body, "1010,480,110,15", "1, 0.85, 0, 1", "Color", core,
+                 "RGBA", "Color")
+    left = vl.pad(body, "1130,480,60,15", "Left", enums, skia, "SKTextAlign",
+                  "Horizontal Alignment")
+    no_box = vl.pad(body, "900,560,60,22", vec(0, 0), "2D", basics,
+                    "Vector2", "Size")
+    group_inputs = [circle["Output"]]
+    for index, (column, vertical) in enumerate((("label", "Bottom"),
+                                                ("class", "Top"))):
+        if column not in columns:
+            continue
+        x = 900 + 160 * index
+        font_node = vl.node(body, f"{x},530,125,19", "Graphics.Skia.Text",
+                            skia, flag, "FontAndParagraph", font_pins)
+        vl.link(font_size, font_node["Size"])
+        vl.link(ink, font_node["Color"])
+        vl.link(left, font_node["Horizontal Alignment"])
+        vl.link(vl.pad(body, f"{x + 60},510,62,15", vertical, enums, skia,
+                       "VerticalTextAlignment", "Vertical Alignment"),
+                font_node["Vertical Alignment"])
+        text = vl.node(body, f"{x},580,85,19", "Graphics.Skia.Layers.Text",
+                       skia, flag, "Text", text_pins, position_pin=True)
+        vl.link(join["Output"], text["Position"])
+        vl.link(no_box, text["Size"])
+        vl.link(label if column == "label" else cell(column, 1110),
+                text["Text"])
+        vl.link(font_node["Output"], text["Paint"])
+        group_inputs.append(text["Output"])
+    group_pins = [hidden_context] + [
+        ("Input" if i == 0 else f"Input {i + 1}", "InputPin", False)
+        for i in range(len(group_inputs))] + [
+        ("Debug", "InputPin", False), ("Enabled", "InputPin", False),
+        ("Output", "OutputPin", False)]
+    marker_group = vl.node(body, "760,620,85,19", "Graphics.Skia", skia, flag,
+                           "Group", group_pins)
+    for i, source in enumerate(group_inputs):
+        vl.link(source, marker_group["Input" if i == 0 else f"Input {i + 1}"])
+    vl.link(marker_group["Output"], row_out)
+
+    markers = vl.node(canvas, "650,680,105,19", "Graphics.Skia", skia, flag,
+                      "Group (Spectral)", [hidden_context,
+                                           ("Input", "InputPin", False),
+                                           ("Debug", "InputPin", False),
+                                           ("Enabled", "InputPin", False),
+                                           ("Output", "OutputPin", False)])
+    vl.link(row_out, markers["Input"])
+    layers.append(markers["Output"])
+    scene = vl.node(canvas, "60,680,145,19", "Graphics.Skia", skia, flag,
+                    "Group", [hidden_context] + [
+                        ("Input" if i == 0 else f"Input {i + 1}", "InputPin",
+                         False) for i in range(len(layers))] + [
+                        ("Debug", "InputPin", False),
+                        ("Enabled", "InputPin", False),
+                        ("Output", "OutputPin", False)])
+    for i, source in enumerate(layers):
+        vl.link(source, scene["Input" if i == 0 else f"Input {i + 1}"])
+    fit = vl.node(canvas, "60,730,105,19", "Graphics.Skia.Transform", skia,
+                  flag, "TransformSRT", [hidden_context,
+                                         ("Input", "InputPin", False),
+                                         ("Scaling", "InputPin", False),
+                                         ("Rotation", "InputPin", False),
+                                         ("Translation", "InputPin", False),
+                                         ("Output", "OutputPin", False)])
+    vl.link(scene["Output"], fit["Input"])
+    vl.link(vl.pad(canvas, "120,710,110,22", vec(scale, scale), "2D", basics,
+                   "Vector2", "Scaling"), fit["Scaling"])
+    vl.link(vl.pad(canvas, "240,710,110,22", vec(-width / height, -1.0), "2D",
+                   basics, "Vector2", "Translation"), fit["Translation"])
+
+    window = max(320, min(900, height))
+    window_width = max(320, min(1400, int(round(window * width / height))))
+    bounds = f"100, 100, {window_width}, {window}"
+    renderer = vl.node(canvas, "60,790,185,19", "Graphics.Skia", skia, flag,
+                       "Renderer", [
+                           hidden_context,
+                           ("Bounds", "InputPin", False, bounds,
+                            ("System.Drawing", "System.Drawing.dll",
+                             "Rectangle")),
+                           ("Save Bounds", "InputPin", True),
+                           ("Bound to Document", "InputPin", False, "True",
+                            ("Primitive", basics, "Boolean")),
+                           ("Dialog If Document Changed", "InputPin", True),
+                           ("Always On Top", "InputPin", True),
+                           ("Extend Into Title Bar", "InputPin", True),
+                           ("Input", "InputPin", False),
+                           ("Title", "InputPin", False),
+                           ("Title Bar Interaction Width", "InputPin", True),
+                           ("Color", "InputPin", False),
+                           ("Clear", "InputPin", False),
+                           ("Space", "InputPin", False),
+                           ("Show Cursor", "InputPin", False),
+                           ("VSync", "InputPin", False),
+                           ("Commands", "InputPin", True),
+                           ("Enable Keyboard Shortcuts", "InputPin", True),
+                           ("Enabled", "InputPin", False),
+                           ("Form Bounds Notifications", "OutputPin", True),
+                           ("Form", "OutputPin", False),
+                           ("ClientBounds", "OutputPin", False),
+                           ("Render Time", "OutputPin", False)])
+    vl.link(fit["Output"], renderer["Input"])
+    vl.link(vl.pad(canvas, "250,770,160,15", f"spaCR - {stem}", "Primitive",
+                   core, "String", "Title"), renderer["Title"])
+    vl.link(vl.pad(canvas, "420,770,110,15", "0.1, 0.1, 0.1, 1", "Color",
+                   core, "RGBA", "Color"), renderer["Color"])
+    vl.link(vl.pad(canvas, "540,770,90,15", "Normalized", "VL.Skia",
+                   "VL.Skia.dll", "CommonSpace", "Space"), renderer["Space"])
+
+    create = vl.new_id()
+    update = vl.new_id()
+    vl.sub(patch, "Patch", Id=create, Name="Create")
+    vl.sub(patch, "Patch", Id=update, Name="Update")
+    process = vl.sub(patch, "ProcessDefinition", Id=vl.new_id())
+    vl.sub(process, "Fragment", Id=vl.new_id(), Patch=create, Enabled="true")
+    vl.sub(process, "Fragment", Id=vl.new_id(), Patch=update, Enabled="true")
+    for source, sink in vl.links:
+        vl.sub(patch, "Link", Id=vl.new_id(), Ids=f"{source},{sink}")
+    et.indent(doc, space="  ")
+    text = et.tostring(doc, encoding="unicode")
+    return "﻿<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + text + "\n"
+
+
+def _vvvv_publisher(tabular):
+    """``tabular._publish`` that waits out a reader holding the target.
+
+    On Windows a file vvvv is reading cannot be replaced for that moment;
+    the rename is retried for about a second before the error is raised.
+    """
+    import time
+
+    def publish(target, write):
+        for attempt in range(20):
+            try:
+                return tabular._publish(target, write)
+            except PermissionError:
+                if attempt == 19:
+                    raise
+                time.sleep(0.05)
+        return target
+
+    return publish
+
+
+def _vvvv_readme(stem: str, project: str) -> str:
+    """How to open an export in vvvv gamma, for its README.txt."""
+    return f"""spaCR export for vvvv gamma (alpha)
+====================================
+
+This folder holds one image exported from spaCR Make Masks and a vvvv
+gamma project that shows it.
+
+Open it
+-------
+1. Install vvvv gamma {_VVVV_GAMMA_VERSION} or later for Windows from
+   https://vvvv.org/download (free for non-commercial use).
+2. Start vvvv gamma, choose File > Open and select {project}
+   in this folder (or drag the file onto the vvvv window).
+3. A window titled "spaCR - {stem}" opens. It shows the image with white
+   object outlines on top and, for every object, a yellow circle at its
+   centroid with the object's label number next to it (and its class,
+   when the table has one).
+4. The patch itself opens in the vvvv editor; a note at its top says
+   what it does, and every value (colours, marker size) can be edited.
+
+Live updates
+------------
+With "Export on save" switched on in spaCR, every mask save rewrites this
+folder. The project reads manifest.json and the objects table every frame
+and reloads the images when the manifest changes, so the window follows
+your edits.
+
+Files
+-----
+{stem}_image.png     the image as 8-bit RGB (display only)
+{stem}_labels.png    16-bit labels; 0 is background, ids match the mask
+{stem}_outlines.png  white object outlines on a transparent background
+{stem}_objects.csv   one row per object: label, centroid_x, centroid_y,
+                     area, bounding box, mean intensity per channel
+manifest.json        image size, pixel size, channels and file names;
+                     written last, so its change means the set is complete
+{project}            the vvvv gamma project
+
+Coordinates are pixels with the origin at the image's top-left corner,
+x to the right and y down; centroids are pixel centres.
+"""
+
+
 def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
                 image: Optional[np.ndarray] = None, *,
                 source_path: str = "", pixel_size=None, unit: str = "µm",
@@ -1238,11 +1802,16 @@ def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
 
     The folder ``<root>/<stem>/`` holds ``<stem>_labels.png`` (16-bit
     labels), ``<stem>_outlines.png`` (RGBA outlines on transparency),
-    ``<stem>_objects.csv`` (:func:`_vvvv_object_table`) and
+    ``<stem>_image.png`` (the field as 8-bit RGB, when ``image`` is given;
+    :func:`_vvvv_display_image`), ``<stem>_objects.csv``
+    (:func:`_vvvv_object_table`), ``<stem>.vl`` (a vvvv gamma project that
+    shows them; :func:`_vvvv_project_document`), ``README.txt`` and
     ``manifest.json``. Every file is written to a hidden sibling and
     renamed into place, so a watcher never reads half a file; the manifest
-    goes last, so its change means the set is complete. The source image
-    and mask are only read.
+    goes last, so its change means the set is complete. The project and
+    README are rewritten only when their text changes, so vvvv does not
+    reload an open project after every save. The source image and mask
+    are only read.
 
     :param root: export folder; created when missing.
     :param image_name: the field's file name; its stem names everything.
@@ -1258,6 +1827,7 @@ def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
     :raises ValueError: for labels that are not 2-D or exceed 16 bits.
     """
     import datetime
+    import time
 
     from .. import tabular
 
@@ -1276,15 +1846,38 @@ def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
         "outlines": f"{stem}_outlines.png",
         "objects": f"{stem}_objects.csv",
     }
-    tabular._publish(os.path.join(folder, names["labels"]),
-                     lambda pending: imageio.imwrite(
-                         pending, labels.astype(np.uint16), format="PNG"))
-    tabular._publish(os.path.join(folder, names["outlines"]),
-                     lambda pending: imageio.imwrite(
-                         pending, _vvvv_outlines(labels), format="PNG"))
-    tabular._publish(os.path.join(folder, names["objects"]),
-                     lambda pending: tabular.write_table(
-                         frame, pending, canonicalise=False))
+    publish = _vvvv_publisher(tabular)
+    publish(os.path.join(folder, names["labels"]),
+            lambda pending: imageio.imwrite(
+                pending, labels.astype(np.uint16), format="PNG"))
+    publish(os.path.join(folder, names["outlines"]),
+            lambda pending: imageio.imwrite(
+                pending, _vvvv_outlines(labels), format="PNG"))
+    image_name_png = f"{stem}_image.png"
+    if image is not None:
+        publish(os.path.join(folder, image_name_png),
+                lambda pending: imageio.imwrite(
+                    pending, _vvvv_display_image(image), format="PNG"))
+        names["image"] = image_name_png
+    publish(os.path.join(folder, names["objects"]),
+            lambda pending: tabular.write_table(
+                frame, pending, canonicalise=False))
+    project = _vvvv_project_document(
+        stem, int(labels.shape[1]), int(labels.shape[0]),
+        dict(names, image=image_name_png), list(frame.columns))
+    texts = {f"{stem}.vl": project,
+             "README.txt": _vvvv_readme(stem, f"{stem}.vl")}
+    for file_name, text in texts.items():
+        target = os.path.join(folder, file_name)
+        try:
+            unchanged = Path(target).read_text(encoding="utf-8") == text
+        except (OSError, UnicodeDecodeError):
+            unchanged = False
+        if not unchanged:
+            publish(target, lambda pending, text=text: Path(pending)
+                    .write_text(text, encoding="utf-8", newline="\r\n"))
+    names["project"] = f"{stem}.vl"
+    names["readme"] = "README.txt"
     channels = [column[len("mean_intensity_"):] for column in frame.columns
                 if column.startswith("mean_intensity_")]
     try:
@@ -1311,12 +1904,14 @@ def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
         "coordinates": ("pixels; origin at the top-left corner of the image, "
                         "x right, y down; centroids are pixel centres, "
                         "bounding boxes are half-open [x0, x1)"),
+        "export_id": time.time_ns(),
+        "vvvv_gamma": _VVVV_GAMMA_VERSION,
         "files": names,
     }
-    tabular._publish(os.path.join(folder, "manifest.json"),
-                     lambda pending: Path(pending).write_text(
-                         json.dumps(manifest, indent=2, ensure_ascii=False),
-                         encoding="utf-8"))
+    publish(os.path.join(folder, "manifest.json"),
+            lambda pending: Path(pending).write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False),
+                encoding="utf-8"))
     return folder
 
 

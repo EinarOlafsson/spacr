@@ -2,7 +2,8 @@
 MAKE MASKS CURATION CONTROLS, PLAQUE MODEL CATEGORY AND ALPHA VVVV EXPORT
 ================================================================================
 
-Status:    in progress — parts 1-6 built; vvvv patch validation pending
+Status:    DONE 2026-10-10 (alpha) — vvvv gamma 7.4.1 run verified under
+           Wine; a Windows on-screen check is listed for the maintainer
 Requested: 2026-10-09 — "make this into a new feature"
 Owner:     Next session; coordinate Make Masks and model-zoo owners
 Related:   N396 queue; N448 keep/discard; N466 divider; N481 clear objects;
@@ -150,3 +151,66 @@ last, so a patch should watch manifest.json and then reload the other three.
 live. Not yet done: loading an export into a real vvvv patch to check ids,
 values, units and coordinates; class/score are not yet supplied by Make Masks.
 Tests: tests/qt/test_685_make_masks_curation_controls.py.
+
+2026-10-10 — vvvv project file added and run in real vvvv gamma 7.4.1.
+Maintainer: "I want you to have an alpha module or that outputs data and a
+file that can be opened as a project in VVVV. So I want you to write this
+and test that this works". The export now also writes <stem>_image.png
+(the field as 8-bit RGB, 1-99.9 percentile stretch per channel, first three
+channels as R, G, B), <stem>.vl and README.txt; the manifest gains
+files.image/project/readme, export_id (ns clock, changes on every export)
+and vvvv_gamma "7.4". The .vl and README are rewritten only when their text
+changes, so an open project is not reloaded by each save; renames retry
+for about a second when a Windows reader holds a file.
+What <stem>.vl is: a vvvv gamma 7.4 document (LanguageVersion 2025.7.4,
+VL.CoreLib + VL.Skia) whose Application patch reads manifest.json and
+<stem>_objects.csv every frame (FileReader (String)), reloads both
+ImageReaders when the manifest text changes (Changed -> Load), draws the
+image and the outlines with DrawImage at pixel size, and runs a ForEach over
+the CSV rows (SplitToLines, Skip 1, Split ",", GetSlice, TryParse, Vector
+(Join)) to draw a yellow Circle at each centroid, the label above it and,
+when the table has a class column, the class below it (FontAndParagraph +
+Text). The scene sits in pixel space inside TransformSRT (scale 2/height,
+offset -width/height, -1), so it fills the Normalized Skia Renderer window
+titled "spaCR - <stem>". All paths are relative to the document. Node and
+pin forms were copied from the help patches vvvv 7.4 ships (VL.Skia,
+VL.CoreLib, LGPL-3.0); ids use vvvv's GUID codec (two 64-bit halves, 11
+base-62 digits each, A-Z a-z 0-9), checked against all 29,580 ids in
+VL.Skia.vl. Generator: mask_engine._vvvv_project_document/_VlWriter.
+Real run (no Windows machine or VM is reachable; system Wine 9.0 is
+installed, nothing system-wide was changed): vvvv gamma 7.4 setup, the .NET
+8.0.413 SDK zip, DXVK 2.3.1 and a portable Wine 10.0 build in user prefixes
+under /mnt/wd4tb/scratch/vvvv (prefix9: Wine 9, prefix10: Wine 10), CPU only
+(Xvfb, Mesa lavapipe, LIBGL_ALWAYS_SOFTWARE). Results: (a) vvvvc.exe 7.4.1
+compiled the generated document with no red nodes (it then stops at NuGet
+signature checks Wine cannot do); (b) vvvv.exe 7.4.1 opened the project,
+the patch editor shows every node resolved and linked, and Ctrl+S saved it
+back identical except for one XML comment (kept as the test fixture);
+(c) the runtime started: the Renderer window opened with the title from the
+patch; (d) a test-only copy that adds a PDFWriter (CPU Skia) on the same
+layer tree wrote a PDF showing the image, white outlines on the object
+edges, a marker and label on every centroid and the class names; (e) live:
+with vvvv running, a re-export that deleted object 4 and renamed a class
+removed that outline and marker and showed the new class within seconds,
+without reopening; the no-class layout (what Make Masks writes today)
+rendered too. Not verifiable here: pixels in the on-screen window. Under
+Wine the Skia Renderer window stays black for vvvv's own Bouncing Ball
+example as well, so this is the Wine/DXVK presentation path, not the file.
+Maintainer check on a Windows PC: (1) install vvvv gamma 7.4 or later from
+https://vvvv.org/download; (2) in spaCR turn on Show alpha features, open a
+folder in Make Masks, press "Export for vvvv…", pick a folder; (3) in vvvv
+choose File > Open and select <export folder>/<image stem>/<image stem>.vl;
+(4) expect a window "spaCR - <stem>" with the image, white outlines and a
+yellow circle plus label number at each object's centre; (5) turn on
+"Export on save", delete an object and save the mask: within a second the
+outline and marker disappear in the vvvv window. Report a red node or an
+empty window with the vvvv version.
+Tests: tests/qt/test_685_vvvv_project.py (id codec against vvvv-written
+documents; generated document equal, apart from layout, to the copy vvvv
+7.4.1 saved; every node and pin present in vvvv-written documents; links,
+relative paths, CSV column indices, pixel-to-window mapping, deterministic
+output, export files/manifest, unchanged .vl on re-export, retry on a held
+file) and the updated file list in test_685_make_masks_curation_controls.py.
+Fixtures: tests/data/vvvv (two VL.Skia 7.4 help patches, LGPL-3.0 text,
+provenance in README.txt). UI strings are unchanged, so no catalogs needed
+regenerating; the export tooltip does not yet mention the .vl.
