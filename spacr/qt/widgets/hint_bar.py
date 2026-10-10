@@ -19,10 +19,11 @@ its lifetime.
 
 from __future__ import annotations
 
+import math
 from typing import Dict, Optional
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtGui import QTextOption
+from PySide6.QtGui import QTextDocument, QTextOption
 from PySide6.QtWidgets import QFrame, QLabel, QTextEdit, QVBoxLayout, QWidget
 
 #: What the bar says when nothing is under the pointer.
@@ -138,12 +139,22 @@ class HintBar(QLabel):
 
     def _minimum_help_height(self) -> int:
         """Leave four painted text rows and the resize edge visible."""
-        lines = self.fontMetrics().lineSpacing() * 4
+        lines = max(self.fontMetrics().lineSpacing() * 4, self._four_painted_rows())
         margins = self.contentsMargins()
         handle = getattr(self, "_resize_handle", None)
         edge = handle.height() if handle is not None else 8
         return max(28, lines + 12,
                    lines + margins.top() + margins.bottom() + edge)
+
+    def _four_painted_rows(self) -> int:
+        """Measure four laid-out rows, which can exceed four rounded line spacings."""
+        view = getattr(self, "_view", None)
+        document = QTextDocument()
+        document.setDocumentMargin(0)
+        document.setDefaultFont(view.font() if view is not None else self.font())
+        document.setPlainText("\n".join(("Xg",) * 4))
+        frame = 0 if view is None else 2 * view.frameWidth()
+        return math.ceil(document.size().height()) + frame
 
     def _maximum_help_height(self) -> int:
         """Keep the preceding page and the dialog's action buttons visible."""

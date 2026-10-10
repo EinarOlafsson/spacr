@@ -66,6 +66,7 @@ def test_overrunning_real_shader_keeps_clock_pointer_and_clicks_moving(qtbot, mo
     timer.start()
     try:
         qtbot.mouseClick(button, Qt.LeftButton, pos=QPoint(20, 15))
+        qtbot.mouseClick(host, Qt.LeftButton, pos=QPoint(40, 200))
         qtbot.waitUntil(lambda: len(snapshots) >= 7, timeout=4000)
         assert clicked == [True]
         clocks = [clock for clock, _, _ in snapshots[-5:]]

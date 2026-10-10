@@ -108,7 +108,7 @@ def test_preferences_hint_height_survives_long_text_and_font_change(qtbot):
     font.setPointSize(max(1, font.pointSize()) + 4)
     bar.setFont(font)
     margins = bar.contentsMargins()
-    lines = bar.fontMetrics().lineSpacing() * 4
+    lines = max(bar.fontMetrics().lineSpacing() * 4, bar._four_painted_rows())
     expected = max(28, lines + 12,
                    lines + margins.top() + margins.bottom()
                    + bar._resize_handle.height())

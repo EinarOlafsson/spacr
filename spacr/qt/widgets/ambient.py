@@ -7794,6 +7794,8 @@ class AmbientWidget(QWidget):
         """Apply finite wave amplitude without changing gravity or reach."""
         value = float(value)
         value = max(0.0, min(2.0, value)) if math.isfinite(value) else 1.0
+        if value == getattr(self, "_ripple_intensity", None):
+            return
         self._ripple_intensity = value
         self._mutate_engine(lambda: setattr(self._engine, "_ripple_intensity", value))
 

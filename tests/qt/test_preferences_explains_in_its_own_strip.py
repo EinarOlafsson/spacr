@@ -121,7 +121,7 @@ def test_translated_long_help_scrolls_without_moving_preferences(qtbot,
     QApplication.processEvents()
     assert view.fontInfo().pixelSize() == bar.fontInfo().pixelSize()
     margins = bar.contentsMargins()
-    lines = bar.fontMetrics().lineSpacing() * 4
+    lines = max(bar.fontMetrics().lineSpacing() * 4, bar._four_painted_rows())
     assert bar.height() == max(
         lines + 12, lines + margins.top() + margins.bottom()
         + bar._resize_handle.height())
@@ -219,7 +219,7 @@ def test_the_help_edge_resizes_and_remembers_without_hiding_buttons(
     bar.setFont(larger)
     QApplication.processEvents()
     margins = bar.contentsMargins()
-    lines = bar.fontMetrics().lineSpacing() * 4
+    lines = max(bar.fontMetrics().lineSpacing() * 4, bar._four_painted_rows())
     assert bar.height() == max(
         original_height + 70, lines + 12,
         lines + margins.top() + margins.bottom() + handle.height())
