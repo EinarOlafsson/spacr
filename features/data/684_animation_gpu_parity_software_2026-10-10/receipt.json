@@ -1,0 +1,2391 @@
+{
+  "schema": 1,
+  "source_commit": "c610b242eccd94bc17b7386368728263b26c30bf",
+  "gl": {
+    "GL_RENDERER": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "GL_VENDOR": "Mesa",
+    "GL_VERSION": "4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4"
+  },
+  "software_renderer": true,
+  "machine": "x86_64",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+  "python": "3.12.4",
+  "qt_platform": "offscreen",
+  "thresholds": {
+    "mean": 1.0,
+    "p99": 12,
+    "over_48": 0.005
+  },
+  "qualification": "Offscreen producer-thread frames compared with the CPU path; no displayed frame rate or compositor claim. Software-renderer timings are not GPU timings.",
+  "all_passed": true,
+  "rows": [
+    {
+      "theme": "blobs",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0011,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0007,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0009,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.078,
+      "gpu_median_ms": 0.249,
+      "gpu_p90_ms": 0.241
+    },
+    {
+      "theme": "blobs",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0249,
+          "p99": 1,
+          "max": 2,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0275,
+          "p99": 1,
+          "max": 2,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0289,
+          "p99": 1,
+          "max": 2,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.334,
+      "gpu_median_ms": 0.237,
+      "gpu_p90_ms": 0.229
+    },
+    {
+      "theme": "blobs",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.001,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0008,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0008,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.055,
+      "gpu_median_ms": 0.109,
+      "gpu_p90_ms": 0.107
+    },
+    {
+      "theme": "blobs",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0263,
+          "p99": 1,
+          "max": 2,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0265,
+          "p99": 1,
+          "max": 2,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0282,
+          "p99": 1,
+          "max": 2,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.354,
+      "gpu_median_ms": 0.221,
+      "gpu_p90_ms": 0.218
+    },
+    {
+      "theme": "blobs",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0047,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0031,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0037,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.066,
+      "gpu_median_ms": 0.162,
+      "gpu_p90_ms": 0.143
+    },
+    {
+      "theme": "blobs",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.1232,
+          "p99": 2,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.1336,
+          "p99": 2,
+          "max": 3,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.1404,
+          "p99": 2,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.534,
+      "gpu_median_ms": 0.373,
+      "gpu_p90_ms": 0.336
+    },
+    {
+      "theme": "blobs",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0048,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.003,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0037,
+          "p99": 0,
+          "max": 1,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.09,
+      "gpu_median_ms": 0.115,
+      "gpu_p90_ms": 0.114
+    },
+    {
+      "theme": "blobs",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.123,
+          "p99": 2,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.1318,
+          "p99": 2,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.1416,
+          "p99": 2,
+          "max": 3,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.417,
+      "gpu_median_ms": 0.24,
+      "gpu_p90_ms": 0.231
+    },
+    {
+      "theme": "drift",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0003,
+          "p99": 0,
+          "max": 16,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0003,
+          "p99": 0,
+          "max": 20,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0003,
+          "p99": 0,
+          "max": 22,
+          "over_16": 2e-06,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 1.471,
+      "gpu_median_ms": 2.262,
+      "gpu_p90_ms": 1.717
+    },
+    {
+      "theme": "drift",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0027,
+          "p99": 0,
+          "max": 19,
+          "over_16": 4e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0029,
+          "p99": 0,
+          "max": 20,
+          "over_16": 5e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0032,
+          "p99": 0,
+          "max": 22,
+          "over_16": 2e-05,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 1.004,
+      "gpu_median_ms": 1.745,
+      "gpu_p90_ms": 1.701
+    },
+    {
+      "theme": "drift",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0001,
+          "p99": 0,
+          "max": 17,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0001,
+          "p99": 0,
+          "max": 17,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0001,
+          "p99": 0,
+          "max": 17,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 4.592,
+      "gpu_median_ms": 9.142,
+      "gpu_p90_ms": 8.327
+    },
+    {
+      "theme": "drift",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0008,
+          "p99": 0,
+          "max": 21,
+          "over_16": 2e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0008,
+          "p99": 0,
+          "max": 21,
+          "over_16": 1e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0009,
+          "p99": 0,
+          "max": 22,
+          "over_16": 5e-06,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 3.425,
+      "gpu_median_ms": 7.905,
+      "gpu_p90_ms": 4.838
+    },
+    {
+      "theme": "drift",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0003,
+          "p99": 0,
+          "max": 19,
+          "over_16": 1e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0003,
+          "p99": 0,
+          "max": 28,
+          "over_16": 2e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0003,
+          "p99": 0,
+          "max": 27,
+          "over_16": 2e-06,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.822,
+      "gpu_median_ms": 1.215,
+      "gpu_p90_ms": 0.985
+    },
+    {
+      "theme": "drift",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0026,
+          "p99": 0,
+          "max": 23,
+          "over_16": 2.4e-05,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0031,
+          "p99": 0,
+          "max": 57,
+          "over_16": 3.7e-05,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0027,
+          "p99": 0,
+          "max": 27,
+          "over_16": 2.9e-05,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 1.171,
+      "gpu_median_ms": 1.569,
+      "gpu_p90_ms": 1.559
+    },
+    {
+      "theme": "drift",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0001,
+          "p99": 0,
+          "max": 20,
+          "over_16": 1e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0001,
+          "p99": 0,
+          "max": 25,
+          "over_16": 1e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0001,
+          "p99": 0,
+          "max": 22,
+          "over_16": 1e-06,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 3.071,
+      "gpu_median_ms": 7.295,
+      "gpu_p90_ms": 7.098
+    },
+    {
+      "theme": "drift",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0008,
+          "p99": 0,
+          "max": 26,
+          "over_16": 6e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0008,
+          "p99": 0,
+          "max": 30,
+          "over_16": 1.2e-05,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0008,
+          "p99": 0,
+          "max": 24,
+          "over_16": 7e-06,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 3.292,
+      "gpu_median_ms": 8.003,
+      "gpu_p90_ms": 5.383
+    },
+    {
+      "theme": "aurora",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.1173,
+          "p99": 1,
+          "max": 69,
+          "over_16": 1.6e-05,
+          "over_48": 1e-06
+        },
+        {
+          "mean": 0.1191,
+          "p99": 1,
+          "max": 54,
+          "over_16": 1.7e-05,
+          "over_48": 2e-06
+        },
+        {
+          "mean": 0.1181,
+          "p99": 1,
+          "max": 46,
+          "over_16": 1.1e-05,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 11.681,
+      "gpu_median_ms": 3.893,
+      "gpu_p90_ms": 3.765
+    },
+    {
+      "theme": "aurora",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.3353,
+          "p99": 2,
+          "max": 126,
+          "over_16": 6.4e-05,
+          "over_48": 7e-06
+        },
+        {
+          "mean": 0.3437,
+          "p99": 2,
+          "max": 101,
+          "over_16": 6.1e-05,
+          "over_48": 1.4e-05
+        },
+        {
+          "mean": 0.3414,
+          "p99": 3,
+          "max": 85,
+          "over_16": 7.2e-05,
+          "over_48": 1.2e-05
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 30.824,
+      "gpu_median_ms": 7.97,
+      "gpu_p90_ms": 7.954
+    },
+    {
+      "theme": "aurora",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.1172,
+          "p99": 1,
+          "max": 82,
+          "over_16": 6e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.1175,
+          "p99": 1,
+          "max": 47,
+          "over_16": 6e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.1168,
+          "p99": 1,
+          "max": 87,
+          "over_16": 1.4e-05,
+          "over_48": 2e-06
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 37.777,
+      "gpu_median_ms": 15.918,
+      "gpu_p90_ms": 14.032
+    },
+    {
+      "theme": "aurora",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.3282,
+          "p99": 2,
+          "max": 115,
+          "over_16": 3.7e-05,
+          "over_48": 4e-06
+        },
+        {
+          "mean": 0.3353,
+          "p99": 2,
+          "max": 90,
+          "over_16": 3.7e-05,
+          "over_48": 3e-06
+        },
+        {
+          "mean": 0.3283,
+          "p99": 2,
+          "max": 120,
+          "over_16": 5.4e-05,
+          "over_48": 7e-06
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 61.337,
+      "gpu_median_ms": 24.285,
+      "gpu_p90_ms": 21.528
+    },
+    {
+      "theme": "aurora",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0817,
+          "p99": 1,
+          "max": 29,
+          "over_16": 1e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0822,
+          "p99": 1,
+          "max": 23,
+          "over_16": 4e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0809,
+          "p99": 1,
+          "max": 18,
+          "over_16": 1e-06,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 10.799,
+      "gpu_median_ms": 3.857,
+      "gpu_p90_ms": 3.832
+    },
+    {
+      "theme": "aurora",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.2361,
+          "p99": 2,
+          "max": 47,
+          "over_16": 1.3e-05,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.2437,
+          "p99": 2,
+          "max": 40,
+          "over_16": 1.8e-05,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.2402,
+          "p99": 2,
+          "max": 32,
+          "over_16": 1.5e-05,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 28.922,
+      "gpu_median_ms": 8.448,
+      "gpu_p90_ms": 8.384
+    },
+    {
+      "theme": "aurora",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0825,
+          "p99": 1,
+          "max": 35,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.082,
+          "p99": 1,
+          "max": 18,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.081,
+          "p99": 1,
+          "max": 32,
+          "over_16": 3e-06,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 32.365,
+      "gpu_median_ms": 15.908,
+      "gpu_p90_ms": 11.43
+    },
+    {
+      "theme": "aurora",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.2344,
+          "p99": 2,
+          "max": 56,
+          "over_16": 7e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.24,
+          "p99": 2,
+          "max": 30,
+          "over_16": 7e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.2327,
+          "p99": 2,
+          "max": 52,
+          "over_16": 1.2e-05,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 64.761,
+      "gpu_median_ms": 24.743,
+      "gpu_p90_ms": 21.866
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0007,
+          "p99": 0,
+          "max": 86,
+          "over_16": 2.8e-05,
+          "over_48": 2e-06
+        },
+        {
+          "mean": 0.0143,
+          "p99": 0,
+          "max": 100,
+          "over_16": 0.000454,
+          "over_48": 5.5e-05
+        },
+        {
+          "mean": 0.0427,
+          "p99": 1,
+          "max": 86,
+          "over_16": 0.000684,
+          "over_48": 2.5e-05
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 15.458,
+      "gpu_median_ms": 71.93,
+      "gpu_p90_ms": 71.567
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0007,
+          "p99": 0,
+          "max": 86,
+          "over_16": 2.8e-05,
+          "over_48": 2e-06
+        },
+        {
+          "mean": 0.0215,
+          "p99": 0,
+          "max": 111,
+          "over_16": 0.000657,
+          "over_48": 8.8e-05
+        },
+        {
+          "mean": 0.08,
+          "p99": 2,
+          "max": 91,
+          "over_16": 0.001504,
+          "over_48": 8.7e-05
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 46.708,
+      "gpu_median_ms": 166.915,
+      "gpu_p90_ms": 164.778
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0002,
+          "p99": 0,
+          "max": 59,
+          "over_16": 8e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0083,
+          "p99": 0,
+          "max": 106,
+          "over_16": 0.000262,
+          "over_48": 1.8e-05
+        },
+        {
+          "mean": 0.0189,
+          "p99": 1,
+          "max": 88,
+          "over_16": 0.000275,
+          "over_48": 6e-06
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 22.965,
+      "gpu_median_ms": 101.681,
+      "gpu_p90_ms": 100.54
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0002,
+          "p99": 0,
+          "max": 59,
+          "over_16": 8e-06,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0122,
+          "p99": 0,
+          "max": 106,
+          "over_16": 0.000377,
+          "over_48": 3.1e-05
+        },
+        {
+          "mean": 0.043,
+          "p99": 1,
+          "max": 91,
+          "over_16": 0.000574,
+          "over_48": 1.9e-05
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 67.192,
+      "gpu_median_ms": 216.102,
+      "gpu_p90_ms": 210.032
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0002,
+          "p99": 0,
+          "max": 17,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0043,
+          "p99": 0,
+          "max": 36,
+          "over_16": 4.9e-05,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0205,
+          "p99": 1,
+          "max": 34,
+          "over_16": 5.7e-05,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 14.347,
+      "gpu_median_ms": 68.701,
+      "gpu_p90_ms": 68.498
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0002,
+          "p99": 0,
+          "max": 17,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0057,
+          "p99": 0,
+          "max": 50,
+          "over_16": 8.1e-05,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0368,
+          "p99": 1,
+          "max": 31,
+          "over_16": 8.2e-05,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 34.006,
+      "gpu_median_ms": 169.549,
+      "gpu_p90_ms": 167.068
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0001,
+          "p99": 0,
+          "max": 17,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0027,
+          "p99": 0,
+          "max": 35,
+          "over_16": 2.7e-05,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0097,
+          "p99": 1,
+          "max": 35,
+          "over_16": 2.7e-05,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 23.518,
+      "gpu_median_ms": 117.996,
+      "gpu_p90_ms": 94.884
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0001,
+          "p99": 0,
+          "max": 17,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0036,
+          "p99": 0,
+          "max": 42,
+          "over_16": 5.3e-05,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0226,
+          "p99": 1,
+          "max": 32,
+          "over_16": 3.8e-05,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 59.108,
+      "gpu_median_ms": 203.223,
+      "gpu_p90_ms": 202.293
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.012,
+          "p99": 1,
+          "max": 6,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0119,
+          "p99": 1,
+          "max": 6,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0122,
+          "p99": 1,
+          "max": 6,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 3.464,
+      "gpu_median_ms": 3.651,
+      "gpu_p90_ms": 3.63
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0357,
+          "p99": 1,
+          "max": 7,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0356,
+          "p99": 1,
+          "max": 7,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.036,
+          "p99": 1,
+          "max": 7,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 8.438,
+      "gpu_median_ms": 5.818,
+      "gpu_p90_ms": 5.781
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0061,
+          "p99": 0,
+          "max": 6,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0061,
+          "p99": 0,
+          "max": 5,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0062,
+          "p99": 0,
+          "max": 6,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 11.772,
+      "gpu_median_ms": 14.037,
+      "gpu_p90_ms": 14.011
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0183,
+          "p99": 1,
+          "max": 7,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0183,
+          "p99": 1,
+          "max": 6,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0183,
+          "p99": 1,
+          "max": 8,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 25.377,
+      "gpu_median_ms": 25.019,
+      "gpu_p90_ms": 17.316
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0083,
+          "p99": 1,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0083,
+          "p99": 1,
+          "max": 3,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0085,
+          "p99": 1,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 12.193,
+      "gpu_median_ms": 5.803,
+      "gpu_p90_ms": 5.684
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0253,
+          "p99": 1,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0253,
+          "p99": 1,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0254,
+          "p99": 1,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 10.268,
+      "gpu_median_ms": 6.202,
+      "gpu_p90_ms": 6.119
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0042,
+          "p99": 0,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0042,
+          "p99": 0,
+          "max": 3,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0043,
+          "p99": 0,
+          "max": 3,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 14.919,
+      "gpu_median_ms": 22.843,
+      "gpu_p90_ms": 14.884
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0128,
+          "p99": 1,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0128,
+          "p99": 1,
+          "max": 3,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0129,
+          "p99": 1,
+          "max": 4,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 33.9,
+      "gpu_median_ms": 23.707,
+      "gpu_p90_ms": 23.44
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.25,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 6.409,
+      "gpu_median_ms": 7.111,
+      "gpu_p90_ms": 4.386
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 2.101,
+      "gpu_median_ms": 7.045,
+      "gpu_p90_ms": 6.759
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.25,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 5.224,
+      "gpu_median_ms": 14.452,
+      "gpu_p90_ms": 10.92
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 7.291,
+      "gpu_median_ms": 25.14,
+      "gpu_p90_ms": 25.064
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.25,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 1.16,
+      "gpu_median_ms": 3.839,
+      "gpu_p90_ms": 3.713
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 1.275,
+      "gpu_median_ms": 7.478,
+      "gpu_p90_ms": 7.318
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.25,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 4.225,
+      "gpu_median_ms": 14.227,
+      "gpu_p90_ms": 11.021
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 7.145,
+      "gpu_median_ms": 25.101,
+      "gpu_p90_ms": 25.096
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 1.461,
+      "gpu_median_ms": 9.396,
+      "gpu_p90_ms": 9.269
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 10.051,
+      "gpu_median_ms": 51.298,
+      "gpu_p90_ms": 49.09
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 3.85,
+      "gpu_median_ms": 14.616,
+      "gpu_p90_ms": 10.993
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 14.093,
+      "gpu_median_ms": 56.655,
+      "gpu_p90_ms": 54.525
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 1.526,
+      "gpu_median_ms": 6.086,
+      "gpu_p90_ms": 5.828
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 11.98,
+      "gpu_median_ms": 46.823,
+      "gpu_p90_ms": 42.759
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 3.797,
+      "gpu_median_ms": 14.601,
+      "gpu_p90_ms": 10.975
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 13.819,
+      "gpu_median_ms": 54.104,
+      "gpu_p90_ms": 51.864
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 0.96,
+      "gpu_median_ms": 1.958,
+      "gpu_p90_ms": 1.91
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#191919",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 3.633,
+      "gpu_median_ms": 8.928,
+      "gpu_p90_ms": 8.847
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 3.112,
+      "gpu_median_ms": 9.398,
+      "gpu_p90_ms": 6.127
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#191919",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 8.368,
+      "gpu_median_ms": 12.857,
+      "gpu_p90_ms": 12.458
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 1.245,
+      "gpu_median_ms": 2.865,
+      "gpu_p90_ms": 2.845
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#f2f2f2",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 3.558,
+      "gpu_median_ms": 9.841,
+      "gpu_p90_ms": 9.764
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 2.996,
+      "gpu_median_ms": 9.094,
+      "gpu_p90_ms": 5.911
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#f2f2f2",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "refused": 0,
+      "pairs": [
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        },
+        {
+          "mean": 0.0,
+          "p99": 0,
+          "max": 0,
+          "over_16": 0.0,
+          "over_48": 0.0
+        }
+      ],
+      "passed": true,
+      "cpu_median_ms": 8.369,
+      "gpu_median_ms": 14.874,
+      "gpu_p90_ms": 14.62
+    }
+  ]
+}

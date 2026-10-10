@@ -103,3 +103,11 @@ source, other vendors and platforms remain unmeasured.
     edge snapping, Window > Snap actions, F11 restore). They need a person at
     the WS display: no xdotool/wmctrl here and installing system packages is
     out of scope. Only X11 is available on WS (no Wayland/Windows/macOS).
+
+2026-10-10 — The renderer now also draws blobs, stratified, aurora, growth
+and spinn (N684 lane 2): one context per shading thread, theme programs
+compiled on first use, all released on that thread. Automatic follows the
+measured cost table from the workstation audit (GPU slower for advection
+everywhere and waves outside 1080p full, so those stay CPU). CPU output is
+unchanged; Mesa-software parity passes for all 8 themes. Native parity and
+timing of the five new paths remain for the workstation (steps in N684).

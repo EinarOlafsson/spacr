@@ -191,3 +191,90 @@ tutorials showing the new Window-menu snap actions (lane spacr-d7).
     edge snapping, Window > Snap actions, F11 restore). They need a person at
     the WS display: no xdotool/wmctrl here and installing system packages is
     out of scope. Only X11 is available on WS (no Wayland/Windows/macOS).
+
+2026-10-10 — MAINTAINER DECISIONS (relayed by Home): "spaCR flow" is spaCR
+field and its 25% density default is correct; mouse gravity stays at 15%;
+Click ripples stay on by default. No code change was needed.
+
+2026-10-10 — GPU paths for the five CPU-only themes (Claude animation lane 2).
+blobs, stratified (drift), aurora, growth and spinn now draw through the
+N679 moderngl renderer (_FlowPointGraphics, one context per shading
+thread) under the same Off/Automatic/On slider and the same refusals as
+the point themes: off the producer thread, above 3840x2160, Dynamic
+animation hold, failed isolated probe, external NVML compute process,
+constructor or draw error. Every refusal draws the unchanged CPU frame:
+432 CPU frames across these themes are byte-identical to bd22c05bd.
+  - aurora: ray texture generated in a fragment shader (same
+    quantisation as the NumPy path), warped along the same 40 fold strips
+    with bilinear sampling and Plus/Multiply blending.
+  - growth: QPainter rules reproduced: pens <=1 px as Qt's cosmetic
+    hairlines (opacity = width, per-line blending, round-cap phase), wider
+    pens as one union per path group, curves split as Qt splits them.
+  - spinn: paper tiles packed into one atlas; only moving-pointer frames
+    use it (resting frames are already reused).
+  - stratified: a shading thread only when Animation GPU is On and a
+    renderer could exist; otherwise its synchronous CPU paint as before.
+  - blobs: radial falloff discs.
+Automatic (per the workstation audit, db850264d): a cost table taken from
+features/data/684_animation_gpu_audit_2026-10-10 chooses per theme and
+size; GPU only where it measured >=10% faster, never below half of 1080p.
+Result: field GPU at 1080p and at 4K full density (4K at the shipped 25%
+is a 7% gain, so CPU); advection CPU everywhere; waves GPU only at 1080p
+full density; Spaceout field GPU at 4K only. Unmeasured:
+aurora and spinning spinn take GPU at 4K, blobs/stratified/growth stay
+CPU. On still forces GPU. The table is printed by
+tools/audit_animation_performance.py --cost-table RECEIPT and a test
+(tests/test_audit_animation_cost_table_n684.py) holds it to the newest
+684_animation_gpu_audit_* receipt. Note: the 679 r9 native check timed
+the native Spaceout engine GPU slower at 4K full (16 vs 7 ms) while this
+audit timed Spaceout field shading faster (5.6 vs 9.2 ms); the table
+follows the audit, which times the same shade call the application uses.
+spinn's 0.00 ms rows: the theme was fine, the audit was not. Without a
+pointer spinn republishes its resting frame by design. The audit now
+sweeps a pointer across it: 22 ms (1080p) and 62 ms (4K) per CPU frame
+here. The audit also imports the checkout it runs from.
+Parity harness: tools/verify_animation_gpu_parity.py (all 8 GPU-capable
+themes, dark and light, 1080p and 4K, shipped and full density, pixel
+statistics plus timings; refused frames are recorded, never passed).
+Locally checked on Mesa llvmpipe (CPU, software device, not the GPU):
+64/64 configurations pass. Worst per theme: mean 0.34/255, p99 3 (aurora);
+growth 0.08/2; blobs 0.14/2; spinn 0.04/1; drift 0.003/0; the three
+point themes exact. Receipt: data/684_animation_gpu_parity_software_2026-10-10.
+Software timings are not GPU timings. Native GPU parity and timing of the
+five new paths are not yet measured.
+Tests: tests/qt/test_cpu_theme_graphics_paths_n684.py (fallbacks,
+selection, policy, threads, stratified thread switching),
+tests/test_audit_animation_cost_table_n684.py, updated
+test_flow_graphics_backend_fallback_and_ownership.py and test_preferences.
+
+WORKSTATION STEPS (Linux, from a nightly checkout at or after this commit;
+moderngl already installed in the WS spacr env). Leave CUDA_VISIBLE_DEVICES
+unset for these two GPU runs (NVIDIA EGL can follow it); gpu_turn.sh
+handles the queue.
+ 1. git pull origin nightly   (in the WS checkout; no reset)
+ 2. Pixel parity of all 8 GPU themes on the 3090 Ti:
+    QT_QPA_PLATFORM=offscreen tools/gpu_turn.sh n684-gpu-parity-r2 \
+      tools/run_capped.sh 8G python tools/verify_animation_gpu_parity.py \
+      features/data/684_animation_gpu_parity_<date>/receipt.json --images
+    Exit 0 = every pair passed and none refused. Commit the receipt and
+    images/ (worst pair per theme: CPU, GPU, x4 difference PNGs).
+ 3. Timing audit with the new GPU paths (spinn now under a pointer):
+    QT_QPA_PLATFORM=offscreen tools/gpu_turn.sh n684-gpu-audit-r2 \
+      tools/run_capped.sh 8G python tools/audit_animation_performance.py \
+      features/data/684_animation_gpu_audit_<date>/receipt.json --gpu --frames 24
+ 4. Regenerate Automatic's table from that receipt and paste it over
+    _GRAPHICS_COST in spacr/qt/widgets/ambient.py:
+    python tools/audit_animation_performance.py - --cost-table \
+      features/data/684_animation_gpu_audit_<date>/receipt.json
+    then: CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen \
+      tools/run_capped.sh 8G python -m pytest -q \
+      tests/test_audit_animation_cost_table_n684.py \
+      tests/qt/test_flow_graphics_backend_fallback_and_ownership.py \
+      tests/qt/test_cpu_theme_graphics_paths_n684.py
+    (the Automatic assertions in the fallback test name today's winners;
+    adjust them if the new receipt changes a winner).
+ 5. Person at the WS display: Preferences > Performance > Animation GPU
+    On, then each of spaCR blobs, stratified, aurora, growth (Spaceout) and
+    spinn (Spaceout, move the mouse over it); compare with Off, hide/show,
+    resize, and start a Measure and a mask job (animation pauses / GPU
+    released). Not offscreen-checkable.
