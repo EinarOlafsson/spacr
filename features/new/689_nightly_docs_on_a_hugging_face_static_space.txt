@@ -2,7 +2,8 @@
 NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
 ================================================================================
 
-Status:    not started
+Status:    BUILT 2026-10-10 — live; CI upload waits on the HF_DOCS_TOKEN secret,
+           Pages stub ships with the next main merge (see notes)
 Requested: 2026-10-10 — "Can you host the docs on huggingface? Removing docs
            from nightly sees like a bad idea as my process is to change nightly
            (including docs) then push and merge with main"; chose "Nightly on
@@ -64,3 +65,24 @@ DELIBERATELY NOT DONE
 
 - Nightly docs are not trimmed (maintainer: nightly docs stay complete).
 - Main docs do not move; their public URL stays unchanged.
+
+2026-10-10 — Built (Home, Claude). Space einarolafsson/spacr-docs-nightly
+(sdk: static, public) serves https://einarolafsson-spacr-docs-nightly.static.hf.space/.
+First upload by hand from run 38059494495's nightly artifact (nightly
+34e95ef1b): Space commits 43166fc04 then f62a351be; 3297 files, 438.6 MB.
+Commits 7711e079c (workflow + publisher) and d1dca29cb (index.html links).
+docs.yml builds only the pushed branch: main -> assemble-main -> Pages
+(main only, /nightly/ index stub plus 404.html redirect to the same Space
+path, PAGES_LIMIT 900,000,000 bytes fails before upload, size in the step
+summary); nightly -> assemble-nightly -> upload_folder(delete_patterns=["*"])
+with secret HF_DOCS_TOKEN. 54c0b404e's shared catalogs/deck PDF reverted;
+cross-channel deck image sharing dropped. A static Space serves files only
+(/tutorials/ is 404), so nightly directory links get index.html (871 links).
+Run 38064345381 (d1dca29cb) is the first run of the new workflow.
+Open: (1) maintainer adds HF_DOCS_TOKEN (fine-grained, write to this Space
+only), else deploy-space stops with that instruction; (2) main's own
+docs.yml is still the combined one until nightly merges into main, so the
+Pages /nightly/ stub appears with that merge; (3) WS: site-src
+src/projects/spacr/index.html line 158 "Docs: nightly" card still points at
+https://einarolafsson.github.io/spacr/nightly/ (redirects once (2) lands).
+README.rst and the 9 localized READMEs carry no nightly-docs link.
