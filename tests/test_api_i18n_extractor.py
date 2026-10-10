@@ -1383,7 +1383,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-10-07: +1/-0, the nested Preferences background picker:
     # _build_the_dialog._pick_ambient_background. Exact source/prose delta
     # retains every prior contract; all nine normal catalogs carry its review.
-    expected = 13_215
+    # 2026-10-10 item 684: +3/-0, MainWindow.snap_window,
+    # AmbientWidget.set_click_ripples and the nested Preferences helper
+    # _build_the_dialog._density_follows_theme; all nine API catalogs were
+    # regenerated with tools/build_documentation_i18n.py first.
+    expected = 13_218
     import json
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text())
@@ -1449,7 +1453,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_215
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_218
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

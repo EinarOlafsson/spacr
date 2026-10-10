@@ -2562,7 +2562,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Items 591-592: +2 method (the object grid's filter rows and the
         # alpha section heading).
         # Item 600: +8 method (OrganizeForMeasureDialog's public methods).
-        "method": 4315,
+        # Item 684: +2 method (MainWindow.snap_window,
+        # AmbientWidget.set_click_ripples).
+        "method": 4317,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         # Item 600: +1 constructor (OrganizeForMeasureDialog).
@@ -2624,7 +2626,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 9,828 -> 9,832 with items 544 and 573's four, as the total.
         # 9,832 -> 9,890 with item 593's 58, as the total.
         # Item 600, 2026-09-29: +11.
-        "autoapi": 9986,
+        "autoapi": 9988,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2679,7 +2681,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 9,840 -> 9,844 with items 544 and 573's four, one prose variant each.
     # 9,844 -> 9,902 with item 593's 58, one prose variant each.
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
-    assert sum(item.variant_count for item in callables) == 9998
+    # Item 684: +2, snap_window and set_click_ripples, one variant each.
+    assert sum(item.variant_count for item in callables) == 10000
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2699,7 +2702,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 9,826 -> 9,830 with items 544 and 573, as the sum above.
         # 9,830 -> 9,888 with item 593, as the sum above.
         # Item 600: +11.
-        1: 9984,
+        # Item 684: +2, as the sum above.
+        1: 9986,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2951,7 +2955,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-04 item 641: 19,849 - 19,847 = 2 optional read_now= parameters
     # on home.RecentRunsPanel and home.TotalsPanel; no new callable or
     # required parameter.
-    assert sum(len(item.parameters) for item in callables) == 19859
+    # 2026-10-10 item 684: 19,864 - 19,859 = 5: snap_window's edge and
+    # screen, set_click_ripples' enabled, and optional theme= on
+    # preferred_motion and get_ambient_density.
+    assert sum(len(item.parameters) for item in callables) == 19864
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2997,7 +3004,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 10,056 -> 10,126 on 2026-09-28, +70, all on item 593's 58 callables.
     # 591-592: +1 required, with the +1 parameter above.
     # 600, 2026-09-29: +6 required, with the +26 parameters above.
-    assert sum(len(item.required_parameters) for item in callables) == 10221
+    # Item 684: +2 required, snap_window's edge and set_click_ripples' enabled.
+    assert sum(len(item.required_parameters) for item in callables) == 10223
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -3176,7 +3184,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-10-04 for item 641: home.RecentRunsPanel and
     # home.TotalsPanel gained the optional read_now= keyword; no row added
     # or removed.
-) == 'bfe15fe1e3b29a17b80ebd01d0a016c909264a4eb519a3f379433774adf64abb'
+    # Moved 2026-10-10 for item 684: rows for MainWindow.snap_window and
+    # AmbientWidget.set_click_ripples, and optional theme= on
+    # preferred_motion and get_ambient_density; no row removed.
+) == 'e477b0f9216b5d48b83fbb204a5f29c41fbc79ae0ae84188e52f39d3cd2c1818'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3818,9 +3829,17 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in hidden_close} == hidden_close
     assert hidden_close.keys() <= home_ui_arrivals.keys()
     assert not hidden_close.keys() & worker_additions.keys()
+    animation_arrivals = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "684_animation_window_api_arrivals_2026-10-10.json").read_text())
+    # Item 684: MainWindow.snap_window, AmbientWidget.set_click_ripples and
+    # the Preferences density-follows-theme helper.
+    assert len(animation_arrivals) == 3
+    assert {key: docs[key] for key in animation_arrivals} == animation_arrivals
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
-               - popup_additions.keys() - background_additions.keys()) == 13182
+               - popup_additions.keys() - background_additions.keys()
+               - animation_arrivals.keys()) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -4167,9 +4186,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # +4 each with items 544 and 573's four spacr.run_journal callables.
     # +58 each with item 593's callables, named at the callable total.
     # 9,568 -> 9,579 on 2026-09-29 with item 600's 11 callables.
-    assert len(prior - pipeline_callables) == 9663
+    # Item 684: +2 (snap_window, set_click_ripples).
+    assert len(prior - pipeline_callables) == 9665
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
-    assert len(prior - pipeline_callables - validation_functions) == 9657
+    assert len(prior - pipeline_callables - validation_functions) == 9659
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
@@ -4179,7 +4199,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,828 -> 9,832 with items 544 and 573's four.
     # 9,832 -> 9,890 with item 593's 58.
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
-    assert len(rendered_documented_callables.keys() - yolo_callables) == 9986
+    # Item 684: +2 (snap_window, set_click_ripples).
+    assert len(rendered_documented_callables.keys() - yolo_callables) == 9988
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
