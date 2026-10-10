@@ -293,7 +293,7 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
                   "robustness_diameter_factors", "robustness_flow_thresholds",
                   "robustness_cellprob_thresholds", "robustness_enhancement",
                   "robustness_tolerance", "real_object_classifier",
-                  "real_object_threshold"},
+                  "real_object_threshold", "export_vvvv"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
@@ -1248,7 +1248,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
         ("Visualization & Diagnostics", (
-            "plot", "cmap", "figuresize", "examples_to_plot",
+            "plot", "cmap", "figuresize", "examples_to_plot", "export_vvvv",
         )),
     ),
     "measure": (
@@ -1317,7 +1317,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "save_png", "save_arrays", "crop_mode", "png_size",
             "png_channel_mapping",
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
-            "normalize", "normalize_by",
+            "normalize", "normalize_by", "export_vvvv",
         )),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",

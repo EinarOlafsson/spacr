@@ -5518,6 +5518,94 @@ def _load_and_concatenate_arrays(
 
     return
         
+def _export_vvvv_field(root, file_name, masks, image, *, measured=None,
+                       origin='Mask Generation', source_path='',
+                       pixel_size=None):
+    """Write one field's vvvv export for every object mask (item 685, alpha).
+
+    Each object type gets its own export root, ``<root>/<object>``, holding
+    one folder per field as :func:`spacr.qt.mask_engine._export_vvvv` writes
+    it. A mask that cannot be exported (3-D, or ids above 65535) is reported
+    and skipped; the run goes on.
+
+    :param root: the run's vvvv folder for this module.
+    :param file_name: the field's file name; its stem names the folder.
+    :param masks: ``{object: 2-D label image}``.
+    :param image: the field's intensity planes, ``(height, width, channels)``.
+    :param measured: optional ``{object: per-object frame with a label
+        column}``, appended to that object's table.
+    :param origin: the module named in each README.txt.
+    :param source_path: the field's path, recorded in each manifest.
+    :param pixel_size: ``(x, y)`` pixel size in µm, or None.
+    :returns: the folders written.
+    """
+    from .qt.mask_engine import _export_vvvv
+
+    image = None if image is None else np.asarray(image)
+    names = None
+    if image is not None and image.ndim == 3:
+        names = [f'channel_{index}' for index in range(image.shape[-1])]
+    written = []
+    for role, labels in masks.items():
+        labels = np.asarray(labels)
+        try:
+            if labels.ndim != 2:
+                raise ValueError('vvvv export needs a 2-D label image')
+            if not np.issubdtype(labels.dtype, np.integer):
+                labels = np.rint(labels)
+            written.append(_export_vvvv(
+                os.path.join(os.fspath(root), role), file_name,
+                labels.astype(np.int64), image,
+                source_path=source_path, pixel_size=pixel_size,
+                channel_names=names,
+                table=(measured or {}).get(role), origin=origin))
+        except (ValueError, OSError) as exc:
+            print(f'vvvv export skipped {role} in {file_name}: {exc}')
+    return written
+
+
+def _export_vvvv_merged(src, *, pixel_size=None):
+    """Write the vvvv export of every field in ``<src>/merged`` (item 685).
+
+    Used by Mask Generation when ``export_vvvv`` is on. The merged arrays'
+    plane layout sidecar says which planes are intensities and which are
+    object masks; each object is exported to ``<src>/vvvv/mask/<object>``.
+    Without a sidecar nothing is written.
+
+    :param src: the run root holding ``merged/``.
+    :param pixel_size: ``(x, y)`` pixel size in µm, or None.
+    :returns: the folders written.
+    """
+    merged = os.path.join(src, 'merged')
+    layout_path = os.path.join(merged, MERGED_LAYOUT_SIDECAR)
+    if not os.path.isfile(layout_path):
+        print('vvvv export skipped: merged/ has no plane layout')
+        return []
+    with open(layout_path, 'r', encoding='utf-8') as handle:
+        layout = json.load(handle)
+    mask_dims = {str(role): int(dim)
+                 for role, dim in (layout.get('mask_dims') or {}).items()}
+    n_intensity = len(layout.get('intensity_channels') or ())
+    root = os.path.join(src, 'vvvv', 'mask')
+    written = []
+    for name in sorted(_listdir_visible(merged)):
+        if not name.endswith('.npy'):
+            continue
+        path = os.path.join(merged, name)
+        array = np.load(path, mmap_mode='r')
+        if array.ndim != 3:
+            print(f'vvvv export skipped {name}: only 2-D fields are exported')
+            continue
+        masks = {role: np.array(array[..., dim])
+                 for role, dim in mask_dims.items() if dim < array.shape[-1]}
+        image = np.array(array[..., :n_intensity]) if n_intensity else None
+        del array
+        written += _export_vvvv_field(root, name, masks, image,
+                                      source_path=path,
+                                      pixel_size=pixel_size)
+    return written
+
+
 def _results_to_csv(src, df, df_well):
     """
     Save the given dataframes as CSV files in the specified directory.

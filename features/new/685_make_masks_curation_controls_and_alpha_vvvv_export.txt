@@ -214,3 +214,39 @@ file) and the updated file list in test_685_make_masks_curation_controls.py.
 Fixtures: tests/data/vvvv (two VL.Skia 7.4 help patches, LGPL-3.0 text,
 provenance in README.txt). UI strings are unchanged, so no catalogs needed
 regenerating; the export tooltip does not yet mention the .vl.
+
+2026-10-10 — vvvv export as an alpha setting of Mask Generation and Measure.
+Maintainer: "The vvvv export should also be an alpha bool in mask gen and
+measure moduals". New setting export_vvvv (bool, default False), registered
+in ALPHA_FEATURES[685]['settings'] so its row is hidden while Show alpha
+features is off; a value set while hidden still reaches the run, and CLI/API
+runs read it directly. Placed under Visualization & Diagnostics on Mask and
+Crop Output on Measure (also offered by External Masks, which runs Measure;
+hidden on Timelapse); filed with the global Object Crops category.
+With it on, every processed 2-D field gets the same export Make Masks
+writes (<stem>_labels.png, _outlines.png, _image.png, _objects.csv,
+manifest.json, <stem>.vl, README.txt), one export root per object type:
+Mask Generation: <src>/vvvv/mask/<object>/<stem>/, from merged/ and its
+plane-layout sidecar after the merge (v1 path; the v2 path calls the same
+helper, which reports and writes nothing while v2 writes no sidecar).
+Measure: <run root>/vvvv/measure/<object>/<stem>/, written by the per-field
+worker with Measure's filtered masks (cell, nucleus, pathogen, organelles,
+cytoplasm as enabled). Its objects CSV keeps the export's columns first
+(label, centroid_x/y, area, bbox_x0/y0/x1/y1, mean_intensity_channel_<i>
+with i the measured channel's 0-based position, as in Measure's tables)
+and then appends Measure's morphology and intensity columns for that object
+by label (cell_area, cell_channel_0_mean_intensity, ...); a class or score
+column in those tables is carried and drawn by the .vl. With
+save_measurements off only the export's own columns are written. Pixel size
+comes from voxel_size_xy_um when set. 3-D fields and masks with ids above
+65535 are reported and skipped; the run continues.
+Code: mask_engine._export_vvvv gained table= (extra per-object columns,
+merged by label, repeated columns dropped) and origin= (named in
+README.txt); io._export_vvvv_field / io._export_vvvv_merged (non-Qt;
+mask_engine imports no Qt) and measure._export_vvvv_measured_field.
+Tests: tests/test_685_vvvv_pipeline_export.py (both pipelines on and off on
+synthetic fields, file set, CSV columns and values, labels, manifest, the
+.vl checked against the vvvv-saved fixture's nodes/pins, links, paths and
+slice indices; edge cases), tests/qt/test_685_vvvv_settings_alpha_gate.py
+(registration; the row follows the alpha switch on Mask and Measure).
+New strings for translation: the export_vvvv label and tooltip.

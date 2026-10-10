@@ -8246,6 +8246,68 @@ def _run_viability_step(db_path, settings):
     return table
 
 
+def _export_vvvv_measured_field(source_folder, file, settings, volumetric,
+                                channel_arrays, masks, morphology=None,
+                                intensities=None):
+    """Write Measure's vvvv export of one field (item 685, alpha).
+
+    Every object type the run measured is exported to
+    ``<source_folder>/vvvv/measure/<object>/<field>/`` with the masks as
+    filtered by Measure. Each object's table carries the export's own
+    columns (label, centroid, area, bounding box, mean intensity per
+    channel) followed by Measure's morphology and intensity measurements
+    for that object when ``save_measurements`` produced them. 3-D fields
+    are reported and skipped.
+
+    :param source_folder: the run root (the folder holding ``merged/``).
+    :param file: the merged field's file name.
+    :param settings: Measure settings.
+    :param volumetric: whether the field is a z-stack.
+    :param channel_arrays: the measured intensity planes.
+    :param masks: ``{object: label image}`` for every candidate object.
+    :param morphology: ``{object: frame}`` from the morphology step, or None.
+    :param intensities: ``{object: frame}`` from the intensity step, or None.
+    :returns: the folders written.
+    """
+    from .io import _export_vvvv_field
+
+    if volumetric:
+        print(f"vvvv export skipped {file}: only 2-D fields are exported")
+        return []
+    enabled = {
+        'cell': settings.get('cell_mask_dim') is not None,
+        'nucleus': settings.get('nucleus_mask_dim') is not None,
+        'pathogen': settings.get('pathogen_mask_dim') is not None,
+        'cytoplasm': bool(settings.get('cytoplasm')),
+        **{role: settings.get(f'{role}_mask_dim') is not None
+           for role in ORGANELLE_ROLES},
+    }
+    selected = {role: mask for role, mask in masks.items()
+                if enabled.get(role)}
+    measured = {}
+    for role in selected:
+        frames = [frame.loc[:, ~frame.columns.duplicated()]
+                  for frame in ((morphology or {}).get(role),
+                                (intensities or {}).get(role))
+                  if isinstance(frame, pd.DataFrame)
+                  and 'label' in frame.columns]
+        if not frames:
+            continue
+        table = frames[0]
+        for frame in frames[1:]:
+            frame = frame.loc[:, [column for column in frame.columns
+                                  if column == 'label'
+                                  or column not in table.columns]]
+            table = table.merge(frame, on='label', how='outer')
+        measured[role] = table
+    size = settings.get('voxel_size_xy_um')
+    return _export_vvvv_field(
+        os.path.join(source_folder, 'vvvv', 'measure'), file, selected,
+        channel_arrays, measured=measured, origin='Measure',
+        source_path=os.path.join(settings['src'], file),
+        pixel_size=(float(size), float(size)) if size else None)
+
+
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
     """Measure one field using selected standard or PSF-processed intensities.
@@ -8642,6 +8704,15 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     store=_measurement_store_for(
                         os.path.join(source_folder, 'measurements',
                                      'measurements.db'), settings))
+
+        if settings.get('export_vvvv', False):
+            _export_vvvv_measured_field(
+                source_folder, file, settings, volumetric, channel_arrays,
+                {'cell': cell_mask, 'nucleus': nucleus_mask,
+                 'pathogen': pathogen_mask, **organelle_masks,
+                 'cytoplasm': cytoplasm_mask},
+                morphology if settings['save_measurements'] else None,
+                intensities if settings['save_measurements'] else None)
 
         _write_intensity_rescale_record(
             source_folder, file_name, settings, rescale_record, psf_record)

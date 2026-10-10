@@ -1165,6 +1165,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('adjust_cells', True)
     settings.setdefault('mask_parallel', False)
     settings.setdefault('mask_gpu_indices', '')
+    settings.setdefault('export_vvvv', False)
     settings.setdefault('watch_folder', False)
     settings.setdefault('watch_pipeline', 'mask')
     settings.setdefault('watch_normalization_pool', 'per_field')
@@ -1741,6 +1742,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_qc_threshold', 0.8)
     settings.setdefault('bleach_correction', 'none')
     settings.setdefault('measure_gpu', False)
+    settings.setdefault('export_vvvv', False)
     settings.setdefault('ram_guard', True)
     settings.setdefault('measurement_backend', 'sqlite')
     settings.setdefault('measurement_backend_target', '')
@@ -3471,6 +3473,7 @@ expected_types = {
     "keep_original_images": bool,
     "mask_parallel": bool,
     "mask_gpu_indices": str,
+    "export_vvvv": bool,
     "watch_folder": bool,
     "watch_pipeline": str,
     "watch_normalization_pool": str,
@@ -5060,6 +5063,7 @@ tooltips = {
     "save_arrays": "(bool) - Also save each object as a raw .npy array - all channels, cropped to its bounding box, unnormalised - under a region_array/ folder. Enable when you need full bit depth or channels beyond png_dims for custom analysis; it uses far more disk than PNGs. Requires save_png to be True as well. Default False.",
     "save_figure": "(bool) - Write the embedding, plus the cluster grid when plot_cluster_grids is on, as vector PDFs to <src>/results/<METHOD>_embedding.pdf and <METHOD>_grid.pdf. Enable it when you want the figure for a paper or a record of the run; either way the plots are still displayed on screen. Default False.",
     "save_measurements": "(bool) - Master switch for the measurement half of measure_crop: compute morphology and intensity features for every cell, nucleus, pathogen, organelle and cytoplasm object and write them to the plate's SQLite database. Set it False when you only want cropped PNGs or filtered masks -- segmentation and cropping still run, but no measurement tables are written. Default True.",
+    "export_vvvv": "(bool) - Also write every processed 2-D field for vvvv gamma, one folder per field and object type: <stem>_labels.png (16-bit labels, 0 is background), <stem>_outlines.png, <stem>_image.png, <stem>_objects.csv (label, centroid, area, bounding box and mean intensity per channel in pixel coordinates; Measure appends its own per-object measurements), manifest.json, README.txt and <stem>.vl, a vvvv gamma project that shows them. Mask Generation writes to <src>/vvvv/mask/<object>, Measure to vvvv/measure/<object> beside merged/. Images and masks are only read. Default False.",
     "save_png": "(bool) - Write one PNG crop per segmented object into <crop_mode>_png/ and register each path in the png_list table of measurements.db. Required for training or applying a classifier, for the Annotate app and for the UMAP image plots. Turn off to only compute measurements and save time and disk. Default True.",
     "Signal_to_noise": "(int) - Background multiplier used as the Cellpose normalization threshold (background * Signal_to_noise). Per channel, spaCR selects the first of the 98th, 99th, 99.9th, 99.99th and 99.999th percentiles above it and rescales to that value. Higher values reduce clipping and make output dimmer; lower values reveal faint signal but can saturate bright objects. If no percentile qualifies, the range collapses to the 2nd percentile, indicating that this value is too high. Ignored when percentiles is set. Default 10 (5 in check_cellpose_models).",
     "smooth_lines": "(bool) - Draw cluster outlines as a smoothed spline through the convex hull (2 pt wide) rather than the raw straight hull segments (4 pt). Purely cosmetic - it does not change clustering; switch it off if smoothing distorts the true cluster boundary. No effect unless plot_outlines is on, and forced off when color_by is set. Default True.",
@@ -5579,7 +5583,7 @@ categories = {
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 
-    "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
+    "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays", "export_vvvv"],
 
     "Plate Layout & Controls": ["plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
@@ -7501,6 +7505,7 @@ ALPHA_FEATURES = {
                     'MakeMasksVirtualStainApply'),
     },
     685: {
+        'settings': ('export_vvvv',),
         'widgets': ('MakeMasksVvvvExport', 'MakeMasksVvvvExportOnSave'),
     },
     570: {

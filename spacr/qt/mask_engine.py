@@ -1806,12 +1806,19 @@ def _vvvv_publisher(tabular):
     return publish
 
 
-def _vvvv_readme(stem: str, project: str) -> str:
-    """How to open an export in vvvv gamma, for its README.txt."""
+def _vvvv_readme(stem: str, project: str, origin: str = "Make Masks") -> str:
+    """How to open an export in vvvv gamma, for its README.txt.
+
+    :param stem: the field's stem.
+    :param project: the ``.vl`` file name.
+    :param origin: the spaCR module that wrote the export.
+    """
+    extra = ("" if origin == "Make Masks" else
+             ",\n                     then the module's own measurements")
     return f"""spaCR export for vvvv gamma (alpha)
 ====================================
 
-This folder holds one image exported from spaCR Make Masks and a vvvv
+This folder holds one image exported from spaCR {origin} and a vvvv
 gamma project that shows it.
 
 Open it
@@ -1840,7 +1847,7 @@ Files
 {stem}_labels.png    16-bit labels; 0 is background, ids match the mask
 {stem}_outlines.png  white object outlines on a transparent background
 {stem}_objects.csv   one row per object: label, centroid_x, centroid_y,
-                     area, bounding box, mean intensity per channel
+                     area, bounding box, mean intensity per channel{extra}
 manifest.json        image size, pixel size, channels and file names;
                      written last, so its change means the set is complete
 {project}            the vvvv gamma project
@@ -1853,7 +1860,8 @@ x to the right and y down; centroids are pixel centres.
 def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
                 image: Optional[np.ndarray] = None, *,
                 source_path: str = "", pixel_size=None, unit: str = "µm",
-                channel_names=None, classes=None, scores=None) -> str:
+                channel_names=None, classes=None, scores=None,
+                table=None, origin: str = "Make Masks") -> str:
     """Write one field for a vvvv patch watching ``root`` (item 685, alpha).
 
     The folder ``<root>/<stem>/`` holds ``<stem>_labels.png`` (16-bit
@@ -1879,6 +1887,11 @@ def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
     :param channel_names: names for the image's channels.
     :param classes: optional ``{label: class name}``.
     :param scores: optional ``{label: score}``.
+    :param table: optional per-object frame with a ``label`` column, such
+        as Measure's measurements; its other columns are appended to the
+        objects table by label, after the columns listed above, and a
+        column that repeats one of those is left out.
+    :param origin: the spaCR module named in README.txt.
     :returns: the field's export folder.
     :raises ValueError: for labels that are not 2-D or exceed 16 bits.
     """
@@ -1897,6 +1910,14 @@ def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
     folder = os.path.join(os.fspath(root), stem)
     os.makedirs(folder, exist_ok=True)
     frame = _vvvv_object_table(labels, image, channel_names, classes, scores)
+    if table is not None and "label" in getattr(table, "columns", ()):
+        table = table.loc[:, ~table.columns.duplicated()]
+        extra = table.loc[:, [column for column in table.columns
+                              if column == "label"
+                              or column not in frame.columns]]
+        extra = extra.drop_duplicates("label").astype({"label": np.int64})
+        frame = frame.astype({"label": np.int64}).merge(
+            extra, on="label", how="left")
     names = {
         "labels": f"{stem}_labels.png",
         "outlines": f"{stem}_outlines.png",
@@ -1922,7 +1943,7 @@ def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
         stem, int(labels.shape[1]), int(labels.shape[0]),
         dict(names, image=image_name_png), list(frame.columns))
     texts = {f"{stem}.vl": project,
-             "README.txt": _vvvv_readme(stem, f"{stem}.vl")}
+             "README.txt": _vvvv_readme(stem, f"{stem}.vl", origin)}
     for file_name, text in texts.items():
         target = os.path.join(folder, file_name)
         try:

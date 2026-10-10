@@ -825,6 +825,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # measurement on a CUDA GPU, under its own "GPU Measurement α"
     # heading.
     "measure_gpu",
+    # A NEW SETTING, not a regrouping (item 685, 2026-10-10): the alpha vvvv
+    # export of Mask Generation and Measure, filed with the object crops
+    # and shown under Visualization & Diagnostics on Mask and Crop Output
+    # on Measure.
+    "export_vvvv",
     # NEW SETTINGS, not a regrouping (item 576, 2026-09-28): a DuckDB,
     # Parquet or PostgreSQL copy of the measurements, under their own
     # "Measurement Backend α" heading.

@@ -331,6 +331,9 @@ def preprocess_generate_masks(settings):
             )
             report_disk_savings(src, result['stacks'])
             _score_v2_masks(src, settings, object_type='cell')
+            if settings.get('export_vvvv', False):
+                from .io import _export_vvvv_merged
+                _export_vvvv_merged(src)
         return
     
     if settings.get('consolidate', False):
@@ -628,6 +631,10 @@ def preprocess_generate_masks(settings):
                             **({'mask_folders': {'cell': adjusted_cells}}
                                if adjusted_cells is not None else {})
                         )
+                        if settings.get('export_vvvv', False):
+                            cancellation_checkpoint()
+                            from .io import _export_vvvv_merged
+                            _export_vvvv_merged(src)
 
                         if settings['timelapse'] and settings.get('motility_analysis', False):
                             cancellation_checkpoint()

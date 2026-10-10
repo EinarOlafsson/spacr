@@ -999,7 +999,12 @@ def test_real_default_claims_have_no_unrecorded_drift():
     assert ("mask", "watch_classify_settings") in compared_pairs
     item_548_pool = {("mask", "watch_normalization_pool")}
     assert item_548_pool <= compared_pairs
-    assert comparisons == 920
+    # 920 -> 923 on 2026-10-10, +3/-0 (item 685): export_vvvv (False), the
+    # alpha vvvv export, resolved by Mask, Measure and External Masks.
+    item_685 = {(app, "export_vvvv")
+                for app in ("mask", "measure", "external_masks")}
+    assert item_685 <= compared_pairs
+    assert comparisons == 923
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -1035,6 +1040,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 4: item 537's lineage claims in two apps, pinned above.
     # + 3: item 583's vendor channel map in three apps, pinned above.
     # + 2: item 537's minimum division interval in two apps, pinned above.
+    # + 3: item 685's export_vvvv in three apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
@@ -1049,6 +1055,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_470)
             + len(item_537_min_division)
             + len(item_548_pool)
+            + len(item_685)
             == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs

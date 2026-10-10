@@ -13222,6 +13222,7 @@ SETTING_CONSUMERS = {
     'exclude_rows': (('spacr.core', 'generate_image_umap'), ('spacr.core', 'reducer_hyperparameter_search'), ('spacr.hyperparam', 'load_search_data'), ('spacr.settings', 'set_default_umap_image_settings'),),
     'exclude_starved_wells': (('spacr.sequencing_qc', 'barcode_qc'), ('spacr.sequencing_qc', 'barcode_qc_defaults'),),
     'experiment': (('spacr.foreign', 'run_import'), ('spacr.io', 'generate_dataset'), ('spacr.settings', 'deep_spacr_defaults'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'set_generate_dataset_defaults'),),
+    'export_vvvv': (('spacr.core', 'preprocess_generate_masks'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'extracellular_class': (('spacr.settings', 'set_analyze_invasion_defaults'), ('spacr.submodules', 'analyze_invasion'),),
     'fdr_alpha': (('spacr.parameter_sweep', 'run_sweep'), ('spacr.refit', 'refit_settings'), ('spacr.settings', 'get_perform_regression_default_settings'), ('spacr.trial_metrics', 'summarise_trial'),),
     'feature_importance': (('spacr.ml', 'interpret_vision_model'), ('spacr.settings', 'set_interpret_vision_model_defaults'), ('spacr.submodules', 'interpret_vision_model'),),

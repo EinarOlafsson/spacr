@@ -355,6 +355,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'expected_sha256',
     'experiment',
     'export_tiffs',
+    'export_vvvv',
     'extracellular_class',
     'extract_channels',
     'factory',
