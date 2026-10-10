@@ -66,6 +66,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+from contextlib import contextmanager
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import pandas as pd
@@ -591,6 +592,9 @@ def table_columns(source: Any, *, table: Optional[str] = None,
         frame = next(_iter_chunks(source, table, limit=0))
     elif kind == 'csv':
         frame = read_table(source, canonicalise=False, report=None, nrows=0)
+    elif kind == 'parquet':
+        parquet = _require_optional('pyarrow.parquet', _PYARROW_MISSING_MESSAGE)
+        frame = parquet.read_schema(resolve_path(source)).empty_table().to_pandas()
     elif kind == 'excel':
         frame = read_table(source, canonicalise=False, report=None, nrows=0)
     else:
@@ -799,12 +803,123 @@ def _postgres_connect(dsn: str):
 
 
 def _parquet_parts(store: str, table: str) -> List[str]:
-    """The Parquet part files of ``table`` in a Parquet store, oldest first."""
+    """The active Parquet parts, using a published snapshot when one exists."""
+    if table in ('.', '..') or '/' in table or '\\' in table:
+        raise ValueError(f'Invalid Parquet table name: {table!r}')
     folder = os.path.join(store, table)
     if not os.path.isdir(folder):
         return []
+    manifest = _parquet_manifest(folder)
+    if manifest is not None:
+        return [os.path.join(folder, part['name'])
+                for part in manifest['active']]
     return [os.path.join(folder, name) for name in sorted(os.listdir(folder))
             if name.endswith('.parquet') and not name.startswith('.')]
+
+
+@contextmanager
+def _parquet_store_lock(store: str):
+    """Serialize spaCR writers of one Parquet store across processes."""
+    os.makedirs(store, exist_ok=True)
+    with open(os.path.join(store, '.spacr-write.lock'), 'a+b') as handle:
+        if os.name == 'nt':
+            import msvcrt
+            if handle.seek(0, os.SEEK_END) == 0:
+                handle.write(b'\0')
+                handle.flush()
+            handle.seek(0)
+            msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            if os.name == 'nt':
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+def _parquet_part_record(path: str) -> dict:
+    """Record an immutable part's basename, size and content digest."""
+    import hashlib
+
+    before = os.stat(path)
+    digest = hashlib.sha256()
+    with open(path, 'rb') as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b''):
+            digest.update(block)
+    after = os.stat(path)
+    if ((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns,
+         before.st_ctime_ns) !=
+            (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns,
+             after.st_ctime_ns)):
+        raise RuntimeError(f'Parquet part changed while being read: {path}')
+    return {'name': os.path.basename(path), 'size': after.st_size,
+            'sha256': digest.hexdigest()}
+
+
+def _parquet_manifest(folder: str):
+    """Validate and return a complete active snapshot, or None for legacy parts."""
+    import json
+
+    path = os.path.join(folder, '.spacr-parts.json')
+    if not os.path.lexists(path):
+        return None
+    with open(path, 'r', encoding='utf-8') as handle:
+        manifest = json.load(handle)
+    if not isinstance(manifest, dict) or set(manifest) != {
+            'version', 'active', 'retired'} or type(manifest['version']) is not int \
+            or manifest['version'] != 1:
+        raise ValueError(f'Invalid Parquet part manifest: {path}')
+    if not manifest['active']:
+        raise ValueError(f'Invalid Parquet part manifest: {path}')
+    names = set()
+    for category in ('active', 'retired'):
+        if not isinstance(manifest[category], list):
+            raise ValueError(f'Invalid Parquet part manifest: {path}')
+        for part in manifest[category]:
+            if not isinstance(part, dict) or set(part) != {
+                    'name', 'size', 'sha256'}:
+                raise ValueError(f'Invalid Parquet part manifest: {path}')
+            name = part['name']
+            digest = part['sha256']
+            if (not isinstance(name, str) or not name.endswith('.parquet')
+                    or name in ('', '.', '..') or '/' in name or '\\' in name
+                    or name in names or type(part['size']) is not int
+                    or part['size'] < 0 or not isinstance(digest, str)
+                    or len(digest) != 64
+                    or any(c not in '0123456789abcdef' for c in digest)):
+                raise ValueError(f'Invalid Parquet part manifest: {path}')
+            names.add(name)
+            if category == 'active':
+                actual = _parquet_part_record(os.path.join(folder, name))
+                if actual != part:
+                    raise ValueError(f'Parquet part changed outside spaCR: {name}')
+    visible = {name for name in os.listdir(folder)
+               if name.endswith('.parquet') and not name.startswith('.')}
+    if not visible.issubset(names):
+        raise ValueError(f'Untracked Parquet part in {folder}')
+    return manifest
+
+
+def _write_parquet_manifest_payload(pending: str, payload: dict):
+    """Flush one staged active-snapshot manifest before publication."""
+    import json
+
+    with open(pending, 'w', encoding='utf-8') as handle:
+        json.dump(payload, handle, sort_keys=True, separators=(',', ':'))
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def _publish_parquet_manifest(folder: str, active: list, retired: list):
+    """Publish one active part set with a single atomic file replacement."""
+    path = os.path.join(folder, '.spacr-parts.json')
+    payload = {'version': 1, 'active': active, 'retired': retired}
+    _publish(path, lambda pending: _write_parquet_manifest_payload(pending, payload))
 
 
 def _store_tables(db: Any, backend: str) -> Tuple[str, ...]:
@@ -856,6 +971,9 @@ def _iter_chunks(db: Any, table: str, *, limit: Optional[int] = None,
         parquet = _require_optional('pyarrow.parquet',
                                     _PYARROW_MISSING_MESSAGE)
         parts = _parquet_parts(resolve_path(db), table)
+        if limit == 0 and parts:
+            yield parquet.read_schema(parts[0]).empty_table().to_pandas()
+            return
         remaining = limit
         yielded = False
         for part in parts:
@@ -923,23 +1041,42 @@ def _store_write(frame: pd.DataFrame, db: Any, backend: str, table: str,
     if if_exists not in ('append', 'replace', 'fail'):
         raise ValueError(f"if_exists must be 'append', 'replace' or 'fail', "
                          f"not {if_exists!r}.")
+    quoted = _quote_identifier(table)
+    if backend == 'parquet':
+        import uuid
+        _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
+        if table in ('.', '..') or '/' in table or '\\' in table:
+            raise ValueError(f'Invalid Parquet table name: {table!r}')
+        store = resolve_path(db)
+        with _parquet_store_lock(store):
+            folder = os.path.join(store, table)
+            manifest = _parquet_manifest(folder) if os.path.isdir(folder) else None
+            previous = _parquet_parts(store, table)
+            if previous and if_exists == 'fail':
+                raise ValueError(f'Table {table!r} already exists in {db!r}.')
+            active = (manifest['active'] if manifest is not None else
+                      [_parquet_part_record(part) for part in previous])
+            retired = manifest['retired'] if manifest is not None else []
+            part = os.path.join(folder, f'.spacr-part-{uuid.uuid4().hex}.parquet')
+            published = False
+            try:
+                _publish(part, lambda pending: frame.to_parquet(pending, index=False))
+                new = _parquet_part_record(part)
+                if if_exists == 'replace':
+                    retired = retired + active
+                    active = [new]
+                else:
+                    active = active + [new]
+                _publish_parquet_manifest(folder, active, retired)
+                published = True
+            finally:
+                if not published and os.path.exists(part):
+                    os.remove(part)
+        return
     present = table in _store_tables(db, backend)
     if present and if_exists == 'fail':
         raise ValueError(f'Table {table!r} already exists in {db!r}.')
     fresh = not present or if_exists == 'replace'
-    quoted = _quote_identifier(table)
-    if backend == 'parquet':
-        import shutil
-        import uuid
-        _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
-        folder = os.path.join(resolve_path(db), table)
-        if present and if_exists == 'replace':
-            shutil.rmtree(folder)
-        part = os.path.join(
-            folder, f'part-{len(_parquet_parts(resolve_path(db), table)):06d}'
-                    f'-{uuid.uuid4().hex[:8]}.parquet')
-        _publish(part, lambda pending: frame.to_parquet(pending, index=False))
-        return
     if backend == 'duckdb':
         with _duckdb_connect(db) as conn:
             conn.register('spacr_frame', frame)

@@ -243,7 +243,8 @@ def destination(settings: dict) -> Optional[str]:
 
     :param settings: regression settings used to resolve source and model kind.
     :returns: The predicted results directory, or ``None`` when no count-data
-        path or writable folder choice can be resolved.
+        path or writable folder choice can be resolved. PostgreSQL counts
+        require an explicit local ``src``.
 
     The result uses the same folder-selection rule as the regression run.
     """
@@ -252,7 +253,15 @@ def destination(settings: dict) -> Optional[str]:
     count = _first_usable_count_path(settings)
     if count is None:
         return None
-    src = settings.get("src") or os.path.dirname(str(count))
+    from . import tabular
+
+    requested = settings.get("src")
+    if tabular._backend_of(count) == "postgres" and str(requested or "").strip() in (
+            "", "path", "/path", "/path/to/src"):
+        return None
+    if requested and tabular._backend_of(requested) == "postgres":
+        return None
+    src = requested or os.path.dirname(str(count))
     kind = ("guide_permutation"
             if settings.get("analysis_mode") == "guide_permutation"
             else settings.get("regression_type") or "auto")

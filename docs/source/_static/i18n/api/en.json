@@ -29776,9 +29776,10 @@
     "spacr.ml.generate_ml_scores": {
       "source_blocks_sha256": [
         "a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e",
-        "0ff1beae2f012bb566a9a3d73b348fffe0977eb688f17b77174e6960fa38f437",
+        "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
         "74aea7343be214b65d61228568b199720441d78049b01956370c20a94d0ebb8d",
-        "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
+        "f9649bcde48272dcf6fe6c267b467dd966b1b229e8957f7c2f9b1060139c801d",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
         "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
         "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
@@ -29792,15 +29793,16 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
-      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the ``measurements.db`` produced by\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` next to the source DB.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing\n      ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, its object IDs do\n    not join to the measurements, it contains fewer than two observed\n    classes, or if ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
+      "source_sha256": "371211be8b4816670b170e1fc23507ac1efea2047ab33d9aa1596e689a74c2c7",
+      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the measurement store selected by ``measurement_backend`` from\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` under the first source folder.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing the measurements.\n    - ``measurement_backend`` / ``measurement_backend_target`` — select\n      the SQLite, DuckDB, Parquet or PostgreSQL measurement store.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, its object IDs do\n    not join to the measurements, it contains fewer than two observed\n    classes, or if ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
     },
     "spacr.ml.interpret_vision_model": {
       "source_blocks_sha256": [
         "27e1da7167f142b5e33ff9bfa9350d86a492f88afcfb2ab52f0a74ab3f2d588c",
-        "d36376d87588cccca12cb40f2050eaac8299f4c768c58e14a29fc00a59a7851e",
+        "b3fd4e7d658707f3e9bae619a91fd0814c79c0818e1ef5b829740efa9b7cc05e",
         "8e78ef9d6b118a1806645232b929f7492d86fc30a04ef74a91c9000595886fa6",
-        "8c57814dfcc90c731338ebdf8b8db3aa289deda6ca7818ec78b1772d2f6eaf83",
+        "2c2a047f662554493f1912f8ed549570e65fbf341ad893b2a27696d085c25fec",
+        "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
         "0be5c41369b67d724501213429176394827b7ade97cdc6741e6cf37f47c81287",
         "45fb3a49c34f2d3fb198f4b348a7ee25bcf139bdf8072fa02b0b63acb31adfb3",
         "9336b99c45f95510baba8cfa464fe006492448ac800e03a14907777eabc80d18",
@@ -29808,12 +29810,12 @@
         "4cfb4764796993e5d56d729e3707ad65b23476b1e3fde4184724a7eb6b2664d1",
         "467632f70d802b6e3092ba295bbba467ad9245ddf961d4f6b73b21e7387da280",
         "31639ff5a83c58d22e8020e4d612032aaae6606dc9b8f17edd03756957720755",
-        "390bfe5f7c8c473f4ca539dcbb0259bfff23b16b9a2b29f38f8290f711f5e0a0",
+        "410a0e3de10b66cfb8aba04f997a4fec17d85fbd1984f2512af1d9368c7d446f",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "29fa68c067d32edaa7b1656265ec6181f1531cf25d9c3e1b57aa0dc7ec440366"
       ],
-      "source_sha256": "972479829694da6a3e5af23fd459b47cfd9c43e0225247f18b2b9ce90c61d606",
-      "text": "Explain a spacr vision-model score using RF, permutation and SHAP importance, with per-compartment / per-channel radar plots.\n\nMerges per-object measurements from ``measurements.db`` with a CSV of\npredicted scores, runs any combination of RF feature importance,\npermutation importance and SHAP over the top features, then\naggregates SHAP contributions into compartment and channel radar\nplots so you can see which region (cell / nucleus / pathogen /\ncytoplasm) and which fluorescence channel drives the model.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_interpret_vision_model_defaults`.\n    Key entries:\n\n    - ``src`` — folder containing ``measurements/measurements.db``.\n    - ``scores`` — CSV of per-object predictions to explain.\n    - ``score_column`` — column of ``scores`` holding the score.\n    - ``tables`` — DB tables to merge (default\n      ``['cell','nucleus','pathogen','cytoplasm']``).\n    - ``feature_importance`` / ``permutation_importance`` / ``shap``\n      — enable each explainer.\n    - ``top_features`` — cap on features shown.\n    - ``nuclei_limit`` / ``pathogen_limit`` — object-count caps.\n    - ``n_jobs``, ``save``.\n\n:returns: The merged per-object DataFrame — the measurement tables\n    joined to the scores CSV — that the explainers were fitted on.\n    Radar and importance plots are rendered, and with ``save=True``\n    importance CSVs are written alongside the DB, as side effects.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\nSee Also:\n    :func:`spacr.submodules.interpret_vision_model` — legacy /\n    alternative entry point returning a dict of importance\n    DataFrames instead of the merged measurements."
+      "source_sha256": "3ad66c1c0b926918c008821bad441b1be68cc6a5eb4cd2fd4c1301aef1960d1a",
+      "text": "Explain a spacr vision-model score using RF, permutation and SHAP importance, with per-compartment / per-channel radar plots.\n\nMerges per-object measurements from the selected measurement store with a CSV of\npredicted scores, runs any combination of RF feature importance,\npermutation importance and SHAP over the top features, then\naggregates SHAP contributions into compartment and channel radar\nplots so you can see which region (cell / nucleus / pathogen /\ncytoplasm) and which fluorescence channel drives the model.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_interpret_vision_model_defaults`.\n    Key entries:\n\n    - ``src`` — folder containing the measurements.\n    - ``measurement_backend`` / ``measurement_backend_target`` — select\n      the SQLite, DuckDB, Parquet or PostgreSQL measurement store.\n    - ``scores`` — CSV of per-object predictions to explain.\n    - ``score_column`` — column of ``scores`` holding the score.\n    - ``tables`` — DB tables to merge (default\n      ``['cell','nucleus','pathogen','cytoplasm']``).\n    - ``feature_importance`` / ``permutation_importance`` / ``shap``\n      — enable each explainer.\n    - ``top_features`` — cap on features shown.\n    - ``nuclei_limit`` / ``pathogen_limit`` — object-count caps.\n    - ``n_jobs``, ``save``.\n\n:returns: The merged per-object DataFrame — the measurement tables\n    joined to the scores CSV — that the explainers were fitted on.\n    Radar and importance plots are rendered, and with ``save=True``\n    importance CSVs are written under the source folder's ``results/``,\n    as side effects.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\nSee Also:\n    :func:`spacr.submodules.interpret_vision_model` — legacy /\n    alternative entry point returning a dict of importance\n    DataFrames instead of the merged measurements."
     },
     "spacr.ml.interpret_vision_model.create_extended_radar_plot": {
       "source_blocks_sha256": [
@@ -29858,10 +29860,10 @@
       "source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
-        "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821"
+        "91c0ecf82e1a22d071a2449f0c6f854ae695f77baadd4600d0b403ba73d3f2b1"
       ],
-      "source_sha256": "64e2d6a847a7e26e3e5a918dae1ae92104ced69f13a832eea5ab5c2d2762ee63",
-      "text": "Read paired inputs and resolve plate identity without filename guesses.\n\nResolution order is own column, partner column, then pair-row order.\nConflicting declarations are refused. Returns ``(count_frame,\nscore_frame, audit_rows)``.\n\n:param pairs: sequence of mappings with ``'score'`` and ``'count'`` table\n    paths (either may be empty), as returned by\n    :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'``\n    is overwritten with the resolved plate label."
+      "source_sha256": "bccd8c56c3b7afb8975c77afcf90d2585f98883bcadc3bdb34ca5eac6dd5220b",
+      "text": "Read paired inputs and resolve plate identity without filename guesses.\n\nResolution order is own column, partner column, then pair-row order.\nConflicting declarations are refused. Returns ``(count_frame,\nscore_frame, audit_rows)``.\n\n:param pairs: sequence of mappings with ``'score'`` and ``'count'`` table\n    paths (either may be empty), as returned by\n    :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'``\n    is overwritten with the resolved plate label. Database inputs also\n    specify ``'score_table'`` or ``'count_table'``; tables from the same\n    database are cached and paired separately."
     },
     "spacr.ml.load_regression_input_pairs.plates": {
       "source_blocks_sha256": [
@@ -41347,18 +41349,18 @@
         "fccbe09e90c12f3eec3423141af30b5838c41a34450a3f24f4c7096d10d51763",
         "d00917f74b1c60449223b98e16fe1418c23499d9daff770b4b821ea63c8cec5b",
         "956bd67481a9ea16e49f40267925728697390bb90e85710a6190427dc25e8396",
-        "78566b3d98d12dc8ad7b65b57f4aea303e58e82343ad958348d92761ea8004e4",
+        "f76193f9494f4496087d8a05efc8f849d7f73de3d162e2a3a92df029c45a2c46",
         "fc3fb2886e57522b3b050178212c0b973205a31723e3a9490fb3e29b8207db7c",
         "e617adcc7d35691d321c961f501e866061e2f5a370480d7933025d2e17f309ce",
         "1084850c0b1fec29977e8d663efda1d76bf7ae4c968bc5c084cde651b7b64d0a",
         "24836ab5abfffb819bca8eb37250a5b4747767340023c36c6723d34fa0a7e490",
         "9ce2ee07cff94515b65a32d8f07ad40311b6078cccbed2081a7abd06b821a8a7",
-        "4500e99167ae7ff6f78d91bd5dbdc1777005c4f8000b64f27aaabf636bbe044a",
+        "e5283f398103af1a3962f6ba3f51903dc956d7e230ae00a55d0bc5a1131bd0d7",
         "0defb5cc2fa671f4b79c095da6e3b8e0064627bc7766da2a382033e32e64e588",
-        "5f8746785b059302dc196301001d6d982539ec509781e9313490add30d9174e7"
+        "02016aecd7cc868af44fccc2fa72bb5057b97171cb3d5b517a968fb9f9aeeac6"
       ],
-      "source_sha256": "e527ed71bbb49f50898da5535c8cc6fdf509688783cdb61809fea98d71376365",
-      "text": "Write a classifier's per-object results onto the rows of ``table``.\n\nShared by Classify (CV) and Classify (ML) --- see the module docstring for\nwhy the key is ``prcfo``, why an ambiguous key is refused rather than\nguessed at, and why the whole thing is one transaction.\n\n:param results: DataFrame of per-object results. Must carry the source\n    columns named in ``columns``, plus something to key on: a ``prcfo``\n    column, an index named ``prcfo``, or a ``path``/``png_path``/\n    ``file_name`` column holding spaCR crop names.\n:param db_path: SQLite database. A missing file is reported and skipped.\n:param columns: mapping of *database* column name to\n    ``(results column, 'REAL' | 'INTEGER')``.\n:param table: target table. Default ``'png_list'``.\n:param key: ``'auto'`` (measure every candidate and use the best) or one of\n    :data:`KEY_PRIORITY` to force it.\n:param timelapse: whether crop names carry a timepoint. ``None`` detects it\n    from the presence of a time column on the table.\n:param verbose: print the report.\n:returns: a :class:`MergeReport`, or ``None`` if the database is missing.\n:raises KeyError: if ``results`` lacks one of the source columns.\n:raises sqlite3.OperationalError: if ``table`` does not exist."
+      "source_sha256": "862f76814ccbc61805375ba790553417f0090548a8b1d80399acf724fbd859d8",
+      "text": "Write a classifier's per-object results onto the rows of ``table``.\n\nShared by Classify (CV) and Classify (ML) --- see the module docstring for\nwhy the key is ``prcfo``, why an ambiguous key is refused rather than\nguessed at, and why the whole thing is one transaction.\n\n:param results: DataFrame of per-object results. Must carry the source\n    columns named in ``columns``, plus something to key on: a ``prcfo``\n    column, an index named ``prcfo``, or a ``path``/``png_path``/\n    ``file_name`` column holding spaCR crop names.\n:param db_path: SQLite or DuckDB file, Parquet store directory, or\n    PostgreSQL connection string. A missing local store is reported and\n    skipped.\n:param columns: mapping of *database* column name to\n    ``(results column, 'REAL' | 'INTEGER')``.\n:param table: target table. Default ``'png_list'``.\n:param key: ``'auto'`` (measure every candidate and use the best) or one of\n    :data:`KEY_PRIORITY` to force it.\n:param timelapse: whether crop names carry a timepoint. ``None`` detects it\n    from the presence of a time column on the table.\n:param verbose: print the report.\n:returns: a :class:`MergeReport`, or ``None`` if a local store is missing.\n:raises KeyError: if ``results`` lacks one of the source columns.\n:raises ValueError: if a Parquet table is missing or prediction output\n    would replace a join-key column in an alternate store."
     },
     "spacr.predictions.migrate_prediction_columns": {
       "source_blocks_sha256": [
@@ -41366,14 +41368,14 @@
         "3201ec3b3e0c63e4c4ef93891991cb36f3322bc8899e11090fea61ea0b90ecae",
         "2e4aca84a25eacee6508a33b9afa631f16e373a97ad466410de568aab422b97b",
         "122669b9ae72fbc44f93da7a40b40c7b7fe319a8af57695cb180ec6abe251c03",
-        "34387b44c863d87bcda1c583797ba6b79fcd8332ac79a48b09b931d43cdb68e4",
-        "ba4855f520616f049843acd685f06e31517985ea41519bb8f936a5fe6b2252f1",
+        "84e806987eaf654ba94f2f7278292c903056dced529dd052ff7e7ed58efd2c22",
+        "6002394960198870d5ad9841e4189e9f7edea6d9ab9b584dbf91ff386e1b36e8",
         "5108414c2187671983a501e3835fd52d7c737b53c801cdf0018cbb82f174c49d",
         "ee104499017420e09b4eb31a2650f43db6be8919c7385b473bde35995fdd4d91",
         "72eec3c643a1c33f10765e4ff4a9fd0b372ee9fef1345477aa7fdf2dddc48609"
       ],
-      "source_sha256": "a53c351484c73dc153ba79e984302b577379ac740f8700418973f27400836bb5",
-      "text": "Put a legacy prediction column back into the encoding it claims to be in.\n\n:func:`spacr.utils.add_column_to_database` --- the ML stage's old write\npath --- replaced every ``0`` with a ``2`` on the way into the database,\nbecause the Annotate app labels classes 1 and 2. Nothing else did that, so\n``png_list.predictions`` said ``2`` where ``results.csv`` from the very same\nrun said ``0``: one number, two meanings, depending on which file you\nopened. This repairs it, so a database written before the change reads\ncorrectly with no manual action --- the same repair-on-read contract\n:func:`spacr.utils.rename_columns_in_db` has, and the same properties:\n\n* **Idempotent.** After the repair the column holds 0s and 1s, which is not\n  the encoding this looks for, so a second pass does nothing.\n* **Never destructive.** The substitution is only reversed when the column\n  holds nothing but 1s and 2s. A three-class model's genuine class 2 is\n  indistinguishable from a mangled 0, and guessing would be worse than\n  leaving it exactly as it is.\n* **All or nothing.** One explicit transaction, rolled back on any error.\n  The driver opens one for DML by itself, but not for the ``PRAGMA``/DDL\n  this shares a connection with, and a half-repaired column would be a\n  column in two encodings at once.\n\n:param db_path: SQLite file. A missing file is a no-op.\n:param table: table to migrate. Default ``'png_list'``.\n:param verbose: print each repair.\n:returns: list of ``(table, column, rows_repaired)``."
+      "source_sha256": "3bd6481ce775e04b17ebd26d7e1be2be8c953002320e140363efa3650ad74b64",
+      "text": "Put a legacy prediction column back into the encoding it claims to be in.\n\n:func:`spacr.utils.add_column_to_database` --- the ML stage's old write\npath --- replaced every ``0`` with a ``2`` on the way into the database,\nbecause the Annotate app labels classes 1 and 2. Nothing else did that, so\n``png_list.predictions`` said ``2`` where ``results.csv`` from the very same\nrun said ``0``: one number, two meanings, depending on which file you\nopened. This repairs it, so a database written before the change reads\ncorrectly with no manual action --- the same repair-on-read contract\n:func:`spacr.utils.rename_columns_in_db` has, and the same properties:\n\n* **Idempotent.** After the repair the column holds 0s and 1s, which is not\n  the encoding this looks for, so a second pass does nothing.\n* **Never destructive.** The substitution is only reversed when the column\n  holds nothing but 1s and 2s. A three-class model's genuine class 2 is\n  indistinguishable from a mangled 0, and guessing would be worse than\n  leaving it exactly as it is.\n* **All or nothing.** SQLite, DuckDB and PostgreSQL repair in a\n  transaction; Parquet publishes a complete replacement part snapshot.\n  A half-repaired column would be a column in two encodings at once.\n\n:param db_path: SQLite or DuckDB file, Parquet store directory, or\n    PostgreSQL connection string. A missing local store is a no-op.\n:param table: table to migrate. Default ``'png_list'``.\n:param verbose: print each repair.\n:returns: list of ``(table, column, rows_repaired)``."
     },
     "spacr.profiler": {
       "source_blocks_sha256": [
@@ -70669,15 +70671,15 @@
     },
     "spacr.qt.screens.settings_model.regression_design_scan": {
       "source_blocks_sha256": [
-        "9b6c2f2f7b28da7693eab65e26845f116b0952aba25f2d37ec1dba9ea14c36b4",
+        "16d867741877db30c3e82c476b9571fa2687122c81af25093e121cfddb45cdf1",
         "82dff70b6853cac5b5392c2874fb613114407d3989ff00dce45e1dced645d9cb",
-        "7f0642598e55885e75f67b054146674dcc9640f62113a7a9763b66385d3897c8",
+        "0e43b420537b13399aee953fa3bf7407e016d8421caddce9d4446ceb194f3341",
         "406013900845a1429f63ee3ced85e055ab7e29cde52eb2946be494b93d0db1f7",
-        "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
+        "0d98b403d68a96ab0a4d25a8b36fc9524780cb9f2200fb52f900ebaaf4635031",
         "9ec366aca8635a0fd2e590ac42908ff75f5af7c094ac8ec359cb9378152aabc7"
       ],
-      "source_sha256": "d5e151d97dc58062102a046d3f69ad6abbf220f52505b62280a0aaf38d8c6c99",
-      "text": "How big the fit is about to be, read off the count files it was given.\n\nThe design: \"The useful line names the design -- 'fitting 389\ngenes and 823 guide random effects over 610 wells' -- because that is\nalso the line that tells a user their filters did something unexpected.\"\n\nWHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else,\nso it is the design AS THE INPUT FILES HOLD IT: before the merge with\nthe score data, before ``fraction_threshold`` and before the well\nfilters. That is deliberate -- it is the number to compare the run's own\npost-cleaning counts against, and comparing them is how a filter that\ndid something unexpected becomes visible. Every caller says which it is.\n\nNEVER RAISES. It runs to put a sentence in the console beside a fit that\nis already starting; a scan that threw would take the run's own message\nwith it. What it could not work out comes back as ``None`` with a\n``note`` saying why.\n\n:param settings: regression settings; the sgRNA count CSVs are taken from\n    the ``count`` entries of ``paired_data``, or from the legacy\n    ``count_data`` when there are none.\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``."
+      "source_sha256": "f39e119a4bf25f6f6409b96e6296c728cbb5a7e1277099423959d6b8cea2fb56",
+      "text": "How big the fit is about to be, read off its count input tables.\n\nThe design: \"The useful line names the design -- 'fitting 389\ngenes and 823 guide random effects over 610 wells' -- because that is\nalso the line that tells a user their filters did something unexpected.\"\n\nWHAT THIS IS AND IS NOT. It reads the sgRNA count inputs and nothing else,\nso it is the design AS THE INPUT FILES HOLD IT: before the merge with\nthe score data, before ``fraction_threshold`` and before the well\nfilters. That is deliberate -- it is the number to compare the run's own\npost-cleaning counts against, and comparing them is how a filter that\ndid something unexpected becomes visible. Every caller says which it is.\n\nNEVER RAISES. It runs to put a sentence in the console beside a fit that\nis already starting; a scan that threw would take the run's own message\nwith it. What it could not work out comes back as ``None`` with a\n``note`` saying why.\n\n:param settings: regression settings; count paths and optional\n    ``count_table`` names come from ``paired_data``, or paths from legacy\n    ``count_data`` when there are no paired counts.\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``."
     },
     "spacr.qt.screens.settings_model.regression_model_explainer": {
       "source_blocks_sha256": [
@@ -72241,10 +72243,10 @@
         "57789cb3e56114c2ac0b6da7897da3ab981774d3cce81cbfe4a88b60b4475ecf",
         "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-        "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b"
+        "de950a18f89d45c160ffc50e17f4bec0cc2d2541ea0dc776a8d4d5f7a3365c25"
       ],
-      "source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
-      "text": "Keyboard-first shortcuts for the spaCR Qt GUI.\n\nRegisters global :class:`QShortcut` bindings on the main window so\nthe whole app is usable without a mouse:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Switch to the Nth app in the sidebar\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1  / ?       Show the shortcuts cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %\n    Ctrl+/        Open the AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n    Esc           Close any open dialog / popup\n\n:func:`install` is called once from ``MainWindow.__init__``. Every\nbinding is documented in :data:`SHORTCUTS` so the cheat-sheet\ndialog stays in sync with what's actually wired up.\n\nEvery window-wide key can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser) keep their\ndefaults and are listed as taken."
+      "source_sha256": "625d90fc6093f086ee76bae19436af671eeaac38ee1e39db5bed502a3cbe6999",
+      "text": "Keyboard-first shortcuts for the spaCR Qt GUI.\n\nRegisters global :class:`QShortcut` bindings on the main window so\nthe whole app is usable without a mouse:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Switch to the Nth app in the sidebar\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1  / ?       Show the shortcuts cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %\n    Ctrl+/        Open the AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n    Esc           Close any open dialog / popup\n\n:func:`install` is called once from ``MainWindow.__init__``. Every\nbinding is documented in :data:`SHORTCUTS` so the cheat-sheet\ndialog stays in sync with what's actually wired up.\n\nEvery window-wide key can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser) have separate\neditable rows and saved overrides, applied to both existing and new screens."
     },
     "spacr.qt.shortcuts.ShortcutOverlay": {
       "source_blocks_sha256": [
@@ -88487,17 +88489,17 @@
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget": {
       "source_blocks_sha256": [
-        "66518968ae2d3938e4d2a7248ffe219560bf8a9e33da7b08b3add3d80bf2d429",
-        "1a8b42f2d2e4503ac7041aae0a24c3711ded0586f5a5f3e344f2c151672304da",
+        "0cea675f583a20c5e0fba9704eab5fd61499cd52d6d713b8ddc38aa5e0bc520e",
+        "892f02642e630a53c1ca30bee2c142b9343e81bcdf9a73b730ab8bbc57851f94",
         "4744c9a7b9d536414a859f8db4e1f1f3508fc1335dc95f2ae761b07536aff97c",
-        "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
+        "97e2d7a934760480fc3c9447069c7db5cefea5a5501f0a59cfe078001c0e34ef",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "3947ff34d3ff17bea3330e5a99d5b5b65441cbceb26696f8bfa50a1c5569298c",
         "cb8f68674dadf8106df8cd6d7cb9d19f7d387bc13387c13c108b21ee6cada6ee",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "1be9dae75de7fbf11a2aaa3bae6b864f47d9eb4950d079667528a450cd8f5811",
-      "text": "Editable one-row-per-plate score / count / database input contract.\n\nA row is ONE PLATE: its score CSV, its count CSV, and the measurements\ndatabase that plate's per-object tables live in. All three columns are\nfilled BY ADDITION -- every arrival re-proposes the whole table from\nfilename tokens -- so databases dropped in the opposite order to the CSVs\nstill land on the right plates. That is the rule, and the\nthird column obeys it rather than keeping a list of its own.\n\nA plate with NO database is legal and is not an error: the regression is\nfitted on scores and counts. The database is what makes that plate's\nmeasurements available downstream, so its absence disables the plate\nthere instead of failing the run.\n\n:param value: the table already saved, one entry per plate. Everything\n    that arrives afterwards RE-PROPOSES the whole table from filename\n    tokens rather than appending, which is what lets databases dropped in\n    the opposite order to the CSVs still land on the right plates.\n:param parent: parent widget.\nBuild the one-row-per-plate table.\n\n:param value: the rows already saved.\n:param parent: parent widget."
+      "source_sha256": "a162490117b9e261bf2382b5bbe0746f15b7d8c52b287a7fc27e8c7f638efb1f",
+      "text": "Editable one-row-per-plate score/count input and measurement link.\n\nA row is ONE PLATE: its score and count source paths, optional named\ntables within those sources, and the separate measurements database\nthat plate's per-object tables live in. The source paths are\nfilled BY ADDITION -- every arrival re-proposes the whole table from\nfilename tokens -- so databases dropped in the opposite order to the files\nstill land on the right plates. That is the rule, and the\nthird column obeys it rather than keeping a list of its own.\n\nA plate with NO database is legal and is not an error: the regression is\nfitted on scores and counts. The database is what makes that plate's\nmeasurements available downstream, so its absence disables the plate\nthere instead of failing the run.\n\n:param value: the table already saved, one entry per plate. Everything\n    that arrives afterwards RE-PROPOSES the whole table from filename\n    tokens rather than appending, which is what lets databases dropped in\n    the opposite order to the source files still land on the right plates.\n:param parent: parent widget.\nBuild the one-row-per-plate table.\n\n:param value: the rows already saved.\n:param parent: parent widget."
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget.add_paths_for_side": {
       "source_blocks_sha256": [
@@ -111190,11 +111192,11 @@
       "source_blocks_sha256": [
         "f31af1568cc3c2205bcb60cdd45210266125f4b3ab096d05ccafec7ee8e2efb7",
         "2bd4b70a329792c28b03b67b2fa7504bf1d2ee4e24a6bda6f14c0cea69f31b6d",
-        "8464bf387f9ff80a2714587f481defacd127bb39508db7611d8581350afff2fa",
+        "b7526ea714edd8259fb0e1001901e7d14163f048166451decea8abc394a47833",
         "cb0920ed702f545a7ffbf3e6eeb802f68b9e43f52cb096dead407b84804ceb77"
       ],
-      "source_sha256": "9f37c658b6b5af553b41579fee9b1e7c708bb5314fa961e48c34b6dbfb3ed9fb",
-      "text": "Return the output directory a run would use without executing it.\n\n:param settings: regression settings used to resolve source and model kind.\n:returns: The predicted results directory, or ``None`` when no count-data\n    path or writable folder choice can be resolved.\n\nThe result uses the same folder-selection rule as the regression run."
+      "source_sha256": "6dab4991af82da8c561f7c2401927325907915885f393051e8be57686bce735f",
+      "text": "Return the output directory a run would use without executing it.\n\n:param settings: regression settings used to resolve source and model kind.\n:returns: The predicted results directory, or ``None`` when no count-data\n    path or writable folder choice can be resolved. PostgreSQL counts\n    require an explicit local ``src``.\n\nThe result uses the same folder-selection rule as the regression run."
     },
     "spacr.refit.policed_settings": {
       "source_blocks_sha256": [

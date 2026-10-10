@@ -7368,6 +7368,7 @@ ALPHA_FEATURES = {
     },
     576: {
         'settings': ('measurement_backend', 'measurement_backend_target'),
+        'widgets': ('ALPHA_FEATURES576', 'MeasurementMigrationAction'),
     },
     540: {
         'settings': ('viability', 'viability_dead_channel',

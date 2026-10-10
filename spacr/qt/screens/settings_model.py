@@ -24,7 +24,7 @@ from typing import (Any, Callable, Dict, List, NamedTuple, Optional, Sequence,
                     Tuple)
 
 from PySide6.QtCore import (QEvent, QObject, QPoint, QRect, QSize, Qt,
-                            QThread, QTimer, Signal)
+                            QThread, QTimer, Signal, Slot)
 from PySide6.QtWidgets import (
     QBoxLayout,
     QCheckBox,
@@ -5230,13 +5230,13 @@ def _split_guide_names(names):
 
 
 def regression_design_scan(settings) -> dict:
-    """How big the fit is about to be, read off the count files it was given.
+    """How big the fit is about to be, read off its count input tables.
 
     The design: "The useful line names the design -- 'fitting 389
     genes and 823 guide random effects over 610 wells' -- because that is
     also the line that tells a user their filters did something unexpected."
 
-    WHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else,
+    WHAT THIS IS AND IS NOT. It reads the sgRNA count inputs and nothing else,
     so it is the design AS THE INPUT FILES HOLD IT: before the merge with
     the score data, before ``fraction_threshold`` and before the well
     filters. That is deliberate -- it is the number to compare the run's own
@@ -5248,27 +5248,38 @@ def regression_design_scan(settings) -> dict:
     with it. What it could not work out comes back as ``None`` with a
     ``note`` saying why.
 
-    :param settings: regression settings; the sgRNA count CSVs are taken from
-        the ``count`` entries of ``paired_data``, or from the legacy
-        ``count_data`` when there are none.
+    :param settings: regression settings; count paths and optional
+        ``count_table`` names come from ``paired_data``, or paths from legacy
+        ``count_data`` when there are no paired counts.
     :returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.
     """
     out = {"genes": None, "guides": None, "wells": None, "rows": 0,
            "files": 0, "note": ""}
-    paths = _count_files_of(settings)
-    if not paths:
+    pairs = (settings or {}).get('paired_data') or []
+    sources = [(str(row['count']).strip(), row.get('count_table'))
+               for row in pairs if isinstance(row, dict)
+               and str(row.get('count') or '').strip()]
+    if not sources:
+        sources = [(path, None) for path in _count_files_of(settings)]
+    if not sources:
         out["note"] = "no count files in the settings"
         return out
 
-    from ...tabular import read_table
+    from ... import tabular
 
     names, wells, unread = set(), set(), []
     no_wells = False
-    for path in paths:
+    for path, table in sources:
         try:
-            frame = read_table(path, report=None)
+            if table and tabular._backend_of(path) == 'sqlite':
+                frame = tabular.read_database(
+                    path, [table], migrate=False, read_only=True,
+                    report=None)[0]
+            else:
+                frame = tabular.read_table(path, table=table, report=None)
         except Exception as error:                              # noqa: BLE001
-            unread.append(f"{path} ({type(error).__name__})")
+            source = f"{path}:{table}" if table else path
+            unread.append(f"{source} ({type(error).__name__})")
             continue
         out["files"] += 1
         out["rows"] += int(len(frame))
@@ -7043,6 +7054,292 @@ def _add_cellprofiler_example_action(edit: QLineEdit) -> Any:
     return action
 
 
+def _measurement_migration_inputs(source: str, target: str) -> tuple:
+    """Validate two explicit store locators without opening or writing either."""
+    from ...tabular import _backend_of
+    from ..i18n import tr
+
+    source, target = str(source or "").strip(), str(target or "").strip()
+    if not source or not target:
+        raise ValueError(tr("Both source and destination are required."))
+    source_kind, target_kind = _backend_of(source), _backend_of(target)
+    allowed = {".db", ".sqlite", ".sqlite3", ".duckdb", ".ddb",
+               ".parquetdb"}
+    for locator, kind, original in ((source, source_kind, True),
+                                    (target, target_kind, False)):
+        if kind == "postgres":
+            continue
+        if os.path.splitext(locator)[1].lower() not in allowed:
+            raise ValueError(tr("Use a database file, a .parquetdb folder, or a PostgreSQL URL."))
+        path = os.path.abspath(os.path.expanduser(locator))
+        if original:
+            if not (os.path.isdir(path) if kind == "parquet"
+                    else os.path.isfile(path)):
+                raise ValueError(tr("The source measurement store does not exist."))
+        elif os.path.lexists(path):
+            raise ValueError(tr("The destination already exists. Choose a new store."))
+        elif not os.path.isdir(os.path.dirname(path)):
+            raise ValueError(tr("The destination parent folder does not exist."))
+        if original:
+            source = os.path.realpath(path)
+        else:
+            target = path
+    if source == target or (source_kind != "postgres" and target_kind != "postgres"
+                            and os.path.realpath(source) == os.path.realpath(target)):
+        raise ValueError(tr("Source and destination must be different stores."))
+    return source, target, target_kind
+
+
+def _copy_measurement_store(source: str, target: str, report) -> tuple:
+    """Copy an existing store into a new target through the tabular API.
+
+    Local targets are built beside their destination and published only after
+    every requested table is present. The original store is only read.
+    """
+    import shutil
+    import tempfile
+
+    from ...tabular import _migrate_database, database_tables
+
+    source, target, target_kind = _measurement_migration_inputs(source, target)
+    names = tuple(name for name in database_tables(source)
+                  if not name.startswith("sqlite_"))
+    if not names:
+        raise ValueError("The source has no measurement tables to copy.")
+    if target_kind == "parquet" and any(
+            name in (".", "..") or "/" in name or "\\" in name for name in names):
+        raise ValueError("A source table cannot be named as a Parquet folder.")
+    if target_kind == "postgres":
+        if database_tables(target):
+            raise ValueError("The PostgreSQL destination already has tables.")
+        return _migrate_database(source, target, tables=names, report=report)
+    if os.path.lexists(target):
+        raise ValueError("The destination already exists. Choose a new store.")
+    folder = tempfile.mkdtemp(prefix=".spacr-migration-",
+                              dir=os.path.dirname(target))
+    staged = os.path.join(folder, "copy" + os.path.splitext(target)[1])
+    try:
+        copied = _migrate_database(source, staged, tables=names, report=report)
+        if set(database_tables(staged)) != set(names):
+            raise ValueError("The copied store is missing a source table.")
+        if os.path.lexists(target):
+            raise ValueError("The destination appeared during the copy.")
+        if target_kind == "parquet":
+            os.mkdir(target)
+            placed = []
+            created = []
+            try:
+                for root, dirs, files in os.walk(staged):
+                    relative = os.path.relpath(root, staged)
+                    destination = target if relative == "." else os.path.join(target, relative)
+                    for name in dirs:
+                        directory = os.path.join(destination, name)
+                        os.mkdir(directory)
+                        created.append(directory)
+                    for name in files:
+                        output = os.path.join(destination, name)
+                        os.link(os.path.join(root, name), output)
+                        placed.append(output)
+            except Exception:
+                for path in reversed(placed):
+                    os.unlink(path)
+                for path in reversed(created):
+                    os.rmdir(path)
+                try:
+                    os.rmdir(target)
+                except OSError:
+                    pass
+                raise
+        else:
+            os.link(staged, target)
+        return copied
+    finally:
+        shutil.rmtree(folder)
+
+
+def _run_measurement_migration(source, target, kind, signals) -> None:
+    """Copy on a Python worker, reporting only bounded table summaries."""
+    try:
+        copied = _copy_measurement_store(source, target,
+                                          lambda _message: signals.progress.emit("table"))
+    except Exception:
+        signals.failed.emit(kind)
+    else:
+        signals.copied.emit(tuple(copied))
+
+
+class _MeasurementMigrationSignals(QObject):
+    """GUI-thread delivery of progress and the terminal copy result."""
+
+    progress = Signal(str)
+    copied = Signal(tuple)
+    failed = Signal(str)
+
+
+_LIVE_MEASUREMENT_MIGRATIONS: set = set()
+
+
+class _MeasurementMigrationDialog(QDialog):
+    """Explicit, nonblocking copy between already supported measurement stores."""
+
+    def __init__(self, target: str = "") -> None:
+        super().__init__()
+        from ..i18n import tr
+
+        self.setObjectName("MeasurementMigrationDialog")
+        self.setWindowTitle(tr("Migrate measurement store"))
+        self._running = False
+        self._signals = _MeasurementMigrationSignals(self)
+        self._signals.progress.connect(self._on_progress)
+        self._signals.copied.connect(self._on_copied)
+        self._signals.failed.connect(self._on_failed)
+        layout = QVBoxLayout(self)
+        form = QFormLayout()
+        self.source = QLineEdit(self)
+        self.source.setObjectName("MeasurementMigrationSource")
+        self.source.setPlaceholderText(tr("Existing .db, .duckdb, .parquetdb, or PostgreSQL URL"))
+        self.target = QLineEdit(str(target or ""), self)
+        self.target.setObjectName("MeasurementMigrationTarget")
+        self.target.setPlaceholderText(tr("New destination store"))
+        form.addRow(tr("Read from"), self.source)
+        form.addRow(tr("Copy to"), self.target)
+        layout.addLayout(form)
+        explanation = QLabel(tr(
+            "Copies tables into a new destination. The original is not changed; "
+            "this does not switch the active measurement backend."), self)
+        explanation.setWordWrap(True)
+        layout.addWidget(explanation)
+        self.log = QPlainTextEdit(self)
+        self.log.setObjectName("MeasurementMigrationProgress")
+        self.log.setReadOnly(True)
+        self.log.setMinimumHeight(90)
+        layout.addWidget(self.log)
+        controls = QHBoxLayout()
+        self.start_button = QPushButton(tr("Copy tables"), self)
+        self.start_button.setObjectName("MeasurementMigrationStart")
+        self.start_button.clicked.connect(self._start)
+        controls.addWidget(self.start_button)
+        self.close_button = QPushButton(tr("Close"), self)
+        self.close_button.clicked.connect(self.reject)
+        controls.addWidget(self.close_button)
+        layout.addLayout(controls)
+
+    def _start(self) -> None:
+        """Confirm the explicit locators, then copy on a Python worker thread."""
+        import threading
+        from PySide6.QtWidgets import QMessageBox
+        from ..i18n import tr
+
+        if self._running:
+            return
+        try:
+            source, target, kind = _measurement_migration_inputs(
+                self.source.text(), self.target.text())
+        except ValueError as error:
+            self.log.setPlainText(str(error))
+            return
+        answer = QMessageBox.question(
+            self, tr("Confirm measurement copy"),
+            tr("Copy every table from the selected source into a new destination? "
+               "Existing local destinations are refused. A PostgreSQL destination "
+               "must have no tables."),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if answer != QMessageBox.Yes:
+            return
+        self._running = True
+        self.source.setEnabled(False)
+        self.target.setEnabled(False)
+        self.start_button.setEnabled(False)
+        self.close_button.setEnabled(False)
+        self.log.setPlainText(tr("Copying tables…"))
+        self._worker = threading.Thread(target=_run_measurement_migration,
+                                        args=(source, target, kind, self._signals),
+                                        daemon=False,
+                                        name="spacr-measurement-migration")
+        self._worker.start()
+
+    @Slot(str)
+    def _on_progress(self, message: str) -> None:
+        """Append one table's completion without changing dialog geometry."""
+        from ..i18n import tr
+
+        if message == "table":
+            self.log.appendPlainText(tr("A table finished copying."))
+
+    @Slot(tuple)
+    def _on_copied(self, names: tuple) -> None:
+        """Report a complete destination and permit closing the dialog."""
+        from ..i18n import tr
+
+        self.log.appendPlainText(tr("Copied {count} table(s). The original remains unchanged.",
+                                    count=len(names)))
+        self._finish()
+
+    @Slot(str)
+    def _on_failed(self, message: str) -> None:
+        """Report failure without echoing a password-bearing connection URL."""
+        from ..i18n import tr
+
+        if message == "postgres":
+            self.log.appendPlainText(tr(
+                "Migration stopped. The source is unchanged. The empty "
+                "PostgreSQL destination may contain partial new tables."))
+        else:
+            self.log.appendPlainText(tr(
+                "Migration stopped. The source is unchanged and no local "
+                "destination was published."))
+        self._finish()
+
+    def _finish(self) -> None:
+        """Restore the controls after the worker's terminal signal."""
+        self._running = False
+        self._worker = None
+        self.source.setEnabled(True)
+        self.target.setEnabled(True)
+        self.start_button.setEnabled(True)
+        self.close_button.setEnabled(True)
+
+    def reject(self) -> None:
+        """Keep the progress receiver alive until a running copy finishes."""
+        if not self._running:
+            super().reject()
+
+    def closeEvent(self, event) -> None:
+        """Retain a live progress receiver until the source copy completes.
+
+        :param event: the window close request.
+        """
+        if self._running:
+            event.ignore()
+        else:
+            super().closeEvent(event)
+
+
+def _open_measurement_migration(edit: QLineEdit) -> _MeasurementMigrationDialog:
+    """Show a separately owned migration dialog from Measure's alpha row."""
+    dialog = _MeasurementMigrationDialog(edit.text())
+    _LIVE_MEASUREMENT_MIGRATIONS.add(dialog)
+    dialog.finished.connect(lambda: _LIVE_MEASUREMENT_MIGRATIONS.discard(dialog))
+    dialog.show()
+    return dialog
+
+
+def _add_measurement_migration_action(edit: QLineEdit) -> Any:
+    """Attach the registered alpha copy action to the target locator."""
+    from PySide6.QtWidgets import QStyle
+    from ..i18n import tr
+    from ..preferences import _apply_alpha_widgets
+
+    action = edit.addAction(edit.style().standardIcon(QStyle.SP_ArrowRight),
+                            QLineEdit.TrailingPosition)
+    action.setObjectName("MeasurementMigrationAction")
+    action.setText(tr("Migrate measurement store…"))
+    action.setToolTip(tr("Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores."))
+    action.triggered.connect(lambda: _open_measurement_migration(edit))
+    _apply_alpha_widgets(edit)
+    return action
+
+
 class _CsvColumnField(QWidget):
     """A column-name box with a CSV button that offers the columns that exist.
 
@@ -7098,11 +7395,13 @@ class _CsvColumnField(QWidget):
         self.edit = _ScalarEdit()
         self.edit.set_value(default)
         self.edit.textChanged.connect(self._on_edited)
-        self.button = QPushButton("CSV", self)
+        from ..i18n import tr
+
+        self.button = QPushButton(tr("Columns"), self)
         self.button.setObjectName("CsvColumnPicker")
         self.button.setCursor(Qt.PointingHandCursor)
-        self.button.setToolTip(
-            "Read the header row of the input CSVs and choose a column.")
+        self.button.setToolTip(tr(
+            "Read input table column names and choose a column."))
         self.button.clicked.connect(self.pick)
 
         row = QHBoxLayout(self)
@@ -7139,24 +7438,61 @@ class _CsvColumnField(QWidget):
         """Replace the modal message box with ``reporter(message)``."""
         self._reporter = reporter
 
-    def input_paths(self) -> List[str]:
-        """The CSVs this field's columns are read from, right now."""
+    def input_paths(self) -> List[Any]:
+        """The CSV paths or named tables this field reads right now."""
         paths = self._paths() if callable(self._paths) else self._paths
         return [path for path in (paths or []) if path]
 
     def pick(self) -> Optional[str]:
-        """Offer the columns the input CSVs have; return the one chosen.
+        """Offer the columns the selected input tables have; return one.
 
         :returns: the chosen name, or None when there was nothing to offer or
             the user cancelled.
         """
         from spacr import columns as columns_module
+        from ..i18n import tr
 
         paths = self.input_paths()
-        choices = columns_module.available(paths)
+        plain = [path for path in paths if not isinstance(path, tuple)]
+        choices = columns_module.available(plain)
+        errors = []
+        for path, table in (source for source in paths
+                            if isinstance(source, tuple)):
+            from spacr import tabular
+            failures = [OSError, ValueError, ImportError]
+            backend = tabular._backend_of(path)
+            if backend == 'duckdb':
+                try:
+                    import duckdb
+                except ImportError:
+                    pass
+                else:
+                    failures.append(duckdb.Error)
+            elif backend == 'postgres':
+                try:
+                    import psycopg
+                except ImportError:
+                    pass
+                else:
+                    failures.append(psycopg.Error)
+            try:
+                if (backend != 'postgres'
+                        and not os.path.exists(os.path.expanduser(
+                            os.path.expandvars(os.fspath(path))))):
+                    raise FileNotFoundError(path)
+                for name in tabular.table_columns(path, table=table):
+                    if name not in choices:
+                        choices.append(name)
+            except tuple(failures) as error:
+                errors.append(f"{path}: {error}")
         if not choices:
-            self.report(columns_module.describe(
-                self.get_value(), paths, what=self._what, setting=self._key))
+            if errors:
+                self.report(tr("Could not read columns from {sources}",
+                               sources="; ".join(errors)))
+            else:
+                self.report(columns_module.describe(
+                    self.get_value(), plain, what=self._what,
+                    setting=self._key))
             return None
         current = self.get_value()
         chosen = self.choose(choices, current,
@@ -7168,13 +7504,21 @@ class _CsvColumnField(QWidget):
     def _prompt(self, columns_module, choices: List[str],
                 current: Any) -> str:
         """The line above the chooser: how many, and the likely typo."""
+        from ..i18n import tr
+
+        kind = ("input tables" if any(isinstance(path, tuple)
+                                      for path in self.input_paths())
+                else "input CSVs")
         if current is not None and current not in choices:
             close = columns_module.suggest(current, choices)
             if close:
-                return (f"No {self._what} {current!r} in the input CSVs. "
-                        f"Did you mean {close[0]!r}?")
-            return f"No {self._what} {current!r} in the input CSVs."
-        return f"{len(choices)} column(s) in the input CSVs:"
+                return tr("No {what} {current!r} in the {kind}. "
+                          "Did you mean {suggestion!r}?", what=self._what,
+                          current=current, kind=kind, suggestion=close[0])
+            return tr("No {what} {current!r} in the {kind}.",
+                      what=self._what, current=current, kind=kind)
+        return tr("{count} column(s) in the {kind}:",
+                  count=len(choices), kind=kind)
 
     def choose(self, choices: List[str], current: Any,
                prompt: str = "") -> Optional[str]:
@@ -9855,6 +10199,9 @@ class SettingsWidgets:
         if (key == "cellprofiler_pipeline" and self.app_key == "measure"
                 and isinstance(widget, QLineEdit)):
             _add_cellprofiler_example_action(widget)
+        if (key == "measurement_backend_target" and self.app_key == "measure"
+                and isinstance(widget, QLineEdit)):
+            _add_measurement_migration_action(widget)
 
     @staticmethod
     def _build_plain(plan) -> QWidget:
@@ -10974,19 +11321,19 @@ class SettingsWidgets:
         return current
 
     def _loaded_table_paths(self, current: Dict[str, Any]):
-        """Return index-tagged score and count CSVs loaded by the user.
+        """Return index-tagged score and count sources loaded by the user.
 
         Paired inputs share one logical index so a score file and its count
         file represent one plate when neither contains a plate column. Legacy
         flat input keys remain supported after the paired table.
         """
-        return [(index, path)
-                for index, _role, path in self._input_tables(current)]
+        return [(index, path) if table is None else (index, path, table)
+                for index, _role, path, table in self._input_tables(current)]
 
     @staticmethod
     def _input_tables(current: Dict[str, Any],
                       roles: Tuple[str, ...] = ('score', 'count')):
-        """``[(index, role, path)]`` for the loaded regression input CSVs.
+        """``[(index, role, path, table)]`` for loaded regression inputs.
 
         THE ONE PLACE THE PAIRED TABLE IS UNPACKED, and it carries the role
         because its two callers need different projections of the same read:
@@ -11005,7 +11352,8 @@ class SettingsWidgets:
                 for role in roles:
                     path = row.get(role)
                     if path:
-                        found.append((index, role, path))
+                        found.append((index, role, path,
+                                      row.get(f'{role}_table')))
             if found:
                 return found
         found = []
@@ -11013,16 +11361,15 @@ class SettingsWidgets:
             paths = current.get(f'{role}_data') or []
             if isinstance(paths, (str, os.PathLike)):
                 paths = [paths]
-            found.extend((index, role, path)
+            found.extend((index, role, path, None)
                          for index, path in enumerate(paths))
         return found
 
     def _input_csv_paths(self, roles: Tuple[str, ...]) -> List[str]:
-        """The input CSVs a column picker for ``roles`` should read.
+        """The input sources a column picker for ``roles`` should read.
 
-        Deduplicated in order: one score CSV shared by two plate rows is one
-        file to read, and `spacr.columns.available` would merge its columns
-        anyway.
+        Deduplicated in order by path and optional table name, so two
+        named tables in one store remain distinct inputs.
 
         Only the three input keys are read, not the whole panel: this runs on
         a button press and `_current_dependency_settings` walks every widget
@@ -11033,29 +11380,41 @@ class SettingsWidgets:
             widget = self._widgets.get(key)
             current[key] = (self._read_widget(widget) if widget is not None
                             else self._defaults.get(key))
-        seen: List[str] = []
-        for _index, _role, path in self._input_tables(current, tuple(roles)):
+        seen = []
+        for _index, _role, path, table in self._input_tables(
+                current, tuple(roles)):
             text = os.fspath(path)
-            if text not in seen:
-                seen.append(text)
+            source = (text, table) if table or not text.lower().endswith(
+                ('.csv', '.tsv', '.txt')) else text
+            if source not in seen:
+                seen.append(source)
         return seen
 
     @staticmethod
     def _plate_context(paths) -> Dict[str, Any]:
-        """Inspect only CSV headers/plate columns; never load feature data."""
+        """Inspect small CSV plate rows; leave backend stores unknown."""
         sources = []
         for fallback_index, item in enumerate(paths or []):
-            logical_index, path = (item if isinstance(item, tuple)
-                                   else (fallback_index, item))
-            if path and os.path.isfile(os.fspath(path)):
-                sources.append((logical_index, os.fspath(path)))
+            if isinstance(item, tuple):
+                logical_index, path = item[:2]
+                table = item[2] if len(item) > 2 else None
+            else:
+                logical_index, path, table = fallback_index, item, None
+            if path and (table or os.path.isfile(os.fspath(path))
+                         or str(path).lower().startswith(
+                             ('postgresql://', 'postgres://'))):
+                sources.append((logical_index, os.fspath(path), table))
         if not sources:
             return {'plate_count': None, 'has_plate_id': False}
-        if sum(os.path.getsize(path) for _, path in sources) > 5_000_000:
+        if any(table is not None or not path.lower().endswith(
+                ('.csv', '.tsv', '.txt')) for _, path, table in sources):
+            return {'plate_count': None, 'has_plate_id': None}
+        if sum(os.path.getsize(path) for _, path, table in sources
+               if table is None and os.path.isfile(path)) > 5_000_000:
             return {'plate_count': None, 'has_plate_id': None}
         plates = set()
         has_plate = False
-        for logical_index, path in sources:
+        for logical_index, path, table in sources:
             with open(path, newline='', encoding='utf-8-sig') as handle:
                 sample = handle.read(4096)
                 handle.seek(0)

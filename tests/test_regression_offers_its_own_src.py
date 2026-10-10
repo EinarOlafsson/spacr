@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from spacr.ml import resolve_regression_src
+from spacr.ml import resolve_regression_src, _perform_regression_set_paths
 
 
 @pytest.fixture
@@ -102,6 +102,28 @@ def test_relative_parent_segments_are_resolved_before_validation(
 
     assert path == str(tmp_path)
     assert ".." not in path
+
+
+def test_remote_counts_refuse_automatic_output_but_accept_local_root(tmp_path):
+    dsn = os.environ.get("SPACR_TEST_POSTGRES_DSN", "postgresql:///remote_counts")
+    settings = {"count_data": [dsn],
+                "regression_type": "ols"}
+    with pytest.raises(ValueError, match="local regression output directory"):
+        _perform_regression_set_paths(settings.copy())
+    assert not (tmp_path / "results").exists()
+
+    settings["src"] = "path"
+    with pytest.raises(ValueError, match="local regression output directory"):
+        _perform_regression_set_paths(settings.copy())
+
+    settings["src"] = "postgresql:///not_a_folder"
+    with pytest.raises(ValueError, match="local regression output directory"):
+        _perform_regression_set_paths(settings.copy())
+
+    settings["src"] = str(tmp_path)
+    paths = _perform_regression_set_paths(settings)
+    assert paths[4].startswith(str(tmp_path / "results"))
+    assert settings["src"] == str(tmp_path)
 
 
 def test_regression_accepts_a_blank_src_during_preflight():

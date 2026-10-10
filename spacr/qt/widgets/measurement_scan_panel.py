@@ -1263,6 +1263,7 @@ def column_run_settings(base: Optional[Dict[str, Any]], column: str,
             pair = {"score": values[0] if values else "",
                     "count": values[1] if len(values) > 1 else ""}
         pair["score"] = str(score_path)
+        pair.pop("score_table", None)
         pairs.append(pair)
     if pairs:
         settings["paired_data"] = pairs

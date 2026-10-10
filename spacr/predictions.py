@@ -686,18 +686,39 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
       holds nothing but 1s and 2s. A three-class model's genuine class 2 is
       indistinguishable from a mangled 0, and guessing would be worse than
       leaving it exactly as it is.
-    * **All or nothing.** One explicit transaction, rolled back on any error.
-      The driver opens one for DML by itself, but not for the ``PRAGMA``/DDL
-      this shares a connection with, and a half-repaired column would be a
-      column in two encodings at once.
+    * **All or nothing.** SQLite, DuckDB and PostgreSQL repair in a
+      transaction; Parquet publishes a complete replacement part snapshot.
+      A half-repaired column would be a column in two encodings at once.
 
-    :param db_path: SQLite file. A missing file is a no-op.
+    :param db_path: SQLite or DuckDB file, Parquet store directory, or
+        PostgreSQL connection string. A missing local store is a no-op.
     :param table: table to migrate. Default ``'png_list'``.
     :param verbose: print each repair.
     :returns: list of ``(table, column, rows_repaired)``.
     """
-    if not os.path.exists(str(db_path)):
+    from .tabular import _backend_of, resolve_path
+
+    backend = _backend_of(db_path)
+    if backend in ('duckdb', 'parquet'):
+        db_path = resolve_path(db_path)
+    if backend != 'postgres' and not os.path.exists(str(db_path)):
         return []
+    if backend in ('duckdb', 'postgres'):
+        repaired = _migrate_sql_store(str(db_path), table, backend)
+        if verbose:
+            for _table, column, count in repaired:
+                print(f"Repaired {count} row(s) of `{_table}`.`{column}`: the "
+                      f"Annotate app's 1/2 class encoding back to the model's 0/1")
+        return repaired
+    if backend == 'parquet':
+        repaired = _merge_parquet_store(
+            None, str(db_path), {}, table, 'auto', None,
+            migration_only=True)
+        if verbose:
+            for _table, column, count in repaired:
+                print(f"Repaired {count} row(s) of `{_table}`.`{column}`: the "
+                      f"Annotate app's 1/2 class encoding back to the model's 0/1")
+        return repaired
 
     repaired: List[Tuple[str, str, int]] = []
     con = sqlite3.connect(str(db_path), timeout=30)
@@ -762,7 +783,9 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
         columns named in ``columns``, plus something to key on: a ``prcfo``
         column, an index named ``prcfo``, or a ``path``/``png_path``/
         ``file_name`` column holding spaCR crop names.
-    :param db_path: SQLite database. A missing file is reported and skipped.
+    :param db_path: SQLite or DuckDB file, Parquet store directory, or
+        PostgreSQL connection string. A missing local store is reported and
+        skipped.
     :param columns: mapping of *database* column name to
         ``(results column, 'REAL' | 'INTEGER')``.
     :param table: target table. Default ``'png_list'``.
@@ -771,12 +794,17 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
     :param timelapse: whether crop names carry a timepoint. ``None`` detects it
         from the presence of a time column on the table.
     :param verbose: print the report.
-    :returns: a :class:`MergeReport`, or ``None`` if the database is missing.
+    :returns: a :class:`MergeReport`, or ``None`` if a local store is missing.
     :raises KeyError: if ``results`` lacks one of the source columns.
-    :raises sqlite3.OperationalError: if ``table`` does not exist.
+    :raises ValueError: if a Parquet table is missing or prediction output
+        would replace a join-key column in an alternate store.
     """
-    db_path = str(db_path)
-    if not os.path.exists(db_path):
+    from .tabular import _backend_of, resolve_path
+
+    backend = _backend_of(db_path)
+    db_path = (resolve_path(db_path) if backend in ('duckdb', 'parquet')
+               else str(db_path))
+    if backend != 'postgres' and not os.path.exists(db_path):
         print(f"Database not found at {db_path}; skipping merge.")
         return None
 
@@ -791,6 +819,19 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
             f"merge_prediction_results: results frame has no column(s) "
             f"{missing}; it carries {list(results.columns)[:12]}"
             + (" ..." if len(results.columns) > 12 else ""))
+
+    if backend in ('duckdb', 'postgres'):
+        report = _merge_sql_store(results, db_path, spec, table, key,
+                                  timelapse, backend)
+        if verbose:
+            print(report.summary())
+        return report
+    if backend == 'parquet':
+        report = _merge_parquet_store(results, db_path, spec, table, key,
+                                      timelapse)
+        if verbose:
+            print(report.summary())
+        return report
 
     repaired = migrate_prediction_columns(db_path, table=table, verbose=False)
 
@@ -814,19 +855,274 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
     return report
 
 
+def _repair_sql_columns(conn, table: str, table_columns: Sequence[str]):
+    """Repair the legacy 1/2 class encoding inside the caller's transaction."""
+    quoted_table = _quote(table)
+    repaired = []
+    for column in ANNOTATE_ENCODED_COLUMNS:
+        if column not in table_columns:
+            continue
+        quoted = _quote(column)
+        values = {row[0] for row in conn.execute(
+            f"SELECT DISTINCT {quoted} FROM {quoted_table} "
+            f"WHERE {quoted} IS NOT NULL").fetchall()}
+        if not values or not values.issubset({1, 2}) or 2 not in values:
+            continue
+        count = conn.execute(
+            f"SELECT COUNT(*) FROM {quoted_table} WHERE {quoted} = 2"
+        ).fetchone()[0]
+        conn.execute(f"UPDATE {quoted_table} SET {quoted} = 0 WHERE {quoted} = 2")
+        repaired.append((table, column, int(count)))
+    return repaired
+
+
+def _migrate_sql_store(db_path, table, backend):
+    """Repair a native SQL store in one transaction, if its table exists."""
+    from .tabular import _duckdb_connect, _postgres_connect
+
+    connect = _duckdb_connect if backend == 'duckdb' else _postgres_connect
+    conn = connect(db_path)
+    try:
+        if backend == 'duckdb':
+            conn.execute('BEGIN TRANSACTION')
+        try:
+            present = {row[0] for row in conn.execute(
+                'SELECT table_name FROM information_schema.tables '
+                'WHERE table_schema = current_schema() '
+                "AND table_type = 'BASE TABLE'").fetchall()}
+            if table in present:
+                quoted = _quote(table)
+                if backend == 'postgres':
+                    conn.execute(f'LOCK TABLE {quoted} IN EXCLUSIVE MODE')
+                columns = [getattr(entry, 'name', None) or entry[0]
+                           for entry in conn.execute(
+                               f'SELECT * FROM {quoted} LIMIT 0').description]
+                repaired = _repair_sql_columns(conn, table, columns)
+            else:
+                repaired = []
+            if backend == 'duckdb':
+                conn.execute('COMMIT')
+            else:
+                conn.commit()
+        except BaseException:
+            if backend == 'duckdb':
+                conn.execute('ROLLBACK')
+            else:
+                conn.rollback()
+            raise
+    finally:
+        conn.close()
+    return repaired
+
+
+def _execute_native_update(conn, sql, params):
+    """Apply one native-store row update inside the caller's transaction."""
+    conn.execute(sql, params)
+
+
+def _merge_sql_store(results, db_path, spec, table, key, timelapse, backend):
+    """Update DuckDB or PostgreSQL rows while holding one native transaction."""
+    from .tabular import _duckdb_connect, _postgres_connect
+
+    connect = _duckdb_connect if backend == 'duckdb' else _postgres_connect
+    conn = connect(db_path)
+    quoted_table = _quote(table)
+    placeholder = '?' if backend == 'duckdb' else '%s'
+    try:
+        if backend == 'duckdb':
+            conn.execute('BEGIN TRANSACTION')
+        else:
+            conn.execute(f'LOCK TABLE {quoted_table} IN EXCLUSIVE MODE')
+        try:
+            table_columns = [getattr(entry, 'name', None) or entry[0]
+                             for entry in conn.execute(
+                                 f'SELECT * FROM {quoted_table} LIMIT 0').description]
+            key_columns = [column for column in table_columns
+                           if column in ('prcfo', 'png_path', 'file_name')
+                           or column in _PRCFO_METADATA
+                           or column in _OBJECT_ID_COLUMNS
+                           or column in ('timeID', 'time_id')]
+            if set(spec) & set(key_columns):
+                raise ValueError('Prediction output cannot replace a join-key column.')
+            query = ', '.join(_quote(column) for column in key_columns)
+            rows = conn.execute(
+                f'SELECT {query} FROM {quoted_table}').fetchall() if query else []
+            db_frame = pd.DataFrame(rows, columns=key_columns)
+            repaired = _repair_sql_columns(conn, table, table_columns)
+            updates, report, order, types = _plan_merge(
+                results, spec, table, key, timelapse, table_columns,
+                db_frame, range(len(db_frame)), repaired)
+            native_types = {'REAL': 'DOUBLE PRECISION',
+                            'INTEGER': 'BIGINT', 'TEXT': 'TEXT'}
+            for column in report.added_columns:
+                sql_type = types[column].upper()
+                if sql_type not in native_types:
+                    raise ValueError(f'Unsupported prediction SQL type: {sql_type!r}')
+                conn.execute(f'ALTER TABLE {quoted_table} ADD COLUMN '
+                             f'{_quote(column)} {native_types[sql_type]}')
+            if updates:
+                assignment = ', '.join(f'{_quote(column)} = {placeholder}'
+                                       for column in order)
+                selector = ' AND '.join(
+                    f'{_quote(column)} IS NOT DISTINCT FROM {placeholder}'
+                    for column in key_columns)
+                sql = f'UPDATE {quoted_table} SET {assignment} WHERE {selector}'
+                for update in updates:
+                    raw = db_frame.iloc[update[-1]]
+                    params = tuple(update[:-1]) + tuple(
+                        _sql_value(raw[column], 'TEXT') for column in key_columns)
+                    _execute_native_update(conn, sql, params)
+            if backend == 'duckdb':
+                conn.execute('COMMIT')
+            else:
+                conn.commit()
+        except BaseException:
+            if backend == 'duckdb':
+                conn.execute('ROLLBACK')
+            else:
+                conn.rollback()
+            raise
+    finally:
+        conn.close()
+    return report
+
+
+def _merge_parquet_store(results, db_path, spec, table, key, timelapse,
+                         migration_only=False):
+    """Publish scored Parquet parts through one active-snapshot replacement."""
+    from bisect import bisect_right
+    import uuid
+
+    from .tabular import (
+        _parquet_manifest, _parquet_part_record, _parquet_parts,
+        _parquet_store_lock, _publish, _publish_parquet_manifest,
+        _require_optional, _PYARROW_MISSING_MESSAGE,
+    )
+
+    arrow = _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
+    parquet = _require_optional('pyarrow.parquet', _PYARROW_MISSING_MESSAGE)
+    if table in ('.', '..') or '/' in table or '\\' in table:
+        raise ValueError(f'Invalid Parquet table name: {table!r}')
+    folder = os.path.join(db_path, table)
+    with _parquet_store_lock(db_path):
+        parts = _parquet_parts(db_path, table)
+        if not parts:
+            if migration_only:
+                return []
+            raise ValueError(f'Table not found in database: {table}')
+        manifest = _parquet_manifest(folder)
+        records = (manifest['active'] if manifest is not None else
+                   [_parquet_part_record(part) for part in parts])
+        retired = manifest['retired'] if manifest is not None else []
+        schemas = [parquet.read_schema(part) for part in parts]
+        table_columns = list(dict.fromkeys(
+            name for schema in schemas for name in schema.names))
+        key_columns = [column for column in table_columns
+                       if column in ('prcfo', 'png_path', 'file_name')
+                       or column in _PRCFO_METADATA
+                       or column in _OBJECT_ID_COLUMNS
+                       or column in ('timeID', 'time_id')]
+        if set(spec) & set(key_columns):
+            raise ValueError('Prediction output cannot replace a join-key column.')
+        key_frames = []
+        offsets = [0]
+        repair_values = set()
+        repair_count = 0
+        for part, part_schema in zip(parts, schemas):
+            present = [column for column in key_columns
+                       if column in part_schema.names]
+            selected = parquet.read_table(part, columns=present).to_pandas()
+            key_frames.append(selected.reindex(columns=key_columns))
+            offsets.append(offsets[-1] + len(selected))
+            if ML_CLASS_COLUMN in part_schema.names:
+                values = parquet.read_table(
+                    part, columns=[ML_CLASS_COLUMN]).column(0).to_pylist()
+                repair_values.update(value for value in values if value is not None)
+                repair_count += sum(value == 2 for value in values)
+        should_repair = (bool(repair_values) and
+                         repair_values.issubset({1, 2}) and 2 in repair_values)
+        repaired = ([(table, ML_CLASS_COLUMN, repair_count)]
+                    if should_repair else [])
+        if migration_only:
+            updates, report, order, types = [], None, [], {}
+        else:
+            db_frame = pd.concat(key_frames, ignore_index=True)
+            updates, report, order, types = _plan_merge(
+                results, spec, table, key, timelapse, table_columns,
+                db_frame, range(len(db_frame)), repaired)
+        if not updates and not should_repair and (
+                migration_only or not report.added_columns):
+            return repaired if migration_only else report
+        sql_to_arrow = {'REAL': arrow.float64(), 'INTEGER': arrow.int64(),
+                        'TEXT': arrow.string()}
+        if not migration_only:
+            for column in report.added_columns:
+                if types[column].upper() not in sql_to_arrow:
+                    raise ValueError(
+                        f'Unsupported prediction SQL type: {types[column]!r}')
+        grouped = [[] for _ in parts]
+        for update in updates:
+            part_index = bisect_right(offsets, update[-1]) - 1
+            grouped[part_index].append((update[-1] - offsets[part_index],
+                                        update[:-1]))
+        staged = []
+        published = False
+        try:
+            for part, part_updates in zip(parts, grouped):
+                source = parquet.read_table(part)
+                changed = source
+                for position, column in enumerate(order):
+                    if column in changed.schema.names:
+                        field = changed.schema.field(column)
+                        values = changed.column(column).to_pylist()
+                    else:
+                        field = arrow.field(column, sql_to_arrow[types[column].upper()])
+                        values = [None] * changed.num_rows
+                    if should_repair and column == ML_CLASS_COLUMN:
+                        values = [0 if value == 2 else value for value in values]
+                    for row, update_values in part_updates:
+                        values[row] = update_values[position]
+                    array = arrow.array(values, type=field.type)
+                    if column in changed.schema.names:
+                        changed = changed.set_column(
+                            changed.schema.get_field_index(column), field, array)
+                    else:
+                        changed = changed.append_column(field, array)
+                if should_repair and ML_CLASS_COLUMN not in order \
+                        and ML_CLASS_COLUMN in changed.schema.names:
+                    field = changed.schema.field(ML_CLASS_COLUMN)
+                    values = changed.column(ML_CLASS_COLUMN).to_pylist()
+                    values = [0 if value == 2 else value for value in values]
+                    changed = changed.set_column(
+                        changed.schema.get_field_index(ML_CLASS_COLUMN),
+                        field, arrow.array(values, type=field.type))
+                staged_part = os.path.join(
+                    folder, f'.spacr-part-{uuid.uuid4().hex}.parquet')
+                _publish(staged_part, lambda pending, value=changed:
+                         parquet.write_table(value, pending))
+                staged.append(staged_part)
+            if (_parquet_manifest(folder) != manifest or
+                    _parquet_parts(db_path, table) != parts or
+                    [_parquet_part_record(part) for part in parts] != records):
+                raise RuntimeError('Parquet target changed while scoring; retry.')
+            next_active = [_parquet_part_record(part) for part in staged]
+            _publish_parquet_manifest(folder, next_active, retired + records)
+            published = True
+        finally:
+            if not published:
+                for part in staged:
+                    if os.path.exists(part):
+                        os.remove(part)
+    return repaired if migration_only else report
+
+
 def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]],
                   table: str, key: str, timelapse: Optional[bool],
                   repaired: Sequence[Tuple[str, str, int]]) -> MergeReport:
     """Do the merge inside an already-open transaction."""
-    from .utils import _time_column
-
     quoted_table = _quote(table)
     cur.execute(f"SELECT * FROM {quoted_table} LIMIT 0")
     table_columns = [d[0] for d in cur.description]
-
-    if timelapse is None:
-        timelapse = _time_column(table_columns) is not None
-
     key_columns = [c for c in table_columns
                    if c in ("prcfo", "png_path", "file_name")
                    or c in _PRCFO_METADATA or c in _OBJECT_ID_COLUMNS
@@ -836,6 +1132,30 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     rows = cur.execute(f"SELECT {select} FROM {quoted_table}").fetchall()
     rowids = [r[0] for r in rows]
     db_frame = pd.DataFrame([r[1:] for r in rows], columns=key_columns)
+
+    updates, report, order, types = _plan_merge(
+        results, spec, table, key, timelapse, table_columns,
+        db_frame, rowids, repaired)
+    for db_col in report.added_columns:
+        cur.execute(f"ALTER TABLE {quoted_table} ADD COLUMN "
+                    f"{_quote(db_col)} {types[db_col]}")
+    if updates:
+        assignments = ", ".join(f"{_quote(c)} = ?" for c in order)
+        _execute_updates(
+            cur, f"UPDATE {quoted_table} SET {assignments} WHERE {rowid} = ?",
+            updates)
+    return report
+
+
+def _plan_merge(results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]],
+                table: str, key: str, timelapse: Optional[bool],
+                table_columns: Sequence[str], db_frame: pd.DataFrame,
+                rowids: Sequence, repaired: Sequence[Tuple[str, str, int]]):
+    """Plan row updates and counts without depending on a store's SQL dialect."""
+    from .utils import _time_column
+
+    if timelapse is None:
+        timelapse = _time_column(table_columns) is not None
 
     if key == "auto":
         kind, result_keys, db_keys = _choose_key(results, db_frame, timelapse)
@@ -874,12 +1194,7 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     for row_key in conflicting:
         lookup.pop(row_key, None)
 
-    added = []
-    for db_col in order:
-        if db_col not in table_columns:
-            cur.execute(f"ALTER TABLE {quoted_table} ADD COLUMN "
-                        f"{_quote(db_col)} {types[db_col]}")
-            added.append(db_col)
+    added = [db_col for db_col in order if db_col not in table_columns]
 
     updates = []
     matched_keys = set()
@@ -890,18 +1205,12 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
         updates.append(tuple(values) + (rowids[position],))
         matched_keys.add(row_key)
 
-    if updates:
-        assignments = ", ".join(f"{_quote(c)} = ?" for c in order)
-        _execute_updates(
-            cur, f"UPDATE {quoted_table} SET {assignments} WHERE {rowid} = ?",
-            updates)
-
     db_key_set = {k for k in db_key_list if k is not None}
     unmatched_results = sum(
         1 for k in key_list
         if k is not None and k not in conflicting and k not in db_key_set)
 
-    return MergeReport(
+    report = MergeReport(
         table=table,
         key=kind,
         columns=tuple(order),
@@ -918,6 +1227,7 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
         repaired=tuple(repaired),
         added_columns=tuple(added),
     )
+    return updates, report, order, types
 
 
 

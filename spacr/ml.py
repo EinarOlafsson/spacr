@@ -5381,6 +5381,9 @@ def normalize_regression_input_pairs(settings):
                 'plate': raw.get('plate') or raw.get('plateID'),
                 'database': raw.get('database') or raw.get('measurements'),
             })
+            for name in ('score_table', 'count_table'):
+                if raw.get(name) is not None:
+                    pairs[-1][name] = raw[name]
     else:
         def paths(value):
             """Return ``value`` as a fresh path list, treating ``None`` as empty."""
@@ -5427,7 +5430,9 @@ def load_regression_input_pairs(pairs):
     :param pairs: sequence of mappings with ``'score'`` and ``'count'`` table
         paths (either may be empty), as returned by
         :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'``
-        is overwritten with the resolved plate label.
+        is overwritten with the resolved plate label. Database inputs also
+        specify ``'score_table'`` or ``'count_table'``; tables from the same
+        database are cached and paired separately.
     """
     from .utils import correct_metadata
 
@@ -5439,15 +5444,19 @@ def load_regression_input_pairs(pairs):
 
     _parsed: dict = {}
 
-    def read(path):
+    def read(path, table=None):
         """Return a cached corrected frame for ``path``, or ``None`` when blank."""
         import time
 
         if not path:
             return None
-        key = frame_handoff.key_for(path)
+        if table is not None:
+            tabular._quote_identifier(table)
+        path_key = (os.fspath(path) if tabular._backend_of(path) == 'postgres'
+                    else frame_handoff.key_for(path))
+        key = path_key if table is None else (path_key, table)
         if key not in _parsed:
-            offered = frame_handoff.held(path)
+            offered = frame_handoff.held(path) if table is None else None
             if offered is not None:
                 note = frame_handoff.describe(path)
                 print(f"Input {note}." if note else
@@ -5455,11 +5464,13 @@ def load_regression_input_pairs(pairs):
                       flush=True)
                 _parsed[key] = correct_metadata(offered)
             else:
-                size = os.path.getsize(key) if os.path.exists(key) else 0
-                print(f"Reading {os.path.basename(key)} "
+                size = os.path.getsize(path_key) if os.path.exists(path_key) else 0
+                print(f"Reading {os.path.basename(path_key)} "
                       f"({size / 1e6:.1f} MB)...", flush=True)
                 started = time.time()
-                frame = correct_metadata(tabular.read_table(os.fspath(path)))
+                options = {} if table is None else {'table': table}
+                frame = correct_metadata(tabular.read_table(
+                    os.fspath(path), **options))
                 print(f"  {len(frame):,} rows in "
                       f"{time.time() - started:.1f} s.", flush=True)
                 _parsed[key] = frame
@@ -5472,8 +5483,8 @@ def load_regression_input_pairs(pairs):
         return {str(value) for value in frame['plateID'].dropna().unique()}
 
     for index, pair in enumerate(pairs):
-        score = read(pair.get('score'))
-        count = read(pair.get('count'))
+        score = read(pair.get('score'), pair.get('score_table'))
+        count = read(pair.get('count'), pair.get('count_table'))
         score_plates = plates(score)
         count_plates = plates(count)
         fallback = f'plate{index + 1}'
@@ -5537,9 +5548,11 @@ def load_regression_input_pairs(pairs):
         audit.append({'row': index + 1, 'plate': label, 'rule': rule,
                       'score': pair.get('score'), 'count': pair.get('count')})
         print(f"Input pair {index + 1} ({label}): {rule}.")
-        score_part = (os.fspath(pair.get('score')), tuple(sorted(resolved))) \
+        score_part = (os.fspath(pair.get('score')), pair.get('score_table'),
+                      tuple(sorted(resolved))) \
             if score is not None else None
-        count_part = (os.fspath(pair.get('count')), tuple(sorted(resolved))) \
+        count_part = (os.fspath(pair.get('count')), pair.get('count_table'),
+                      tuple(sorted(resolved))) \
             if count is not None else None
         if score is not None and score_part not in seen_score_parts:
             score_frames.append(score)
@@ -6140,8 +6153,20 @@ def _perform_regression_set_paths(settings):
     """
     csv_path = settings['count_data'][0]
 
-    automatic = os.path.dirname(settings['count_data'][0])
-    src, how = resolve_regression_src(settings.get('src'), automatic)
+    from . import tabular
+
+    remote_count = tabular._backend_of(csv_path) == 'postgres'
+    automatic = '' if remote_count else os.path.dirname(csv_path)
+    requested = settings.get('src')
+    blank = str(requested or '').strip() in ('', 'path', '/path', '/path/to/src')
+    src, how = ('', '') if remote_count and (
+        blank or tabular._backend_of(requested) == 'postgres') else \
+        resolve_regression_src(requested, automatic)
+    if remote_count and not src:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            'A local regression output directory is required for PostgreSQL counts.'))
     settings['src'] = src
     if how != 'automatic':
         print(how)
@@ -8474,19 +8499,20 @@ def process_scores(df, dependent_variable, plate, min_cells_per_well=25, agg_typ
 def generate_ml_scores(settings):
     """Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.
 
-    Reads the ``measurements.db`` produced by
+    Reads the measurement store selected by ``measurement_backend`` from
     :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/
     cytoplasm feature tables, uses the wells marked as
     ``positive_control`` / ``negative_control`` (or an annotation column)
     as training labels, delegates fitting to :func:`ml_analysis`, and
     writes per-object predictions, permutation and feature-importance
-    tables plus a plate heatmap into ``results/`` next to the source DB.
+    tables plus a plate heatmap into ``results/`` under the first source folder.
 
     :param settings: Settings dict, canonicalized via
         :func:`spacr.settings.set_default_analyze_screen`. Key entries:
 
-        - ``src`` (str or list) — folder(s) containing
-          ``measurements/measurements.db``.
+        - ``src`` (str or list) — folder(s) containing the measurements.
+        - ``measurement_backend`` / ``measurement_backend_target`` — select
+          the SQLite, DuckDB, Parquet or PostgreSQL measurement store.
         - ``channel_of_interest`` — 0-based channel for the recruitment
           ratio feature; also drives table selection.
         - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,
@@ -8533,7 +8559,8 @@ def generate_ml_scores(settings):
     """
     from .io import _read_and_merge_data, _read_db
     from .plot import plot_plates
-    from .utils import get_ml_results_paths, calculate_shortest_distance, save_settings
+    from .utils import (get_ml_results_paths, calculate_shortest_distance,
+                        save_settings, _measurement_store_for)
     from .settings import set_default_analyze_screen
     from .predictions import (ML_CLASS_COLUMN, merge_ml_predictions,
                               migrate_prediction_columns)
@@ -8548,12 +8575,18 @@ def generate_ml_scores(settings):
         srcs = [srcs]
     
     df = pd.DataFrame()
+    measurement_stores = []
     for idx, src in enumerate(srcs):
         
         if idx == 0:
             src1 = src
 
-        db_loc = [src+'/measurements/measurements.db']
+        sqlite_path = os.path.join(src, 'measurements', 'measurements.db')
+        db_loc = [_measurement_store_for(sqlite_path, settings) or sqlite_path]
+        if (str(settings.get('measurement_backend') or 'sqlite').lower() != 'sqlite'
+                and db_loc[0] in measurement_stores):
+            continue
+        measurement_stores.append(db_loc[0])
         tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
         
         dft, _ = _read_and_merge_data(db_loc, 
@@ -8564,8 +8597,8 @@ def generate_ml_scores(settings):
         df = pd.concat([df, dft])
 
     _flowview_metric("objects", len(df))
-    _flowview_metric("databases", len(srcs))
-    _flowview_metric("tables", len(tables) * len(srcs))
+    _flowview_metric("databases", len(measurement_stores))
+    _flowview_metric("tables", len(tables) * len(measurement_stores))
     
     try:
         df = calculate_shortest_distance(df, 'pathogen', 'nucleus')
@@ -8715,16 +8748,16 @@ def generate_ml_scores(settings):
     shap_fig_path = write_plot(shap_fig, shap_fig_path, "SHAP summary")
 
     settings['csv_path'] = data_path
-    settings['db_path'] = os.path.join(src1, 'measurements', 'measurements.db')
+    settings['db_path'] = measurement_stores[0]
     settings['table_name'] = 'png_list'
     settings['update_column'] = ML_CLASS_COLUMN
     settings['match_column'] = 'prcfo'
     matched_objects = 0
     unmatched_objects = 0
-    for src in srcs:
+    for store in measurement_stores:
         report = merge_ml_predictions(
             df,
-            os.path.join(src, 'measurements', 'measurements.db'),
+            store,
             table=settings['table_name'],
         )
         if report is not None:
@@ -8733,7 +8766,7 @@ def generate_ml_scores(settings):
     _flowview_metric("objects", len(df))
     _flowview_metric("matched_objects", matched_objects)
     _flowview_metric("unmatched_objects", unmatched_objects)
-    _flowview_metric("databases", len(srcs))
+    _flowview_metric("databases", len(measurement_stores))
 
     return [output, plate_heatmap]
 
@@ -9909,7 +9942,7 @@ def _save_importance_csv(df, src, filename):
 def interpret_vision_model(settings=None):
     """Explain a spacr vision-model score using RF, permutation and SHAP importance, with per-compartment / per-channel radar plots.
 
-    Merges per-object measurements from ``measurements.db`` with a CSV of
+    Merges per-object measurements from the selected measurement store with a CSV of
     predicted scores, runs any combination of RF feature importance,
     permutation importance and SHAP over the top features, then
     aggregates SHAP contributions into compartment and channel radar
@@ -9920,7 +9953,9 @@ def interpret_vision_model(settings=None):
         :func:`spacr.settings.set_interpret_vision_model_defaults`.
         Key entries:
 
-        - ``src`` — folder containing ``measurements/measurements.db``.
+        - ``src`` — folder containing the measurements.
+        - ``measurement_backend`` / ``measurement_backend_target`` — select
+          the SQLite, DuckDB, Parquet or PostgreSQL measurement store.
         - ``scores`` — CSV of per-object predictions to explain.
         - ``score_column`` — column of ``scores`` holding the score.
         - ``tables`` — DB tables to merge (default
@@ -9934,7 +9969,8 @@ def interpret_vision_model(settings=None):
     :returns: The merged per-object DataFrame — the measurement tables
         joined to the scores CSV — that the explainers were fitted on.
         Radar and importance plots are rendered, and with ``save=True``
-        importance CSVs are written alongside the DB, as side effects.
+        importance CSVs are written under the source folder's ``results/``,
+        as side effects.
 
     Example:
         .. code-block:: python
@@ -9958,7 +9994,7 @@ def interpret_vision_model(settings=None):
                      TimelapseKeyMismatch)
     from .predictions import crop_name_metadata
     from .settings import set_interpret_vision_model_defaults
-    from .utils import save_settings, _time_column
+    from .utils import save_settings, _time_column, _measurement_store_for
 
     settings = set_interpret_vision_model_defaults(settings)
     save_settings(settings, name='interperate_vision_model', show=True)
@@ -10003,8 +10039,11 @@ def interpret_vision_model(settings=None):
 
     def read_and_preprocess_data(settings):
         """Merge measurement DB tables with a scores CSV and split into ``(X, y, merged_df)``."""
+        sqlite_path = os.path.join(settings['src'], 'measurements',
+                                   'measurements.db')
+        measurement_store = _measurement_store_for(sqlite_path, settings) or sqlite_path
         df, _ = _read_and_merge_data(
-            locs=[settings['src']+'/measurements/measurements.db'], 
+            locs=[measurement_store],
             tables=settings['tables'], 
             verbose=True, 
             nuclei_limit=settings['nuclei_limit'], 

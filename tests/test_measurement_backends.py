@@ -10,9 +10,11 @@ recording stand-in for psycopg.
 from __future__ import annotations
 
 import os
+import json
 import subprocess
 import sys
 import types
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -129,6 +131,78 @@ def test_postgres_locator_reaches_measurement_reader_unchanged(monkeypatch):
         "migrate": False, "read_only": True,
     })]
     assert frame["plateID"].tolist() == ["p1"]
+
+
+def test_parquet_manifest_refuses_foreign_parts_and_modified_active_data(tmp_path):
+    store = str(tmp_path / 'measurements.parquetdb')
+    frame = _measurements(3)
+    tabular.write_database(frame, store, 'cell', if_exists='replace')
+    active = tabular._parquet_parts(store, 'cell')[0]
+    foreign = tmp_path / 'measurements.parquetdb' / 'cell' / 'foreign.parquet'
+    frame.to_parquet(foreign, index=False)
+    with pytest.raises(ValueError, match='Untracked Parquet part'):
+        tabular.read_database(store, 'cell', report=None)
+    foreign.unlink()
+    with open(active, 'ab') as handle:
+        handle.write(b'changed')
+    with pytest.raises(ValueError, match='Parquet part changed'):
+        tabular.read_database(store, 'cell', report=None)
+
+
+def test_parquet_manifest_publication_failure_keeps_prior_snapshot(
+        tmp_path, monkeypatch):
+    store = str(tmp_path / 'measurements.parquetdb')
+    frame = _measurements(3)
+    tabular.write_database(frame, store, 'cell', if_exists='replace')
+    original = tabular._parquet_parts(store, 'cell')
+    original_bytes = [Path(part).read_bytes() for part in original]
+
+    def fail_publication(*_args):
+        raise RuntimeError('failed before manifest publication')
+
+    monkeypatch.setattr(tabular, '_publish_parquet_manifest', fail_publication)
+    with pytest.raises(RuntimeError, match='before manifest publication'):
+        tabular.write_database(_measurements(1, seed=7), store, 'cell',
+                               if_exists='replace')
+
+    assert tabular._parquet_parts(store, 'cell') == original
+    assert [Path(part).read_bytes() for part in original] == original_bytes
+    folder = tmp_path / 'measurements.parquetdb' / 'cell'
+    assert {part.name for part in folder.glob('*.parquet')} == \
+        {os.path.basename(part) for part in original}
+
+
+@pytest.mark.parametrize('corruption', ['version', 'boolean_version',
+                                        'boolean_size', 'path'])
+def test_parquet_manifest_refuses_invalid_snapshot_control(tmp_path,
+                                                           corruption):
+    store = str(tmp_path / 'measurements.parquetdb')
+    tabular.write_database(_measurements(2), store, 'cell', if_exists='replace')
+    path = tmp_path / 'measurements.parquetdb' / 'cell' / '.spacr-parts.json'
+    manifest = json.loads(path.read_text())
+    if corruption == 'version':
+        manifest['version'] = 2
+    elif corruption == 'boolean_version':
+        manifest['version'] = True
+    elif corruption == 'boolean_size':
+        manifest['active'][0]['size'] = True
+    else:
+        manifest['active'][0]['name'] = '../outside.parquet'
+    path.write_text(json.dumps(manifest))
+
+    with pytest.raises(ValueError, match='Invalid Parquet part manifest'):
+        tabular.read_database(store, 'cell', report=None)
+
+
+def test_parquet_manifest_path_cannot_be_a_directory(tmp_path):
+    store = str(tmp_path / 'measurements.parquetdb')
+    tabular.write_database(_measurements(2), store, 'cell', if_exists='replace')
+    path = tmp_path / 'measurements.parquetdb' / 'cell' / '.spacr-parts.json'
+    path.unlink()
+    path.mkdir()
+
+    with pytest.raises((IsADirectoryError, PermissionError)):
+        tabular.read_database(store, 'cell', report=None)
 
 
 def test_importing_the_funnel_does_not_import_the_drivers():

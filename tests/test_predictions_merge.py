@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import uuid
 
 import pandas as pd
 import pytest
@@ -151,6 +152,545 @@ def test_cv_merge_scores_every_row_of_a_two_plate_database(tmp_path):
         assert got[name] == pytest.approx(want[name]), name
     classes = dict(zip(back["file_name"], back["cv_predictions"]))
     assert classes == dict(zip(df["path"], df["cv_predictions"]))
+
+
+def test_duckdb_prediction_merge_matches_sqlite_without_rowid_alias(tmp_path):
+    pytest.importorskip('duckdb')
+    from spacr import tabular
+    from spacr.predictions import merge_cv_predictions
+
+    src = str(tmp_path / 'screen')
+    paths = write_png_list(src, 'plate1', wells=('A1',), fields=(1,))
+    sqlite = db_of(src)
+    duckdb = str(tmp_path / 'measurements.duckdb')
+    tabular._migrate_database(sqlite, duckdb, tables=['png_list'], report=None)
+    scores = vision_results(paths, [0.1, 0.2, 0.3])
+
+    expected_report = merge_cv_predictions(scores, sqlite, verbose=False)
+    report = merge_cv_predictions(scores, duckdb, verbose=False)
+
+    assert report == expected_report
+    expected = tabular.read_database(sqlite, 'png_list', canonicalise=False,
+                                     migrate=False, report=None)[0]
+    actual = tabular.read_database(duckdb, 'png_list', canonicalise=False,
+                                   report=None)[0]
+    pd.testing.assert_frame_equal(actual[expected.columns], expected,
+                                  check_dtype=False)
+    assert actual['pred'].tolist() == expected['pred'].tolist()
+    with tabular._duckdb_connect(duckdb, read_only=True) as conn:
+        types = dict((row[0], row[1]) for row in conn.execute(
+            'DESCRIBE png_list').fetchall())
+    assert types['pred'] == 'DOUBLE'
+
+
+@pytest.mark.parametrize('backend', ['duckdb', 'parquet'])
+def test_alternate_prediction_merge_refuses_conflicting_crop_scores(tmp_path,
+                                                                   backend):
+    if backend == 'duckdb':
+        pytest.importorskip('duckdb')
+    else:
+        pytest.importorskip('pyarrow')
+    from spacr import tabular
+    from spacr.predictions import merge_cv_predictions
+
+    src = str(tmp_path / 'screen')
+    paths = write_png_list(src, 'plate1', wells=('A1',), fields=(1,))
+    suffix = 'duckdb' if backend == 'duckdb' else 'parquetdb'
+    target = str(tmp_path / f'measurements.{suffix}')
+    tabular._migrate_database(db_of(src), target, tables=['png_list'],
+                              report=None)
+    scores = vision_results(paths + paths,
+                            [0.1] * len(paths) + [0.9] * len(paths))
+
+    report = merge_cv_predictions(scores, target, verbose=False)
+
+    assert report.ambiguous_keys == len(paths)
+    assert report.matched_rows == 0
+    frame = tabular.read_database(target, 'png_list', canonicalise=False,
+                                  report=None)[0]
+    assert frame['pred'].isna().all()
+
+
+@pytest.mark.parametrize('backend', ['duckdb', 'parquet'])
+def test_alternate_prediction_merge_preserves_one_key_fanout(tmp_path, backend):
+    if backend == 'duckdb':
+        pytest.importorskip('duckdb')
+    else:
+        pytest.importorskip('pyarrow')
+    from spacr import tabular
+    from spacr.predictions import merge_prediction_results
+
+    suffix = 'duckdb' if backend == 'duckdb' else 'parquetdb'
+    target = str(tmp_path / f'measurements.{suffix}')
+    shared = 'p1_r1_c1_f1_o1'
+    tabular.write_database(pd.DataFrame({
+        'prcfo': [shared, shared], 'png_path': ['/cell/a.png', '/cyto/a.png'],
+        'rowID': ['r1', 'r1'], 'note': ['cell', 'cytoplasm'],
+    }), target, 'png_list', if_exists='replace', canonicalise=False)
+
+    report = merge_prediction_results(
+        pd.DataFrame({'prcfo': [shared], 'pred': [0.8]}), target,
+        {'pred': ('pred', 'REAL')}, verbose=False)
+
+    assert report.matched_rows == 2
+    assert report.matched_keys == 1
+    assert report.fanout_rows == 1
+    back = tabular.read_database(target, 'png_list', canonicalise=False,
+                                 report=None)[0]
+    assert back['pred'].tolist() == pytest.approx([0.8, 0.8])
+    assert back['note'].tolist() == ['cell', 'cytoplasm']
+
+
+def test_duckdb_prediction_merge_rolls_back_columns_and_rows(tmp_path,
+                                                              monkeypatch):
+    pytest.importorskip('duckdb')
+    from spacr import predictions, tabular
+
+    src = str(tmp_path / 'screen')
+    paths = write_png_list(src, 'plate1', wells=('A1',), fields=(1,))
+    target = str(tmp_path / 'measurements.duckdb')
+    tabular._migrate_database(db_of(src), target, tables=['png_list'],
+                              report=None)
+    before = tabular.read_database(target, 'png_list', canonicalise=False,
+                                   report=None)[0]
+    original = predictions._execute_native_update
+    calls = []
+
+    def fail_after_write(conn, sql, params):
+        original(conn, sql, params)
+        calls.append(params)
+        raise RuntimeError('interrupted native merge')
+
+    monkeypatch.setattr(predictions, '_execute_native_update', fail_after_write)
+    with pytest.raises(RuntimeError, match='interrupted native merge'):
+        predictions.merge_cv_predictions(
+            vision_results(paths, [0.1, 0.2, 0.3]), target, verbose=False)
+    assert len(calls) == 1
+    after = tabular.read_database(target, 'png_list', canonicalise=False,
+                                  report=None)[0]
+    pd.testing.assert_frame_equal(after, before, check_dtype=False)
+
+
+def test_parquet_prediction_merge_keeps_parts_metadata_and_other_tables(tmp_path):
+    arrow = pytest.importorskip('pyarrow')
+    parquet = pytest.importorskip('pyarrow.parquet')
+    from spacr import tabular
+    from spacr.predictions import merge_cv_predictions
+
+    src = str(tmp_path / 'screen')
+    paths = write_png_list(src, 'plate1', wells=('A1',), fields=(1,))
+    sqlite = db_of(src)
+    source = tabular.read_database(sqlite, 'png_list', canonicalise=False,
+                                   report=None)[0]
+    store = tmp_path / 'measurements.parquetdb'
+    folder = store / 'png_list'
+    folder.mkdir(parents=True)
+    original_parts = []
+    for index, frame in enumerate((source.iloc[:1], source.iloc[1:])):
+        table = arrow.Table.from_pandas(frame, preserve_index=False)
+        row_field = table.schema.field('rowID').with_metadata(
+            {b'role': b'plate-row'})
+        table = table.set_column(
+            table.schema.get_field_index('rowID'), row_field,
+            table.column('rowID'))
+        table = table.replace_schema_metadata({b'source': f'part-{index}'.encode()})
+        path = folder / f'part-{index:06d}.parquet'
+        parquet.write_table(table, path)
+        original_parts.append(path)
+    tabular.write_database(pd.DataFrame({'status': ['untouched']}),
+                           store, 'control', if_exists='replace')
+    control = next((store / 'control').glob('*.parquet'))
+    control_bytes = control.read_bytes()
+    scores = vision_results(paths, [0.1, 0.2, 0.3])
+
+    expected_report = merge_cv_predictions(scores, sqlite, verbose=False)
+    report = merge_cv_predictions(scores, store, verbose=False)
+
+    assert report == expected_report
+    manifest = tabular._parquet_manifest(str(folder))
+    assert len(manifest['active']) == len(manifest['retired']) == 2
+    assert all(path.exists() for path in original_parts)
+    assert control.read_bytes() == control_bytes
+    active = tabular._parquet_parts(str(store), 'png_list')
+    assert [parquet.read_schema(path).metadata[b'source'] for path in active] == \
+        [b'part-0', b'part-1']
+    assert all(parquet.read_schema(path).field('rowID').metadata ==
+               {b'role': b'plate-row'} for path in active)
+    expected = tabular.read_database(sqlite, 'png_list', canonicalise=False,
+                                     report=None)[0]
+    actual = tabular.read_database(store, 'png_list', canonicalise=False,
+                                   report=None)[0]
+    pd.testing.assert_frame_equal(actual[expected.columns], expected,
+                                  check_dtype=False)
+    tabular.write_database(source.iloc[:1], store, 'png_list',
+                           canonicalise=False)
+    grown = tabular.read_database(store, 'png_list', canonicalise=False,
+                                  report=None)[0]
+    assert len(grown) == len(actual) + 1
+    assert grown['pred'].iloc[:len(actual)].tolist() == \
+        actual['pred'].tolist()
+    assert pd.isna(grown['pred'].iloc[-1])
+
+
+def test_parquet_prediction_merge_rolls_back_before_snapshot_publish(
+        tmp_path, monkeypatch):
+    pytest.importorskip('pyarrow')
+    from spacr import tabular
+    from spacr.predictions import merge_cv_predictions
+
+    src = str(tmp_path / 'screen')
+    paths = write_png_list(src, 'plate1', wells=('A1',), fields=(1,))
+    store = str(tmp_path / 'measurements.parquetdb')
+    tabular._migrate_database(db_of(src), store, tables=['png_list'],
+                              report=None)
+    before = tabular.read_database(store, 'png_list', canonicalise=False,
+                                   report=None)[0]
+    original = tabular._parquet_parts(store, 'png_list')
+
+    def fail_publication(*_args):
+        raise RuntimeError('interrupted before active snapshot')
+
+    monkeypatch.setattr(tabular, '_publish_parquet_manifest', fail_publication)
+    with pytest.raises(RuntimeError, match='before active snapshot'):
+        merge_cv_predictions(vision_results(paths, [0.1, 0.2, 0.3]),
+                             store, verbose=False)
+
+    assert tabular._parquet_parts(store, 'png_list') == original
+    after = tabular.read_database(store, 'png_list', canonicalise=False,
+                                  report=None)[0]
+    pd.testing.assert_frame_equal(after, before, check_dtype=False)
+
+
+def test_parquet_abrupt_exit_before_manifest_keeps_readable_prior_snapshot(
+        tmp_path):
+    pytest.importorskip('pyarrow')
+    import subprocess
+    import sys
+    from spacr import tabular
+
+    store = str(tmp_path / 'measurements.parquetdb')
+    original = pd.DataFrame({'prcfo': ['p1_r1_c1_f1_o1'],
+                             'rowID': ['r1'], 'note': ['kept']})
+    tabular.write_database(original, store, 'png_list',
+                           if_exists='replace', canonicalise=False)
+    before = tabular._parquet_parts(store, 'png_list')
+    code = (
+        'import os, sys, pandas as pd\n'
+        'from spacr import tabular\n'
+        'from spacr.predictions import merge_prediction_results\n'
+        'tabular._publish_parquet_manifest = lambda *_: os._exit(23)\n'
+        'merge_prediction_results(pd.DataFrame({"prcfo": '
+        '["p1_r1_c1_f1_o1"], "pred": [0.4]}), sys.argv[1], '
+        '{"pred": ("pred", "REAL")}, verbose=False)\n'
+    )
+
+    child = subprocess.run([sys.executable, '-c', code, store],
+                           capture_output=True, text=True, check=False)
+
+    assert child.returncode == 23, child.stderr
+    assert tabular._parquet_parts(store, 'png_list') == before
+    after = tabular.read_database(store, 'png_list', canonicalise=False,
+                                  report=None)[0]
+    pd.testing.assert_frame_equal(after, original, check_dtype=False)
+    tabular.write_database(original.assign(note='new'), store, 'png_list',
+                           canonicalise=False)
+    grown = tabular.read_database(store, 'png_list', canonicalise=False,
+                                  report=None)[0]
+    assert grown['note'].tolist() == ['kept', 'new']
+
+
+def test_parquet_prediction_publish_and_concurrent_append_keep_both(
+        tmp_path, monkeypatch):
+    pytest.importorskip('pyarrow')
+    import threading
+    from spacr import tabular
+    from spacr.predictions import merge_cv_predictions
+
+    src = str(tmp_path / 'screen')
+    paths = write_png_list(src, 'plate1', wells=('A1',), fields=(1,))
+    store = str(tmp_path / 'measurements.parquetdb')
+    tabular._migrate_database(db_of(src), store, tables=['png_list'],
+                              report=None)
+    source = tabular.read_database(store, 'png_list', canonicalise=False,
+                                   report=None)[0]
+    append_started = threading.Event()
+    append_finished = threading.Event()
+    failures = []
+    threads = []
+    original = tabular._publish_parquet_manifest
+    main = threading.current_thread()
+
+    def append():
+        append_started.set()
+        try:
+            tabular.write_database(source.iloc[:1], store, 'png_list',
+                                   canonicalise=False)
+        except Exception as exc:
+            failures.append(exc)
+        finally:
+            append_finished.set()
+
+    def publish(folder, active, retired):
+        if threading.current_thread() is main and not threads:
+            worker = threading.Thread(target=append)
+            threads.append(worker)
+            worker.start()
+            assert append_started.wait(2)
+            assert not append_finished.wait(0.05)
+        return original(folder, active, retired)
+
+    monkeypatch.setattr(tabular, '_publish_parquet_manifest', publish)
+    report = merge_cv_predictions(
+        vision_results(paths, [0.1, 0.2, 0.3]), store, verbose=False)
+    threads[0].join(timeout=5)
+
+    assert report.matched_rows == 3
+    assert append_finished.is_set() and not failures
+    result = tabular.read_database(store, 'png_list', canonicalise=False,
+                                   report=None)[0]
+    assert len(result) == 4
+    assert result['pred'].iloc[:3].tolist() == pytest.approx([0.1, 0.2, 0.3])
+    assert pd.isna(result['pred'].iloc[3])
+
+
+def test_postgres_prediction_protocol_uses_one_locked_transaction_mock(
+        tmp_path, monkeypatch):
+    import shutil
+    from spacr import predictions, tabular
+
+    src = str(tmp_path / 'screen')
+    paths = write_png_list(src, 'plate1', wells=('A1',), fields=(1,))
+    sqlite = db_of(src)
+    fake_database = tmp_path / 'postgres_protocol.db'
+    shutil.copy2(sqlite, fake_database)
+    statements = []
+
+    class Connection:
+        def __init__(self):
+            self.conn = sqlite3.connect(fake_database, isolation_level=None)
+
+        def execute(self, sql, params=()):
+            statements.append(sql)
+            if sql.startswith('LOCK TABLE'):
+                return self.conn.execute('BEGIN')
+            return self.conn.execute(sql.replace('%s', '?'), params)
+
+        def commit(self):
+            self.conn.commit()
+
+        def rollback(self):
+            self.conn.rollback()
+
+        def close(self):
+            self.conn.close()
+
+    monkeypatch.setattr(tabular, '_postgres_connect', lambda _dsn: Connection())
+    scores = vision_results(paths, [0.1, 0.2, 0.3])
+    expected = predictions.merge_cv_predictions(scores, sqlite, verbose=False)
+    original_update = predictions._execute_native_update
+
+    def fail_after_update(conn, sql, params):
+        original_update(conn, sql, params)
+        raise RuntimeError('interrupted PostgreSQL protocol')
+
+    with monkeypatch.context() as patch:
+        patch.setattr(predictions, '_execute_native_update', fail_after_update)
+        with pytest.raises(RuntimeError, match='interrupted PostgreSQL'):
+            predictions.merge_cv_predictions(
+                scores, 'postgresql://reader@localhost/measurements',
+                verbose=False)
+    with sqlite3.connect(fake_database) as conn:
+        assert 'pred' not in [row[1] for row in conn.execute(
+            'PRAGMA table_info(png_list)')]
+    actual = predictions.merge_cv_predictions(
+        scores, 'postgresql://reader@localhost/measurements', verbose=False)
+
+    assert actual == expected
+    assert any(sql.startswith('LOCK TABLE') for sql in statements)
+    assert any(' IS NOT DISTINCT FROM %s' in sql for sql in statements)
+    assert any('ADD COLUMN "pred" DOUBLE PRECISION' in sql
+               for sql in statements)
+    back = read(fake_database, 'pred, cv_predictions')
+    assert back['pred'].tolist() == pytest.approx([0.1, 0.2, 0.3])
+
+
+def test_postgres_prediction_merge_uses_real_transaction_and_keys(
+        tmp_path, monkeypatch):
+    dsn = os.environ.get('SPACR_TEST_POSTGRES_DSN')
+    if not dsn:
+        pytest.skip('No owned PostgreSQL test database configured')
+    pytest.importorskip('psycopg')
+    from spacr import predictions, tabular
+
+    table = f'prediction_test_{uuid.uuid4().hex}'
+    src = str(tmp_path / 'screen')
+    paths = write_png_list(src, 'plate1', wells=('A1',), fields=(1,))
+    source = tabular.read_database(db_of(src), 'png_list',
+                                   canonicalise=False, report=None)[0]
+    tabular.write_database(source, dsn, table, if_exists='replace',
+                           canonicalise=False)
+    scores = vision_results(paths, [0.1, 0.2, 0.3])
+    try:
+        with tabular._postgres_connect(dsn) as conn:
+            before = conn.execute(f'SELECT * FROM "{table}" ORDER BY "file_name"').fetchall()
+        original = predictions._execute_native_update
+        calls = []
+
+        def fail_after_update(conn, sql, params):
+            original(conn, sql, params)
+            calls.append(params)
+            raise RuntimeError('interrupted real PostgreSQL merge')
+
+        with monkeypatch.context() as patch:
+            patch.setattr(predictions, '_execute_native_update', fail_after_update)
+            with pytest.raises(RuntimeError, match='interrupted real PostgreSQL'):
+                predictions.merge_cv_predictions(scores, dsn, table=table,
+                                                 verbose=False)
+        assert len(calls) == 1
+        with tabular._postgres_connect(dsn) as conn:
+            after = conn.execute(f'SELECT * FROM "{table}" ORDER BY "file_name"').fetchall()
+            columns = [row[0] for row in conn.execute(
+                'SELECT column_name FROM information_schema.columns '
+                'WHERE table_name = %s', (table,)).fetchall()]
+        assert after == before
+        assert 'pred' not in columns
+
+        report = predictions.merge_cv_predictions(scores, dsn, table=table,
+                                                  verbose=False)
+        assert report.matched_rows == 3
+        with tabular._postgres_connect(dsn) as conn:
+            back = conn.execute(
+                f'SELECT "pred", "cv_predictions" FROM "{table}" '
+                'ORDER BY "file_name"').fetchall()
+            types = dict(conn.execute(
+                'SELECT column_name, data_type FROM information_schema.columns '
+                'WHERE table_name = %s', (table,)).fetchall())
+        assert [row[0] for row in back] == pytest.approx([0.1, 0.2, 0.3])
+        assert [row[1] for row in back] == [0, 0, 0]
+        assert types['pred'] == 'double precision'
+    finally:
+        with tabular._postgres_connect(dsn) as conn:
+            conn.execute(f'DROP TABLE IF EXISTS "{table}"')
+
+
+def test_postgres_prediction_migration_is_real_and_idempotent():
+    dsn = os.environ.get('SPACR_TEST_POSTGRES_DSN')
+    if not dsn:
+        pytest.skip('No owned PostgreSQL test database configured')
+    pytest.importorskip('psycopg')
+    from spacr import predictions, tabular
+
+    table = f'prediction_test_{uuid.uuid4().hex}'
+    frame = pd.DataFrame({'prcfo': ['p1_r1_c1_f1_o1', 'p1_r1_c1_f1_o2'],
+                          'predictions': [2, 1]})
+    tabular.write_database(frame, dsn, table, if_exists='replace',
+                           canonicalise=False)
+    try:
+        assert predictions.migrate_prediction_columns(dsn, table=table,
+                                                       verbose=False) == [
+            (table, 'predictions', 1)]
+        assert predictions.migrate_prediction_columns(dsn, table=table,
+                                                       verbose=False) == []
+        with tabular._postgres_connect(dsn) as conn:
+            values = conn.execute(
+                f'SELECT "predictions" FROM "{table}" ORDER BY "prcfo"'
+            ).fetchall()
+        assert values == [(0,), (1,)]
+    finally:
+        with tabular._postgres_connect(dsn) as conn:
+            conn.execute(f'DROP TABLE IF EXISTS "{table}"')
+
+
+def test_postgres_prediction_ambiguity_and_fanout_use_real_rows():
+    dsn = os.environ.get('SPACR_TEST_POSTGRES_DSN')
+    if not dsn:
+        pytest.skip('No owned PostgreSQL test database configured')
+    pytest.importorskip('psycopg')
+    from spacr import predictions, tabular
+
+    table = f'prediction_test_{uuid.uuid4().hex}'
+    identity = 'p1_r1_c1_f1_o1'
+    tabular.write_database(pd.DataFrame({
+        'prcfo': [identity, identity],
+        'rowID': ['r1', 'r1'],
+        'png_path': ['/cell/a.png', '/cyto/a.png'],
+        'note': ['cell', 'cytoplasm'],
+    }), dsn, table, if_exists='replace', canonicalise=False)
+    try:
+        ambiguous = predictions.merge_prediction_results(
+            pd.DataFrame({'prcfo': [identity, identity], 'pred': [0.1, 0.9]}),
+            dsn, {'pred': ('pred', 'REAL')}, table=table, verbose=False)
+        assert ambiguous.ambiguous_keys == 1
+        assert ambiguous.matched_rows == 0
+        with tabular._postgres_connect(dsn) as conn:
+            before = conn.execute(
+                f'SELECT "pred" FROM "{table}" ORDER BY "note"').fetchall()
+        assert before == [(None,), (None,)]
+
+        report = predictions.merge_prediction_results(
+            pd.DataFrame({'prcfo': [identity], 'pred': [0.8]}), dsn,
+            {'pred': ('pred', 'REAL')}, table=table, verbose=False)
+        assert report.matched_rows == 2
+        assert report.matched_keys == 1
+        assert report.fanout_rows == 1
+        with tabular._postgres_connect(dsn) as conn:
+            rows = conn.execute(
+                f'SELECT "pred", "note" FROM "{table}" ORDER BY "note"'
+            ).fetchall()
+        assert [row[0] for row in rows] == pytest.approx([0.8, 0.8])
+        assert [row[1] for row in rows] == ['cell', 'cytoplasm']
+    finally:
+        with tabular._postgres_connect(dsn) as conn:
+            conn.execute(f'DROP TABLE IF EXISTS "{table}"')
+
+
+@pytest.mark.parametrize('backend', ['duckdb', 'parquet'])
+def test_alternate_store_legacy_prediction_migration_is_idempotent(tmp_path,
+                                                                    backend):
+    if backend == 'duckdb':
+        pytest.importorskip('duckdb')
+    else:
+        pytest.importorskip('pyarrow')
+    from spacr import tabular
+    from spacr.predictions import migrate_prediction_columns
+
+    src = str(tmp_path / 'screen')
+    write_png_list(src, 'plate1', wells=('A1',), fields=(1,))
+    sqlite = db_of(src)
+    with sqlite3.connect(sqlite) as conn:
+        conn.execute('ALTER TABLE png_list ADD COLUMN predictions INTEGER')
+        conn.execute("UPDATE png_list SET predictions = 2 WHERE file_name LIKE '%_1.png'")
+        conn.execute("UPDATE png_list SET predictions = 1 WHERE file_name NOT LIKE '%_1.png'")
+    suffix = 'duckdb' if backend == 'duckdb' else 'parquetdb'
+    target = str(tmp_path / f'measurements.{suffix}')
+    tabular._migrate_database(sqlite, target, tables=['png_list'], report=None)
+
+    assert migrate_prediction_columns(target, verbose=False) == [
+        ('png_list', 'predictions', 1)]
+    assert migrate_prediction_columns(target, verbose=False) == []
+    back = tabular.read_database(target, 'png_list', canonicalise=False,
+                                 report=None)[0]
+    assert back['predictions'].tolist() == [0, 1, 1]
+
+
+def test_parquet_legacy_repair_does_not_require_a_score_join_key(tmp_path):
+    pytest.importorskip('pyarrow')
+    from spacr import tabular
+    from spacr.predictions import migrate_prediction_columns
+
+    store = str(tmp_path / 'measurements.parquetdb')
+    tabular.write_database(pd.DataFrame({'predictions': [2, 1]}),
+                           store, 'png_list', if_exists='replace',
+                           canonicalise=False)
+
+    assert migrate_prediction_columns(store, verbose=False) == [
+        ('png_list', 'predictions', 1)]
+    assert migrate_prediction_columns(store, verbose=False) == []
+    assert migrate_prediction_columns(store, table='absent',
+                                      verbose=False) == []
+    frame = tabular.read_database(store, 'png_list', canonicalise=False,
+                                  report=None)[0]
+    assert frame['predictions'].tolist() == [0, 1]
 
 
 def test_cv_merge_does_not_smear_one_score_across_a_plate_row(tmp_path):

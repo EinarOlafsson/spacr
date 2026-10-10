@@ -6456,6 +6456,11 @@ class AppScreen(QWidget):
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self)
+        if model is not None:
+            paired = getattr(model, "_widgets", {}).get("paired_data")
+            refresh_paired = getattr(paired, "_refresh_alpha_visibility", None)
+            if callable(refresh_paired):
+                refresh_paired()
         plate = getattr(self, "_watch_live_plate", None)
         if plate is not None:
             from ..preferences import _is_alpha_visible
@@ -10488,7 +10493,8 @@ class AppScreen(QWidget):
         screen does NOT, checked, which is why the count file is the live
         branch here -- then the first count file's folder, then the plate
         folder of the first attached database for a project whose counts are
-        not named yet.
+        not named yet. A PostgreSQL count needs an explicit local ``src``;
+        its connection string is never a filesystem folder.
         """
         import os as _os
 
@@ -10502,13 +10508,19 @@ class AppScreen(QWidget):
         root = str(settings.get("src") or "").strip()
         if root in ("path", "/path", "/path/to/src"):
             root = ""
+        from spacr import tabular
+        if root and tabular._backend_of(root) == "postgres":
+            return ""
         if not root:
-            root = _os.path.dirname(_first_count_file(settings))
+            count = _first_count_file(settings)
+            if count and tabular._backend_of(count) == "postgres":
+                return ""
+            root = _os.path.dirname(count)
         if not root:
             for row in self._attached_database_rows():
                 database = (row.get("database") or row.get("db") or "") \
                     if isinstance(row, dict) else ""
-                if database:
+                if database and tabular._backend_of(database) != "postgres":
                     folder = _os.path.dirname(str(database))
                     root = (_os.path.dirname(folder)
                             if _os.path.basename(folder) == "measurements"
