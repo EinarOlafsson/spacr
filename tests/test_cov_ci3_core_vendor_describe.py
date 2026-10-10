@@ -387,3 +387,45 @@ def test_described_stage_refuses_a_copy_that_changed(tmp_path):
         core._watch_described_stage(str(out), str(snapshot), description, 'timelapse',
                                     {'channels': [0]})
     assert os.listdir(out) == []
+
+
+def test_a_lif_plane_is_read_once_per_file_and_selected_by_its_axes(
+        tmp_path, monkeypatch):
+    """A LIF locator opens the file once and reads one frame by T, M, Z, C.
+
+    The reader is a stand-in so this runs where liffile is not installed,
+    as on the coverage runners.
+    """
+    import types
+
+    opened, frames = [], []
+
+    class Image:
+        sizes = {'T': 2, 'M': 3, 'C': 2}
+
+        def __init__(self, index):
+            self.index = index
+
+        def frame(self, **selection):
+            frames.append((self.index, selection))
+            return [[self.index, selection.get('M', -1)]]
+
+    class LifFile:
+        def __init__(self, path):
+            opened.append(path)
+            self.images = [Image(0), Image(1)]
+
+    monkeypatch.setattr(core, '_watch_vendor_reader',
+                        lambda extension: types.SimpleNamespace(LifFile=LifFile)
+                        if extension == '.lif' else None)
+    handles = {}
+
+    first = core._watch_vendor_plane(handles, str(tmp_path), 'run.lif',
+                                     ('lif', 1, 1, 2, 0, 1))
+    second = core._watch_vendor_plane(handles, str(tmp_path), 'run.lif',
+                                      ('lif', 0, 0, 1, 3, 0))
+
+    assert opened == [os.path.join(str(tmp_path), 'run.lif')]
+    assert first.tolist() == [[1, 2]] and second.tolist() == [[0, 1]]
+    assert frames == [(1, {'T': 1, 'M': 2, 'C': 1}),
+                      (0, {'T': 0, 'M': 1, 'C': 0})]
