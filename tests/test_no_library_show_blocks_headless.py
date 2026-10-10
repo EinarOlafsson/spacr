@@ -117,6 +117,9 @@ def test_representative_functions_return_under_offscreen_qtagg(tmp_path):
     pytest.importorskip("PySide6")
     script = textwrap.dedent("""
         import sys
+        from PySide6.QtWidgets import QApplication
+
+        app = QApplication.instance() or QApplication([])
         import matplotlib
         matplotlib.use("QtAgg")
         import matplotlib.pyplot as plt
@@ -161,6 +164,10 @@ def test_representative_functions_return_under_offscreen_qtagg(tmp_path):
     """)
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen", CUDA_VISIBLE_DEVICES="")
     env.pop("MPLBACKEND", None)
+    # As on CI: no display server, so Matplotlib accepts QtAgg only once a
+    # QApplication exists, which is how spaCR's own figures run.
+    env.pop("DISPLAY", None)
+    env.pop("WAYLAND_DISPLAY", None)
     done = subprocess.run([sys.executable, "-c", script, str(tmp_path)],
                           env=env, capture_output=True, text=True, timeout=300)
     assert done.returncode == 0, done.stderr[-3000:]
