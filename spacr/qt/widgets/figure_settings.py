@@ -2315,6 +2315,24 @@ def _show_canvas_menu(canvas, position):
     return menu
 
 
+def _rendered_figure_changed(figure, repaint, preview=False) -> None:
+    """Redraw a rendered figure after a menu edit.
+
+    A house "Graph type" replacement figure is not swapped in: its recipe is
+    drawn onto ``figure``, as on a canvas.
+
+    :param figure: the live figure behind the picture.
+    :param repaint: called with ``figure`` once it is redrawn.
+    :param preview: a toggle flag, or the replacement figure.
+    """
+    if preview is not None and not isinstance(preview, bool):
+        recipe = getattr(preview, "_spacr_replot", None) or {}
+        figure._spacr_replot = recipe
+        figure._spacr_data = None
+        _retype(figure, _house_kind(recipe.get("graph_type")), None)
+    repaint(figure)
+
+
 def _show_rendered_figure_menu(widget, figure, position, repaint):
     """Open the shared figure menu for a figure shown as a rendered picture.
 
@@ -2330,17 +2348,9 @@ def _show_rendered_figure_menu(widget, figure, position, repaint):
     :param repaint: called with ``figure`` after each change.
     :returns: the menu.
     """
-    def _changed(preview=False):
-        """Redraw the figure after a menu edit; adopt a replacement's recipe."""
-        if preview is not None and not isinstance(preview, bool):
-            recipe = getattr(preview, "_spacr_replot", None) or {}
-            figure._spacr_replot = recipe
-            figure._spacr_data = None
-            _retype(figure, _house_kind(recipe.get("graph_type")), None)
-        repaint(figure)
-
     menu = build_figure_context_menu(
-        widget, figure, on_change=_changed,
+        widget, figure,
+        on_change=partial(_rendered_figure_changed, figure, repaint),
         open_settings=partial(_open_editor, figure, widget,
                               lambda **_k: repaint(figure)))
     _exec_menu(menu, position)

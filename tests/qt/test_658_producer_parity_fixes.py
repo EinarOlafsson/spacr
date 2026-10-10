@@ -295,3 +295,63 @@ def test_response_distribution_styles_only_its_own_figure(tick_17):
     ax = own.add_subplot(111)
     panel(values, "log", ax=ax)
     assert not getattr(own, style._STYLED_FLAG, False)
+
+
+def test_a_failing_restyle_never_stops_the_canvas_drawing(qapp, monkeypatch):
+    """The canvas still draws when the settings cannot be applied."""
+    from spacr.qt.widgets.graph_builder import _canvas_class
+
+    def broken(figure, kind=None):
+        raise RuntimeError("no preferences")
+
+    monkeypatch.setattr(style, "_style_new_content", broken)
+    figure = Figure()
+    canvas = _canvas_class()(figure)
+    figure.add_subplot(111).plot([0, 1])
+    canvas.draw()
+    assert canvas.get_renderer() is not None
+    canvas.deleteLater()
+
+
+def test_a_figure_that_refuses_the_mark_is_still_styled(tick_17):
+    """A figure that will not take the content mark is styled anyway."""
+    real = Figure()
+    real.add_subplot(111).plot([0, 1])
+
+    class Stubborn:
+        axes = real.axes
+
+        def __setattr__(self, name, value):
+            raise AttributeError(name)
+
+    assert isinstance(style._style_new_content(Stubborn()), dict)
+
+
+def test_a_release_without_a_button_counts_as_a_click(qtbot, tmp_path):
+    """An event that names no button is a click, as before."""
+    from spacr.qt.widgets.figure_grid import SearchFigureGrid
+
+    grid = SearchFigureGrid()
+    qtbot.addWidget(grid)
+    clicked = []
+    grid.cell_clicked.connect(clicked.append)
+    grid._cell_released(3, object())
+    assert clicked == [3]
+
+
+def test_the_repaints_skip_what_they_cannot_show(ml_panel, monkeypatch):
+    """A null rendering keeps the old picture; no grid, nothing to do."""
+    from spacr.qt.screens import hyperparam
+
+    kept = QPixmap(4, 4)
+    ml_panel._preview.setPixmap(kept)
+    monkeypatch.setattr(hyperparam, "figure_to_pixmap", lambda fig: QPixmap())
+    ml_panel._repaint_preview(Figure())
+    assert ml_panel._preview.pixmap().cacheKey() == kept.cacheKey()
+
+    grid = ml_panel._figure_grid
+    ml_panel._figure_grid = None
+    try:
+        ml_panel._repaint_trial(0, Figure())
+    finally:
+        ml_panel._figure_grid = grid

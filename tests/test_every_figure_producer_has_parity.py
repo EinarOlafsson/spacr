@@ -18,10 +18,13 @@ import textwrap
 from tools import audit_figure_producers as audit
 
 
+_SCAN = audit.scan
+
+
 @functools.lru_cache(maxsize=1)
 def _spacr_rows() -> tuple:
     """The audit of the real package, scanned once per session."""
-    return tuple(audit.scan())
+    return tuple(_SCAN())
 
 
 def _package(tmp_path, files: dict) -> pathlib.Path:

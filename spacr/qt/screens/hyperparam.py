@@ -27,6 +27,7 @@ import threading
 from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass, field
+from functools import partial
 from io import BytesIO
 from typing import (
     Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple,
@@ -2407,14 +2408,20 @@ class HyperparamPanel(QWidget):
             return
         from ..widgets.figure_settings import _show_rendered_figure_menu
 
-        def _repaint(fig):
-            """Put the edited summary back on the label."""
-            pixmap = figure_to_pixmap(fig)
-            if not pixmap.isNull():
-                self._preview.setPixmap(pixmap)
-
         _show_rendered_figure_menu(self._preview, figure,
-                                   self._preview.mapToGlobal(point), _repaint)
+                                   self._preview.mapToGlobal(point),
+                                   self._repaint_preview)
+
+    def _repaint_preview(self, figure) -> None:
+        """Put the edited summary figure back on the preview label."""
+        pixmap = figure_to_pixmap(figure)
+        if not pixmap.isNull():
+            self._preview.setPixmap(pixmap)
+
+    def _repaint_trial(self, index: int, figure) -> None:
+        """Put an edited trial figure back in its grid cell."""
+        if self._figure_grid is not None:
+            self._figure_grid._set_cell_pixmap(index, figure_to_pixmap(figure))
 
     def _trial_figure_menu(self, index: int, position) -> None:
         """Open the figure menu on one trial's figure at a right-click.
@@ -2437,14 +2444,8 @@ class HyperparamPanel(QWidget):
             self._trial_figures[index] = figure
         from ..widgets.figure_settings import _show_rendered_figure_menu
 
-        def _repaint(fig):
-            """Put the edited trial figure back in its grid cell."""
-            if self._figure_grid is not None:
-                self._figure_grid._set_cell_pixmap(index,
-                                                   figure_to_pixmap(fig))
-
         _show_rendered_figure_menu(self._figure_grid, figure, position,
-                                   _repaint)
+                                   partial(self._repaint_trial, index))
 
 
     @property

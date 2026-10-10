@@ -493,6 +493,24 @@ def _page_surface_axes(ax, palette) -> None:
 _CANVAS_CLASS = None
 
 
+def _draw_with_user_style(canvas) -> None:
+    """Apply the user's figure settings to new content, then draw ``canvas``.
+
+    The shared canvas's ``draw``. Every screen on it draws into its figure
+    again and again; the Preferences figure settings reach each new drawing
+    here, once, so a right-click edit survives the next repaint.
+
+    :param canvas: the Qt figure canvas about to draw.
+    """
+    try:
+        from ...figures.style import _style_new_content
+        _style_new_content(canvas.figure)
+    except Exception:
+        LOG.debug("could not apply the figure settings", exc_info=True)
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+    FigureCanvasQTAgg.draw(canvas)
+
+
 def _canvas_class():
     """The figure canvas: a deferred draw it owns, on a page panel.
 
@@ -566,22 +584,7 @@ def _canvas_class():
             from .figure_settings import _attach_figure_menu
             _attach_figure_menu(self)
 
-        def _styled_draw(self):
-            """Apply the user's figure settings to new content, then draw.
-
-            Every screen on this canvas draws into its figure again and
-            again; the Preferences figure settings reach each new drawing
-            here, once, so a right-click edit survives the next repaint.
-            """
-            try:
-                from ...figures.style import _style_new_content
-                _style_new_content(self.figure)
-            except Exception:
-                LOG.debug("could not apply the figure settings",
-                          exc_info=True)
-            super().draw()
-
-        draw = _styled_draw
+        draw = _draw_with_user_style
 
         def paintEvent(self, event):  # noqa: N802 - Qt name
             """Draw the page panel, then let matplotlib draw over it."""
