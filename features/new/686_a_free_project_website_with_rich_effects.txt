@@ -2,7 +2,8 @@
 A FREE WEBSITE FOR spaCR AND THE MAINTAINER'S OTHER PROJECTS, WITH RICH EFFECTS
 ================================================================================
 
-Status:    not started
+Status:    BUILT 2026-10-10 (live at https://einarolafsson.github.io/);
+           spaCR README/docs/setup.py links still to add (routed to maintainer)
 Requested: 2026-10-10 — "I'd like to have a free webpage for spacr and my other
            projects. I'd like the page to be able to have cooler effects than
            GitHub allows me to have."
@@ -101,3 +102,36 @@ DELIBERATELY NOT DONE
   maintainer chooses to buy one.
 - Other projects' content is not invented: each project page waits for the
   maintainer's text, images and the list of projects to include.
+
+2026-10-10 — Built and live. Host chosen by the maintainer: GitHub user site
+https://einarolafsson.github.io/ (public repo EinarOlafsson/EinarOlafsson.github.io,
+built output only). Sources live in the PRIVATE repo EinarOlafsson/site-src, whose
+Actions workflow builds on push, daily at 06:17 UTC and on repository_dispatch
+type "spacr-release", encrypts the protected pages and pushes dist/ with a
+write deploy key. Pages: landing (project cards), /projects/spacr/ (public),
+/projects/live-cell/ and /projects/cellect/ (password, StatiCrypt 3.5.4:
+AES-256-CBC + HMAC, PBKDF2 600k; password in the site-src Actions secret
+SITE_PASSWORD and locally in ~/.config/spacr-site/password, never committed).
+The build fails if any protected-only word appears in dist/.
+spaCR facts are fetched at build time: version and Python range from PyPI,
+installers and SHA256SUMS from the latest GitHub release, authors and concept
+DOI from main's CITATION.cff, version DOI from Zenodo's latest record.
+Effects: WebGL field porting ambient.py BlobsEngine + RippleEngine (spacr
+palette, same timing constants) warped by a curl-noise flow field that the
+pointer stirs, click ripples; scroll reveals, hero parallax, image/mask/flow
+before-after slider, lazy muted tutorial clips (lessons 5 and 20), 3D
+<model-viewer> of the assembled Cellect mount (GLB from cellect_mount.assembly).
+Reduced motion: one still frame, no loops; pause toggle; CSS gradient fallback
+without WebGL; light/dark; mobile layout.
+Verified on the live URL with headless Chrome: 49/49 checks (themes, mobile,
+no horizontal scroll, slider, clips, pause, reduced motion, no-WebGL, both
+protected pages refuse a wrong password and decrypt with the right one, 3D model
+loads). Lighthouse mobile: home 99/100 (perf/a11y), spaCR page 97/100, live_cell
+lock page 100/100, Cellect lock page 85/100 (941 kB encrypted page carries the
+inlined 3D model). First view: home 13 KiB, spaCR page 77-132 KiB.
+Remaining here: link the site from README.rst, the docs and setup.py
+project_urls; optionally have release.yml send repository_dispatch
+"spacr-release" to EinarOlafsson/site-src (needs a token secret; the daily
+build covers it within 24 h otherwise). Found: CITATION.cff at tag v1.5.1.4
+lists 10.5281/zenodo.23111593 (the v1.5.1.3 record) as the version DOI; main
+and Zenodo say 10.5281/zenodo.23266544. Translations (point 6) not started.
