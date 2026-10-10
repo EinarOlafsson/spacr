@@ -2,7 +2,8 @@
 WEBSITE V2: spaCR FLOW THEME, OPEN SANS, A MODEL SHOWCASE AND RELEASE SYNC
 ================================================================================
 
-Status:    not started
+Status:    BUILT 2026-10-10 (live at https://einarolafsson.github.io/projects/spacr/);
+           README/docs/setup.py link (point 8) left to WS
 Requested: 2026-10-10 — "for the new website i want a spacr flow type theme. i
            want the font to be open sans relular and opens sans ligh (regular
            for titles and regular for the rest) / I like the way you show object
@@ -123,3 +124,80 @@ DELIBERATELY NOT DONE
   they are self-hosted.
 - Model outputs are not mocked or drawn by hand; only real model runs.
 - Papers are not listed from search hits alone; each is verified.
+
+2026-10-10 — Built, deployed and verified (Home). Sources in the private repo
+EinarOlafsson/site-src (commits b0fec18 and later); the public site is
+https://einarolafsson.github.io/, the spaCR page
+https://einarolafsson.github.io/projects/spacr/.
+1. Background: WebGL port of the "spaCR advection" theme
+   (ambient.py _DataArtEngine._frame_genetic_advection): grains on the same
+   closed-form travel, three-sine and three-vortex field, three-sample trail
+   extrapolation with clamped curvature and the cubic pointer pull, evaluated
+   in a vertex shader; spaCR palette (mostly blue, some cyan and magenta);
+   4,000-12,000 grains, count drops if frames run slow. One still frame
+   until the first interaction, then animates; dimmed below the hero. Pause
+   button, reduced motion (still frame, no loop) and a CSS fallback without
+   WebGL are kept.
+2. Open Sans self-hosted: instanced from the OFL variable font at 300 and 400,
+   Latin subsets, 18 kB each, preloaded. Headings 400, body 300, no faux
+   bold. Contrast (WCAG): body text 15.8:1 dark / 17.0:1 light, secondary
+   text 8.7:1 / 7.6:1, links 7.9:1 / 5.8:1; all AA, most AAA.
+3. Model showcase (image, outlines per class, divider and per-class check
+   boxes, counts, model, source and licence on each figure; composite WebPs
+   with the same caption burned in). Weights from spaCR's model zoo (sha256
+   match), Cellpose 4.2.1.1, CPU fp32, no GPU. The zoo and the HF model cards
+   list exactly four cross-channel models; all four are shown.
+   - Hoechst image (HeLa, MTOC screen plate 1 L08 field 12, test split,
+     CC BY 4.0): nuclei 53 (stock cpsam_v2, background 500, diameter 90),
+     host cells 61 (cell_from_hoechst_v1), Toxoplasma vacuoles 63
+     (toxoplasma_from_hoechst_v1).
+   - Cell-mask image, same field: Toxoplasma vacuoles 43
+     (toxoplasma_from_cellmask_v1), nuclei 56 (nuclei_from_cellmask_v1), host
+     cells 80 (stock cpsam_v2).
+   - Plaque: toxoplasma_plaque_v3 on a CC BY 4.0 well from
+     toxoplasma-plaque-dataset (Cabral et al. 2024, Microbiol Spectrum,
+     Fig. 2; in v3's eval set, not trained on): 99 plaques against 98 hand
+     drawn, F1 0.964 at IoU 0.5. A Gel Doc well (GRA8 plate 1) was also run
+     (49 plaques) but is not shown, because the raw image is unpublished.
+4. Papers using spaCR: 6 entries, each checked in the full text: the EAF1
+   bioRxiv preprint and the Research Square spaCR preprint (describe spaCR);
+   Rimple et al. mSphere 2025 (with its bioRxiv preprint), McFadden et al.
+   Cell Reports 2025 (with its bioRxiv preprint), Kaur et al. bioRxiv 2026
+   GRA8 (use spaCR); Munoz et al. arXiv 2025 cp_measure (cites spaCR). 15
+   candidates rejected, mostly SPACR name collisions (IMPG1/SPACR, RNF168
+   SPaCR motif). Allowlist in site-src data/papers.json; every build queries
+   OpenAlex cites:, Semantic Scholar and Europe PMC full text and only logs
+   new candidates. Found: OpenAlex maps the concept DOI and 14 Zenodo
+   versions onto a BioImage Archive dataset (W4411306136), so its cites:
+   filter finds nothing; Europe PMC full-text search finds the citing
+   papers.
+5. All copy rewritten plainly, including the two password pages and the lock
+   prompt; placeholders are one grey line each ("... pending").
+6. Layout: 8 px spacing scale, one accent (blue), rows instead of cards,
+   12-column ratios. Screenshots reviewed at 375/768/1280/1920 in both
+   themes. Cellect page: the 3D model and images are no longer inlined; each
+   is sealed with AES-256-GCM (key derived from the site password and the
+   file content), the key is only inside the encrypted page, which fetches
+   and decrypts them after unlock. Lock page 941 kB -> 58 kB.
+7. Release sync: deploy.yml in site-src runs hourly at :23, compares PyPI's
+   version and the latest GitHub release tag with the live build.json and
+   rebuilds only if either changed (no new secret; uses GITHUB_TOKEN); daily
+   06:17 full rebuild and the repository_dispatch "spacr-release" receiver
+   are kept. Manual unforced run: check passed, deploy skipped (nothing
+   new). Dry-run repository_dispatch: live build.json updated 63 s after the
+   dispatch. Latency without dispatch: up to about 1 h plus GitHub's cron
+   delay. Optional faster path, not done (spaCR release.yml untouched): a
+   fine-grained token limited to site-src (Contents: read and write) as
+   secret SITE_DISPATCH_TOKEN, and a last release.yml step that POSTs
+   {"event_type":"spacr-release"} to
+   https://api.github.com/repos/EinarOlafsson/site-src/dispatches.
+8. README/docs/setup.py not edited (WS). Link target:
+   https://einarolafsson.github.io/projects/spacr/
+Verified on the live site: headless Chrome 91/91 checks (fonts and weights,
+themes, no horizontal scroll, still frame then animation, pause, reduced
+motion, no-WebGL fallback, divider and class toggles, all showcase images,
+6 DOI links, nightly docs link to the HF Space, both locks refuse a wrong
+password and open with the right one, Cellect sealed images and 3D model
+decrypt). Lighthouse mobile (performance/accessibility): home 100/100,
+spaCR 99/100, live_cell lock 100/100, Cellect lock 100/100 (was 85).
+
