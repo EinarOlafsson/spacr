@@ -2,7 +2,8 @@
 CODECOV FOR spaCR, WITH A README BADGE
 ================================================================================
 
-Status:    not started
+Status:    DONE 2026-10-10 (nightly); main gets its first upload on the
+           next push to main. See the 2026-10-10 note.
 Requested: 2026-10-10 — "configure https://app.codecov.io/github/EinarOlafsson/
            spacr/new for spacr and add a badge when you are done"
 Owner:     Home (CI); WS (README badge in the localized READMEs)
@@ -62,3 +63,35 @@ DELIBERATELY NOT DONE
 
 - Codecov status checks do not block merges; the existing per-module gate
   remains the single enforcing coverage check.
+
+--------------------------------------------------------------------------------
+2026-10-10 NOTE (Home, Claude): BUILT AND VERIFIED ON NIGHTLY
+--------------------------------------------------------------------------------
+
+- .github/workflows/tests.yml, job coverage-combine: the combine step now has
+  id `combine`; after the ratchet gate, "Write Cobertura coverage.xml for
+  Codecov" runs `coverage xml` on the same combined .coverage for pushes to
+  nightly and main (if: always() and the combine step succeeded, so a red
+  ratchet still uploads), then "Upload combined coverage to Codecov" runs
+  codecov/codecov-action@v7 with disable_search, flags = branch name,
+  fail_ci_if_error false. Authentication: secrets.CODECOV_TOKEN when that
+  secret exists, otherwise GitHub OIDC (use_oidc), for which the job now
+  has permissions contents: read, id-token: write. No token is needed today.
+- codecov.yml: project and patch statuses informational, comment off,
+  require_ci_to_pass false. .coveragerc has no omit list (source = spacr),
+  so the ignore list only names paths outside that source (tests, docs,
+  tools, features, packaging, Notebooks). The i18n catalogs are NOT
+  ignored, because coverage.py and the ratchet count them; ignoring them
+  would break the "within 0.5 pp of coverage.py" check.
+- First upload: tests run 38059494502 (commit 36579507d, includes 735d467fd),
+  upload step success (HTTP 200, OIDC). Codecov activated the repository on
+  that upload. Codecov reports 98.36% (635 files, 284711 hits, 3046 misses,
+  1682 partials); coverage.py's combined total in the same run is 98.77%
+  (0.41 pp apart: Codecov counts partial branches as not hit).
+- README.rst: |Coverage| badge beside |Test counts|, image
+  https://codecov.io/gh/EinarOlafsson/spacr/branch/nightly/graph/badge.svg,
+  target https://app.codecov.io/github/EinarOlafsson/spacr. It uses the
+  NIGHTLY branch because main has no upload yet (main's badge reads
+  "unknown"). Switch to branch/main after the first push to main uploads.
+- Left for WS: add the same badge to the 9 localized READMEs and regenerate
+  them with their tool.
