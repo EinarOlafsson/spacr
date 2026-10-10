@@ -715,7 +715,7 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
     assert {key: english["symbols"][key]["text"] for key in worker_arrivals} == worker_arrivals
     home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
-    assert len(home_ui_arrivals) == 9
+    assert len(home_ui_arrivals) == 10  # + LiveSettingsDialog.close (39bfe8e19)
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
     assert {key: english["symbols"][key]["text"] for key in home_ui_arrivals} == home_ui_arrivals
