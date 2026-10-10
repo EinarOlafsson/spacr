@@ -8,6 +8,8 @@ Welcome to spaCR
 
 **spaCR** — *Spatial phenotype analysis of CRISPR screens.*
 
+Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
+
 .. note::
 
    You are reading the |docs-channel| documentation for spaCR

@@ -145,6 +145,7 @@ dynamic = [
 
 [project.urls]
 Homepage = "https://github.com/EinarOlafsson/spacr"
+Website = "https://einarolafsson.github.io/projects/spacr/"
 Documentation = "https://einarolafsson.github.io/spacr/"
 Source = "https://github.com/EinarOlafsson/spacr"
 Issues = "https://github.com/EinarOlafsson/spacr/issues"

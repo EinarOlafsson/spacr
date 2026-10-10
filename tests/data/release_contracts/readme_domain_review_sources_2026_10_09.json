@@ -51,6 +51,7 @@
   "To pull later changes, from inside the clone",
   "Try spaCR",
   "Use **Load test data…** in Import, Make Masks, Annotate or an assay screen to download example data. From a terminal, use ``spacr-download``.",
+  "Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_",
   "`Interactive tutorials <https://einarolafsson.github.io/spacr/tutorials/>`_ — guided workflows from installation through hit investigation.",
   "``safespacr`` reads every preference as its default and forces the backdrop, animations, verbose logging and preloading off. Use it when a saved preference breaks the launch. Preferences saved in safe mode are written normally and persist.",
   "``spacr-run --list`` lists modules with headless command-line entry points. GUI-only annotation, curation, comparison and exploration modules are omitted.",
