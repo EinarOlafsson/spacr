@@ -179,12 +179,16 @@ def read_record(source: Path, branch: str) -> dict:
 
 
 def nightly_redirect(base: str, nightly_url: str) -> str:
-    """Script sending any old <base>/nightly/<path> URL to the same Space path."""
+    """Script sending any old <base>/nightly/<path> URL to the same Space path.
+
+    The Space serves files only, so a directory path gains its index.html.
+    """
     prefix = json.dumps(base + "/nightly")
     return (
         "<script>(function(){var p=location.pathname,b=" + prefix + ";"
-        "if(p===b||p.indexOf(b+'/')===0){location.replace(" + json.dumps(nightly_url)
-        + "+p.slice(b.length+1)+location.search+location.hash);}})();</script>"
+        "if(p===b||p.indexOf(b+'/')===0){var r=p.slice(b.length+1);"
+        "if(r&&r.slice(-1)==='/'){r+='index.html';}"
+        "location.replace(" + json.dumps(nightly_url) + "+r+location.search+location.hash);}})();</script>"
     )
 
 
@@ -243,6 +247,38 @@ def assemble_main(main: Path, output: Path, base_path: str = "/spacr",
     return receipt
 
 
+def explicit_index_links(root: Path) -> int:
+    """Point relative directory links at their index.html.
+
+    A static Hugging Face Space serves files only: ``tutorials/`` is a 404,
+    ``tutorials/index.html`` is not. Only links whose directory holds an
+    index.html inside the site are changed. Returns the number rewritten.
+    """
+    base = root.resolve()
+    pattern = re.compile(r'''(\b(?:href|src)=)(["\'])([^"\'<>]*)\2''')
+    rewritten = 0
+    for page in root.rglob("*.html"):
+        text = page.read_text()
+
+        def fix(match):
+            nonlocal rewritten
+            value = match[3]
+            path, sep, rest = re.match(r"([^?#]*)([?#]?)(.*)", value, re.S).groups()
+            if not path.endswith("/") or re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:|//", path):
+                return match[0]
+            target = (base / path.lstrip("/")) if path.startswith("/") else (page.parent / path)
+            target = target.resolve()
+            if not target.is_relative_to(base) or not (target / "index.html").is_file():
+                return match[0]
+            rewritten += 1
+            return f"{match[1]}{match[2]}{path}index.html{sep}{rest}{match[2]}"
+
+        updated = pattern.sub(fix, text)
+        if updated != text:
+            page.write_text(updated)
+    return rewritten
+
+
 SPACE_README = """---
 title: spaCR nightly documentation
 emoji: 🔬
@@ -269,9 +305,10 @@ def assemble_nightly(nightly: Path, output: Path, main_url: str = MAIN_URL,
     shutil.copytree(nightly, output)
     share_tutorial_media(output, output, "nightly")
     add_banner(output, channel_banner("nightly", main_url, nightly_url))
+    index_links = explicit_index_links(output)
     (output / "README.md").write_text(SPACE_README.format(main_url=main_url))
     receipt = {"schema": 2, "channels": {"nightly": record}, "nightly_url": nightly_url,
-               "size_bytes": site_size(output),
+               "size_bytes": site_size(output), "index_links": index_links,
                "media_files": len(list((output / "_media").glob("*")))}
     (output / "channels.json").write_text(json.dumps(receipt, indent=2) + "\n")
     return receipt

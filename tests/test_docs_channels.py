@@ -219,6 +219,7 @@ def test_old_nightly_pages_urls_redirect_to_the_same_space_path(tmp_path):
              ' replace: (url) => { target = url; }};' + script + 'console.log(String(target));')
     for path, expected in (('/spacr/nightly/api/spacr/index.html', NIGHTLY_URL + 'api/spacr/index.html?q=1#x'),
                            ('/spacr/nightly/', NIGHTLY_URL + '?q=1#x'),
+                           ('/spacr/nightly/tutorials/', NIGHTLY_URL + 'tutorials/index.html?q=1#x'),
                            ('/spacr/nightly', NIGHTLY_URL + '?q=1#x'),
                            ('/spacr/nightlyish.html', 'null'),
                            ('/spacr/missing.html', 'null')):
@@ -390,3 +391,23 @@ def test_configure_loads_the_compat_extension_without_shadowing_branch_tools(tmp
     assert namespace['extensions'] == ['docs_publication_compat']
     assert sys.path == before
     assert sys.modules['docs_publication_compat'].__file__ == publisher_tools + '/docs_publication_compat.py'
+
+
+def test_nightly_directory_links_name_their_index_for_the_static_space(tmp_path):
+    nightly = site(tmp_path, 'nightly')
+    api = nightly / 'api/spacr'
+    api.mkdir(parents=True)
+    (api / 'index.html').write_text(
+        '<body><a href="../../tutorials/#lesson=09_annotate">Lesson</a>'
+        '<a href="../../tutorials/">All</a><a href="../../missing/">Gone</a>'
+        '<a href="https://example.org/docs/">Out</a><a href="#top">Top</a>'
+        "<a href='/tutorials/?x=1'>Root</a></body>")
+    space = tmp_path / 'space'
+    receipt = assemble_nightly(nightly, space)
+    text = (space / 'api/spacr/index.html').read_text()
+    assert 'href="../../tutorials/index.html#lesson=09_annotate"' in text
+    assert 'href="../../tutorials/index.html"' in text
+    assert "href='/tutorials/index.html?x=1'" in text
+    assert 'href="../../missing/"' in text
+    assert 'href="https://example.org/docs/"' in text and 'href="#top"' in text
+    assert receipt['index_links'] == 3
