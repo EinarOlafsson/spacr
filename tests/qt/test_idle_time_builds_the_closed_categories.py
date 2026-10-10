@@ -393,6 +393,8 @@ def test_the_prebuild_shows_or_opens_nothing_outside_the_categories(qtbot):
                 child.hide()
 
         def outside(widget) -> bool:
+            if widget.objectName().startswith("qt_scrollarea_"):
+                return False
             node = widget
             while node is not None:
                 if isinstance(node, Section):
@@ -403,6 +405,10 @@ def test_the_prebuild_shows_or_opens_nothing_outside_the_categories(qtbot):
         # Keyed by the wrapper, not id(): the idle build deletes and makes
         # widgets, and a new widget can reuse a deleted one's address, which
         # made an unrelated new widget's state look like a changed old one.
+        # A scroll area's own scroll-bar containers (qt_scrollarea_*) are
+        # shown and hidden by Qt as the content height changes; they are not
+        # a pane the user collapsed (N47 serial run: the vertical container
+        # hid once the built rows changed the column's height).
         before = {each: each.isHidden()
                   for each in screen.findChildren(QWidget) if outside(each)}
         shut = {id(section): section.is_expanded()

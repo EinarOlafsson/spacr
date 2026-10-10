@@ -22,8 +22,10 @@ from spacr.qt.widgets.live_preview import (LivePreviewPanel, object_role,
 
 
 @pytest.fixture
-def panel(qapp):
-    return LivePreviewPanel()
+def panel(qapp, qtbot):
+    made = LivePreviewPanel()
+    qtbot.addWidget(made)
+    return made
 
 
 def _captions(panel):

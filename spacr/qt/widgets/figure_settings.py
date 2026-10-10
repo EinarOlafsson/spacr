@@ -745,12 +745,14 @@ class FigureSettingsDialog(QDialog):
             ("Y scale", axis.get_yscale, axis.set_yscale),
         ):
             combo = QComboBox()
-            combo.addItems(AXIS_SCALES)
+            for scale in AXIS_SCALES:
+                combo.addItem(scale, scale)
             current = getter()
             if current in AXIS_SCALES:
-                combo.setCurrentText(current)
-            combo.currentTextChanged.connect(
-                lambda value, s=setter: (s(value), self._changed()))
+                combo.setCurrentIndex(list(AXIS_SCALES).index(current))
+            combo.currentIndexChanged.connect(
+                lambda _index, c=combo, s=setter: (
+                    s(c.currentData()), self._changed()))
             form.addRow(label, combo)
 
         for label, getter, setter in (
@@ -812,7 +814,8 @@ class FigureSettingsDialog(QDialog):
         grid.setChecked(any(line.get_visible()
                             for line in axis.get_xgridlines()))
         grid_axis = QComboBox()
-        grid_axis.addItems(("both", "x", "y"))
+        for which in ("both", "x", "y"):
+            grid_axis.addItem(which, which)
         grid_width = QDoubleSpinBox()
         grid_width.setRange(0.1, 6.0)
         grid_width.setSingleStep(0.1)
@@ -828,14 +831,14 @@ class FigureSettingsDialog(QDialog):
             off, which is the opposite of what it says.
             """
             if grid.isChecked():
-                axis.grid(True, axis=grid_axis.currentText(),
+                axis.grid(True, axis=grid_axis.currentData(),
                           color=grid_colour["value"],
                           linewidth=grid_width.value())
             else:
-                axis.grid(False, axis=grid_axis.currentText())
+                axis.grid(False, axis=grid_axis.currentData())
             self._changed()
         grid.toggled.connect(apply_grid)
-        grid_axis.currentTextChanged.connect(apply_grid)
+        grid_axis.currentIndexChanged.connect(apply_grid)
         grid_width.valueChanged.connect(apply_grid)
         form.addRow("Grid", grid)
         form.addRow("Grid axis", grid_axis)
@@ -887,7 +890,8 @@ class FigureSettingsDialog(QDialog):
             legend_on.setChecked(axis.get_legend() is not None
                                  and axis.get_legend().get_visible())
             legend_where = QComboBox()
-            legend_where.addItems(LEGEND_LOCATIONS)
+            for where in LEGEND_LOCATIONS:
+                legend_where.addItem(where, where)
             legend_size = QSpinBox()
             legend_size.setRange(4, 32)
             legend_size.setValue(9)
@@ -906,7 +910,7 @@ class FigureSettingsDialog(QDialog):
                     return
                 handles, _labels = axis.get_legend_handles_labels()
                 if handles:
-                    axis.legend(loc=legend_where.currentText(),
+                    axis.legend(loc=legend_where.currentData(),
                                 ncol=legend_cols.value(),
                                 frameon=legend_frame.isChecked(),
                                 prop={"size": legend_size.value()})
@@ -918,7 +922,7 @@ class FigureSettingsDialog(QDialog):
                 self._changed()
             for control in (legend_on, legend_frame):
                 control.toggled.connect(apply_legend)
-            legend_where.currentTextChanged.connect(apply_legend)
+            legend_where.currentIndexChanged.connect(apply_legend)
             legend_size.valueChanged.connect(apply_legend)
             legend_cols.valueChanged.connect(apply_legend)
             form.addRow("Legend", legend_on)

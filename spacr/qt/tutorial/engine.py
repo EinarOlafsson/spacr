@@ -728,6 +728,9 @@ def render_tutorial(app_key: str, out_dir: Optional[Path] = None,
     steps = build_steps(app_key, window)
     narrator = Narrator(voice_model=voice_model, length_scale=length_scale)
     director = Director(window, steps, out_dir=out_dir, narrator=narrator)
-    result = director.render(name=app_key)
-    window.close()
+    try:
+        result = director.render(name=app_key)
+    finally:
+        window.close()
+        window.deleteLater()
     return result

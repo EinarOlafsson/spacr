@@ -19,8 +19,9 @@ from spacr.qt.widgets.preview_controls import populate_channel_combo
 
 
 @pytest.fixture
-def panel(qapp):
+def panel(qapp, qtbot):
     p = LivePreviewPanel()
+    qtbot.addWidget(p)
     populate_channel_combo(p._channel_box, 4)
     p._image = np.zeros((8, 8, 4), dtype=np.uint8)
     p._cell_channel.setValue(2)
