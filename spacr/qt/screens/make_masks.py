@@ -9108,8 +9108,8 @@ class MakeMasksScreen(QWidget):
         self._btn_first_unreviewed.setCursor(Qt.PointingHandCursor)
         self._btn_first_unreviewed.setToolTip(tr(
             "Open the first image in the queue that has neither Keep nor "
-            "Discard, as recorded in csv/keep_discard.csv. Unsaved edits "
-            "follow the same rules as Next image."))
+            "Discard. Verdicts saved in earlier sessions count. Unsaved "
+            "edits are handled as when moving to any other image."))
         self._btn_first_unreviewed.clicked.connect(self._on_first_unreviewed)
         curate_row.insertWidget(curate_row.indexOf(self._btn_clear),
                                 self._btn_first_unreviewed)
