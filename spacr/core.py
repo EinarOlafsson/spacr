@@ -1325,7 +1325,8 @@ def _watch_vendor_unreadable(path, mode):
 
     if not path.lower().endswith(('.tif', '.tiff')):
         return ('without conversion_map.csv only self-describing TIFF or '
-                'OME-TIFF stacks can be watched; convert other formats first')
+                'OME-TIFF stacks, ND2, CZI and LIF files and per-plane series '
+                'with a companion can be watched; convert other formats first')
     try:
         with tifffile.TiffFile(path) as handle:
             series, _axes, shape = _watch_vendor_layout(handle, mode)
@@ -1341,71 +1342,75 @@ def _watch_vendor_unreadable(path, mode):
     return None
 
 
-def _watch_vendor_stage(field_dir, source, key, mode, settings):
-    """Split a private vendor stack copy into exact Convert-named planes.
+def _watch_vendor_channels(settings, declared):
+    """Check that the selected channels index a vendor field's declared channels.
+
+    :param settings: watch settings with zero-based selected channels.
+    :param declared: number of channels the field declares.
+    :raises ValueError: when a selected channel is outside the declared ones.
+    """
+    import ast
+
+    selected = settings.get('channels', [0])
+    if isinstance(selected, str):
+        try:
+            selected = ast.literal_eval(selected)
+        except (ValueError, SyntaxError):
+            selected = None
+    if (not isinstance(selected, (list, tuple)) or not selected
+            or any(type(value) is not int or value < 0 or value >= declared
+                   for value in selected)):
+        raise ValueError(f'channels must be zero-based positions within the '
+                         f"stack's {declared} declared channel(s).")
+
+
+def _watch_vendor_emit(field_dir, mode, settings, identity, sizes, planes):
+    """Write a vendor field's planes under exact Convert names and plan its route.
 
     :param field_dir: private field directory.
-    :param source: the verified private copy under ``.watch_vendor``.
-    :param key: field key, also used as the plate token.
     :param mode: vendor watch mode of :func:`_watch_vendor_layout`.
     :param settings: watch settings with zero-based selected channels.
+    :param identity: ``(plate, well, field)`` of the derived Convert names.
+    :param sizes: declared ``{'T', 'Z', 'C'}`` sizes of the field.
+    :param planes: iterable of ``((t, z, c), source name, 2-D plane)`` in
+        declared order, zero-based.
     :returns: ``(plane SHA256 by name, plan)``. The plan is the native Z
         ``[[volume, [planes by Z]], ...]`` list, the native series inventory,
         or None for a projected timelapse.
-    :raises ValueError: when the copy no longer declares a complete stack or
-        a selected channel is outside its declared channels.
+    :raises ValueError: when a selected or object channel is outside the
+        declared channels.
     """
-    import ast
     import csv
     import hashlib
     import io as standard_io
-
-    import tifffile
 
     from .cancellation import checkpoint
     from .convert import MAP_FILENAME, target_name
     from .io import _escaped_field_stem
     from .tiff_io import write_tiff
 
+    plate, well, field = identity
+    _watch_vendor_channels(settings, sizes.get('C', 1))
     planar = field_dir if mode != 'volume' else os.path.join(field_dir, '.watch_planar')
     os.makedirs(planar, exist_ok=True)
     rows, digests = [], {}
-    with tifffile.TiffFile(source) as handle:
-        series, axes, shape = _watch_vendor_layout(handle, mode)
-        sizes = dict(zip(axes, shape))
-        selected = settings.get('channels', [0])
-        if isinstance(selected, str):
-            try:
-                selected = ast.literal_eval(selected)
-            except (ValueError, SyntaxError):
-                selected = None
-        if (not isinstance(selected, (list, tuple)) or not selected
-                or any(type(value) is not int or value < 0
-                       or value >= sizes.get('C', 1) for value in selected)):
-            raise ValueError(f'channels must be zero-based positions within the '
-                             f"stack's {sizes.get('C', 1)} declared channel(s).")
-        for index, position in enumerate(np.ndindex(*shape[:-2])):
-            checkpoint()
-            place = dict(zip(axes, position))
-            numbers = {'channel': place.get('C', 0) + 1, 'z': place.get('Z', 0) + 1,
-                       't': place.get('T', 0) + 1}
-            name = target_name(key, 'A01', 1, **numbers)
-            plane = series.pages[index].asarray()
-            if plane.shape != shape[-2:]:
-                raise ValueError(f'declared plane {index + 1} does not read whole.')
-            path = os.path.join(planar, name)
-            write_tiff(path, plane, metadata={'axes': 'YX'})
-            digests[name] = _watch_artifact_sha256(path)
-            rows.append({'target': name, 'source': os.path.basename(source),
-                         'plate': key, 'well': 'A01', 'field': 1, **numbers})
+    for (t, z, c), source, plane in planes:
+        checkpoint()
+        numbers = {'channel': c + 1, 'z': z + 1, 't': t + 1}
+        name = target_name(plate, well, field, **numbers)
+        path = os.path.join(planar, name)
+        write_tiff(path, plane, metadata={'axes': 'YX'})
+        digests[name] = _watch_artifact_sha256(path)
+        rows.append({'target': name, 'source': source, 'plate': plate, 'well': well,
+                     'field': field, **numbers})
     if mode == 'timelapse':
         return digests, None
     if mode == 'volume':
         volumes = {}
         for row in rows:
             volumes.setdefault(row['channel'], {})[row['z']] = row['target']
-        return digests, [[planes[1], [planes[z] for z in sorted(planes)]]
-                         for _channel, planes in sorted(volumes.items())]
+        return digests, [[planes_by_z[1], [planes_by_z[z] for z in sorted(planes_by_z)]]
+                         for _channel, planes_by_z in sorted(volumes.items())]
     roles = ('nucleus_channel', 'cell_channel', 'pathogen_channel',
              *(f'{role}_channel' for role in ORGANELLE_ROLES))
     chosen = [settings.get(role) for role in roles if settings.get(role) is not None]
@@ -1425,8 +1430,674 @@ def _watch_vendor_stage(field_dir, source, key, mode, settings):
     times = sorted({row['t'] for row in rows})
     return digests, {
         'names': sorted(digests), 'map_sha256': hashlib.sha256(data).hexdigest(),
-        'stacks': sorted(_escaped_field_stem(key, 'A01', 1, t) + '.npy' for t in times),
-        'archive': _escaped_field_stem(key, 'A01', 1, '') + 'norm_timelapse.npz'}
+        'stacks': sorted(_escaped_field_stem(plate, well, field, t) + '.npy' for t in times),
+        'archive': _escaped_field_stem(plate, well, field, '') + 'norm_timelapse.npz'}
+
+
+def _watch_vendor_stage(field_dir, source, key, mode, settings):
+    """Split a private vendor stack copy into exact Convert-named planes.
+
+    :param field_dir: private field directory.
+    :param source: the verified private copy under ``.watch_vendor``.
+    :param key: field key, also used as the plate token.
+    :param mode: vendor watch mode of :func:`_watch_vendor_layout`.
+    :param settings: watch settings with zero-based selected channels.
+    :returns: ``(plane SHA256 by name, plan)`` of :func:`_watch_vendor_emit`.
+    :raises ValueError: when the copy no longer declares a complete stack or
+        a selected channel is outside its declared channels.
+    """
+    import tifffile
+
+    with tifffile.TiffFile(source) as handle:
+        series, axes, shape = _watch_vendor_layout(handle, mode)
+        sizes = dict(zip(axes, shape))
+
+        def planes():
+            """Yield each declared page as ``((t, z, c), source, plane)``."""
+            for index, position in enumerate(np.ndindex(*shape[:-2])):
+                place = dict(zip(axes, position))
+                plane = series.pages[index].asarray()
+                if plane.shape != shape[-2:]:
+                    raise ValueError(f'declared plane {index + 1} does not read whole.')
+                yield ((place.get('T', 0), place.get('Z', 0), place.get('C', 0)),
+                       os.path.basename(source), plane)
+
+        return _watch_vendor_emit(field_dir, mode, settings, (key, 'A01', 1),
+                                  {'T': sizes.get('T', 1), 'Z': sizes.get('Z', 1),
+                                   'C': sizes.get('C', 1)}, planes())
+
+
+_WATCH_CONTAINER_SUFFIXES = ('.nd2', '.czi', '.lif')
+
+_WATCH_VENDOR_READERS = {
+    '.nd2': ('nd2', 'nd2', 'pip install "spacr[vendor-watch]"'),
+    '.czi': ('czifile', 'czifile>=2026.3.12 (Python 3.12 or newer)',
+             'pip install -U "czifile>=2026.3.12"'),
+    '.lif': ('liffile', 'liffile (Python 3.12 or newer)', 'pip install "spacr[vendor-watch]"'),
+}
+
+
+def _watch_companion_kind(name):
+    """Which acquisition companion a file is, or None.
+
+    :param name: file basename or relative path.
+    :returns: ``'micromanager'`` for ``metadata.txt``, ``'ome_companion'``
+        for ``*.companion.ome``, ``'harmony'`` for an Opera/Operetta
+        ``Index.xml`` or ``Index.idx.xml``, else None.
+    """
+    base = os.path.basename(name).lower()
+    if base == 'metadata.txt':
+        return 'micromanager'
+    if base.endswith('.companion.ome'):
+        return 'ome_companion'
+    if base in ('index.xml', 'index.idx.xml'):
+        return 'harmony'
+    return None
+
+
+def _watch_vendor_reader(extension):
+    """Import the optional reader of one container format.
+
+    :param extension: ``'.nd2'``, ``'.czi'`` or ``'.lif'``.
+    :returns: the imported reader module.
+    :raises ValueError: naming the install command (the optional
+        ``vendor-watch`` extra for ND2 and LIF) when the reader is missing or
+        too old.
+    """
+    import importlib
+
+    from .qt.i18n import tr
+
+    module_name, requirement, command = _WATCH_VENDOR_READERS[extension]
+    try:
+        module = importlib.import_module(module_name)
+    except ImportError:
+        module = None
+    if module is not None and extension == '.czi' and not hasattr(module, 'CziImage'):
+        module = None
+    if module is None:
+        raise ValueError(tr('Watching {extension} files needs the optional reader '
+                            '{requirement}. Install it with: {command}',
+                            extension=extension, requirement=requirement,
+                            command=command))
+    return module
+
+
+def _watch_vendor_token(text):
+    """Keep only the letters and digits of a vendor plate token."""
+    import re
+
+    return re.sub(r'[^A-Za-z0-9]+', '', str(text)) or 'acquisition'
+
+
+def _watch_well_label(row, column):
+    """Name a one-based plate row and column as a well, e.g. ``(3, 7) -> 'C07'``."""
+    letters, row = '', int(row)
+    while row > 0:
+        row, rest = divmod(row - 1, 26)
+        letters = chr(65 + rest) + letters
+    return f'{letters or "A"}{int(column):02d}'
+
+
+def _watch_vendor_field(kind, unit, plate, well, field, sizes, planes, members,
+                        reason=None):
+    """Describe one watched field of a container or companion-described series.
+
+    :param kind: ``'nd2'``, ``'czi'``, ``'lif'``, ``'micromanager'``,
+        ``'ome_companion'`` or ``'harmony'``.
+    :param unit: basename of the container or companion file.
+    :param plate: plate token, letters and digits only.
+    :param well: well name of the derived Convert names.
+    :param field: one-based field number.
+    :param sizes: declared ``{'T', 'Z', 'C'}`` sizes.
+    :param planes: ``{(t, z, c): (member basename, locator)}``, zero-based.
+    :param members: basenames of every file the field reads, with the unit.
+    :param reason: why the field cannot be complete yet, or None.
+    :returns: the field description.
+    """
+    declared = sizes['T'] * sizes['Z'] * sizes['C']
+    inside = all(0 <= t < sizes['T'] and 0 <= z < sizes['Z'] and 0 <= c < sizes['C']
+                 for t, z, c in planes)
+    if reason is None and not inside:
+        reason = 'the metadata lists planes outside its declared dimensions'
+    if reason is None and len(planes) != declared:
+        reason = f'{len(planes)} of {declared} declared planes are listed'
+    return {'kind': kind, 'unit': unit, 'key': f'{plate}_{well}_{int(field)}',
+            'plate': plate, 'well': well, 'field': int(field), 'sizes': dict(sizes),
+            'planes': planes, 'members': sorted({unit, *members}), 'reason': reason}
+
+
+def _watch_czi_declared(text):
+    """Read the T, Z, C and scene sizes a CZI's own metadata declares."""
+    import re
+
+    declared = {}
+    for axis, size in re.findall(r'<Size([TZCS])>\s*(\d+)\s*</Size\1>', text or ''):
+        declared.setdefault(axis, int(size))
+    return declared
+
+
+def _watch_container_fields(path, name):
+    """Describe every position of an ND2, CZI or LIF file as a watched field.
+
+    The file's own dimension metadata is its completion signal: an ND2 must
+    hold every frame its experiment loops declare, a CZI every scene, time,
+    Z and channel its metadata declares, and every LIF image must open.
+    Positions (ND2 P, CZI scenes, LIF images and their mosaic tiles) each
+    become one field of well A01, numbered from 1.
+
+    :param path: the container to read.
+    :param name: its name relative to the watched folder.
+    :returns: field descriptions of :func:`_watch_vendor_field`.
+    :raises ValueError: when the reader is missing or the file does not yet
+        hold everything its metadata declares.
+    """
+    extension = os.path.splitext(path)[1].lower()
+    module = _watch_vendor_reader(extension)
+    unit = os.path.basename(name)
+    plate = _watch_vendor_token(os.path.splitext(unit)[0])
+    kind = extension.lstrip('.')
+    fields = []
+    if extension == '.nd2':
+        with module.ND2File(path) as handle:
+            sizes = {axis: int(size) for axis, size in handle.sizes.items()}
+            other = sorted(set(sizes) - set('PTZCYX'))
+            if other:
+                raise ValueError(f'ND2 axes {other} are not supported; only P, T, Z, '
+                                 'C, Y and X are')
+            expected = int(np.prod([int(loop.count) for loop in handle.experiment or []],
+                                   dtype=np.int64))
+            indices = handle.loop_indices
+            written = int(handle.attributes.sequenceCount)
+            if written < max(expected, 1) or written != len(indices):
+                raise ValueError(f'{written} of {max(expected, 1)} declared frames '
+                                 'are in the file')
+            channels = sizes.get('C', 1)
+            positions = {}
+            for frame, place in enumerate(indices):
+                planes = positions.setdefault(int(place.get('P', 0)), {})
+                for channel in range(channels):
+                    planes[(int(place.get('T', 0)), int(place.get('Z', 0)), channel)] = (
+                        unit, ('nd2', frame, channel))
+            shape = {'T': sizes.get('T', 1), 'Z': sizes.get('Z', 1), 'C': channels}
+            for position, planes in sorted(positions.items()):
+                fields.append(_watch_vendor_field(kind, unit, plate, 'A01', position + 1,
+                                                  shape, planes, [unit]))
+    elif extension == '.czi':
+        with module.CziFile(path) as handle:
+            declared = _watch_czi_declared(handle.metadata())
+            scenes = list(handle.scenes.items())
+            if declared.get('S', 1) > max(len(scenes), 1):
+                raise ValueError(f'{len(scenes)} of {declared["S"]} declared scenes '
+                                 'are in the file')
+            for position, (scene, image) in enumerate(scenes):
+                sizes = {axis: int(size) for axis, size in image.sizes.items()}
+                other = sorted(set(sizes) - set('TZCYX'))
+                if other:
+                    raise ValueError(f'CZI axes {other} are not supported; only T, Z, '
+                                     'C, Y and X are')
+                for axis in 'TZC':
+                    if declared.get(axis, 1) > sizes.get(axis, 1):
+                        raise ValueError(f'scene {scene} holds {sizes.get(axis, 1)} of '
+                                         f'{declared[axis]} declared {axis} positions')
+                shape = {axis: sizes.get(axis, 1) for axis in 'TZC'}
+                planes = {(t, z, c): (unit, ('czi', scene, t, z, c))
+                          for t, z, c in np.ndindex(shape['T'], shape['Z'], shape['C'])}
+                fields.append(_watch_vendor_field(kind, unit, plate, 'A01', position + 1,
+                                                  shape, planes, [unit]))
+    else:
+        with module.LifFile(path) as handle:
+            position = 0
+            for index, image in enumerate(handle.images):
+                sizes = {axis: int(size) for axis, size in image.sizes.items()}
+                other = sorted(set(sizes) - set('TMZCYX'))
+                shape = {axis: sizes.get(axis, 1) for axis in 'TZC'}
+                for tile in range(sizes.get('M', 1) if not other else 1):
+                    position += 1
+                    if other:
+                        fields.append(_watch_vendor_field(
+                            kind, unit, plate, 'A01', position, shape, {}, [unit],
+                            f'LIF image {image.name!r} has unsupported axes {other}'))
+                        continue
+                    planes = {(t, z, c): (unit, ('lif', index, t, tile, z, c))
+                              for t, z, c in np.ndindex(shape['T'], shape['Z'],
+                                                        shape['C'])}
+                    fields.append(_watch_vendor_field(kind, unit, plate, 'A01', position,
+                                                      shape, planes, [unit]))
+    if not fields:
+        raise ValueError('the file declares no images')
+    return fields
+
+
+def _watch_micromanager_fields(path, name):
+    """Describe a Micro-Manager per-plane acquisition from its ``metadata.txt``.
+
+    The summary declares the frame, slice and channel counts (or
+    ``IntendedDimensions``); each ``FrameKey-t-c-z`` or ``Coords-<file>``
+    entry places one per-plane TIFF. Each position becomes one field of well
+    A01, numbered from 1; the plate token is the acquisition folder (the
+    parent of a ``Pos<n>`` or ``Default`` folder).
+
+    :param path: the ``metadata.txt`` to read.
+    :param name: its name relative to the watched folder.
+    :returns: field descriptions of :func:`_watch_vendor_field`.
+    :raises ValueError: when the file is not complete JSON yet.
+    """
+    import json
+    import re
+
+    with open(path, encoding='utf-8') as handle:
+        data = json.load(handle)
+    summary = data.get('Summary') if isinstance(data, dict) else None
+    if not isinstance(summary, dict):
+        raise ValueError('metadata.txt has no Summary')
+    intended = summary.get('IntendedDimensions') or {}
+    sizes = {'T': int(intended.get('time', summary.get('Frames', 1)) or 1),
+             'Z': int(intended.get('z', summary.get('Slices', 1)) or 1),
+             'C': int(intended.get('channel', summary.get('Channels', 1)) or 1)}
+    names = list(summary.get('ChNames') or [])
+    folder = os.path.dirname(name)
+    acquisition = os.path.basename(folder)
+    if re.fullmatch(r'(?i)pos\d+|default', acquisition or '') and os.path.dirname(folder):
+        acquisition = os.path.basename(os.path.dirname(folder))
+    plate = _watch_vendor_token(acquisition or 'micromanager')
+    unit = os.path.basename(name)
+    default = int(summary.get('PositionIndex', 0) or 0)
+    positions = {}
+    for key, value in data.items():
+        if not isinstance(value, dict):
+            continue
+        if key.startswith('Coords-'):
+            filename = key[len('Coords-'):]
+            place = (int(value.get('time', 0) or 0), int(value.get('z', 0) or 0),
+                     int(value.get('channel', 0) or 0))
+            position = int(value.get('position', default) or 0)
+        elif key.startswith('FrameKey-'):
+            parts = key.split('-')[1:4]
+            if len(parts) != 3 or not all(part.isdecimal() for part in parts):
+                continue
+            t, c, z = (int(part) for part in parts)
+            place = (t, z, c)
+            filename = value.get('FileName') or (
+                f'img_{t:09d}_{names[c]}_{z:03d}.tif' if c < len(names) else None)
+            position = int(value.get('PositionIndex', default) or 0)
+        else:
+            continue
+        if filename:
+            positions.setdefault(position, {})[place] = (
+                os.path.basename(str(filename)), ('page', 0))
+    if not positions:
+        positions[default] = {}
+    return [_watch_vendor_field('micromanager', unit, plate, 'A01', position + 1, sizes,
+                                planes, [member for member, _locator in planes.values()])
+            for position, planes in sorted(positions.items())]
+
+
+def _watch_xml_children(element, tag):
+    """Child elements of one local tag name, ignoring XML namespaces."""
+    return [child for child in element if child.tag.rsplit('}', 1)[-1] == tag]
+
+
+def _watch_ome_companion_fields(path, name):
+    """Describe a multi-file OME-TIFF set from its ``*.companion.ome``.
+
+    Each OME ``Image`` is one field, sized by its ``Pixels`` and placed by its
+    ``TiffData`` entries (file, first IFD, first Z/T/C and plane count in the
+    declared dimension order). Plate wells and well samples name the well and
+    field when the companion has a ``Plate``; otherwise images are fields of
+    well A01 in order.
+
+    :param path: the companion to read.
+    :param name: its name relative to the watched folder.
+    :returns: field descriptions of :func:`_watch_vendor_field`.
+    :raises ValueError: when the companion is not complete XML yet.
+    """
+    import xml.etree.ElementTree as ET
+
+    root = ET.parse(path).getroot()
+    unit = os.path.basename(name)
+    plate = _watch_vendor_token(unit[:-len('.companion.ome')])
+    wells = {}
+    for plate_element in _watch_xml_children(root, 'Plate'):
+        for well in _watch_xml_children(plate_element, 'Well'):
+            label = _watch_well_label(int(well.get('Row', 0)) + 1,
+                                      int(well.get('Column', 0)) + 1)
+            for number, sample in enumerate(_watch_xml_children(well, 'WellSample'), 1):
+                for reference in _watch_xml_children(sample, 'ImageRef'):
+                    wells[reference.get('ID')] = (label, number)
+    fields = []
+    for index, image in enumerate(_watch_xml_children(root, 'Image')):
+        pixels = _watch_xml_children(image, 'Pixels')
+        if not pixels:
+            raise ValueError(f'OME image {index} has no Pixels')
+        pixels = pixels[0]
+        sizes = {axis: int(pixels.get(f'Size{axis}', 1) or 1) for axis in 'TZC'}
+        order = str(pixels.get('DimensionOrder', 'XYZCT'))[2:]
+        if sorted(order) != ['C', 'T', 'Z']:
+            raise ValueError(f'OME image {index} has dimension order {order!r}')
+        slow = tuple(reversed(order))
+        shape = tuple(sizes[axis] for axis in slow)
+        total = int(np.prod(shape))
+        planes, reason = {}, None
+        for data in _watch_xml_children(pixels, 'TiffData'):
+            uuid = _watch_xml_children(data, 'UUID')
+            filename = uuid[0].get('FileName') if uuid else None
+            if not filename:
+                reason = 'a TiffData entry names no file'
+                break
+            first = {axis: int(data.get(f'First{axis}', 0) or 0) for axis in 'TZC'}
+            ifd = int(data.get('IFD', 0) or 0)
+            start = int(np.ravel_multi_index(tuple(first[axis] for axis in slow), shape))
+            count = int(data.get('PlaneCount') or (1 if data.get('IFD') is not None
+                                                   else total - start))
+            if start + count > total:
+                reason = 'a TiffData entry runs past the declared planes'
+                break
+            for offset in range(count):
+                place = dict(zip(slow, np.unravel_index(start + offset, shape)))
+                planes[(int(place['T']), int(place['Z']), int(place['C']))] = (
+                    os.path.basename(filename), ('page', ifd + offset))
+        well, field = wells.get(image.get('ID'), ('A01', index + 1))
+        fields.append(_watch_vendor_field(
+            'ome_companion', unit, plate, well, field, sizes, planes,
+            [member for member, _locator in planes.values()], reason))
+    if not fields:
+        raise ValueError('the companion declares no images')
+    return fields
+
+
+def _watch_harmony_fields(path, name):
+    """Describe an Opera/Operetta Harmony export from its index file.
+
+    ``Index.xml`` (or ``Index.idx.xml``) lists every exported image with its
+    row, column, field, plane, timepoint and channel; that list is the
+    completion signal. Each (row, column, field) is one field, named by its
+    real well and field number, with the plate token from ``PlateID``.
+
+    :param path: the index to read.
+    :param name: its name relative to the watched folder.
+    :returns: field descriptions of :func:`_watch_vendor_field`.
+    :raises ValueError: when the index is not complete XML yet.
+    """
+    import xml.etree.ElementTree as ET
+
+    root = ET.parse(path).getroot()
+    unit = os.path.basename(name)
+
+    def text(element, tag):
+        """The stripped text of the first child ``tag``, or ''."""
+        found = _watch_xml_children(element, tag)
+        return (found[0].text or '').strip() if found else ''
+
+    plate = None
+    for plates in _watch_xml_children(root, 'Plates'):
+        for element in _watch_xml_children(plates, 'Plate'):
+            plate = plate or text(element, 'PlateID') or text(element, 'Name')
+    plate = _watch_vendor_token(plate or os.path.basename(os.path.dirname(name)) or 'harmony')
+    records = {}
+    for images in _watch_xml_children(root, 'Images'):
+        for image in _watch_xml_children(images, 'Image'):
+            url = text(image, 'URL')
+            numbers = [text(image, tag) for tag in ('Row', 'Col', 'FieldID', 'TimepointID',
+                                                     'PlaneID', 'ChannelID')]
+            if not url or not all(value.lstrip('-').isdecimal() for value in numbers):
+                raise ValueError('an index image entry lacks its URL or position')
+            row, column, field, time_id, plane_id, channel_id = (int(v) for v in numbers)
+            records.setdefault((row, column, field), []).append(
+                (time_id, plane_id, channel_id, os.path.basename(url.replace('\\', '/'))))
+    fields = []
+    for (row, column, field), items in sorted(records.items()):
+        times = sorted({item[0] for item in items})
+        depths = sorted({item[1] for item in items})
+        channels = sorted({item[2] for item in items})
+        sizes = {'T': len(times), 'Z': len(depths), 'C': len(channels)}
+        planes = {(times.index(t), depths.index(z), channels.index(c)): (member, ('page', 0))
+                  for t, z, c, member in items}
+        reason = None if len(planes) == len(items) else 'the index lists one plane twice'
+        fields.append(_watch_vendor_field(
+            'harmony', unit, plate, _watch_well_label(row, column), field, sizes, planes,
+            [item[3] for item in items], reason))
+    if not fields:
+        raise ValueError('the index lists no images')
+    return fields
+
+
+def _watch_vendor_describe(path, name):
+    """Describe the watched fields of one container or companion file.
+
+    :param path: the file to read.
+    :param name: its name relative to the watched folder.
+    :returns: field descriptions of :func:`_watch_vendor_field`.
+    """
+    kind = _watch_companion_kind(name)
+    if kind == 'micromanager':
+        return _watch_micromanager_fields(path, name)
+    if kind == 'ome_companion':
+        return _watch_ome_companion_fields(path, name)
+    if kind == 'harmony':
+        return _watch_harmony_fields(path, name)
+    return _watch_container_fields(path, name)
+
+
+def _watch_vendor_plane(handles, folder, member, locator):
+    """Read one declared plane of a described vendor field.
+
+    :param handles: open readers by member name, reused and closed by the caller.
+    :param folder: directory holding the field's members.
+    :param member: basename of the file holding the plane.
+    :param locator: ``('page', index)``, ``('nd2', frame, channel)``,
+        ``('czi', scene, t, z, c)`` or ``('lif', image, t, tile, z, c)``.
+    :returns: the plane as a 2-D array.
+    """
+    kind = locator[0]
+    handle = handles.get(member)
+    if handle is None:
+        path = os.path.join(folder, member)
+        if kind == 'page':
+            import tifffile
+
+            handle = tifffile.TiffFile(path)
+        elif kind == 'nd2':
+            handle = _watch_vendor_reader('.nd2').ND2File(path)
+        elif kind == 'czi':
+            handle = _watch_vendor_reader('.czi').CziFile(path)
+        else:
+            handle = _watch_vendor_reader('.lif').LifFile(path)
+        handles[member] = handle
+    if kind == 'page':
+        return np.asarray(handle.pages[locator[1]].asarray())
+    if kind == 'nd2':
+        plane = np.asarray(handle.read_frame(locator[1]))
+        return plane[locator[2]] if plane.ndim == 3 else plane
+    if kind == 'czi':
+        _kind, scene, t, z, c = locator
+        image = handle.scenes[scene]
+        selection = {axis: value for axis, value in zip('TZC', (t, z, c))
+                     if axis in image.sizes}
+        return np.asarray(image(**selection).asarray())
+    _kind, index, t, tile, z, c = locator
+    image = handle.images[index]
+    selection = {axis: value for axis, value in zip('TMZC', (t, tile, z, c))
+                 if axis in image.sizes}
+    return np.asarray(image.frame(**selection))
+
+
+def _watch_vendor_planes(folder, description):
+    """Yield every declared plane of a described field in T, Z, C order.
+
+    :param folder: directory holding the field's members.
+    :param description: field description of :func:`_watch_vendor_field`.
+    :returns: generator of ``((t, z, c), member, plane)``.
+    :raises ValueError: when a plane is not 2-D or differs in size.
+    """
+    handles, shape = {}, None
+    try:
+        for place in sorted(description['planes']):
+            member, locator = description['planes'][place]
+            plane = _watch_vendor_plane(handles, folder, member, locator)
+            if plane.ndim != 2 or plane.size == 0 or (shape is not None
+                                                      and plane.shape != shape):
+                raise ValueError(f'declared plane T{place[0] + 1} Z{place[1] + 1} '
+                                 f'C{place[2] + 1} does not read whole')
+            shape = plane.shape
+            yield place, member, plane
+    finally:
+        for handle in handles.values():
+            handle.close()
+
+
+def _watch_vendor_fits(sizes, mode):
+    """Whether declared T and Z sizes fit a vendor watch mode."""
+    times, planes = sizes.get('T', 1), sizes.get('Z', 1)
+    return {'timelapse': times >= 2, 'volume': planes >= 2 and times == 1,
+            'series': times >= 2 and planes >= 2}[mode]
+
+
+def _watch_described_unreadable(folder, description, mode):
+    """Why a described vendor field is not complete, or None.
+
+    Every declared plane is decoded one at a time, so memory stays at one plane.
+
+    :param folder: directory holding the field's members.
+    :param description: field description of :func:`_watch_vendor_field`.
+    :param mode: vendor watch mode of :func:`_watch_vendor_layout`.
+    :returns: None when every declared plane reads whole, else the reason.
+    """
+    from .cancellation import PipelineCancelled, checkpoint
+
+    if description['reason'] is not None:
+        return description['reason']
+    sizes = description['sizes']
+    if not _watch_vendor_fits(sizes, mode):
+        return (f"declared sizes T{sizes['T']} Z{sizes['Z']} C{sizes['C']} do not fit "
+                f'the {mode} watch mode')
+    try:
+        for _plane in _watch_vendor_planes(folder, description):
+            checkpoint()
+    except PipelineCancelled:
+        raise
+    except Exception as exc:
+        return f'{type(exc).__name__}: {exc}'
+    return None
+
+
+def _watch_described_stage(field_dir, snapshot_dir, description, mode, settings):
+    """Split a described field's private copies into exact Convert-named planes.
+
+    The container or companion copy is described again, so the planes come
+    only from the private snapshot.
+
+    :param field_dir: private field directory.
+    :param snapshot_dir: the field's ``.watch_vendor`` copies.
+    :param description: the field description taken when it became ready.
+    :param mode: vendor watch mode of :func:`_watch_vendor_layout`.
+    :param settings: watch settings with zero-based selected channels.
+    :returns: ``(plane SHA256 by name, plan)`` of :func:`_watch_vendor_emit`.
+    :raises ValueError: when the copy no longer describes the same field.
+    """
+    unit = description['unit']
+    relative = os.path.join(description['folder'], unit)
+    again = [field for field in _watch_vendor_describe(os.path.join(snapshot_dir, unit),
+                                                       relative)
+             if field['key'] == description['key']]
+    if (len(again) != 1 or again[0]['planes'] != description['planes']
+            or again[0]['sizes'] != description['sizes'] or again[0]['reason'] is not None):
+        raise ValueError('the private copy no longer describes this field.')
+    return _watch_vendor_emit(
+        field_dir, mode, settings,
+        (description['plate'], description['well'], description['field']),
+        description['sizes'], _watch_vendor_planes(snapshot_dir, description))
+
+
+def _watch_vendor_groups(context, now):
+    """Group the seen files of a vendor watch into fields.
+
+    Containers (ND2, CZI, LIF) and companions (Micro-Manager ``metadata.txt``,
+    ``*.companion.ome``, Harmony ``Index.xml``) are described once they have
+    settled; each position or image is one field whose members are the
+    companion and the planes it lists. TIFFs beside a companion are read only
+    through it. Every other TIFF is one self-describing stack.
+
+    :param context: the watch state of :func:`_watch_folder_and_analyse`.
+    :param now: the current time.
+    :returns: ``{field key: [(relative name, None), ...]}``. Descriptions of
+        the described fields are left in ``context['vendor_fields']``.
+    :raises ValueError: when a CellVoyager per-plane file has no companion.
+    """
+    from .cancellation import PipelineCancelled
+    from .qt.i18n import tr
+
+    seen, src = context['seen'], context['src']
+    cache = context.setdefault('vendor_units', {})
+    described, groups, owners = {}, {}, {}
+    units = sorted(name for name in seen if _watch_companion_kind(name)
+                   or name.lower().endswith(_WATCH_CONTAINER_SUFFIXES))
+    companion_dirs = {os.path.dirname(name) for name in units if _watch_companion_kind(name)}
+    claimed = set()
+    for name in units:
+        folder = os.path.dirname(name)
+        identity = seen[name].get('identity')
+        cached = cache.get(name)
+        if now - seen[name]['changed'] < context['settle']:
+            fields, reason = None, 'still changing'
+        elif cached is not None and cached[0] == identity:
+            fields, reason = cached[1], cached[2]
+        else:
+            try:
+                fields, reason = _watch_vendor_describe(os.path.join(src, name), name), None
+            except PipelineCancelled:
+                raise
+            except Exception as exc:
+                fields, reason = None, f'{type(exc).__name__}: {exc}'
+            cache[name] = (identity, fields, reason)
+        if fields is None:
+            stem = os.path.splitext(name)[0] if not _watch_companion_kind(name) else name
+            fields = [{'kind': 'unit', 'unit': os.path.basename(name),
+                       'key': _watch_vendor_token(stem), 'plate': None, 'well': None,
+                       'field': None, 'sizes': {}, 'planes': {},
+                       'members': [os.path.basename(name)], 'reason': reason}]
+        for field in fields:
+            field = dict(field, folder=folder)
+            members = [os.path.join(folder, member) for member in field['members']]
+            claimed.update(members)
+            present = [member for member in members if member in seen]
+            if field['reason'] is None and len(present) != len(members):
+                field['reason'] = (f'{len(present) - 1} of {len(members) - 1} declared '
+                                   'plane files are present')
+            key = field['key']
+            if key in owners and owners[key] != name:
+                field['reason'] = described[key]['reason'] = tr(
+                    'two acquisitions give the field key {key}; rename one',
+                    key=key)
+                groups[key] = sorted(set(groups[key]) | {(member, None) for member in present})
+                continue
+            owners[key] = name
+            described[key] = field
+            groups[key] = [(member, None) for member in present]
+    for name in sorted(seen):
+        if name in claimed or name.lower().endswith(_WATCH_CONTAINER_SUFFIXES):
+            continue
+        if os.path.dirname(name) in companion_dirs:
+            warning = ('unlisted', name)
+            if warning not in context['warned']:
+                context['warned'].add(warning)
+                print(tr('watch_folder: {name} sits beside an acquisition companion '
+                         'that does not list it; it is not analysed.', name=name))
+            continue
+        if _watch_field_of(name, context['settings'], context['patterns'])[1] is not None:
+            raise ValueError(f'watch_folder: {name} is one plane of a per-plane '
+                             'series; per-plane T/Z series need a companion (metadata.txt, '
+                             '*.companion.ome or Index.xml) or a fixed Convert map '
+                             '(conversion_map.csv) declaring every plane before '
+                             'the watch starts. Existing results are preserved.')
+        groups.setdefault(_watch_vendor_key(name), []).append((name, None))
+    for key in [key for key in described if key in groups and any(
+            member not in claimed for member, _channel in groups[key])]:
+        described[key]['reason'] = tr('two acquisitions give the field key {key}; '
+                                      'rename one', key=key)
+    context['vendor_fields'] = described
+    context['vendor_groups'] = sorted(groups)
+    return groups
 
 
 def _watch_check_map(context):
@@ -1479,7 +2150,7 @@ def _watch_unreadable(path):
     return None
 
 
-def _watch_images(src):
+def _watch_images(src, companions=False):
     """List relative acquisition image paths without following output trees.
 
     Hidden entries, symbolic links and spaCR's generated folders are pruned.
@@ -1487,6 +2158,8 @@ def _watch_images(src):
     metadata is still parsed from the basename, not guessed from directories.
 
     :param src: the watched folder.
+    :param companions: also list acquisition companions of
+        :func:`_watch_companion_kind`.
     :returns: relative image paths, sorted; root-level names stay unchanged.
     """
     from .cancellation import checkpoint
@@ -1501,7 +2174,8 @@ def _watch_images(src):
                             and not os.path.islink(os.path.join(directory, folder)))
         for name in files:
             path = os.path.join(directory, name)
-            if (not name.startswith('.') and name.lower().endswith(_WATCH_SUFFIXES)
+            if (not name.startswith('.') and (name.lower().endswith(_WATCH_SUFFIXES)
+                                              or (companions and _watch_companion_kind(name)))
                     and not os.path.islink(path) and os.path.isfile(path)):
                 names.append(os.path.relpath(path, src))
     return sorted(names)
@@ -2283,6 +2957,32 @@ def _watch_copy_snapshot(source, target, expected):
     return digest.hexdigest()
 
 
+def _watch_linked_snapshot(shared, target, expected):
+    """Hard-link an earlier position's private copy of the same container.
+
+    Every position of a multi-position ND2, CZI or LIF reads the same file, so
+    its first verified private copy is linked into later positions' staging
+    instead of being copied again. The link joins two private copies; it
+    never points at the acquired file.
+
+    :param shared: ``(identity, private copy, SHA256)`` recorded when the
+        container was first copied, or None.
+    :param target: new path inside this field's private staging directory.
+    :param expected: identity recorded when the acquired file was last observed.
+    :returns: the copy's SHA256, or None when it must be copied afresh.
+    """
+    if shared is None or shared[0] != expected:
+        return None
+    _identity, source, digest = shared
+    try:
+        if os.path.getsize(source) != expected[2]:
+            return None
+        os.link(source, target)
+    except OSError:
+        return None
+    return digest
+
+
 def _watch_defer_snapshot(key, members, field_dir, context):
     """Discard only unanalysed staging and wait for acquired files to settle again.
 
@@ -2372,10 +3072,16 @@ def _watch_run_field(key, members, signature, context):
                 os.mkdir(snapshot_dir)
             print(f'watch_folder: analysing {key} ({len(members)} file(s)).')
             snapshots = {}
+            shared = context.setdefault('vendor_copies', {})
             for name, _channel in members:
-                digest = _watch_copy_snapshot(
-                    os.path.join(context['src'], name),
-                    os.path.join(snapshot_dir, os.path.basename(name)), identities[name])
+                target = os.path.join(snapshot_dir, os.path.basename(name))
+                digest = _watch_linked_snapshot(shared.get(name), target, identities[name])
+                if digest is None:
+                    digest = _watch_copy_snapshot(
+                        os.path.join(context['src'], name), target, identities[name])
+                    if (digest is not None and vendor is not None
+                            and name.lower().endswith(_WATCH_CONTAINER_SUFFIXES)):
+                        shared[name] = (identities[name], target, digest)
                 if digest is None:
                     _watch_defer_snapshot(key, members, field_dir, context)
                     return
@@ -2388,10 +3094,15 @@ def _watch_run_field(key, members, signature, context):
             if vendor is not None:
                 entry['vendor_sha256'] = {os.path.basename(name): digest
                                           for name, digest in snapshots.items()}
-                (name, _channel), = members
-                snapshots, vendor_plan = _watch_vendor_stage(
-                    field_dir, os.path.join(snapshot_dir, os.path.basename(name)),
-                    key, vendor, context['settings'])
+                description = (context.get('vendor_fields') or {}).get(key)
+                if description is not None:
+                    snapshots, vendor_plan = _watch_described_stage(
+                        field_dir, snapshot_dir, description, vendor, context['settings'])
+                else:
+                    (name, _channel), = members
+                    snapshots, vendor_plan = _watch_vendor_stage(
+                        field_dir, os.path.join(snapshot_dir, os.path.basename(name)),
+                        key, vendor, context['settings'])
                 entry['vendor_plan'] = vendor_plan
                 if vendor == 'volume':
                     volume_plan[key] = vendor_plan
@@ -2475,10 +3186,14 @@ def _watch_ready_fields(context, now):
     """
     seen, fields = context['seen'], context['ledger']['fields']
     groups = {}
-    for name in seen:
-        key, channel = _watch_observed_field_of(
-            name, context['settings'], context['patterns'], context.get('series'))
-        groups.setdefault(key, []).append((name, channel))
+    if context.get('vendor') is not None:
+        groups = _watch_vendor_groups(context, now)
+    else:
+        for name in seen:
+            key, channel = _watch_observed_field_of(
+                name, context['settings'], context['patterns'], context.get('series'))
+            groups.setdefault(key, []).append((name, channel))
+    described = context.get('vendor_fields') or {}
     manifest = context.get('manifest')
     if manifest is not None:
         for key in manifest:
@@ -2487,13 +3202,6 @@ def _watch_ready_fields(context, now):
     waiting = sum(entry.get('status') == 'waiting' and key not in groups
                   for key, entry in fields.items())
     for key, members in sorted(groups.items()):
-        if context.get('vendor') is not None:
-            for name, _channel in members:
-                if _watch_field_of(name, context['settings'], context['patterns'])[1] is not None:
-                    raise ValueError(f'watch_folder: {name} is one plane of a per-plane '
-                                     'series; per-plane T/Z series need a fixed Convert map '
-                                     '(conversion_map.csv) declaring every plane before '
-                                     'the watch starts. Existing results are preserved.')
         if manifest is not None and (key not in manifest or
                 {os.path.basename(name) for name, _channel in members} != manifest[key]):
             waiting += 1
@@ -2514,8 +3222,8 @@ def _watch_ready_fields(context, now):
         parents = {os.path.dirname(name) for name, _channel in members}
         channels = {str(int(channel)) if str(channel).isdecimal() else channel
                     for _name, channel in members}
-        ambiguous = (len(parents) != 1 or
-                     (manifest is None and len(channels) != len(members)))
+        ambiguous = (len(parents) != 1 or (manifest is None and key not in described
+                                            and len(channels) != len(members)))
         if ambiguous:
             waiting += 1
             warning = ('ambiguous', key, tuple(sorted(name for name, _c in members)))
@@ -2550,6 +3258,12 @@ def _watch_ready_fields(context, now):
         if any(now - seen[name]['changed'] < context['settle']
                for name, _channel in members):
             continue
+        if key in described:
+            if not _watch_described_ready(context, key, signature, now):
+                continue
+            ready.append((min(seen[name]['first'] for name, _c in members),
+                          key, members, signature))
+            continue
         unreadable = None
         for name, _channel in members:
             if seen[name]['readable']:
@@ -2568,6 +3282,43 @@ def _watch_ready_fields(context, now):
     return sorted(ready), waiting
 
 
+def _watch_described_ready(context, key, signature, now):
+    """Whether a described vendor field is complete, decoding it once per signature.
+
+    :param context: the watch state of :func:`_watch_folder_and_analyse`.
+    :param key: the field key.
+    :param signature: ``{file name: [size, mtime_ns]}`` of those members.
+    :param now: the current time.
+    :returns: True when every declared plane is present and reads whole. A
+        field that does not read whole is decoded again only after the settle
+        interval, and shared companions keep their own settle time.
+    """
+    from .qt.i18n import tr
+
+    description = context['vendor_fields'][key]
+    token = (key, repr(sorted(signature.items())))
+    checked = context.setdefault('vendor_readable', set())
+    if token in checked:
+        return True
+    failed = context.setdefault('vendor_failed', {})
+    if failed.get(key, (None, 0.0))[0] == token and now - failed[key][1] < context['settle']:
+        return False
+    reason = _watch_described_unreadable(
+        os.path.join(context['src'], description['folder']), description,
+        context['vendor'])
+    if reason is None:
+        checked.add(token)
+        failed.pop(key, None)
+        return True
+    failed[key] = (token, now)
+    warning = ('described', key, reason)
+    if warning not in context['warned']:
+        context['warned'].add(warning)
+        print(tr('watch_folder: {key} is not complete yet ({reason}); waiting.',
+                 key=key, reason=reason))
+    return False
+
+
 def _watch_observe(context, now):
     """Record every image file's size and modification time.
 
@@ -2576,7 +3327,8 @@ def _watch_observe(context, now):
     :returns: True when a file appeared, changed or went away.
     """
     seen = context['seen']
-    names = _watch_images(context['src'])
+    names = (_watch_images(context['src'], companions=True)
+             if context.get('vendor') is not None else _watch_images(context['src']))
     changed = False
     for name in names:
         identity = _watch_file_identity(os.path.join(context['src'], name))
@@ -3236,7 +3988,14 @@ def _watch_folder_and_analyse(settings, analyse=None):
     a timelapse, ``z_stack`` or ``t_stack`` watch takes each TIFF/OME-TIFF stack
     as one field once every plane its OME, ImageJ or shaped metadata declares
     is in the file and decodes; the stack is split privately into Convert
-    planes for the same mapped route. Per-plane files then stop the watch. Without a map, a known
+    planes for the same mapped route. ND2, CZI and LIF files (optional
+    ``vendor-watch`` readers) give one field per position, complete once the
+    file holds every frame, scene and plane its own metadata declares and
+    each decodes. Per-plane series are described by a Micro-Manager
+    ``metadata.txt``, an OME ``*.companion.ome`` or an Opera/Operetta
+    ``Index.xml``; a field is taken once every plane the companion declares
+    is present and decodes. CellVoyager per-plane files without a companion
+    still stop the watch. Without a map, a known
     numeric convention must supply the documented channel origin through the
     highest selected position; an unknown origin is refused before output.
     Fields are told apart by the ``metadata_type`` or ``custom_regex`` filename
@@ -3317,11 +4076,17 @@ def _watch_folder_and_analyse(settings, analyse=None):
                              'watch reads each self-describing TIFF/OME-TIFF stack '
                              'as one field and needs the CellVoyager convention '
                              'for its derived planes.')
-        planar = [name for name in _watch_images(src)
-                  if _watch_field_of(name, settings, {})[1] is not None]
+        present = _watch_images(src, companions=True)
+        described_dirs = {os.path.dirname(name) for name in present
+                          if _watch_companion_kind(name)}
+        planar = [name for name in present
+                  if not _watch_companion_kind(name)
+                  and os.path.dirname(name) not in described_dirs
+                  and _watch_field_of(name, settings, {})[1] is not None]
         if planar:
             raise ValueError(f'watch_folder: {planar[0]} is one plane of a per-plane '
-                             'series; per-plane T/Z series need a fixed Convert map '
+                             'series; per-plane T/Z series need a companion (metadata.txt, '
+                             '*.companion.ome or Index.xml) or a fixed Convert map '
                              '(conversion_map.csv) declaring every plane before the '
                              'watch starts.')
     if native_series:
@@ -3482,9 +4247,11 @@ def _watch_folder_and_analyse(settings, analyse=None):
         from functools import partial
 
         context['unreadable'] = partial(_watch_vendor_unreadable, mode=vendor)
-        print(f'watch_folder: no conversion_map.csv; each TIFF/OME-TIFF stack is '
-              f'one field, taken once every plane its metadata declares is in '
-              f'the file and reads whole ({vendor}).')
+        print(f'watch_folder: no conversion_map.csv; each TIFF/OME-TIFF stack and '
+              f'each position of an ND2, CZI or LIF file or of a per-plane series '
+              f'described by metadata.txt, *.companion.ome or Index.xml is one '
+              f'field, taken once every plane its metadata declares is present '
+              f'and reads whole ({vendor}).')
     if normalization_pool is not None:
         _watch_closed_pool_resume(context)
     _watch_save_ledger(ledger_path, ledger)
@@ -3552,9 +4319,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
                   if entry.get('status') == 'done')
     failed = sorted(key for key, entry in fields.items()
                     if entry.get('status') == 'failed')
-    observed_keys = {
+    observed_keys = (set(context.get('vendor_groups') or ()) if vendor is not None else {
         _watch_observed_field_of(name, settings, context['patterns'], context['series'])[0]
-        for name in context['seen']}
+        for name in context['seen']})
     incomplete = sorted(
         observed_keys | set(manifest or {}) |
         {key for key, entry in fields.items() if entry.get('status') == 'waiting'})

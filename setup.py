@@ -265,6 +265,8 @@ setup(
                 'czifile'],
         'nd2': ['nd2reader>=3.3.0,<4.0'],
         'lif': ['readlif'],
+        'vendor-watch': ['nd2>=0.10,<1; python_version >= "3.10"',
+                         'liffile>=2025.1.25; python_version >= "3.12"'],
         'zernike': ['mahotas>=1.4.13,<2.0; python_version < "3.13"'],
         'btrack': ['btrack>=0.7.0,<1.0'],
 

@@ -152,7 +152,7 @@ jobs:
           # `numpy<2.0.0`). The suite still has to exercise them:
           # spacr/measure.py imports mahotas at module scope, so without
           # `zernike` this whole suite would fail at collection, not degrade.
-          python -m pip install -e ".[dev,zernike,attribution,btrack,czi]"
+          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,vendor-watch]"
           # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
           # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
           # passing `--timeout` without this makes pytest exit on

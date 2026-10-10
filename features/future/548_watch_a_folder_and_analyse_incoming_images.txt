@@ -1,10 +1,15 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: OPEN 2026-10-10 — self-describing TIFF/OME-TIFF vendor stacks (T, Z and
-        T-by-Z, one field per file) now watch without a map, completed by
-        their declared plane count; 2048x2048x200 memory/latency measured.
-        Left: per-plane raw series without a map, CZI/LIF/ND2 live ingest,
-        real acquired vendor-stack GPU acceptance (see 2026-10-10 note).
+Status: OPEN 2026-10-10 (second pass) — every vendor acquisition kind now
+        watches without a map: self-describing TIFF/OME-TIFF stacks, ND2/CZI/LIF
+        files (one field per position, completed by their own dimension
+        metadata) and per-plane series described by Micro-Manager metadata.txt,
+        OME *.companion.ome or Opera/Operetta Index.xml. Left: the maintainer's
+        real-acquisition GPU run (workstation) only (see the second 2026-10-10
+        note).
+        Earlier 2026-10-10: self-describing TIFF/OME-TIFF vendor stacks (T, Z and
+        T-by-Z, one field per file) watch without a map, completed by their
+        declared plane count; 2048x2048x200 memory/latency measured.
         Earlier (2026-10-06): raw/vendor acquisition completion and general native
         series remain. Closed static fixed-map pooled normalization and native
         T>1 fixed-map Mask batch ingest are locally accepted alpha subsets;
@@ -1035,4 +1040,111 @@ remain open. No improved speed or whole-memory claim; alpha scope unchanged.
       - Make Masks native T1 Z still holds about 6x the raw stack in RAM;
         volumes near the RAM limit are not supported.
       - Reference-calibrated (prompt) pooled normalisation: not built.
+
+2026-10-10 — PER-PLANE VENDOR SERIES AND ND2/CZI/LIF CONTAINERS (second pass)
+    Maintainer decision (2026-10-10): live watch of (a) per-plane raw vendor
+    Z/T series without a conversion map (Micro-Manager metadata.txt / OME
+    companion, Opera/Operetta Index.xml) and (b) CZI, LIF and ND2 files,
+    including multi-position files.
+
+    What is new. Without conversion_map.csv a timelapse, z_stack or t_stack
+    watch now also takes:
+      - ND2, CZI and LIF files. Each position is one field of well A01,
+        numbered from 1, plate token = file stem (letters and digits): ND2
+        P positions, CZI scenes, LIF images and their mosaic tiles (M).
+        Completion signal = the file's own dimension metadata: an ND2 must
+        hold every frame its experiment loops declare (sequenceCount), a CZI
+        every scene and T/Z/C size its ImageDocument declares, and every
+        declared plane of the field must decode (one plane at a time). A file
+        that is still changing within the settle window is not even opened
+        for description; a truncated or unopenable file waits with its reason.
+      - Per-plane series described by a companion. Micro-Manager metadata.txt
+        (Summary Frames/Slices/Channels or IntendedDimensions; FrameKey-t-c-z
+        with FileName, the img_<t>_<channel>_<z>.tif rule when FileName is
+        absent, or 2.0 Coords-<file>); one field per position, plate token =
+        the acquisition folder (parent of Pos<n>/Default). OME *.companion.ome:
+        one field per Image, planes placed by TiffData (file, IFD, First Z/T/C,
+        PlaneCount in DimensionOrder); a Plate gives the real well and field.
+        Opera/Operetta Harmony Index.xml or Index.idx.xml: one field per row,
+        column and FieldID with its real well, plate token = PlateID. A field
+        is taken once every plane the companion declares has its file present
+        and decodes; incomplete JSON/XML waits. Fields of one export are
+        independent, so complete fields run while others still wait.
+      - TIFFs beside a companion are read only through it; an unlisted one is
+        reported once and not analysed. CellVoyager-named per-plane files with
+        no companion still stop the watch (message now names the companions).
+    Each field's members (container or companion plus its planes) are copied
+    into .watch_vendor and hash-bound as before; the container or companion
+    copy is described again there and must give the same planes, which are
+    then split into exact Convert names (real well/field for Harmony and plate
+    companions) and run through the existing projected timelapse, native Z or
+    native T-by-Z routes. A multi-position container is copied once and its
+    private copy hard-linked into the other positions' staging (never a link
+    to the acquired file). Code: spacr/core.py _watch_vendor_groups,
+    _watch_vendor_describe (_watch_container_fields,
+    _watch_micromanager_fields, _watch_ome_companion_fields,
+    _watch_harmony_fields), _watch_described_ready/_unreadable/_stage,
+    _watch_vendor_emit (shared with the TIFF stack path), _watch_linked_snapshot.
+    No new setting, public API or UI caption.
+
+    Readers (evaluated 2026-10-10; spaCR is BSD-3-Clause):
+      - ND2: nd2 0.12 (BSD-3-Clause, maintained). Chosen. nd2reader (GPLv3+,
+        already a core dependency) misreads header_test2.nd2 as T1 Z20 instead
+        of T4 Z5 and its raw parser fails on it, so it was not used.
+      - CZI: czifile >= 2026.3.12 (BSD-3-Clause, Gohlke, rewritten 2026 with
+        a scenes interface). Chosen; already a core dependency, the watch
+        requires the 2026 API (Python 3.12+). pylibCZIrw is LGPLv3,
+        aicspylibczi and bioio-czi GPLv3: not used.
+      - LIF: liffile 2026 (BSD-3-Clause, Gohlke). Chosen. readlif and
+        bioio-lif's readlif are GPLv3.
+      - bioio (BSD) and aicsimageio (BSD, superseded by bioio) pull dask,
+        xarray and ome-types and their CZI/LIF plugins are GPL; not used.
+    New optional extra vendor-watch = nd2 (Python 3.10+), liffile (Python
+    3.12+); imported lazily, a missing or too-old reader is a translated
+    waiting reason naming the install command. CI's main test job installs it.
+
+    Licence and data notes. Committed test data (tests/data/watch_vendor_f548,
+    692 KB, PROVENANCE.txt + CC BY 4.0 text): Micro-Manager 2.0 sample (Thomas
+    Julou), OME multi-file and plate companions (OME Consortium), Leica
+    PR2729 TileScan LIF (Michael Goelzer), all CC BY 4.0 from
+    downloads.openmicroscopy.org; two synthetic multi-scene CZI files written
+    by the committed write_czi.py (pylibCZIrw) with a known plane formula.
+    Downloaded by the tests into a cache, skipped offline: header_test2.nd2
+    (Jonas Dorn), MeOh_high_fluo_003.nd2 (Aryeh Weiss), FRAP.lif (Sean
+    Warren), Micro-Manager 1.4 test_sep (Thomas Julou), the omer Harmony
+    Index.idx.xml (Omer Bayraktar); all CC BY 4.0.
+    Finding: on PR2729 liffile and readlif (Convert's reader) disagree on the
+    tile/Z frame order; the watch follows liffile (the declared dimension
+    order). Convert's ND2/LIF batch path inherits the nd2reader/readlif
+    issues above; not changed here.
+
+    Tests: tests/test_watch_vendor_formats_f548.py (17 cases, all pass with
+    the readers installed; CPU, CUDA hidden). Batch parity (live merged
+    arrays equal a batch run on the finished acquisition's planes, read
+    independently of the watcher): Micro-Manager 2.0 timelapse (waits on
+    planes, on truncated metadata.txt and on a missing plane), OME companion
+    Z volume (waits on a missing and a truncated plane), synthetic Harmony
+    export with two fields (one complete field runs while the other waits),
+    two-scene CZI T-by-Z (waits on a half-written file; scenes share one
+    hard-linked private copy; staged planes equal the written formula),
+    two-scene CZI timelapse, four-tile LIF T-by-Z (waits on a half file),
+    real eight-series FRAP LIF timelapse, real ND2 T-by-Z (waits on a
+    truncated file) and real ND2 13-frame timelapse. Also: a live writer
+    growing a CZI is taken only after it settles; MM 1.4 real metadata and
+    the FileName-less naming rule; real Harmony index (29 fields of T1 Z18
+    C6); plate companion wells; two-position ND2 via a reader double
+    (positions, plane locators, missing frames wait); missing-reader message;
+    unlisted TIFF beside a companion. Watch cohort tests/test_watch_*.py +
+    native T-by-Z batch: 372 passed. The one failure in
+    test_every_callable_in_the_package_is_documented is pre-existing on
+    nightly (spacr/qt/screens/settings_model.py:7185 __init__).
+
+    LEFT (F548 stays OPEN only for):
+      - The maintainer's real-acquisition GPU run on the workstation (real
+        Cellpose through the vendor paths). Not run here (CPU only).
+    Not covered by a real file: multi-position ND2 (no small public sample;
+    covered by the reader double) and real CZI (no small public sample;
+    synthetic files). A local read-only check of a lab SIM ND2 on the NAS was
+    requested but not run in this session (permission refused); the
+    workstation run will cover it.
 

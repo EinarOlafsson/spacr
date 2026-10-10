@@ -1,0 +1,32 @@
+Test data of tests/test_watch_vendor_formats_f548.py (item F548, watch a folder)
+
+Public sample files, unchanged, licensed under Creative Commons Attribution 4.0
+International (CC BY 4.0); the licence text is LICENSE-CC-BY-4.0.txt.
+
+micromanager_2_0/Pos0/
+    Sample Micro-Manager files (c) by Thomas Julou, made with the
+    Micro-Manager demo configuration (2.0.0-beta3, separate image files).
+    https://downloads.openmicroscopy.org/images/Micro-Manager/1.4.22/thomas/test/test2_sep/Pos0/
+
+ome_companion/
+    Sample OME-TIFF files (c) by the OME Consortium (multi-file Z series with
+    a companion OME-XML file).
+    https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/companion/
+
+ome_plate_companion/
+    Sample OME-TIFF files (c) by the OME Consortium (HCS plate companion).
+    https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/plate-companion/
+
+leica_lif/PR2729_frameOrderCombinedScanTypes.lif
+    Sample Leica LIF file (c) by Michael Goelzer.
+    https://downloads.openmicroscopy.org/images/Leica-LIF/michael/PR2729_frameOrderCombinedScanTypes.lif
+
+Synthetic files written for these tests (spaCR's own, BSD-3-Clause):
+
+zeiss_czi/two_scenes_tzc.czi, zeiss_czi/two_scenes_tc.czi
+    Written by zeiss_czi/write_czi.py with pylibCZIrw; every plane is the
+    known pattern czi_plane(scene, t, z, c) the tests rebuild.
+
+Larger public samples (Nikon ND2, Leica FRAP LIF, Micro-Manager 1.4 and an
+Opera Harmony index) are downloaded by the tests into a cache and skipped
+when offline; see _PUBLIC in the test module.
