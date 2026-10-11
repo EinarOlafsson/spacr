@@ -4954,6 +4954,8 @@ def estimate_class_counts(loader, num_classes: int, src=None, classes=None) -> t
 
     When ``src`` and ``classes`` are provided the counts are taken from the file
     listings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS.
+    Hidden files such as the ``.spacr_crop_format.json`` sidecar are not
+    samples and are not counted, the same rule the dataset loader uses.
 
     :param loader: fallback DataLoader iterated only when folder info is missing.
     :param num_classes: number of output classes.
@@ -4967,7 +4969,9 @@ def estimate_class_counts(loader, num_classes: int, src=None, classes=None) -> t
         for i, cls in enumerate(classes):
             cls_dir = os.path.join(src, cls)
             if os.path.isdir(cls_dir):
-                n = sum(1 for f in os.listdir(cls_dir) if os.path.isfile(os.path.join(cls_dir, f)))
+                n = sum(1 for f in os.listdir(cls_dir)
+                        if not f.startswith('.')
+                        and os.path.isfile(os.path.join(cls_dir, f)))
                 counts[i] = n
         print(f"Class counts (from folders): {dict(zip(classes, counts.tolist()))}")
         return counts

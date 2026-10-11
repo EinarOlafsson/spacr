@@ -1,6 +1,19 @@
 {
   "schema": 1,
   "sources": {
+    "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41": {
+      "source_blocks_sha256": [
+        "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
+        "22ce6051b68cbf75e610357b2b05b163900ff3e5f774557a109bb525e253795d",
+        "ef5193b583d0a2b33e6e3f0fda658de78da5a310f5593a305eac43992189968d",
+        "f4d430278d19c6cbd779e6cd654784c369e9f45ac446bc40c1a1933ff8df250f",
+        "ad47a1ddcdf1db4442c35d9ba47853fa0a36d09b7cac743e6a23df2ed3dbbbe0",
+        "e0d2d8f592d43404c60ad70fc702e8b169b5e9c69fac91f9a7313341a7adfeab",
+        "9fc6824b21ad226a833badbb4c27c8cca4896812acff5c90062401a612ee49b5"
+      ],
+      "source_sha256": "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41",
+      "text": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.\n\nWhen ``src`` and ``classes`` are provided the counts are taken from the file\nlistings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS.\n\n:param loader: fallback DataLoader iterated only when folder info is missing.\n:param num_classes: number of output classes.\n:param src: parent folder containing per-class subfolders.\n:param classes: ordered class-folder names matching ``src``.\n:returns: ``LongTensor`` of per-class counts."
+    },
     "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a": {
       "source_blocks_sha256": [
         "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
@@ -13,6 +26,36 @@
       ],
       "source_sha256": "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a",
       "text": "Figures on a reflowing grid, filling as a search produces them.\n\n:param parameters: the searched parameter names, in the order that\n    decides the axes. May be set later with :meth:`set_parameters`.\n:param parent: optional Qt parent.\n:ivar cell_clicked: emitted with the index of a clicked figure.\nBuild the grid that lays a search's figures out by parameter.\n\n:param parameters: the parameters the search varied, which become the\n    grid's captions.\n:param parent: parent widget, or ``None``."
+    },
+    "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80": {
+      "source_blocks_sha256": [
+        "62e113bfff12dc76616660cca42370ac48ae92cdfe812aeb50bf11b56ac01459",
+        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
+        "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
+        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
+      ],
+      "source_sha256": "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80",
+      "text": "Return the worker count for a set of image fields.\n\n``spawn`` and ``forkserver`` start a fresh interpreter for every worker,\nso their worker count is capped at the number of fields. ``fork`` keeps\nthe requested count for compatibility.\n\n:param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.\n:param n_files: how many fields there are to measure.\n:param start_method: start method name to decide against; defaults to the\n    interpreter's current default.\n:returns: an int >= 1."
+    },
+    "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9": {
+      "source_blocks_sha256": [
+        "63cd2c1e99a8850935b06318b7cc0cb62439ea967d3952a1698dbf889fdc8ee8",
+        "2acc2bbdd4a987cd0a9e6a30d1722cef15caebe24d6d9eec94cec7175599ab6d",
+        "37cec808b989aaa1f35c33691d0a0cf761995f47f6b6aaf2878708997e473fac"
+      ],
+      "source_sha256": "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9",
+      "text": "Parse plate/well/field/object identities from a crop filename.\n\nUnknown levels are returned as empty strings rather than guessed. The\nobject identity is the augmentation-normalized full stem.\n\n:param path: crop path or file name. Augmentation suffixes are removed and\n    the stem is split on underscores to find the plate, well and field\n    parts."
+    },
+    "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0": {
+      "source_blocks_sha256": [
+        "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
+        "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
+        "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a"
+      ],
+      "source_sha256": "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0",
+      "text": "Follow the parent's size; pause when the window is minimised.\n\n:param obj: the object the event is for — the parent (whose resize\n    this widget follows) or the watched top-level window.\n:param event: the event; resize, window-state, hide, show, move and\n    screen-change types are acted on, and every event is still passed\n    on to the base-class filter."
     }
   }
 }

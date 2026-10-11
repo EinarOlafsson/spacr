@@ -7122,11 +7122,11 @@
     "spacr.classifier_evaluation.sample_identity": {
       "source_blocks_sha256": [
         "63cd2c1e99a8850935b06318b7cc0cb62439ea967d3952a1698dbf889fdc8ee8",
-        "2acc2bbdd4a987cd0a9e6a30d1722cef15caebe24d6d9eec94cec7175599ab6d",
+        "f2a721492af2266da773e3c330a55a955197625a5d58ffe8b7ed7e0e093d9bb6",
         "37cec808b989aaa1f35c33691d0a0cf761995f47f6b6aaf2878708997e473fac"
       ],
-      "source_sha256": "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9",
-      "text": "Parse plate/well/field/object identities from a crop filename.\n\nUnknown levels are returned as empty strings rather than guessed. The\nobject identity is the augmentation-normalized full stem.\n\n:param path: crop path or file name. Augmentation suffixes are removed and\n    the stem is split on underscores to find the plate, well and field\n    parts."
+      "source_sha256": "a2914d48d985413e4f94917baa19038e1112f27421877334da9af6723346fb3b",
+      "text": "Parse plate/well/field/object identities from a crop filename.\n\nUnknown levels are returned as empty strings rather than guessed. The\nobject identity is the augmentation-normalized full stem. A well in\nplate row F (``plate1_F01_1_13``) is read as the well, not as a field.\n\n:param path: crop path or file name. Augmentation suffixes are removed and\n    the stem is split on underscores to find the plate, well and field\n    parts."
     },
     "spacr.classifier_evaluation.split_columns_for": {
       "source_blocks_sha256": [
@@ -28361,14 +28361,14 @@
     "spacr.measure.resolve_pool_size": {
       "source_blocks_sha256": [
         "62e113bfff12dc76616660cca42370ac48ae92cdfe812aeb50bf11b56ac01459",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "61a3173bbe09be9363fd055a7ae2eeae5261777221e2d9be0a276b148157f979",
         "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
         "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "b5d5d4edbacba7c5cd3a0a1922375c1303533f25e2f6d9bcc7591b6ebea8c259",
         "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
       ],
-      "source_sha256": "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80",
-      "text": "Return the worker count for a set of image fields.\n\n``spawn`` and ``forkserver`` start a fresh interpreter for every worker,\nso their worker count is capped at the number of fields. ``fork`` keeps\nthe requested count for compatibility.\n\n:param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.\n:param n_files: how many fields there are to measure.\n:param start_method: start method name to decide against; defaults to the\n    interpreter's current default.\n:returns: an int >= 1."
+      "source_sha256": "c942a2da5181529db69b3ce7c261474e1927a24f8487e7fe2f537d1579d506a9",
+      "text": "Return the worker count for a set of image fields.\n\nThe count is capped at the number of fields for every start method.\n``spawn`` and ``forkserver`` start a fresh interpreter for every worker,\nand worker starts are paced ten seconds apart, so a surplus ``fork``\nworker also delays the run by ten seconds and then has nothing to do.\n\n:param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.\n:param n_files: how many fields there are to measure.\n:param start_method: accepted for existing callers; every start method\n    is capped the same way.\n:returns: an int >= 1."
     },
     "spacr.measure.save_and_add_image_to_grid": {
       "source_blocks_sha256": [
@@ -76389,10 +76389,10 @@
       "source_blocks_sha256": [
         "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
         "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a"
+        "e04b3905fe70c05ac26ead6c52be89e8a2d4245423025f5d3ffbcb11680f9430"
       ],
-      "source_sha256": "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0",
-      "text": "Follow the parent's size; pause when the window is minimised.\n\n:param obj: the object the event is for — the parent (whose resize\n    this widget follows) or the watched top-level window.\n:param event: the event; resize, window-state, hide, show, move and\n    screen-change types are acted on, and every event is still passed\n    on to the base-class filter."
+      "source_sha256": "4c1e8117b4be266e24df9ec5b50095ac8cd097506ea238e47b404147572ea24f",
+      "text": "Follow the parent's size; pause when the window is minimised.\n\n:param obj: the object the event is for — the parent (whose resize\n    this widget follows) or the watched top-level window.\n:param event: the event; resize, window-state, hide, show, move and\n    screen-change types are acted on. Every event is passed on\n    unfiltered: the filter returns False instead of calling the base\n    class, because as an application-wide filter it can be handed a\n    wrapper of the wrong type for an object being deleted, which made\n    the base-class call raise and then crash the process."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.focusInEvent": {
       "source_blocks_sha256": [
@@ -127071,15 +127071,15 @@
     "spacr.utils.estimate_class_counts": {
       "source_blocks_sha256": [
         "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
-        "22ce6051b68cbf75e610357b2b05b163900ff3e5f774557a109bb525e253795d",
+        "b471d7eac01680da31d1a0dbc897d2c51406d53f8b04f21923670b2c55964b31",
         "ef5193b583d0a2b33e6e3f0fda658de78da5a310f5593a305eac43992189968d",
         "f4d430278d19c6cbd779e6cd654784c369e9f45ac446bc40c1a1933ff8df250f",
         "ad47a1ddcdf1db4442c35d9ba47853fa0a36d09b7cac743e6a23df2ed3dbbbe0",
         "e0d2d8f592d43404c60ad70fc702e8b169b5e9c69fac91f9a7313341a7adfeab",
         "9fc6824b21ad226a833badbb4c27c8cca4896812acff5c90062401a612ee49b5"
       ],
-      "source_sha256": "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41",
-      "text": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.\n\nWhen ``src`` and ``classes`` are provided the counts are taken from the file\nlistings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS.\n\n:param loader: fallback DataLoader iterated only when folder info is missing.\n:param num_classes: number of output classes.\n:param src: parent folder containing per-class subfolders.\n:param classes: ordered class-folder names matching ``src``.\n:returns: ``LongTensor`` of per-class counts."
+      "source_sha256": "05523e0b5a36cf46be5dba9418477266a2d15b5c631e4a296e0b414dab8ced5b",
+      "text": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.\n\nWhen ``src`` and ``classes`` are provided the counts are taken from the file\nlistings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS.\nHidden files such as the ``.spacr_crop_format.json`` sidecar are not\nsamples and are not counted, the same rule the dataset loader uses.\n\n:param loader: fallback DataLoader iterated only when folder info is missing.\n:param num_classes: number of output classes.\n:param src: parent folder containing per-class subfolders.\n:param classes: ordered class-folder names matching ``src``.\n:returns: ``LongTensor`` of per-class counts."
     },
     "spacr.utils.extract_boundaries": {
       "source_blocks_sha256": [
