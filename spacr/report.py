@@ -2789,9 +2789,9 @@ def _archive_channels(saved: Dict[str, str]) -> str:
 def _archive_analysis_text(saved: Dict[str, str]) -> str:
     """One paragraph on how spaCR analysed the images, from its settings."""
     try:
-        from importlib.metadata import version
+        from .version import get_version
 
-        spacr_version = version("spacr")
+        spacr_version = get_version()
     except Exception:
         spacr_version = "unknown"
     models = []

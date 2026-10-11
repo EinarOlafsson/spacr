@@ -29,6 +29,8 @@ class TestVersion:
         def _raise(name):
             raise PackageNotFoundError(name)
         monkeypatch.setattr(V, "package_version", _raise)
+        monkeypatch.setattr(V, "_runs_from_source", lambda *a: False)
+        monkeypatch.setattr(V, "_source_version", lambda: None)
         assert V.get_version() == "unknown"
 
     def test_get_torch_version_not_available(self, monkeypatch):
@@ -82,21 +84,23 @@ class TestUpdater:
         # spacr raises, spacr-nightly resolves (lines 107-112).
         import importlib.metadata as M
         from spacr import updater as U
+        from spacr import version as V
 
         def _ver(name):
             if name == "spacr":
                 raise M.PackageNotFoundError(name)
             return "9.9.9"
-        monkeypatch.setattr(M, "version", _ver)
+        monkeypatch.setattr(V, "package_version", _ver)
+        monkeypatch.setattr(V, "_runs_from_source", lambda *a: False)
         assert U._installed_version() == "9.9.9"
 
     def test_installed_version_unknown(self, monkeypatch):
-        import importlib.metadata as M
         from spacr import updater as U
+        from spacr import version as V
 
-        def _raise(name):
-            raise M.PackageNotFoundError(name)
-        monkeypatch.setattr(M, "version", _raise)
+        def _raise():
+            raise RuntimeError("no version")
+        monkeypatch.setattr(V, "get_version", _raise)
         assert U._installed_version() == "unknown"
 
     def test_lt_handles_bad_version_strings(self):

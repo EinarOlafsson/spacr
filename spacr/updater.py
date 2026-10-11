@@ -498,14 +498,10 @@ def _apply_network_settings() -> dict:
 def _installed_version() -> str:
     """Return the running ``spacr`` version, or ``"unknown"``."""
     try:
-        from importlib.metadata import version
-        return version("spacr")
+        from .version import get_version
+        return get_version()
     except Exception:
-        try:
-            from importlib.metadata import version
-            return version("spacr-nightly")
-        except Exception:
-            return "unknown"
+        return "unknown"
 
 
 def _lt(a: str, b: str) -> bool:

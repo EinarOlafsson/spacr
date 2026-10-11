@@ -197,6 +197,15 @@ def _new_run_dir(app_key: str) -> Path:
 
 
 
+def _spacr_version() -> str:
+    """Return the running spaCR version, preferring a checkout's own literal."""
+    try:
+        from .version import get_version
+        return get_version()
+    except Exception:
+        return _pkg_version("spacr")
+
+
 @lru_cache(maxsize=None)
 def _pkg_version(name: str) -> str:
     """Return an installed distribution version or ``"not installed"``.
@@ -273,7 +282,7 @@ _ENV_VERSIONS = (
 def _env_snapshot() -> Dict[str, Any]:
     """Capture host and complete package versions for reproduction."""
     snapshot: Dict[str, Any] = {
-        "spacr":         _pkg_version("spacr"),
+        "spacr":         _spacr_version(),
         "spacr_git":     _git_hash(),
         "python":        sys.version.split()[0],
         "platform":      platform.platform(),

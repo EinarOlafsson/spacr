@@ -1,7 +1,8 @@
 """The installed spaCR version, and the environment report built from it.
 
-Resolves the version from installed package metadata rather than a
-hard-coded string, so a source checkout and an installed wheel agree.
+A source checkout or editable install reports the version in its own
+``spacr/_version.py``, because its installed metadata can be stale; an
+installed wheel or frozen installer reports its distribution metadata.
 
 Copyright © 2025 olafsson lab
 """
@@ -9,23 +10,81 @@ Copyright © 2025 olafsson lab
 from __future__ import annotations
 
 import sys
-from importlib.metadata import PackageNotFoundError, version as package_version
+from importlib.metadata import PackageNotFoundError, distribution, version as package_version
+from pathlib import Path
 from platform import python_version
 
 _PACKAGE_CANDIDATES = ("spacr", "spacr-nightly")
 
+_PACKAGE_DIR = Path(__file__).resolve().parent
+
+
+def _source_version() -> str | None:
+    """Return the version literal shipped beside the imported package.
+
+    :returns: ``spacr._version.__version__``, or ``None`` when it is missing.
+    """
+    try:
+        from ._version import __version__ as literal
+    except Exception:
+        return None
+    return str(literal) or None
+
+
+def _distribution_owns(package_name: str, package_dir: Path) -> bool:
+    """Say whether ``package_name``'s installed files are the imported ones.
+
+    :param package_name: Distribution name to inspect.
+    :param package_dir: Directory of the imported ``spacr`` package.
+    :returns: ``True`` when the distribution's ``spacr/version.py`` is the file
+        this module was loaded from.
+    """
+    try:
+        dist = distribution(package_name)
+        located = Path(dist.locate_file("spacr/version.py")).resolve()
+    except Exception:
+        return False
+    return located == package_dir / "version.py"
+
+
+def _runs_from_source(package_dir: Path | None = None) -> bool:
+    """Say whether the imported spacr is a source checkout or editable install.
+
+    A checkout or an editable install is imported from files that no installed
+    distribution owns, so its dist-info can be stale (installed at 1.5.1.3
+    while the checkout is at 1.5.1.4).  A wheel and a frozen installer are
+    imported from the files their own metadata lists.
+
+    :param package_dir: Directory of the imported package; defaults to this
+        module's directory.
+    :returns: ``True`` when the package's own version literal should win.
+    """
+    package_dir = package_dir or _PACKAGE_DIR
+    if (package_dir.parent / "setup.py").is_file():
+        return True
+    return not any(_distribution_owns(name, package_dir)
+                   for name in _PACKAGE_CANDIDATES)
+
 
 def get_version() -> str:
-    """Return the installed spacr package version, or ``"unknown"`` if not found.
+    """Return the running spacr version, or ``"unknown"`` if it cannot be found.
 
-    :returns: Version string from the first candidate distribution that resolves.
+    A source checkout or editable install reports the version in its own
+    ``spacr/_version.py``; an installed wheel or frozen installer reports its
+    distribution metadata, then that literal when no metadata is present.
+
+    :returns: The version string of the spacr package that is actually imported.
     """
+    if _runs_from_source():
+        literal = _source_version()
+        if literal:
+            return literal
     for package_name in _PACKAGE_CANDIDATES:
         try:
             return package_version(package_name)
         except PackageNotFoundError:
             continue
-    return "unknown"
+    return _source_version() or "unknown"
 
 
 def get_torch_version() -> str:

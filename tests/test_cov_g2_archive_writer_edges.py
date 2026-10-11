@@ -52,12 +52,9 @@ def test_a_plate_map_keyed_by_well_id_is_read(tmp_path):
 
 
 def test_the_analysis_text_survives_an_unknown_version(monkeypatch):
-    import importlib.metadata
+    import spacr.version as version
 
-    def missing(name):
-        raise importlib.metadata.PackageNotFoundError(name)
-
-    monkeypatch.setattr(importlib.metadata, "version", missing)
+    monkeypatch.setattr(version, "get_version", lambda: "unknown")
     assert "unknown" in rep._archive_analysis_text({})
 
 
