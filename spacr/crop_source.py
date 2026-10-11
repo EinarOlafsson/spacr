@@ -1,11 +1,9 @@
-"""Where a classifier's training images come from.
+"""Resolve, filter and cut the images used to train a classifier.
 
-TWO NAMES FOR THE ONE CHOICE, and they are the same two every other panel in
-spaCR asks it with -- LOAD IMAGES and STREAM IMAGES. Training used to ask the
-same question in a private vocabulary (``pre_generated`` / ``on_demand``),
-which is one idea in two spellings: a user reading the annotation panel and
-the training panel could not tell they were being asked the same thing, and
-the two halves of the code could not tell either.
+The crop source has two main values, named as in the other spaCR panels:
+LOAD IMAGES and STREAM IMAGES. Training previously used its own terms
+(``pre_generated`` / ``on_demand``) for the same choice, so the annotation
+and training panels presented one setting under two sets of names.
 
 ``png`` — load pre-generated images (default)
     Read crops previously written by the measurement workflow.
@@ -27,8 +25,8 @@ the two halves of the code could not tell either.
 written under either vocabulary means what it always meant:
 ``pre_generated``, ``load_images`` and ``auto`` all arrive as LOAD IMAGES,
 ``on_demand`` and ``stream_images`` as STREAM IMAGES. :data:`CROP_SOURCE_ALIASES`
-is that migration, in one place, and it is what stops a panel that has been
-renamed from handing this module a word it refuses.
+is that migration, in one place, so a value written by a renamed panel is
+still accepted.
 
 **Why streaming exists.** Pre-cutting every crop writes a copy of the dataset
 to disk before a single epoch runs, and every change of crop size or channel
@@ -120,16 +118,16 @@ class CropSourceError(ValueError):
 
 
 def resolve_source(settings: Mapping[str, Any]) -> str:
-    """Which crop source a settings dict asks for, in the two names.
+    """Return the canonical crop source (``png``, ``merged`` or ``generate``).
 
     Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file
-    from any panel spaCR has shipped answers this question. Unset means LOAD
-    IMAGES, which is the default everywhere the question is asked.
+    written by any released spaCR panel is accepted. An unset value means LOAD
+    IMAGES, the default in every panel.
 
     :param settings: the settings mapping; its ``crop_source`` value is looked
         up in :data:`CROP_SOURCE_ALIASES`, and an empty value means ``png``.
-    :raises CropSourceError: an unrecognised source. Guessing would train on a
-        different set of images than was asked for and report success.
+    :raises CropSourceError: an unrecognised source. The source is not guessed,
+        because a wrong guess would train on different images without error.
     """
     declared = str(settings.get("crop_source") or "").strip().lower()
     if not declared:
@@ -145,11 +143,11 @@ def resolve_source(settings: Mapping[str, Any]) -> str:
 
 
 def inapplicable_settings(source: str) -> Tuple[str, ...]:
-    """Settings belonging to the OTHER sources -- what the panel greys out.
+    """Return the settings used only by the other crop sources, for greying out.
 
     Greyed, never removed (INVARIANTS 6): a key absent from the dict makes the
     pipeline fall back to its own default, which can differ from the value the
-    module needs and says nothing when it does.
+    module needs, without a warning.
 
     Any spelling :data:`CROP_SOURCE_ALIASES` knows is accepted, because what a
     panel has in hand is the value stored in the settings file, not the name
@@ -173,9 +171,9 @@ def inapplicable_settings(source: str) -> Tuple[str, ...]:
 def normalise_extension(file_type: Any) -> str:
     """The extension ``file_type`` names, without its dot and lower-cased.
 
-    It used to hold ``'cell_png'`` -- a path substring wearing a file type's
-    name, duplicating ``png_type``. Now it is an extension and only that, so
-    ``'.TIF'``, ``'tif'`` and ``'tiff'`` all mean what they look like.
+    The setting previously held path substrings such as ``'cell_png'``,
+    duplicating ``png_type``. It now names only an extension: ``'.TIF'`` and
+    ``'tif'`` both normalise to ``'tif'``, and ``'tiff'`` to ``'tiff'``.
 
     :param file_type: an extension such as ``'.TIF'``, ``'tif'`` or
         ``'cell_png'`` (only the part after the last underscore is kept); empty
@@ -199,10 +197,10 @@ def matches_path(path: str, *, path_string: str = "",
                  file_type: Any = "") -> bool:
     """Whether one crop belongs in the dataset.
 
-    Two independent tests, which is the whole point of splitting them: WHICH
-    OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and
-    WHAT FORMAT it is in (its extension). One setting could never express
-    "every nucleus crop, whatever format" or "every TIFF, whatever object".
+    Two independent tests are applied: the object type, as a substring of the
+    path (e.g. ``cell_png``), and the file format, as the extension. Keeping
+    them separate allows selections such as "every nucleus crop, any format"
+    or "every TIFF, any object".
 
     :param path: the crop's file path, tested as a string for the
         ``path_string`` substring and for its extension.
@@ -335,10 +333,8 @@ def crop_at(array: np.ndarray, row: float, column: float, *,
             channels: Sequence[int], size: int) -> Optional[np.ndarray]:
     """Cut a fixed box centred on a coordinate.
 
-    The database path. Only a bounding box is possible here and that is not a
-    limitation to be worked around: a coordinate has no outline, so there is
-    nothing to mask against, and a crop that claimed to be object-shaped would
-    be a rectangle wearing the wrong name.
+    Used for objects taken from a database. Only a bounding box is possible,
+    because a coordinate has no outline to mask against.
 
     :param array: the merged stack, ``(H, W, planes)``. Its rank is not
         checked as :func:`crop_object` checks it, so a 2-D image raises
@@ -349,7 +345,7 @@ def crop_at(array: np.ndarray, row: float, column: float, *,
     :param column: centre on the second axis; rounded the same way.
     :param channels: which planes become image channels, in the order given,
         so ``[2, 0]`` returns them swapped. A bare int counts as a one-plane
-        list. NOT bounds-checked here as it is in :func:`crop_object`: a plane
+        list. Not bounds-checked here as it is in :func:`crop_object`: a plane
         the array does not have raises ``IndexError``, and a negative one
         silently counts back from the last plane. An empty list yields a
         zero-channel crop rather than None.
@@ -481,11 +477,10 @@ def stream_planes(settings: Mapping[str, Any]) -> List[int]:
 
 
 def validate(settings: Mapping[str, Any]) -> str:
-    """Check a settings dict can actually produce crops. Returns the source.
+    """Check that a settings dict can produce crops and return its source.
 
-    Run before training rather than during it: discovering that the planes
-    were never named after an hour of dataset building is a worse failure than
-    refusing at the start, and the message here names the setting to fix.
+    Run before training, so a missing plane setting is reported before
+    dataset building starts; the error message names the setting to fix.
 
     :param settings: the training settings mapping to check: the crop source,
         plus ``file_type`` for ``png`` or the plane, crop-shape, coordinate and

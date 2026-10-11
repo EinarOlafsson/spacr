@@ -51,7 +51,7 @@ clusters against their representative crops before treating them as biology.
 Use the Mask tile for :func:`preprocess_generate_masks` and the Image UMAP tile
 for :func:`generate_image_umap` until those tiles receive separate API pages.
 
-Three details are deliberately explicit.  Channel numbers are zero-based and
+Three conventions apply.  Channel numbers are zero-based and
 diameters are pixels, so values copied from one magnification are not portable
 without conversion.  The default v1 mask pipeline preserves the directory
 layout expected by downstream tools; ``pipeline_style='v2'`` is opt-in and
@@ -185,8 +185,9 @@ def preprocess_generate_masks(settings):
         - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment
           pathogens with, instead of stock ``cpsam``. The pre-SAM
           ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to
-          ``cpsam``; a PATH to a fine-tune is honoured, and a path that is
-          not there stops the run rather than silently using stock weights.
+          ``cpsam``; a path to a fine-tuned checkpoint is used, and a path
+          that does not exist stops the run instead of falling back to
+          stock weights.
         - ``consolidate`` — copy nested images into ``src/consolidated``
           before processing.
         - ``preprocess`` / ``masks`` — toggle the two pipeline halves.
@@ -763,8 +764,8 @@ def preprocess_generate_masks_timelapse(settings):
     ``timelapse_objects`` are linked across frames and relabelled with their
     track IDs.
 
-    Timelapse is a first-class spaCR workflow, not a checkbox on mask
-    generation — that is why it has its own module, its own settings group
+    Timelapse is a separate spaCR workflow rather than an option of mask
+    generation, with its own module, its own settings group
     (:func:`spacr.settings.get_timelapse_settings`) and this entry point.
 
     :param settings: Settings dict; canonicalized via
@@ -5086,7 +5087,7 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
     """Sweep UMAP/tSNE and DBSCAN/KMeans hyperparameters over the feature table.
 
     Renders a grid of embeddings, one cell per (reduction, clustering) pair, so
-    the caller can eyeball the impact of each parameter combination.
+    the caller can compare the effect of each parameter combination.
 
     :param settings: Config dict; canonicalized via
         :func:`spacr.settings.set_default_umap_image_settings`.

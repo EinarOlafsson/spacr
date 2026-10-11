@@ -1,12 +1,12 @@
-"""Every distance worth measuring, within and between segmented objects.
+"""Measure distances within and between segmented objects.
 
-What existed before this module: within ONE object type, centroid-to-
-centroid neighbour distances over a KD-tree; and between types, a single
-family measuring from a CHANNEL'S intensity centre of mass to the nearest
-nucleus or pathogen surface. So there was no centre-to-centre between
-types, no centre-to-perimeter in either direction, no perimeter-to-
-perimeter, nothing about local maxima, and nothing about where an object
-sits inside its parent.
+Other spaCR measurement families cover centroid-to-centroid neighbour
+distances within one object type (over a KD-tree) and the distance from a
+channel's intensity centre of mass to the nearest nucleus or pathogen
+surface. This module adds centre-to-centre, centre-to-surface and
+surface-to-surface distances between object types, overlap fractions,
+local-maximum distances, and each object's radial position relative to its
+own boundary.
 
 A Euclidean distance transform is computed once for each object-type mask. At
 every pixel it records the distance to the nearest pixel belonging to that
@@ -21,26 +21,24 @@ of objects. The principal operations are::
 
 The transform costs O(image pixels) per object type.
 
-WHAT "DISTANCE" MEANS HERE, because three different numbers get called it:
+Three different quantities are reported as distances between object types:
 
     centre_to_centre     between the two centroids. Big for two large
                          objects that are touching.
     centre_to_surface    from a's centroid to the nearest point on ANY b.
                          Asymmetric: a's centre to b's edge is not b's
                          centre to a's edge, so both are emitted.
-    surface_to_surface   closest point to closest point. ZERO when they
-                         touch, and it is the number a biologist means by
-                         "how far apart are they".
+    surface_to_surface   closest point to closest point. Zero when they
+                         touch; this is the gap between the two objects.
 
-NO OBJECT-TYPE PREFIX ON THE COLUMNS. `measure` prefixes every measurement
-family with the object it belongs to, so a column called
+Column names carry no object-type prefix. `measure` prefixes every
+measurement family with the object it belongs to, so a column called
 `distance_to_own_boundary` here reaches the database as
-`cell_distance_to_own_boundary`. Naming it `cell_...` here produced
-`cell_cell_...`, which is the shape of every doubled-prefix bug.
+`cell_distance_to_own_boundary`. A `cell_...` name here would become
+`cell_cell_...`.
 
-NEVER NaN WHERE A NUMBER IS MEANINGFUL. An object with no partner of the
-other type is ``inf`` -- genuinely infinitely far, which is a fact -- and
-NaN is reserved for "not measured".
+An object with no partner of the other type gets ``inf``, not NaN; NaN is
+reserved for "not measured".
 """
 
 from __future__ import annotations
@@ -126,11 +124,11 @@ def surface_distance_transform(mask, spacing=None):
 
     :param mask: label or binary image containing the target objects.
 
-    ZERO INSIDE AN OBJECT. `distance_transform_edt` measures distance to the
-    nearest ZERO, so it is run on the INVERTED mask: the result is 0 on any
-    labelled pixel and grows outward. That is what makes a lookup at another
-    object's centroid mean "distance to the nearest surface of this type",
-    and what makes two touching objects come out at 0.
+    The result is zero inside an object. `distance_transform_edt` measures
+    distance to the nearest zero, so it is run on the inverted mask: the
+    result is 0 on any labelled pixel and grows outward. A lookup at another
+    object's centroid is therefore the distance to the nearest surface of
+    this type, and two touching objects have a distance of 0.
     """
     from scipy.ndimage import distance_transform_edt
 
@@ -145,7 +143,7 @@ def surface_distance_transform(mask, spacing=None):
 
 
 def interior_distance_transform(mask, spacing=None):
-    """Distance from every point INSIDE an object to that object's boundary.
+    """Distance from every point inside an object to that object's boundary.
 
     :param mask: label or binary image containing the target objects.
 
@@ -298,10 +296,12 @@ def between_object_types(masks: Dict[str, "np.ndarray"], *,
     :param spacing: voxel size, so the numbers carry physical units.
     :returns: one row per primary object, keyed on ``label``.
 
-    THREE NUMBERS PER PAIR OF TYPES, because they answer three different
-    questions -- see the module docstring. Plus where the object sits inside
-    itself and how close it is to the edge of the field, which is what says
-    an object is clipped.
+    For each other object type, the row carries the centre-to-surface,
+    surface-to-surface and nearest centre-to-centre distances (see the
+    module docstring) and the fraction of the object's pixels that overlap
+    that type. Every row also carries ``distance_to_own_boundary``,
+    ``relative_radial_position`` and ``distance_to_field_edge``; a small
+    distance to the field edge indicates an object that may be clipped.
     """
     labelled = np.asarray(masks[primary])
     labels, centroids = _centroids(labelled)
@@ -453,9 +453,10 @@ def intensity_centre_offset(mask, images, *, primary: str,
         or a single intensity plane.
     :param primary: name of the object type represented by ``mask``.
 
-    POLARISATION IN ONE NUMBER. A uniformly stained object has an offset of
-    about zero; one whose signal is all at one end does not, and no
-    intensity summary says so.
+    The offset is a single-number measure of polarisation. A uniformly
+    stained object has an offset of about zero; one whose signal is
+    concentrated at one end has a larger offset, which intensity summaries
+    such as the mean do not show.
     """
     from skimage.measure import regionprops_table
 

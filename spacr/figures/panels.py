@@ -69,10 +69,11 @@ def _column(frame, *names) -> Optional[str]:
 
 
 def effect_column(frame) -> Optional[str]:
-    """The fitted effect column, whatever this backend called it.
+    """Return the name of the fitted-effect column, or ``None`` if absent.
 
     spaCR writes ``coefficient``; a statsmodels summary carries ``coef``.
-    Both are the same quantity and both have to plot.
+    Both hold the same quantity and both are accepted, as are ``effect``
+    and ``estimate``.
 
     :param frame: coefficient table whose columns are inspected.
     """
@@ -80,7 +81,7 @@ def effect_column(frame) -> Optional[str]:
 
 
 def p_column(frame) -> Optional[str]:
-    """The raw p-value column, whatever this backend calls it.
+    """Return the name of the raw p-value column, or ``None`` if absent.
 
     :param frame: coefficient table whose columns are inspected.
     """
@@ -88,12 +89,12 @@ def p_column(frame) -> Optional[str]:
 
 
 def q_column(frame) -> Optional[str]:
-    """The multiple-testing-corrected p, if the fit produced one.
+    """Return the name of the corrected p-value column, or ``None`` if absent.
 
-    Its ABSENCE is meaningful and is not an error: the penalised backends
-    have no p-value to correct, and a run asked for ``multiple_testing_method
-    = 'none'`` deliberately has none either. A panel that finds no q falls
-    back to the raw p and says which one it drew.
+    A missing column is not an error: the penalised backends have no p-value
+    to correct, and a run with ``multiple_testing_method = 'none'`` has none
+    either. A panel that finds no q-value falls back to the raw p-value and
+    states which one it drew.
 
     :param frame: coefficient table whose columns are inspected.
     """
@@ -101,11 +102,11 @@ def q_column(frame) -> Optional[str]:
 
 
 def statistic_column(frame) -> Optional[str]:
-    """The test statistic, which differs by backend.
+    """Return the name of the test-statistic column, or ``None`` if absent.
 
     OLS and RLM report ``t value``; GLM, Poisson and the mixed model report
     ``z value``; the penalised backends report neither and give a selection
-    frequency instead. Every one of those tables has to display.
+    frequency instead. All of these column names are recognised.
 
     :param frame: coefficient table whose columns are inspected.
     """
@@ -114,7 +115,7 @@ def statistic_column(frame) -> Optional[str]:
 
 
 def tested(frame) -> np.ndarray:
-    """Rows that are hypotheses, via the repo's single statement of it."""
+    """Mask of tested-hypothesis rows, from :func:`spacr.hits.tested_family`."""
     from ..hits import tested_family
 
     if "feature" not in frame.columns:
@@ -134,12 +135,13 @@ def _finite(values) -> np.ndarray:
 
 
 def label_series(frame):
-    """A readable name per row, with no holes.
+    """Return a non-missing display label for every row.
 
     `gene` is NaN on the per-guide rows and `grna` is NaN on the per-gene
-    rows, so either column alone labels half the volcano "nan" -- which is
-    what a first pass at this actually drew. Coalesce them, and fall back to
-    the design term with its boilerplate stripped.
+    rows, so either column alone would label half the volcano "nan". The
+    two are coalesced, with the design term (its ``fraction:gene[...]``
+    wrapper stripped) as the fallback, and the row position when no label
+    column exists.
     """
     import pandas as pd
 
@@ -171,22 +173,22 @@ MIN_CONTROLS = 8
 
 
 def control_threshold(frame, multiplier=3.0):
-    """A symmetric effect-size cut, measured from the CONTROL guides.
+    """Return a symmetric effect-size cut estimated from the control guides.
 
     ``(where, value)`` -- the rule that produced it and the number, or
     ``(reason, None)`` when neither rule could be applied.
 
-    THE CUT WAS NEVER VISIBLE, which is the complaint: it defaulted to None,
-    so a volcano drew its significance line and nothing else. A p-value says
-    an effect is distinguishable from zero; with a thousand wells that
-    includes effects too small to care about, and the cut is what separates
-    "detectable" from "worth following up".
+    A p-value states that an effect is distinguishable from zero; with a
+    thousand wells that includes very small effects. The effect-size cut
+    separates detectable effects from those large enough to follow up, and
+    is drawn on the volcano beside the significance line.
 
-    Controls first because it is the defensible one to write in a methods
-    section -- the spread of guides that target nothing IS the null. Measured
-    on this screen the two agree closely (0.83 against 0.84), but a screen
-    with a strong signal pulls the all-guide MAD up while leaving the
-    controls where they are, and then only one of them is still a null.
+    The control guides are used first, because the spread of guides that
+    target nothing is the null distribution. With fewer than
+    :data:`MIN_CONTROLS` finite controls, or zero control spread, the MAD of
+    all finite coefficients is used instead. On the reference screen the two
+    agree closely (0.83 against 0.84), but a strong signal raises the
+    all-guide MAD while the control MAD is unchanged.
 
     sigma is MAD x 1.4826, which is the consistent estimator for a normal and,
     unlike the standard deviation, is not inflated by the outliers a screen
@@ -437,11 +439,11 @@ def effect_rank(ax, frame, *, alpha=0.05, top=14) -> Panel:
 
 
 def p_histogram(ax, frame, *, bins=40) -> Panel:
-    """The single most informative check that a correction means anything.
+    """Plot a histogram of raw p-values with the uniform expectation and π₀.
 
-    Under the null p is uniform. Flat with a spike at zero is a screen with
-    real hits; a slope, a hump in the middle or a spike at one is a model
-    that is wrong, and no amount of FDR fixes it.
+    Under the null, p-values are uniform. A flat histogram with a spike near
+    zero indicates real hits; a slope, a central hump or a spike near one
+    indicates a mis-specified model, which FDR correction does not fix.
 
     :param ax: Matplotlib axes on which to draw the histogram.
     :param frame: coefficient table containing the tested p-values.
@@ -475,10 +477,11 @@ def p_histogram(ax, frame, *, bins=40) -> Panel:
 
 
 def qq_plot(ax, frame) -> Panel:
-    """Observed against expected p, and the inflation factor.
+    """Plot observed against expected p-values and the inflation factor λ.
 
-    A screen whose points leave the diagonal early has either real signal or
-    a mis-specified model, and lambda says which is more likely.
+    Points that leave the diagonal early indicate either real signal or a
+    mis-specified model; λ near 1 indicates a calibrated null, and a large λ
+    indicates systematic inflation rather than a few hits.
 
     :param ax: Matplotlib axes on which to draw the q-q plot.
     :param frame: coefficient table containing the tested p-values.
@@ -588,11 +591,12 @@ def control_separation(ax, frame) -> Panel:
 
 
 def guide_agreement(ax, frame) -> Panel:
-    """Per gene: do its own guides push the same way?
+    """Plot, per gene, the fraction of its guides that agree in effect sign.
 
-    The one thing a volcano structurally cannot show. A gene called by one
-    guide out of six is the commonest way a pooled screen makes a confident
-    artefact, and it is the same dot as a gene whose guides agree.
+    A volcano cannot show this. A gene called by one guide out of six is a
+    common source of false hits in pooled screens, and on a volcano it looks
+    the same as a gene whose guides agree. Genes with a single guide are
+    highlighted.
 
     :param ax: Matplotlib axes on which to draw guide concordance.
     :param frame: per-guide coefficient table with parseable feature terms.
@@ -647,7 +651,7 @@ def guide_agreement(ax, frame) -> Panel:
 
 
 def effect_distribution(ax, frame) -> Panel:
-    """Where the screen's effects sit, and where the controls sit in them.
+    """Plot a histogram of tested effects with zero and ±3σ (MAD) lines.
 
     :param ax: Matplotlib axes on which to draw the histogram.
     :param frame: coefficient table containing the tested effects.
@@ -699,7 +703,7 @@ SHEET_ORDER = ("volcano", "effect_rank", "effect_distribution", "controls",
 
 
 def available(frame) -> Dict[str, bool]:
-    """Which panels this table can support, without drawing anything.
+    """Return which registered panels can be drawn, using a discarded figure.
 
     :param frame: coefficient table to check against every registered panel.
     """

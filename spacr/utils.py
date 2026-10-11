@@ -113,12 +113,11 @@ except Exception:
     def display(*args, **kwargs):
         """Do nothing: IPython is unavailable, so there is nowhere to display to.
 
-        THE FALLBACK IS THE POINT. `IPython.display.display` is imported at
-        module scope, and IPython can be mid-init -- partially imported by
-        another thread -- which makes that import raise. Letting it propagate
-        would make importing this module fail for a reason that has nothing to
-        do with what the module does. spaCR only calls `display` from notebook
-        contexts; the Qt GUI ignores it.
+        This fallback is defined when the module-scope import of
+        `IPython.display.display` raises, for example because IPython is
+        missing or is still being imported by another thread. Without it,
+        importing this module would fail. spaCR only calls `display` from
+        notebook contexts; the Qt GUI ignores it.
 
         :param args: whatever the caller would have displayed.
         :param kwargs: likewise.
@@ -1097,29 +1096,26 @@ def object_label_from_png_id(values):
     overlapping cell") ``cell_id``. Two types for one identity, which is why a
     plain SQL ``png_list.cell_id = nucleus.cell_id`` matches **zero rows**
     rather than failing: SQLite compares a TEXT value with an INTEGER one by
-    type class, and text always sorts after numbers. Measured on a database
-    built by the real writers: 6 crops, 6 nuclei, 0 rows joined.
+    type class, and text always sorts after numbers.
 
     The integer is canonical — it is what the measurement tables key on — so
-    this is the one migration, applied on read. It replaces
-    ``series.str[1:].astype(int)``, which crashed on four values the real
-    writers genuinely produce:
+    ids are converted to it on read. Each value is converted on its own, so
+    none of the following values that the writers produce raises:
 
     * ``'omulti'`` and ``'onone'`` — :func:`_generate_names` names a crop that
       overlaps several cells ``..._multi.png`` and one that overlaps none
-      ``..._none.png``. Both are ordinary outcomes of a real segmentation.
-      ``ValueError: invalid literal for int() with base 10: 'multi'``;
+      ``..._none.png``. Both are ordinary segmentation outcomes and become
+      ``NaN``;
     * ``'error'`` — what :func:`_map_wells_png` writes for a name it cannot
-      parse. ``.str[1:]`` turned it into ``'rror'``, so the exception did not
-      even name the problem;
+      parse. It becomes ``NaN``;
     * ``NULL`` — every row of a *different* crop mode, in a database measured
-      with more than one. ``TypeError: int() argument must be ... not
-      'NoneType'``;
-    * an already-integer column, from a database whose ids were migrated
-      elsewhere: ``.str`` raises ``AttributeError`` on a numeric Series.
+      with more than one. It becomes ``NaN``;
+    * an already-numeric column, from a database whose ids were migrated
+      elsewhere: integers and whole-numbered floats are returned as the label,
+      and fractional floats become ``NaN``.
 
-    All four now come back as ``NaN``, which a caller can count and drop —
-    losing the crop's path for those objects, never the whole read.
+    ``NaN`` rows can be counted and dropped by the caller; those objects lose
+    their crop path, and the other rows are still returned.
 
     :param values: a ``png_list`` object-id column (``cell_id``,
         ``nucleus_id``, ...), of any dtype.
@@ -1357,13 +1353,11 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
         original pipeline entry point.
     :raises ValueError: if the required key / value columns are missing.
 
-    THE TWO SPELLINGS. :func:`save_settings` writes ``Key`` / ``Value``,
-    while this function's defaults ask for ``setting_key`` /
-    ``setting_value`` -- so the documented inverse pair did not round-trip,
-    and the example above raised. Callers had each worked around it
-    separately (``spacr/qt/dnd.py`` tries one spelling and catches the
-    failure to try the other), which is how it survived: nothing that used
-    the defaults was reading a file spacr had written.
+    Two header spellings exist: :func:`save_settings` writes ``Key`` /
+    ``Value``, while this function's defaults are ``setting_key`` /
+    ``setting_value``. When the requested columns are missing and ``Key`` /
+    ``Value`` are present, those are used, so a file written by
+    :func:`save_settings` loads with the default arguments.
 
     Either spelling is now read. An explicitly named column still wins, so a
     caller that knows its file's header is unaffected.
@@ -1430,7 +1424,7 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     return result_dict
 
 def console_encoding(stream=None):
-    """Return the codec text printed to ``stream`` has to survive.
+    """Return the name of the encoding used for text printed to ``stream``.
 
     :param stream: a text stream; defaults to ``sys.stdout``.
     :returns: a codec name, ``'utf-8'`` when the stream does not declare one
@@ -1495,20 +1489,18 @@ _BOX_GLYPHS = {
 
 
 def pretty_print_settings(settings, title="Settings"):
-    """Print a settings dict to the console as a tidy, aligned table.
+    """Print a settings dict to the console as an aligned table under a boxed title.
 
-    Nicer than dumping a truncated pandas DataFrame: values are grouped by the
-    spacr settings categories, keys are aligned in a column, long values are
-    clipped, and the whole thing sits under a boxed title. Purely cosmetic --
-    used wherever "Saving settings" is shown.
+    Values are grouped by the spacr settings categories (keys in no category
+    are listed under ``Other``), keys are aligned in a column, and values
+    longer than 44 characters are truncated. The output is for display only;
+    it is printed wherever "Saving settings" is shown.
 
-    Purely cosmetic, and it stays that way: the frame degrades to ASCII and
-    every line goes out through :func:`console_safe`, so a console that cannot
-    encode the decoration prints a plainer table instead of raising
-    ``UnicodeEncodeError``. :func:`spacr.measure.measure_crop` calls this
-    (through :func:`save_settings`) before it does any work at all, so a
-    decoration character was enough to end a whole run before the first field
-    was read.
+    When the console cannot encode the box-drawing characters the frame falls
+    back to ASCII, and every line is printed through :func:`console_safe`, so
+    no ``UnicodeEncodeError`` is raised. :func:`spacr.measure.measure_crop`
+    calls this function (through :func:`save_settings`) before it reads the
+    first field, so an encoding error here would stop the run.
 
     :param settings: the settings dict to render.
     :param title: heading shown in the box.
@@ -2294,12 +2286,10 @@ class MeasurementUnitsMismatch(ValueError):
 
     A 2-D field measures areas in px^2; a 3-D field measures volumes, in voxels
     or um^3, and writes them into the *same* ``<object>_area`` column, because
-    that column is read by name by every downstream selector, model and
-    threshold ever written against a spaCR database and renaming it would break
-    all of them silently. Appending both into one table would therefore leave a
-    numeric column that mixes two incompatible quantities with nothing in the
-    row to tell them apart, which no amount of downstream care could recover
-    from. So it is refused here instead.
+    downstream selectors, models and thresholds read that column by name.
+    Appending both into one table would leave a numeric column that mixes two
+    incompatible quantities with nothing in the row to distinguish them, so
+    the append is refused.
     """
 
 
@@ -2410,28 +2400,27 @@ def _assert_measurement_units_compatible(db_path, table, stamp):
 
 
 class ImportedCopyNotReleased(ValueError):
-    """The table being appended to holds an import's copy of the same field.
+    """Raised when the table being appended to holds an import's copy of the same field.
 
     ``foreign.run_import`` copies the imported frame into the canonical
     ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty,
-    so a project built purely by import is readable by every spaCR tool. That
-    copy is a convenience and it stops being one the moment spaCR measures the
-    same field: :func:`_merge_and_save_to_database` *appends*, so its rows land
-    beside theirs, in different columns, with nothing in the row marking the
-    seam -- and every ``count_cell`` downstream becomes the sum of two
-    populations.
+    so a project built purely by import is readable by every spaCR tool. When
+    spaCR then measures the same field, :func:`_merge_and_save_to_database`
+    *appends*: the measured rows are added beside the imported ones, in
+    different columns, with nothing in the row to distinguish them, and every
+    downstream ``count_cell`` becomes the sum of two populations.
 
     A resume supersedes the copy before measuring (see
-    :func:`spacr.resume.supersede_imported_copies`) or refuses and says so,
-    which covers every path *through* a resume. This covers the path around
-    one: a direct ``measure_crop`` with ``resume`` off.
+    :func:`spacr.resume.supersede_imported_copies`) or refuses with a message.
+    This exception covers the case without a resume: a direct
+    ``measure_crop`` with ``resume`` off.
 
-    Raised only when the copy cannot be handed back **provably losslessly** --
+    Raised only when the copy cannot be released **provably losslessly** --
     no ``foreign_<object>`` to check the rows against, a row in the copy with
-    no twin in it, a timelapse whose frames the importer never keyed, or a
-    delete that did not act on the rows the count cleared. In every one of
+    no counterpart in it, a timelapse whose frames the importer never keyed,
+    or a delete that did not act on the rows the count cleared. In each of
     those cases the field's rows are not written, because a refused write can
-    be re-run and a mixed table cannot be un-mixed.
+    be re-run and a mixed table cannot be separated again.
     """
 
 
@@ -3396,19 +3385,19 @@ MASK_CHANNEL_ROLE_ORDER = (
 def dense_mask_channel_positions(settings):
     """Map each RAW channel index to its position on the merged stack's axis.
 
-    Built the same way `io.preprocess_img_data` builds the stack, because
-    that is the only thing that makes the answer true: walk the roles in
+    The mapping is built the same way `io.preprocess_img_data` builds the
+    stack, so it matches the stored axis order: walk the roles in
     :data:`MASK_CHANNEL_ROLE_ORDER` and give each newly seen raw channel the
     next dense position.
 
-    THE TRAP THIS EXISTS TO CLOSE. Several callers computed the position as
-    ``sorted({nucleus, cell, pathogen, organelle})`` instead, which agrees
-    with role order only when the roles happen to be in ascending channel
-    order. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1``
-    the stack is ``[2, 0, 1]`` -- raw channel 1 sits at position 2 -- while
-    the sorted reading says position 1, which holds the CELL image. Cellpose
-    then segments organelles on the cell plane, silently, and every count and
-    intensity downstream is measured from the wrong masks.
+    Computing the position as ``sorted({nucleus, cell, pathogen, organelle})``
+    instead agrees with role order only when the roles are in ascending
+    channel order. With ``nucleus_channel=2, cell_channel=0,
+    organelle_channel=1`` the stack is ``[2, 0, 1]`` -- raw channel 1 sits at
+    position 2 -- while the sorted reading gives position 1, which holds the
+    cell image. Cellpose would then segment organelles on the cell plane
+    without any warning, and downstream counts and intensities would be
+    measured from the wrong masks.
 
     :param settings: the run settings, holding the raw ``*_channel`` keys.
     :returns: ``{raw_channel: dense_position}``. Channels that are None or
@@ -3821,16 +3810,15 @@ class CustomCellClassifier(nn.Module):
             return self.custom_forward(x)
 
 class TorchModel(nn.Module):
-    """
-    Thin wrapper around TorchVision classification backbones that:
-      1) Loads a requested backbone with (optional) pretrained weights
-      2) Strips its classification head to expose features
-      3) Adds a simple Linear 'spacr' classifier with `num_classes` outputs
-      4) Optionally applies dropout before the final classifier
-      5) Supports gradient checkpointing
+    """TorchVision classification backbone whose head is replaced by a spaCR linear classifier.
 
-    Works with most TorchVision **classification** models. Non-classification
-    (detection/segmentation) models are rejected with a clear error.
+    The requested backbone is loaded with optional pretrained weights, its
+    classification head is replaced by ``nn.Identity``, and a linear
+    ``spacr_classifier`` with ``num_classes`` outputs is attached. Dropout
+    before the classifier and gradient checkpointing are optional.
+
+    Works with most TorchVision **classification** models. A backbone that
+    returns a dict (detection/segmentation models) raises ``RuntimeError``.
     """
     def __init__(
         self,
@@ -4023,7 +4011,7 @@ class TorchModel(nn.Module):
         return logits
 
 class TorchModel_v2(nn.Module):
-    """TorchVision backbone with a spaCR linear head (streamlined variant of :class:`TorchModel`).
+    """TorchVision backbone with a spaCR linear head (variant of :class:`TorchModel` without ``image_size``).
 
     :param model_name: TorchVision classification model to load.
     :param pretrained: use ImageNet-pretrained weights when available.
@@ -4564,13 +4552,16 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
     return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
 
 def pick_best_model(src):
-    """Return the strongest checkpoint anywhere below ``src``.
+    """Return the path of the highest-ranked ``.pth`` checkpoint below ``src``.
 
     Current artifacts are ranked by their stored validation metric and role;
     legacy files fall back to their ``_acc_``/``_epoch_`` filename fields.
 
     :param src: model directory or a checkpoint path.
-    :returns: absolute path to the top-ranked checkpoint.
+    :returns: absolute path to the top-ranked checkpoint, or the absolute form
+        of ``src`` when it is a file.
+    :raises FileNotFoundError: if ``src`` is not an existing file or directory,
+        or no ``.pth`` file exists below it.
     """
     if os.path.isfile(src):
         return os.path.abspath(src)
@@ -4734,7 +4725,7 @@ def suggest_training_changes(
     import pandas as pd
     
     def _scalar(val):
-        """Ensure a single float even if a Series sneaks through.
+        """Return ``val`` as a float, using the first element when it is a Series.
 
         The Series branch is currently unreachable: every call site passes
         ``<Series>.iloc[<int>]``, which yields a numpy scalar. It is kept as a
@@ -5408,7 +5399,7 @@ def model_metrics(model):
         _show_if_interactive()
 
 def check_multicollinearity(x):
-    """Checks multicollinearity of the predictors by computing the VIF.
+    """Return the variance inflation factor (VIF) of each column of ``x``.
 
     :param x: DataFrame of the design matrix -- one row per observation, one
         column per predictor, and *no* response column. Every column is fed to
@@ -5417,6 +5408,8 @@ def check_multicollinearity(x):
         explicit constant column if you want the intercept accounted for, since
         without one the VIFs are inflated by the shared mean. Perfectly
         collinear columns yield ``inf``.
+    :returns: DataFrame with ``Variable`` and ``VIF`` columns, one row per
+        column of ``x``.
     """
     vif_data = pd.DataFrame()
     vif_data["Variable"] = x.columns
@@ -5568,12 +5561,11 @@ def invert_image(image):
     """Return the intensity-inverted image, reflected through the dtype range.
 
     The pivot is ``iinfo.min + iinfo.max``, which is the dtype maximum for
-    every unsigned dtype -- so ``uint8`` and ``uint16`` invert exactly as they
-    always did -- and ``-1`` for a signed one, the same convention
+    every unsigned dtype and ``-1`` for a signed one, the same convention
     :func:`skimage.util.invert` uses. Reflecting through the range instead of
-    subtracting from the ceiling is what keeps a signed image in range: under
-    ``int8``, ``-100`` inverts to ``99`` rather than to ``227``, which used to
-    wrap silently to ``-29``.
+    subtracting from the maximum keeps a signed image in range: under
+    ``int8``, ``-100`` inverts to ``99``, whereas ``127 - (-100) = 227`` would
+    wrap to ``-29``.
 
     :param image: array with an *integer* dtype. A float or boolean image
         raises ``ValueError`` rather than inverting -- convert or rescale to an
@@ -6445,11 +6437,11 @@ def _installed_cellpose_models():
 
 
 def reset_cellpose_model_reports():
-    """Forget which Cellpose model notices have already been printed.
+    """Clear the record of Cellpose model notices already printed.
 
     Call this at the start of a run so a second run in the same process (a
-    GUI session segmenting a second plate) reports its model choice again
-    instead of inheriting the first run's silence.
+    GUI session segmenting a second plate) prints its model choice again
+    instead of suppressing it because the first run printed it.
     """
     _REPORTED_CELLPOSE_NOTICES.clear()
 
@@ -7091,7 +7083,8 @@ class GradCAM:
 
             ``retain_grad()`` is required: PyTorch only populates ``.grad`` on
             leaf tensors, so without it ``features[0].grad`` is None below and
-            GradCAM died with "'NoneType' object has no attribute 'cpu'".
+            the CAM computation raises ``AttributeError: 'NoneType' object has
+            no attribute 'cpu'``.
             """
             if output.requires_grad:
                 output.retain_grad()
@@ -7151,16 +7144,15 @@ def show_cam_on_image(img, mask):
         swamps the heatmap and the result is a near-uniform wash. A 2-D
         grayscale array fails to broadcast against the 3-channel heatmap.
         An image negative enough that the blend has no positive pixel left
-        raises rather than returning a black frame -- a black attribution map
-        is indistinguishable from "the model looked nowhere", which is a
-        claim this function must never make on the strength of bad input.
+        raises ``ValueError`` rather than returning a black frame, because a
+        black attribution map cannot be distinguished from a map with no
+        attribution.
     :param mask: ``(H, W)`` activation map in ``[0, 1]``, matching ``img`` in
         height and width. Values outside that range are CLIPPED to it, with a
         :class:`RuntimeWarning`, so an un-normalized CAM saturates at the hot
-        end instead of wrapping the ``np.uint8`` cast: before this was clipped,
-        ``1.1`` landed at the cold end of jet, ``1.5`` in the middle and ``2.0``
-        back at the top, which could render the hottest region of a map as the
-        coldest colour. An all-zero mask does not produce a black overlay: jet
+        end instead of wrapping in the ``np.uint8`` cast; unclipped, ``1.1``
+        would land at the cold end of jet, ``1.5`` in the middle and ``2.0``
+        back at the top. An all-zero mask does not produce a black overlay: jet
         maps 0 to a non-zero color, so a zero mask over a zero image
         renormalizes to a saturated flat field.
     :raises ValueError: ``img`` or ``mask`` contains NaN or infinity, or the
@@ -8084,14 +8076,12 @@ def correct_paths(df, base_path, folder='data'):
     A non-string entry is passed through untouched. ``png_list`` is LEFT-joined
     onto the object tables, so any object whose crop was never written arrives
     here with ``png_path`` = NaN -- a state
-    :func:`spacr.io._read_and_join_tables` documents as healthy
+    :func:`spacr.io._read_and_join_tables` documents as expected
     (``len(merged) == len(cell) > len(png_list)``: ``save_png`` off for a field,
     a crop that failed to write, an interrupted run, or a ``cell_id`` that could
-    not be migrated). Testing ``base_path not in path`` on that NaN raised
-    ``TypeError: argument of type 'float' is not iterable`` and took the whole
-    embedding down over one missing thumbnail. There is no path to re-anchor for
-    such a row, and it has to keep its position so the rewritten column still
-    aligns with ``df``.
+    not be migrated). There is no path to re-anchor for such a row; it keeps
+    its position so the rewritten column still aligns with ``df``, and no
+    ``TypeError`` is raised.
 
     Delegate rewriting to :func:`spacr.crops.reanchor_path`, which handles
     same-platform moves, Windows paths read on Linux, and old absolute paths.
@@ -8168,11 +8158,9 @@ def delete_folder(folder_path):
 def measure_test_mode(settings):
     """Copy a random subset of source files into a ``test/merged`` folder when ``test_mode`` is on.
 
-    Fewer files than ``test_nr`` is not an error. test_mode is the setting a
-    user reaches for on a SMALL plate, and ``random.sample`` raised
-    ``ValueError: Sample larger than population or is negative`` on exactly
-    that case -- so the one folder you most want to smoke-test first was the
-    one folder test_mode refused to run on.
+    Fewer files than ``test_nr`` is not an error: every available file is
+    copied and a message reports the shortfall, so test_mode also runs on a
+    small plate.
 
     Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never
     measured in place of a field. The folder's ``.spacr_plane_layout.json`` is
@@ -8504,21 +8492,22 @@ FEATURE_GROUPS = (0, 1, 2, 3, MORPHOLOGY)
 
 
 def feature_columns(columns, selection):
-    """Which of ``columns`` the selection keeps. Order preserved.
+    """Return the subset of ``columns`` kept by ``selection``, in their original order.
 
-    The union over the selection's members, so ``[1, 'morphology']`` is
-    channel 1's intensities AND the shapes rather than the empty
-    intersection of the two.
+    The result is the union over the selection's members, so
+    ``[1, 'morphology']`` is channel 1's intensities AND the shapes rather
+    than the empty intersection of the two.
 
-    COLOCALISATION BELONGS TO BOTH CHANNELS IT MEASURES. A
-    ``cell_channel_1_channel_2_pearsons`` column names two channels and
-    survives a request for either -- which is what makes "localization"
-    reachable without a separate setting: ask for the channel and its
-    relationships come with it.
+    A colocalisation column belongs to both channels it measures:
+    ``cell_channel_1_channel_2_pearsons`` names two channels and is kept when
+    either is requested, so selecting a channel also selects its
+    colocalisation features without a separate setting.
 
     :param columns: ordered column names available for selection.
     :param selection: channel, morphology group, text filter, mixture, or
         ``None`` as accepted by :func:`feature_selection`.
+    :returns: list of the kept column names; all of ``columns`` when
+        ``selection`` means no filter.
     """
     canonical = feature_selection(selection)
     if canonical is None:
@@ -8810,7 +8799,7 @@ def extract_features(image_paths, resnet=resnet50):
     return np.array(features)
 
 def check_normality(series):
-    """Helper function to check if a feature is normally distributed.
+    """Return ``False`` if the D'Agostino-Pearson test rejects normality of ``series`` at alpha 0.05, else ``True``.
 
     This is a *failure to reject* at alpha 0.05, not evidence of normality: the
     answer is ``True`` whenever the D'Agostino-Pearson test does not find
@@ -8914,19 +8903,21 @@ def perform_statistical_tests(all_df, cluster_col='cluster'):
     return anova_df, kruskal_df
 
 def combine_results(rf_df, anova_df, kruskal_df):
-    """Combine the results into a single DataFrame.
+    """Left-merge the ANOVA and Kruskal-Wallis results onto ``rf_df`` by ``Feature``.
 
     All three frames are keyed on ``Feature`` and carry exactly one row per
     feature: ``rf_df`` is built from the feature list, and
     :func:`perform_statistical_tests` sends each feature to *either* ANOVA or
-    Kruskal-Wallis, never both. Hence ``one_to_one``. A repeated ``Feature``
-    -- the signature of a frame with duplicated column names, or of two runs'
-    results concatenated by mistake -- would multiply the importance rows and
-    report the same feature several times as if independently ranked.
+    Kruskal-Wallis, never both. Hence ``validate='one_to_one'``: a repeated
+    ``Feature`` -- from a frame with duplicated column names, or from two
+    runs' results concatenated by mistake -- raises instead of multiplying the
+    importance rows and reporting one feature several times.
 
     :param rf_df: random-forest results keyed uniquely by ``Feature``.
     :param anova_df: ANOVA results keyed uniquely by ``Feature``.
     :param kruskal_df: Kruskal-Wallis results keyed uniquely by ``Feature``.
+    :returns: DataFrame with one row per row of ``rf_df``.
+    :raises pandas.errors.MergeError: if ``Feature`` is repeated in any frame.
     """
     combined_df = rf_df.merge(anova_df, on='Feature', how='left',
                               validate='one_to_one')
@@ -8935,9 +8926,10 @@ def combine_results(rf_df, anova_df, kruskal_df):
     return combined_df
 
 def cluster_feature_analysis(all_df, cluster_col='cluster'):
-    """
-    Perform Random Forest feature importance, ANOVA for normally distributed features,
-    and Kruskal-Wallis for non-normally distributed features. Combine results into a single DataFrame.
+    """Rank features by Random Forest importance and test them across clusters.
+
+    Normally distributed features are tested with ANOVA and the others with
+    Kruskal-Wallis; the results are merged by :func:`combine_results`.
 
     :param all_df: DataFrame holding the numeric feature columns *and*
         ``cluster_col``, one row per object. The same frame is passed to the
@@ -8955,6 +8947,8 @@ def cluster_feature_analysis(all_df, cluster_col='cluster'):
         special-cased here, so it is analysed as if it were a real cluster --
         strip it with :func:`remove_noise` first if you do not want that.
         Default ``'cluster'``.
+    :returns: DataFrame with one row per feature, holding the importance and
+        the ANOVA or Kruskal-Wallis statistic and p-value.
     """
     rf_df = random_forest_feature_importance(all_df, cluster_col)
     anova_df, kruskal_df = perform_statistical_tests(all_df, cluster_col)
@@ -9232,15 +9226,15 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     :param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and
         values below two run inline without starting a child process.
     :param output_folder: optional separate folder for adjusted masks. None
-        preserves the historical in-place behavior. A separate folder keeps
+        adjusts the cell masks in place. A separate folder keeps
         all source masks byte-identical, and every selected field is rebuilt
         from its source on each invocation, including after interrupted work.
         In place, each adjusted mask's SHA-256 is recorded in
-        :data:`ADJUSTED_CELLS_LEDGER` as it lands, and a mask whose bytes
-        still match its record is left alone on the next run: adjusting an
-        adjusted mask merges it again, so a re-run used to change the result
-        every time. A cell mask segmented again no longer matches and is
-        adjusted afresh.
+        :data:`ADJUSTED_CELLS_LEDGER` as it is written, and a mask whose bytes
+        still match its record is skipped on the next run, because adjusting
+        an adjusted mask merges it again and would change the result on every
+        re-run. A cell mask segmented again no longer matches and is adjusted
+        afresh.
     :returns: None.
     :raises ValueError: if the three folders contain different numbers of files
         or mismatched filenames, or a mask is truncated, nonnumeric, empty,
@@ -9534,13 +9528,13 @@ def process_vision_results(df, threshold=0.5):
     return df
 
 def feature_folder_name(channel_of_interest) -> str:
-    """A folder name for one feature selection. Safe on every filesystem.
+    """Return a folder name for one feature selection, using only ASCII letters, digits and ``_``.
 
     ``None`` is ``all_features``; a channel is ``channel_1``; several are
     ``channels_1_2``; ``morphology`` is itself; a mixture joins them in the
-    order given; and a free-text filter is slugified, because a user may
-    reasonably filter on ``mean_intensity`` and a column fragment can carry
-    anything.
+    order given; and in a free-text filter such as ``mean_intensity`` every
+    run of other characters becomes ``_``, because a column fragment can
+    contain any character.
 
     :param channel_of_interest: feature selection accepted by
         :func:`feature_selection`.
@@ -9814,9 +9808,10 @@ def map_condition(col_value, neg='c1', pos='c2', mix='c3'):
         return 'screen'
     
 def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
-    """
-    Downloads all model files from Hugging Face and stores them in the `resources/models` directory 
-    within the installed `spacr` package.
+    """Download the files of the Hugging Face dataset repo ``repo_id`` into the package's ``resources/models`` folder.
+
+    If ``resources/models`` already contains files, nothing is downloaded and
+    its path is returned. Files are saved under their base names.
 
     Args:
         repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').
@@ -9895,15 +9890,18 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     return cytoplasm_mask
 
 def add_column_to_database(settings):
-    """
-    Adds a new column to the database table by matching on a common column from the DataFrame.
-    If the column already exists in the database, it adds the column with a suffix.
-    NaN values will remain as NULL in the database.
+    """Add a column from a CSV file to an SQLite table, matching rows on a shared column.
+
+    The values of ``update_column`` are written into a new ``INTEGER`` column;
+    if that name already exists in the table, the first free
+    ``<name>_<n>`` name is used instead. Every ``0`` in ``update_column`` is
+    replaced by ``2`` before writing, and ``NaN`` values are stored as
+    ``NULL``.
 
     Parameters:
         settings (dict): A dictionary containing the following keys:
             csv_path (str): Path to the CSV file with the data to be added.
-            db_path (str): Path to the SQLite database (or connection string for other databases).
+            db_path (str): Path to the SQLite database file.
             table_name (str): The name of the table in the database.
             update_column (str): The name of the new column in the DataFrame to add to the database.
             match_column (str): The common column used to match rows.
@@ -9959,12 +9957,12 @@ def add_column_to_database(settings):
 def fill_holes_in_mask(mask):
     """Fill the holes inside each object of a label mask, keeping every id.
 
-    Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole
-    filler for label images. This used to run ``ndimage.label`` over the
-    mask first, which made every pair of touching objects one object: with
+    Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the hole
+    filler for label images. No object is merged or renumbered, and a hole
+    takes the id of the object that encloses it. The mask is not relabelled
+    with ``ndimage.label`` first, because that merges touching objects: with
     Cellpose ``fill_in`` on (its default in Apply), a field of 74 adjacent
-    cells was saved as 8. Now no object is merged or renumbered,
-    and a hole takes the id of the object that encloses it.
+    cells would be saved as 8.
 
     Args:
         mask (np.ndarray): A labeled mask where each object has a unique integer value.
@@ -9978,7 +9976,7 @@ def fill_holes_in_mask(mask):
     return fill_label_holes(mask)
 
 def correct_metadata_column_names(df):
-    """Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.
+    """Return ``df`` with legacy metadata columns renamed. **Defined in** :mod:`spacr.schema`.
 
     Re-exported here because every existing caller imports it from `utils`,
     and moved there because importing this module costs torch, torchvision
@@ -10053,30 +10051,26 @@ def rename_columns_in_db(db_path):
     Applies :data:`DB_COLUMN_RENAMES` — the plate-metadata names — and then
     :data:`DB_COLUMN_RENAME_PATTERNS` — the two feature families that were
     spelled inconsistently — to every user table. A rename is skipped when the
-    target name already exists in that table, which gives three properties
-    worth relying on:
+    target name already exists in that table, with these consequences:
 
     * **Idempotent.** After a rename the legacy name is gone, so a second run
       finds nothing to do. Running it on every read is therefore free after the
       first.
-    * **Never destructive.** A table that somehow carries *both* spellings —
-      say ``time_id`` and ``timeID`` — keeps both, untouched. Neither column is
+    * **Never destructive.** A table that carries *both* spellings — say
+      ``time_id`` and ``timeID`` — keeps both, untouched. Neither column is
       dropped and nothing raises; the readers accept either spelling, so the
-      data stays reachable and a human can decide which one is authoritative.
-      Dropping or overwriting one of them here would destroy data to tidy a
-      name, which is never the right trade.
+      data stays reachable and the user can decide which one is
+      authoritative.
     * **All or nothing.** SQLite's DDL *is* transactional, but Python's sqlite3
       driver only opens an implicit transaction for DML (INSERT/UPDATE/DELETE/
       REPLACE) — an ``ALTER TABLE`` runs in autocommit and lands immediately.
-      So the previous version, which relied on a trailing ``con.commit()``,
-      left a database half-migrated when a later rename raised. The
-      transaction is opened explicitly here and rolled back on any error, and
-      the connection is closed in a ``finally``.
+      The transaction is therefore opened explicitly and rolled back on any
+      error, so a call that raises applies no rename, and the connection is
+      closed in a ``finally``.
 
-    A partial migration would not corrupt anything — each rename is
-    independently valid and the next read finishes the job — but "the schema
-    changed and then the call raised" is not a state a user should have to
-    reason about.
+    A partial migration would not corrupt data — each rename is independently
+    valid and the next read completes it — but with the rollback a call that
+    raises leaves the schema unchanged.
 
     :param db_path: Path to the SQLite database file to update in place.
     :returns: The list of ``(table, old, new)`` renames performed.
@@ -10271,9 +10265,7 @@ def delete_intermedeate_files(settings):
                 print(f"{path} could not be deleted: {e}. Delete manually.")
         
 def filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, lower_threshold):
-    """
-    Reads a CSV into a DataFrame, keeps the rows whose column value falls OUTSIDE
-    the two thresholds, and saves the filtered DataFrame to a new CSV file.
+    """Write the rows of a CSV whose ``column_name`` value lies outside both thresholds to a new CSV.
 
     The two tests are combined with OR, not AND, so this is a two-tailed
     selection that keeps the extremes and discards the middle. Both comparisons
@@ -10394,15 +10386,21 @@ def format_path_for_system(path):
 
 
 def normalize_src_path(src):
-    """
-    Ensures that the 'src' value is properly formatted as either a list of strings or a single string.
+    """Return ``src`` as a list of paths or a single path string.
+
+    A list is returned unchanged; a string that evaluates to a list of strings
+    (for example ``"['a', 'b']"``) is returned as that list; any other string
+    is returned unchanged.
 
     Args:
         src (str or list): The input source path(s).
 
     Returns:
-        list or str: A correctly formatted list if the input was a list (or string representation of a list),
-                     otherwise a single string.
+        list or str: A list if the input was a list (or string representation of a list of strings),
+                     otherwise the input string.
+
+    Raises:
+        ValueError: if ``src`` is neither a string nor a list.
     """
     if isinstance(src, list):
         return src
@@ -10458,9 +10456,7 @@ def generate_image_path_map(root_folder, valid_extensions=("tif", "tiff", "png",
     return image_path_map
 
 def copy_images_to_consolidated(image_path_map, root_folder):
-    """
-    Copies images from their original locations to a 'consolidated' folder,
-    renaming them according to the generated dictionary.
+    """Copy each image into ``<root_folder>/consolidated`` under the base name of its mapped path.
 
     Args:
         image_path_map (dict): Dictionary mapping {original_path: new_path}.
@@ -10491,33 +10487,31 @@ def copy_images_to_consolidated(image_path_map, root_folder):
 def correct_metadata(df):
     """Normalize a metadata DataFrame to the canonical spaCR names and plate ids.
 
-    One call into :func:`spacr.schema.canonicalise_frame`, which is the whole
-    vocabulary in one place:
+    An ``object_name`` column is first copied to ``objectID``; the frame is
+    then passed to :func:`spacr.schema.canonicalise_frame`, which applies:
 
     * every legacy spelling renamed, folding case *and* punctuation, so
       ``Plate``/``PLATE``/``plate``/``plateid``/``plate_name`` all arrive as
       ``plateID`` and the same for the row, the column, the field and the
       well;
     * **one** column per key. A file carrying ``well`` and ``wellID`` has two
-      opinions about which well a row came from; they are compared row by row
+      values for the well of each row; they are compared row by row
       as stripped strings (so ``1``, ``1.0`` and ``' 1 '`` agree and a dtype
       difference is not a disagreement), one is kept, and the rest are
       dropped. Agreement prints; disagreement warns and says how many rows
       differ.
     * the ``pp`` plate repair, over every column that embeds the plate id.
 
-    THE ``pp`` REPAIR RUNS AFTER THE RENAMES, and over every plate-bearing
-    column. It used to run first and only over ``plateID``/``prcfo``, which
-    meant it did nothing at all for the files that actually carry the
-    artifact: a legacy score CSV has a ``plate`` column and NO ``plateID``
-    column, so the guard was false, the repair was skipped, and the very next
-    line then copied the unrepaired ``plate`` value into ``plateID``.
+    The ``pp`` repair runs after the renames and over every plate-bearing
+    column. A legacy score CSV has a ``plate`` column and no ``plateID``
+    column, so a repair limited to ``plateID``/``prcfo`` before the renames
+    would skip it, and the unrepaired ``plate`` value would be copied into
+    ``plateID``.
 
-    The cost was silent and total. Score files stamped ``pplate1`` met count
-    files stamped ``plate1``, every ``prc`` differed by one character, the
-    join produced ZERO rows, and the run died several steps later inside a
-    plot with ``KeyError: 0`` -- nowhere near the mismatch, and with nothing
-    on screen naming a plate.
+    Without the repair, score files stamped ``pplate1`` and count files
+    stamped ``plate1`` give ``prc`` values that differ by one character, the
+    join returns zero rows, and the run fails later inside a plot with
+    ``KeyError: 0``, with no message naming a plate.
 
     :param df: Metadata DataFrame that may still use legacy naming.
     :returns: The DataFrame with canonical columns.
@@ -10530,35 +10524,33 @@ def correct_metadata(df):
 
 
 def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1.5):
-    """
-    Removes outliers from `value_col` within each group defined by `group_col`.
+    """Return ``df`` without the rows whose `value_col` is an outlier within its `group_col` group.
 
     Rows are selected, never modified: the original index is preserved and a new
-    frame is returned. A row whose value is ``NaN`` fails the comparison and is
-    always dropped, whichever method is used.
+    frame is returned. Under 'iqr' a row whose value is ``NaN`` is always
+    dropped; under 'zscore' it is dropped unless its group's standard deviation
+    is undefined (fewer than two non-missing values), in which case it is kept.
 
     Parameters:
         df (pd.DataFrame): The input DataFrame.
         group_col (str): Column name to group by, or a list of column names.
             Grouping passes ``observed=False``, so unused categories of a
-            Categorical are kept. Rows whose group key is missing are discarded,
-            because pandas drops ``NaN`` group keys and the per-row bound then
-            comes back ``NaN``.
+            Categorical are kept. Rows whose group key is missing get a ``NaN``
+            per-row bound, because pandas drops ``NaN`` group keys; they are
+            discarded under 'iqr' and kept under 'zscore'.
         value_col (str): Column containing values to check for outliers. A name
             that is not in the frame raises ``KeyError``.
         method (str): 'iqr' or 'zscore'. Anything else raises ``ValueError``.
-            The two now agree on tiny groups: a one-row group has an undefined
+            The two agree on tiny groups: a one-row group has an undefined
             standard deviation, and since one row cannot be an outlier within
-            its own group it is KEPT under both. It used to be dropped by
-            'zscore' and kept by 'iqr'.
+            its own group it is KEPT under both.
         threshold (float): Multiplier on the IQR (default 1.5), or the z-score
-            cutoff. Must be >= 0; a negative value inverts the keep-band and is
-            refused, because under 'iqr' it silently emptied every group with a
-            nonzero IQR. Note ``0`` under 'zscore' still keeps only rows sitting
-            exactly on the group mean, which is what a zero cutoff means.
-            Under 'zscore' an outlier inflates its own group's standard
-            deviation, so the usual cutoffs keep far more than 'iqr' does on the
-            same data -- that is the statistic, not a defect.
+            cutoff. Must be >= 0; a negative value inverts the keep-band and
+            raises ``ValueError``, because under 'iqr' it would empty every
+            group with a nonzero IQR. ``0`` under 'zscore' keeps only rows
+            sitting exactly on the group mean. Under 'zscore' an outlier
+            inflates its own group's standard deviation, so the usual cutoffs
+            keep more rows than 'iqr' does on the same data.
 
     Returns:
         pd.DataFrame: A DataFrame with outliers removed.

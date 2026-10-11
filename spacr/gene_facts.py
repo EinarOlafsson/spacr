@@ -1,45 +1,44 @@
-"""What spaCR already knows about one gene, ready to put on a tile.
+"""Collect the bundled annotation for one gene, grouped for display on a gene tile.
 
 Clicking a gene in an interactive regression opens the information available
-for that gene. :mod:`spacr.gene_tile` answers the half
-that can be WRONG -- which gene a clicked guide actually names, and whether
-that mapping is ambiguous. This module answers the other half: given a gene,
-what does spaCR hold about it.
+for that gene. :mod:`spacr.gene_tile` resolves which gene a clicked guide
+names and whether that mapping is ambiguous. This module returns the
+annotation spaCR holds for a given gene.
 
-IT HOLDS NOTHING ITSELF. Every value here comes out of :mod:`spacr.annotation`
--- the same join that writes the annotated exports -- so the tile and the CSV
-a reader opens beside it cannot disagree about GRA14's compartment. This
-module reads no file, parses no gene id and owns no table; it groups
-:func:`spacr.annotation.annotate`'s 23 columns into the order a human reads
-them and adds the per-segment DeepTMHMM coordinates that ``annotate``
-deliberately leaves out of a coefficient export.
+All values come from :mod:`spacr.annotation` -- the same join that writes
+the annotated exports -- so the tile and the exported CSV report the same
+values (for example GRA14's compartment). This module reads no file, parses
+no gene id and owns no table; it groups
+:func:`spacr.annotation.annotate`'s 23 columns into reading order and adds
+the per-segment DeepTMHMM coordinates that ``annotate`` leaves out of a
+coefficient export.
 
-Four rules, each of them a failure this project has already had:
+The module follows four rules:
 
-1.  ONE PARSE. ``TGGT1_224750``, ``gene_fraction:gene[224750]`` and the guide
-    ``224750_2`` are all gene ``224750``, and the function that says so is
-    :func:`spacr.annotation.gene_number`. A second copy of that rule is how
-    the volcano and the hit list start naming different genes.
+1.  Gene ids are parsed in one place. ``TGGT1_224750``,
+    ``gene_fraction:gene[224750]`` and the guide ``224750_2`` are all gene
+    ``224750``, as determined by :func:`spacr.annotation.gene_number`; a
+    second parser could make the volcano and the hit list name different
+    genes.
 
-2.  A GAP IS SAID OUT LOUD. A gene with no annotation row gets
-    :attr:`GeneFacts.reason` -- "no row in the bundled Toxoplasma annotation"
-    -- and NOT a block of empty fields, which reads as "measured, found
-    nothing" rather than "not available here". :attr:`GeneFacts.known` is the
-    flag a caller greys a control on.
+2.  Missing annotation is reported as text. A gene with no annotation row
+    gets :attr:`GeneFacts.reason` -- "no row in the bundled Toxoplasma
+    annotation" -- rather than a block of empty fields, which would read as
+    "measured, found nothing". :attr:`GeneFacts.known` is the flag a caller
+    uses to grey out a control.
 
-3.  A GROUP IS DERIVED FROM THE TABLE, NOT LISTED HERE. The fitness and
-    expression rows are every ``fit_``/``expr_`` column
-    :func:`spacr.annotation.columns` reports, so an eighth published screen
-    added to ``phenotype.csv`` appears on the tile without this file being
-    touched, and a column this module has never heard of lands in "other
-    annotation" instead of being silently dropped.
+3.  Groups are derived from the table. The fitness and expression rows are
+    every ``fit_``/``expr_`` column :func:`spacr.annotation.columns` reports,
+    so a screen added to ``phenotype.csv`` appears on the tile without a
+    change to this file, and an unrecognised column is listed under "other
+    annotation" instead of being dropped.
 
-4.  NOTHING HERE IS FOR THE GUI THREAD TO DISCOVER. The first call reads five
+4.  Loading can be done off the GUI thread. The first call reads five
     bundled CSVs (360 ms) and the first :attr:`GeneFacts.segments` reads
-    DeepTMHMM's 8,140 rows. :func:`warm` does both off the GUI thread, and
-    takes the screen's own terms while it is there: `annotate` re-checks all
-    five right-hand keys for uniqueness on every call, so one gene costs
-    20 ms and four hundred cost 21. A warmed click is a dict lookup, 0.02 ms.
+    DeepTMHMM's 8,140 rows. :func:`warm` does both in advance and joins the
+    screen's terms in one pass: `annotate` re-checks all five right-hand
+    keys for uniqueness on every call, so one gene costs 20 ms and four
+    hundred cost 21. A click after warming is a dict lookup, 0.02 ms.
 
 Public API::
 
@@ -221,8 +220,8 @@ class Segment:
     :param start: first residue, 1-based and inclusive, as DeepTMHMM reports.
     :param end: last residue, inclusive.
     :param length: residues spanned, as the source file records it rather
-        than recomputed -- a disagreement between the two is a fact about the
-        run and is not this module's to hide.
+        than recomputed, so a disagreement with ``end - start + 1`` in the
+        source data is preserved rather than corrected.
     """
 
     kind: str
@@ -257,13 +256,13 @@ class GeneFacts:
         no gene at all.
     :param values: the annotation columns that had something in them, keyed by
         the column name :func:`spacr.annotation.columns` uses. A column with a
-        gap is ABSENT here rather than present and empty.
+        gap is absent here rather than present and empty.
     :param segments: the DeepTMHMM signal peptide and transmembrane segments,
         in residue order. Empty for a soluble protein, and empty for a gene
         DeepTMHMM never saw -- :attr:`reason` is what tells those apart.
-    :param reason: why there is nothing, in a sentence, or ``""`` when there
-        is something. Never blank and empty at the same time: an empty panel
-        reads as a bug, "no row in the bundled annotation" reads as an answer.
+    :param reason: a sentence explaining why no values are available, or
+        ``""`` when there are values. An empty record carries a reason, so
+        the panel shows an explanation instead of an empty table.
     """
 
     gene: str = ""
@@ -273,10 +272,10 @@ class GeneFacts:
 
     @property
     def known(self) -> bool:
-        """Did the annotation hold anything at all about this gene?
+        """Whether the annotation holds any value for this gene.
 
-        The flag a caller greys a control on -- the design: a control
-        that cannot do anything says why rather than sitting there inert.
+        Callers use it to grey out a control, and show :attr:`reason` to
+        explain why the control is unavailable.
         """
         return bool(self.values)
 
@@ -290,14 +289,13 @@ class GeneFacts:
     def sections(self) -> Tuple[Tuple[str, Tuple[Tuple[str, str], ...]], ...]:
         """The facts as ``((heading, ((label, value), ...)), ...)``.
 
-        THE ONE ORDERING, so the Qt tile and the text form cannot drift into
-        presenting the same record two ways -- the same shape
-        :meth:`spacr.gene_tile.GeneTile.sections` returns, so one renderer
-        lays both halves of a tile out with one loop.
+        This is the single ordering used by both the Qt tile and the text
+        form, and the same shape :meth:`spacr.gene_tile.GeneTile.sections`
+        returns, so one renderer lays out both halves of a tile.
 
-        A group with nothing in it is not emitted. That is rule 2: a heading
-        over a blank space is a claim that something was looked for and not
-        found, which is a different statement from "not bundled here".
+        A group with no values is not emitted (rule 2), because a heading
+        over an empty space would suggest that the values were looked for
+        and not found.
         """
         out: List[Tuple[str, Tuple[Tuple[str, str], ...]]] = []
         for heading, columns in _layout():
@@ -440,8 +438,8 @@ def available() -> Tuple[str, ...]:
 def unavailable_reason() -> str:
     """Why there is no annotation on this install, or ``""``.
 
-    A sentence rather than a flag, because it is shown to the user: a panel
-    that merely refused would be indistinguishable from one that broke.
+    A sentence rather than a flag, because it is shown to the user, so an
+    unavailable panel is distinguishable from a failed one.
     """
     if available():
         return ""
@@ -454,14 +452,13 @@ def facts_for(values: Iterable[Any]) -> Dict[str, GeneFacts]:
 
     :param values: anything :func:`spacr.annotation.gene_number` accepts --
         design terms, accessions, guide ids, bare numbers, in any mixture.
-    :returns: one entry per DISTINCT gene named, in the order first named. A
+    :returns: one entry per distinct gene named, in the order first named. A
         value naming no gene contributes nothing, so an empty result means
         nothing in ``values`` was a gene.
 
-    ONE JOIN FOR THE WHOLE SET. The ambiguous case is three genes at once and
-    each of them wants the same 23 columns; three separate merges cost three
-    times as much and, worse, would be three chances for the key to be built
-    differently.
+    Uncached genes are joined in one call. An ambiguous guide can name three
+    genes that each need the same 23 columns; one join costs a third of
+    three separate merges and builds the key once.
     """
     import pandas as pd
 
@@ -502,10 +499,10 @@ def facts(value: Any) -> GeneFacts:
 
     :param value: a design term, an accession, a guide id or a bare gene
         number -- every spelling :func:`spacr.annotation.gene_number` takes.
-    :returns: a :class:`GeneFacts`, ALWAYS. A term that names no gene comes
-        back with :attr:`GeneFacts.known` false and a :attr:`GeneFacts.reason`
-        saying so, because a caller that has to tell ``None`` apart from an
-        empty record is a caller that will forget to.
+    :returns: a :class:`GeneFacts`; ``None`` is never returned. A term that
+        names no gene returns a record with :attr:`GeneFacts.known` false and
+        a :attr:`GeneFacts.reason` saying so, so callers do not need a
+        separate ``None`` check.
     """
     gene = annotation.gene_number(value)
     if gene is None:
@@ -516,20 +513,20 @@ def facts(value: Any) -> GeneFacts:
 
 
 def warm(values: Iterable[Any] = ()) -> Tuple[str, ...]:
-    """Load every table this module reads. CALL THIS OFF THE GUI THREAD.
+    """Load every table this module reads; intended to run off the GUI thread.
 
     :param values: the terms a user might click -- a whole results table's
         ``feature`` column is the intended argument. Every gene among them is
-        joined in ONE pass and cached, which is why passing four hundred
-        costs the same 21 ms as passing one.
+        joined in one pass and cached, so passing four hundred costs about
+        the same (21 ms) as passing one.
     :returns: the columns that came out available, so a caller can tell "the
         tables loaded" from "the tables are not installed" without a second
         call.
 
-    The whole point of the function, measured: cold, the first click pays
-    360 ms of CSV reading plus a 20 ms join, inside a mouse press. A plot
-    that freezes for a third of a second when clicked reads as broken. Warmed
-    with the screen's own terms, a click is a dict lookup -- 0.02 ms.
+    Measured without warming, the first click spends 360 ms reading CSVs
+    plus a 20 ms join inside the mouse-press handler, freezing the plot for
+    about a third of a second. After warming with the screen's terms, a
+    click is a dict lookup -- 0.02 ms.
     """
     columns = available()
     if not columns:

@@ -9255,7 +9255,7 @@ Read by ``get_default_generate_activation_map_settings``.
 illumination_correction
 -----------------------
 
-Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.
+Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. On, intensities are corrected for the position in the field of view, which removes position-dependent intensity bias such as vignetting. Default False.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
@@ -14771,7 +14771,7 @@ Read by ``_decode``, ``ops_defaults``.
 ops_gpu
 -------
 
-Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.
+Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it off when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.
 
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
@@ -14783,7 +14783,7 @@ Read by ``run_ops``, ``ops_defaults``.
 ops_library
 -----------
 
-A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.
+A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly, which measures decoding success. Empty still calls barcodes but cannot score them against a library. Default None.
 
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
@@ -14836,7 +14836,7 @@ Read by ``_spot_detector``, ``ops_defaults``.
 ops_store_reads
 ---------------
 
-Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.
+Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is off by default because the table is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.
 
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_decode`` **-- reads it**

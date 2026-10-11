@@ -1,6 +1,6 @@
 """Sort a folder of images (and their masks) into channels, rename, and merge.
 
-The case this module exists for: masks were drawn in Make Masks on a folder
+Typical input: masks were drawn in Make Masks on a folder
 holding two kinds of image at once -- nucleus-stain images with nucleus
 masks and cell-stain images with cell masks, say -- and those have to become
 one multi-channel field per position, in the layout spaCR's Mask/Measure
@@ -744,15 +744,16 @@ def infer_regex(names: Sequence[str],
     follow the channel are set aside -- and the rest must identify a set
     that holds exactly one image per channel. Each candidate is checked with
     :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is
-    tried first, and :func:`spacr.regex_infer.propose` last. Of the
-    candidates that pass, the one with the FEWEST channels wins: any name can
-    be read as a channel of its own in a single set, which passes and means
-    nothing.
+    tried first and returned when it passes; :func:`spacr.regex_infer.propose`
+    is tried last. Of the other candidates that pass, the one with the fewest
+    channels is returned, the earliest on a tie, because a regex that reads
+    each name as its own channel in a single set also passes the check.
 
     :param names: image file names.
     :param channels: ``{name: channel}`` from the selection strategy; when
         every name has one, the regex needs no ``chanID`` group.
-    :returns: the first regex that passes, or None.
+    :returns: the Yokogawa pattern when it passes, otherwise the passing
+        candidate with the fewest channels, or None.
     """
     names = [n for n in names if n]
     if not names:
@@ -1535,7 +1536,7 @@ def _write_converted(source: str, target: str, kind: str, dest: str) -> None:
 
 def apply_plan(plan: SortPlan, *, merge: bool = True,
                log: Optional[Callable[[str], None]] = None) -> ApplyResult:
-    """MOVE the images and masks as planned, then merge.
+    """Move the images and masks as planned, then merge the channels.
 
     Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it
     happens, so a run that stops half-way still says which file went where.

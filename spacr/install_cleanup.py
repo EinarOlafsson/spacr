@@ -1519,7 +1519,7 @@ def run_update_sequence(install: Callable[[], object], *,
                         records: Optional[Sequence[InstallRecord]] = None,
                         ticked: Iterable[str] = (), keep: Sequence[str] = (),
                         find=None, remove=None, system=None):
-    """Find, then delete, then install -- and never install over an old copy.
+    """Remove old installations; install only if every installer-made copy is gone.
 
     Every installer-made copy is removed, the spaCR package is uninstalled
     from each ticked environment, and only then is ``install`` called. When an
@@ -2584,7 +2584,7 @@ def _macos_recover_user_bundle(transaction, *, run=None, swap=None):
         raise ValueError("recovery paths differ from the original application transaction")
 
     def identity(path):
-        """Bind recovery to actual directory inodes, not mutable app names alone.
+        """Return the device and inode of a journaled bundle directory.
 
         :param path: journaled bundle directory to identify.
         :returns: JSON-compatible device/inode pair.

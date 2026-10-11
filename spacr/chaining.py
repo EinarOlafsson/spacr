@@ -1,9 +1,9 @@
-"""Auto-chaining: a module's inputs default to where the last run *actually* wrote.
+"""Default a module's input paths to the outputs that upstream runs recorded.
 
-Opening Measure has always meant typing the plate folder again, and getting it
-wrong meant a twenty-minute run against the previous plate.  The path was
-never a mystery — Mask had just written it — but nothing carried the answer
-across, so every module screen started from ``"path"``.
+Without chaining, every module screen starts from the ``"path"``
+placeholder, and the plate folder that an upstream module such as Mask has
+just written must be entered again; a wrong entry runs the module against
+another plate.
 
 :mod:`spacr.ports` now declares what each module consumes and produces, and
 :mod:`spacr.artifacts` records where every finished run put its outputs.  This
@@ -12,23 +12,23 @@ module joins the two:
 * :func:`chained_inputs` asks the registry — ``latest(kind, project=…)`` —
   where the upstream module's output *is*, and turns that into the value a
   settings key should hold.  The answer comes from the row the producer wrote,
-  never from re-deriving ``<root>/merged`` and hoping;
+  not from re-deriving ``<root>/merged``;
 * :func:`resolve_settings` applies those values to a settings dict **without
   ever overwriting a path the user edited**.  A user edit is remembered in a
-  :class:`PinStore` and wins forever after; when the upstream later moves, the
+  :class:`PinStore` and takes precedence until it is cleared; when the upstream later moves, the
   new location is *offered* (:class:`HeldPin`) rather than pushed;
 * :func:`staleness_notes` turns :meth:`spacr.artifacts.Registry.is_stale` into
   sentences a user can act on, keyed by the cause codes so the reason is
   specific — "Mask ran again after this" is a different problem from "the
   settings changed";
-* :func:`next_steps` answers "this run finished — now what?", using
-  :func:`spacr.ports.next_modules` for the candidates,
+* :func:`next_steps` lists the modules that can run on a finished run's
+  outputs, using :func:`spacr.ports.next_modules` for the candidates,
   :func:`chained_inputs` for their pre-filled settings and
   :func:`spacr.ports.check_ready` so a successor that *cannot* run is offered
-  with its blocking reason rather than silently.
+  with its blocking reason.
 
 Nothing here imports Qt, numpy or torch: the Qt layer
-(:mod:`spacr.qt.chaining`) is a thin skin over these functions, and the same
+(:mod:`spacr.qt.chaining`) is a thin wrapper over these functions, and the same
 answers are available to the CLI and to a batch runner.
 
 Public API
@@ -40,7 +40,7 @@ Public API
 ``ChainedInput``, ``chained_inputs``, ``resolve_settings``, ``Resolution``
     Auto-chaining itself.
 ``StaleNote``, ``stale_inputs``, ``stale_outputs``, ``staleness_notes``
-    Staleness, said out loud.
+    Staleness checks and their messages.
 ``NextStep``, ``next_steps``
     "Continue to the next step."
 """
@@ -191,9 +191,9 @@ PIN_STATE_ENV = "SPACR_CHAINING_PINS"
 def state_path() -> str:
     """Return the file the user's pinned paths live in.
 
-    ``$SPACR_CHAINING_PINS`` wins; otherwise XDG state storage, matching
-    :func:`spacr.remote_execution.state_directory` rather than inventing a
-    second convention for the same kind of data.
+    ``$SPACR_CHAINING_PINS`` takes precedence; otherwise XDG state storage,
+    following the same convention as
+    :func:`spacr.remote_execution.state_directory`.
 
     :returns: an absolute path. The file need not exist.
     """
@@ -346,8 +346,8 @@ def pin_store(path: Optional[str] = None, *, refresh: bool = False) -> PinStore:
         one always builds a fresh store rather than handing back a cached one
         pointed at a different file.
     :param refresh: rebuild the shared store, re-reading :func:`state_path`.
-        Needed after ``$SPACR_CHAINING_PINS`` changes, which is exactly what a
-        test that isolates the state does.
+        Needed after ``$SPACR_CHAINING_PINS`` changes, for example in a test
+        that isolates the state.
     """
     global _STORE
     if path is not None:
@@ -393,8 +393,8 @@ BINDINGS: Dict[Tuple[str, str], Binding] = {}
 def register_binding(binding: Binding, *, overwrite: bool = False) -> Binding:
     """Declare that one port fills one settings key.
 
-    The seam a module with an unusual input key uses, so this table never has
-    to be edited by hand.
+    Used by a module with an unusual input key, so that the binding table
+    does not have to be edited by hand.
 
     :param binding: the declaration.
     :param overwrite: allow replacing an existing one. Off by default, so two
@@ -449,10 +449,10 @@ def binding_for(module: str, port: Port) -> Binding:
     """Return the binding for one consumed port, declared or derived.
 
     Derived means: the port fills the module's source folder, in
-    :data:`ROOT` form.  That is the shipped truth for every pipeline module —
+    :data:`ROOT` form.  This holds for every shipped pipeline module —
     Measure, Classify, UMAP and the rest all take a plate folder and find
     ``merged/`` or ``measurements/`` inside it — so the common case needs no
-    declaration and a new module joins the chain the moment it declares ports.
+    declaration and a new module is chained as soon as it declares ports.
 
     :param module: the consuming module key or alias.
     :param port: one of that module's consumed ports.
@@ -521,8 +521,8 @@ def candidate_roots(module: str,
     :param settings: the settings dict being edited.
     :param root: an explicit root, tried first.
     :param roots: further candidates, in preference order.
-    :returns: absolute, de-duplicated, existing-or-not (existence is the
-        registry's problem, not this function's).
+    :returns: absolute, de-duplicated paths; whether they exist is not
+        checked here.
     """
     ordered: List[str] = []
     for candidate in (root, _ports.project_root(settings, module), *roots):
@@ -568,8 +568,7 @@ class ChainedInput:
     :param producer: the module that wrote it.
     :param root: the project root the artifact belongs to.
     :param staleness: the artifact's own staleness, so a chained default can
-        say "yes, and it is out of date" instead of quietly handing over a
-        stale folder.
+        be reported as out of date when it is filled in.
     :param required: whether the consuming module needs this port.
     """
 
@@ -586,7 +585,7 @@ class ChainedInput:
 
     @property
     def path(self) -> str:
-        """The artifact's own path — where the producer really wrote."""
+        """The artifact's own path, as recorded by the producing module."""
         return self.artifact.path
 
     @property
@@ -595,7 +594,7 @@ class ChainedInput:
         return bool(self.staleness and self.staleness.stale)
 
     def describe(self) -> str:
-        """One line: what this is, and who made it."""
+        """Return one line naming the input's kind, producer and path."""
         return (f"{self.kind} from {self.producer} at {self.artifact.path}")
 
 
@@ -613,7 +612,7 @@ def chained_inputs(module: str,
     hit wins.  The answer is the row the *producer* wrote — its path, its
     project, its settings hash — so a plate whose merged arrays ended up
     somewhere unusual chains correctly, which re-deriving ``<root>/merged``
-    never could.
+    would not.
 
     Ports whose settings key the module does not have are skipped: inventing
     a key would put a value somewhere nothing reads.
@@ -683,8 +682,8 @@ class HeldPin:
     def differs(self) -> bool:
         """True when the upstream has moved away from the user's choice.
 
-        The one case worth a word in the interface: the pin still wins, and
-        the new location is offered beside it.
+        In that case the pin still takes precedence, and the new location is
+        offered beside it.
         """
         return (self.chained is not None
                 and not same_path(self.value, self.offered))
@@ -732,17 +731,17 @@ def resolve_settings(module: str,
                      check_staleness: bool = True) -> Resolution:
     """Fill ``module``'s input paths from the registry, respecting user edits.
 
-    The precedence, which is the whole design:
+    Values are resolved in this order of precedence:
 
-    1. **a pinned value wins.**  If the user has ever typed a path for this
-       key, it is restored and nothing overwrites it — not a newer upstream
-       run, not a different plate, not a restart.  When the upstream has moved
+    1. **a pinned value wins.**  If the user has typed a path for this key,
+       it is restored and is not overwritten by a newer upstream run, a
+       different plate or a restart.  When the upstream has moved
        since, the move is reported in :attr:`Resolution.held` for an interface
        to *offer*;
     2. otherwise, a value already in ``settings`` that is not a placeholder
        wins.  Loading a settings CSV, dropping a folder or seeding from
-       another screen all land here, and none of them should be second-guessed
-       within the same session;
+       another screen all land here, and none of them is overridden within
+       the same session;
     3. otherwise the registry's answer is used.
 
     :param module: module key or alias.
@@ -844,7 +843,7 @@ def explain_causes(causes: Iterable[str]) -> str:
     :param causes: cause codes from :attr:`spacr.artifacts.Staleness.causes`.
     :returns: the sentences joined with "; ", de-duplicated in first-seen
         order. Unknown codes are passed through as themselves rather than
-        dropped — a code this table has not caught up with is still a fact.
+        dropped, so a code missing from this table is still reported.
     """
     seen: List[str] = []
     for cause in causes:
@@ -953,10 +952,9 @@ def stale_outputs(module: str,
                   ) -> Tuple[StaleNote, ...]:
     """Return the results ``module`` already produced that are out of date.
 
-    The warning a user needs *before* they open a figure or hand a number to
-    a collaborator: the measurements in this project were made from a Mask run
-    that has since been redone, or with settings that are not the ones now on
-    screen.  ``settings`` is compared against the recorded settings hash, so
+    An output is reported when, for example, the measurements in this project
+    were made from a Mask run that has since been redone, or with settings
+    that are not the ones now on screen.  ``settings`` is compared against the recorded settings hash, so
     editing a material knob marks the existing result stale immediately —
     before the run that would fix it.
 
@@ -986,8 +984,8 @@ def stale_inputs(module: str,
                  ) -> Tuple[StaleNote, ...]:
     """Return the inputs ``module`` would read that are already out of date.
 
-    Running on a stale input produces a stale result, so this is the warning
-    that saves the twenty minutes rather than explaining them afterwards.
+    Running on a stale input produces a stale result, so this check reports
+    the problem before the run rather than after it.
     Settings are deliberately *not* compared here: this module's settings say
     nothing about whether the previous module's output is current.
 
@@ -1013,8 +1011,7 @@ def staleness_notes(module: str,
                     ) -> Tuple[StaleNote, ...]:
     """Return every stale artifact around ``module``: its inputs and its outputs.
 
-    Inputs first — a stale input explains a stale output, and saying it the
-    other way round asks the user to work backwards.
+    Inputs are listed first, because a stale input explains a stale output.
 
     :param module: module key or alias.
     :param settings: the settings currently on screen.
@@ -1055,16 +1052,15 @@ class NextStep:
 
     @property
     def ok(self) -> bool:
-        """True when the successor could actually run right now."""
+        """True when :func:`spacr.ports.check_ready` reports the successor ready to run."""
         return bool(self.readiness.ok)
 
     @property
     def blocked(self) -> str:
         """Why it cannot run, or ``""`` when it can.
 
-        Shown *beside the offer*, not instead of it: a successor that is one
-        missing folder away from running is still the thing the user wants,
-        and hiding it would leave them wondering where Measure went.
+        Shown *beside the offer*, not instead of it: a successor that lacks
+        one input folder is still listed, with the reason it cannot run.
         """
         if self.readiness.ok:
             return ""
@@ -1094,7 +1090,8 @@ def next_steps(module: str,
     *require* one of the kinds this one produces — so the list is derived from
     the declared graph rather than a hand-written "after Mask, offer Measure".
     Each is resolved against the registry for its settings, then run through
-    :func:`spacr.ports.check_ready`, so an offer either works or says why not.
+    :func:`spacr.ports.check_ready`, so each offer is either ready or carries
+    the reason it cannot run.
 
     :param module: the module that just finished; key or alias.
     :param settings: the settings it ran with, for the project root.
@@ -1178,10 +1175,10 @@ def _first_component(relative: str) -> str:
 def layout_directories() -> Tuple[str, ...]:
     """Return the folder names spaCR's project layout uses, sorted.
 
-    Read off :data:`spacr.ports.PORTS` rather than typed out — ``merged``,
-    ``measurements``, ``masks``, ``data``, ``model``, ``results``,
-    ``settings``, ``orig``, ``consolidated`` all come from a declaration
-    somebody already wrote — so a plugin that declares a port makes its own
+    Derived from :data:`spacr.ports.PORTS` rather than listed here —
+    ``merged``, ``measurements``, ``masks``, ``data``, ``model``,
+    ``results``, ``settings``, ``orig``, ``consolidated`` all come from port
+    declarations — so a plugin that declares a port makes its own
     folder part of the layout without editing a list here.
 
     Cached against the size of the registry, so a late
@@ -1219,9 +1216,9 @@ def project_root_of(path: Any, *, max_climb: int = MAX_CLIMB) -> str:
 
     :param path: the dropped file or folder.
     :param max_climb: how many levels above the drop to consider.
-    :returns: an absolute path. Never raises: a path that is nowhere near a
-        project answers with its own folder, which is what a direct drop
-        wants anyway.
+    :returns: an absolute path, or ``""`` when ``path`` is None. A path
+        outside any project does not raise: the result is the dropped folder
+        itself, or the folder holding a dropped file.
     """
     if path is None:
         return ""
@@ -1277,8 +1274,8 @@ def db_candidates(root: str) -> Tuple[str, ...]:
 
     The declared location comes from the :data:`spacr.ports.MEASUREMENTS_DB`
     port; the rest is a shallow listing of the root and of the folder that
-    port names. Two databases in one project is not an error and not a thing
-    to guess about — it is a question, and this is the list to ask it with.
+    port names. Two databases in one project are not an error; the list is
+    returned so the caller can ask which one to use, and none is chosen here.
     """
     if not root or not os.path.isdir(root):
         return ()
@@ -1346,8 +1343,8 @@ class DropTarget:
     :param kind: the :mod:`spacr.ports` kind.
     :param value: what the settings key should become — the project root for
         a :data:`ROOT` binding, the artifact itself for a :data:`PATH` one.
-    :param location: the artifact's own path, always. This is what an
-        interface shows the user: "it resolved to *this*".
+    :param location: the artifact's own path, always. An interface shows
+        this path as the resolved location.
     :param source: :data:`FROM_REGISTRY` when the answer came from a
         recorded run — the same answer auto-chaining gives — or
         :data:`FROM_LAYOUT` when it came from the declared folder layout.
@@ -1373,11 +1370,11 @@ class DropTarget:
 
 @dataclass(frozen=True)
 class DropChoice:
-    """A question a drop cannot answer on its own.
+    """A choice between candidates that a dropped path does not resolve on its own.
 
     Two databases in a folder, two projects under the folder that was
-    dropped, two tables in the database — each has a right answer and none of
-    them is "the first one". :attr:`options` is what to offer.
+    dropped, two tables in the database — none of these is resolved by
+    taking the first candidate. :attr:`options` holds the candidates to offer.
 
     :param question: the sentence to put above the list.
     :param kind: the vocabulary term the options are candidates for.
@@ -1456,11 +1453,11 @@ def looks_laid_out(folder: str) -> bool:
 
     :param folder: candidate project directory to inspect.
 
-    The cheap structural answer to "is this a project?", nine ``stat`` calls
-    against :func:`layout_directories`. :func:`spacr.projects.looks_like_project`
-    is the thorough one and reads the registry and every module's outputs;
-    a drop happens while the mouse button is still down, so this is the one
-    that runs there.
+    A structural check for whether a folder is a project: at most one ``isdir``
+    call per name in :func:`layout_directories` (nine for the shipped ports).
+    :func:`spacr.projects.looks_like_project` is the thorough check and reads
+    the registry and every module's outputs; this one is fast enough to run
+    while a drag is still in progress.
     """
     if not folder or not os.path.isdir(folder):
         return False
@@ -1545,12 +1542,12 @@ def resolve_drop(module: str,
                  settings: Optional[Mapping[str, Any]] = None,
                  registry: Optional[Registry] = None,
                  max_climb: int = MAX_CLIMB) -> DropResolution:
-    """Work out what a dropped path means to ``module``.
+    """Resolve a dropped path against ``module``'s inputs.
 
-    The whole point of the function is that it is *the same* resolution
-    auto-chaining performs. For every input the module declares, the registry
-    is asked first — :meth:`spacr.artifacts.Registry.latest` for that kind in
-    that project, exactly as :func:`chained_inputs` asks it — so a drop and an
+    The resolution is the same one auto-chaining performs. For every input
+    the module declares, the registry is asked first —
+    :meth:`spacr.artifacts.Registry.latest` for that kind in that project, as
+    :func:`chained_inputs` asks it — so a drop and an
     auto-chain fill the field with the same string. Only when no run was ever
     registered does the declared layout in :data:`spacr.ports.PORTS` answer
     instead, and then it answers with the folder the ports say it is in.

@@ -162,12 +162,12 @@ else:
         ZOOM_STEP = 1.15
 
         def __init__(self, scene: QGraphicsScene, parent: QWidget | None = None) -> None:
-            """Create the graph view, transparent all the way down.
+            """Create the graph view with a transparent background.
 
-            Three surfaces have to give way for the page to show through: the
-            widget, its viewport's auto-fill, and the background brush. Clearing
-            only the scene's brush left this one painting the near-black rectangle
-            over it.
+            Three surfaces must be transparent for the page behind to show:
+            the widget, its viewport's auto-fill, and the background brush.
+            Clearing only the scene's brush leaves the view painting a
+            near-black rectangle.
 
             :param scene: the scene to show.
             :param parent: parent widget, or ``None``.
@@ -593,7 +593,7 @@ else:
             self.setFixedHeight(self._user_height)
 
         def reset_user_height(self) -> None:
-            """Give the height back to the content and the layout."""
+            """Clear the user-set height so the layout sizes the panel again."""
             self._user_height = None
             self.setMinimumHeight(0)
             self.setMaximumHeight(16777215)

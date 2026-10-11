@@ -1,34 +1,31 @@
-"""spaCR's own summary of a regression run — one shape for every mode.
+"""Build a summary of a regression run with the same fields for every mode.
 
-WHY THIS EXISTS. ``regression_results.summary_text`` relays the *statsmodels*
-summary, verbatim and deliberately: the point of asking for the statsmodels
-summary is to get the statsmodels summary, and a re-implementation would
-differ from every textbook a reader compares it against. That is correct, and
-it means the tab has exactly one source — so most of
-:data:`spacr.regression_spec.REGRESSION_TYPES` got nothing because statsmodels
-does not write a summary for them, and ``inference='nonparametric'`` got
+``regression_results.summary_text`` relays the *statsmodels* summary
+verbatim, so that it matches the statsmodels output a reader compares it
+against. Statsmodels writes no summary for most of
+:data:`spacr.regression_spec.REGRESSION_TYPES`, and a run with
+``inference='nonparametric'`` has no fitted model, for which that source
+alone gives only
 
     No summary: this run came back without a fitted model, so there is none
     to summarise.
 
-which is TRUE AND USELESS. The permutation path is a within-plate marginal
-test per guide: no design matrix, no coefficient covariance, no statsmodels
-object to ask. The run still produced results, and those results have
-properties worth reporting — just not the ones statsmodels prints.
+The permutation path is a within-plate marginal test per guide, with no
+design matrix, no coefficient covariance and no statsmodels object. Its
+results still have reportable properties, which differ from the ones
+statsmodels prints.
 
-THE CONTRACT IS THE DELIVERABLE, not the statistics. Every field named in
-:data:`CONTRACT` is present in every mode, and each one is either COMPUTED or
-explicitly NOT APPLICABLE WITH A REASON. A blank is not allowed, and neither
-is a zero standing in for "we did not check" — that is the failure this module
-exists to prevent, in miniature. :class:`SummaryField` refuses to be built any
-other way, so the rule is enforced by the type rather than by review.
+Every field named in :data:`CONTRACT` is present in every mode, and each one
+is either computed or marked not applicable with a reason. Blank values are
+not allowed, and a zero may not stand in for an unchecked value.
+:class:`SummaryField` raises when constructed any other way, so the type
+enforces the rule.
 
-A NONPARAMETRIC RUN LISTS ITS ASSUMPTIONS AS "NOT ASSUMED", NEVER AS BLANKS.
-That is the POINT of choosing it, and a summary that left them empty would
-make the safer method look like the less informative one — which is precisely
-the mistake a reader would then make in a methods section.
+A nonparametric run lists the parametric assumptions as "not assumed"
+rather than leaving them blank, because not making those assumptions is the
+reason to choose the method.
 
-NOTHING HERE IS NEW STATISTICS. It is a collector:
+The module computes no new statistics. It collects values from:
 
 * :func:`spacr.trial_metrics.fit_quality`, ``.residual_diagnostics``,
   ``.design_diagnostics``, ``.calibration`` and ``.control_recovery`` already
@@ -39,16 +36,16 @@ NOTHING HERE IS NEW STATISTICS. It is a collector:
 * :func:`spacr.regression_qc.context_from_model` recovers leverage and the
   standardised residual from a model that kept its own design;
 * :func:`spacr.multiple_testing.critical_p_value` is the exact BH threshold;
-* :data:`spacr.qt.widgets.sweep_runs.PREFERRED_COLUMNS` names what a run is
-  COMPARED by, and :data:`COMPARISON_FIELDS` maps every one of those columns
-  onto the field that reports it. The columns a run is compared by should be
-  the columns its summary reports; if they disagree, one of them is wrong.
+* :data:`spacr.qt.widgets.sweep_runs.PREFERRED_COLUMNS` names the columns
+  runs are compared by, and :data:`COMPARISON_FIELDS` maps every one of those
+  columns onto the summary field that reports it, so the summary reports the
+  same values runs are compared by.
 
-WHERE IT GOES. The run folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the
-file :func:`spacr.qt.widgets.regression_results.find_summary_file` already
-reads back, so re-opening a run from disk shows this summary
-with no GUI change. The statsmodels text, where there is one, is appended
-VERBATIM at the end rather than replaced.
+The summary is written to the run folder under
+:data:`spacr.ml.SUMMARY_FILENAME`, the file
+:func:`spacr.qt.widgets.regression_results.find_summary_file` reads, so a
+run re-opened from disk shows this summary. The statsmodels text, where
+there is one, is appended verbatim at the end.
 """
 
 from __future__ import annotations
@@ -253,11 +250,9 @@ _WIDTH = 88
 class SummaryField:
     """One reported field: a value, or a reason there is none.
 
-    A BLANK IS NOT REPRESENTABLE. Exactly one of ``value`` and ``reason`` may
-    be given, and neither may be empty, so "we did not check" cannot be
-    written as an empty string and a zero cannot stand in for it either. That
-    is the whole failure this module is about, enforced where it cannot be
-    forgotten.
+    A blank field cannot be constructed. Exactly one of ``value`` and
+    ``reason`` may be given, and neither may be empty, so an unchecked value
+    cannot be written as an empty string or as a zero.
 
     :param name: stable machine name; unique within its section.
     :param label: what the printed line calls it.
@@ -278,10 +273,9 @@ class SummaryField:
         """Validate that the field carries exactly one of a value and a reason.
 
         :raises ValueError: if it has both or neither; if whichever it has is
-            blank -- a blank is the thing this type exists to refuse; if the
-            kind is unknown; or if a non-computed field carries a value without
-            a reason, since the reason is what a reader needs. An absent kind is
-            inferred from which of the two was given.
+            blank; if the kind is unknown; or if a non-computed field carries
+            a value without a reason. An absent kind is inferred from which of
+            the two was given.
         """
         has_value = self.value is not None
         has_reason = self.reason is not None
@@ -345,14 +339,14 @@ class SummarySection:
 
 @dataclass
 class RunSummary:
-    """Everything spaCR knows about one finished run.
+    """Summary of one finished regression run, in contract sections.
 
     :param sections: the six sections of :data:`SECTIONS`, in order.
-    :param warnings: sentences printed ABOVE everything else. The
-        identifiability warning lives here, which is where it already is on
-        the Summary tab and where it has to stay: statsmodels prints a full
-        table of standard errors regardless, and it looks exactly like a
-        summary of a well-posed fit.
+    :param warnings: sentences printed above everything else, including the
+        identifiability warning, which the Summary tab also shows first:
+        statsmodels prints a full table of standard errors for a
+        rank-deficient fit, and that table looks like the summary of a
+        well-posed fit.
     :param verbatim: the statsmodels text summary, appended unchanged, or
         ``None``.
     :param verbatim_note: what the verbatim block is, or why there is none.
@@ -2141,16 +2135,14 @@ _BUILDERS = {
 
 def build_run_summary(*, model=None, settings=None, coef_df=None,
                       regression_type=None, res_folder=None, fit_designs=None) -> RunSummary:
-    """spaCR's own summary of one run, in the same shape for every mode.
+    """Build the summary of one run, with the same fields for every mode.
 
-    THE CONTRACT IS THE RETURN VALUE. Whatever the regression type and
-    whichever inference was used, the result carries every name in
-    :data:`CONTRACT` and each one is answered — with a number, or with a
-    sentence saying why this mode cannot have one.
-    :meth:`RunSummary.missing` is empty on every well-formed summary, and a
-    builder that raises is backfilled with the exception rather than allowed
-    to leave a hole: reporting is not worth losing a field over, and a hole is
-    the failure this module exists to prevent.
+    Whatever the regression type and inference, the result carries every
+    name in :data:`CONTRACT`, and each one is answered with a value or with
+    a sentence saying why this mode cannot have one.
+    :meth:`RunSummary.missing` is empty on every well-formed summary. When a
+    section builder raises, its fields are filled with the exception text
+    instead of being left empty.
 
     :param model: the fitted model, or ``None`` — which is the ordinary case
         for the permutation path and for the sklearn-backed penalised fits,
@@ -2338,11 +2330,11 @@ _NOT_APPLICABLE = "not applicable"
 
 
 def headline(summary: "RunSummary") -> List["SummaryField"]:
-    """The six lines a reader can stop after.
+    """Return the headline fields of a summary, one per :data:`HEADLINE` entry.
 
-    NOT A SUMMARY OF THE SUMMARY. Every line here is one of the fields below,
-    quoted verbatim -- so there is no second place for a number to be wrong,
-    and nothing can drift between the headline and the section it came from.
+    Each returned item is the :class:`SummaryField` object from its section,
+    not a copy or a recomputation, so the headline and the section always
+    show the same value.
     """
     out: List[SummaryField] = []
     for section_name, field_name in HEADLINE:
@@ -2374,9 +2366,9 @@ def _split_not_applicable(fields):
 def format_run_summary(summary: RunSummary) -> str:
     """Render a :class:`RunSummary` as the text written to the run folder.
 
-    THE WARNING GOES FIRST, where the Summary tab already puts it: a
-    rank-deficient fit prints a full table of standard errors regardless, and
-    it looks exactly like a summary of a well-posed one.
+    Warnings are written first, as on the Summary tab: a rank-deficient fit
+    still prints a full table of standard errors, which looks like the
+    summary of a well-posed fit.
 
     :param summary: what :func:`build_run_summary` returned.
     :returns: the whole summary as text.
@@ -2571,19 +2563,17 @@ def write_run_summary(res_folder, *, model=None, settings=None, coef_df=None,
                       regression_type=None, fit_designs=None) -> Optional[str]:
     """Write this run's spaCR summary into its own folder, and return the path.
 
-    CALLED ON EVERY RUN, for every supported regression type and
-    both inferences. It writes the file
-    :func:`spacr.qt.widgets.regression_results.find_summary_file` already
-    reads back, so a run re-opened from disk shows this summary with no GUI
-    change (the design taught the panel to read the run folder;
-    the design is about there being something worth reading in it).
+    Called on every run, for every supported regression type and both
+    inferences. It writes the file
+    :func:`spacr.qt.widgets.regression_results.find_summary_file` reads, so
+    a run re-opened from disk shows this summary.
 
-    THE STATSMODELS SUMMARY IS PRESERVED. ``ols`` and ``beta`` runs have
+    The statsmodels summary is preserved. ``ols`` and ``beta`` runs have
     already written the statsmodels text into this same file by the time this
-    is called; it is rendered again from the model where it can be, and
-    otherwise read back off the file, and either way it is appended UNCHANGED
-    at the end rather than replaced. The whole text is built in memory first,
-    so a failure here leaves the existing file exactly as it was.
+    is called; it is rendered again from the model where possible, otherwise
+    read back from the file, and in both cases appended unchanged at the end.
+    The whole text is built in memory first, so a failure here leaves the
+    existing file unchanged.
 
     :param res_folder: the run folder, beside ``results.csv``.
     :param model: the fitted model, or ``None``.

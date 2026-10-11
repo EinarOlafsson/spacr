@@ -73,12 +73,14 @@ def measurement_psf_record(plan, image, *, hooks=(), channels=()):
 
 
 def measurement_resume_settings(settings, *, recorded=False):
-    """Compare active PSF behavior rather than dormant form parameters.
+    """Return Measure settings with PSF parameters replaced by one signature.
 
     :param settings: recorded or current Measure settings.
     :param recorded: keep a recorded kernel identity without reopening its file.
-    :returns: fresh settings with inactive PSF knobs removed and one captured
-        material signature. Legacy measurements have the original signature None.
+    :returns: a new dict without any ``psf_*`` keys, carrying the PSF
+        signature under ``_psf_measurement_signature``. An existing signature
+        is kept; otherwise it is computed from the settings, or set to None
+        when ``recorded`` is true (legacy measurements).
     """
     result = {k: v for k, v in settings.items() if not k.startswith('psf_')}
     if SIGNATURE_KEY not in result:

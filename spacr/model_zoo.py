@@ -1,13 +1,12 @@
 """Browse, verify, fetch and benchmark spaCR segmentation and classification models.
 
-Why this exists
----------------
-spaCR can run a stock Cellpose model, a Cellpose model somebody on the team
-fine-tuned last year, a classifier checkpoint from a run three folders up, or a
-checkpoint downloaded from Hugging Face. Today the only way to find out which
-of those exist on a machine is ``find / -name '*.pth'``, the only way to know
-what one of them was trained on is to remember, and the only way to know
-whether the copy on disk is the file the author published is to hope.
+Scope
+-----
+spaCR can run a stock Cellpose model, a fine-tuned Cellpose model, a
+classifier checkpoint from a training run, or a checkpoint downloaded from
+Hugging Face. Three questions follow for any machine: which of those models
+are on it, what each one was trained on, and whether the copy on disk is the
+file the author published.
 
 This module answers those three questions and nothing else:
 
@@ -27,8 +26,8 @@ machine with neither installed; only :func:`benchmark` (through
 :func:`spacr.model_compare.segment_with_cellpose`) needs them, and only when it
 is called. ``tests/test_model_zoo.py`` asserts that.
 
-The four things that make this trustworthy rather than merely convenient
-------------------------------------------------------------------------
+Safeguards
+----------
 **Every download is checksummed, and verification happens before use.**
     A checkpoint truncated by a dropped connection, or swapped for a different
     one at the same URL, still loads. It does not raise; it produces silently
@@ -60,9 +59,8 @@ The four things that make this trustworthy rather than merely convenient
 
 **Provenance is recorded, and "unknown" is written out in full.**
     A Cellpose model fine-tuned on 60x confluent HeLa is not interchangeable
-    with one trained on 20x sparse fibroblasts, and no amount of benchmark
-    score makes it so. What a model was trained on is the single most useful
-    thing the zoo can show, so :class:`ModelEntry` carries
+    with one trained on 20x sparse fibroblasts, whatever their benchmark
+    scores. :class:`ModelEntry` therefore carries
     :attr:`~ModelEntry.trained_on` and :attr:`~ModelEntry.trained_by`, both
     recovered from the settings snapshots spaCR already writes beside its
     models (``<file>_settings.csv`` for a Cellpose model,
@@ -74,16 +72,16 @@ The four things that make this trustworthy rather than merely convenient
     opposite of what it means.
 
 **Benchmarks are only comparable inside one field set.**
-    A model's score on your three fields says nothing whatsoever about its
-    score on somebody else's, and a table that sorts the two together invents a
-    ranking out of two unrelated numbers. So every :class:`BenchmarkResult`
+    A model's score on your three fields does not predict its score on
+    somebody else's, and a table that sorts the two together produces a
+    ranking of two unrelated numbers. So every :class:`BenchmarkResult`
     records a :func:`fieldset_id` — a hash of the actual pixels, not the folder
     name — and :func:`rank` **raises** :class:`IncomparableBenchmarks` when
     handed results from more than one field set. :func:`rank_groups` and
     :func:`format_benchmarks` are the supported alternative: they group by
     field set, rank within each group, and label the groups.
 
-And a fifth, smaller one: a model file that is missing, empty, or not a torch
+A model file that is missing, empty, or not a torch
 checkpoint at all fails in :func:`inspect_checkpoint` with a message naming the
 file, before anything tries to load it. The default failure — a ``KeyError`` on
 a state-dict key from deep inside torch — names nothing the user chose.
@@ -1135,7 +1133,7 @@ class ModelZooError(Exception):
 
 
 class ChecksumMismatch(ModelZooError):
-    """What arrived is not what the catalogue published. Nothing was installed."""
+    """Downloaded bytes do not match the published digest; nothing was installed."""
 
 
 class ModelUnreadable(ModelZooError):
@@ -1143,7 +1141,7 @@ class ModelUnreadable(ModelZooError):
 
 
 class DownloadCancelled(ModelZooError):
-    """The caller cancelled a fetch. Nothing was left at the destination."""
+    """Raised when the caller cancels a fetch; nothing is left at the destination."""
 
 
 class IncomparableBenchmarks(ModelZooError):
@@ -1153,7 +1151,7 @@ class IncomparableBenchmarks(ModelZooError):
 
 @dataclass(frozen=True)
 class ModelEntry:
-    """One model the zoo knows about, wherever it lives.
+    """Record of one model: its location, checksum and provenance.
 
     Frozen because an entry is a *record of a file at a moment* — the hash, the
     size and the provenance describe those bytes. Changing one in place would
@@ -1218,8 +1216,7 @@ class ModelEntry:
         """Fill in the provenance fields and validate the kind.
 
         A blank ``trained_on`` or ``trained_by`` reads as "no constraints", so
-        it is replaced with an explicit unknown -- the field has to say so out
-        loud rather than by omission.
+        it is replaced with :data:`UNKNOWN`.
 
         :raises ValueError: if ``kind`` is not one of the known model kinds.
         """
@@ -1244,10 +1241,10 @@ class ModelEntry:
     def scorecard_known(self) -> bool:
         """True when this model says how accurate it is.
 
-        The accuracy twin of :attr:`provenance_known`, which 370 asks for by
-        name. A model with no numbers did not score zero, and a table of
-        empty cells reads as the second -- so the absence is a state to
-        report rather than a gap to render.
+        The accuracy counterpart of :attr:`provenance_known`. A model with no
+        metrics did not score zero, but a table of empty cells reads as zero,
+        so the absence is reported as a state rather than shown as blank
+        cells.
         """
         from .scorecard import scorecard_is_present
 
@@ -1257,10 +1254,10 @@ class ModelEntry:
     def scorecard_holdout(self) -> str:
         """``name @ version`` of the hold-out set, or ``""``.
 
-        A SCORECARD WITHOUT ITS SET IS A NUMBER WITHOUT A UNIT. Two people
-        quoting an F1 for the same model have said nothing to each other
-        unless they scored the same masks, so the set travels with the
-        numbers into every surface that shows them.
+        Scores from different hold-out sets are not comparable: two F1
+        values for the same model agree only if they were computed on the
+        same masks. The set name and version are therefore shown with the
+        numbers.
         """
         metrics = self.metrics or {}
         name = str(metrics.get("holdout") or "").strip()
@@ -1272,11 +1269,10 @@ class ModelEntry:
     def scorecard_lines(self) -> List[str]:
         """The scorecard as display lines, or the sentence saying there is none.
 
-        ONE SOURCE, FOUR RENDERINGS. The tooltip, the API page, the Zoo screen
-        and the Hugging Face table all render THIS, so they cannot disagree --
-        366 found six README tiles pointing at three different API pages, and
-        that is what happens when a number is written down in more than one
-        place.
+        The lines come from :func:`spacr.scorecard.headline` applied to the
+        fine-tuned values with the vanilla values as baseline, followed by
+        the hold-out set when one is recorded. Without a scorecard the list
+        holds the single line :data:`spacr.scorecard.NO_SCORECARD`.
         """
         from .scorecard import NO_SCORECARD, headline
 
@@ -1301,12 +1297,12 @@ class ModelEntry:
             no hash at all — nothing can be checked, and :func:`fetch` refuses
             such an entry unless the caller overrides it.
         ``'published'``
-            a hash came with the entry but the bytes are not here yet, so it is
-            a promise about what will arrive.
+            a hash came with the entry but the bytes are not here yet; it is
+            the digest the download will be checked against.
         ``'recorded'``
-            the honest middle: the hash of the file on disk is known, but
-            nobody published one to compare it against. It proves the file has
-            not changed *since we looked*, and nothing more.
+            the hash of the file on disk is known, but no published digest
+            exists to compare it against. It shows only that the file has not
+            changed since the hash was recorded.
         ``'verified'``
             the bytes on disk were compared with a published digest and match.
         """
@@ -1409,7 +1405,7 @@ def _human_bytes(size: Any) -> str:
 
 
 def sha256_file(path: Any, chunk_size: int = 1 << 20) -> str:
-    """Hex SHA-256 of a file, read in chunks so a 2 GB checkpoint is not RAM.
+    """Hex SHA-256 of a file, read in chunks so the whole file is never in memory.
 
     :param path: the file.
     :param chunk_size: bytes per read.
@@ -1853,7 +1849,7 @@ def package_model_root() -> Path:
 
 
 def default_local_roots() -> List[Path]:
-    """Folders worth scanning when the caller has not named one.
+    """Default folders to scan for models when the caller names none.
 
     The bundled pack, the Cellpose user folder, and spaCR's own model cache.
     Only the ones that exist come back.
@@ -1989,7 +1985,7 @@ def hf_uri(repo_id: str, filename: str, repo_type: str = "dataset") -> str:
     :func:`spacr.qt.hf_download._download_one` build, kept in one place so the
     zoo cannot drift away from the downloader spaCR already ships.
 
-    THE TWO REPO KINDS HAVE DIFFERENT URLS, which is not cosmetic: a dataset
+    The two repository kinds have different URLs: a dataset
     file lives under ``/datasets/<repo>/resolve/...`` and a model file under
     ``/<repo>/resolve/...``. Asking for one at the other's URL returns a 404
     page, and a downloader that does not check the content type writes that
@@ -2083,7 +2079,7 @@ def _refresh_shared_catalogue_in_background(uri: Optional[str],
     def run() -> None:
         """Fetch the catalogue off the GUI thread, and always release the flag.
 
-        The `finally` is the whole point: `_SHARED_CATALOGUE_FETCHING` is what
+        The flag is cleared in a `finally` block. `_SHARED_CATALOGUE_FETCHING`
         stops a second refresh being started while this one is in flight, so a
         fetch that raises must still clear it or no later refresh can ever
         begin.
@@ -2106,37 +2102,35 @@ def shared_catalogue(uri: Optional[str] = None, *,
     :param uri: override the catalogue location.
     :param timeout: seconds to wait for the request.
     :param force: ignore the cache and re-fetch.
-    :param block: whether to wait for the network. ``None`` -- the default,
-        and what an unthinking caller gets -- waits everywhere EXCEPT Qt's
-        GUI thread, where it answers from the cache and refreshes on a daemon
-        thread. ``True`` waits wherever it is called, which only a caller that
+    :param block: whether to wait for the network. ``None`` (the default)
+        waits everywhere except Qt's GUI thread, where it answers from the
+        cache and refreshes on a daemon thread. ``True`` waits wherever it is called, which only a caller that
         knows it is on a worker or in a CLI may ask for. ``False`` never
         waits.
     :returns: the entries, or ``()`` when the catalogue cannot be read.
 
-    NEVER FETCHES ON THE GUI THREAD, and that is not an optimisation. This is
-    reached from ``spacr.settings.downloaded_zoo_models`` while a settings
+    It does not fetch on Qt's GUI thread. This function is reached from ``spacr.settings.downloaded_zoo_models`` while a settings
     panel is being built, so it ran inside ``MainWindow._on_nav_selected``
     with nothing able to paint or answer the compositor. Measured
     with the catalogue host non-routable (10.255.255.1, the shape of a down
     VPN or a captive portal -- the connect neither completes nor is refused):
     opening the Mask module took **32.2 s**, all of it a GUI thread stuck in
-    ``urlopen``. GNOME asks a window whether it is alive after five, so what
-    the user sees is spaCR's "force quit" dialog, which is how this was
-    reported. With the fetch moved off the thread the same open is 2.4 s.
+    ``urlopen``. GNOME asks a window whether it is alive after five seconds,
+    so the user saw GNOME's "force quit" dialog. With the fetch moved off the
+    thread the same open took 2.4 s.
 
     The cost of not waiting is a first module open whose Cellpose dropdown
     lists the bundled and local models but not the community ones; the
     background refresh means the second one has them.
 
-    NEVER RAISES, and that is deliberate. This runs when a user opens a module
-    that offers a model list, and the list is useful without it: the bundled
+    It does not raise. This runs when a user opens a module that offers a
+    model list, and the list is useful without the community rows: the bundled
     entries and any local models are still there. A laptop on a train, a lab
     behind a proxy and a Hugging Face outage all produce the same thing -- a
     shorter list and a log line -- rather than a module that will not open.
 
-    The failure that WOULD be silent and harmful is a corrupt or hostile
-    catalogue, so entries that do not parse are dropped individually, and an
+    A corrupt or hostile catalogue is the failure that would go unnoticed,
+    so entries that do not parse are dropped individually, and an
     entry without a ``sha256`` still cannot be installed by :func:`fetch`
     without an explicit override. A catalogue row is a claim about where a file
     lives; the checksum is what makes it a claim about which file.
@@ -2207,11 +2201,11 @@ def publish_model(local_path: Any, repo_id: str, *,
     """Upload a model to Hugging Face and return its catalogue row.
 
     :param local_path: the checkpoint to upload.
-    :param repo_id: ``<user>/<repo>`` -- YOUR OWN account.
+    :param repo_id: ``<user>/<repo>`` -- a repository under your own account.
     :param key: the short name spaCR will offer the model under.
     :param kind: one of :data:`KINDS`.
-    :param trained_on: what the model was trained on. Say it properly: this is
-        the only thing another lab has to decide whether it applies to them.
+    :param trained_on: what the model was trained on. Other labs read this
+        field to decide whether the model applies to their images.
     :param trained_by: who trained it, and roughly when.
     :param private: keep the repo private. A private model cannot be fetched by
         other spaCR users, so it is off by default.
@@ -2219,14 +2213,12 @@ def publish_model(local_path: Any, repo_id: str, *,
     :returns: the catalogue row, with the sha256 filled in.
     :raises ImportError: when ``huggingface_hub`` is not installed.
 
-    THE CHECKSUM IS COMPUTED HERE, from the file that was actually uploaded,
-    which is the whole reason this exists as a function rather than as
-    instructions in a README. :func:`fetch` refuses an entry it cannot verify,
-    so a row written by hand without a hash produces a model nobody can install
-    without disabling the check -- which is what the one pre-existing bundled
-    entry does, and it is a hole rather than a precedent.
+    The checksum is computed here, from the file that was actually uploaded.
+    :func:`fetch` refuses an entry it cannot verify, so a row written by hand
+    without a hash produces a model nobody can install without disabling the
+    check.
 
-    Publishing does NOT distribute the model on its own: add the returned row
+    Publishing does not distribute the model on its own: add the returned row
     to the shared catalogue (:data:`REMOTE_CATALOGUE_URI`) and every spaCR user
     sees it within :data:`CATALOGUE_CACHE_SECONDS`.
     """
@@ -2285,7 +2277,8 @@ def load_catalogue_file(path: Any) -> List[ModelEntry]:
         ]}
 
     ``sha256`` is the field that decides whether the entry is usable without an
-    explicit override, so a catalogue is worth exactly as much as its hashes.
+    explicit override: :func:`fetch` refuses an entry without one unless
+    ``require_checksum=False`` is passed.
 
     :param path: the JSON file.
     :returns: the entries.
@@ -2333,10 +2326,9 @@ def stock_cellpose_entries() -> List["ModelEntry"]:
     """Every model the installed Cellpose can fetch for itself.
 
     These are not spaCR's files and carry no checksum of ours: Cellpose
-    downloads and verifies them, and the name IS the path -- passing "cpsam"
-    to Cellpose resolves it. They are listed so that the zoo answers "what can
-    I segment with" rather than "what has Einar trained", which is the
-    question a new user actually has.
+    downloads and verifies them, and the name is the path -- passing "cpsam"
+    to Cellpose resolves it. They are listed so that the zoo shows every model
+    the user can segment with, not only the models trained for spaCR.
     """
     import sys
 
@@ -2910,8 +2902,8 @@ INSTALLABLE_BACKENDS = {
 def installable_backend_entries() -> List["ModelEntry"]:
     """Every optional segmentation backend, in whatever state it is here.
 
-    A backend absent from the zoo teaches nobody that it exists, so each one
-    is listed, and its ``source`` says where it stands -- ``installed``,
+    Each backend is listed whether or not it is installed, and its
+    ``source`` says where it stands -- ``installed``,
     ``installable``, ``installing`` or ``not installable here`` -- with the
     reason as its first note and its licence on the row. Installing one
     builds it an environment of its own under ``~/.spacr/backends`` and
@@ -2956,7 +2948,7 @@ def community_entries(allow_network: bool = False,
     checkpoint sitting beside a measured one invites the reader to treat them
     alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes
     from the uploader's own submission record -- it proves the file has not
-    changed since it was uploaded, NOT that it is any good.
+    changed since it was uploaded, not that the model performs well.
 
     Cache-first for the same reason as the bioimage.io listing: catalogue()
     must not reach the network.
@@ -3195,25 +3187,25 @@ def default_version_index(pairs: Sequence[Tuple[str, Any]]) -> int:
 def source_of(entry: Any) -> str:
     """Which of :data:`ZOO_SOURCES` this row belongs under.
 
-    Decided FROM THE ROW, never from a list of names kept somewhere else: a
-    hand-written list goes stale the first time a model is added, and the
-    failure it produces is a model that is in the catalogue and under no
-    heading, which is a model nobody can see.
+    Decided from the row's own ``source``, ``kind`` and ``uri``, never from a
+    separate list of names: such a list goes stale the first time a model is
+    added, and a model missing from it appears in the catalogue under no
+    heading, where nobody can see it.
 
     The order of the tests is the rule, and it matters in one place: a
     Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not
-    a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto,
+    a Cellpose 3 one. ``cellpose3`` means the backend's own models -- cyto,
     cyto2, cyto3, nuclei -- and the backend package that runs them.
 
-    A shared or community row is spaCR's when it is the very file a bundled
-    record names (key and checksum) or when it is fetched from a repository owned
-    by the einarolafsson account (:func:`is_spacr_owned`). Anything else
+    A shared or community row is spaCR's when it is the file a bundled
+    record names (key and checksum) or when it is fetched from a repository
+    owned by the einarolafsson account (:func:`is_spacr_owned`). Anything else
     uploaded by somebody else stays under ``spaCR community``.
 
-    A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It
-    is the fallback rather than a sixth heading because a model under the
-    wrong heading is a nuisance and a model under no heading is a bug the
-    user experiences as a missing model.
+    A row that matches nothing is filed under ``spaCR`` and a warning is
+    logged. It is the fallback rather than a sixth heading because a model
+    under the wrong heading is still visible, while a model under no heading
+    appears to the user as a missing model.
 
     :param entry: any zoo row -- a :class:`ModelEntry`, or anything with
         ``kind``, ``source`` and ``uri``.
@@ -3281,7 +3273,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     configured, the JSON catalogue named by ``catalogue_path`` or the
     :data:`CATALOGUE_ENV_VAR` environment variable.
 
-    Local apart from one thing, and the exception used to be undocumented:
+    Local apart from one thing:
     with ``remote`` on, this also asks :func:`shared_catalogue` for the
     community rows, which is a network call. It works offline either way --
     that fetch never raises -- and it never blocks Qt's GUI thread, which
@@ -3593,7 +3585,7 @@ def fetch(entry: ModelEntry, dest: Any,
           timeout: int = DEFAULT_TIMEOUT) -> Path:
     """Download a model, verify it, and only then put it where it belongs.
 
-    The order is the whole point:
+    The steps run in this order:
 
     1. bytes stream into a temporary file **inside** ``dest``, so the rename in
        step 4 is a same-filesystem ``os.replace`` and therefore atomic;
@@ -3613,8 +3605,8 @@ def fetch(entry: ModelEntry, dest: Any,
     :param expected_sha256: digest to require, overriding
         :attr:`ModelEntry.sha256`.
     :param require_checksum: refuse to install when no digest is known. True by
-        default — a download nobody can check is exactly the thing this module
-        exists to stop being routine. Pass False to accept one knowingly; the
+        default, so an unverifiable download needs an explicit opt-in. Pass
+        False to accept one knowingly; the
         entry :func:`install` returns then reports ``verified=False``.
     :param opener: ``fn(uri) -> chunks`` or ``fn(uri) -> (chunks, total)``;
         defaults to :func:`open_uri`.
@@ -3747,8 +3739,8 @@ def install(entry: ModelEntry, dest: Any, **kwargs: Any) -> ModelEntry:
     The returned entry carries the digest of the bytes that were actually
     written — not the one the catalogue claimed — and
     :attr:`ModelEntry.verified` is True only when the two were compared and
-    matched. Provenance from the catalogue entry is carried over, because that
-    is the whole reason for having had a catalogue.
+    matched. Provenance (``trained_on``, ``trained_by``), metrics and licence
+    are carried over from the catalogue entry.
 
     :param entry: the remote entry.
     :param dest: destination directory.
@@ -3791,8 +3783,8 @@ def download_bundled_models(**kwargs: Any) -> str:
     It is also the unverified path: that function has no checksum, writes
     straight to the destination filename, and skips the whole pull when the
     folder is non-empty. Prefer a catalogue entry with a hash and
-    :func:`install`; this exists so the zoo can offer the legacy pack rather
-    than pretend it does not exist.
+    :func:`install`; this function lets the zoo offer the legacy pack as
+    well.
 
     ``spacr.utils`` imports torch, so it is imported here and not at module
     level. Nothing else in this module reaches for it.
@@ -3838,7 +3830,8 @@ class BenchmarkResult:
     :param fieldset: :func:`fieldset_id` of the images — a hash of the pixels,
         so two runs over the same three fields share it and two runs over
         different fields never do, whatever the folders were called.
-    :param fieldset_label: the same thing for a human.
+    :param fieldset_label: a human-readable description of the field set:
+        the field count, the source folder and the first field names.
     :param rows: one :class:`FieldBenchmark` per field, in field order.
     :param seconds: wall-clock seconds the model spent segmenting.
     :param honoured: the parameters that reached the model.
@@ -3917,8 +3910,8 @@ class BenchmarkResult:
 
         A quality-control verdict on this model's own masks — it says the masks
         are not obviously broken, not that they are right. There is no ground
-        truth in a benchmark (see the module docstring), so this is as close to
-        a score as the zoo will produce.
+        truth in a benchmark (see the module docstring), so the zoo reports no
+        accuracy score.
         """
         scored = [r for r in self.rows if r.severity != "-"]
         if not scored:
@@ -3948,8 +3941,8 @@ def fieldset_id(names: Sequence[str], images: Sequence[Any]) -> str:
     are the same benchmark input. So the id hashes each array's bytes, shape and
     dtype together with its name.
 
-    This is what makes :func:`rank` able to refuse. Without it, two benchmarks
-    run on different data are two numbers, and two numbers always sort.
+    :func:`rank` uses this id to refuse results from different field sets;
+    without it, benchmarks run on different data would be sorted together.
 
     :param names: field names, in order.
     :param images: the arrays, in the same order.
@@ -4181,7 +4174,7 @@ def compare_entries(entry_a: ModelEntry, entry_b: ModelEntry,
                     settings_a: Optional[Mapping[str, Any]] = None,
                     settings_b: Optional[Mapping[str, Any]] = None,
                     **kwargs: Any):
-    """Put two zoo entries head to head on the same fields.
+    """Compare two zoo entries on the same fields.
 
     Straight delegation to :func:`spacr.model_compare.compare_models` — the
     metrics, the split/merge attribution and the "neither model is ground
@@ -4263,9 +4256,9 @@ def rank(results: Sequence[BenchmarkResult],
 
     A model's numbers on your three fields say nothing about its numbers on
     somebody else's: different cell density, different exposure, different
-    magnification. Sorting results from two field sets into one list produces a
-    ranking that looks exactly like a real one and means nothing, which is the
-    failure this function exists to prevent. So it refuses.
+    magnification. Sorting results from two field sets into one list would
+    produce a ranking that looks valid but compares unrelated numbers, so this
+    function raises instead.
 
     :param results: benchmarks, all from the same field set.
     :param key: one of :data:`RANK_KEYS`.
@@ -4293,7 +4286,7 @@ def rank(results: Sequence[BenchmarkResult],
 def rank_groups(results: Sequence[BenchmarkResult],
                 key: str = DEFAULT_RANK_KEY
                 ) -> Dict[str, List[BenchmarkResult]]:
-    """Rank inside each field set, keeping the sets apart. The safe alternative.
+    """Rank inside each field set, keeping the sets apart.
 
     :param results: benchmarks from any number of field sets.
     :param key: one of :data:`RANK_KEYS`.
@@ -4339,11 +4332,10 @@ SCORECARD_ROWS = (
 def scorecard_html(entry) -> str:
     """The model's scorecard as an HTML table, for a tooltip.
 
-    A paragraph of prose is what a tooltip used to show, and a reader
-    comparing two models had to parse two paragraphs to find two numbers.
-    The same table the model card prints answers that at a glance. Falls back
-    to the prose when an entry publishes no metrics, because an empty table is
-    worse than a sentence.
+    The table is the same one the model card prints, so two models' numbers
+    can be compared without reading prose. When an entry publishes no
+    metrics this returns ``""``, and the Zoo screen's tooltip shows the
+    entry's prose description instead.
 
     Metrics that hold none of the scorecard's keys -- a free-form note, a
     training loss under a name of its own -- are not a scorecard either, and
@@ -4450,9 +4442,9 @@ def format_benchmarks(results: Sequence[BenchmarkResult],
     """Render benchmarks **grouped by field set**, ranked only within a group.
 
     Two models benchmarked on different fields appear under two headers with a
-    line saying the two blocks cannot be compared. That is the alternative to
-    :func:`rank`'s refusal, and it is the only way this module will ever put
-    incomparable numbers on the same page.
+    line saying the two blocks cannot be compared. This is the alternative to
+    :func:`rank`'s refusal, and the only function in this module that shows
+    results from different field sets together.
 
     :param results: benchmarks, from any number of field sets.
     :param key: one of :data:`RANK_KEYS`.

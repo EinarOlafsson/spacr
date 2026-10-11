@@ -1,19 +1,16 @@
-"""The plain stitcher the timeflows fork has to beat, and the score that says so.
+"""Baseline IoU stitcher for the timeflows plan and Cell Tracking Challenge scores.
 
-WHAT IT IS FOR
-==============
-Step 2 of the timeflows plan is a number, not a
-feature. Before a third Cellpose head is written, trained and maintained,
-there has to be a baseline: segment every frame independently, link the frames
-by mask overlap, and score the result against the ground truth with the
-measures the tracking field already agrees on. Whatever the fork produces is
-then either better than this or it is not, and the plan says plainly that "the
-plain stitcher is already good enough" is a real possible outcome that should
-be accepted if it happens. That outcome is only visible if this number exists
-first.
+Purpose
+=======
+Step 2 of the timeflows plan is a baseline score. Before a third Cellpose head
+is written, trained and maintained, every frame is segmented independently,
+the frames are linked by mask overlap, and the result is scored against the
+ground truth with the standard Cell Tracking Challenge measures. The fork's
+result is compared with this score; the plan accepts "the plain stitcher is
+already good enough" as a possible outcome.
 
-WHAT IS IN HERE
-===============
+Contents
+========
 * :func:`stitch_by_iou` -- per-frame labels in, one consistent id per object
   out. Hungarian assignment on the IoU between consecutive frames, which is
   the standard overlap stitcher and deliberately nothing cleverer.
@@ -30,8 +27,8 @@ WHAT IS IN HERE
 * :func:`score_tracking` -- all of it in one row, with the raw operation
   counts beside the scores.
 
-WHY THE OPERATION COUNTS ARE PUBLIC
-===================================
+Operation counts
+================
 DET and TRA are one number each and both are dominated by the vertex terms: a
 false negative costs ten and a redundant edge costs one, so a tracker can lose
 half its links and still score well if its segmentation is good. The counts of
@@ -41,18 +38,17 @@ that distinction later -- the gap between linking given perfect segmentation
 and end-to-end linking is what decides whether to work on the head or on the
 backbone -- so the counts are part of the output rather than an internal.
 
-HOW A TRACKING IS REPRESENTED
-=============================
+Tracking representation
+=======================
 The Cell Tracking Challenge convention, because the metrics are its: a label
-stack where THE LABEL IS THE TRACK ID, so an object keeps its label for as
+stack where the label is the track id, so an object keeps its label for as
 long as it is the same object, plus an optional lineage mapping each label to
 its parent label. A division is therefore two new labels whose parent is the
-old one; a tracker that cannot express divisions passes no lineage and pays
-for the two missing parent edges, which is the honest price of a plain
-stitcher.
+old one; a tracker that cannot express divisions passes no lineage and is
+charged for the two missing parent edges, as the plain stitcher is.
 
-WHY IT DOES NOT CALL ``spacr.timelapse``
-========================================
+Relation to ``spacr.timelapse``
+================================
 :func:`spacr.timelapse.link_by_iou` does the same linking and is the one the
 pipeline uses. It is not imported here for two reasons. Importing
 ``spacr.timelapse`` pulls in matplotlib, OpenCV and the tracking backends,
@@ -551,8 +547,8 @@ def score_stitcher(gt_masks, segmentation, gt_lineage=None,
                    iou_threshold=0.1, weights=None, name='iou-stitcher'):
     """Run the baseline stitcher on a segmentation and score what it produced.
 
-    This is the number step 2 exists to produce, and the number step 3's fork
-    has to beat.
+    The result is the step-2 baseline of the timeflows plan, against which
+    the step-3 fork is compared.
 
     :param gt_masks: ground-truth label stack, label = track id.
     :param segmentation: per-frame segmentation whose labels mean nothing

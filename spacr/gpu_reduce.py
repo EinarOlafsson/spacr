@@ -1,32 +1,30 @@
-"""RAPIDS cuML where it helps, and the CPU implementation everywhere else.
+"""Build reducers and clusterers on RAPIDS cuML when available, else on the CPU.
 
 Install the optional RAPIDS support with:
 
     pip install spacr[rapids]
 
-and nothing else changes. The CPU path stays the default, stays tested, and
-stays the answer whenever cuML is absent, the interpreter is wrong, there is
-no CUDA device, or the caller asks for determinism.
+No other configuration is required. The CPU path remains the default and is
+used whenever cuML is absent, the interpreter is unsupported, there is no
+CUDA device, or the caller has not opted in.
 
-WHY AN EXTRA AND NEVER A DEPENDENCY. ``cuml-cu12`` declares
-``requires_python >= 3.11`` with classifiers for 3.11 and 3.12 ONLY, and
-wants ``numpy>=2.0`` and ``scipy>=1.14``. spaCR promises 3.9 through 3.14, so
-making it core would drop four of six interpreters. As an extra it constrains
-nothing -- see the note beside it in setup.py.
+cuML is an optional extra rather than a dependency. ``cuml-cu12`` declares
+``requires_python >= 3.11`` with classifiers for 3.11 and 3.12 only, and
+requires ``numpy>=2.0`` and ``scipy>=1.14``. spaCR supports Python 3.9
+through 3.14, so a core dependency would drop four of six interpreters. As
+an extra it constrains nothing -- see the note beside it in setup.py.
 
-WHERE IT ACTUALLY HELPS. cuML implements the algorithms spaCR already runs on
-big tables: UMAP, t-SNE, PCA, DBSCAN and KMeans. Those are the ones offered
-here. Everything else spaCR does -- barcode mapping, format conversion,
-SQLite, report assembly, grouped statistics -- is decompression, filesystem
-and small-table work, and moving it to a GPU would cost transfer time and buy
-nothing. GPU acceleration is reserved for workloads where transfer overhead
-is outweighed by computation.
+cuML implements the algorithms spaCR runs on large tables: UMAP, t-SNE,
+PCA, DBSCAN and KMeans, and only these are offered here. Other spaCR work --
+barcode mapping, format conversion, SQLite, report assembly, grouped
+statistics -- is decompression, filesystem and small-table work, where
+transfer to a GPU costs more time than the computation saves.
 
-**Determinism is a real difference, not a footnote.** cuML's UMAP is not
-bit-identical to umap-learn's, and its KMeans and DBSCAN can differ at the
-boundaries. A figure regenerated on a different machine would move. So the
-accelerator is OPT-IN per call, reports which backend ran, and any caller
-that pins a seed for reproducibility should keep the CPU path.
+**Results differ between backends.** cuML's UMAP is not bit-identical to
+umap-learn's, and its KMeans and DBSCAN can assign boundary points
+differently, so a figure regenerated on another machine can change. The
+accelerator is therefore opt-in per call and reports which backend ran; a
+caller that pins a seed for reproducibility should keep the CPU path.
 """
 from __future__ import annotations
 
@@ -47,11 +45,11 @@ ENV_FLAG = "SPACR_USE_RAPIDS"
 
 
 def rapids_available() -> bool:
-    """Is cuML importable AND is there a device for it?
+    """Whether cuML is importable and at least one CUDA device is present.
 
-    Both halves matter: cuML imports happily on a machine with no GPU and
-    then fails at fit time, which would turn an optional accelerator into a
-    crash on exactly the machines that did not ask for one.
+    Both are checked because cuML can import on a machine with no GPU and
+    then fail at fit time. Returns False when :data:`ENV_FLAG` disables
+    RAPIDS.
     """
     if not _env_allows():
         return False
@@ -76,7 +74,7 @@ def _env_allows() -> bool:
 
 
 def backend_for(method: str, *, prefer_gpu: bool = False) -> str:
-    """``'cuml'`` or ``'cpu'`` for ``method``, and never a surprise.
+    """Return the backend, ``'cuml'`` or ``'cpu'``, that ``method`` will run on.
 
     :param method: reducer name. Only algorithms in :data:`ACCELERATED` can
         select cuML; unsupported names remain on the CPU path.
@@ -101,7 +99,7 @@ def make_reducer(method: str, *, prefer_gpu: bool = False, **kwargs) -> Tuple[An
         ``n_components``, ``eps``, ``min_samples``, ``n_clusters`` -- carry
         through unchanged, which is what makes one call site serve both.
     :returns: ``(estimator, backend)``. The backend is returned rather than
-        logged only, so a caller can record WHICH one produced a figure.
+        logged only, so a caller can record which one produced a figure.
     :raises ImportError: the CPU library for ``method`` is missing. A missing
         optional GPU is a fallback; a missing required CPU library is a
         genuine setup problem and is not silently worked around.
@@ -168,23 +166,22 @@ SUPPORTED_PYTHON = ((3, 11), (3, 12))
 
 
 def python_supported() -> bool:
-    """Can cuML be installed into the interpreter running this?"""
+    """Whether cuML supports the running Python version (3.11 or 3.12)."""
     import sys as _sys
     return _sys.version_info[:2] in SUPPORTED_PYTHON
 
 
 def install_plan() -> Dict[str, Any]:
-    """What pressing GPU should do, decided before anything is installed.
+    """Decide what the GPU button should do, without installing anything.
 
     :returns: ``{action, message}``. ``action`` is ``ready`` when cuML and a
         device are available; ``install`` when this interpreter can install
         it; ``wrong_python`` when another Python version is required; or
         ``no_device`` when installing more cannot provide a CUDA device.
 
-    NOTHING IS INSTALLED HERE. This function decides and reports; the caller
-    installs, because installing is the part that needs a confirmation and a
-    progress bar, and a function that did both could not be asked "what would
-    happen" without it happening.
+    This function only reports; the caller performs the installation, which
+    needs a confirmation and a progress bar. Keeping the two separate allows
+    the plan to be queried without side effects.
     """
     import sys as _sys
 
@@ -222,7 +219,7 @@ def install_plan() -> Dict[str, Any]:
 
 
 def install_command() -> List[str]:
-    """The command that installs the extra. Separate so it can be shown."""
+    """Return the pip command, as an argument list, that installs the extra."""
     import sys as _sys
     return [_sys.executable, "-m", "pip", "install", "spacr[rapids]"]
 

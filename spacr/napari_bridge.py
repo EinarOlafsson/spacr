@@ -1,32 +1,29 @@
-"""``A18`` — hand a field to napari, take the corrected mask back.
+"""Send a mask to napari for correction and read the corrected mask back.
 
-spaCR has its own brush now (:mod:`spacr.curation`, :mod:`spacr.qt.layer_viewer`,
+spaCR has its own brush (:mod:`spacr.curation`, :mod:`spacr.qt.layer_viewer`,
 :mod:`spacr.qt.curation_tool`): a world-space brush over a labels layer, with
-track curation beside it and an append-only ledger under both. This module is
-not a replacement for any of that. It exists because a great many people
-already have napari muscle memory — the fill tool, the polygon, the
-keybindings, their own plugins — and spaCR has no business insisting they
-learn a second brush to fix four cells.
+track curation beside it and an append-only ledger under both. This module
+does not replace them. It lets users who already work in napari correct a
+mask there with napari's fill tool, polygon tool, keybindings and plugins.
 
 So: a mask goes out to napari, the user corrects it there, and it comes back.
 
-Round-trip fidelity is the whole feature
-----------------------------------------
+Round-trip fidelity
+-------------------
 
-A bridge that returns *approximately* the mask is worse than no bridge, so
-the rules are stated rather than assumed, and each is a test:
+The returned mask must equal the corrected layer exactly. The following
+rules apply, and each is covered by a test:
 
 * **Label values survive exactly.** Label 41 comes back as 41 and not as 1,
   not renumbered, not relabelled by connectivity. :func:`to_spacr_mask` casts
   back to spaCR's ``uint16`` mask convention (:func:`spacr.mask_io.save_mask`)
   and **refuses** a label that would not fit rather than letting it wrap —
-  ``np.uint16(70000)`` is ``4464``, silently, and a silently renamed cell is
-  the worst thing this module could do.
+  ``np.uint16(70000)`` is ``4464`` without a warning, which would silently
+  assign the cell a different label.
 * **Orientation survives exactly.** A napari 2-D layer's array axes are
   ``(row, column)``, which is numpy's order and spaCR's order, so the correct
-  amount of transposing is *none*. That sounds too obvious to test until you
-  meet a viewer that displays ``(x, y)`` and someone "fixes" it with a ``.T``
-  that is invisible on the square test image everybody uses.
+  amount of transposing is *none*. The test uses a non-square image,
+  because a spurious ``.T`` is not detectable on a square one.
 * **The shape may not change.** napari's brush cannot change an array's
   shape, but a caller handing back the wrong layer can, and that is a
   mistake worth a refusal rather than a resize.
@@ -35,25 +32,23 @@ Corrections are recorded, the same way as spaCR's own
 -----------------------------------------------------
 
 Every write-back appends to the artefact's :class:`spacr.curation.CurationLog`
-— the same sidecar the brush writes, in the same append-only form. That is the
-rule :mod:`spacr.curation` exists for, and it does not stop applying because
-the editing happened in another window: a hand-edited mask that looks exactly
-like a segmented one is a reproducibility hole no matter which program did the
-painting. :func:`spacr.curation.is_curated` answers "was this touched?" for a
-napari correction exactly as it does for a brush stroke.
+— the same sidecar the brush writes, in the same append-only form. Without
+the record, a hand-edited mask could not be told apart from a segmented one.
+:func:`spacr.curation.is_curated` reports a napari correction the same way it
+reports a brush stroke.
 
 napari is optional, and is never imported at module scope
 ---------------------------------------------------------
 
 ``napari`` is declared in the ``napari`` extra, never in the core
 dependencies, and every import of it here is inside the function that needs
-it. Two separate reasons, both load-bearing:
+it, for two reasons:
 
 * it pulls a second Qt stack, and this module is imported by a settings panel
   inside spaCR's own PySide6 application;
 * the missing-dependency path must print
-  ``pip install "spacr[napari]"``, not a traceback from six frames inside
-  somebody's import machinery. :func:`require_napari` is that path, following
+  ``pip install "spacr[napari]"`` instead of a raw import traceback.
+  :func:`require_napari` is that path, following
   :data:`spacr.qt._QT_MISSING_MESSAGE` and :func:`spacr.ome_zarr.require_zarr`.
 
 Everything except :func:`require_napari`, :func:`open_in_napari` and
@@ -147,9 +142,9 @@ class NapariExtraMissing(ImportError):
     """``napari`` is not installed.
 
     An :class:`ImportError` subclass, so a caller already guarding with
-    ``except ImportError`` keeps working and the actionable message — not a
-    traceback from inside somebody else's import machinery — is what reaches
-    the user.
+    ``except ImportError`` keeps working. Its message is
+    :data:`NAPARI_MISSING_MESSAGE`, which names the missing module and the
+    install command.
     """
 
 
@@ -169,10 +164,10 @@ def missing_napari_message(module: str = "napari") -> str:
 
 
 def require_napari() -> Any:
-    """Import and return :mod:`napari`, or raise a message worth reading.
+    """Import and return :mod:`napari`, or raise :class:`NapariExtraMissing`.
 
-    The **only** place this module imports napari. See the module docstring
-    for why that matters more here than in most optional-dependency code.
+    The **only** place this module imports napari. The module docstring
+    explains why napari is never imported at module scope.
 
     :returns: the imported :mod:`napari` module.
     :raises NapariExtraMissing: when the extra is not installed.
@@ -188,8 +183,8 @@ def require_napari() -> Any:
 def napari_available() -> bool:
     """Whether napari can be imported. Never raises.
 
-    For a screen that wants to grey a button out rather than let the user
-    press it and read a paragraph.
+    Uses :func:`importlib.util.find_spec` without importing napari, so a
+    screen can disable a button before the user presses it.
     """
     from importlib.util import find_spec
 
@@ -210,8 +205,8 @@ def read_image(path: Any) -> np.ndarray:
     because this module must not import anything from :mod:`spacr.qt`.
 
     :param path: the file.
-    :returns: the array exactly as stored. No rescaling and no reordering:
-        napari is being handed the data, not a picture of it.
+    :returns: the array exactly as stored, with no rescaling and no axis
+        reordering.
     :raises FileNotFoundError: when there is nothing there.
     """
     target = os.fspath(path)
@@ -230,7 +225,7 @@ def read_image(path: Any) -> np.ndarray:
 
 @dataclass(frozen=True)
 class MaskHandoff:
-    """One field on its way to napari, and the mask's way home.
+    """A field's mask, and optionally its image, prepared for napari.
 
     :param mask: the label array, ``uint16``, exactly as it is on disk.
     :param mask_path: where it came from, and where a correction is written
@@ -276,8 +271,8 @@ def load_handoff(mask_path: Any, image_path: Any = "", *,
 
     The mask is read with :func:`spacr.mask_io.load_mask`, which is spaCR's
     own reader and already probes ``.tif`` / ``.tiff`` / ``.npy`` for a bare
-    stem. Reading it any other way here would be the first place the round
-    trip could start losing.
+    stem, so the mask is read the same way the rest of the pipeline reads
+    it.
 
     :param mask_path: the label mask.
     :param image_path: the image to show under it. Optional.
@@ -362,17 +357,15 @@ def open_in_napari(handoff: MaskHandoff, *, viewer: Any = None,
 def run_event_loop() -> None:
     """Block until the napari window is closed. **Headless callers only.**
 
-    Deliberately its own function rather than a flag on
-    :func:`open_in_napari`, because whether it may be called depends on where
-    the caller is, and getting it wrong is not a small mistake:
+    A separate function rather than a flag on :func:`open_in_napari`,
+    because whether it may be called depends on where the caller runs:
 
     * from a script or a notebook it is what makes ``correct_mask`` mean
       "correct it, then take it back";
     * from **inside spaCR's own Qt application it must never be called** —
       there is already a running ``QApplication`` event loop, and starting a
       second one nests them. The GUI screen therefore opens the viewer and
-      lets the user press "Take the mask back" when they are done, which is
-      also the friendlier interaction.
+      lets the user press "Take the mask back" when they are done.
 
     :raises NapariExtraMissing: when napari is not installed.
     """
@@ -386,8 +379,8 @@ def labels_from_viewer(viewer: Any, *,
     :param viewer: a ``napari.Viewer``, or anything whose ``layers`` are
         iterable and carry ``name`` and ``data``.
     :param name: which layer to take. Falls back to the only labels-shaped
-        layer when the name is not found, because a user who renamed the
-        layer has not thereby thrown their work away.
+        layer when the name is not found, so edits on a renamed layer are
+        still read back.
     :returns: the layer's array, converted with :func:`to_spacr_mask`.
     :raises MaskFidelityError: when there is no such layer, or when what came
         back is not a mask spaCR can write.
@@ -438,7 +431,7 @@ def _is_labels_layer(layer: Any) -> bool:
 def to_spacr_mask(data: Any) -> np.ndarray:
     """Convert an array back to spaCR's mask convention, or refuse.
 
-    The fidelity guarantee, in one function. It casts to
+    This function implements the round-trip fidelity rules. It casts to
     :data:`MASK_DTYPE` and does **nothing else**: no transpose, no flip, no
     relabelling, no renumbering. A napari 2-D layer's axes are
     ``(row, column)``, the same order numpy and spaCR use, so any reordering
@@ -556,7 +549,7 @@ def write_back(mask_path: Any, corrected: Any, *,
                write: bool = True) -> CorrectionResult:
     """Write a corrected mask the way spaCR writes masks, and record it.
 
-    Two halves, and both are the point.
+    The function writes the mask file and appends a ledger entry.
 
     The mask goes through :func:`spacr.mask_io.save_mask`, which is the one
     place spaCR decides what a mask file is — ``uint16``, LZW-compressed TIFF
@@ -571,9 +564,9 @@ def write_back(mask_path: Any, corrected: Any, *,
 
     A round trip that changed nothing writes nothing and records nothing.
     That is the same rule :meth:`spacr.curation.MaskCuration.end_stroke`
-    applies to a stroke that moved no pixels: a ledger padded with no-op
-    entries is one nobody reads, and rewriting the file would move its mtime
-    and make every downstream artifact look stale for no reason.
+    applies to a stroke that moved no pixels: no no-op entry is added to the
+    ledger, and the file is not rewritten, so its mtime does not change and
+    downstream artifacts are not marked stale.
 
     :param mask_path: where the mask lives. The ledger is written beside it.
     :param corrected: the corrected labels, from napari or anywhere.

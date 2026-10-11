@@ -227,11 +227,12 @@ def method_label(method) -> str:
 def estimate_pi0(p_values, *, lambdas: Sequence[float] | None = None) -> float:
     """Estimate the proportion of true null hypotheses (Storey's pi0).
 
-    Uses the smoothed bootstrap-free spline-free estimator: pi0(lambda) is
-    computed over a grid and the estimate is taken at the largest lambda whose
-    value is stable, then clipped to (0, 1]. With few tests the grid collapses
-    and the estimator returns 1.0, which makes the q-values fall back to
-    Benjamini-Hochberg -- the conservative answer, not an error.
+    pi0(lambda) = #{p > lambda} / (m * (1 - lambda)) is computed over a grid
+    of lambda values (default 0.05 to 0.95 in steps of 0.05); the estimate is
+    the minimum over the upper half of the grid (lambda at or above the grid
+    median), clipped to (0, 1]. With fewer than 20 finite P values, an empty
+    grid, or a non-positive estimate, the function returns 1.0, which makes
+    the q-values equal to Benjamini-Hochberg adjusted P values.
 
     :param p_values: raw P values; non-finite entries are excluded.
     """
@@ -336,35 +337,33 @@ def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
 def critical_p_value(p_values, method="fdr_bh", alpha=0.05):
     """The largest RAW P value ``method`` calls at ``alpha``, or ``None``.
 
-    THE NUMBER THAT LETS A CONTINUOUS AXIS SHOW A DISCRETE CALL. A volcano
-    drawn against the raw P value cannot put the adjusted P on its y-axis
-    without inheriting the step function BH's cumulative minimum creates --
-    but it does not have to. Every correction here is monotone in the raw P
-    within a family, so the set it calls is always a lower set: there is a
-    rank ``k`` such that every test with ``p <= p_(k)`` is called and every
-    test above it is not. One horizontal line at ``-log10(p_(k))`` therefore
-    divides the plot EXACTLY as the correction does, on an axis with no steps
-    anywhere.
+    The threshold lets a plot with a raw-P axis show the corrected call. A
+    volcano with the adjusted P on its y-axis inherits the step function
+    created by the cumulative minimum in Benjamini-Hochberg. Every correction
+    here is monotone in the raw P within a family, so the called set is a
+    lower set: there is a rank ``k`` such that every test with
+    ``p <= p_(k)`` is called and every test above it is not. One horizontal
+    line at ``-log10(p_(k))`` on the raw-P axis therefore separates the
+    called tests exactly as the correction does.
 
     For Benjamini-Hochberg this is the textbook identity
 
         q_(i) <= alpha   if and only if   p_(i) <= alpha * i / n
 
-    taken at the largest ``i`` that satisfies it. Computed here from the
-    correction's own rejection call rather than from that formula, so the
-    line cannot disagree with the colours beside it and the same one function
-    answers for all thirteen methods rather than for one.
+    taken at the largest ``i`` that satisfies it. The value is computed from
+    the correction's own rejection call rather than from that formula, so
+    the line agrees with the point colours and the same function serves all
+    thirteen methods in :data:`METHODS`.
 
-    THE LINE IS NOT ``alpha``. Drawing it at ``-log10(0.05)`` is the mistake
-    this replaces: that is the *uncorrected* threshold, it is far higher than
-    the corrected one, and a reader measuring against it reads far too much
-    of the screen as called.
+    The threshold is not ``alpha``. A line at ``-log10(0.05)`` marks the
+    *uncorrected* threshold, which is higher than the corrected one, so more
+    tests appear above it than the correction calls.
 
-    ``None`` WHEN NOTHING IS CALLED, and it is not a failure. There is then
-    no ``k`` and no line, and saying so is a finding; drawing one at
-    ``alpha`` instead would claim a threshold the procedure never reached.
+    ``None`` is returned when the correction calls no test. There is then no
+    ``k`` and no line to draw; a line at ``alpha`` would show a threshold
+    the procedure did not reach.
 
-    :param p_values: the raw P values of ONE multiple-testing family.
+    :param p_values: the raw P values of one multiple-testing family.
     :param method: any spelling :func:`canonical_method` accepts.
     :param alpha: the level the correction targets.
     :returns: the raw-P threshold as a float, or ``None``.

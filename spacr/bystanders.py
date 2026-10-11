@@ -1,30 +1,25 @@
-"""Which uninfected cells are next to an infected one, and which are not.
+"""Label uninfected cells as bystanders or distal by distance to infection.
 
-THE COLUMN THAT DOES NOT EXIST YET. spaCR measures each cell on its own,
-and the biology of an intracellular pathogen is not confined to the cell it
-is in: an infected cell changes what its neighbours do. Right now an
-uninfected cell touching an infected one and an uninfected cell on the far
-side of the well are the same row.
+spaCR measures each cell on its own, but an infected cell can change the
+phenotype of its neighbours. Without a neighbourhood column, an uninfected
+cell touching an infected one and an uninfected cell on the far side of
+the well are indistinguishable rows.
 
-TWO CONSEQUENCES, and the second is the one that costs results. A genuine
-bystander phenotype cannot be found, because no column separates a
-bystander from a distant uninfected cell. And every uninfected control is
-quietly diluted: if bystanders are phenotypically shifted and they are
-pooled into "uninfected", the control population is a mixture, its variance
-is inflated, and the effect size of every infection comparison shrinks
-towards nothing. That is a confound in results the package already
-produces, not a missing feature.
+This has two consequences. A bystander phenotype cannot be detected,
+because no column separates a bystander from a distant uninfected cell.
+In addition, if bystanders are phenotypically shifted and pooled into
+"uninfected", the control population is a mixture: its variance is
+inflated and the effect size of every infection comparison is reduced.
 
-DISTANCE IS ALREADY SOLVED AND NOTHING HERE RE-IMPLEMENTS IT.
-:mod:`spacr.object_distances` computes a Euclidean distance transform per
-object type once, at O(image pixels) rather than O(pairs), and this module
-reads that field. The work here is a threshold and a label.
+Distances are not recomputed here. :mod:`spacr.object_distances` computes
+a Euclidean distance transform per object type once, at O(image pixels)
+rather than O(pairs), and this module reads that field and applies a
+threshold and a label.
 
-THE THRESHOLD IS A LENGTH, NOT A PIXEL COUNT. It is expressed as a
-multiple of the measured cell diameter, so it means the same thing on a
-20x and a 63x acquisition and on a plate whose cells are simply larger.
-A hard-coded micron count would be right for one dataset and silently
-wrong for the next.
+The threshold is a length, not a pixel count. It is expressed as a
+multiple of the measured cell diameter, so it has the same meaning on a
+20x and a 63x acquisition and on a plate whose cells are larger. A fixed
+micron value would suit one dataset and not the next.
 """
 from __future__ import annotations
 
@@ -124,33 +119,30 @@ def reach_from_diameter(cell_diameter: float,
 
 def distance_to_infected(cell_mask, infected_labels: Iterable[int], *,
                          spacing=None) -> pd.DataFrame:
-    """How far each cell's surface is from the nearest INFECTED cell.
+    """Distance from each cell to the nearest infected cell's surface.
 
     :param cell_mask: the cell label image.
     :param infected_labels: labels of the cells carrying a pathogen.
     :param spacing: voxel size, so the distances carry physical units.
     :returns: ``label`` and ``distance_to_infected``, one row per cell.
 
-    ZERO FOR AN INFECTED CELL, ONE PIXEL FOR ITS IMMEDIATE NEIGHBOUR, and
-    the distinction is worth stating because the obvious reading is wrong.
-    The field is zero on any INFECTED pixel and grows outward, so a cell
-    that shares a border with an infected one has its own nearest pixel one
-    step away: the minimum over that cell is 1, not 0. Only a cell whose
-    own pixels are infected reads 0.
+    An infected cell reads 0 and its immediate neighbour reads one pixel
+    step, not 0. The field is zero on every infected pixel and grows
+    outward, so a cell that shares a border with an infected one has its
+    nearest pixel one step away: the minimum over that cell is 1. Only a
+    cell whose own pixels are infected reads 0.
 
     `surface_distance_transform`'s docstring says "two touching objects
     come out at 0", and that is true of the case it describes -- reading
     the field at a point INSIDE the other object, which is what an
     overlapping or contained object gives. Two disjoint labels that merely
     abut do not overlap, so they do not. A threshold expressed in cell
-    diameters is far larger than one pixel either way; the note is here so
-    nobody reads a 1 as a bug.
+    diameters is far larger than one pixel either way, so a value of 1 for
+    an adjacent cell is expected.
 
-    ``inf`` WHEN THERE IS NOTHING TO BE NEAR. A well with no infected cell
-    has no distances, and the honest value is infinity rather than 0 or
-    NaN: every cell is arbitrarily far from a population that is not there,
-    and infinity is the only value that keeps `distance <= reach` False for
-    every finite reach.
+    Every distance is ``inf`` when the image has no infected cell, rather
+    than 0 or NaN: infinity keeps `distance <= reach` False for every
+    finite reach.
     """
     labelled = np.asarray(cell_mask)
     labels = np.unique(labelled)
@@ -189,15 +181,13 @@ def classify(cell_mask, infected_labels: Iterable[int], *, reach: float,
     :param spacing: voxel size.
     :returns: ``label``, ``distance_to_infected`` and ``neighbourhood``.
 
-    A NON-POSITIVE REACH MAKES EVERY UNINFECTED CELL DISTAL, which is the
-    behaviour that lets a user turn the split off without a second setting
-    -- and the behaviour a mis-parsed setting falls back to, since it
-    cannot invent bystanders.
+    A non-positive reach makes every uninfected cell distal. This turns the
+    bystander split off without a second setting, and a reach that is not
+    a finite number is treated the same way.
 
-    THE ACCEPTANCE TEST THIS HAS TO PASS is that a well with no parasites
-    reports no bystanders. It follows from `distance_to_infected` being
-    infinite there rather than from a special case, which is why that
-    function returns infinity.
+    A well with no parasites reports no bystanders. This follows from
+    `distance_to_infected` returning infinity there, not from a special
+    case.
     """
     frame = distance_to_infected(cell_mask, infected_labels, spacing=spacing)
     wanted = {int(v) for v in infected_labels}
@@ -219,14 +209,13 @@ def classify(cell_mask, infected_labels: Iterable[int], *, reach: float,
 
 
 def counts(frame: pd.DataFrame) -> Dict[str, int]:
-    """How many cells landed in each state, including the empty ones.
+    """Count cells in each neighbourhood state, including empty states.
 
     :param frame: the output of :func:`classify`.
     :returns: every name in :data:`STATUSES`, zero where absent.
 
-    EVERY KEY ALWAYS PRESENT. A caller comparing wells needs a zero rather
-    than a missing key, because "no bystanders in this well" is a result
-    and a KeyError is not.
+    Every key is always present, so a caller comparing wells receives 0 for
+    an absent state rather than a ``KeyError``.
     """
     seen = frame["neighbourhood"].value_counts().to_dict() if len(frame) else {}
     return {name: int(seen.get(name, 0)) for name in STATUSES}
@@ -234,33 +223,29 @@ def counts(frame: pd.DataFrame) -> Dict[str, int]:
 
 def neighbourhood(cell_mask, infected_labels: Iterable[int], *, k: int = 6,
                   spacing=None) -> pd.DataFrame:
-    """What fraction of each cell's nearest neighbours are infected.
+    """Fraction of each cell's ``k`` nearest neighbours that are infected.
 
     :param cell_mask: the cell label image.
     :param infected_labels: labels of the cells carrying a pathogen.
-    :param k: how many neighbours to count, EXCLUDING the cell itself.
+    :param k: how many neighbours to count, excluding the cell itself.
     :param spacing: voxel size, so "nearest" means nearest in real space
         rather than in pixels on an anisotropic stack.
     :returns: ``label``, ``neighbours_counted``, ``neighbours_infected``
         and ``local_infected_fraction``.
 
-    THE SECOND HALF OF THE BYSTANDER QUESTION. :func:`classify` answers
-    "is there an infected cell near this one", which is a threshold on one
-    distance. This answers "how infected is this cell's neighbourhood",
-    which is the quantity that separates a cell at the edge of a focus
-    from one in the middle of it -- both are bystanders and they are not in
-    the same place.
+    :func:`classify` applies a threshold to one distance. This function
+    measures the infected share of the neighbourhood, which separates a
+    bystander at the edge of an infection focus from one in its middle.
+    Neighbours are found among cell centroids.
 
-    THE CELL ITSELF IS NEVER ITS OWN NEIGHBOUR, and an INFECTED cell still
-    gets a fraction: "this infected cell sits among uninfected ones" is a
-    different observation from "this one sits in a cluster", and dropping
-    the infected rows would throw the second away.
+    A cell is never counted as its own neighbour, and infected cells also
+    receive a fraction, so an infected cell among uninfected ones can be
+    distinguished from one inside a cluster.
 
-    `neighbours_counted` IS REPORTED RATHER THAN ASSUMED TO BE ``k``. A
-    field with fewer than ``k + 1`` cells cannot supply k neighbours, and a
-    fraction computed against an assumed denominator would be wrong in
-    exactly the sparse fields where a bystander analysis matters most. The
-    column says what the fraction was actually divided by.
+    `neighbours_counted` is reported rather than assumed to be ``k``. A
+    field with fewer than ``k + 1`` cells supplies fewer than ``k``
+    neighbours, and the column gives the denominator actually used. Fields
+    with fewer than two cells return ``NaN`` fractions.
     """
     from scipy.spatial import cKDTree
 
@@ -326,7 +311,7 @@ def _as_neighbour_scale(spacing, ndim: int) -> np.ndarray:
 
 def compare(frame: pd.DataFrame, feature: str, *,
             statuses: Sequence[str] = STATUSES) -> pd.DataFrame:
-    """One row per neighbourhood, for one measured feature.
+    """Summarise one measured feature per neighbourhood state.
 
     :param frame: measurements carrying a ``neighbourhood`` column, as
         :func:`classify` produces it, joined to the feature table.
@@ -334,21 +319,18 @@ def compare(frame: pd.DataFrame, feature: str, *,
     :param statuses: which neighbourhoods to report, in order.
     :returns: ``neighbourhood``, ``n``, ``mean``, ``std`` and ``median``.
 
-    THE COMPARISON THE WHOLE ITEM IS FOR, and the reason it is worth having
-    is subtraction rather than addition: the package can already compare
-    infected against uninfected. What it cannot do is notice that
-    "uninfected" was two populations, so a bystander effect shows up as
-    nothing more than a wider control.
+    Splitting "uninfected" into bystander and distal rows lets a bystander
+    effect appear as a difference between groups instead of only as a
+    wider control distribution.
 
-    EVERY REQUESTED STATUS IS A ROW, at ``n = 0`` where the well has none.
-    A caller comparing plates needs the same three rows every time; a
-    missing row silently changes what a downstream join means.
+    Every requested status is a row, with ``n = 0`` and ``NaN`` statistics
+    where the frame has none, so results from different plates have the
+    same rows. A missing ``feature`` or ``neighbourhood`` column also
+    returns these empty rows.
 
-    NO TEST STATISTIC HERE, deliberately. Summarising is safe on any
-    column; choosing a test is a decision about the design -- paired or
-    not, how the wells nest, what the null is -- and belongs where those
-    are known. What this hands the regression layer is three named groups
-    it can contrast.
+    No test statistic is computed. The choice of test depends on the
+    design (pairing, nesting of wells, the null hypothesis) and is left to
+    the caller; this function returns the per-group summaries.
     """
     wanted = [str(name) for name in statuses]
     if feature not in frame.columns or "neighbourhood" not in frame.columns:

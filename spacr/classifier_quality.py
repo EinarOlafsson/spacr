@@ -108,7 +108,7 @@ def confusion(scores: Sequence[float],
     """The confusion matrix from a labelled split.
 
     :param scores: the classifier's score per cell.
-    :param labels: True where the cell really is the positive class.
+    :param labels: True where the cell is labelled as the positive class.
     :param threshold: score at or above which the call is positive.
     """
     values = np.asarray(list(scores), dtype=float)

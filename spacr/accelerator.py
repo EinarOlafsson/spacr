@@ -1,44 +1,44 @@
-"""One answer to "what should this run on, and what is it called".
+"""Select the torch compute device and report its vendor name and limitations.
 
-spaCR grew up on NVIDIA, so roughly forty-five call sites
-ask ``torch.cuda.is_available()`` and most of them mean "is there a GPU?".
-Those are DIFFERENT QUESTIONS on every machine that is not NVIDIA, and
-conflating them is what makes a perfectly good card read as "no GPU":
+About forty-five spaCR call sites ask ``torch.cuda.is_available()``, and
+most of them use it to decide whether any GPU is present. On non-NVIDIA
+hardware those are two different questions, and treating them as one
+reports a usable accelerator as "no GPU":
 
 * ROCm answers ``torch.cuda.is_available()`` **True** and wants
-  ``device="cuda"``. Code that then prints "CUDA" is naming a vendor that
-  is not there; code that prints "no NVIDIA GPU" is denying one that is.
+  ``device="cuda"``. Code that then prints "CUDA" names the wrong vendor;
+  code that prints "no NVIDIA GPU" hides a usable AMD device.
 * Apple's Metal answers it **False** and wants ``device="mps"``. MPS is
   *Metal*, not an Apple-Silicon feature. On
   the Intel iMac this was written on it drives an AMD Radeon Pro 5300 --
   measured 16x on conv2d inference and 2.7x on a training step against
-  the same machine's CPU. ROCm has no macOS build at all, so Metal is the
-  ONLY route to an AMD card on a Mac.
+  the same machine's CPU. ROCm has no macOS build, so Metal is the only
+  route to an AMD card on a Mac.
 
-So this module answers both questions separately, and a third that matters
-more than either: *what is this device unable to do?* Re-pointing a tensor
-at MPS is not enough, because three things fail rather than degrade, and
-each was measured rather than assumed:
+This module therefore reports the vendor and the GPU decision separately,
+and also records what the selected device cannot do. Moving a tensor to
+MPS is not sufficient, because three operations fail rather than slow
+down (each was measured):
 
-* ``float64`` raises ``TypeError`` outright -- not a slow path, a hard
-  stop. Anything wanting double precision must stay on the CPU.
+* ``float64`` raises ``TypeError``. Computations that need double
+  precision must stay on the CPU.
 * ``autocast(device_type="mps")`` raises ``RuntimeError``. Mixed precision
-  has to be branched off, not merely re-pointed.
-* Some operators are simply missing (``aten::linalg_qr.out`` among them).
-  ``PYTORCH_ENABLE_MPS_FALLBACK=1`` turns those from a crash into a quiet
-  CPU detour, so this module sets it when it selects MPS.
+  must be disabled on this device, not redirected to it.
+* Some operators are missing (``aten::linalg_qr.out`` among them).
+  ``PYTORCH_ENABLE_MPS_FALLBACK=1`` makes those run on the CPU instead of
+  raising, so this module sets it when it selects MPS.
 
-DETECTED AND USABLE ARE REPORTED SEPARATELY. A setup screen announcing an
-accelerator spaCR will never dispatch to is worse than one that says nothing,
-because the user then blames their hardware for CPU speed. Neural engines are
-the whole reason that distinction exists here: the Apple Neural Engine, Intel
-AI Boost and Qualcomm Hexagon are all real silicon with no portable torch
-device, so they are named as FOUND and never selected.
+Detected and usable hardware are reported separately. A setup screen that
+lists an accelerator spaCR never dispatches to leads users to attribute CPU
+run times to that hardware. Neural engines are the main case: the Apple
+Neural Engine, Intel AI Boost and Qualcomm Hexagon have no portable torch
+device and are never selected; :func:`neural_engines` currently reports
+only the Apple Neural Engine, on arm64 macOS.
 
-NOTHING HERE RAISES. A half-installed ROCm, a broken driver, a torch built
-without a backend it advertises -- all resolve to the CPU with a note. The
-machines most likely to have a strange accelerator are the least able to
-afford a traceback at import time.
+Device resolution does not raise. A half-installed ROCm, a broken driver,
+or a torch build without a backend it advertises all resolve to the CPU
+with an explanatory note, so an unusual accelerator cannot cause a
+traceback at import time.
 """
 from __future__ import annotations
 
@@ -64,7 +64,7 @@ KINDS: Tuple[str, ...] = ("cuda", "rocm", "mps", "xpu", "directml", "cpu")
 
 @dataclass(frozen=True)
 class Accelerator:
-    """What spaCR will compute on, and what it can be told about it.
+    """Resolved compute device, its display names and its capabilities.
 
     :param kind: one of :data:`KINDS`. ``rocm`` is reported distinctly from
         ``cuda`` even though both dispatch to ``device="cuda"``, because
@@ -75,14 +75,14 @@ class Accelerator:
         the backend or version suffix carried by ``label``; empty when no
         device name was discovered.
     :param detected: the hardware is present.
-    :param usable: spaCR will actually dispatch to it. Never true unless
+    :param usable: spaCR dispatches work to it. Never true unless
         ``detected``; false for accelerators with no torch device.
     :param note: why it is not usable, when it is not. Empty otherwise.
     :param float64: the device accepts double precision.
     :param autocast: ``torch.autocast`` accepts this device type.
     :param fallback: missing operators silently run on the CPU instead of
         raising, because this module set the backend's fallback flag.
-    :param bfloat16: the device accepts ``torch.bfloat16``. PROBED rather
+    :param bfloat16: the device accepts ``torch.bfloat16``. Probed rather
         than assumed from the backend name, because it is the one
         capability that moves with the torch version: Metal gained it
         after 2.2, and 2.2.2 is the last x86-64 macOS wheel, so the same
@@ -111,18 +111,18 @@ class Accelerator:
 
     @property
     def is_gpu(self) -> bool:
-        """Is there a usable non-CPU device.
+        """Whether a usable non-CPU device was selected.
 
-        THE QUESTION MOST CALL SITES ACTUALLY MEANT when they wrote
+        This is the check most call sites intend when they write
         ``torch.cuda.is_available()``.
         """
         return self.usable and self.kind != "cpu"
 
     @property
     def is_cuda(self) -> bool:
-        """Is this genuinely NVIDIA CUDA.
+        """Whether this accelerator is NVIDIA CUDA (not ROCm).
 
-        Narrower than :attr:`is_gpu` and deliberately so: anything reading
+        Narrower than :attr:`is_gpu`: anything reading
         ``nvidia-smi``, a CUDA version, or NVIDIA-specific memory
         interfaces wants this one and would be wrong on ROCm.
         """
@@ -130,8 +130,8 @@ class Accelerator:
 
     @property
     def torch_device(self):
-        """A ``torch.device`` for :attr:`device`, or the CPU if torch is
-        missing entirely."""
+        """A ``torch.device`` for :attr:`device`; requires torch to be
+        installed."""
         import torch
 
         return torch.device(self.device)
@@ -360,13 +360,12 @@ def _directml() -> Optional[Accelerator]:
 
 
 def neural_engines() -> Tuple[str, ...]:
-    """Inference silicon that is present and that spaCR will NOT use.
+    """Names of detected neural-inference hardware that spaCR does not use.
 
-    Reported so the setup slide can say "found, not used" rather than
-    leaving a user to wonder why their Neural Engine is idle. There is no
-    portable torch device for any of these -- the ANE is reachable only
-    through CoreML, Intel's AI Boost only through OpenVINO -- so naming
-    one as a compute device would be a promise nothing behind it can keep.
+    Reported so the setup slide can say "found, not used" for an idle
+    Neural Engine. There is no portable torch device for any of these --
+    the ANE is reachable only through CoreML, Intel's AI Boost only
+    through OpenVINO -- so none of them is offered as a compute device.
     """
     found = []
     if platform.system() == "Darwin" and platform.machine() == "arm64":
@@ -375,14 +374,13 @@ def neural_engines() -> Tuple[str, ...]:
 
 
 def inspect_torch(torch, *, device_names=True, include_cuda=True) -> Accelerator:
-    """Resolve against a SPECIFIC torch module, without touching the cache.
+    """Resolve the accelerator for a given torch module, bypassing the cache.
 
-    For callers that already hold a torch handle and must be answered about
-    that one -- :func:`spacr.doctor.check_gpu` is the case: it imports torch
-    through its own indirection so the diagnosis can be exercised against a
-    stand-in, and a cached answer about the real machine would defeat that
-    entirely. Same probes and same order as :func:`resolve`, so the two
-    cannot drift.
+    For callers that already hold a torch handle and need the result for
+    that handle -- :func:`spacr.doctor.check_gpu` imports torch through its
+    own indirection so the diagnosis can be tested against a stand-in, and
+    the cached result for the real machine would ignore that stand-in. Uses
+    the same probes in the same order as :func:`resolve`.
 
     :param torch: torch module whose availability metadata should be inspected.
     :param device_names: False avoids CUDA/XPU property queries that can
@@ -600,7 +598,7 @@ def device_string() -> str:
 
 
 def is_gpu() -> bool:
-    """Is there a usable accelerator of any vendor.
+    """Whether a usable accelerator of any vendor was selected.
 
     What a call site means when it writes ``torch.cuda.is_available()`` to
     decide whether to use a GPU at all.
@@ -609,9 +607,9 @@ def is_gpu() -> bool:
 
 
 def is_cuda() -> bool:
-    """Is the resolved accelerator genuinely NVIDIA CUDA.
+    """Whether the resolved accelerator is NVIDIA CUDA (not ROCm).
 
-    For the places that legitimately need CUDA specifically -- memory
+    For the places that need CUDA specifically -- memory
     interrogation, ``nvidia-smi`` advice, CUDA version reporting.
     """
     return resolve().is_cuda
@@ -623,7 +621,7 @@ def supports_float64() -> bool:
 
 
 def supports_autocast() -> bool:
-    """Whether ``torch.autocast`` accepts this device type."""
+    """Whether a GPU is selected and ``torch.autocast`` accepts its device type."""
     accelerator = resolve()
     return accelerator.is_gpu and accelerator.autocast
 
@@ -641,11 +639,11 @@ def autocast_device_type() -> Optional[str]:
 
 
 def cellpose_gpu() -> bool:
-    """What to pass cellpose as ``gpu=``.
+    """Return the value to pass Cellpose as ``gpu=``.
 
-    Cellpose does its own device resolution and already knows about MPS --
-    ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it
-    cannot do is guess, so it must be TOLD there is a GPU. Passing
+    Cellpose resolves the device itself and supports MPS --
+    ``assign_device(gpu=True)`` returns ``mps`` on a Metal machine -- but it
+    uses a GPU only when called with ``gpu=True``. Passing
     ``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit
     device is supplied. An explicit Cellpose device takes precedence.
     """
@@ -660,8 +658,8 @@ def supports_bfloat16() -> bool:
 def cellpose_kwargs() -> dict:
     """Consistent device and weight precision for ``CellposeModel`` inference.
 
-    THREE ARGUMENTS THAT HAVE TO AGREE, which is why they are produced
-    together rather than spelled out at six call sites:
+    The three arguments must agree, so they are produced together here
+    rather than written out at six call sites:
 
     * ``gpu`` -- controls Cellpose's selection when no explicit device is
       supplied, including callers that deliberately drop ``device`` below.
@@ -670,8 +668,8 @@ def cellpose_kwargs() -> dict:
     * ``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default
       and Metal on torch 2.2 has no bfloat16, so the default is a
       ``TypeError: BFloat16 is not supported on MPS`` at construction.
-      Measured on the reporting iMac; float32 weights work there and cost
-      VRAM, which is the right trade for a card that otherwise sits idle.
+      Measured on the reporting iMac; float32 weights work there at the cost
+      of additional VRAM.
       CPU inference also uses float32: bfloat16 support does not imply
       native arithmetic, and emulation can be substantially slower. This
       matches Make Masks; float32 arithmetic need not produce identical
@@ -752,10 +750,11 @@ def _keep_cellpose_flows_off_metal() -> None:
 
 
 def empty_cache(torch_module=None) -> str:
-    """Hand the driver back whatever this backend caches. Never raises.
+    """Release the backend's cached device memory and return the call made
+    (``""`` when none was made). Never raises.
 
-    :param torch_module: ask about THIS torch instead of the cached answer
-        for the machine. :mod:`spacr.qt.resource_cleanup` holds its own
+    :param torch_module: resolve the backend from this torch module instead
+        of the cached result for the machine. :mod:`spacr.qt.resource_cleanup` holds its own
         handle -- it deliberately does not import torch just to free
         memory -- and a cached global would send the call to the wrong
         backend when that handle is a stand-in.
@@ -785,15 +784,12 @@ def empty_cache(torch_module=None) -> str:
 
 
 def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, str], ...]:
-    """``(task, accelerated, detail)`` for what this machine can actually do.
+    """``(task, accelerated, detail)`` rows stating which tasks are accelerated.
 
-    WHAT THE SETUP SCREEN IS FOR. "Compatible GPU" on its own answers a
-    question nobody asked: users want to know whether THE SLOW STEP will
-    be slow. So this reports per task, and it reports the truth per
-    backend rather than one verdict for all of them -- on Metal the
+    The setup screen reports acceleration per task rather than a single
+    "compatible GPU" flag, because backends differ by task: on Metal,
     segmentation and the classifier are accelerated while the cuML
-    reductions are not, and a single green tick would be a lie about the
-    second.
+    reductions run on the CPU.
 
     Ordered by how much the acceleration is worth: segmentation on the CPU
     took 444 s for one 256x256 image on the machine this was written on,

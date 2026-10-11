@@ -82,9 +82,9 @@ def well_fractions(counts: pd.DataFrame, *, threshold: float = 0.0,
         the threshold discarded.
     :returns: the surviving rows with a ``fraction`` column.
 
-    The two settings interact and that is the point of sweeping them
-    together: normalising raises every surviving share, and by more the more
-    the threshold removed.
+    The two settings interact, so they are swept together: normalising
+    raises every surviving share, and raises it more the more reads the
+    threshold removed.
     """
     frame = counts.copy()
     frame[well_column] = _well_labels(counts, well_column)
@@ -103,14 +103,14 @@ def well_fractions(counts: pd.DataFrame, *, threshold: float = 0.0,
 def reported_control_share(fractions: pd.DataFrame, positive_guide: str, *,
                            well_column: str = "prc",
                            guide_column: str = "grna") -> Dict[str, float]:
-    """What sequencing says the positive control's share of each well is.
+    """Return the positive control's sequencing-derived fraction in each well.
 
     :param fractions: per-well guide fractions, typically returned by
         :func:`well_fractions`.
     :param positive_guide: guide identifier whose share is reported.
-    :returns: ``{well: fraction}``, zero for a well the control did not
-        survive the threshold in -- which is a measurement, not a gap: the
-        threshold decided that guide was not there.
+    :returns: ``{well: fraction}``, zero for a well in which the control did
+        not survive the threshold. A zero is a result of the threshold, not
+        missing data.
     """
     wanted = str(positive_guide)
     out: Dict[str, float] = {}

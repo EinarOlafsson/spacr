@@ -72,10 +72,10 @@ unconstrained space.  Concretely:
    posterior correlations and pays no penalty for ignoring them.  Treat
    ``q5``/``q95`` from the torch backend as a spread indicator, not as a
    calibrated 90 % interval, and never quote them as one in a paper.
-2. **No convergence diagnostics worth the name.** There is no R-hat, no
-   effective sample size.  All you get is "did the ELBO stop moving",
-   which is reported as :attr:`PowerFit.converged` and is a much weaker
-   claim than NUTS convergence.
+2. **Convergence diagnostics are limited.** There is no R-hat and no
+   effective sample size.  The only criterion is whether the ELBO stopped
+   changing, which is reported as :attr:`PowerFit.converged` and is a much
+   weaker claim than NUTS convergence.
 3. **It can land in a local optimum**, and the horseshoe's funnel
    geometry is exactly the sort of thing that causes it.
 4. **The posterior mean of beta — the ranking statistic — is the part
@@ -89,14 +89,13 @@ unconstrained space.  Concretely:
 Use ``backend="numpyro"`` or ``backend="pymc"`` when the interval itself
 is the deliverable.
 
-Things this module refuses to get wrong
----------------------------------------
+Edge cases and failure reporting
+--------------------------------
 **A gene with no across-well variance is not "not a hit".**  If a gene's
 ``log10expression`` column is constant, its coefficient is perfectly
-confounded with the intercept and carries *no information whatsoever*.
-The horseshoe will happily shrink it to ~0, which reads exactly like
-"tested, and not a hit".  That is a believable wrong answer, so those
-genes get ``NaN`` and are counted in
+confounded with the intercept and the data carry no information about it.
+The horseshoe would shrink it to ~0, which reads like "tested, and not a
+hit", so those genes get ``NaN`` and are counted in
 ``n_unidentified_dropped`` instead.
 
 **A degenerate evaluation is NaN, never 0.5.**  If every gene is a hit,
@@ -107,10 +106,8 @@ string.
 
 **A failed fit is reported as failed.**  :func:`scan_parameters` records
 ``status="failed"`` or ``status="not_converged"`` with the exception
-text, and ``NaN`` metrics.  A sweep that silently backfills 0.5 for the
-points that blew up looks, on a plot, exactly like a design that is at
-chance — which is the single most expensive mistake this module could
-make.
+text, and ``NaN`` metrics.  A sweep that filled in 0.5 for failed points
+would plot them as a design performing at chance.
 
 **The sign convention is pinned down and tested.**  See
 :func:`evaluate_model_fit`.
@@ -546,10 +543,9 @@ def resolve_backend(backend: str = "auto") -> str:
 
     ``"auto"`` prefers exact NUTS where it is installed — numpyro, then
     pymc — and otherwise uses torch, which always is.  A named backend is
-    *never* silently substituted: asking for pymc without pymc installed
-    raises, because a power analysis quietly computed by a different
-    inference method than the one in your methods section is a
-    reproducibility failure, not a convenience.
+    never substituted: asking for pymc without pymc installed raises,
+    so a power analysis is not computed by a different inference method
+    from the one requested.
 
     :param backend: ``"auto"``, ``"torch"``, ``"numpyro"`` or ``"pymc"``.
     :returns: the concrete backend name.
@@ -1413,20 +1409,20 @@ def evaluate_model_fit(
 
     Port of ``evaluate_model_fit``.
 
-    **The sign convention, spelled out, because it is the easiest thing
-    in this port to get backwards and the easiest to not notice.**  The R
+    **Sign convention.**  The R
     computes ``mean_inv = -mean``, recodes ``hit`` as a factor with
     levels ``c("no", "yes")``, and hands both to ``yardstick``.
     ``yardstick``'s default ``event_level`` is ``"first"``, so the event
     it scores is ``"no"`` — the *non*-hits — and the score it scores them
     with is ``-mean``.  Scoring ``-m`` for the event "not a hit" is
     identical to scoring ``+m`` for the event "is a hit": both ROC curves
-    are the same curve.  So here we do the equivalent and much more
-    legible thing, ``roc_auc_score(y_true=hit, y_score=mean)``, and
+    are the same curve.  This port computes the equivalent
+    ``roc_auc_score(y_true=hit, y_score=mean)``, and
     :func:`spacr.power_model.evaluate_model_fit`'s tests pin the
     orientation on a case whose answer is known — strong planted hits
     must score near 1, not near 0.  A flipped convention returns
-    ``1 - AUROC``, which for a mediocre design looks entirely plausible.
+    ``1 - AUROC``, which for a mediocre design is a plausible-looking
+    value.
 
     Average precision uses scikit-learn's step-wise definition
     (``sum_n (R_n - R_{n-1}) P_n``), the same estimator ``yardstick``
@@ -1781,11 +1777,10 @@ def scan_parameters(
     **A point that fails is reported as failed.**  A fit that raises
     lands as ``status="failed"`` with the exception text in ``error``; a
     fit that runs but does not meet its convergence criterion lands as
-    ``status="not_converged"``.  Both carry ``NaN`` metrics.  This is the
-    whole point: a sweep that backfilled 0.5 for its broken points would
-    plot as a design sitting at chance, and "this design cannot find its
-    hits" and "this fit crashed" are conclusions with opposite
-    consequences.
+    ``status="not_converged"``.  Both carry ``NaN`` metrics.  A sweep that
+    filled in 0.5 for failed points would plot them as a design performing
+    at chance, which would confuse "this design cannot find its hits" with
+    "this fit failed".
 
     **Resuming.**  With ``progress_file``, each completed row is appended
     to a TSV immediately, so a killed sweep loses at most the point it
@@ -1821,15 +1816,12 @@ def scan_parameters(
 
         Returning exactly ``False`` stops the sweep and returns the
         rows completed so far; anything else (including ``None``)
-        continues.  This exists for one reason: a sweep is minutes long
-        and a GUI has to be able to show where it is and to stop it
-        without killing the thread.  Between points is the only safe
-        granularity — one fit is atomic — so a cancel is honoured after
-        the fit in flight, not during it.  The callback runs on the
-        calling thread, inline; it must not block, and a callback that
-        raises aborts the sweep rather than being swallowed, because a
-        broken progress reporter is a bug in the caller and hiding it
-        would leave the sweep running with nothing watching it.
+        continues.  This lets a GUI show progress and stop a sweep that
+        runs for minutes without killing the thread.  One fit is atomic,
+        so a cancel takes effect after the fit in progress, not during
+        it.  The callback runs inline on the calling thread and must not
+        block.  An exception raised by the callback aborts the sweep and
+        propagates to the caller.
     :param parameters: simulator parameters, scalar or sequence.
     :returns: ``pandas.DataFrame``, one row per (grid point, replicate),
         with every parameter column plus the columns in

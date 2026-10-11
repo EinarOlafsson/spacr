@@ -6,17 +6,17 @@ multiple-testing correction, and three or four filtration cutoffs -- and a hit
 list that is stable across all of them is a very different claim from one that
 appears under exactly one combination.
 
-This module makes that comparison a command rather than a week. It builds a
+This module runs that comparison as one command. It builds a
 trial list from a search space, runs each trial into its own folder, and
 returns one tidy row per trial: the settings, whether it ran, how many wells
 and guides survived, how many hits it called, where the named controls landed,
 and how long it took.
 
-Two things make it fast enough to be worth having:
+Two design choices keep a sweep practical:
 
 * **Preparation is shared.** Loading 226k score rows and 642k count rows,
   aggregating per well, thresholding and joining costs about twenty seconds
-  and depends only on the FILTRATION settings. Every trial sharing those
+  and depends only on the filtration settings. Every trial sharing those
   reuses one prepared frame, so a sweep over models and corrections pays that
   cost once per filtration cell rather than once per trial.
 * **A failed trial is a result.** Many combinations are illegal by
@@ -355,15 +355,16 @@ def _design_summary(output: Mapping[str, Any]) -> dict:
 
 def correction_rows(output: Mapping[str, Any], methods: Sequence[str],
                     alpha: float = 0.05) -> list[dict]:
-    """One row per correction, from ONE fit.
+    """Return one row per multiple-testing method, all from one fit.
 
     A multiple-testing correction is applied to p-values that already exist;
     it does not change the model, the design, or a single coefficient. Sweeping
     it as an axis therefore refits the identical regression once per method --
     thirteen fits to obtain thirteen numbers that all come from the first one.
 
-    On this screen that is the difference between ~24 hours and ~2, for exactly
-    the same answers, which is why it is worth doing rather than clever.
+    This function applies each method to one fit's p-values instead. On the
+    reference screen that reduces the sweep from ~24 hours to ~2 with the same
+    results.
 
     :returns: ``[{'multiple_testing_method': m, 'n_below_alpha': n, ...}, ...]``
     """
@@ -1444,9 +1445,8 @@ def settings_for_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
                        *, destination: str | None = None) -> dict:
     """The full settings dict that produced ``row``.
 
-    A sweep row is not just a record of what happened -- it carries every
-    setting the trial was given, which is what lets a user click a row and get
-    that exact regression back rather than an approximation of it.
+    A sweep row carries every setting the trial was given, so the trial's
+    regression can be rerun with the same settings.
 
     Values arrive as strings when the row came from the CSV rather than from
     memory, so they are parsed back to the types spaCR expects. A setting that
@@ -1488,12 +1488,11 @@ def settings_for_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
 
 def rerun_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
                 *, destination: str | None = None) -> dict:
-    """Re-run one trial and hand back its settings, output and FIGURES.
+    """Re-run one trial and return its settings, output and figures.
 
-    The figures are live matplotlib Figures, not paths: a saved page cannot be
-    restyled, and the point of clicking a row is to look at that condition
-    properly -- change the thresholds, recolour it, fix the legend -- rather
-    than to be shown a picture of it.
+    The figures are open matplotlib Figures, not file paths, so the caller can
+    change thresholds, colours or the legend; a saved image cannot be
+    restyled. Returns ``{"settings": ..., "output": ..., "figures": [...]}``.
 
     Only figures this call created are returned. A screen that already has
     figures open must not have them swept up and re-attributed to a trial they

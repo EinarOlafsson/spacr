@@ -276,12 +276,12 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
         one group remain on the same side of the split.
     :param labels: class label for every object, aligned to ``groups``.
     :param holdout: requested test fraction, strictly between zero and one.
-    :param hold_out_groups: groups that go to the TEST side whatever the
-        fraction says. This is what `holdout_plate` is: cross-validation
-        splits within the data it is given, so a model can learn the plate
-        rather than the phenotype and every number it reports will look
-        fine. Naming a plate here trains without it and scores on it, which
-        is the one number that says whether a classifier generalises.
+    :param hold_out_groups: groups that go to the test side regardless of
+        ``holdout``. `holdout_plate` uses this. Cross-validation splits within
+        the data it is given, so a model can learn plate-specific features
+        rather than the phenotype without lowering its validation scores.
+        Naming a plate here trains without it and scores on it, which measures
+        whether the classifier generalises to an unseen plate.
 
         The class check still applies: a named holdout that leaves either
         side without every class is refused, for the same reason a random
@@ -695,12 +695,12 @@ def audit_split_leakage(
         ``none`` aliases ``cell``.
     :param raise_on_leakage: raise :class:`LeakageError` on a critical overlap.
     :param split_name: optional fold/split label stored in the report.
-    :param hash_content: also compare file CONTENT, so a byte-identical copy
-        under a different name is caught. Costs one read per file.
-    :param require_identity: treat UNVERIFIABLE as critical. A filename that
-        does not encode the requested identity, or a file that cannot be
-        hashed, is otherwise only a warning -- so leaving this False means a
-        clean report can still hide leakage nobody could check for.
+    :param hash_content: also compare file contents, so a byte-identical copy
+        under a different name is detected. Costs one read per file.
+    :param require_identity: treat unverifiable samples as critical. A
+        filename that does not encode the requested identity, or a file that
+        cannot be hashed, is otherwise only a warning, so with this False a
+        passing report can include samples whose leakage was not checked.
     :returns: :class:`LeakageReport`.
     """
     group_by = normalize_split_level(group_by)
@@ -781,7 +781,7 @@ def audit_split_leakage(
 
 @dataclass
 class FoldLeakageAudit:
-    """Whole-CV proof that each related sample family belongs to one fold.
+    """Result of auditing every cross-validation fold for leakage.
 
     :param group_by: canonical identity level required to remain within one
         validation fold.
@@ -854,12 +854,12 @@ def audit_cv_folds(
     :param group_by: identity level that may not cross a fold boundary --
         ``none``, ``field``, ``well`` or ``plate``. A well-grouped split
         permits the same plate on both sides but never the same well.
-    :param hash_content: also compare file CONTENT, so a byte-identical copy
-        under a different name is caught. Costs one read per file.
-    :param require_identity: treat UNVERIFIABLE as critical. A filename that
-        does not encode the requested identity, or a file that cannot be
-        hashed, is otherwise only a warning -- so leaving this False means a
-        clean report can still hide leakage nobody could check for.
+    :param hash_content: also compare file contents, so a byte-identical copy
+        under a different name is detected. Costs one read per file.
+    :param require_identity: treat unverifiable samples as critical. A
+        filename that does not encode the requested identity, or a file that
+        cannot be hashed, is otherwise only a warning, so with this False a
+        passing report can include samples whose leakage was not checked.
     :param raise_on_leakage: raise :class:`LeakageError` instead of returning
         a report whose ``passed`` is False.
     :returns: a :class:`FoldLeakageAudit` carrying the per-level overlap
@@ -1247,10 +1247,10 @@ def cross_calibrate_probabilities(
     This cross-fitting prevents a sample from fitting the calibrator that is
     evaluated on that same sample.
 
-    :param y_true: class INDEX per sample, read only to fit the temperatures.
-        A value outside the probability columns is REFUSED -- it used to make
-        every fold's fit fail, fall back to temperature 1.0, and return
-        uncalibrated probabilities while reporting that calibration ran.
+    :param y_true: class index per sample, read only to fit the temperatures.
+        A value outside the probability columns raises :class:`ValueError`;
+        otherwise every fold's fit would fail, fall back to temperature 1.0,
+        and return uncalibrated probabilities.
     :param probabilities: predicted probabilities; a 1-D positive-class vector
         is expanded to two columns and every row is renormalized, so the
         result is always a new normalized matrix -- never the object passed
@@ -1266,8 +1266,9 @@ def cross_calibrate_probabilities(
     :param warnings_out: list appended in place when a fold cannot be
         calibrated from the others. The message is printed either way, so
         leaving this None only discards the machine-readable copy.
-    :raises ValueError: on mismatched lengths, an unrecognized ``method``, or
-        fewer than two distinct ``fold_ids`` when calibrating.
+    :raises ValueError: on mismatched lengths, a class index outside the
+        probability columns, an unrecognized ``method``, or fewer than two
+        distinct ``fold_ids`` when calibrating.
     :returns: ``(calibrated_probabilities, temperature_by_held_out_fold)``.
     """
     normalized_method = str(method or "none").strip().lower()
@@ -1339,10 +1340,9 @@ def calibration_table(
 ) -> pd.DataFrame:
     """Return per-class reliability bins for calibration plots.
 
-    :param y_true: class INDEX per sample, compared column by column. A label
-        outside the probability columns is REFUSED: it matches no class, so it
-        used to read ``observed_frequency`` 0.0 everywhere and render as a
-        catastrophically miscalibrated curve rather than an error.
+    :param y_true: class index per sample, compared column by column. A label
+        outside the probability columns raises :class:`ValueError`: it matches
+        no class, so it would give ``observed_frequency`` 0.0 in every bin.
     :param probabilities: predicted probabilities; a 1-D positive-class vector
         is expanded to two columns and every row is renormalized.
     :param classes: display names in column order. An EMPTY sequence falls
@@ -1644,12 +1644,12 @@ def nested_group_folds(
         class balance matter -- the folds carry indices, not data.
     :param outer_splits: outer fold count, coerced with ``int`` (``2.9`` gives
         2); below 2 is refused.
-    :param inner_splits: inner fold count built inside each outer TRAINING
+    :param inner_splits: inner fold count built inside each outer training
         set, so it is bounded by that subset, not by the dataset: three inner
         folds over four samples fails on the outer training half even though
         the outer split itself succeeded.
     :param groups: optional group key per sample (well or plate id) kept whole
-        within a fold at BOTH levels. None gives a plain stratified split that
+        within a fold at both levels. None gives a plain stratified split that
         will scatter crops of the same well across folds.
     :param seed: outer folds use ``seed``; the inner folds of outer fold ``k``
         use ``seed + k``, so inner partitions differ between outer folds
@@ -1660,7 +1660,7 @@ def nested_group_folds(
         folds.
     :returns: one dict per outer fold, with ``outer_fold`` (1-based),
         ``train``, ``validation`` and ``inner`` -- a list of
-        ``(train, validation)`` index pairs expressed in GLOBAL indices, not
+        ``(train, validation)`` index pairs expressed in global indices, not
         as positions inside ``train``.
     """
     from .io import make_cv_folds

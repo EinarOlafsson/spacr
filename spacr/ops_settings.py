@@ -1,14 +1,13 @@
 """Types, categories and help for every optical-pooled-screening setting.
 
-So the registration happens ON THE WAY IN rather than being retrofitted. A
-setting with no type cannot be validated; a setting with no tooltip is a
-labelled box a user has to guess at; a setting in no category does not appear
-in the panel at all.
+Each setting is registered with its type, tooltip and category when it is
+added. A setting with no type cannot be validated, a setting with no tooltip
+has no help text, and a setting in no category does not appear in the panel.
 
-TOOLTIPS SAY WHAT THE SETTING DOES TO THE RESULT, not what it is named. "The
-number of features" tells a reader nothing they could not read off the label.
+Tooltips describe the setting's effect on the result rather than repeating
+its name. For example, "The number of features" repeats the label, whereas
 "More features find more overlap and cost time and memory; below about 2000
-a sparse field stops matching" tells them which way to move it and why.
+a sparse field stops matching" states the effect of raising or lowering it.
 """
 from __future__ import annotations
 
@@ -144,9 +143,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - A CSV of guide barcodes, with the column holding "
         "them named prefix, barcode or sequence. Given one, each nucleus's "
         "called barcode is also matched to its closest guide, and the run "
-        "reports how many spots match the library exactly -- the one number "
-        "that says whether the decode worked at all. Empty still calls "
-        "barcodes and simply cannot score them. Default None.",
+        "reports how many spots match the library exactly, which measures "
+        "decoding success. Empty still calls barcodes but cannot score them "
+        "against a library. Default None.",
     "ops_raster_overlap":
         "(int) - How far neighbouring sequencing tiles overlap on the "
         "microscope's raster, in pixels. This is the acquisition's own "
@@ -164,8 +163,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Write every read behind the barcodes into the ops_reads "
         "table: one row per read per cycle, with the base called, its "
         "margin and the four intensities it was called from. This is how a "
-        "suspect barcode is traced back to its pixels. It is OFF by default "
-        "because it is large -- a full well of the reference plate is about "
+        "suspect barcode is traced back to its pixels. It is off by default "
+        "because the table is large -- a full well of the reference plate is about "
         "thirty million rows -- so turn it on for a well or two rather than "
         "for a plate. Default False.",
     "ops_spot_detector":
@@ -188,7 +187,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Let this run use the graphics card where spaCR finds a "
         "usable one: the tile registration's FFTs and the Cellpose outlines "
         "both have a GPU path, and both fall back to the CPU on their own if "
-        "the card refuses. Turn it OFF when the card is busy with another "
+        "the card refuses. Turn it off when the card is busy with another "
         "job -- a shared GPU is the common case, and an out-of-memory in the "
         "middle of a plate costs more than the time the GPU saves. "
         "Default True.",

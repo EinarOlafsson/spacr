@@ -1,42 +1,38 @@
-"""A label-free embedding for every object, beside the measured features.
+"""Compute label-free image embeddings per object, beside the measured features.
 
-WHY THIS EXISTS. spaCR's two existing ways of turning an image into numbers
-both require you to already know what you are looking for. The measured panel
-in :mod:`spacr.measure` computes a fixed, hand-designed set -- intensity,
-shape, texture, distances -- so it finds only what somebody thought to name.
-The supervised path in :mod:`spacr.deep_spacr` fine-tunes a backbone against
-annotations, so it finds only what somebody thought to annotate. A screen
-whose real hit is "the vacuole is subtly mislocalised in a way we have no
-column for" returns nothing, and returns it confidently. The cost of that gap
-is invisible, which is exactly why it is worth a module.
+spaCR's other two routes from image to numbers both depend on prior
+choices. The measured panel in :mod:`spacr.measure` computes a fixed,
+hand-designed set -- intensity, shape, texture, distances -- so it captures
+only named properties. The supervised path in :mod:`spacr.deep_spacr`
+fine-tunes a backbone against annotations, so it captures only annotated
+classes. A phenotype with no corresponding column or annotation (for
+example a subtle vacuole mislocalisation) is not detected by either route.
 
-THE CHANNEL DECISION, SETTLED HERE RATHER THAN IMPLICITLY. Pretrained
-encoders expect three channels. spaCR images routinely have four or five,
-with no RGB meaning at all -- a DAPI channel is not "red". Two ways out, and
-the choice is recorded here rather than inherited from whatever the first
-backbone happened to want:
+Channel handling is an explicit choice. Pretrained encoders expect three
+channels; spaCR images often have four or five, with no RGB meaning (a DAPI
+channel is not "red"). Two policies are available, and the choice is recorded
+in the spec rather than inherited from a backbone:
 
-  PER-CHANNEL, THEN CONCATENATE (:data:`CHANNEL_PER_CHANNEL`, the default).
+  Per-channel, then concatenate (:data:`CHANNEL_PER_CHANNEL`, the default).
   Each channel is encoded on its own and the vectors are joined. Channel
-  identity SURVIVES: dimension 517 belongs to channel 2 and to nothing else,
-  so :mod:`spacr.attribution_columns` can say which stain a hit came from and
+  identity is preserved: dimension 517 belongs to channel 2 only, so
+  :mod:`spacr.attribution_columns` can report which stain a hit came from and
   a reader can drop a channel without re-embedding. Costs N forward passes.
 
-  PROJECT TO THREE (:data:`CHANNEL_PROJECT`). One pass over a fixed
-  channel-to-RGB mapping. Cheaper, and irreversible: once channels are mixed,
-  no downstream column can be attributed to a stain, and a screen cannot ask
-  "was this the parasite channel or the host one?".
+  Project to three (:data:`CHANNEL_PROJECT`). One pass over a fixed
+  channel-to-RGB mapping. Cheaper, but irreversible: once channels are mixed,
+  no downstream column can be attributed to a stain, so a screen cannot tell
+  whether a difference came from the parasite or the host channel.
 
-The default is per-channel because THE ATTRIBUTION IS THE POINT. An embedding
-that finds an unnamed phenotype and cannot say which stain carried it has
-moved the problem rather than solved it. Projection stays available for the
-case where forward passes actually bind.
+Per-channel is the default because it keeps stain attribution: an embedding
+that detects a phenotype without identifying the stain that carries it is of
+limited use. Projection remains available when the number of forward passes
+is the limiting cost.
 
-WHAT THIS MODULE DOES NOT DO. It does not crop -- it takes the crops
-:mod:`spacr.crops` already produces. It does not write to the database. It
-returns a float32 matrix keyed by object id, which is exactly the shape the
-downstream already consumes: UMAP, the regression family, hit calling and
-the AnnData export do not care where a numeric column came from.
+Scope: this module does not crop -- it takes the crops :mod:`spacr.crops`
+produces -- and does not write to the database. It returns a float32 matrix
+keyed by object id, the same shape that UMAP, the regression family, hit
+calling and the AnnData export already consume.
 """
 from __future__ import annotations
 
@@ -93,7 +89,7 @@ DEFAULT_POOL = "avg"
 
 @dataclass(frozen=True)
 class EmbeddingSpec:
-    """How to embed, recorded so a matrix can say where it came from.
+    """Embedding configuration, recorded with each matrix as its provenance.
 
     For ``subcell_rybg``, choose :data:`CHANNEL_PROJECT`, supply four
     explicit, distinct ``channels`` in microtubules (R), ER (Y), DNA (B),
@@ -158,7 +154,7 @@ class EmbeddingSpec:
             _check_channel_scale(self)
 
     def fingerprint(self) -> str:
-        """A short digest of everything that changes the numbers.
+        """Return a 16-character digest of the fields that affect the values.
 
         Two matrices with the same fingerprint were produced the same way.
         A scorecard can quote it, and a cached matrix can be invalidated by
@@ -258,10 +254,10 @@ def embedding_column_names(per_channel_dims: int, channels: Sequence[int],
                            policy: str = CHANNEL_PER_CHANNEL) -> Tuple[str, ...]:
     """Names for the columns a run produces.
 
-    THE CHANNEL IS IN THE NAME under the per-channel policy -- ``emb_c2_017``
-    -- which is what makes attribution possible later without carrying a
-    separate map beside the matrix. Under projection there is no channel to
-    name, and the name says so rather than implying one.
+    Under the per-channel policy the channel is part of the name --
+    ``emb_c2_017`` -- so attribution needs no separate map beside the
+    matrix. Under projection the names use ``rgb`` instead of a channel
+    index, because no column belongs to one channel.
 
     :param per_channel_dims: dimensions one forward pass produces.
     :param channels: channel indices, in encoding order.
@@ -278,10 +274,11 @@ def embedding_column_names(per_channel_dims: int, channels: Sequence[int],
 
 
 def channel_of_column(column: str) -> Optional[int]:
-    """Which channel a column came from, or ``None`` if it cannot be said.
+    """Return the channel index a column came from, or ``None``.
 
-    ``None`` for a projected column is the honest answer rather than a
-    guess: the channels were mixed and no dimension belongs to one stain.
+    A projected column returns ``None`` because the channels were mixed and
+    no dimension belongs to one stain. Names without the embedding prefix
+    also return ``None``.
 
     :param column: an embedding column name.
     """
@@ -577,8 +574,7 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
         callers leave it ``None``.
     :returns: an :class:`EmbeddingResult`.
     :raises EmbeddingError: on a shape or channel problem, before any model
-        is loaded -- a download is a slow way to find out the array was
-        wrong.
+        is loaded, so an invalid array does not trigger a model download.
     """
     spec = spec or EmbeddingSpec()
     array, channels = _prepare(crops, spec)
@@ -658,7 +654,7 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
         """Encode one three-channel stack, in batches, under no_grad.
 
         Batched here rather than by the caller because the batch size belongs
-        to the DEVICE, not to the channel policy: the per-channel policy calls
+        to the device, not to the channel policy: the per-channel policy calls
         this once per channel and each call must fit the same GPU.
 
         :param stack: ``(n, height, width, 3)`` float32 in [0, 1].
@@ -1878,17 +1874,18 @@ ENCODER_KEY_PREFIX = "encoder:"
 def encoder_key(spec: "EmbeddingSpec") -> str:
     """The stable id for one encoder configuration.
 
-    BACKBONE AND POLICY TOGETHER, because they are jointly what makes two
-    runs' dimensions mean the same thing. The same backbone under
+    The key combines backbone and channel policy, because both determine
+    what a dimension represents. The same backbone under
     :data:`CHANNEL_PER_CHANNEL` and :data:`CHANNEL_PROJECT` produces columns
-    that are the same width, the same dtype and not remotely the same
-    quantity -- one is per-stain, the other is a mixture. A key that named
-    only the backbone would let those two be compared silently.
+    of the same width and dtype that measure different quantities -- one is
+    per-stain, the other a mixture -- so a key naming only the backbone
+    would allow them to be compared.
 
     :param spec: the run's configuration. Only ``backbone`` and
-        ``channel_policy`` reach the key: everything else on the spec --
-        batch size, device, crop size -- changes how long the run takes and
-        not what a dimension means.
+        ``channel_policy`` reach the key. Other fields that change the
+        values, such as ``channels``, ``normalize`` and ``channel_scale``,
+        are covered by :meth:`EmbeddingSpec.fingerprint`; batch size and
+        device are in neither.
     """
     return f"{ENCODER_KEY_PREFIX}{spec.backbone}/{spec.channel_policy}"
 
