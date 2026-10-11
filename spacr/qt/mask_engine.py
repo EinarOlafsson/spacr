@@ -81,9 +81,18 @@ from ..curation_queue import SEG_SUFFIX
 from ..tiff_io import write_tiff
 
 
-IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".scn")
+IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".scn",
+              ".dm3", ".dm4", ".mrc", ".rec")
 YOLO_ANNOTATIONS_NAME = ".spacr_yolo_annotations.json"
 YOLO_CLASSES_NAME = ".classes.json"
+
+
+_PIXEL_SIZES: Dict[str, Optional[float]] = {}
+"""Pixel sizes in nm of the TEM files :func:`read_image` has read, by path,
+so saving a mask does not decode the image a second time to find it."""
+
+#: Electron-microscopy formats, read by :func:`spacr.io.read_tem_image`.
+TEM_SUFFIXES = (".dm3", ".dm4", ".mrc", ".rec")
 
 
 def read_image(path: str) -> np.ndarray:
@@ -96,11 +105,83 @@ def read_image(path: str) -> np.ndarray:
     :param path: the image file.
     :returns: the pixels.
     """
-    if str(path).lower().endswith(".scn"):
+    lower = str(path).lower()
+    if lower.endswith(".scn"):
         from ..convert import read_scn
 
         return read_scn(path)[0]
+    if lower.endswith(TEM_SUFFIXES):
+        from ..io import read_tem_image
+
+        image, meta = read_tem_image(path)
+        _PIXEL_SIZES[os.path.abspath(os.fspath(path))] = meta["pixel_size_nm"]
+        return image
     return imageio.imread(path)
+
+
+def pixel_size_nm(path) -> Optional[float]:
+    """The physical pixel size of an image file, in nanometres, or None.
+
+    TEM files (``.dm3``, ``.dm4``, ``.mrc``, ``.rec``) are read by
+    :func:`spacr.io.read_tem_image` inside :func:`read_image`, which keeps
+    their pixel size here so a save does not read the image again. An MRC
+    file needs the optional ``mrcfile`` package; without it
+    :func:`read_image` raises :class:`spacr.io.MissingTEMReader`.
+
+    :param path: the source image. A TEM file read by :func:`read_image`
+        answers from memory; a TIFF from its resolution tags; DM and MRC
+        files not yet read are read for their calibration.
+    """
+    key = os.path.abspath(os.fspath(path))
+    if key in _PIXEL_SIZES:
+        return _PIXEL_SIZES[key]
+    from ..io import image_pixel_size_nm
+
+    size = image_pixel_size_nm(path)
+    if str(path).lower().endswith(TEM_SUFFIXES):
+        _PIXEL_SIZES[key] = size
+    return size
+
+
+#: Display settings Make Masks' "Contrast preset" box applies in one step.
+#:
+#: ``tem`` is for transmission electron micrographs: one greyscale channel
+#: whose few saturated pixels (holes in the section, stain precipitate) would
+#: take the whole range, so the window is the 0.5th to 99.5th percentile, and
+#: CLAHE on 128 px tiles evens out the uneven section thickness. Membranes
+#: stay dark. ``tem_inverted`` is the same with Invert on, so dark membranes
+#: and organelles are drawn bright and Otsu and the magnifier find them.
+#: Measured on the ten fields of ``spacr-example-tem``, which EMPIAR ships
+#: already stretched to 8 bits: Upper % at 99.5 rather than the default 99.9
+#: sets white 2 to 16 grey levels lower, so the brightest cytoplasm is no
+#: longer drawn as a flat grey below a few saturated pixels.
+CONTRAST_PRESETS: Dict[str, Dict[str, object]] = {
+    "tem": {"lower": 0.5, "upper": 99.5, "invert": False, "clahe": True,
+            "clahe_tile": 128, "clahe_clip": 0.01},
+    "tem_inverted": {"lower": 0.5, "upper": 99.5, "invert": True,
+                     "clahe": True, "clahe_tile": 128, "clahe_clip": 0.01},
+}
+
+
+def _resolution_for(pixel_size: Optional[float]) -> dict:
+    """``tifffile`` keywords recording ``pixel_size`` nm per pixel, or none.
+
+    Two records. The resolution tags in pixels per centimetre, the one TIFF
+    resolution unit that is a length, which other software reads; their
+    32-bit rational is chosen with the largest denominator that fits, so
+    0.85 nm comes back as 0.85 to nine digits rather than 0.8498. And the
+    exact value as ``pixel_size_nm`` in tifffile's JSON description, which
+    :func:`spacr.io.tiff_pixel_size_nm` reads first.
+    """
+    if not pixel_size or pixel_size <= 0:
+        return {}
+    per_cm = 1e7 / float(pixel_size)
+    top = 2 ** 32 - 1
+    denominator = max(1, min(top, int(top // per_cm))) if per_cm >= 1 else top
+    numerator = min(top, max(1, int(round(per_cm * denominator))))
+    rational = (numerator, denominator)
+    return {"resolution": (rational, rational), "resolutionunit": "CENTIMETER",
+            "metadata": {"pixel_size_nm": float(pixel_size)}}
 
 
 def _yolo_shape(image_shape) -> tuple:
@@ -2158,19 +2239,79 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
         single-valued masks as binary or splitting disconnected pieces. The
         explicit mode validates nonnegative 2-D integer labels and refuses
         IDs above 65535 before writing; it never silently renumbers them.
-    :returns: the path written.
+    :returns: the path written. The TIFF carries the source image's pixel
+        size (:func:`pixel_size_nm`) as its resolution, in pixels per
+        centimetre, when the source records one.
     """
     save_path = mask_save_path(folder, filename, masks_dir)
     if is_seg_bundle(filename):
         save_seg_bundle(save_path, mask, preserve_ids=preserve_ids)
     else:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        write_tiff(save_path, canonical_labels(mask, preserve_ids=preserve_ids))
+        size = pixel_size_nm(os.path.join(folder, filename))
+        write_tiff(save_path, canonical_labels(mask, preserve_ids=preserve_ids),
+                   **_resolution_for(size))
     if log is not None and len(log):
         if not log.artifact:
             log.artifact = save_path
         log.write_beside(save_path)
     return save_path
+
+
+def _percentile_bounds(image: np.ndarray, lower_pct: float = 1.0,
+                      upper_pct: float = 99.9) -> Tuple[float, float]:
+    """The two intensities :func:`normalize_uint16` maps to black and white.
+
+    :param image: a non-empty image.
+    :param lower_pct: the percentile mapped to black.
+    :param upper_pct: the percentile mapped to white.
+    :returns: ``(lo, hi)``, with ``hi`` raised to ``lo + 1`` when the two
+        percentiles meet, so a flat field does not divide by zero.
+    """
+    lo = np.percentile(image, lower_pct)
+    hi = np.percentile(image, upper_pct)
+    if hi <= lo:
+        hi = lo + 1
+    return lo, hi
+
+
+def _stretch_between(image: np.ndarray, lo, hi) -> np.ndarray:
+    """``image`` clipped to ``lo..hi`` and rescaled to its dtype's range.
+
+    Pixel by pixel, so stretching a crop gives the same pixels as cropping
+    the stretched field: the canvas stretches only what it draws.
+
+    :param image: integer-typed image.
+    :param lo: the intensity mapped to 0.
+    :param hi: the intensity mapped to the dtype's maximum; above ``lo``.
+    :returns: the stretched image, in ``image``'s dtype.
+    """
+    out = np.clip(image, lo, hi)
+    out = (out - lo) / (hi - lo)
+    max_val = float(np.iinfo(image.dtype).max)
+    return (out * max_val).astype(image.dtype)
+
+
+def _display_step(width: int, height: int, target_width: float,
+                 target_height: float) -> int:
+    """The pixel stride at which a ``width`` x ``height`` view is composed.
+
+    The canvas scales what it composes down to the widget anyway, so a
+    region larger than the widget's device pixels is composed from every
+    ``step``-th pixel instead: the largest whole stride that still leaves at
+    least the widget's resolution on both axes. Measured on a 4,096 px TEM
+    field: composing all of it took about 4 s per refresh, and a refresh
+    follows every brush point; at the stride a 1,000 px canvas needs (4) it
+    is 16 times fewer pixels.
+
+    :param width: the viewed region's width, in image pixels.
+    :param height: its height.
+    :param target_width: the widget's width, in device pixels.
+    :param target_height: its height.
+    :returns: 1 or more.
+    """
+    return max(1, int(min(width / max(1.0, float(target_width)),
+                          height / max(1.0, float(target_height)))))
 
 
 def normalize_uint16(image: np.ndarray,
@@ -2184,14 +2325,8 @@ def normalize_uint16(image: np.ndarray,
     """
     if not image.size:
         return image
-    lo = np.percentile(image, lower_pct)
-    hi = np.percentile(image, upper_pct)
-    if hi <= lo:
-        hi = lo + 1
-    out = np.clip(image, lo, hi)
-    out = (out - lo) / (hi - lo)
-    max_val = float(np.iinfo(image.dtype).max)
-    return (out * max_val).astype(image.dtype)
+    lo, hi = _percentile_bounds(image, lower_pct, upper_pct)
+    return _stretch_between(image, lo, hi)
 
 
 def normalize_for_detection(image: np.ndarray, lower_pct: float = 1.0,

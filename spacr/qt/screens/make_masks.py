@@ -188,7 +188,7 @@ from .. import mask_engine as engine
 from .. import organelle_modes
 from .. import prefs
 from .. import wand_rescue
-from ..hidpi import follow_device_ratio, logical_size, scaled_for
+from ..hidpi import device_ratio, follow_device_ratio, logical_size, scaled_for
 from ..theme import (SPACING, active_palette, block_surface,
                      ensure_widget_qss_applied, mark_surface,
                      register_widget_qss, set_a_sheeted_widgets_own_rule)
@@ -403,6 +403,11 @@ MIN_VIEWPORT = 8
 #: 99.9999 clips four pixels and 99.9 clips four thousand, and the hot ones
 #: are usually the entire reason the field looks black.
 PERCENTILE_DECIMALS = 6
+
+#: Fields of at least this many pixels keep their display percentiles
+#: between refreshes (:meth:`_MaskCanvas._display_bounds`). Smaller fields
+#: recompute them, which costs little and follows an array edited in place.
+_DISPLAY_BOUNDS_CACHE_PIXELS = 2048 * 2048
 
 #: Starting width of the settings pane, in pixels, and the width it is
 #: put back at when the settings button turns it on again after a session
@@ -1363,6 +1368,7 @@ class _MaskCanvas(QLabel):
         self.manual_ids = False
         self.recrop_boxes = []
         self._inverted = self._inverted_of = None
+        self._bounds_cache = None
         self._detection_cache = None
         self._enhanced_cache = self._enhanced_picture = None
         self._enhance_failure = None
@@ -1647,20 +1653,47 @@ class _MaskCanvas(QLabel):
             return
         source = (self.enhanced_picture() if self.enhance_display
                   else self.displayed_source())
-        img = engine.normalize_uint16(source, self.norm_lo, self.norm_hi)
+        if not source.size:
+            return
         x0, y0, x1, y1 = self._viewport_bounds()
-        sub_img = img[y0:y1, x0:x1]
-        sub_mask = self.mask[y0:y1, x0:x1]
+        avail_w = max(200, self.width())
+        avail_h = max(200, self.height())
+        ratio = device_ratio(self)
+        step = engine._display_step(x1 - x0, y1 - y0, avail_w * ratio,
+                                   avail_h * ratio)
+        lo, hi = self._display_bounds(source)
+        sub_img = engine._stretch_between(
+            source[y0:y1:step, x0:x1:step], lo, hi)
+        sub_mask = self.mask[y0:y1:step, x0:x1:step]
         composed = engine.overlay_mask(sub_img, sub_mask, alpha=0.5)
         h, w = composed.shape[:2]
         if w <= 0 or h <= 0:
             return
         qimg = QImage(composed.tobytes(), w, h, 3 * w, QImage.Format_RGB888).copy()
         pixmap = QPixmap.fromImage(qimg)
-        avail_w = max(200, self.width())
-        avail_h = max(200, self.height())
         pixmap = scaled_for(pixmap, self, avail_w, avail_h)
         self.setPixmap(pixmap)
+
+    def _display_bounds(self, source: np.ndarray) -> tuple:
+        """The black and white intensities of ``source`` at Lower % / Upper %.
+
+        Taken over the WHOLE field, so zooming does not change the contrast,
+        and kept for a field of :data:`_DISPLAY_BOUNDS_CACHE_PIXELS` or more
+        until the array or the percentiles change: on an 8,192 px field the
+        two percentiles cost about a second, and a refresh follows every
+        brush point.
+
+        :param source: the array :meth:`refresh` draws.
+        :returns: ``(lo, hi)`` as :func:`spacr.qt.mask_engine._percentile_bounds`.
+        """
+        key = (self.norm_lo, self.norm_hi)
+        cached = getattr(self, "_bounds_cache", None)
+        if cached is not None and cached[0] is source and cached[1] == key:
+            return cached[2]
+        bounds = engine._percentile_bounds(source, self.norm_lo, self.norm_hi)
+        if source.size >= _DISPLAY_BOUNDS_CACHE_PIXELS:
+            self._bounds_cache = (source, key, bounds)
+        return bounds
 
     def _canvas_to_image(self, x: float, y: float) -> Optional[tuple]:
         """Widget coordinates to IMAGE pixel coordinates, or ``None``.
@@ -9909,7 +9942,8 @@ class MakeMasksScreen(QWidget):
         One split button (:class:`_SplitMenuButton`): pressing it loads the
         Toxoplasma test data, as it always did
         (:func:`spacr.qt.make_masks_demo.load_the_test_data`), and its arrow
-        opens a menu offering the test data again and a sample of
+        opens a menu offering the test data again, the TEM test data
+        (:func:`spacr.qt.make_masks_demo.load_the_tem_test_data`), and a sample of
         each training dataset a published model was trained on
         (:func:`spacr.qt.make_masks_datasets.open_a_training_dataset`). It
         replaces the separate "Training datasets…" button, so the screen
@@ -9920,7 +9954,7 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
         from .. import make_masks_datasets as datasets
-        from ..make_masks_demo import load_the_test_data
+        from ..make_masks_demo import load_the_tem_test_data, load_the_test_data
 
         button = _SplitMenuButton(tr("Load test data…"), self)
         button.setObjectName("MakeMasksTestDataButton")
@@ -9941,6 +9975,16 @@ class MakeMasksScreen(QWidget):
         action.triggered.connect(
             lambda _checked=False: load_the_test_data(self))
         self._test_data_actions["test_data"] = action
+        action = menu.addAction(tr("Mitochondria in TEM images (test data)"))
+        action.setObjectName("MakeMasksTemTestData")
+        action.setToolTip(tr(
+            "Download ten transmission electron micrographs (about 32 MB, "
+            "EMPIAR-10982, CC0) and open the first one. Their mitochondria "
+            "masks come too, in the ground_truth_masks folder, which the "
+            "editor does not read. Cached after the first download."))
+        action.triggered.connect(
+            lambda _checked=False: load_the_tem_test_data(self))
+        self._test_data_actions["tem"] = action
         menu.addSeparator()
         for dataset in datasets.datasets_for("mask"):
             action = menu.addAction(tr("Training dataset: {name}",
@@ -11837,6 +11881,24 @@ class MakeMasksScreen(QWidget):
             "top four pixels of four million — which needs six decimals."
         )
         self._norm_hi.valueChanged.connect(self._on_normalize_changed)
+        self._contrast_preset = QComboBox()
+        self._contrast_preset.setObjectName("MakeMasksContrastPreset")
+        self._contrast_preset.addItem(tr("Custom"), "custom")
+        self._contrast_preset.addItem(tr("Electron microscopy (TEM)"), "tem")
+        self._contrast_preset.addItem(
+            tr("Electron microscopy, inverted"), "tem_inverted")
+        self._contrast_preset.setToolTip(tr(
+            "Set the display in one step. Electron microscopy windows the "
+            "image between its 0.5th and 99.5th percentiles, so holes in the "
+            "section and stain precipitate cannot take the whole range, and "
+            "turns on CLAHE (128 px tiles) under Image enhancement, with Apply "
+            "on, to even out uneven section thickness. Membranes stay dark. "
+            "Inverted also turns on Invert image, so dark membranes and "
+            "organelles are drawn bright and Otsu and the magnifier find "
+            "them. Custom changes nothing. Every value stays editable."))
+        self._contrast_preset.currentIndexChanged.connect(
+            self._on_contrast_preset)
+        norm_form.addRow(tr("Contrast preset"), self._contrast_preset)
         norm_form.addRow("Lower %", self._norm_lo)
         norm_form.addRow("Upper %", self._norm_hi)
         self._btn_levels = QPushButton(tr("Levels…"))
@@ -12260,6 +12322,32 @@ class MakeMasksScreen(QWidget):
         self._canvas.refresh()
         if self._canvas.detect_on_normalized:
             self._on_magnifier_context_changed()
+
+    def _on_contrast_preset(self, _index: int = 0) -> None:
+        """Apply the chosen :data:`spacr.qt.mask_engine.CONTRAST_PRESETS`.
+
+        Sets Lower % and Upper %, Invert image, and CLAHE under Image enhancement
+        with Apply on, through the widgets themselves, so each change takes
+        its usual path and every value stays editable afterwards. Custom
+        changes nothing.
+        """
+        from ..i18n import tr
+
+        key = self._contrast_preset.currentData()
+        preset = engine.CONTRAST_PRESETS.get(key)
+        if not preset:
+            return
+        self._norm_lo.setValue(float(preset["lower"]))
+        self._norm_hi.setValue(float(preset["upper"]))
+        self._invert_display.setChecked(bool(preset["invert"]))
+        if hasattr(self, "_enh_clahe"):
+            self._enh_clahe_tile.setValue(int(preset["clahe_tile"]))
+            self._enh_clahe_clip.setValue(float(preset["clahe_clip"]))
+            self._enh_clahe.setChecked(bool(preset["clahe"]))
+            self._btn_apply.setChecked(bool(preset["clahe"]))
+        self._status_label.setText(tr(
+            "Contrast preset applied: {name}.",
+            name=self._contrast_preset.currentText()))
 
     def _on_detect_normalized(self, on: bool) -> None:
         """Hand the detectors the stretched field, or the loaded one.
@@ -17584,6 +17672,14 @@ class MakeMasksScreen(QWidget):
         self._last_saved_mask = None
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
+        from ..i18n import tr
+
+        if isinstance(error, ImportError) and getattr(error, "kind", None):
+            self._warn(tr("Load failed"), tr(
+                "Reading {kind} files needs the optional {package} package. "
+                "Install it with: pip install \"spacr[tem]\"",
+                kind=error.kind, package=error.package))
+            return
         self._warn("Load failed", str(error))
 
     def _apply_loaded_pair(

@@ -1341,6 +1341,9 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     ``attribution`` it constrains nothing — the extra exists to keep h5py out
     of a plain ``pip install spacr``, not because ``all`` cannot have it.
 
+    ``tem`` joined it with N690: ``mrcfile`` (BSD, pure Python, numpy only)
+    reads MRC electron micrographs in Make Masks.
+
     ``attribution`` is deliberately NOT aggregated, and that is the
     interesting entry. torchcam declares ``numpy<2.0.0``; no numpy satisfying
     that has a cp313 wheel; so putting it in ``all`` would make
@@ -1353,7 +1356,7 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     assert "all" in extras, "the `all` extra disappeared"
     aggregated = ("qt", "fractal", "tutorial", "trackastra", "ultrack",
                   "boosting", "plaque", "czi", "nd2", "lif", "zernike",
-                  "btrack", "anndata")
+                  "btrack", "anndata", "tem")
     expected = set()
     for name in aggregated:
         assert name in extras, f"`all` claims to aggregate {name!r}, which is gone"

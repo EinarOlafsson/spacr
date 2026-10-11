@@ -11,6 +11,7 @@ from collections import defaultdict, Counter
 from contextlib import contextmanager
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
 from pathlib import Path
+from typing import Optional
 from matplotlib.animation import FuncAnimation
 try:
     from IPython.display import display
@@ -9768,3 +9769,338 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
             print_progress(i, len(instructions), n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type="cellpose dataset")
 
     print(f"Done. Dataset saved to: {output_root}")
+
+
+#: Electron-microscopy formats Make Masks opens through :func:`read_tem_image`.
+#:
+#: Gatan DigitalMicrograph ``.dm3`` and ``.dm4`` are parsed here, with no
+#: dependency: the readers that exist (``ncempy``, ``rosettasciio``) are GPL
+#: licensed and spaCR is BSD. MRC (``.mrc`` and the IMOD ``.rec``) is read by
+#: ``mrcfile`` (BSD), an optional extra: ``pip install "spacr[tem]"``.
+TEM_EXTS = (".dm3", ".dm4", ".mrc", ".rec")
+
+#: The sentence shown when a TEM reader's optional package is missing.
+#:
+#: The screen passes it through ``tr()`` with ``kind`` and ``package`` filled in.
+MISSING_TEM_READER = ("Reading {kind} files needs the optional {package} "
+                      "package. Install it with: pip install \"spacr[tem]\"")
+
+_DM_TYPES = {2: "<i2", 3: "<i4", 4: "<u2", 5: "<u4", 6: "<f4", 7: "<f8",
+             8: "u1", 9: "i1", 10: "u1", 11: "<i8", 12: "<u8"}
+"""DigitalMicrograph tag type codes and the numpy types they hold."""
+
+_DM_EAGER = 4096
+"""Arrays with at most this many elements are decoded while the tags are
+walked; longer ones, the image data, are kept as an offset and read once."""
+
+_LENGTH_UNITS_NM = {"nm": 1.0, "µm": 1000.0, "μm": 1000.0, "um": 1000.0,
+                    "mm": 1e6, "Å": 0.1, "A": 0.1, "pm": 0.001, "m": 1e9,
+                    "cm": 1e7, "micron": 1000.0}
+"""Length units met in EM and TIFF metadata, in nanometres."""
+
+
+class MissingTEMReader(ImportError):
+    """A TEM file needs an optional package that is not installed.
+
+    ``kind`` holds the extension, such as ``.mrc``, and ``package`` the
+    package that reads it, such as ``mrcfile``, for the screen's message.
+    """
+
+    def __init__(self, kind: str, package: str):
+        """Name the extension and the package it needs.
+
+        :param kind: the file extension.
+        :param package: the missing package.
+        """
+        super().__init__(MISSING_TEM_READER.format(kind=kind, package=package),
+                         name=package)
+        self.kind = kind
+        self.package = package
+
+
+class _DMArray:
+    """A long array inside a DM file: where it starts, its type and length."""
+
+    def __init__(self, offset: int, dtype: str, count: int):
+        """Remember where the array is, without reading it.
+
+        :param offset: byte offset of the first element.
+        :param dtype: numpy type of one element, little-endian.
+        :param count: number of elements.
+        """
+        self.offset = offset
+        self.dtype = np.dtype(dtype)
+        self.count = count
+
+
+class _DMReader:
+    """Walks the tag tree of a DigitalMicrograph 3 or 4 file.
+
+    The layout is the one Gatan documents and every open reader follows: a
+    big-endian header (version, length, byte order), then nested tag groups
+    whose entries are a name and either a group or a typed value. Values are
+    simple numbers, strings, structs, or arrays of numbers or structs, and
+    their bytes are in the order the header names (little-endian in every
+    file written on a PC).
+    """
+
+    def __init__(self, handle):
+        """Read the header of an open binary file.
+
+        :param handle: the file, positioned at its start.
+        :raises ValueError: when it is not a version 3 or 4 DM file.
+        """
+        self.handle = handle
+        self.version = self._be("i4")
+        if self.version not in (3, 4):
+            raise ValueError(f"not a DigitalMicrograph 3 or 4 file "
+                             f"(version {self.version})")
+        self.size_type = "u4" if self.version == 3 else "u8"
+        self._be(self.size_type)
+        little = self._be("i4")
+        self.order = "<" if little == 1 else ">"
+
+    def _be(self, kind: str) -> int:
+        """One big-endian header or tag-structure integer."""
+        dtype = np.dtype(">" + kind)
+        raw = self.handle.read(dtype.itemsize)
+        if len(raw) != dtype.itemsize:
+            raise ValueError("DigitalMicrograph file ends inside a tag")
+        return int(np.frombuffer(raw, dtype)[0])
+
+    def _dtype(self, code: int) -> np.dtype:
+        """The numpy type of DM type ``code``, in the file's byte order."""
+        if code not in _DM_TYPES:
+            raise ValueError(f"unsupported DigitalMicrograph type {code}")
+        return np.dtype(_DM_TYPES[code]).newbyteorder(self.order)
+
+    def _values(self, dtype: np.dtype, count: int):
+        """Read ``count`` values of ``dtype``, or defer a long array."""
+        if count > _DM_EAGER:
+            offset = self.handle.tell()
+            self.handle.seek(dtype.itemsize * count, 1)
+            return _DMArray(offset, dtype.str, count)
+        raw = self.handle.read(dtype.itemsize * count)
+        if len(raw) != dtype.itemsize * count:
+            raise ValueError("DigitalMicrograph file ends inside a value")
+        return np.frombuffer(raw, dtype)
+
+    def group(self) -> dict:
+        """Read one tag group as a dict; unnamed entries are numbered."""
+        self.handle.read(2)
+        count = self._be(self.size_type)
+        out: dict = {}
+        for index in range(count):
+            kind = self.handle.read(1)
+            if not kind or kind[0] == 0:
+                break
+            name_length = self._be("u2")
+            name = self.handle.read(name_length).decode("latin-1") or str(index)
+            if self.version == 4:
+                self._be("u8")
+            if kind[0] == 20:
+                out[name] = self.group()
+            elif kind[0] == 21:
+                out[name] = self.value()
+            else:
+                raise ValueError(f"unknown DigitalMicrograph tag kind {kind[0]}")
+        return out
+
+    def value(self):
+        """Read one typed value: a number, string, struct or array."""
+        if self.handle.read(4) != b"%%%%":
+            raise ValueError("DigitalMicrograph tag lacks its %%%% marker")
+        count = self._be(self.size_type)
+        info = [self._be(self.size_type) for _ in range(count)]
+        code = info[0]
+        if code == 18:
+            raw = self.handle.read(info[1])
+            return raw.decode("latin-1")
+        if code == 15:
+            fields = [info[3 + 2 * i + 1] for i in range(info[2])]
+            return tuple(self._values(self._dtype(f), 1)[0] for f in fields)
+        if code == 20:
+            if info[1] == 15:
+                fields = [info[4 + 2 * i + 1] for i in range(info[3])]
+                length = info[-1]
+                dtype = np.dtype([(f"f{i}", self._dtype(f))
+                                  for i, f in enumerate(fields)])
+                return self._values(dtype, length)
+            return self._values(self._dtype(info[1]), info[2])
+        return self._values(self._dtype(code), 1)[0]
+
+
+def _dm_text(value) -> str:
+    """A DM string, which is stored as a short array of UTF-16 code units."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, np.ndarray) and value.dtype.kind in "iu":
+        return "".join(chr(int(c)) for c in value if int(c))
+    return ""
+
+
+def _nm_per(unit) -> Optional[float]:
+    """How many nanometres one ``unit`` is, or None for a unit of no length."""
+    unit = str(unit or "").strip()
+    return _LENGTH_UNITS_NM.get(unit)
+
+
+def read_dm(path) -> tuple:
+    """Read the main image of a Gatan DigitalMicrograph ``.dm3``/``.dm4``.
+
+    A DM file holds a list of images, the first of which is usually a
+    thumbnail stored as packed RGBA (DM data type 23). Those are skipped and
+    the largest remaining image, the acquisition, is returned.
+
+    :param path: the ``.dm3`` or ``.dm4`` file.
+    :returns: ``(image, meta)``: the 2-D array (rows, columns) in the type
+        the file stores, and a dict with ``pixel_size_nm`` (``None`` when
+        the file is uncalibrated or in reciprocal units), ``unit`` and
+        ``format``.
+    :raises ValueError: for a file that is not DM 3/4, holds no greyscale
+        image (only RGB), holds a complex image, or holds a stack rather than
+        one 2-D image.
+    """
+    path = os.fspath(path)
+    with open(path, "rb") as handle:
+        reader = _DMReader(handle)
+        try:
+            tags = reader.group()
+        except (IndexError, KeyError, UnicodeDecodeError) as exc:
+            raise ValueError(f"malformed DigitalMicrograph tags in {path}: "
+                             f"{exc!r}") from exc
+        images = []
+        for entry in (tags.get("ImageList") or {}).values():
+            data = (entry.get("ImageData") or {}) if isinstance(entry, dict) else {}
+            array = data.get("Data")
+            dims = [int(v) for v in (data.get("Dimensions") or {}).values()]
+            if array is None or not dims or int(data.get("DataType", 0) or 0) == 23:
+                continue
+            count = array.count if isinstance(array, _DMArray) else array.size
+            images.append((count, array, dims, data))
+        if not images:
+            raise ValueError(f"no greyscale image in DigitalMicrograph file {path}")
+        count, array, dims, data = max(images, key=lambda item: item[0])
+        if isinstance(array, _DMArray):
+            handle.seek(array.offset)
+            pixels = np.fromfile(handle, array.dtype, array.count)
+        else:
+            pixels = np.asarray(array)
+    if pixels.dtype.names:
+        raise ValueError(f"complex DigitalMicrograph image in {path} (an FFT "
+                         "or exit wave); Make Masks opens real intensities")
+    if len(dims) != 2 or int(np.prod(dims)) != pixels.size:
+        raise ValueError(f"DigitalMicrograph image of shape {dims} in {path}; "
+                         "Make Masks opens one 2-D image")
+    image = pixels.reshape(dims[1], dims[0])
+    image = image.astype(image.dtype.newbyteorder("="))
+    calibration = ((data.get("Calibrations") or {}).get("Dimension") or {})
+    first = next(iter(calibration.values()), {}) if calibration else {}
+    unit = _dm_text(first.get("Units")) if isinstance(first, dict) else ""
+    scale = float(first.get("Scale", 0) or 0) if isinstance(first, dict) else 0.0
+    factor = _nm_per(unit)
+    pixel_size = (float(f"{scale * factor:.6g}") if factor and scale > 0
+                  else None)
+    return image, {"pixel_size_nm": pixel_size, "unit": unit,
+                   "format": os.path.splitext(path)[1].lower().lstrip(".")}
+
+
+def read_mrc(path) -> tuple:
+    """Read one 2-D image from an MRC file (``.mrc``, IMOD ``.rec``).
+
+    :param path: the file.
+    :returns: ``(image, meta)`` as :func:`read_dm` returns them. MRC stores
+        the voxel size in ångström; it is returned in nanometres, or
+        ``None`` when the header leaves it at zero.
+    :raises MissingTEMReader: when ``mrcfile`` is not installed.
+    :raises ValueError: for a stack or volume of more than one section.
+    """
+    try:
+        import mrcfile
+    except ImportError as exc:
+        raise MissingTEMReader(os.path.splitext(os.fspath(path))[1].lower(),
+                               "mrcfile") from exc
+    with mrcfile.open(os.fspath(path), permissive=True, mode="r") as mrc:
+        data = np.asarray(mrc.data)
+        voxel = float(mrc.voxel_size.x)
+    if data.ndim == 3 and data.shape[0] == 1:
+        data = data[0]
+    if data.ndim != 2:
+        raise ValueError(f"MRC data of shape {data.shape} in {path}; Make "
+                         "Masks opens one 2-D image, so save one section")
+    image = np.array(data, dtype=data.dtype.newbyteorder("="))
+    return image, {"pixel_size_nm": voxel / 10.0 if voxel > 0 else None,
+                   "unit": "nm", "format": "mrc"}
+
+
+def tiff_pixel_size_nm(path) -> Optional[float]:
+    """The physical pixel size a TIFF records, in nanometres, or None.
+
+    A ``pixel_size_nm`` that spaCR wrote into tifffile's JSON description
+    is read first, being exact; then ImageJ's ``unit`` with the resolution
+    tags; then a centimetre resolution unit. An inch unit is a print
+    density, not a calibration, and is ignored, as is an uncalibrated file.
+
+    :param path: the TIFF.
+    """
+    try:
+        with tifffile.TiffFile(os.fspath(path)) as tif:
+            page = tif.pages[0]
+            tag = page.tags.get("XResolution")
+            unit_tag = page.tags.get("ResolutionUnit")
+            imagej = tif.imagej_metadata or {}
+            shaped = (tif.shaped_metadata or ({},))[0] or {}
+    except Exception:
+        return None
+    exact = shaped.get("pixel_size_nm") if isinstance(shaped, dict) else None
+    if isinstance(exact, (int, float)) and exact > 0:
+        return float(exact)
+    if tag is None:
+        return None
+    numerator, denominator = tag.value
+    if not numerator or not denominator:
+        return None
+    per_unit = numerator / denominator
+    factor = _nm_per(imagej.get("unit"))
+    if factor is None:
+        unit = int(unit_tag.value) if unit_tag is not None else 1
+        factor = 1e7 if unit == 3 else None
+    if factor is None or per_unit <= 0:
+        return None
+    return factor / per_unit
+
+
+def read_tem_image(path) -> tuple:
+    """Read a TEM image in any format Make Masks opens, with its pixel size.
+
+    :param path: a ``.dm3``, ``.dm4``, ``.mrc``, ``.rec`` or TIFF file.
+    :returns: ``(image, meta)``, ``meta["pixel_size_nm"]`` being the pixel
+        size in nanometres or ``None``.
+    :raises MissingTEMReader: when an optional reader is not installed.
+    """
+    suffix = os.path.splitext(os.fspath(path))[1].lower()
+    if suffix in (".dm3", ".dm4"):
+        return read_dm(path)
+    if suffix in (".mrc", ".rec"):
+        return read_mrc(path)
+    image = tifffile.imread(os.fspath(path))
+    return image, {"pixel_size_nm": tiff_pixel_size_nm(path), "unit": "nm",
+                   "format": suffix.lstrip(".")}
+
+
+def image_pixel_size_nm(path) -> Optional[float]:
+    """The pixel size an image file records, in nanometres, or None.
+
+    :param path: any image Make Masks opens. DM and MRC files are read
+        for their calibration; TIFFs for their resolution tags; anything
+        else, or a file that cannot be read, has none.
+    """
+    suffix = os.path.splitext(os.fspath(path))[1].lower()
+    try:
+        if suffix in (".tif", ".tiff"):
+            return tiff_pixel_size_nm(path)
+        if suffix in TEM_EXTS:
+            return read_tem_image(path)[1]["pixel_size_nm"]
+    except (OSError, ValueError, ImportError):
+        return None
+    return None

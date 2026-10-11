@@ -58,6 +58,7 @@ __all__ = [
     "READS_EXAMPLE_REPO",
     "SETTINGS_REPO",
     "STITCH_EXAMPLE_REPO",
+    "TEM_EXAMPLE_REPO",
     "download_archive",
     "example_plate_folder",
     "example_set",
@@ -156,6 +157,13 @@ HIT_EXAMPLE_REPO = "einarolafsson/spacr-example-hit"
 #: ``tools/build_reads_example_dataset.py`` and :mod:`spacr.sra`.
 READS_EXAMPLE_REPO = "einarolafsson/spacr-example-reads"
 
+#: Make Masks' TEM test data: ten transmission electron micrographs with
+#: instance masks of every mitochondrion, from EMPIAR-10982's TEM benchmark
+#: (CC0 1.0; Conrad and Narayan 2023). The masks unpack into
+#: ``ground_truth_masks/``, so the fields open unsegmented. See
+#: ``tools/build_tem_example_dataset.py``.
+TEM_EXAMPLE_REPO = "einarolafsson/spacr-example-tem"
+
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
 
@@ -206,6 +214,7 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     CONTROL_CHART_EXAMPLE_REPO: "spacr-example-control-chart.tar",
     HIT_EXAMPLE_REPO: "spacr-example-hit.tar",
     READS_EXAMPLE_REPO: "spacr-example-reads.tar",
+    TEM_EXAMPLE_REPO: "spacr-example-tem.tar",
 }
 
 
@@ -411,6 +420,17 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         bytes=27_000_000,
         markers=("manifest.json", "filereport.tsv", "*_1.fastq.gz"),
         folder="reads",
+        in_default=False,
+    ),
+    ExampleSet(
+        key="tem",
+        repo=TEM_EXAMPLE_REPO,
+        summary="Make Masks TEM test data: ten transmission electron "
+                "micrographs with mitochondria masks, from EMPIAR-10982 "
+                "(CC0).",
+        bytes=31_508_480,
+        markers=("manifest.csv", "tem_*.tif", "ground_truth_masks/tem_*.tif"),
+        folder="make_masks_tem",
         in_default=False,
     ),
 )

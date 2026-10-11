@@ -39,8 +39,13 @@ from typing import Callable, List, Optional
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton
 
-from .hf_download import (DownloadResult, _TarExampleWorker,
-                          download_toxo_mito_demo, explain_download_failure)
+from ..example_archives import EXAMPLE_ARCHIVES, TEM_EXAMPLE_REPO
+from .hf_download import (
+    DownloadResult,
+    _TarExampleWorker,
+    download_toxo_mito_demo,
+    explain_download_failure,
+)
 from .i18n import tr
 
 LOG = logging.getLogger("spacr.qt.make_masks_demo")
@@ -48,13 +53,18 @@ LOG = logging.getLogger("spacr.qt.make_masks_demo")
 __all__ = [
     "MAKE_MASKS_EXAMPLE_ARCHIVE",
     "MAKE_MASKS_EXAMPLE_REPO",
+    "TEM_EXAMPLE_ARCHIVE",
+    "TEM_EXAMPLE_REPO",
     "download_make_masks_example",
+    "download_tem_example",
     "install_test_data_button",
     "is_present",
     "listed_files",
+    "load_the_tem_test_data",
     "load_the_test_data",
     "make_masks_example_folder",
     "open_the_test_data",
+    "tem_example_folder",
 ]
 
 #: The Hugging Face dataset repository the ten fields are published in.
@@ -67,6 +77,10 @@ MAKE_MASKS_EXAMPLE_REPO = "einarolafsson/spacr-example-make-masks"
 
 #: The one archive that repository ships, and the one file the button fetches.
 MAKE_MASKS_EXAMPLE_ARCHIVE = "spacr-example-make-masks.tar"
+
+#: The archive of the TEM test data: ten transmission electron micrographs
+#: with mitochondria masks (:data:`spacr.example_archives.TEM_EXAMPLE_REPO`).
+TEM_EXAMPLE_ARCHIVE = EXAMPLE_ARCHIVES[TEM_EXAMPLE_REPO]
 
 #: The file in the dataset that lists what a complete copy contains. It is the
 #: LAST member of the archive, so a transfer that died part-way leaves no
@@ -88,6 +102,19 @@ def make_masks_example_folder() -> Path:
     """
     return (Path.home() / ".cache" / "spacr" / "example_data"
             / "make_masks_toxo_pv")
+
+
+def tem_example_folder() -> Path:
+    """Where the TEM test data is unpacked and cached.
+
+    ``~/.cache/spacr/example_data/make_masks_tem``, the folder
+    :data:`spacr.example_archives.EXAMPLE_SETS` names for the ``tem`` set, so
+    ``spacr-download tem`` and the button share one cache.
+
+    :returns: the folder. It is not created here.
+    """
+    return (Path.home() / ".cache" / "spacr" / "example_data"
+            / "make_masks_tem")
 
 
 def listed_files(folder) -> List[str]:
@@ -140,6 +167,28 @@ class _MakeMasksTarWorker(_TarExampleWorker):
 
     repo = MAKE_MASKS_EXAMPLE_REPO
     archive = MAKE_MASKS_EXAMPLE_ARCHIVE
+
+
+class _TemTarWorker(_TarExampleWorker):
+    """Fetches the TEM test data: ten micrographs and their mitochondria."""
+
+    repo = TEM_EXAMPLE_REPO
+    archive = TEM_EXAMPLE_ARCHIVE
+
+
+def download_tem_example(parent, dest, on_done: Callable[
+        [Optional[DownloadResult], str], None]) -> None:
+    """Fetch the TEM test data behind the shared progress dialog.
+
+    :param parent: the widget the progress dialog belongs to.
+    :param dest: the folder the archive unpacks into.
+    :param on_done: called on the GUI thread as ``on_done(result, error)``,
+        as :func:`download_make_masks_example` calls it.
+    """
+    download_toxo_mito_demo(
+        parent, Path(dest), on_done,
+        worker_factory=_TemTarWorker,
+        title=tr("Downloading the Make Masks TEM test data"))
 
 
 def download_make_masks_example(parent, dest, on_done: Callable[
@@ -203,6 +252,36 @@ def load_the_test_data(screen, *, ask=None, folder=None) -> bool:
     """
     folder = (Path(folder) if folder is not None
               else make_masks_example_folder())
+    return _load_example(screen, folder, ask if ask is not None
+                         else download_make_masks_example)
+
+
+def load_the_tem_test_data(screen, *, ask=None, folder=None) -> bool:
+    """Open the TEM test data in Make Masks, downloading it first when needed.
+
+    The same sequence as :func:`load_the_test_data` -- cache check, button
+    disabled while the download runs, the first image by name, a failure
+    said with its reason -- for the ten micrographs of
+    :data:`TEM_EXAMPLE_REPO`, cached in :func:`tem_example_folder`.
+
+    :param screen: the Make Masks screen to open the data in.
+    :param ask: replaces :func:`download_tem_example`, for tests.
+    :param folder: replaces :func:`tem_example_folder`, for tests.
+    :returns: whether this call opened the data.
+    """
+    folder = Path(folder) if folder is not None else tem_example_folder()
+    return _load_example(screen, folder, ask if ask is not None
+                         else download_tem_example)
+
+
+def _load_example(screen, folder: Path, download) -> bool:
+    """Open ``folder`` when complete, else download it with ``download``.
+
+    :param screen: the Make Masks screen.
+    :param folder: where the set is cached.
+    :param download: called as ``download(screen, folder, on_done)``.
+    :returns: whether this call opened the data.
+    """
     if is_present(folder):
         return open_the_test_data(screen, folder)
 
@@ -229,7 +308,6 @@ def load_the_test_data(screen, *, ask=None, folder=None) -> bool:
             return
         open_the_test_data(screen, folder)
 
-    download = ask if ask is not None else download_make_masks_example
     try:
         download(screen, folder, _done)
     except Exception as exc:                                 # noqa: BLE001

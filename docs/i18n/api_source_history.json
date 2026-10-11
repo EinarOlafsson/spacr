@@ -905,6 +905,32 @@
       "source_sha256": "09f937fe47a2a0842789ec45cc8fe41d7cb83bb93ac5763fcd171a92164aefac",
       "text": "Return the plate folders a run's settings name, sorted.\n\nA spaCR run is pointed at one or more plate folders through ``src``,\nand the folder's basename is the plate. Used to notice that two runs\nwere pointed at *different experiments*, which is the one difference\nthat makes a count comparison meaningless rather than merely\ninteresting.\n\nNote that a run read back out of the artifact registry usually has\n*no* ``src``: it is cosmetic as far as the settings hash is concerned\nand is not stored. This is for the callers that hold the real\nsettings — a settings CSV, a run journal entry, a queued job.\n\n:param settings: a settings dict, or None.\n:returns: plate names, sorted and de-duplicated. Empty when the\n    settings name no source at all."
     },
+    "0a1ab9b650617748efad281aa674c96b90fe137855e9bd3d0a581d03cb3a1f54": {
+      "source_blocks_sha256": [
+        "a19d38b7da35680a98438b6c9345ff12e12b71a4a21a0d368c390516d6fd1552",
+        "054741b350d867667f171fa35a8690542cca56ed7ce2af372ca9196eb11b8377",
+        "a37185726b85ad3c914d7ce9d24d7408b1490ec0357f1185c3a195d9453deb2c",
+        "3d8ecd508f60dfc16456a0d2770f5aad0960c6270c9aaa78ddce6744c1fe756d",
+        "4087a34207b4e68d07756e7776e46daec0dba3fbab45e193c8439293c16521b0",
+        "fe4e08f552d7009f9e6ad5595de3e7b274d4b59f2d549e847128ae4eaa279d42",
+        "aafc35c8e7dd5e02343204022316337ccbaeb83b2f30d905d521d7230b01fe71",
+        "121e02b4a5c9df355979bd9626f103c5ee546174d5b7c85fbedff923a9c08cf3",
+        "9dae1ce06d1b00958325af6264bfc09746420b81c8d0263e0c93d56d85289126",
+        "a366aebece0bc0e3a85069bb6d6f79fe89b076e03d2f5c8fe15b2279c12a18ab",
+        "b121081764c60347ea02ccfae9ca6358199105596a6b5bd1fb6e389b5081fe79",
+        "f8b3da5212c4ca703a46301293e46749996b61a879bff1cf971a17f15db56860",
+        "99f5f572aa0963f50b62877ed33efe7ba74659b7ddfdc92ce792e0802360970c",
+        "ab7fd34d9f1a12be5d0f3158b668ff926f03b7a1ebe183e9fdbf2c0065e6ce5e",
+        "b58e2b6592e749615f2dc5f10ac9ed23145f5ff898495161775e23d8e88723de",
+        "fd9989dfcfe81a26d794d1e77003a454f4b9febca9a4be4b175aea694f22c864",
+        "b65ba8c7f8b84a88199c1f4b3cb99daab65430a1383b7753f4da31f899377fe0",
+        "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
+      ],
+      "source_sha256": "0a1ab9b650617748efad281aa674c96b90fe137855e9bd3d0a581d03cb3a1f54",
+      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more ``…/merged`` folders. A\n      cloud address Make Masks has analysed is measured from the local\n      folder Make Masks staged it in; a cloud folder of merged stacks is\n      mirrored under ``cloud_cache`` first. ``cloud_results`` copies the\n      measurements folder back to cloud storage.\n    - ``psf_measurement_source`` — original (default) uses the normal\n      rescaled/preprocessed intensities; processed adds an explicitly\n      calibrated PSF before quantitative features. The immutable kernel\n      reaches every worker. Source images and exported crops stay unchanged.\n      Field provenance is saved in ``intensity_rescale``; incompatible\n      existing PSF measurements are refused before any rows are appended.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``database_write_queue_gib`` — optional SQLite queued-data RAM budget\n      from zero to 64 GiB. Omit to use Preferences (default one GiB).\n      Zero uses disk-only buffering; overflow lives under\n      ``measurements/.write_queue``. Each field commits atomically and\n      unfinished write packets remain available after failure.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
+    },
     "0a2df22a25c019a670efb7e475e73b55ed61c59ce06efbee8494d0afadd3f0be": {
       "source_blocks_sha256": [
         "15a9a887fa7fdf90de59448c583f63eb751631fed2a5cc3e7802993e4fedc567",
@@ -5875,6 +5901,21 @@
       "source_sha256": "2fc0b968c219f2aea945d96aa2171dd02ae63a51e144c4244a90a7fef1202462",
       "text": "Whether this class has too few objects to read as a distribution.\n\nZERO IS NOT LOW-N, it is empty: a class with no objects is a\ndifferent problem from one with four, and marking it \"low n\" would\nsuggest the number could be trusted a little.\n\n:returns: True when sparse but not empty."
     },
+    "2fc699388dc1810d3625bc145142aad0dc6fa44c9fda62a6880f2c9c86685273": {
+      "source_blocks_sha256": [
+        "175499f61d4c518b6b5762af4b3a4deebcf0dfe12278786eee41568e430db8b3",
+        "58e4f435f3deef69bb9c086657670f27f02c6b9386ea1c791cf1928290c71db7",
+        "c251a546769a32b1fa5615227ea667628298f7dad5c7de33296cc51559f0ea14",
+        "c0bea415c9505292362f509f2f28f66eb6845411ec88366ee918dcabf9510772",
+        "ec8e788e56fb3a2c6610ee0863d41097ce3f6169b8daae8b3e6b6e8ee305a151",
+        "9328ec46644267e81a5f0a8a1b38565a154836b11dea2ae08216664e484bd140",
+        "63d74b26c05f8a2e7b0f3411c6114e24a908d54712cac898a7f166c4270dc4d9",
+        "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
+      ],
+      "source_sha256": "2fc699388dc1810d3625bc145142aad0dc6fa44c9fda62a6880f2c9c86685273",
+      "text": "Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.\n\nObject ids are preserved -- see :func:`canonical_labels` for what that\ncosts and why the alternative is worse. A ``_seg.npy`` bundle is written\nback into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the\nTIFF to the sibling layout's masks folder.\n\n:param folder: field directory under which the ``masks`` directory is\n    created.\n:param filename: source image name; its extension is discarded and its\n    stem becomes the TIFF mask name. A name ending in\n    :data:`SEG_SUFFIX` is the bundle to write into.\n:param mask: label image to canonicalise and write. Existing multi-label\n    object identifiers are retained where possible.\n:param log: the session's :class:`spacr.curation.CurationLog` for this\n    field. Given one holding at least one edit, it is written to\n    ``<mask>.curation.json`` beside the mask, so\n    :func:`spacr.curation.is_curated` reports the saved mask as\n    hand-edited. The log is written whole, so it must have been seeded\n    from :meth:`CurationLog.read_beside` to keep earlier sessions'\n    entries -- which is what the screen does on load. A log with no\n    edits writes no sidecar: a session that opened the editor and\n    painted nothing has not curated anything, and a ledger that exists\n    for every mask ever opened answers no question.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``.\n:param preserve_ids: retain exact primary/secondary IDs without interpreting\n    single-valued masks as binary or splitting disconnected pieces. The\n    explicit mode validates nonnegative 2-D integer labels and refuses\n    IDs above 65535 before writing; it never silently renumbers them.\n:returns: the path written."
+    },
     "2ff442aacf56b511ce9451f944cb836731c6758ee1c4593e8031f2448eb908b3": {
       "source_blocks_sha256": [
         "6d5851b55bbd0a0bb31519586be76a4945120b6d0d46739a8b9dc7d30f39a953",
@@ -6585,6 +6626,15 @@
       "source_sha256": "36a1682c1b8f1655281855fbd92bf4adc8e98e3eaf0a24365276a391b0b915bb",
       "text": "Every numeric column of ``frame`` that is a measurement.\n\n:param frame: object-measurement table whose numeric columns are screened.\n\nA COLUMN THAT DUPLICATES AN IDENTIFIER IS ALSO OUT, whatever it is called.\n`pathogen_pathogen` passes the name test and is the object label to four\ndecimal places; the only way to catch it is to look."
     },
+    "36d7558abcf6f1021e840bb7dfa92e4ff4fd098c7e40e1b4e502d1547a8c77be": {
+      "source_blocks_sha256": [
+        "a4f47ec34c9b7051f812a91ccbd698a62529467c90ffd2f4d3bb6590b4ce7a8b",
+        "37bbf3a3f95f55ba160b329750ebab70844c0904d605e69cbb503c75c80cd990",
+        "e48bcc950328212749e2f120d1ee16cb40f0798b4efdd3f547f86194c02bde6c"
+      ],
+      "source_sha256": "36d7558abcf6f1021e840bb7dfa92e4ff4fd098c7e40e1b4e502d1547a8c77be",
+      "text": "The installed spaCR version, and the environment report built from it.\n\nResolves the version from installed package metadata rather than a\nhard-coded string, so a source checkout and an installed wheel agree.\n\nCopyright © 2025 olafsson lab"
+    },
     "36dfd0fad9fbd8cc6e1acaa96b7df54d58310e59bdabc94ea23a2ffe5b3aab1f": {
       "source_blocks_sha256": [
         "43aa41efdb732434c5225469c74b980a0dfd5dbf275430f45c9f3b872a7d8a39",
@@ -6762,6 +6812,17 @@
       ],
       "source_sha256": "3831babb772962b77c78d18303295fa2bdf87d65bf5947470e6197dd96ea145f",
       "text": "Why the montage cannot be built right now, or ``''``.\n\nThe rule: a control that cannot do anything is greyed\nout AND SAYS WHY. Every branch here is a sentence a user can act on,\nand the order is the order the inputs are needed in, so the first\nmissing thing is the one named."
+    },
+    "384d352c4411802e1778070c61e5d92a259534dc0e641373ef0e400d753fc053": {
+      "source_blocks_sha256": [
+        "cfc07ac4474fb46f39a1f1805154e6559855b97cd4d9b84bfd5518522333f586",
+        "80b386da954e29ff1ac472539c4cff73108f78046c9abd200d5da1ee0db9655d",
+        "3236d76e2e0ce61aa5e4d2a63fc692452c19a3fad63766e7d8220bc85b8bc02e",
+        "31f7b901992dd6f980688625984d84045eaa65d0a70d4eef3a0b87d167ceffdd",
+        "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4"
+      ],
+      "source_sha256": "384d352c4411802e1778070c61e5d92a259534dc0e641373ef0e400d753fc053",
+      "text": "Return ``True`` if masks in ``src/masks/mask_fldr`` still need generating.\n\n:param src: experiment root containing ``masks/`` and ``stack/`` subfolders.\n:param mask_fldr: subfolder name under ``masks/``.\n:param resume: accepted for the callers that pass it. Only structurally\n    complete mask arrays are counted whether or not it is set, so an\n    empty or truncated array left by an interrupted run is re-queued.\n:returns: ``True`` when the mask folder is missing or any expected stack\n    filename lacks a complete mask. Unrelated masks cannot substitute\n    for a missing field and do not force complete fields to run again."
     },
     "38791d607533fcea5914528dc6b6ab609ac52d21e24819aa016a60a4c5cc0bcd": {
       "source_blocks_sha256": [
@@ -22711,6 +22772,21 @@
       "source_sha256": "c70eb65195cc1f7c4fa8e944655a5f0a61f72e429339a808b3e66cc7b332ca5d",
       "text": "Organism names close to ``name``, for a message that helps.\n\n:param name: normalized or free-form organism name to approximate."
     },
+    "c71b187917674314e56f45ea80aedfc95737d4d1ca0e8a0c810bfae1aaf5d7d7": {
+      "source_blocks_sha256": [
+        "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
+        "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
+        "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+        "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
+        "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
+        "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
+        "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b"
+      ],
+      "source_sha256": "c71b187917674314e56f45ea80aedfc95737d4d1ca0e8a0c810bfae1aaf5d7d7",
+      "text": "Download ``run_file`` into ``destination``, stopping after ``max_reads``.\n\nThe stream is decompressed as it arrives and the connection is dropped the\nmoment enough reads are in hand, so a limited request transfers only what\nit needs. ``max_reads`` of ``None`` fetches the whole file.\n\nWritten back out as ``.fastq.gz`` because that is what the ``src`` setting\ndocuments for sequencing (\"the folder of .fastq.gz reads\"), so a subset\nand a full download are the same shape to everything downstream.\n\n:param run_file: the archive file to stream; its ``url`` is read and its\n    ``filename`` names the output.\n:param destination: folder the ``.fastq.gz`` file is written into; created\n    if missing.\n:param progress: called with ``(reads_so_far, compressed_bytes_so_far)``.\n:param should_stop: polled between chunks; a truthy answer abandons the\n    download and removes the partial file.\n:returns: the path written.\n:raises ValueError: for a non-positive ``max_reads``."
+    },
     "c71cdcd16fa52c0a7da802373c996fb2547caee35d2c480bd710f6469a5c2bfb": {
       "source_blocks_sha256": [
         "37fac530793a5380ec02b5b0b0d9e1c99c9c592e311f109798cecb0b5490989e",
@@ -23963,6 +24039,14 @@
       ],
       "source_sha256": "d026178737e175b61bef6a8f5deee9b53d8866ba410408f6302c593b8bf8bcf1",
       "text": "The produced ports whose existence PROVES ``module`` ran here.\n\nThe naive reading of \"stage reached\" — every declared output that is on\ndisk — is wrong, and wrong in a way a user would notice immediately.\n``ml_analyze`` declares one output, ``measurements/measurements.db``,\nwhich ``mask`` created and ``measure`` filled. On that reading, a project\nthat has only been segmented reports classical ML as complete.\n\nSo a produced port counts as evidence only when nothing EARLIER in\n:func:`pipeline_order` already explains the same location with a\ndifferent kind. An earlier writer's file being there says the earlier\nmodule ran, and nothing more. This is the same distinction\n:mod:`spacr.artifacts` draws when it keeps ``object-counts`` and\n``measurements-db`` apart in one file — \"mask creating the file does not\nmake the measurements in it current\".\n\nTwo consequences worth stating rather than discovering:\n\n* ``measure`` is left with only its optional ``data/`` crops, because\n  mask wrote the database first. A measured project whose crops were\n  never saved therefore reports its stage as ``mask`` **from the\n  filesystem alone**. The registry answers it exactly when it has a\n  record — see :func:`module_states`.\n* A module with no evidence ports at all (``ml_analyze``) has no on-disk\n  signature whatsoever. :attr:`ModuleState.detectable` is False for it,\n  so the browser can say \"no way to tell without a run record\" instead of\n  the flatly wrong \"not run\".\n\nModules that declare an identical set of outputs are interchangeable\n(``mask`` and ``timelapse`` share theirs literally — ``ports.py`` passes\nthe same tuple to both). Only the earlier of such a pair carries\nfilesystem evidence, or one segmented project would report that both had\nrun.\n\n:param module: module key or alias.\n:returns: the subset of ``module_ports(module).produces`` that is\n    discriminating, in declaration order."
+    },
+    "d050e59eab36eca2394e4cd0db51afe0cfda67ab63e7916eebcf6402b926e275": {
+      "source_blocks_sha256": [
+        "e9b9122fe61ecc7a67c24e4bccac712ffd112bd6a92a01a322a21c64bf4dfe16",
+        "77cc68c582ecc328de7719f1144de0f0119854eb754a03715b994fba7ae7658f"
+      ],
+      "source_sha256": "d050e59eab36eca2394e4cd0db51afe0cfda67ab63e7916eebcf6402b926e275",
+      "text": "Return the installed spacr package version, or ``\"unknown\"`` if not found.\n\n:returns: Version string from the first candidate distribution that resolves."
     },
     "d0a30ab617f3fca0e1b2e04d44c1783000dd6c6789f00a4f10fd425fd7630b58": {
       "source_blocks_sha256": [

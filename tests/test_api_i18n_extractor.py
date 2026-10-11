@@ -1433,6 +1433,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         / "685_model_zoo_api_arrivals_2026-10-11.json").read_text())
     assert len(zoo_arrivals) == 4
     assert {key: docs[key] for key in zoo_arrivals} == zoo_arrivals
+    # 2026-10-11 item 690: the TEM readers and pixel size (spacr.io), the
+    # pixel_size_nm (mask_engine) and the TEM test data
+    # loaders (make_masks_demo) are one named arrival contract.
+    tem_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "690_tem_api_arrivals_2026-10-11.json").read_text())
+    assert len(tem_arrivals) == 10
+    assert {key: docs[key] for key in tem_arrivals} == tem_arrivals
+    zoo_arrivals = {**zoo_arrivals, **tem_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "

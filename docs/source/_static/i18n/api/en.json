@@ -23879,6 +23879,16 @@
       "source_sha256": "1df686549b6cadc80973ea6e5dce36479f86161060c76f0fd71627b562d0aa49",
       "text": "A database merge violated its declared relationship.\n\nThis is a :class:`JoinFanOut` for backwards compatibility with callers\nthat already handle duplicate crop rows, but it is used for every\nexplicitly validated object-table relationship."
     },
+    "spacr.io.MissingTEMReader": {
+      "source_blocks_sha256": [
+        "65e6229ecc05ef52586bee25058ef705d92b30df482e61ab82436b36726a4b64",
+        "d6aa5db840ec5b467aba04484983dfc276e0cfa0c169e40ff98968413ed1cf34",
+        "df71ced2b0ab2c04313567a58e8daad7c13f6dea3a5a2f81f814fcc60c74251d",
+        "967e2e3c87f9cee7c275933b57b83f0d840ca84deb2173eb2d66ae1e17e4f05b"
+      ],
+      "source_sha256": "b513f7adcdd2fb83290d89251fa0f311a184abd25353d357af518b54f8d2ee2e",
+      "text": "A TEM file needs an optional package that is not installed.\n\n``kind`` holds the extension, such as ``.mrc``, and ``package`` the\npackage that reads it, such as ``mrcfile``, for the screen's message.\nName the extension and the package it needs.\n\n:param kind: the file extension.\n:param package: the missing package."
+    },
     "spacr.io.NoClassDataset": {
       "source_blocks_sha256": [
         "8c5c211236e48aa49eef8af143f42f3ffab9537a5d2d7a787a2d3ee53aa60ee2",
@@ -24462,6 +24472,14 @@
       "source_sha256": "68a2bf2142eec33dc9afa221577285dac3efc7e828ad46edb7ab87d6d0a9d034",
       "text": "The per-object crop table, or the measurements standing in for it.\n\nOnly `png_list` is read: joining it against the measurement tables\nwould drop every object those tables do not also carry, and a training\nset is allowed to be a subset of what was measured.\n\nA missing `png_list` means no PNG folder was written, not that there is\nno data. The objects are still in the measurement table with the same\nwell metadata the class rules select on, so that is read instead --\notherwise a project holding everything it needs reports \"0 classes\".\n\n:param db_path: the measurements database.\n:param object_type: which object's table to fall back to."
     },
+    "spacr.io.image_pixel_size_nm": {
+      "source_blocks_sha256": [
+        "6e0acff27c150b5fbee89228e768eae419cdeb8d0e70553c9ff9f2d6dd2c9f90",
+        "2d323eb635026956226955e635f5ebd1c89452524a733756c8f0ebf03fccfa10"
+      ],
+      "source_sha256": "48b851ff817150aab1d70cf6f9dc54d741a230bbf1a4368a6ba1bb78d700e599",
+      "text": "The pixel size an image file records, in nanometres, or None.\n\n:param path: any image Make Masks opens. DM and MRC files are read\n    for their calibration; TIFFs for their resolution tags; anything\n    else, or a file that cannot be read, has none."
+    },
     "spacr.io.load_images_from_paths": {
       "source_blocks_sha256": [
         "d7b55adb19c1c152b566c44a5dd96761ae75dc96edb74485deffa647458fd296",
@@ -24703,6 +24721,28 @@
       "source_sha256": "6592049fd0eb204d5257034fa4a74f3899e1969026dcbd76d1acdeb489ab136f",
       "text": "Splits the image into channels and handles 3D, 4D, and 5D image cases.\n\n:param image: Array whose axis order is assumed to be\n    ``(height, width, channel[, Z[, T]])``. A 2D array returns without\n    writing anything (the caller handles those), and anything with\n    more than five axes falls through silently, writing nothing. The\n    axis order is never checked, so a channel-first array from some\n    other reader is sliced along width instead of being rejected.\n:param folder: Directory the per-plane TIFFs are written into.\n:param base_name: Stem shared by every plane written from this image;\n    the ``_C``/``_Z``/``_T`` indices are appended to it, all 1-based.\n:param dtype: NumPy dtype passed straight through to each write, so it\n    should be the source image's own dtype to keep its bit depth."
     },
+    "spacr.io.read_dm": {
+      "source_blocks_sha256": [
+        "a1c8bbffaf4bf7d5306216d2f0020b3bd4da82464f99b685355dbf5bb53b0475",
+        "01684691b4bc0e537fa0f4b521e21273f49fd6d3a842e631a447744438dae926",
+        "aced567639fe766de509f69e4f110b0b44e9abf66b127b312b4ea54f629b9d57",
+        "1d5a90cbac9361ebaae5a9d83e418f811f58516139a84078e7db79fbcfeb034e",
+        "3a5398aa30a6d659d4bafef06841ebb2aaad73fdae9a83a86a559e859cafa830"
+      ],
+      "source_sha256": "bb6014d70c37784ac78b34eb3817e707080ea71091a8ec27f0bd26b20d75532c",
+      "text": "Read the main image of a Gatan DigitalMicrograph ``.dm3``/``.dm4``.\n\nA DM file holds a list of images, the first of which is usually a\nthumbnail stored as packed RGBA (DM data type 23). Those are skipped and\nthe largest remaining image, the acquisition, is returned.\n\n:param path: the ``.dm3`` or ``.dm4`` file.\n:returns: ``(image, meta)``: the 2-D array (rows, columns) in the type\n    the file stores, and a dict with ``pixel_size_nm`` (``None`` when\n    the file is uncalibrated or in reciprocal units), ``unit`` and\n    ``format``.\n:raises ValueError: for a file that is not DM 3/4, holds no greyscale\n    image (only RGB), holds a complex image, or holds a stack rather than\n    one 2-D image."
+    },
+    "spacr.io.read_mrc": {
+      "source_blocks_sha256": [
+        "a923c740326b0d33b774987d6133f27b29ba95d0e42999a1b6a86dd7c5bb878f",
+        "4dbf84b89ca778b809c39d04273d048c9fd8d85fb63aecc2b5ceb328bbb7e893",
+        "ffae6e3827ef25636659e37fd0e4dcaf37dfa45aab427315d9ec719238a26d0b",
+        "79cb4277512b7da822d5d19c4d3bb68786ba2331ba6e8ee8e4081f6202653fc2",
+        "f5137d1260f2fd5a78fd0f2524c3cec7259a04eb330a5e7d061ea7289f7d3c5b"
+      ],
+      "source_sha256": "a7a52229f355de0d85f35b8c7ec2d08880b7219694e0068d98c56e5a1c45a98b",
+      "text": "Read one 2-D image from an MRC file (``.mrc``, IMOD ``.rec``).\n\n:param path: the file.\n:returns: ``(image, meta)`` as :func:`read_dm` returns them. MRC stores\n    the voxel size in ångström; it is returned in nanometres, or\n    ``None`` when the header leaves it at zero.\n:raises MissingTEMReader: when ``mrcfile`` is not installed.\n:raises ValueError: for a stack or volume of more than one section."
+    },
     "spacr.io.read_plot_model_stats": {
       "source_blocks_sha256": [
         "4b07d3f6c7cd03a4194e3c20d459ae37f4c9d2de19e25ce4912fb8e6583a82b2",
@@ -24737,6 +24777,16 @@
       ],
       "source_sha256": "f50608f18cd6a0905a54960b252216a2746d8af3a9429c3cafc544024929e9d0",
       "text": "Every settings snapshot ever written into ``db_path``, oldest first.\n\n:param db_path: path to a ``measurements.db``.\n:returns: list of ``{'run_id', 'stage', 'stamped_utc', 'settings'}``, one\n    entry per recorded run, oldest first. A database that predates the\n    history table returns ``[]``.\n\nExample:\n    .. code-block:: python\n\n        from spacr.io import read_settings_history\n        for run in read_settings_history('.../measurements/measurements.db'):\n            print(run['stamped_utc'], run['stage'],\n                  run['settings'].get('crop_mode'))"
+    },
+    "spacr.io.read_tem_image": {
+      "source_blocks_sha256": [
+        "e7b3eaf1262c780a7c625f350a30be95ea7ccd5667644fdd5d995e205ecfacdb",
+        "6a5791314feffac427d05f9a8fe9c8b713714da44413c2cfad73ef4b3a8e5e05",
+        "c77e57a1c05246111d04c28a964d193af6e977c85c3d6fd50feb9a026b59c9dd",
+        "7db0fe8340022c995b55eb9b7775d4df28377d97cf84c025f73d4454e0d76306"
+      ],
+      "source_sha256": "5e7b30c270a200e6ba271c39914c349eacaed512a5a11b49050114371510424a",
+      "text": "Read a TEM image in any format Make Masks opens, with its pixel size.\n\n:param path: a ``.dm3``, ``.dm4``, ``.mrc``, ``.rec`` or TIFF file.\n:returns: ``(image, meta)``, ``meta[\"pixel_size_nm\"]`` being the pixel\n    size in nanometres or ``None``.\n:raises MissingTEMReader: when an optional reader is not installed."
     },
     "spacr.io.report_class_balance": {
       "source_blocks_sha256": [
@@ -24916,6 +24966,15 @@
       ],
       "source_sha256": "591c30a4134a10799c60b608beebb3728b3af70e35980f978a7d622c0bafad73",
       "text": "Tabulate fold sizes and per-class validation counts.\n\n:param labels: integer labels, one per sample.\n:param folds: list of ``(train_idx, val_idx)`` from :func:`make_cv_folds`.\n:param classes: ordered class names.\n:param groups: optional group id per sample; adds a distinct-group column.\n:returns: DataFrame with one row per fold."
+    },
+    "spacr.io.tiff_pixel_size_nm": {
+      "source_blocks_sha256": [
+        "55cbbb73a144085dc3ad9f0f06dae1e753da495a5d7bc11e0f90c23bf01114a5",
+        "e3d6996137c2048deda99802d5d580b86823e48bc3916b88505c18c22412d0b0",
+        "46f0385e6cab94252381d50e7cb1f711a9c61d12ecafb2f9824b871a54f9e043"
+      ],
+      "source_sha256": "df18341e456b1fcf3cc9e94cfac85c90a9e67a74e6f924e8aea770760f3750d5",
+      "text": "The physical pixel size a TIFF records, in nanometres, or None.\n\nA ``pixel_size_nm`` that spaCR wrote into tifffile's JSON description\nis read first, being exact; then ImageJ's ``unit`` with the resolution\ntags; then a centimetre resolution unit. An inch unit is a print\ndensity, not a calibration, and is ignored, as is an uncalibrated file.\n\n:param path: the TIFF."
     },
     "spacr.io.training_dataset_from_annotation": {
       "source_blocks_sha256": [
@@ -28221,7 +28280,7 @@
         "a19d38b7da35680a98438b6c9345ff12e12b71a4a21a0d368c390516d6fd1552",
         "054741b350d867667f171fa35a8690542cca56ed7ce2af372ca9196eb11b8377",
         "a37185726b85ad3c914d7ce9d24d7408b1490ec0357f1185c3a195d9453deb2c",
-        "3d8ecd508f60dfc16456a0d2770f5aad0960c6270c9aaa78ddce6744c1fe756d",
+        "23479c7d4859a8a5237f56ee5e1d7ef3eca4af0807b59baa5926f9ecffe4edbf",
         "4087a34207b4e68d07756e7776e46daec0dba3fbab45e193c8439293c16521b0",
         "fe4e08f552d7009f9e6ad5595de3e7b274d4b59f2d549e847128ae4eaa279d42",
         "aafc35c8e7dd5e02343204022316337ccbaeb83b2f30d905d521d7230b01fe71",
@@ -28239,8 +28298,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
       ],
-      "source_sha256": "0a1ab9b650617748efad281aa674c96b90fe137855e9bd3d0a581d03cb3a1f54",
-      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more ``…/merged`` folders. A\n      cloud address Make Masks has analysed is measured from the local\n      folder Make Masks staged it in; a cloud folder of merged stacks is\n      mirrored under ``cloud_cache`` first. ``cloud_results`` copies the\n      measurements folder back to cloud storage.\n    - ``psf_measurement_source`` — original (default) uses the normal\n      rescaled/preprocessed intensities; processed adds an explicitly\n      calibrated PSF before quantitative features. The immutable kernel\n      reaches every worker. Source images and exported crops stay unchanged.\n      Field provenance is saved in ``intensity_rescale``; incompatible\n      existing PSF measurements are refused before any rows are appended.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``database_write_queue_gib`` — optional SQLite queued-data RAM budget\n      from zero to 64 GiB. Omit to use Preferences (default one GiB).\n      Zero uses disk-only buffering; overflow lives under\n      ``measurements/.write_queue``. Each field commits atomically and\n      unfinished write packets remain available after failure.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
+      "source_sha256": "d8e75c3b914370e5623f91149c76f43655195057b486a2a7c01fe21d2cd6eb5d",
+      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more plate or ``…/merged``\n      folders, each measured in turn into its own ``measurements``\n      folder. Text naming several plates (a pasted list, curly quotes,\n      one path per line) is split into its plate folders. A\n      cloud address Make Masks has analysed is measured from the local\n      folder Make Masks staged it in; a cloud folder of merged stacks is\n      mirrored under ``cloud_cache`` first. ``cloud_results`` copies the\n      measurements folder back to cloud storage.\n    - ``psf_measurement_source`` — original (default) uses the normal\n      rescaled/preprocessed intensities; processed adds an explicitly\n      calibrated PSF before quantitative features. The immutable kernel\n      reaches every worker. Source images and exported crops stay unchanged.\n      Field provenance is saved in ``intensity_rescale``; incompatible\n      existing PSF measurements are refused before any rows are appended.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``database_write_queue_gib`` — optional SQLite queued-data RAM budget\n      from zero to 64 GiB. Omit to use Preferences (default one GiB).\n      Zero uses disk-only buffering; overflow lives under\n      ``measurements/.write_queue``. Each field commits atomically and\n      unfinished write packets remain available after failure.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
     },
     "spacr.measure.measure_crop.job_callback": {
       "source_blocks_sha256": [
@@ -34850,6 +34909,13 @@
       "source_sha256": "f6af7bfbbd4b33dd244101f36df7cc2c7411bc59fb04d34b0573dbf58f90e448",
       "text": "The placed tiles that touch ``window`` and read.\n\n:param window: the rectangle about to be composed.\n:returns: ``site -> (y, x)`` for :func:`~spacr.ops_compose.compose_window`.\n\nOnly tiles that touch the window are opened, not the whole well. Six\nanchors need about nine tiles each; testing readability over every\nplacement instead would read all 333 of the reference well's\nsequencing tiles, and ``tifffile`` reads the whole five-plane\n1,480 px file for one plane of it -- 22 MB each, about 7 GB over NFS\nper well, before ``compose_window`` re-reads the nine it needs. The overlap\ntest is the same rounding ``compose_window`` uses, so a tile is\noffered here exactly when it would have been used there; a tile\nthat will not read is dropped so the composer never sees a None."
     },
+    "spacr.ops_engine._st_level_geometry.size": {
+      "source_blocks_sha256": [
+        "e0fefab3c4092a51950eb8c5d31c4cce9ad893a11e2a5f540d45c96e085f8e32"
+      ],
+      "source_sha256": "e0fefab3c4092a51950eb8c5d31c4cce9ad893a11e2a5f540d45c96e085f8e32",
+      "text": "``(rows, columns)`` of one level of the series."
+    },
     "spacr.ops_engine._st_register_intensity.shrink": {
       "source_blocks_sha256": [
         "4a50c5271572fb5b66105339d402065bd73d9c507e0c8009bd474d8d72330f26"
@@ -34870,6 +34936,29 @@
       ],
       "source_sha256": "8c7ee33c12972978c54fbc287ee32e09379e9fda3888881c45cd5504f18452e3",
       "text": "Stitch, place, segment and decode the wells of one sequencing acquisition.\n\n:param settings: the OPS settings. Read here: ``genotype_source``, the\n    folder of sequencing tiles, searched recursively; ``phenotype_source``,\n    the folder of the high-magnification phenotype acquisition, which the\n    ``phenotype`` phase places on the stitched well and which an empty\n    value skips; ``dst_root``, where ``measurements.db`` and the per-well\n    reports go, the source folder when empty; ``plate``, the source\n    folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields\n    decode at once; ``cellpose_model`` and ``cellpose_diameter``;\n    ``ops_library``, a guide library CSV the ``library`` keyword\n    overrides; and the five measured numbers ``ops_base_channels``,\n    ``ops_read_threshold``, ``ops_raster_overlap``,\n    ``ops_window_overlap`` and ``ops_footprint``, each of which falls\n    back to the value this plate was validated at. ``ops_store_reads``\n    writes ``ops_reads``.\n\n    Either folder may be a parent of both halves, and each setting\n    still reads its own: ``genotype_source`` indexes only names that\n    carry a cycle and ``phenotype_source`` only names that do not,\n    falling back to cycled names for a phenotype acquisition that\n    carries them. Pointing both at ``20200202_6W-LaC024A`` therefore\n    runs the plate, rather than filing 1,281 phenotype fields and 333\n    sequencing ones as one acquisition -- see :func:`_index_tiles`.\n:param wells: which wells to run; every well found when None.\n:param phases: any of ``\"stitch\"``, ``\"phenotype\"``, ``\"objects\"`` and\n    ``\"decode\"``, run in that order. A phase left out reads what it needs\n    from the database, so a well can be stitched once and decoded again.\n:param library: the guide barcodes, as a sequence or the path of a CSV\n    with a ``prefix``, ``barcode`` or ``sequence`` column. When given,\n    each barcode is also mapped to its closest guide. Overrides the\n    ``ops_library`` setting.\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: when the source holds no tiles this can name, an\n    unknown phase or well is asked for, or a phase's input is missing."
+    },
+    "spacr.ops_engine.run_spatial_map": {
+      "source_blocks_sha256": [
+        "9d1c876c3a7f62c823196649d31a885fe5e37e975178d491f86b13b45668af46",
+        "65fa7e7148e8a5f9606c1cebd888914bbf743d169cfa61eaa874e116d852001d",
+        "7579e9d3795f064ced6fc0ce35aef4b9593726ab98859380309f77c344a81db1",
+        "70ea5b1c07758426fca313ec3be25b2499f04c3bd4de10a6e8bc40843afc52b9",
+        "d40c725ac623d001743aba175d699910ab368e5ddf2b0a481ad97d29c837b8f5"
+      ],
+      "source_sha256": "bed151150560a0c6b28a9e498ec681bd6ecf5ba3db56e179d3d4115876e09752",
+      "text": "Count every transcript or bin into the cells of the spatial fields.\n\nReads the whole Xenium bundle (transcripts at ``spatial_min_qv``) or one\nVisium HD bin size, puts every point in full-resolution pixels of the\nslide image (:func:`_st_slide_xy`), then in the frame of each field\nSpatial Mask Generation wrote (:func:`_st_field_frame`), and counts it\ninto the object of each plane named in ``spatial_objects``: Xenium\ntranscripts by the pixel they fall in, Visium HD bins shared out by the\nfraction of the bin each object covers. Each object is owned by one\nfield, so nothing is counted twice across the overlaps. The counts go to\n``<object>_expression`` (and for Xenium ``<object>_expression_long``,\nfor Visium HD ``<object>_spot_coverage``) in the fields'\n``measurements.db``, keyed by ``prcfo`` like Measure's tables. Infection\ncalls, infected-versus-uninfected tests, the distance trend (to the\nnearest infected cell, over the uninfected ones), the region summary,\nthe ``.h5ad`` export and an overlay of the field with the most cells go\nto ``spatial_transcriptomics`` beside the masks.\n\n:param settings: the Spatial Map Barcodes settings\n    (:data:`spacr.ops_settings.SPATIAL_MAP_DEFAULTS`).\n:returns: the run report, also written as ``spatial_map_report.json``.\n:raises ValueError: when the masks folder holds no fields of this slide\n    or a requested plane is not in the fields."
+    },
+    "spacr.ops_engine.run_spatial_masks": {
+      "source_blocks_sha256": [
+        "1dbef6ce4acc139beb0d69e5507480ab7bf9a61655571fddac3844750c68575a",
+        "a9aa2cf2f6ed27429f39cfc4e4fda0701a60729bc3ce15277f98ab31704bd0e7",
+        "b71d3fcb3c6a8fe63e91f82305af5090c89afb23df8abf7dad1541afd59a1673",
+        "225f1a64be608637caa0793fe9478e4700d246e990f9bcb516cd58f81ad5f8fc",
+        "6037f4a178a1c06538d7053e88eeaf14b0a9b09b5348abe2e6d63d6106296712",
+        "f686be4a335373727abb289908be6566125b245893e25ec0a44d447d8380c751"
+      ],
+      "source_sha256": "ebd572d8bafba20ccdd5d55cc4a58853bd1a543e625ed7a0452eb82e3de48ceb",
+      "text": "Segment a whole Xenium or Visium HD slide into Measure-ready fields.\n\nThe slide (or ``spatial_window`` of it) is cut into overlapping windows\nwith :func:`spacr.ops_compose.windows_over`; each window's tiles are\nread with :func:`_st_read_window`, its nuclei segmented and grown into\ncells, and the observations sewn and numbered across the seams with\n:func:`spacr.ops_objects.sew` and :func:`spacr.ops_objects.number`, the\nOPS window code. Every object is kept from one window that saw all of\nit, and every window that keeps an object is written as a field:\n``stack/<stem>.npy``, ``masks/cell_mask_stack`` and\n``masks/nucleus_mask_stack``, and ``merged/<stem>.npy`` (the channels,\nthen the cell and nucleus masks) with the plane-layout file, the layout\nMask Generation writes and Measure reads. The fields' places on the\nslide go to the ``spatial_fields`` table and the objects to\n``spatial_objects`` in ``measurements/measurements.db``.\n\n:param settings: the Spatial Mask Generation settings\n    (:data:`spacr.ops_settings.SPATIAL_MASK_DEFAULTS`).\n:param segment: optional callable taking the stain image and returning\n    its nucleus label image, in place of the configured segmenter.\n:returns: the run report, also written as ``spatial_mask_report.json``.\n:raises ValueError: when the source is not a folder or the overlap is\n    not smaller than the window."
     },
     "spacr.ops_layout": {
       "source_blocks_sha256": [
@@ -35075,10 +35164,11 @@
         "941966ba7c852fbf58563a461b054f78efaed10daf1cdea9dade4b36df76b455",
         "88d5364796cdc7adab3820e68030d6222f109ff808bd0779677590426c56bbe8",
         "015b9666b0dbca7b2fa380d289f46f461a6e3d76dff95fa2d8219f8aa91481a8",
-        "9d6587e77fa9bd5eb5ccd239102f86825c4e32e93aae003b0c1f7214d13fddf2"
+        "9d6587e77fa9bd5eb5ccd239102f86825c4e32e93aae003b0c1f7214d13fddf2",
+        "6de43b3f6ff4c514a4114e6e30aed6f4c7b2318f8591f1d57d7f7eb70acc65b0"
       ],
-      "source_sha256": "d6164c22c7438ecbb8e2c5e4c8af4c6c2f3802cd66096d1180ef1b7f38c04566",
-      "text": "One nucleus, numbered for the whole well. The join key for sampling.\n\nThe field names are the ``ops_objects`` columns the storage contract\nspecifies, so the table is written from these without a translation\nlayer.\n\n:param object_id: the well-wide number, unique across the whole well;\n    per-window numbering would give two windows an object #1 apiece.\n:param centroid_x: column of the centroid, in well-frame pixels.\n:param centroid_y: row of the centroid, same frame.\n:param area: pixel count of the mask that was kept, which is the unclipped\n    observation wherever one exists.\n:param bbox: ``(top, left, bottom, right)`` in well-frame pixels, every\n    one of them inclusive, as :class:`WindowObject` carries them.\n:param window: the window whose observation was kept, as ``(row, col)``.\n    Recorded so a suspect object can be traced back to the pixels it was\n    segmented from.\n:param n_observations: how many windows saw this nucleus. Greater than\n    one means it sat in an overlap and the observations were sewn."
+      "source_sha256": "d4949ac797e721ad28e4a6952fdcbb96c37fcbe4738baec529918356139ea5a7",
+      "text": "One nucleus, numbered for the whole well. The join key for sampling.\n\nThe field names are the ``ops_objects`` columns the storage contract\nspecifies, so the table is written from these without a translation\nlayer.\n\n:param object_id: the well-wide number, unique across the whole well;\n    per-window numbering would give two windows an object #1 apiece.\n:param centroid_x: column of the centroid, in well-frame pixels.\n:param centroid_y: row of the centroid, same frame.\n:param area: pixel count of the mask that was kept, which is the unclipped\n    observation wherever one exists.\n:param bbox: ``(top, left, bottom, right)`` in well-frame pixels, every\n    one of them inclusive, as :class:`WindowObject` carries them.\n:param window: the window whose observation was kept, as ``(row, col)``.\n    Recorded so a suspect object can be traced back to the pixels it was\n    segmented from.\n:param n_observations: how many windows saw this nucleus. Greater than\n    one means it sat in an overlap and the observations were sewn.\n:param label: the kept observation's label in its window's label image,\n    so the object's pixels can be read back from that window. Not an\n    ``ops_objects`` column."
     },
     "spacr.ops_objects.PlateObject.row": {
       "source_blocks_sha256": [
@@ -35690,6 +35780,33 @@
       ],
       "source_sha256": "d5ad116108f99e170007d7e6088d8b74ec4e973b16674c345821caeebf50939f",
       "text": "Register the OPS defaults, types, categories and help.\n\nIdempotent by default: a module imported from both the GUI and a headless\nrun registers twice, and that must not be an error.\n\n:param replace: overwrite an existing registration rather than declining.\n:returns: True when this call did the registering."
+    },
+    "spacr.ops_settings.register_spatial": {
+      "source_blocks_sha256": [
+        "69955144c0b96d35241607ee4a6bf72fa520874d4239860302566af73cadc83c",
+        "46a40342967b6c0398560b4d4485e17de81ab4e02e5f69c6ee64bfe92fbf1950",
+        "46ffd6cf496269539fefecf32d115ef7981fc7b72dc5832dc7007dcb86958d02"
+      ],
+      "source_sha256": "c148c6c1f2102e1e1a6746a327d211c2388dfb941f743060da0fafb888fa3274",
+      "text": "Register both spatial submodules' defaults, types, categories and help.\n\n:param replace: overwrite existing registrations rather than declining.\n:returns: True when this call did the registering."
+    },
+    "spacr.ops_settings.spatial_map_defaults": {
+      "source_blocks_sha256": [
+        "41152b106ea2748d166b79eefa85349cd2e47ba53f37c6904f87e288a4195ead",
+        "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
+        "4e34a9e513d13ec9e0830ed1dfd81963ec56c1fa68e95c7db47898bef1f0e19b"
+      ],
+      "source_sha256": "c0efdaeebb7997bbb477367504ddca9ab7be9a92fb2cb907c627e0ddf282febb",
+      "text": "The settings the Spatial Map Barcodes engine reads, filled in.\n\n:param settings: caller's settings, filled in with the defaults.\n:returns: the completed settings dict."
+    },
+    "spacr.ops_settings.spatial_mask_defaults": {
+      "source_blocks_sha256": [
+        "a718f38fc4b1d3b20445a2dd2adcaa0cce2cb533a9babc91875198ea84e98aff",
+        "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
+        "4e34a9e513d13ec9e0830ed1dfd81963ec56c1fa68e95c7db47898bef1f0e19b"
+      ],
+      "source_sha256": "b58eccb8b168b44dedf3bb0a67d12642366881fd04d3840b206d7a491b428b47",
+      "text": "The settings the Spatial Mask Generation engine reads, filled in.\n\n:param settings: caller's settings, filled in with the defaults.\n:returns: the completed settings dict."
     },
     "spacr.ops_solve": {
       "source_blocks_sha256": [
@@ -51927,6 +52044,13 @@
       "source_sha256": "898456f6bfbf2c5de047e72080c8e9f5893ded2aaddeac20d2b970eb39393fb0",
       "text": "Make Masks' test data: ten Toxoplasma vacuole fields, one button away.\n\nTen images of the Toxoplasma PV training set are published on Hugging Face as\na small test dataset for Make Masks, with a button that loads the dataset and\nopens its first image in Make Masks.\n\nWHAT IS PUBLISHED. :data:`MAKE_MASKS_EXAMPLE_REPO` holds ten of the lab's own\nacquisitions -- no figure harvested from a paper, no held-out field -- at the\ntop level, their curated label masks under ``ground_truth_masks/``, a\n``manifest.csv`` carrying each image's row from the in-house manifest, and one\narchive of all of it. The images open UNSEGMENTED: Make Masks reads drafts from\n``masks/``, never from ``ground_truth_masks/``, so the editor starts on raw\nfields and the truth sits beside them.\n\nTHE SAME PATTERN AS EVERY OTHER EXAMPLE SET. One uncompressed ``.tar`` per\nrepository, streamed to a ``.part`` file on a worker thread behind the shared\nprogress dialog, unpacked through the tar data filter\n(:class:`spacr.qt.hf_download._TarExampleWorker` does all of that), and cached:\n:func:`is_present` is asked first, so a second press opens the folder without a\nrequest.\n\nITS OWN FOLDER, NOT THE SHARED PLATE. The Measure and Annotate sets unpack\ninto ``example_plate_folder()`` because they compose into one plate. These ten\nfields are not part of that plate, and the Mask demo decides it is present by\nfinding ``*.tif`` there, so unpacking them into it would make that demo think\nit had been downloaded.\n\nWHY THIS IS A MODULE AND NOT A METHOD. The screen gets one call in its\nnavigation row. Everything else lives here, so ``make_masks.py`` -- which\nseveral items edit at once -- carries a two-line hook."
     },
+    "spacr.qt.make_masks_demo._load_example._done": {
+      "source_blocks_sha256": [
+        "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3"
+      ],
+      "source_sha256": "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3",
+      "text": "Put the button back, then open the data or say why it did not."
+    },
     "spacr.qt.make_masks_demo.download_make_masks_example": {
       "source_blocks_sha256": [
         "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
@@ -51936,6 +52060,16 @@
       ],
       "source_sha256": "c54899de0d8f01cf2ec6461e3c4581f498a9deb6af75426b05633310927f656b",
       "text": "Fetch the Make Masks test data behind the shared progress dialog.\n\n:param parent: the widget the progress dialog belongs to.\n:param dest: the folder the archive unpacks into.\n:param on_done: called on the GUI thread as ``on_done(result, error)``.\n    ``result`` is ``None`` on failure or cancellation, and ``error`` then\n    says why."
+    },
+    "spacr.qt.make_masks_demo.download_tem_example": {
+      "source_blocks_sha256": [
+        "000fa4ade4b3928f84d602c2949a80d63ab96df51c84e6aa8023e6a815559eea",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
+      ],
+      "source_sha256": "f696650f77dacd0a277bdf0709f64a4db136b61b1e19312621e3dd7a61e1b0d4",
+      "text": "Fetch the TEM test data behind the shared progress dialog.\n\n:param parent: the widget the progress dialog belongs to.\n:param dest: the folder the archive unpacks into.\n:param on_done: called on the GUI thread as ``on_done(result, error)``,\n    as :func:`download_make_masks_example` calls it."
     },
     "spacr.qt.make_masks_demo.install_test_data_button": {
       "source_blocks_sha256": [
@@ -51964,6 +52098,18 @@
       "source_sha256": "aa58ae288ec122ef438a904f1c4439530a04101dd42c53adcc7ad4427d8c5068",
       "text": "Every file the dataset's ``manifest.csv`` says a complete copy holds.\n\n:param folder: where the dataset was unpacked.\n:returns: paths relative to ``folder``, each image followed by its\n    ground-truth mask, in manifest order. Empty when there is no readable\n    manifest, or when any row names no image, so that an incomplete or\n    unrecognised folder is never mistaken for the dataset."
     },
+    "spacr.qt.make_masks_demo.load_the_tem_test_data": {
+      "source_blocks_sha256": [
+        "0ff56bf0a1560647fbfe1051fa4497e5f04d19a7903abe6a7f035001e18b5cac",
+        "0958c9e639020b9bfe64fb018669b8684269667c609c50577ea0a352e75c94eb",
+        "3d4948199cc53882d09ff15775f59e3a01749691a7d9fc5341d966dc5b436cf0",
+        "8c638698864c331c86495b56aea70ddbb68371a85e6eda0059b2c5d67f1d95a7",
+        "7da47ba36029e28ad044f9d99fb9d60cc5607bb61e59f06852e4e5f9c8f761ee",
+        "f33afa0dfc5db5d8163c1ec65389e2829ab18fecd41f25991a9b70847494a34c"
+      ],
+      "source_sha256": "efb9aeae8762da37c0c7df9061d14021c7ae86adf69c834ea9185fe3f7522f02",
+      "text": "Open the TEM test data in Make Masks, downloading it first when needed.\n\nThe same sequence as :func:`load_the_test_data` -- cache check, button\ndisabled while the download runs, the first image by name, a failure\nsaid with its reason -- for the ten micrographs of\n:data:`TEM_EXAMPLE_REPO`, cached in :func:`tem_example_folder`.\n\n:param screen: the Make Masks screen to open the data in.\n:param ask: replaces :func:`download_tem_example`, for tests.\n:param folder: replaces :func:`tem_example_folder`, for tests.\n:returns: whether this call opened the data."
+    },
     "spacr.qt.make_masks_demo.load_the_test_data": {
       "source_blocks_sha256": [
         "795c58a3c9c1432fbba16cc42c6bfc9f16c0b28f7cc95dc41350e6363bf4a6cc",
@@ -51975,13 +52121,6 @@
       ],
       "source_sha256": "e7046c05e9fb32747bcc92ef239169b2b543fd9965d5ab79ccf63c94a2ba11fc",
       "text": "Open the test data in Make Masks, downloading it first when needed.\n\nA cached copy opens at once. Otherwise the button is disabled, the status\nline says a download is running, and the download runs on a worker thread\nbehind a progress dialog. When it finishes, the folder opens on its first\nimage by name. A failure is reported with the reason the downloader gave,\non the status line and, when there is a display to show one, in a warning.\n\n:param screen: the Make Masks screen to open the data in.\n:param ask: replaces :func:`download_make_masks_example`, for tests. It is\n    called as ``ask(screen, folder, on_done)``.\n:param folder: replaces :func:`make_masks_example_folder`, for tests.\n:returns: whether this call opened the data. ``False`` while a download is\n    still running, and after a failure."
-    },
-    "spacr.qt.make_masks_demo.load_the_test_data._done": {
-      "source_blocks_sha256": [
-        "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3"
-      ],
-      "source_sha256": "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3",
-      "text": "Put the button back, then open the data or say why it did not."
     },
     "spacr.qt.make_masks_demo.make_masks_example_folder": {
       "source_blocks_sha256": [
@@ -52001,6 +52140,15 @@
       ],
       "source_sha256": "0d9667133e549c547f7e70b2d1cf95329f4d602c67c3d24517b48d2b0c7628f4",
       "text": "Open an unpacked copy of the test data on its first image by name.\n\n:param screen: the Make Masks screen.\n:param folder: where the data was unpacked.\n:returns: whether the screen is now on it. An incomplete copy is reported\n    rather than opened, because half the fields would pass for the whole\n    set."
+    },
+    "spacr.qt.make_masks_demo.tem_example_folder": {
+      "source_blocks_sha256": [
+        "290d63dea811543e671a14efd6dcff4e76d618afea35473df7133bd5331a319e",
+        "2b6fabf9654ae81b57d1fd9639ea30cd631fa7274c2b517d6c9a52e6e0c79fc7",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
+      ],
+      "source_sha256": "a1ff7f34c31bad425495831bda5c603b88544f4592f1fce0f08151f67f097eeb",
+      "text": "Where the TEM test data is unpacked and cached.\n\n``~/.cache/spacr/example_data/make_masks_tem``, the folder\n:data:`spacr.example_archives.EXAMPLE_SETS` names for the ``tem`` set, so\n``spacr-download tem`` and the button share one cache.\n\n:returns: the folder. It is not created here."
     },
     "spacr.qt.mask_engine": {
       "source_blocks_sha256": [
@@ -52903,6 +53051,15 @@
       "source_sha256": "d633e309af3dbbb573c783d36aa544be225a61ef7a40e3c1730d859583b23e2b",
       "text": "The ``object_filters`` setting as a dict of object type to rows.\n\nA settings file stores the mapping as JSON or Python-literal text; the\nform and a script hand over the dict. ``None`` or blank text is an\nempty mapping. The rows are returned as given; :func:`settings_filters`\nchecks them.\n\n:param raw: the setting's value.\n:raises ValueError: when the value is not a mapping."
     },
+    "spacr.qt.mask_engine.pixel_size_nm": {
+      "source_blocks_sha256": [
+        "ad0557a6d360a4c564695e5969f17ca3a98b978fc35b4192db87aae9331208f6",
+        "7c3393a88475a993464b52e823953f64b52303c4df2a0773f7c4a535b3345b5a",
+        "132560243c6b27d78cf9116a5012d6b59b6dff43dfcfadb2be3bf54c5ff2b34a"
+      ],
+      "source_sha256": "d24fd6ad7b16d2bae18c0bda9f99f1ae58c60621dd3ce9e9aecfb5b42d159832",
+      "text": "The physical pixel size of an image file, in nanometres, or None.\n\nTEM files (``.dm3``, ``.dm4``, ``.mrc``, ``.rec``) are read by\n:func:`spacr.io.read_tem_image` inside :func:`read_image`, which keeps\ntheir pixel size here so a save does not read the image again. An MRC\nfile needs the optional ``mrcfile`` package; without it\n:func:`read_image` raises :class:`spacr.io.MissingTEMReader`.\n\n:param path: the source image. A TEM file read by :func:`read_image`\n    answers from memory; a TIFF from its resolution tags; DM and MRC\n    files not yet read are read for their calibration."
+    },
     "spacr.qt.mask_engine.primary_secondary_report": {
       "source_blocks_sha256": [
         "b56889789374ad6045f467bc4f910d6c2d951a3361bd6d641a3eb5fc831a2faa",
@@ -53073,10 +53230,10 @@
         "9328ec46644267e81a5f0a8a1b38565a154836b11dea2ae08216664e484bd140",
         "63d74b26c05f8a2e7b0f3411c6114e24a908d54712cac898a7f166c4270dc4d9",
         "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
-        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
+        "345b1dce885fd68c4c5ff613880195dc3e9a65ea6d37616abc338f44f1398c10"
       ],
-      "source_sha256": "2fc699388dc1810d3625bc145142aad0dc6fa44c9fda62a6880f2c9c86685273",
-      "text": "Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.\n\nObject ids are preserved -- see :func:`canonical_labels` for what that\ncosts and why the alternative is worse. A ``_seg.npy`` bundle is written\nback into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the\nTIFF to the sibling layout's masks folder.\n\n:param folder: field directory under which the ``masks`` directory is\n    created.\n:param filename: source image name; its extension is discarded and its\n    stem becomes the TIFF mask name. A name ending in\n    :data:`SEG_SUFFIX` is the bundle to write into.\n:param mask: label image to canonicalise and write. Existing multi-label\n    object identifiers are retained where possible.\n:param log: the session's :class:`spacr.curation.CurationLog` for this\n    field. Given one holding at least one edit, it is written to\n    ``<mask>.curation.json`` beside the mask, so\n    :func:`spacr.curation.is_curated` reports the saved mask as\n    hand-edited. The log is written whole, so it must have been seeded\n    from :meth:`CurationLog.read_beside` to keep earlier sessions'\n    entries -- which is what the screen does on load. A log with no\n    edits writes no sidecar: a session that opened the editor and\n    painted nothing has not curated anything, and a ledger that exists\n    for every mask ever opened answers no question.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``.\n:param preserve_ids: retain exact primary/secondary IDs without interpreting\n    single-valued masks as binary or splitting disconnected pieces. The\n    explicit mode validates nonnegative 2-D integer labels and refuses\n    IDs above 65535 before writing; it never silently renumbers them.\n:returns: the path written."
+      "source_sha256": "46bf1b95a7d463a84ce433a93935e210d411b56870ae955f604be660b271f350",
+      "text": "Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.\n\nObject ids are preserved -- see :func:`canonical_labels` for what that\ncosts and why the alternative is worse. A ``_seg.npy`` bundle is written\nback into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the\nTIFF to the sibling layout's masks folder.\n\n:param folder: field directory under which the ``masks`` directory is\n    created.\n:param filename: source image name; its extension is discarded and its\n    stem becomes the TIFF mask name. A name ending in\n    :data:`SEG_SUFFIX` is the bundle to write into.\n:param mask: label image to canonicalise and write. Existing multi-label\n    object identifiers are retained where possible.\n:param log: the session's :class:`spacr.curation.CurationLog` for this\n    field. Given one holding at least one edit, it is written to\n    ``<mask>.curation.json`` beside the mask, so\n    :func:`spacr.curation.is_curated` reports the saved mask as\n    hand-edited. The log is written whole, so it must have been seeded\n    from :meth:`CurationLog.read_beside` to keep earlier sessions'\n    entries -- which is what the screen does on load. A log with no\n    edits writes no sidecar: a session that opened the editor and\n    painted nothing has not curated anything, and a ledger that exists\n    for every mask ever opened answers no question.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``.\n:param preserve_ids: retain exact primary/secondary IDs without interpreting\n    single-valued masks as binary or splitting disconnected pieces. The\n    explicit mode validates nonnegative 2-D integer labels and refuses\n    IDs above 65535 before writing; it never silently renumbers them.\n:returns: the path written. The TIFF carries the source image's pixel\n    size (:func:`pixel_size_nm`) as its resolution, in pixels per\n    centimetre, when the source records one."
     },
     "spacr.qt.mask_engine.save_seg_bundle": {
       "source_blocks_sha256": [
@@ -66434,6 +66591,67 @@
       "source_sha256": "f6f10207dca43ac2404b337be8523dcf815eb6dcf8fdc941967585685e4cbd05",
       "text": "Show the folded module; raise it if it is already up."
     },
+    "spacr.qt.screens.map_barcodes.PAGE_FOLDS": {
+      "source_blocks_sha256": [
+        "7132d80c08c72f8aea8d53629ceb55d881cef92a2b19276fc03d27e383679d2c",
+        "44e04684808447d2f1663204fce292e5d578e7bb4677093e39b0303a3ea89ce0"
+      ],
+      "source_sha256": "42548a1e510a5f648e4621d51a695b1b17bc794e92c711e7f21df3196ac79a05",
+      "text": "The folds opened as a page by a switch in this screen's actions row.\n\nThe arrangement OPS has on Mask Generation, rather than a masthead strip\nbutton. Spatial Map Barcodes is the batch half of the spatial\ntranscriptomics panel: it maps every transcript of a slide onto the fields\nSpatial Mask Generation wrote. It is alpha and stays out of\n:data:`FOLDED_APPS`, which would list it in the menu with the alpha gate\nshut. See :func:`install_spatial_map_switch`."
+    },
+    "spacr.qt.screens.map_barcodes.PageFold": {
+      "source_blocks_sha256": [
+        "74bbcdaf15cebed8b1fdffc1f38d9d6454088ac54b40a47026aa4fde9078867b",
+        "12fb4c68c53e8f40558b0c3298e5502668f3a09005ac4170ecec3e550177c4b0",
+        "a4d1f98d49a67f888723cd1f28e14a9fe53cf6ebb1c587d778ed064419b6a090",
+        "77b6003009dee84bf76f818ea0c07ed669f98a944bb38d208783924a4021bb55",
+        "0300ef4cc7964ea5c6aa6b6df1ea60fb5229736648644ad6ae1a407d0ac67543",
+        "fdf30d1039c90c5eb08c62865761ff3e065015906ba3bda6d9e774ef96b8f97b",
+        "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085",
+        "4cdd307016b5836dbaa5ac96f7d8d6adb07da5e9751302fba4500c659f8efcc2",
+        "5ed2f58c8ef6604864ebec794d091f47d8f79d50a693839dbd7380725f4cc22a"
+      ],
+      "source_sha256": "0dce6cde6d81841442b32a196e84654ff43c028fc08a424436fc4bff5d3bb01b",
+      "text": "An actions-row switch on a host screen and the page it opens.\n\nThe general form of what Mask Generation built for OPS: a folded module\nwith a run entry point of its own is not a set of categories on the\nhost's form but a page on the host's page strip, opened and closed by a\nswitch in the host's actions row. :class:`spacr.qt.screens.mask._OpsPage`\nis this class for the key ``\"ops\"``; the spatial submodules are this\nclass for ``\"spatial_masks\"`` on Mask Generation and ``\"spatial_map\"``\non Map Barcodes.\n\nA ``QObject`` parented to the host screen with bound-method slots,\nrather than closures hung off the switch: the page strip's own close\nmark can take the page down without telling the switch, so something\nhas to be connected to ``tabCloseRequested`` to put the switch back.\nA closure doing that would keep the host alive through the switch.\n\nThe screen behind the page is built once and kept, the way every\nother fold's is -- pressing the switch again puts the SAME screen\nback, with whatever it had loaded still loaded.\n\n:param screen: the host screen the switch sits on.\n:param switch: the actions-row toggle.\n:param key: the folded module's registry key.\n:param build: called with the main window (or None) and returning the\n    module's screen; the settings-driven screen for ``key`` when omitted.\nRecord the switch and how to build the page, building neither."
+    },
+    "spacr.qt.screens.map_barcodes.PageFold.set_shown": {
+      "source_blocks_sha256": [
+        "5e900b21be7ef1146269246aea2513809c45382b7624a2ba1c0a2f974e4a2235",
+        "4bc1b2d671550ddaed627cddd8429b50ef4467918f9e538e6cff0c1b21f2428f",
+        "b9ede76b14f4b212d0ea04167b54cea3e57acc0abaa2436877f0e4376bfabc11"
+      ],
+      "source_sha256": "e7f97537eca51d108b72a9df73971618f3c3cb9d63cbcdf34a9a3c6c2583dc5f",
+      "text": "Open or close the page.\n\nNever raises: this is a slot on a user's click, and a module that\ncannot be built must cost its own page and nothing else. A failed\nopen puts the switch back off rather than leaving it lit over\nnothing.\n\n:param on: the switch's new state."
+    },
+    "spacr.qt.screens.map_barcodes.PageFold.show_page": {
+      "source_blocks_sha256": [
+        "27321ef087ba78d85ca356334a9b3390c022fd22b2415b249e21551037ecdc1b",
+        "034b8bd86f9c80a2925b2819a32fe9ea0d03ceccfb9057ce5af3414e85bf0c18"
+      ],
+      "source_sha256": "cf7ecc5bf6f50d8d1e34da0d0f9bb37821890a5ec726f75c7df9706f735be2d1",
+      "text": "Open the page through the switch, so the switch shows the state.\n\nWhat navigation calls when it is asked for this module by key: a\nswitch already on has its page put back rather than being left lit\nover a page its cross closed."
+    },
+    "spacr.qt.screens.map_barcodes.SPATIAL_MAP_KEY": {
+      "source_blocks_sha256": [
+        "6b6031aa95c2916b51b6b46c301ee0c381dc8342391cfeccf20b0561d321914b"
+      ],
+      "source_sha256": "6b6031aa95c2916b51b6b46c301ee0c381dc8342391cfeccf20b0561d321914b",
+      "text": "The registry key of the page the actions-row Spatial switch opens."
+    },
+    "spacr.qt.screens.map_barcodes.SPATIAL_MAP_TOGGLE_TOOLTIP": {
+      "source_blocks_sha256": [
+        "2e7d2804cf62f778cd73719ec874bc82caccde4b5c4e19d86cb5fd4908226d02"
+      ],
+      "source_sha256": "2e7d2804cf62f778cd73719ec874bc82caccde4b5c4e19d86cb5fd4908226d02",
+      "text": "What the Map Barcodes Spatial switch says on hover."
+    },
+    "spacr.qt.screens.map_barcodes.SPATIAL_TOGGLE_TEXT": {
+      "source_blocks_sha256": [
+        "64e45af9a940f48255e811801364827aaee937e6870f84cd4bc812e14e6c14bd"
+      ],
+      "source_sha256": "64e45af9a940f48255e811801364827aaee937e6870f84cd4bc812e14e6c14bd",
+      "text": "What both spatial switches say, on Mask Generation and on Map Barcodes."
+    },
     "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed": {
       "source_blocks_sha256": [
         "bcb8502602dd357fbedb30cd19369e7123923db509183332b409c4565bdc7be0",
@@ -66603,6 +66821,31 @@
       "source_sha256": "083a30b956615f0499609e364c7c2ce04133b14150cb10e842121bfd75f3b969",
       "text": "Install the fold strip declared for ``screen``'s application key.\n\nThe owning module is selected through :data:`FOLD_HOST_MODULES`. Screens\nwithout a fold declaration are left unchanged.\n\n:param screen: the host screen; its ``app_key`` selects the owning module\n    in :data:`FOLD_HOST_MODULES`."
     },
+    "spacr.qt.screens.map_barcodes.install_page_fold": {
+      "source_blocks_sha256": [
+        "0bd29504eab50ff3dbc0ed52b27423f6689b7a642756cae9c4b24073a56b5742",
+        "4408951c0e31153e87731f2c5aa34adb46de9d38655d6682a1679195fd8730af",
+        "31aa6df77db3f840fe37d11eba44e6a02758a258298d061a0dcbe0464aca4a19",
+        "1180fb2d487f962ca35507600ffe0107a78412c022fed71c49b002f926b137f2",
+        "117f24e91d16bbf5402752743d4765bba49299721eb873e479cbdca0b23b854b",
+        "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085",
+        "44783878d8e0e713a7a9070ea01cd2ef043aa73f427a9cd35da49a4cfb1a700c",
+        "ec98be84c490dd730e0d04c3fa78a19e31782be0d2d90c3ed2977571ba2247a7"
+      ],
+      "source_sha256": "28b23698048d2581a2f7e8b102d4ee8f36640942815bfb6c12b63d1729423ab7",
+      "text": "Wire an actions-row ``switch`` on ``screen`` to the page for ``key``.\n\nIdempotent: a second call on the same screen returns the first\ninstallation and connects nothing further.\n\n:param screen: the host screen.\n:param switch: the toggle to connect.\n:param host_key: registry key the host screen must carry.\n:param key: the folded module's registry key.\n:param build: the module's screen factory; the settings-driven screen\n    for ``key`` when omitted.\n:returns: the installation, or None when ``screen`` is not the host."
+    },
+    "spacr.qt.screens.map_barcodes.install_spatial_map_switch": {
+      "source_blocks_sha256": [
+        "5899cbe9b10d771172b73721c8283b6076a57a3c6e7279389fe6e1fbeadb518e",
+        "4956e2fb87d57d4ec6bf411d4fedd54e96b60d91f3d383f23615150caff9c3f7",
+        "77f775f17a33d210e2f8ff1b94d12595a5b9bb997b26ada7c985eb1cfc6dafce",
+        "1180fb2d487f962ca35507600ffe0107a78412c022fed71c49b002f926b137f2",
+        "c32c2b286c9a5c458196ec75d7a398732930d65618229be2639d9b3627e7c7ee"
+      ],
+      "source_sha256": "eb018c54d045ad8e956f5688fa44f218d3629cab3babbaabfdc0425294d38594",
+      "text": "Wire Map Barcodes' actions-row Spatial switch to its page.\n\nThe switch is alpha: it is named for the alpha gate here and hidden at\nonce unless Preferences -> Show alpha features is on.\n\n:param screen: the Map Barcodes screen.\n:param switch: the toggle to connect.\n:returns: the installation, or None when this is not the host screen."
+    },
     "spacr.qt.screens.map_barcodes.install_window_hooks": {
       "source_blocks_sha256": [
         "5849d0d3641347f1499f3c4209994a47a8c22ee2e9aa779f2ccccb7632655e27",
@@ -66612,6 +66855,25 @@
       ],
       "source_sha256": "9da59e4464e65a914f8554e752e33e8f6fdbb415cf0be06f3fdb68f058121c45",
       "text": "Install fold strips as screens become current in ``window``.\n\nRepeated calls return the existing stack watcher rather than connecting\nan additional callback.\n\n:param window: the main window.\n:returns: the watcher, or None when the window has no screen stack."
+    },
+    "spacr.qt.screens.map_barcodes.page_fold": {
+      "source_blocks_sha256": [
+        "b2a1a69a21ce5bf99aa05b8b8c6ef662970b546be750bb79764603135ca272df",
+        "8d806c64f6bbc310a5f44c3bc085d4aa1d97dc3915e136805004edc5f96e6bb3",
+        "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085"
+      ],
+      "source_sha256": "4bbeaa4c0c946e65860e3cc37bdb29866db60c6c277ce76176f300480cb0f6d3",
+      "text": "The page fold for ``key`` installed on ``screen``, or None.\n\n:param screen: the host screen to inspect.\n:param key: the folded module's registry key."
+    },
+    "spacr.qt.screens.map_barcodes.page_fold_host": {
+      "source_blocks_sha256": [
+        "0c439f99334fd548a80420e40c8d56928b30e9b804ff1f48759bef4534261c2e",
+        "c836578e2010fb4d077fd8de00c4069d20688b9f987445fa73eb9c6991acd5af",
+        "61e784f3e7111f78863081988f208a91477b6c521e90985fae931801de4b778d",
+        "33db42b6592ee74e67c7c00310c235f9cafbdb0fdad2aa471494f654eff3ded2"
+      ],
+      "source_sha256": "f5aa16448460a075246ae6c94405ff4906d5fb07b66c42f9158616eaeaeb1c20",
+      "text": "The host screen key whose actions row opens ``key`` as a page.\n\nRead from each host's ``PAGE_FOLDS``, the declaration the switches are\nbuilt from, so navigation and the switches cannot disagree.\n\n:param key: a module key.\n:returns: the host's registry key, or None when ``key`` is no page fold."
     },
     "spacr.qt.screens.map_barcodes.plan_barcode_search": {
       "source_blocks_sha256": [
@@ -66623,6 +66885,16 @@
       ],
       "source_sha256": "dfe47caeb03b41a1c2c4ef751059f2cf8d7fede45bd36f2f75ba408a7e41d566",
       "text": "Work out which reads and which reference tables a search should read.\n\nThe sequencing folder of a real screen holds several samples, and one of\nthem is enough. Which mate carries which barcode, which orientation the\nreference tables are stored in relative to the reads, and where in the\nread the barcodes sit are all properties of the library and the sequencing\nrun rather than of a sample, so measuring them on the first sample settles\nthem for every sample beside it. The others are counted rather than read,\nand the count is reported so that nobody has to wonder whether they were\nforgotten.\n\nNothing here opens a read. It lists a folder and checks that the reference\nfiles exist, so it is cheap enough to run whenever the search button is\npressed and it can say what is missing before a single byte is decoded.\n\n:param settings: the Map Barcodes settings as the form holds them.\n:returns: the plan. Its problem is a sentence when there is nothing to\n    search and empty when the plan can be carried out."
+    },
+    "spacr.qt.screens.map_barcodes.register_page_fold": {
+      "source_blocks_sha256": [
+        "72445ef50367572891d9a553b98791538e951cab2d5e4d05b00bf593aecc9dc6",
+        "31aa6df77db3f840fe37d11eba44e6a02758a258298d061a0dcbe0464aca4a19",
+        "b0c180a39b3405a6c59d797b777784cebce3f1b434a9e0b7ef6d791265c0f3be",
+        "73601fbcc264153e634641cbdf6d1ecae93aeb4114fb6a41c0a26f57ff9c7fac"
+      ],
+      "source_sha256": "0eeb1c9d5f4ee1aa51acb5e7b07410759dd38564aad500c60d1c66e2076479a4",
+      "text": "Connect ``fold``'s switch and record it on its host screen.\n\n:param screen: the host screen.\n:param fold: the page fold to wire.\n:returns: ``fold``."
     },
     "spacr.qt.screens.map_barcodes.restate_fold_button": {
       "source_blocks_sha256": [
@@ -66660,12 +66932,27 @@
       "source_blocks_sha256": [
         "64e1ceaa3a5d63f8f05ed944da20d83834e6e42bb93390f40e26a4967a4dad21",
         "99df41ec950d50e81c49a08217553c796cb280af6dc1c3806ceeb59aaae5ad8b",
+        "e6c8c9bae55b8f22a1093e2e8bff4d8eaf83e653fc2baa4b9c9942fffad441e0",
         "ef640354b395eeddd783e456f6402b9ad3acb5b386077b1f5284e82ab3f04102",
         "8e50c247c30894c1b0d5674ea385a76ca4ac2d14c0038025f40551fdf4f724aa",
         "54e4a886c26296d8f39c12688abe56e193f7a99f397114eb75bb02843d55e5da"
       ],
-      "source_sha256": "6b603758ab0615a96c47ad05d68494d3071d33f7dd54379e48643737e3b0f9af",
-      "text": "The modules folded onto Mask Generation: Timelapse, and OPS.\n\nTwo kinds of fold are used here, and they change this screen differently.\nTimelapse is a settings fold: switching it on mounts its categories on Mask's\nown form and sets the pipeline gate the run reads, so its switch belongs on the\nmasthead strip beside the heading. OPS is a page fold: it has 63 settings of\nits own and its own run entry point, none of which is\n`preprocess_generate_masks`, so switching it on puts it on this screen's page\nstrip instead and its switch sits in the actions row beside the Live and 3D\nbuttons, in the same format. See :data:`CATEGORY_FOLDS`, :data:`PAGE_FOLDS` and\n:func:`install_ops_switch`.\n\nThe Timelapse switch enables ``timelapse=True`` for the standard mask\npipeline and displays the additional time-series and tracking settings on the\nMask form. Settings files created for the Timelapse module remain compatible;\n:func:`sync_folds` restores the switch state from the pipeline gate.\n\nThe integrated tracking preview evaluates object linkage across frames,\nwhereas the standard Mask preview evaluates segmentation of an individual\nfield. Motility analysis remains under Measure because it quantifies existing\nmasks and writes measurements rather than generating masks.\n\nCategory mounting and fold-state synchronization are shared with the other\nhost screens through :mod:`spacr.qt.screens.map_barcodes`."
+      "source_sha256": "f8393dd7a6e939a450c2303941d8e29cbdc27b19bbd31319d923b4c7363df64d",
+      "text": "The modules folded onto Mask Generation: Timelapse, and OPS.\n\nTwo kinds of fold are used here, and they change this screen differently.\nTimelapse is a settings fold: switching it on mounts its categories on Mask's\nown form and sets the pipeline gate the run reads, so its switch belongs on the\nmasthead strip beside the heading. OPS is a page fold: it has 63 settings of\nits own and its own run entry point, none of which is\n`preprocess_generate_masks`, so switching it on puts it on this screen's page\nstrip instead and its switch sits in the actions row beside the Live and 3D\nbuttons, in the same format. See :data:`CATEGORY_FOLDS`, :data:`PAGE_FOLDS` and\n:func:`install_ops_switch`.\n\nSpatial Mask Generation (alpha, F534) is a page fold of the same kind: its\nSpatial switch sits beside OPS and opens the ``spatial_masks`` settings\npage, which segments a whole Xenium or Visium HD slide in overlapping tiles.\nBoth are :class:`~spacr.qt.screens.map_barcodes.PageFold` instances; see\n:func:`install_spatial_masks_switch`.\n\nThe Timelapse switch enables ``timelapse=True`` for the standard mask\npipeline and displays the additional time-series and tracking settings on the\nMask form. Settings files created for the Timelapse module remain compatible;\n:func:`sync_folds` restores the switch state from the pipeline gate.\n\nThe integrated tracking preview evaluates object linkage across frames,\nwhereas the standard Mask preview evaluates segmentation of an individual\nfield. Motility analysis remains under Measure because it quantifies existing\nmasks and writes measurements rather than generating masks.\n\nCategory mounting and fold-state synchronization are shared with the other\nhost screens through :mod:`spacr.qt.screens.map_barcodes`."
+    },
+    "spacr.qt.screens.mask.SPATIAL_MASKS_KEY": {
+      "source_blocks_sha256": [
+        "5dc7b2586c790cf3270ce2dd4d318172c722ed4137f64e55b9b083d9fef11a3c"
+      ],
+      "source_sha256": "5dc7b2586c790cf3270ce2dd4d318172c722ed4137f64e55b9b083d9fef11a3c",
+      "text": "The registry key of the page Mask Generation's Spatial switch opens."
+    },
+    "spacr.qt.screens.mask.SPATIAL_MASKS_TOGGLE_TOOLTIP": {
+      "source_blocks_sha256": [
+        "40dd59b13ff8f889578cdfe7d872fdac1b76ee8aa67c2948a4ca3a3fe9d14f78"
+      ],
+      "source_sha256": "40dd59b13ff8f889578cdfe7d872fdac1b76ee8aa67c2948a4ca3a3fe9d14f78",
+      "text": "What Mask Generation's Spatial switch says on hover."
     },
     "spacr.qt.screens.mask.example_plate_folder": {
       "source_blocks_sha256": [
@@ -66722,6 +67009,17 @@
       "source_sha256": "30677cb5d782dd663263398d41cc2671d403c5ce2cceeaeffcc9e92f950e031d",
       "text": "Wire an actions-row switch to the OPS page.\n\nIdempotent: a second call on the same screen returns the first\ninstallation and connects nothing further.\n\n:param screen: the Mask Generation screen.\n:param switch: the toggle to connect.\n:returns: the installation, or None when this is not the host screen."
     },
+    "spacr.qt.screens.mask.install_spatial_masks_switch": {
+      "source_blocks_sha256": [
+        "dca93707a9c24d3410cfc2d2f16553f0bad9affc7989eebf1e5267e0ddcf07bd",
+        "4956e2fb87d57d4ec6bf411d4fedd54e96b60d91f3d383f23615150caff9c3f7",
+        "1428b1f63b4a225b4864f9b3d3eb269b60dc944263ec761d9b336694862c3122",
+        "1180fb2d487f962ca35507600ffe0107a78412c022fed71c49b002f926b137f2",
+        "c32c2b286c9a5c458196ec75d7a398732930d65618229be2639d9b3627e7c7ee"
+      ],
+      "source_sha256": "9ddfdcb4ab69ddeced81a5a45149e7820f027d31f61acab478dd3c2d8c954d24",
+      "text": "Wire Mask Generation's actions-row Spatial switch to its page.\n\nThe switch is alpha: it is named for the alpha gate here and hidden at\nonce unless Preferences -> Show alpha features is on.\n\n:param screen: the Mask Generation screen.\n:param switch: the toggle to connect.\n:returns: the installation, or None when this is not the host screen."
+    },
     "spacr.qt.screens.mask.load_the_example_images": {
       "source_blocks_sha256": [
         "d0b30158292148141d26cf1724ac0837b882bd75e682e9daff74e850f47353fa",
@@ -66750,6 +67048,14 @@
       ],
       "source_sha256": "2daf94a09ef4162a41095045924b8dda461807ac455b9568860026a8164a684b",
       "text": "The OPS switch installed on ``screen``, or None.\n\n:param screen: the module screen to inspect."
+    },
+    "spacr.qt.screens.mask.spatial_masks_page": {
+      "source_blocks_sha256": [
+        "21de3775bbeda656fe1b8056dde245dfbc27f11973ba4e085b8127661562c534",
+        "cac3f7bbb782e972ce9d62b2ebf2448f3a9af234937a4df062e61ef171562fb2"
+      ],
+      "source_sha256": "5997210cd0b0be4a015709625ebceeb2a24d692742b5e194889251558f4d8789",
+      "text": "The Spatial Mask Generation switch installed on ``screen``, or None.\n\n:param screen: the module screen to inspect."
     },
     "spacr.qt.screens.mask.sync_folds": {
       "source_blocks_sha256": [
@@ -121767,11 +122073,13 @@
         "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
         "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
         "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
+        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
-        "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b"
+        "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
+        "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6"
       ],
-      "source_sha256": "c71b187917674314e56f45ea80aedfc95737d4d1ca0e8a0c810bfae1aaf5d7d7",
-      "text": "Download ``run_file`` into ``destination``, stopping after ``max_reads``.\n\nThe stream is decompressed as it arrives and the connection is dropped the\nmoment enough reads are in hand, so a limited request transfers only what\nit needs. ``max_reads`` of ``None`` fetches the whole file.\n\nWritten back out as ``.fastq.gz`` because that is what the ``src`` setting\ndocuments for sequencing (\"the folder of .fastq.gz reads\"), so a subset\nand a full download are the same shape to everything downstream.\n\n:param run_file: the archive file to stream; its ``url`` is read and its\n    ``filename`` names the output.\n:param destination: folder the ``.fastq.gz`` file is written into; created\n    if missing.\n:param progress: called with ``(reads_so_far, compressed_bytes_so_far)``.\n:param should_stop: polled between chunks; a truthy answer abandons the\n    download and removes the partial file.\n:returns: the path written.\n:raises ValueError: for a non-positive ``max_reads``."
+      "source_sha256": "b730aa423d768af8ae37c4e4fee96268251fb8c72c844d52f14ef1a4bf92a014",
+      "text": "Download ``run_file`` into ``destination``, stopping after ``max_reads``.\n\nThe stream is decompressed as it arrives and the connection is dropped the\nmoment enough reads are in hand, so a limited request transfers only what\nit needs. ``max_reads`` of ``None`` fetches the whole file.\n\nWritten back out as ``.fastq.gz`` because that is what the ``src`` setting\ndocuments for sequencing (\"the folder of .fastq.gz reads\"), so a subset\nand a full download are the same shape to everything downstream.\n\n:param run_file: the archive file to stream; its ``url`` is read and its\n    ``filename`` names the output.\n:param destination: folder the ``.fastq.gz`` file is written into; created\n    if missing.\n:param progress: called with ``(reads_so_far, compressed_bytes_so_far)``.\n:param should_stop: polled between chunks; a truthy answer abandons the\n    download and removes the partial file.\n\nWithout an ``opener``, the downloaded ``reads`` example set is read\nfirst: when it holds this file with at least ``max_reads`` reads, they\nare taken from it rather than from ENA, so a limited request works\noffline and gives the same reads. A whole-file request, or one larger\nthan the cache, streams from ENA as before.\n:returns: the path written.\n:raises ValueError: for a non-positive ``max_reads``.\n:raises ConnectionError: when the stream stops before the reads asked for\n    and before the end of the file, so a dropped connection never leaves\n    a short file that looks complete."
     },
     "spacr.sra.runs_for": {
       "source_blocks_sha256": [
@@ -126703,10 +127011,10 @@
         "80b386da954e29ff1ac472539c4cff73108f78046c9abd200d5da1ee0db9655d",
         "3236d76e2e0ce61aa5e4d2a63fc692452c19a3fad63766e7d8220bc85b8bc02e",
         "31f7b901992dd6f980688625984d84045eaa65d0a70d4eef3a0b87d167ceffdd",
-        "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4"
+        "87967533eb703bd577ee541e99ec4fbf420787eb0679f3453c7765aad8ccb891"
       ],
-      "source_sha256": "384d352c4411802e1778070c61e5d92a259534dc0e641373ef0e400d753fc053",
-      "text": "Return ``True`` if masks in ``src/masks/mask_fldr`` still need generating.\n\n:param src: experiment root containing ``masks/`` and ``stack/`` subfolders.\n:param mask_fldr: subfolder name under ``masks/``.\n:param resume: accepted for the callers that pass it. Only structurally\n    complete mask arrays are counted whether or not it is set, so an\n    empty or truncated array left by an interrupted run is re-queued.\n:returns: ``True`` when the mask folder is missing or any expected stack\n    filename lacks a complete mask. Unrelated masks cannot substitute\n    for a missing field and do not force complete fields to run again."
+      "source_sha256": "a91779cbb4b9e295e83cb30d027c92bfed25a61e55e9cf4ea5d8da5416e5e283",
+      "text": "Return ``True`` if masks in ``src/masks/mask_fldr`` still need generating.\n\n:param src: experiment root containing ``masks/`` and ``stack/`` subfolders.\n:param mask_fldr: subfolder name under ``masks/``.\n:param resume: accepted for the callers that pass it. Only structurally\n    complete mask arrays are counted whether or not it is set, so an\n    empty or truncated array left by an interrupted run is re-queued.\n:returns: ``True`` when the mask folder is missing or any expected stack\n    filename lacks a complete mask of its field's size. Unrelated masks\n    cannot substitute for a missing field and do not force complete\n    fields to run again."
     },
     "spacr.utils.check_multicollinearity": {
       "source_blocks_sha256": [
@@ -127643,13 +127951,13 @@
     "spacr.utils.normalize_src_path": {
       "source_blocks_sha256": [
         "946c73207bb17376275a7c7c5690797c9f13fd53637e5a430bdf7761b31d5a12",
-        "2f02e80ade3fb429fcb6d9dde035ee83840b6e82ed3acc9ac6028bc08d6f6f70",
+        "d88aaa410dacffa59101cb84ca08a369272ef29ed28ea9393f15d863ec88ef97",
         "71462e54cb2924c5a8dbb0dc9a01c903214857019843d0ae65cf4068e66c67f5",
-        "994988d838ac1f3b74a1db2522054e0387f30563b98d981bf04421a14d9c08e2",
+        "ffc5f060deb543b21acb93b52f359c39998f2e80e75cbe6ad00b4dcb1f42c6cc",
         "f5f8ae7bc62db66c53000eb23de5ef3152012ab0fd016b177267f5b89e13aada"
       ],
-      "source_sha256": "c6e7a93f13b13c2688d6bd130c0cbdba9a166459b8ffb9cb3ec5a1dc02db26fe",
-      "text": "Return ``src`` as a list of paths or a single path string.\n\nA list is returned unchanged; a string that evaluates to a list of strings\n(for example ``\"['a', 'b']\"``) is returned as that list; any other string\nis returned unchanged.\n\nArgs:\n    src (str or list): The input source path(s).\n\nReturns:\n    list or str: A list if the input was a list (or string representation of a list of strings),\n                 otherwise the input string.\n\nRaises:\n    ValueError: if ``src`` is neither a string nor a list."
+      "source_sha256": "710f959be8616b17de8e420b6bee22ff084aeac66e6d454a8e434222ce6c5371",
+      "text": "Return ``src`` as a list of paths or a single path string.\n\nReads ``src`` with the path-list reader in :mod:`spacr.portable_paths`,\nso a pasted list in any of the forms it accepts (a JSON or Python list, curly\nquotes, one path per line, comma-separated paths) becomes a list, and a\nsingle path, with its wrapping quotes removed and ``~`` expanded, stays a\nstring. A path that exists exactly as given is never split.\n\nArgs:\n    src (str or list): The input source path(s).\n\nReturns:\n    list or str: A list when ``src`` was a list or names several paths,\n                 otherwise the one path as a string.\n\nRaises:\n    ValueError: if ``src`` is neither a string nor a list."
     },
     "spacr.utils.normalize_to_dtype": {
       "source_blocks_sha256": [
@@ -128449,11 +128757,11 @@
     "spacr.version": {
       "source_blocks_sha256": [
         "a4f47ec34c9b7051f812a91ccbd698a62529467c90ffd2f4d3bb6590b4ce7a8b",
-        "37bbf3a3f95f55ba160b329750ebab70844c0904d605e69cbb503c75c80cd990",
+        "5a23a81234f8e8e11fbc85becda5dd79e6b84cf3dcea3ff42e10bf5b2ecf73fd",
         "e48bcc950328212749e2f120d1ee16cb40f0798b4efdd3f547f86194c02bde6c"
       ],
-      "source_sha256": "36d7558abcf6f1021e840bb7dfa92e4ff4fd098c7e40e1b4e502d1547a8c77be",
-      "text": "The installed spaCR version, and the environment report built from it.\n\nResolves the version from installed package metadata rather than a\nhard-coded string, so a source checkout and an installed wheel agree.\n\nCopyright © 2025 olafsson lab"
+      "source_sha256": "278b7a1b75066d41736257561ef2e5d0869c1db7ff9e490b673ed0507b9561b9",
+      "text": "The installed spaCR version, and the environment report built from it.\n\nA source checkout or editable install reports the version in its own\n``spacr/_version.py``, because its installed metadata can be stale; an\ninstalled wheel or frozen installer reports its distribution metadata.\n\nCopyright © 2025 olafsson lab"
     },
     "spacr.version.__getattr__": {
       "source_blocks_sha256": [
@@ -128485,11 +128793,12 @@
     },
     "spacr.version.get_version": {
       "source_blocks_sha256": [
-        "e9b9122fe61ecc7a67c24e4bccac712ffd112bd6a92a01a322a21c64bf4dfe16",
-        "77cc68c582ecc328de7719f1144de0f0119854eb754a03715b994fba7ae7658f"
+        "e42b4d73edada16be6faa41440fd44eeaf46abcbb911f8f7ed88e1bc48a2bb9c",
+        "d7146150e92961e2c59cde83ccbed7cffb91611b91f8fa248092b86c2de31c3e",
+        "7117431ecf386ec03f4939635e5dc01d72f6273c771ba2b832f72b8760c4c436"
       ],
-      "source_sha256": "d050e59eab36eca2394e4cd0db51afe0cfda67ab63e7916eebcf6402b926e275",
-      "text": "Return the installed spacr package version, or ``\"unknown\"`` if not found.\n\n:returns: Version string from the first candidate distribution that resolves."
+      "source_sha256": "18e3dc9b1f05a6a2378f41ca9b2b7a6219103d109988f32e4a7cc97f7d5662af",
+      "text": "Return the running spacr version, or ``\"unknown\"`` if it cannot be found.\n\nA source checkout or editable install reports the version in its own\n``spacr/_version.py``; an installed wheel or frozen installer reports its\ndistribution metadata, then that literal when no metadata is present.\n\n:returns: The version string of the spacr package that is actually imported."
     },
     "spacr.version.get_version_info": {
       "source_blocks_sha256": [

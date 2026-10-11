@@ -242,6 +242,7 @@ setup(
         'dinocell': ['dinocell>=0.74,<1.0'],
         'samcell': ['samcell>=1.2,<2.0'],
         'napari': ['napari>=0.5,<1.0'],
+        'tem': ['mrcfile>=1.5,<2'],
         'full': ['opencv-python'],
         'sweep': ['threadpoolctl>=3.0,<4'],
         'qt': [
@@ -311,6 +312,7 @@ setup(
             'mahotas>=1.4.13,<2.0; python_version < "3.13"',
             'btrack>=0.7.0,<1.0',
             'anndata>=0.10,<0.13',
+            'mrcfile>=1.5,<2',
         ],
     },
 )

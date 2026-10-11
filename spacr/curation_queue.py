@@ -160,7 +160,7 @@ LAYOUTS: Tuple[str, ...] = (LAYOUT_NESTED, LAYOUT_SIBLING, LAYOUT_SEG)
 #: imageio at import time and this one is deliberately stdlib-only;
 #: ``test_a_curation_session_resumes_where_it_stopped`` holds the two equal.
 IMAGE_EXTS: Tuple[str, ...] = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp",
-                               ".scn")
+                               ".scn", ".dm3", ".dm4", ".mrc", ".rec")
 
 #: How Cellpose names the pickle that holds an image and its draft masks.
 SEG_SUFFIX = "_seg.npy"

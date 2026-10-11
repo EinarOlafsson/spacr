@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_scope": "AI technical review (Claude Opus 5.5); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Contrast preset",
+      "source": "Contrast preset",
+      "source_sha256": "b0399cf4da86f852676ec11f6ac62d02b85ced18f9471663b1445434756541c3",
+      "translation": "Préréglage de contraste"
+    },
+    {
+      "table": "ui",
+      "key": "Contrast preset applied: {name}.",
+      "source": "Contrast preset applied: {name}.",
+      "source_sha256": "828df6a25dba8707dd8553ee1788a7eae8bb0f02932a2c72cc7ba0ba8b570b1d",
+      "translation": "Préréglage de contraste appliqué : {name}."
+    },
+    {
+      "table": "ui",
+      "key": "Custom",
+      "source": "Custom",
+      "source_sha256": "494ca78f7374e46fb2de9ad9f2dbd4aaae89b50b2ca044177a1566a59e06627e",
+      "translation": "Personnalisé"
+    },
+    {
+      "table": "ui",
+      "key": "Download ten transmission electron micrographs (about 32 MB, EMPIAR-10982, CC0) and open the first one. Their mitochondria masks come too, in the ground_truth_masks folder, which the editor does not read. Cached after the first download.",
+      "source": "Download ten transmission electron micrographs (about 32 MB, EMPIAR-10982, CC0) and open the first one. Their mitochondria masks come too, in the ground_truth_masks folder, which the editor does not read. Cached after the first download.",
+      "source_sha256": "809025cb0dee4047f76856ae3b4cf2a6542f342837a48f9746ef2c7d6fd60b84",
+      "translation": "Télécharge dix micrographies de microscopie électronique en transmission (environ 32 Mo, EMPIAR-10982, CC0) et ouvre la première. Leurs masques de mitochondries sont inclus, dans le dossier ground_truth_masks, que l'éditeur ne lit pas. Mis en cache après le premier téléchargement."
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the Make Masks TEM test data",
+      "source": "Downloading the Make Masks TEM test data",
+      "source_sha256": "85df5a883ca0e6290559955e580d96a171a72d59af776f767b34756d1c1d021d",
+      "translation": "Téléchargement des données de test TEM de Make Masks"
+    },
+    {
+      "table": "ui",
+      "key": "Electron microscopy (TEM)",
+      "source": "Electron microscopy (TEM)",
+      "source_sha256": "59f42ba4292fc78a1ac9aad367bc1755caa984932c73ddfb22a7db4028f474ff",
+      "translation": "Microscopie électronique (TEM)"
+    },
+    {
+      "table": "ui",
+      "key": "Electron microscopy, inverted",
+      "source": "Electron microscopy, inverted",
+      "source_sha256": "d1f398dbfe4780f577924186761cccc36bb69d22b2a147587a2e40ba62540610",
+      "translation": "Microscopie électronique, inversée"
+    },
+    {
+      "table": "ui",
+      "key": "Load failed",
+      "source": "Load failed",
+      "source_sha256": "d352597ffd8fa8169c56cc3e8a08c73f0354b4aea225a4d98b0cd54c1db07ee8",
+      "translation": "Échec du chargement"
+    },
+    {
+      "table": "ui",
+      "key": "Mitochondria in TEM images (test data)",
+      "source": "Mitochondria in TEM images (test data)",
+      "source_sha256": "2602737e946dc9622320f67154c567e06fef737ed513a72d120cb66a08800640",
+      "translation": "Mitochondries sur images TEM (données de test)"
+    },
+    {
+      "table": "ui",
+      "key": "Reading {kind} files needs the optional {package} package. Install it with: pip install \"spacr[tem]\"",
+      "source": "Reading {kind} files needs the optional {package} package. Install it with: pip install \"spacr[tem]\"",
+      "source_sha256": "99d633734564cf4ed8269c19ab5bfe45ba11d0a82ae5146c029e9150b85a2d5a",
+      "translation": "La lecture des fichiers {kind} nécessite le paquet optionnel {package}. Installez-le avec : pip install \"spacr[tem]\""
+    },
+    {
+      "table": "ui",
+      "key": "Set the display in one step. Electron microscopy windows the image between its 0.5th and 99.5th percentiles, so holes in the section and stain precipitate cannot take the whole range, and turns on CLAHE (128 px tiles) under Image enhancement, with Apply on, to even out uneven section thickness. Membranes stay dark. Inverted also turns on Invert image, so dark membranes and organelles are drawn bright and Otsu and the magnifier find them. Custom changes nothing. Every value stays editable.",
+      "source": "Set the display in one step. Electron microscopy windows the image between its 0.5th and 99.5th percentiles, so holes in the section and stain precipitate cannot take the whole range, and turns on CLAHE (128 px tiles) under Image enhancement, with Apply on, to even out uneven section thickness. Membranes stay dark. Inverted also turns on Invert image, so dark membranes and organelles are drawn bright and Otsu and the magnifier find them. Custom changes nothing. Every value stays editable.",
+      "source_sha256": "c9aa1ff62efd704a65a40a4f9ab2071825797503564ed2247b6925d2e6eb48ae",
+      "translation": "Règle l'affichage en une étape. Microscopie électronique place la fenêtre entre les 0,5e et 99,5e centiles de l'image, pour que les trous de la coupe et les précipités de coloration ne prennent pas toute la plage, et active CLAHE (tuiles de 128 px) dans Amélioration de l’image, avec Appliquer activé, pour compenser l'épaisseur inégale de la coupe. Les membranes restent sombres. Inversée active aussi Inverser l'image, afin que les membranes et organites sombres soient affichés clairs et qu'Otsu et la loupe les trouvent. Personnalisé ne change rien. Chaque valeur reste modifiable."
+    }
+  ]
+}
