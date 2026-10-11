@@ -2947,7 +2947,7 @@ API_ENTRIES = (
     ('spacr.model_zoo.install', ':func:`fetch` the model and return the registered local entry.'),
     ('spacr.model_zoo.installable_backend_entries', 'Every optional segmentation backend, in whatever state it is here.'),
     ('spacr.model_zoo.is_alternative', 'Whether a row is a published alternative rather than a default.'),
-    ('spacr.model_zoo.is_spacr_owned', "Whether a row's file lives in a repository spaCR's maintainer owns."),
+    ('spacr.model_zoo.is_spacr_owned', "Whether a row's file lives in a repository owned by the einarolafsson account."),
     ('spacr.model_zoo.load_catalogue_file', 'Read a JSON catalogue of remote models.'),
     ('spacr.model_zoo.open_uri', 'Open a model URI for streaming. ``(chunks, total_bytes)``.'),
     ('spacr.model_zoo.package_model_root', '``<spacr>/resources/models`` — where the bundled pack lives.'),
