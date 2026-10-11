@@ -19,13 +19,6 @@
     },
     {
       "table": "ui",
-      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
-      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
-      "source_sha256": "033974a0333a8d22dae58bb647b5e3e5944152cfe72220c27ca1ac7b892885c2",
-      "translation": "'bundled' 是历史上随包提供的蚀斑模型。保留它是为了能够重现旧的运行；在文献图像上它会漏掉约三分之一的蚀斑。toxoplasma_plaque_v3 是当前模型。"
-    },
-    {
-      "table": "ui",
       "key": ", allowing flips, rotations and contrast changes",
       "source": ", allowing flips, rotations and contrast changes",
       "source_sha256": "b11afbb300ee9b5588fe592b099c9d8ee6950143ad4ca5ac386bdad3ba734b2f",
@@ -646,13 +639,24 @@
       "source": "{count} column(s) in the {kind}:",
       "source_sha256": "90e184bbe7ce0a7a62d6953512bebb12ee2f33a23c5f9becbe54d91134864d29",
       "translation": "{count} 列（{kind} 中）："
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
+      "source_sha256": "033974a0333a8d22dae58bb647b5e3e5944152cfe72220c27ca1ac7b892885c2",
+      "translation": "'bundled' 是历史上随包提供的蚀斑模型。保留它是为了能够重现旧的运行；在文献图像上它会漏掉约三分之一的蚀斑。toxoplasma_plaque_v3 是当前模型。",
+      "retired": "2026-10-11: English source changed when toxoplasma_plaque_v4 became the default plaque model; superseded by 2026-10-11-plaque-v4-default.json"
     },
     {
       "table": "setting_tooltips",
       "key": "plaque_model",
       "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, which also segments Gel Doc wells; 'toxoplasma_plaque_v2' is the previous default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v3'.",
       "source_sha256": "256a3da363e13c789bd2d75627b90461ce000635655c63c04293d08fb9fe07cd",
-      "translation": "用于分割空斑的 Cellpose 检查点：模型库键会在首次使用时下载经校验和验证的检查点（'toxoplasma_plaque_v3' 即 cpsam_plaque_r5_geldoc，也可分割 Gel Doc 孔；'toxoplasma_plaque_v2' 为先前的默认值）；文件系统路径用于选择自定义检查点；'bundled' 是随包提供的历史模型，它是 Cellpose 3 检查点，需要 Cellpose 3。更改此项可能改变每一个空斑计数，因此已记录的运行应保留所选值。默认值为 'toxoplasma_plaque_v3'。"
+      "translation": "用于分割空斑的 Cellpose 检查点：模型库键会在首次使用时下载经校验和验证的检查点（'toxoplasma_plaque_v3' 即 cpsam_plaque_r5_geldoc，也可分割 Gel Doc 孔；'toxoplasma_plaque_v2' 为先前的默认值）；文件系统路径用于选择自定义检查点；'bundled' 是随包提供的历史模型，它是 Cellpose 3 检查点，需要 Cellpose 3。更改此项可能改变每一个空斑计数，因此已记录的运行应保留所选值。默认值为 'toxoplasma_plaque_v3'。",
+      "retired": "2026-10-11: English source changed when toxoplasma_plaque_v4 became the default plaque model; superseded by 2026-10-11-plaque-v4-default.json"
     }
   ]
 }

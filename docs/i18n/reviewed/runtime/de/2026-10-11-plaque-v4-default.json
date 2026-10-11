@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
+      "source_sha256": "db4b1199854cf7fe3d21b47ead4081c5404ba94506d127cc4d6a58b417f0f970",
+      "translation": "'bundled' ist das historische, mitgelieferte Plaque-Modell. Es wird beibehalten, damit ein alter Lauf reproduziert werden kann; auf Literaturbildern übersieht es etwa ein Drittel der Plaques. toxoplasma_plaque_v4 ist das aktuelle Modell."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, the default until 2026-10-11, which scores higher on the held-out fields and on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v4'.",
+      "source_sha256": "fbf9791c36bf5ec3ee4de38ef7adfeb810d2dbc6ff922fa22a3ee6a02dd06d93",
+      "translation": "Cellpose-Checkpoint zur Plaque-Segmentierung: Ein Schlüssel aus dem Modellkatalog lädt beim ersten Einsatz einen anhand der Prüfsumme verifizierten Checkpoint herunter. 'toxoplasma_plaque_v4' ist das cpsam_v2-Modell der Runde 6; 'toxoplasma_plaque_v3' ist cpsam_plaque_r5_geldoc, bis 2026-10-11 der Standard, das auf den zurückgehaltenen Feldern und auf Gel-Doc-Wells besser abschneidet; 'toxoplasma_plaque_v2' ist ein früherer Standard. Ein Dateisystempfad wählt einen eigenen Checkpoint. 'bundled' bezeichnet das frühere mitgelieferte Modell, einen Cellpose 3-Checkpoint, der Cellpose 3 benötigt. Ein Wechsel kann jede Plaque-Zählung ändern; dokumentierte Läufe sollten daher den gewählten Wert beibehalten. Standard 'toxoplasma_plaque_v4'."
+    }
+  ]
+}

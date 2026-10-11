@@ -1402,10 +1402,10 @@ def _resolve_training_base(requested):
     return str(model_zoo.fetch(entry, dest))
 
 
-#: The plaque model a run segments with when none is named: cpsam_plaque_r5,
-#: trained on the curated v5 set. ``'bundled'`` is not the default because
+#: The plaque model a run segments with when none is named: the cpsam_v2
+#: round-6 model (toxoplasma_plaque_v4, maintainer's choice 2026-10-11). ``'bundled'`` is not the default because
 #: the bundled checkpoint is a Cellpose 3 model, and the Cellpose 4 spaCR installs refuses to load it.
-DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v3'
+DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v4'
 
 
 class Cellpose3Checkpoint(ValueError):
@@ -1524,10 +1524,11 @@ def _resolve_plaque_model(settings, fetch=True):
     THE DEFAULT IS NOT ``'bundled'``, though keeping it would avoid changing
     counts behind anyone's back: the bundled checkpoint is a Cellpose 3 model
     and the Cellpose 4 spaCR installs will not load it, so a default run on it
-    fails. ``toxoplasma_plaque_v3`` (cpsam_plaque_r5_geldoc) is the default
-    instead: on 263 held-out fields it scores F1 0.844 against
-    ``toxoplasma_plaque_v2``'s 0.799, and 0.913 against 0.013 on Gel Doc
-    wells (2026-10-10, features/data/model_compare_2026-10-10).
+    fails. ``toxoplasma_plaque_v4`` (the cpsam_v2 round-6 model) is the
+    default since 2026-10-11, by the maintainer's rule that spaCR models
+    build on cpsam_v2. On 263 held-out fields it scores F1 0.815;
+    ``toxoplasma_plaque_v3``, the default before it, scores 0.844 (0.913
+    against 0.804 on Gel Doc wells) and stays selectable for recorded runs.
 
     :param settings: the plaque settings dict.
     :param fetch: download what is not here -- the bundled pack through

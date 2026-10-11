@@ -3,7 +3,7 @@
 Found by spacr-d7 while re-recording tutorials, 2026-10-01. The preview
 spelled an unset ``plaque_model`` as ``'bundled'``, the Cellpose 3
 checkpoint Cellpose 4 refuses, while the run read the same unset value as
-``toxoplasma_plaque_v3``. The old checkpoint stays selectable and runs
+``toxoplasma_plaque_v4``. The old checkpoint stays selectable and runs
 through the Cellpose 3 backend; without it the preview says what to do.
 """
 from __future__ import annotations
@@ -29,19 +29,19 @@ def panel(qtbot, monkeypatch):
 
 
 def test_an_unseeded_panel_asks_for_the_zoo_model(panel):
-    assert panel.current_settings()["plaque_model"] == "toxoplasma_plaque_v3"
+    assert panel.current_settings()["plaque_model"] == "toxoplasma_plaque_v4"
 
 
 def test_settings_without_a_plaque_model_select_the_zoo_model(panel):
     panel.apply_settings({"diameter": 30})
-    assert panel._model_box.currentText() == "toxoplasma_plaque_v3"
+    assert panel._model_box.currentText() == "toxoplasma_plaque_v4"
     assert panel._model_note.text() == ""
-    assert panel.current_settings()["plaque_model"] == "toxoplasma_plaque_v3"
+    assert panel.current_settings()["plaque_model"] == "toxoplasma_plaque_v4"
 
 
 def test_the_bundled_checkpoint_stays_selectable(panel):
     choices = ppv.plaque_model_choices([])
-    assert choices[0] == "toxoplasma_plaque_v3"
+    assert choices[0] == "toxoplasma_plaque_v4"
     assert choices[-1] == "bundled"
     panel.apply_settings({"plaque_model": "bundled"})
     assert panel.current_settings()["plaque_model"] == "bundled"
@@ -55,7 +55,7 @@ def test_the_preview_resolves_an_unset_model_as_the_run_does(monkeypatch):
                             SUB._requested_plaque_model(s)) or "/m/r5")
     path, note, entry = ppv.resolve_plaque_model({})
     assert (path, note, entry) == ("/m/r5", "", None)
-    assert asked == ["toxoplasma_plaque_v3"]
+    assert asked == ["toxoplasma_plaque_v4"]
 
 
 def _refuse_like_cellpose4(path, gpu=None):
@@ -87,5 +87,5 @@ def test_without_the_backend_the_preview_says_what_to_do(monkeypatch):
     ppv._MODELS.clear()
     text = ppv._explain_model_failure("/m/old.CP_model", excinfo.value)
     assert "Cellpose 3 model" in text
-    assert "toxoplasma_plaque_v3" in text
+    assert "toxoplasma_plaque_v4" in text
     assert "Cellpose 3 backend" in text

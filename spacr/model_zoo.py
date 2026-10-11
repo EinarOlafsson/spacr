@@ -432,8 +432,8 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "notes": (
             "no longer the default: toxoplasma_plaque_v3 replaced it on "
             "2026-10-10 (F1 0.844 against 0.799 on 263 held-out fields; this "
-            "model scores 0.013 on Gel Doc wells); kept so recorded runs "
-            "reproduce",
+            "model scores 0.013 on Gel Doc wells), and toxoplasma_plaque_v4 "
+            "on 2026-10-11; kept so recorded runs reproduce",
             "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 "
             "(round 3) for microscope-only work, where it scores 0.836 against "
             "this model's 0.808 on PFA-fixed wells and is far more precise; "
@@ -973,7 +973,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                  'train_loss': '0.18370248939254452',
                  'val_loss': 'see monitored NAS history; final epoch not measured',
                  'best_epoch': 'final checkpoint, 100 epochs; no best-epoch selection'},
-     'display_name': 'Toxoplasma Plaque v3 (Gel Doc r5, default)',
+     'display_name': 'Toxoplasma Plaque v3 (Gel Doc r5, alternative)',
      'architecture': 'Cellpose-SAM (cpsam, Cellpose 4.0.9)',
      'dataset': '496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc '
                 'wells; 100 epochs; fixed physical-plate/source groups',
@@ -982,8 +982,11 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'trained_on': '496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc '
                    'wells; 100 epochs; fixed physical-plate/source groups',
      'trained_by': 'einarolafsson',
-     'notes': ['The default plaque model since 2026-10-10: on 263 held-out fields F1 0.844 against toxoplasma_plaque_v2 0.799, '
-               'and 0.913 against 0.013 on Gel Doc wells, with the Plaque assay\'s own eval (features/data/model_compare_2026-10-10).',
+     'notes': ['Alternative since 2026-10-11, when toxoplasma_plaque_v4 (base cpsam_v2) became the default by the maintainer\'s choice. '
+               'This model scores higher: on 263 held-out fields F1 0.844 against v4 0.815, and 0.913 against 0.804 on Gel Doc wells, '
+               'through spacr.plaque.segment_plaque_image. Kept so recorded runs reproduce.',
+               'Default 2026-10-10 to 2026-10-11: F1 0.844 against toxoplasma_plaque_v2 0.799, and 0.913 against 0.013 on Gel Doc wells '
+               '(features/data/model_compare_2026-10-10).',
                'Its own release gate on independent literature crops did not pass at the time (literature F1 about 0.54 for every model).',
                'Gel Doc score requires min_size=0; min_size=150 gives F1 0.1041.',
                'Stock not measured; comparison baseline is incumbent r3.',
@@ -1017,7 +1020,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                  'train_loss': 'see training/epoch_history.json',
                  'val_loss': 'see training/epoch_history.json',
                  'best_epoch': '140 / 190'},
-     'display_name': 'Toxoplasma Plaque v4 (round 6, cpsam_v2, alternative)',
+     'display_name': 'Toxoplasma Plaque v4 (round 6, cpsam_v2, default)',
      'architecture': 'Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)',
      'dataset': '663 curated plaque fields from four domains (published-figure wells, Gel Doc '
                 'wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 '
@@ -1028,9 +1031,10 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                    'and staged literature crops; round 6 splits, best of 190 epochs (epoch 140), '
                    'base cpsam_v2',
      'trained_by': 'einarolafsson',
-     'notes': ['Alternative, not the default: F1 0.815 against toxoplasma_plaque_v3 0.844 on the '
-               'same 263 held-out fields, through spacr.plaque.segment_plaque_image, lower on every '
-               'source (Gel Doc 0.804 against 0.913).',
+     'notes': ['The default plaque model since 2026-10-11, by the maintainer\'s rule that spaCR '
+               'models build on cpsam_v2. It scores below toxoplasma_plaque_v3 on the same 263 '
+               'held-out fields, through spacr.plaque.segment_plaque_image: F1 0.815 against 0.844, '
+               'lower on every source (Gel Doc 0.804 against 0.913); v3 stays selectable.',
                'Fine-tuned from cpsam_v2 (2026-10-10). It replaces the first round-6 weights, '
                'fine-tuned from first-generation cpsam (sha256 00f4a86b...a0c171), which remain in '
                'the repository history.',
