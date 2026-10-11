@@ -2380,7 +2380,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         else:
             self._start_crop_request(request)
         token = self._crop_token
-        QTimer.singleShot(0, lambda: self._render_grid()
+        QTimer.singleShot(0, self, lambda: self._render_grid()
                           if token == self._crop_token and self._crop_running
                           else None)
 
