@@ -58,6 +58,14 @@ THEMES = ("blobs", "drift", "aurora", "data_art_fungal_growth",
 
 BACKGROUNDS = ("#191919", "#f2f2f2")
 
+#: Themes whose frames are compared mid-ripple as well (2026-10-10 rework:
+#: point, outline and column waves are computed on the CPU and the renderer
+#: stamps the displaced grains, so both paths must still agree).
+RIPPLE_THEMES = ("data_art_impulse_lens",)
+
+#: Seconds each compared ripple has travelled when its frame is shaded.
+RIPPLE_AGE_S = 0.4
+
 
 class _Producer:
     """One persistent thread named like the application's producer.
@@ -150,6 +158,16 @@ def _engines(ambient, theme, background, density, size):
     return pair
 
 
+def _start_ripples(engine, moment):
+    """Start a point, an outline and a column wave ``RIPPLE_AGE_S`` before ``moment``."""
+    engine.set_time(moment - RIPPLE_AGE_S)
+    engine._add_ripple((0.5, 0.5))
+    engine._add_ripple(((0.3, 0.3, 0.7, 0.3), (0.3, 0.7, 0.7, 0.7),
+                        (0.3, 0.3, 0.3, 0.7), (0.7, 0.3, 0.7, 0.7)))
+    engine._add_column_wave((0.05, 0.35, 0.6))
+    engine.set_time(moment)
+
+
 def _frame(engine, size):
     """Shade one frame on the producer thread; return ``(image, ms, gpu)``."""
     def run():
@@ -174,6 +192,8 @@ def main(argv=None) -> int:
     parser.add_argument("--mean", type=float, default=1.0)
     parser.add_argument("--p99", type=int, default=12)
     parser.add_argument("--outliers", type=float, default=0.005)
+    parser.add_argument("--no-ripples", dest="ripples", action="store_false",
+                        help="compare impulse-lens frames without ripples in flight")
     parser.add_argument("--images", action="store_true",
                         help="save CPU, GPU and difference PNGs of the worst pair per theme")
     parser.add_argument("--software-device", type=int, default=None,
@@ -231,6 +251,8 @@ def main(argv=None) -> int:
                     for moment in args.times:
                         for engine in (cpu, gpu):
                             engine.set_time(moment)
+                            if args.ripples and theme in RIPPLE_THEMES:
+                                _start_ripples(engine, moment)
                             if theme == "data_art_tissue_facets":
                                 for step in range(1, 4):
                                     engine.set_time(moment + step / 30)
@@ -299,6 +321,7 @@ def main(argv=None) -> int:
               "qt_platform": app.platformName(),
               "thresholds": {"mean": args.mean, "p99": args.p99,
                              "over_48": args.outliers},
+              "ripples_in_flight": bool(args.ripples),
               "qualification": ("Offscreen producer-thread frames compared with the "
                                 "CPU path; no displayed frame rate or compositor "
                                 "claim. Software-renderer timings are not GPU timings."),

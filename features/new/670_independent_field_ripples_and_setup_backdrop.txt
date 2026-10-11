@@ -31,3 +31,11 @@ intensity slider (0 = off, saved "off" migrated once), adds a Click ripples
 switch, and drops a click's own ripple when the same click produced a
 container, edge or popup ripple. Gravity bursts from clicks keep their
 pull without a second wave. Native/user visual acceptance remains open.
+
+2026-10-10 — Maintainer feedback: ripples were a void at a window's centre
+and too strong. Ripples are now a low-amplitude refraction with a still
+source, eased in and out, and no dark centre or hard ring (details and
+measurements in N684's 2026-10-10 ripple note). Category open/close sends a
+vertical column wave only; Preferences ripples only on open and on Apply,
+Cancel and Save. The workstation must re-run GPU parity (command in N684);
+Mesa llvmpipe pairs are exact. Native/user visual acceptance remains open.

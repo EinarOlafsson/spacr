@@ -290,17 +290,19 @@ def test_container_header_click_has_one_final_edge_and_no_point_wave(qtbot):
     section.show()
     for expanded in (True, False):
         field.engine._popup_waves.clear()
+        field.engine._column_waves.clear()
         qtbot.mouseClick(section.header(), Qt.LeftButton)
-        qtbot.waitUntil(lambda: bool(field.engine._popup_waves))
+        qtbot.waitUntil(lambda: bool(field.engine._column_waves))
         field._on_tick()
         field._timer.stop()
         assert section._expanded is expanded
         assert not field._pending_art_impulses
-        assert len(field.engine._popup_waves) == 1
-        origin = field.engine._popup_waves[0][1]
+        assert not field.engine._popup_waves
+        assert len(field.engine._column_waves) == 1
+        column = field.engine._column_waves[0][1]
         bottom = (section.y() + section.height()) / field.height()
-        assert origin == ((section.x() / field.width(), bottom,
-                           (section.x() + section.width()) / field.width(), bottom),)
+        assert column == (section.x() / field.width(),
+                          (section.x() + section.width()) / field.width(), bottom)
 
 
 @pytest.mark.parametrize("value,expected", [(0, 0), (2, 2), (9, 2),

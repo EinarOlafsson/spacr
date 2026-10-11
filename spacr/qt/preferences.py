@@ -10317,6 +10317,18 @@ class PreferencesDialog:
             save_button.setText(tr("Save"))
         if cancel_button is not None:
             cancel_button.setText(tr("Cancel"))
+        from functools import partial
+
+        try:
+            from .widgets.ambient import (EXPLICIT_RIPPLES_PROPERTY,
+                                          _field_ripple_for_popup)
+        except ImportError:
+            pass
+        else:
+            dlg.setProperty(EXPLICIT_RIPPLES_PROPERTY, True)
+            for rippling in (save_button, cancel_button, apply_button):
+                if rippling is not None:
+                    rippling.clicked.connect(partial(_field_ripple_for_popup, dlg))
         reset_button = buttons.addButton(
             tr("Reset to defaults"), QDialogButtonBox.ResetRole)
         reset_button.setObjectName("PreferencesReset")

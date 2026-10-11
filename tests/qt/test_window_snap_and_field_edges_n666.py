@@ -37,7 +37,12 @@ def feedback(monkeypatch):
     def record(widget, edge=None, rect=None, strength=1.0):
         calls.append((widget, edge, QRect(widget.geometry()), rect, strength))
 
+    def record_column(widget, edge="bottom", strength=1.0):
+        calls.append((widget, edge, QRect(widget.geometry()), None, strength))
+
     monkeypatch.setattr(ambient, "field_ripple_for_widget", record, raising=False)
+    monkeypatch.setattr(ambient, "_field_column_ripple_for_widget", record_column,
+                        raising=False)
     return calls
 
 

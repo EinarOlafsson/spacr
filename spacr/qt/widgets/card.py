@@ -106,6 +106,15 @@ class Card(QFrame):
 
         :param widget: the control to add, e.g. a Refresh button.
         """
+        self._ensure_title_row().addWidget(widget)
+
+    def _ensure_title_row(self):
+        """Return the title row, building it on first use.
+
+        Widgets added after the row's stretch sit at its right-hand end.
+
+        :returns: the title row's ``QHBoxLayout``.
+        """
         if self._title_row is None:
             from PySide6.QtWidgets import QHBoxLayout
 
@@ -122,7 +131,7 @@ class Card(QFrame):
                 row.addStretch(1)
                 self._outer.insertLayout(0, row)
             self._title_row = row
-        self._title_row.addWidget(widget)
+        return self._title_row
 
 
 class _CardBuiltWhenShown(Card):

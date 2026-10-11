@@ -995,6 +995,23 @@ def _numpy():
     return _NUMPY
 
 
+def _smoothstep(np, low, high, value):
+    """Hermite ease from 0 at ``low`` to 1 at ``high``, clamped outside."""
+    t = np.clip((np.asarray(value, dtype=np.float32) - low) / (high - low), 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
+
+
+RIPPLE_AMPLITUDE = 0.0045
+RIPPLE_WAVENUMBER = 44.0
+RIPPLE_SPEED = 0.26
+RIPPLE_PACKET_WIDTH = 0.10
+RIPPLE_GLOW = 0.07
+RIPPLE_SOURCE_CALM = 0.10
+RIPPLE_EASE_IN_S = 0.30
+RIPPLE_LIFETIME_S = 5.0
+RIPPLE_COLUMN_SOFTNESS = 0.03
+
+
 
 class AmbientEngine:
     """Base class: a deterministic, time-parameterised painter.
@@ -6275,6 +6292,7 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         self._gravity_impulses = []
         self._gravity_ripple_impulses = {}
         self._popup_waves = []
+        self._column_waves = []
         self._popup_wave_origin = None
         self._popup_wave_window = None
         self._popup_wave_elapsed = 0.0
@@ -6487,6 +6505,8 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         super().advance(dt)
         self._popup_waves = [wave for wave in self._popup_waves
                              if 0.0 <= self.time - wave[0] < 5.0]
+        self._column_waves = [wave for wave in self._column_waves
+                              if 0.0 <= self.time - wave[0] < RIPPLE_LIFETIME_S]
         if (dt <= 0.0 or not self.ripples_enabled or self.family != "impulse_lens"
                 or self.popup_wave_frequency <= 0.0
                 or self._popup_wave_origin is None):
@@ -6514,11 +6534,71 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             return
         self._popup_waves = (self._popup_waves + [(self.time, origin)])[-6:]
 
+    def _add_column_wave(self, column) -> None:
+        """Emit a wave that travels only up and down a settings column.
+
+        :param column: ``(left, right, edge)`` in normalised units: the
+            column's horizontal extent and the row the wave starts from.
+        """
+        if not self.ripples_enabled or self.family != "impulse_lens" or column is None:
+            return
+        try:
+            left, right, edge = (float(value) for value in column)
+        except (TypeError, ValueError):
+            return
+        if not all(math.isfinite(value) for value in (left, right, edge)):
+            return
+        left, right = sorted((max(0.0, min(1.0, left)), max(0.0, min(1.0, right))))
+        if right <= left:
+            return
+        self._column_waves = (self._column_waves + [
+            (self.time, (left, right, max(0.0, min(1.0, edge))))])[-6:]
+
+    def _ripple_wave(self, distance, age, strength=1.0):
+        """Shape one travelling wave as a gentle refraction of the field.
+
+        Units are fractions of the shorter canvas edge and seconds. The
+        ``RIPPLE_*`` constants set amplitude, wavenumber, speed, packet width,
+        brightness change, the still zone at the source, ease-in, lifetime and
+        a column wave's soft side margin.
+
+        The wave moves dots along its own direction by at most a few pixels,
+        with a slope well below one so neighbouring dots never cross and no
+        gap opens. The source itself is still: the displacement grows in
+        smoothly over the first :data:`RIPPLE_SOURCE_CALM` of travel, so no
+        hole forms where the wave starts. It eases in over
+        :data:`RIPPLE_EASE_IN_S`, spreads out as it travels and fades out
+        before :data:`RIPPLE_LIFETIME_S`. Brightness follows the local
+        compression, lightening crests and dimming troughs alike, so the mean
+        field brightness does not change.
+
+        :param distance: aspect-corrected distance from the source.
+        :param age: seconds since the wave started.
+        :param strength: per-wave scale.
+        :returns: ``(shift, glow)``: outward displacement and brightness change.
+        """
+        np = _numpy()
+        if not 0.0 <= age < RIPPLE_LIFETIME_S:
+            return 0.0, 0.0
+        ease = (_smoothstep(np, 0.0, RIPPLE_EASE_IN_S, age)
+                * (1.0 - _smoothstep(np, 0.45 * RIPPLE_LIFETIME_S, RIPPLE_LIFETIME_S, age)))
+        travelled = age * RIPPLE_SPEED
+        gain = self._ripple_intensity * strength * ease / math.sqrt(1.0 + travelled / 0.18)
+        front = distance - travelled
+        packet = np.exp(-(front / RIPPLE_PACKET_WIDTH) ** 2)
+        calm = _smoothstep(np, 0.0, RIPPLE_SOURCE_CALM, distance)
+        phase = front * RIPPLE_WAVENUMBER
+        envelope = gain * packet * calm
+        shift = RIPPLE_AMPLITUDE * envelope * np.sin(phase)
+        glow = RIPPLE_GLOW * envelope * np.cos(phase)
+        return shift, glow
+
     def set_ripples_enabled(self, enabled: bool) -> None:
         """Enable field waves without changing gravity or the held field patch."""
         self.ripples_enabled = bool(enabled)
         if not self.ripples_enabled:
             self._popup_waves.clear()
+            self._column_waves.clear()
             self._gravity_ripple_impulses.clear()
             self._popup_wave_elapsed = 0.0
             for key, material in self._material_cache.items():
@@ -7265,13 +7345,13 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             packet = np.exp(-(front / 0.075) ** 2) * reach
             has_ripple = (self.ripples_enabled
                           and id(impulse) in self._gravity_ripple_impulses)
-            ripple = (0.045 * self._ripple_intensity * decay * packet * np.sin(front * 58.0)
-                      if has_ripple else 0.0)
-            displacement = burst + ripple / np.maximum(distance, 0.055)
-            px[selected] += ex * displacement
-            py[selected] += ey * displacement
+            px[selected] += ex * burst
+            py[selected] += ey * burst
             if has_ripple:
-                energy[selected] += self._ripple_intensity * decay * packet * 0.40
+                shift, glow = self._ripple_wave(distance, age, strength * reach)
+                px[selected] += ex / distance * shift
+                py[selected] += ey / distance * shift
+                energy[selected] += glow
         active_popups = {origin for started, origin in self._popup_waves
                          if 0.0 <= self.time - started < 5.0}
         for origin in tuple(popup_fields):
@@ -7310,14 +7390,21 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
                 field = (ex / aspect_x, ey / aspect_y, distance)
                 popup_fields[origin] = field
             ex, ey, distance = field
-            front = distance - age * 0.26
-            packet = np.exp(-(front / 0.06) ** 2)
-            decay = math.exp(-age * 0.65)
-            displacement = (0.025 * self._ripple_intensity * decay * packet * np.sin(front * 58.0)
-                            / np.maximum(distance, 0.055))
-            px += ex * displacement
-            py += ey * displacement
-            energy += self._ripple_intensity * decay * packet * 0.30
+            shift, glow = self._ripple_wave(distance, age)
+            px += ex / distance * shift
+            py += ey / distance * shift
+            energy += glow
+        for started, (left, right, edge) in (self._column_waves
+                                             if self.ripples_enabled else ()):
+            age = self.time - started
+            if not 0.0 <= age < RIPPLE_LIFETIME_S:
+                continue
+            across = np.minimum(x - left, right - x) * aspect_x
+            weight = _smoothstep(np, -RIPPLE_COLUMN_SOFTNESS, RIPPLE_COLUMN_SOFTNESS, across)
+            offset = (y - edge) * aspect_y
+            shift, glow = self._ripple_wave(np.abs(offset) + 1e-6, age)
+            py += np.sign(offset) * shift * weight / aspect_y
+            energy += glow * weight
         if self._field_grab_offset != (0.0, 0.0):
             center_x, center_y = self._field_grab_center
             gx, gy = (x - center_x) * aspect_x, (y - center_y) * aspect_y
@@ -8561,7 +8648,10 @@ class _QueuedArtInput:
             else:
                 for wave_serial, point in self._boundary_waves:
                     if wave_serial > self._applied_boundary_serial:
-                        engine._add_ripple(point)
+                        if point and point[0] == "column":
+                            engine._add_column_wave(point[1:])
+                        else:
+                            engine._add_ripple(point)
                         self._applied_boundary_serial = wave_serial
             popup_serial, popup_origin, popup_id = self._popup_snapshot
             if discard_clicks and not preserve_grab:
@@ -8859,6 +8949,7 @@ class AmbientWidget(QWidget):
         self._click_candidate = None
         self._click_press = QPoint()
         self._popup_was_open = False
+        self._explicit_popup_seen = None
         self._interaction_app = None
         self._field_grab = None
         self._separate_theme = bool(
@@ -9779,15 +9870,43 @@ class AmbientWidget(QWidget):
         self._publish_boundary_ripples(
             self._visible_boundary_segments(rect, edge=edge), strength)
 
-    def _publish_boundary_ripples(self, segments, strength) -> None:
-        """Queue release feedback even with mouse gravity disabled."""
+    def _ripple_column(self, rect, edge="bottom", strength=1.0) -> None:
+        """Send one wave up and down the column ``rect`` spans.
+
+        The wave starts on the row of ``rect``'s ``edge`` and moves the field
+        only vertically, within the column's width, so opening or closing a
+        settings category reads as a disturbance along the column rather than
+        as rings.
+
+        :param rect: the widget's rectangle in this backdrop's coordinates.
+        :param edge: ``"top"`` or ``"bottom"``: the row the wave starts on.
+        :param strength: positive enables the wave; zero disables it.
+        """
+        rect, bounds = QRectF(rect), QRectF(self.rect())
+        if rect.isEmpty() or not rect.intersects(bounds):
+            return
+        row = rect.top() if edge == "top" else rect.bottom()
+        if not bounds.top() <= row <= bounds.bottom():
+            return
+        width, height = max(1, self.width()), max(1, self.height())
+        left = max(rect.left(), bounds.left()) / width
+        right = min(rect.right(), bounds.right()) / width
+        self._publish_boundary_ripples((("column", left, right, row / height),),
+                                       strength, wrapped=True)
+
+    def _publish_boundary_ripples(self, segments, strength, *, wrapped=False) -> None:
+        """Queue release feedback even with mouse gravity disabled.
+
+        :param segments: one wave's boundary segments, or with ``wrapped``
+            a tuple of ready wave descriptions.
+        """
         if (not self._ripples_enabled or self._ripple_intensity <= 0.0
                 or self._theme not in _FIELD_THEMES
                 or not self._should_run()
                 or self._art_input is None or not math.isfinite(strength)
                 or strength <= 0.0 or not segments):
             return
-        self._art_input._offer_boundary_waves((segments,))
+        self._art_input._offer_boundary_waves(segments if wrapped else (segments,))
         if self._engine_lock.acquire(blocking=False):
             try:
                 self._art_input._consume(self._engine)
@@ -9894,6 +10013,7 @@ class AmbientWidget(QWidget):
                         or self._pending_art_impulses[-1] != point)):
                     self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
                 if (background and self._ripples_enabled and self._click_ripples
+                        and not _ripples_are_explicit(obj)
                         and self._ripple_intensity > 0.0):
                     self._click_candidate = (point, _CONTAINER_RIPPLES[0])
                     self._click_press = event.globalPosition().toPoint()
@@ -9978,6 +10098,8 @@ class AmbientWidget(QWidget):
         if popup is None:
             active = QApplication.activeWindow()
             popup = active if isinstance(active, QDialog) else None
+        if popup is None:
+            self._explicit_popup_seen = None
         if popup is None or not popup.isVisible() or popup is self.window():
             return None
         parent = popup.parentWidget()
@@ -9988,6 +10110,11 @@ class AmbientWidget(QWidget):
         origin = self.mapFromGlobal(popup.mapToGlobal(popup.rect().topLeft()))
         segments = self._visible_boundary_segments(QRect(origin, popup.size()))
         if not segments:
+            return None
+        if _ripples_are_explicit(popup):
+            if self._explicit_popup_seen is None:
+                self._explicit_popup_seen = id(popup)
+                self._publish_boundary_ripples(segments, 1.0)
             return None
         self._popup_wave_popup_id = id(popup)
         return segments
@@ -10766,6 +10893,53 @@ def _animation_paused_for_work() -> bool:
     return bool(policy is not None and policy.pauses_animation())
 
 
+EXPLICIT_RIPPLES_PROPERTY = "spacrExplicitRipples"
+
+
+def _ripples_are_explicit(widget) -> bool:
+    """Whether ``widget`` belongs to a window that ripples only on request.
+
+    Such a window has :data:`EXPLICIT_RIPPLES_PROPERTY` set: it ripples the
+    field when it opens and when it calls :func:`_field_ripple_for_popup`
+    (Preferences: Apply, Cancel, Save), and not for clicks inside it, its
+    close or the recurring popup waves.
+
+    A combo box's list or a sub-dialog is a window of its own, so the walk
+    continues through each window's owner.
+    """
+    try:
+        current = widget if isinstance(widget, QWidget) else None
+        while current is not None:
+            window = current.window()
+            if window.property(EXPLICIT_RIPPLES_PROPERTY):
+                return True
+            current = window.parentWidget()
+        return False
+    except RuntimeError:
+        return False
+
+
+def _field_ripple_for_popup(dialog, strength=1.0) -> None:
+    """Send one wave from ``dialog``'s outline into its owner's backdrop.
+
+    :param dialog: a dialog parented to a window with a field backdrop.
+    :param strength: positive enables the wave; zero disables it.
+    :returns: None.
+    """
+    _note_container_ripple()
+    try:
+        owner = dialog.parentWidget()
+        if owner is None:
+            return
+        for backdrop in owner.window().findChildren(AmbientWidget):
+            if backdrop.theme() not in _FIELD_THEMES or not backdrop._should_run():
+                continue
+            origin = backdrop.mapFromGlobal(dialog.mapToGlobal(dialog.rect().topLeft()))
+            backdrop._ripple_from_rect(QRect(origin, dialog.size()), strength)
+    except RuntimeError:
+        return
+
+
 def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
     """Publish settled window or panel feedback to its visible field backdrop.
 
@@ -10775,6 +10949,21 @@ def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
     :param strength: positive enables release feedback; zero disables it.
     :returns: None.
     """
+    _publish_widget_ripple(widget, edge, rect, strength, vertical=False)
+
+
+def _field_column_ripple_for_widget(widget, edge="bottom", strength=1.0) -> None:
+    """Send one wave up and down ``widget``'s column (a settings category).
+
+    :param widget: the opened or closed category.
+    :param edge: ``"top"`` or ``"bottom"``: the row the wave starts on.
+    :param strength: positive enables the wave; zero disables it.
+    """
+    _publish_widget_ripple(widget, edge, None, strength, vertical=True)
+
+
+def _publish_widget_ripple(widget, edge, rect, strength, *, vertical) -> None:
+    """Send ``widget``'s ripple to every running field backdrop of its window."""
     _note_container_ripple()
     try:
         window = widget.window()
@@ -10782,11 +10971,15 @@ def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
         for backdrop in backdrops:
             if backdrop.theme() not in _FIELD_THEMES or not backdrop._should_run():
                 continue
-            if edge is not None and widget is window:
+            if edge is not None and widget is window and not vertical:
                 backdrop._ripple_from_edge(edge, strength)
+                continue
+            local = QRect(widget.rect() if rect is None else rect)
+            origin = backdrop.mapFromGlobal(widget.mapToGlobal(local.topLeft()))
+            if vertical:
+                backdrop._ripple_column(QRect(origin, local.size()),
+                                        edge or "bottom", strength)
             else:
-                local = QRect(widget.rect() if rect is None else rect)
-                origin = backdrop.mapFromGlobal(widget.mapToGlobal(local.topLeft()))
                 backdrop._ripple_from_rect(QRect(origin, local.size()), strength,
                                            edge=edge)
     except RuntimeError:

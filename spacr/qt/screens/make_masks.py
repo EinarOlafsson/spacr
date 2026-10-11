@@ -9510,6 +9510,7 @@ class MakeMasksScreen(QWidget):
         self._btn_clear = QPushButton(tr("Clear all objects"))
         self._btn_clear.setObjectName("DangerButton")
         self._btn_clear.setCursor(Qt.PointingHandCursor)
+        self._btn_clear.setProperty("_spacrActivitySpinnerChecked", True)
         self._btn_clear.setToolTip(tr(
             "Remove every object from this field. It asks first, and it is "
             "one undo step, so a press by accident costs one Ctrl+Z."))

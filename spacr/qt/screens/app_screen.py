@@ -2605,7 +2605,6 @@ class AppScreen(QWidget):
             getattr(self, "_runtime_wrap", None),
             getattr(self, "_console_wrap", None),
             getattr(self, "_actions_row", None),
-            getattr(self, "_actions_section", None),
             getattr(self, "_actions_body", None),
             getattr(self, "_category_hint", None),
         )
@@ -7665,26 +7664,17 @@ class AppScreen(QWidget):
         usage_card.body_layout.addWidget(self._per_core_wrap)
 
         _breathe_while_a_window_opens()
-        section = QWidget()
+        section = Card(title="Actions")
         self._actions_section = section
-        section_col = QVBoxLayout(section)
-        section_col.setContentsMargins(0, 0, 0, 0)
-        section_col.setSpacing(4)
-        actions_heading = QLabel("Actions")
-        actions_heading.setObjectName("CardTitle")
+        actions_heading = section.title_label
         self._actions_heading = actions_heading
-        self._actions_heading_row = QHBoxLayout()
-        self._actions_heading_row.setContentsMargins(
-            SPACING["md"] + 1, 0, 0, 0)
-        self._actions_heading_row.addWidget(actions_heading)
-        self._actions_heading_row.addStretch(1)
-        section_col.addLayout(self._actions_heading_row)
-        actions_body = QWidget(section)
+        self._actions_heading_row = section._ensure_title_row()
+        actions_body = QWidget(section.body)
         self._actions_body = actions_body
         body_col = QVBoxLayout(actions_body)
         body_col.setContentsMargins(0, 0, 0, 0)
         body_col.setSpacing(SPACING["md"])
-        section_col.addWidget(actions_body, 1)
+        section.body_layout.addWidget(actions_body, 1)
 
         actions = QWidget()
         self._actions_row = actions
@@ -7983,8 +7973,9 @@ class AppScreen(QWidget):
         self._install_action_hints()
 
         self._actions_folder = make_foldable(
-            actions_heading, actions_body, name="Actions",
+            actions_heading, section.body, name="Actions",
             persist_key=f"{self.app_key}/Actions")
+        section.follow_fold(self._actions_folder)
         self._install_the_shell_panes(layout, usage_card, section)
         viewport._watch_splitter(self._runtime_splitter)
         return wrap

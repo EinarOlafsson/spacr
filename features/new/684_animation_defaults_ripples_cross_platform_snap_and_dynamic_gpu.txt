@@ -317,3 +317,35 @@ WS re-run, growth only (CUDA_VISIBLE_DEVICES unset):
       --themes data_art_fungal_growth --images 2>&1 | tee growth_parity.log
     grep "stays on the CPU" growth_parity.log; the receipt rows'
     refusal_reasons hold the same text.
+
+2026-10-10 — Maintainer UI feedback (ripples subtle and fluid; "the ripple
+in the middle of a window is generated like a void"). The old wave moved
+dots by up to 0.025 of the short edge on a 58 rad wavenumber (slope 1.45),
+so neighbouring dots crossed and left dark gaps, a dark disc at a point
+source and hard rings round a window outline. Rework in
+spacr/qt/widgets/ambient.py (_DataArtEngine._ripple_wave, RIPPLE_* constants):
+amplitude 0.0045 x wavenumber 44 (slope 0.2, dots never cross), the source
+itself stays still (smoothstep over the first 0.10), 0.3 s ease-in, eased
+fade-out by 5 s, spreading falloff, and brightness follows compression
+(+/- symmetric, mean unchanged). Default amplitude and contrast are lower at
+the unchanged 100 % slider. Settings categories now send a column wave
+(_add_column_wave / AmbientWidget._ripple_column /
+_field_column_ripple_for_widget) that moves dots only up and down within
+the column.
+Preferences carries spacrExplicitRipples: it ripples when it opens and on
+Apply, Cancel and Save (_field_ripple_for_popup), never for its close,
+recurring popup waves, dropdowns, sub-dialogs or other clicks. Measured on
+the CPU path (blurred local brightness vs a ripple-free frame, point source,
+ages 0.05-1.0 s): before 0.00-1.95 (voids), after 0.93-1.08. The ripple
+displacement is computed on the CPU for both paths; the GPU renderer only
+stamps the displaced grains, so no shader changed. tools/verify_animation_
+gpu_parity.py now shades impulse-lens frames with a point, an outline and a
+column wave in flight (--no-ripples to skip; receipt key ripples_in_flight).
+Mesa llvmpipe, 960x540, both backgrounds, densities 0.25/1.0: 12/12 pairs
+exact (mean 0, max 0). Tests:
+tests/qt/test_ui_feedback_boxes_ripples_spinner_20261010.py.
+WORKSTATION MUST RE-RUN GPU PARITY (CUDA_VISIBLE_DEVICES unset):
+    QT_QPA_PLATFORM=offscreen tools/gpu_turn.sh n684-gpu-parity-ripples \
+      tools/run_capped.sh 8G python tools/verify_animation_gpu_parity.py \
+      features/data/684_animation_gpu_parity_2026-10-10_ripples/receipt.json \
+      --images
