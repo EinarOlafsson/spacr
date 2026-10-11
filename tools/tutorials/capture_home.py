@@ -386,8 +386,8 @@ def record_appearance_sections(window, capture, settle):
             settle(1)
             if key == "animation":
                 names = ("AmbientSpeed", "AmbientSize", "AmbientResolution",
-                         "AmbientDensity", "AmbientGravityRadius", "FieldRipplesEnabled",
-                         "FieldPopupWaveFrequency", "PopupBackdrop", "PopupBackdropSpeed",
+                         "AmbientDensity", "AmbientGravityRadius", "FieldRipples",
+                         "FieldClickRipples", "FieldPopupWaveFrequency", "PopupBackdrop", "PopupBackdropSpeed",
                          "PopupBackdropSize", "PopupBackdropResolution", "PopupBackdropDensity",
                          "PopupBackdropDarkness")
                 viewport = scroll.viewport()
@@ -424,7 +424,8 @@ def record_appearance_sections(window, capture, settle):
                     settings.setValue(before)
                 proof = {"all_named_controls_visible": list(names), "ordinary_choices": choices,
                          "settings_controls_independent": independence,
-                         "field_ripples_separate_control": controls["FieldRipplesEnabled"].isChecked()}
+                         "field_ripples_strength_percent": controls["FieldRipples"].value(),
+                         "click_ripples": controls["FieldClickRipples"].isChecked()}
                 settle(.5)
             capture(name)
         for section in sections.values():
