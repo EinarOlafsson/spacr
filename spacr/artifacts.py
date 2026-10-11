@@ -2,10 +2,10 @@
 
 A spaCR project is a folder of derived data.  ``merged/`` came from raw
 images, ``measurements.db`` came from ``merged/``, the model came from the
-crops the database indexes, and the hit list came from the model.  Nothing on
-disk records any of that, so "is this result still current?" has never had an
-answer — and re-running Mask with a different diameter leaves every
-downstream number quietly wrong.
+crops the database indexes, and the hit list came from the model.  The files
+themselves do not record these links, so without a registry a result cannot
+be checked against its inputs: after Mask is re-run with a different
+diameter, every downstream number is out of date and nothing marks it.
 
 This module records it.  Every output registers with:
 
@@ -337,8 +337,8 @@ def material_settings(settings: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
 def settings_hash(settings: Optional[Mapping[str, Any]]) -> str:
     """Return a digest over the material settings of a run.
 
-    Two runs with the same digest cannot differ in anything that changes
-    their output, so a downstream artifact whose recorded digest still
+    Two runs with the same digest do not differ in any material setting,
+    so a downstream artifact whose recorded digest still
     matches the current settings is not stale on their account.
 
     :param settings: a settings dict, or None.

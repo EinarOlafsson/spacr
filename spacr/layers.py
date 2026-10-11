@@ -1,13 +1,11 @@
 """A napari-style layer model — images, labels, points and shapes in one world.
 
-Every viewer spaCR has ever shipped draws one thing. The live preview draws an
-image with outlines burnt into it; the timelapse preview draws a frame with
-tracks burnt into it; Make Masks draws an image with a brush burnt into it.
-"Burnt in" is the problem: the mask is not a *thing* you can hide, fade, recolour
-or put underneath something else — it is pixels that were already RGB by the time
-the widget saw them.
+A viewer that draws overlays into the image pixels — outlines in the live
+preview, tracks in the timelapse preview, brush strokes in Make Masks — returns
+one RGB array, in which an overlay cannot be hidden, faded, recoloured or moved
+below another object.
 
-This module is the model underneath a viewer where those are separate objects.
+This module is the model for a viewer in which each of these is a separate layer.
 It is deliberately **pure numpy** with no Qt anywhere, for the same reasons
 :mod:`spacr.selection` is:
 
@@ -38,11 +36,11 @@ onto that world (an origin, a step and a size, over two named world axes), and
 rendering is: for every canvas pixel, ask each layer what is at that world
 coordinate.
 
-Treating spacing as decoration is a *silent* error, not a cosmetic one: an
-overlay drawn a slice out of register still looks like a plausible image, and
-the number that comes out of it is wrong with no warning. Hence the guards
-here are loud — a zero scale raises, and a stack refuses to mix µm layers with
-px layers rather than quietly drawing them on top of each other.
+Ignoring spacing produces no visible error: an overlay drawn a slice out of
+register still looks like a plausible image, and any number measured from it is
+wrong without a warning. For this reason a zero scale raises, and a stack raises
+:exc:`LayerError` when µm layers and px layers are mixed instead of drawing them
+on top of each other.
 
 Order
 -----
@@ -53,11 +51,11 @@ and like napari's own layer list. Moving a layer up moves it towards the front.
 Blending
 --------
 
-Every layer contributes ``coverage`` (where it has something to say) and
-``opacity`` (how loudly). All five modes combine them as ``alpha = coverage *
-opacity``, except :data:`Blending.OPAQUE`, which first hardens coverage to
-all-or-nothing — that is what makes it a curtain rather than a veil, and it is
-the only place the two are treated differently.
+Every layer contributes ``coverage`` (where it draws, 0–1) and ``opacity`` (a
+0–1 weight for the whole layer). All five modes combine them as ``alpha =
+coverage * opacity``, except :data:`Blending.OPAQUE`, which first sets every
+non-zero coverage to 1 so that soft edges cover fully; this is the only mode
+that treats the two differently.
 """
 from __future__ import annotations
 
@@ -97,7 +95,7 @@ __all__ = [
 
 
 class LayerError(ValueError):
-    """A layer, spacing or stack that cannot mean what it was asked to mean.
+    """Raised for an invalid layer, spacing, canvas, stack or colour argument.
 
     Raised rather than repaired. Every case this covers — a zero voxel size, a
     stack mixing µm with px, a points array of the wrong width — produces a
@@ -409,8 +407,9 @@ class Blending:
     """How a layer combines with what is already on the canvas.
 
     Five modes, all of which honour ``opacity`` the same way — ``alpha =
-    coverage * opacity`` — except :data:`OPAQUE`, which hardens coverage to
-    0-or-1 first so that a soft-edged layer becomes a curtain. Opacity still
+    coverage * opacity`` — except :data:`OPAQUE`, which first sets every
+    non-zero coverage to 1, so a soft-edged layer fully covers the layers
+    below it wherever it has any coverage. Opacity still
     scales an opaque layer; "opaque" describes what it does to the layers
     below it where it *has* something, not whether it can be faded.
     """
@@ -519,10 +518,10 @@ class Spacing:
     def __post_init__(self) -> None:
         """Coerce and validate the voxel size, then freeze it.
 
-        A ZERO OR NON-FINITE SCALE IS REFUSED HERE rather than tolerated. It
-        collapses an axis -- every world coordinate on it resolves to element 0 --
-        and the overlay is then drawn a slice out of register with NO VISIBLE
-        SYMPTOM, which is why this raises rather than clamping.
+        A zero or non-finite scale raises :exc:`LayerError` rather than being
+        clamped. Such a scale collapses an axis -- every world coordinate on it
+        resolves to element 0 -- and the overlay is then drawn a slice out of
+        register with no visible sign of the error.
         """
         try:
             scale = tuple(float(v) for v in self.scale)
@@ -1057,9 +1056,8 @@ class OrthoViews:
             empty.
         :param axes: the three world axes, depth first.
         :param margin: fraction of the extent to add on every side.
-        :raises LayerError: if the source does not span all three axes — an
-            orthogonal view of a 2-D field is not a view, it is a mistake, and
-            silently drawing one plane would hide it.
+        :raises LayerError: if the source does not span all three axes; a 2-D
+            source raises rather than being drawn as a single plane.
         """
         extent, units = _extent_of(source)
         depth_axis, row_axis, column_axis = (str(a) for a in axes)
@@ -1239,10 +1237,9 @@ class CanvasLink:
 
     The model under a comparison grid: four panels showing four channels of
     one field, or the same field at four timepoints, or the same well under
-    four conditions. Panning one pans all of them, zooming one zooms all of
-    them, and the point is that a difference between two panels is a
-    difference in the *data* rather than a difference in where they happen to
-    be looking.
+    four conditions. Panning one pans all of them and zooming one zooms all of
+    them, so a difference between two panels reflects a difference in the
+    *data* rather than a different field of view.
 
     What is shared is the world window — the origin and the step — and NOT the
     pixel shape, because the panels are different widgets with different sizes.
@@ -1391,14 +1388,13 @@ class CanvasLink:
         self._emit(key)
 
     def resize(self, key: str, height: int, width: int) -> None:
-        """A panel's widget changed size. Only that panel's shape changes.
+        """Set the pixel shape of one panel only, after its widget resized.
 
-        The STEP is held, not the span — the opposite of
-        :meth:`Canvas.resized`, and deliberately. In a linked grid the shared
-        quantity is the magnification: a cell that is 10 px narrower than its
-        neighbour must show 10 px less of the sample at the same scale, or the
-        two pictures are at different magnifications and the comparison the
-        grid exists for is not one.
+        The step is held, not the span — the opposite of
+        :meth:`Canvas.resized`. In a linked grid the shared quantity is the
+        magnification: a cell that is 10 px narrower than its neighbour shows
+        10 px less of the sample at the same scale, so panels of different
+        sizes stay at the same magnification and remain comparable.
 
         :param key: Identifier of the existing panel whose widget resized.
         :param height: New panel height in pixels, coerced to at least one.
@@ -1489,7 +1485,7 @@ class CanvasLink:
 
     def subscribe(self, listener: Callable[[str], None]
                   ) -> Callable[[str], None]:
-        """Be told, with the key that moved, whenever a panel changes.
+        """Register a listener called with the key of each panel that changes.
 
         Held by strong reference, exactly like :meth:`LayerStack.subscribe`: a
         view that subscribes must :meth:`unsubscribe` when it closes.
@@ -1504,7 +1500,7 @@ class CanvasLink:
         return listener
 
     def unsubscribe(self, listener: Callable[[str], None]) -> bool:
-        """Stop being told. ``True`` if this call is what removed it.
+        """Remove a listener; return ``True`` if this call removed it.
 
         :param listener: Previously subscribed callback to remove.
         """
@@ -1557,8 +1553,8 @@ class FieldKey:
         nucleus labelled 1 publishes the same string as clicking the pathogen
         labelled 1 in the same field, and the two views the click was supposed
         to link land on whichever of the two their table happened to hold
-        first. ``None`` is honest for a mask loaded from a file that does not
-        say what it is.
+        first. Use ``None`` for a mask loaded from a file that does not record
+        its object type.
     """
 
     values: Mapping[str, Any]
@@ -1650,7 +1646,7 @@ class FieldKey:
 
 @dataclass(frozen=True)
 class LayerEvent:
-    """Something changed. What a view listens for instead of polling.
+    """A change notification that a :class:`LayerStack` sends to its listeners.
 
     :param kind: ``"inserted"``, ``"removed"``, ``"moved"``, ``"renamed"``,
         ``"changed"`` (a display property), ``"data"`` (the array itself) or
@@ -1672,7 +1668,7 @@ class LayerEvent:
 
 
 class Layer:
-    """One thing in the stack: a name, a place in the world, and how to draw it.
+    """Base class for stack layers: a name, a :class:`Spacing` and display properties.
 
     Subclasses implement :meth:`_draw`; everything shared — visibility,
     opacity, blending, spacing, notification — lives here.
@@ -1756,7 +1752,7 @@ class Layer:
 
     @name.setter
     def name(self, value: str) -> None:
-        """Rename this layer, THROUGH THE STACK when it is in one.
+        """Rename this layer, through the stack when it is in one.
 
         The stack is what enforces uniqueness, so renaming behind its back
         would let two layers share a name and make the second unreachable by
@@ -1803,12 +1799,11 @@ class Layer:
     def opacity(self, value: float) -> None:
         """Set the opacity, notifying only on a real change.
 
-        NOTIFYING ONLY ON A CHANGE is the point of the guard: an opacity
-        slider emits continuously while it is dragged, and a redraw per emit
-        rather than per change is the difference between a smooth drag and a
-        stuttering one.
+        An opacity slider emits continuously while it is dragged; notifying
+        only when the value changes avoids a redraw per emitted value.
 
-        :param value: 0 to 1; validated before it is stored.
+        :param value: 0 to 1. Values outside the range are clamped; a
+            non-numeric or non-finite value raises :exc:`LayerError`.
         """
         value = self._check_opacity(value)
         if value != self._opacity:
@@ -1881,9 +1876,9 @@ class Layer:
     def axes(self) -> Tuple[str, ...]:
         """The world axes this layer's data is indexed by, outermost first.
 
-        NAMED, NOT POSITIONAL, so two layers with different dimensionality
-        can still agree on what "z" means -- which is what lets a 2D mask sit
-        over a 3D stack without either of them guessing.
+        Axes are named rather than positional, so two layers with different
+        dimensionality agree on what "z" means; this lets a 2D mask be drawn
+        over a 3D stack.
 
         :returns: the axis names.
         """
@@ -1913,7 +1908,7 @@ class Layer:
         """Draw onto ``canvas``; returns ``(rgb, coverage)``.
 
         ``rgb`` is ``(H, W, 3)`` float32 in 0–1 and ``coverage`` is ``(H, W)``
-        float32 in 0–1 saying where this layer has anything to say. Opacity and
+        float32 in 0–1 marking where this layer draws anything. Opacity and
         blending are NOT applied here — the stack applies them, so a layer's
         own render is the same whatever it is composited with.
 
@@ -2186,7 +2181,7 @@ class ImageLayer(Layer):
     def colormaps(self) -> Tuple[Colormap, ...]:
         """One colormap per channel, in channel order.
 
-        A TUPLE COPY, so a caller cannot reorder this layer's colormaps by
+        A tuple copy, so a caller cannot reorder this layer's colormaps by
         mutating what it was handed.
 
         :returns: the colormaps.
@@ -2368,12 +2363,14 @@ class LabelsLayer(Layer):
     def data(self, value: Any) -> None:
         """Replace the labels, keeping the same shape.
 
-        SHAPE IS ENFORCED. A labels layer is registered against an image, so
-        accepting a differently shaped array would silently break that
-        correspondence and mislabel every pixel rather than fail.
+        The new array must have the current shape. A labels layer is
+        registered against an image, so accepting a differently shaped array
+        would break that correspondence and mislabel every pixel without an
+        error.
 
         :param value: the new label array.
-        :raises LayerError: when the shape differs.
+        :raises LayerError: when the shape differs, or when non-integer values
+            have a fractional part.
         """
         array = np.asarray(value)
         if array.shape != self._data.shape:
@@ -2611,8 +2608,7 @@ class PointsLayer(Layer):
     :param face_color: fill colour, as any :func:`to_rgba` specification.
     :param border_color: outline colour.
     :param border_width: outline width in world units. ``0`` draws no
-        outline, which is the default because an outline on a centroid marker
-        costs more than it says.
+        outline, which is the default.
 
     Coordinates are stored in DATA units with the layer's own spacing, exactly
     like an image, so a points layer built from a centroid table in pixel
@@ -2625,8 +2621,8 @@ class PointsLayer(Layer):
     :param size: point DIAMETER in world units — scalar or one per point.
         World, not pixels: a 5 µm marker is 5 µm at every zoom, and on an
         anisotropic stack it is a sphere rather than an ellipsoid.
-    :param properties: ``{name: (N,) array}`` rider columns — what the
-        counting item hangs its categories off.
+    :param properties: ``{name: (N,) array}`` per-point columns, such as a
+        category for each counted point. Each must have one value per point.
     """
 
     kind = "points"
@@ -2639,7 +2635,7 @@ class PointsLayer(Layer):
                  **kwargs: Any):
         """Build a points layer.
 
-        :param data: an ``(n, ndim)`` array of world coordinates, or None.
+        :param data: an ``(n, ndim)`` array of data coordinates, or None.
         :param kwargs: name, spacing, colours and the rest of the layer contract.
         """
         array = self._as_points(data, ndim)
@@ -2709,12 +2705,14 @@ class PointsLayer(Layer):
     def data(self, value: Any) -> None:
         """Replace the points, keeping the same dimensionality.
 
-        DIMENSIONALITY IS ENFORCED. A points layer sits in a world whose
-        axes are already named, so accepting a differently shaped array
-        would put every point at a coordinate that means something else.
+        The number of coordinates per point must stay the same. A points
+        layer sits in a world whose axes are already named, so accepting a
+        differently shaped array would put every point at a coordinate on a
+        different axis.
 
-        :param value: an ``(n, ndim)`` array of world coordinates.
-        :raises LayerError: when the dimensionality differs.
+        :param value: an ``(n, ndim)`` array of data coordinates.
+        :raises LayerError: when the dimensionality differs, or when a column
+            in :attr:`properties` would no longer have one value per point.
         """
         array = self._as_points(value, self._ndim)
         if array.shape[1] != self._ndim:
@@ -2807,8 +2805,7 @@ class PointsLayer(Layer):
     def border_width(self, value: float) -> None:
         """Set the outline width, clamped at zero.
 
-        CLAMPED RATHER THAN REFUSED: a negative width has no meaning to draw
-        and no meaning to complain about either, so it becomes no outline.
+        A negative width is clamped to 0 (no outline) rather than raising.
 
         :param value: the width; negatives become 0.
         """
@@ -2996,9 +2993,9 @@ class Shape:
     def __post_init__(self) -> None:
         """Normalise the kind and refuse one this layer cannot draw.
 
-        REFUSED AT CONSTRUCTION rather than at paint time, because a shape
-        with an unknown kind draws nothing and the reader would look for the
-        fault in the renderer.
+        An unknown kind raises :exc:`LayerError` at construction rather than at
+        paint time, because a shape with an unknown kind draws nothing and the
+        fault would otherwise appear to be in the renderer.
         """
         self.kind = str(self.kind).strip().lower()
         if self.kind not in self.KINDS:
@@ -3057,7 +3054,7 @@ class Shape:
 
 
 class ShapesLayer(Layer):
-    """Drawn regions of interest — the layer Measure will later read.
+    """Drawn regions of interest; :mod:`spacr.roi` uses them to limit Measure to a region.
 
     :param shapes: the :class:`Shape` objects to start with. Every one must
         have the same number of axes -- a layer holding a 2-D and a 3-D shape
@@ -3103,7 +3100,7 @@ class ShapesLayer(Layer):
     def shapes(self) -> Tuple[Shape, ...]:
         """The shapes this layer holds.
 
-        A TUPLE COPY, so a caller cannot add or reorder the layer's shapes
+        A tuple copy, so a caller cannot add or reorder the layer's shapes
         by mutating what it was handed.
 
         :returns: the shapes, in draw order.
@@ -3593,7 +3590,7 @@ class LayerStack:
         return j
 
     def raise_layer(self, layer: LayerLike) -> int:
-        """One step towards the front.
+        """Move a layer one position towards the front; return its new index.
 
         :param layer: Layer object, unique layer name or integer stack index
             to raise.
@@ -3602,7 +3599,7 @@ class LayerStack:
         return self.move(i, min(i + 1, len(self._layers) - 1))
 
     def lower_layer(self, layer: LayerLike) -> int:
-        """One step towards the back.
+        """Move a layer one position towards the back; return its new index.
 
         :param layer: Layer object, unique layer name or integer stack index
             to lower.
@@ -3662,7 +3659,7 @@ class LayerStack:
     def add_points(self, data: Any = None, **kwargs: Any) -> PointsLayer:
         """Build a points layer and append it to this stack.
 
-        :param data: an ``(n, ndim)`` array of world coordinates, or None.
+        :param data: an ``(n, ndim)`` array of data coordinates, or None.
         :param kwargs: passed to :class:`PointsLayer`.
         :returns: the layer that was added.
         """
@@ -3704,9 +3701,8 @@ class LayerStack:
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
         """The union of every layer's world box, keyed by axis.
 
-        Empty layers (a points layer with no points yet) do not drag the
-        extent to the origin — an empty layer occupies nothing, and letting it
-        vote would zoom the view out to include a point nobody has placed.
+        Empty points and shapes layers are skipped, so a layer with nothing in
+        it yet does not extend the box to the origin and zoom the view out.
         """
         out: Dict[str, Tuple[float, float]] = {}
         for layer in self._layers:
@@ -3800,7 +3796,7 @@ class LayerStack:
         return None, world, None
 
     def subscribe(self, listener: Listener) -> Listener:
-        """Be told when anything changes. Returns ``listener``, for unsubscribing.
+        """Register a listener called with every :class:`LayerEvent`; return it.
 
         Listeners are held by strong reference and are NOT weak: a view that
         subscribes must :meth:`unsubscribe` when it closes, exactly as
@@ -3816,7 +3812,7 @@ class LayerStack:
         return listener
 
     def unsubscribe(self, listener: Listener) -> bool:
-        """Stop being told. ``True`` if this call is what removed it.
+        """Remove a listener; return ``True`` if this call removed it.
 
         :param listener: Previously subscribed event callback to remove.
         """

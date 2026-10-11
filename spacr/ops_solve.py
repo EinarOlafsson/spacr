@@ -1,11 +1,11 @@
 """Absolute tile positions from the pairwise displacements one well produced.
 
-THE THIRD VERB. :mod:`spacr.ops_layout` says which tiles touch,
-:mod:`spacr.ops_register` says how far apart a touching pair is, and this
-says where every tile ends up. Kept separate from both because
-``ops_layout`` is pure geometry that imports only :mod:`math` and should
-stay importable anywhere, and ``ops_register``'s whole subject is two tiles
-and one shift.
+:mod:`spacr.ops_layout` determines which tiles touch,
+:mod:`spacr.ops_register` measures how far apart a touching pair is, and
+this module computes where every tile ends up. It is kept separate from both
+because ``ops_layout`` is pure geometry that imports only :mod:`math` and
+should stay importable anywhere, and ``ops_register`` handles only two tiles
+and one shift at a time.
 """
 from __future__ import annotations
 
@@ -32,11 +32,11 @@ def solve_placements(edges: Dict[Tuple[int, int], Tuple[float, float]],
                       ) -> Dict[int, Tuple[float, float]]:
     """Absolute tile positions from the pairwise displacements.
 
-    A LEAST-SQUARES SOLVE, NOT A WALK. Chaining placements from a seed
-    gives every tile the accumulated error of whatever path reached it,
-    and on a round well the paths are long; solving all the edges at once
-    spreads the residual instead and gives one answer no matter which
-    tile is called the origin.
+    Positions come from a least-squares solve, not a walk along the edges.
+    Chaining placements from a seed gives every tile the accumulated error
+    of whatever path reached it, and on a round well the paths are long;
+    solving all the edges at once spreads the residual instead and gives one
+    answer no matter which tile is called the origin.
 
     The origin is pinned to the lowest-numbered site of each connected
     component, so a well that registers in two pieces still returns both

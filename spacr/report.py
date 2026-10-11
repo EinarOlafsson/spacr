@@ -1,4 +1,4 @@
-"""One-click, shareable report for a finished spaCR run.
+"""Build a self-contained HTML (and optional PDF) report for a finished spaCR run.
 
 Why this exists
 ---------------
@@ -13,8 +13,7 @@ This module walks that folder, gathers what is *actually there*, and writes
 a single self-contained HTML file (and, optionally, a PDF) that answers the
 question without spaCR, without Python and without the original machine.
 
-Three rules govern what it does, because a report that breaks any of them
-is worse than no report:
+Three rules govern what it does:
 
 **A missing section is stated, never omitted.**
     If segmentation QC was never run, the report contains a "Segmentation
@@ -2191,8 +2190,8 @@ def render_html(report: Report) -> str:
 
     The output has no external dependencies of any kind: the stylesheet is
     inline, every image is a base64 ``data:`` URI, and there is no
-    JavaScript. It renders identically on a machine that has never heard of
-    spaCR and has no network.
+    JavaScript. It renders the same on a machine without spaCR installed and
+    without network access.
 
     :param report: a :class:`Report` from :func:`collect_report`.
     :returns: the complete HTML document as a string.

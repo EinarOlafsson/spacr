@@ -130,7 +130,7 @@ def chosen_line_ink() -> Optional[str]:
 
 
 def resolve_ink(target: str = "screen", ink: Optional[str] = None) -> str:
-    """The TEXT colour for where this figure is going.
+    """Return the text colour for the figure's output target.
 
     Titles, axis labels, tick LABELS, annotations and legend entries. The
     axis spines and the tick MARKS are lines, and they have their own
@@ -181,7 +181,7 @@ LABEL_GROUND_SCREEN = "#1B1E20"
 
 def resolve_label_ground(target: str = "screen",
                          ground: Optional[str] = None) -> str:
-    """The colour behind a text label, for where this figure is going.
+    """Return the background colour for a text label on the output target.
 
     :param target: ``'screen'`` for the GUI, ``'print'`` for a file.
     :param ground: an explicit override, which always wins.
@@ -566,8 +566,8 @@ def rc(target: str = "screen", *, frame: str = "L",
         dense, L when they are sparse.
     :param ink: the TEXT colour — titles, labels, tick labels, annotations.
     :param line: the LINE colour — the axis spines and the tick marks. Falls
-        back to ``ink`` when nobody has said otherwise, which is what the
-        figures did before the two were separable.
+        back to the resolved text colour when neither this argument nor the
+        user's line-colour preference is set.
     :param ground: the figure and axes background. Defaults to transparent,
         which lets the GUI theme
         show through.
@@ -630,9 +630,9 @@ def rc(target: str = "screen", *, frame: str = "L",
 
 @contextlib.contextmanager
 def figure_style(target: str = "screen", **kwargs):
-    """Draw inside the house style, and put the globals back afterwards.
+    """Context manager that applies the house style and restores rcParams on exit.
 
-    THE ONLY SUPPORTED WAY TO APPLY THIS STYLE.
+    This is the supported way to apply the style.
 
     ::
 
@@ -642,8 +642,7 @@ def figure_style(target: str = "screen", **kwargs):
 
     A plain ``rcParams.update`` would leak: spaCR draws figures from a
     long-lived GUI, so a style applied once applies to every figure drawn
-    afterwards, in every other module, until the process exits. That failure
-    mode has already cost this repository a day.
+    afterwards, in every other module, until the process exits.
     """
     import matplotlib.pyplot as plt
 
@@ -692,7 +691,7 @@ def theme_target() -> str:
 
 
 def panel_letter(ax, letter: str, dx: float = -0.16, dy: float = 1.06) -> None:
-    """A bold upper-case letter at the panel's top left. No period.
+    """Draw a bold upper-case panel letter, without a period, at the top left.
 
     Sized from the measured 1.9-2.2x of the axis-label tier.
 
@@ -705,10 +704,10 @@ def panel_letter(ax, letter: str, dx: float = -0.16, dy: float = 1.06) -> None:
 
 
 def descriptor(ax, text: str) -> None:
-    """Two to four lower-case words above the axes.
+    """Set a short descriptor (two to four lower-case words) as the axes title.
 
-    NOT a sentence title. The axis labels carry the content; a descriptor
-    only says which condition this panel is.
+    Not a sentence title. The axis labels carry the content; a descriptor
+    only names the condition the panel shows.
 
     :param ax: Matplotlib axes whose title is set.
     :param text: short descriptor to place above the axes.
@@ -718,10 +717,10 @@ def descriptor(ax, text: str) -> None:
 
 def reference_line(ax, *, x=None, y=None, label: str = "",
                    colour: Optional[str] = None) -> None:
-    """A threshold, a limit of detection, a 1:1 diagonal.
+    """Draw a vertical or horizontal reference line, such as a threshold.
 
-    Thin, dashed and grey — never bold, never coloured. A reference is not a
-    result and must not compete with one.
+    Thin, dashed and grey by default (``ROLES["reference"]``), so the
+    reference is visually distinct from the data.
 
     :param ax: Matplotlib axes on which to draw the reference line.
     """
@@ -746,7 +745,7 @@ def reference_line(ax, *, x=None, y=None, label: str = "",
 
 def text_legend(ax, entries: Sequence, x: float = 0.02, y: float = 0.97,
                 dy: float = 0.075) -> None:
-    """A legend as coloured TEXT, with no marker and no frame.
+    """Draw a legend as coloured text labels, without markers or a frame.
 
     What the published figures do. A framed legend with sample markers costs
     a corner of the axes and adds a box the style has no other boxes to
@@ -763,7 +762,7 @@ def text_legend(ax, entries: Sequence, x: float = 0.02, y: float = 0.97,
 
 
 def rotate_ticks(ax, degrees: int = 45) -> None:
-    """Long categorical labels rotate 45 degrees, right-aligned.
+    """Rotate the x tick labels by ``degrees`` (45 by default), right-aligned.
 
     :param ax: Matplotlib axes whose x tick labels are rotated.
     """
@@ -776,9 +775,9 @@ def rotate_ticks(ax, degrees: int = 45) -> None:
 def annotate(ax, text: str, *, x: float = 0.02, y: float = 0.97,
              colour: Optional[str] = None, ha: str = "left",
              va: str = "top") -> None:
-    """An in-panel note: an n, a correlation coefficient, a count.
+    """Draw an in-panel text note, such as an n or a correlation coefficient.
 
-    No frame, no box. The published figures never draw one.
+    The note is drawn without a frame or box, as in the published figures.
 
     :param ax: Matplotlib axes that receives the note.
     :param text: annotation text to draw inside the axes.

@@ -34,12 +34,12 @@ DEFAULT_RESPONSES: Tuple[str, ...] = ("pred", "prediction", "predictions",
 
 @dataclass(frozen=True)
 class Choice:
-    """One setting the data decided, and what decided it.
+    """One proposed setting value and the measurement behind it.
 
     :param key: the setting name, exactly as the panel spells it.
     :param value: what to put in it.
-    :param why: the reason, naming the measurement. Not "recommended" -- a
-        reason a user cannot check against their own data is a slogan.
+    :param why: the reason, naming the measurement, so the user can check it
+        against their own data; not a bare "recommended".
     """
 
     key: str
@@ -49,7 +49,7 @@ class Choice:
 
 @dataclass(frozen=True)
 class Undecided:
-    """A setting this module will not guess, and why not.
+    """A setting left without a proposed value, and the reason.
 
     :param key: setting name or advisory topic left unresolved;
         :meth:`Advice.why` uses it to retrieve this record's explanation.
@@ -90,7 +90,7 @@ class Reading:
     """What was measured, before any advice is derived from it.
 
     Separate from :class:`Advice` on purpose: the reading is checkable
-    against the user's own data, and the advice is an argument FROM it. A
+    against the user's own data, and the advice is derived from it. A
     reader who disagrees with a choice can see which number produced it.
     """
 
@@ -495,7 +495,7 @@ def questions_for(reading: Reading) -> Tuple[Question, ...]:
 
 @dataclass(frozen=True)
 class Advice:
-    """What the data decided, what it would not, and what it was read from.
+    """Proposed settings, unresolved settings, and the reading behind them.
 
     :param chosen: ordered setting proposals carrying their keys, values, and
         evidence; :meth:`as_settings` converts them to a mapping.
@@ -920,7 +920,7 @@ def read_the_last_run(folder: str,
                       ) -> Dict[str, Any]:
     """Read a finished run's own diagnostics off disk.
 
-    A READ OF WHAT ALREADY EXISTS, never a second diagnostic pass. The
+    Only the stored diagnostics are read; no second diagnostic pass is run. The
     numbers are the ones `regression_qc` measured and printed onto its own
     report; recomputing them here would let the advisor and the QC panel
     disagree about the same fit, and the user would have no way to tell
@@ -928,7 +928,7 @@ def read_the_last_run(folder: str,
 
     :param folder: the run folder, or the ``regression_qc`` folder inside it.
     :param settings: the settings now in the panel, so a run fitted under
-        different ones is reported as STALE rather than used silently.
+        different ones is reported as stale in ``run_note`` rather than used.
     :returns: the fields to merge into a :class:`Reading`. Always includes
         ``run_folder`` when a run was found, and ``run_note`` when one was
         found and is not being used.

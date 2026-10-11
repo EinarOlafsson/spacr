@@ -371,7 +371,7 @@ def normalise_levels(levels: Iterable[int]) -> frozenset:
 
 def clamp_console_to_file(console: Iterable[int],
                           file_levels: Iterable[int]) -> frozenset:
-    """Console levels are a subset of what the file records.
+    """Return the requested console levels that the log file also records.
 
     A level the log file discards cannot reach the console, because the
     console is fed from the same records. Showing a user a line they will
@@ -801,7 +801,7 @@ def get_logger(name: str) -> logging.Logger:
 
 
 def enable_debug() -> None:
-    """Crank every ``spacr.*`` logger to DEBUG.
+    """Set the ``spacr`` logger to DEBUG, which ``spacr.*`` loggers inherit.
 
     Useful when debugging interactively:
 

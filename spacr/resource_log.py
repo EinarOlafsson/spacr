@@ -1,47 +1,47 @@
-"""What spaCR's process TREE costs while it runs, under its own setting.
+"""Sample the memory and CPU time of spaCR's process tree while it runs.
 
-WHY THIS IS NOT THE READINGS spaCR ALREADY TAKES.
+How this differs from spaCR's other resource readings.
 
 Every resource figure in
-the package counts the CALLING process: `spacr.fit_resources.host_rss` reads
+the package counts the calling process: `spacr.fit_resources.host_rss` reads
 ``/proc/self/statm``, `spacr.qt.timing` reads its own resident size, and the
-parameter sweep's floor reads the MACHINE's free memory, which cannot tell
+parameter sweep's floor reads the machine's free memory, which cannot tell
 spaCR's own children from another tenant on a shared box.
 
 spaCR's heaviest
 work does not happen in the calling process -- `spacr.sequencing` starts a
 saver process and `spacr.parameter_sweep` runs every trial in a child -- so
-the parent looks healthy right up to the moment the out-of-memory reaper
-takes the run, and afterwards there is nothing to read.
+the parent's own memory stays low until the out-of-memory killer ends the
+run, and afterwards there is nothing to read.
 
 This module sums the
 process and every descendant, and names each one, so "which trial was large"
 is a question the record can answer.
 
-WHY IT IS NOT VERBOSE LOGGING. Verbose logging only decides which log records
-are kept, so it has no account of memory to give. The function tracer that it
-once installed fired on every call and every return, and it cost twenty times
-the startup. An account taken through a tracer would describe the traced
-program rather than the real one, which is exactly the program nobody wants
-measured. So this samples
-instead: one psutil read a second, on a daemon thread that is never the GUI
-thread, on an otherwise unperturbed run. Three states rather than a checkbox,
-because the useful default is not "off" -- the most valuable resource data
-comes from runs nobody expected to fail.
+Why this is not part of verbose logging: verbose logging only decides which
+log records are kept, so it records no memory figures. The function tracer
+that it once installed fired on every call and every return, and it made
+startup twenty times slower; a measurement taken under a tracer describes the
+traced program rather than the normal one. This module samples instead: one
+psutil read a second, on a daemon thread that is never the GUI thread, on an
+otherwise unmodified run. There are three levels rather than an on/off
+checkbox, and the default (:data:`DEFAULT_LEVEL`, ``"summary"``) is not
+``"off"``, because resource data is most useful from runs that were not
+expected to fail.
 
-WHICH NUMBER IS RECORDED. USS where the platform gives it, then PSS, then
-RSS -- and every record NAMES the measure it used, because RSS double-counts
-the pages a fork shares and would overstate a sweep badly. A number whose
-definition is unrecorded cannot be compared between two machines.
+Which memory figure is recorded: USS where the platform gives it, then PSS,
+then RSS -- and every record names the measure it used, because RSS
+double-counts the pages a fork shares and would overstate a sweep badly. A
+number whose definition is unrecorded cannot be compared between two machines.
 
-Nothing here is required to succeed. A child that exits between being
+No single reading is required to succeed. A child that exits between being
 enumerated and being read is an expected outcome and not an error: that child
 is skipped, the rest of the tree is kept, and the count of skipped readings
 goes in the sample so the record says what it missed. A platform that cannot
 supply a per-thread time records that it could not, never a zero, because a
 zero reads as "this thread was free". Per-thread GPU memory is absent on
-purpose: a CUDA context belongs to a process, so a per-thread figure would be
-fiction.
+purpose: a CUDA context belongs to a process, so a per-thread figure would
+have no meaning.
 """
 
 from __future__ import annotations
@@ -189,7 +189,7 @@ def _resolve(level: Optional[str] = None) -> Tuple[str, str]:
 
 
 def resolve_level(level: Optional[str] = None) -> str:
-    """Which of :data:`LEVELS` is in force.
+    """Return the one of :data:`LEVELS` that is in force.
 
     :param level: an explicit level, or ``None`` to resolve one from the
         environment, then the stored preference, then :data:`DEFAULT_LEVEL`.
@@ -200,7 +200,7 @@ def resolve_level(level: Optional[str] = None) -> str:
 
 
 def level_source(level: Optional[str] = None) -> str:
-    """What decided the level, for a test and for a support request.
+    """Return which source set the level, for a test or a support request.
 
     :param level: the same argument :func:`resolve_level` takes.
     :returns: one of :data:`SOURCES`.
@@ -375,7 +375,7 @@ def _coarsest(measures: Iterable[Optional[str]]) -> Optional[str]:
 
 
 def preferred_measure(process: Any = None) -> Optional[str]:
-    """Which memory definition this platform can supply.
+    """Return the most private memory measure this platform can supply.
 
     :param process: the process to probe, or ``None`` for this one.
     :returns: one of :data:`MEASURES`, or ``None`` when nothing can be read.
@@ -458,7 +458,7 @@ def tree_sample(level: Optional[str] = None, process: Any = None,
 def summarise(samples: Sequence[Mapping[str, Any]]) -> Dict[str, Any]:
     """Totals and peaks over recorded samples, and which pid held the peak.
 
-    Empty when nothing was recorded -- NOT zero, for the reason
+    Empty when nothing was recorded -- not zero, for the reason
     `spacr.fit_resources.peak` gives: "nothing was using memory" and "nobody
     measured" are opposite findings, and a summary that spells the second as
     the first invites a reader to conclude the run was cheap.
@@ -528,7 +528,7 @@ def _count(number: int, noun: str, plural: Optional[str] = None) -> str:
 
 
 def describe(samples: Sequence[Mapping[str, Any]]) -> str:
-    """The peaks as a person reads them, for a log line or a support request.
+    """Format peak readings as text lines for a log or a support request.
 
     :param samples: records from :func:`tree_sample`.
     :returns: the lines, or ``""`` when nothing was recorded.
@@ -608,8 +608,8 @@ class ResourceSampler:
     this class is imported by worker processes that have no artifacts
     database and no GUI.
 
-    At level ``"off"`` no thread is started and no file is opened, which is
-    what a thread census before and after a run is entitled to see.
+    At level ``"off"`` no thread is started and no file is opened, so a
+    thread census taken before and after a run finds no extra thread.
     """
 
     def __init__(self, path: Any = None, level: Optional[str] = None,
@@ -626,7 +626,7 @@ class ResourceSampler:
             determines the retained time span.
         :param capacity: maximum number of in-memory samples to retain,
             clamped to at least one; older samples are discarded.
-        :param label: what this record is OF -- a run id, a sweep trial -- so
+        :param label: what this record is of -- a run id, a sweep trial -- so
             a file found later can be matched to the work that made it.
         :param clock: the time source, passed in so a test can drive it.
         :raises ValueError: if an explicit level is not one of
@@ -738,7 +738,7 @@ class ResourceSampler:
         return summarise(self.samples())
 
     def describe(self) -> str:
-        """The peaks as a person reads them.
+        """Return this sampler's peaks as human-readable lines.
 
         :returns: what :func:`describe` returns, ``""`` when nothing was
             recorded.

@@ -140,9 +140,9 @@ GPU_ROOM_MB = 1024
 
 
 def resolve_mixed_precision(asked, device):
-    """(on, note). Whether to train in half precision on THIS machine.
+    """Decide whether to train with mixed precision on ``device``.
 
-    WHY IT IS WORTH HAVING. The forward pass and the loss run in float16
+    With mixed precision on, the forward pass and the loss run in float16
     while the weights and the optimiser stay in float32. Measured on an
     RTX 3090 over 30 training steps after 5 warm-up, at 224 px
     (`bench_amp.py` in the GPU queue folder reproduces it):
@@ -156,12 +156,13 @@ def resolve_mixed_precision(asked, device):
     vit_b_16, batch 32  2.46x    0.67x
     ==================  =======  =============
 
-    Half the memory is not a nicety on a screen: it is the difference
-    between a batch of 32 and a batch of 64 at the same crop size.
+    At the same crop size, the lower peak memory allows a batch of 64 where
+    full precision fits a batch of 32.
 
-    CUDA ONLY, AND SAID SO. `torch.autocast` accepts a CPU device type and
-    bfloat16, but on the CPUs spaCR runs on it is slower rather than
-    faster, so asking for it there is answered rather than obeyed.
+    Mixed precision is enabled only on CUDA. `torch.autocast` accepts a CPU
+    device type and bfloat16, but on the CPUs spaCR runs on it is slower, so
+    on any other device this returns ``False`` with a note saying the run
+    uses full precision.
 
     :param asked: what the `amp` setting says.
     :param device: the device training will actually run on.
@@ -183,10 +184,10 @@ def resolve_mixed_precision(asked, device):
 
 @contextlib.contextmanager
 def autocasting(on, device):
-    """Half precision for the block, or nothing at all.
+    """Run the enclosed block under :func:`torch.autocast` when ``on`` is true.
 
-    A context manager either way, so the training loop has ONE shape
-    rather than a branch around every forward pass.
+    A context manager is returned in both cases, so the training loop uses
+    the same ``with`` statement whether or not mixed precision is on.
 
     :param on: whether to autocast; falsy makes the block run unchanged.
     :param device: the :class:`torch.device` the block runs on; its ``type`` is
@@ -733,8 +734,9 @@ def class_labels(metrics, classes=None):
 def per_class_accuracy(metrics, classes=None):
     """``[(name, accuracy, support), …]`` for one epoch's metrics.
 
-    The single place that knows a binary head reports two classes and a
-    multiclass head reports C, so nothing downstream branches on head shape.
+    Binary and multiclass metrics are both read from their
+    ``per_class_accuracy`` and ``class_support`` lists, so callers do not
+    branch on head shape.
 
     :param metrics: one epoch's metrics dict.
     :param classes: optional class names in head order.
@@ -776,12 +778,11 @@ def attach_per_class_columns(metrics, classes=None):
 
 
 def format_per_class_accuracy(metrics, classes=None, prefix=''):
-    """One line naming every class and how it actually did.
+    """Return one line listing every class's accuracy and support.
 
-    A 96 % aggregate hiding a class at 40 % is the commonest way a
-    classifier looks finished and is not, and the aggregate is the only
-    number the epoch line used to print. The worst class is flagged
-    explicitly so it does not have to be spotted in a row of numbers.
+    An aggregate accuracy of 96 % can hide a class at 40 %. When two or more
+    classes have a finite accuracy and the lowest is at least 0.10 below the
+    highest, the line ends with a ``<- WORST`` marker naming that class.
 
     :param metrics: one epoch's metrics dict.
     :param classes: optional class names in head order.
@@ -1040,14 +1041,12 @@ CV_METRIC_KEYS = ('accuracy', 'loss', 'prauc', 'f1_macro',
                   'neg_accuracy', 'pos_accuracy')
 
 def cv_metric_keys(metrics) -> list:
-    """Which metric columns to carry across folds, for THIS class count.
+    """Return the metric names to summarise across folds.
 
-    :data:`CV_METRIC_KEYS` plus every ``acc_class_<name>`` the epoch
-    metrics carry -- named by :data:`PER_CLASS_ACC_PREFIX`, which is
-    already the one spelling of that prefix in this module. Two classes get
-    what they always got; three or more get their per-class accuracies as
-    well, which is the only part of the summary that says anything about
-    the classes.
+    The names in :data:`CV_METRIC_KEYS` that ``metrics`` contains, followed
+    by every name starting with :data:`PER_CLASS_ACC_PREFIX`
+    (``acc_class_<name>``), sorted. A run with three or more classes
+    therefore also gets one accuracy per class.
 
     :param metrics: a collection of metric names (a per-epoch metrics dict or a
         fold DataFrame's columns), tested with ``in`` and iterated for
@@ -1100,12 +1099,13 @@ def resolve_class_balance_loss(loss_type, class_balance, num_classes):
 def summarize_cv_metrics(fold_df, metric_keys=None):
     """Reduce per-fold metrics to mean plus the spread around it.
 
-    The spread is the whole point of k-fold: a single split can be lucky, and
-    only the fold-to-fold standard deviation and range say by how much.
+    The fold-to-fold standard deviation and range show how much each metric
+    depends on the particular split, which a single split cannot show.
 
     :param fold_df: DataFrame with one row per fold.
     :param metric_keys: metric columns to summarise. Defaults to
-        ``CV_METRIC_KEYS`` intersected with the columns present.
+        :func:`cv_metric_keys` of the columns present: the ``CV_METRIC_KEYS``
+        columns plus any per-class accuracy columns.
     :returns: DataFrame indexed by metric with ``n_folds``, ``mean``, ``std``,
         ``min``, ``max``, ``range`` and ``cv_percent`` columns.
     """
@@ -2094,12 +2094,11 @@ MODEL_CARD_ROLE = 'model-card'
 
 
 def held_out_report(y_true, probs, classes=None):
-    """Everything the card says about held-out performance, recomputable.
+    """Return held-out performance metrics and the confusion matrix behind them.
 
-    The card must not be the only place a number exists — a card that
-    reports 0.96 with nothing to check it against is a claim, not a record.
-    So this returns the confusion matrix alongside every derived figure, and
-    each figure is exactly the standard function of that matrix:
+    The confusion matrix is returned alongside every derived figure, so each
+    figure in the card can be checked against it. Each figure is the
+    standard function of that matrix:
     ``accuracy = trace / total`` and
     ``per_class_accuracy[c] = M[c, c] / M[c, :].sum()``. Recomputing them
     from ``confusion_matrix`` must reproduce them exactly, and the test suite
@@ -2210,20 +2209,20 @@ def build_model_card(model_path, *, settings=None, classes=None,
                      split_rule='', held_out=None, train_metrics=None,
                      dataset_src=None, class_balance=None, module='train',
                      epochs=None, history=None, extra=None):
-    """Assemble the record that travels with a checkpoint.
+    """Build the model-card dict that is written beside a checkpoint.
 
-    Answers, for a ``.pth`` somebody finds in six months: what was it trained
-    on, how was the held-out split drawn, how balanced were the classes, how
-    did it do *per class*, which spaCR wrote it, under which settings, when.
+    The card records the training data and its class balance, how the
+    held-out split was drawn, held-out and per-class performance, the spaCR
+    version, the material settings and their hash, and the creation time
+    (UTC).
 
     :param model_path: the checkpoint the card describes.
     :param settings: the run's settings; only the material ones are hashed
         and stored (:func:`spacr.artifacts.material_settings`).
     :param classes: class names in head order.
-    :param split_rule: how the held-out set was drawn, in words — the field
-        most often left implicit and most often the reason a number is wrong
-        ("random 20 % of objects" leaks across wells; "grouped by well" does
-        not).
+    :param split_rule: how the held-out set was drawn, in words ("random
+        20 % of objects" leaks across wells; "grouped by well" does not).
+        When empty, the card stores ``'not recorded'`` and adds a warning.
     :param held_out: a :func:`held_out_report` dict.
     :param train_metrics: the training-split metrics of the same epoch.
     :param dataset_src: dataset root, for the class balance on disk.
@@ -2286,7 +2285,7 @@ def build_model_card(model_path, *, settings=None, classes=None,
 
 
 def format_model_card(card):
-    """Render a card as Markdown — the version a human reads first.
+    """Return a model card as Markdown text.
 
     :param card: the model card dict, as built by :func:`build_model_card`;
         missing keys render as ``?`` or "not recorded".
@@ -2412,12 +2411,11 @@ def register_model_card(model_path, card, *, project=None, registry=None,
                         inputs=(), run_id=''):
     """Register the checkpoint and its card in the artifact registry.
 
-    Registering the *weights* with the card as ``extra`` — rather than only
-    dropping a JSON file next to them — is what makes the provenance real:
-    the row carries the content fingerprint of the ``.pth``, the settings
-    hash, the spaCR version and the ids of the artifacts it was derived from,
-    so "is this model stale?" has an answer that a hand-written note cannot
-    give.
+    The *weights* are registered, with the card stored as ``extra``, so the
+    registry row carries the content fingerprint of the ``.pth``, the
+    settings hash, the spaCR version and the ids of the artifacts it was
+    derived from. Whether a model is stale can then be checked against the
+    registry rather than against a JSON file beside the weights.
 
     :param model_path: the checkpoint.
     :param card: a :func:`build_model_card` dict, stored as provenance.
@@ -2426,8 +2424,8 @@ def register_model_card(model_path, card, *, project=None, registry=None,
     :param inputs: upstream artifact ids or :class:`spacr.artifacts.Artifact`.
     :param run_id: the run this came out of.
     :returns: the stored :class:`spacr.artifacts.Artifact`, or ``None`` when
-        the registry could not be written (a card on disk is still worth
-        having, so this never raises the run down).
+        the registry could not be written. Any exception from opening the
+        registry or registering is caught and printed, not raised.
     """
     from . import artifacts as artifacts_module
     from .ports import MODEL_WEIGHTS
@@ -2569,8 +2567,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     :param settings: the run's settings dict, recorded (hashed) in the model card.
     :param split_rule: how the held-out set was drawn, in words, for the card.
     :param write_card: write ``<model>.card.json`` beside the weights and
-        register it as an artifact. On by default: an uncarded checkpoint is a
-        file nobody can audit six months later.
+        register it as an artifact. On by default, so each checkpoint has a
+        record of its training data, split and settings.
     :returns: ``(model, model_path)`` — the trained model and the best
         checkpoint, which on a resumed run where no epoch beat the restored
         best metric is ``resume_checkpoint`` itself, or ``(None, None)`` when
@@ -3673,15 +3671,13 @@ def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
                                class_col='cv_predictions'):
     """Write per-image prediction scores back into a spacr SQLite database.
 
-    Thin wrapper over :func:`spacr.predictions.merge_cv_predictions`, which is
-    the one merge path Classify (CV) and Classify (ML) share. It used to be
-    implemented here, keyed on ``basename(png_path)``, and collapsed repeated
-    basenames with a plain ``dict`` assignment -- so a run over two source
-    folders whose plates were both called ``plate1`` scored one plate with the
-    other one's predictions and said nothing. The replacement keys on
-    ``prcfo``, refuses a key that arrives with two different values instead of
-    letting the last one win, counts every row it could not place, and runs in
-    one transaction. See :mod:`spacr.predictions`.
+    Thin wrapper over :func:`spacr.predictions.merge_cv_predictions`, the
+    merge path Classify (CV) and Classify (ML) share. The join key is chosen
+    from ``prcfo``, ``png_path`` and ``file_name``, whichever matches the most
+    rows, with ties going to ``prcfo``; a computed basename is not used. A key
+    that arrives with two different values is written nowhere and counted,
+    rows that cannot be placed are counted, and the merge runs in one
+    transaction. See :mod:`spacr.predictions`.
 
     :param df: DataFrame with columns ``path``, ``pred`` and
         ``cv_predictions``.

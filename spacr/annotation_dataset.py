@@ -1,21 +1,20 @@
 """Build an annotation set by streaming crops, and register it for annotating.
 
-WHAT THIS IS FOR. Annotating means looking at single-object crops, and until
-now the only way to get a set of them was to run Measure over a whole plate --
-about twenty minutes for 52 fields on a 30-core machine. Deciding afterwards
-that the crops should have been cut differently meant running it again.
+Annotation works on single-object crops. Producing them with Measure means
+running it over a whole plate -- about twenty minutes for 52 fields on a
+30-core machine -- and running it again to cut the crops differently.
 
 Every field's objects are already described twice over once Measure has run:
 by the label masks inside the merged arrays, and by the coordinate columns in
 ``measurements.db``. Either is enough to cut crops from, so a second set can be
 built in seconds without measuring anything again.
 
-THE TWO ROUTES ARE NOT EQUIVALENT, and the difference is not guessable:
+The two routes produce different crops:
 
 * ``array`` reads the object masks out of the merged stacks, so it can cut to
   the object itself -- masked, or to its bounding box;
 * ``database`` reads the coordinate columns, which are all the database
-  stores, so it can only ever produce a BOUNDING BOX.
+  stores, so it can only produce a bounding box.
 
 Comparing the two is therefore only meaningful with ``bounding_box=True``.
 :func:`spacr.annotation_dataset` says so in the settings it accepts, and the
@@ -70,13 +69,13 @@ _TABLE_SUFFIX = re.compile(r"^png_list(?:_(\d+))?$")
 
 
 def next_png_table(connection: sqlite3.Connection) -> str:
-    """The name a new annotation set should be written under.
+    """Return the table name a new annotation set should be written under.
 
     ``png_list`` when it is free, then ``png_list_2``, ``png_list_3`` and so
     on. An existing set is never overwritten: it may already carry
     annotations, and those are hand-made and unrecoverable.
 
-    THE CALLER MUST HOLD A WRITE TRANSACTION. Choosing a name and creating the
+    The caller must hold a write transaction. Choosing a name and creating the
     table are two steps, and two runs started together would otherwise choose
     the same one. :func:`write_png_list` does this correctly; call it rather
     than this.
@@ -100,8 +99,8 @@ def filter_selection(selection: pd.DataFrame,
                      settings: Mapping[str, Any]) -> pd.DataFrame:
     """Drop objects a run would not have cropped.
 
-    THE SAME PREDICATES `measure_crop` APPLIES, so a streamed set and a
-    measured one describe the same population. They are expressed against the
+    The predicates are the ones `measure_crop` applies, so a streamed set and
+    a measured one describe the same population. They are expressed against the
     selection table's columns rather than against a measurement frame, because
     the array route has no measurements -- only labels and geometry.
 
@@ -202,7 +201,7 @@ def png_list_frame(selection: pd.DataFrame, paths: Sequence[str]) -> pd.DataFram
 def reserve_png_table(db_path: str) -> str:
     """Claim the next free table name by creating it, empty.
 
-    RESERVED BEFORE THE CROPS ARE CUT, not after, so the folder they are
+    The name is reserved before the crops are cut, so the folder they are
     written into can be named to match: `png_list_2` gets `data_2`. Deriving
     the folder from the table is what makes a set on disk traceable to the set
     in the database -- with two independent counters they drift the first time
@@ -247,7 +246,7 @@ def write_png_list(db_path: str, frame: pd.DataFrame, *,
                    table: Optional[str] = None) -> str:
     """Write an annotation set into the measurements database.
 
-    The name is chosen and the table created inside ONE transaction, so two
+    The name is chosen and the table created inside one transaction, so two
     runs started together cannot pick the same one. A caller that already
     reserved a name with :func:`reserve_png_table` passes it as ``table``.
 

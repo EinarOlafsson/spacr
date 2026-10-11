@@ -1,27 +1,26 @@
-"""The repeated per-object settings, as one row per question.
+"""Convert per-object settings between flat keys and a table with one row per question.
 
-78 of Mask's 201 settings are the SAME 20 questions asked once per object
+78 of Mask's 201 settings are the same 20 questions asked once per object
 type -- ``cell_diameter``, ``nucleus_diameter``, ``pathogen_diameter``,
 ``organelle_diameter`` and so on across twenty shapes. A table was chosen
 over tabs and over leaving the names flat.
 
-WHY A TABLE IS NOT A COSMETIC CHOICE. The organelle count is arbitrary, up to :data:`spacr.organelle_types.MAX_ORGANELLES` of 26. A
-flat vocabulary grows by TWENTY SETTINGS per organelle, so the module would
-be asking several hundred questions at the ceiling. In a table a new
-organelle is a new COLUMN and the number of questions does not move. The two
-instructions meet exactly here, and this is the shape that lets 326 land.
+The organelle count is variable, up to
+:data:`spacr.organelle_types.MAX_ORGANELLES` of 26. A flat vocabulary grows
+by twenty settings per organelle, so Mask would ask several hundred
+questions at the maximum. In a table a new organelle is a new column and the
+number of questions does not change.
 
-WHAT THIS MODULE IS AND IS NOT. It is the MODEL: it reads a flat settings
-dict into a table and writes a table back out, losslessly. It draws nothing.
+This module is only the model: it reads a flat settings dict into a table
+and writes a table back out, losslessly. It draws nothing.
 A GUI renders :func:`to_table` and calls :func:`from_table` on edit, and the
 headless path never has to know the table exists -- the stored keys are
 unchanged, so no settings file, notebook or tutorial migrates.
 
-  THAT IS THE WHOLE POINT OF DOING IT THIS WAY. The obvious alternative --
-  storing a nested ``{question: {object: value}}`` structure -- would be a
-  file-format change, and every saved settings file, every published
-  tutorial, and the headless ``spacr-run`` path would have to move with it.
-  The presentation is what was wrong, so only the presentation changes.
+  Storing a nested ``{question: {object: value}}`` structure instead would
+  be a file-format change, and every saved settings file, every published
+  tutorial, and the headless ``spacr-run`` path would have to change with
+  it. Only the presentation changes.
 """
 from __future__ import annotations
 
@@ -127,8 +126,8 @@ def _settings_key(obj: str, question: str) -> str:
 def questions(keys: Iterable[str]) -> "List[str]":
     """The distinct questions in ``keys``, in first-seen order.
 
-    ONE ENTRY PER SHAPE, however many objects ask it. ``cell_diameter`` and
-    ``nucleus_diameter`` are one question, which is the entire saving.
+    One entry per question, however many objects ask it: ``cell_diameter``
+    and ``nucleus_diameter`` are one question, ``diameter``.
 
     :param keys: flat settings names such as ``"cell_diameter"``; names that
         do not start with a known object followed by ``_`` are skipped.
@@ -229,7 +228,7 @@ def _parse_filter_text(text) -> Tuple[Optional[float], Optional[float]]:
 
 
 def column_label(obj: str) -> str:
-    """What a column header reads.
+    """Return the column header text for ``obj``.
 
     ``organelleb`` is a storage spelling, not a thing a user recognises. The
     letter suffixes exist because object types are embedded in
@@ -282,9 +281,9 @@ def from_table(table: Mapping[str, Mapping[str, object]],
                base: Optional[Mapping[str, object]] = None) -> "Dict[str, object]":
     """Flatten a table back to settings keys, over ``base`` if given.
 
-    LOSSLESS WITH :func:`to_table`, which is what makes the table safe to use
-    as an editing surface: what the user sees is the settings file, rearranged
-    and not transformed. A test round-trips every default settings dict.
+    The inverse of :func:`to_table`, without loss: the table is the settings
+    file rearranged, not transformed, so it can be used as an editing
+    surface. A test round-trips every default settings dict.
 
     :param table: ``{question: {object: value}}``.
     :param base: the settings the table came from. Keys the table does not
@@ -300,12 +299,11 @@ def from_table(table: Mapping[str, Mapping[str, object]],
 
 def widen(table: Mapping[str, Mapping[str, object]], obj: str,
           *, like: Optional[str] = None) -> "Dict[str, Dict[str, object]]":
-    """Add a column for ``obj``, copying ``like``'s answers where it has them.
+    """Return a copy of ``table`` with a column for ``obj``, copying ``like``'s answers where it has them.
 
-    THE OPERATION 326 NEEDS, and the reason the table exists. Adding an
-    organelle is one call that adds one column; in the flat vocabulary it is
-    twenty new settings that every consumer, tooltip table and translation
-    catalog has to learn.
+    Adding an organelle is one call that adds one column; in the flat
+    vocabulary it is twenty new settings that every consumer, tooltip table
+    and translation catalog has to include.
 
     :param obj: the object to add, e.g. ``'organellec'``.
     :param like: an existing object whose answers to copy as the starting

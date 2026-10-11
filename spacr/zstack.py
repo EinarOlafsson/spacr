@@ -19,7 +19,7 @@ t half exists, so a 3-D run is unaffected by any of it.
 Four things drive the design of the z half, and each of them is a place where
 a naive 3-D implementation silently produces wrong science:
 
-**Anisotropy is the whole game.**
+**Anisotropy must be known.**
     Confocal z-spacing is routinely 3-10x the xy pixel size. A volume
     segmented as if it were isotropic merges objects along z, because a
     3-plane gap that is really 3 um reads to the segmenter as 3 pixels.
@@ -61,15 +61,17 @@ volume, and ~1.4 GB peak in :data:`MODE_VOLUMETRIC` with resampling at
 anisotropy 5 (the isotropic copy is ``anisotropy`` times taller). This is why
 :data:`MODE_VOLUMETRIC` is not the default.
 
-Scope, stated plainly
----------------------
-The functions here are correct and tested, but the *pipeline* cannot yet feed
-them: ``spacr.io._rename_and_organize_image_files`` collapses z before any
-array reaches segmentation, and ``spacr.measure`` cannot consume a 3-D label
-mask. :func:`plan_from_settings` therefore returns ``None`` whenever the 3D
-settings are off -- which is the default -- so the 2-D path is untouched, and
-:mod:`spacr.object` raises :class:`ZAxisNotPresentError` rather than quietly
-projecting when the settings are on but no z axis survived ingest.
+Scope
+-----
+The default ingest route, ``spacr.io._rename_and_organize_image_files``,
+collapses z before any array reaches segmentation. With ``z_stack=True`` and
+``z_segmentation_mode='volumetric'``, :func:`spacr.io.preprocess_img_data`
+uses a separate raw TIFF route that keeps z, and ``spacr.measure`` accepts
+``(Z, Y, X)`` label volumes. :func:`plan_from_settings` returns ``None``
+whenever the 3D settings are off -- which is the default -- so the 2-D path
+is untouched, and :mod:`spacr.object` raises :class:`ZAxisNotPresentError`
+rather than projecting when the settings are on but the batch it receives
+has no z axis.
 """
 
 from __future__ import annotations
@@ -412,7 +414,7 @@ def _bare_property(name: str) -> str:
 
 
 def describe_3d_measurement(name: str) -> Dict[str, str]:
-    """What one measurement column means in a 3-D run.
+    """Return what one measurement column means in a 3-D run.
 
     Accepts either the bare regionprops name (``"area"``) or a full column
     name carrying its object-type prefix (``"cell_area"``).
@@ -522,7 +524,7 @@ class ZAxisNotPresentError(ZStackError):
 
 @dataclass(frozen=True)
 class ZStackSpec:
-    """Everything the z plumbing needs to know about one acquisition.
+    """Axis, anisotropy and segmentation settings for one z-stack acquisition.
 
     :param z_axis: Index of the z axis in the incoming array, or ``None`` to
         detect it with :func:`detect_z_axis`.
@@ -1392,11 +1394,11 @@ BACKEND_ULTRACK = "ultrack"
 
 @dataclass(frozen=True)
 class TrackBackend:
-    """What one tracking backend can and cannot be driven to do here.
+    """Whether one tracking backend links volumes in spaCR and upstream.
 
-    Two separate booleans, because they are two separate facts and conflating
-    them is how a user ends up believing spaCR cannot do something the library
-    plainly can.
+    ``links_3d`` and ``library_links_3d`` are separate because they can
+    differ: a backend spaCR does not drive on volumes may still support 3-D
+    in its own library, and ``note`` tells the user so.
 
     :param name: the ``timelapse_mode`` / ``t_track_backend`` spelling.
     :param links_3d: whether :func:`track_4d` can drive it on a ``(Z, Y, X)``
@@ -1578,7 +1580,7 @@ class AxisOrder:
 
     @property
     def name(self) -> str:
-        """``'TZYX'``, ``'ZTYX'``, ``'TYX'`` ... in ascending axis order."""
+        """Return the axis letters in ascending axis order, e.g. ``'TZYX'``."""
         letters = {self.t_axis: "T", self.y_axis: "Y", self.x_axis: "X"}
         if self.z_axis is not None:
             letters[self.z_axis] = "Z"
@@ -1602,7 +1604,7 @@ def detect_axes(
     channel_axis: Optional[int] = None,
     strict: bool = False,
 ) -> Optional[AxisOrder]:
-    """Work out which leading axis is t and which is z, or refuse to.
+    """Return which leading axis is t and which is z, or ``None`` if ambiguous.
 
     The trailing two axes are taken to be ``(Y, X)``. That is not a guess:
     :data:`AXIS_ORDER_TZYX` and :data:`AXIS_ORDER_ZTYX` agree on it, so there
@@ -1621,9 +1623,8 @@ def detect_axes(
       user's belief about the data and the data disagree;
     * no hint at all -> ambiguous, ``None``.
 
-    There is deliberately no heuristic on the leading lengths. "Time series are
-    longer than z stacks" is true often enough to be dangerous and false often
-    enough to ruin an experiment -- a 5-timepoint acquisition of 40-plane
+    No heuristic on the leading lengths is applied: a time series is not
+    reliably longer than a z-stack, and a 5-timepoint acquisition of 40-plane
     stacks is an ordinary thing to collect.
 
     :param array: a 4-D array (or a shape tuple).
@@ -1827,7 +1828,7 @@ def resolve_axis_order(
 
 @dataclass(frozen=True)
 class TStackSpec:
-    """Everything the 4-D plumbing needs to know about one acquisition.
+    """Axis, segmentation and tracking settings for one 4-D acquisition.
 
     The geometry half (``t_axis`` ... ``voxel_size_um``) describes the data;
     the rest describes what to do with it. ``z_mode``, ``projection`` and
@@ -1947,7 +1948,7 @@ class TStackSpec:
 
     @property
     def axis_order(self) -> Optional[str]:
-        """``'TZYX'`` / ``'ZTYX'`` when the two leading axes are t and z."""
+        """Return ``'TZYX'``/``'ZTYX'`` if t, z are axes 0, 1, else ``None``."""
         if self.z_axis is None:
             return None
         if (int(self.t_axis), int(self.z_axis)) == (0, 1):
@@ -2161,7 +2162,7 @@ def segment_4d(
     fusing the two is what makes a tracker's mistakes indistinguishable from a
     segmenter's.
 
-    Two degenerate cases are not degenerate at all, and both are exact:
+    Two edge cases reproduce the lower-dimensional results exactly:
 
     * ``n_t == 1`` -- the result is the 3-D result. ``labels[0]`` is
       byte-identical to what :func:`spacr.zstack.segment_3d` returns for that
@@ -2277,7 +2278,7 @@ def _label_centroids(labels: np.ndarray):
 
 
 def project_labels(labels_3d) -> np.ndarray:
-    """Collapse a ``(Z, Y, X)`` label volume to ``(Y, X)``, honestly.
+    """Collapse a ``(Z, Y, X)`` label volume to ``(Y, X)`` by majority label.
 
     Taking a maximum along z -- what :func:`spacr.zstack.project` does to
     *intensities* -- is meaningless for labels, because label values are
@@ -2687,7 +2688,7 @@ def track_4d(
 
 
 def volume_tracks(labels_4d, spec: Optional[TStackSpec] = None):
-    """One row per object per timepoint: where it is, how big, how truncated.
+    """Return one row per object per timepoint: position, size, truncation.
 
     The first five columns are ``frame``, ``track_id``, ``original_label``,
     ``x``, ``y`` -- the same names, order and meanings that
@@ -3013,7 +3014,7 @@ def estimate_peak_bytes_4d(shape: Sequence[int], dtype=np.float32,
                             label_dtype=np.int32) -> int:
     """Peak bytes a 4-D run needs, so an acquisition can be sized before it runs.
 
-    Two terms, and the second is the one that surprises people:
+    Two terms, of which the second is usually the larger:
 
     * **one timepoint live** -- :func:`spacr.zstack.estimate_peak_bytes` for a
       single ``(Z, Y, X)`` volume, because :func:`iter_volumes` yields views

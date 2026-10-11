@@ -54,7 +54,7 @@ def _column(frame, names) -> Optional[str]:
 
 
 def fraction_column(frame) -> Optional[str]:
-    """The guide-share column.
+    """Return the first known guide-share column in ``frame``, or None.
 
     :param frame: table whose columns are searched for a known guide-share
         name.
@@ -71,14 +71,14 @@ def well_column(frame) -> Optional[str]:
 
 
 def response_column(frame, column: Optional[str] = None) -> Optional[str]:
-    """The response column, and it is worth saying how it is decided.
+    """Return the name of the response column, or None when none is found.
 
-    An explicit name always wins -- the pipeline knows its own dependent
-    variable and should pass it. Otherwise a frame with exactly one numeric
-    column is unambiguous, which is the shape `dmatrices` hands back. Only
-    past that does this guess from :data:`RESPONSE_COLUMNS`, and a panel that
-    got here by guessing names the column it drew on the axis, so the guess is
-    never invisible.
+    An explicit ``column`` is returned when the frame has it, and None
+    otherwise; the pipeline knows its dependent variable and should pass it.
+    Without one, a frame with exactly one numeric column (the shape
+    `dmatrices` returns) uses that column. Otherwise the first name in
+    :data:`RESPONSE_COLUMNS` that the frame has is used, and the panel labels
+    its axis with the column it drew.
 
     :param frame: model-input table whose numeric and named response columns
         are inspected.
@@ -119,16 +119,16 @@ def gini(values) -> float:
     everything. The standard evenness statistic for a pooled library, and the
     same one :func:`spacr.plot.plot_lorenz_curves` reports.
 
-    THE SAME STATISTIC, NOT THE SAME NUMBER, and the difference has to be
-    stated because both are labelled "Gini". The Lorenz curves take raw gRNA
+    The statistic is the same but its input is not, although both are
+    labelled "Gini". The Lorenz curves take raw gRNA
     counts pooled over a plate; this panel takes each guide's share of its own
     well divided by that well's equal split. On the tsg101 screen those are
     0.20 and 0.32 -- the panel's is larger because normalising by the well
-    removes the between-well spread that flattens the pooled curve. A reader
-    who takes one for the other will read a change in the question as a change
-    in the library.
+    removes the between-well spread that flattens the pooled curve. The two
+    values are therefore not comparable.
 
-    NaN for an empty sample or one that sums to zero, rather than a
+    NaN for an empty sample, one with a negative value, or one that sums to
+    zero, rather than a
     ZeroDivisionError or a silent 0.0 -- an evenness of zero would be read as
     "perfectly even", which is the opposite of "there was nothing to measure".
 
@@ -151,11 +151,11 @@ def relative_representation(frame, fraction: str, well: str):
     ``(values, dropped_wells, dropped_rows)``. 1.0 means the guide holds
     exactly its share; 2.0 means twice what an equal split would give it.
 
-    THE POINT OF DIVIDING. The raw fraction confounds evenness with how many
-    guides were retained in the well: a two-guide well and a fifteen-guide
-    well produce shares an order of magnitude apart with no unevenness
-    whatsoever. Dividing by the well's own equal share removes exactly that
-    and nothing else, and it is what makes a single reference line legitimate.
+    The raw fraction confounds evenness with how many guides were retained in
+    the well: a two-guide well and a fifteen-guide well produce shares an
+    order of magnitude apart with no unevenness at all. Dividing by the
+    well's own equal share removes that dependence, so a single reference
+    line at 1 applies to every well.
 
     :param frame: guide-level table containing the share and well columns.
     :param fraction: name of the guide-share column in ``frame``.
@@ -184,7 +184,7 @@ def relative_representation(frame, fraction: str, well: str):
 
 
 def shape_of(values) -> dict:
-    """Skewness, excess kurtosis and the word that goes with them.
+    """Return the skewness, excess kurtosis and a short verdict for the finite values.
 
     Returned rather than printed so a test can assert the number a reader is
     shown, and so the console summary can quote the same
@@ -217,20 +217,20 @@ def shape_of(values) -> dict:
 
 
 def one_value_per_well(frame, column: str, well: Optional[str]):
-    """The response once per well, when it is a per-well quantity.
+    """Return the response once per well when it is constant within every well.
 
     ``(values, deduplicated)``.
 
-    THE BUG THIS EXISTS FOR. The pipeline hands the response as one row per
-    guide-in-well, and the response is a property of the WELL -- on this
-    screen `log_pred` has exactly one distinct value in each of the 610 wells,
-    repeated once per guide the well retained. The old histogram therefore
-    counted a 15-guide well fifteen times and stated n = 1,945 for 610
-    independent observations, overstating the evidence three-fold and
-    reshaping the distribution towards whatever the crowded wells did.
+    The pipeline passes the response as one row per guide-in-well, but the
+    response is a property of the well -- on the reference screen `log_pred`
+    has exactly one distinct value in each of the 610 wells, repeated once
+    per guide the well retained. Counting every row would count a 15-guide
+    well fifteen times and give n = 1,945 for 610 independent observations,
+    overstating the evidence three-fold and weighting the distribution
+    towards wells with many guides.
 
-    Checked rather than assumed: a response that genuinely varies within a
-    well is left alone, because collapsing it would then be the error.
+    If the response varies within any well, every row is kept, because
+    collapsing it would then be wrong.
 
     :param frame: observation table containing the response and optional well
         identifier.
@@ -288,12 +288,13 @@ def _normal_reference(ax, values, bins_edges) -> None:
 
 def guide_fraction(ax, frame, *, well: Optional[str] = None,
                    bins: Optional[int] = None, relative: bool = True) -> Panel:
-    """Is the library evenly represented within a well?
+    """Draw a histogram of guide representation within wells on ``ax`` and return its panel record.
 
-    Each guide against its own well's equal share, on a log2 axis because the
-    quantity is a RATIO: half and twice equal representation are the same
+    Each guide's share of its well, divided by the well's equal share when
+    ``relative`` is true (the default), is plotted on a log2 axis because the
+    quantity is a ratio: half and twice equal representation are the same
     distance from 1, which they are not on a linear axis, and a library's
-    abundances are log-normal to begin with.
+    abundances are approximately log-normal.
 
     :param ax: Matplotlib axes on which to draw the histogram.
     :param frame: guide-level table containing a recognized share column and,
@@ -375,12 +376,11 @@ def guide_fraction(ax, frame, *, well: Optional[str] = None,
 def response(ax, frame, *, column: Optional[str] = None,
              well: Optional[str] = None, bins: Optional[int] = None,
              family: str = "gaussian") -> Panel:
-    """Is the fitted family's distributional assumption plausible?
+    """Draw the response histogram with skewness and excess kurtosis on ``ax`` and return its panel record.
 
-    The response with a normal of the same mean and SD over it, and the two
-    numbers that decide what a reader does next: skewness and excess
-    kurtosis. A bare "distribution of the response" leaves them to judge
-    symmetry by eye, which is exactly what nobody can do.
+    For ``family='gaussian'`` a normal curve with the response's mean and SD
+    is drawn over the histogram. Skewness and excess kurtosis are printed on
+    the panel, so symmetry does not have to be judged by eye.
 
     :param ax: Matplotlib axes on which to draw the histogram.
     :param frame: model-input table containing the response observations.
@@ -468,13 +468,13 @@ FILENAMES = {"guide_fraction": "fraction_histogram",
 
 def build_panel(key: str, frame, *, target: Optional[str] = None,
                 figsize=(3.4, 2.6), **kwargs):
-    """One distribution panel on its own figure. ``(figure, Panel)``.
+    """Draw one distribution panel on its own figure and return ``(figure, Panel)``.
 
     The same shape and the same margins as :func:`spacr.figures.sheet.build_panel`
     so a saved distribution sits beside a saved volcano at the same size on
-    the grid. The style is a CONTEXT MANAGER, as everywhere in this package:
-    spaCR draws from a long-lived GUI and a global rcParams write would
-    restyle every later figure in the session.
+    the grid. The style is applied as a context manager, as everywhere in
+    this package: spaCR draws from a long-lived GUI and a global rcParams
+    write would restyle every later figure in the session.
 
     :param key: distribution-panel name from :data:`REGISTRY`.
     :param frame: data table consumed by the selected panel.

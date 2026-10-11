@@ -1,22 +1,22 @@
-"""Phase A4: putting the phenotype acquisition on the sequencing one.
+"""Align phenotype fields to the sequencing acquisition by nuclear centroids.
 
-WHAT THIS STEP IS. The phenotype images are 2960x2960 at 20X and the
-sequencing images are 1480x1480 at 10X, of the same round well. This step
-produces one transform per phenotype field into the sequencing frame,
-aligned on the nuclear stain. IT DOES NOT RESAMPLE either acquisition into
-the other: the transform is stored and the pixels are left where they were,
-because resampling a field to compare it is a lossy way to say where it is.
+The phenotype images are 2960x2960 at 20X and the sequencing images are
+1480x1480 at 10X, of the same round well (phase A4 of the optical pooled
+screen pipeline). This step produces one transform per phenotype field into
+the sequencing frame, aligned on the nuclear stain. It does not resample
+either acquisition into the other: the transform is stored and the pixels
+are left where they were, because resampling would lose information.
 
-WHY IT IS NOT A PIXEL PROBLEM. Across a magnification change and two
-different acquisitions a pixel neighbourhood means nothing, but a nucleus is
-a nucleus at both scales. So the alignment runs on NUCLEAR CENTROIDS, and
+Across a magnification change and two different acquisitions, pixel
+neighbourhoods do not correspond, but nuclei are identifiable at both
+scales. The alignment therefore uses nuclear centroids, and
 :func:`spacr.ops_merge.align_by_triangles` proposes the transform from their
 arrangement alone.
 
-WHY THAT PROPOSAL IS NOT THE ANSWER. Measured on the real plate, the
-triangle consensus is biased and the bias grows as the correspondence
-thins. Synthetic controls built from 593 real nuclei, transform known
-exactly:
+That proposal is not used as the final transform. Measured on the real
+plate, the triangle consensus is biased and the bias grows as the
+correspondence thins. Synthetic controls built from 593 real nuclei,
+transform known exactly:
 
     what was asked for              scale returned    inliers
     identity                            0.9878          56 %
@@ -26,26 +26,23 @@ exactly:
     scale 0.25, a third kept            0.3596          15 %
 
 A 1.2 % scale error is 18 px of displacement across a 1480 px field, which
-is why an EXACT copy of a point set scores 56 % rather than 100. And the
-last two rows are the shape of every real pair this module was first tried
-on -- two tiles that partially overlap, imaged twice, are exactly "some of
-the points, moved a little".
+is why an exact copy of a point set scores 56 % rather than 100. The last
+two rows match real tile pairs: two tiles that partially overlap, imaged
+twice, share only some of their points, each displaced slightly.
 
-SO THE CONSENSUS IS A SEED AND NOT A RESULT. This module takes it, finds the
-correspondences it implies, and RE-SOLVES the similarity from those
-correspondences in closed form; then does it again on the correspondences
-the better transform implies. That is the same argument
-:func:`align_by_triangles` already makes for its translation -- "not a
-refinement, it is the difference between working and not" -- applied to the
-scale and the rotation as well.
+The consensus is therefore used as a seed. This module finds the
+correspondences the seed implies, re-solves the similarity from those
+correspondences in closed form, and repeats on the correspondences the
+improved transform implies. :func:`align_by_triangles` already
+re-estimates its translation from the matched vertices once the scale and
+rotation are fixed; here the scale and the rotation are re-solved as well.
 
-AND IT REPORTS HOW MANY NUCLEI AGREE, which the triangle consensus does not.
-`align_by_triangles` returned a transform for every pair it was ever handed,
-including phenotype tiles and sequencing tiles from opposite sides of the
-well, because three coincidentally similar triangles can always be found in
-two sets of a few hundred points. An alignment with no inlier count is not
-evidence, and PART 6-A of 372 records the same lesson about placements: a
-count of things attempted is not a measure of anything succeeding.
+The result also reports how many nuclei agree, which the triangle consensus
+does not. `align_by_triangles` returned a transform for every pair it was
+given, including phenotype tiles and sequencing tiles from opposite sides of
+the well, because three coincidentally similar triangles can always be found
+in two sets of a few hundred points. An alignment is accepted only when
+enough nuclei agree (:data:`MIN_INLIERS`, :data:`MIN_CHANCE_RATIO`).
 """
 from __future__ import annotations
 
@@ -165,9 +162,9 @@ class Alignment:
     def apply(self, points: np.ndarray) -> np.ndarray:
         """Move ``(N, 2)`` source coordinates into the target frame.
 
-        The stored transform, applied -- so a caller never has to
-        reconstruct the convention and get it the wrong way round, which is
-        what cost 372's PART 11-C a canvas one pitch per column too large.
+        Computes ``scale * (rotation @ points.T).T + translation``, so
+        callers do not reimplement the convention and risk applying it in
+        the wrong order.
 
         :param points: source-frame coordinates, an array of shape (N, 2)
             (converted to float), in the same axis order the alignment was
@@ -179,12 +176,12 @@ class Alignment:
 
 def nuclear_points(image, *, sigma: float = 3.0, min_distance: int = 8,
                    top: int = 600, percentile: float = 99.0) -> np.ndarray:
-    """Nuclear centres from a nuclear stain, without segmenting anything.
+    """Return nuclear centres as smoothed intensity peaks, without segmentation.
 
     :param image: one 2-D plane of a nuclear channel.
-    :param sigma: Gaussian smoothing before peak finding; a nucleus is a
-        blob, and smoothing at its own scale is what stops one nucleus
-        answering as three.
+    :param sigma: Gaussian smoothing before peak finding, in pixels.
+        Smoothing at roughly the nuclear scale prevents one nucleus from
+        producing several peaks.
     :param min_distance: the closest two accepted peaks may be, in pixels.
     :param top: keep at most this many, brightest first. The triangle
         matcher is quadratic in the point count and a field's brightest few
@@ -194,10 +191,10 @@ def nuclear_points(image, *, sigma: float = 3.0, min_distance: int = 8,
         this module compares were taken at different exposures.
     :returns: ``(N, 2)`` row/column centres.
 
-    A4 DOES NOT NEED MASKS. It needs points that mean the same thing in two
-    frames, and a smoothed local maximum on a nuclear stain is that at a
-    fraction of a segmentation's cost. Phase B segments, once, on the
-    composite; this is not that step and must not become it.
+    Alignment needs points that correspond between two frames, not masks; a
+    smoothed local maximum on a nuclear stain provides them at a fraction of
+    a segmentation's cost. Segmentation happens later (phase B), once, on
+    the composite.
     """
     from scipy import ndimage
     from skimage.feature import peak_local_max
@@ -224,8 +221,8 @@ def similarity_from_correspondences(source: np.ndarray, target: np.ndarray):
     Umeyama's solution: the least-squares scale, rotation and translation
     over every correspondence at once. Reflections are refused -- two
     acquisitions of one well differ by a rigid motion and a magnification,
-    never by a mirror, and allowing one lets a bad correspondence set
-    produce a transform that fits beautifully and means nothing.
+    never by a mirror, and allowing one would let a wrong correspondence set
+    produce a mirrored transform with a small residual.
     """
     src = np.asarray(source, float)
     dst = np.asarray(target, float)
@@ -304,11 +301,11 @@ def refine_similarity(source: np.ndarray, target: np.ndarray, seed,
         distances)``, or None when a round finds too few correspondences to
         solve from.
 
-    THE SEED IS ALLOWED TO BE POOR. That is the point: the triangle
-    consensus is biased by up to 44 % in scale on sparse data, and a bias
-    that large still puts most of the field within a few pixels of the
-    truth near the centre of rotation, which is enough correspondence to
-    solve properly from.
+    The seed may be inaccurate. The triangle consensus is biased by up to
+    44 % in scale on sparse data, but a bias that large still puts the
+    points near the centre of rotation within a few pixels of the truth,
+    which gives enough correspondences to solve from. The first two rounds
+    match at four and two times ``radius`` before narrowing to ``radius``.
     """
     scale, rotation, translation = seed
     result = None
@@ -340,15 +337,14 @@ def align_phenotype_to_sbs(phenotype_points: np.ndarray,
                            scale_tolerance: float = SCALE_TOLERANCE,
                            min_chance_ratio: float = MIN_CHANCE_RATIO
                            ) -> Optional[Alignment]:
-    """One phenotype field's transform into the sequencing frame.
+    """Fit one phenotype field's similarity transform into the sequencing frame.
 
     :param phenotype_points: ``(N, 2)`` nuclear centres in the phenotype
         field.
     :param sbs_points: ``(M, 2)`` nuclear centres in the sequencing field.
     :param expected_scale: target pixels per source pixel, when the
         acquisition says. Given, a second seed is tried with the scale
-        fixed -- see :func:`seed_by_scaled_pairs` for why that matters
-        more than it sounds.
+        fixed; see :func:`seed_by_scaled_pairs`.
     :param tolerance: triangle-shape tolerance for the consensus seed.
     :param radius: how close a moved nucleus must land to agree.
     :param rounds: refinement rounds.
@@ -360,21 +356,23 @@ def align_phenotype_to_sbs(phenotype_points: np.ndarray,
         ``expected_scale``, as a fraction. Ignored without one.
     :param min_chance_ratio: how many times the chance agreement rate the
         real one must beat. See :data:`MIN_CHANCE_RATIO`.
-    :returns: the :class:`Alignment`, or None -- which is what "these two
-        fields do not overlap" looks like, and it has to be sayable.
+    :returns: the :class:`Alignment`, or None when no candidate passes the
+        rotation, scale, inlier and chance-ratio checks, which is how
+        non-overlapping fields are reported.
 
-    TWO SEEDS, AND THE ONE WITH MORE NUCLEI BEHIND IT WINS. Refinement
-    converges to whatever basin its seed is in, so trying one seed and
-    refining it is a decision made before any evidence is in. Scoring both
-    on the same measure -- how many nuclei agree -- is not.
+    Up to two seeds are refined (the triangle consensus and, with
+    ``expected_scale``, the fixed-scale pair search), and the refined
+    candidate with more agreeing nuclei is kept. Refinement converges to the
+    basin its seed is in, so refining a single seed would choose the answer
+    before comparing the evidence.
 
-    BUT INLIERS ONLY DECIDE BETWEEN CANDIDATES THAT ARE PHYSICALLY
-    POSSIBLE. Scored on inliers alone, a wrong answer wins: a solution
+    Inlier counts only decide between candidates that satisfy the rotation
+    and scale bounds. Scored on inliers alone, a wrong answer wins: a solution
     148 degrees out gathered 194 nuclei, and one at scale 0.2069 against a
     true 0.25 gathered 319 -- more than the truth -- because shrinking the
-    field crowds the points. Both are excluded here before they are
-    scored, by the rotation and scale bounds, and both bounds are facts
-    about the microscope rather than thresholds anybody tuned.
+    field crowds the points. Both are excluded before they are scored, by
+    the rotation and scale bounds, which come from the microscope setup
+    rather than from tuning.
     """
     from .ops_merge import align_by_triangles
 
@@ -474,24 +472,24 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     :param target: ``(M, 2)`` points to move to.
     :param scale: target pixels per source pixel, from the acquisition.
     :param radius: how close a moved point must land to agree.
-    :param trials: how many correspondences to try. None scales it with
-        the target, which is what it has to scale with -- see
-        :data:`PAIR_TRIALS`.
+    :param trials: how many correspondences to try. None uses the larger
+        of :data:`PAIR_TRIALS` and :data:`TRIALS_PER_TARGET_POINT` times the
+        target point count.
     :param tolerance: fractional slack on a pair's separation.
     :param max_rotation: the largest rotation to consider, in degrees. See
-        :data:`MAX_ROTATION_DEGREES` -- this is what stops the search
-        returning a symmetric coincidence with a good-looking score.
+        :data:`MAX_ROTATION_DEGREES`; the bound prevents the search from
+        returning a symmetric false solution with a high inlier count.
     :param seed: the random seed, so a run is reproducible.
     :returns: ``(scale, rotation, translation)`` for the best-scoring
         correspondence, or None if none scored above two points.
 
-    WHY THIS EXISTS RATHER THAN THE TRIANGLE CONSENSUS ALONE. The consensus
-    estimates the scale, and on sparse or noisy correspondence it estimates
-    it badly -- 0.36 where the truth was 0.25, measured. Refinement cannot
-    recover from that: a transform that wrong finds a small self-consistent
-    cluster of points near its own fixed point and converges happily onto
-    it. The scale, though, is not something A4 has to estimate. It is the
-    ratio of the two acquisitions' tile pitches, and the layout knows it.
+    This complements the triangle consensus, which estimates the scale and
+    on sparse or noisy correspondence estimates it poorly -- 0.36 where the
+    truth was 0.25, measured. Refinement cannot recover from that: a
+    transform that far off finds a small self-consistent cluster of points
+    near its own fixed point and converges onto it. The scale does not need
+    to be estimated, because it is the ratio of the two acquisitions' tile
+    pitches, which the layout provides.
 
     So this fixes the scale and searches only rotation and translation,
     which two matched points determine exactly. A source pair separated by
@@ -500,9 +498,10 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     sampled target point, only its neighbours at the right distance can be
     the partner.
 
-    SCORED BY INLIERS, NOT BY RESIDUAL. A transform that maps four points
-    onto four points perfectly beats nothing; one that maps two hundred
-    within a nucleus's radius is the answer.
+    Candidates are scored by inlier count (moved points within four times
+    ``radius`` of a target point), not by residual: a transform that maps
+    four points exactly scores lower than one that maps two hundred
+    approximately.
     """
     from scipy.spatial import cKDTree
 
@@ -613,7 +612,7 @@ def _fit_raster(layout: "WellLayout",
 def phenotype_centres(layout: Union["WellLayout", int],
                       anchors: Mapping[int, Tuple[float, float]]
                       ) -> Dict[int, Tuple[float, float]]:
-    """Where every phenotype field's centre lies, from a few measured ones.
+    """Predict every phenotype field's well-frame centre from measured anchors.
 
     :param layout: the phenotype acquisition's
         :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.

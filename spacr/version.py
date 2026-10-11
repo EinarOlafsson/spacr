@@ -78,13 +78,12 @@ def __getattr__(name: str):
     :raises AttributeError: If ``name`` is not ``version_str``.
 
     ``format_version_info()`` calls ``get_torch_version()``, which imports
-    torch — roughly 0.94 s. Evaluating it at module scope meant every
-    ``import spacr`` paid for torch whether or not anything needed it, which
-    defeated the point of light entry points like :mod:`spacr.validate`,
-    whose whole value is answering in about a second before a run starts.
+    torch — roughly 0.94 s. Resolving ``version_str`` lazily keeps
+    ``import spacr`` from importing torch, so light entry points such as
+    :mod:`spacr.validate` can answer in about a second before a run starts.
 
-    ``from spacr.version import version_str`` still works unchanged; the cost
-    is now paid only by the caller that actually asks for it.
+    ``from spacr.version import version_str`` still works unchanged; torch
+    is imported only when ``version_str`` is accessed.
     """
     if name == "version_str":
         return format_version_info()

@@ -1,15 +1,15 @@
-"""The font figures are drawn in: the one that ships with spaCR.
+"""Register the Open Sans font bundled with spaCR for Matplotlib figures.
 
 Matplotlib's default is DejaVu Sans, and asking for "Helvetica" on a Linux
-machine that has no Helvetica silently falls back to it too -- so figures came
-out in a different face from the interface around them, and in a different
-face on each contributor's machine.
+machine that has no Helvetica silently falls back to it too, so figures would
+be drawn in a different face from the interface and in a different face on
+each machine.
 
 spaCR ships Open Sans (``spacr/resources/font/open_sans``), so the face is
-always present. REGISTERING IT IS THE POINT: setting the rcParam alone names a
+always present. It must also be registered: setting the rcParam alone names a
 family matplotlib may not have, and a name it cannot resolve is a silent
-fallback rather than an error. Adding the bundled files to the font manager is
-what makes the name resolve on a machine where Open Sans was never installed.
+fallback rather than an error. Adding the bundled files to the font manager
+makes the name resolve on a machine where Open Sans was never installed.
 """
 from __future__ import annotations
 

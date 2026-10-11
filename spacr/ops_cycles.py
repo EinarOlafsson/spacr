@@ -1,19 +1,20 @@
 """Registering one field across the sequencing cycles that imaged it.
 
-THE CYCLE AXIS IS NOT THE TILE AXIS, and the difference decides everything
-in this module. :mod:`spacr.ops_register` places two DIFFERENT fields that
-overlap by a fraction of a tile; here the same field is imaged eleven times
-and the stage returns to it, so the displacement is a handful of pixels
-rather than a pitch.
+Registration across cycles differs from registration across tiles.
+:mod:`spacr.ops_register` places two different fields that overlap by a
+fraction of a tile; here the same field is imaged eleven times and the stage
+returns to it, so the displacement is a handful of pixels rather than a
+pitch.
 
-AND IT CANNOT USE HOECHST. Measured on the reference acquisition: cycle 1
-holds one five-channel ``DAPI-CY3-A594-CY5-CY7`` stack per site, and
-cycles 2 to 11 hold four separate base-channel files with NO DAPI at all.
+Cycle registration cannot use Hoechst. Measured on the reference
+acquisition: cycle 1 holds one five-channel ``DAPI-CY3-A594-CY5-CY7`` stack
+per site, and cycles 2 to 11 hold four separate base-channel files with no
+DAPI channel.
 So the channel every tile-axis registration runs on does not exist on this
 axis after the first cycle, and averaging Hoechst across cycles is not
 available here either.
 
-WHAT REPLACES IT IS THE REFERENCE IMPLEMENTATION'S OWN ANSWER.
+The target used instead comes from the reference implementation.
 ``ops/firesnake.py:_align_SBS`` offers ``method='SBS_mean'`` for exactly
 this case: the maximum across the base channels, normalised by a high
 percentile and clipped, which turns four sparse spot channels into one
@@ -25,12 +26,13 @@ cycle 1:
 
     20 of 20 cycles registered.
 
-IT IS NOT A FALLBACK, IT IS THE BETTER CHANNEL. The tile axis on DAPI peaks
-at 23 to 85; this peaks at 169 to 281. Spots are punctate and abundant and
-nuclei are smooth and few, so losing the Hoechst costs nothing here.
+This target gives stronger correlation peaks than DAPI: tile registration
+on DAPI peaks at 23 to 85; this target peaks at 169 to 281. Spots are
+punctate and abundant while nuclei are smooth and few, so the missing
+Hoechst channel does not reduce registration quality.
 
-AND THE OFFSET BELONGS TO THE SITE, NOT THE CYCLE. Site 100 sits at x = 0
-to 10 across the eleven cycles and site 200 at x = 11 to 21. One rigid
+The offset depends on the site, not only on the cycle. Site 100 sits at
+x = 0 to 10 across the eleven cycles and site 200 at x = 11 to 21. One rigid
 transform per cycle for a whole well would carry that difference into every
 field, so each site is registered against its own reference -- which is
 also what the reference implementation does, one field's cycle stack at a
@@ -62,7 +64,7 @@ def sbs_mean_target(planes: Sequence[np.ndarray], *,
                     cutoff: float = 1.0) -> np.ndarray:
     """Turn one cycle's base channels into a single registration target.
 
-    THE MAXIMUM, NOT THE MEAN, over channels. A read is bright in exactly
+    The maximum over channels is used, not the mean. A read is bright in exactly
     one channel per cycle -- that is what a base call is -- so averaging
     the four divides every spot by four and leaves the background where it
     was. The maximum keeps each spot at its own brightness whichever
@@ -96,13 +98,13 @@ def register_cycles(reference: np.ndarray,
                     **kwargs) -> Dict[int, Registration]:
     """Place every cycle of one field against that field's reference.
 
-    EACH CYCLE AGAINST THE REFERENCE DIRECTLY, never against its
-    predecessor. Chaining c1->c2->c3 saves one registration and makes every
-    later cycle depend on every earlier one: a single bad link displaces
-    the rest and the residual does not say which link failed. Registering
-    each independently is what lets one cycle be dropped without costing
-    the others -- PART 9's rule that a cycle which will not register must
-    not cost the well.
+    Each cycle is registered against the reference directly, never against
+    its predecessor. Chaining c1->c2->c3 saves one registration and makes
+    every later cycle depend on every earlier one: a single bad link
+    displaces the rest and the residual does not say which link failed.
+    Registering each cycle independently lets one cycle be dropped without
+    affecting the others, so a cycle that does not register does not cost
+    the well.
 
     :param reference: the reference cycle's target, from
         :func:`sbs_mean_target`.
@@ -122,7 +124,7 @@ def register_cycles(reference: np.ndarray,
 
 
 def accepted_cycles(registrations: Mapping[int, Registration]) -> Tuple[int, ...]:
-    """The cycles whose registration was believed, in order.
+    """The cycles whose registration was accepted, in ascending order.
 
     :param registrations: the result of :func:`register_cycles`.
     :returns: the accepted cycle numbers, ascending.
@@ -266,7 +268,7 @@ def align_field(planes: Mapping[int, Optional[Sequence[np.ndarray]]], *,
         lowest cycle that has planes.
     :param tolerance: how far a cycle may land from the reference and still
         be accepted, in pixels.
-    :param gpu: let the phase correlations run on the card.
+    :param gpu: allow the phase correlations to run on the GPU.
     :returns: the aligned field.
     :raises ValueError: when no cycle has planes, or when the reference
         cycle has none.

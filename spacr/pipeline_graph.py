@@ -1,17 +1,16 @@
 """The DAG of what produced what, with staleness marked.
 
-:mod:`spacr.artifacts` already knows both halves of this picture and neither
-half is visible anywhere: ``upstream_of`` / ``downstream_of`` walk the
-provenance edges one artifact at a time, and ``is_stale`` answers "is this
-still what it was made from" for one artifact at a time. A user does not have
-one artifact. They have a project that has been run, partly re-run, and
-re-run again with a different mask diameter, and the question they actually
-ask is *which of these files can I still believe*.
+:mod:`spacr.artifacts` provides the provenance and the staleness checks one
+artifact at a time: ``upstream_of`` / ``downstream_of`` walk the provenance
+edges from one artifact, and ``is_stale`` reports whether one artifact still
+matches what it was made from. A project that has been run, partly re-run,
+and re-run again with a different mask diameter holds many artifacts, and the
+question is which of its files still match their inputs.
 
 This module turns those per-artifact answers into one whole-project graph:
 
 * every registered artifact is a :class:`Node`, carrying its module, kind,
-  path, run id, settings hash, spaCR version and — the point — its
+  path, run id, settings hash, spaCR version and its
   :attr:`Node.state`, one of :data:`STATE_CURRENT`, :data:`STATE_STALE` or
   :data:`STATE_MISSING`, together with the machine ``causes`` and the
   human ``reasons`` that :class:`spacr.artifacts.Staleness` gives;
@@ -41,8 +40,8 @@ gets a picture of the pipeline it is about to run.
 
 Everything here is read-only and headless. Nothing in this module writes to
 the registry, imports Qt, or raises for a project that has no registry at
-all — a missing ``artifacts.db`` is an empty graph with a note, because "you
-have not run anything yet" is an answer, not an error.
+all — a missing ``artifacts.db`` gives an empty graph with a note saying that
+no output has been registered yet.
 
 Public API::
 
@@ -101,7 +100,7 @@ def _utcnow() -> str:
 
 @dataclass(frozen=True)
 class Node:
-    """One registered artifact, with the verdict on whether to believe it.
+    """One registered artifact, with its staleness state and the causes.
 
     :param artifact_id: the registry id; the node's identity in the graph.
     :param project: absolute project root.
@@ -721,9 +720,9 @@ def _elide(text: str, width: int) -> str:
 def to_dot(graph: PipelineGraph) -> str:
     """Render a graph as Graphviz DOT, coloured by state.
 
-    Not used by the GUI — it draws itself — but it is what a user pastes into
-    a methods figure, and it is the cheapest way to eyeball a graph while
-    developing. No trailing newline.
+    Not used by the GUI, which draws the graph itself; the DOT text can be
+    pasted into a methods figure or used to inspect a graph during
+    development. No trailing newline.
 
     :param graph: the pipeline graph to render. Each node is labelled with its
         module, kind and path basename and filled by state; dangling edges are

@@ -311,8 +311,10 @@ def write_effects_grid(effects, folder) -> str:
     :param effects: gene-by-measurement effects table to persist.
     :param folder: run directory in which to write the grid.
 
-    Written by the sweep so the montage can read it later -- and in another
-    session, which is the half a panel-to-panel handover cannot do.
+    The sweep writes the grid as :data:`EFFECTS_GRID_FILE` in ``folder`` so
+    the montage can read it later, including in another application session.
+    An empty or missing table, an empty ``folder`` or a write error returns
+    ``""``.
     """
     import os
 
@@ -582,7 +584,7 @@ def score_window(objects: pd.DataFrame, effect: float, *,
                  baseline_label: Optional[str] = None) -> ScoreWindow:
     """Return the band of scores the coefficient ``effect`` implies.
 
-    THE RULE, stated once and applied identically to every coefficient:
+    The rule is applied identically to every coefficient:
 
     * the **target** is ``baseline + effect``. Under the well-level model a
       well's score is ``baseline + fraction * effect``, so a well made
@@ -1008,7 +1010,7 @@ class MontagePlan:
         return "\n".join(lines)
 
     def arithmetic(self) -> str:
-        """The whole sum, in words a reader can check.
+        """Return the selection arithmetic as multi-line text.
 
         Everything a reader would need to reproduce the
         selection by hand: where the baseline came from, what the target is
@@ -2119,9 +2121,9 @@ def montage_route_requirements(source, objects=None, *,
     :param channels: the channels the user asked for, if any.
     :param channels_declared: whether a channel list exists at all -- typed
         by the user or recorded by the run. ``None`` infers it from
-        ``channels``. False is the case the request names specifically: A
-        USER MISSING A CHANNEL LIST IS TOLD THAT, not told there is no
-        source.
+        ``channels``. When False, the result's ``assumed`` notes state that
+        no channel list exists and which default planes are used, rather
+        than reporting that there is no source.
     :returns: the :class:`RouteRequirements`.
     """
     choice = getattr(source, "source", source)
@@ -2247,11 +2249,11 @@ def resolve_montage_crop_source(src, *, object_type: str = "cell",
                                 ) -> CropSourceChoice:
     """Pick the crop source for a montage, and never raise for "none".
 
-    A thin wrapper on :func:`spacr.crops.resolve_crop_source`, which is the
-    module that already knows how to choose between the exported PNGs and
-    ``merged/*.npy`` and already says which it chose. The wrapper exists for
-    exactly one reason: a missing source has to arrive as a sentence the tab
-    can display, not as an exception it has to catch to stay on screen.
+    A thin wrapper on :func:`spacr.crops.resolve_crop_source`, which chooses
+    between the exported PNGs and ``merged/*.npy`` and reports which it
+    chose. The wrapper converts a :class:`spacr.crops.CropError` into a
+    :class:`CropSourceChoice` whose ``reason`` the tab can display, instead
+    of raising.
 
     :param src: a settings mapping (with ``src``, optionally
         ``crop_source``) or the experiment root / its ``merged`` folder.

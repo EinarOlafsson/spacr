@@ -39,7 +39,7 @@ def _parts(path: str) -> List[str]:
 
 
 def candidate_roots(root: Optional[str]) -> Tuple[str, ...]:
-    """Every folder ``root`` could mean, nearest first.
+    """Return the candidate root folders derived from ``root``, nearest first.
 
     :param root: plate, screen, measurements folder, or database path to
         normalize into candidate roots; ``None`` yields no candidates.
@@ -125,7 +125,7 @@ def _reroot_with_prefix(path: Optional[str], src_root: Optional[str]
 
 @dataclass(frozen=True)
 class RerootReport:
-    """What one re-rooting pass did, INCLUDING what it could not do.
+    """Result of one re-rooting pass: how many paths moved and how many did not.
 
     The last two fields are the reason this is a record and not a bare count.
     A path with no recognisable structure under the root is returned unchanged
@@ -161,24 +161,24 @@ class RerootReport:
 
     @property
     def partial(self) -> bool:
-        """Some of this column resolved and some did not.
+        """True when some paths in this column moved and some stayed unresolved.
 
-        THE DISTINCTION THAT DECIDES WHETHER TO SHOUT. A column where nothing
-        resolved and nothing existed is a ROUTE THAT IS NOT ON THIS MACHINE --
-        a screen with PNG crops and no ``merged/`` folder has 60,816 unplaceable
-        ``path_name`` values and is completely healthy. A column where most
-        paths resolved and a few did not is the actionable partial-failure
-        case.
+        This separates a partial failure from a route whose files are not on
+        this machine. A column where nothing moved usually belongs to such a
+        route -- a screen with PNG crops and no ``merged/`` folder has 60,816
+        unplaceable ``path_name`` values and is healthy (see :attr:`absent`).
+        A column where most paths resolved and a few did not is the partial
+        failure that a caller should report.
         """
         return bool(self.moved) and bool(self.unresolved)
 
     @property
     def absent(self) -> bool:
-        """Nothing in this column could be placed, and nothing already was."""
+        """True when no path in this column moved and at least one stayed unresolved."""
         return not self.moved and bool(self.unresolved)
 
     def describe(self) -> str:
-        """One line for a caller to print, or "" when there is nothing to say."""
+        """Return one line for a caller to print, or ``""`` when nothing moved or failed."""
         parts: List[str] = []
         if self.moved:
             parts.append(f"re-rooted {self.moved:,} {self.column} value(s) "
@@ -195,7 +195,7 @@ class RerootReport:
 
 
 def reroot_column(frame, column: str, src_root: Optional[str]):
-    """Re-root one path column of ``frame`` IN THE FRAME, never on disk.
+    """Re-root one path column of ``frame`` in place; files on disk are not changed.
 
     :param frame: any DataFrame; a missing column is not an error, because the
         PNG route and the merged route carry different ones and a caller

@@ -82,8 +82,8 @@ def fit_on_controls(features: np.ndarray,
     groups : sequence, optional
         One group identity per control cell, usually the well. Control cells
         from one well share illumination, seeding and fixation, so a split
-        that puts siblings on both sides reports a held-out silhouette the
-        embedding did not earn. When groups are given no group appears on
+        that puts siblings on both sides reports an inflated held-out
+        silhouette. When groups are given no group appears on
         both sides; when they are omitted the split is per object and the
         result says so in ``split_level``.
     group_by : str, default='well'

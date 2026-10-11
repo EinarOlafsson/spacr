@@ -1,30 +1,29 @@
 """The macro recorder: every run also writes the script that would repeat it.
 
-A GUI run used to leave settings behind and nothing else. The settings are
-the *inputs*, not the method — reading ``settings.json`` tells you what the
-knobs were, never which function consumed them, in what order, or how the
-second module found what the first one made. So the record of an analysis
-was a folder of numbers plus whatever the analyst remembered.
+Saved settings record the *inputs* of a run, not the method: reading
+``settings.json`` gives the values, but not which function consumed them,
+in what order, or how the second module found what the first one made.
 
-This module closes that. Every run that opens a journal
+Every run that opens a journal
 (:func:`spacr.run_journal.open_run` — the one seam the Qt GUI, the Tk GUI
-and the CLI all launch through) also emits ``macro.py``: real imports, a
-real settings dict, a real call. Run it and the same thing happens again.
+and the CLI all launch through) also writes ``macro.py``: the imports, the
+full settings dict and the entry-point call. Running the script runs the
+same steps with the same settings again.
 
-It is three deliverables in one file, and the third is why the emitted
-script is *also* a data structure:
+The script serves three purposes, and the third is why it also carries a
+data structure:
 
 **A reproducibility record.** The script is the method section. Its header
-carries the spaCR version, the run id and the settings hash, and those are
-not decoration: the run id is the id :mod:`spacr.runctx` stamped on every
+carries the spaCR version, the run id and the settings hash. The run id
+is the id :mod:`spacr.runctx` stamped on every
 log line the run emitted and :mod:`spacr.artifacts` stamped on every output
 it registered, so the script, the log and the files all join on one column.
 The settings hash is :func:`spacr.artifacts.settings_hash`, the same digest
 the artifact rows carry.
 
-**The on-ramp from clicking to the API.** A user who has outgrown the GUI
-opens ``macro.py`` and finds the code they would have written — not a
-wrapper, not a replay harness, the actual two lines.
+**A starting point for the Python API.** ``macro.py`` holds the code a
+user would write by hand — the import and the entry-point call — rather
+than a wrapper or a replay harness.
 
 **Most of the input to the methods-and-results exporter.** Which is why
 the script also carries :data:`MACRO`, a plain dict literal holding every
@@ -34,8 +33,8 @@ merely defaults, what it produced and how long it took.
 parsed, not imported — so the exporter can consume a macro it did not
 generate and does not trust.
 
-Four things the emitted script is careful about
------------------------------------------------
+Properties of the emitted script
+--------------------------------
 
 *Defaults are written out.* A settings dict that omits ``cell_diameter``
 runs with whatever spaCR's default is **today**. Pin the version and that
@@ -55,9 +54,9 @@ on becomes a named constant, and every path underneath it is rebuilt from
 that constant with :func:`os.path.join`. Repointing the whole chain at
 another plate is one edit on one line.
 
-*Nothing here may fail a run.* Recording is bracketed by
-:func:`begin_recording` / :func:`finish_recording`, both of which swallow
-everything. A macro that could not be written costs one log line.
+*Recording never fails a run.* Recording is bracketed by
+:func:`begin_recording` / :func:`finish_recording`, both of which catch
+every exception. A macro that could not be written costs one log line.
 
 Usage
 -----
@@ -1203,8 +1202,7 @@ def render(macro: Macro) -> str:
 
     :param macro: the chain to render.
     :returns: the source. Always parses: ``tests/test_macro.py`` compiles
-        every script this function produces, because a recorder that emits
-        plausible-looking code that does not run is worse than no recorder.
+        every script this function produces.
     """
     steps = list(macro.steps)
     names = _variable_names(steps)

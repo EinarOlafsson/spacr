@@ -1269,9 +1269,8 @@ def extract_crops(merged_path: str, specs: Iterable[CropSpec],
 def png_view(crop: np.ndarray) -> np.ndarray:
     """Return what a consumer sees after the crop has made the PNG round trip.
 
-    This is the contract, and it is deliberately boring: channel ``i`` of
-    the crop is channel ``i`` of the result, narrowed to 8 bit by
-    :func:`narrow_to_uint8`.
+    Channel ``i`` of the crop is channel ``i`` of the result, narrowed to
+    8 bit by :func:`narrow_to_uint8`.
 
     That holds because a crop is cut in COLOUR order -- ``CropSpec.channels``
     is ``(red_source, green_source, blue_source)``, built by
@@ -1543,12 +1542,10 @@ DEFAULT_PNG_CHANNEL_MAPPING = {"r": 2, "g": 1, "b": 0}
 def png_dims_to_channel_mapping(png_dims) -> Dict[str, Optional[int]]:
     """Translate a legacy ``png_dims`` list into an explicit ``{r, g, b}`` map.
 
-    ``png_dims`` never said which colour it meant; the answer was buried in
-    cv2's BGR interpretation of the array it was handed, which is how the
-    convention got inverted for eleven days without anyone being able to point
-    at the line that decided it. The list is still accepted -- every settings
-    CSV and every notebook in the wild holds one -- but it is translated here,
-    once, into a mapping that says what it means.
+    ``png_dims`` does not state which colour each entry fills; in the legacy
+    writer the colour followed implicitly from cv2's BGR interpretation of the
+    array. The list is still accepted, because existing settings CSVs and
+    notebooks contain it, and is translated here into an explicit mapping.
 
     The translation is the *legacy* reading, because that is the one that was
     ever on screen: entry 0 is blue, 1 is green, 2 is red.
@@ -2033,8 +2030,8 @@ def crop_format_for_png(png_path: str, db_path: Optional[str] = None,
     * a leftover ``<name>.spacr_v2`` staging file means the file next to it
       has **not** been converted yet -- it is still legacy;
     * a name in the marker's ``unconverted`` list is a file the migration
-      could not rewrite. It stays legacy for good, in a folder that is
-      otherwise format 2, so it still has to be read correctly;
+      could not rewrite. It stays in the source format (format 2) inside a
+      folder that is otherwise format 3, so it still has to be read correctly;
     * otherwise, inside a folder whose marker carries a ``migration`` block,
       a file at or before the recorded watermark is converted and one after
       it is not.
@@ -2280,9 +2277,9 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
     twice therefore cannot double-reverse anything.
 
     The one exception is a folder finished with ``on_error='skip'``: its
-    marker names the files that could not be rewritten, those stay legacy (and
-    are read as legacy) inside an otherwise format-2 folder, and a later run
-    retries **only** them.
+    marker names the files that could not be rewritten, those stay format 2
+    (and are read as format 2) inside an otherwise format-3 folder, and a
+    later run retries **only** them.
 
     :param folder: the crop folder (``.../<well>/cell_png`` and friends).
     :param mode: ``'rewrite'`` or ``'mark'``.
@@ -2370,7 +2367,7 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
         the PNG it guards.
 
         A retry run has no watermark to advance -- the folder is already
-        format 2 apart from the named leftovers -- so it rewrites the finished
+        format 3 apart from the named leftovers -- so it rewrites the finished
         marker with a shorter ``unconverted`` list instead.
         """
         if retry_only is not None:
@@ -2441,7 +2438,7 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
-    """``python -m spacr.crops <path>`` -- migrate crop folders from the shell.
+    """Migrate crop folders from the shell: ``python -m spacr.crops <path>``.
 
     Exists so the migration is a command a user can run over an old dataset,
     not a Python snippet they have to be told how to write.
@@ -2493,8 +2490,8 @@ def legacy_channel_names(channels: Iterable[str]) -> List[str]:
     A classifier trained on legacy crops learned "input plane 0 is whatever is
     in the file's red channel", and in a legacy file that is ``png_dims[-1]``.
     Feed the same model a format-2 crop and plane 0 is now ``png_dims[0]`` --
-    a permutation of its input, which it will happily score and get wrong,
-    with no error anywhere.
+    a permutation of its input, which the model scores without raising an
+    error and classifies incorrectly.
 
     Reversing the request undoes the permutation exactly: red and blue swap,
     green is unmoved. So a model trained with ``train_channels=['r','g','b']``
@@ -3107,7 +3104,7 @@ def quiet_crop_paths():
 
 
 def forget_announced_crops() -> None:
-    """Announce every path again -- a new montage is a new question."""
+    """Clear the record of announced crop paths so each is printed again."""
     _ANNOUNCED_CROPS.clear()
 
 
@@ -3126,11 +3123,11 @@ def _say_which_crop(path: str) -> None:
 
 
 class PngCropSource(CropSource):
-    """The existing behaviour: read the pre-generated PNG named by the row.
+    """Crop source that reads the pre-generated PNG named by each row.
 
-    Reads go through :func:`read_crop_png`, so a folder of legacy (format 1)
-    crops is corrected on load and comes back in the same channel order as a
-    new one -- the caller cannot tell which it opened, which is the point.
+    Reads go through :func:`read_crop_png`, which reverses format-2 files and
+    returns format-1 and format-3 files unchanged, so every folder comes back
+    in the same declared channel order whichever format it holds.
 
     :param root: optional experiment root used to re-anchor ``png_path`` values
         recorded on another machine (the same rewrite
@@ -3205,7 +3202,7 @@ class PngCropSource(CropSource):
 
 
 class MergedCropSource(CropSource):
-    """The new one: cut the crop out of ``merged/*.npy`` on demand.
+    """Crop source that cuts each crop out of ``merged/*.npy`` on demand.
 
     A row needs the merged array it came from and the object's label. Both are
     already in ``measurements.db``: ``path_name`` (written by
@@ -3590,7 +3587,7 @@ DISPLAY_ORDER_IDENTITY = "rgb"
 
 
 def display_order_indices(order: str) -> Tuple[int, int, int]:
-    """``'bgr'`` -> ``(2, 1, 0)``: which SOURCE plane each slot draws from.
+    """Return the source plane index of each slot: ``'bgr'`` -> ``(2, 1, 0)``.
 
     :param order: three letters from r/g/b, each used once.
     :returns: source index for the red, green and blue slots.

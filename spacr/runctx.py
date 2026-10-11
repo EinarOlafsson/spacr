@@ -1,28 +1,24 @@
 """The run context: one id, one seed, one error policy, for a whole run.
 
-Three things every spaCR pipeline needs and none of them had:
+The module provides three things for a pipeline run:
 
-**One run id, on every log line and every output.** A run used to be
-untraceable. The log said a field failed; the registry said an artifact
-existed; nothing connected them, so "show me everything from the run that
-produced this file" had no answer. :func:`run_context` mints one id, stamps
-it onto every :class:`logging.LogRecord` created anywhere in the process,
-writes a per-run JSONL log that :func:`read_run_log` reads back, and hands
-the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line
-and an output can therefore be joined on ``run_id``, which is the whole
-point.
+**One run id, on every log line and every output.** :func:`run_context`
+mints one id, stamps it onto every :class:`logging.LogRecord` created
+anywhere in the process, writes a per-run JSONL log that :func:`read_run_log`
+reads back, and hands the *same* id to
+:func:`spacr.artifacts.register_run_outputs`. A log line and an output can
+therefore be joined on ``run_id``, so every log record of the run that
+produced a given file can be retrieved.
 
-**One seed that reaches everything.** ``random_seed`` used to be read by
-:mod:`spacr.deep_spacr` and :mod:`spacr.sim` and nowhere else, so a
-"reproducible" run still shuffled its fields differently, split its folds
-differently and initialised Cellpose differently every time.
-:func:`seed_everything` seeds Python, NumPy (legacy global *and* the
+**One seed for every random number generator.** :func:`seed_everything`
+seeds Python, NumPy (legacy global *and* the
 :class:`~numpy.random.Generator` stream :func:`spacr_rng` hands out), Torch
-on CPU and every CUDA device, and — through those two — Cellpose. sklearn
-has no global seed at all; :func:`random_state` is what estimator
-construction sites pass. What cannot be made deterministic is listed in
-:attr:`SeedReport.caveats` and in :func:`seed_everything`'s docstring
-rather than papered over.
+on CPU and every CUDA device, and — through those two — Cellpose, so field
+shuffling, fold splits and Cellpose initialisation repeat between runs with
+the same seed. sklearn has no global seed at all; :func:`random_state` is
+what estimator construction sites pass. What cannot be made deterministic is
+listed in :attr:`SeedReport.caveats` and in :func:`seed_everything`'s
+docstring.
 
 **One error policy, honoured at every batch boundary.** ``on_error`` is a
 tri-state, default ``"stop"``:
@@ -236,7 +232,7 @@ def current_run_id() -> str:
 class RunIdFilter(logging.Filter):
     """Give every record a ``run_id`` attribute, so a formatter can use it.
 
-    Belt and braces for the record factory installed by
+    A fallback for the record factory installed by
     :func:`install_run_id_logging`: a handler whose format string contains
     ``%(run_id)s`` must never raise on a record that came from somewhere
     the factory did not reach (a record unpickled from a worker, say).
@@ -266,9 +262,9 @@ def install_run_id_logging() -> None:
     Done with :func:`logging.setLogRecordFactory` rather than a filter on
     the root logger, because a filter attached to a *logger* is consulted
     only for records logged through that logger — records propagating up
-    from ``spacr.measure`` never see it, which is every record that
-    matters. The factory sees them all, whichever handler is attached and
-    whenever it was attached.
+    from ``spacr.measure`` and other module loggers never see it. The
+    factory sees them all, whichever handler is attached and whenever it was
+    attached.
 
     Idempotent, and chains onto whatever factory is already installed
     instead of replacing it.
@@ -374,7 +370,7 @@ def read_run_log(run_id: str,
                  level: Optional[Union[int, str]] = None,
                  logger: Optional[str] = None,
                  contains: Optional[str] = None) -> List[Dict[str, Any]]:
-    """Return every log line this run emitted — "show me everything from run X".
+    """Return the log records written under ``run_id``, optionally filtered.
 
     The query side of S7. Each record is a dict with ``run_id``, ``utc``,
     ``level``, ``logger``, ``message``, ``file``, ``line``, ``process`` and
@@ -537,8 +533,8 @@ class SeedReport:
     :param unavailable: handles that could not be seeded because the
         library is not installed. Not an error — a headless analysis box
         without Torch is a supported install.
-    :param caveats: the honest part. Every place this seed does **not**
-        buy determinism, in plain sentences, so a caller can quote them
+    :param caveats: one plain sentence for every case in which this seed
+        does **not** make results deterministic, so a caller can quote them
         rather than assume a guarantee that does not exist.
     :param deterministic: whether the deterministic-kernel switches were
         requested as well.
@@ -864,9 +860,9 @@ SKIPPED = _SkippedType()
 class SkipRecord:
     """One unit of work that ``on_error='skip'`` dropped, and why.
 
-    The whole point of ``skip`` over a bare ``except: pass``: what was
-    lost is named, counted and persisted, so a run that covered 97 of 100
-    plates cannot be read as one that covered 100.
+    Unlike a bare ``except: pass``, a skip is named, counted and persisted,
+    so a run that covered 97 of 100 plates cannot be read as one that
+    covered 100.
 
     :param unit: the unit skipped — a plate folder, a well, a field file.
     :param stage: the pipeline stage it was skipped at.
@@ -1065,15 +1061,15 @@ class ErrorPolicy:
 
     Applied at a *batch boundary* — per plate, per well, per field —
     wherever the pipeline has a unit it can name. Every mode records the
-    failure on the :class:`~spacr.errors.RunLedger`, so the artifact stamp
-    tells the truth in all three cases; the mode only decides whether the
-    run survives it.
+    failure on the :class:`~spacr.errors.RunLedger` (unless ``record`` is
+    False), so the artifact stamp reports the failure in all three modes; the
+    mode only decides whether the run continues.
 
     :param mode: :data:`ON_ERROR_STOP` (default), :data:`ON_ERROR_SKIP` or
         :data:`ON_ERROR_RETRY`.
     :param attempts: total tries per unit in ``retry`` mode, including the
-        first. Bounded on purpose: an unbounded retry against a dead NAS
-        is an infinite loop with a progress bar.
+        first. Bounded, so a unit that keeps failing (for example on an
+        unreachable NAS) is not retried indefinitely.
     :param backoff: seconds before the second attempt. Doubled before each
         subsequent one, capped at :data:`MAX_BACKOFF`.
     :param ledger: the ledger to record on. One is created when omitted.
@@ -1147,7 +1143,7 @@ class ErrorPolicy:
 
     @property
     def skipped_units(self) -> List[str]:
-        """Just the names — the answer to "what did this run not cover?"."""
+        """Names of the skipped units, in the order they were skipped."""
         return [record.unit for record in self._skips]
 
     @property
@@ -1169,7 +1165,7 @@ class ErrorPolicy:
 
     def attempts_for(self, unit: Any,
                      stage: Optional[str] = None) -> Iterator[_Attempt]:
-        """Yield attempts at one unit, honouring the mode. The core of S9.
+        """Yield attempts at one unit according to the error mode.
 
         Drive it with an inner ``with``::
 
@@ -1259,8 +1255,8 @@ class ErrorPolicy:
             stage: Optional[str] = None, **kwargs: Any) -> Any:
         """Call ``fn(*args, **kwargs)`` for one unit under this policy.
 
-        The ergonomic form of :meth:`attempts_for`, for a boundary whose
-        body is already a callable.
+        A wrapper around :meth:`attempts_for` for a boundary whose body is
+        already a callable.
 
         :param unit: the thing being processed.
         :param fn: the work.
@@ -1276,7 +1272,7 @@ class ErrorPolicy:
         return result
 
     def summary(self) -> str:
-        """A one-block account of what the policy did. Empty when nothing did."""
+        """Return a multi-line report of retried and skipped units, or ``""`` if none."""
         if not self._skips and not self._retried:
             return ""
         lines = [f"on_error={self.mode}"]
@@ -1314,9 +1310,9 @@ def resolve_error_policy(settings: Optional[Mapping[str, Any]] = None,
     :param default: mode to use when the settings name none.
     :returns: an :class:`ErrorPolicy`.
     :raises ValueError: when ``on_error`` is not one of the three modes.
-        Loud on purpose: a typo like ``on_error='continue'`` silently
-        falling back to ``stop`` is how a user believes they asked for
-        tolerance and did not get it.
+        A typo such as ``on_error='continue'`` raises instead of falling
+        back to ``stop``, which would leave the user believing they had
+        asked for the run to continue past failures.
     """
     values = dict(settings or {})
     mode = values.get("on_error", default)
@@ -1622,7 +1618,7 @@ def run_context(module: str = "",
                 log: bool = True,
                 sleep: Optional[Callable[[float], None]] = None,
                 ) -> Iterator[RunContext]:
-    """Open a run: mint an id, seed the world, arm the error policy.
+    """Context manager that opens a run: mint an id, seed the RNGs, set the error policy.
 
     The one call a pipeline entry point makes. Inside the block,
     :func:`current_run_id` answers everywhere in this process (and, via

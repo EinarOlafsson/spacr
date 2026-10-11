@@ -1,18 +1,19 @@
 """Turn masks and channels into one row per object, in a database.
 
-WHAT IT IS FOR. Segmentation says WHERE the objects are; this module says
-what they are LIKE. It reads the arrays Mask wrote and produces the table
-every downstream question is asked of -- which genes changed a phenotype,
-which cells to train a classifier on, which wells to believe.
+What it is for: segmentation gives the location of each object; this module
+measures its shape, intensity, texture and spatial context. It reads the
+arrays Mask wrote and produces the per-object table that downstream analyses
+use -- which genes changed a phenotype, which cells to train a classifier on,
+which wells are reliable.
 
-WHAT IT NEEDS. A ``merged/`` folder written by
+What it needs: a ``merged/`` folder written by
 :func:`spacr.core.preprocess_generate_masks`: the intensity channels and the
 label masks for one field, saved together as ``.npy``. Which masks to measure
 is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``,
 ``pathogen_mask_dim`` and the organelle slots -- and an object with no mask
-dimension is simply not measured, rather than measured as empty.
+dimension is not measured, rather than measured as empty.
 
-WHAT IT PRODUCES.
+What it produces:
 
 * ``measurements/measurements.db``, one SQLite table per object type, one row
   per object, keyed by the plate/row/column/field/object identity
@@ -24,28 +25,28 @@ WHAT IT PRODUCES.
   Annotate shows, which is why the cropping lives here rather than beside the
   classifier: they must be cut by the same mask the measurements came from.
 
-WHAT TO DO NEXT. Annotate or Classify, if the crops were written; Regression,
-if the question is which perturbation moved which measurement. Both read the
-database this writes and neither re-measures anything.
+What to do next: Annotate or Classify, if the crops were written, or
+Regression, to test which perturbation changed which measurement. Both read
+the database this module writes and neither re-measures anything.
 
 --------------------------------------------------------------------------
 
-THREE THINGS THAT ARE NOT OBVIOUS AND ARE LOAD-BEARING:
+Three behaviours that downstream results depend on:
 
-A FIELD THAT FAILS TO MEASURE IS RECORDED, SUMMARISED AND STAMPED INTO THE
-DATABASE. Silence would let a regression analyse 344 of 384 wells and report
-a result with no sign that forty are missing, which is the failure this
-module is most careful about -- the same reason its 3-D path refuses a volume
-it cannot measure correctly instead of measuring it wrongly.
+A field that fails to measure is recorded, summarised at the end of the run
+and stamped into the database. Without that record a regression could
+analyse 344 of 384 wells and report a result with no sign that forty are
+missing; for the same reason the 3-D path refuses a volume it cannot measure
+correctly instead of measuring it wrongly.
 
-THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)``
-label volumes now (see :mod:`spacr.zstack`), and everything about voxel
-spacing, volume columns and the units stamp exists so that a 3-D field is
-measured in real units or refused. A 2-D field takes exactly the code it took
-before, with ``spacing=None``; a screen measured last year and re-measured
-today produces the same numbers.
+The 2-D path is bit-identical to the code before 3-D support. Mask can emit
+``(Z, Y, X)`` label volumes (see :mod:`spacr.zstack`), and the voxel spacing,
+volume columns and units stamp exist so that a 3-D field is measured in
+physical units or refused. A 2-D field runs the same code as before, with
+``spacing=None``, so a screen re-measured today produces the same numbers as
+when it was first measured.
 
-THE RADIUS IS IN THE COLUMN NAME. ``neighbors_within_30`` is a different
+The radius is part of the column name. ``neighbors_within_30`` is a different
 column from ``neighbors_within_50``, following the same precedent as
 ``homogeneity_distance_<d>``, so two plates measured at different radii will
 not silently concatenate into one frame that means two things.
@@ -364,17 +365,18 @@ def resolve_pool_size(n_jobs, n_files, start_method=None):
 def resolve_n_jobs(n_jobs, cpu_count=None):
     """Return the number of worker processes ``measure_crop`` will actually use.
 
-    ``None`` selects spaCR's default. Explicit values are validated and capped
-    at the available CPU count.
+    ``None`` selects spaCR's default, ``cpu_count - N_JOBS_HEADROOM`` (at
+    least 1). Explicit values are validated and capped at the available CPU
+    count.
 
-    :param n_jobs: what the user asked for. ``None`` means "pick for me".
+    :param n_jobs: the requested worker count, or ``None`` for the default.
     :param cpu_count: core count to resolve against; defaults to
         :func:`multiprocessing.cpu_count`.
     :returns: an int in ``[1, cpu_count]``.
     :raises spacr.errors.ConfigurationError: ``n_jobs`` is zero, negative, or
-        not an integer. A pool of zero workers measures nothing, and quietly
-        turning it into some other number is how a run ends up not doing what
-        it was told.
+        not an integer. A pool of zero workers measures nothing, and the value
+        is refused rather than replaced with a worker count the user did not
+        request.
     """
     cores = max(1, int(mp.cpu_count() if cpu_count is None else cpu_count))
 
@@ -1420,7 +1422,7 @@ def _morphological_measurements(
         uninfected control is a mixture whose variance hides the effect
         every infection comparison is looking for.
 
-        THE REACH IS DERIVED FROM THIS FIELD'S OWN CELLS, as a multiple of
+        The reach is derived from this field's own cells, as a multiple of
         their median diameter, so it means the same thing at 20x and 63x.
 
         Props on the LEFT, for the reason `_with_spatial` gives.
@@ -3082,8 +3084,8 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
        ``settings['png_dims']`` list that mapping is entry 0 blue, 1 green,
        2 red, so ``png_dims[0]`` lands in the file's BLUE slot.
 
-       That is the REVERSE of what ``png_dims`` reads like, and it is LEFT
-       THAT WAY ON PURPOSE: every crop already on disk was written with this
+       That is the REVERSE of what ``png_dims`` reads like, and it is kept
+       deliberately: every crop already on disk was written with this
        mapping, so flipping it would silently change what each colour means
        and invalidate the models trained on those crops. The mapping is
        declared rather than corrected.
@@ -11197,8 +11199,9 @@ def generate_cellpose_train_set(folders, dst, min_objects=5):
     :param min_objects: Minimum number of unique object labels required in a
         mask for the pair to be included. Default ``5``.
     :returns: The finalized :class:`spacr.errors.RunLedger`. Unreadable masks
-        and failed copies are recorded on it and summarised loudly at the end,
-        so a training set that is quietly short of pairs announces itself.
+        and failed copies are recorded on it, and the ledger prints a summary
+        of them at the end, so a training set with missing pairs is
+        reported.
     """
     os.makedirs(dst, exist_ok=True)
     os.makedirs(os.path.join(dst,'masks'), exist_ok=True)
@@ -11529,9 +11532,9 @@ def generate_object_dataset(
     def _in(colname, values, prefix):
         """An ``IN (...)`` clause and its parameters, built safely.
 
-        Placeholders rather than interpolation: the values come from a settings
-        file, and a formatted list is an injection waiting for a filename with a
-        quote in it.
+        Values are passed as ``?`` placeholders rather than formatted into the
+        SQL, because they come from a settings file and a value containing a
+        quote would otherwise break or alter the query.
         """
         vals = [f"{prefix}{int(v)}" if prefix else str(v) for v in values]
         placeholders = ",".join("?" for _ in vals)
@@ -11701,11 +11704,11 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
     :param limit: cap the number of objects returned.
     :param size: ``(width, height)`` to resize every crop to, or ``None`` to
         return each object's own bounding box. This is ``measure_crop``'s
-        ``png_size``, resized THE WAY THE RUN RESIZES -- the same
+        ``png_size``, resized the same way the run resizes -- the same
         ``PIL.Image.resize`` call at its default resampling -- because this
-        feeds the Measure preview, whose purpose is to show what a run will
-        write. Without it the preview showed bounding boxes while the run
-        wrote squares, and the crop-size setting looked like it did nothing.
+        feeds the Measure preview, which shows what a run will write. With
+        ``None`` the preview shows bounding boxes, while a run writes crops of
+        ``png_size``.
     :returns: list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest
         objects first.
 
@@ -11946,11 +11949,12 @@ class FieldTable:
         the files came from rather than claiming a plate that was never run.
     :ivar channel_tokens: which channel token owns which channel column, by
         position: ``channel_tokens[i]`` is the token that column ``i`` means.
-        THE TABLE REMEMBERS THIS BECAUSE THE TABLE OUTLIVES THE DROP. The
+        The table stores this because it is filled over several drops. The
         ranking that turns ``C1``/``C2`` into columns 0 and 1 is a property
-        of a SET of tokens, and a user fills this table one field at a time,
-        so without a memory the second drop would rank its own files from
-        scratch and put ``C2`` in column 0 beside the first drop's ``C1``.
+        of a set of tokens, and a user fills this table one field at a time,
+        so without the stored tokens the second drop would rank its own files
+        from scratch and put ``C2`` in column 0 beside the first drop's
+        ``C1``.
         Empty means no column means any particular token yet -- every cell
         was filled by browsing rather than by the regex.
     """
@@ -12067,8 +12071,8 @@ class TableAssignment:
     :ivar assigned: ``(path, row label, column caption)`` for every file that
         landed somewhere, in the order the paths were given.
     :ivar unassigned: ``(path, reason)`` for every file that did not. The
-        window lists these, because a file that silently vanishes is the one
-        failure a drag-and-drop table cannot afford.
+        window lists these so that no dropped file is left out without a
+        reason.
     """
 
     table: FieldTable
@@ -12091,22 +12095,21 @@ def assign_paths_by_regex(paths, pattern, *, table=None, plate=None):
       through :func:`mask_role_of`.
     * one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.
 
-    THE CHANNEL TOKEN IS RANKED, NOT READ AS A NUMBER, and that is the one
-    decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2``
-    and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is
-    no reading of ``C1`` that is right for all three -- a literal read makes
-    the first set start at channel 1 and leaves channel 0 empty for ever.
-    So the DISTINCT channel tokens are sorted (numerically on their trailing
-    digits) and mapped onto 0, 1, 2 ... in that order. The mapping is
+    The channel token is ranked, not read as a number. ``C1``/``C2``/``C3``
+    and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0,
+    1, 2, and no literal reading of ``C1`` is right for all three -- a
+    literal read makes the first set start at channel 1 and leaves channel 0
+    empty. The distinct channel tokens are therefore sorted (numerically on
+    their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is
     therefore a property of the set of files, not of any one of them, which
     is why the window shows the assignment rather than describing the rule.
 
-    THE SET IS THE TABLE'S, NOT THE DROP'S. ``table`` remembers which token
-    owns which column in :attr:`FieldTable.channel_tokens`, and a later drop
-    is ranked against the union of what it brings and what is already there.
-    A token that ranks before one already placed renumbers the columns and
-    MOVES the files already in them (:func:`_renumber_channels`), so every
-    row agrees about what channel 0 is. Ranking each drop on its own instead
+    The ranked set is the table's, not the drop's. ``table`` stores which
+    token owns which column in :attr:`FieldTable.channel_tokens`, and a later
+    drop is ranked against the union of what it brings and what is already
+    there. A token that ranks before one already placed renumbers the
+    columns and moves the files already in them (:func:`_renumber_channels`),
+    so every row agrees about what channel 0 is. Ranking each drop on its own instead
     would put a second field's ``C2`` in column 0 beside a first field's
     ``C1``, and the only sign of it would be in the database.
 
@@ -12335,12 +12338,11 @@ def _checked_label(plane, stem, path, shape):
 def write_field_table_project(table, dst):
     """Write the table out as the folders the Mask module leaves behind.
 
-    This is the whole of what the FEATURES button adds to Measure: it turns a
+    This is the only step the FEATURES button adds to Measure: it turns a
     table of hand-picked files into ``stack/``, ``masks/`` and ``merged/``
     exactly as :func:`spacr.core.preprocess_generate_masks` would have left
     them, down to the plane-layout manifest, so the run that follows is an
-    ORDINARY measure run and not a second code path that has to be kept in
-    step with this one.
+    ordinary measure run rather than a separate code path.
 
     :param table: a :class:`FieldTable` whose :meth:`FieldTable.problems` is
         empty.
@@ -12422,14 +12424,11 @@ def write_field_table_project(table, dst):
 def field_table_destination(table, dst=None):
     """Where a run of ``table`` would write, given the destination it was handed.
 
-    ONE ANSWER, so that the window and the run cannot disagree about it.
-    ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES
-    window shows it filled in and disabled; before this existed the window
-    derived it only when it had been given a destination, and a window
-    opened without one showed the settings spec's ``path`` placeholder while
-    the run wrote beside the first channel file. A disabled box captioned
-    "the table decides this" that names the wrong folder is worse than no box
-    at all -- it is the window telling the user where their results are not.
+    The window and the run both call this function, so they report the same
+    folder. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the
+    FEATURES window shows it filled in and disabled; with ``dst=None`` the
+    destination is a ``features`` folder beside the first channel file of
+    the first row.
 
     :param table: the :class:`FieldTable` the run would measure.
     :param dst: the destination the caller was given, or ``None`` to derive
@@ -12449,10 +12448,10 @@ def field_table_destination(table, dst=None):
 def measure_from_field_table(table, settings=None, dst=None, progress=None):
     """Measure a table of hand-picked images and masks. The FEATURES entry point.
 
-    The other way into this module. :func:`measure_crop` starts from a
-    ``merged/`` folder a pipeline already built; this starts from a table a
+    The second entry point into this module. :func:`measure_crop` starts from
+    a ``merged/`` folder a pipeline already built; this starts from a table a
     user filled in by dropping files onto it, writes that folder, and then
-    calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where
+    calls :func:`measure_crop` itself -- unchanged, with no flag saying where
     the fields came from. The database, the crops and the folder tree are
     therefore the Measure module's, because they are made by it.
 
@@ -12493,13 +12492,13 @@ def measure_from_field_table(table, settings=None, dst=None, progress=None):
         :func:`write_field_table_project` -- the folders it writes first.
     """
     def say(message):
-        """Report a stage, if anyone asked to hear about them.
+        """Pass a stage message to ``progress``, when a callback was given.
 
-        Guarded because the caller is a window that may be closed while this
-        is still running: the FEATURES window's callback emits a Qt signal,
-        and a worker parked past its widget's destruction raises
-        ``RuntimeError`` from the emit. A run must not fail because nobody is
-        listening to it any more.
+        Exceptions from the callback are ignored because the caller is a
+        window that may be closed while this is still running: the FEATURES
+        window's callback emits a Qt signal, and a worker that outlives its
+        widget raises ``RuntimeError`` from the emit. The run continues in
+        that case.
         """
         if progress is None:
             return

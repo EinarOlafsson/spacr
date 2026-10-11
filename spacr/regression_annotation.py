@@ -323,21 +323,21 @@ def missing_requirement(key: Any, frame: Optional[pd.DataFrame],
                         negative_control_wells: Sequence[str] = ()) -> str:
     """Why ``key`` cannot run on this table, or ``""`` when it can.
 
-    ASKED BEFORE THE RUN, NOT AFTER IT. Every refusal in this module is
-    raised while a strategy is executing, which is the right place for it
-    and the wrong time for a user: choosing "Diversity sampling over
-    clusters" on a coefficient table with no measurement columns joined to
-    it should say so on the control, not a run later. This is the cheap
-    pre-flight that lets a chooser grey itself with the reason -- it reads
-    dtypes and one column, never the whole matrix, so it can be asked on
-    every change of the menu.
+    This check is made before a run. The refusals elsewhere in this module
+    are raised while a strategy executes; this function reports the same
+    missing inputs earlier, so a chooser can disable a strategy and show the
+    reason -- for example "Diversity sampling over clusters" on a coefficient
+    table with no measurement columns joined to it. It reads the dtypes and
+    at most the score and annotation columns, never the whole matrix, so it
+    can be called on every change of the menu.
 
-    IT IS THE OPTIMISTIC HALF. An empty answer means nothing this can see
-    is missing; :func:`prepare` still reads the values and can still
-    refuse -- a score whose cells are all in one well, a feature column
-    that turns out not to vary. What it will never do is stay silent about
-    a table that has no score, no annotations, no measurements, or no
-    control wells named for the strategy that needs them.
+    An empty answer means only that nothing this check can see is missing;
+    :func:`prepare` still reads the values and can still refuse -- a score
+    whose cells are all in one well, a feature column that turns out not to
+    vary. A non-empty answer is always returned for a table with no rows, no
+    usable score or annotations, no candidate measurement columns for a
+    strategy that fits a model, or no control wells named for a strategy that
+    needs them.
 
     :param key: a strategy key, or a :class:`Strategy`.
     :param frame: the object rows on screen, or None.
@@ -565,7 +565,7 @@ def feature_columns(frame: pd.DataFrame,
 def candidate_feature_columns(frame: pd.DataFrame,
                               score_column: str = DEFAULT_SCORE_COLUMN
                               ) -> Tuple[str, ...]:
-    """The columns that COULD be features, judged on names and dtypes alone.
+    """Return columns that may be features, judged by name and dtype only.
 
     :func:`feature_columns` is the authority and it reads every value: a
     numeric column that does not vary is not a feature, and only the values
@@ -574,7 +574,7 @@ def candidate_feature_columns(frame: pd.DataFrame,
     answer "can this strategy run at all" every time a chooser changes, on
     a table that may hold half a million objects.
 
-    It is therefore the OPTIMISTIC answer: a table this accepts can still
+    The result is therefore an upper bound: a table this accepts can still
     be refused by :func:`feature_columns`, and the run is what refuses it.
     A table this rejects has no measurement column under any reading.
 

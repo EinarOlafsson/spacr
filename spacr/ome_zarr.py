@@ -1,18 +1,16 @@
-"""OME-Zarr (OME-NGFF) — read and write, with the axes and the units taken seriously.
+"""Read and write OME-Zarr (OME-NGFF) images with their axes, units and voxel sizes.
 
-OME-NGFF is where large bioimaging data is going, and the two properties that
-put it there are the two this module is built around.
+This module is built around two properties of OME-NGFF.
 
 **Chunked.** The array is stored as a grid of independently compressed blocks,
-so a 100 GB plate is readable a tile at a time. Nothing here ever reads an
-array to answer a question about it: :func:`read_ome_zarr` opens a handful of
-small JSON files and returns the levels, their shapes, their voxel sizes and
-their chunk grids without touching a single chunk, and
-:meth:`OmeZarrImage.read` with a ``region=`` decodes only the chunks that
-region intersects. Every byte of chunk data in the pure-Python path passes
-through one function, :func:`_read_chunk_bytes`, precisely so that "it is
-lazy" is a countable claim rather than a sentence in a docstring —
-``tests/test_ome_zarr.py`` counts its calls.
+so a 100 GB plate is readable a tile at a time. Metadata queries read no
+array data: :func:`read_ome_zarr` opens a handful of small JSON files and
+returns the levels, their shapes, their voxel sizes and their chunk grids
+without reading any chunk, and :meth:`OmeZarrImage.read` with a ``region=``
+decodes only the chunks that region intersects. Every byte of chunk data in
+the pure-Python path passes through one function, :func:`_read_chunk_bytes`,
+and ``tests/test_ome_zarr.py`` counts its calls to check that reads are
+lazy.
 
 **Multiscale.** The group holds a resolution pyramid, so drawing a 200 px
 plate overview does not decode full resolution. :meth:`OmeZarrImage.level_for_size`
@@ -22,44 +20,45 @@ picked level land in the same world coordinates as level 0.
 What spaCR implements itself, and what the extra is for
 -------------------------------------------------------
 The **metadata** — ``multiscales``, ``axes``, ``coordinateTransformations``,
-``omero`` — is parsed and written here, in pure Python, because that layout is
-the thing worth getting right and a library would only hide it behind a call
-that returns "an array" with the voxel size quietly dropped.
+``omero`` — is parsed and written here, in pure Python, so that the axes,
+units and voxel size are handled explicitly rather than inside a library call
+that returns only an array.
 
-The **chunk codec** is where the compiled code lives, and so it is where the
-optional extra lives. This module decodes and encodes chunks compressed with
+The **chunk codecs** are what need compiled code, so they are what the
+optional extra provides. This module decodes and encodes chunks compressed with
 ``zlib``, ``gzip``, ``bz2``, ``lzma`` or stored uncompressed using nothing but
 the standard library, which is why a spaCR-written OME-Zarr round-trips on a
 plain ``pip install spacr``. A file compressed with ``blosc``, ``zstd`` or
 ``lz4`` — the common defaults of other tools — raises
 :class:`ZarrExtraMissing`, whose message names *the codec that was needed* and
-the one command that fixes it, instead of a ``ModuleNotFoundError`` five
-frames down.
+the install command, instead of a ``ModuleNotFoundError`` raised deeper in
+the call stack.
 
 If :mod:`zarr` *is* importable, array access is delegated to it wholesale
 (see ``prefer_zarr=`` on the readers). That is the intended path: zarr handles
-v3 sharding, filter pipelines and every codec, and it is maintained by people
-who do nothing else. **The pure-Python reader is a fallback for the common
-case, not a reimplementation of zarr**, and it says so where it gives up.
+v3 sharding, filter pipelines and every codec. **The pure-Python reader is a
+fallback for the common case, not a reimplementation of zarr**, and it raises
+:class:`ZarrExtraMissing` or :class:`OmeZarrError` for what it does not
+support.
 
-Axes and units, which is the decision this module exists to get right
----------------------------------------------------------------------
+Axes and units
+--------------
 NGFF names its axes and gives each one a UDUNITS-2 unit
 (``"micrometer"``, ``"nanometer"``, ``"second"``). :class:`spacr.layers.Spacing`
 names its axes and carries one short unit token (``"um"``, ``"px"``) that
 spaCR compares *by name* when layers are stacked — that comparison, at
-``spacr/layers.py``'s ``LayerStack._check_units``, is the whole reason
-``Spacing`` has a ``units`` field at all. Mapping one onto the other has three
-decisions in it, and all three are made here rather than left to the caller.
+``spacr/layers.py``'s ``LayerStack._check_units``, is what the ``units``
+field of ``Spacing`` is for. Mapping one onto the other involves three
+decisions, and all three are made here rather than left to the caller.
 
 **1. The Spacing is built from the SPACE axes only.** A 5-D NGFF image has
 axes ``(t, c, z, y, x)``: the time axis is in seconds, the channel axis has no
 unit at all, and z/y/x are in micrometers. A single ``Spacing`` over all five
 would have to answer "what unit is this?" with one string, and whatever it
 answered would be wrong for three of the axes — a stack whose spacing claims
-``"um"`` while one of its axes steps in seconds passes the very check
-``layers.py`` exists to make, and then draws a plausible picture of the wrong
-thing. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported
+``"um"`` while one of its axes steps in seconds passes the unit check in
+``layers.py`` and is then drawn at the wrong scale. So
+:attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported
 alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`,
 :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing
 is lost; the reader does not treat seconds and micrometers as the same
@@ -70,14 +69,14 @@ refused.** :data:`NGFF_UNIT_TO_SPACR` is the mapping, written out. A unit that
 is not in it raises :class:`OmeZarrError`. It would be one line to default to
 ``"px"`` instead, and that one line is how a 0.65 µm pixel becomes a 0.65 px
 pixel and every downstream area comes out wrong by a factor of 10^6 — in a
-column named ``cell_area`` that still looks entirely reasonable. The error
-distinguishes the two cases that need different fixes: a unit NGFF has never
-heard of (the file is wrong), and a legal NGFF unit spaCR has no short token
+column named ``cell_area`` that still looks plausible. The error
+distinguishes the two cases that need different fixes: a unit NGFF does not
+define (the file is wrong), and a legal NGFF unit spaCR has no short token
 for (convert it, e.g. to ``micrometer``).
 
-**3. No unit is pixels, said out loud.** An NGFF file whose space axes carry
-no ``unit`` is legal and common — it is what every tool that never knew the
-pixel size writes. That reads back as ``units="px"`` with
+**3. A missing unit means pixels, and is reported.** An NGFF file whose
+space axes carry no ``unit`` is legal and common — it is what every tool that
+never knew the pixel size writes. That reads back as ``units="px"`` with
 :attr:`OmeZarrImage.units_declared` ``False`` and a
 :meth:`OmeZarrImage.describe` line that says the file declared none. It is
 never silently upgraded to µm, and ``"px"`` is never written out as a unit
@@ -86,13 +85,12 @@ no ``unit``, which is the same convention read back.
 
 Space axes that disagree with *each other* — y in micrometers and x in
 nanometers — are refused by name. A single ``Spacing`` has one ``units``, so
-there is no honest way to represent that; the numbers would have to be
-converted, and converting the caller's data behind their back is not this
-module's decision to make.
+it cannot represent that without converting the numbers, and this module does
+not convert the caller's data.
 
 Versions
 --------
-**0.4 is implemented properly** — it is what essentially all real data is in,
+**0.4 is fully implemented** — it is what essentially all real data is in,
 and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` key in
 ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks
 are decoded for the codec chains the standard library can do
@@ -120,9 +118,9 @@ Typical use::
         levels=4, channel_names=("DAPI", "GFP"),
     )
 
-Downsampling, and the transformation bug it is easy to write
-------------------------------------------------------------
-The writer builds a real pyramid by **2x block mean over the two
+Downsampling and pyramid transformations
+----------------------------------------
+The writer builds a pyramid by **2x block mean over the two
 fastest-varying space axes** (see :func:`write_ome_zarr`). It is a box filter
 and **not a Gaussian pyramid**: there is no pre-filter beyond the box, so it
 aliases where a properly filtered pyramid would not. It is chosen anyway
@@ -133,8 +131,8 @@ matters more here than a marginally better kernel. Striding
 arrays**: the mean of labels 3 and 5 is 4, an object that does not exist.
 
 Level *k*'s ``scale`` is level 0's ``scale`` multiplied by the cumulative
-factor 2^k on each downsampled axis, and leaving it at level 0's value is the
-single most common NGFF bug — it renders as a pyramid whose coarse levels are
+factor 2^k on each downsampled axis. Leaving it at level 0's value is a
+common NGFF bug — it renders as a pyramid whose coarse levels are
 a quarter the size of the fine ones and drift off the top-left corner as you
 zoom. The ``translation`` moves too, and by a different rule per method: a
 block mean puts the first output element at the *centre* of the block it
@@ -205,7 +203,7 @@ __all__ = [
 
 
 class OmeZarrError(ValueError):
-    """An OME-Zarr that cannot mean what it says, or a request that cannot be met.
+    """Raised for OME-Zarr metadata that is invalid or inconsistent, or a request that cannot be met.
 
     Raised rather than repaired, for the reason :class:`spacr.layers.LayerError`
     is: every case this covers — an unknown unit, space axes in two different
@@ -320,7 +318,7 @@ STDLIB_CODECS: Dict[str, Callable[[bytes], bytes]] = {
 
 
 def require_zarr():
-    """Import and return :mod:`zarr`, or raise a message worth reading.
+    """Import and return :mod:`zarr`, or raise :class:`ZarrExtraMissing` with install instructions.
 
     :returns: the imported :mod:`zarr` module.
     :raises ZarrExtraMissing: when the extra is not installed, with the
@@ -620,9 +618,9 @@ def spacr_unit_to_ngff(units: str) -> Optional[str]:
 class Axis:
     """One NGFF axis: what it is called, what kind it is, and how big a step is.
 
-    A faithful record of the file, not an interpretation of it: :attr:`unit`
-    holds the NGFF name as written, even in the cases spaCR would not write
-    itself (a channel axis with a unit, say). The interpretation happens in
+    The axis records the file as written: :attr:`unit` holds the NGFF name
+    as written, even in the cases spaCR would not write itself (a channel
+    axis with a unit, say). The interpretation happens in
     :meth:`spacr_units` and in :func:`spacing_from_axes`, where it can refuse.
 
     :param name: the axis name — ``"t"``, ``"c"``, ``"z"``, ``"y"``, ``"x"``.
@@ -707,7 +705,7 @@ class Axis:
     @classmethod
     def time(cls, name: str = "t", scale: float = 1.0,
              unit: Optional[str] = "second", translate: float = 0.0) -> "Axis":
-        """A time axis. Kept out of the spacing; reported beside it.
+        """Return a time axis, which is excluded from the spacing.
 
         :param name: defaults to ``"t"``. The type is forced to time whatever
             the name says, so ``Axis.time("x")`` is an axis called x that
@@ -731,7 +729,7 @@ class Axis:
 
     @classmethod
     def channel(cls, name: str = "c") -> "Axis":
-        """A channel axis. No unit, ever: a channel index measures nothing."""
+        """Return a channel axis with no unit and a scale of 1."""
         return cls(name=name, type=AXIS_CHANNEL, unit=None, scale=1.0)
 
     @property
@@ -794,10 +792,11 @@ def _axis_from_ngff(entry: Any, index: int) -> Axis:
 def spacing_from_axes(axes: Sequence[Axis]) -> Spacing:
     """Build a :class:`spacr.layers.Spacing` from the SPACE axes only.
 
-    The exclusion is the point. A spacing has one ``units`` string and
-    :class:`spacr.layers.LayerStack` compares it by name; a spacing that mixed
-    a time axis in seconds with a y axis in micrometers would answer that
-    comparison with a string that is wrong for one of them, and pass.
+    Non-space axes are excluded because a spacing has one ``units`` string
+    and :class:`spacr.layers.LayerStack` compares it by name; a spacing that
+    mixed a time axis in seconds with a y axis in micrometers would carry a
+    unit string that is wrong for one of them and still pass that
+    comparison.
 
     :param axes: every axis of the image, in array order.
     :returns: a spacing over the spatial axes, in the same relative order,
@@ -1372,7 +1371,7 @@ class OmeZarrImage:
     :param axes: every axis, in array order, with level-0 scale and
         translation on each.
     :param levels: the resolution pyramid, level 0 first.
-    :param ngff_version: what the file says it is.
+    :param ngff_version: the NGFF version the file declares, e.g. ``"0.4"``.
     :param name: the ``multiscales`` name, if any.
     :param channel_names: from the ``omero`` block when present — spaCR has
         channel names to fill in, so they are read and written rather than
@@ -1382,8 +1381,8 @@ class OmeZarrImage:
     :param units_declared: ``False`` when the space axes carried no unit, so
         :attr:`spacing` is in pixels *because the file said nothing*, not
         because it said pixels. Never quietly upgraded to micrometers.
-    :param multiscale: the raw ``multiscales`` entry, for anything here does
-        not model.
+    :param multiscale: the raw ``multiscales`` entry, for anything this class
+        does not model.
 
     An image opened from cloud storage also keeps the opened location, with
     the credentials it was opened with, so that :meth:`read` reaches the
@@ -1523,8 +1522,8 @@ class OmeZarrImage:
                        axes: Sequence[str] = ("y", "x")) -> int:
         """Index of the coarsest level still at least ``size`` along ``axes``.
 
-        This is the multiscale payoff: drawing a 200 px thumbnail of a 40k x
-        40k plate should decode a 300 x 300 level, not decimate the full one.
+        Drawing a 200 px thumbnail of a 40k x 40k plate then decodes a
+        300 x 300 level instead of decimating the full one.
         The rule is "coarsest that does not need upsampling" — never return a
         level smaller than asked for while a bigger one exists, because
         upsampling to fill the request shows a blur where there is detail. If
@@ -1850,16 +1849,15 @@ def read_ome_zarr(path: Union[str, os.PathLike], *,
 
     Everything this reads is small JSON: the group's ``.zattrs`` (or the
     ``attributes`` of its ``zarr.json``) and one ``.zarray`` per level. So
-    asking a 100 GB plate what its levels, shapes, voxel size and channels are
-    costs a few kilobytes, which is the property the whole format exists for.
+    reading the levels, shapes, voxel size and channels of a 100 GB plate
+    costs a few kilobytes.
 
     :param path: the group directory — the one holding ``multiscales``. For a
         plate that is ``<plate>.zarr/<row>/<column>/<field>``. An
         ``s3://``, ``gs://``, ``az://`` or ``https://`` address is read from
         cloud storage, fetching only the metadata files.
     :param multiscale_index: which ``multiscales`` entry to read. NGFF permits
-        several; spaCR reads the first by default and says so here rather than
-        pretending there can only be one.
+        several; the first (index ``0``) is read by default.
     :returns: the opened :class:`OmeZarrImage`.
     :raises OmeZarrError: when the directory is not a zarr group, has no
         ``multiscales``, declares a zarr format spaCR does not read, or
@@ -2160,8 +2158,9 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
                    ngff_version: str = "0.4") -> OmeZarrImage:
     """Write an array as an OME-NGFF 0.4 multiscale image.
 
-    The defaults are chosen so the result is readable by anything: zarr-format
-    2, ``zlib`` chunks (which need no extra), ``/`` separators, and the
+    The defaults are chosen for compatibility with other NGFF readers:
+    zarr-format 2, ``zlib`` chunks (which need no extra), ``/`` separators,
+    and the
     ``axes``/``coordinateTransformations`` metadata filled in from the
     spacing rather than left at 1.0.
 
@@ -2179,7 +2178,7 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
 
     **The transformations.** Level *k*'s ``scale`` is level 0's multiplied by
     2^k on each downsampled axis — writing level 0's scale on every level is
-    the most common NGFF bug there is, and it renders as coarse levels that
+    a common NGFF bug, and it renders as coarse levels that
     are a quarter the size of the fine ones and slide off the corner as you
     zoom. The ``translation`` moves too, and differently per method: a block
     mean centres its first output element half a level-0 pixel inside the
@@ -2195,7 +2194,7 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
     :param array: the image data, 2 to 5 dimensional.
     :param spacing: the voxel size, over the SPACE axes. Defaults to an
         isotropic pixel grid, which writes axes with no ``unit`` — legal NGFF
-        and honestly what is known.
+        that records the physical size as unknown.
     :param axes: axis names, or :class:`Axis` objects for full control of the
         non-spatial axes (a time step, say). Derived from ``spacing`` and the
         array's rank when omitted.
@@ -2211,12 +2210,12 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
         default needs no extra by design.
     :param compression_level: for the codecs that take one.
     :param order: ``"C"`` or ``"F"`` chunk memory order.
-    :param dimension_separator: ``"/"`` (nested directories, the default, and
-        much kinder to filesystems at 10^5 chunks) or ``"."`` (flat).
+    :param dimension_separator: ``"/"`` (nested directories, the default,
+        which keeps each directory small at 10^5 chunks) or ``"."`` (flat).
     :param fill_value: what an unwritten chunk reads back as.
     :param write_empty_chunks: write chunks that are entirely ``fill_value``.
-        ``False`` (the default) omits them, which is how a sparse mask stops
-        costing what a dense one does.
+        ``False`` (the default) omits them, so a sparse mask takes less disk
+        space than a dense one.
     :param channel_names: channel labels, written into the ``omero`` block
         along with per-channel display windows measured from the data.
     :param channel_colors: hex RGB per channel; defaults to

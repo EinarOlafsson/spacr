@@ -149,7 +149,7 @@ def read_profile(path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """The command line the installers call this module with.
+    """Return the argument parser for the command line the installers use.
 
     Separate from :func:`main` so the installer scripts and the tests can
     inspect the accepted options without running an install -- an argument
@@ -158,7 +158,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     The four consent flags take ``"0"`` / ``"1"`` rather than being
     store_true switches: the installer passes a value for every one of them
-    on every run, so an unchecked box is recorded as a deliberate NO rather
+    on every run, so an unchecked box is recorded as a deliberate no rather
     than as an absent answer.
 
     :returns: the parser, with ``--path``, ``--requested``, ``--detected``

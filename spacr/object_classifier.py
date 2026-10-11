@@ -1,18 +1,18 @@
-"""Say what each object in a mask is, after any segmenter has made it.
+"""Classify the objects of a label mask, whichever segmenter produced it.
 
 Segmentation answers "where is there an object"; this answers
 "what is it". The two are kept apart on purpose: the same classification
 must be available whether spaCR segmented the field a moment ago or is
 handed a mask Cellpose wrote last week.
 
-TWO WAYS IN:
+There are two entry points:
 
 * :func:`segment_and_classify` takes a segmentation backend and its
   options, segments, and classifies what it made.
 * :func:`classify_objects` takes an image and a mask that already exists
   and classifies it as it stands. Nothing is re-segmented.
 
-WHAT A HEAD IS. A head is a trained classifier: it is handed a batch of
+A head is a trained classifier: it is handed a batch of
 crops and returns a class and a probability for each. It is a protocol
 rather than a base class, so an adapter around a torch module or a
 scikit-learn estimator can supply it. Two applications are planned -- parasites per
@@ -26,8 +26,8 @@ belong to one biological object. Border contact and split candidates are
 reported separately; automatic merging excludes either object touching the
 field edge. Merge accuracy still requires independently labelled examples.
 
-IDS ARE NEVER RENUMBERED. Everything here keys on the label ids the mask
-arrived with, and every mask it returns keeps them. `canonical_labels` in
+Label ids are never renumbered. Everything here keys on the label ids of
+the input mask, and every mask it returns keeps them. `canonical_labels` in
 `mask_engine` says what renumbering costs: the measurements, the crops and
 the tracks are all keyed on those ids.
 """
@@ -63,15 +63,14 @@ PV_BINS: Tuple[int, ...] = (1, 2, 4, 8, 16)
 def bin_parasite_count(count: float) -> str:
     """Put a predicted parasite count in the bin a report shows it in.
 
-    THE BIN IS A DISPLAY CHOICE, NOT A TRAINED ONE. The head predicts how
-    many parasites it sees; this is only how that number is shown. That
-    matters because the rule below can change -- or be replaced by a different one
-    per report -- without retraining anything.
+    The bin is a display choice, not a trained one. The head predicts a
+    parasite count; this function only decides how that number is shown, so
+    the rule below can change -- or be replaced by a different one per
+    report -- without retraining anything.
 
-    TIES GO DOWN, and 12 is the case: it is four from 8 and four from 16.
-    A vacuole of 12 has finished eight and is partway to sixteen, so it is
-    reported as the round it has completed rather than the one it has
-    not.
+    The count goes to the nearest bin, and a tie goes to the lower bin: 12
+    is four from 8 and four from 16 and is reported as ``"8"``, the round of
+    division the vacuole has completed.
 
     :param count: finite, nonnegative count, including fractional predictions.
     :returns: one of ``"1"``, ``"2"``, ``"4"``, ``"8"``, ``"16"`` or
@@ -282,7 +281,7 @@ def remove_labels(mask: np.ndarray, labels: Iterable[int]) -> np.ndarray:
 
 
 def describe_objects(mask: np.ndarray) -> List[Dict[str, Any]]:
-    """What can be said about every object without a trained head at all.
+    """Return per-object geometry that needs no trained head.
 
     :param mask: the label image.
     :returns: one row per object -- ``label``, ``area``, ``touches_border``
