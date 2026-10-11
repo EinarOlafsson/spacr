@@ -56,6 +56,13 @@ pytestmark = pytest.mark.qt
 
 #: Driven through `launch()` in a child process rather than in-process.
 #:
+#: The child prints its result flushed and leaves with ``os._exit``. Its
+#: stubbed ``exec()`` returns without quitting, so ``aboutToQuit`` never
+#: drains the jobs the window started, and interpreter shutdown then
+#: destroyed a still-running bridge QThread: an abort or segfault after the
+#: result had been written to a pipe buffer that was never flushed, which
+#: the N47 serial Qt run reported as "launch() produced no result".
+#:
 #: The claim is about ORDER -- that the names are set before the application
 #: object exists -- and a process that already has a ``QApplication`` cannot
 #: observe that moment. It also keeps the application-wide rename out of the
@@ -96,7 +103,8 @@ _NAME_PROBE = textwrap.dedent('''
     app_mod.QApplication = RecordingApplication
     app_mod.MainWindow = RecordingWindow
     seen["rc"] = app_mod.launch(["--no-setup"])
-    print("RESULT " + json.dumps(seen))
+    print("RESULT " + json.dumps(seen), flush=True)
+    os._exit(0)
 ''')
 
 
