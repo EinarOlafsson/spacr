@@ -33,6 +33,23 @@ def test_prepared_inputs_are_copied_byte_for_byte_with_a_manifest(tmp_path):
     assert recorded['sha256'] == manifest
 
 
+def test_prepared_inputs_keep_file_and_folder_ages(tmp_path):
+    import os
+    source = tmp_path / 'inputs'
+    folder = source / 'app-state/runs/tutorial-prune-example-1'
+    folder.mkdir(parents=True)
+    (folder / 'README.txt').write_text('Disposable Storage demonstration')
+    old = 1_000_000_000
+    os.utime(folder / 'README.txt', (old, old))
+    os.utime(folder, (old, old))
+    stage = tmp_path / 'stage'
+    stage.mkdir()
+    copy_inputs(source, stage)
+    copied = stage / 'app-state/runs/tutorial-prune-example-1'
+    assert int(copied.stat().st_mtime) == old
+    assert int((copied / 'README.txt').stat().st_mtime) == old
+
+
 @pytest.mark.parametrize('evidence', ['captures/make_masks/frames.json', 'exact-source.json'])
 def test_prepared_inputs_cannot_supply_capture_evidence(tmp_path, evidence):
     source = tmp_path / 'inputs'
