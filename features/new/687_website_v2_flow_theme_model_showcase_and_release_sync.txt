@@ -334,3 +334,26 @@ Verified live: 91/91 site checks and 20/20 theme checks headless, including
 themed-picture switching; no horizontal scroll at 375 px; Lighthouse mobile
 home 100/100, spaCR 95/97/95 (performance, three runs; accessibility 100),
 spaCR/de 96/100, lock pages 100/100.
+
+
+2026-10-11 (round 5) — site-src 5b177ad, deploy run 38137866952, live
+build 2026-10-11T12:04:29Z.
+- Screen results: preprint Fig. 5 replaced by permutation tests in the layout
+  of preprint Figure S7 R/S. spaCR perform_regression,
+  analysis_mode=guide_permutation (spacr.guide_permutation, within-plate
+  Freedman-Lane, partial r given plate, row and column), 2,000,000
+  permutations, seed 0, on the MaxViT per-cell scores of all four plates.
+  The public plate<N>_dv.csv 'pred' column is byte-identical to the
+  manuscript's MaxViT source data. Shipped spacr-example-hit settings.
+  Results: SAG1, GRA14 and EAF1 pass BH q < 0.05 and the effect cut (0.221);
+  GRA12B passes q only. The numbers differ from S7 because the example keeps
+  control wells and guides in, and the caption says so. Dark and light
+  pairs; the null panel for GRA14, EAF1 and SAG1 matches spaCR's
+  exceedance counts. OLS volcano kept.
+- About: affiliation (Research Investigator, Microbiology & Immunology,
+  University of Michigan), a factual biography from the GitHub profile, and
+  the contact mailto.
+- Phenotypes: the Measure crops screenshot and the recruitment-field strip
+  removed.
+Verified live: 93/93 headless checks. Lighthouse mobile: home 100/100,
+spaCR 96/100 (three runs), spaCR/de 96/100, lock pages 100/100.
