@@ -26,7 +26,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from ...sra import estimated_bytes, fetch_reads, runs_for
+from ...sra import (_cached_reads_per_file, _cached_runs, estimated_bytes,
+                    fetch_reads, runs_for)
 from ..bridge import emit_safely
 from ..i18n import tr
 
@@ -180,7 +181,24 @@ class SraPicker(QDialog):
         self.adjustSize()
 
     def _load_the_listing(self) -> None:
-        """Ask ENA what the project holds. A failure is said, not raised."""
+        """List the project's runs. A failure is said, not raised.
+
+        The cached read set's own copy of ENA's listing is used when it is
+        downloaded, so the dialog opens without the network; ENA is asked
+        otherwise.
+        """
+        try:
+            cached = _cached_runs()
+        except Exception:                         # noqa: BLE001
+            cached = ()
+        if cached:
+            self._files = cached
+            self._blurb.setText(self._blurb.text() + " " + tr(
+                "Up to {reads} reads from each file come from the cached "
+                "copy, without the network.",
+                reads=f"{_cached_reads_per_file():,}"))
+            self._show(self._files)
+            return
         try:
             self._files = runs_for()
         except Exception as exc:                  # noqa: BLE001

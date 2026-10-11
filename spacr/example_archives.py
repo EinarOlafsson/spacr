@@ -55,6 +55,7 @@ __all__ = [
     "RECRUITMENT_EXAMPLE_REPO",
     "REPLICATION_EXAMPLE_REPO",
     "OPS_EXAMPLE_REPO",
+    "READS_EXAMPLE_REPO",
     "SETTINGS_REPO",
     "STITCH_EXAMPLE_REPO",
     "download_archive",
@@ -149,6 +150,12 @@ CONTROL_CHART_EXAMPLE_REPO = "einarolafsson/spacr-example-control-chart"
 #: ``tools/build_hit_example_dataset.py``.
 HIT_EXAMPLE_REPO = "einarolafsson/spacr-example-hit"
 
+#: Map Barcodes' cached reads: the first 100,000 reads of each of the eight
+#: published FASTQ files of BioProject PRJNA1261935, with ENA's listing of the
+#: project, so Load test data works without reaching ENA. See
+#: ``tools/build_reads_example_dataset.py`` and :mod:`spacr.sra`.
+READS_EXAMPLE_REPO = "einarolafsson/spacr-example-reads"
+
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
 
@@ -198,6 +205,7 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     DOSE_EXAMPLE_REPO: "spacr-example-dose.tar",
     CONTROL_CHART_EXAMPLE_REPO: "spacr-example-control-chart.tar",
     HIT_EXAMPLE_REPO: "spacr-example-hit.tar",
+    READS_EXAMPLE_REPO: "spacr-example-reads.tar",
 }
 
 
@@ -392,6 +400,17 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         bytes=27_791_360,
         markers=("hit.json", "measurements/measurements.db"),
         folder="hit_example",
+        in_default=False,
+    ),
+    ExampleSet(
+        key="reads",
+        repo=READS_EXAMPLE_REPO,
+        summary="Map Barcodes test reads: the first 100,000 reads of each "
+                "of the eight published FASTQ files (PRJNA1261935), so Load "
+                "test data works offline.",
+        bytes=27_000_000,
+        markers=("manifest.json", "filereport.tsv", "*_1.fastq.gz"),
+        folder="reads",
         in_default=False,
     ),
 )
