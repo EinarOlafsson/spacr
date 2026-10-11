@@ -3629,49 +3629,42 @@ def _st_stain(stack: np.ndarray, stain: str, rgb: bool) -> np.ndarray:
 
 
 def _st_overview(slide: Mapping[str, Any], geometry: Mapping[str, Any],
-                 region: Tuple[int, int, int, int], stain: str
-                 ) -> np.ndarray:
-    """A small stain image of the region, for one slide-wide threshold.
+                 region: Tuple[int, int, int, int], stain: str,
+                 side: int = 512) -> np.ndarray:
+    """A sample of the region's stain image, for one slide-wide threshold.
 
-    The coarsest pyramid level no wider than 4096 pixels is read; an image
-    without levels gives a window of at most 2048 pixels at the region's
-    centre.
+    Nine windows of at most ``side`` pixels are read at the chosen level,
+    centred at a sixth, a half and five sixths of the region's width and
+    height, so the threshold sees nuclei at the resolution they are
+    segmented at; a pyramid level's averaging dims nuclei and pulls an Otsu
+    threshold into the background.
 
     :param slide: from :func:`_st_slide`.
     :param geometry: from :func:`_st_level_geometry` for the chosen level.
     :param region: ``(row0, row1, col0, col1)`` in the chosen level.
     :param stain: as :func:`_st_stain` takes it.
-    :returns: the 2-D stain image.
+    :param side: the edge of each sampled window in pixels.
+    :returns: the sampled stain pixels, one row per window.
     """
     path = slide["channels"][0]
     row0, row1, col0, col1 = region
     rgb = bool(geometry["rgb"])
-    chosen = None
-    for level in range(int(geometry["levels"]) - 1, int(geometry["level"]),
-                       -1):
-        candidate = _st_level_geometry(path, level)
-        if max(candidate["shape"]) <= 4096:
-            chosen = candidate
-            break
-    if chosen is not None:
-        factor = (geometry["scale"][0] / chosen["scale"][0],
-                  geometry["scale"][1] / chosen["scale"][1])
-        window = (col0 * factor[0], row0 * factor[1],
-                  max(1.0, (col1 - col0) * factor[0]),
-                  max(1.0, (row1 - row0) * factor[1]))
-        level = chosen["level"]
-    else:
-        side = 2048
-        centre = ((row0 + row1) // 2, (col0 + col1) // 2)
-        window = (max(col0, centre[1] - side // 2),
-                  max(row0, centre[0] - side // 2),
-                  min(side, col1 - col0), min(side, row1 - row0))
-        level = geometry["level"]
-    image, _origin = _st_read_window(path, level, window)
-    stack = image if image.ndim == 3 else image[..., None]
-    gray = _st_stain(stack, "hematoxylin" if rgb and stain == "rgb"
-                     else stain, rgb)
-    return np.asarray(gray, dtype=np.float32)
+    width = min(int(side), col1 - col0)
+    height = min(int(side), row1 - row0)
+    pieces = []
+    for fy in (1.0 / 6, 0.5, 5.0 / 6):
+        for fx in (1.0 / 6, 0.5, 5.0 / 6):
+            left = int(min(max(col0, col0 + fx * (col1 - col0) - width / 2),
+                           col1 - width))
+            top = int(min(max(row0, row0 + fy * (row1 - row0) - height / 2),
+                          row1 - height))
+            image, _origin = _st_read_window(path, geometry["level"],
+                                             (left, top, width, height))
+            stack = image if image.ndim == 3 else image[..., None]
+            gray = _st_stain(stack, "hematoxylin" if rgb and stain == "rgb"
+                             else stain, rgb)
+            pieces.append(np.asarray(gray, dtype=np.float32).ravel())
+    return np.stack(pieces)
 
 
 def _st_threshold_nuclei(image: np.ndarray, threshold: float,
