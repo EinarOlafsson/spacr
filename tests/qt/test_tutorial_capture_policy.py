@@ -8,7 +8,8 @@ from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QLabel, QListWidget, QTableWidget, QTableWidgetItem, QWidget
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "tutorials"))
-from capture_policy import configure_appearance, exclude_special_backdrops, verify_appearance, verify_visible_paths
+from capture_policy import (CAPTURE_BACKDROP, configure_appearance, exclude_special_backdrops,
+                            verify_appearance, verify_visible_paths)
 
 
 @pytest.fixture
@@ -26,7 +27,7 @@ def recording(qtbot, monkeypatch, tmp_path):
     palette = window.palette()
     palette.setColor(QPalette.Window, QColor("#121212"))
     window.setPalette(palette)
-    backdrop = AmbientWidget(window, theme="blobs")
+    backdrop = AmbientWidget(window, theme=CAPTURE_BACKDROP)
     backdrop.setGeometry(window.rect())
     window.show()
     backdrop.show()
@@ -35,29 +36,32 @@ def recording(qtbot, monkeypatch, tmp_path):
     backdrop.hide()
 
 
-def test_a_real_dark_window_with_painted_blobs_is_accepted(recording):
+def test_a_real_dark_window_with_the_painted_field_is_accepted(recording):
+    """Since 59b211757 every lesson records the spaCR field, not Blobs."""
     window, backdrop, _ = recording
     receipt = verify_appearance(window)
-    assert receipt == {"theme": "dark", "backdrop": "blobs",
+    assert receipt == {"theme": "dark", "backdrop": "data_art_impulse_lens",
                        "painted_frames": backdrop.frames_painted}
 
 
 def test_home_preferences_explicitly_records_field_and_default_policy_stays_strict(recording, qtbot):
     window, backdrop, _prefs = recording
     with pytest.raises(ValueError):
-        configure_appearance("dark", "data_art_impulse_lens")
+        configure_appearance("dark", "blobs")
+    with pytest.raises(ValueError):
+        configure_appearance("dark", "blobs", home_preferences=True)
     configure_appearance("dark", "data_art_impulse_lens", home_preferences=True)
-    backdrop.set_theme("data_art_impulse_lens")
     qtbot.waitUntil(lambda: backdrop.frames_painted > 0)
     assert verify_appearance(window, home_preferences=True)["backdrop"] == "data_art_impulse_lens"
-    with pytest.raises(RuntimeError):
-        verify_appearance(window)
+    assert verify_appearance(window)["backdrop"] == "data_art_impulse_lens"
     backdrop.set_theme("blobs")
     with pytest.raises(RuntimeError):
         verify_appearance(window, home_preferences=True)
+    with pytest.raises(RuntimeError):
+        verify_appearance(window)
 
 
-def test_a_module_specific_animation_cannot_hide_behind_the_global_blobs_check(recording):
+def test_a_module_specific_animation_cannot_hide_behind_the_global_backdrop_check(recording):
     from spacr.qt.widgets.dna_rain import DnaRainWidget
 
     window, backdrop, _ = recording
@@ -68,12 +72,12 @@ def test_a_module_specific_animation_cannot_hide_behind_the_global_blobs_check(r
         verify_appearance(window)
     assert exclude_special_backdrops(window) == ['DnaRainWidget']
     assert not rain.isVisible() and backdrop.isVisible()
-    assert verify_appearance(window)['backdrop'] == 'blobs'
+    assert verify_appearance(window)['backdrop'] == CAPTURE_BACKDROP
     assert exclude_special_backdrops(window) == []
 
 
 @pytest.mark.parametrize("drift", ["saved_theme", "painted_palette", "backdrop", "hidden", "disabled"])
-def test_drift_is_refused_even_when_the_capture_command_requested_blobs(recording, drift):
+def test_drift_is_refused_even_when_the_capture_command_requested_the_field(recording, drift):
     window, backdrop, prefs = recording
     if drift == "saved_theme":
         prefs.set_theme("light")
