@@ -1711,7 +1711,7 @@ Read by ``_classify_cell_cycle``, ``get_measure_crop_settings``.
 cell_cycle_labels
 -----------------
 
-(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.
+(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, so the learned methods reproduce the gate calls; annotated prophase and anaphase nuclei add information the gates do not provide. Default blank.
 
 | :py:func:`~spacr.measure.measure_crop`
 |     ``_run_cell_cycle_step``
@@ -3216,7 +3216,7 @@ Read by ``_cross_validate_model``.
 classifier_family
 -----------------
 
-(str) - Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.
+(str) - Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. 'cv' calls spacr.deep_spacr.deep_spacr and 'ml' calls spacr.ml.generate_ml_scores, both unchanged. Default 'cv'.
 
 | :py:func:`~spacr.classify.classify`
 |     ``_begin_flowview_run``
@@ -4063,7 +4063,7 @@ Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_
 count_grna_column
 -----------------
 
-(str) - Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.
+(str) - Name of the column in the count CSV containing the guide identifier. Set this value to the column produced by the sequencing pipeline. Default 'grna'.
 
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression`
@@ -4080,7 +4080,7 @@ Read by ``_calibration_inputs``, ``_perform_regression``.
 count_value_column
 ------------------
 
-(str) - Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.
+(str) - Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Set it when the file names this column differently, for example 'reads' or 'n'. Default 'count'.
 
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression`
@@ -4150,7 +4150,7 @@ Read by ``_run_counterfactuals``, ``get_default_generate_activation_map_settings
 counterfactual_generator
 ------------------------
 
-(str) - The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.
+(str) - The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it changes the crops very little. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.
 
 | :py:func:`~spacr.deep_spacr.generate_activation_map`
 |     ``_run_counterfactuals`` **-- reads it**
@@ -4357,7 +4357,7 @@ Read by ``import_project``.
 cross_validation
 ----------------
 
-(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.
+(bool) - Score the feature-based classifier (Classify, 'ml' family) with class-stratified cross-validation instead of a single train/test split: up to 5 folds, whole cv_group_by groups per fold, so every control object receives an out-of-fold prediction. Each fold's optimal probability threshold is computed and printed when verbose is on; predictions are not re-thresholded. Gives a less variable accuracy estimate on small control sets, at roughly 5x the training time. Default True.
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
@@ -4390,7 +4390,7 @@ Read by ``train_test_model``, ``get_train_test_model_settings``.
 cross_validation_folds
 ----------------------
 
-(int) - Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.
+(int) - Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the feature-based (ml) classifier.
 
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.train_test_model` **-- reads it**
@@ -7930,7 +7930,7 @@ Read by ``_dataset_crop_refs``, ``generate_dataset``.
 file_type
 ---------
 
-(str) - Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.
+(str) - Image format of the pre-generated crops, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It filters by format only; path_string selects the object type, so the pair can select, for example, every nucleus crop in any format or every TIFF of any object. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.
 
 | :py:func:`~spacr.crop_source.select_crops` **-- reads it**
 | :py:func:`~spacr.crop_source.validate` **-- reads it**
@@ -8515,7 +8515,7 @@ Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults`
 group_lasso_lambda
 ------------------
 
-(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto.
+(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its single strongest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto.
 
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression`
@@ -10458,7 +10458,7 @@ Read by ``_invasion_well_table``, ``_set_analyze_invasion_defaults``.
 init_weights
 ------------
 
-(bool) - Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.
+(bool) - Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head added on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.
 
 | ``_fit_one`` **-- reads it**
 | :py:func:`~spacr.deep_spacr.deep_spacr`
@@ -10926,7 +10926,7 @@ Read by ``_call_level_hits``.
 lasso_selection_threshold
 -------------------------
 
-(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.
+(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter list of more consistently selected terms; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.
 
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression`
@@ -12428,7 +12428,7 @@ Read by ``generate_image_umap``, ``reducer_hyperparameter_search``.
 mixed_control_wells
 -------------------
 
-(list or str) - Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.
+(list or str) - Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. Per-cell identities in these wells are unknown, but the aggregate proportions are known from sequencing, so annotation methods can be scored on real rather than simulated cells. Default None.
 
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression`
@@ -14862,7 +14862,7 @@ Read by ``_objects``, ``ops_defaults``.
 optimizer_type
 --------------
 
-(str) - PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.
+(str) - PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the default for fine-tuning; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.
 
 | ``_fit_one`` **-- reads it**
 | :py:func:`~spacr.deep_spacr.deep_spacr`
@@ -18068,7 +18068,7 @@ Read by ``generate_image_umap``.
 png_channel_mapping
 -------------------
 
-(dict) - Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.
+(dict) - Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.
 
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
@@ -21560,7 +21560,7 @@ Read by ``_perform_regression``, ``_reconcile_random_row_column_effects``.
 spline_knots
 ------------
 
-(int) - How many knots the spline basis gets for each CONTINUOUS covariate. More knots let the covariate bend more freely and spend more degrees of freedom; a covariate with fewer distinct values than the degree is left linear rather than given a basis made out of nothing. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.
+(int) - Number of knots in the spline basis of each continuous covariate. More knots let the fitted curve bend more freely and use more degrees of freedom; a covariate with fewer distinct values than the degree is left linear and gets no spline basis. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.
 
 | ``_perform_regression_read_data``
 |     ``_reconcile_random_row_column_effects`` **-- reads it**
@@ -23356,7 +23356,7 @@ Read by ``_call_level_hits``, ``_run_guide_permutation_analysis``.
 threshold_sensitivity
 ---------------------
 
-(float) - Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.
+(float) - Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much a well's invasion efficiency depends on the threshold. Widening it widens the bracket and makes the inflation flag (inflation_warn) trigger more often. Default 0.25.
 
 | :py:func:`~spacr.submodules.analyze_invasion`
 |     ``_invasion_field_thresholds`` **-- reads it**
@@ -23990,7 +23990,7 @@ Read by ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks
 timelapse_lineage_bud_guard
 ---------------------------
 
-(bool) - Accept an inferred division only when the mother shows daughter buds in the 8 frames before it: inside her mask, the 95th percentile over the median of the channel the objects were segmented on (an inner membrane complex marker such as IMC1) must reach timelapse_lineage_bud_threshold. Very precise, but divisions with faint buds are lost. It needs the images, so it applies when masks are generated and not in Measure. Ignored unless timelapse_lineage. Default False.
+(bool) - Accept an inferred division only when the mother shows daughter buds in the 8 frames before it: inside her mask, the 95th percentile over the median of the channel the objects were segmented on (an inner membrane complex marker such as IMC1) must reach timelapse_lineage_bud_threshold. Divisions whose bud signal stays below the threshold are rejected, so divisions with faint buds are lost. It needs the images, so it applies when masks are generated and not in Measure. Ignored unless timelapse_lineage. Default False.
 
 | ``_run_lineage_step``
 |     ``_lineage_guard_options`` **-- reads it**

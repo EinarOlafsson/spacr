@@ -1,0 +1,642 @@
+{
+ "agent": "a7-settings-tooltips",
+ "session": "Home (2026-10-11)",
+ "files": {
+  "spacr/qt/screens/settings_model.py#_APP_TOOLTIP_OVERRIDES": {
+   "paragraphs_read": 6,
+   "paragraphs_changed": 0,
+   "entries_read": 6,
+   "entries_changed": 0,
+   "note": "only the 6 literal 'measure' psf_* entries are in the table; train_cellpose/regression/umap values are references to _TRAIN_CELLPOSE_TOOLTIPS, _REGRESSION_TOOLTIP_OVERRIDES, _UMAP_TOOLTIP_OVERRIDES (not owned; scanned, no defects found)"
+  },
+  "spacr/settings.py#docstrings": {
+   "paragraphs_read": 293,
+   "paragraphs_changed": 26
+  },
+  "spacr/settings.py#template:_clone_organelle_registry": {
+   "paragraphs_read": 49,
+   "paragraphs_changed": 0,
+   "templates_read": 49,
+   "templates_changed": 0,
+   "generated_keys": 34349,
+   "note": "49 primary organelle_* tooltips cloned to 701 further slot roles via 'organelle_'->'<role>_' and 'organelle '->'organelle N '"
+  },
+  "spacr/settings.py#template:_name_the_family_in_every_estimator_tooltip": {
+   "paragraphs_read": 1,
+   "paragraphs_changed": 0,
+   "templates_read": 1,
+   "templates_changed": 0,
+   "generated_keys": 8,
+   "note": "footer 'Read by regression_type ...' appended to alpha, rra_alpha, rra_permutations, hinge_n_boot, lasso_n_boot, group_lasso_lambda, lasso_selection_threshold, cov_type; base text of 2 of these changed"
+  },
+  "spacr/settings.py#template:background_switch": {
+   "paragraphs_read": 1,
+   "paragraphs_changed": 0,
+   "templates_read": 1,
+   "templates_changed": 0,
+   "generated_keys": 701,
+   "note": "remove_background_organelle cloned per role"
+  },
+  "spacr/settings.py#tooltips": {
+   "paragraphs_read": 954,
+   "paragraphs_changed": 17,
+   "entries_read": 954,
+   "entries_changed": 17,
+   "note": "941 tooltip literal entries (932 in tooltips={...}, 9 in tooltips.update({...}) hp_* block) + 13 descriptions; all 954 catalogued in en.py SETTING_TOOLTIPS"
+  }
+ },
+ "changes": [
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "count_grna_column",
+   "line": 4855,
+   "before": "(str) - Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+   "after": "(str) - Name of the column in the count CSV containing the guide identifier. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+   "fragment_before": "Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value",
+   "fragment_after": "Set this value",
+   "kind": "filler",
+   "evidence": "filler: developer history; current behaviour is settings.py:3109 setdefault and ml.py:464 reads the key"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "count_value_column",
+   "line": 4856,
+   "before": "(str) - Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
+   "after": "(str) - Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Set it when the file names this column differently, for example 'reads' or 'n'. Default 'count'.",
+   "fragment_before": "Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default",
+   "fragment_after": "Set it when the file names this column differently, for example 'reads' or 'n'. Default",
+   "kind": "filler",
+   "evidence": "developer history replaced by current behaviour; ml.py:465 and ml.py:7237 read settings['count_value_column']"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "mixed_control_wells",
+   "line": 4878,
+   "before": "(list or str) - Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
+   "after": "(list or str) - Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. Per-cell identities in these wells are unknown, but the aggregate proportions are known from sequencing, so annotation methods can be scored on real rather than simulated cells. Default None.",
+   "fragment_before": "These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells.",
+   "fragment_after": "Per-cell identities in these wells are unknown, but the aggregate proportions are known from sequencing, so annotation methods can be scored on real rather than simulated cells.",
+   "kind": "promotional",
+   "evidence": "'strong validation' is an unqualified claim; the logical relation is restated"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "init_weights",
+   "line": 4905,
+   "before": "(bool) - Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
+   "after": "(bool) - Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head added on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
+   "fragment_before": "the spaCR classifier head bolted on top is randomly initialised either way",
+   "fragment_after": "the spaCR classifier head added on top is randomly initialised either way",
+   "kind": "metaphor",
+   "evidence": "informal metaphor"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "png_channel_mapping",
+   "line": 4969,
+   "before": "(dict) - Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+   "after": "(dict) - Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+   "fragment_before": "Says outright what png_dims only implied.",
+   "fragment_after": "",
+   "kind": "filler",
+   "evidence": "sentence states nothing checkable; png_dims relationship is in the png_dims tooltip"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "cell_cycle_labels",
+   "line": 5004,
+   "before": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+   "after": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, so the learned methods reproduce the gate calls; annotated prophase and anaphase nuclei add information the gates do not provide. Default blank.",
+   "fragment_before": "Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more.",
+   "fragment_after": "Blank trains on the confident gate calls instead, so the learned methods reproduce the gate calls; annotated prophase and anaphase nuclei add information the gates do not provide.",
+   "kind": "metaphor",
+   "evidence": "anthropomorphic 'teaches'"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "spline_knots",
+   "line": 5062,
+   "before": "(int) - How many knots the spline basis gets for each CONTINUOUS covariate. More knots let the covariate bend more freely and spend more degrees of freedom; a covariate with fewer distinct values than the degree is left linear rather than given a basis made out of nothing. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.",
+   "after": "(int) - Number of knots in the spline basis of each continuous covariate. More knots let the fitted curve bend more freely and use more degrees of freedom; a covariate with fewer distinct values than the degree is left linear and gets no spline basis. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.",
+   "fragment_before": "How many knots the spline basis gets for each CONTINUOUS covariate. More knots let the covariate bend more freely and spend more degrees of freedom; a covariate with fewer distinct values than the degree is left linear rather than given a basis made out of nothing.",
+   "fragment_after": "Number of knots in the spline basis of each continuous covariate. More knots let the fitted curve bend more freely and use more degrees of freedom; a covariate with fewer distinct values than the degree is left linear and gets no spline basis.",
+   "kind": "formulaic",
+   "evidence": "ALL-CAPS emphasis and metaphor ('made out of nothing')"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "group_lasso_lambda",
+   "line": 5066,
+   "before": "(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto.",
+   "after": "(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its single strongest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto.",
+   "fragment_before": "so a gene enters or leaves the model as a unit instead of on its luckiest guide",
+   "fragment_after": "so a gene enters or leaves the model as a unit instead of on its single strongest guide",
+   "kind": "metaphor",
+   "evidence": "metaphor 'luckiest'"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "lasso_selection_threshold",
+   "line": 5067,
+   "before": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
+   "after": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter list of more consistently selected terms; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
+   "fragment_before": "Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps.",
+   "fragment_after": "Raise it for a shorter list of more consistently selected terms; lowering it below about 0.5 admits terms the penalty drops as often as it keeps.",
+   "kind": "promotional",
+   "evidence": "informal/promotional 'harder-to-argue-with'"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "file_type",
+   "line": 5104,
+   "before": "(str) - Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
+   "after": "(str) - Image format of the pre-generated crops, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It filters by format only; path_string selects the object type, so the pair can select, for example, every nucleus crop in any format or every TIFF of any object. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
+   "fragment_before": "Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could.",
+   "fragment_after": "Image format of the pre-generated crops, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It filters by format only; path_string selects the object type, so the pair can select, for example, every nucleus crop in any format or every TIFF of any object.",
+   "kind": "formulaic",
+   "evidence": "ALL-CAPS emphasis and rhetorical contrast"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "classifier_family",
+   "line": 5125,
+   "before": "(str) - Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
+   "after": "(str) - Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. 'cv' calls spacr.deep_spacr.deep_spacr and 'ml' calls spacr.ml.generate_ml_scores, both unchanged. Default 'cv'.",
+   "fragment_before": "This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged.",
+   "fragment_after": "'cv' calls spacr.deep_spacr.deep_spacr and 'ml' calls spacr.ml.generate_ml_scores, both unchanged.",
+   "kind": "filler",
+   "evidence": "developer history removed; dispatch verified at spacr/classify.py:240-250"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "threshold_sensitivity",
+   "line": 5345,
+   "before": "(float) - Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
+   "after": "(float) - Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much a well's invasion efficiency depends on the threshold. Widening it widens the bracket and makes the inflation flag (inflation_warn) trigger more often. Default 0.25.",
+   "fragment_before": "which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager.",
+   "fragment_after": "which shows how much a well's invasion efficiency depends on the threshold. Widening it widens the bracket and makes the inflation flag (inflation_warn) trigger more often.",
+   "kind": "metaphor",
+   "evidence": "anthropomorphic 'answer', 'eager'"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "cross_validation",
+   "line": 5370,
+   "before": "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+   "after": "(bool) - Score the feature-based classifier (Classify, 'ml' family) with class-stratified cross-validation instead of a single train/test split: up to 5 folds, whole cv_group_by groups per fold, so every control object receives an out-of-fold prediction. Each fold's optimal probability threshold is computed and printed when verbose is on; predictions are not re-thresholded. Gives a less variable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+   "fragment_before": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time.",
+   "fragment_after": "Score the feature-based classifier (Classify, 'ml' family) with class-stratified cross-validation instead of a single train/test split: up to 5 folds, whole cv_group_by groups per fold, so every control object receives an out-of-fold prediction. Each fold's optimal probability threshold is computed and printed when verbose is on; predictions are not re-thresholded. Gives a less variable accuracy estimate on small control sets, at roughly 5x the training time.",
+   "kind": "factual-error",
+   "evidence": "spacr/ml.py:9245-9275: n_folds=min(5, groups), make_cv_folds grouped (io.py:7660); optimal threshold only printed; 'far more' is unqualified"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "cross_validation_folds",
+   "line": 5371,
+   "before": "(int) - Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
+   "after": "(int) - Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the feature-based (ml) classifier.",
+   "fragment_before": "Distinct from 'cross_validation', which controls the regression pipeline.",
+   "fragment_after": "Distinct from 'cross_validation', which controls the feature-based (ml) classifier.",
+   "kind": "factual-error",
+   "evidence": "cross_validation is read by generate_ml_scores (spacr/ml.py:8713, factory set_default_analyze_screen settings.py:1957), not by regression"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "optimizer_type",
+   "line": 5404,
+   "before": "(str) - PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+   "after": "(str) - PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the default for fine-tuning; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+   "fragment_before": "AdamW is the robust fine-tuning default;",
+   "fragment_after": "AdamW is the default for fine-tuning;",
+   "kind": "promotional",
+   "evidence": "'robust' used to mean 'good'"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "timelapse_lineage_bud_guard",
+   "line": 5148,
+   "before": "(bool) - Accept an inferred division only when the mother shows daughter buds in the 8 frames before it: inside her mask, the 95th percentile over the median of the channel the objects were segmented on (an inner membrane complex marker such as IMC1) must reach timelapse_lineage_bud_threshold. Very precise, but divisions with faint buds are lost. It needs the images, so it applies when masks are generated and not in Measure. Ignored unless timelapse_lineage. Default False.",
+   "after": "(bool) - Accept an inferred division only when the mother shows daughter buds in the 8 frames before it: inside her mask, the 95th percentile over the median of the channel the objects were segmented on (an inner membrane complex marker such as IMC1) must reach timelapse_lineage_bud_threshold. Divisions whose bud signal stays below the threshold are rejected, so divisions with faint buds are lost. It needs the images, so it applies when masks are generated and not in Measure. Ignored unless timelapse_lineage. Default False.",
+   "fragment_before": "Very precise, but divisions with faint buds are lost.",
+   "fragment_after": "Divisions whose bud signal stays below the threshold are rejected, so divisions with faint buds are lost.",
+   "kind": "vague",
+   "evidence": "'Very precise' is unquantified; restated as the mechanism"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "surface": "setting_tooltip",
+   "symbol": "counterfactual_generator",
+   "line": 5359,
+   "before": "(str) - The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
+   "after": "(str) - The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it changes the crops very little. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
+   "fragment_before": "with a few hundred crops it barely edits.",
+   "fragment_after": "with a few hundred crops it changes the crops very little.",
+   "kind": "vague",
+   "evidence": "informal/vague"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.cellpose_model_choices",
+   "block_index": 1,
+   "line": 1378,
+   "before": "The list used to be a literal, which meant spaCR could be wrong in both directions: it offered models Cellpose 4 had removed, and it could not offer a checkpoint the user had registered.",
+   "after": "The list is read from the installed Cellpose rather than hard-coded, so it omits models Cellpose 4 removed and includes checkpoints the user has registered.",
+   "kind": "filler",
+   "evidence": "developer history reduced to current behaviour; function reads the Cellpose API (settings.py:1375)"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.cellpose_model_choices",
+   "block_index": 2,
+   "line": 1384,
+   "before": "reads the API only when Cellpose is **already imported**. This is the same bargain :func:`spacr.settings_spec._torchvision_model_names` strikes for the torchvision zoo, and for the same measured reason. By the time anything has segmented, Cellpose is loaded and the next dropdown built is live.",
+   "after": "reads the API only when Cellpose is **already imported**. :func:`spacr.settings_spec._torchvision_model_names` applies the same rule to the torchvision zoo, for the same import cost. Once anything has segmented, Cellpose is loaded and the next dropdown built reads the API.",
+   "kind": "metaphor",
+   "evidence": "\"bargain ... strikes\" metaphor"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.cellpose_live_model_menu",
+   "block_index": 1,
+   "line": 1445,
+   "before": "THE LIVE VIEW IS NOT A SETTINGS FILE. `cellpose_model_menu` keeps 'cyto', 'cyto2', 'cyto3' and 'nuclei' so a user whose SAVED settings name one can see their own value rather than have it silently replaced -- that is a compatibility obligation and it is real.",
+   "after": "`cellpose_model_menu` keeps 'cyto', 'cyto2', 'cyto3' and 'nuclei' so that a saved settings file naming one of them shows its own value instead of having it silently replaced. The live preview does not load a settings file, so it does not need these aliases.",
+   "kind": "formulaic",
+   "evidence": "ALL-CAPS lead-in; settings.py:1458 filters _CELLPOSE_ALIASES"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.cellpose_live_model_menu",
+   "block_index": 2,
+   "line": 1450,
+   "before": "A live preview has no such obligation: nothing is being loaded from disk, the user is choosing what to look at now. And all four resolve to cpsam, so offering them there is offering four labels for one model and inviting the question of which is better. The live view therefore exposes only the canonical model name.",
+   "after": "All four aliases resolve to cpsam, so listing them would show four labels for one model. The live view therefore lists only the canonical model name.",
+   "kind": "filler",
+   "evidence": "rhetorical; restated as behaviour"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.cellpose_live_model_menu",
+   "block_index": 3,
+   "line": 1454,
+   "before": "Downloaded zoo checkpoints stay, because those ARE different models.",
+   "after": "Downloaded zoo checkpoints are kept, because they are different models.",
+   "kind": "formulaic",
+   "evidence": "capitalised emphasis"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.downloaded_zoo_models",
+   "block_index": 2,
+   "line": 1469,
+   "before": "ONLY WHAT IS ALREADY DOWNLOADED. Listing a model that is not on disk would put an entry in a dropdown that cannot be selected without a 1.2 GB download starting from a combo box, which is not where anyone expects to begin one. The picker is where downloading happens; this is where the result of having done it shows up.",
+   "after": "Only checkpoints already on disk are listed. A model that is not on disk would need a download of up to 1.2 GB when selected in a dropdown; downloads start from the model picker instead.",
+   "kind": "formulaic",
+   "evidence": "ALL-CAPS lead-in and rhetorical close"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.downloaded_zoo_models",
+   "block_index": 3,
+   "line": 1473,
+   "before": "Never raises and never blocks on the network -- true again as of 2026-09-05, and it was not for a while: the ``remote=True`` below reaches the community catalogue, which was fetched synchronously. See the comment on that call for what it cost.",
+   "after": "Never raises and never blocks on the network: the community catalogue reached through ``remote=True`` is read with ``block=False``.",
+   "kind": "filler",
+   "evidence": "developer history; catalogue called with block=False (settings.py:~1490)"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.surviving_setting_name",
+   "block_index": 0,
+   "line": 2134,
+   "before": "\"\"\"What ``key`` is called TODAY, following renames to the end.",
+   "after": "\"\"\"Return the current name(s) of ``key``, following every rename.",
+   "kind": "formulaic",
+   "evidence": "capitalised emphasis in summary"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.surviving_setting_name",
+   "block_index": 1,
+   "line": 2136,
+   "before": "ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's message and the Qt panel's load.",
+   "after": "The run's settings fold, the doctor's message and the Qt panel's load all use this one resolver.",
+   "kind": "formulaic",
+   "evidence": "ALL-CAPS lead-in"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.surviving_setting_name",
+   "block_index": 2,
+   "line": 2139,
+   "before": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle key could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
+   "after": "It consults the rename table, the retirement table and the organelle suffix rule together, so a generated organelle key is resolved the same way by all three consumers.",
+   "kind": "filler",
+   "evidence": "developer history reduced to the constraint"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.surviving_setting_name",
+   "block_index": 4,
+   "line": 2146,
+   "before": "LIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old key is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` keys are live and must not be touched.",
+   "after": "Only the final name of a chain is checked for being live; an intermediate name is by definition no longer live. A key that is itself still live resolves to nothing, which stops a suffix rule from retiring a working setting such as the seven live ``_size`` keys.",
+   "kind": "formulaic",
+   "evidence": "ALL-CAPS lead-in"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings._reject_a_threshold_that_cannot_mean_what_it_says._number",
+   "block_index": 1,
+   "line": 2911,
+   "before": "A bool is REFUSED even though it is an int in Python: ``True`` as a threshold is a value nobody typed on purpose, and accepting it as 1 silently changes what the run does.",
+   "after": "A bool is refused even though it is an int in Python: accepting ``True`` as a threshold of 1 would silently change what the run does.",
+   "kind": "formulaic",
+   "evidence": "capitalised emphasis"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.get_perform_regression_default_settings",
+   "block_index": 1,
+   "line": 2977,
+   "before": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
+   "after": "When quantile regression is selected, ``agg_type`` is set to None so the ``quantile`` setting is fitted over individual objects; this is skipped under ``analysis_mode='guide_permutation'``. A non-default ``alpha`` raises ValueError, because the quantile is read from ``quantile``.",
+   "kind": "factual-error",
+   "evidence": "settings.py:3155-3180: a non-default alpha raises ValueError; the fitted quantile is settings[\"quantile\"]; agg_type is left unchanged under analysis_mode=\"guide_permutation\""
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.get_perform_regression_default_settings",
+   "block_index": 2,
+   "line": 2982,
+   "before": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.",
+   "after": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, and a missing key raises ``KeyError`` only after both input CSVs are read and ``settings/regression.csv`` is written.",
+   "kind": "filler",
+   "evidence": "developer bug history reduced to the constraint"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.set_default_classify",
+   "block_index": 1,
+   "line": 1885,
+   "before": "to say which of the two a run uses. Built by CALLING both factories",
+   "after": "to say which of the two a run uses. Built by calling both factories",
+   "kind": "formulaic",
+   "evidence": "capitalised emphasis"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.get_setting_dependencies._combined",
+   "block_index": 1,
+   "line": 6041,
+   "before": "One setting can be dead for more than one reason at once -- a permutation control is dead under parametric inference AND dead on a single plate -- and this dict holds one entry per setting. Replacing",
+   "after": "One setting can be inapplicable for more than one reason at once (a permutation control is inapplicable under parametric inference and on a single plate), and this dict holds one entry per setting. Replacing",
+   "kind": "metaphor",
+   "evidence": "\"dead\" for inapplicable"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.get_setting_dependencies._combined",
+   "block_index": 2,
+   "line": 6047,
+   "before": "Applicable only when BOTH agree. The reason shown is the one that actually fired, so the user is told why THIS control is off rather than being given the other rule's explanation.",
+   "after": "Applicable only when both rules hold. The reason shown is the one from the rule that failed, so the message explains why this control is disabled.",
+   "kind": "formulaic",
+   "evidence": "capitalised emphasis"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.get_setting_dependencies.permutation_active",
+   "block_index": 1,
+   "line": 6098,
+   "before": "THE SAME TRANSLATION `set_default_analysis_settings` APPLIES, and it has to be: `inference` is the readable front end and it OVERWRITES `analysis_mode` at run time, so a panel that read the stale `analysis_mode` answered a question the fit does not ask. Measured on the regression panel: choosing inference='parametric' left all eight guide-permutation controls enabled, because `analysis_mode` still held the value the previous inference had selected -- a control offered for a step that is not going to run.",
+   "after": "This applies the same translation as `set_default_analysis_settings`: `inference` is the readable front end and overwrites `analysis_mode` at run time, so reading `analysis_mode` alone would use a stale value. For example, choosing inference='parametric' would otherwise leave the eight guide-permutation controls enabled for a step that does not run.",
+   "kind": "formulaic",
+   "evidence": "ALL-CAPS lead-in and metaphor (\"answered a question\")"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.get_setting_dependencies.permutation_active",
+   "block_index": 2,
+   "line": 6107,
+   "before": "the permutation controls stay ENABLED under 'auto' -- greying a control the run may well use is the worse error of the two.",
+   "after": "the permutation controls stay enabled under 'auto', because the run may use them.",
+   "kind": "formulaic",
+   "evidence": "capitalised emphasis"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.get_setting_dependencies.permutation_is_certain",
+   "block_index": 1,
+   "line": 6120,
+   "before": "NOT `not permutation_active(...)`, which is the mistake this replaces and which my own comment below warned about before I made it. `permutation_active` answers True under 'auto' ON PURPOSE, so the permutation controls stay live while the resolution is unknown. Negating it therefore greys the MODEL controls under 'auto' too -- and 'auto' may well resolve to regression, in which case those are exactly the settings the run reads.",
+   "after": "This is not the negation of `permutation_active`, which returns True under 'auto' so that the permutation controls stay enabled while the resolution is unknown. Negating it would disable the model controls under 'auto', although 'auto' can resolve to regression, which reads them.",
+   "kind": "formulaic",
+   "evidence": "first-person developer history and capitals"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.get_setting_dependencies._level_is_read",
+   "block_index": 1,
+   "line": 6216,
+   "before": "THE PERMUTATION TEST READS IT. It fits no model, so `regression_type` says nothing about it -- greying the control on the parametric answer left the nonparametric side with no way to ask for genes at all.",
+   "after": "The nonparametric permutation test reads it and fits no model, so `regression_type` does not decide it there; disabling the control based on the regression type would leave no way to request gene-level results under nonparametric inference.",
+   "kind": "formulaic",
+   "evidence": "ALL-CAPS lead-in"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.organelle_measurement_caveats",
+   "block_index": 0,
+   "line": 7182,
+   "before": "\"\"\"What a measure run should say about its own organelle numbers.",
+   "after": "\"\"\"Return caveats for count-dependent organelle measurements.",
+   "kind": "metaphor",
+   "evidence": "anthropomorphic summary"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.organelle_measurement_caveats",
+   "block_index": 2,
+   "line": 7188,
+   "before": "A slot is ENABLED when it has a mask dimension to measure. A slot with no type set says nothing, because a settings file written before the type existed is not making a claim about what it imaged.",
+   "after": "A slot is enabled when it has a mask dimension or a channel. A slot with no type set, or of a type whose objects-per-cell verdict is unknown, produces no caveat, because a settings file written before the type existed makes no claim about what it imaged.",
+   "kind": "factual-error",
+   "evidence": "settings.py:~7215 skips a slot only when both <role>_mask_dim and <role>_channel are None; types with verdict \"unknown\" are skipped too"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.explain_organelle_measurements",
+   "block_index": 0,
+   "line": 7224,
+   "before": "\"\"\"Print the caveats above, in the voice the type preset already uses.",
+   "after": "\"\"\"Print :func:`organelle_measurement_caveats` to the console.",
+   "kind": "metaphor",
+   "evidence": "\"in the voice\" metaphor; prints one \"[organelle] <label>: <setting> <reason>.\" line per caveat"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.explain_organelle_measurements",
+   "block_index": 1,
+   "line": 7226,
+   "before": "Silent when there is nothing to say, so a run measuring punctate organelles is not given a paragraph telling it everything is fine.",
+   "after": "Prints one ``[organelle] <label>: <setting> <reason>.`` line per caveat and nothing when there are no caveats, for example for punctate organelles.",
+   "kind": "metaphor",
+   "evidence": "anthropomorphic"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "surface": "api_docstring",
+   "symbol": "spacr.settings.normalize_cellpose_model_name",
+   "block_index": 2,
+   "line": 1506,
+   "before": "They are kept as accepted-but-mapped ALIASES rather than removed outright:",
+   "after": "They are kept as accepted-but-mapped aliases rather than removed outright:",
+   "kind": "formulaic",
+   "evidence": "capitalised emphasis"
+  }
+ ],
+ "left_as_is_notable": [
+  {
+   "file": "spacr/settings.py#tooltips",
+   "symbol": "infection_xgb_proba_column",
+   "text": "Before 2026-08-12 this fallback was unreachable, so the track-level filter was not applied under the default configuration.",
+   "reason": "dated history, but needed to interpret results produced before that date"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "symbol": "manders_thresholds",
+   "text": "the percentile-pair columns it drove there were removed on 2026-09-02, and measure now writes the three standards-compliant Manders coefficients",
+   "reason": "explains why the setting no longer affects Measure; borderline history"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "symbol": "analysis_unit",
+   "text": "This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently.",
+   "reason": "history clause, minor; relation to agg_type is useful"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "symbol": "resnet_features",
+   "text": "The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable.",
+   "reason": "documents a code defect; not verified in this pass, worth a code fix rather than a text change"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "symbol": "regression_type",
+   "text": "it answers both levels at once, which is why 'level' greys out",
+   "reason": "mild anthropomorphism, meaning clear; reviewed translations"
+  },
+  {
+   "file": "spacr/settings.py#tooltips",
+   "symbol": "experiment",
+   "text": "Its real effect is naming the exported PNG dataset tar",
+   "reason": "mild; factual"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "symbol": "spacr.settings.BarcodeEntry / BarcodeSet.resolve_groups / parse_list",
+   "text": "'A run used to decode exactly three barcodes...', 'That used to surface as a bare \"no such group\"...', 'while it sat in the Tk helper module'",
+   "reason": "history that explains a current design constraint; brief says keep rationale"
+  },
+  {
+   "file": "spacr/settings.py#docstrings",
+   "symbol": "spacr.settings._set_organelle_defaults",
+   "text": "HOW MANY SLOTS is `number_of_organelles`",
+   "reason": "private, not in the dump"
+  }
+ ],
+ "out_of_scope_skipped": [
+  {
+   "file": "spacr/settings.py#tooltips",
+   "symbol": "measurement_backend, measurement_backend_target",
+   "text": "storage backends (DuckDB/Parquet/PostgreSQL)",
+   "area": "storage backends"
+  }
+ ],
+ "surface": "setting_tooltip",
+ "unit": "setting tooltip entry / template family / docstring translation block",
+ "proposed_external": [
+  {
+   "file": "spacr/illumination.py",
+   "line": 2637,
+   "surface": "setting_tooltip",
+   "symbol": "illumination_correction",
+   "kind": "promotional",
+   "before": "On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects.",
+   "after": "On, intensities are corrected for the cell's position in the field of view, which removes position-dependent intensity bias such as vignetting.",
+   "evidence": "overclaim: correction divides by an estimated gain field; it does not make every cell 'measure the same'. Also 'Off by default.' duplicates 'Default False.'"
+  },
+  {
+   "file": "spacr/ops_settings.py",
+   "line": 147,
+   "surface": "setting_tooltip",
+   "symbol": "ops_library",
+   "kind": "formulaic",
+   "before": "the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them.",
+   "after": "the run reports how many spots match the library exactly, which measures decoding success. Empty still calls barcodes but cannot score them against a library.",
+   "evidence": "rhetorical/anthropomorphic phrasing"
+  },
+  {
+   "file": "spacr/ops_settings.py",
+   "line": 167,
+   "surface": "setting_tooltip",
+   "symbol": "ops_store_reads",
+   "kind": "formulaic",
+   "before": "It is OFF by default because it is large",
+   "after": "It is off by default because the table is large",
+   "evidence": "capitalised emphasis"
+  },
+  {
+   "file": "spacr/ops_settings.py",
+   "line": 191,
+   "surface": "setting_tooltip",
+   "symbol": "ops_gpu",
+   "kind": "formulaic",
+   "before": "Turn it OFF when the card is busy with another job",
+   "after": "Turn it off when the card is busy with another job",
+   "evidence": "capitalised emphasis"
+  }
+ ]
+}

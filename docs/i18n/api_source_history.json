@@ -1,6 +1,122 @@
 {
   "schema": 1,
   "sources": {
+    "09ab779c7a2a0935d4623eaf6ab29abf94543defed79240c659cf0224c3453c4": {
+      "source_blocks_sha256": [
+        "8058029dbc86f2827954a1cb25dfec32a85fb9d393404127168b31d6e9855575",
+        "3e60f1ba51b1c6615de7463ba8bb11d84e8c31922329f1b43f351b184e21a26f",
+        "d11474d50712fad85112ba66340868936f34a44296cb8cee916e2c02c2f661e8",
+        "379dc0e98fc2c699398d0d680ca2e42ffa0295fa91a87d31b6ade535676ae48f",
+        "8e74068f01529af216d9c96153e8de61d3d3174fff6a821de0facb2b5d5a9c1c"
+      ],
+      "source_sha256": "09ab779c7a2a0935d4623eaf6ab29abf94543defed79240c659cf0224c3453c4",
+      "text": "What a measure run should say about its own organelle numbers.\n\nOne entry per enabled organelle slot whose type makes a count-dependent\nfamily read differently from the way it reads for cells: ``(slot label,\nsetting name, reason)``.\n\nA slot is ENABLED when it has a mask dimension to measure. A slot with\nno type set says nothing, because a settings file written before the\ntype existed is not making a claim about what it imaged.\n\n:param settings: a measure settings dict.\n:returns: a list of ``(label, setting, reason)``, empty when every\n    enabled slot is a many-per-cell type or has no type at all."
+    },
+    "1d25243f2f08fc514dec4a2ca60f0e32ee9062fa6059d0c964e8e88c206f5d4c": {
+      "source_blocks_sha256": [
+        "ceb53b29b643a2492eea5bc6c4323676b61255180e22b73ce8d14c4f3ce21cb6",
+        "eb3c7724679e2b12ab6d1d176fc43c5574a5431e57ef2bad337e088e6be4fd4d",
+        "0f1a37a96627ceff716d3fc1a071405f46e567d9426db64b9a72bfe450cf21d9",
+        "98891dad7f1238087a23b92eadf791b02ba2ba024950c9ca53982adbb82458ed",
+        "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
+      ],
+      "source_sha256": "1d25243f2f08fc514dec4a2ca60f0e32ee9062fa6059d0c964e8e88c206f5d4c",
+      "text": "Populate defaults for the merged Classify module.\n\nThe union of Classify (CV) and Classify (ML), plus ``classifier_family``\nto say which of the two a run uses. Built by CALLING both factories\nrather than by copying their keys: a list here would go stale the first\ntime either module gained a setting, and the symptom would be a control\nmissing from the merged screen only.\n\nCV is applied second and wins on the six keys the two share, because the\nmerged module's default family is CV.\n\n:param settings: dict to fill in place.\n:returns: the settings dict with defaults applied."
+    },
+    "1edf944021d9cf66d7fae8627db649610fe2ccad84116176282d356aa7e76f74": {
+      "source_blocks_sha256": [
+        "d595816070766fe6f85467851b2358d5d5e3186735abc40ec4f48f549bb8e96f",
+        "2257e90789841f486294248ac70d7a5767fa2a73b53fe06d15c8f5a2c50bbf1c",
+        "b8ceb41b68dc217e0e86b932920048a5bf779efdb6ad26250bef16b48bda127e",
+        "5dc6745afa7325c121badbdf5fd49cf42a6d12b228a2d0a36ca0cd08a382e0a8",
+        "c6890b62a7afa707547942c817ca6a1fc620cba468cbd95a3ca2f6514e14d57f",
+        "ac50ecb99a7cf6309b5d7a159f6e36ace1b55778e92ec2efc573313ed3f0daf0",
+        "f599ff9d0277a61920711410fe0d8eff5f61947a7bc940e442df189f9f73b1db"
+      ],
+      "source_sha256": "1edf944021d9cf66d7fae8627db649610fe2ccad84116176282d356aa7e76f74",
+      "text": "Map a stored Cellpose model setting forward onto what Cellpose 4 has.\n\nCellpose 4 ships exactly one stock model, ``cpsam``\n(``cellpose.models.MODEL_NAMES == ['cpsam']``), and\n``CellposeModel(model_type=...)`` is accepted-and-ignored. So 'cyto',\n'cyto2', 'cyto3' and 'nuclei' are not four choices, they are four spellings\nof cpsam — offering them in a dropdown invited users to tune a setting that\ndoes nothing.\n\nThey are kept as accepted-but-mapped ALIASES rather than removed outright:\nsettings CSVs written years ago must still load. What changes is that they\nare mapped here, on the way in, instead of being carried around as if they\nstill meant something. A path to a user-trained checkpoint is passed\nthrough untouched — that is the one model choice that is still real.\n\n:param value: the stored setting, e.g. 'cyto2' or '/models/my_cells.pth'.\n:param object_type: 'cell'/'nucleus'/'pathogen'/'organelle' if known; used\n    only to make the substitution notice name the right object.\n:param key: settings key the value came from, for the notice.\n:returns: 'cpsam', or the checkpoint path unchanged."
+    },
+    "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41": {
+      "source_blocks_sha256": [
+        "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
+        "22ce6051b68cbf75e610357b2b05b163900ff3e5f774557a109bb525e253795d",
+        "ef5193b583d0a2b33e6e3f0fda658de78da5a310f5593a305eac43992189968d",
+        "f4d430278d19c6cbd779e6cd654784c369e9f45ac446bc40c1a1933ff8df250f",
+        "ad47a1ddcdf1db4442c35d9ba47853fa0a36d09b7cac743e6a23df2ed3dbbbe0",
+        "e0d2d8f592d43404c60ad70fc702e8b169b5e9c69fac91f9a7313341a7adfeab",
+        "9fc6824b21ad226a833badbb4c27c8cca4896812acff5c90062401a612ee49b5"
+      ],
+      "source_sha256": "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41",
+      "text": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.\n\nWhen ``src`` and ``classes`` are provided the counts are taken from the file\nlistings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS.\n\n:param loader: fallback DataLoader iterated only when folder info is missing.\n:param num_classes: number of output classes.\n:param src: parent folder containing per-class subfolders.\n:param classes: ordered class-folder names matching ``src``.\n:returns: ``LongTensor`` of per-class counts."
+    },
+    "2b28387413d5ab1a27a94193835bfbd24a01bec737036582b31de6ef78340ebb": {
+      "source_blocks_sha256": [
+        "04578bf24db28b011691c35b0c8849025fb7acc747a4a7497351dd304e00f53a",
+        "005d665c8ac71adb3213c0cd8032110acc17be3cffbcf8ff7e1b9e662cb0dc1f",
+        "c1c0a6d2400bed009ff78855a4040d6fcf4bb89ff5eaed3c5fed5da9334d1a1c"
+      ],
+      "source_sha256": "2b28387413d5ab1a27a94193835bfbd24a01bec737036582b31de6ef78340ebb",
+      "text": "A second reason a setting can be inapplicable, ANDed with the first.\n\nOne setting can be dead for more than one reason at once -- a\npermutation control is dead under parametric inference AND dead on a\nsingle plate -- and this dict holds one entry per setting. Replacing\nthe entry drops the earlier reason silently, which is how a field\nends up enabled among its greyed siblings.\n\nApplicable only when BOTH agree. The reason shown is the one that\nactually fired, so the user is told why THIS control is off rather\nthan being given the other rule's explanation."
+    },
+    "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a": {
+      "source_blocks_sha256": [
+        "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
+        "50843f63908d3c7c8e63b6b2d8339f8401aa061b29cdc73ecbc218d9d3bff455",
+        "95e7c086280147c0bc31d6c6d7939b653728e8f666d9e31923ce6d5bef040007",
+        "395296bad60d9c4c3796b006d3402762efae64c1af573ce48e951e0c6c9ea864",
+        "491975835f29fba8f37e15db8304a9fa9f8d564df7cc3f2bba88f45e970875cf",
+        "46629a349877cd9e9c4291b28d51201e7266fcb43f4337e90cf4e79d216541a9",
+        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ],
+      "source_sha256": "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a",
+      "text": "Figures on a reflowing grid, filling as a search produces them.\n\n:param parameters: the searched parameter names, in the order that\n    decides the axes. May be set later with :meth:`set_parameters`.\n:param parent: optional Qt parent.\n:ivar cell_clicked: emitted with the index of a clicked figure.\nBuild the grid that lays a search's figures out by parameter.\n\n:param parameters: the parameters the search varied, which become the\n    grid's captions.\n:param parent: parent widget, or ``None``."
+    },
+    "4caf40df26a44bf3ee347e7b89587c13aa8ed8d7be8565caaa72b1aff68bf181": {
+      "source_blocks_sha256": [
+        "0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047",
+        "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
+        "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
+        "98891dad7f1238087a23b92eadf791b02ba2ba024950c9ca53982adbb82458ed",
+        "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
+      ],
+      "source_sha256": "4caf40df26a44bf3ee347e7b89587c13aa8ed8d7be8565caaa72b1aff68bf181",
+      "text": "Populate default settings for gRNA/score regression analysis.\n\nSwitches ``agg_type`` to None automatically when quantile regression is\nselected, so ``alpha`` is treated as the quantile.\n\nEvery key :func:`spacr.ml.perform_regression` reads with ``settings[...]``\nis filled here. Six were not, and because both dispatchers (the Qt\npanel via ``qt.screens.settings_model.resolve_default_settings`` and\n``spacr-run regression`` via ``cli.module_defaults``) build the dict\nfrom this one function, regression could not be started from any entry\npoint: it died on\n``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read\nand ``settings/regression.csv`` had been written, so the failure looked\nlike a run that had started cleanly.\n\n:param settings: dict to fill in place.\n:returns: the settings dict with defaults applied."
+    },
+    "5927d81cf9c66d0f789fad7ec16bcc71f4c4dca3212945abac6e0e3cbb5c6be8": {
+      "source_blocks_sha256": [
+        "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+        "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
+        "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
+        "509a6b36ae6e224372e0a0d743b88307807e051ef011b77589754aa0f9a303b1",
+        "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
+        "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+        "49ffbaaa7cd54f6579b40ec6fe6e4b97a5e72a0e67c07242cf58f81554cb7468"
+      ],
+      "source_sha256": "5927d81cf9c66d0f789fad7ec16bcc71f4c4dca3212945abac6e0e3cbb5c6be8",
+      "text": "What ``key`` is called TODAY, following renames to the end.\n\nONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's\nmessage and the Qt panel's load.\n\nThey used to answer this question three different ways. The run consulted\nthe rename table alone, the doctor the retirement table alone, and the Qt\npanel was the only one that knew the organelle suffix rule. A generated\norganelle key could therefore be migrated by the panel, ignored by the\nrun and unmentioned by the doctor, all at once.\n\nA setting may have been renamed more than once. Older files need every\nhop resolved so their values reach the name the current run reads.\n\nLIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse\nthe middle of a valid chain, because an intermediate name is by\ndefinition no longer live. Refusing when the old key is ITSELF still live\nis what stops a suffix rule retiring a working setting -- seven ``_size``\nkeys are live and must not be touched.\n\n:param key: the key a settings file carries.\n:returns: a tuple of the names read today -- empty when ``key`` is\n    current, withdrawn, unknown, or resolves through a cycle."
+    },
+    "66c1c5ced61ddd564b0bd921a1f8250e14da39f2e7fbbbabe49c0d63877662b2": {
+      "source_blocks_sha256": [
+        "be40d46b6b12b6db505214bab97aae216d35ce4752cb8039b15af2f6428d5bdb",
+        "33cc1bf6286694f81132442e6938aac55464c64401e7cddf47141c9aab586349",
+        "b1741843babd048ebd16886765327254da93212a2fb0439ffaa8bcec12ba3024",
+        "665e80a816195cbc9a7540f318d277b44ab961ad492f75b7b6d9181a970fbe39"
+      ],
+      "source_sha256": "66c1c5ced61ddd564b0bd921a1f8250e14da39f2e7fbbbabe49c0d63877662b2",
+      "text": ":func:`cellpose_model_menu` without the retired pre-SAM spellings.\n\nTHE LIVE VIEW IS NOT A SETTINGS FILE. `cellpose_model_menu` keeps 'cyto',\n'cyto2', 'cyto3' and 'nuclei' so a user whose SAVED settings name one can\nsee their own value rather than have it silently replaced -- that is a\ncompatibility obligation and it is real.\n\nA live preview has no such obligation: nothing is being loaded from disk,\nthe user is choosing what to look at now. And all four resolve to cpsam,\nso offering them there is offering four labels for one model and inviting\nthe question of which is better. The live view therefore exposes only the\ncanonical model name.\n\nDownloaded zoo checkpoints stay, because those ARE different models."
+    },
+    "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80": {
+      "source_blocks_sha256": [
+        "62e113bfff12dc76616660cca42370ac48ae92cdfe812aeb50bf11b56ac01459",
+        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
+        "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
+        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
+      ],
+      "source_sha256": "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80",
+      "text": "Return the worker count for a set of image fields.\n\n``spawn`` and ``forkserver`` start a fresh interpreter for every worker,\nso their worker count is capped at the number of fields. ``fork`` keeps\nthe requested count for compatibility.\n\n:param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.\n:param n_files: how many fields there are to measure.\n:param start_method: start method name to decide against; defaults to the\n    interpreter's current default.\n:returns: an int >= 1."
+    },
     "72fe36c0e89a5ed45c8d8f4d1deda1da5417234c686411a834649379f8304512": {
       "source_blocks_sha256": [
         "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
@@ -14,6 +130,15 @@
       "source_sha256": "72fe36c0e89a5ed45c8d8f4d1deda1da5417234c686411a834649379f8304512",
       "text": "Which of :data:`ZOO_SOURCES` this row belongs under.\n\nDecided FROM THE ROW, never from a list of names kept somewhere else: a\nhand-written list goes stale the first time a model is added, and the\nfailure it produces is a model that is in the catalogue and under no\nheading, which is a model nobody can see.\n\nThe order of the tests is the rule, and it matters in one place: a\nCellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not\na Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto,\ncyto2, cyto3, nuclei -- and the backend package that runs them.\n\nA shared or community row is spaCR's when it is the very file a bundled\nrecord names (key and checksum) or when it is fetched from one of the\nmaintainer's own repositories (:func:`is_spacr_owned`). Anything else\nuploaded by somebody else stays under ``spaCR community``.\n\nA row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It\nis the fallback rather than a sixth heading because a model under the\nwrong heading is a nuisance and a model under no heading is a bug the\nuser experiences as a missing model.\n\n:param entry: any zoo row -- a :class:`ModelEntry`, or anything with\n    ``kind``, ``source`` and ``uri``.\n:returns: one of :data:`ZOO_SOURCES`."
     },
+    "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9": {
+      "source_blocks_sha256": [
+        "63cd2c1e99a8850935b06318b7cc0cb62439ea967d3952a1698dbf889fdc8ee8",
+        "2acc2bbdd4a987cd0a9e6a30d1722cef15caebe24d6d9eec94cec7175599ab6d",
+        "37cec808b989aaa1f35c33691d0a0cf761995f47f6b6aaf2878708997e473fac"
+      ],
+      "source_sha256": "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9",
+      "text": "Parse plate/well/field/object identities from a crop filename.\n\nUnknown levels are returned as empty strings rather than guessed. The\nobject identity is the augmentation-normalized full stem.\n\n:param path: crop path or file name. Augmentation suffixes are removed and\n    the stem is split on underscores to find the plate, well and field\n    parts."
+    },
     "92b555808857374fffb3fdb2d54a201e5051d982d9b30befb0976a55ee8f8e36": {
       "source_blocks_sha256": [
         "999909e39db985172f9413af22da4ecb728123e18840ea622f8cb154d4b6340a",
@@ -22,6 +147,82 @@
       ],
       "source_sha256": "92b555808857374fffb3fdb2d54a201e5051d982d9b30befb0976a55ee8f8e36",
       "text": "Whether a row's file lives in a repository spaCR's maintainer owns.\n\n:param entry: any zoo row.\n:returns: True when :func:`hf_repo_of` its ``uri`` is in an account named\n    by :data:`SPACR_HF_OWNERS` and is not :data:`COMMUNITY_REPO`."
+    },
+    "9490d2dca8df2f489c67177291a97e7c3b562d3f4a2ecbdfadd59c3854d8c4de": {
+      "source_blocks_sha256": [
+        "73a10d19454d811e6d43eafe2346fe76d715bb1bcb06d046608e0f5f61714f1c",
+        "e65864f28b7a9963a05e76d28fee1a4666542ebbc3d6015626ca6e77a1bb859e"
+      ],
+      "source_sha256": "9490d2dca8df2f489c67177291a97e7c3b562d3f4a2ecbdfadd59c3854d8c4de",
+      "text": "Whether the level setting is read at all under these settings.\n\nTHE PERMUTATION TEST READS IT. It fits no model, so `regression_type`\nsays nothing about it -- greying the control on the parametric answer\nleft the nonparametric side with no way to ask for genes at all."
+    },
+    "a0a0b84f18055242d5bb8eee9b1838897c16e2c5ac83a6ff4ee3e7920b92f6e6": {
+      "source_blocks_sha256": [
+        "65bf3190f3bffe665f316726a18c615e61341a8e562775b58904d4db223ae750",
+        "f1b3192995c4ed70287331e25d93123d8aaf54bb8c8d7a1aabf8dc3bd0f5696b",
+        "379dc0e98fc2c699398d0d680ca2e42ffa0295fa91a87d31b6ade535676ae48f",
+        "470e82e9e63ff55b2c8236a3360a9cd1d8b074533eb3c4638948875a7c7d996e"
+      ],
+      "source_sha256": "a0a0b84f18055242d5bb8eee9b1838897c16e2c5ac83a6ff4ee3e7920b92f6e6",
+      "text": "Print the caveats above, in the voice the type preset already uses.\n\nSilent when there is nothing to say, so a run measuring punctate\norganelles is not given a paragraph telling it everything is fine.\n\n:param settings: a measure settings dict.\n:returns: the caveats, so a caller can show them somewhere other than\n    the console."
+    },
+    "b2c2dbd4eae54e3472bd4a75f8990b8e2e7456babcf2895dc7de0b2fb3325450": {
+      "source_blocks_sha256": [
+        "7a501d7389ed549e3910066b281c4974ff784e845c8830cddf077e20fcfec905",
+        "4b988cae3c8d59bef414fd09f4763d45b5ec4baad8ba41d8ffd33a5a7aed16be",
+        "bf9e7776447e389b2c190c08d4e74f3e5056ffd0a6ddaa9a2d3c1bf41a706be5",
+        "517663bda3dd5391bcd535594c1bf9fe7d1ca125f820e20583287dcc057ed5a6",
+        "3789a84f68e89d198e34156d16c4511d51af0de05b7316bf07dfc3dede6d4c99"
+      ],
+      "source_sha256": "b2c2dbd4eae54e3472bd4a75f8990b8e2e7456babcf2895dc7de0b2fb3325450",
+      "text": "Paths of model-zoo Cellpose checkpoints already on this machine.\n\nThe live preview builds its model from the combo value. Including local zoo\ncheckpoints here keeps that preview aligned with a selected run model;\notherwise it would silently render stock cpsam while the user tuned\ndiameter and thresholds for a different checkpoint.\n\nONLY WHAT IS ALREADY DOWNLOADED. Listing a model that is not on disk would\nput an entry in a dropdown that cannot be selected without a 1.2 GB\ndownload starting from a combo box, which is not where anyone expects to\nbegin one. The picker is where downloading happens; this is where the\nresult of having done it shows up.\n\nNever raises and never blocks on the network -- true again as of\n2026-09-05, and it was not for a while: the ``remote=True`` below reaches\nthe community catalogue, which was fetched synchronously. See the comment\non that call for what it cost.\n\n:returns: a tuple of filesystem paths, newest catalogue order."
+    },
+    "c23036602ae9d4248ca47511311b818dc7a6c51ef9bc7b8429e31371072a55bf": {
+      "source_blocks_sha256": [
+        "00e2e72f10b36ee9716a6ddc5952185055c827cf77c68ebafd5a3b0cd001ce85",
+        "6d504d8a6c8aaf4bb12c15ba6cc86f7fae96dab5466818bb520bf11c14236a3c",
+        "893b30011eafd6f64593f826142325179b289adc70f5bfea26bc3572841bfd42",
+        "cb6f1bdd43ced22420d8929f9d898b77eceeb594e1a1ec38e9d8b82ceef254f0",
+        "e57cc454825681c2a4b88a979796470dc87b0194e8bfd0207a2a66fac988a948",
+        "7532e8e6204e7088c7a59fb47e461434f5c569206eec3438f5e8449673ec3d63"
+      ],
+      "source_sha256": "c23036602ae9d4248ca47511311b818dc7a6c51ef9bc7b8429e31371072a55bf",
+      "text": "Every Cellpose model on this machine, read from the Cellpose API.\n\nThe list used to be a literal, which meant spaCR could be wrong in\nboth directions: it offered models Cellpose 4 had removed, and it\ncould not offer a checkpoint the user had registered.\n\nImporting ``cellpose.models`` costs ~2.5 s — it pulls in torch — and\nthis is called while a settings page is being built, so by default it\nreads the API only when Cellpose is **already imported**. This is the\nsame bargain :func:`spacr.settings_spec._torchvision_model_names`\nstrikes for the torchvision zoo, and for the same measured reason. By\nthe time anything has segmented, Cellpose is loaded and the next\ndropdown built is live.\n\n:param block: import Cellpose if it is not loaded. For a caller that\n    can afford the wait and wants the definitive answer.\n:param refresh: ignore the cache and ask again — for a caller that\n    has just registered a model.\n:returns: a non-empty tuple, ``cpsam`` first. Never empty: a dropdown\n    with nothing in it is worse than one that is out of date."
+    },
+    "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0": {
+      "source_blocks_sha256": [
+        "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
+        "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
+        "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a"
+      ],
+      "source_sha256": "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0",
+      "text": "Follow the parent's size; pause when the window is minimised.\n\n:param obj: the object the event is for — the parent (whose resize\n    this widget follows) or the watched top-level window.\n:param event: the event; resize, window-state, hide, show, move and\n    screen-change types are acted on, and every event is still passed\n    on to the base-class filter."
+    },
+    "d51b0e5d8b5fdd12681bf31cf042da1d8b85665f9b928f121c722a67a03fde43": {
+      "source_blocks_sha256": [
+        "444b291ed8e5e3b92208486252f792d3b03da6e0a3d575e7fafa9270b9aca100",
+        "fdfadbe74e3cbdf69de8ad9f6852acfae448ce1422c77e6bbf1bfeb384ae9155"
+      ],
+      "source_sha256": "d51b0e5d8b5fdd12681bf31cf042da1d8b85665f9b928f121c722a67a03fde43",
+      "text": "Read one setting as a number in range, or raise saying which.\n\nA bool is REFUSED even though it is an int in Python: ``True`` as a\nthreshold is a value nobody typed on purpose, and accepting it as 1\nsilently changes what the run does."
+    },
+    "e31efd87ebaaa81ad73bc4afbcace9306f93dc9cb6fb376738ed337a1f5def51": {
+      "source_blocks_sha256": [
+        "d2e7d5250d8b5f3baf76a4af01a82ca1868c6c74a94517c3f948ecb15f826868",
+        "dc3ec3ad4aabb9921e146e289e9aa5d8d5cf3605ff7262a917a80b365772ea45",
+        "8643a56eca0321b1e367e1ad7762f67014c0bd9150853c1913fc4908005625b3"
+      ],
+      "source_sha256": "e31efd87ebaaa81ad73bc4afbcace9306f93dc9cb6fb376738ed337a1f5def51",
+      "text": "Whether the run WILL permute -- not merely whether it might.\n\nNOT `not permutation_active(...)`, which is the mistake this replaces\nand which my own comment below warned about before I made it.\n`permutation_active` answers True under 'auto' ON PURPOSE, so the\npermutation controls stay live while the resolution is unknown.\nNegating it therefore greys the MODEL controls under 'auto' too --\nand 'auto' may well resolve to regression, in which case those are\nexactly the settings the run reads.\n\nCertain means `inference` names the permutation path outright."
+    },
+    "ea4d81fda82c19b4acee8f40542938ef632222cca222ec7efdc7ee6d2ff635d5": {
+      "source_blocks_sha256": [
+        "c9888681edd5de5d42154912e11d61fff6dd77b99c713f44110c8aa5bc1e8b23",
+        "8724734ade47fe84ff4e4c12f132828a9033660f4cb10d5bb6305b4c376e9913",
+        "0a1aa4665a8def3e2210641f987b054dad0d1aee51ccafc7919651ed9de83e33"
+      ],
+      "source_sha256": "ea4d81fda82c19b4acee8f40542938ef632222cca222ec7efdc7ee6d2ff635d5",
+      "text": "Whether the RUN would permute, decided the way the run decides.\n\nTHE SAME TRANSLATION `set_default_analysis_settings` APPLIES, and it\nhas to be: `inference` is the readable front end and it OVERWRITES\n`analysis_mode` at run time, so a panel that read the stale\n`analysis_mode` answered a question the fit does not ask. Measured on\nthe regression panel: choosing inference='parametric' left all eight\nguide-permutation controls enabled, because `analysis_mode` still held\nthe value the previous inference had selected -- a control offered for\na step that is not going to run.\n\n`auto` is the one case where `analysis_mode` still decides here.\nIts real resolution counts guides and wells, which this cannot see\n(`spacr.ml.resolve_auto_inference` does it once the CSVs are read), so\nthe permutation controls stay ENABLED under 'auto' -- greying a\ncontrol the run may well use is the worse error of the two."
     }
   }
 }
