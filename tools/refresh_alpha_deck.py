@@ -45,7 +45,7 @@ GROUPS = (
         (543, "Vendor flat-field profiles (Harmony, ZEN)"),
         (580, "Intensity calibration across sessions"),
         (559, "Deep-learning image QC: focus, debris, empty fields"),
-        (557, "Self-supervised denoising (Noise2Void)"),
+        (557, "Self-supervised denoising (Noise2Void), low-light benchmark"),
         (591, "Illumination, enhancement and PSF settings"),
     )),
     ("Measurements and\nassays", (
@@ -79,7 +79,7 @@ GROUPS = (
         (570, "Arrayed-screen hits: SSMD, robust z, B-score"),
         (584, "Chemistry-aware hits: SMILES, clusters, SAR"),
         (585, "Sample-size planner for arrayed assays"),
-        (534, "Spatial transcriptomics: Visium and Xenium"),
+        (534, "Spatial transcriptomics: Visium, Xenium; spatial masks, barcodes"),
         (583, "LIMS / plate-barcode linkage"),
     )),
     ("Automation and data", (

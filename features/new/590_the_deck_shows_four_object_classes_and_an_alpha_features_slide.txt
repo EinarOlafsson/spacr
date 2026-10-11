@@ -120,3 +120,22 @@ No N590 deliverable remains. Broader documentation deployment/release and
 scientific validation of alpha backends remain in their own tracked items.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); slide 11 shows nuclei, cells, pathogen and organelles, and slide 4 is the alpha slide; checked by eye.
+
+2026-10-11 — DECK REFRESH FOR THE N685/N690/N691/F534/F557/F586 BATCH
+Source: /mnt/wd4tb/scratch/deck3/pres (the 2026-10-03 build.js) copied to
+/mnt/wd4tb/scratch/deck-20261011/pres and edited; the 662 slide-32 delta
+(features/data/662_yolo_deck_refresh_2026-10-06/source-delta.zip) overlaid,
+then text-only refresh_deck_captures.py (slide 32 TEM bullet; slide 34
+title kept as published). An unedited rebuild matched every published page
+except 4, 6, 12, 32 and 34 (the WS capture refreshes), so only edited pages
+were selected: --refresh-pages 4,7,11,32,48,49,50,56 after
+refresh_alpha_deck.py. Changes: 7 tutorials 77 -> 84 (lesson_catalog.js);
+11 OPS (alpha) removed from Mask sub-tools; 32 TEM (DM3/DM4/MRC), Electron
+microscopy preset and TEM test data replace the magnifier bullet (slide 33
+covers it); 48 eight models: PV v4, Plaque v4, Live cell v1 added; 49 PV v4
+card (CPU prediction on the same anchor-well field plate7_F18_2: F1 0.885,
+v3 0.868); 50 Plaque v4 card with v4/v3 per-source F1 (model card); 56
+SAMCell/DINOCell (alpha) removed; 4 alpha labels for 534 (spatial masks,
+barcodes) and 557 (low-light benchmark). F586 not shown: spacr-sif is not
+public yet. Receipt folder: features/data/590_deck_refresh_2026-10-11/.
+Every changed page read at full size. Deck tests: 18 + 32 + 16 passed.

@@ -1,0 +1,18 @@
+{
+  "source_sha256": "6d57c89f78038420920b37ae0b1dc3db7ea848c5400542c4e119958d36dbcecd",
+  "slide_count": 57,
+  "slides": [
+    {
+      "number": 32,
+      "text": {
+        "Live magnifier: a box that zooms in and outlines cells as you move": "TEM images (DM3, DM4, MRC): an Electron microscopy contrast preset and TEM test data"
+      }
+    },
+    {
+      "number": 34,
+      "text": {
+        "Make Masks: Features": "Make Masks: organize for Measure"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "source_sha256": "6d57c89f78038420920b37ae0b1dc3db7ea848c5400542c4e119958d36dbcecd",
+  "output_sha256": "2fa227d48ee4c091d64d88e9717ea7d1cc03f60d0f6be98ce81770c952433f64",
+  "slide_count": 57,
+  "changed_members": [
+    "ppt/slides/slide32.xml",
+    "ppt/slides/slide34.xml"
+  ],
+  "untouched_members_verified": 427,
+  "captures": [],
+  "original_unchanged": true,
+  "capture_pixels_unchanged": true,
+  "published": false
+}
