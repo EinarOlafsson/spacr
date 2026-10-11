@@ -130,6 +130,7 @@ def test_the_preferences_dialog_loads_and_saves_the_switch(qtbot, prefs,
 def test_every_registration_names_a_known_kind_and_a_real_thing():
     """A registration that names nothing would hide nothing and pass."""
     from spacr.qt.app import APPS
+    from spacr.qt.screens.map_barcodes import page_fold_host
     from spacr.qt.screens.settings_model import resolve_default_settings
 
     for host in EXTRA_SETTINGS_HOSTS:
@@ -148,7 +149,10 @@ def test_every_registration_names_a_known_kind_and_a_real_thing():
         for name in entry.get("widgets", ()):
             assert f'setObjectName("{name}")' in source, (item, name)
         for key in entry.get("apps", ()):
-            assert key in {row[0] for row in APPS}, (item, key)
+            # A page fold (OPS-style: a host switch opening a module page)
+            # has no APPS row but is a module the gate hides all the same.
+            assert (key in {row[0] for row in APPS}
+                    or page_fold_host(key) is not None), (item, key)
 
 
 def _hosts_for(keys):

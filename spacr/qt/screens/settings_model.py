@@ -4015,6 +4015,8 @@ _APP_API_MODULE = {
     "parameter_sweep": "parameter_sweep",
     "align": "align",
     "ops": "ops_engine",
+    "spatial_masks": "ops_engine",
+    "spatial_map": "ops_engine",
     "convert": "convert",
     "foreign": "foreign",
     "queue": "qt/plate_queue",

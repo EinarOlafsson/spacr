@@ -692,6 +692,8 @@ APP_TITLES = {
     "barcode_qc":      "Barcode QC",
     "anndata_export":  "AnnData Export",
     "illumination":    "Illumination Correction",
+    "spatial_masks":   "Spatial Mask Generation",
+    "spatial_map":     "Spatial Map Barcodes",
 }
 
 
@@ -774,6 +776,27 @@ def _absorb_registered_app_metadata() -> None:
 
 
 _absorb_registered_app_metadata()
+
+
+def _absorb_page_fold_intros() -> None:
+    """Head each spatial page with the description its settings registered.
+
+    Spatial Mask Generation and Spatial Map Barcodes have no registry row
+    to carry an intro; their module description is the one
+    :func:`spacr.ops_settings.register_spatial` gave
+    :func:`spacr.settings.register_defaults`, so the masthead reads it from
+    there rather than keeping a second copy. ``setdefault``, so a
+    hand-written intro would still win.
+    """
+    from spacr.settings import descriptions
+
+    for key in ("spatial_masks", "spatial_map"):
+        intro = descriptions.get(key)
+        if intro:
+            APP_INTROS.setdefault(key, str(intro))
+
+
+_absorb_page_fold_intros()
 
 
 #: Apps that get a live DNA-rain backdrop. Sequencing only — every
@@ -7903,6 +7926,28 @@ class AppScreen(QWidget):
             except Exception:                            # noqa: BLE001
                 LOG.debug("Could not install the OPS switch", exc_info=True)
 
+        self._spatial_switch = None
+        if self.app_key in ("mask", "map_barcodes"):
+            try:
+                from .map_barcodes import SPATIAL_TOGGLE_TEXT
+                if self.app_key == "mask":
+                    from .mask import (
+                        SPATIAL_MASKS_TOGGLE_TOOLTIP as spatial_tooltip,
+                        install_spatial_masks_switch as install_spatial,
+                    )
+                else:
+                    from .map_barcodes import (
+                        SPATIAL_MAP_TOGGLE_TOOLTIP as spatial_tooltip,
+                        install_spatial_map_switch as install_spatial,
+                    )
+                self._spatial_switch = AiToggleLabel(
+                    text=SPATIAL_TOGGLE_TEXT, tooltip=spatial_tooltip)
+                row.addWidget(self._spatial_switch)
+                install_spatial(self, self._spatial_switch)
+            except Exception:
+                LOG.debug("Could not install the spatial switch",
+                          exc_info=True)
+
         self._gpu_switch = None
         if self.app_key == "umap" and getattr(
                 self, "_hyperparam_card", None) is not None:
@@ -8232,6 +8277,7 @@ class AppScreen(QWidget):
             self._btn_file_issue, self._btn_cpu_toggle,
             getattr(self, "_preview_switch", None),
             getattr(self, "_ops_switch", None),
+            getattr(self, "_spatial_switch", None),
             getattr(self, "_gpu_switch", None),
             getattr(self, "_sweep_switch", None),
             getattr(self, "_hp_switch", None),

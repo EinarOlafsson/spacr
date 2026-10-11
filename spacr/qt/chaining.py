@@ -975,6 +975,8 @@ _SUCCEEDED_BY = {
     "ml_analyze": "classify_merged",
     "timelapse": "mask",
     "ops": "mask",
+    "spatial_masks": "mask",
+    "spatial_map": "map_barcodes",
 }
 
 

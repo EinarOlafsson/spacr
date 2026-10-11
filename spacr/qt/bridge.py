@@ -1814,6 +1814,12 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "ops":
             from spacr.ops_engine import run_ops
             return _ret(log_call(run_ops))
+        if app_key == "spatial_masks":
+            from spacr.ops_engine import run_spatial_masks
+            return _ret(log_call(run_spatial_masks))
+        if app_key == "spatial_map":
+            from spacr.ops_engine import run_spatial_map
+            return _ret(log_call(run_spatial_map))
         if app_key == "convert":
             from spacr.convert import convert_folder
             return _ret(log_call(convert_folder))

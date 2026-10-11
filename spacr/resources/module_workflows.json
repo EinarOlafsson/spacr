@@ -1744,6 +1744,40 @@
         "summary": "reads the measurements database"
       },
       "guidance": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+    },
+    "spatial_masks": {
+      "name": "Spatial Mask Generation",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.ops_engine",
+      "api_entry": "spacr.ops_engine.run_spatial_masks",
+      "lesson": null,
+      "inputs": [
+        "raw_images",
+        "segmentation_model"
+      ],
+      "outputs": [
+        "merged",
+        "measurements"
+      ],
+      "guidance": "Alpha. Segment a whole Xenium morphology or Visium HD H&E slide in overlapping windows; each window is written to merged/ with its masks, the layout Measure reads, and the windows' places on the slide go to measurements.db for Spatial Map Barcodes. In the GUI it is the Spatial switch in Mask Generation's actions row, shown only with Show alpha features on."
+    },
+    "spatial_map": {
+      "name": "Spatial Map Barcodes",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.ops_engine",
+      "api_entry": "spacr.ops_engine.run_spatial_map",
+      "lesson": null,
+      "inputs": [
+        "raw_images",
+        "merged"
+      ],
+      "outputs": [
+        "measurements",
+        "anndata"
+      ],
+      "guidance": "Alpha. Count every Xenium transcript or Visium HD bin into the cell or nucleus it falls in, using the fields Spatial Mask Generation wrote; per-object expression tables and infection calls from pathogen genes go into measurements.db keyed like Measure's. In the GUI it is the Spatial switch in Map Barcodes' actions row, shown only with Show alpha features on."
     }
   },
   "artifacts": {

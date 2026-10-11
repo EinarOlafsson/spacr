@@ -10686,14 +10686,14 @@ def _note_container_ripple() -> None:
 _GPU_JOB_KEYS = frozenset((
     "mask", "timelapse", "cellpose_masks", "train_cellpose", "classify",
     "classify_merged", "activation", "make_masks", "sam", "train",
-    "embeddings", "deep_spacr"))
+    "embeddings", "deep_spacr", "spatial_masks"))
 
 #: Pipeline keys whose analysis is CPU bound.
 _CPU_JOB_KEYS = frozenset((
     "measure", "motility", "illumination", "umap", "map_barcodes",
     "ml_analyze", "regression", "recruitment", "foreign", "align", "ops",
     "convert", "invasion", "replication", "analyze_plaques", "barcode_qc",
-    "explain_cv", "anndata_export", "external_masks"))
+    "explain_cv", "anndata_export", "external_masks", "spatial_map"))
 
 _RESOURCE_POLICY = None
 

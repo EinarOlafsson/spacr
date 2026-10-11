@@ -7640,7 +7640,9 @@ ALPHA_FEATURES = {
                     'PluginCatalogueOpen', 'PluginCatalogueStatus'),
     },
     534: {
-        'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
+        'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard',
+                    'MaskSpatialSwitch', 'MapBarcodesSpatialMapSwitch'),
+        'apps': ('spatial_masks', 'spatial_map'),
     },
     591: {
         'module_settings': {

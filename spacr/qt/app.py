@@ -2621,13 +2621,19 @@ def _say_where_the_paint_diagnostic_went(window, screen, files) -> None:
 
 
 def _opened_module_screen(window, requested: str, host: str):
-    """Return the requested form, including OPS inside its Mask Generation host."""
-    screen = getattr(window, "_screens", {}).get(host)
-    if requested == "ops" and screen is not None:
-        from .screens.mask import ops_page
+    """Return the requested form, including a page fold inside its host.
 
-        installed = ops_page(screen)
-        return installed.page if installed else None
+    OPS and the spatial submodules open as pages on their host's page strip
+    (:func:`spacr.qt.screens.map_barcodes.page_fold_host`), so asking for one
+    of them answers with that page, or None while it is not open.
+    """
+    screen = getattr(window, "_screens", {}).get(host)
+    if screen is not None and requested != host:
+        from .screens.map_barcodes import page_fold, page_fold_host
+
+        if page_fold_host(requested) == host:
+            installed = page_fold(screen, requested)
+            return installed.page if installed else None
     return screen
 
 
@@ -5614,23 +5620,20 @@ class MainWindow(QMainWindow):
         """Press ``host_key``'s switch for ``folded_key``, if it has one.
 
         Driven through the button so the control shows the state the form
-        has. OPS uses its actions-row switch; category folds use the masthead
-        strip. A host without a corresponding switch is left unchanged.
+        has. Page folds (OPS, and the spatial submodules on Mask Generation
+        and Map Barcodes) use their actions-row switch; category folds use
+        the masthead strip. A host without a corresponding switch is left
+        unchanged.
         """
         screen = self._screens.get(host_key)
         if screen is None:
             return
-        if host_key == "mask" and folded_key == "ops":
-            switch = getattr(screen, "_ops_switch", None)
-            if switch is not None:
-                if switch.isChecked():
-                    from .screens.mask import ops_page
+        from .screens.map_barcodes import page_fold, page_fold_host
 
-                    installed = ops_page(screen)
-                    if installed is not None:
-                        installed.set_shown(True)
-                else:
-                    switch.setChecked(True)
+        if page_fold_host(folded_key) == host_key:
+            installed = page_fold(screen, folded_key)
+            if installed is not None:
+                installed.show_page()
             return
         try:
             from .screens.mask import fold_set

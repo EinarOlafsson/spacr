@@ -222,6 +222,40 @@ _MODULE_LIST: Tuple[Module, ...] = (
              "that plate's.",
     ),
     Module(
+        key="spatial_masks",
+        summary="Segment a whole Xenium morphology or Visium HD H&E slide "
+                "in overlapping tiles into Measure-ready fields.",
+        entry="spacr.ops_engine:run_spatial_masks",
+        defaults=None,
+        defaults_entry="spacr.ops_settings:spatial_mask_defaults",
+        validate_key="",
+        requires=("spatial_source \u2014 a Xenium output folder or a "
+                  "Visium HD output folder with its full-resolution image",),
+        writes=("<spatial_dst>/merged/ \u2014 one field per window with its "
+                "masks, the layout Measure reads",
+                "<spatial_dst>/measurements/measurements.db \u2014 the "
+                "fields' places on the slide"),
+        note="ALPHA (F534). Reached in the GUI from the Spatial switch in "
+             "Mask Generation's actions row, behind Show alpha features.",
+    ),
+    Module(
+        key="spatial_map",
+        summary="Count every Xenium transcript or Visium HD bin into the "
+                "cells Spatial Mask Generation segmented.",
+        entry="spacr.ops_engine:run_spatial_map",
+        defaults=None,
+        defaults_entry="spacr.ops_settings:spatial_map_defaults",
+        validate_key="",
+        requires=("spatial_source \u2014 the Xenium or Visium HD output "
+                  "folder that was segmented",
+                  "spatial_masks_dir \u2014 the spatial_dst Spatial Mask "
+                  "Generation wrote"),
+        writes=("<spatial_masks_dir>/measurements/measurements.db \u2014 "
+                "per-object expression and infection calls",),
+        note="ALPHA (F534). Reached in the GUI from the Spatial switch in "
+             "Map Barcodes' actions row, behind Show alpha features.",
+    ),
+    Module(
         key="foreign",
         summary="Import external images, masks, and a measurement table as a spaCR project.",
         entry="spacr.foreign:import_project",

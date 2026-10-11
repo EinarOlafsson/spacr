@@ -3853,7 +3853,14 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
     from spacr.qt.screens.batch import ON_ERROR_LABELS
     from spacr.qt.screens.hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
-    from spacr.qt.screens.mask import OPS_TOGGLE_TOOLTIP
+    from spacr.qt.screens.mask import (
+        OPS_TOGGLE_TOOLTIP,
+        SPATIAL_MASKS_TOGGLE_TOOLTIP,
+    )
+    from spacr.qt.screens.map_barcodes import (
+        SPATIAL_MAP_TOGGLE_TOOLTIP,
+        SPATIAL_TOGGLE_TEXT,
+    )
     from spacr.qt.screens.make_masks import tool_row_entries
     from spacr.qt.screens.parameter_sweep import (
         SWEEP_TOGGLE_TEXT,
@@ -4035,6 +4042,11 @@ def _indirect_runtime_ui_sources() -> set[str]:
         # imported from `mask`, exactly like the two toggles above; its
         # caption "OPS" is a compact `_ROWS` row, so only the tooltip is here.
         str(OPS_TOGGLE_TOOLTIP),
+        # F534's two alpha Spatial switches, passed to AiToggleLabel the
+        # same way from `mask` and `map_barcodes`: one caption, two tooltips.
+        str(SPATIAL_TOGGLE_TEXT),
+        str(SPATIAL_MASKS_TOGGLE_TOOLTIP),
+        str(SPATIAL_MAP_TOGGLE_TOOLTIP),
         str(ALL_CHANNELS),
         str(MAX_SETS_TOOLTIP),
         str(PREVIEW_RUN_TEXT),

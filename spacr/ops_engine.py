@@ -3583,6 +3583,7 @@ def _st_level_geometry(path: str, level: int = 0) -> Dict[str, Any]:
             used = min(max(int(level), 0), len(levels) - 1)
 
             def size(item):
+                """``(rows, columns)`` of one level of the series."""
                 axes = str(item.axes)
                 return (int(item.shape[axes.index("Y")]),
                         int(item.shape[axes.index("X")]))

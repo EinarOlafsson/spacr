@@ -42,6 +42,17 @@ HOST_KEY = "map_barcodes"
 #: draws them.
 FOLDED_APPS: Tuple[str, ...] = ("barcode_qc",)
 
+PAGE_FOLDS: Tuple[str, ...] = ("spatial_map",)
+"""The folds opened as a page by a switch in this screen's actions row.
+
+The arrangement OPS has on Mask Generation, rather than a masthead strip
+button. Spatial Map Barcodes is the batch half of the spatial
+transcriptomics panel: it maps every transcript of a slide onto the fields
+Spatial Mask Generation wrote. It is alpha and stays out of
+:data:`FOLDED_APPS`, which would list it in the menu with the alpha gate
+shut. See :func:`install_spatial_map_switch`.
+"""
+
 #: Opening size of a folded module's window. Wide enough for a settings
 #: form beside a console, which is what every settings-driven module is.
 FOLD_WINDOW_SIZE = (1180, 760)
@@ -155,6 +166,16 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "Methods & Results",
         "Draft the methods and results sections from the run, with every "
         "number traced",
+        "alpha"),
+    "spatial_masks": (
+        "Spatial Mask Generation",
+        "Segment a whole Xenium morphology or Visium HD H&E slide in "
+        "overlapping tiles into fields Measure reads.",
+        "alpha"),
+    "spatial_map": (
+        "Spatial Map Barcodes",
+        "Count every Xenium transcript or Visium HD bin into the cells "
+        "Spatial Mask Generation segmented, with infection calls.",
         "alpha"),
 }
 
@@ -613,6 +634,215 @@ class FoldOpener:
             shown.show()
         self.window = shown
         return shown
+
+
+class PageFold(QObject):
+    """An actions-row switch on a host screen and the page it opens.
+
+    The general form of what Mask Generation built for OPS: a folded module
+    with a run entry point of its own is not a set of categories on the
+    host's form but a page on the host's page strip, opened and closed by a
+    switch in the host's actions row. :class:`spacr.qt.screens.mask._OpsPage`
+    is this class for the key ``"ops"``; the spatial submodules are this
+    class for ``"spatial_masks"`` on Mask Generation and ``"spatial_map"``
+    on Map Barcodes.
+
+    A ``QObject`` parented to the host screen with bound-method slots,
+    rather than closures hung off the switch: the page strip's own close
+    mark can take the page down without telling the switch, so something
+    has to be connected to ``tabCloseRequested`` to put the switch back.
+    A closure doing that would keep the host alive through the switch.
+
+    The screen behind the page is built once and kept, the way every
+    other fold's is -- pressing the switch again puts the SAME screen
+    back, with whatever it had loaded still loaded.
+
+    :param screen: the host screen the switch sits on.
+    :param switch: the actions-row toggle.
+    :param key: the folded module's registry key.
+    :param build: called with the main window (or None) and returning the
+        module's screen; the settings-driven screen for ``key`` when omitted.
+    """
+
+    def __init__(self, screen: QWidget, switch, key: str,
+                 build: Optional[Callable[[Optional[QWidget]],
+                                          QWidget]] = None) -> None:
+        """Record the switch and how to build the page, building neither."""
+        super().__init__(screen)
+        self.screen = screen
+        self.switch = switch
+        self.key = str(key)
+        self.opener = FoldOpener(screen, self.key,
+                                 build or partial(build_settings_screen,
+                                                  self.key))
+        self.page: Optional[QWidget] = None
+        self._watching = False
+
+    def set_shown(self, on: bool) -> None:
+        """Open or close the page.
+
+        Never raises: this is a slot on a user's click, and a module that
+        cannot be built must cost its own page and nothing else. A failed
+        open puts the switch back off rather than leaving it lit over
+        nothing.
+
+        :param on: the switch's new state.
+        """
+        if on:
+            try:
+                self.page = self.opener.open()
+            except Exception:
+                LOG.debug("Could not open the %s page", self.key,
+                          exc_info=True)
+                self.page = None
+            if self.page is None:
+                self._restate(False)
+                return
+            self._watch_the_strip()
+            return
+        page = self.page or getattr(self.opener, "window", None)
+        self.page = None
+        if page is None:
+            return
+        try:
+            if not hide_as_page(page, self.screen):
+                page.hide()
+        except Exception:
+            LOG.debug("Could not close the %s page", self.key,
+                      exc_info=True)
+
+    def show_page(self) -> None:
+        """Open the page through the switch, so the switch shows the state.
+
+        What navigation calls when it is asked for this module by key: a
+        switch already on has its page put back rather than being left lit
+        over a page its cross closed.
+        """
+        switch = self.switch
+        if switch is None or switch.isChecked():
+            self.set_shown(True)
+            return
+        switch.setChecked(True)
+
+    def _watch_the_strip(self) -> None:
+        """Follow the page's own close mark, once the strip exists.
+
+        The strip is created by the first page opened on this host, so
+        this cannot be connected in ``__init__``.
+        """
+        if self._watching:
+            return
+        pages = getattr(self.screen, "_fold_pages", None)
+        if pages is None:
+            return
+        try:
+            pages.tabCloseRequested.connect(self._page_closed)
+        except Exception:
+            LOG.debug("Could not follow the page strip for %s", self.key,
+                      exc_info=True)
+            return
+        self._watching = True
+
+    def _page_closed(self, index: int) -> None:
+        """Put the switch back when the page is closed by its own cross.
+
+        :param index: the page the strip is closing.
+        """
+        pages = getattr(self.screen, "_fold_pages", None)
+        if pages is None or self.page is None:
+            return
+        try:
+            ours = pages.indexOf(self.page)
+        except RuntimeError:
+            ours = -1
+        if ours not in (index, -1):
+            return
+        self.page = None
+        self._restate(False)
+
+    def _restate(self, on: bool) -> None:
+        """Move the switch without asking it to open or close anything.
+
+        :param on: the state the switch should show.
+        """
+        switch = self.switch
+        if switch is None or bool(switch.isChecked()) == bool(on):
+            return
+        blocked = switch.blockSignals(True)
+        try:
+            switch.setChecked(on)
+        finally:
+            switch.blockSignals(blocked)
+
+
+def page_fold(screen: Optional[QWidget], key: str) -> Optional[PageFold]:
+    """The page fold for ``key`` installed on ``screen``, or None.
+
+    :param screen: the host screen to inspect.
+    :param key: the folded module's registry key.
+    """
+    folds = getattr(screen, "_page_folds", None) if screen is not None else None
+    fold = folds.get(str(key)) if isinstance(folds, dict) else None
+    return fold if isinstance(fold, PageFold) else None
+
+
+def register_page_fold(screen: QWidget, fold: PageFold) -> PageFold:
+    """Connect ``fold``'s switch and record it on its host screen.
+
+    :param screen: the host screen.
+    :param fold: the page fold to wire.
+    :returns: ``fold``.
+    """
+    fold.switch.toggled.connect(fold.set_shown)
+    folds = getattr(screen, "_page_folds", None)
+    if not isinstance(folds, dict):
+        folds = {}
+        screen._page_folds = folds
+    folds[fold.key] = fold
+    return fold
+
+
+def install_page_fold(screen: QWidget, switch, host_key: str, key: str,
+                      build: Optional[Callable[[Optional[QWidget]],
+                                               QWidget]] = None
+                      ) -> Optional[PageFold]:
+    """Wire an actions-row ``switch`` on ``screen`` to the page for ``key``.
+
+    Idempotent: a second call on the same screen returns the first
+    installation and connects nothing further.
+
+    :param screen: the host screen.
+    :param switch: the toggle to connect.
+    :param host_key: registry key the host screen must carry.
+    :param key: the folded module's registry key.
+    :param build: the module's screen factory; the settings-driven screen
+        for ``key`` when omitted.
+    :returns: the installation, or None when ``screen`` is not the host.
+    """
+    if getattr(screen, "app_key", None) != host_key or switch is None:
+        return None
+    existing = page_fold(screen, key)
+    if existing is not None:
+        return existing
+    return register_page_fold(screen, PageFold(screen, switch, key, build))
+
+
+def page_fold_host(key: str) -> Optional[str]:
+    """The host screen key whose actions row opens ``key`` as a page.
+
+    Read from each host's ``PAGE_FOLDS``, the declaration the switches are
+    built from, so navigation and the switches cannot disagree.
+
+    :param key: a module key.
+    :returns: the host's registry key, or None when ``key`` is no page fold.
+    """
+    from importlib import import_module
+
+    for host_key, module_name in FOLD_HOST_MODULES.items():
+        module = import_module(f"{__package__}.{module_name}")
+        if str(key) in getattr(module, "PAGE_FOLDS", ()):
+            return host_key
+    return None
 
 
 def install_fold_strip(screen: QWidget, host_key: str,
@@ -3253,6 +3483,14 @@ def _install_spatial_transcriptomics(screen: QWidget):
             "image and count each gene per cell, nucleus, pathogen and "
             "vacuole."))
         card.setObjectName("MapBarcodesSpatialCard")
+        pointer = QLabel(tr(
+            "This panel previews one image. For a whole slide, switch on "
+            "Spatial in Mask Generation's actions row to segment it in "
+            "tiles, then Spatial in this screen's actions row to count "
+            "every transcript into those masks in one batch run."))
+        pointer.setObjectName("MapBarcodesSpatialBatchPointer")
+        pointer.setWordWrap(True)
+        card.body_layout.addWidget(pointer)
     except Exception:
         LOG.debug("could not build the spatial transcriptomics panel",
                   exc_info=True)
@@ -3322,3 +3560,46 @@ def _spatial_panel_of(screen: QWidget):
         return None
     screen._spatial_panel = panel
     return panel
+
+
+SPATIAL_MAP_KEY: str = PAGE_FOLDS[0]
+"""The registry key of the page the actions-row Spatial switch opens."""
+
+SPATIAL_TOGGLE_TEXT = "Spatial"
+"""What both spatial switches say, on Mask Generation and on Map Barcodes."""
+
+SPATIAL_MAP_TOGGLE_TOOLTIP = (
+    "Show or hide the Spatial Map Barcodes page: count every Xenium "
+    "transcript or Visium HD bin of a whole slide into the cells Spatial "
+    "Mask Generation segmented, with infection calls from pathogen genes. "
+    "Alpha."
+)
+"""What the Map Barcodes Spatial switch says on hover."""
+
+
+def install_spatial_map_switch(screen: QWidget, switch) -> Optional[PageFold]:
+    """Wire Map Barcodes' actions-row Spatial switch to its page.
+
+    The switch is alpha: it is named for the alpha gate here and hidden at
+    once unless Preferences -> Show alpha features is on.
+
+    :param screen: the Map Barcodes screen.
+    :param switch: the toggle to connect.
+    :returns: the installation, or None when this is not the host screen.
+    """
+    if getattr(screen, "app_key", None) != HOST_KEY or switch is None:
+        return None
+    switch.setObjectName("MapBarcodesSpatialMapSwitch")
+    fold = install_page_fold(screen, switch, HOST_KEY, SPATIAL_MAP_KEY)
+    _gate_alpha(switch)
+    return fold
+
+
+def _gate_alpha(widget: QWidget) -> None:
+    """Hide ``widget`` now if the alpha gate is shut.
+
+    :param widget: a widget whose object name is registered as alpha.
+    """
+    from ..preferences import _apply_alpha_widgets
+
+    _apply_alpha_widgets(widget)

@@ -98,6 +98,8 @@ APP_FUNCTIONS: Dict[str, str] = {
     "external_masks": "spacr.external_masks.prepare_external_masks",
     "align": "spacr.align.align_folder",
     "ops": "spacr.ops_engine.run_ops",
+    "spatial_masks": "spacr.ops_engine.run_spatial_masks",
+    "spatial_map": "spacr.ops_engine.run_spatial_map",
     "umap": "spacr.core.generate_image_umap",
     "train_cellpose": "spacr.submodules.train_cellpose",
     "ml_analyze": "spacr.ml.generate_ml_scores",
@@ -159,6 +161,8 @@ ALT_SRC_KEYS: Dict[str, str] = {
     "foreign": "images",
     "external_masks": "inputs",
     "ops": "genotype_source",
+    "spatial_masks": "spatial_source",
+    "spatial_map": "spatial_source",
 }
 
 CHANNEL_KEYS: Tuple[str, ...] = tuple(

@@ -10,6 +10,12 @@ strip instead and its switch sits in the actions row beside the Live and 3D
 buttons, in the same format. See :data:`CATEGORY_FOLDS`, :data:`PAGE_FOLDS` and
 :func:`install_ops_switch`.
 
+Spatial Mask Generation (alpha, F534) is a page fold of the same kind: its
+Spatial switch sits beside OPS and opens the ``spatial_masks`` settings
+page, which segments a whole Xenium or Visium HD slide in overlapping tiles.
+Both are :class:`~spacr.qt.screens.map_barcodes.PageFold` instances; see
+:func:`install_spatial_masks_switch`.
+
 The Timelapse switch enables ``timelapse=True`` for the standard mask
 pipeline and displays the additional time-series and tracking settings on the
 Mask form. Settings files created for the Timelapse module remain compatible;
@@ -37,7 +43,8 @@ from ..widgets.fold_strip import (
     FoldStrip, mark_folded_categories, mark_folded_sections,
 )
 from .map_barcodes import (
-    CategoryFoldSet, FoldOpener, build_settings_screen, hide_as_page,
+    CategoryFoldSet, PageFold, _gate_alpha, build_settings_screen,
+    hide_as_page, install_page_fold, page_fold, register_page_fold,
 )
 
 LOG = logging.getLogger(__name__)
@@ -79,7 +86,7 @@ CATEGORY_FOLDS: Tuple[str, ...] = ("timelapse",)
 #: strip: it is a switch in the actions row, beside Live and the dimension
 #: switches, and switching it on puts the module on this screen's page
 #: strip. See :func:`install_ops_switch`.
-PAGE_FOLDS: Tuple[str, ...] = ("ops",)
+PAGE_FOLDS: Tuple[str, ...] = ("ops", "spatial_masks")
 
 #: Name, sentence and maturity for a fold with no registry row to carry
 #: them. Moved here with the fold itself, from `align.FOLD_FALLBACK`.
@@ -486,18 +493,14 @@ def _build_ops(host_window: Optional[QWidget]) -> QWidget:
     return build_settings_screen(OPS_KEY, host_window)
 
 
-class _OpsPage(QObject):
+class _OpsPage(PageFold):
     """Mask Generation's OPS switch and the page it opens.
 
-    A ``QObject`` parented to the host screen with bound-method slots,
-    rather than closures hung off the switch: the page strip's own close
-    mark can take the page down without telling the switch, so something
-    has to be connected to ``tabCloseRequested`` to put the switch back.
-    A closure doing that would keep the host alive through the switch.
-
-    The screen behind the page is built once and kept, the way every
-    other fold's is -- pressing the switch again puts the SAME OPS screen
-    back, with whatever it had loaded still loaded.
+    :class:`~spacr.qt.screens.map_barcodes.PageFold` for the key ``"ops"``,
+    whose behaviour this class was before it was made general: the screen
+    behind the page is built once and kept, the page strip's own close mark
+    puts the switch back, and a module that cannot be built leaves the
+    switch off.
 
     :param screen: the Mask Generation screen the switch sits on.
     :param switch: the actions-row toggle.
@@ -505,94 +508,7 @@ class _OpsPage(QObject):
 
     def __init__(self, screen: QWidget, switch) -> None:
         """Record the switch and how to build the page, building neither."""
-        super().__init__(screen)
-        self.screen = screen
-        self.switch = switch
-        self.opener = FoldOpener(screen, OPS_KEY, _build_ops)
-        self.page: Optional[QWidget] = None
-        self._watching = False
-
-    def set_shown(self, on: bool) -> None:
-        """Open or close the OPS page.
-
-        Never raises: this is a slot on a user's click, and a module that
-        cannot be built must cost its own page and nothing else. A failed
-        open puts the switch back off rather than leaving it lit over
-        nothing.
-
-        :param on: the switch's new state.
-        """
-        if on:
-            try:
-                self.page = self.opener.open()
-            except Exception:                            # noqa: BLE001
-                LOG.debug("Could not open the %s page", OPS_KEY,
-                          exc_info=True)
-                self.page = None
-            if self.page is None:
-                self._restate(False)
-                return
-            self._watch_the_strip()
-            return
-        page = self.page or getattr(self.opener, "window", None)
-        self.page = None
-        if page is None:
-            return
-        try:
-            if not hide_as_page(page, self.screen):
-                page.hide()
-        except Exception:                                # noqa: BLE001
-            LOG.debug("Could not close the %s page", OPS_KEY, exc_info=True)
-
-    def _watch_the_strip(self) -> None:
-        """Follow the page's own close mark, once the strip exists.
-
-        The strip is created by the first page opened on this host, so
-        this cannot be connected in ``__init__``.
-        """
-        if self._watching:
-            return
-        pages = getattr(self.screen, "_fold_pages", None)
-        if pages is None:
-            return
-        try:
-            pages.tabCloseRequested.connect(self._page_closed)
-        except Exception:                                # noqa: BLE001
-            LOG.debug("Could not follow the page strip for %s", OPS_KEY,
-                      exc_info=True)
-            return
-        self._watching = True
-
-    def _page_closed(self, index: int) -> None:
-        """Put the switch back when the page is closed by its own cross.
-
-        :param index: the page the strip is closing.
-        """
-        pages = getattr(self.screen, "_fold_pages", None)
-        if pages is None or self.page is None:
-            return
-        try:
-            ours = pages.indexOf(self.page)
-        except RuntimeError:
-            ours = -1
-        if ours not in (index, -1):
-            return
-        self.page = None
-        self._restate(False)
-
-    def _restate(self, on: bool) -> None:
-        """Move the switch without asking it to open or close anything.
-
-        :param on: the state the switch should show.
-        """
-        switch = self.switch
-        if switch is None or bool(switch.isChecked()) == bool(on):
-            return
-        blocked = switch.blockSignals(True)
-        try:
-            switch.setChecked(on)
-        finally:
-            switch.blockSignals(blocked)
+        super().__init__(screen, switch, OPS_KEY, _build_ops)
 
 
 def ops_page(screen: QWidget) -> Optional["_OpsPage"]:
@@ -620,9 +536,48 @@ def install_ops_switch(screen: QWidget, switch) -> Optional["_OpsPage"]:
     if existing is not None:
         return existing
     page = _OpsPage(screen, switch)
-    switch.toggled.connect(page.set_shown)
+    register_page_fold(screen, page)
     screen._ops_page = page
     return page
+
+
+SPATIAL_MASKS_KEY: str = PAGE_FOLDS[1]
+"""The registry key of the page Mask Generation's Spatial switch opens."""
+
+SPATIAL_MASKS_TOGGLE_TOOLTIP = (
+    "Show or hide the Spatial Mask Generation page: segment a whole Xenium "
+    "morphology or Visium HD H&E slide in overlapping tiles into fields "
+    "Measure reads, with the fields' places on the slide recorded for "
+    "Spatial Map Barcodes. Alpha."
+)
+"""What Mask Generation's Spatial switch says on hover."""
+
+
+def spatial_masks_page(screen: QWidget) -> Optional[PageFold]:
+    """The Spatial Mask Generation switch installed on ``screen``, or None.
+
+    :param screen: the module screen to inspect.
+    """
+    return page_fold(screen, SPATIAL_MASKS_KEY)
+
+
+def install_spatial_masks_switch(screen: QWidget,
+                                 switch) -> Optional[PageFold]:
+    """Wire Mask Generation's actions-row Spatial switch to its page.
+
+    The switch is alpha: it is named for the alpha gate here and hidden at
+    once unless Preferences -> Show alpha features is on.
+
+    :param screen: the Mask Generation screen.
+    :param switch: the toggle to connect.
+    :returns: the installation, or None when this is not the host screen.
+    """
+    if getattr(screen, "app_key", None) != HOST_KEY or switch is None:
+        return None
+    switch.setObjectName("MaskSpatialSwitch")
+    fold = install_page_fold(screen, switch, HOST_KEY, SPATIAL_MASKS_KEY)
+    _gate_alpha(switch)
+    return fold
 
 
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:

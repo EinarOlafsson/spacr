@@ -858,6 +858,8 @@ _NAME_TO_GLYPH = {
     "import_images":   "fa5s.images",
     "map_barcodes":    "fa5s.barcode",
     "ops":             "fa5s.braille",
+    "spatial_masks":   "fa5s.th",
+    "spatial_map":     "fa5s.map-marked-alt",
     "ai_console":      "fa5s.robot",
     "data_manager":    "fa5s.hdd",
 }

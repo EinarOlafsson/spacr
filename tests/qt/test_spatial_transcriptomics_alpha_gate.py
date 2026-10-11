@@ -51,7 +51,7 @@ def test_registered_alpha_and_follows_the_switch(screen, gate):
     from spacr.settings import ALPHA_FEATURES
 
     names = map_barcodes._SPATIAL_ALPHA_WIDGETS
-    assert set(names) == set(ALPHA_FEATURES[534]["widgets"])
+    assert set(names) <= set(ALPHA_FEATURES[534]["widgets"])
     toggle = screen.findChild(QObject, "MapBarcodesSpatialToggle")
     assert toggle.isHidden()
     gate._set_show_alpha_features(True)
