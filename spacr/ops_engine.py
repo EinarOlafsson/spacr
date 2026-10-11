@@ -2768,8 +2768,13 @@ def _st_write_object_counts(db: str, object_type: str, keys, prcfs, labels,
     wide_genes = order[:_ST_WIDE_GENE_LIMIT]
     wide_genes = np.sort(wide_genes)
     dense = matrix[:, wide_genes].toarray()
-    wide = pd.DataFrame(dense, columns=[f"expr_{genes[i]}"
-                                        for i in wide_genes])
+    names, seen = [], Counter()
+    for i in wide_genes:
+        seen[str(genes[i])] += 1
+        count = seen[str(genes[i])]
+        names.append(f"expr_{genes[i]}" if count == 1
+                     else f"expr_{genes[i]}_{count}")
+    wide = pd.DataFrame(dense, columns=names)
     wide.insert(0, "expr_total", np.asarray(matrix.sum(axis=1)).ravel())
     wide.insert(0, "expr_platform", platform)
     wide.insert(0, "object_label", np.asarray(labels, dtype=np.int64))

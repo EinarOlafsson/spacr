@@ -529,3 +529,16 @@ def test_the_spatial_settings_register_once():
                             "Spatial segmentation", "Spatial mapping",
                             "Spatial infection") for k in categories[name]}
     assert keys == filed == set(ops_settings.SPATIAL_TYPES)
+
+
+def test_a_gene_name_shared_by_two_features_gets_its_own_column(tmp_path):
+    from scipy import sparse
+
+    db = str(tmp_path / "m.db")
+    oe._st_write_object_counts(
+        db, "cell", ["p_r1_c1_f1_o1"], ["p_r1_c1_f1"], [1],
+        np.array(["Pakap", "Pakap", "Actb"], dtype=object),
+        sparse.csr_matrix(np.array([[1.0, 2.0, 3.0]])), "visium_hd")
+    wide = read_table(db, table="cell_expression", canonicalise=False,
+                      report=None)
+    assert wide.loc[0, "expr_Pakap"] == 1 and wide.loc[0, "expr_Pakap_2"] == 2
