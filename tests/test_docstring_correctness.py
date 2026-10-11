@@ -3902,7 +3902,16 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "690_tem_api_arrivals_2026-10-11.json").read_text())
     assert len(tem_additions) == 10
     assert {key: docs[key] for key in tem_additions} == tem_additions
-    zoo_additions = {**zoo_additions, **tem_additions}
+    # F534 (2026-10-11): run_spatial_masks / run_spatial_map, their settings
+    # helpers, the PageFold surface and the two Spatial switches.
+    spatial_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "534_spatial_api_arrivals_2026-10-11.json").read_text())
+    assert len(spatial_additions) == 22
+    assert {key: docs[key] for key in spatial_additions} == spatial_additions
+    assert not spatial_additions.keys() & (
+        zoo_additions.keys() | tem_additions.keys() | volume_additions.keys())
+    zoo_additions = {**zoo_additions, **tem_additions, **spatial_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()

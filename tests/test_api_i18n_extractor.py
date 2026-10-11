@@ -62,6 +62,19 @@ _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
     # Item 511's Mask bound-row map, on nightly 88a0ee002 (2026-09-26).
     "spacr.qt.widgets.live_preview.BOUND_ROWS",
 })
+def _spatial_arrivals() -> dict[str, str]:
+    """F534's 22 documented symbols, one named contract (2026-10-11).
+
+    run_spatial_masks / run_spatial_map, the ops_settings registration and
+    default helpers, the shared PageFold surface of map_barcodes and the two
+    Spatial switches. Six are documented constants, so the assignment checks
+    subtract them exactly as the historical digests require.
+    """
+    return json.loads((ROOT / "tests" / "data" / "release_contracts"
+        / "534_spatial_api_arrivals_2026-10-11.json").read_text(
+            encoding="utf-8"))
+
+
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
 
@@ -269,6 +282,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 32 -> 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS (03a02c3b8).
     # 34 -> 35 on 2026-09-26 with live_preview.BOUND_ROWS (+1 / -0 against
     # 4f6c58418).
+    spatial_arrivals = _spatial_arrivals()
+    assert len(spatial_arrivals) == 22
+    assert {key: docs[key] for key in spatial_arrivals} == spatial_arrivals
+    assert not spatial_arrivals.keys() & dunders
+    assignments = assignments - spatial_arrivals.keys()
     assert len(assignments) == 35
     assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
     new_assignments = assignments
@@ -1441,7 +1459,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         / "690_tem_api_arrivals_2026-10-11.json").read_text())
     assert len(tem_arrivals) == 10
     assert {key: docs[key] for key in tem_arrivals} == tem_arrivals
-    zoo_arrivals = {**zoo_arrivals, **tem_arrivals}
+    assert not spatial_arrivals.keys() & (zoo_arrivals.keys() | tem_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **tem_arrivals, **spatial_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1924,7 +1943,9 @@ class FromNew:
 
 def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     docs = builder.public_docstrings()
-    assignment_keys = _visible_assignment_docs()
+    # F534's six documented constants are the named arrival contract.
+    assignment_keys = (_visible_assignment_docs()
+                       - _spatial_arrivals().keys())
 
     # Four organism registries, Starplast's URL/package identity and the
     # Make Masks animation registry add seven to the original sixteen; the
