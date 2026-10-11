@@ -158,7 +158,13 @@ def project(tmp_path):
 
 
 def du(path: str) -> int:
-    """Bytes under ``path``, the way ``du --apparent-size`` counts them."""
+    """Bytes under ``path``, the way ``du --apparent-size`` counts them.
+
+    A file that disappears between the walk and its size, such as SQLite's
+    ``-shm`` sidecar while a worker closes its connection, counts as zero
+    instead of raising; the caller's ``waitUntil`` simply asks again (N47
+    serial Qt run).
+    """
     if os.path.isfile(path):
         return os.path.getsize(path)
     total = 0
@@ -166,7 +172,10 @@ def du(path: str) -> int:
         for name in filenames:
             full = os.path.join(dirpath, name)
             if not os.path.islink(full):
-                total += os.path.getsize(full)
+                try:
+                    total += os.path.getsize(full)
+                except FileNotFoundError:
+                    continue
     return total
 
 

@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import ast
 import ctypes
+import threading
 import ctypes.util
 import fcntl
 import hashlib
@@ -1201,25 +1202,47 @@ def _opencc_runtime() -> tuple[str, Path]:
     )
 
 
+_OPENCC_CONVERTERS: dict[tuple[str, str], tuple[object, int]] = {}
+_OPENCC_LOCK = threading.Lock()
+
+
+def _opencc_converter(library_name: str, config_path: Path) -> tuple[object, int]:
+    """Open one OpenCC ``t2s`` converter per runtime and keep it.
+
+    Opening loads the whole t2s dictionary set. It used to happen once per
+    string checked, which made one catalog audit test take about 230 s and
+    pass the N47 serial run's 300 s per-test limit on a loaded machine.
+    The converter is keyed by the resolved runtime, so a test that clears
+    ``_opencc_runtime`` and resolves another one gets its own.
+    """
+    key = (str(library_name), str(config_path))
+    with _OPENCC_LOCK:
+        cached = _OPENCC_CONVERTERS.get(key)
+        if cached is not None:
+            return cached
+        library = ctypes.CDLL(library_name)
+        library.opencc_open.argtypes = [ctypes.c_char_p]
+        library.opencc_open.restype = ctypes.c_void_p
+        library.opencc_convert_utf8.argtypes = [
+            ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t,
+        ]
+        library.opencc_convert_utf8.restype = ctypes.c_void_p
+        library.opencc_convert_utf8_free.argtypes = [ctypes.c_void_p]
+        library.opencc_close.argtypes = [ctypes.c_void_p]
+        handle = library.opencc_open(str(config_path).encode("utf-8"))
+        if not handle or handle == ctypes.c_void_p(-1).value:
+            raise RuntimeError("OpenCC could not load t2s.json")
+        _OPENCC_CONVERTERS[key] = (library, handle)
+        return library, handle
+
+
 def _simplify_chinese_prose(value: str) -> str:
     """Normalize generated zh_CN prose with Apache-2.0 OpenCC ``t2s``.
 
     Generation and audit both fail loudly when the host dependency is absent.
     Protected API/RST spans bypass OpenCC byte-for-byte.
     """
-    library_name, config_path = _opencc_runtime()
-    library = ctypes.CDLL(library_name)
-    library.opencc_open.argtypes = [ctypes.c_char_p]
-    library.opencc_open.restype = ctypes.c_void_p
-    library.opencc_convert_utf8.argtypes = [
-        ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t,
-    ]
-    library.opencc_convert_utf8.restype = ctypes.c_void_p
-    library.opencc_convert_utf8_free.argtypes = [ctypes.c_void_p]
-    library.opencc_close.argtypes = [ctypes.c_void_p]
-    handle = library.opencc_open(str(config_path).encode("utf-8"))
-    if not handle or handle == ctypes.c_void_p(-1).value:
-        raise RuntimeError("OpenCC could not load t2s.json")
+    library, handle = _opencc_converter(*_opencc_runtime())
 
     def convert(fragment: str) -> str:
         if not fragment:
@@ -1235,18 +1258,16 @@ def _simplify_chinese_prose(value: str) -> str:
         finally:
             library.opencc_convert_utf8_free(pointer)
 
-    try:
-        source = str(value)
-        pieces: list[str] = []
-        cursor = 0
+    source = str(value)
+    pieces: list[str] = []
+    cursor = 0
+    with _OPENCC_LOCK:
         for match in _CONTEXT_HARD_PROTECT_RE.finditer(source):
             pieces.append(convert(source[cursor:match.start()]))
             pieces.append(match.group(0))
             cursor = match.end()
         pieces.append(convert(source[cursor:]))
-        return "".join(pieces)
-    finally:
-        library.opencc_close(handle)
+    return "".join(pieces)
 
 
 def _has_traditional_chinese_prose(value: str) -> bool:
