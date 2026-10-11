@@ -1,4 +1,4 @@
-|Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
+|Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Release| |Issues| |Source| |Conda| |PyPI| |Docker| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
 Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
 
@@ -53,6 +53,9 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 .. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge latest_release_date
+.. |Docker| image:: https://img.shields.io/badge/Docker-ghcr.io%2Feinarolafsson%2Fspacr-2496ED?logo=docker&logoColor=white
+   :target: https://github.com/EinarOlafsson/spacr/pkgs/container/spacr
+   :alt: Docker images on GHCR
 .. |PyPI Downloads| image:: https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=GRAY&right_color=GREEN&left_text=downloads
    :target: https://pepy.tech/projects/spacr
    :alt: PyPI Downloads
@@ -165,6 +168,21 @@ Hardware support
 Install spaCR
 ~~~~~~~~~~~~~
 
+Choose an install route:
+
+- **Desktop application**: a Linux, macOS or Windows installer with its own Python.
+- **pip**: ``python -m pip install spacr`` in a Conda environment.
+- **conda-forge**: ``conda install conda-forge::spacr`` in a Conda environment.
+- **Docker**: the command-line pipelines in a Linux container, from the CPU image or the NVIDIA GPU image:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
+
+The `Docker guide <docs/source/installer_guide.rst#container-images>`_ covers
+GPU setup, data mounts and pipeline commands.
+
 Desktop application
 -------------------
 
@@ -254,24 +272,6 @@ into the active environment:
    conda activate spacr
    conda install conda-forge::spacr
    spacr
-
-Docker installation
--------------------
-
-Run spaCR's command-line pipelines in a container using the published
-`Docker images on GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_.
-Install `Docker <https://docs.docker.com/get-started/get-docker/>`_, then list
-the available pipelines with this published CPU image:
-
-.. code-block:: bash
-
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
-
-The matching NVIDIA GPU image is
-``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Both images target Linux
-x86-64 containers. See the `Docker installation guide
-<docs/source/installer_guide.rst#container-images>`_ for GPU prerequisites,
-data and model mounts, settings files, and complete pipeline commands.
 
 Install from source
 -------------------

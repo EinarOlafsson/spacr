@@ -1,4 +1,4 @@
-|Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
+|Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Release| |Issues| |Source| |Conda| |PyPI| |Docker| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
 Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
 
@@ -53,6 +53,9 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 .. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: Dagsetning nýjustu útgáfu á conda-forge
+.. |Docker| image:: https://img.shields.io/badge/Docker-ghcr.io%2Feinarolafsson%2Fspacr-2496ED?logo=docker&logoColor=white
+   :target: https://github.com/EinarOlafsson/spacr/pkgs/container/spacr
+   :alt: Docker-myndir á GHCR
 .. |PyPI Downloads| image:: https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=GRAY&right_color=GREEN&left_text=downloads
    :target: https://pepy.tech/projects/spacr
    :alt: PyPI-niðurhal
@@ -154,6 +157,20 @@ stuðlað (stabil)  framkvæmd (beta) 🔴 CPU stuðning aðeins
 Setja upp spaCR
 ~~~~~~~~~~~~~~~
 
+Veldu uppsetningarleið:
+
+- **Skjáborðsforrit**: uppsetningarforrit fyrir Linux, macOS eða Windows með eigið Python.
+- **pip**: ``python -m pip install spacr`` í Conda-umhverfi.
+- **conda-forge**: ``conda install conda-forge::spacr`` í Conda-umhverfi.
+- **Docker**: skipanalínuvinnslurnar í Linux-gámi, úr CPU-myndinni eða myndinni fyrir NVIDIA-skjákort:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
+
+`Docker-leiðbeiningarnar <../../source/installer_guide.rst#container-images>`_ fjalla um uppsetningu skjákorts, tengingu gagnamappa og skipanir fyrir vinnslurnar.
+
 Skjáborðsforrit
 -------------------
 
@@ -228,17 +245,6 @@ Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsfo
    conda activate spacr
    conda install conda-forge::spacr
    spacr
-
-Uppsetning með Docker
----------------------
-
-Keyrðu skipanalínuvinnslur spaCR í gámi með útgefnum `Docker-myndum á GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_. Settu upp `Docker <https://docs.docker.com/get-started/get-docker/>`_ og birtu síðan lista yfir tiltækar vinnslur með þessari útgefnu CPU-mynd:
-
-.. code-block:: bash
-
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
-
-Samsvarandi mynd fyrir NVIDIA-skjákort er ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Báðar myndirnar eru ætlaðar fyrir Linux-gáma á x86-64. Sjá `uppsetningarleiðbeiningar fyrir Docker <../../source/installer_guide.rst#container-images>`_ um forkröfur fyrir skjákort, tengingu gagna- og líkanamappa, stillingaskrár og heildarskipanir fyrir vinnslurnar.
 
 Uppsetning frá frumkóða
 -----------------------

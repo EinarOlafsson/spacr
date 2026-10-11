@@ -346,11 +346,67 @@ def bump_release(
     if package_version_path is not None:
         package_version_path.write_text(updated_package, encoding="utf-8")
     restamp_info_deck(setup_path.parent, new)
+    # The images are pushed by the release this bump starts; a tree without
+    # the README (a test fixture, an sdist) has no pages to update.
+    if (setup_path.parent / "README.rst").is_file():
+        sync_docker_tags(setup_path.parent, new)
     return verify_release_metadata(
         setup_path,
         citation_path,
         package_version_path=package_version_path,
     )
+
+
+#: The published container image. Its version tag appears on these pages
+#: besides the English and nine translated READMEs; a bump and
+#: ``sync-published`` rewrite all of them, so no page advertises an image a
+#: release left behind. Only the version changes: ``-cuda12.4`` and ``-cpu``
+#: suffixes are kept.
+DOCKER_IMAGE = "ghcr.io/einarolafsson/spacr"
+DOCKER_TAG_PAGES = (
+    Path("docs") / "source" / "installer_guide.rst",
+    Path("packaging") / "apptainer" / "README.md",
+)
+DOCKER_TAG_PATTERN = re.compile(
+    rf"(?<![\w.-]){re.escape(DOCKER_IMAGE)}:(\d+(?:\.\d+)+)(?![\w.])")
+
+
+def docker_tag_pages(root: Path) -> tuple[Path, ...]:
+    """Return every page that names a versioned :data:`DOCKER_IMAGE` tag."""
+    readme = root / "README.rst"
+    return (readme, *_localized_readmes(readme, None),
+            *(root / page for page in DOCKER_TAG_PAGES))
+
+
+def docker_tag_versions(text: str) -> set[str]:
+    """Return the image versions ``text`` advertises."""
+    return {match.group(1) for match in DOCKER_TAG_PATTERN.finditer(text)}
+
+
+def sync_docker_tags(root: Path, version: str) -> list[Path]:
+    """Point every Docker command and tag on the release pages at ``version``.
+
+    Every page is checked before any is written: a page that names no tag
+    means its wording moved away from the pattern, which would otherwise
+    leave it advertising an old image without anyone noticing.
+
+    :param root: the repository root.
+    :param version: the release whose images the pages should name.
+    :returns: the pages that changed.
+    """
+    Version(version)
+    updates = {}
+    for path in docker_tag_pages(root):
+        text = path.read_text(encoding="utf-8")
+        if not docker_tag_versions(text):
+            raise ValueError(f"{path} names no {DOCKER_IMAGE} version tag")
+        updated = DOCKER_TAG_PATTERN.sub(
+            lambda match: f"{DOCKER_IMAGE}:{version}", text)
+        if updated != text:
+            updates[path] = updated
+    for path, text in updates.items():
+        path.write_text(text, encoding="utf-8")
+    return list(updates)
 
 
 def restamp_info_deck(root: Path, version: str) -> str | None:
@@ -1356,6 +1412,10 @@ def main() -> int:
                     if args.releases else fetch_releases())
         if args.command == "sync-published":
             for path in sync_published_installer_links(args.root, releases):
+                print(path)
+            # The images are built from the same tag as the installers.
+            version, _assets = published_installer_version(releases)
+            for path in sync_docker_tags(args.root, version):
                 print(path)
         else:
             site_html = None

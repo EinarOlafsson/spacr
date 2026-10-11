@@ -2271,8 +2271,10 @@ def test_github_summary_has_reviewed_domain_translations():
     assert "CRISPR-skim" in joined["is"]
     # The reviewed "Try spaCR" heading was added by the
     # 2026-09-27 source-current README pass.
-    assert len(REVIEWED_README_HEADINGS) == 18
-    assert "Docker installation" in REVIEWED_README_HEADINGS
+    # 17 since 2026-10-10: Docker is now a route in "Install spaCR" rather
+    # than a section of its own.
+    assert len(REVIEWED_README_HEADINGS) == 17
+    assert "Docker installation" not in REVIEWED_README_HEADINGS
     assert "Try spaCR" in REVIEWED_README_HEADINGS
     for reviewed in REVIEWED_README_HEADINGS.values():
         assert set(reviewed) == {
@@ -4248,14 +4250,15 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     )
 
     canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
-    # 22 since 2026-10-10: |Website| (N687) and |Coverage| (N688) joined.
+    # 23 since 2026-10-10: |Docker| joined, after |Website| (N687) and
+    # |Coverage| (N688) made it 22 the same day.
     # 20 since the maintainer's 2026-09-16 badge edits: 19 badge alts plus
     # the logo's. It was 14 -- 13 plus the logo -- from the bioRxiv preprint
     # badge until conda-forge downloads and release date, PyPI downloads and
     # rank, Platforms and Cite arrived together.
     assert len(_readme_substitution_alt_text(
         canonical, README_BADGE_SUBSTITUTIONS,
-    )) + int(bool(_readme_logo_alt_text(canonical))) == 22
+    )) + int(bool(_readme_logo_alt_text(canonical))) == 23
     assert len(_readme_substitution_alt_text(
         canonical, README_INSTALLER_SUBSTITUTIONS,
     )) == 4
@@ -4300,7 +4303,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert len(alt_text) == len(
             re.findall(r"(?m)^   :alt: (.+)$", canonical)
         ) + len(canonical_alt) == (
-                22 + len(module_names) + 4 + 5)
+                23 + len(module_names) + 4 + 5)
         assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
         assert "logo_spacr_readme.png" not in text
         assert all(
@@ -4502,8 +4505,14 @@ def test_localized_readmes_preserve_module_names_and_technical_terms():
         text = (readme_root / f"README.{language}.rst").read_text(
             encoding="utf-8"
         )
-        module_lines = re.findall(r"(?m)^- \*\*([^*\n]+)\*\* .+$", text)
-        assert module_lines[:6] == expected_modules
+        # Paired with the English bullets by position: since 2026-10-10 the
+        # install routes are bold bullets too, and they are translated.
+        bullet = r"(?m)^- \*\*([^*\n]+)\*\*"
+        canonical_labels = re.findall(bullet, canonical_readme)
+        labels = re.findall(bullet, text)
+        assert len(labels) == len(canonical_labels), language
+        assert [label for label, source in zip(labels, canonical_labels)
+                if source in expected_modules] == expected_modules
         missing_terms = sorted(term for term in protected_terms if term not in text)
         assert not missing_terms, f"{language} changed protected terms: {missing_terms}"
         assert not any(error in text for error in known_context_errors[language])

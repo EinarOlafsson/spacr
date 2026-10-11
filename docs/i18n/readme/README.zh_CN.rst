@@ -1,4 +1,4 @@
-|Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
+|Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Release| |Issues| |Source| |Conda| |PyPI| |Docker| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
 网站： `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
 
@@ -53,6 +53,9 @@
 .. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge 最新发布日期
+.. |Docker| image:: https://img.shields.io/badge/Docker-ghcr.io%2Feinarolafsson%2Fspacr-2496ED?logo=docker&logoColor=white
+   :target: https://github.com/EinarOlafsson/spacr/pkgs/container/spacr
+   :alt: GHCR 上的 Docker 镜像
 .. |PyPI Downloads| image:: https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=GRAY&right_color=GREEN&left_text=downloads
    :target: https://pepy.tech/projects/spacr
    :alt: PyPI 下载量
@@ -154,6 +157,20 @@ Make Masks 修正分割掩膜，并使用 **Box** 工具标注带类别标签的
 安装 spaCR
 ~~~~~~~~~~~~~
 
+请选择安装方式：
+
+- **桌面应用程序**：适用于 Linux、macOS 或 Windows 的安装程序，自带 Python。
+- **pip**：在 Conda 环境中运行 ``python -m pip install spacr``。
+- **conda-forge**：在 Conda 环境中运行 ``conda install conda-forge::spacr``。
+- **Docker**：在 Linux 容器中运行命令行处理流程，可使用 CPU 镜像或 NVIDIA GPU 镜像：
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
+
+`Docker 指南 <../../source/installer_guide.rst#container-images>`_ 介绍了 GPU 设置、数据挂载和处理流程命令。
+
 桌面应用程序
 -------------------
 
@@ -228,17 +245,6 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
    conda activate spacr
    conda install conda-forge::spacr
    spacr
-
-使用 Docker 安装
--------------------
-
-使用已发布的 `GHCR 上的 Docker 镜像 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_，在容器中运行 spaCR 的命令行处理流程。安装 `Docker <https://docs.docker.com/get-started/get-docker/>`_，然后使用此已发布的 CPU 镜像列出可用的处理流程：
-
-.. code-block:: bash
-
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
-
-对应的 NVIDIA GPU 镜像为 ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``。这两种镜像均面向 Linux x86-64 容器。有关 GPU 前提条件、数据和模型挂载、设置文件及完整处理流程命令，请参阅 `Docker 安装指南 <../../source/installer_guide.rst#container-images>`_。
 
 从源代码安装
 -------------------

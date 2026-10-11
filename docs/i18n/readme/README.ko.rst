@@ -1,4 +1,4 @@
-|Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
+|Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Release| |Issues| |Source| |Conda| |PyPI| |Docker| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
 웹사이트: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
 
@@ -53,6 +53,9 @@
 .. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge 최신 릴리스 날짜
+.. |Docker| image:: https://img.shields.io/badge/Docker-ghcr.io%2Feinarolafsson%2Fspacr-2496ED?logo=docker&logoColor=white
+   :target: https://github.com/EinarOlafsson/spacr/pkgs/container/spacr
+   :alt: GHCR의 Docker 이미지
 .. |PyPI Downloads| image:: https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=GRAY&right_color=GREEN&left_text=downloads
    :target: https://pepy.tech/projects/spacr
    :alt: PyPI 다운로드
@@ -154,6 +157,20 @@ Import, Make Masks, Annotate 또는 분석 화면에서 **테스트 데이터 �
 spaCR 설치
 ~~~~~~~~~~~~~
 
+설치 방법을 선택하세요:
+
+- **데스크톱 애플리케이션**: 자체 Python이 포함된 Linux, macOS 또는 Windows용 설치 프로그램입니다.
+- **pip**: Conda 환경에서 ``python -m pip install spacr`` 명령을 실행합니다.
+- **conda-forge**: Conda 환경에서 ``conda install conda-forge::spacr`` 명령을 실행합니다.
+- **Docker**: CPU 이미지 또는 NVIDIA GPU 이미지를 사용해 Linux 컨테이너에서 명령줄 파이프라인을 실행합니다:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
+
+`Docker 가이드 <../../source/installer_guide.rst#container-images>`_\ 에서 GPU 설정, 데이터 마운트, 파이프라인 명령을 설명합니다.
+
 데스크톱 애플리케이션
 ---------------------
 
@@ -228,17 +245,6 @@ conda-forge 설치
    conda activate spacr
    conda install conda-forge::spacr
    spacr
-
-Docker로 설치
--------------------
-
-게시된 `GHCR의 Docker 이미지 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_\ 를 사용하여 컨테이너에서 spaCR의 명령줄 파이프라인을 실행합니다. `Docker <https://docs.docker.com/get-started/get-docker/>`_\ 를 설치한 다음, 게시된 이 CPU 이미지로 사용 가능한 파이프라인 목록을 확인합니다:
-
-.. code-block:: bash
-
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
-
-해당 NVIDIA GPU 이미지는 ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``\ 입니다. 두 이미지 모두 Linux x86-64 컨테이너용입니다. GPU 사전 요구 사항, 데이터 및 모델 마운트, 설정 파일, 전체 파이프라인 명령은 `Docker 설치 가이드 <../../source/installer_guide.rst#container-images>`_\ 를 참조하세요.
 
 소스 코드에서 설치
 -------------------

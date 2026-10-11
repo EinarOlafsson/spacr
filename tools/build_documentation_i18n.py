@@ -3526,14 +3526,9 @@ REVIEWED_README_HEADINGS = {
         "Acknowledgments",
     )
 }
+# "Docker installation" left on 2026-10-10: Docker became one of the routes
+# listed at the top of "Install spaCR", and its own section went with it.
 REVIEWED_README_HEADINGS.update({
-    "Docker installation": {
-        "sv": "Installation med Docker", "de": "Installation mit Docker",
-        "es": "Instalación con Docker", "zh_CN": "使用 Docker 安装",
-        "pt": "Instalação com Docker", "hi": "Docker से इंस्टॉलेशन",
-        "ko": "Docker로 설치", "is": "Uppsetning með Docker",
-        "fr": "Installation avec Docker",
-    },
     "Try spaCR": {
         "sv": "Prova spaCR", "de": "spaCR ausprobieren",
         "es": "Probar spaCR", "zh_CN": "试用 spaCR",
@@ -3760,15 +3755,15 @@ REVIEWED_README_RESOURCE_ALT_TEXT = {
 }
 
 REVIEWED_README_BADGE_ALT_TEXT = {
-    "de": ("API-Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "BSD-3-Clause-Lizenz", "bioRxiv-Preprint", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Version", "conda-forge-Downloads", "conda-forge-Datum der letzten Veröffentlichung", "PyPI-Downloads", "Linux, macOS und Windows", "spaCR zitieren", "spaCR-Rang bei PyPI-Downloads der letzten 30 vollen Tage", "spaCR-Website", "Codecov-Testabdeckung", "spaCR"),
-    "es": ("Documentación de la API", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia BSD 3-Clause", "Preprint en bioRxiv", "DOI de Zenodo", "Instaladores más recientes", "Versión en conda-forge", "Descargas de conda-forge", "Fecha de la última versión en conda-forge", "Descargas de PyPI", "Linux, macOS y Windows", "Citar spaCR", "Clasificación de descargas de spaCR en PyPI durante los últimos 30 días completos", "Sitio web de spaCR", "Cobertura de pruebas en Codecov", "spaCR"),
-    "fr": ("Documentation de l’API", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence BSD 3-Clause", "Prépublication bioRxiv", "DOI Zenodo", "Derniers installateurs", "Version conda-forge", "Téléchargements conda-forge", "Date de la dernière version conda-forge", "Téléchargements PyPI", "Linux, macOS et Windows", "Citer spaCR", "Classement des téléchargements PyPI de spaCR sur les 30 derniers jours complets", "Site web de spaCR", "Couverture de tests Codecov", "spaCR"),
-    "hi": ("API दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "BSD 3-Clause लाइसेंस", "bioRxiv प्रीप्रिंट", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge संस्करण", "conda-forge डाउनलोड", "conda-forge की नवीनतम रिलीज़ की तिथि", "PyPI डाउनलोड", "Linux, macOS और Windows", "spaCR को उद्धृत करें", "पिछले 30 पूरे दिनों में spaCR की PyPI डाउनलोड रैंकिंग", "spaCR वेबसाइट", "Codecov परीक्षण कवरेज", "spaCR"),
-    "is": ("API-skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "BSD 3-Clause-leyfi", "bioRxiv-forprentun", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-útgáfa", "conda-forge-niðurhal", "Dagsetning nýjustu útgáfu á conda-forge", "PyPI-niðurhal", "Linux, macOS og Windows", "Vitna í spaCR", "Röðun spaCR eftir PyPI-niðurhali síðustu 30 heilu dagana", "Vefsíða spaCR", "Prófunarþekja á Codecov", "spaCR"),
-    "ko": ("API 문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "BSD 3-Clause 라이선스", "bioRxiv 프리프린트", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 버전", "conda-forge 다운로드", "conda-forge 최신 릴리스 날짜", "PyPI 다운로드", "Linux, macOS, Windows", "spaCR 인용", "최근 30일간 spaCR의 PyPI 다운로드 순위", "spaCR 웹사이트", "Codecov 테스트 커버리지", "spaCR"),
-    "pt": ("Documentação da API", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença BSD 3-Clause", "Preprint no bioRxiv", "DOI do Zenodo", "Instaladores mais recentes", "Versão no conda-forge", "Downloads no conda-forge", "Data da versão mais recente no conda-forge", "Downloads no PyPI", "Linux, macOS e Windows", "Citar o spaCR", "Classificação de downloads do spaCR no PyPI nos últimos 30 dias completos", "Site do spaCR", "Cobertura de testes no Codecov", "spaCR"),
-    "sv": ("API-dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "BSD 3-Clause-licens", "bioRxiv-preprint", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-version", "conda-forge-nedladdningar", "Datum för senaste conda-forge-versionen", "PyPI-nedladdningar", "Linux, macOS och Windows", "Citera spaCR", "spaCR:s PyPI-nedladdningsranking de senaste 30 hela dygnen", "spaCR:s webbplats", "Testtäckning på Codecov", "spaCR"),
-    "zh_CN": ("API 文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "BSD 3-Clause 许可证", "bioRxiv 预印本", "Zenodo DOI", "最新安装程序", "conda-forge 版本", "conda-forge 下载量", "conda-forge 最新发布日期", "PyPI 下载量", "Linux、macOS 和 Windows", "引用 spaCR", "spaCR 在过去 30 个完整日的 PyPI 下载量排名", "spaCR 网站", "Codecov 测试覆盖率", "spaCR"),
+    "de": ("API-Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "BSD-3-Clause-Lizenz", "bioRxiv-Preprint", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Version", "conda-forge-Downloads", "conda-forge-Datum der letzten Veröffentlichung", "PyPI-Downloads", "Linux, macOS und Windows", "spaCR zitieren", "spaCR-Rang bei PyPI-Downloads der letzten 30 vollen Tage", "spaCR-Website", "Codecov-Testabdeckung", "Docker-Images auf GHCR", "spaCR"),
+    "es": ("Documentación de la API", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia BSD 3-Clause", "Preprint en bioRxiv", "DOI de Zenodo", "Instaladores más recientes", "Versión en conda-forge", "Descargas de conda-forge", "Fecha de la última versión en conda-forge", "Descargas de PyPI", "Linux, macOS y Windows", "Citar spaCR", "Clasificación de descargas de spaCR en PyPI durante los últimos 30 días completos", "Sitio web de spaCR", "Cobertura de pruebas en Codecov", "Imágenes de Docker en GHCR", "spaCR"),
+    "fr": ("Documentation de l’API", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence BSD 3-Clause", "Prépublication bioRxiv", "DOI Zenodo", "Derniers installateurs", "Version conda-forge", "Téléchargements conda-forge", "Date de la dernière version conda-forge", "Téléchargements PyPI", "Linux, macOS et Windows", "Citer spaCR", "Classement des téléchargements PyPI de spaCR sur les 30 derniers jours complets", "Site web de spaCR", "Couverture de tests Codecov", "Images Docker sur GHCR", "spaCR"),
+    "hi": ("API दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "BSD 3-Clause लाइसेंस", "bioRxiv प्रीप्रिंट", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge संस्करण", "conda-forge डाउनलोड", "conda-forge की नवीनतम रिलीज़ की तिथि", "PyPI डाउनलोड", "Linux, macOS और Windows", "spaCR को उद्धृत करें", "पिछले 30 पूरे दिनों में spaCR की PyPI डाउनलोड रैंकिंग", "spaCR वेबसाइट", "Codecov परीक्षण कवरेज", "GHCR पर Docker इमेज", "spaCR"),
+    "is": ("API-skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "BSD 3-Clause-leyfi", "bioRxiv-forprentun", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-útgáfa", "conda-forge-niðurhal", "Dagsetning nýjustu útgáfu á conda-forge", "PyPI-niðurhal", "Linux, macOS og Windows", "Vitna í spaCR", "Röðun spaCR eftir PyPI-niðurhali síðustu 30 heilu dagana", "Vefsíða spaCR", "Prófunarþekja á Codecov", "Docker-myndir á GHCR", "spaCR"),
+    "ko": ("API 문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "BSD 3-Clause 라이선스", "bioRxiv 프리프린트", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 버전", "conda-forge 다운로드", "conda-forge 최신 릴리스 날짜", "PyPI 다운로드", "Linux, macOS, Windows", "spaCR 인용", "최근 30일간 spaCR의 PyPI 다운로드 순위", "spaCR 웹사이트", "Codecov 테스트 커버리지", "GHCR의 Docker 이미지", "spaCR"),
+    "pt": ("Documentação da API", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença BSD 3-Clause", "Preprint no bioRxiv", "DOI do Zenodo", "Instaladores mais recentes", "Versão no conda-forge", "Downloads no conda-forge", "Data da versão mais recente no conda-forge", "Downloads no PyPI", "Linux, macOS e Windows", "Citar o spaCR", "Classificação de downloads do spaCR no PyPI nos últimos 30 dias completos", "Site do spaCR", "Cobertura de testes no Codecov", "Imagens Docker no GHCR", "spaCR"),
+    "sv": ("API-dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "BSD 3-Clause-licens", "bioRxiv-preprint", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-version", "conda-forge-nedladdningar", "Datum för senaste conda-forge-versionen", "PyPI-nedladdningar", "Linux, macOS och Windows", "Citera spaCR", "spaCR:s PyPI-nedladdningsranking de senaste 30 hela dygnen", "spaCR:s webbplats", "Testtäckning på Codecov", "Docker-avbildningar på GHCR", "spaCR"),
+    "zh_CN": ("API 文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "BSD 3-Clause 许可证", "bioRxiv 预印本", "Zenodo DOI", "最新安装程序", "conda-forge 版本", "conda-forge 下载量", "conda-forge 最新发布日期", "PyPI 下载量", "Linux、macOS 和 Windows", "引用 spaCR", "spaCR 在过去 30 个完整日的 PyPI 下载量排名", "spaCR 网站", "Codecov 测试覆盖率", "GHCR 上的 Docker 镜像", "spaCR"),
 }
 
 # Workflow tiles keep their canonical module names so visual navigation, GUI
@@ -3780,7 +3775,7 @@ README_BADGE_SUBSTITUTIONS = (
     "Docs", "Tutorials", "PyPI", "Python", "Test counts", "Qt", "Source",
     "Issues", "License", "Preprint", "DOI", "Release", "Conda",
     "Conda Downloads", "Release date", "PyPI Downloads", "Platforms",
-    "Cite", "PyPI rank", "Website", "Coverage",
+    "Cite", "PyPI rank", "Website", "Coverage", "Docker",
 )
 README_INSTALLER_SUBSTITUTIONS = (
     "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
@@ -7094,15 +7089,26 @@ def main() -> int:
                 "Mask", "Measure", "Annotate", "Classify",
                 "Map Barcodes", "Regression",
             )
-            module_name_iter = iter(module_names)
+            # Pair each bold bullet with the English bullet at the same
+            # position and restore only the module names. Relabelling the
+            # first six bullets of the page broke once the install section
+            # gained its own bold route list (2026-10-10): "Desktop
+            # application" became **Mask** and every module shifted down.
+            bullet = r"(?m)^- \*\*([^*\n]+)\*\*\s*"
+            source_labels = re.findall(bullet, readme)
+            if len(re.findall(bullet, localized_readme)) != len(source_labels):
+                raise ValueError(
+                    f"README.{language}.rst lost or gained a bold bullet")
+            source_label_iter = iter(source_labels)
+
+            def restore_module_name(match, labels=source_label_iter):
+                source_label = next(labels)
+                if source_label in module_names:
+                    return f"- **{source_label}** "
+                return match.group(0)
+
             localized_readme = re.sub(
-                r"(?m)^- \*\*[^*\n]+\*\*\s*",
-                lambda _match, names=module_name_iter: (
-                    f"- **{next(names)}** "
-                ),
-                localized_readme,
-                count=len(module_names),
-            )
+                bullet, restore_module_name, localized_readme)
             version_match = re.search(
                 r"Download spaCR ([^ ]+) for Windows", readme
             )
