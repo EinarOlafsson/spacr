@@ -3603,6 +3603,43 @@ def _load_reviewed_readme_evidence() -> dict[str, dict[str, str]]:
     return reviewed
 
 
+README_CITING_BEGIN = ".. spacr-citing-papers-begin"
+README_CITING_END = ".. spacr-citing-papers-end"
+
+
+def _citing_block_span(text: str) -> tuple[int, int] | None:
+    """Return the character span between the citing-papers markers."""
+    start, end = text.find(README_CITING_BEGIN), text.find(README_CITING_END)
+    if start < 0 or end < start:
+        return None
+    return start + len(README_CITING_BEGIN), end
+
+
+def _keep_citing_papers(readme: str, localized: str, previous: str | None) -> str:
+    """Rebuild the citing-papers list without machine translation.
+
+    Paper titles are not machine translated (2026-10-11): each English entry
+    keeps the line the previous localized README already had for the same
+    URL -- a reviewed translation, or the English title -- and a paper new to
+    the English list arrives with its English title.
+    """
+    source_span, target_span = _citing_block_span(readme), _citing_block_span(localized)
+    if source_span is None or target_span is None:
+        return localized
+    url = re.compile(r"<(https?://[^>]+)>`_")
+    kept: dict[str, str] = {}
+    if previous is not None and (previous_span := _citing_block_span(previous)):
+        for line in previous[previous_span[0]:previous_span[1]].splitlines():
+            if (match := url.search(line)) is not None:
+                kept[match.group(1)] = line
+    lines = []
+    for line in readme[source_span[0]:source_span[1]].split("\n"):
+        match = url.search(line)
+        lines.append(kept.get(match.group(1), line) if match else line)
+    return (localized[:target_span[0]] + "\n".join(lines)
+            + localized[target_span[1]:])
+
+
 REVIEWED_README_EVIDENCE_BLOCKS = _load_reviewed_readme_evidence()
 _CURRENT_README_TEXT = (ROOT / "README.rst").read_text(encoding="utf-8")
 _CURRENT_README_PROSE = re.sub(r"\s+", " ", _CURRENT_README_TEXT)
@@ -6979,6 +7016,10 @@ def main() -> int:
             "docs/i18n/readme/README."
         ):
             continue
+        # Paper titles in the citing list are never machine translated.
+        citing = _citing_block_span(readme)
+        if citing and citing[0] <= match.start() < citing[1]:
+            continue
         key = f"__readme_link_{index}__"
         readme_links.append((key, label, target))
     for language in args.languages:
@@ -7151,6 +7192,11 @@ def main() -> int:
                     localized_readme = localized_readme.replace(
                         f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
                     )
+            localized_readme = _keep_citing_papers(
+                readme, localized_readme,
+                readme_path.read_text(encoding="utf-8")
+                if readme_path.is_file() else None,
+            )
             readme_path.write_text(localized_readme + "\n", encoding="utf-8")
         print(
             f"wrote {language}: API={len(docs)} "
