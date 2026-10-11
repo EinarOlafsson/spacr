@@ -216,7 +216,7 @@ from typing import (Callable, Dict, List, NamedTuple, Optional, Sequence,
                     Tuple, Union)
 
 from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
-                            QRect, QRectF, Qt, QTimer, Signal)
+                            QRect, QRectF, Qt, QTimer, Signal, Slot)
 from PySide6.QtGui import (QBrush, QColor, QCursor, QImage,
                            QLinearGradient, QPainter, QPainterPath, QPen,
                            QPixmap, QPolygonF, QRadialGradient, QTransform)
@@ -9992,6 +9992,7 @@ class AmbientWidget(QWidget):
         self._popup_wave_popup_id = id(popup)
         return segments
 
+    @Slot()
     def _on_tick(self) -> None:
         """One beat: step the clock, ask for a repaint. Never waits.
 
