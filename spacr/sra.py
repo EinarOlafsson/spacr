@@ -169,8 +169,7 @@ def runs_for(accession: str = DEFAULT_BIOPROJECT, *, timeout: float = 30.0,
 def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = None,
                 timeout: float = 60.0, opener=None,
                 progress: Optional[Callable[[int, int], None]] = None,
-                should_stop: Optional[Callable[[], bool]] = None,
-                cache=None) -> Path:
+                should_stop: Optional[Callable[[], bool]] = None) -> Path:
     """Download ``run_file`` into ``destination``, stopping after ``max_reads``.
 
     The stream is decompressed as it arrives and the connection is dropped the
@@ -188,12 +187,12 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
     :param progress: called with ``(reads_so_far, compressed_bytes_so_far)``.
     :param should_stop: polled between chunks; a truthy answer abandons the
         download and removes the partial file.
-    :param cache: folder of the cached read set; ``None`` uses the
-        downloaded ``reads`` example set. When it holds this file with at
-        least ``max_reads`` reads, the reads are taken from it rather than
-        from ENA, so a limited request works offline and gives the same
-        reads. A whole-file request, or one larger than the cache, streams
-        from ENA as before.
+
+    Without an ``opener``, the downloaded ``reads`` example set is read
+    first: when it holds this file with at least ``max_reads`` reads, they
+    are taken from it rather than from ENA, so a limited request works
+    offline and gives the same reads. A whole-file request, or one larger
+    than the cache, streams from ENA as before.
     :returns: the path written.
     :raises ValueError: for a non-positive ``max_reads``.
     :raises ConnectionError: when the stream stops before the reads asked for
@@ -204,7 +203,7 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
         raise ValueError(f"max_reads must be positive, got {max_reads!r}")
 
     if opener is None:
-        local = _cached_copy(run_file, max_reads, folder=cache)
+        local = _cached_copy(run_file, max_reads)
         if local is not None:
             opener = lambda _url, path=local: path.open("rb")
 

@@ -48,6 +48,12 @@ def _count_reads(path: Path) -> int:
         return sum(1 for _ in handle) // 4
 
 
+def _from_ena(url: str):
+    """Open ``url`` at ENA, never the cached set this script is building."""
+    request = urllib.request.Request(url, headers={"User-Agent": "spaCR"})
+    return urllib.request.urlopen(request, timeout=60)
+
+
 def build(dest: Path, reads: int = READS) -> dict:
     """Fetch the listing and the first ``reads`` reads of every file."""
     from spacr import sra
@@ -68,7 +74,7 @@ def build(dest: Path, reads: int = READS) -> dict:
         for attempt in range(4):
             try:
                 path = sra.fetch_reads(one, folder, max_reads=reads,
-                                       cache=dest / "none")
+                                       opener=_from_ena)
                 break
             except ConnectionError:
                 if attempt == 3:

@@ -108,18 +108,21 @@ def test_the_listing_comes_from_the_cache_without_the_network(tmp_path,
     assert sra._cached_reads_per_file(folder) == CACHED
 
 
-def test_a_limited_fetch_is_cut_from_the_cache(tmp_path, no_network):
+def test_a_limited_fetch_is_cut_from_the_cache(tmp_path, monkeypatch,
+                                               no_network):
     """Ten reads of a file the cache holds fifty of, with no network."""
-    folder = _cached_set(tmp_path / "reads")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    folder = _cached_set(example_set_folder("reads"))
     one = sra._cached_runs(folder)[0]
-    written = sra.fetch_reads(one, tmp_path / "out", max_reads=10, cache=folder)
+    written = sra.fetch_reads(one, tmp_path / "out", max_reads=10)
     assert _reads_in(written) == [f"@{one.run}_{one.mate}_{n}"
                                   for n in range(10)]
 
 
 def test_more_reads_than_the_cache_holds_go_to_ena(tmp_path, monkeypatch):
     """The cache never answers for reads it does not have."""
-    folder = _cached_set(tmp_path / "reads")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    folder = _cached_set(example_set_folder("reads"))
     one = sra._cached_runs(folder)[0]
     asked = []
 
@@ -128,8 +131,7 @@ def test_more_reads_than_the_cache_holds_go_to_ena(tmp_path, monkeypatch):
         return _Response(_gzipped(_fastq(200, tag="ena")))
 
     monkeypatch.setattr("urllib.request.urlopen", _ena)
-    written = sra.fetch_reads(one, tmp_path / "out", max_reads=CACHED + 1,
-                              cache=folder)
+    written = sra.fetch_reads(one, tmp_path / "out", max_reads=CACHED + 1)
     assert asked == [one.url]
     assert _reads_in(written)[0] == "@ena0"
     assert len(_reads_in(written)) == CACHED + 1
