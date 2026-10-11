@@ -5149,11 +5149,14 @@ QPushButton#IconButton:hover {{
 }}
 /* SQL column pickers are QToolButtons, so they do not inherit the normal
    QPushButton treatment.  Keep them visually part of the settings card:
-   a dark card-coloured face, a light neutral rim and white text. */
+   a dark card-coloured face, a light neutral rim and white text.  The row
+   exclusion editor's "+ Add exclusion" is the same kind of button; unstyled,
+   Qt 6.10 filled it black. */
 QWidget#ColumnPickerRow {{
     background: transparent;
 }}
-QToolButton#ColumnPickerButton {{
+QToolButton#ColumnPickerButton,
+QToolButton#RowExclusionAdd {{
     background-color: {P["surface"]};
     color: {P["fg"]};
     border: 1px solid {P["fg_muted"]};
@@ -5162,17 +5165,20 @@ QToolButton#ColumnPickerButton {{
     min-height: 22px;
     font-weight: 500;
 }}
-QToolButton#ColumnPickerButton:hover {{
+QToolButton#ColumnPickerButton:hover,
+QToolButton#RowExclusionAdd:hover {{
     background-color: {P["accent_soft"]};
     color: {P["fg"]};
     border-color: {P["accent"]};
 }}
-QToolButton#ColumnPickerButton:pressed {{
+QToolButton#ColumnPickerButton:pressed,
+QToolButton#RowExclusionAdd:pressed {{
     background-color: {P["accent_lo"]};
     color: {P["fg"]};
     border-color: {P["accent_hi"]};
 }}
-QToolButton#ColumnPickerButton:disabled {{
+QToolButton#ColumnPickerButton:disabled,
+QToolButton#RowExclusionAdd:disabled {{
     background-color: {P["surface"]};
     color: {P["fg_dim"]};
     border-color: {P["border"]};

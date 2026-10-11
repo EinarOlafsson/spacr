@@ -392,6 +392,7 @@ class RowExclusionEditor(QWidget):
         self._outer.addLayout(self._rows_layout)
 
         add = QToolButton(self)
+        add.setObjectName("RowExclusionAdd")
         add.setText("+ Add exclusion")
         add.setToolTip("Exclude values from another database column")
         add.clicked.connect(lambda: self._add_row())
