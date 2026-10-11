@@ -92,9 +92,9 @@ ROOT = Path(__file__).resolve().parents[2]
 # 615, 2026-10-05: exact reviewed additions/removals and preservation proof
 # are in features/data/615_runtime_watch_figures_storage_themes_2026-10-05.json.
 # Compact +6/-0 reproduces the prior fingerprint by exact subtraction.
-COMPACT_CAPTION_COUNT = 249
+COMPACT_CAPTION_COUNT = 243
 COMPACT_CAPTION_SHA256 = (
-    "cd4742746b892c275bd038b82e518889efde6b22e81f9fe8f258e2bb694d06f8"
+    "242aeff1d48cb75f5c2f7de16da3ed20fc189d0f3f992184c80f640776b80804"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -733,6 +733,7 @@ _CUSTOM_WIDGET_ARGUMENTS = {
 # prevents a term fallback from rewriting them.
 _RUNTIME_IDENTITY_CAPTIONS = {
     "spaCR field",
+    "spaCR blobs",
     "spaCR advection",
     "spaCR growth",
     "spaCR stratified",
