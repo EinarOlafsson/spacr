@@ -16,6 +16,17 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def stall_milliseconds(capture, minimum=12000):
+    """Wait for a picker that holds a live clip as long as that clip, plus margin.
+
+    A native live-video capture records inside the picker's handler for the
+    full clip duration, so a fixed 12 s guard would reject a real picker
+    mid-recording. Still-frame captures keep the original 12 s guard.
+    """
+    live = getattr(capture, 'maximum_live_clip_seconds', 0) or 0
+    return max(minimum, int(live * 1000) + 8000)
+
+
 def prepare_fields(stage):
     import numpy as np
     import tifffile
@@ -118,7 +129,7 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
 
         expose(button)
         QTimer.singleShot(500, choose)
-        QTimer.singleShot(12000, reject_stalled)
+        QTimer.singleShot(stall_milliseconds(capture), reject_stalled)
         previous = Path.cwd()
         try:
             os.chdir(stage)
@@ -361,7 +372,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
             dialog.reject()
 
     QTimer.singleShot(500, choose)
-    QTimer.singleShot(12000, reject_stalled)
+    QTimer.singleShot(stall_milliseconds(capture), reject_stalled)
     previous_directory = Path.cwd()
     try:
         # The genuine picker starts at cwd when no folder is open. Give it
