@@ -1525,8 +1525,7 @@ def _resolve_plaque_model(settings, fetch=True):
     counts behind anyone's back: the bundled checkpoint is a Cellpose 3 model
     and the Cellpose 4 spaCR installs will not load it, so a default run on it
     fails. ``toxoplasma_plaque_v4`` (the cpsam_v2 round-6 model) is the
-    default since 2026-10-11, by the maintainer's rule that spaCR models
-    build on cpsam_v2. On 263 held-out fields it scores F1 0.815;
+    default since 2026-10-11, because spaCR's models build on cpsam_v2. On 263 held-out fields it scores F1 0.815;
     ``toxoplasma_plaque_v3``, the default before it, scores 0.844 (0.913
     against 0.804 on Gel Doc wells) and stays selectable for recorded runs.
 

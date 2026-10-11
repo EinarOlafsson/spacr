@@ -3112,7 +3112,7 @@ def hf_repo_of(uri: Any) -> str:
 
 
 def is_spacr_owned(entry: Any) -> bool:
-    """Whether a row's file lives in a repository spaCR's maintainer owns.
+    """Whether a row's file lives in a repository owned by the einarolafsson account.
 
     :param entry: any zoo row.
     :returns: True when :func:`hf_repo_of` its ``uri`` is in an account named
@@ -3133,7 +3133,7 @@ def _is_spacr_published(entry: Any) -> bool:
     own when its key AND its checksum match a
     :data:`BUNDLED_REMOTE_MODELS` record, so an upload that merely borrows
     a key stays a community row. :func:`is_spacr_owned` is the other way
-    in: a file in the maintainer's own repositories.
+    in: a file in a repository owned by the einarolafsson account.
 
     :param entry: any zoo row.
     :returns: True for the very file a bundled record names.
@@ -3206,8 +3206,8 @@ def source_of(entry: Any) -> str:
     cyto2, cyto3, nuclei -- and the backend package that runs them.
 
     A shared or community row is spaCR's when it is the very file a bundled
-    record names (key and checksum) or when it is fetched from one of the
-    maintainer's own repositories (:func:`is_spacr_owned`). Anything else
+    record names (key and checksum) or when it is fetched from a repository owned
+    by the einarolafsson account (:func:`is_spacr_owned`). Anything else
     uploaded by somebody else stays under ``spaCR community``.
 
     A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It

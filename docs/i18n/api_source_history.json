@@ -1,4 +1,27 @@
 {
   "schema": 1,
-  "sources": {}
+  "sources": {
+    "72fe36c0e89a5ed45c8d8f4d1deda1da5417234c686411a834649379f8304512": {
+      "source_blocks_sha256": [
+        "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
+        "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
+        "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
+        "ff993f6f9d9825d23ccc00fe30d2734d236edd119ddc87ae97fa48dc52aba69d",
+        "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
+        "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
+        "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec"
+      ],
+      "source_sha256": "72fe36c0e89a5ed45c8d8f4d1deda1da5417234c686411a834649379f8304512",
+      "text": "Which of :data:`ZOO_SOURCES` this row belongs under.\n\nDecided FROM THE ROW, never from a list of names kept somewhere else: a\nhand-written list goes stale the first time a model is added, and the\nfailure it produces is a model that is in the catalogue and under no\nheading, which is a model nobody can see.\n\nThe order of the tests is the rule, and it matters in one place: a\nCellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not\na Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto,\ncyto2, cyto3, nuclei -- and the backend package that runs them.\n\nA shared or community row is spaCR's when it is the very file a bundled\nrecord names (key and checksum) or when it is fetched from one of the\nmaintainer's own repositories (:func:`is_spacr_owned`). Anything else\nuploaded by somebody else stays under ``spaCR community``.\n\nA row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It\nis the fallback rather than a sixth heading because a model under the\nwrong heading is a nuisance and a model under no heading is a bug the\nuser experiences as a missing model.\n\n:param entry: any zoo row -- a :class:`ModelEntry`, or anything with\n    ``kind``, ``source`` and ``uri``.\n:returns: one of :data:`ZOO_SOURCES`."
+    },
+    "92b555808857374fffb3fdb2d54a201e5051d982d9b30befb0976a55ee8f8e36": {
+      "source_blocks_sha256": [
+        "999909e39db985172f9413af22da4ecb728123e18840ea622f8cb154d4b6340a",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "b499c3e38bdaf482341346f24feb7d545a49c159c12975b76d7e9ed35b76edda"
+      ],
+      "source_sha256": "92b555808857374fffb3fdb2d54a201e5051d982d9b30befb0976a55ee8f8e36",
+      "text": "Whether a row's file lives in a repository spaCR's maintainer owns.\n\n:param entry: any zoo row.\n:returns: True when :func:`hf_repo_of` its ``uri`` is in an account named\n    by :data:`SPACR_HF_OWNERS` and is not :data:`COMMUNITY_REPO`."
+    }
+  }
 }
