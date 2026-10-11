@@ -305,10 +305,16 @@ def test_the_shared_plaque_checkpoint_is_filed_under_spacr():
     shared = zoo._entry_from_mapping(_plaque_record(), source="shared")
     assert zoo.source_of(shared) == "spaCR"
     borrowed = zoo._entry_from_mapping(
-        dict(_plaque_record(), sha256="0" * 64), source="community")
+        dict(_plaque_record(), sha256="0" * 64,
+             uri="https://huggingface.co/someone/plaques/resolve/main/w"),
+        source="community")
     assert zoo.source_of(borrowed) == "spaCR community"
+    retrained = zoo._entry_from_mapping(
+        dict(_plaque_record(), sha256="0" * 64), source="shared")
+    assert zoo.source_of(retrained) == "spaCR"
     stranger = zoo._entry_from_mapping(
-        {"key": "someone_v1", "name": "someone", "sha256": "1" * 64},
+        {"key": "someone_v1", "name": "someone", "sha256": "1" * 64,
+         "uri": "https://huggingface.co/someone/x/resolve/main/someone"},
         source="shared")
     assert zoo.source_of(stranger) == "spaCR community"
 

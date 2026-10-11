@@ -96,6 +96,7 @@ from ..widgets.toggle import Toggle
 
 from ... import model_zoo as zoo
 from ..bridge import make_thread
+from ..i18n import tr
 from ..hidpi import logical_size, scaled_for
 from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
@@ -218,6 +219,20 @@ def group_entries(entries) -> list:
             unique.append((label, entry))
         out.append((stem, unique))
     return out
+
+
+def _mark_alternatives(combo, pairs) -> None:
+    """Give each alternative version in a version box its reason as a tooltip.
+
+    :param combo: the family's version box, filled from ``pairs``.
+    :param pairs: ``(label, entry)`` pairs, in the box's order.
+    """
+    for index, (_label, entry) in enumerate(pairs):
+        if not zoo.is_alternative(entry):
+            continue
+        notes = tuple(getattr(entry, "notes", ()) or ())
+        if notes:
+            combo.setItemData(index, tr(str(notes[0])), Qt.ToolTipRole)
 
 
 def _version_sort_key(label: str):
@@ -686,7 +701,8 @@ class ModelZooScreen(QWidget):
         """
         self._entries = list(entries)
         self._groups = group_entries(self._entries)
-        self._chosen = {stem: 0 for stem, _ in self._groups}
+        self._chosen = {stem: zoo.default_version_index(pairs)
+                        for stem, pairs in self._groups}
         table = self._table
         sorting = table.isSortingEnabled()
         table.setSortingEnabled(False)
@@ -696,7 +712,8 @@ class ModelZooScreen(QWidget):
         for r, (stem, pairs) in enumerate(self._groups):
             combo = QComboBox(table)
             combo.addItems([label for label, _ in pairs])
-            combo.setCurrentIndex(0)
+            _mark_alternatives(combo, pairs)
+            combo.setCurrentIndex(self._chosen[stem])
             combo.currentIndexChanged.connect(
                 lambda idx, group=r: self._version_picked(group, idx))
             table.setCellWidget(r, 4, combo)

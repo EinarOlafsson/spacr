@@ -250,3 +250,18 @@ synthetic fields, file set, CSV columns and values, labels, manifest, the
 slice indices; edge cases), tests/qt/test_685_vvvv_settings_alpha_gate.py
 (registration; the row follows the alpha switch on Mask and Measure).
 New strings for translation: the export_vvvv label and tooltip.
+
+2026-10-11 — Maintainer's models are spaCR by ownership. Maintainer: "make
+sure all the models I have trained and uploaded are in the spacr category
+not spacr community category". source_of() now files a shared or community
+row under spaCR when it is the bundled file (key AND checksum, unchanged) OR
+when its download URL lives in a repo of the maintainer's HF account
+(model_zoo.SPACR_HF_OWNERS, read strictly from the URL by hf_repo_of; the Add
+button's inbox einarolafsson/user-models stays community). A catalogue row's
+self-declared source/owner/trained_by is ignored. Version boxes in the zoo
+screen and picker open on the newest non-alternative version
+(default_version_index; alternatives are records whose display_name says so,
+so a default change only edits the records). HF catalogue.json needed no
+change: no category field; its 3 rows are maintainer-owned.
+Tests: tests/test_model_zoo_owner_decides_the_heading.py,
+tests/qt/test_model_zoo_alternatives_open_on_the_default.py.

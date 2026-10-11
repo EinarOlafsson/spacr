@@ -1392,7 +1392,7 @@ class ModelZooPicker(QDialog):
         Split out of :meth:`refresh` so a caller -- a test, mainly -- can list
         entries of its own choosing without going through the catalogue.
         """
-        from ..screens.model_zoo import group_entries
+        from ..screens.model_zoo import _mark_alternatives, group_entries
 
         self._entries = list(entries)
 
@@ -1400,7 +1400,10 @@ class ModelZooPicker(QDialog):
         self.table.clearContents()
         self.table.setRowCount(0)
         self._groups = group_entries(entries)
-        self._chosen = {stem: 0 for stem, _ in self._groups}
+        from ... import model_zoo as _zoo
+
+        self._chosen = {stem: _zoo.default_version_index(pairs)
+                        for stem, pairs in self._groups}
 
         sorting = self.table.isSortingEnabled()
         self.table.setSortingEnabled(False)
@@ -1408,7 +1411,8 @@ class ModelZooPicker(QDialog):
         for row, (stem, pairs) in enumerate(self._groups):
             combo = QComboBox(self.table)
             combo.addItems([label for label, _ in pairs])
-            combo.setCurrentIndex(0)
+            _mark_alternatives(combo, pairs)
+            combo.setCurrentIndex(self._chosen[stem])
             combo.currentIndexChanged.connect(
                 lambda index, g=row: self._version_picked(g, index))
             self.table.setCellWidget(row, 4, combo)
@@ -1755,7 +1759,8 @@ class ModelZooPicker(QDialog):
                 name = getattr(entry, "display_name", "") or getattr(entry, "name", "")
                 html = (f"<p><b>{name}</b></p>"
                         f"<p>{getattr(entry, 'trained_on', '') or ''}</p>")
-        if getattr(entry, "source", "") == "community":
+        if (getattr(entry, "source", "") == "community"
+                and model_zoo.source_of(entry) == "spaCR community"):
             from ... import model_zoo as _zoo
 
             html += (f"<p><b style='color:#b45309'>{_zoo.COMMUNITY_WARNING}"

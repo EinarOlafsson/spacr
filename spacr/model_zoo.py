@@ -2136,6 +2136,10 @@ def shared_catalogue(uri: Optional[str] = None, *,
     entry without a ``sha256`` still cannot be installed by :func:`fetch`
     without an explicit override. A catalogue row is a claim about where a file
     lives; the checksum is what makes it a claim about which file.
+
+    A row's own ``source`` field is dropped: every row here is ``shared``,
+    and which heading it lands under is :func:`source_of`'s decision, made
+    from its checksum and the repository it is fetched from.
     """
     import time
 
@@ -2168,6 +2172,8 @@ def shared_catalogue(uri: Optional[str] = None, *,
     records = payload.get("models") if isinstance(payload, Mapping) else payload
     entries: List[ModelEntry] = []
     for record in (records or ()):
+        if isinstance(record, Mapping):
+            record = {k: v for k, v in record.items() if k != "source"}
         try:
             entries.append(_entry_from_mapping(record, source="shared"))
         except Exception as exc:                            # noqa: BLE001
@@ -3052,14 +3058,78 @@ _SPACR_OWN_SOURCES = ("remote", "bundled", "local")
 _COMMUNITY_SOURCES = ("shared", "community")
 
 
+#: Hugging Face accounts whose repositories hold spaCR's own models.
+#:
+#: A shared or community row whose download URL lives in one of these
+#: accounts is a model the maintainer trained and uploaded, and is listed
+#: under spaCR whatever its key. :data:`COMMUNITY_REPO` is the one exception:
+#: it belongs to the same account but is the inbox the Add button fills, so
+#: what is in it was uploaded by somebody else.
+SPACR_HF_OWNERS: Tuple[str, ...] = (HF_MODELS_REPO.split("/", 1)[0],)
+
+_HF_REPO_PART = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+
+def hf_repo_of(uri: Any) -> str:
+    """The ``owner/repo`` a Hugging Face download URL points into, or ``''``.
+
+    Read from the URL a row is FETCHED from, never from a ``trained_by`` or
+    ``owner`` field a catalogue row can claim for itself: the bytes come from
+    this repository, so it is the only owner that cannot be borrowed.
+
+    Strict on purpose. Only ``https://huggingface.co/<owner>/<repo>/...`` and
+    ``https://huggingface.co/datasets/<owner>/<repo>/...`` qualify; another
+    host, a port, user info, ``..`` or percent-escapes in the path give
+    ``''``, so ``huggingface.co.example.org/einarolafsson/...`` is nobody's.
+
+    :param uri: a download URL.
+    :returns: ``owner/repo`` or ``''``.
+    """
+    from urllib.parse import urlsplit
+
+    try:
+        parts = urlsplit(str(uri or "").strip())
+    except ValueError:
+        return ""
+    if parts.scheme != "https" or parts.netloc.lower() != "huggingface.co":
+        return ""
+    path = parts.path
+    if ".." in path or "%" in path or "\\" in path:
+        return ""
+    segments = path.split("/")[1:]
+    if segments[:1] == ["datasets"]:
+        segments = segments[1:]
+    if len(segments) < 2:
+        return ""
+    owner, repo = segments[0], segments[1]
+    if not (_HF_REPO_PART.match(owner) and _HF_REPO_PART.match(repo)):
+        return ""
+    return f"{owner}/{repo}"
+
+
+def is_spacr_owned(entry: Any) -> bool:
+    """Whether a row's file lives in a repository spaCR's maintainer owns.
+
+    :param entry: any zoo row.
+    :returns: True when :func:`hf_repo_of` its ``uri`` is in an account named
+        by :data:`SPACR_HF_OWNERS` and is not :data:`COMMUNITY_REPO`.
+    """
+    repo = hf_repo_of(getattr(entry, "uri", "")).lower()
+    if not repo or repo == COMMUNITY_REPO.lower():
+        return False
+    owners = {owner.lower() for owner in SPACR_HF_OWNERS}
+    return repo.split("/", 1)[0] in owners
+
+
 def _is_spacr_published(entry: Any) -> bool:
     """Whether a shared or community row is a checkpoint spaCR publishes.
 
     Item 685: the Toxoplasma plaque model also travels in the shared
     catalogue, where it was filed under spaCR community. A row is spaCR's
-    own only when its key AND its checksum match a
+    own when its key AND its checksum match a
     :data:`BUNDLED_REMOTE_MODELS` record, so an upload that merely borrows
-    a key stays a community row.
+    a key stays a community row. :func:`is_spacr_owned` is the other way
+    in: a file in the maintainer's own repositories.
 
     :param entry: any zoo row.
     :returns: True for the very file a bundled record names.
@@ -3071,6 +3141,51 @@ def _is_spacr_published(entry: Any) -> bool:
     return any(str(record.get("key") or "") == key
                and str(record.get("sha256") or "").strip().lower() == sha
                for record in BUNDLED_REMOTE_MODELS)
+
+
+def _record_is_alternative(record: Mapping[str, Any]) -> bool:
+    """Whether a bundled record marks itself as an alternative.
+
+    An explicit ``alternative`` field wins; otherwise the record's
+    ``display_name`` saying "alternative" marks it, so moving a model's
+    default status means editing its own record and nothing else.
+    """
+    if "alternative" in record:
+        return bool(record.get("alternative"))
+    return "alternative" in str(record.get("display_name") or "").lower()
+
+
+#: Keys of published models that are offered beside a default rather than
+#: instead of it. They are listed under spaCR like any other, but a model
+#: family's row opens on its default version, not on the alternative.
+ALTERNATIVE_MODEL_KEYS: frozenset = frozenset(
+    str(record.get("key") or "") for record in BUNDLED_REMOTE_MODELS
+    if _record_is_alternative(record))
+
+
+def is_alternative(entry: Any) -> bool:
+    """Whether a row is a published alternative rather than a default.
+
+    :param entry: any zoo row.
+    :returns: True for a key in :data:`ALTERNATIVE_MODEL_KEYS`.
+    """
+    return str(getattr(entry, "key", "") or "") in ALTERNATIVE_MODEL_KEYS
+
+
+def default_version_index(pairs: Sequence[Tuple[str, Any]]) -> int:
+    """Which version a model family's row opens on.
+
+    The newest version that is not an alternative, so publishing an
+    alternative never changes what a family's row hands out by default.
+
+    :param pairs: ``(label, entry)`` pairs, newest first.
+    :returns: an index into ``pairs``; 0 when every version is an
+        alternative or there are none.
+    """
+    for index, (_label, entry) in enumerate(pairs):
+        if not is_alternative(entry):
+            return index
+    return 0
 
 
 def source_of(entry: Any) -> str:
@@ -3086,6 +3201,11 @@ def source_of(entry: Any) -> str:
     a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto,
     cyto2, cyto3, nuclei -- and the backend package that runs them.
 
+    A shared or community row is spaCR's when it is the very file a bundled
+    record names (key and checksum) or when it is fetched from one of the
+    maintainer's own repositories (:func:`is_spacr_owned`). Anything else
+    uploaded by somebody else stays under ``spaCR community``.
+
     A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It
     is the fallback rather than a sixth heading because a model under the
     wrong heading is a nuisance and a model under no heading is a bug the
@@ -3099,7 +3219,7 @@ def source_of(entry: Any) -> str:
     kind = str(getattr(entry, "kind", "") or "")
     uri = str(getattr(entry, "uri", "") or "")
     if source in _COMMUNITY_SOURCES:
-        if _is_spacr_published(entry):
+        if _is_spacr_published(entry) or is_spacr_owned(entry):
             return "spaCR"
         return "spaCR community"
     if source == "bioimage.io" or "bioimage" in uri.lower():
