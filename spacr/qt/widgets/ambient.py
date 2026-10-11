@@ -9867,8 +9867,11 @@ class AmbientWidget(QWidget):
         :param obj: the object the event is for — the parent (whose resize
             this widget follows) or the watched top-level window.
         :param event: the event; resize, window-state, hide, show, move and
-            screen-change types are acted on, and every event is still passed
-            on to the base-class filter.
+            screen-change types are acted on. Every event is passed on
+            unfiltered: the filter returns False instead of calling the base
+            class, because as an application-wide filter it can be handed a
+            wrapper of the wrong type for an object being deleted, which made
+            the base-class call raise and then crash the process.
         """
         etype = event.type()
         ref = getattr(self, "_watched", None)
@@ -9933,7 +9936,7 @@ class AmbientWidget(QWidget):
         elif watched is not None and obj is watched and etype in (
                 QEvent.Move, QEvent.ScreenChangeInternal):
             self._follow_screen()
-        return super().eventFilter(obj, event)
+        return False
 
     def follow_parent(self) -> None:
         """Track the parent's geometry and sit below its other children."""

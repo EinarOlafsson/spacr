@@ -5705,7 +5705,7 @@ class _LiveMagnifier(QObject):
               and watched.window() == self.canvas.window()):
             self._lock_key_down = True
             return True
-        return super().eventFilter(watched, event)
+        return False
 
     def set_locked(self, locked: bool) -> None:
         """Pin or release the current image region, lens position, size and zoom.
