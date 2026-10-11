@@ -59,10 +59,13 @@ def test_live_conda_badge_is_visible_and_targets_the_package(path: Path):
 def test_conda_and_pypi_are_separate_install_routes(path: Path):
     text = path.read_text(encoding="utf-8")
 
-    assert text.count(CONDA_COMMAND) == 1
+    # Once in the route list that opens Install spaCR (0c5c85364) and once in
+    # the conda-forge section itself.
+    assert text.count(CONDA_COMMAND) == 2
     # Every README uses the same standard package for desktop and headless
-    # workflows: quick start, PyPI desktop installation, and command line.
-    assert text.count(PIP_COMMAND) == 3
+    # workflows: quick start, the route list (0c5c85364), PyPI desktop
+    # installation, and command line.
+    assert text.count(PIP_COMMAND) == 4
     if path == README:
         quick_start = text.split("Try spaCR\n", 1)[1].split("Hardware support\n", 1)[0]
         assert quick_start.count(PIP_COMMAND) == 1
