@@ -842,6 +842,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTING, not a regrouping (item 537, 2026-10-03): the minimum
     # division interval in hours, under the same "Lineage Trees α" heading.
     "timelapse_lineage_min_division_h",
+    # NEW SETTINGS, not a regrouping (item 537, 2026-10-11): edge-entry,
+    # vacuole-count and bud rules for inferred divisions, same heading.
+    "timelapse_lineage_edge_entry", "timelapse_lineage_vacuole_count",
+    "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold",
     # A NEW SETTING GROUP, not a regrouping (item 567, 2026-09-27): event
     # detection on tracks, appended to the Timelapse category and shown under
     # "Event Detection α" on the Timelapse app.

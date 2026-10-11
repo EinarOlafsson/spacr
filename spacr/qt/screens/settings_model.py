@@ -1304,6 +1304,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_lineage", "timelapse_lineage_color_by",
             "timelapse_lineage_max_distance",
             "timelapse_lineage_min_division_h",
+            "timelapse_lineage_edge_entry", "timelapse_lineage_vacuole_count",
+            "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold",
         )),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
@@ -1392,6 +1394,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_lineage", "timelapse_lineage_color_by",
             "timelapse_lineage_max_distance",
             "timelapse_lineage_min_division_h",
+            "timelapse_lineage_edge_entry", "timelapse_lineage_vacuole_count",
+            "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold",
         )),
         ("Event Detection α", (
             "timelapse_events", "timelapse_events_annotations",

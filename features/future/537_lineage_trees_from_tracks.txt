@@ -1,10 +1,14 @@
 LINEAGE TREES FROM TRACKS
 
-Status: OPEN (alpha) 2026-10-11 — data block lifted: public Toxoplasma
-        endodyogeny movie (Cell Image Library CIL:10522/10524, public
-        domain) run end to end. Left: inferred-division precision on it
-        is 0.33 (manual), so a bud-signal guard is the next step.
-        Built and alpha-gated.
+Status: DONE (alpha) 2026-10-11 — inferred divisions on the public
+        Toxoplasma endodyogeny movie (CIL:10524) now reach precision
+        0.80 strict / 0.87 lenient (was 0.33 / 0.43) with the default
+        edge-entry and vacuole-count rules; recall 0.60 of the
+        hand-verified real divisions (was 0.70). Optional IMC1 bud
+        guard: precision 1.00. Built and alpha-gated.
+
+Previous status (superseded 2026-10-11): OPEN (alpha) 2026-10-11 — data
+        block lifted; inferred-division precision 0.33 (manual).
 
 Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external point left: real tracked Toxoplasma endodyogeny movies (maintainer lab data).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
@@ -367,3 +371,95 @@ close the remaining real parasite endodyogeny acceptance for F537.
     rosette segmentation consistency, plus an optional marker-based
     bud guard. Maintainer lab movies are still welcome as a second
     dataset.
+
+2026-10-11 — DIVISION PRECISION ON THE CIL MOVIE: EDGE ENTRY, VACUOLE COUNT,
+BUD GUARD (CPU; maintainer asleep, design decided by the session lead)
+    Three rules for INFERRED divisions (tracker-reported links untouched),
+    alpha settings under "Lineage Trees α", in ALPHA_FEATURES[537]:
+    - timelapse_lineage_edge_entry (default True): a track whose first
+      position lies within one object radius of the field edge (half the
+      median major axis of the tracked masks; half of max_distance
+      without masks) is never a daughter, and a mother that is that close
+      to the edge in any of the 3 frames before is still crossing into
+      the field and does not divide. An edge_distance column (pixels to
+      the imaged field's edge, for registered/stitched movies) overrides
+      the image shape.
+    - timelapse_lineage_vacuole_count (default True): objects of a frame
+      closer than half of max_distance are chained into vacuoles. The
+      median size of the mother's vacuole over the 6 frames before must
+      be exceeded, by the objects the division adds, by the median number
+      of objects in the vacuoles holding the daughters over the 6 frames
+      from it (2 -> 4 -> 8 doubling; a mature rosette re-segmented keeps
+      its count). The mother must be seen in 3 of the 6 frames before.
+      Implemented as a lineage-level constraint from positions only, so it
+      also works at the Measure stage. A mask variant (daughter overlap /
+      mother shrink / minimum daughter size) was tried and dropped: it
+      added nothing over the count rule here (P 0.92 but recall 0.50).
+    - timelapse_lineage_bud_guard (default False) with
+      timelapse_lineage_bud_threshold (2.6): the mother's highest IMC1
+      p95/median in the 8 frames before must reach the threshold. Read at
+      mask time from the first channel of the tracked object's
+      segmentation input (the channel it was segmented on); a bud_signal
+      column in a tracks table is used too. Measure has no images, so the
+      guard is skipped there unless that column exists.
+    Code: spacr/_lineage_trees.py (_lineage_edge_distance,
+    _lineage_vacuoles, _lineage_vacuole_grew, _lineage_bud_signal,
+    _lineage_object_radius, _lineage_guard_options); _run_lineage_step
+    takes images=batch from both object.py call sites;
+    _lineage_measurements passes the same rules.
+
+    Scoring (scratch /mnt/firecuda2/Claude/scratch/unblock/F537/work2:
+    prep.py, run.py, final.py, score.py, crops2.py, diag.py, combo.py;
+    labels extra_labels.csv + work/out/manual_division_labels.csv). The
+    39 inferred divisions no earlier run had labelled (from the
+    unguarded and new runs) were hand-checked on new crops (IMC1 green,
+    MORN1 red, mother yellow, daughters cyan, frames -8..+10;
+    sheet_A..D.png): 6 R, 1 E, 26 A (10 of them basal/residual-body
+    blobs, 11 rosette reshuffles or merged pairs re-split, 5 at the
+    field edge), 6 U. Pool of real divisions = every
+    hand-verified R called by any configuration (old guarded/unguarded,
+    new): 20 R, 25 R+E. Recall is against that pool, not every division
+    in the field. U counts as false for precision.
+      configuration                 calls  R  E  A   P strict/len.  recall R/(R+E)
+      old (6 h guard only)            42  14  4 24   0.33 / 0.43    0.70 / 0.72
+      defaults (edge+vacuole)         15  12  1  2   0.80 / 0.87    0.60 / 0.52
+      defaults + bud guard 2.6         7   7  0  0   1.00 / 1.00    0.35 / 0.28
+      defaults + bud guard 2.3         9   9  0  0   1.00 / 1.00    0.45 / 0.36
+      bud guard 2.6 alone (old rest)  11   9  2  0   0.82 / 1.00    0.45 / 0.44
+      edge entry alone                37  15  4 17   0.41 / 0.51    0.75 / 0.76
+      vacuole count alone             20  12  1  7   0.60 / 0.65    0.60 / 0.52
+      old, no 6 h guard               81  20  5 50   0.25 / 0.31    1.00 / 1.00
+    False calls left with defaults: 48:87 and 55:102 (rosette
+    reshuffles). Missed real ones are mostly in the 8 -> 16 wave, where
+    vacuoles touch and leave the field (82:158, 82:163, 94:179).
+    Complete cycles with defaults: 1 (10.5 h, born t12, divides t75; the
+    one cycle the 2026-10-11 note found real at both ends); the old run's
+    other 7 "cycles" (6.5-13 h) all had a false end.
+    Sensitivity (same movie, so the defaults are tuned on it): vacuole
+    link 13/15/17 px x window 4/6/8 frames gives P lenient 0.57-0.87 and
+    recall 0.50-0.65; 15 px / 6 frames is the best of the grid. Entry
+    margin 10-20 px gives identical results once the count rule is on.
+    Non-rosette check, CTC Fluo-N2DL-HeLa inferred with the 6 h guard
+    (hela_new.py): links P/R seq 01 0.885/0.904 -> 0.988/0.894, seq 02
+    0.851/0.931 -> 0.961/0.877 with the new defaults (daughters that move
+    apart count together, so dividing host cells pass); tracker-parent
+    runs stay 1.00 recall.
+    Tests: tests/test_lineage_division_rules_f537.py (synthetic tracks
+    per rule, settings parsing, run step with images, and a regression on
+    the CIL tracks: 42 old calls 14R/4E/24A, defaults P >= 0.8 and recall
+    >= 0.55, bud guard only real ones, bud signal of the budding mother);
+    data tests/data/lineage_cil10524/ (tracks.csv 88 kB derived, labels,
+    a 8x48x48 IMC1 crop; public domain, PROVENANCE.txt). Registration
+    tests updated (categories, default-claims census 923 -> 931, alpha
+    gate on Timelapse and Measure). Settings flow, consumer map and
+    notebooks regenerated with their tools; English runtime manifest
+    (en.py) refreshed with build_i18n_catalogs.py --sources-only (it also
+    drops 11 matplotlib legend-location captions N47 left stale).
+    Run: 356 passed, 26 xfailed in the lineage, settings and i18n cohort
+    (CPU, -n 4, 16G cap); 2 failures (French and Swedish reviewed runtime
+    text) fail identically on origin/nightly 4d08a677f.
+    LEFT (not blocking alpha): translations of the four new tooltips and
+    labels (captions lane); a second Toxoplasma movie to check the
+    defaults are not tuned to this one; vacuole masks (PV) could replace
+    position chaining when a PV channel is segmented.
+

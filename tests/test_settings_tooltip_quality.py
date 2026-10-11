@@ -1004,7 +1004,17 @@ def test_real_default_claims_have_no_unrecorded_drift():
     item_685 = {(app, "export_vvvv")
                 for app in ("mask", "measure", "external_masks")}
     assert item_685 <= compared_pairs
-    assert comparisons == 923
+    # 923 -> 931 on 2026-10-11, +8/-0 (item 537): timelapse_lineage_edge_entry
+    # (True), timelapse_lineage_vacuole_count (True), timelapse_lineage_bud_guard
+    # (False) and timelapse_lineage_bud_threshold (2.6), the inferred-division
+    # rules, each resolved by Measure and by External Masks.
+    item_537_rules = {(app, key) for app in ("measure", "external_masks")
+                      for key in ("timelapse_lineage_edge_entry",
+                                  "timelapse_lineage_vacuole_count",
+                                  "timelapse_lineage_bud_guard",
+                                  "timelapse_lineage_bud_threshold")}
+    assert item_537_rules <= compared_pairs
+    assert comparisons == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -1055,7 +1065,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_470)
             + len(item_537_min_division)
             + len(item_548_pool)
-            + len(item_685)
+            + len(item_685) + len(item_537_rules)
             == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs

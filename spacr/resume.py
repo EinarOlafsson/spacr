@@ -329,6 +329,8 @@ COSMETIC_SETTINGS = frozenset({
     'bleach_correction', 'cellprofiler_pipeline',
     'timelapse_lineage', 'timelapse_lineage_color_by',
     'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h',
+    'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count',
+    'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold',
     'timelapse_events', 'timelapse_events_annotations',
     'timelapse_events_model', 'timelapse_events_window',
     'timelapse_events_threshold', 'timelapse_events_conditions',

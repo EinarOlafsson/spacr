@@ -262,8 +262,8 @@ def _measured_lineage_options(settings, stored_interval):
 
 def _run_measured_lineage_step(db_path, settings):
     """Build measured-colour trees separately, reporting failures per tracks file."""
-    from ._lineage_trees import (_LINEAGE_SEGMENT_STATS, _lineage_min_division_h,
-                                 _lineage_trees_from_tracks)
+    from ._lineage_trees import (_LINEAGE_SEGMENT_STATS, _lineage_guard_options,
+                                 _lineage_min_division_h, _lineage_trees_from_tracks)
 
     directory = Path(db_path).resolve().parent.parent / 'tracks'
     roles = settings.get('timelapse_objects') or ['cell']
@@ -298,6 +298,7 @@ def _run_measured_lineage_step(db_path, settings):
                 max_distance=distance,
                 frame_interval_s=interval,
                 min_division_h=_lineage_min_division_h(settings),
+                guards=_lineage_guard_options(settings, max_distance=distance),
                 plot=bool(settings.get('save', True) or settings.get('plot', False)))
             report_path = directory / 'lineage_measured' / (path.stem + '_measurement_source.json')
             _atomic_json(report_path, report)
