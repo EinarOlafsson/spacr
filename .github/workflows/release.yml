@@ -316,6 +316,24 @@ jobs:
       release_version: ${{ needs.bump.outputs.version }}
       publish: true
 
+  apptainer-images:
+    name: Build and publish Apptainer images
+    # Item 586. The SIFs are built FROM the Docker images container-images
+    # has just pushed, so this runs only when that job succeeded. Like it, it
+    # cannot gate the release: PyPI is already immutable by then, and a
+    # failure here publishes no SIF and costs nothing else.
+    if: >-
+      always() &&
+      needs.container-images.result == 'success'
+    needs: [bump, container-images]
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/apptainer-images.yml
+    with:
+      release_version: ${{ needs.bump.outputs.version }}
+      publish: true
+
   github-release:
     name: Publish GitHub release
     if: >-

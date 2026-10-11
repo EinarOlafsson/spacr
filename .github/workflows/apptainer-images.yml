@@ -1,6 +1,6 @@
-# Item 586. Runs only when dispatched by hand (from the default branch) or
-# called from release.yml. It is NOT yet called from release.yml: wiring it in
-# and making the spacr-sif package public are the maintainer's steps.
+# Item 586. Called from release.yml (job apptainer-images, after
+# container-images succeeds) and can also be dispatched by hand from the
+# default branch to (re)publish one version.
 #
 # Builds the Apptainer images FROM the Docker images docker-images.yml has
 # already pushed for a release, runs the SIF's own %test (the no-model smoke
@@ -13,22 +13,14 @@
 # The CUDA SIF is built and %test-ed on a CPU runner; hosted runners have no
 # GPU, so its --nv run is the maintainer's local check (see the item file).
 #
-# Wire it into release.yml after the container-images job (job names as of
-# nightly 2026-10-11):
+# release.yml calls it as:
 #
 #   apptainer-images:
-#     name: Build and publish Apptainer images
-#     if: >-
-#       always() &&
-#       needs.container-images.result == 'success'
+#     if: always() && needs.container-images.result == 'success'
 #     needs: [bump, container-images]
-#     permissions:
-#       contents: read
-#       packages: write
+#     permissions: {contents: read, packages: write}
 #     uses: ./.github/workflows/apptainer-images.yml
-#     with:
-#       release_version: ${{ needs.bump.outputs.version }}
-#       publish: true
+#     with: {release_version: <bump.outputs.version>, publish: true}
 #
 # As with the Docker images, GHCR makes a new package private; flip
 # spacr-sif to public once after the first push.

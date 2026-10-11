@@ -90,6 +90,22 @@ in both, and `smoke_pipeline.py --mask` passed on the CPU in both. See
 `features/data/586_apptainer_smoke_2026-09-27.json`, which also records the
 `--nv` run.
 
-Nothing is published yet. `features/data/586_apptainer_images_workflow.yml`
-is a proposed release workflow for the maintainer; until it is adopted, build
-the `.sif` yourself as above.
+## Published images
+
+Each release builds both SIFs from that release's Docker images, runs their
+`%test` (and the Mask + Measure smoke test on the CPU image), and publishes
+them to GHCR as ORAS artifacts (`.github/workflows/apptainer-images.yml`,
+called from `release.yml`):
+
+```sh
+apptainer pull oras://ghcr.io/einarolafsson/spacr-sif:<version>-cpu
+apptainer pull oras://ghcr.io/einarolafsson/spacr-sif:<version>-cuda12.4
+```
+
+GHCR creates a new package as private, so anonymous pulls work only once the
+`spacr-sif` package is public. The maintainer does that once on GitHub after
+the first publish: open
+https://github.com/users/EinarOlafsson/packages/container/spacr-sif/settings,
+choose **Change visibility** -> **Public**, and check that the package is
+linked to the `EinarOlafsson/spacr` repository. Until then, or for an
+unreleased commit, build the `.sif` yourself as above.

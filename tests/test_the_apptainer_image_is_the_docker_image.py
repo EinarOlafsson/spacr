@@ -28,6 +28,8 @@ APPTAINER_DIR = REPO_ROOT / "packaging" / "apptainer"
 DOCKER_DIR = REPO_ROOT / "packaging" / "docker"
 DEFINITION = APPTAINER_DIR / "spacr.def"
 DOCKER_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "docker-images.yml"
+APPTAINER_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "apptainer-images.yml"
+RELEASE_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "release.yml"
 
 
 def _sections() -> dict[str, str]:
@@ -219,3 +221,35 @@ def test_the_smoke_script_can_run_mask_and_measure():
     assert '"--mask"' in text
     assert 'zip(("mask", "measure")' in text
     assert "count == len(SYNTHETIC_CELLS)" in text
+
+
+def _workflow(path: Path) -> dict:
+    """A parsed workflow, with PyYAML's boolean ``on`` key restored."""
+    yaml = pytest.importorskip("yaml")
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if True in data:
+        data["on"] = data.pop(True)
+    return data
+
+
+def test_the_release_publishes_the_sifs_after_the_docker_images():
+    """release.yml calls apptainer-images once container-images succeeded."""
+    release = _workflow(RELEASE_WORKFLOW)
+    jobs = release["jobs"]
+    names = list(jobs)
+    assert "apptainer-images" in jobs
+    assert names.index("apptainer-images") > names.index("container-images")
+    job = jobs["apptainer-images"]
+    assert job["uses"] == "./.github/workflows/apptainer-images.yml"
+    assert set(job["needs"]) == {"bump", "container-images"}
+    condition = " ".join(job["if"].split())
+    assert "always()" in condition
+    assert "needs.container-images.result == 'success'" in condition
+    assert job["permissions"] == {"contents": "read", "packages": "write"}
+    assert job["with"]["publish"] is True
+    assert job["with"]["release_version"] == "${{ needs.bump.outputs.version }}"
+    assert "version" in jobs["bump"]["outputs"]
+    called = _workflow(APPTAINER_WORKFLOW)["on"]["workflow_call"]["inputs"]
+    assert set(job["with"]) <= set(called)
+    assert called["release_version"]["required"] is True
+    assert called["publish"]["type"] == "boolean"
