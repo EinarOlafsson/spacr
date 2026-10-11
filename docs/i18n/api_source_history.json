@@ -2295,18 +2295,6 @@
       "source_sha256": "1498680e3055c65d22df115ce4253dc0f27c45681455cacb2ed566ecfb4040bf",
       "text": "Group observations that are the same nucleus.\n\nEvery group is one physical object. A nucleus in a window overlap is\ngrouped from two (or four, at a corner) observations; one in a window's\ninterior forms a group of one.\n\nTHE CLIPPED ONES ARE THE POINT. An observation whose mask ran into an\ninterior seam did not see the whole nucleus, so its area and centroid are\nboth wrong. It is kept only long enough to be matched to a complete\nobservation of the same nucleus and is then dropped in favour of it. A\nclipped observation matching nothing complete means no window saw that\nnucleus whole, which :func:`number` refuses.\n\nTwo labels of one window are never one object, because a label image does\nnot give one nucleus two labels. Two complete observations from different\nwindows are one nucleus when their centroids agree within ``tolerance``\non each axis and either their areas agree to ``area_ratio`` or their\ncentroids lie within the smaller one's equivalent radius -- the radius of\na disc of its area. Pairs whose areas agree are joined first, then the\nrest closest first, and a join that would give a group two labels of one\nwindow is refused.\n\nA clipped observation is matched by containment, not by a fixed distance:\nthe cut moves its centroid inward by up to the nucleus's radius, so a\nfixed tolerance misses exactly the deep clips. It joins a complete\nobservation from another window when its centroid lies inside that\nobservation's equivalent disc, or its bounding box lies inside that\nobservation's box give or take two pixels. It joins only the closest such\nobservation, so one clip can never make two nuclei one object. Clipped\nobservations that match nothing complete are grouped with each other\nwhere their boxes overlap.\n\n:param observations: every window's view of every object in one well,\n    already in well-frame coordinates. Order does not matter; the\n    grouping is by geometry, not by arrival.\n:returns: groups, each a tuple of observations, in no particular order --\n    :func:`number` imposes the order that matters."
     },
-    "1499c58daf110d55d5564b267331edbd0231f0763e76b216abf9f61e286bba32": {
-      "source_blocks_sha256": [
-        "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
-        "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
-        "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
-        "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
-        "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
-        "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec"
-      ],
-      "source_sha256": "1499c58daf110d55d5564b267331edbd0231f0763e76b216abf9f61e286bba32",
-      "text": "Which of :data:`ZOO_SOURCES` this row belongs under.\n\nDecided FROM THE ROW, never from a list of names kept somewhere else: a\nhand-written list goes stale the first time a model is added, and the\nfailure it produces is a model that is in the catalogue and under no\nheading, which is a model nobody can see.\n\nThe order of the tests is the rule, and it matters in one place: a\nCellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not\na Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto,\ncyto2, cyto3, nuclei -- and the backend package that runs them.\n\nA row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It\nis the fallback rather than a sixth heading because a model under the\nwrong heading is a nuisance and a model under no heading is a bug the\nuser experiences as a missing model.\n\n:param entry: any zoo row -- a :class:`ModelEntry`, or anything with\n    ``kind``, ``source`` and ``uri``.\n:returns: one of :data:`ZOO_SOURCES`."
-    },
     "14ac6fcab0f4fe4970215f21196daf9d4891d905992deaa13c693d40a615a0e6": {
       "source_blocks_sha256": [
         "e9d659585744464f3d9a5980aa92de71094c8252b17a991c45f0a3e9e48bc80e",
@@ -3232,22 +3220,6 @@
       ],
       "source_sha256": "1b2b2c04dfd6e1ee2b98b6c19f0bdd3b785f0a7caa479e98abed7c414bfb7fdc",
       "text": "Whether a complete copy of a sample is unpacked in ``folder``.\n\n:param folder: where the sample is expected.\n:returns: True only when the manifest exists and every file it lists is\n    there. A half-unpacked sample reads as absent, which is the answer\n    that gets it downloaded again."
-    },
-    "1b32cd5c05e056c7322ad58a1ce80fd09e84ccc4a060d40b76215d0ebb9c0c96": {
-      "source_blocks_sha256": [
-        "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
-        "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
-        "5d8a8ef77689c45f2d05b60e9e0753f98317f2c7a6464ac7712e7a527dbb43f3",
-        "31d4679f77140e9c23069411514fcf89691da67b480a52034393ff66f94622f1",
-        "a50fdfb6ba4eb271c298b2a25659f564f535e0096213be608dbcc211428affc5",
-        "e6dc6abbd0dbe2ffb30424931c3d215861c95ca990f8ee96964081fb6f21267f",
-        "933222380fa8ccdc50236c518c8f8045ea1ce2bb26751b0270dc9dbbaf4a1d48",
-        "7aefb1fe26428e65edf007b7786bb33b1fb75ee44c89c7d0adc1588f9ab471d5",
-        "60ed1b2259fd67117ec0a7a9d9aa0a948e574bacfdfc991acf217b4532d3382c",
-        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
-      ],
-      "source_sha256": "1b32cd5c05e056c7322ad58a1ce80fd09e84ccc4a060d40b76215d0ebb9c0c96",
-      "text": "The community catalogue, fetched from :data:`REMOTE_CATALOGUE_URI`.\n\n:param uri: override the catalogue location.\n:param timeout: seconds to wait for the request.\n:param force: ignore the cache and re-fetch.\n:param block: whether to wait for the network. ``None`` -- the default,\n    and what an unthinking caller gets -- waits everywhere EXCEPT Qt's\n    GUI thread, where it answers from the cache and refreshes on a daemon\n    thread. ``True`` waits wherever it is called, which only a caller that\n    knows it is on a worker or in a CLI may ask for. ``False`` never\n    waits.\n:returns: the entries, or ``()`` when the catalogue cannot be read.\n\nNEVER FETCHES ON THE GUI THREAD, and that is not an optimisation. This is\nreached from ``spacr.settings.downloaded_zoo_models`` while a settings\npanel is being built, so it ran inside ``MainWindow._on_nav_selected``\nwith nothing able to paint or answer the compositor. Measured\nwith the catalogue host non-routable (10.255.255.1, the shape of a down\nVPN or a captive portal -- the connect neither completes nor is refused):\nopening the Mask module took **32.2 s**, all of it a GUI thread stuck in\n``urlopen``. GNOME asks a window whether it is alive after five, so what\nthe user sees is spaCR's \"force quit\" dialog, which is how this was\nreported. With the fetch moved off the thread the same open is 2.4 s.\n\nThe cost of not waiting is a first module open whose Cellpose dropdown\nlists the bundled and local models but not the community ones; the\nbackground refresh means the second one has them.\n\nNEVER RAISES, and that is deliberate. This runs when a user opens a module\nthat offers a model list, and the list is useful without it: the bundled\nentries and any local models are still there. A laptop on a train, a lab\nbehind a proxy and a Hugging Face outage all produce the same thing -- a\nshorter list and a log line -- rather than a module that will not open.\n\nThe failure that WOULD be silent and harmful is a corrupt or hostile\ncatalogue, so entries that do not parse are dropped individually, and an\nentry without a ``sha256`` still cannot be installed by :func:`fetch`\nwithout an explicit override. A catalogue row is a claim about where a file\nlives; the checksum is what makes it a claim about which file."
     },
     "1b5f6d147f089b0242023cedc6934fcdc88fbddcaa7b1d7da7348fec0c8103b4": {
       "source_blocks_sha256": [
@@ -4396,19 +4368,6 @@
       ],
       "source_sha256": "24abd731c54f308e8cf10e5b4f633d822238e227d0ea9260e1fcb5ea2c4d1e47",
       "text": "Validate that the field carries exactly one of a value and a reason.\n\n:raises ValueError: if it has both or neither; if whichever it has is\n    blank -- a blank is the thing this type exists to refuse; if the\n    kind is unknown; or if a non-computed field carries a value without\n    a reason, since the reason is what a reader needs. An absent kind is\n    inferred from which of the two was given."
-    },
-    "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41": {
-      "source_blocks_sha256": [
-        "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
-        "22ce6051b68cbf75e610357b2b05b163900ff3e5f774557a109bb525e253795d",
-        "ef5193b583d0a2b33e6e3f0fda658de78da5a310f5593a305eac43992189968d",
-        "f4d430278d19c6cbd779e6cd654784c369e9f45ac446bc40c1a1933ff8df250f",
-        "ad47a1ddcdf1db4442c35d9ba47853fa0a36d09b7cac743e6a23df2ed3dbbbe0",
-        "e0d2d8f592d43404c60ad70fc702e8b169b5e9c69fac91f9a7313341a7adfeab",
-        "9fc6824b21ad226a833badbb4c27c8cca4896812acff5c90062401a612ee49b5"
-      ],
-      "source_sha256": "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41",
-      "text": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.\n\nWhen ``src`` and ``classes`` are provided the counts are taken from the file\nlistings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS.\n\n:param loader: fallback DataLoader iterated only when folder info is missing.\n:param num_classes: number of output classes.\n:param src: parent folder containing per-class subfolders.\n:param classes: ordered class-folder names matching ``src``.\n:returns: ``LongTensor`` of per-class counts."
     },
     "24bbe2a8bcbd6b2efdff671c3d0d3b69fa36937efbabd2fbadcf0e3b5b6854ab": {
       "source_blocks_sha256": [
@@ -7542,19 +7501,6 @@
       "source_sha256": "3f5fda077898ce868220d0ab5159ec103f969def8bc06c5f903fc4bf31b606ba",
       "text": "TorchVision backbone with a spaCR linear head (streamlined variant of :class:`TorchModel`).\n\n:param model_name: TorchVision classification model to load.\n:param pretrained: use ImageNet-pretrained weights when available.\n:param dropout_rate: dropout probability applied to backbone and spaCR head; ``None`` disables.\n:param use_checkpoint: enable gradient checkpointing through the backbone.\n:param num_classes: output class count.\n:param multilabel: informational flag consumed by external loss/metrics code.\n:raises ValueError: if ``model_name`` is not a TorchVision model.\nBuild the backbone, strip its head, and attach the spaCR classifier."
     },
-    "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a": {
-      "source_blocks_sha256": [
-        "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
-        "50843f63908d3c7c8e63b6b2d8339f8401aa061b29cdc73ecbc218d9d3bff455",
-        "95e7c086280147c0bc31d6c6d7939b653728e8f666d9e31923ce6d5bef040007",
-        "395296bad60d9c4c3796b006d3402762efae64c1af573ce48e951e0c6c9ea864",
-        "491975835f29fba8f37e15db8304a9fa9f8d564df7cc3f2bba88f45e970875cf",
-        "46629a349877cd9e9c4291b28d51201e7266fcb43f4337e90cf4e79d216541a9",
-        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
-      ],
-      "source_sha256": "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a",
-      "text": "Figures on a reflowing grid, filling as a search produces them.\n\n:param parameters: the searched parameter names, in the order that\n    decides the axes. May be set later with :meth:`set_parameters`.\n:param parent: optional Qt parent.\n:ivar cell_clicked: emitted with the index of a clicked figure.\nBuild the grid that lays a search's figures out by parameter.\n\n:param parameters: the parameters the search varied, which become the\n    grid's captions.\n:param parent: parent widget, or ``None``."
-    },
     "3f7f3799dab13a644b34ce97eff92d08e73a48069b06aa4f7e6a53a8e31d2fb8": {
       "source_blocks_sha256": [
         "2c6bb276cb24e0d83c46a272b1470a9af61cb72bdcffadf6676558063b032a30",
@@ -7939,6 +7885,23 @@
       ],
       "source_sha256": "423512c41e7913e2d4c2ec2ac18c858f7776c89398feabfe10d93ce3f1603246",
       "text": "Print a settings dict to the console as a tidy, aligned table.\n\nNicer than dumping a truncated pandas DataFrame: values are grouped by the\nspacr settings categories, keys are aligned in a column, long values are\nclipped, and the whole thing sits under a boxed title. Purely cosmetic --\nused wherever \"Saving settings\" is shown.\n\nPurely cosmetic, and it stays that way: the frame degrades to ASCII and\nevery line goes out through :func:`console_safe`, so a console that cannot\nencode the decoration prints a plainer table instead of raising\n``UnicodeEncodeError``. :func:`spacr.measure.measure_crop` calls this\n(through :func:`save_settings`) before it does any work at all, so a\ndecoration character was enough to end a whole run before the first field\nwas read.\n\n:param settings: the settings dict to render.\n:param title: heading shown in the box.\n:returns: None."
+    },
+    "424b90595b94f2d909d4bc896943a348674e36ef082898588b3c465155a7c3c5": {
+      "source_blocks_sha256": [
+        "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
+        "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
+        "5d8a8ef77689c45f2d05b60e9e0753f98317f2c7a6464ac7712e7a527dbb43f3",
+        "31d4679f77140e9c23069411514fcf89691da67b480a52034393ff66f94622f1",
+        "a50fdfb6ba4eb271c298b2a25659f564f535e0096213be608dbcc211428affc5",
+        "e6dc6abbd0dbe2ffb30424931c3d215861c95ca990f8ee96964081fb6f21267f",
+        "933222380fa8ccdc50236c518c8f8045ea1ce2bb26751b0270dc9dbbaf4a1d48",
+        "7aefb1fe26428e65edf007b7786bb33b1fb75ee44c89c7d0adc1588f9ab471d5",
+        "60ed1b2259fd67117ec0a7a9d9aa0a948e574bacfdfc991acf217b4532d3382c",
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a",
+        "3c38655b7204ca11b38f94f4e38c889187dd67f91617944f158ebcedf0355fe2"
+      ],
+      "source_sha256": "424b90595b94f2d909d4bc896943a348674e36ef082898588b3c465155a7c3c5",
+      "text": "The community catalogue, fetched from :data:`REMOTE_CATALOGUE_URI`.\n\n:param uri: override the catalogue location.\n:param timeout: seconds to wait for the request.\n:param force: ignore the cache and re-fetch.\n:param block: whether to wait for the network. ``None`` -- the default,\n    and what an unthinking caller gets -- waits everywhere EXCEPT Qt's\n    GUI thread, where it answers from the cache and refreshes on a daemon\n    thread. ``True`` waits wherever it is called, which only a caller that\n    knows it is on a worker or in a CLI may ask for. ``False`` never\n    waits.\n:returns: the entries, or ``()`` when the catalogue cannot be read.\n\nNEVER FETCHES ON THE GUI THREAD, and that is not an optimisation. This is\nreached from ``spacr.settings.downloaded_zoo_models`` while a settings\npanel is being built, so it ran inside ``MainWindow._on_nav_selected``\nwith nothing able to paint or answer the compositor. Measured\nwith the catalogue host non-routable (10.255.255.1, the shape of a down\nVPN or a captive portal -- the connect neither completes nor is refused):\nopening the Mask module took **32.2 s**, all of it a GUI thread stuck in\n``urlopen``. GNOME asks a window whether it is alive after five, so what\nthe user sees is spaCR's \"force quit\" dialog, which is how this was\nreported. With the fetch moved off the thread the same open is 2.4 s.\n\nThe cost of not waiting is a first module open whose Cellpose dropdown\nlists the bundled and local models but not the community ones; the\nbackground refresh means the second one has them.\n\nNEVER RAISES, and that is deliberate. This runs when a user opens a module\nthat offers a model list, and the list is useful without it: the bundled\nentries and any local models are still there. A laptop on a train, a lab\nbehind a proxy and a Hugging Face outage all produce the same thing -- a\nshorter list and a log line -- rather than a module that will not open.\n\nThe failure that WOULD be silent and harmful is a corrupt or hostile\ncatalogue, so entries that do not parse are dropped individually, and an\nentry without a ``sha256`` still cannot be installed by :func:`fetch`\nwithout an explicit override. A catalogue row is a claim about where a file\nlives; the checksum is what makes it a claim about which file.\n\nA row's own ``source`` field is dropped: every row here is ``shared``,\nand which heading it lands under is :func:`source_of`'s decision, made\nfrom its checksum and the repository it is fetched from."
     },
     "426c047732dd931a43e917141a180f08b72e962fbd3c394e3445d80029038ad5": {
       "source_blocks_sha256": [
@@ -12895,18 +12858,6 @@
       "source_sha256": "6f4368d124659605c77abdcc7cdc015e35fc906f4d5777cc5d40f243b19731ca",
       "text": "``N4`` — the Project Browser: every project on disk, in one table.\n\nNavigating by folder is how spaCR has always been used, and it is why nobody\ncan answer \"which plates have been measured?\", \"which one is the 400 GB?\" or\n\"which results no longer match the masks under them?\" without opening six\nwindows. This screen is that answer as a list.\n\nIt computes nothing. Every column comes from :mod:`spacr.projects`, which in\nturn assembles :func:`spacr.data_manager.scan_project` (the size and the\nunaccounted-for bytes), :func:`spacr.ports.declared_outputs` (the stage),\n:meth:`spacr.artifacts.Registry.is_stale` (what is out of date) and\n:func:`spacr.chaining.next_steps` (what could run next). A browser with its\nown opinion about any of those is a browser that disagrees with the screen\nthe user opens next.\n\nTwo things about it are load-bearing rather than cosmetic.\n\n**A project the registry has never seen is still listed.** Projects are found\nby walking the disk, so a folder copied from a colleague appears the moment\nthe browser is pointed at its parent — with its stage, its size and the date\nits files were last written. What it does *not* show is \"0 stale\", which\nwould read as *clean*: with no provenance there is nothing to compare\nagainst, so the state column says \"unknown — nothing recorded\" and the note\nsays why.\n\n**The scan never blocks the window.** Walking a plate folder is tens of\nthousands of ``stat`` calls, and doing it on the GUI thread is a frozen\napplication for however long the filesystem takes. Everything goes through\n:class:`spacr.qt.job_runner.JobRunner`, whose completion handlers here are\n**bound methods** — read that module's docstring for what a closure connected\nto ``thread.finished`` costs. The background activity spinner follows the run\nregistry on its own, so nothing here has to drive it.\n\n**And neither does opening the screen, nor opening its folder chooser.**\nTwo things here take a path the user typed on some *other* screen: the search\nfolders :func:`make_project_browser_screen` seeds from the recent-source list,\nand the folder the \"Add folder…\" dialog starts in. Both used to be settled\nwith an ``os.path.isdir`` on the GUI thread. Measured on one workstation, one\nsuch folder was under an ``autofs`` mount whose\nshare was asleep and a single ``isdir`` on it had not returned after TWENTY\nSECONDS — which is not a slow screen, it is the whole application frozen with\nno traceback, and it was reported as \"opening the project browser crashes\nspacr\". Both now ask :mod:`spacr.qt.path_probe`, which answers from a cache\nand stats in the background. Those two are the whole inventory: the walk\nruns on a worker, and every column, note and detail line the screen draws is\nrendered from the frozen :class:`spacr.projects.ProjectSummary` that walk\nalready returned, so filling the table and the detail pane reads nothing.\n\n:func:`register` is **not** called at import; read its docstring."
     },
-    "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80": {
-      "source_blocks_sha256": [
-        "62e113bfff12dc76616660cca42370ac48ae92cdfe812aeb50bf11b56ac01459",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
-        "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
-        "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
-        "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
-      ],
-      "source_sha256": "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80",
-      "text": "Return the worker count for a set of image fields.\n\n``spawn`` and ``forkserver`` start a fresh interpreter for every worker,\nso their worker count is capped at the number of fields. ``fork`` keeps\nthe requested count for compatibility.\n\n:param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.\n:param n_files: how many fields there are to measure.\n:param start_method: start method name to decide against; defaults to the\n    interpreter's current default.\n:returns: an int >= 1."
-    },
     "6f54c437b8d3abc9378bf181a6f36b09175c828acf7bdc15d4750c152d33d214": {
       "source_blocks_sha256": [
         "7c72602103bb04f017b14f10f488536fd76941d740044f63028846081f34d056",
@@ -13889,15 +13840,6 @@
       ],
       "source_sha256": "778400301a650241e1a64cec24acea5777517fc80aaa9bcb38b4f01372ef29bc",
       "text": "What the layout says the canvas should be.\n\nTHE ONLY THING THAT CAUGHT THE UNIFORM ERROR. Columns minus one\npitches plus one tile, and the same down the tallest column. A\nmeasured canvas with nothing to compare it to is a number, not a\ncheck."
-    },
-    "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9": {
-      "source_blocks_sha256": [
-        "63cd2c1e99a8850935b06318b7cc0cb62439ea967d3952a1698dbf889fdc8ee8",
-        "2acc2bbdd4a987cd0a9e6a30d1722cef15caebe24d6d9eec94cec7175599ab6d",
-        "37cec808b989aaa1f35c33691d0a0cf761995f47f6b6aaf2878708997e473fac"
-      ],
-      "source_sha256": "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9",
-      "text": "Parse plate/well/field/object identities from a crop filename.\n\nUnknown levels are returned as empty strings rather than guessed. The\nobject identity is the augmentation-normalized full stem.\n\n:param path: crop path or file name. Augmentation suffixes are removed and\n    the stem is split on underscores to find the plate, well and field\n    parts."
     },
     "778d270db0d13aa60344d36797043ebf6086d033a107eaa5124d33e11d31ed20": {
       "source_blocks_sha256": [
@@ -22498,15 +22440,6 @@
       ],
       "source_sha256": "c494efeb45e2cf61bdbae18afc4d1559bcaf7ed65fb0984399b8757a38cb2282",
       "text": "One thing being put on the plate.\n\n:ivar name: label written into the exported table. Becomes the value of\n    ``treatment`` (or ``host_cells``/``pathogen``) downstream.\n:ivar replicates: how many wells it gets.\n:ivar role: one of :data:`ROLES`."
-    },
-    "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0": {
-      "source_blocks_sha256": [
-        "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
-        "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a"
-      ],
-      "source_sha256": "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0",
-      "text": "Follow the parent's size; pause when the window is minimised.\n\n:param obj: the object the event is for — the parent (whose resize\n    this widget follows) or the watched top-level window.\n:param event: the event; resize, window-state, hide, show, move and\n    screen-change types are acted on, and every event is still passed\n    on to the base-class filter."
     },
     "c4b0c0aa29201b2bff14b0130d594d9743b764ce2e0696e8f58ec04958e37b1e": {
       "source_blocks_sha256": [
