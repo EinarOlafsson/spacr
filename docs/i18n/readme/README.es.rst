@@ -566,9 +566,9 @@ spaCR envía un catálogo de modelos entrenados y los trae a pedido. Abra **Mode
      - 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups
      - Stock was not evaluated in this run; see the named incumbent comparison on the model card
    * - ``toxoplasma_plaque_v4``
-       (Cellpose-SAM (cpsam, Cellpose 4.0.9))
+       (Cellpose-SAM (cpsam_v2, Cellpose 4.0.9))
      - 663 curated plaque fields from four domains (published-figure wells, Gel Doc wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 validation / 263 test
-     - F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5
+     - F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer
    * - ``toxoplasma_well_detector_v3``
        (YOLO11n (fine-tuned from detector v3))
      - 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization

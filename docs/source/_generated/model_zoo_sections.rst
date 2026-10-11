@@ -379,14 +379,14 @@ Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <http
 
 SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c``.
 
-Toxoplasma Plaque v4 (round 6, alternative)
--------------------------------------------
+Toxoplasma Plaque v4 (round 6, cpsam_v2, alternative)
+-----------------------------------------------------
 
-**Architecture.** Cellpose-SAM (cpsam, Cellpose 4.0.9)
+**Architecture.** Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)
 
-**Trained on.** Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates and staged literature crops; round 6, best of 180 epochs (epoch 130), base cpsam
+**Trained on.** Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates and staged literature crops; round 6 splits, best of 190 epochs (epoch 140), base cpsam_v2
 
-**Measured.** F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5
+**Measured.** F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer
 
 .. list-table:: Published scorecard
    :header-rows: 1
@@ -396,32 +396,32 @@ Toxoplasma Plaque v4 (round 6, alternative)
      - Stock
      - Difference
    * - f1
-     - 0.8127
-     - 0.3003
-     - 0.5124
+     - 0.8154
+     - not measured
+     - not measured
    * - precision
-     - 0.8232
-     - 0.2235
-     - 0.5997
+     - 0.8252
+     - not measured
+     - not measured
    * - recall
-     - 0.8025
-     - 0.4576
-     - 0.3448
+     - 0.8058
+     - not measured
+     - not measured
 
 Evaluation set: ``retrain_20261009_plaque_test``; version ``2026-10-09``; 263 scored fields and 12792 annotated objects.
 
-* Alternative, not better: F1 0.813 against toxoplasma_plaque_v3 0.844 on the same held-out fields, lower on every source (Gel Doc 0.826 against 0.917).
-* Above the previous default toxoplasma_plaque_v2 overall (0.798) and on Gel Doc wells, where v2 scores 0.013.
-* Fine-tuned from first-generation cpsam, not cpsam_v2.
-* Published-figure literature crops stay hard (F1 0.535).
+* Alternative, not the default: F1 0.815 against toxoplasma_plaque_v3 0.844 on the same 263 held-out fields, through spacr.plaque.segment_plaque_image, lower on every source (Gel Doc 0.804 against 0.913).
+* Fine-tuned from cpsam_v2 (2026-10-10). It replaces the first round-6 weights, fine-tuned from first-generation cpsam (sha256 00f4a86b...a0c171), which remain in the repository history.
+* Above toxoplasma_plaque_v2 overall (0.799) and on Gel Doc wells, where v2 scores 0.013.
+* Published-figure literature crops stay hard (F1 0.530).
 
 Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6>`_, as ``cpsam_plaque_r6``.
 
 .. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/scorecard.png
-   :alt: Published scorecard for Toxoplasma Plaque v4 (round 6, alternative)
+   :alt: Published scorecard for Toxoplasma Plaque v4 (round 6, cpsam_v2, alternative)
    :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/blob/main/scorecard.csv
 
-SHA-256 ``00f4a86ba1502fd583231e54bc6538f595f67c86cd4f9ee5c415f6f788a0c171``.
+SHA-256 ``744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f``.
 
 Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)
 ------------------------------------------------------

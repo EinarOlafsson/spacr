@@ -995,11 +995,11 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'repo_id': 'einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6',
      'repo_type': 'model',
      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/weights/cpsam_plaque_r6',
-     'sha256': '00f4a86ba1502fd583231e54bc6538f595f67c86cd4f9ee5c415f6f788a0c171',
+     'sha256': '744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f',
      'size_bytes': 1218641683,
-     'metrics': {'f1': {'finetuned': 0.8127, 'vanilla': 0.3003, 'delta': 0.5124},
-                 'precision': {'finetuned': 0.8232, 'vanilla': 0.2235, 'delta': 0.5997},
-                 'recall': {'finetuned': 0.8025, 'vanilla': 0.4576, 'delta': 0.3448},
+     'metrics': {'f1': {'finetuned': 0.8154, 'vanilla': None, 'delta': None},
+                 'precision': {'finetuned': 0.8252, 'vanilla': None, 'delta': None},
+                 'recall': {'finetuned': 0.8058, 'vanilla': None, 'delta': None},
                  'holdout': 'retrain_20261009_plaque_test',
                  'holdout_version': '2026-10-09',
                  'n_fields': 263,
@@ -1011,27 +1011,31 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                  'cv': 'no',
                  'aji': 'not recorded',
                  'dice': 'not recorded',
-                 'stock_f1': '0.3003',
+                 'stock_f1': 'not measured with spacr.plaque.segment_plaque_image',
                  'stock_aji': 'not measured',
                  'stock_dice': 'not measured',
                  'train_loss': 'see training/epoch_history.json',
                  'val_loss': 'see training/epoch_history.json',
-                 'best_epoch': '130 / 180'},
-     'display_name': 'Toxoplasma Plaque v4 (round 6, alternative)',
-     'architecture': 'Cellpose-SAM (cpsam, Cellpose 4.0.9)',
+                 'best_epoch': '140 / 190'},
+     'display_name': 'Toxoplasma Plaque v4 (round 6, cpsam_v2, alternative)',
+     'architecture': 'Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)',
      'dataset': '663 curated plaque fields from four domains (published-figure wells, Gel Doc '
                 'wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 '
                 'validation / 263 test',
-     'versus_stock': 'F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5',
+     'versus_stock': 'F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU '
+                     '0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer',
      'trained_on': 'Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates '
-                   'and staged literature crops; round 6, best of 180 epochs (epoch 130), base cpsam',
+                   'and staged literature crops; round 6 splits, best of 190 epochs (epoch 140), '
+                   'base cpsam_v2',
      'trained_by': 'einarolafsson',
-     'notes': ['Alternative, not better: F1 0.813 against toxoplasma_plaque_v3 0.844 on the same '
-               'held-out fields, lower on every source (Gel Doc 0.826 against 0.917).',
-               'Above the previous default toxoplasma_plaque_v2 overall (0.798) and on Gel Doc wells, '
-               'where v2 scores 0.013.',
-               'Fine-tuned from first-generation cpsam, not cpsam_v2.',
-               'Published-figure literature crops stay hard (F1 0.535).']},
+     'notes': ['Alternative, not the default: F1 0.815 against toxoplasma_plaque_v3 0.844 on the '
+               'same 263 held-out fields, through spacr.plaque.segment_plaque_image, lower on every '
+               'source (Gel Doc 0.804 against 0.913).',
+               'Fine-tuned from cpsam_v2 (2026-10-10). It replaces the first round-6 weights, '
+               'fine-tuned from first-generation cpsam (sha256 00f4a86b...a0c171), which remain in '
+               'the repository history.',
+               'Above toxoplasma_plaque_v2 overall (0.799) and on Gel Doc wells, where v2 scores 0.013.',
+               'Published-figure literature crops stay hard (F1 0.530).']},
     {'key': 'toxoplasma_well_detector_v3',
      'name': 'yolo_welldetect_v4_geldoc.pt',
      'remote_name': 'yolo_welldetect_v4_geldoc.pt',
