@@ -21,6 +21,7 @@ TUTORIALS = REPO / "tools" / "tutorials"
 sys.path.insert(0, str(TUTORIALS))
 from capture_policy import (  # noqa: E402
     ALPHA_FEATURES_KEY,
+    CAPTURE_BACKDROP,
     configure_appearance,
     force_alpha_features_off,
     force_alpha_features_off_in_profiles,
@@ -50,7 +51,7 @@ def dark_blobs_window(qtbot, prefs):
     palette = window.palette()
     palette.setColor(QPalette.Window, QColor("#121212"))
     window.setPalette(palette)
-    backdrop = AmbientWidget(window, theme="blobs")
+    backdrop = AmbientWidget(window, theme=CAPTURE_BACKDROP)
     backdrop.setGeometry(window.rect())
     window.show()
     backdrop.show()
