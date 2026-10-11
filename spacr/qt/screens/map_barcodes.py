@@ -2678,9 +2678,10 @@ class _SpatialTranscriptomicsPanel(QWidget):
             jobs.shutdown()
 
         self.destroyed.connect(destroyed)
-        for edit in (self.folder, self.image, self.landmarks):
+        for edit in (self.folder, self.image, self.landmarks, self.crop_window,
+                     self.window_image):
             edit.textChanged.connect(self._load_inputs_changed)
-        for combo in (self.platform, self.bin_um):
+        for combo in (self.platform, self.bin_um, self.window_unit):
             combo.currentIndexChanged.connect(self._load_inputs_changed)
         for spin in (self.min_qv, self.level):
             spin.valueChanged.connect(self._load_inputs_changed)
@@ -2783,6 +2784,29 @@ class _SpatialTranscriptomicsPanel(QWidget):
             "resolution Visium image the masks were segmented on; each level "
             "halves the resolution. Default 0."))
         form.addRow(tr("Image level"), self.level)
+        from PySide6.QtWidgets import QLineEdit
+
+        self.crop_window = QLineEdit(self)
+        self.crop_window.setPlaceholderText(tr("x, y, width, height"))
+        self.crop_window.setToolTip(tr(
+            "Analyse only this part of the platform image: x, y, width and "
+            "height of a rectangle, in the unit chosen below. Only the image "
+            "tiles under it are read, so a full-resolution Xenium morphology "
+            "image (tens of GB) can be the analysis frame. The masks must be "
+            "made from the cropped image. Default empty, the whole image."))
+        form.addRow(tr("Window"), self.crop_window)
+        self.window_unit = QComboBox(self)
+        for value, caption in (("um", "µm"), ("px", "px")):
+            self.window_unit.addItem(caption, value)
+        self.window_unit.setToolTip(tr(
+            "The unit of the window: micrometres on the tissue, or pixels of "
+            "the image at the chosen level. Default µm."))
+        form.addRow(tr("Window unit"), self.window_unit)
+        self.window_image = self._path_row(
+            form, "Save window image",
+            "Optional TIFF file the cropped image is written to on Load, to "
+            "segment it in spaCR. Default empty, nothing written.",
+            save=True)
         self.landmarks = self._path_row(
             form, "Landmarks",
             "Optional table of landmark pairs, with columns source_x, "
@@ -2795,6 +2819,27 @@ class _SpatialTranscriptomicsPanel(QWidget):
                 form, caption,
                 "A spaCR label mask (.npy or image) of this object type, "
                 "made from the image above. Default empty.")
+        self.pathogen_genes = QLineEdit(self)
+        self.pathogen_genes.setPlaceholderText(tr("e.g. CHIKV*"))
+        self.pathogen_genes.setToolTip(tr(
+            "The pathogen's own genes or probes, separated by commas; a name "
+            "ending in * matches every gene starting with it. When given, a "
+            "host cell's infection is read from its count of these "
+            "transcripts and they are left out of the host comparisons. "
+            "Default empty: infection is read from the pathogen and vacuole "
+            "masks."))
+        form.addRow(tr("Pathogen genes"), self.pathogen_genes)
+        self.min_pathogen_transcripts = QSpinBox(self)
+        self.min_pathogen_transcripts.setRange(1, 10000)
+        self.min_pathogen_transcripts.setValue(1)
+        self.min_pathogen_transcripts.setToolTip(tr(
+            "A host cell counts as infected when it holds at least this many "
+            "pathogen-gene transcripts (Visium: UMIs), or, with no pathogen "
+            "genes named, overlaps at least this many pathogen or vacuole "
+            "objects. The value is written into the infection and comparison "
+            "tables. Default 1."))
+        form.addRow(tr("Minimum pathogen transcripts"),
+                    self.min_pathogen_transcripts)
         self.region_mask = self._path_row(
             form, "Region mask",
             "Optional label image of regions; each object is summarised "
@@ -2847,6 +2892,12 @@ class _SpatialTranscriptomicsPanel(QWidget):
             "region_mask": self.region_mask.text().strip(),
             "db": self.db.text().strip(),
             "gene": self.gene.currentText().strip(),
+            "window": self.crop_window.text().strip(),
+            "window_unit": self.window_unit.currentData() or "um",
+            "window_image": self.window_image.text().strip(),
+            "pathogen_genes": self.pathogen_genes.text().strip(),
+            "min_pathogen_transcripts": int(
+                self.min_pathogen_transcripts.value()),
         }
 
     def _load_key(self, request) -> Tuple[object, ...]:
@@ -2857,7 +2908,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         """
         return tuple(request[key] for key in (
             "folder", "platform", "bin_um", "min_qv", "image", "level",
-            "landmarks"))
+            "landmarks", "window", "window_unit", "window_image"))
 
     def load(self, _checked: bool = False) -> bool:
         """Read the platform output, register it and draw the overlay.
@@ -2945,9 +2996,11 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self.assign_button.setEnabled(action is None)
         self.gene.setEnabled(action is None)
         for edit in (self.folder, self.image, self.landmarks, self.region_mask,
-                     self.db, *self.masks.values()):
+                     self.db, self.window_image, *self.masks.values()):
             edit.parentWidget().setEnabled(action != "run")
-        for control in (self.platform, self.bin_um, self.min_qv, self.level):
+        for control in (self.platform, self.bin_um, self.min_qv, self.level,
+                        self.crop_window, self.window_unit, self.pathogen_genes,
+                        self.min_pathogen_transcripts):
             control.setEnabled(action != "run")
 
     def _start_load(self, _checked=False):
@@ -3117,10 +3170,23 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self.summary = summary
         written = ", ".join(f"{kind} {entry['objects']}"
                             for kind, entry in summary["objects"].items())
-        self.status.setText(tr(
+        text = tr(
             "Wrote counts for {objects} objects to {db}; results in "
             "{output}.").format(objects=written, db=summary["db"],
-                                output=summary["output"]))
+                                output=summary["output"])
+        infection = summary.get("infection")
+        if infection:
+            caption = (tr(
+                "{infected} infected and {uninfected} uninfected cells at "
+                "{threshold} or more pathogen transcripts.")
+                if infection["rule"] == "pathogen_genes" else tr(
+                "{infected} infected and {uninfected} uninfected cells at "
+                "{threshold} or more pathogen objects."))
+            text += " " + caption.format(
+                infected=infection["infected"],
+                uninfected=infection["uninfected"],
+                threshold=infection["min_pathogen_transcripts"])
+        self.status.setText(text)
 
 
 def _install_spatial_transcriptomics(screen: QWidget):

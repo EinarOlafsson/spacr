@@ -1,10 +1,23 @@
 MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES
 
-Status: BLOCKED 2026-10-02 — a public infected-tissue Visium HD/Xenium set
-        with cell-resolution images, paired H&E-IF sections, and the
-        maintainer's decision on SpatialData/h5py/pyarrow/anndata as optional
-        dependencies. Built and alpha-gated.
+Status: BLOCKED 2026-10-11 (narrowed again, late) — only external data
+        left: a public infected-tissue Visium HD set and paired H&E-IF
+        sections. The crop/window read, zarr-free tile reading and the
+        infection threshold are built (2026-10-11 READER GAPS FIXED note);
+        SpatialData stays out of the dependencies (decided 2026-10-11, see
+        that note). Built and alpha-gated.
 
+Previous status (superseded 2026-10-11, late): BLOCKED 2026-10-11
+        (narrowed) — cell-level assignment now run on real infected Xenium
+        (GSE300303, CHIKV). Still missing: a public infected-tissue Visium
+        HD set, paired H&E-IF sections, a crop/window read of full-size
+        Xenium morphology in _st_load_image, and the maintainer's decision
+        on SpatialData/h5py/pyarrow/anndata as optional dependencies.
+
+Previous status (superseded 2026-10-11): BLOCKED 2026-10-02 — a public
+        infected-tissue Visium HD/Xenium set with cell-resolution images,
+        paired H&E-IF sections, and the maintainer's decision on
+        SpatialData/h5py/pyarrow/anndata as optional dependencies.
 Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external points left: a public infected-tissue Visium HD/Xenium set with cell-resolution images, paired H&E-IF sections, and the maintainer's decision on SpatialData/h5py/pyarrow/anndata as optional dependencies.
 Owner: unassigned. Related: Map Barcodes (spacr/qt/screens/map_barcodes.py and
 the barcode mapping it drives), OPS (spacr/ops_engine.py: reads assigned to
@@ -190,3 +203,136 @@ The feature remains alpha/partial overall.
     one (also needed for cell-level assignment; Visium hires is 3.5 um/px).
     (c) H&E-IF landmark registration: needs real paired H&E + IF sections.
     (c) SpatialData .zarr output: maintainer decision on optional dependencies.
+
+2026-10-11 — PUBLIC-DATA UNBLOCK ATTEMPT (CPU)
+    Searched: GEO E-utilities (gds) "xenium AND (infection OR virus OR
+    parasite OR bacteria OR tuberculosis OR plasmodium OR toxoplasma OR
+    leishmania OR trypanosoma OR salmonella OR influenza OR SARS-CoV-2
+    OR HIV OR SIV OR cryptosporidium OR helicobacter)" and the same with
+    "visium hd"; web search (10x datasets, Zenodo, figshare); Zenodo API.
+    Infected Xenium sets on GEO (all public, no explicit licence; GEO/NCBI
+    terms): GSE300303 CHIKV mouse ankle (chosen), GSE336209 M. tuberculosis
+    mouse lung, GSE313636 Yersinia pseudotuberculosis ileum, GSE309522
+    Salmonella granuloma (no image), GSE328931 Cryptococcus lung granuloma,
+    GSE346722 macaque respiratory virus lymph node, GSE313808 biofilm-
+    infected human skin (custom panel with bacterial probes), GSE300147
+    SARS-CoV-2 macaque lymph node. No infected-tissue Visium HD set found
+    on GEO, 10x or Zenodo (one in-house mouse-lung infection HD set in a
+    2026 Nat Commun paper, no accession found). 10x's own Xenium/HD
+    datasets pages list no infected tissue.
+    Data used: GSE300303 (Zarrella ... Morrison, PMID 41922840), "CHIKV
+    persists in joint associated macrophages", Xenium, 28 dpi; panel has
+    3 viral probes (CHIKV_sgRNA_(7566-12036), CHIKV_5_(0-7566),
+    CHIKV_negative_(0-12036)); series metadata gives per-cell Seurat
+    cell_type and CHIKV_class. https://www.ncbi.nlm.nih.gov/geo/query/
+    acc.cgi?acc=GSE300303. Whole series 30 GB; downloaded only sample
+    GSM9058067 (TR-2-24E, infected rep 2): transcripts.parquet.gz 214 MB,
+    morphology.ome.tif.gz 4.7 GB (DAPI only, 12 z x 27317 x 51175 px,
+    0.2125 um/px, JPEG2000 tiles), metadata 12 MB, plus mock TR-2-24A
+    transcripts (166 MB, not analysed). GEO publishes no cells.parquet,
+    cell boundaries, experiment.xenium, H&E or IF for this series.
+    Data/scripts: /mnt/firecuda2/Claude/scratch/unblock/F534/{data,work}
+    (prep.py, segment.py, segment_simple.py, run.py, out_cellpose/).
+    Run (CPU, run_capped 16G, python -I):
+    - Crop: 600 x 600 um (2824 px) around the densest CHIKV+ cells
+      (x 2350, y 2400 um), z max-projected, transcripts shifted into the
+      crop and written as a Xenium bundle. 749,114 transcripts in crop;
+      _st_read_bundle kept 667,053 (QV>=20, controls dropped) of 470
+      genes incl. the 3 CHIKV probes (the reader keeps them).
+    - Nuclei: Cellpose cpsam on CPU at half resolution (87 min, 1,344
+      nuclei; Otsu+watershed fallback 1.4 s, 1,328). Cells = nuclei
+      expanded 5 um (Xenium's default). Pathogen mask = 2 px disks at the
+      14,779 CHIKV transcripts. _st_run with masks cell/nucleus/pathogen.
+    - Assignment: 73.9% of all transcripts and 95.1% of those Xenium
+      assigned to a cell land in a spaCR cell; 97.9% of the dataset's
+      1,490 cell centroids in the crop fall in a spaCR cell.
+    - Infection read from the data (cell overlaps >=1 CHIKV transcript):
+      493 infected / 851 uninfected. Against the dataset's CHIKV_class
+      (379 CHIKV+ in crop): 354 both+, 214 ours only, 18 theirs only,
+      873 both-. At >=2 / >=3 viral transcripts: 271 / 212 infected
+      cells, ours-only drops to 74 / 50.
+    - Infected vs uninfected cells (_st_compare_groups, host genes only):
+      369 of 454 genes q<0.05; top Itgax, Atp6v0d2, Mamdc2, Itgam,
+      Anxa8, Cybb, Ctss, Mpeg1, Sirpa (macrophage/myeloid program, as the
+      paper reports). Same-size random sets: 0 genes q<0.05 (5 draws).
+      Caveat: infected cells carry more host transcripts (median 444 vs
+      264), so density/size is confounded; tests use library-size
+      normalised counts.
+    - Distance to nearest CHIKV transcript (_st_distance_trend,
+      uninfected cells only, n 851): 119 genes q<0.05; Ctss, Ctsd, Cybb,
+      Atp6v0d2, Itgax fall with distance (rho -0.33 to -0.37), Scd1
+      rises (rho 0.38).
+    - Overlay (out_cellpose/E_crop_overlay.pdf) checked by eye: most
+      viral RNA sits in large nucleus-sparse clusters (likely infected
+      myofibres or extracellular), so only 3,298 of 14,779 CHIKV
+      transcripts fall in a nucleus-expanded cell; DAPI-only data cannot
+      segment those. Watershed masks gave the same picture (402 genes
+      q<0.05, same top genes).
+    Reader gaps found (not fixed, not small): _st_load_image reads a
+    whole pyramid level, so level 0 of a real Xenium morphology
+    (12 x 27317 x 51175 uint16, about 33 GB) cannot be the analysis frame
+    without a crop/window option; tifffile 2023.4.12 aszarr() does not
+    open under zarr 3.1.3, so the crop was cut with a tile reader in
+    prep.py. _st_run counts a cell infected at >=1 pathogen object, with
+    no threshold setting. pyarrow 14.0.2, h5py 3.11.0, tifffile and
+    cellpose 4.2.1.1 were present; nothing installed.
+    Status: still BLOCKED, narrowed. Cell-level assignment on real
+    infected Xenium is done. Left: public infected Visium HD (none found),
+    paired H&E-IF (none in GSE300303), a crop/window read for full-size
+    Xenium morphology, and the SpatialData dependency decision.
+
+2026-10-11 — READER GAPS FIXED (CPU)
+    The three gaps of the note above, fixed in spacr/ops_engine.py and the
+    Map Barcodes spatial panel (alpha, inside MapBarcodesSpatialCard; no new
+    settings keys, the panel is its own form).
+    1. Crop window. _st_read_window(path, level, window) and
+       _st_load_image(..., window=) read only the TIFF tiles (or strips)
+       under an (x, y, width, height) window, plane by plane, max-projecting
+       the z planes as they arrive; PNG/JPEG are read whole and cropped.
+       _st_register takes request keys window, window_unit ("um" or "px"
+       of the chosen level) and window_image (writes the crop as a TIFF to
+       segment); coordinates are shifted into the crop and the window's
+       origin is recorded in registration["window"]. _st_run reports
+       in_frame and assigned_fraction_in_frame. The overlay draws only the
+       points inside the image. Panel: Window, Window unit (default µm),
+       Save window image.
+    2. zarr. The tile path decodes with tifffile's own page decoder and the
+       file handle, never aszarr, so it does not depend on zarr (tifffile
+       2023.4.12 aszarr fails under zarr 3.1.3: "Unsupported type for
+       store_like: 'ZarrTiffStore'"). No package changed.
+    3. Infection threshold. _st_run takes min_pathogen_transcripts (default
+       1, unchanged behaviour) and pathogen_genes (names, "CHIKV*"
+       prefixes). With pathogen genes, a host cell is infected at >= the
+       threshold of those transcripts (Visium: UMI shares) and they are left
+       out of the host comparison and distance trend; without, at >= the
+       threshold of overlapped pathogen/vacuole objects. Written to
+       <prcf>_<host>_infection.csv (per object counts, infected, threshold,
+       rule), a min_pathogen_transcripts column in the infected-vs-uninfected
+       table, summary["infection"] and the panel's status line. Panel:
+       Pathogen genes, Minimum pathogen transcripts.
+    Dependencies (maintainer asleep; decision taken for this session):
+    SpatialData/spatialdata-io stay out of the required and optional
+    dependencies; no optional reader was added, since the direct readers
+    cover every format used so far. h5py/pyarrow/anndata stay as they are
+    (optional through spacr.tabular / spacr.anndata_export).
+    Real-data check (GSE300303 TR-2-24E, scratch
+    /mnt/firecuda2/Claude/scratch/unblock/F534/work/window_check):
+    - The 600 um window of the full 12 x 27317 x 51175 JPEG 2000 morphology
+      image (origin 11059, 11294 px), by px and by um, is pixel-identical to
+      prep.py's crop (2824 x 2824), 11 s, peak RSS 191 MB.
+    - _st_run on the full bundle (16,918,626 transcripts kept) through the
+      window with the earlier Cellpose masks: 667,053 transcripts in frame
+      (the crop bundle's count), 73.9% of them in a cell; mask rule at 1:
+      493 infected / 851 uninfected (as before); CHIKV* genes at >=1 / 2 /
+      3: 457 / 271 / 212 infected (the >=2 / >=3 numbers of the earlier
+      note); 377-387 host genes q<0.05. Peak RSS 2.5 GB.
+    Tests: tests/test_spatial_transcriptomics_window.py (synthetic tiled
+    OME pyramid with 3-4 z planes: windows at both levels and clipped at the
+    edge equal a full read; a 200 x 150 window of a 4 x 2048 x 2048 stack
+    reads < 1/10 of the file and allocates < 1/20 of the level; striped,
+    RGB and raw TIFFs; zarr made unimportable in a subprocess; um and px
+    windows register into the crop; counts in a window match the whole
+    frame; threshold by genes and by objects), plus a panel test in
+    tests/qt/test_spatial_transcriptomics_alpha_gate.py.
+    Status: still BLOCKED only for a public infected-tissue Visium HD set
+    and paired H&E-IF sections.

@@ -2184,15 +2184,178 @@ def _st_read_bundle(folder: str, platform: str = "auto", *,
     return _st_read_visium(folder, bin_um=bin_um)
 
 
-def _st_load_image(path: str, level: int = 0) -> np.ndarray:
+def _st_parse_window(value) -> Optional[Tuple[float, float, float, float]]:
+    """A crop window as ``(x, y, width, height)``, or None for no window.
+
+    :param value: None, an empty string, a sequence of four numbers or a
+        string of four numbers separated by commas, semicolons or spaces.
+    :returns: the four numbers as floats, or None.
+    :raises ValueError: when the value does not hold four numbers or the
+        width or height is not positive.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        parts = [part for part in value.replace(";", ",").replace(
+            " ", ",").split(",") if part.strip()]
+        if not parts:
+            return None
+    else:
+        parts = list(value)
+    if len(parts) != 4:
+        raise ValueError(
+            f"A window is x, y, width and height; got {len(parts)} values.")
+    window = tuple(float(part) for part in parts)
+    if window[2] <= 0 or window[3] <= 0:
+        raise ValueError("A window needs a positive width and height.")
+    return window
+
+
+def _st_clip_window(window, shape) -> Tuple[int, int, int, int]:
+    """Whole-pixel window bounds clipped to an image.
+
+    :param window: ``(x, y, width, height)`` in pixels.
+    :param shape: the image's ``(rows, columns)``.
+    :returns: ``(row0, row1, col0, col1)``.
+    :raises ValueError: when the window misses the image.
+    """
+    x, y, width, height = (int(round(float(v))) for v in window)
+    row0, row1 = max(0, y), min(int(shape[0]), y + height)
+    col0, col1 = max(0, x), min(int(shape[1]), x + width)
+    if row1 <= row0 or col1 <= col0:
+        raise ValueError(
+            f"The window {x}, {y}, {width}, {height} px lies outside the "
+            f"{shape[1]}x{shape[0]} px image.")
+    return row0, row1, col0, col1
+
+
+def _st_page_window(handle, page, bounds) -> np.ndarray:
+    """One TIFF page's pixels inside ``bounds``, reading only the tiles or
+    strips that overlap them.
+
+    The tiles are decoded by tifffile itself, so every compression tifffile
+    reads works (Xenium writes JPEG 2000 tiles), and nothing goes through
+    zarr: ``TiffFile.aszarr`` does not open under zarr 3 with the tifffile
+    releases that predate it, and this path does not care which zarr is
+    installed. Pages tifffile cannot address by segment (separate sample
+    planes, volumetric tiles) are read whole and cropped.
+
+    :param handle: the open :class:`tifffile.TiffFile`.
+    :param page: a page or frame of that file.
+    :param bounds: ``(row0, row1, col0, col1)`` in the page's pixels.
+    :returns: a ``(rows, columns)`` or ``(rows, columns, samples)`` array.
+    """
+    row0, row1, col0, col1 = bounds
+    key = getattr(page, "keyframe", None) or page
+    samples = int(getattr(key, "samplesperpixel", 1) or 1)
+    offsets = tuple(getattr(page, "dataoffsets", ()) or ())
+    counts = tuple(getattr(page, "databytecounts", ()) or ())
+    simple = (offsets and len(offsets) == len(counts)
+              and int(getattr(key, "imagedepth", 1) or 1) == 1
+              and (samples == 1 or int(key.planarconfig) == 1))
+    if not simple:
+        whole = np.asarray(page.asarray())
+        axes = str(getattr(key, "axes", ""))
+        if whole.ndim == 3 and axes.startswith("S"):
+            whole = np.moveaxis(whole, 0, -1)
+        whole = np.squeeze(whole)
+        return np.array(whole[row0:row1, col0:col1])
+    length, width = int(key.imagelength), int(key.imagewidth)
+    if key.is_tiled:
+        seg_rows, seg_cols = int(key.tilelength), int(key.tilewidth)
+    else:
+        seg_rows = min(int(key.rowsperstrip or length), length)
+        seg_cols = width
+    across = -(-width // seg_cols)
+    shape = (row1 - row0, col1 - col0) + ((samples,) if samples > 1 else ())
+    out = np.zeros(shape, dtype=key.dtype)
+    decode = key.decode
+    tables = getattr(key, "jpegtables", None)
+    handle_file = handle.filehandle
+    for tile_row in range(row0 // seg_rows, (row1 - 1) // seg_rows + 1):
+        for tile_col in range(col0 // seg_cols, (col1 - 1) // seg_cols + 1):
+            index = tile_row * across + tile_col
+            if index >= len(offsets) or not counts[index]:
+                continue
+            handle_file.seek(offsets[index])
+            raw = handle_file.read(counts[index])
+            segment, _where, _shape = decode(raw, index, jpegtables=tables)
+            if segment is None:
+                continue
+            segment = np.asarray(segment)
+            segment = segment.reshape(segment.shape[-3:])
+            top, left = tile_row * seg_rows, tile_col * seg_cols
+            a0, a1 = max(row0, top), min(row1, top + segment.shape[0])
+            b0, b1 = max(col0, left), min(col1, left + segment.shape[1])
+            if a1 <= a0 or b1 <= b0:
+                continue
+            piece = segment[a0 - top:a1 - top, b0 - left:b1 - left]
+            out[a0 - row0:a1 - row0, b0 - col0:b1 - col0] = (
+                piece if samples > 1 else piece[..., 0])
+    return out
+
+
+def _st_read_window(path: str, level: int = 0, window=None
+                    ) -> Tuple[np.ndarray, Tuple[int, int]]:
+    """One image plane, or the part of it inside a window, and its origin.
+
+    For a TIFF with a window, only the tiles or strips under the window are
+    read, plane by plane, and the planes of a z-stack (or of any axis other
+    than Y, X and colour samples) are maximum-projected as they arrive, so
+    memory holds two windows rather than a whole pyramid level: level 0 of a
+    Xenium morphology image is about 33 GB. Other formats are read whole and
+    cropped.
+
+    :param path: the image file.
+    :param level: the pyramid level of an OME-TIFF, 0 for full resolution.
+    :param window: ``(x, y, width, height)`` in pixels of that level, or
+        None for the whole plane. It is clipped to the image.
+    :returns: ``(image, (x0, y0))``: the 2-D or ``(Y, X, 3|4)`` array and the
+        column and row of its top-left pixel in the level.
+    """
+    window = _st_parse_window(window)
+    lower = path.lower()
+    if window is None:
+        return _st_load_image(path, level), (0, 0)
+    if lower.endswith((".tif", ".tiff", ".btf")):
+        import tifffile
+
+        with tifffile.TiffFile(path) as handle:
+            series = handle.series[0]
+            levels = getattr(series, "levels", None) or [series]
+            chosen = levels[min(int(level), len(levels) - 1)]
+            axes = str(chosen.axes)
+            rows = int(chosen.shape[axes.index("Y")])
+            cols = int(chosen.shape[axes.index("X")])
+            bounds = _st_clip_window(window, (rows, cols))
+            pages = list(getattr(chosen, "pages", None) or [])
+            if not pages or any(page is None for page in pages):
+                pages = [chosen[index] for index in range(len(chosen))]
+            image = None
+            for page in pages:
+                plane = _st_page_window(handle, page, bounds)
+                image = plane if image is None else np.maximum(image, plane)
+        return image, (bounds[2], bounds[0])
+    whole = _st_load_image(path, level)
+    bounds = _st_clip_window(window, whole.shape[:2])
+    return (np.array(whole[bounds[0]:bounds[1], bounds[2]:bounds[3]]),
+            (bounds[2], bounds[0]))
+
+
+def _st_load_image(path: str, level: int = 0, window=None) -> np.ndarray:
     """Read one image plane: a PNG, JPEG or a level of a (pyramidal) TIFF.
 
     A z-stack is maximum-projected; colour images keep their channels.
 
     :param path: the image file.
     :param level: the pyramid level of an OME-TIFF, 0 for full resolution.
+    :param window: ``(x, y, width, height)`` in pixels of that level to read
+        only that part (see :func:`_st_read_window`); None reads the whole
+        plane.
     :returns: a 2-D or ``(Y, X, 3|4)`` array.
     """
+    if _st_parse_window(window) is not None:
+        return _st_read_window(path, level, window)[0]
     lower = path.lower()
     if lower.endswith((".tif", ".tiff", ".btf")):
         import tifffile
@@ -2868,7 +3031,13 @@ def _st_draw_overlay(figure, image, xy, values=None, *, radius: float = 0.0,
         overlay = np.zeros(edges.shape + (4,))
         overlay[edges] = (1.0, 1.0, 1.0, 0.6)
         axis.imshow(overlay, interpolation="nearest")
-    xy = np.asarray(xy, dtype=float) / step
+    xy = np.asarray(xy, dtype=float)
+    margin = float(radius)
+    inside = ((xy[:, 0] >= -margin) & (xy[:, 0] < image.shape[1] + margin)
+              & (xy[:, 1] >= -margin) & (xy[:, 1] < image.shape[0] + margin))
+    xy = xy[inside] / step
+    if values is not None:
+        values = np.asarray(values)[inside]
     size = max(2.0, (2 * radius / step) ** 2 * 0.6) if radius else 1.5
     if values is None:
         chosen = np.arange(len(xy))
@@ -2895,6 +3064,8 @@ def _st_draw_overlay(figure, image, xy, values=None, *, radius: float = 0.0,
             hit = values > 0
             axis.scatter(xy[hit, 0], xy[hit, 1], s=3, c="#e4572e",
                          linewidths=0)
+    axis.set_xlim(-0.5, shown.shape[1] - 0.5)
+    axis.set_ylim(shown.shape[0] - 0.5, -0.5)
     axis.set_title(title, fontsize=9)
     axis.set_axis_off()
     figure.tight_layout()
@@ -2909,11 +3080,23 @@ def _st_register(bundle: Mapping[str, Any], request: Mapping[str, Any]):
     when a landmark table is given, else by image content.
 
     :param bundle: a bundle from :func:`_st_read_bundle`.
+    A ``window`` crops the platform image before anything else, reading
+    only the tiles under it (:func:`_st_read_window`), and the coordinates
+    are shifted into the crop, so a crop of a full-resolution Xenium
+    morphology image can be the analysis frame. With the user's own image
+    the landmarks' source coordinates are pixels of the cropped platform
+    image.
+
     :param request: ``image`` (a platform image name or a file of the user's
-        own), ``level`` and ``landmarks``.
+        own), ``level``, ``landmarks``, ``window`` (``x, y, width, height``
+        of the platform image; empty for the whole image), ``window_unit``
+        (``"um"`` for micrometres, else pixels of the chosen level) and
+        ``window_image`` (a TIFF file the cropped platform image is written
+        to, for segmenting it; empty writes nothing).
     :returns: a dict with ``xy``, ``radius``, ``microns_per_pixel``,
         ``image`` (the analysis image), ``matrix`` (3x3, identity without a
-        user image) and ``registration`` (method and quality).
+        user image) and ``registration`` (method and quality, and the
+        window's origin and size in level pixels when cropped).
     """
     choice = str(request.get("image") or "")
     level = int(request.get("level") or 0)
@@ -2928,11 +3111,37 @@ def _st_register(bundle: Mapping[str, Any], request: Mapping[str, Any]):
     if name not in bundle["images"]:
         raise FileNotFoundError(f"The bundle has no {name} image.")
     xy, radius, microns = _st_platform_xy(bundle, name, level)
-    platform_image = _st_load_image(bundle["images"][name], level)
+    window = _st_parse_window(request.get("window"))
+    unit = str(request.get("window_unit") or "px").strip().lower()
+    if window is not None and unit in ("um", "µm", "micron", "microns"):
+        if not microns:
+            raise ValueError(
+                "A window in micrometres needs the image's pixel size, and "
+                "this bundle does not give one; give the window in pixels.")
+        window = tuple(value / microns for value in window)
+    platform_image, origin = _st_read_window(bundle["images"][name], level,
+                                             window)
+    info = {"method": "platform", "frame": name, "level": level}
+    if window is not None:
+        xy = xy - np.asarray(origin, dtype=float)
+        info["window"] = {"x": int(origin[0]), "y": int(origin[1]),
+                          "width": int(platform_image.shape[1]),
+                          "height": int(platform_image.shape[0]),
+                          "unit": "px", "level": level}
+        target = str(request.get("window_image") or "").strip()
+        if target:
+            import tifffile
+
+            target = os.path.expanduser(target)
+            os.makedirs(os.path.dirname(os.path.abspath(target)),
+                        exist_ok=True)
+            tifffile.imwrite(target, platform_image,
+                             photometric=("rgb" if platform_image.ndim == 3
+                                          else "minisblack"))
+            info["window"]["image"] = target
     result = {"xy": xy, "radius": radius, "microns_per_pixel": microns,
               "image": platform_image, "matrix": np.eye(3),
-              "registration": {"method": "platform", "frame": name,
-                               "level": level}}
+              "registration": info}
     if not own:
         return result
     user_image = _st_load_image(os.path.expanduser(own))
@@ -2970,6 +3179,32 @@ def _st_gene_values(bundle: Mapping[str, Any], gene: str):
     return np.asarray(bundle["counts"][:, column].toarray()).ravel()
 
 
+def _st_pathogen_columns(genes, spec) -> np.ndarray:
+    """Which genes are the pathogen's own probes or reads.
+
+    :param genes: the bundle's gene names.
+    :param spec: gene names separated by commas or semicolons, or a sequence
+        of them; a name ending in ``*`` matches every gene starting with the
+        rest (``CHIKV*``). Empty names none.
+    :returns: a boolean per gene.
+    """
+    if isinstance(spec, str):
+        entries = [part.strip() for part in spec.replace(";", ",").split(",")]
+    else:
+        entries = [str(part).strip() for part in (spec or ())]
+    entries = [entry for entry in entries if entry]
+    names = np.asarray([str(gene) for gene in genes], dtype=object)
+    chosen = np.zeros(len(names), dtype=bool)
+    for entry in entries:
+        if entry.endswith("*"):
+            prefix = entry[:-1]
+            chosen |= np.array([name.startswith(prefix) for name in names],
+                               dtype=bool)
+        else:
+            chosen |= names == entry
+    return chosen
+
+
 def _st_run(request: Mapping[str, Any], *, bundle=None,
             registered=None) -> Dict[str, Any]:
     """Read, register, assign to spaCR objects, write and analyse.
@@ -2980,8 +3215,15 @@ def _st_run(request: Mapping[str, Any], *, bundle=None,
         (the measurement database), ``prcf`` (the image key; defaults to the
         first mask's file stem), ``output`` (the results folder; defaults to
         ``spatial_transcriptomics`` beside the database), ``gene`` (coloured
-        in the overlay) and ``anndata`` (write ``.h5ad`` when anndata is
-        installed).
+        in the overlay), ``anndata`` (write ``.h5ad`` when anndata is
+        installed), ``pathogen_genes`` (the pathogen's own genes, see
+        :func:`_st_pathogen_columns`) and ``min_pathogen_transcripts``
+        (default 1). A host object is infected when it holds at least
+        ``min_pathogen_transcripts`` transcripts (Visium: UMIs) of the
+        pathogen genes; with no pathogen genes named, when it overlaps at
+        least that many objects of the pathogen or vacuole mask. Pathogen
+        genes are left out of the host comparisons. The window keys of
+        :func:`_st_register` apply too.
     :param bundle: an already-read bundle, to skip reading it again.
     :param registered: an already-computed :func:`_st_register` result.
     :returns: a summary with the objects written per type, the analyses'
@@ -3034,6 +3276,12 @@ def _st_run(request: Mapping[str, Any], *, bundle=None,
             assigned = int(matrix.sum())
             written["assigned_fraction"] = assigned / max(
                 len(bundle["transcripts"]), 1)
+            points = np.asarray(registered["xy"], dtype=float)
+            in_frame = int(((points[:, 0] >= 0) & (points[:, 0] < mask.shape[1])
+                            & (points[:, 1] >= 0)
+                            & (points[:, 1] < mask.shape[0])).sum())
+            written["in_frame"] = in_frame
+            written["assigned_fraction_in_frame"] = assigned / max(in_frame, 1)
         if coverage is not None:
             coverage = coverage.assign(
                 barcode=bundle["obs"]["barcode"].to_numpy()[
@@ -3060,19 +3308,58 @@ def _st_run(request: Mapping[str, Any], *, bundle=None,
                                            if c in obs.columns])
             obs = obs.join(extra, on="prcfo")
     files = summary["files"]
-    if parasites and host not in parasites:
+    raw_threshold = request.get("min_pathogen_transcripts")
+    threshold = max(1, int(raw_threshold)) if raw_threshold not in (
+        None, "") else 1
+    pathogen_spec = request.get("pathogen_genes") or ""
+    pathogen_columns = _st_pathogen_columns(genes, pathogen_spec)
+    if (pathogen_spec and not pathogen_columns.any()):
+        summary["messages"].append(
+            "None of the pathogen genes named is in the data; infection is "
+            "read from the pathogen and vacuole masks.")
+    from_genes = bool(pathogen_columns.any())
+    by_masks = bool(parasites) and host not in parasites
+    infection_known = from_genes or by_masks
+    host_columns = ~pathogen_columns
+    host_matrix = matrix[:, np.flatnonzero(host_columns)]
+    host_genes = np.asarray(genes, dtype=object)[host_columns]
+    if from_genes:
+        pathogen_counts = np.asarray(
+            matrix[:, np.flatnonzero(pathogen_columns)].sum(axis=1)).ravel()
+        obs["pathogen_transcripts"] = pathogen_counts
+        obs["infected"] = pathogen_counts >= threshold
+    elif by_masks:
+        obs["infected"] = obs["parasite_objects"].to_numpy() >= threshold
+    if infection_known:
         infected = obs["infected"].to_numpy(dtype=bool)
+        rule = "pathogen_genes" if from_genes else "pathogen_objects"
+        summary["infection"] = {
+            "rule": rule, "min_pathogen_transcripts": threshold,
+            "pathogen_genes": [str(g) for g in
+                               np.asarray(genes, dtype=object)[
+                                   pathogen_columns]],
+            "infected": int(infected.sum()),
+            "uninfected": int((~infected).sum())}
+        columns = ["prcfo", "parasite_objects"] + (
+            ["pathogen_transcripts"] if from_genes else []) + ["infected"]
+        files["infection"] = write_table(
+            obs[columns].assign(min_pathogen_transcripts=threshold,
+                                infection_rule=rule),
+            os.path.join(output, f"{prcf}_{host}_infection.csv"))
         try:
-            table = _st_compare_groups(matrix, genes, infected)
+            table = _st_compare_groups(host_matrix, host_genes, infected)
+            table["min_pathogen_transcripts"] = threshold
             files["infected_vs_uninfected"] = write_table(
                 table, os.path.join(output, f"{prcf}_{host}_infected_vs_uninfected.csv"))
             summary["infected_vs_uninfected"] = {
                 "n": table.attrs.get("n"), "genes": int(len(table)),
-                "significant": int((table["q_value"] < 0.05).sum())}
+                "significant": int((table["q_value"] < 0.05).sum()),
+                "min_pathogen_transcripts": threshold}
         except ValueError as error:
             summary["messages"].append(str(error))
+    if by_masks:
         try:
-            trend = _st_distance_trend(matrix, genes,
+            trend = _st_distance_trend(host_matrix, host_genes,
                                        obs["distance_to_parasite"])
             files["distance_trend"] = write_table(
                 trend, os.path.join(output, f"{prcf}_{host}_distance_trend.csv"))
@@ -3084,7 +3371,7 @@ def _st_run(request: Mapping[str, Any], *, bundle=None,
         centres = obs[["centroid_x", "centroid_y"]].to_numpy()
         regions = _st_points_in_mask(centres, region_mask)
         obs["region"] = regions
-    elif parasites and host not in parasites:
+    elif infection_known:
         regions = np.where(obs["infected"], "infected", "uninfected")
     else:
         regions = np.full(len(obs), "all")

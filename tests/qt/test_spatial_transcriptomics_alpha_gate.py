@@ -97,3 +97,33 @@ def test_missing_inputs_are_named(screen):
     assert panel.load() is False
     assert panel.status.text()
     assert panel.run() is None
+
+
+def test_the_window_and_infection_threshold_reach_the_run(screen, tmp_path):
+    from spacr.tabular import read_table
+
+    panel = map_barcodes._spatial_panel_of(screen)
+    folder = xenium_bundle(tmp_path / "x")
+    cell, _nucleus, pathogen = _masks()
+    np.save(tmp_path / "crop.npy", cell[40:120, 40:160])
+    panel.folder.setText(folder)
+    panel.crop_window.setText("40, 40, 120, 80")
+    panel.window_unit.setCurrentIndex(panel.window_unit.findData("px"))
+    panel.window_image.setText(str(tmp_path / "crop.tif"))
+    panel.masks["cell"].setText(str(tmp_path / "crop.npy"))
+    panel.pathogen_genes.setText("GENE_UP")
+    panel.min_pathogen_transcripts.setValue(2)
+    panel.db.setText(str(tmp_path / "measurements.db"))
+    request = panel.request()
+    assert request["window"] == "40, 40, 120, 80"
+    assert request["window_unit"] == "px"
+    assert request["min_pathogen_transcripts"] == 2
+    assert panel.load()
+    assert panel._registered["image"].shape == (80, 120)
+    assert os.path.exists(tmp_path / "crop.tif")
+    summary = panel.run()
+    assert summary["infection"]["min_pathogen_transcripts"] == 2
+    assert summary["infection"]["rule"] == "pathogen_genes"
+    table = read_table(summary["files"]["infection"])
+    assert set(table["min_pathogen_transcripts"]) == {2}
+    assert str(summary["infection"]["infected"]) in panel.status.text()
