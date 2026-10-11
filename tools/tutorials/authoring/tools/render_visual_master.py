@@ -184,8 +184,28 @@ def encode_pointer_scene(
     concat([moving, held], output, work / f"{output.stem}_concat.txt")
 
 
+def concat_durations(frames: list[tuple[int, Fraction]]) -> list[str]:
+    """Listing durations whose running sum stays on the exact frame clock.
+
+    The concat demuxer parses each duration in whole microseconds, so a
+    scene of n/30 s is rounded on its own and the error accumulates across
+    many scenes (two 1/90000 ticks over a 61-scene, 22-minute lesson).
+    Rounding the cumulative end instead keeps every scene start within half
+    a microsecond of its exact time, far inside half a track tick.
+    """
+    lines, elapsed, previous = [], Fraction(0), 0
+    for count, rate in frames:
+        if count <= 0 or rate <= 0:
+            raise ValueError("Invalid encoded scene frame count/rate")
+        elapsed += Fraction(count, 1) / rate
+        end = round(elapsed * 1_000_000)
+        lines.append(f"{(end - previous) / 1_000_000:.6f}")
+        previous = end
+    return lines
+
+
 def concat(parts: list[Path], output: Path, listing: Path) -> None:
-    lines = []
+    frames = []
     for part in parts:
         stream = json.loads(subprocess.check_output([
             "ffprobe", "-v", "error", "-select_streams", "v:0",
@@ -199,8 +219,9 @@ def concat(parts: list[Path], output: Path, listing: Path) -> None:
         # MP4's container duration rounds scene ends to milliseconds. The
         # concat demuxer otherwise carries that error into every later scene.
         # These constant-rate parts have an exact count/rate duration instead.
-        duration = Fraction(count, 1) / rate
-        lines.append(f"file '{part.as_posix()}'\nduration {float(duration):.9f}\n")
+        frames.append((count, rate))
+    lines = [f"file '{part.as_posix()}'\nduration {duration}\n"
+             for part, duration in zip(parts, concat_durations(frames))]
     listing.write_text("".join(lines))
     run([
         "ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0",

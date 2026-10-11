@@ -52,3 +52,21 @@ def test_scene_joins_preserve_frame_timestamps_through_normal_web_encoding(tmp_p
         stage_web_renditions.require_timestamps(master_times, _times(output), sum(counts))
     finally:
         sys.path.pop(0)
+
+
+def test_many_scene_listing_keeps_every_start_on_the_exact_frame_clock():
+    from fractions import Fraction
+    # 61 scenes of n/30 s, none a whole microsecond, like a long native lesson.
+    counts = [451 + 3 * index + 1 for index in range(61)]
+    durations = renderer.concat_durations([(count, Fraction(30)) for count in counts])
+    start = Fraction(0)
+    exact = Fraction(0)
+    for count, text in zip(counts, durations):
+        start += Fraction(text)
+        exact += Fraction(count, 30)
+        # The demuxer reads whole microseconds; each running start must stay
+        # within half a microsecond of the frame clock (one 1/90000 tick is 11 us).
+        assert Fraction(text) * 1_000_000 == int(Fraction(text) * 1_000_000)
+        assert abs(start - exact) <= Fraction(1, 2_000_000)
+    with pytest.raises(ValueError):
+        renderer.concat_durations([(0, Fraction(30))])
