@@ -1,0 +1,75 @@
+================================================================================
+MAKE MASKS FOR TRANSMISSION ELECTRON MICROSCOPY (TEM) IMAGES
+================================================================================
+
+Status:    not started
+Requested: 2026-10-11 — "I'd like to add a submodual to make masks where users
+           can make masks on them data, add that as a new feature" and "Not mask
+           generation, make masks. And add a new submodule or just a me training
+           dataset if there is no difference in drawing masks on TEm data"
+Owner:     Home (build); WS (translations, tutorial if not alpha)
+Related:   Make Masks (spacr/qt/screens/make_masks.py, mask_engine.py); N673
+           (3D editor); N685 (curation controls); the model zoo.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Make Masks draws and corrects masks on fluorescence and brightfield light-
+microscopy images. Nothing in spaCR is set up for TEM: no TEM file readers
+(Gatan .dm3/.dm4, MRC/.rec, large TIFF/BigTIFF), no EM-appropriate contrast
+handling, no EM segmentation models in the zoo, and no TEM example data.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Users with TEM images of infected cells (parasitophorous vacuoles, parasites,
+organelles such as mitochondria, ER, rhoptries) cannot curate masks on them in
+spaCR, so they cannot build training data or correct model output for EM.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Decide, with evidence, whether TEM needs a separate Make Masks submodule or
+   only a TEM training dataset in the existing Make Masks. Compare what drawing
+   on TEM needs against what Make Masks does today:
+   - file formats and size (dm3/dm4, MRC, multi-GB BigTIFF) and pixel size in nm;
+   - single-channel greyscale, often inverted contrast (membranes dark), need for
+     contrast/CLAHE and percentile windowing;
+   - object classes (cell, nucleus, vacuole, parasite, mitochondrion, membrane-
+     bound organelles) and very thin membrane boundaries;
+   - assisted segmentation: whether Cellpose-SAM/cpsam works on EM, and EM
+     models (e.g. empanada MitoNet, micro-sam EM generalist) as optional
+     backends;
+   - tiling/zoom for very large images.
+   If drawing is the same, add a TEM example/training dataset plus readers and
+   contrast settings to the existing Make Masks. If it differs, add a "TEM" Make
+   Masks submodule that reuses Make Masks' canvas, tools, save/undo and queue.
+2. Readers for TEM formats (optional extra for dm3/dm4/MRC with permissive-
+   licence libraries, lazy import), with physical pixel size carried through.
+3. A public TEM example/training dataset with masks (licence-checked; e.g.
+   EMPIAR, CEM-MitoLab, Lucchi/EPFL mitochondria, or a Toxoplasma TEM set if one
+   is public), published as spacr-example-tem on HF and wired to the "Load test
+   data" button.
+4. Tests, settings with tooltips, tr() strings, docs, and a tutorial if the
+   feature is not alpha.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- A user opens a TEM image (dm3/dm4/MRC/TIFF) in Make Masks (or the TEM
+  submodule), sees it with sensible contrast, draws and corrects masks with the
+  usual tools, and saves label masks at the image's size with its pixel size.
+- "Load test data" opens the TEM example set offline after one download.
+- Assisted segmentation produces a usable draft on the example set (report F1
+  against its masks).
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- No new TEM model is trained here; training uses the existing training paths
+  once curated TEM masks exist.
