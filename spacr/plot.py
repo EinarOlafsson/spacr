@@ -2017,8 +2017,6 @@ def _splice_findings(panels, arrays):
                 "panels": [panel["panel"]], "axis": seam["axis"],
                 "position": position, "offset": seam["offset"],
                 "noise_ratio": seam["noise_ratio"],
-                # One sentence per direction: a translated adjective dropped
-                # into {axis} could not agree with the noun it describes.
                 "message": (tr(
                     "Panel {panel}: a straight vertical seam at pixel "
                     "{position} separates areas with a different background "

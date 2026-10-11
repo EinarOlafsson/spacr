@@ -477,13 +477,17 @@ def test_the_plaque_preview_follows_the_real_screens_default(
 
 def test_an_unset_plaque_model_means_what_the_run_takes_it_to_mean(
         module_panel, tmp_path, monkeypatch, no_download):
-    """``None`` is the run's default, the v2 zoo model since 2026-09-21. A
-    copy already on this machine -- under a HOME the test controls -- is what
-    the preview previews, and nothing is downloaded to find it."""
+    """``None`` is the run's default zoo model (v3, the gel-doc model, since
+    6fc7353a1). A copy already on this machine -- under a HOME the test
+    controls -- is what the preview previews, and nothing is downloaded to
+    find it."""
     import spacr.submodules as sm
+    from spacr import model_zoo
 
+    default = next(entry for entry in model_zoo.catalogue()
+                   if entry.key == sm.DEFAULT_PLAQUE_MODEL)
     monkeypatch.setenv("HOME", str(tmp_path))
-    local = tmp_path / ".spacr" / "models" / "cpsam_plaque_r5"
+    local = tmp_path / ".spacr" / "models" / default.name
     local.parent.mkdir(parents=True)
     local.write_bytes(b"w")
     assert sm._requested_plaque_model({"plaque_model": None}) == (

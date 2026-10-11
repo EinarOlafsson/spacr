@@ -1035,8 +1035,6 @@ class PairedFileTableWidget(QWidget):
             title, filters = ("Add measurements databases",
                               "Databases (*.db *.sqlite *.sqlite3)")
         else:
-            # Whole captions per side: "{side}" would insert the untranslated
-            # English word into every locale's sentence.
             title = (tr("Add score tables") if side == "score"
                      else tr("Add count tables"))
             title, filters = (title,
