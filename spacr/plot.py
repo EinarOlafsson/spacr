@@ -239,6 +239,8 @@ def _chrome(fig, ax=None):
     if legend is not None:
         yield from _legend_chrome(legend)
     for text in ax.texts:
+        if _labels_a_cell(ax, text):
+            continue
         yield "text", text, text.get_color, text.set_color
         arrow = getattr(text, "arrow_patch", None)
         if arrow is not None:
@@ -246,6 +248,51 @@ def _chrome(fig, ax=None):
     for line in ax.lines:
         if line.get_transform() is not ax.transData:
             yield "chrome", line, line.get_color, line.set_color
+
+
+def _raster_extents(ax):
+    """Return ``(x0, x1, y0, y1)`` data bounds of the images and meshes in ``ax``."""
+    from matplotlib.collections import PolyCollection, QuadMesh
+
+    bounds = []
+    for image in ax.images:
+        try:
+            left, right, bottom, top = image.get_extent()
+        except Exception:
+            continue
+        bounds.append((min(left, right), max(left, right),
+                       min(bottom, top), max(bottom, top)))
+    for collection in ax.collections:
+        if not isinstance(collection, (QuadMesh, PolyCollection)):
+            continue
+        if collection.get_transform() is not ax.transData:
+            continue
+        try:
+            box = collection.get_datalim(ax.transData)
+        except Exception:
+            continue
+        if box.width > 0 and box.height > 0:
+            bounds.append((box.x0, box.x1, box.y0, box.y1))
+    return bounds
+
+
+def _labels_a_cell(ax, text):
+    """Return True when ``text`` is a value written on a heatmap cell.
+
+    Confusion-matrix and heatmap numbers are placed in data coordinates on an
+    image or mesh, and their colour was chosen against the cell beneath them,
+    not against the page. Judging them against the page turned white numbers
+    on dark cells into dark numbers on dark cells, so they are left alone,
+    like the data they label.
+    """
+    if text.get_transform() is not ax.transData:
+        return False
+    try:
+        x, y = (float(v) for v in text.get_position())
+    except (TypeError, ValueError):
+        return False
+    return any(x0 <= x <= x1 and y0 <= y <= y1
+               for x0, x1, y0, y1 in _raster_extents(ax))
 
 
 def _legend_chrome(legend):

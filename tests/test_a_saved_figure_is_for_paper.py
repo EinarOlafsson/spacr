@@ -308,6 +308,52 @@ def test_a_reference_line_flips_and_a_data_line_does_not():
             "a plotted series was repainted; that is the data")
 
 
+def test_numbers_on_heatmap_cells_keep_their_colour():
+    """Regression (2026-10-10): print mode judged confusion-matrix numbers
+    against the white page, so the white numbers on dark cells became dark
+    numbers on dark cells. A value written on an image or mesh cell was
+    coloured for the cell, and is left alone like the data it labels."""
+    fig, (left, right) = plt.subplots(1, 2, facecolor=DARK_GROUND)
+    matrix = np.array([[0.9, 0.1], [0.2, 0.8]])
+    left.imshow(matrix, cmap="Blues", vmin=0, vmax=1)
+    right.pcolormesh(matrix, cmap="Blues", vmin=0, vmax=1)
+    cells = []
+    for row in range(2):
+        for column in range(2):
+            colour = "white" if matrix[row, column] > 0.5 else "black"
+            cells.append(left.text(column, row, f"{matrix[row, column]:.2f}",
+                                   color=colour))
+            cells.append(right.text(column + 0.5, row + 0.5, "n",
+                                    color=colour))
+    title = left.set_title("confusion", color=DARK_INK)
+    outside = left.text(3.5, 0.0, "note", color=DARK_INK)
+    before = [cell.get_color() for cell in cells]
+    with P.print_ready(fig, mode="print", announce=False):
+        assert [cell.get_color() for cell in cells] == before
+        assert FS.to_rgb(title.get_color()) != FS.to_rgb(DARK_INK)
+        assert FS.to_rgb(outside.get_color()) != FS.to_rgb(DARK_INK)
+    assert FS.to_rgb(title.get_color()) == FS.to_rgb(DARK_INK)
+
+
+def test_a_saved_confusion_matrix_keeps_white_numbers_on_dark_cells(tmp_path):
+    fig, ax = plt.subplots(figsize=(2, 2), dpi=50)
+    ax.imshow(np.array([[1.0]]), cmap="Blues", vmin=0, vmax=1)
+    ax.text(0, 0, "0.99", color="white", fontsize=30, ha="center",
+            va="center", fontweight="bold")
+    ax.set_axis_off()
+    path = P.save_figure(fig, tmp_path / "cm.png", fmt="png", dpi=50,
+                         save_mode="print", announce_colours=False)
+    pixels = plt.imread(path)[..., :3]
+    height, width = pixels.shape[:2]
+    box = ax.get_position()
+    top = int((1 - box.y1) * height) + 2
+    bottom = int((1 - box.y0) * height) - 2
+    left = int(box.x0 * width) + 2
+    right = int(box.x1 * width) - 2
+    cell = pixels[top:bottom, left:right]
+    assert (cell.min(axis=-1) > 0.9).any()
+
+
 def test_a_grid_becomes_faint_rather_than_ink():
     """A grid repainted in the ink is a cage over the data."""
     fig, ax = plt.subplots(facecolor=DARK_GROUND)
