@@ -420,3 +420,26 @@ Verified live: 100/100 headless checks. Lighthouse mobile under load 61-63
 validate_n2v_lowlight.py jobs): home 93/100, spaCR 76/85/83 (accessibility
 100), Starplast 69/100, live_cell lock 98/100. To be re-measured at low
 load.
+
+
+2026-10-11 (round 8) — site-src 4784d5f, deploy run 38151172367, live
+build 2026-10-11T15:28:26Z.
+- The Models tab shows one card per model family: the newest version that
+  the zoo does not mark alternative or candidate. Statuses come from
+  nightly at build time. Shown:
+  - PV v4 (default), with "Also published, not the default: v5
+    (alternative)";
+  - plaque v4 (default);
+  - well detector v2, with "v3 (candidate)" listed;
+  - the four cross-channel models, live cell v1 and the colony detector.
+  Older versions are one line, "Previous versions: v1, v2, v3", linking
+  their HF model cards. Their numbers stay in data/models.json. Plaque v4
+  keeps the v3 baseline because its card records no stock value; the
+  stock 0.300/0.373 figures are still in the group text.
+- When the re-scored PV and plaque numbers land on HF and in the zoo, run
+  tools/models/collect.py and rebuild.
+- Translator fallback: the 13:31 "Starplast page translations" deploy
+  (run 38143501691) failed with "unknown i18n key showcase.class.nuclei".
+  The fallback added in 7df304e fixes it, and later runs pass.
+Verified live: 100/100 headless checks. Lighthouse at load 45: home 93,
+spaCR 83/84/84, Starplast 86; accessibility 100.
