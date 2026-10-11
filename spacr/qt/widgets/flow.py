@@ -111,7 +111,8 @@ class FlowLayout(QLayout):
 
         An item wider than the whole row is placed anyway rather than looped
         over -- the line-height guard is what stops it wrapping onto an empty
-        line for ever.
+        line for ever. A hidden item takes no room: counted, it could wrap
+        onto a line of its own and add a line height nothing is drawn in.
 
         :param rect: the area to lay out in.
         :param test_only: measure without moving anything, which is how
@@ -123,6 +124,8 @@ class FlowLayout(QLayout):
                              -margins.right(), -margins.bottom())
         x, y, line_height = area.x(), area.y(), 0
         for item in self._items:
+            if item.isEmpty():
+                continue
             hint = item.sizeHint()
             next_x = x + hint.width() + self._space
             if next_x - self._space > area.right() + 1 and line_height > 0:
