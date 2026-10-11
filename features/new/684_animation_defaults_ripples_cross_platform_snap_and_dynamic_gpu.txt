@@ -353,3 +353,22 @@ WORKSTATION MUST RE-RUN GPU PARITY (CUDA_VISIBLE_DEVICES unset):
       tools/run_capped.sh 8G python tools/verify_animation_gpu_parity.py \
       features/data/684_animation_gpu_parity_2026-10-10_ripples/receipt.json \
       --images
+
+2026-10-11 — ALL WORKSTATION GPU STEPS DONE (RTX 3090 Ti, NVIDIA EGL).
+    Parity: 64/64 with ripples in flight (684_animation_gpu_parity_2026-10-10_ripples,
+    source 63228d27a) and fungal growth 8/8 after the refusal fix
+    (..._growth, source aca79cb62); 0 refusals, all_passed.
+    Timing audit r5 (684_animation_gpu_audit_r5_2026-10-11, source 823bcb29f
+    era, 40 rows, 24 frames): fungal growth now renders on the GPU (24/24)
+    and is slower there in every case (0.4 vs 1.4 ms at 1080p sparse, 1.5 vs
+    3.2 ms at 4K full), so its new cost row keeps it on the CPU. _GRAPHICS_COST
+    regenerated from r5; the near-tie point_atlas 1080p full now takes the GPU
+    (2.24 vs 1.98 ms) and the test names that winner.
+    Two earlier audits were not committed: r3 ran during tutorial captures
+    (CPU medians inflated, e.g. aurora 4K full 40 -> 59 ms) and r4 had two
+    CPU outliers that flipped Automatic (impulse_lens 4K full 9.9 vs 5.0 ms,
+    genetic_advection 4K sparse 7.7 vs 2.0 ms); r5 agrees with r2 on both.
+    Single-run CPU medians stay sensitive to other load (r5: point_atlas 4K
+    sparse 7.2 ms against about 1 ms in r2/r4; a GPU choice there costs
+    about 1.6 ms per frame).
+    Remaining: only the maintainer's native desktop checks in step 5.

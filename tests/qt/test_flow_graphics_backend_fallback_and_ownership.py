@@ -252,8 +252,10 @@ def test_automatic_follows_the_measured_cost_per_theme_and_size(monkeypatch, qap
     # full is now faster on the GPU (3.3 vs 5.1 ms) and impulse_lens at 4K full
     # faster on the CPU (5.0 vs 9.1 ms); the winners follow the receipt.
     assert asks('data_art_point_atlas', 3840, 2160, 1.0)
-    # 1080p full is a near tie (1.91 CPU vs 1.81 GPU ms): Automatic stays on CPU.
-    assert not asks('data_art_point_atlas', 1920, 1080, 1.0)
+    # 1080p full is a near tie. Round 5 (684_animation_gpu_audit_r5_2026-10-11)
+    # measured 2.24 CPU vs 1.98 GPU ms, just past the 0.9 gain, so Automatic
+    # takes the GPU there (round 2: 1.91 vs 1.81, CPU).
+    assert asks('data_art_point_atlas', 1920, 1080, 1.0)
     assert not asks('data_art_impulse_lens', 3840, 2160, 1.0)
     assert not asks('data_art_spaceout_field', 1920, 1080, 1.0)
     assert asks('data_art_spaceout_field', 3840, 2160, 1.0)
