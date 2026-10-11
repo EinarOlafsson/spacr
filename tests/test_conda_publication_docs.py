@@ -25,7 +25,10 @@ LOCALIZED = sorted((ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"))
 ALL_READMES = [README, *LOCALIZED]
 
 PACKAGE_URL = "https://anaconda.org/conda-forge/spacr"
-BADGE_URL = f"{PACKAGE_URL}/badges/version.svg"
+# The shields.io conda badge since 2026-10-11: the maintainer asked for a
+# "Conda" label and a logo, which anaconda.org's own badge cannot carry.
+BADGE_URL = ("https://img.shields.io/conda/vn/conda-forge/spacr"
+             "?label=Conda&logo=anaconda&logoColor=white")
 CONDA_COMMAND = "conda install conda-forge::spacr"
 PIP_COMMAND = 'python -m pip install spacr'
 

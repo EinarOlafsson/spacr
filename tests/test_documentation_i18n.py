@@ -4250,6 +4250,8 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     )
 
     canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    # 20 since the maintainer's 2026-10-11 badge clean-up removed |Source|,
+    # |Release| (installers) and |Conda Downloads|.
     # 23 since 2026-10-10: |Docker| joined, after |Website| (N687) and
     # |Coverage| (N688) made it 22 the same day.
     # 20 since the maintainer's 2026-09-16 badge edits: 19 badge alts plus
@@ -4258,7 +4260,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     # rank, Platforms and Cite arrived together.
     assert len(_readme_substitution_alt_text(
         canonical, README_BADGE_SUBSTITUTIONS,
-    )) + int(bool(_readme_logo_alt_text(canonical))) == 23
+    )) + int(bool(_readme_logo_alt_text(canonical))) == 20
     assert len(_readme_substitution_alt_text(
         canonical, README_INSTALLER_SUBSTITUTIONS,
     )) == 4
@@ -4303,7 +4305,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert len(alt_text) == len(
             re.findall(r"(?m)^   :alt: (.+)$", canonical)
         ) + len(canonical_alt) == (
-                23 + len(module_names) + 4 + 5)
+                20 + len(module_names) + 4 + 5)
         assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
         assert "logo_spacr_readme.png" not in text
         assert all(
