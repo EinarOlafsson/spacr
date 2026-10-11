@@ -788,7 +788,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_mode",
-    "line": 8776,
+    "line": 8767,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -1073,7 +1073,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anisotropy",
-    "line": 478,
+    "line": 475,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "resolve_measurement_spacing"
@@ -1082,7 +1082,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anisotropy",
-    "line": 483,
+    "line": 480,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "resolve_measurement_spacing"
@@ -1091,7 +1091,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anisotropy",
-    "line": 508,
+    "line": 505,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "resolve_measurement_spacing"
@@ -3140,7 +3140,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "bleach_correction",
-    "line": 9851,
+    "line": 9848,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -3149,7 +3149,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "bleach_correction",
-    "line": 10350,
+    "line": 10347,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_bleach_correction_step"
@@ -3389,7 +3389,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "bystander_measurements",
-    "line": 1352,
+    "line": 1349,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -3409,7 +3409,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "bystander_reach_in_diameters",
-    "line": 1354,
+    "line": 1351,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -3429,7 +3429,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "calculate_correlation",
-    "line": 1731,
+    "line": 1728,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -4174,7 +4174,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle",
-    "line": 9845,
+    "line": 9842,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -4385,7 +4385,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle_epochs",
-    "line": 5277,
+    "line": 5274,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_phases_by_torch"
@@ -4405,7 +4405,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle_fucci_channels",
-    "line": 5626,
+    "line": 5623,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_cell_cycle"
@@ -4414,7 +4414,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle_fucci_channels",
-    "line": 5648,
+    "line": 5645,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_cell_cycle"
@@ -4434,7 +4434,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle_gates",
-    "line": 5600,
+    "line": 5597,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_cell_cycle"
@@ -4454,7 +4454,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle_labels",
-    "line": 5622,
+    "line": 5619,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_cell_cycle"
@@ -4474,7 +4474,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle_method",
-    "line": 5593,
+    "line": 5590,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_cell_cycle"
@@ -4503,7 +4503,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle_mitotic_ratio",
-    "line": 5598,
+    "line": 5595,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_cell_cycle"
@@ -4523,7 +4523,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle_model",
-    "line": 5237,
+    "line": 5234,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_phases_by_torch"
@@ -4850,7 +4850,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 1474,
+    "line": 1471,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -4859,7 +4859,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 1496,
+    "line": 1493,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -4868,7 +4868,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 1519,
+    "line": 1516,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -4877,7 +4877,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 1536,
+    "line": 1533,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -4886,7 +4886,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 1544,
+    "line": 1541,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -4895,7 +4895,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 1812,
+    "line": 1809,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -4904,7 +4904,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 1836,
+    "line": 1833,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -4913,7 +4913,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 3992,
+    "line": 3989,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_resolve_confluency_source"
@@ -4922,7 +4922,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 4124,
+    "line": 4121,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_field_confluency"
@@ -4931,7 +4931,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 6730,
+    "line": 6727,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_settings_check"
@@ -4940,7 +4940,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 6760,
+    "line": 6757,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_plane"
@@ -4949,7 +4949,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8279,
+    "line": 8276,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -4958,7 +4958,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8283,
+    "line": 8280,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -4967,13 +4967,31 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8441,
+    "line": 8438,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
    },
    {
     "form": "get",
+    "function_depth": 1,
+    "key": "cell_mask_dim",
+    "line": 8440,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_mask_dim",
+    "line": 8442,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
     "line": 8443,
@@ -4985,7 +5003,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8445,
+    "line": 8463,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -4994,7 +5012,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8446,
+    "line": 8477,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5003,7 +5021,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8466,
+    "line": 8479,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5012,25 +5030,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8480,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "cell_mask_dim",
-    "line": 8482,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "cell_mask_dim",
-    "line": 8492,
+    "line": 8489,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5039,7 +5039,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8510,
+    "line": 8507,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5048,34 +5048,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8527,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "get-dynamic",
-    "function_depth": 1,
-    "key": "cell_mask_dim",
-    "line": 8534,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "cell_mask_dim",
-    "line": 8591,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "cell_mask_dim",
-    "line": 8600,
+    "line": 8524,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5084,7 +5057,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8607,
+    "line": 8531,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5093,7 +5066,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8639,
+    "line": 8588,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_mask_dim",
+    "line": 8597,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5102,7 +5084,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8643,
+    "line": 8604,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5111,7 +5093,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 8668,
+    "line": 8636,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cell_mask_dim",
+    "line": 8640,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5120,7 +5111,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 9516,
+    "line": 8665,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_mask_dim",
+    "line": 9513,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -5129,7 +5129,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 9520,
+    "line": 9517,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -5138,7 +5138,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 9522,
+    "line": 9519,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -5147,7 +5147,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 9534,
+    "line": 9531,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -5156,7 +5156,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 9873,
+    "line": 9870,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -5165,7 +5165,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 10028,
+    "line": 10025,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_cellprofiler_roles"
@@ -5174,7 +5174,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 12262,
+    "line": 12259,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -5293,7 +5293,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_max_size",
-    "line": 8448,
+    "line": 8445,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5322,7 +5322,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_min_size",
-    "line": 8449,
+    "line": 8446,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_min_size",
+    "line": 8447,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5340,7 +5349,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_min_size",
-    "line": 8453,
+    "line": 8455,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5349,7 +5358,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_min_size",
-    "line": 8458,
+    "line": 8537,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5358,7 +5367,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_min_size",
-    "line": 8540,
+    "line": 8537,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5367,16 +5376,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_min_size",
-    "line": 8540,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "cell_min_size",
-    "line": 8541,
+    "line": 8538,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -5385,7 +5385,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_min_size",
-    "line": 8553,
+    "line": 8550,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -6753,7 +6753,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cellprofiler_pipeline",
-    "line": 9861,
+    "line": 9858,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -6762,7 +6762,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cellprofiler_pipeline",
-    "line": 10302,
+    "line": 10299,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_cellprofiler_step"
@@ -7399,7 +7399,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "channels",
-    "line": 1388,
+    "line": 1385,
     "module": "spacr.measure",
     "nested": true,
     "qualname": "_morphological_measurements._with_distances"
@@ -7408,7 +7408,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 4012,
+    "line": 4009,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_confluency_channel"
@@ -7417,7 +7417,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 4113,
+    "line": 4110,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_field_confluency"
@@ -7426,7 +7426,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 4684,
+    "line": 4681,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_cell_cycle_channel"
@@ -7435,7 +7435,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 4699,
+    "line": 4696,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measured_channel_column"
@@ -7444,7 +7444,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 6764,
+    "line": 6761,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_plane"
@@ -7453,7 +7453,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 8108,
+    "line": 8105,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_viability"
@@ -7462,7 +7462,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 8406,
+    "line": 8403,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -7471,7 +7471,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 8413,
+    "line": 8410,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -7480,7 +7480,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 8415,
+    "line": 8412,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -7489,7 +7489,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 8426,
+    "line": 8423,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -7498,7 +7498,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 8428,
+    "line": 8425,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -7507,7 +7507,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 9570,
+    "line": 9567,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -7516,7 +7516,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 9574,
+    "line": 9571,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -7525,7 +7525,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 12259,
+    "line": 12256,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -8315,7 +8315,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 12309,
+    "line": 12300,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8324,7 +8324,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 12320,
+    "line": 12311,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8351,7 +8351,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13094,
+    "line": 13095,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8360,7 +8360,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13094,
+    "line": 13095,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8369,7 +8369,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13219,
+    "line": 13220,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -9871,7 +9871,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confluency",
-    "line": 8442,
+    "line": 8439,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -9880,7 +9880,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confluency",
-    "line": 8721,
+    "line": 8718,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -9889,7 +9889,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confluency",
-    "line": 9480,
+    "line": 9477,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -9898,7 +9898,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confluency",
-    "line": 9836,
+    "line": 9833,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -9999,7 +9999,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confluency_channel",
-    "line": 4010,
+    "line": 4007,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_confluency_channel"
@@ -10118,7 +10118,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confluency_qc_threshold",
-    "line": 4159,
+    "line": 4156,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_write_confluency_record"
@@ -10127,7 +10127,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confluency_qc_threshold",
-    "line": 9838,
+    "line": 9835,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -10156,7 +10156,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confluency_source",
-    "line": 3987,
+    "line": 3984,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_resolve_confluency_source"
@@ -10176,7 +10176,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confluency_window",
-    "line": 4129,
+    "line": 4126,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_field_confluency"
@@ -10386,7 +10386,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 12571,
+    "line": 12562,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -10739,7 +10739,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_dtype",
-    "line": 8858,
+    "line": 8855,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -10768,10 +10768,55 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 8743,
+    "line": 8740,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "crop_mode",
+    "line": 9575,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "measure_crop"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "crop_mode",
+    "line": 9576,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "measure_crop"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "crop_mode",
+    "line": 9577,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "measure_crop"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "crop_mode",
+    "line": 9577,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "measure_crop"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "crop_mode",
+    "line": 9578,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "measure_crop"
    },
    {
     "form": "subscript",
@@ -10792,55 +10837,10 @@
     "qualname": "measure_crop"
    },
    {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "crop_mode",
-    "line": 9580,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "measure_crop"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "crop_mode",
-    "line": 9580,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "measure_crop"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "crop_mode",
-    "line": 9581,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "measure_crop"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "crop_mode",
-    "line": 9581,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "measure_crop"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "crop_mode",
-    "line": 9582,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "measure_crop"
-   },
-   {
     "form": "get",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 12269,
+    "line": 12266,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -10849,7 +10849,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 12273,
+    "line": 12270,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -11822,7 +11822,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 1561,
+    "line": 1558,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -11831,7 +11831,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 8282,
+    "line": 8279,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -11840,7 +11840,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 8461,
+    "line": 8458,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -11849,7 +11849,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 8526,
+    "line": 8523,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -11858,7 +11858,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 8610,
+    "line": 8607,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -11867,7 +11867,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 8642,
+    "line": 8639,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -11876,7 +11876,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 8671,
+    "line": 8668,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -11885,7 +11885,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 9521,
+    "line": 9518,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -11894,7 +11894,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 9523,
+    "line": 9520,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -11903,7 +11903,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 9525,
+    "line": 9522,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -11912,7 +11912,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 12267,
+    "line": 12264,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -11950,7 +11950,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm_min_size",
-    "line": 8549,
+    "line": 8546,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -11959,7 +11959,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm_min_size",
-    "line": 8549,
+    "line": 8546,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -11968,7 +11968,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoplasm_min_size",
-    "line": 8550,
+    "line": 8547,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -11977,7 +11977,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cytoplasm_min_size",
-    "line": 8553,
+    "line": 8550,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -12446,7 +12446,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "db_path",
-    "line": 9916,
+    "line": 9917,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "add_column_to_database"
@@ -12751,7 +12751,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dialate_png_ratios",
-    "line": 8761,
+    "line": 8758,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -12798,7 +12798,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dialate_pngs",
-    "line": 8758,
+    "line": 8755,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -12854,7 +12854,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 15788,
+    "line": 15789,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"
@@ -12966,7 +12966,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "distance_gaussian_sigma",
-    "line": 1810,
+    "line": 1807,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -12975,7 +12975,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "distance_gaussian_sigma",
-    "line": 1811,
+    "line": 1808,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -12984,7 +12984,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "distance_gaussian_sigma",
-    "line": 2970,
+    "line": 2967,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_intensity_distance"
@@ -13163,7 +13163,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dry_run",
-    "line": 9427,
+    "line": 9424,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -14661,7 +14661,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "experiment",
-    "line": 8650,
+    "line": 8647,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -14670,7 +14670,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "experiment",
-    "line": 8703,
+    "line": 8700,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -14726,7 +14726,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "export_vvvv",
-    "line": 8709,
+    "line": 8706,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -16088,7 +16088,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 10903,
+    "line": 11100,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -16843,7 +16843,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grna_statistic",
-    "line": 8811,
+    "line": 8802,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -17374,7 +17374,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutation_block",
-    "line": 8812,
+    "line": 8803,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -17441,7 +17441,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutations",
-    "line": 8794,
+    "line": 8785,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -18056,7 +18056,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "homogeneity",
-    "line": 1732,
+    "line": 1729,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -18076,7 +18076,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "homogeneity_distances",
-    "line": 1733,
+    "line": 1730,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -20540,7 +20540,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
-    "line": 8775,
+    "line": 8766,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -21013,7 +21013,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "intensity_calibration",
-    "line": 3350,
+    "line": 3347,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_prepare_measurement_calibration"
@@ -22015,7 +22015,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 8810,
+    "line": 8801,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -22024,7 +22024,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 8863,
+    "line": 8854,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -23202,7 +23202,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measure_gpu",
-    "line": 2197,
+    "line": 2194,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measurement_device"
@@ -23242,7 +23242,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measurement_backend",
-    "line": 9629,
+    "line": 9626,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -23251,7 +23251,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measurement_backend",
-    "line": 9881,
+    "line": 9878,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -23260,7 +23260,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measurement_backend",
-    "line": 9900,
+    "line": 9897,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measurement_backend_target"
@@ -23269,7 +23269,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measurement_backend",
-    "line": 9953,
+    "line": 9950,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_copy_to_measurement_backend"
@@ -23307,7 +23307,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measurement_backend_target",
-    "line": 9901,
+    "line": 9898,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measurement_backend_target"
@@ -23327,7 +23327,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "merge_edge_pathogen_cells",
-    "line": 8491,
+    "line": 8488,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -25615,7 +25615,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "multiple_testing_method",
-    "line": 11327,
+    "line": 11318,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -26104,7 +26104,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 5634,
+    "line": 5631,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_cell_cycle"
@@ -26113,7 +26113,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 9527,
+    "line": 9524,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -26122,7 +26122,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 9527,
+    "line": 9524,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -26131,7 +26131,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 9615,
+    "line": 9612,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -26230,7 +26230,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 9934,
+    "line": 9925,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -26239,7 +26239,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 9937,
+    "line": 9928,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -26248,7 +26248,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 9950,
+    "line": 9941,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27345,7 +27345,25 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 8830,
+    "line": 8827,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "normalize",
+    "line": 8828,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "normalize",
+    "line": 8828,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -27363,7 +27381,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 8831,
+    "line": 8833,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -27372,7 +27390,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 8834,
+    "line": 8833,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -27399,25 +27417,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 8839,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "normalize",
-    "line": 8839,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "normalize",
-    "line": 9544,
+    "line": 9541,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -27426,7 +27426,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 9544,
+    "line": 9541,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -27435,7 +27435,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 9552,
+    "line": 9549,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -27444,7 +27444,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 9552,
+    "line": 9549,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -27453,7 +27453,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 9552,
+    "line": 9549,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -27498,7 +27498,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 9801,
+    "line": 9792,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -27734,7 +27734,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize_by",
-    "line": 8829,
+    "line": 8826,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "normalize_by",
+    "line": 8832,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -27752,16 +27761,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize_by",
-    "line": 8838,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "normalize_by",
-    "line": 9553,
+    "line": 9550,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -27770,7 +27770,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize_by",
-    "line": 9557,
+    "line": 9554,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -28544,7 +28544,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 8106,
+    "line": 8103,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_viability"
@@ -29013,7 +29013,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 1489,
+    "line": 1486,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -29022,7 +29022,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 1536,
+    "line": 1533,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -29031,7 +29031,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 1813,
+    "line": 1810,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -29040,7 +29040,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 5143,
+    "line": 5140,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_write_nucleus_crops"
@@ -29049,25 +29049,25 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
+    "line": 8277,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_export_vvvv_measured_field"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "nucleus_mask_dim",
     "line": 8280,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
    },
    {
-    "form": "get-dynamic",
-    "function_depth": 1,
-    "key": "nucleus_mask_dim",
-    "line": 8283,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_export_vvvv_measured_field"
-   },
-   {
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8464,
+    "line": 8461,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29076,7 +29076,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8465,
+    "line": 8462,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29085,7 +29085,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8483,
+    "line": 8480,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29094,7 +29094,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8510,
+    "line": 8507,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29103,7 +29103,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8529,
+    "line": 8526,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29112,7 +29112,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8534,
+    "line": 8531,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29121,7 +29121,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8591,
+    "line": 8588,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29130,7 +29130,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8602,
+    "line": 8599,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29139,7 +29139,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8603,
+    "line": 8600,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29148,13 +29148,22 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8607,
+    "line": 8604,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
    },
    {
     "form": "subscript",
+    "function_depth": 1,
+    "key": "nucleus_mask_dim",
+    "line": 8637,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
     "line": 8640,
@@ -29163,10 +29172,10 @@
     "qualname": "_measure_crop_core"
    },
    {
-    "form": "get-dynamic",
+    "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8643,
+    "line": 8666,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29175,16 +29184,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 8669,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "nucleus_mask_dim",
-    "line": 9873,
+    "line": 9870,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -29193,7 +29193,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 10028,
+    "line": 10025,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_cellprofiler_roles"
@@ -29202,7 +29202,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 12262,
+    "line": 12259,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -29294,7 +29294,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_max_size",
-    "line": 8468,
+    "line": 8465,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29323,7 +29323,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_min_size",
-    "line": 8469,
+    "line": 8466,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "nucleus_min_size",
+    "line": 8467,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29341,7 +29350,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_min_size",
-    "line": 8473,
+    "line": 8475,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29350,7 +29359,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_min_size",
-    "line": 8478,
+    "line": 8540,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29359,7 +29368,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_min_size",
-    "line": 8543,
+    "line": 8540,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29368,16 +29377,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_min_size",
-    "line": 8543,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "nucleus_min_size",
-    "line": 8544,
+    "line": 8541,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29386,7 +29386,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_min_size",
-    "line": 8553,
+    "line": 8550,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -29395,7 +29395,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_min_size",
-    "line": 9522,
+    "line": 9519,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -29690,7 +29690,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "object_distance_intensity",
-    "line": 1385,
+    "line": 1382,
     "module": "spacr.measure",
     "nested": true,
     "qualname": "_morphological_measurements._with_distances"
@@ -29710,7 +29710,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "object_distance_maxima",
-    "line": 1390,
+    "line": 1387,
     "module": "spacr.measure",
     "nested": true,
     "qualname": "_morphological_measurements._with_distances"
@@ -29730,7 +29730,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_distances",
-    "line": 1350,
+    "line": 1347,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -30839,7 +30839,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 1277,
+    "line": 1274,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphology_of_organelle_type"
@@ -31518,7 +31518,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 1536,
+    "line": 1533,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -31527,7 +31527,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 8283,
+    "line": 8280,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -31536,7 +31536,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 8510,
+    "line": 8507,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -31545,7 +31545,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 8534,
+    "line": 8531,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -31554,7 +31554,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 8607,
+    "line": 8604,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -31563,7 +31563,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 8643,
+    "line": 8640,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -31572,7 +31572,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 10028,
+    "line": 10025,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_cellprofiler_roles"
@@ -31581,7 +31581,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 12262,
+    "line": 12259,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -31816,7 +31816,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 8513,
+    "line": 8510,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -32623,7 +32623,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_type",
-    "line": 1269,
+    "line": 1266,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphology_of_organelle_type"
@@ -33190,7 +33190,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 1536,
+    "line": 1533,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -33199,7 +33199,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 8283,
+    "line": 8280,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -33208,7 +33208,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 8510,
+    "line": 8507,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -33217,7 +33217,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 8534,
+    "line": 8531,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -33226,7 +33226,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 8607,
+    "line": 8604,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -33235,7 +33235,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 8643,
+    "line": 8640,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -33244,7 +33244,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 10028,
+    "line": 10025,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_cellprofiler_roles"
@@ -33253,7 +33253,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 12262,
+    "line": 12259,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -33342,7 +33342,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_min_area",
-    "line": 8513,
+    "line": 8510,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -33986,7 +33986,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 1536,
+    "line": 1533,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -33995,7 +33995,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 8283,
+    "line": 8280,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -34004,7 +34004,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 8510,
+    "line": 8507,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -34013,7 +34013,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 8534,
+    "line": 8531,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -34022,7 +34022,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 8607,
+    "line": 8604,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -34031,7 +34031,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 8643,
+    "line": 8640,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -34040,7 +34040,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 10028,
+    "line": 10025,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_cellprofiler_roles"
@@ -34049,7 +34049,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 12262,
+    "line": 12259,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -34138,7 +34138,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_min_area",
-    "line": 8513,
+    "line": 8510,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -34782,7 +34782,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 1536,
+    "line": 1533,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -34791,7 +34791,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 8283,
+    "line": 8280,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -34800,7 +34800,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 8510,
+    "line": 8507,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -34809,7 +34809,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 8534,
+    "line": 8531,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -34818,7 +34818,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 8607,
+    "line": 8604,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -34827,7 +34827,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 8643,
+    "line": 8640,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -34836,7 +34836,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 10028,
+    "line": 10025,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_cellprofiler_roles"
@@ -34845,7 +34845,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 12262,
+    "line": 12259,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -34934,7 +34934,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_min_area",
-    "line": 8513,
+    "line": 8510,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -35861,7 +35861,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 12566,
+    "line": 12557,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -37149,7 +37149,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 1512,
+    "line": 1509,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -37158,7 +37158,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 1536,
+    "line": 1533,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -37167,7 +37167,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 1813,
+    "line": 1810,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -37176,7 +37176,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 1852,
+    "line": 1849,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -37185,7 +37185,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 8281,
+    "line": 8278,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -37194,7 +37194,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 8283,
+    "line": 8280,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -37203,7 +37203,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 8489,
+    "line": 8486,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37212,7 +37212,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 8490,
+    "line": 8487,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37221,13 +37221,22 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 8510,
+    "line": 8507,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
    },
    {
     "form": "subscript",
+    "function_depth": 1,
+    "key": "pathogen_mask_dim",
+    "line": 8528,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
     "line": 8531,
@@ -37236,25 +37245,34 @@
     "qualname": "_measure_crop_core"
    },
    {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "pathogen_mask_dim",
+    "line": 8588,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "pathogen_mask_dim",
+    "line": 8601,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "pathogen_mask_dim",
+    "line": 8602,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
     "form": "get-dynamic",
-    "function_depth": 1,
-    "key": "pathogen_mask_dim",
-    "line": 8534,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "pathogen_mask_dim",
-    "line": 8591,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
     "line": 8604,
@@ -37266,7 +37284,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 8605,
+    "line": 8638,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37275,7 +37293,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 8607,
+    "line": 8640,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37284,16 +37302,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 8641,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "get-dynamic",
-    "function_depth": 1,
-    "key": "pathogen_mask_dim",
-    "line": 8643,
+    "line": 8667,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37302,16 +37311,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 8670,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "pathogen_mask_dim",
-    "line": 9518,
+    "line": 9515,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -37320,7 +37320,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 9873,
+    "line": 9870,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -37329,7 +37329,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 10028,
+    "line": 10025,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_cellprofiler_roles"
@@ -37338,7 +37338,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 12262,
+    "line": 12259,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -37448,7 +37448,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_max_size",
-    "line": 8494,
+    "line": 8491,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37477,7 +37477,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_min_size",
-    "line": 8495,
+    "line": 8492,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "pathogen_min_size",
+    "line": 8493,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37495,7 +37504,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_min_size",
-    "line": 8499,
+    "line": 8501,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37504,7 +37513,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_min_size",
-    "line": 8504,
+    "line": 8543,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37513,7 +37522,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_min_size",
-    "line": 8546,
+    "line": 8543,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37522,16 +37531,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_min_size",
-    "line": 8546,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "pathogen_min_size",
-    "line": 8547,
+    "line": 8544,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37540,7 +37540,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_min_size",
-    "line": 8553,
+    "line": 8550,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -37549,7 +37549,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_min_size",
-    "line": 9520,
+    "line": 9517,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -39061,7 +39061,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_barcode_column",
-    "line": 9983,
+    "line": 9980,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -39081,7 +39081,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_barcode_source",
-    "line": 9833,
+    "line": 9830,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -39090,7 +39090,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plate_barcode_source",
-    "line": 9981,
+    "line": 9978,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -39099,7 +39099,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plate_barcode_source",
-    "line": 9997,
+    "line": 9994,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -39119,7 +39119,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plate_barcode_token_env",
-    "line": 9980,
+    "line": 9977,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -39128,7 +39128,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_barcode_token_env",
-    "line": 9985,
+    "line": 9982,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -39148,7 +39148,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plate_barcodes",
-    "line": 9980,
+    "line": 9977,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -39157,7 +39157,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_barcodes",
-    "line": 9982,
+    "line": 9979,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -39433,7 +39433,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 5672,
+    "line": 5669,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_cell_cycle"
@@ -39442,7 +39442,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 7020,
+    "line": 7017,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_wound_closure"
@@ -39451,10 +39451,19 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 8167,
+    "line": 8164,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_viability"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "plot",
+    "line": 8391,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
    },
    {
     "form": "subscript",
@@ -39469,7 +39478,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 8397,
+    "line": 8610,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -39478,7 +39487,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 8613,
+    "line": 8726,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -39487,7 +39496,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 8729,
+    "line": 8730,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -39496,7 +39505,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 8733,
+    "line": 8739,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -39505,7 +39514,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 8742,
+    "line": 8842,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -39514,16 +39523,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 8845,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "plot",
-    "line": 8880,
+    "line": 8877,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -40216,7 +40216,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_dims",
-    "line": 12263,
+    "line": 12260,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -40225,7 +40225,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "png_dims",
-    "line": 12264,
+    "line": 12261,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -40272,7 +40272,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "png_size",
-    "line": 8748,
+    "line": 8745,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -41109,7 +41109,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling",
-    "line": 9879,
+    "line": 9876,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -41198,7 +41198,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_metadata",
-    "line": 10002,
+    "line": 9999,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -41207,7 +41207,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "profiling_metadata",
-    "line": 10003,
+    "line": 10000,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -41497,7 +41497,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_measurement_source",
-    "line": 8420,
+    "line": 8417,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -41809,7 +41809,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "radial_dist",
-    "line": 1730,
+    "line": 1727,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_intensity_measurements"
@@ -41829,7 +41829,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 9054,
+    "line": 9051,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_clamp_workers_to_ram"
@@ -41838,7 +41838,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 9147,
+    "line": 9144,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_calibrated_wave"
@@ -41847,7 +41847,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 9918,
+    "line": 9909,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -41856,7 +41856,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 9953,
+    "line": 9944,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -42809,7 +42809,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_backend",
-    "line": 8864,
+    "line": 8855,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -43085,7 +43085,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 8854,
+    "line": 8845,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -43094,7 +43094,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 11326,
+    "line": 11317,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -45494,7 +45494,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_arrays",
-    "line": 8733,
+    "line": 8730,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -45503,7 +45503,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_arrays",
-    "line": 8742,
+    "line": 8739,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -45512,7 +45512,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_arrays",
-    "line": 8850,
+    "line": 8847,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -45601,7 +45601,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_measurements",
-    "line": 8619,
+    "line": 8616,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -45610,7 +45610,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_measurements",
-    "line": 8715,
+    "line": 8712,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -45619,7 +45619,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_measurements",
-    "line": 8716,
+    "line": 8713,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -45706,7 +45706,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_png",
-    "line": 8733,
+    "line": 8730,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -45715,7 +45715,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_png",
-    "line": 8742,
+    "line": 8739,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -45724,7 +45724,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_png",
-    "line": 8819,
+    "line": 8816,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -45733,7 +45733,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_png",
-    "line": 9443,
+    "line": 9440,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -46927,7 +46927,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_measurements",
-    "line": 1344,
+    "line": 1341,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -46956,7 +46956,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_neighbor_radius",
-    "line": 1346,
+    "line": 1343,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_morphological_measurements"
@@ -47947,7 +47947,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3330,
+    "line": 3327,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_calibration_reference_hashes"
@@ -47956,7 +47956,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3353,
+    "line": 3350,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_prepare_measurement_calibration"
@@ -47965,7 +47965,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3358,
+    "line": 3355,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_prepare_measurement_calibration"
@@ -47974,7 +47974,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3491,
+    "line": 3488,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_write_intensity_rescale_record"
@@ -47983,7 +47983,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7560,
+    "line": 7557,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measured_fields"
@@ -47992,10 +47992,19 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8308,
+    "line": 8305,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 8339,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
    },
    {
     "form": "subscript",
@@ -48010,7 +48019,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8345,
+    "line": 8481,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -48019,16 +48028,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8484,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "_measure_crop_core"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 9445,
+    "line": 9442,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48037,7 +48037,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9449,
+    "line": 9446,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48046,7 +48046,34 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9449,
+    "line": 9446,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "measure_crop"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 9452,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "measure_crop"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 9453,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "measure_crop"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 9453,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48073,7 +48100,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9456,
+    "line": 9465,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48082,16 +48109,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9458,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "measure_crop"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 9459,
+    "line": 9467,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48109,7 +48127,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9470,
+    "line": 9484,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48118,7 +48136,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9471,
+    "line": 9485,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48145,7 +48163,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9490,
+    "line": 9527,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48154,7 +48172,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9491,
+    "line": 9527,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48163,7 +48181,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9530,
+    "line": 9587,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48172,7 +48190,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9530,
+    "line": 9703,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48181,7 +48199,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9590,
+    "line": 9707,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48190,7 +48208,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9706,
+    "line": 9823,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48199,7 +48217,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9710,
+    "line": 9828,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48208,7 +48226,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9826,
+    "line": 9845,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48217,7 +48235,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9831,
+    "line": 9869,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -48226,25 +48244,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9848,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "measure_crop"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 9872,
-    "module": "spacr.measure",
-    "nested": false,
-    "qualname": "measure_crop"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 9981,
+    "line": 9978,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -48253,7 +48253,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9991,
+    "line": 9988,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -48262,7 +48262,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10303,
+    "line": 10300,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_cellprofiler_step"
@@ -48271,7 +48271,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 11156,
+    "line": 11153,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "process_measure_crop_results"
@@ -48280,7 +48280,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 12258,
+    "line": 12255,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -48703,7 +48703,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 8598,
+    "line": 8589,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._claim_the_project"
@@ -48712,7 +48712,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 8679,
+    "line": 8670,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -48721,7 +48721,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 8693,
+    "line": 8684,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -48730,7 +48730,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 8705,
+    "line": 8696,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -48739,7 +48739,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9849,
+    "line": 9840,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_measure_plane_layout"
@@ -48748,7 +48748,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9942,
+    "line": 9933,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -48757,7 +48757,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 10508,
+    "line": 10499,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._measurements_destination"
@@ -48766,7 +48766,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11400,
+    "line": 11391,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._load_regression_results"
@@ -48775,7 +48775,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11749,
+    "line": 11740,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._lock_analysis_now"
@@ -50116,15 +50116,6 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10228,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
     "line": 10229,
     "module": "spacr.utils",
     "nested": false,
@@ -50242,7 +50233,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10248,
+    "line": 10242,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -50252,6 +50243,15 @@
     "function_depth": 1,
     "key": "src",
     "line": 10249,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10250,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -50508,7 +50508,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "summarize_organelles_by",
-    "line": 8656,
+    "line": 8653,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -52906,7 +52906,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event",
-    "line": 9855,
+    "line": 9852,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -52926,7 +52926,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_column",
-    "line": 10447,
+    "line": 10444,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -52935,7 +52935,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_column",
-    "line": 10528,
+    "line": 10525,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_read_time_to_event_inputs"
@@ -52944,7 +52944,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_column",
-    "line": 10655,
+    "line": 10652,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -52964,7 +52964,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_conditions",
-    "line": 10475,
+    "line": 10472,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -52973,7 +52973,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_conditions",
-    "line": 10522,
+    "line": 10519,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_read_time_to_event_inputs"
@@ -52982,7 +52982,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_conditions",
-    "line": 10658,
+    "line": 10655,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -52991,7 +52991,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_conditions",
-    "line": 10757,
+    "line": 10754,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_groups"
@@ -53000,7 +53000,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_conditions",
-    "line": 10764,
+    "line": 10761,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_groups"
@@ -53009,7 +53009,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_conditions",
-    "line": 10793,
+    "line": 10790,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_groups"
@@ -53029,7 +53029,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_covariates",
-    "line": 10479,
+    "line": 10476,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53038,7 +53038,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_covariates",
-    "line": 10521,
+    "line": 10518,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_read_time_to_event_inputs"
@@ -53047,7 +53047,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_covariates",
-    "line": 10657,
+    "line": 10654,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53056,7 +53056,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_covariates",
-    "line": 10883,
+    "line": 10880,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_statistics"
@@ -53065,7 +53065,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_covariates",
-    "line": 10888,
+    "line": 10885,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_statistics"
@@ -53085,7 +53085,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_group",
-    "line": 10472,
+    "line": 10469,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53094,7 +53094,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_group",
-    "line": 10522,
+    "line": 10519,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_read_time_to_event_inputs"
@@ -53103,7 +53103,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_group",
-    "line": 10523,
+    "line": 10520,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_read_time_to_event_inputs"
@@ -53112,7 +53112,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_group",
-    "line": 10658,
+    "line": 10655,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53121,7 +53121,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_group",
-    "line": 10659,
+    "line": 10656,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53130,7 +53130,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_group",
-    "line": 10756,
+    "line": 10753,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_groups"
@@ -53150,7 +53150,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_hours_per_frame",
-    "line": 10456,
+    "line": 10453,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53159,7 +53159,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_hours_per_frame",
-    "line": 10716,
+    "line": 10713,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53179,7 +53179,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_min_frames",
-    "line": 10470,
+    "line": 10467,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53188,7 +53188,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_min_frames",
-    "line": 10669,
+    "line": 10666,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53208,7 +53208,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_mode",
-    "line": 10439,
+    "line": 10436,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53217,7 +53217,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_mode",
-    "line": 10654,
+    "line": 10651,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53226,7 +53226,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_mode",
-    "line": 11043,
+    "line": 11040,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event"
@@ -53246,7 +53246,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_object",
-    "line": 10462,
+    "line": 10459,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53255,7 +53255,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_object",
-    "line": 10505,
+    "line": 10502,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_read_time_to_event_inputs"
@@ -53264,7 +53264,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_object",
-    "line": 11020,
+    "line": 11017,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event"
@@ -53273,7 +53273,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_object",
-    "line": 11043,
+    "line": 11040,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event"
@@ -53293,7 +53293,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_origin",
-    "line": 10440,
+    "line": 10437,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53302,7 +53302,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_origin",
-    "line": 10672,
+    "line": 10669,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53311,7 +53311,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_origin",
-    "line": 10675,
+    "line": 10672,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53331,7 +53331,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_persist",
-    "line": 10467,
+    "line": 10464,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53340,7 +53340,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_persist",
-    "line": 10692,
+    "line": 10689,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53360,7 +53360,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_reference",
-    "line": 10476,
+    "line": 10473,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53369,7 +53369,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_reference",
-    "line": 10797,
+    "line": 10794,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_groups"
@@ -53389,7 +53389,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "time_to_event_threshold",
-    "line": 10448,
+    "line": 10445,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_tte_settings"
@@ -53398,7 +53398,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "time_to_event_threshold",
-    "line": 10656,
+    "line": 10653,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_time_to_event_objects"
@@ -53708,7 +53708,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 3326,
+    "line": 3323,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_calibration_reference_hashes"
@@ -53717,7 +53717,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 3486,
+    "line": 3483,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_write_intensity_rescale_record"
@@ -53726,7 +53726,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 4161,
+    "line": 4158,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_write_confluency_record"
@@ -53735,7 +53735,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 7569,
+    "line": 7566,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measured_fields"
@@ -53744,7 +53744,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 8651,
+    "line": 8648,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -53753,7 +53753,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 8704,
+    "line": 8701,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -53762,7 +53762,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 8804,
+    "line": 8801,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -53771,7 +53771,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 8809,
+    "line": 8806,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -53780,7 +53780,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 9442,
+    "line": 9439,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -53789,7 +53789,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 9850,
+    "line": 9847,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -53798,7 +53798,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 9865,
+    "line": 9862,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -53807,7 +53807,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 9870,
+    "line": 9867,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -53816,7 +53816,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 9987,
+    "line": 9984,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -53825,7 +53825,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 10219,
+    "line": 10216,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_cellprofiler_tables"
@@ -54283,7 +54283,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_lineage",
-    "line": 9865,
+    "line": 9862,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -54538,7 +54538,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_objects",
-    "line": 8479,
+    "line": 8476,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -54547,7 +54547,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_objects",
-    "line": 9533,
+    "line": 9530,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -54556,7 +54556,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_objects",
-    "line": 9535,
+    "line": 9532,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -54565,7 +54565,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse_objects",
-    "line": 9871,
+    "line": 9868,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -56526,7 +56526,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "uninfected",
-    "line": 8462,
+    "line": 8459,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -56535,7 +56535,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "uninfected",
-    "line": 8592,
+    "line": 8589,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -56544,7 +56544,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "uninfected",
-    "line": 8592,
+    "line": 8589,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -56553,7 +56553,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "uninfected",
-    "line": 9517,
+    "line": 9514,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -56562,7 +56562,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "uninfected",
-    "line": 9519,
+    "line": 9516,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -56696,7 +56696,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 8801,
+    "line": 8798,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -56705,7 +56705,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 9812,
+    "line": 9803,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -57358,7 +57358,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 8369,
+    "line": 8366,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -57367,7 +57367,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 8574,
+    "line": 8571,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -57376,7 +57376,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 8726,
+    "line": 8723,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_crop_core"
@@ -58197,7 +58197,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "viability",
-    "line": 9858,
+    "line": 9855,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -58298,7 +58298,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "viability_dead_channel",
-    "line": 8081,
+    "line": 8078,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_viability"
@@ -58498,7 +58498,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "viability_live_channel",
-    "line": 8082,
+    "line": 8079,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_viability"
@@ -58617,7 +58617,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "viability_negative_wells",
-    "line": 7414,
+    "line": 7411,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_well_roles"
@@ -58637,7 +58637,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "viability_plate_map",
-    "line": 8149,
+    "line": 8146,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_viability"
@@ -58646,7 +58646,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "viability_plate_map",
-    "line": 10005,
+    "line": 10002,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -58655,7 +58655,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "viability_plate_map",
-    "line": 10008,
+    "line": 10005,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_plate_barcode_step"
@@ -58675,7 +58675,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "viability_positive_wells",
-    "line": 7415,
+    "line": 7412,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_well_roles"
@@ -58695,7 +58695,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "viability_thresholds",
-    "line": 8086,
+    "line": 8083,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_classify_viability"
@@ -58715,7 +58715,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "voxel_size_xy_um",
-    "line": 507,
+    "line": 504,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "resolve_measurement_spacing"
@@ -58724,7 +58724,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "voxel_size_xy_um",
-    "line": 6786,
+    "line": 6783,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_field_wound"
@@ -58733,7 +58733,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "voxel_size_xy_um",
-    "line": 6789,
+    "line": 6786,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_field_wound"
@@ -58742,7 +58742,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "voxel_size_xy_um",
-    "line": 6973,
+    "line": 6970,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_closure_tables"
@@ -58751,7 +58751,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "voxel_size_xy_um",
-    "line": 6975,
+    "line": 6972,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_closure_tables"
@@ -58760,7 +58760,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "voxel_size_xy_um",
-    "line": 8304,
+    "line": 8301,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_export_vvvv_measured_field"
@@ -58888,7 +58888,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "voxel_size_z_um",
-    "line": 506,
+    "line": 503,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "resolve_measurement_spacing"
@@ -58964,7 +58964,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_folder",
-    "line": 8704,
+    "line": 8695,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -59080,7 +59080,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_pipeline",
-    "line": 8710,
+    "line": 8701,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -59471,7 +59471,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_channel",
-    "line": 6762,
+    "line": 6759,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_plane"
@@ -59662,7 +59662,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_closure",
-    "line": 9482,
+    "line": 9479,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -59671,7 +59671,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_closure",
-    "line": 9847,
+    "line": 9844,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "measure_crop"
@@ -59691,7 +59691,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_conditions",
-    "line": 6746,
+    "line": 6743,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_settings_check"
@@ -59700,7 +59700,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_conditions",
-    "line": 7027,
+    "line": 7024,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_run_wound_closure"
@@ -59720,7 +59720,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_hours_per_frame",
-    "line": 6942,
+    "line": 6939,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_closure_tables"
@@ -59740,7 +59740,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_source",
-    "line": 6725,
+    "line": 6722,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_settings_check"
@@ -59832,7 +59832,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_threshold",
-    "line": 6735,
+    "line": 6732,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_settings_check"
@@ -59841,7 +59841,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "wound_threshold",
-    "line": 6786,
+    "line": 6783,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_field_wound"
@@ -59850,7 +59850,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_threshold",
-    "line": 6790,
+    "line": 6787,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_field_wound"
@@ -59859,7 +59859,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "wound_threshold",
-    "line": 6973,
+    "line": 6970,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_closure_tables"
@@ -59868,7 +59868,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_threshold",
-    "line": 6977,
+    "line": 6974,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_closure_tables"
@@ -59960,7 +59960,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_window",
-    "line": 6788,
+    "line": 6785,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_measure_field_wound"
@@ -59969,7 +59969,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "wound_window",
-    "line": 6941,
+    "line": 6938,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "_wound_closure_tables"

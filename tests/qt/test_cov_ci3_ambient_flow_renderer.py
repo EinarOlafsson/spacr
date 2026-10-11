@@ -47,9 +47,15 @@ class _Program(_Resource):
         self.source = vertex_shader + fragment_shader
         self.members = {name: _Member() for name in
                         re.findall(r"uniform\s+\w+\s+(\w+)", self.source)}
+        self.attributes = set(re.findall(r"^\s*in\s+\w+\s+(\w+);",
+                                         vertex_shader, re.M))
+        self.attributes -= set(ctx.dropped)
 
     def __getitem__(self, name):
         return self.members[name]
+
+    def __contains__(self, name):
+        return name in self.members or name in self.attributes
 
 
 class _Buffer(_Resource):
@@ -143,6 +149,7 @@ class _Context:
         self.blend_func = None
         self.info = {"GL_MAX_TEXTURE_SIZE": 8192}
         self.context_released = False
+        self.dropped = ()
 
     def program(self, vertex_shader, fragment_shader):
         return _Program(self, vertex_shader, fragment_shader)
@@ -553,3 +560,17 @@ def test_close_releases_everything_once_and_survives_a_failing_release(renderer,
         assert name not in renderer.__dict__
     renderer._close()
     assert context.released.count(context) == 1
+
+
+def test_arrays_pad_attributes_the_linker_removed(renderer):
+    context = _ctx(renderer)
+    context.dropped = ("tint",)
+    program = renderer._shader("blobs")
+    assert "shape" in program and "tint" not in program
+    stream = renderer._stream("pad", np.zeros((1, 7), np.float32))
+    array = renderer._array(program, stream, "4f 3f/i", "shape", "tint")
+    assert array.content == [(stream, "4f 12x/i", "shape")]
+    assert renderer._array(program, stream, "4f 3f/i", "shape", "tint") is array
+    strips = renderer._shader("strips")
+    plain = renderer._array(strips, stream, "4f", "vertex")
+    assert plain.content == [(stream, "4f", "vertex")]

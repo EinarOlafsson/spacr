@@ -53,15 +53,19 @@ def _engine(theme, **kwargs):
 
 
 @pytest.mark.parametrize("theme,pixels,density,expected", [
-    ("blobs", 2073600, 1.0, None),
+    ("fractal", 2073600, 1.0, None),
+    ("blobs", 2073600, 1.0, True),
+    ("drift", 2073600, 1.0, False),
+    ("aurora", 8294400, 0.1, True),
     ("data_art_impulse_lens", 0, 1.0, None),
     ("data_art_impulse_lens", 2073600, 0.0, None),
     ("data_art_impulse_lens", 320 * 200, 1.0, False),
     ("data_art_impulse_lens", 2073600, 0.25, True),
-    ("data_art_impulse_lens", 8294400, 1.0, True),
+    ("data_art_impulse_lens", 8294400, 1.0, False),
     ("data_art_genetic_advection", 2073600, 0.1, False),
     ("data_art_genetic_advection", 8294400, 1.0, False),
-    ("data_art_point_atlas", 1920 * 1200, 0.9, True)])
+    ("data_art_point_atlas", 1920 * 1200, 0.9, False),
+    ("data_art_point_atlas", 3840 * 2400, 0.9, True)])
 def test_the_nearest_measured_row_decides(theme, pixels, density, expected):
     assert ambient._measured_graphics_win(theme, pixels, density) is expected
 
@@ -342,3 +346,104 @@ def test_no_policy_exists_before_qt(monkeypatch):
     monkeypatch.setattr(ambient.QApplication, "instance", staticmethod(lambda: None))
     assert ambient._animation_resource_policy() is None
     assert ambient._RESOURCE_POLICY is None
+
+
+@pytest.fixture
+def refusals(monkeypatch, caplog):
+    monkeypatch.setattr(ambient, "_GRAPHICS_REFUSALS_LOGGED", set())
+    caplog.set_level("WARNING", logger=ambient.LOG.name)
+    return caplog
+
+
+def _warnings(caplog):
+    return [record.getMessage() for record in caplog.records
+            if record.levelname == "WARNING"]
+
+
+def test_each_refusal_names_its_reason_and_is_logged_once(monkeypatch, refusals, qapp):
+    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_FlowPointGraphics", _Renderer)
+    engine = _engine("blobs")
+    engine._graphics_backend = "gpu"
+
+    def reason(width=320, height=200):
+        assert engine._graphics_renderer(width, height) is None
+        return engine._graphics_refusal
+
+    assert _on_producer(lambda: reason(3841, 2160)) == (
+        "canvas larger than 3840x2160 or big-endian host")
+    assert _on_producer(lambda: reason(3841, 2160)) == (
+        "canvas larger than 3840x2160 or big-endian host")
+    monkeypatch.setattr(ambient, "_decorative_gpu_blocked", lambda: True)
+    assert _on_producer(reason) == "Dynamic animation holds the GPU for analysis"
+    monkeypatch.setattr(ambient, "_decorative_gpu_blocked", lambda: False)
+    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: False)
+    assert _on_producer(reason) == "another process is computing on the GPU"
+    assert _warnings(refusals) == [
+        "blobs animation stays on the CPU: canvas larger than 3840x2160 or big-endian host",
+        "blobs animation stays on the CPU: Dynamic animation holds the GPU for analysis",
+        "blobs animation stays on the CPU: another process is computing on the GPU"]
+    engine._graphics_idle_until = 0.0
+    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
+
+    def accept_then_cpu():
+        made = engine._graphics_renderer(320, 200)
+        accepted = engine._graphics_refusal
+        engine._graphics_backend = "cpu"
+        assert engine._graphics_renderer(320, 200) is None
+        return made, accepted
+
+    renderer, accepted = _on_producer(accept_then_cpu)
+    assert isinstance(renderer, _Renderer) and accepted is None
+    assert renderer.closed and engine._graphics_refusal is None
+
+
+def test_automatic_choosing_the_cpu_is_recorded_but_not_logged(refusals, qapp):
+    engine = _engine("drift")
+    engine._graphics_backend = "auto"
+    assert _on_producer(lambda: engine._graphics_renderer(1920, 1080)) is None
+    assert engine._graphics_refusal == "automatic chose the CPU"
+    assert _warnings(refusals) == []
+
+
+def test_probe_constructor_and_draw_failures_say_what_failed(monkeypatch, refusals, qapp):
+    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: False)
+    probed = _engine("aurora")
+    probed._graphics_backend = "gpu"
+    assert _on_producer(lambda: probed._graphics_renderer(320, 200)) is None
+    assert probed._graphics_refusal == "no hardware OpenGL 4.3 context (probe failed)"
+    assert probed._graphics_failed
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+
+    def broken():
+        raise OSError("EGL_BAD_DISPLAY")
+
+    monkeypatch.setattr(ambient, "_FlowPointGraphics", broken)
+    built = _engine("aurora")
+    built._graphics_backend = "gpu"
+    assert _on_producer(lambda: built._graphics_renderer(320, 200)) is None
+    assert built._graphics_refusal == "context creation failed: OSError: EGL_BAD_DISPLAY"
+
+    class Failing(_Renderer):
+        def _draw_blobs(self, *args):
+            raise KeyError("x" * 1000)
+
+    monkeypatch.setattr(ambient, "_FlowPointGraphics", Failing)
+    drawn = _engine("blobs")
+    drawn._graphics_backend = "gpu"
+    assert _on_producer(lambda: drawn._graphics_frame("_draw_blobs", 320, 200)) is None
+    reason = drawn._graphics_refusal
+    assert reason.startswith("_draw_blobs failed in _draw_blobs line ")
+    assert ": KeyError: " in reason and len(reason) < 700
+    assert drawn._graphics_failed and drawn._point_graphics is None
+    assert len(_warnings(refusals)) == 3
+
+
+def test_aurora_now_follows_its_measured_rows_not_the_4k_fallback(qapp):
+    aurora = _engine("aurora", density=1.0)
+    assert aurora._graphics_unmeasured(3840, 2160) is True
+    assert aurora._graphics_unmeasured(1920, 1080) is False
+    assert aurora._graphics_automatic(1920, 1080) is True
+    assert ambient._measured_graphics_win("aurora", 1920 * 1080, 1.0) is True
