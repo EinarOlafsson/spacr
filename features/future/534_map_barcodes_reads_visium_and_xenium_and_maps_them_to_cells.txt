@@ -1,11 +1,16 @@
 MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES
 
-Status: BLOCKED 2026-10-11 (narrowed again, late) — only external data
+Status: ALPHA 2026-10-11 (redesigned by the maintainer into two
+        submodules; both built and run on real data). Spatial Mask
+        Generation (Mask Generation -> Spatial switch) and Spatial Map
+        Barcodes (Map Barcodes -> Spatial switch) are alpha behind Show
+        alpha features. Still open: a public infected-tissue Visium HD set
+        and paired H&E-IF sections (none found), GPU Cellpose runs of whole
+        slides on the workstation, tutorials (alpha: none by rule).
+
+Previous status (superseded 2026-10-11, redesign): BLOCKED 2026-10-11 (narrowed again, late) — only external data
         left: a public infected-tissue Visium HD set and paired H&E-IF
-        sections. The crop/window read, zarr-free tile reading and the
-        infection threshold are built (2026-10-11 READER GAPS FIXED note);
-        SpatialData stays out of the dependencies (decided 2026-10-11, see
-        that note). Built and alpha-gated.
+        sections.
 
 Previous status (superseded 2026-10-11, late): BLOCKED 2026-10-11
         (narrowed) — cell-level assignment now run on real infected Xenium
@@ -336,3 +341,140 @@ The feature remains alpha/partial overall.
     tests/qt/test_spatial_transcriptomics_alpha_gate.py.
     Status: still BLOCKED only for a public infected-tissue Visium HD set
     and paired H&E-IF sections.
+
+2026-10-11 — REDESIGN: SPATIAL MASK GENERATION + SPATIAL MAP BARCODES (CPU)
+    Maintainer, 2026-10-11 (verbatim): "if you cannot find a publicly
+    available dataset that is infected use a non infected xenium and visium
+    dataset. This should be divided into several sub modules. A sub module
+    to mask generation, and one for map barcodes. The mask gen one should
+    generate the masks from the whole slide (there will be lots of overlap
+    with the OPS submodule here I think, then measure should be able to
+    measure the output of that normally just like the ops sub module
+    output. The map barcodes sub module should be able to analyze all of
+    the barcode and transcriptome data and relate it to the same
+    coordinates as the images."
+    Worktree claude-f534b-20261011, commits 5c5c15961 (engines),
+    96b781812 (GUI), ba26fc094, 37af4f252 (+ artefacts/i18n, + this note).
+    DESIGN (reuses OPS; no new module):
+    - Settings: spacr/ops_settings.py register_spatial() registers
+      spatial_masks and spatial_map like OPS's register() (types,
+      tooltips, categories Spatial input / region & tiling / segmentation
+      / mapping / infection, descriptions). Keys are all spatial_*.
+    - Spatial Mask Generation, ops_engine.run_spatial_masks: the slide (or
+      spatial_window, um or px, at spatial_level) is tiled with
+      ops_compose.windows_over (spatial_tile_size 2048, overlap 160); each
+      window reads only its TIFF tiles/strips (_st_read_window, no zarr);
+      nuclei by Cellpose through OPS's _cellpose_model (cpsam; CPU unless
+      spatial_gpu) or an Otsu + watershed fallback; cells = nuclei grown
+      spatial_cell_expansion_um (5) with expand_labels; observations
+      sewn and numbered by ops_objects.objects_in_window / sew / number,
+      the OPS seam code (PlateObject now carries the kept window label).
+      Every object is kept from one window that saw it whole; each window
+      that keeps objects is written as a field in the Mask Generation
+      layout: stack/<plate>_A01_<n>.npy, masks/{cell,nucleus}_mask_stack,
+      merged/<stem>.npy = channels + cell + nucleus planes (uint16, local
+      labels 1..n, nucleus label = its cell's) and
+      merged/.spacr_plane_layout.json. spatial_fields (each field's
+      origin on the slide, level, scale to full resolution, um/px) and
+      spatial_objects (slide-wide id, prcfo, slide centroids) go to
+      <dst>/measurements/measurements.db; spatial_mask_report.json like
+      ops_report.json.
+    - NOTE on "like the OPS output": OPS itself writes no mask files
+      (ops_objects table only) and Measure has no OPS path today. So the
+      fields follow the normal Mask Generation / external-mask layout,
+      which Measure reads with NO special-casing (src = <dst>/merged; the
+      plane-layout file sets cell/nucleus_mask_dim).
+    - Spatial Map Barcodes, ops_engine.run_spatial_map: reads the whole
+      Xenium bundle (QV >= spatial_min_qv, controls dropped) or one
+      Visium HD bin size (2/8/16 um); puts every point in full-resolution
+      slide pixels (Xenium um / experiment.xenium pixel_size; Visium HD
+      pxl_col/row_in_fullres of the microscope image), then into each
+      field (/ scale - origin); counts transcripts by point-in-mask and
+      shares bins by covered fraction (_st_object_counts) into the planes
+      in spatial_objects (cell,nucleus). Objects are owned by one field,
+      so overlaps count nothing twice. Writes <object>_expression
+      (+ _expression_long for Xenium, _spot_coverage for Visium HD) keyed
+      by prcfo = <prcf>_o<label>, which is how io._read_and_join_tables
+      keys Measure's tables (Measure writes prcf + object_label, no
+      prcfo column; _st_measured composes it, which also fixes the
+      silent no-join in _st_run). Pathogen options kept:
+      spatial_pathogen_genes (CHIKV*), spatial_min_pathogen_transcripts;
+      infection csv, infected-vs-uninfected (Mann-Whitney, BH), distance
+      to the nearest infected cell over uninfected cells (Spearman),
+      region summary, optional .h5ad, overlay of the field with most
+      cells (save_figure). The analysis tail of _st_run is shared as
+      _st_analyse. Duplicate gene names get expr_<gene>_2.
+    - GUI: map_barcodes.PageFold generalises OPS's page fold (_OpsPage is
+      now a subclass). Mask Generation actions row: Spatial switch
+      (setObjectName MaskSpatialSwitch) beside OPS opens spatial_masks;
+      Map Barcodes: Spatial switch (MapBarcodesSpatialMapSwitch) opens
+      spatial_map. ALPHA_FEATURES[534]: widgets MapBarcodesSpatialToggle,
+      MapBarcodesSpatialCard, MaskSpatialSwitch,
+      MapBarcodesSpatialMapSwitch; apps spatial_masks, spatial_map.
+      bridge/cli/validate/chaining/iconset/settings_model registered as
+      for ops. The interactive single-image panel stays and points to
+      the switches.
+    DATA (CPU, /mnt/firecuda2/Claude/scratch/f534b):
+    - Xenium_V1_human_Lung_2fov (10x, XOA 2.0.0, FFPE human lung cancer,
+      trimmed 2 FOV; CC BY 4.0 per the 10x example-data page; "not meant
+      to be used to draw biological conclusions"),
+      https://cf.10xgenomics.com/samples/xenium/2.0.0/Xenium_V1_human_Lung_2fov/Xenium_V1_human_Lung_2fov_outs.zip
+      (278 MB): 289 genes, 825,885 transcripts, morphology_focus 5791 x
+      3553 px at 0.2125 um, 5 levels.
+    - Visium_HD_Mouse_Brain (10x, Space Ranger 3.0.0, FFPE, H&E; CC BY
+      4.0 per the dataset page),
+      .../spatial-exp/3.0.0/Visium_HD_Mouse_Brain/Visium_HD_Mouse_Brain_binned_outputs.tar.gz
+      (4.6 GB) and _tissue_image.tif (145 MB, RGB 18872 x 23947, one
+      level, JPEG strips, 0.2738 um/px): 19,059 genes; 6,296,688 /
+      393,543 / 98,917 in-tissue bins at 2 / 8 / 16 um.
+    - GSE300303 TR-2-24E (infected, CHIKV; GEO terms), the bundle of the
+      notes above (symlinks + experiment.xenium 0.2125 um).
+    REAL END-TO-END CHECKS (Cellpose cpsam on CPU, load ~80 from other
+    jobs, ~4 min per 448 px window; 4 windows each, 96 px overlap;
+    run_real.py / map_only.py / hd_check.py in scratch/f534b/scripts):
+    - Xenium lung, window 450,200,340,340 um at level 1 (800 x 800 px):
+      2,684 observations sewn into 2,086 cells, 0 unseen, 4 fields, 941 s.
+      Measure: cell 2,086 / nucleus 2,086 / cytoplasm 2,085 rows, 63 s.
+      Map (4 s): 132,574 transcripts in the fields, 99.5% counted into a
+      spaCR cell; 99.78% of the 130,945 transcripts Xenium itself
+      assigned to a cell land in a spaCR cell; 2,086 cell_expression rows,
+      all 2,086 join Measure's cell table. Overlay checked by eye.
+    - Visium HD brain, window 2601,3286,219,219 um at level 0 (800 px):
+      127 observations -> 88 cells, 5 objects no window saw whole
+      (dropped, reported), 857 s. Measure: 88 / 88 / 88. Map at 2 um
+      (188 s, 4.7 GB peak): 12,015 bins in the fields, 5,024 covering a
+      cell, 42.2% of 96,582 UMIs assigned; at 8 um 42.5%, at 16 um 39.0%;
+      88 rows, all join Measure. Registration check (2 um): Snhg11 (a
+      nuclear lncRNA) is 1.67x enriched in spaCR nuclei against all UMIs,
+      0.32x when the bins are shifted 40 px (11 um); myelin Mbp / Plp1 are
+      depleted in nuclei (0.66 / 0.62), moving towards 1 when shifted.
+    - GSE300303 CHIKV, window 2250,2300,340,340 um at level 1, Cellpose:
+      458 observations -> 355 cells, 879 s; Measure 355/355/355; map
+      (46 s, all 16,918,626 transcripts read): 118,271 in fields, 69.2%
+      in a cell, 91.8% of Xenium-assigned ones in a spaCR cell; CHIKV* at
+      >= 2: 10 infected / 345 (0 genes q<0.05, too few infected).
+      Same slide, 600 um window (2050,2100) with the threshold segmenter
+      (40 s, threshold 809 sampled at level 1): 899 cells, Measure 899,
+      898 with transcripts, all join; 84.6% of Xenium-assigned
+      transcripts in a spaCR cell; CHIKV* >= 2: 42 infected / 856;
+      207 of 405 host genes q<0.05, top Itgax, Atp6v0d2, Acp5 (the
+      macrophage/osteoclast programme of the earlier notes); distance
+      trend over uninfected cells: Aspn, Ccn3, Bgn fall towards infected
+      cells (rho -0.38 to -0.28). The threshold segmenter finds fewer
+      nuclei than Cellpose (899 vs ~1,340 in the earlier crop): use
+      Cellpose for numbers, the threshold for speed.
+    TESTS: tests/test_spatial_submodules.py (synthetic Xenium bundle with
+    a tiled 2-level OME pyramid and Visium HD outs with a striped RGB
+    TIFF, 10x .h5, tissue_positions.parquet, scalefactors: every nucleus
+    kept once and whole across seams, Measure on the fields, per-cell
+    counts and prcfo joins with Measure, infection by CHIKV* at 2, um<->px
+    through a level-1 field, scalefactors full<->hires, window + level,
+    Cellpose call through the OPS model, reruns replace only their slide,
+    blank windows skipped, moved bundle, refusals, duplicate genes);
+    tests/qt/test_spatial_submodules_alpha.py (18: switches, alpha gate,
+    pages, navigation, bridge). Coverage on the OPS + spatial cohort:
+    ops_engine 92.7%, ops_objects 99.3%, ops_settings 100%.
+    LEFT: GPU whole-slide runs (workstation, gpu_turn), a public infected
+    Visium HD set, paired H&E-IF; Measure's crop PNGs of whole slides
+    were not tried (save_png off in the checks).
+
