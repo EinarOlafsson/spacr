@@ -278,6 +278,10 @@ handles the queue.
     spinn (Spaceout, move the mouse over it); compare with Off, hide/show,
     resize, and start a Measure and a mask job (animation pauses / GPU
     released). Not offscreen-checkable.
+    Also carries N679's interactive acceptance (moved here 2026-10-10 when
+    N679 closed): with Animation GPU On, Automatic and Off, open and close
+    Preferences, hide/show and resize the window, and quit; spaCR must stay
+    responsive and fall back to the CPU frame without a change of theme.
 
 2026-10-10 — WORKSTATION ROUND 2 (b39cefeb6 and later; RTX 3090 Ti, NVIDIA EGL)
     Parity (tools/verify_animation_gpu_parity.py --images, gpu_turn.sh, CUDA
