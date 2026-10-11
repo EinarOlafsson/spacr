@@ -2578,7 +2578,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
       "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
-      "translation": "das Ereignis; auf die Typen Größenänderung, Fensterzustand, Ausblenden, Anzeigen, Verschieben und Bildschirmwechsel wird reagiert, und jedes Ereignis wird trotzdem an den Filter der Basisklasse weitergereicht."
+      "translation": "das Ereignis; auf die Typen Größenänderung, Fensterzustand, Ausblenden, Anzeigen, Verschieben und Bildschirmwechsel wird reagiert, und jedes Ereignis wird trotzdem an den Filter der Basisklasse weitergereicht.",
+      "retired": true,
+      "retired_reason": "2026-10-10: 38563d379 rewrote this block (the filter now returns False instead of calling the base class); kept verbatim as evidence, not loaded. Replaced by 2026-10-10-ambient-event-filter.json."
     },
     {
       "context": "the focus event; it is ignored and focus is cleared.",

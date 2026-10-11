@@ -45733,20 +45733,20 @@
     "spacr.measure.resolve_pool_size": {
       "source_blocks_sha256": [
         "62e113bfff12dc76616660cca42370ac48ae92cdfe812aeb50bf11b56ac01459",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "61a3173bbe09be9363fd055a7ae2eeae5261777221e2d9be0a276b148157f979",
         "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
         "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "b5d5d4edbacba7c5cd3a0a1922375c1303533f25e2f6d9bcc7591b6ebea8c259",
         "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
       ],
-      "source_sha256": "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80",
-      "text": "Retourne le nombre d'ouvriers pour un ensemble de champs d'images au microscope.\n\n``spawn`` et ``forkserver`` lancent un nouvel interprète pour chaque travailleur, de sorte que leur nombre de processus workers est plafonné au nombre de champs. ``fork`` conserve le nombre demandé pour la compatibilité.\n\n:param n_jobs: le nombre de processus workers résolus à partir de :func:`resolve_n_jobs`.\n:param n_files: combien de champs il y a à mesurer.\n:param start_method: nom de la méthode de démarrage à décider contre; par défaut à la valeur par défaut actuelle de l'interprète.\n:returns: un int >= 1.",
+      "source_sha256": "c942a2da5181529db69b3ce7c261474e1927a24f8487e7fe2f537d1579d506a9",
+      "text": "Renvoie le nombre de processus de travail pour un ensemble de champs d’image.\n\nLe nombre est plafonné au nombre de champs pour toute méthode de démarrage. ``spawn`` et ``forkserver`` démarrent un nouvel interpréteur pour chaque processus de travail, et les démarrages sont espacés de dix secondes ; un processus ``fork`` en surnombre retarde donc lui aussi l’exécution de dix secondes, puis n’a rien à faire.\n\n:param n_jobs: le nombre de processus de travail résolu par :func:`resolve_n_jobs`.\n:param n_files: le nombre de champs à mesurer.\n:param start_method: accepté pour les appelants existants ; toutes les méthodes de démarrage sont plafonnées de la même façon.\n:returns: un int >= 1.",
       "translation_source_blocks_sha256": [
         "c5c89bb7d81de8e64941801e129bb799dd734ce83d0cb5cff19ad01d58fa2015",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "c004c7505c312e13fef7104e09f5b4fac87c54a26685d70554d0d8ad6d14b55e",
         "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
         "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "b5d5d4edbacba7c5cd3a0a1922375c1303533f25e2f6d9bcc7591b6ebea8c259",
         "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
       ]
     },
@@ -121864,14 +121864,14 @@
       "source_blocks_sha256": [
         "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
         "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a"
+        "e04b3905fe70c05ac26ead6c52be89e8a2d4245423025f5d3ffbcb11680f9430"
       ],
-      "source_sha256": "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0",
-      "text": "Suivez la taille du parent; arrêtez lorsque la fenêtre est minimisée.\n\n:param obj: l’objet auquel l’événement est destiné — le parent (dont ce widget suit le redimensionnement) ou la fenêtre de premier niveau surveillée.\n:param event: l’événement ; les types redimensionnement, état de fenêtre, masquage, affichage, déplacement et changement d’écran sont pris en compte, et chaque événement est quand même transmis au filtre de la classe de base.",
+      "source_sha256": "4c1e8117b4be266e24df9ec5b50095ac8cd097506ea238e47b404147572ea24f",
+      "text": "Suivez la taille du parent; arrêtez lorsque la fenêtre est minimisée.\n\n:param obj: l’objet auquel l’événement est destiné — le parent (dont ce widget suit le redimensionnement) ou la fenêtre de premier niveau surveillée.\n:param event: l’événement ; les types redimensionnement, état de fenêtre, masquage, affichage, déplacement et changement d’écran sont pris en compte. Chaque événement est transmis sans filtrage : le filtre renvoie False au lieu d’appeler la classe de base, car, en tant que filtre à l’échelle de l’application, il peut recevoir un wrapper du mauvais type pour un objet en cours de suppression, ce qui faisait lever une exception à l’appel de la classe de base puis planter le processus.",
       "translation_source_blocks_sha256": [
         "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
         "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "aa373dc50f50759590c2b9b2fba34247c6f080c603e449278adeda2c2296238f"
+        "2f0f0ec78ba72e57493bf03841296670691d86107c0d1a9d47efe812862526b6"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.focusInEvent": {

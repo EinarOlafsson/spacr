@@ -3329,7 +3329,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
       "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
-      "translation": "事件；会处理调整大小、窗口状态、隐藏、显示、移动和屏幕变更类型的事件，并且每个事件仍会传递给基类过滤器。"
+      "translation": "事件；会处理调整大小、窗口状态、隐藏、显示、移动和屏幕变更类型的事件，并且每个事件仍会传递给基类过滤器。",
+      "retired": true,
+      "retired_reason": "2026-10-10: 38563d379 rewrote this block (the filter now returns False instead of calling the base class); kept verbatim as evidence, not loaded. Replaced by 2026-10-10-ambient-event-filter.json."
     },
     {
       "context": "the focus event; it is ignored and focus is cleared.",

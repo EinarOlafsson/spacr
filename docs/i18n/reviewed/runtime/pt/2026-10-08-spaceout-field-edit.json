@@ -146,9 +146,10 @@
       "source": "spaCR field phenomena",
       "source_sha256": "fe844ff61a5870e6d1803e5bbdcffafaf6af213fb9449b27249635b215a1587d",
       "table": "ui",
-      "translation": "Fenómenos do campo spaCR"
+      "translation": "Fenômenos do campo spaCR"
     }
   ],
   "review_scope": "AI technical review; no native-speaker signoff. Reviewed against exact final Home Spaceout-field/Edit source 0527ae6fa01a0b06544213169a706dfbac9b0f84, merged with existing worker queue controls. Eight field effects use physical field terminology; Undo and Redo act on the active editor.",
-  "schema": 1
+  "schema": 1,
+  "correction_2026_10_10": "'spaCR field phenomena' respelled Fenómenos -> Fenômenos: pt is standardised on Brazilian Portuguese (maintainer default via Home)."
 }

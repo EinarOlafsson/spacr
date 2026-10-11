@@ -45733,20 +45733,20 @@
     "spacr.measure.resolve_pool_size": {
       "source_blocks_sha256": [
         "62e113bfff12dc76616660cca42370ac48ae92cdfe812aeb50bf11b56ac01459",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "61a3173bbe09be9363fd055a7ae2eeae5261777221e2d9be0a276b148157f979",
         "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
         "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "b5d5d4edbacba7c5cd3a0a1922375c1303533f25e2f6d9bcc7591b6ebea8c259",
         "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
       ],
-      "source_sha256": "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80",
-      "text": "Returnera arbetaren räkna för en uppsättning mikroskop bildfält av vy.\n\n``spawn`` och ``forkserver`` starta en ny tolk för varje arbetstagare, så deras arbetstagares antal begränsas till antalet fält. ``fork`` håller den begärda räkningen för kompatibilitet.\n\n:param n_jobs: den uppsagda arbetstagarens antal från :func:`resolve_n_jobs`.\n:param n_files: Hur många fält det finns att mäta.\n:param start_method: Starta metodnamn att välja mot; standardvärden enligt tolkens nuvarande standard.\n:returns: en int >= 1.",
+      "source_sha256": "c942a2da5181529db69b3ce7c261474e1927a24f8487e7fe2f537d1579d506a9",
+      "text": "Returnerar antalet arbetsprocesser för en uppsättning bildfält.\n\nAntalet begränsas till antalet fält för varje startmetod. ``spawn`` och ``forkserver`` startar en ny tolk för varje arbetsprocess, och starterna sker med tio sekunders mellanrum, så en överskjutande ``fork``-process fördröjer också körningen med tio sekunder och har sedan inget att göra.\n\n:param n_jobs: det fastställda antalet arbetsprocesser från :func:`resolve_n_jobs`.\n:param n_files: hur många fält som ska mätas.\n:param start_method: accepteras för befintliga anropare; varje startmetod begränsas på samma sätt.\n:returns: ett int >= 1.",
       "translation_source_blocks_sha256": [
         "c5c89bb7d81de8e64941801e129bb799dd734ce83d0cb5cff19ad01d58fa2015",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "c004c7505c312e13fef7104e09f5b4fac87c54a26685d70554d0d8ad6d14b55e",
         "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
         "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "b5d5d4edbacba7c5cd3a0a1922375c1303533f25e2f6d9bcc7591b6ebea8c259",
         "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
       ]
     },
@@ -121864,14 +121864,14 @@
       "source_blocks_sha256": [
         "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
         "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a"
+        "e04b3905fe70c05ac26ead6c52be89e8a2d4245423025f5d3ffbcb11680f9430"
       ],
-      "source_sha256": "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0",
-      "text": "Följ förälderns storlek; pausa när fönstret är minimerat.\n\n:param obj: objektet som händelsen gäller — föräldern (vars storleksändring den här widgeten följer) eller det bevakade toppnivåfönstret.\n:param event: händelsen; typerna storleksändring, fönstertillstånd, dölj, visa, flytta och skärmbyte hanteras, och varje händelse skickas ändå vidare till basklassens filter.",
+      "source_sha256": "4c1e8117b4be266e24df9ec5b50095ac8cd097506ea238e47b404147572ea24f",
+      "text": "Följ förälderns storlek; pausa när fönstret är minimerat.\n\n:param obj: objektet som händelsen gäller — föräldern (vars storleksändring den här widgeten följer) eller det bevakade toppnivåfönstret.\n:param event: händelsen; typerna storleksändring, fönstertillstånd, dölj, visa, flytta och skärmbyte hanteras. Varje händelse skickas vidare ofiltrerad: filtret returnerar False i stället för att anropa basklassen, eftersom det som programövergripande filter kan få en omslutare av fel typ för ett objekt som håller på att tas bort, vilket fick basklassanropet att kasta ett undantag och sedan krascha processen.",
       "translation_source_blocks_sha256": [
         "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
         "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "aa373dc50f50759590c2b9b2fba34247c6f080c603e449278adeda2c2296238f"
+        "2f0f0ec78ba72e57493bf03841296670691d86107c0d1a9d47efe812862526b6"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.focusInEvent": {

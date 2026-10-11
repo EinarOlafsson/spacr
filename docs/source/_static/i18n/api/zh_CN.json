@@ -45734,20 +45734,20 @@
     "spacr.measure.resolve_pool_size": {
       "source_blocks_sha256": [
         "62e113bfff12dc76616660cca42370ac48ae92cdfe812aeb50bf11b56ac01459",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "61a3173bbe09be9363fd055a7ae2eeae5261777221e2d9be0a276b148157f979",
         "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
         "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "b5d5d4edbacba7c5cd3a0a1922375c1303533f25e2f6d9bcc7591b6ebea8c259",
         "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
       ],
-      "source_sha256": "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80",
-      "text": "返回工作进程计算为一组显微镜图像视野。\n\n``spawn``和``forkserver``为每个工作进程启动一个新鲜的翻译器,因此他们的工作进程数量被捕获到字段的数量。 ``fork`` 保持所需的兼容性计算。\n\n:param n_jobs: 解决的工作进程从 :func:`resolve_n_jobs` 计算。\n:param n_files: 有多少个字段要测量。\n:param start_method: 开始方法名称 决定反对; 错误到翻译者目前的错误。\n:returns: 一个 int >= 1。",
+      "source_sha256": "c942a2da5181529db69b3ce7c261474e1927a24f8487e7fe2f537d1579d506a9",
+      "text": "返回一组图像视野所用的工作进程数。\n\n对每种启动方式，该数目都以视野数为上限。``spawn`` 和 ``forkserver`` 会为每个工作进程启动一个新的解释器，且工作进程按十秒间隔依次启动，因此多余的 ``fork`` 工作进程同样会使运行推迟十秒，之后却无事可做。\n\n:param n_jobs: 由 :func:`resolve_n_jobs` 解析得到的工作进程数。\n:param n_files: 要测量的视野数。\n:param start_method: 为兼容现有调用方而保留；每种启动方式都按同样方式设上限。\n:returns: 一个 int >= 1。",
       "translation_source_blocks_sha256": [
         "c5c89bb7d81de8e64941801e129bb799dd734ce83d0cb5cff19ad01d58fa2015",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "c004c7505c312e13fef7104e09f5b4fac87c54a26685d70554d0d8ad6d14b55e",
         "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
         "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "b5d5d4edbacba7c5cd3a0a1922375c1303533f25e2f6d9bcc7591b6ebea8c259",
         "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
       ]
     },
@@ -121865,14 +121865,14 @@
       "source_blocks_sha256": [
         "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
         "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a"
+        "e04b3905fe70c05ac26ead6c52be89e8a2d4245423025f5d3ffbcb11680f9430"
       ],
-      "source_sha256": "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0",
-      "text": "跟随父母的尺寸;停车时,窗户被最小化。\n\n:param obj: 事件所针对的对象——父控件（此控件跟随其大小变化）或被监视的顶层窗口。\n:param event: 事件；会处理调整大小、窗口状态、隐藏、显示、移动和屏幕变更类型的事件，并且每个事件仍会传递给基类过滤器。",
+      "source_sha256": "4c1e8117b4be266e24df9ec5b50095ac8cd097506ea238e47b404147572ea24f",
+      "text": "跟随父母的尺寸;停车时,窗户被最小化。\n\n:param obj: 事件所针对的对象——父控件（此控件跟随其大小变化）或被监视的顶层窗口。\n:param event: 事件；会处理调整大小、窗口状态、隐藏、显示、移动和屏幕变更类型的事件。每个事件都不加过滤地继续传递：过滤器返回 False，而不是调用基类，因为作为应用程序级过滤器，它可能会为正在删除的对象收到类型错误的包装器，这曾导致基类调用抛出异常并使进程崩溃。",
       "translation_source_blocks_sha256": [
         "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
         "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "aa373dc50f50759590c2b9b2fba34247c6f080c603e449278adeda2c2296238f"
+        "2f0f0ec78ba72e57493bf03841296670691d86107c0d1a9d47efe812862526b6"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.focusInEvent": {

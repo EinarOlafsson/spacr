@@ -4394,7 +4394,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
       "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
-      "translation": "el evento; se actúa ante los tipos de redimensionado, cambio de estado de la ventana, ocultar, mostrar, mover y cambio de pantalla, y todo evento se sigue pasando al filtro de la clase base."
+      "translation": "el evento; se actúa ante los tipos de redimensionado, cambio de estado de la ventana, ocultar, mostrar, mover y cambio de pantalla, y todo evento se sigue pasando al filtro de la clase base.",
+      "retired": true,
+      "retired_reason": "2026-10-10: 38563d379 rewrote this block (the filter now returns False instead of calling the base class); kept verbatim as evidence, not loaded. Replaced by 2026-10-10-ambient-event-filter.json."
     },
     {
       "context": "the focus event; it is ignored and focus is cleared.",

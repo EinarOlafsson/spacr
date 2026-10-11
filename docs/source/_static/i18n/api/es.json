@@ -45733,20 +45733,20 @@
     "spacr.measure.resolve_pool_size": {
       "source_blocks_sha256": [
         "62e113bfff12dc76616660cca42370ac48ae92cdfe812aeb50bf11b56ac01459",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "61a3173bbe09be9363fd055a7ae2eeae5261777221e2d9be0a276b148157f979",
         "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
         "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "b5d5d4edbacba7c5cd3a0a1922375c1303533f25e2f6d9bcc7591b6ebea8c259",
         "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
       ],
-      "source_sha256": "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80",
-      "text": "Devuelve el conteo del trabajador para un conjunto de campos de visión de imágenes del microscopio.\n\n``spawn`` y ``forkserver`` iniciar un nuevo intérprete para cada trabajador, por lo que su cuenta de procesos de trabajo se limita al número de campos. ``fork`` mantiene la cuenta solicitada para la compatibilidad.\n\n:param n_jobs: el trabajador resuelto cuenta desde :func:`resolve_n_jobs`.\n:param n_files: cuántos campos hay que medir.\n:param start_method: nombre del método de inicio para decidir en contra; por defecto al predeterminado actual del intérprete.\n:returns: a int >= 1.",
+      "source_sha256": "c942a2da5181529db69b3ce7c261474e1927a24f8487e7fe2f537d1579d506a9",
+      "text": "Devuelve el número de procesos de trabajo para un conjunto de campos de imagen.\n\nEl número se limita al número de campos con cualquier método de inicio. ``spawn`` y ``forkserver`` inician un intérprete nuevo para cada proceso de trabajo, y los inicios se espacian diez segundos, de modo que un proceso ``fork`` sobrante también retrasa la ejecución diez segundos y después no tiene nada que hacer.\n\n:param n_jobs: el número de procesos de trabajo resuelto por :func:`resolve_n_jobs`.\n:param n_files: cuántos campos hay que medir.\n:param start_method: se acepta para los llamadores existentes; todos los métodos de inicio se limitan del mismo modo.\n:returns: un int >= 1.",
       "translation_source_blocks_sha256": [
         "c5c89bb7d81de8e64941801e129bb799dd734ce83d0cb5cff19ad01d58fa2015",
-        "6c16d3ad9478e44f00b5eedb7f981bbd8a723904c4fb3aec81a2badcb5aea5fa",
+        "c004c7505c312e13fef7104e09f5b4fac87c54a26685d70554d0d8ad6d14b55e",
         "558caadaa54cfdf5dc5dc2898344f7d9c23764092256763b0ad20e88f8bf09ab",
         "624c86f5df0e2589054be73fb6f5a4553a770357e9ece08358c16881522deccb",
-        "a753f921228a69da148ad270523b4f0dec26327944eb5c9f721185ed611def6d",
+        "b5d5d4edbacba7c5cd3a0a1922375c1303533f25e2f6d9bcc7591b6ebea8c259",
         "502a35b286bf90d5aca6214f2d66b22c8028ca6e8b6dcf2c65d7690c09ff667f"
       ]
     },
@@ -121864,14 +121864,14 @@
       "source_blocks_sha256": [
         "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
         "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a"
+        "e04b3905fe70c05ac26ead6c52be89e8a2d4245423025f5d3ffbcb11680f9430"
       ],
-      "source_sha256": "c4b056ace71256cd403111c94311c859d9c49f35393b7e9fdf0b4a1129ad87c0",
-      "text": "Siga el tamaño del padre; haga una pausa cuando la ventana se minimice.\n\n:param obj: el objeto al que va dirigido el evento — el padre (cuyo tamaño sigue este widget) o la ventana de nivel superior observada.\n:param event: el evento; se actúa ante los tipos de redimensionado, cambio de estado de la ventana, ocultar, mostrar, mover y cambio de pantalla, y todo evento se sigue pasando al filtro de la clase base.",
+      "source_sha256": "4c1e8117b4be266e24df9ec5b50095ac8cd097506ea238e47b404147572ea24f",
+      "text": "Siga el tamaño del padre; haga una pausa cuando la ventana se minimice.\n\n:param obj: el objeto al que va dirigido el evento — el padre (cuyo tamaño sigue este widget) o la ventana de nivel superior observada.\n:param event: el evento; se actúa ante los tipos de redimensionado, cambio de estado de la ventana, ocultar, mostrar, mover y cambio de pantalla. Todo evento se pasa sin filtrar: el filtro devuelve False en lugar de llamar a la clase base, porque, como filtro de toda la aplicación, puede recibir un envoltorio del tipo equivocado para un objeto que se está eliminando, lo que hacía que la llamada a la clase base lanzara una excepción y luego bloqueara el proceso.",
       "translation_source_blocks_sha256": [
         "30a5cedfdd602c452d5897bdbeabeb71453e7bf2a6e8e8ed334c4a4c668ce280",
         "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
-        "aa373dc50f50759590c2b9b2fba34247c6f080c603e449278adeda2c2296238f"
+        "2f0f0ec78ba72e57493bf03841296670691d86107c0d1a9d47efe812862526b6"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.focusInEvent": {

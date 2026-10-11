@@ -9899,7 +9899,7 @@ UI = {
     'spaCR did not close normally last time. Unsaved settings were kept for: {modules}. Restore them?': 'O spaCR não foi fechado normalmente da última vez. Configurações não salvas foram mantidas para: {modules}. Restaurá-las?',
     'spaCR features have different units — px², counts, ratios — so an unscaled PCA finds whichever column has the biggest numbers. Standardising makes the answer independent of the units.': 'spaCR características têm unidades diferentes px², contagens, proporções então uma  PCA não dimensionada encontra qualquer coluna tem os maiores números. Padronizar torna a resposta independente das unidades.',
     'spaCR field': 'spaCR field',
-    'spaCR field phenomena': 'Fenómenos do campo spaCR',
+    'spaCR field phenomena': 'Fenômenos do campo spaCR',
     'spaCR flowchart': 'Fluxograma do spaCR',
     'spaCR found no regex that puts every image in exactly one complete set. Assign channels by selection and try again, or use Detect sets.': 'O spaCR não encontrou nenhuma regex que coloque cada imagem em exatamente um conjunto completo. Atribua canais por seleção e tente de novo, ou use Detectar conjuntos.',
     'spaCR found no regex that puts every image in exactly one complete set. Drop the images into channel columns, or use Detect sets.': 'O spaCR não encontrou nenhuma regex que coloque cada imagem em exatamente um conjunto completo. Solte as imagens nas colunas de canal ou use Detectar conjuntos.',

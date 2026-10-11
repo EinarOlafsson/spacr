@@ -52,7 +52,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
       "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
-      "translation": "इवेंट; आकार-परिवर्तन, विंडो-स्थिति, छिपाना, दिखाना, खिसकाना और डिस्प्ले-परिवर्तन प्रकारों पर कार्रवाई की जाती है, और हर इवेंट फिर भी बेस-क्लास फ़िल्टर को आगे भेजा जाता है।"
+      "translation": "इवेंट; आकार-परिवर्तन, विंडो-स्थिति, छिपाना, दिखाना, खिसकाना और डिस्प्ले-परिवर्तन प्रकारों पर कार्रवाई की जाती है, और हर इवेंट फिर भी बेस-क्लास फ़िल्टर को आगे भेजा जाता है।",
+      "retired": true,
+      "retired_reason": "2026-10-10: 38563d379 rewrote this block (the filter now returns False instead of calling the base class); kept verbatim as evidence, not loaded. Replaced by 2026-10-10-ambient-event-filter.json."
     },
     {
       "context": "the focus event; it is ignored and focus is cleared.",
