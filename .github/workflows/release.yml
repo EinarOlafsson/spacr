@@ -108,7 +108,7 @@ jobs:
         run: |
           git config user.name "Einar Olafsson"
           git config user.email "einar.olafsson@gmail.com"
-          git add setup.py CITATION.cff spacr/_version.py
+          git add setup.py CITATION.cff spacr/_version.py README.rst docs/i18n/readme docs/source/installer_guide.rst packaging/apptainer/README.md
           if git diff --cached --quiet; then
             echo "Release metadata already declares $VERSION; continuing idempotently."
           else
