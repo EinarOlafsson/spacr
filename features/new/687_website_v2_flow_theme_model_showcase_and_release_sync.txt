@@ -368,7 +368,7 @@ build 2026-10-11T12:52:19Z.
   Starplast is released. The repository's dark and light gene-map screenshots
   (MIT) follow the page theme. Install covers pip and spaCR's Toxoplasma-page
   Starplast tile (alpha in spaCR). New i18n file
-  projects/starplast/i18n/en.json, 47 sp.* keys.
+  projects/starplast/i18n/en.json, 46 sp.* keys.
 - Background: spaCR field is now the default (stored choices still win).
   Advection stays inline as the fallback.
 - Overscroll bounce: a wheel at the top or bottom, a touch pull or a
