@@ -286,3 +286,51 @@ as a field; generate_training_dataset's .spacr_crop_format.json is counted as
 a sample; save_figure print mode recolours confusion-matrix numbers;
 train_test_model writes misclassified crops to test/missclassified/nc;
 perform_regression defaults now differ from the hit example's settings.
+
+
+2026-10-11 (round 4) — Maintainer feedback applied and deployed (site-src
+8499056, eb418bb, 105e8a3; deploy run 38113635558, live build
+2026-10-11T05:05:19Z). Earlier the same night: 6c56ac0 tightened the leak
+check (allow-list of two false positives plus a planted-word self-test).
+- Image and mask pictures: the Overview and Pipeline strips and the
+  recruitment-field strip now come from one whole public field: MTOC screen
+  plate 2, P08, field 16, from the cross-channel datasets (CC BY 4.0), with
+  Hoechst and CellMask. It was picked from 14 candidates. The published
+  cell, nucleus and vacuole masks are drawn as ~1 px anti-aliased outlines.
+  Measure (spacr.measure.measure_crop) and an XGBoost infection score
+  (spacr.ml.ml_analysis, host features only, trained on 51 other fields) ran
+  on CPU. No whole field of the GFP-TSG101 screen is public, so the Hit panel
+  is that screen's four-plate OLS volcano, and the captions say it is a
+  different screen.
+- Themes: every graph has a dark and a light WebP pair, switched with
+  <picture>: prefers-color-scheme without JS, the site's data-theme toggle
+  with JS. This covers overview, pipeline, recruitment field, UMAP,
+  classification, SHAP, importance, dose-response, control chart, plaque and
+  recruitment. The volcano SVG draws axes and text in the theme's text
+  colour. Preprint Fig. 5 cannot be rebuilt from public data (one score
+  column, no MaxViT scores), so it sits on a neutral white card. The GRA8
+  card is a dark microscopy crop and reads in both themes.
+- Classification: confusion matrices and ROC/PR are removed. Grad-CAM is
+  replaced by input-gradient saliency (spacr.attribution
+  AttributionMapGenerator, method saliency, SmoothGrad 32) over the crops.
+  Re-run on nightly 0e244094c, with row-F wells fixed: CNN test 405 cells,
+  4 wells, accuracy 0.909, AUC 0.958. XGBoost results did not change.
+- UMAP regenerated with spaCR from the public plate-1 measurements (60,816
+  cells, 5,000 sampled, 6 DBSCAN clusters). The old figure came from a slide
+  script on private data.
+- Recruitment recomputed with spaCR from the public plate measurements:
+  p = 8.6e-5 (the preprint reports 8.4e-5).
+- OLS volcano re-run on 0e244094c with the shipped hit settings: identical
+  results.
+- Backgrounds: aurora, spinn and fractals removed. Seven remain: advection,
+  field, field phenomena, waves, blobs, stratified, growth. They move on
+  their own about 1 s after load where WebGL is hardware-rendered (5-10 s
+  headless recordings: frames change for all seven). With software GL or a
+  first frame over 25 ms they start at the first interaction instead, which
+  keeps Lighthouse. Reduced motion keeps a still frame.
+- i18n: changed strings got new keys (suffix 2). Translations of removed
+  strings were pruned.
+Verified live: 91/91 site checks and 20/20 theme checks headless, including
+themed-picture switching; no horizontal scroll at 375 px; Lighthouse mobile
+home 100/100, spaCR 95/97/95 (performance, three runs; accessibility 100),
+spaCR/de 96/100, lock pages 100/100.
