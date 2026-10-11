@@ -138,6 +138,9 @@ class PlateObject:
         segmented from.
     :param n_observations: how many windows saw this nucleus. Greater than
         one means it sat in an overlap and the observations were sewn.
+    :param label: the kept observation's label in its window's label image,
+        so the object's pixels can be read back from that window. Not an
+        ``ops_objects`` column.
     """
 
     object_id: int
@@ -147,6 +150,7 @@ class PlateObject:
     bbox: Tuple[int, int, int, int]
     window: Tuple[int, int]
     n_observations: int = 1
+    label: int = 0
 
     def row(self) -> Dict[str, object]:
         """One ``ops_objects`` row."""
@@ -1007,7 +1011,8 @@ def number(groups: Sequence[Sequence[WindowObject]], *,
         PlateObject(object_id=index,
                     centroid_x=one.centroid_x, centroid_y=one.centroid_y,
                     area=one.area, bbox=one.bbox,
-                    window=one.window.offset(), n_observations=count)
+                    window=one.window.offset(), n_observations=count,
+                    label=one.label)
         for index, (one, count) in enumerate(chosen, start=1))
 
 
