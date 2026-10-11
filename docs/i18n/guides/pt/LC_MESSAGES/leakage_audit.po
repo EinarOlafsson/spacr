@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Train/test leakage audit"
 msgstr "Auditoria de vazamento entre treino e teste"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A held-out accuracy estimate overstates performance on independent data when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
-msgstr "A acurácia de um classificador não é válida quando recortes relacionados aparecem dos dois lados de um limite de avaliação. Antes do ajuste, o spaCR audita a divisão permanente ``train/``/``test/``, a reserva comum de treino/validação, cada limite externo e interno da validação cruzada e a partição da validação cruzada como um todo."
+msgstr "Uma estimativa de acurácia em dados reservados superestima o desempenho em dados independentes quando recortes relacionados aparecem dos dois lados de um limite de avaliação. Antes do ajuste, o spaCR audita a divisão permanente ``train/``/``test/``, a reserva comum de treino/validação, cada limite externo e interno da validação cruzada e a partição da validação cruzada como um todo."
 
 msgid "What is verified"
 msgstr "O que é verificado"
@@ -62,9 +62,9 @@ msgstr "A validação comum também leva os grupos em conta. ``cv_group_by='well
 msgid "Run the audit directly"
 msgstr "Executar a auditoria diretamente"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; their performance estimate is still not independent of the training data."
-msgstr "O comando imprime JSON e termina com ``0`` para uma divisão verificada, ``1`` quando são encontrados vazamentos ou identidades não verificáveis, e ``2`` quando o conjunto de dados não pode ser auditado. ``--no-content-hash`` reduz a E/S, mas não detecta cópias renomeadas. ``--allow-unverifiable`` se destina ao diagnóstico de conjuntos de dados antigos; não torna confiável sua estimativa de desempenho."
+msgstr "O comando imprime JSON e termina com ``0`` para uma divisão verificada, ``1`` quando são encontrados vazamentos ou identidades não verificáveis, e ``2`` quando o conjunto de dados não pode ser auditado. ``--no-content-hash`` reduz a E/S, mas não detecta cópias renomeadas. ``--allow-unverifiable`` se destina ao diagnóstico de conjuntos de dados antigos; a estimativa de desempenho deles continua não sendo independente dos dados de treinamento."
 
 msgid "Classify settings"
 msgstr "Configurações de Classificar"

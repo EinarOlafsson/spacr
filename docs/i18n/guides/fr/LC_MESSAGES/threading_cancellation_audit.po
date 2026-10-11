@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -49,7 +49,7 @@ msgstr "Exécution par lots vérifie entre les tâches. Tant qu’un processus e
 msgid "Stop first asks how to stop. **Finish current work** requests cancellation and waits for the current unit; if the run has not reached a boundary after five minutes, the question is asked again. The console reports ``Stopped safely`` when the boundary is reached, and the reproducibility manifest records ``status: cancelled`` rather than a failure traceback."
 msgstr "L’arrêt demande d’abord comment arrêter. **Finish current work** demande l’annulation et attend l’unité en cours ; si l’exécution n’a pas atteint de limite après cinq minutes, la question est posée à nouveau. La console affiche ``Stopped safely`` lorsque la limite est atteinte, et le manifeste de reproductibilité enregistre ``status: cancelled`` au lieu d’une trace d’échec."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Force stop** returns control to the window immediately. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
 msgstr "**Force stop** rend immédiatement la main à la fenêtre. Un worker qui ne répond pas -- typiquement un worker pris dans un long appel Cellpose ou PyTorch -- est mis de côté plutôt que terminé : ses références sont conservées et il se termine en arrière-plan, de sorte que ce qu’il est en train d’écrire peut rester à moitié écrit. **Force restart** enregistre le module et ses paramètres, puis redémarre spaCR et rouvre ce module."
 
@@ -65,9 +65,9 @@ msgstr "``PipelineWorker.finished`` appelle directement ``QThread.quit`` car cet
 msgid "API usage"
 msgstr "Utilisation de l’API"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Headless and plugin pipelines use the same API::"
-msgstr "Les pipelines sans interface graphique et les pipelines de plugins utilisent la même petite API ::"
+msgstr "Les pipelines sans interface graphique et les pipelines de plugins utilisent la même API ::"
 
 msgid "Calling ``checkpoint()`` outside a managed GUI worker is a no-op. Code that catches broad ``Exception`` values must re-raise :class:`spacr.cancellation.PipelineCancelled`; treating it as a failed field would defeat the worker's distinct cancellation status."
 msgstr "Appeler ``checkpoint()`` en dehors d’un worker GUI géré n’a aucun effet. Le code qui intercepte des valeurs ``Exception`` génériques doit relancer :class:`spacr.cancellation.PipelineCancelled` ; la traiter comme un champ en échec annulerait le statut d’annulation distinct du worker."
@@ -75,9 +75,9 @@ msgstr "Appeler ``checkpoint()`` en dehors d’un worker GUI géré n’a aucun 
 msgid "Stress coverage"
 msgstr "Couverture des tests de charge"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``tests/qt/test_threading_cancellation_audit.py`` exercises fifty rapid Start/Stop cycles, registry-wide shutdown, repeated cancellation, screen close while active, and refusal to destroy an unresponsive worker. ``tests/test_cancellation.py`` verifies thread isolation, idempotence, durability-before-cancel, resumable queues, and termination of an active batch subprocess."
-msgstr "``tests/qt/test_threading_cancellation_audit.py`` exerce cinquante cycles rapides Démarrer/Arrêter, l’arrêt à l’échelle du registre, l’annulation répétée, la fermeture d’un écran pendant une exécution et le refus de détruire un worker récalcitrant. ``tests/test_cancellation.py`` vérifie l’isolation des threads, l’idempotence, la durabilité avant annulation, les files d’attente reprenables et l’arrêt d’un sous-processus de lot actif."
+msgstr "``tests/qt/test_threading_cancellation_audit.py`` exerce cinquante cycles rapides Démarrer/Arrêter, l’arrêt à l’échelle du registre, l’annulation répétée, la fermeture d’un écran actif et le refus de détruire un worker qui ne répond pas. ``tests/test_cancellation.py`` vérifie l’isolation des threads, l’idempotence, la durabilité avant annulation, les files d’attente reprenables et l’arrêt d’un sous-processus de lot actif."
 
 msgid "Cooperative cancellation for long-running spaCR pipelines."
 msgstr "Annulation coopérative pour les pipelines spaCR de longue durée."

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "Förklara CV-modeller och undersöka träffar"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR provides three separate analyses that answer different questions:"
-msgstr ""
+msgstr "spaCR tillhandahåller tre separata analyser som besvarar olika frågor:"
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "aktiverings- eller ocklusionskartor visar **var** en bildmodell fäste uppmärksamheten;"
@@ -73,9 +74,9 @@ msgstr "Från huvudraden i **Regression** öppnar du **Träfflista**, väljer de
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "Ange mätdatabasen, den ursprungliga CSV-filen med prediktioner per objekt och CSV-filen med guidefraktioner per brunn. Kopplingar använder uttryckliga nycklar för objekt och för platta/rad/kolumn. Dubblerade objektnycklar eller dubblerade fraktioner för brunn/guide stoppar körningen."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "Den första utdatan är en ärlig granskningskö: celler i brunnar som innehåller målet, rangordnade i regressionens effektriktning, med brunnens fraktion av målguider visad bredvid. Den valfria attributionsmodellen sedan:"
+msgstr "Den första utdatan är en granskningskö: celler i brunnar som innehåller målet, rangordnade i regressionens effektriktning, med brunnens fraktion av målguider visad bredvid. Den valfria attributionsmodellen sedan:"
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "behandlar brunnar som påsar (bags) och celler som instanser;"

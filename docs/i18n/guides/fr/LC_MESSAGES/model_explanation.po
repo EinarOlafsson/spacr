@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "Expliquer les modèles CV et examiner les résultats positifs"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR provides three separate analyses that answer different questions:"
-msgstr ""
+msgstr "spaCR propose trois analyses distinctes qui répondent à des questions différentes :"
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "les cartes d’activation ou d’occlusion montrent **où** un modèle de vision a porté son attention ;"
@@ -73,9 +74,9 @@ msgstr "Depuis l’en-tête de **Régression**, ouvrez **Liste des résultats**,
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "Fournissez la base de données de mesures, le CSV d’origine des prédictions par objet et le CSV des fractions de guides par puits. Les jointures utilisent des clés explicites d’objet et de plaque/ligne/colonne. Des clés d’objet en double ou des fractions puits/guide en double arrêtent l’exécution."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "La première sortie est une file d’examen honnête : les cellules des puits contenant la cible, classées dans le sens de l’effet de la régression, avec la fraction du guide ciblant au niveau du puits affichée à côté. Le modèle d’attribution facultatif ensuite :"
+msgstr "La première sortie est une file d’examen : les cellules des puits contenant la cible, classées dans le sens de l’effet de la régression, avec la fraction du guide ciblant au niveau du puits affichée à côté. Le modèle d’attribution facultatif ensuite :"
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "traite les puits comme des sacs et les cellules comme des instances ;"

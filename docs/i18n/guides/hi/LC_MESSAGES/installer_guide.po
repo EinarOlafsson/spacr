@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -35,9 +35,9 @@ msgstr "जब आपको एप्लिकेशन लॉन्चर औ�
 msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and core dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
 msgstr "जब Conda से spaCR इंस्टॉल करना और उसके डेस्कटॉप तथा मुख्य निर्भरताओं को हल करना हो, तो आधिकारिक `conda-forge पैकेज <https://anaconda.org/conda-forge/spacr>`_ इस्तेमाल करें। जब spaCR मौजूदा Python वातावरण, नोटबुक, सर्वर या क्लस्टर में चाहिए, या conda पैकेज में न मिलने वाला PyPI अतिरिक्त घटक चाहिए, तो PyPI रिलीज़ के लिए ``pip`` इस्तेमाल करें। Python 3.12 अभी वैकल्पिक वैज्ञानिक पैकेजों का सबसे व्यापक विकल्प देता है।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use a :ref:`container image <container-images>` when spaCR cannot be installed directly on the host, such as a cluster node, a cloud instance or a shared machine you cannot change, or when an analysis must be rerun later with the same software versions. The images are for the CLI and the pipelines; running the desktop interface in a container is supported only on Linux and is described separately below. On a cluster without Docker, build the same image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a workstation that has no network access at all, use an :ref:`offline installer bundle <offline-bundle>`."
-msgstr "जब स्थापना ही समस्या हो तब :ref:`कंटेनर इमेज <container-images>` का उपयोग करें: कोई क्लस्टर नोड, क्लाउड इंस्टेंस, ऐसी साझा मशीन जिसे आप बदल नहीं सकते, या ऐसा विश्लेषण जिसे वर्षों बाद फिर से चलाया जा सके। इमेज CLI और पाइपलाइनों के लिए हैं; कंटेनर में डेस्कटॉप इंटरफ़ेस केवल-Linux अतिरिक्त सुविधा है और उसी रूप में प्रलेखित है। Docker रहित क्लस्टर पर वही इमेज :ref:`Apptainer या SingularityCE फ़ाइल <apptainer-images>` के रूप में बनाएँ। जिस वर्कस्टेशन के पास बिल्कुल नेटवर्क पहुँच नहीं है, उसके लिए :ref:`ऑफ़लाइन इंस्टॉलर बंडल <offline-bundle>` का उपयोग करें।"
+msgstr "जब spaCR को सीधे होस्ट पर स्थापित नहीं किया जा सकता, जैसे कोई क्लस्टर नोड, क्लाउड इंस्टेंस या ऐसी साझा मशीन जिसे आप बदल नहीं सकते, या जब किसी विश्लेषण को बाद में उन्हीं सॉफ़्टवेयर संस्करणों के साथ फिर से चलाना हो, तब :ref:`कंटेनर इमेज <container-images>` का उपयोग करें। इमेज CLI और पाइपलाइनों के लिए हैं; कंटेनर में डेस्कटॉप इंटरफ़ेस चलाना केवल Linux पर समर्थित है और नीचे अलग से वर्णित है। Docker रहित क्लस्टर पर वही इमेज :ref:`Apptainer या SingularityCE फ़ाइल <apptainer-images>` के रूप में बनाएँ। जिस वर्कस्टेशन के पास बिल्कुल नेटवर्क पहुँच नहीं है, उसके लिए :ref:`ऑफ़लाइन इंस्टॉलर बंडल <offline-bundle>` का उपयोग करें।"
 
 msgid "Desktop installers"
 msgstr "डेस्कटॉप इंस्टॉलर"
@@ -48,9 +48,9 @@ msgstr "वर्तमान इंस्टॉलर `spaCR README <https://gi
 msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation."
-msgstr "``SpaCR-<version>-Windows-Online-Setup.exe`` चलाएँ। डिफ़ॉल्ट प्रति-उपयोगकर्ता स्थान ``%LOCALAPPDATA%\\spaCR`` है और इसके लिए व्यवस्थापक पहुँच आवश्यक नहीं है। स्वचालित हार्डवेयर त्वरण डिफ़ॉल्ट रूप से चुना जाता है। यह संगत NVIDIA सिस्टम पर CUDA-सक्षम PyTorch बिल्ड स्थापित करता है और अन्यत्र सुरक्षित रूप से वैकल्पिक व्यवस्था अपनाता है। घटक को केवल तब हटाएँ जब आपको छोटी, केवल-CPU स्थापना चाहिए।"
+msgstr "``SpaCR-<version>-Windows-Online-Setup.exe`` चलाएँ। डिफ़ॉल्ट प्रति-उपयोगकर्ता स्थान ``%LOCALAPPDATA%\\spaCR`` है और इसके लिए व्यवस्थापक पहुँच आवश्यक नहीं है। स्वचालित हार्डवेयर त्वरण डिफ़ॉल्ट रूप से चुना जाता है। यह संगत NVIDIA सिस्टम पर CUDA-सक्षम PyTorch बिल्ड स्थापित करता है। अन्य सिस्टम पर यह वह PyTorch बिल्ड स्थापित करता है जिसे ``uv`` पहचाने गए हार्डवेयर के लिए चुनता है; कोई समर्थित GPU न मिलने पर यह CPU बिल्ड होता है। घटक को केवल तब हटाएँ जब आपको छोटी, केवल-CPU स्थापना चाहिए।"
 
 msgid "macOS 11 or later"
 msgstr "macOS 11 या बाद का संस्करण"
@@ -79,9 +79,9 @@ msgstr "नए संस्करण का इंस्टॉलर डाउ�
 msgid "Update channel and What's new"
 msgstr "अद्यतन चैनल और नया क्या है"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Preferences → Modules → Update channel** chooses what **Help → Check for updates** offers. *Stable releases* (the default) offers PyPI's latest release. *Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less; withdrawn (yanked) versions are never offered. After an update, the next launch opens **What's new in spaCR** with the release notes of every version between the previous and the running one: the notes bundled with the build, plus the published GitHub releases when **Release news** is on and GitHub can be reached. **Help → What's new…** reopens it at any time."
-msgstr "**प्राथमिकताएं → मॉड्यूल → अपडेट चैनल** तय करता है कि **सहायता → Check for updates** क्या पेश करता है। *स्थिर रिलीज़* (डिफ़ॉल्ट) PyPI की नवीनतम रिलीज़ पेश करता है। *नाइटली बिल्ड* प्री-रिलीज़ और डेवलपमेंट बिल्ड भी पेश करता है, जो जल्दी आते हैं और कम परखे होते हैं; वापस लिए गए (yanked) संस्करण कभी पेश नहीं किए जाते। अपडेट के बाद अगली शुरुआत **spaCR में नया क्या है** खोलती है, जिसमें पिछले और चल रहे संस्करण के बीच के हर संस्करण के रिलीज़ नोट्स होते हैं: बिल्ड के साथ आए नोट्स, और जब **रिलीज़ समाचार** चालू हो और नेटवर्क उत्तर दे तो प्रकाशित GitHub रिलीज़ भी। **सहायता → नया क्या है…** इसे कभी भी फिर से खोलता है।"
+msgstr "**प्राथमिकताएं → मॉड्यूल → अपडेट चैनल** तय करता है कि **सहायता → Check for updates** क्या पेश करता है। *स्थिर रिलीज़* (डिफ़ॉल्ट) PyPI की नवीनतम रिलीज़ पेश करता है। *नाइटली बिल्ड* प्री-रिलीज़ और डेवलपमेंट बिल्ड भी पेश करता है, जो जल्दी आते हैं और कम परखे होते हैं; वापस लिए गए (yanked) संस्करण कभी पेश नहीं किए जाते। अपडेट के बाद अगली शुरुआत **spaCR में नया क्या है** खोलती है, जिसमें पिछले और चल रहे संस्करण के बीच के हर संस्करण के रिलीज़ नोट्स होते हैं: बिल्ड के साथ आए नोट्स, और जब **रिलीज़ समाचार** चालू हो और GitHub तक पहुँचा जा सके तो प्रकाशित GitHub रिलीज़ भी। **सहायता → नया क्या है…** इसे कभी भी फिर से खोलता है।"
 
 msgid "Proxies and corporate certificates"
 msgstr "प्रॉक्सी और कॉर्पोरेट प्रमाणपत्र"
@@ -106,9 +106,9 @@ msgid "Older installations and full installers"
 msgstr "पुरानी स्थापनाएँ और पूर्ण इंस्टॉलर"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
-msgstr "पूर्ण इंस्टॉलर और इंस्टॉलर की अन्य अपडेट प्रक्रियाएँ पहले के इंस्टॉलर द्वारा स्थापित spaCR की प्रतियाँ खोजकर हटाती हैं, ताकि दो संस्करण साथ मौजूद न रहें जिनमें से एक खोज पथ पर हो। वे Windows की ऑनलाइन और ऑफलाइन स्थापनाएँ, macOS अनुप्रयोग और उसका प्रति-उपयोगकर्ता परिवेश, Linux ऑनलाइन स्थापना और Debian पैकेज खोजती हैं; साथ ही उनके लॉन्चर, शॉर्टकट, मेनू प्रविष्टियाँ और अनइंस्टॉल पंजीकरण भी। आपके स्वयं बनाए परिवेश और स्रोत चेकआउट सूची में दिखते हैं, लेकिन कभी हटाए नहीं जाते; आपके परियोजना फ़ोल्डर और परिणाम भी अछूते रहते हैं। यदि कोई प्रति हटाई नहीं जा सकती—जैसे ``/Applications`` में macOS अनुप्रयोग जिसे हटाने के लिए प्रशासक चाहिए—तो इंस्टॉलर उसका विवरण बताता है और कुछ स्थापित नहीं करता, ताकि अपडेट अधूरा न रहे।"
+msgstr "पूर्ण इंस्टॉलर और इंस्टॉलर की अन्य अपडेट प्रक्रियाएँ पहले के इंस्टॉलर द्वारा बनाई गई spaCR स्थापनाएँ खोजकर हटाती हैं, ताकि इंस्टॉलर द्वारा बनाई गई केवल एक प्रति बची रहे। वे Windows की ऑनलाइन और ऑफलाइन स्थापनाएँ, macOS अनुप्रयोग और उसका प्रति-उपयोगकर्ता परिवेश, Linux ऑनलाइन स्थापना और Debian पैकेज खोजती हैं; साथ ही उनके लॉन्चर, शॉर्टकट, मेनू प्रविष्टियाँ और अनइंस्टॉल पंजीकरण भी। आपके स्वयं बनाए परिवेश और स्रोत चेकआउट सूची में दिखते हैं, लेकिन कभी हटाए नहीं जाते, और आपके परियोजना फ़ोल्डर और परिणाम कभी छुए नहीं जाते। यदि कोई प्रति हटाई नहीं जा सकती -- जैसे ``/Applications`` में macOS अनुप्रयोग जिसके लिए प्रशासक चाहिए -- तो इंस्टॉलर उसका नाम बताता है और नया संस्करण स्थापित नहीं करता।"
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "कुछ भी बदले बिना यह देखने के लिए कि यह क्या खोजेगा, spaCR चेकआउट से खोजक चलाएँ: ``python spacr/install_cleanup.py find``।"
@@ -365,15 +365,16 @@ msgstr "इंटरैक्टिव ट्यूटोरियल परि�
 msgid "Container images"
 msgstr "कंटेनर इमेज"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
-msgstr "हर spaCR रिलीज़ के भाग के रूप में, उस संस्करण के PyPI पर पहुँचने के बाद, दो इमेज GitHub Container Registry पर प्रकाशित की जाती हैं। हर इमेज बनाई जाती है और पुश करने से पहले जाँची जाती है — उसे वह संस्करण बताना होगा जिसका उसका टैग दावा करता है, वह root के रूप में नहीं चलनी चाहिए, और उसे एक वास्तविक पाइपलाइन पूरी करनी होगी — इसलिए जो इमेज मौजूद है वह चल चुकी इमेज है। जाँच में विफल इमेज प्रकाशित नहीं होती, और उसे बनाने वाला रिलीज़ रन लाल (विफल) होता है।"
+msgstr "हर spaCR रिलीज़ के भाग के रूप में, उस संस्करण के PyPI पर पहुँचने के बाद, दो इमेज GitHub Container Registry पर प्रकाशित की जाती हैं। हर इमेज बनाई जाती है और पुश करने से पहले जाँची जाती है: उसे वह संस्करण बताना होगा जिसका उसका टैग दावा करता है, वह root के रूप में नहीं चलनी चाहिए, और उसे एक कृत्रिम (synthetic) फ़ील्ड पर एक पाइपलाइन रन पूरा करना होगा। जाँच में विफल इमेज प्रकाशित नहीं होती, और उसे बनाने वाला वर्कफ़्लो रन विफल हो जाता है।"
 
 msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every older spaCR release has a container image."
 msgstr "सार्वजनिक `GHCR पैकेज पेज <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ उपलब्ध संस्करण सूचीबद्ध करता है। नीचे की कमांड प्रकाशित **1.5.1.0** इमेज का उपयोग करती हैं; हर पुराने spaCR रिलीज़ की कंटेनर इमेज नहीं है।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The images run spaCR without a display: the CLI, the pipelines, cluster jobs and reruns of an earlier analysis with a pinned version. Use the platform installers above to install the desktop application."
-msgstr ""
+msgstr "इमेज spaCR को बिना डिस्प्ले के चलाती हैं: CLI, पाइपलाइन, क्लस्टर कार्य और किसी पहले के विश्लेषण को निश्चित संस्करण के साथ फिर से चलाना। डेस्कटॉप अनुप्रयोग स्थापित करने के लिए ऊपर दिए गए प्लेटफ़ॉर्म इंस्टॉलर का उपयोग करें।"
 
 msgid "Image"
 msgstr "छवि"
@@ -396,9 +397,9 @@ msgstr "CUDA 12.4। **होस्ट पर 550 या नया** NVIDIA ड�
 msgid "``:latest`` and ``:cpu`` follow the newest CPU release; ``:cuda`` and ``:cuda12.4`` follow the newest CUDA release. Name an exact version for anything you intend to reproduce."
 msgstr "``:latest`` और ``:cpu`` नवीनतम CPU रिलीज़ का अनुसरण करते हैं; ``:cuda`` और ``:cuda12.4`` नवीनतम CUDA रिलीज़ का अनुसरण करते हैं। जो कुछ भी आप दोहराना चाहते हैं उसके लिए सटीक संस्करण का नाम दें।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Models and data are mounted at run time; neither is included in the image. A cpsam checkpoint is about 1.2 GB and may be updated between releases, so the image ships none: mount a folder on ``/models`` and it becomes both the folder the Model Zoo downloads into and the folder Cellpose loads from. SAMCell and DINOCell are not in the images either, because they pin PyTorch versions that conflict with spaCR's and with each other; install one inside a running container, or let the Model Zoo install it into an isolated environment of its own."
-msgstr "मॉडल और डेटा माउंट किए जाते हैं, कभी इमेज में शामिल नहीं किए जाते। cpsam चेकपॉइंट लगभग 1.2 GB का होता है और रिलीज़ के बीच पुराना हो जाता है, इसलिए इमेज में कोई नहीं होता: ``/models`` पर एक फ़ोल्डर माउंट करें और वह मॉडल संग्रह के डाउनलोड वाला फ़ोल्डर और Cellpose के लोड करने वाला फ़ोल्डर दोनों बन जाता है। SAMCell और DINOCell भी इमेज में नहीं हैं, क्योंकि वे ऐसे PyTorch संस्करण निश्चित करते हैं जो spaCR के संस्करण से और आपस में टकराते हैं; चल रहे कंटेनर के भीतर इनमें से एक स्थापित करें, या मॉडल संग्रह को उसे उसके अपने पृथक परिवेश में स्थापित करने दें।"
+msgstr "मॉडल और डेटा रन के समय माउंट किए जाते हैं; इनमें से कोई भी इमेज में शामिल नहीं है। cpsam चेकपॉइंट लगभग 1.2 GB का होता है और रिलीज़ के बीच अपडेट हो सकता है, इसलिए इमेज में कोई नहीं होता: ``/models`` पर एक फ़ोल्डर माउंट करें और वह मॉडल संग्रह के डाउनलोड वाला फ़ोल्डर और Cellpose के लोड करने वाला फ़ोल्डर दोनों बन जाता है। SAMCell और DINOCell भी इमेज में नहीं हैं, क्योंकि वे ऐसे PyTorch संस्करण निश्चित करते हैं जो spaCR के संस्करण से और आपस में टकराते हैं; चल रहे कंटेनर के भीतर इनमें से एक स्थापित करें, या मॉडल संग्रह को उसे उसके अपने पृथक परिवेश में स्थापित करने दें।"
 
 msgid "Install Docker and check the image"
 msgstr "Docker स्थापित करें और इमेज जाँचें"
@@ -433,9 +434,9 @@ msgstr "कंटेनर में डेस्कटॉप इंटरफ़
 msgid "**Linux only, and unsupported elsewhere.** The images carry the Qt runtime libraries, so a Linux host running X11 can pass its display socket in:"
 msgstr "**केवल Linux, और अन्यत्र असमर्थित।** इमेज में Qt रनटाइम लाइब्रेरी होती हैं, इसलिए X11 चलाने वाला Linux होस्ट अपना डिस्प्ले सॉकेट भीतर दे सकता है:"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist inside the container, and Qt prints a warning about it at every start; the image makes its own runtime directory under the container's cache folder instead."
-msgstr "होस्ट का ``XDG_RUNTIME_DIR`` भीतर न दें। वह पथ कंटेनर के भीतर मौजूद नहीं होता, और Qt हर प्रारंभ पर उसकी शिकायत करता है; इमेज इसके बजाय कंटेनर के कैश फ़ोल्डर के अंतर्गत अपनी रनटाइम निर्देशिका बनाती है।"
+msgstr "होस्ट का ``XDG_RUNTIME_DIR`` भीतर न दें। वह पथ कंटेनर के भीतर मौजूद नहीं होता, और Qt हर प्रारंभ पर उसके बारे में चेतावनी छापता है; इमेज इसके बजाय कंटेनर के कैश फ़ोल्डर के अंतर्गत अपनी रनटाइम निर्देशिका बनाती है।"
 
 msgid "A container rarely has a usable OpenGL context, so the animated backdrop may not draw. ``safespacr`` starts the same application with the backdrop and GL switched off, and is the right command when the window is slow or blank:"
 msgstr "कंटेनर में शायद ही कभी उपयोगी OpenGL संदर्भ होता है, इसलिए एनिमेटेड पृष्ठभूमि शायद न बने। ``safespacr`` उसी एप्लिकेशन को पृष्ठभूमि और GL बंद करके शुरू करता है, और जब विंडो धीमी या खाली हो तो यही सही कमांड है:"

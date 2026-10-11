@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -32,8 +32,9 @@ msgstr "安装 spaCR"
 msgid "Use the typed workflow configuration"
 msgstr "使用类型化的工作流程配置"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with ``run_mask`` and ``run_measure``. Typed fields cover the commonly set options; ``extra`` accepts any other setting and raises ``ValueError`` if it repeats a typed field."
-msgstr ""
+msgstr "顶层 API 提供 ``MaskConfig`` 和 ``MeasureConfig`` 以及 ``run_mask`` 和 ``run_measure``。类型化字段涵盖常用选项；``extra`` 接受任何其他设置，如果其中重复了某个类型化字段，则会引发 ``ValueError``。"
 
 msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
 msgstr "当需要为保存的设置文件生成完整字典时，请调用 ``mask.to_settings()``。它通过与图形界面相同的默认值进行展开。"
@@ -62,9 +63,9 @@ msgstr "测量模块会写入 ``measurements/measurements.db`` 和解析后的�
 msgid "Run the same contract from a shell"
 msgstr "在 shell 中执行相同的约定"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
-msgstr "无界面命令适合在调度器中使用，因为它会在导入沉重的流程依赖之前验证设置名称和值。"
+msgstr "无界面命令适合在调度器中使用，因为它会在导入 PyTorch、Cellpose 及其他流程依赖之前验证设置名称和值。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior."
@@ -77,9 +78,9 @@ msgstr "设置 CSV 文件中的布尔值不区分大小写。 ``TRUE`` 和 ``FAL
 msgid "Command-line overrides are applied after the file:"
 msgstr "命令行覆盖项在文件之后应用："
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Unknown settings and values that cannot be converted are refused; an unknown name is reported with the closest known setting when one exists. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
-msgstr "未知设置和无法转换的值会被拒绝，并给出建议。当问题出在环境而不是设置上时，请使用 ``spacr-doctor``。"
+msgstr "未知设置和无法转换的值会被拒绝；对于未知名称，如果存在最接近的已知设置，会一并报告。当问题出在环境而不是设置上时，请使用 ``spacr-doctor``。"
 
 msgid "Continue from notebooks"
 msgstr "从 notebook 继续"

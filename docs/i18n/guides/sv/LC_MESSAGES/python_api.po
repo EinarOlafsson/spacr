@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -32,8 +32,9 @@ msgstr "Installera spaCR"
 msgid "Use the typed workflow configuration"
 msgstr "Använd den typade arbetsflödeskonfigurationen"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with ``run_mask`` and ``run_measure``. Typed fields cover the commonly set options; ``extra`` accepts any other setting and raises ``ValueError`` if it repeats a typed field."
-msgstr ""
+msgstr "API:t på toppnivå tillhandahåller ``MaskConfig`` och ``MeasureConfig`` med ``run_mask`` och ``run_measure``. Typade fält täcker de vanligast angivna alternativen; ``extra`` tar emot alla andra inställningar och utlöser ``ValueError`` om den upprepar ett typat fält."
 
 msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
 msgstr "Anropa ``mask.to_settings()`` när en fullständig ordlista behövs för en sparad inställningsfil. Den expanderas via samma standardvärden som GUI:t använder."
@@ -62,9 +63,9 @@ msgstr "Mätning skriver ``measurements/measurements.db`` och de upplösta inst�
 msgid "Run the same contract from a shell"
 msgstr "Kör samma kontrakt från ett skal"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
-msgstr "Kommandot utan grafiskt gränssnitt är användbart i en schemaläggare eftersom det validerar inställningarnas namn och värden innan den tunga pipelinestacken importeras."
+msgstr "Kommandot utan grafiskt gränssnitt passar en schemaläggare eftersom det validerar inställningarnas namn och värden innan PyTorch, Cellpose och pipelinens övriga beroenden importeras."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior."
@@ -77,9 +78,9 @@ msgstr "Booleska värden i CSV-filer med inställningar är skiftlägesokänslig
 msgid "Command-line overrides are applied after the file:"
 msgstr "Åsidosättningar på kommandoraden tillämpas efter filen:"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Unknown settings and values that cannot be converted are refused; an unknown name is reported with the closest known setting when one exists. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
-msgstr "Okända inställningar och värden som inte kan konverteras avvisas med ett förslag. Använd ``spacr-doctor`` när problemet är miljön snarare än en inställning."
+msgstr "Okända inställningar och värden som inte kan konverteras avvisas; ett okänt namn rapporteras tillsammans med den närmaste kända inställningen när en sådan finns. Använd ``spacr-doctor`` när problemet är miljön snarare än en inställning."
 
 msgid "Continue from notebooks"
 msgstr "Fortsätt från notebooks"

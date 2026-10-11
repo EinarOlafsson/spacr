@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -80,7 +80,7 @@ msgstr "``pathogen_channel_<channel>_periphery_mean``"
 msgid "For example, a channel 2 pathogen mean of 12 and cytoplasm mean of 4 produces ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. If channel 3 has means of 100 and 4, its separate column is ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Calculating channel 3 retains the channel 2 result. These are illustrative intensities, not experiment data."
 msgstr "Por ejemplo, una media del patógeno de 12 y una media del citoplasma de 4 en el canal 2 producen ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. Si el canal 3 tiene medias de 100 y 4, su columna separada es ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. El cálculo del canal 3 conserva el resultado del canal 2. Son intensidades ilustrativas, no datos experimentales."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The calculation produces fifteen auxiliary ratios per channel. It does not create constant-one pathogen/nucleus slope columns; these ratios do not estimate a spatial slope. Genuine slope columns already supplied by the caller are preserved. When comparing historical exports, check whether their auxiliary column names identify a channel before combining runs."
 msgstr "El cálculo produce quince proporciones auxiliares por canal. No crea columnas de pendiente patógeno/núcleo constantes e iguales a uno; estas proporciones no estiman una pendiente espacial. Las columnas de pendiente reales que ya proporcione quien llama se conservan. Al comparar exportaciones históricas, compruebe si los nombres de sus columnas auxiliares identifican un canal antes de combinar ejecuciones."
 

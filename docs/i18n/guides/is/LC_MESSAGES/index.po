@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -31,27 +31,28 @@ msgstr "Merki spaCR"
 msgid "**spaCR** — *Spatial phenotype analysis of CRISPR screens.*"
 msgstr "**spaCR** — *Rúmfræðileg svipgerðargreining á CRISPR-skimunum.*"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_"
-msgstr ""
+msgstr "Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_"
 
 msgid "You are reading the |docs-channel| documentation for spaCR |spacr-version|. The main site follows ``main``. The nightly preview follows ``nightly`` and may describe features not yet in a release. Each branch publishes its own API, guides and committed tutorial catalog automatically."
 msgstr "Þú ert að lesa |docs-channel|-skjölunina fyrir spaCR |spacr-version|. Aðalvefurinn fylgir ``main``. Næturforskoðunin fylgir ``nightly`` og getur lýst eiginleikum sem eru ekki enn í útgáfu. Hver grein birtir sjálfkrafa eigið API, leiðbeiningar og skráða kennsluskrá."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A Python toolkit for quantifying and visualising phenotypic changes in high-throughput microscopy screens. It provides a PySide6 desktop interface (``spacr``), headless pipeline functions (:mod:`spacr.core`), and a workflow from plate images to object classification built on PyTorch, Cellpose, scikit-image and SciPy."
-msgstr "Python-verkfærasafn til að magngreina og sjónræna svipgerðarbreytingar í smásjárskimunum með mikilli afkastagetu. Fylgir með nútímalegt PySide6-myndrænt viðmót (``spacr``), vinnslukeðja án myndræns viðmóts (:mod:`spacr.core`) og verkflæði frá plötu til flokkunar sem keyrir ofan á PyTorch, Cellpose, scikit-image og scipy."
+msgstr "Python-verkfærasafn til að magngreina og sjónræna svipgerðarbreytingar í smásjárskimunum með mikilli afkastagetu. Það býður upp á PySide6-skjáborðsviðmót (``spacr``), föll fyrir vinnslukeðjur án myndræns viðmóts (:mod:`spacr.core`) og verkflæði frá plötumyndum til flokkunar hluta sem byggir á PyTorch, Cellpose, scikit-image og SciPy."
 
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "Það er smíðað fyrir frumulíffræðinga sem keyra samsafns- eða raðaðar CRISPR-skimanir og þurfa mælingar á hverri frumu úr plötumyndum. Leiðin um myndræna viðmótið krefst engrar forritunar; sömu vinnsluskref eru tiltæk í gegnum Python API fyrir skriftuð og endurtakanleg verkflæði."
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline; *Data* for importing images and tables, feature embeddings, run comparison, experiment and power design, dose–response analysis and quality control; *Tools* for operations on an existing project — hand mask correction, stitching, image UMAP, gating and plotting; and *Organism* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "Myndræna viðmótið flokkar forrit sín í fjóra flokka: *Kjarni* fyrir vinnslukeðjuna hlutun-mæling-flokkun, *Gögn* til að koma myndum og töflum inn og keyra þær í stórum stíl, *Verkfæri* fyrir tækin sem þú beinir að verkefni — handvirka grímuleiðréttingu, saumun, innfellingar, hlið, myndrit og gæðaeftirlit — og *Lífvera* fyrir lífveruleiðbeiningarnar um Toxoplasma, sem telja upp tiltæk próf hennar; fyrirhugaðar greiningar eru merktar Væntanlegt. Böndin undir „Forrit og verkflæði“ hér að neðan eru þessir flokkar, í þessari röð, með reitunum sem hver þeirra geymir."
+msgstr "Myndræna viðmótið flokkar forrit sín í fjóra flokka: *Kjarni* fyrir vinnslukeðjuna hlutun-mæling-flokkun; *Gögn* fyrir innflutning mynda og taflna, innfellingar eiginleika, samanburð keyrslna, tilrauna- og afkastagetuhönnun, greiningu skammta–svörunar og gæðaeftirlit; *Verkfæri* fyrir aðgerðir á fyrirliggjandi verkefni — handvirka grímuleiðréttingu, saumun, mynda-UMAP, hliðun og myndrit; og *Lífvera* fyrir lífveruleiðbeiningarnar um Toxoplasma, sem telja upp tiltæk próf hennar; fyrirhugaðar greiningar eru merktar Væntanlegt. Böndin undir „Forrit og verkflæði“ hér að neðan eru þessir flokkar, í þessari röð, með reitunum sem hver þeirra geymir."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Not every screen is a tile. Screens used within another step open from that step's masthead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among others. Home shows only the tiles enabled in the running build."
-msgstr "Ekki er hver skjár reitur og þess vegna er enginn fjöldi þeirra prentaður hér. Vinna sem aðeins er skynsamleg innan annars skrefs opnast í staðinn úr haus þess skrefs — **Tímaraðir** úr Grímur, **Lýsing** og **Hreyfanleikapróf** úr Mæling, **Mat á flokkara** og **Skýra CV-líkan** úr Flokkun, **Samræmi merkjara** úr Merking, og **Cellpose-vinnuborð**, **Líkansamanburður**, **Líkanasafn** og **Grisja** úr Búa til grímur, meðal annarra — þannig að skjár sem hefur engan reit hér að neðan er einu skrefi innar frekar en horfinn. Heim sýnir allt sem keyrandi útgáfan býður upp á."
+msgstr "Ekki er hver skjár reitur. Skjáir sem eru notaðir innan annars skrefs opnast úr haus þess skrefs — meðal annars **Tímaraðir** úr Grímur, **Lýsing** og **Hreyfanleikapróf** úr Mæling, **Mat á flokkara** og **Skýra CV-líkan** úr Flokkun, **Samræmi merkjara** úr Merking, og **Cellpose-vinnuborð**, **Líkansamanburður**, **Líkanasafn** og **Grisja** úr Búa til grímur. Heim sýnir aðeins reitina sem eru virkjaðir í keyrandi útgáfu."
 
 msgid "🚀 Get started"
 msgstr "🚀 Hefjast handa"
@@ -179,11 +180,13 @@ msgstr "Opna API fyrir Gate Editor"
 msgid "Open the Graph Builder API"
 msgstr "Opna API fyrir Graph Builder"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Organism"
-msgstr ""
+msgstr "Lífvera"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Organism-specific image analysis and quantitative assay readouts."
-msgstr ""
+msgstr "Lífverusértæk myndgreining og megindlegar niðurstöður prófana."
 
 msgid "|DocModule_toxoplasma|"
 msgstr "|DocModule_toxoplasma|"

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -34,9 +34,9 @@ msgstr "没有任何分数能够证明 UMAP 包含具有生物学意义的结构
 msgid "``neighborhood_preservation``"
 msgstr "``neighborhood_preservation``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The geometric mean of trustworthiness and continuity. Trustworthiness penalizes neighbours invented by the two-dimensional embedding; continuity penalizes feature-space neighbours that the embedding places far apart. Because the geometric mean is low when either term is low, a high value requires both."
-msgstr "可信度（trustworthiness）与连续性（continuity）的几何平均数。可信度惩罚二维嵌入凭空产生的邻居；连续性惩罚被嵌入拆散的真实特征空间邻居。同时要求两者可以防止任何一种缺陷被掩盖。"
+msgstr "可信度（trustworthiness）与连续性（continuity）的几何平均数。可信度惩罚二维嵌入凭空产生的邻居；连续性惩罚被嵌入远远分开的特征空间邻居。由于任一项较低时几何平均数都会较低，因此只有两者都高才能得到高值。"
 
 msgid "``stability``"
 msgstr "``stability``"
@@ -47,9 +47,9 @@ msgstr "用不同可重复随机种子拟合的嵌入之间共享的最近邻平
 msgid "``cluster_structure``"
 msgstr "``cluster_structure``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows) and reports the highest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
-msgstr "在 0 到 1 标度上的正向轮廓（silhouette）结构。通过 Python API 提供标签时，由标签定义划分。否则 spaCR 会拟合 2 到 8 个簇的可重复 K-means 划分，并报告最强的轮廓值及所选的簇数。这是几何结构的证据，而不能证明某个簇具有生物学意义。"
+msgstr "截断到 0 到 1 范围内的轮廓（silhouette）系数，因此负值计为 0。通过 Python API 提供标签时，由标签定义划分。否则 spaCR 会拟合 2 到 8 个簇（最多比行数少一个）的带种子 K-means 划分，并报告最高的轮廓值及所选的簇数。这是几何结构的证据，而不能证明某个簇具有生物学意义。"
 
 msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
 msgstr "三个权重经过归一化，总和为 1。它们的加权几何平均数称为 ``multi_objective``，用于引导网格搜索或自适应搜索。与算术平均数相比，几何平均数对坍塌的目标惩罚更重。"
@@ -57,9 +57,9 @@ msgstr "三个权重经过归一化，总和为 1。它们的加权几何平均�
 msgid "Pareto front"
 msgstr "Pareto 前沿"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The composite score gives one ranking of the trials. spaCR also marks the Pareto front in the result table. A configuration is Pareto-optimal when no other tested configuration improves one objective without making another worse. Inspect the embedding panels and objective tooltips for every non-dominated row before propagating a configuration."
-msgstr "复合分数并不作为唯一答案呈现。spaCR 还会在结果表中标记 Pareto 前沿。如果没有其他已测试的配置能在不使另一个目标变差的情况下改进某一目标，则该配置为 Pareto 最优。在应用某个配置之前，请检查每个非支配行的嵌入面板和目标工具提示。"
+msgstr "复合分数给出试验的一种排序。spaCR 还会在结果表中标记 Pareto 前沿。如果没有其他已测试的配置能在不使另一个目标变差的情况下改进某一目标，则该配置为 Pareto 最优。在推广某个配置之前，请检查每个非支配行的嵌入面板和目标工具提示。"
 
 msgid "The neighborhood, stability and cluster objectives, normalized weights, repeat count, raw silhouette, cluster source and discovered cluster counts are stored in each trial's ``extra_metrics``."
 msgstr "邻域、稳定性和聚类目标、归一化权重、重复次数、原始轮廓值、簇来源以及发现的簇数都存储在每次试验的 ``extra_metrics`` 中。"

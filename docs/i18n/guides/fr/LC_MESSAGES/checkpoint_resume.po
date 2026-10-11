@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "Points de contrôle et reprise"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR ne crée un point de contrôle pour un long travail qu’après l’achèvement d’une unité sûre. Un point de contrôle ne signifie jamais interrompre une écriture en cours : il signifie qu’une invocation ultérieure peut prouver quels champs, essais ou tâches de plaque sont terminés et poursuivre après eux. Le bouton Qt **Arrêter** utilise les mêmes limites : il demande une annulation coopérative, laisse l’unité sûre en cours se terminer et conserve le point de contrôle pour l’exécution suivante. Voir :doc:`threading_cancellation_audit`."
+msgstr "spaCR n’écrit un point de contrôle qu’après l’achèvement d’une unité de travail complète (un champ, un essai ou une tâche de plaque) ; une écriture en cours n’est pas interrompue. Une invocation ultérieure lit le point de contrôle pour déterminer quelles unités sont terminées et poursuit après elles. Le bouton Qt **Arrêter** utilise les mêmes limites : il demande une annulation coopérative, laisse l’unité sûre en cours se terminer et conserve le point de contrôle pour l’exécution suivante. Voir :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Workflows pris en charge"
@@ -44,9 +44,9 @@ msgstr "Activez ``resume`` sous **Postprocessing → Exécution et fiabilité**.
 msgid "Format Converter"
 msgstr "Convertisseur de formats"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
-msgstr "Activez l’interrupteur **Reprendre** de style Apple. Le convertisseur écrit ``.spacr_conversion.checkpoint.json`` une fois qu’un champ entier est terminé. La reprise rouvre les métadonnées TIFF de chaque cible avant d’accepter le champ et répare de manière atomique une cible manquante ou corrompue. L’identité de la source et le plan de correspondance complet doivent concorder."
+msgstr "Activez l’interrupteur **Reprendre**. Le convertisseur écrit ``.spacr_conversion.checkpoint.json`` une fois qu’un champ entier est terminé. La reprise rouvre les métadonnées TIFF de chaque cible avant d’accepter le champ et répare de manière atomique une cible manquante ou corrompue. L’identité de la source et le plan de correspondance complet doivent concorder."
 
 msgid "Image UMAP search"
 msgstr "Recherche UMAP d’images"

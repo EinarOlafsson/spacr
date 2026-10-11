@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "Explicar modelos CV e investigar candidatos"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR provides three separate analyses that answer different questions:"
-msgstr ""
+msgstr "spaCR ofrece tres análisis independientes que responden a preguntas distintas:"
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "los mapas de activación u oclusión muestran **dónde** prestó atención un modelo de visión;"
@@ -73,9 +74,9 @@ msgstr "Desde la cabecera de **Regresión**, abra **Lista de candidatos**, selec
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "Proporcione la base de datos de mediciones, el CSV original de predicciones por objeto y el CSV de fracciones de guías por pocillo. Las uniones usan claves explícitas de objeto y de placa/fila/columna. Las claves de objeto duplicadas o las fracciones pocillo/guía duplicadas detienen la ejecución."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "La primera salida es una cola de revisión honesta: células de los pocillos que contienen la diana, ordenadas en la dirección del efecto de la regresión, con la fracción de la guía diana a nivel de pocillo mostrada al lado. Después, el modelo de atribución opcional:"
+msgstr "La primera salida es una cola de revisión: células de los pocillos que contienen la diana, ordenadas en la dirección del efecto de la regresión, con la fracción de la guía diana a nivel de pocillo mostrada al lado. Después, el modelo de atribución opcional:"
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "trata los pocillos como bolsas y las células como instancias;"

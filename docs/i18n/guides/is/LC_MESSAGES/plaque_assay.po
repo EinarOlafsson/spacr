@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -166,9 +166,9 @@ msgstr "Breyta vali á meðan forskoðun keyrir"
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "Ef uppruna, valinni mynd eða ham er breytt er fyrri forskoðun yfirgefin. Síðbúin niðurstaða hennar getur ekki komið í stað nývalinnar sýnar. Tóm upprunamappa hreinsar fyrri grímu, hlutasýnir og myndatöflur. Ræstu nýja forskoðun fyrir ætlað val eftir að það hleðst. Afturköllun hendir gömlu niðurstöðunni; núverandi kall í líkanið klárast áður en **Keyra forskoðun** og brunnastýringarnar verða aftur tiltækar. Bíddu eftir þeim stýringum áður en þú keyrir aftur með breyttum stillingum."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
-msgstr "Eftir að þú velur **Vista merkingar** skaltu bíða eftir staðfestingu á vistun í forskoðunarstöðunni áður en lotugreiningin hefst. Vistun fer fram í bakgrunni svo myndin haldist svörun; vistun í biðröð er ekki enn fullgerð ritun."
+msgstr "Eftir að þú velur **Vista merkingar** skaltu bíða eftir staðfestingu á vistun í forskoðunarstöðunni áður en lotugreiningin hefst. Vistun fer fram í bakgrunni svo glugginn haldist svörun; vistun í biðröð er ekki enn fullgerð ritun."
 
 msgid "Python preview contracts"
 msgstr "Forskoðunarsamningar í Python"

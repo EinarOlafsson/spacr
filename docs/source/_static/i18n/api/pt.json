@@ -23781,7 +23781,7 @@
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ],
       "source_sha256": "735c94dee3087069fed735729956f2ea70a492eec2edc37e8df3c2a870d9abe8",
-      "text": "O conjunto chamado ``key``.\n\n:param key: an :data:`EXAMPLE_SETS` key, such as ``import``, ``mask``, ``measure``, ``annotate``, ``dose``, ``control_chart`` or ``hit``.\n:raises KeyError: nomeando as chaves que existem. Um erro de digitação que retornou ``None`` baixaria nada e relataria o sucesso, que é o único resultado que um comando de download nunca deve produzir.",
+      "text": "O conjunto de exemplo chamado ``key``.\n\n:param key: uma chave de :data:`EXAMPLE_SETS`, como ``import``, ``mask``, ``measure``, ``annotate``, ``dose``, ``control_chart`` ou ``hit``.\n:raises KeyError: informando as chaves que existem. Um erro de digitação que retornasse ``None`` não baixaria nada e relataria sucesso, o único resultado que um comando de download nunca deve produzir.",
       "translation_source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
         "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
@@ -102662,7 +102662,7 @@
         "464d57a3da3361d33fd4674439be0fe00db73f523717124d141ca7710b15b3ac"
       ],
       "source_sha256": "d4b265a7548da016feae4c0200f6f2cac11757575ca8ce2fd6633a28846e00d0",
-      "text": "Controles de espaço de pesquisa, uma tabela de resultados ao vivo e um painel de pequenos múltiplos.\n\n:param app_key: Aplicação pesquisável: ``'umap'``,  ``'classify'``,``'classify_merged'``, -``'ml_analyze'`` ou ``'activation'``.\n:param parent: opcional Qt pai.\n:raises ValueError: Se ``app_key`` não tem definição de hiperparameter-search.\n:ivar search_finished: emitido com o :class:`SearchResult` quando uma varredura termina (incluindo uma parada, parcial).\nCrie os controles, a tabela e a visualização para ``app_key``.",
+      "text": "Controles de espaço de pesquisa, uma tabela de resultados ao vivo e um painel de pequenos múltiplos.\n\n:param app_key: Aplicação pesquisável: ``'umap'``,  ``'classify'``,``'classify_merged'``, -``'ml_analyze'`` ou ``'activation'``.\n:param parent: pai Qt opcional.\n:raises ValueError: Se ``app_key`` não tem definição de hiperparameter-search.\n:ivar search_finished: emitido com o :class:`SearchResult` quando uma varredura termina (incluindo uma parada, parcial).\nCrie os controles, a tabela e a visualização para ``app_key``.",
       "translation_source_blocks_sha256": [
         "91fb0ad2594de56f468780fb257786d252bf7ba1a25804014c5657ef4feb5800",
         "5149d236ac6584ebe3dcf7679cf4077146202f0e42b03e3cc4213bb112c84aa2",
@@ -137759,7 +137759,7 @@
         "eea1c9858fb6e387a52677db6e0a0f8bd8ec9c8849b5d6e701916e6b4dbaf800"
       ],
       "source_sha256": "8ad0f9de3a3b549d70f80fa3466f6875890d490ab28244db83d897c0186dd0c8",
-      "text": "Mapeamento de chave-valor pesquisável de cada medida spaCR escreve.\n\nConstruí-lo custa uma chamada :func:`spacr.feature_dict.search_features` e não toca em nenhum banco de dados, por isso é barato para incorporar e testável sem um ciclo de evento.\n\n:param parent: opcional Qt pai.\n:param column: Nome da coluna opcional para abrir.\nCrie o painel de mapeamento de chave-valor de recurso.\n\n:param parent: widget pai, ou ``None``.\n:param column: uma medida para abrir fixada a; ``None`` abre em todo o mapeamento chave-valor.",
+      "text": "Mapeamento de chave-valor pesquisável de cada medida spaCR escreve.\n\nConstruí-lo custa uma chamada :func:`spacr.feature_dict.search_features` e não toca em nenhum banco de dados, por isso é barato para incorporar e testável sem um ciclo de evento.\n\n:param parent: pai Qt opcional.\n:param column: Nome da coluna opcional para abrir.\nCrie o painel de mapeamento de chave-valor de recurso.\n\n:param parent: widget pai, ou ``None``.\n:param column: uma medida para abrir fixada a; ``None`` abre em todo o mapeamento chave-valor.",
       "translation_source_blocks_sha256": [
         "9bb8057cafb2daf7c861bd49ff867f976cfc849a307d7b1540e970245b0a2d19",
         "371473cab5ebae7961d56e96ac69d66dac67b89d62d6c2d3e0dd50f2210da2a9",
@@ -138849,18 +138849,20 @@
         "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
         "50843f63908d3c7c8e63b6b2d8339f8401aa061b29cdc73ecbc218d9d3bff455",
         "95e7c086280147c0bc31d6c6d7939b653728e8f666d9e31923ce6d5bef040007",
-        "395296bad60d9c4c3796b006d3402762efae64c1af573ce48e951e0c6c9ea864",
+        "9264ff67c628b2d7ba4f296939682977fbc6110572a5229150e8edcf4e0fb39e",
+        "f196866eac75a9892127040dc7456a694efdfb9aa4f7933c360eeaa08d17abce",
         "491975835f29fba8f37e15db8304a9fa9f8d564df7cc3f2bba88f45e970875cf",
         "46629a349877cd9e9c4291b28d51201e7266fcb43f4337e90cf4e79d216541a9",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a",
-      "text": "Figuras em uma grade de refluxo, preenchendo como uma pesquisa produz-los.\n\n:param parameters: os nomes dos parâmetros pesquisados, na ordem que decide os eixos. Pode ser definido mais tarde com :meth:`set_parameters`.\n:param parent: opcional Qt pai.\n:ivar cell_clicked: emitido com o índice de uma figura clicada.\nConstrua a grade que estabelece os números de uma pesquisa por parâmetro.\n\n:param parameters: os parâmetros da busca variaram, tornando-se as legendas da grade.\n:param parent: widget pai, ou ``None``.",
+      "source_sha256": "927b57e580b38fc95842596ee6f7148001ca5cc5e25d83182fabcb1adfe44a00",
+      "text": "Figuras em uma grade que se reorganiza e se preenche à medida que uma busca as produz.\n\n:param parameters: os nomes dos parâmetros pesquisados, na ordem que define os eixos. Pode ser definido depois com :meth:`set_parameters`.\n:param parent: pai Qt opcional.\n:ivar cell_clicked: emitido com o índice de uma figura clicada com o botão esquerdo.\n:ivar cell_menu_requested: emitido com o índice de uma figura clicada com o botão direito e a posição global do clique, para o menu da figura.\nConstrói a grade que organiza as figuras de uma busca por parâmetro.\n\n:param parameters: os parâmetros que a busca variou, que se tornam as legendas da grade.\n:param parent: widget pai, ou ``None``.",
       "translation_source_blocks_sha256": [
         "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
         "50843f63908d3c7c8e63b6b2d8339f8401aa061b29cdc73ecbc218d9d3bff455",
         "95e7c086280147c0bc31d6c6d7939b653728e8f666d9e31923ce6d5bef040007",
-        "395296bad60d9c4c3796b006d3402762efae64c1af573ce48e951e0c6c9ea864",
+        "9264ff67c628b2d7ba4f296939682977fbc6110572a5229150e8edcf4e0fb39e",
+        "f196866eac75a9892127040dc7456a694efdfb9aa4f7933c360eeaa08d17abce",
         "491975835f29fba8f37e15db8304a9fa9f8d564df7cc3f2bba88f45e970875cf",
         "46629a349877cd9e9c4291b28d51201e7266fcb43f4337e90cf4e79d216541a9",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
@@ -157733,7 +157735,7 @@
         "832feba1f5b08c47a7ab9640073ad512503c55fc44ff3f0627c4e15c579e46cc"
       ],
       "source_sha256": "489cf0a2b46933da128810c3566ccec2800d3d1312d7eb267888534a86e55bda",
-      "text": "Um único botão \"Load test data…\" para toda tela que lê um banco de dados de medições.\n\nO exemplo de Annotate (``einarolafsson/spacr-example-annotate``) é uma placa real: ``measurements/measurements.db`` com suas tabelas de células, citoplasma, núcleos e patógenos, e os 2,341 recortes em ``data/`` que ele indexa. Annotate e Classify já o baixam para a pasta compartilhada da placa de exemplo (:func:`spacr.example_archives.example_plate_folder`). Todas as outras telas que abrem um banco de dados de medições podem ser mostradas funcionando na mesma placa, então este módulo a baixa uma vez e a entrega para a tela que pediu.\n\nUM AUXILIAR, NÃO UMA CÓPIA POR TELA. A decisão entre cache e download, o estado de ocupado do botão e a mensagem de falha são os mesmos para Plate Viewer, Tabulate, Graph Builder e os demais; o que difere é apenas qual campo é preenchido e qual método o abre. Por isso a tela passa essa única diferença como callback e nada mais.\n\nO download é o existente. O arquivo, o trabalhador e a caixa de diálogo de progresso são :func:`spacr.qt.hf_download.download_annotate_example`, o mesmo botão Classify da chamada faz, e uma placa já desempacotada por qualquer um deles é reutilizada sem tocar na rede.\n\nThree public sets have buttons of their own, fetched through the example-set registry (:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose`` (LINCS Cell Painting, ``einarolafsson/spacr-example-dose``) for Dose-Response, Prediction Profiler, Run Compare, Run History and Training Runs, ``control_chart`` (CPJUMP1, ``einarolafsson/spacr-example-control-chart``) for Control Chart, and ``hit`` (a cut of the TSG101 screening experiment, ``einarolafsson/spacr-example-hit``) for Investigate Hit.",
+      "text": "Um único botão \"Load test data…\" para toda tela que lê um banco de dados de medições.\n\nO exemplo de Annotate (``einarolafsson/spacr-example-annotate``) é uma placa real: ``measurements/measurements.db`` com suas tabelas de células, citoplasma, núcleos e patógenos, e os 2,341 recortes em ``data/`` que ele indexa. Annotate e Classify já o baixam para a pasta compartilhada da placa de exemplo (:func:`spacr.example_archives.example_plate_folder`). Todas as outras telas que abrem um banco de dados de medições podem ser mostradas funcionando na mesma placa, então este módulo a baixa uma vez e a entrega para a tela que pediu.\n\nUM AUXILIAR, NÃO UMA CÓPIA POR TELA. A decisão entre cache e download, o estado de ocupado do botão e a mensagem de falha são os mesmos para Plate Viewer, Tabulate, Graph Builder e os demais; o que difere é apenas qual campo é preenchido e qual método o abre. Por isso a tela passa essa única diferença como callback e nada mais.\n\nO download é o existente. O arquivo, o trabalhador e a caixa de diálogo de progresso são :func:`spacr.qt.hf_download.download_annotate_example`, o mesmo botão Classify da chamada faz, e uma placa já desempacotada por qualquer um deles é reutilizada sem tocar na rede.\n\nTrês conjuntos públicos têm botões próprios, buscado através do registro de conjunto de exemplo (:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose`` (LINCS Cell Painting, ``einarolafsson/spacr-example-dose``) para a dose-resposta, Perfilador de previsão, Executar Comparar, Run History e Training Runs, ``control_chart`` (CPJUMP1, ``einarolafsson/spacr-example-control-chart``) para o gráfico de controle, e ``hit`` (um corte do experimento de triagem TSG101, ``einarolafsson/spacr-example-hit``) para Investigar Hit.",
       "translation_source_blocks_sha256": [
         "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
         "bf705997d039273e6200aa24bc3548efafcc18cffa68eb9128242c54129b9a51",
@@ -158062,7 +158064,7 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
       "source_sha256": "6cedb61c6f3f6529a27e6bae9fb87588e80e2b1632edf5489426e0480ddb17ed",
-      "text": "Uma grade editável de linhas de metadados de ingestão.\n\n:param rows: linhas iniciais de visualização (veja :mod:`spacr.qt.ingest_preview`).\n:param parent: opcional Qt pai.\nCrie a tabela de revisão de metadados.\n\n:param rows: os metadados extraídos para mostrar; ``None`` começa vazio.\n:param parent: widget pai, ou ``None``.",
+      "text": "Uma grade editável de linhas de metadados de ingestão.\n\n:param rows: linhas iniciais de visualização (veja :mod:`spacr.qt.ingest_preview`).\n:param parent: pai Qt opcional.\nCrie a tabela de revisão de metadados.\n\n:param rows: os metadados extraídos para mostrar; ``None`` começa vazio.\n:param parent: widget pai, ou ``None``.",
       "translation_source_blocks_sha256": [
         "3f48095342d2168be3e7f1cb0127346b6aa852b9b61b3042b44ee5ff0aaf9ba5",
         "f10757377f65790ae8732c2244eb15f9cce1867a48aebed208592ce81090db43",

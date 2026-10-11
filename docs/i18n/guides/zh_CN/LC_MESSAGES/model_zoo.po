@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -121,6 +121,18 @@ msgstr "第 6 轮的 556 个精选视野，加上一块新实验板的 80 个人
 msgid "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
 msgstr "在 IoU 0.5、11 个锚定孔上的 F1 为 0.854，原版 cpsam_v2 为 0.765；AJI 为 0.776，原版为 0.505"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``toxoplasma_pv_v5`` (Cellpose-SAM (cpsam_v2, Cellpose 4.0.9))"
+msgstr "``toxoplasma_pv_v5`` （Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "285 curated PV fields (lab fields and published-figure crops), 13,814 vacuoles; 202 train / 33 validation / 50 test grouped by acquisition and paper"
+msgstr "285 个经过整理的 PV 视野（实验室视野和已发表图片的裁剪图），13,814 个纳虫泡；按采集批次和论文分组划分为 202 个训练 / 33 个验证 / 50 个测试"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5"
+msgstr "在 50 个留出视野上，IoU 0.5 时 F1 为 0.792，而原版 cpsam_v2 为 0.559"
+
 msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``live_cell_v1`` （Cellpose-SAM (cpsam_v2)）"
 
@@ -157,22 +169,37 @@ msgstr "仅根据 HOECHST 通道预测的弓形虫纳虫泡掩膜；2567 个训�
 msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
 msgstr "在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.569，而原版 cpsam_v2 为 0.002"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
-msgstr "``toxoplasma_plaque_v1`` （Cellpose-SAM (cpsam)）"
+msgstr "``toxoplasma_plaque_v3`` （Cellpose-SAM (cpsam, Cellpose 4.0.9)）"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups"
-msgstr ""
+msgstr "496 个经过整理的空斑视野，包括 34 个经审核的空白阴性样本和 71 个 Gel Doc 孔；100 个训练轮次；固定的物理孔板/来源分组"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Stock was not evaluated in this run; see the named incumbent comparison on the model card"
-msgstr ""
+msgstr "本次运行未评估原版模型；请参阅模型卡中与指定现任模型的比较"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``toxoplasma_plaque_v4`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
+msgstr "``toxoplasma_plaque_v4`` （Cellpose-SAM (cpsam, Cellpose 4.0.9)）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "663 curated plaque fields from four domains (published-figure wells, Gel Doc wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 validation / 263 test"
+msgstr "来自四个领域（已发表图片中的孔、Gel Doc 孔、实验室孔板、分级的文献裁剪图）的 663 个经过整理的空斑视野，32,717 个空斑；335 个训练 / 65 个验证 / 263 个测试"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5"
+msgstr "在 263 个留出视野上，IoU 0.5 时 F1 为 0.813，而原版 cpsam 为 0.300"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_well_detector_v3`` (YOLO11n (fine-tuned from detector v3))"
-msgstr "``toxoplasma_well_detector_v1`` （YOLO11n）"
+msgstr "``toxoplasma_well_detector_v3`` （YOLO11n（由检测器 v3 微调））"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization"
-msgstr ""
+msgstr "452 张经审核的训练图像；124 张验证图像；按物理孔板和图片分组；150 个训练轮次；以 YOLO11n v3 初始化"
 
 msgid "Models are hosted on their author's own Hugging Face account, so contributing one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
 msgstr "模型托管在其作者自己的 Hugging Face 账户上，因此贡献模型并不意味着要把写入权限交给他人。``spacr.model_zoo`` 的 ``publish_model`` 负责上传，并输出需要添加的目录行。"
@@ -251,6 +278,10 @@ msgstr "**训练数据。** 结晶紫染色的弓形虫空斑实验，来自三�
 
 msgid "**Measured.** not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
 msgstr "**测量结果。** 未与原版模型对比评分；在 81 个留出视野上，它在文献数据上与第 3 轮持平（0.819 对 0.820），在手机相机拍摄的孔上比第 3 轮高 0.166（0.415 对 0.249）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "no longer the default: toxoplasma_plaque_v3 replaced it on 2026-10-10 (F1 0.844 against 0.799 on 263 held-out fields; this model scores 0.013 on Gel Doc wells); kept so recorded runs reproduce"
+msgstr "已不再是默认模型：toxoplasma_plaque_v3 于 2026-10-10 取代了它（在 263 个留出视野上 F1 为 0.844，而本模型为 0.799；本模型在 Gel Doc 孔上的得分为 0.013）；保留它是为了使已记录的运行可以复现"
 
 msgid "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 (round 3) for microscope-only work, where it scores 0.836 against this model's 0.808 on PFA-fixed wells and is far more precise; prefer this one for mixed or unknown sources"
 msgstr "它是对 toxoplasma_plaque_v1 的补充（COMPLEMENTS），而不是替代：仅使用显微镜的工作优先选择 v1（第 3 轮），它在 PFA 固定孔上得分 0.836，而本模型为 0.808，且精确得多；混合或未知来源优先选择本模型"
@@ -429,21 +460,25 @@ msgstr "**训练数据。** 弓形虫速殖子的寄生泡：第 6 轮的 DsRed 
 msgid "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
 msgstr "**实测结果。** 在 IoU 0.5、11 个锚定孔上的 F1 为 0.854，原版 cpsam_v2 为 0.765；AJI 为 0.776，原版为 0.505"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published scorecard"
-msgstr ""
+msgstr "已发布的评分卡"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Metric"
-msgstr ""
+msgstr "指标"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "This model"
-msgstr "模型"
+msgstr "本模型"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Stock"
-msgstr ""
+msgstr "原版"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Difference"
-msgstr ""
+msgstr "差值"
 
 msgid "f1"
 msgstr "f1"
@@ -457,8 +492,9 @@ msgstr "0.7648"
 msgid "0.0888"
 msgstr "0.0888"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "aji"
-msgstr ""
+msgstr "aji"
 
 msgid "0.7755"
 msgstr "0.7755"
@@ -469,8 +505,9 @@ msgstr "0.5050"
 msgid "0.2705"
 msgstr "0.2705"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "dice"
-msgstr ""
+msgstr "dice"
 
 msgid "0.8905"
 msgstr "0.8905"
@@ -481,8 +518,9 @@ msgstr "0.6431"
 msgid "0.2474"
 msgstr "0.2474"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "precision"
-msgstr ""
+msgstr "precision"
 
 msgid "0.8493"
 msgstr "0.8493"
@@ -493,8 +531,9 @@ msgstr "0.7539"
 msgid "0.0954"
 msgstr "0.0954"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "recall"
-msgstr ""
+msgstr "recall"
 
 msgid "0.8580"
 msgstr "0.8580"
@@ -505,8 +544,9 @@ msgstr "0.7760"
 msgid "0.0820"
 msgstr "0.0820"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "pixel_iou"
-msgstr ""
+msgstr "pixel_iou"
 
 msgid "0.8055"
 msgstr "0.8055"
@@ -517,8 +557,9 @@ msgstr "0.5239"
 msgid "0.2816"
 msgstr "0.2816"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "mAP"
-msgstr ""
+msgstr "mAP"
 
 msgid "0.4921"
 msgstr "0.4921"
@@ -529,11 +570,13 @@ msgstr "0.3620"
 msgid "0.1301"
 msgstr "0.1301"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Evaluation set: ``pv_r7_test``; version ``r7-published-truth``; 10 scored fields and 683 annotated objects."
-msgstr ""
+msgstr "评估集：``pv_r7_test``；版本 ``r7-published-truth``；10 个计分视野和 683 个已标注对象。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Scorecard metrics are means over nonempty fields, not pooled object counts; see aggregation.json."
-msgstr ""
+msgstr "评分卡指标是非空视野上的平均值，而不是合并的对象计数；参见 aggregation.json。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate"
@@ -556,13 +599,97 @@ msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://
 msgstr "发布于 `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_，名称为 ``cpsam_v2_toxo_r7``。"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published scorecard for Toxoplasma PV v4 (round 7)"
-msgstr "弓形虫 PV v4（第 7 轮）"
+msgstr "弓形虫 PV v4（第 7 轮）的已发布评分卡"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
 msgstr "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``。"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Toxoplasma PV v5 (round 8, alternative)"
+msgstr "弓形虫 PV v5（第 8 轮，替代模型）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Architecture.** Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)"
+msgstr "**架构。** Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Trained on.** Toxoplasma parasitophorous vacuoles from lab immunofluorescence and DsRed fields and published-figure crops. Round 8, cellpose 4.0.9, best of 100 epochs (epoch 20), base cpsam_v2"
+msgstr "**训练数据。** 来自实验室免疫荧光和 DsRed 视野以及已发表图片裁剪图的弓形虫纳虫泡。第 8 轮，cellpose 4.0.9，100 个训练轮次中的最佳轮次（第 20 轮），以 cpsam_v2 为基础"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5"
+msgstr "**测量结果。** 在 50 个留出视野上，IoU 0.5 时 F1 为 0.792，而原版 cpsam_v2 为 0.559"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.7921"
+msgstr "0.7921"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.5586"
+msgstr "0.5586"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.2335"
+msgstr "0.2335"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.7531"
+msgstr "0.7531"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.4635"
+msgstr "0.4635"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.2896"
+msgstr "0.2896"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.8354"
+msgstr "0.8354"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.7028"
+msgstr "0.7028"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.1326"
+msgstr "0.1326"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Evaluation set: ``retrain_20261009_pv_test``; version ``2026-10-09``; 50 scored fields and 3530 annotated objects."
+msgstr "评估集：``retrain_20261009_pv_test``；版本 ``2026-10-09``；50 个计分视野和 3530 个已标注对象。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "ALTERNATIVE, NOT BETTER: on the 15 test fields round 7 never saw it scores F1 0.536 against toxoplasma_pv_v4's 0.525 -- a tie; prefer toxoplasma_pv_v4"
+msgstr "替代模型，并非更优：在第 7 轮从未见过的 15 个测试视野上，其 F1 为 0.536，而 toxoplasma_pv_v4 为 0.525——两者持平；请优先使用 toxoplasma_pv_v4"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "35 of the 50 test fields were in round 7's training or validation set, so the all-field comparison (0.792 against 0.851) favours toxoplasma_pv_v4 and is not a fair test"
+msgstr "50 个测试视野中有 35 个属于第 7 轮的训练集或验证集，因此全视野比较（0.792 对 0.851）偏向 toxoplasma_pv_v4，并非公平的检验"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "weak on published-figure crops (F1 0.440 on 14 literature fields), as is every PV model"
+msgstr "在已发表图片的裁剪图上表现较弱（在 14 个文献视野上 F1 为 0.440），所有 PV 模型均是如此"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r8 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8>`_, as ``cpsam_v2_toxo_r8``."
+msgstr "发布于 `einarolafsson/toxoplasma-pv-segmentation-cpsam-r8 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8>`_，名称为 ``cpsam_v2_toxo_r8``。"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard for Toxoplasma PV v5 (round 8, alternative)"
+msgstr "弓形虫 PV v5（第 8 轮，替代模型）的已发布评分卡"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "SHA-256 ``a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c``."
+msgstr "SHA-256 ``a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c``。"
 
 msgid "Live cell v1 (phase, brightfield, DIC)"
 msgstr "活细胞 v1（相差、明场、DIC）"
@@ -660,25 +787,28 @@ msgstr "发布为 `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingf
 msgid "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
 msgstr "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``。"
 
-#, fuzzy
-msgid "Toxoplasma Plaque v3 (Gel Doc r5 candidate)"
-msgstr "Toxoplasma Plaque v2（第 5 轮）"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Toxoplasma Plaque v3 (Gel Doc r5, default)"
+msgstr "Toxoplasma Plaque v3（Gel Doc r5，默认）"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Architecture.** Cellpose-SAM (cpsam, Cellpose 4.0.9)"
-msgstr "**架构。** Cellpose-SAM (cpsam)"
+msgstr "**架构。** Cellpose-SAM (cpsam, Cellpose 4.0.9)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Trained on.** 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups"
-msgstr ""
+msgstr "**训练数据。** 496 个经过整理的空斑视野，包括 34 个经审核的空白阴性样本和 71 个 Gel Doc 孔；100 个训练轮次；固定的物理孔板/来源分组"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Measured.** Stock was not evaluated in this run; see the named incumbent comparison on the model card."
-msgstr ""
+msgstr "**测量结果。** 本次运行未评估原版模型；请参阅模型卡中与指定现任模型的比较。"
 
 msgid "0.6419"
 msgstr "0.6419"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "not measured"
-msgstr ""
+msgstr "未测量"
 
 msgid "0.6943"
 msgstr "0.6943"
@@ -686,74 +816,174 @@ msgstr "0.6943"
 msgid "0.5968"
 msgstr "0.5968"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "ap"
-msgstr ""
+msgstr "ap"
 
 msgid "0.4726"
 msgstr "0.4726"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "true_positives"
-msgstr ""
+msgstr "true_positives"
 
 msgid "302"
 msgstr "302"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "false_positives"
-msgstr ""
+msgstr "false_positives"
 
 msgid "133"
 msgstr "133"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "false_negatives"
-msgstr ""
+msgstr "false_negatives"
 
 msgid "204"
 msgstr "204"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Evaluation set: ``geldoc_heldout_min_size_0``; version ``20261007T205603``; 18 scored fields and 506 annotated objects."
-msgstr ""
+msgstr "评估集：``geldoc_heldout_min_size_0``；版本 ``20261007T205603``；18 个计分视野和 506 个已标注对象。"
 
-msgid "Candidate, not promoted; independent literature uncertainty gate did not pass."
-msgstr ""
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The default plaque model since 2026-10-10: on 263 held-out fields F1 0.844 against toxoplasma_plaque_v2 0.799, and 0.913 against 0.013 on Gel Doc wells, with the Plaque assay's own eval (features/data/model_compare_2026-10-10)."
+msgstr "自 2026-10-10 起为默认空斑模型：使用空斑实验分析自身的评估（features/data/model_compare_2026-10-10），在 263 个留出视野上 F1 为 0.844，而 toxoplasma_plaque_v2 为 0.799；在 Gel Doc 孔上为 0.913，而后者为 0.013。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Its own release gate on independent literature crops did not pass at the time (literature F1 about 0.54 for every model)."
+msgstr "当时，它在独立文献裁剪图上的自身发布门槛未能通过（所有模型的文献 F1 均约为 0.54）。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Gel Doc score requires min_size=0; min_size=150 gives F1 0.1041."
-msgstr ""
+msgstr "Gel Doc 得分要求 min_size=0；min_size=150 时 F1 为 0.1041。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Stock not measured; comparison baseline is incumbent r3."
-msgstr ""
+msgstr "未测量原版模型；比较基线为现任模型 r3。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2."
-msgstr ""
+msgstr "不同于已注册为 toxoplasma_plaque_v2 的 cpsam_v2 第 5 轮模型。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc>`_, as ``cpsam_plaque_r5_geldoc``."
-msgstr "发布为 `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_，名称为 ``cpsam_plaque_r5``。"
+msgstr "发布为 `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc>`_，名称为 ``cpsam_plaque_r5_geldoc``。"
 
-msgid "Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5 candidate)"
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, default)"
+msgstr "Toxoplasma Plaque v3（Gel Doc r5，默认）的已发布评分卡"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c``."
-msgstr ""
+msgstr "SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c``。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Toxoplasma Plaque v4 (round 6, alternative)"
+msgstr "Toxoplasma Plaque v4（第 6 轮，替代模型）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Trained on.** Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates and staged literature crops; round 6, best of 180 epochs (epoch 130), base cpsam"
+msgstr "**训练数据。** 来自已发表图片中的孔、Bio-Rad Gel Doc 孔、实验室孔板和分级文献裁剪图的弓形虫空斑；第 6 轮，180 个训练轮次中的最佳轮次（第 130 轮），以 cpsam 为基础"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5"
+msgstr "**测量结果。** 在 263 个留出视野上，IoU 0.5 时 F1 为 0.813，而原版 cpsam 为 0.300"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.8127"
+msgstr "0.8127"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.3003"
+msgstr "0.3003"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.5124"
+msgstr "0.5124"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.8232"
+msgstr "0.8232"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.2235"
+msgstr "0.2235"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.5997"
+msgstr "0.5997"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.8025"
+msgstr "0.8025"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.4576"
+msgstr "0.4576"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.3448"
+msgstr "0.3448"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Evaluation set: ``retrain_20261009_plaque_test``; version ``2026-10-09``; 263 scored fields and 12792 annotated objects."
+msgstr "评估集：``retrain_20261009_plaque_test``；版本 ``2026-10-09``；263 个计分视野和 12792 个已标注对象。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Alternative, not better: F1 0.813 against toxoplasma_plaque_v3 0.844 on the same held-out fields, lower on every source (Gel Doc 0.826 against 0.917)."
+msgstr "替代模型，并非更优：在相同的留出视野上 F1 为 0.813，而 toxoplasma_plaque_v3 为 0.844，在每个来源上都更低（Gel Doc 上为 0.826 对 0.917）。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Above the previous default toxoplasma_plaque_v2 overall (0.798) and on Gel Doc wells, where v2 scores 0.013."
+msgstr "总体上优于之前的默认模型 toxoplasma_plaque_v2（0.798），在 Gel Doc 孔上也是如此，v2 在该处的得分为 0.013。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Fine-tuned from first-generation cpsam, not cpsam_v2."
+msgstr "由第一代 cpsam 微调而来，而非 cpsam_v2。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published-figure literature crops stay hard (F1 0.535)."
+msgstr "已发表图片的文献裁剪图仍然很难（F1 为 0.535）。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6>`_, as ``cpsam_plaque_r6``."
+msgstr "发布为 `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6>`_，名称为 ``cpsam_plaque_r6``。"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard for Toxoplasma Plaque v4 (round 6, alternative)"
+msgstr "Toxoplasma Plaque v4（第 6 轮，替代模型）的已发布评分卡"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "SHA-256 ``00f4a86ba1502fd583231e54bc6538f595f67c86cd4f9ee5c415f6f788a0c171``."
+msgstr "SHA-256 ``00f4a86ba1502fd583231e54bc6538f595f67c86cd4f9ee5c415f6f788a0c171``。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)"
-msgstr "``toxoplasma_well_detector_v1`` （YOLO11n）"
+msgstr "Toxoplasma Well Detector v3（YOLO11 Gel Doc 候选模型）"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Architecture.** YOLO11n (fine-tuned from detector v3)"
-msgstr "**架构。** YOLO11n"
+msgstr "**架构。** YOLO11n（由检测器 v3 微调）"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Trained on.** 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization"
-msgstr ""
+msgstr "**训练数据。** 452 张经审核的训练图像；124 张验证图像；按物理孔板和图片分组；150 个训练轮次；以 YOLO11n v3 初始化"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "mAP50"
-msgstr ""
+msgstr "mAP50"
 
 msgid "0.9940"
 msgstr "0.9940"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "mAP50_95"
-msgstr ""
+msgstr "mAP50_95"
 
 msgid "0.8842"
 msgstr "0.8842"
@@ -764,29 +994,35 @@ msgstr "0.9698"
 msgid "0.9979"
 msgstr "0.9979"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Evaluation set: ``detector_v3_validation_figure_clean``; version ``20261007T205603``; 73 scored fields and 191 annotated objects."
-msgstr ""
+msgstr "评估集：``detector_v3_validation_figure_clean``；版本 ``20261007T205603``；73 个计分视野和 191 个已标注对象。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Candidate, not promoted: clean incumbent-validation mAP50-95 regresses."
-msgstr ""
+msgstr "候选模型，未被提升为默认：在干净的现任模型验证集上 mAP50-95 出现退步。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Gel Doc plates selected best.pt, so their scores are validation rather than independent test."
-msgstr "留出划分用于选择检查点，因此它属于验证数据，而不是独立的测试集"
+msgstr "Gel Doc 孔板用于选择 best.pt，因此其得分属于验证结果，而不是独立测试结果。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Distinct from the YOLO26 checkpoint also historically called detector v4."
-msgstr ""
+msgstr "不同于历史上同样被称为检测器 v4 的 YOLO26 检查点。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Locates wells, not plaques; one class plaque_well (0)."
-msgstr ""
+msgstr "定位孔而不是空斑；只有一个类别 plaque_well (0)。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc>`_, as ``yolo_welldetect_v4_geldoc.pt``."
-msgstr "发布为 `einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_，名称为 ``yolo_welldetect_v3.pt``。"
+msgstr "发布为 `einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc>`_，名称为 ``yolo_welldetect_v4_geldoc.pt``。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published scorecard for Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)"
-msgstr ""
+msgstr "Toxoplasma Well Detector v3（YOLO11 Gel Doc 候选模型）的已发布评分卡"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "SHA-256 ``046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18``."
-msgstr ""
+msgstr "SHA-256 ``046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18``。"
 

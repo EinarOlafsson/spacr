@@ -90,10 +90,15 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                                f"2026-09-21-{filename}.json").read_text())
         added = {record["source"] for record in document["records"]}
-        assert len(document["records"]) == len(added) == expected
+        # A record moved to retired_records (its English source changed) still
+        # counts toward the historical totals, but is no longer live review.
+        retired = {record["source"] for record in document.get("retired_records", [])
+                   if str(record.get("retired", "")).startswith("2026-10-10")}
+        assert len(document["records"]) + len(retired) == len(added | retired) == expected
         assert added <= reviewed.keys()
-        assert not added & sources
-        sources.update(added)
+        assert not retired & reviewed.keys()
+        assert not (added | retired) & sources
+        sources.update(added | retired)
     # Item463 replaced the unsegmented-example tooltip. Preserve the original
     # two-record evidence and prove that only the superseded tooltip retired.
     archive = json.loads((ROOT / "features/data/463_retired_runtime_review_2026-09-27" /
@@ -125,10 +130,15 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                                filename).read_text())
         added = {record["source"] for record in document["records"]}
-        assert len(document["records"]) == len(added) == expected
+        # A record moved to retired_records (its English source changed) still
+        # counts toward the historical totals, but is no longer live review.
+        retired = {record["source"] for record in document.get("retired_records", [])
+                   if str(record.get("retired", "")).startswith("2026-10-10")}
+        assert len(document["records"]) + len(retired) == len(added | retired) == expected
         assert added <= reviewed.keys()
-        assert not added & sources
-        sources.update(added)
+        assert not retired & reviewed.keys()
+        assert not (added | retired) & sources
+        sources.update(added | retired)
     assert len(sources) == (142 if language == "sv" else 141)
     overlay = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                           "2026-09-22-plaque-overlays.json").read_text())
@@ -246,8 +256,16 @@ def _requested_detection_retirements(language, filename):
     relative = f'docs/i18n/reviewed/runtime/{language}/{filename}'
     entries = [entry for entry in json.loads(receipt.read_text())
                if entry['file'] == relative]
+    # 2026-10-10: records whose English source changed when
+    # toxoplasma_plaque_v3 became the default are moved to retired_records with
+    # a dated reason; they count as retired here.
+    current_doc = json.loads((ROOT / relative).read_text())
+    later = [row for row in current_doc.get('retired_records', [])
+             if str(row.get('retired', '')).startswith('2026-10-10')]
+    later_sources = {row['source'] for row in later}
+    assert not later_sources & reviewed_runtime_translations(language).keys()
     if not entries:
-        return set()
+        return later_sources
     assert len(entries) == 1
     entry = entries[0]
     archived = originals / relative
@@ -258,12 +276,13 @@ def _requested_detection_retirements(language, filename):
     assert len(retired) == len(entry['keys'])
     assert all(hashlib.sha256(row['source'].encode()).hexdigest()
                == row['source_sha256'] for row in retired)
-    assert current['records'] == [row for row in original if row not in retired]
+    assert current['records'] == [row for row in original if row not in retired
+                                  and row['source'] not in later_sources]
     assert all(any(item.get('date') == '2026-10-07' and item.get('record') == row
                    for item in current.get('retired_records', [])) for row in retired)
     values = {row['source'] for row in retired}
     assert not values & reviewed_runtime_translations(language).keys()
-    return values
+    return values | later_sources
 
 
 def _theme_cohort_retirements(language, filename):
@@ -810,7 +829,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) == 625  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('sv', '2026-09-22-detection-panel.json')) == 1679  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('sv', '2026-09-22-detection-panel.json')) == 1678  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -1071,7 +1090,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) + len(base_retired) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) == 619  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) == 1672  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) == 1671  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "检查点与断点续跑"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR 仅在一个安全单元完成后才为长时间任务保存检查点。检查点绝不意味着在写入中途强行终止：它意味着之后的调用能够证明哪些视野、试验或孔板作业已经完成，并在其后继续。Qt 的 **停止** 按钮使用相同的边界：它请求协作式取消，让当前安全单元完成，并为下一次运行保留检查点。参见 :doc:`threading_cancellation_audit`。"
+msgstr "spaCR 仅在一个完整的工作单元（一个视野、一次试验或一个孔板作业）完成后才写入检查点；正在进行的写入不会被中断。之后的调用会读取检查点，以确定哪些单元已经完成，并在其后继续。Qt 的 **停止** 按钮使用相同的边界：它请求协作式取消，让当前安全单元完成，并为下一次运行保留检查点。参见 :doc:`threading_cancellation_audit`。"
 
 msgid "Supported workflows"
 msgstr "支持的工作流程"
@@ -44,9 +44,9 @@ msgstr "在 **Postprocessing → 运行与可靠性** 下启用 ``resume``。只
 msgid "Format Converter"
 msgstr "格式转换器"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
-msgstr "启用 Apple 风格的 **继续** 开关。转换器在整个视野完成后写入 ``.spacr_conversion.checkpoint.json``。继续运行时，会在接受视野之前重新打开每个目标的 TIFF 元数据，并以原子方式修复缺失或损坏的目标。源的标识和完整的映射计划必须一致。"
+msgstr "启用 **继续** 开关。转换器在整个视野完成后写入 ``.spacr_conversion.checkpoint.json``。继续运行时，会在接受视野之前重新打开每个目标的 TIFF 元数据，并以原子方式修复缺失或损坏的目标。源的标识和完整的映射计划必须一致。"
 
 msgid "Image UMAP search"
 msgstr "图像 UMAP 搜索"

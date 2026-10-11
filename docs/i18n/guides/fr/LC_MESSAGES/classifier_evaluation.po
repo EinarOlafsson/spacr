@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Classifier evaluation workbench"
 msgstr "Atelier d’évaluation des classifieurs"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
-msgstr "La validation croisée des classifieurs conserve chaque probabilité hors pli au lieu de réduire un pli à un seul chiffre d’exactitude. L’atelier n’a pas de tuile propre : il s’ouvre depuis l’en-tête de **Classification**, car juger un classifieur est l’étape qui suit son entraînement. Appuyez sur **Évaluation du classificateur** et déposez un dossier de modèle ou de résultats sur la page. L’analyse s’exécute en arrière-plan et trouve chaque ``evaluation_manifest.json`` sous ce dossier."
+msgstr "La validation croisée des classifieurs conserve chaque probabilité hors pli au lieu de réduire un pli à un seul chiffre d’exactitude. L’atelier n’a pas de tuile propre : il s’ouvre depuis l’en-tête de **Classification**. Appuyez-y sur **Évaluation du classificateur** et déposez un dossier de modèle ou de résultats sur la page. L’analyse s’exécute en arrière-plan et trouve chaque ``evaluation_manifest.json`` sous ce dossier."
 
 msgid "The workbench shows:"
 msgstr "L’atelier affiche :"
@@ -68,9 +68,9 @@ msgstr "Validation croisée groupée et imbriquée"
 msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
 msgstr "``cross_validation_folds`` contrôle les plis externes et ``cv_group_by`` garde ensemble les champs, puits ou plaques liés. La valeur par défaut est une validation croisée groupée par puits. Réglez ``nested_cv_inner_folds`` sur deux ou plus pour activer une véritable validation croisée imbriquée."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
-msgstr "En validation croisée ordinaire, le pli de validation externe sert à la sélection du point de contrôle et à la performance rapportée. C’est rapide et utile pour les comparaisons courantes, mais cela peut donner une estimation légèrement optimiste lorsque de nombreux choix sont faits sur ce pli."
+msgstr "En validation croisée ordinaire, le pli de validation externe sert à la sélection du point de contrôle et à la performance rapportée. Cela demande moins d’entraînements que la validation croisée imbriquée, mais l’estimation peut présenter un biais optimiste lorsque de nombreux choix sont faits sur ce pli."
 
 msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
 msgstr "En validation croisée imbriquée, chaque partition d’entraînement externe est à nouveau divisée. Les modèles ne sélectionnent les points de contrôle que sur un pli de validation interne ; le pli externe, intact, n’est utilisé qu’une fois pour l’évaluation finale. Les modèles internes forment un ensemble pour ce pli externe. Cela coûte ``cross_validation_folds * nested_cv_inner_folds`` entraînements, mais garde la sélection de modèle séparée de l’estimation de la performance."
@@ -78,9 +78,9 @@ msgstr "En validation croisée imbriquée, chaque partition d’entraînement ex
 msgid "Leakage protection"
 msgstr "Protection contre les fuites"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises ``LeakageError`` before model fitting; the message lists the overlap counts per level. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
-msgstr "Avant l’entraînement, spaCR vérifie les chemins exacts, les familles d’augmentation, les objets et le niveau de regroupement configuré des deux côtés de chaque partition. Avec ``evaluation_fail_on_leakage=True`` (valeur par défaut), tout chevauchement protégé lève une erreur exploitable avant l’ajustement du modèle. Les augmentations sont générées après la partition, de sorte que des copies transformées ne peuvent pas entrer dans un pli mis de côté."
+msgstr "Avant l’entraînement, spaCR vérifie les chemins exacts, les familles d’augmentation, les objets et le niveau de regroupement configuré des deux côtés de chaque partition. Avec ``evaluation_fail_on_leakage=True`` (valeur par défaut), tout chevauchement protégé lève ``LeakageError`` avant l’ajustement du modèle ; le message indique le nombre de chevauchements par niveau. Les augmentations sont générées après la partition, de sorte que des copies transformées ne peuvent pas entrer dans un pli mis de côté."
 
 msgid "Temperature calibration"
 msgstr "Calibration par température"

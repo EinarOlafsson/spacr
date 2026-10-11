@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -37,9 +37,9 @@ msgstr "La configuración resuelta completa utilizada por la canalización."
 msgid "``manifest.json``"
 msgstr "``manifest.json``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and, for a failed run, the exception traceback."
-msgstr "Un registro versionado, escrito de forma atómica, con el módulo, las marcas de tiempo, el estado, el hash de la configuración, las semillas aleatorias declaradas, los identificadores de estado aleatorio de Python/NumPy/Torch, las versiones de spaCR y de Git, las versiones de todos los paquetes instalados, los hashes de modelos, entradas y salidas, las advertencias y una traza de la excepción."
+msgstr "Un registro versionado, escrito de forma atómica, con el módulo, las marcas de tiempo, el estado, el hash de la configuración, las semillas aleatorias declaradas, los identificadores de estado aleatorio de Python/NumPy/Torch, las versiones de spaCR y de Git, las versiones de todos los paquetes instalados, los hashes de modelos, entradas y salidas, las advertencias y, en una ejecución fallida, la traza de la excepción."
 
 msgid "``log.txt``"
 msgstr "``log.txt``"
@@ -68,9 +68,9 @@ msgstr "Procedencia de los archivos"
 msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
 msgstr "spaCR detecta de forma recursiva las rutas existentes en la configuración, incluidas las rutas anidadas en listas de placas. Cada archivo de entrada normal recibe un resumen SHA-256 completo, su tamaño, la marca de tiempo de modificación y la clave de configuración que lo seleccionó. Los archivos creados o modificados bajo esas raíces durante la ejecución se registran como salidas. Se excluyen los enlaces simbólicos, las carpetas de control de versiones, las cachés y el propio diario de ejecuciones."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. Comparing these single digests shows whether two complete sets match; the per-file records identify which files differ."
-msgstr "El manifiesto también incluye valores agregados deterministas ``input_tree_sha256`` y ``output_tree_sha256``. Permiten comprobar con poco coste si dos conjuntos completos coinciden, conservando a la vez los registros por archivo necesarios para localizar una diferencia."
+msgstr "El manifiesto también incluye valores agregados deterministas ``input_tree_sha256`` y ``output_tree_sha256``. Comparar estos resúmenes únicos indica si dos conjuntos completos coinciden; los registros por archivo identifican qué archivos difieren."
 
 msgid "Crash and failure behavior"
 msgstr "Comportamiento ante bloqueos y fallos"

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -34,9 +34,9 @@ msgstr "Ekkert skor sannar að UMAP innihaldi líffræðilega merkingarbæra byg
 msgid "``neighborhood_preservation``"
 msgstr "``neighborhood_preservation``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The geometric mean of trustworthiness and continuity. Trustworthiness penalizes neighbours invented by the two-dimensional embedding; continuity penalizes feature-space neighbours that the embedding places far apart. Because the geometric mean is low when either term is low, a high value requires both."
-msgstr "Faldmeðaltal áreiðanleika (trustworthiness) og samfellu (continuity). Áreiðanleiki refsar nágrönnum sem tvívíða innfellingin býr til; samfella refsar raunverulegum nágrönnum í eiginleikarúmi sem innfellingin rífur í sundur. Með því að krefjast beggja er komið í veg fyrir að annar hvor gallinn leynist."
+msgstr "Faldmeðaltal áreiðanleika (trustworthiness) og samfellu (continuity). Áreiðanleiki refsar nágrönnum sem tvívíða innfellingin býr til; samfella refsar nágrönnum í eiginleikarúmi sem innfellingin setur langt hvorn frá öðrum. Þar sem faldmeðaltalið er lágt þegar annar hvor liðurinn er lágur krefst hátt gildi beggja."
 
 msgid "``stability``"
 msgstr "``stability``"
@@ -47,9 +47,9 @@ msgstr "Meðalhlutfall næstu nágranna sem innfellingar mátaðar með mismunan
 msgid "``cluster_structure``"
 msgstr "``cluster_structure``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows) and reports the highest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
-msgstr "Jákvæð skuggamyndarbygging (silhouette) á kvarða frá núlli upp í einn. Þegar merki eru lögð til í gegnum Python API skilgreina þau skiptinguna. Annars mátar spaCR endurtakanlegar K-means-skiptingar með 2 til 8 klösum og tilkynnir sterkustu skuggamyndina ásamt völdum klasafjölda. Þetta er vísbending um rúmfræðilega byggingu, ekki sönnun þess að klasi sé líffræðilegur."
+msgstr "Skuggamyndarstuðullinn (silhouette) skorinn við bilið 0 til 1, svo neikvæð gildi fá 0. Þegar merki eru lögð til í gegnum Python API skilgreina þau skiptinguna. Annars mátar spaCR K-means-skiptingar með föstu slembifræi og 2 til 8 klösum (í mesta lagi einum færri en fjöldi raða) og tilkynnir hæstu skuggamyndina ásamt völdum klasafjölda. Þetta er vísbending um rúmfræðilega byggingu, ekki sönnun þess að klasi sé líffræðilegur."
 
 msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
 msgstr "Vægin þrjú eru stöðluð þannig að summa þeirra sé einn. Vegið faldmeðaltal þeirra kallast ``multi_objective`` og stýrir grindarleitinni eða aðlögunarhæfu leitinni. Faldmeðaltalið refsar hrundu markmiði harðar en reiknilegt meðaltal."
@@ -57,9 +57,9 @@ msgstr "Vægin þrjú eru stöðluð þannig að summa þeirra sé einn. Vegið 
 msgid "Pareto front"
 msgstr "Pareto-framlína"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The composite score gives one ranking of the trials. spaCR also marks the Pareto front in the result table. A configuration is Pareto-optimal when no other tested configuration improves one objective without making another worse. Inspect the embedding panels and objective tooltips for every non-dominated row before propagating a configuration."
-msgstr "Samsetta skorið er ekki sett fram sem eina svarið. spaCR merkir einnig Pareto-framlínuna í niðurstöðutöflunni. Stilling er Pareto-best þegar engin önnur prófuð stilling bætir eitt markmið án þess að gera annað verra. Skoðaðu innfellingarspjöldin og skjábendingar markmiðanna fyrir hverja óyfirgnæfða röð áður en stilling er send áfram."
+msgstr "Samsetta skorið gefur eina röðun tilraunanna. spaCR merkir einnig Pareto-framlínuna í niðurstöðutöflunni. Stilling er Pareto-best þegar engin önnur prófuð stilling bætir eitt markmið án þess að gera annað verra. Skoðaðu innfellingarspjöldin og skjábendingar markmiðanna fyrir hverja óyfirgnæfða röð áður en stilling er send áfram."
 
 msgid "The neighborhood, stability and cluster objectives, normalized weights, repeat count, raw silhouette, cluster source and discovered cluster counts are stored in each trial's ``extra_metrics``."
 msgstr "Markmið nágrennis, stöðugleika og klasa, stöðluð vægi, fjöldi endurtekninga, hrátt skuggamyndarskor, uppruni klasa og fundinn klasafjöldi eru geymd í ``extra_metrics`` hverrar tilraunar."

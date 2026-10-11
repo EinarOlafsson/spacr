@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -32,8 +32,9 @@ msgstr "Setja spaCR upp"
 msgid "Use the typed workflow configuration"
 msgstr "Nota tögguðu verkflæðisstillingarnar"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with ``run_mask`` and ``run_measure``. Typed fields cover the commonly set options; ``extra`` accepts any other setting and raises ``ValueError`` if it repeats a typed field."
-msgstr ""
+msgstr "Efsta stigs API býður upp á ``MaskConfig`` og ``MeasureConfig`` ásamt ``run_mask`` og ``run_measure``. Reitir með skilgreindri tegund ná yfir algengustu valkostina; ``extra`` tekur við hvaða annarri stillingu sem er og kastar ``ValueError`` ef hún endurtekur slíkan reit."
 
 msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
 msgstr "Kallaðu á ``mask.to_settings()`` þegar þörf er á heildarorðabók fyrir vistaða stillingaskrá. Hún er útvíkkuð með sömu sjálfgildum og myndræna viðmótið notar."
@@ -62,9 +63,9 @@ msgstr "Mæling skrifar ``measurements/measurements.db`` og útleystu stillingar
 msgid "Run the same contract from a shell"
 msgstr "Keyra sama samning úr skel"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
-msgstr "Skipunin án myndræns viðmóts er gagnleg í tímaáætlunarkerfi vegna þess að hún sannprófar heiti og gildi stillinga áður en þungi vinnslustaflinn er fluttur inn."
+msgstr "Skipunin án myndræns viðmóts hentar tímaáætlunarkerfi vegna þess að hún sannprófar heiti og gildi stillinga áður en PyTorch, Cellpose og aðrir pakkar sem vinnslukeðjan er háð eru fluttir inn."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior."
@@ -77,9 +78,9 @@ msgstr "Bool-gildi í CSV-stillingaskrám eru óháð hástöfum og lágstöfum.
 msgid "Command-line overrides are applied after the file:"
 msgstr "Yfirskriftum á skipanalínu er beitt á eftir skránni:"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Unknown settings and values that cannot be converted are refused; an unknown name is reported with the closest known setting when one exists. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
-msgstr "Óþekktum stillingum og gildum sem ekki er hægt að umbreyta er hafnað með tillögu. Notaðu ``spacr-doctor`` þegar vandamálið liggur í umhverfinu frekar en í stillingu."
+msgstr "Óþekktum stillingum og gildum sem ekki er hægt að umbreyta er hafnað; óþekkt heiti er tilkynnt ásamt næstu þekktu stillingu þegar hún er til. Notaðu ``spacr-doctor`` þegar vandamálið liggur í umhverfinu frekar en í stillingu."
 
 msgid "Continue from notebooks"
 msgstr "Halda áfram úr fartölvum"

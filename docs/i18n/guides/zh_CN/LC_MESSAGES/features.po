@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Capabilities"
 msgstr "功能"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR processes an image-based screen from raw microscopy files to a ranked hit list. This page lists its capabilities by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
-msgstr "spaCR 跟随一次基于图像的筛选，从原始显微文件一直到排序后的命中列表。本页给出完整的功能图；:doc:`Python API 快速入门 <python_api>` 和交互式教程展示了各条具体路线。"
+msgstr "spaCR 将一次基于图像的筛选从原始显微文件处理到排序后的命中列表。本页按领域列出其功能；:doc:`Python API 快速入门 <python_api>` 和交互式教程介绍各个具体工作流程。"
 
 msgid "Core screen workflow"
 msgstr "核心筛选工作流程"
@@ -35,14 +35,14 @@ msgstr "掩膜"
 msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
 msgstr "掩膜模块准备 TIFF、OME-TIFF、LIF、CZI 和 ND2 采集数据，并使用 Cellpose 分割细胞、细胞核、病原体和细胞器。它支持二维、体数据和时间序列数据，可估计对象直径，并能与图层查看器或 napari 交换掩膜校正。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
-msgstr "对象并不是固定的四种。一个项目包含细胞、细胞核和病原体，由它们派生的细胞质，以及 ``number_of_organelles`` 要求数量的细胞器槽位——从零到二十六个。每个槽位相互独立，拥有自己的通道、直径、检测方法和形态。"
+msgstr "对象并不是固定的四种。一个项目包含细胞、细胞核和病原体，由它们派生的细胞质，以及 ``number_of_organelles`` 所指定数量的细胞器槽位——从零到二十六个。每个槽位相互独立，拥有自己的通道、直径、检测方法和形态。"
 
 msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
 msgstr "每个槽位会被指定一种形态预设——点状、囊泡状、球形、丝状、管状、网状、扁囊状、环形、新月形或自定义——预设决定检测策略，即 spots、network、irregular 或 ring 之一。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and the values of a hidden object are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
 msgstr "掩膜生成将逐对象设置排列为 **Per-object settings** 下的一张表，每个已设置通道的对象占一列；细胞列始终显示。对象的通道在常规表单中设置，隐藏对象的设置值会被保留，待其通道再次设置时使用。每个对象都有一个 **去除背景** 复选框，细胞列还有 **调整细胞**。**添加过滤器** 会添加一行，可按任何 scikit-image regionprop （例如面积或平均强度）过滤对象；每个对象的单元格可填写 ``200 – 5000``、单独的最小值（``200``）、单独的最大值（``– 5000``），或留空表示不过滤。这些行构成 ``object_filters`` 设置。为某个对象选择 Cellpose 3 模型时，会显示 **Cellpose 3** 类别及该后端自己的设置。**质量控制** 包含分割检查以及输出、存储、运行和可靠性设置。"
 
@@ -61,9 +61,9 @@ msgstr "测量模块的设置分组为 **输入与实验**、**掩膜与通道�
 msgid "Annotate and Classify"
 msgstr "标注与分类"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are stored; in a two-class column, the next training round uses a rejected suggestion as an example of the other class. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
-msgstr "标注模块提供由键盘驱动的裁剪图网格，将标签直接记录到项目数据库中，并可按不确定性对主动学习队列排序。一页显示尽可能多的裁剪图且不会滚动；其余的在下一页。执行 **建议...** 后，建议的裁剪图带有 **?** 徽标：单击或按 **Y** 确认，右键单击或按 **N** 拒绝，**U** 撤销。**确认本页其余项** 和 **拒绝本页其余项** 会一次性判定所有剩余建议。拒绝结果会被保留，并为下一轮训练提供信息。分类模块根据测量表训练 PyTorch 图像模型或经典模型和提升（boosted）模型。检查点会记录其数据集、划分规则、类别平衡和留出指标。分类的 **Essentials** 视图包含选择和训练任一系列所需的内容——ResNet 或 MaxViT 等图像模型，或 XGBoost 或随机森林等表格模型——未选中系列的设置会显示为灰色。"
+msgstr "标注模块提供由键盘驱动的裁剪图网格，将标签直接记录到项目数据库中，并可按不确定性对主动学习队列排序。一页显示尽可能多的裁剪图且不会滚动；其余的在下一页。执行 **建议...** 后，建议的裁剪图带有 **?** 徽标：单击或按 **Y** 确认，右键单击或按 **N** 拒绝，**U** 撤销。**确认本页其余项** 和 **拒绝本页其余项** 会一次性判定所有剩余建议。拒绝结果会被保存；在二分类列中，下一轮训练会将被拒绝的建议用作另一类别的样本。分类模块根据测量表训练 PyTorch 图像模型或经典模型和提升（boosted）模型。检查点会记录其数据集、划分规则、类别平衡和留出指标。分类的 **Essentials** 视图包含选择和训练任一系列所需的内容——ResNet 或 MaxViT 等图像模型，或 XGBoost 或随机森林等表格模型——未选中系列的设置会显示为灰色。"
 
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "分类 CV 还提供推理时可选的旋转和镜像。关于汇总方法、原始概率和平均概率以及方向稳定性标记，请参阅 :doc:`classifier_evaluation`。"
@@ -117,12 +117,13 @@ msgid "How a module is reached"
 msgstr "如何进入模块"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
-msgstr "主屏幕将模块分为四类：**核心**、**数据**、**工具** 和 **生物体**，共有二十一个模块在这些分类中设有卡片。核心 是按顺序运行的处理流程；数据 涵盖其输入与输出；工具 是针对项目使用的工具，并非流程自动执行的步骤。生物体 打开弓形虫指南及其可用实验分析。计划中的分析标记为即将推出。创建掩膜 位于 **工具** 中。"
+msgstr "主屏幕将模块分为四类：**核心**、**数据**、**工具** 和 **生物体**，其中十九个模块在这些分类中设有磁贴。核心 包含按顺序运行的流程模块；数据 包含导入、嵌入、运行比较、设计、剂量–反应和质量控制；工具 包含针对现有项目进行操作的模块，而非流程步骤；生物体 打开弓形虫指南及其可用实验分析。计划中的分析标记为即将推出。创建掩膜 位于 **工具** 中。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Most modules do not have a tile; they inspect or extend work started in another module. They open from:"
-msgstr ""
+msgstr "大多数模块没有磁贴；它们用于检查或扩展在另一个模块中开始的工作。它们的打开位置如下："
 
 msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
 msgstr "**其宿主模块标题栏上的按钮**——作为宿主设置旁边的一个页面打开，并已指向同一项目。Investigate Hit 和 Prediction Profiler 从回归打开；格式转换器和外部掩膜从导入打开；Layer Viewer、Control Charts 和 Outliers 从 QC 打开。"
@@ -133,9 +134,9 @@ msgstr "**帮助菜单**，用于检查或管理已有工作、而不隶属于�
 msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
 msgstr "**命令面板** （Ctrl+K），可到达所有模块，无论是否有磁贴。这是唯一没有例外的路线，也是键盘用户的导航方式。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``."
-msgstr "它们都不是次要的：它们与其他模块一样随软件发布、经过翻译并有文档，其中属于流程的模块仍可通过 ``spacr-run`` 无界面运行。"
+msgstr "没有磁贴的模块与有磁贴的模块以相同方式安装、翻译和编写文档，其中属于流程的模块也可通过 ``spacr-run`` 无界面运行。"
 
 msgid "Host"
 msgstr "宿主"
@@ -248,12 +249,13 @@ msgid "Data-art themes"
 msgstr "数据艺术主题"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "在 **偏好** → **外观** 中，**主题** 选择界面的配色方案；十种夜间配色方案仍可使用。**动画** 独立选择装饰性背景，或选择 **无** 将其停止。这些背景不显示项目测量结果。主窗口默认使用 **spaCR field**；设置窗口的背景默认为 **spaCR stratified**。"
+msgstr "在 **偏好** → **外观** 中，**主题** 选择界面的配色方案；十种夜间配色方案仍可使用。**动画** 独立选择装饰性背景，或选择 **无** 将其停止。这些背景不显示项目测量结果。主窗口默认使用 **spaCR field**；设置窗口的背景默认为 **无**。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr ""
+msgstr "动画菜单依次列出 **spaCR field**、**spaCR advection**、**spaCR growth**、**spaCR waves**、**spaCR blobs**、**spaCR aurora**、**spaCR stratified** 和 **spaCR spinn**。"
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — 清晰的引力点阵场，可选局部鼠标影响，并呈现向外扩散的波纹。"
@@ -306,9 +308,9 @@ msgid "**Preferences** keeps four lines of help visible below the settings. Long
 msgstr "**偏好** 在设置下方保留四行可见帮助。较长的帮助文本在栏内滚动，不会移动对话框。拖动帮助栏狭窄的上边缘可增大或减小其高度；偏好设置会记住所选高度。将指针从控件移入帮助栏后，仍可阅读和滚动其帮助文本。"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**设置 Backdrop** 在应用或保存偏好设置时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置窗口动画速度**、**设置窗口动画大小**、**设置窗口动画细节** 和 **设置窗口动画密度** 只改变设置窗口的背景。背景设为 **无** 时，滑块保留其数值，但控件被禁用。选择兼容的背景会重新启用这些控件。 **设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
+msgstr "**设置 Backdrop** 在应用和保存时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗保持在其所属 spaCR 窗口前方，但不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
@@ -357,12 +359,13 @@ msgstr "在此屏幕上运行 Cellpose-SAM 时，会在掩膜旁显示其两个�
 msgid "Settings that apply"
 msgstr "适用的设置"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The settings panel shows a control only when it applies to the run being set up:"
-msgstr "当某个控件适用于正在设置的运行时，设置面板会显示它；不适用时则不在表单中显示："
+msgstr "设置面板仅在某个控件适用于正在设置的运行时才显示它："
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "the settings of a slot past ``number_of_organelles``, its channel included, are removed from the form;"
-msgstr ""
+msgstr "超出 ``number_of_organelles`` 的槽位的设置（包括其通道）会从表单中移除；"
 
 msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
 msgstr "通道未指向任何平面的对象根本不在运行中，因此其设置不会出现在表单中；"
@@ -467,9 +470,9 @@ msgstr "工作进程与可用内存"
 msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
 msgstr "在模块启动其工作进程之前，spaCR 会估算每个工作进程处理一个输入（例如一个视野、一个掩膜、一批裁剪图或一张表）所需的内存。如果你设置的 ``n_jobs`` 会使计算机可用 RAM 低于 12.5%，弹出窗口会显示该估算值、可用内存以及可容纳的工作进程数。选择 **使用 N 个工作进程（推荐）** 以该数量运行，或保留你自己的数量；此时只要可用内存低于预留值，测量就会暂停处理新的视野。 **关闭应用程序以释放 RAM…** 会列出你自己占用最大的程序。初始时不勾选任何程序，只有你勾选的程序会在你确认后被要求退出；它们通常可以先保存，但其中未保存的工作仍可能丢失。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
-msgstr "不通过图形界面启动的运行会将 ``n_jobs`` 降低到安全数量并输出警告。在 **高级** 中关闭 ``ram_guard`` 可保持你的 ``n_jobs`` 不变；当可用内存低于预留值时，测量仍会等待。"
+msgstr "不通过图形界面启动的运行会将 ``n_jobs`` 降低到能保持预留内存空闲的数量，并输出警告。在 **高级** 中关闭 ``ram_guard`` 可保持你的 ``n_jobs`` 不变；当可用内存低于预留值时，测量仍会等待。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Worker startup and final retries"

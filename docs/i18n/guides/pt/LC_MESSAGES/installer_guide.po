@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -35,9 +35,9 @@ msgstr "Use um instalador de desktop quando quiser um inicializador de aplicativ
 msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and core dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
 msgstr "Use o `pacote oficial do conda-forge <https://anaconda.org/conda-forge/spacr>`_ quando o Conda deva instalar o spaCR e resolver as suas dependências de ambiente de trabalho e principais. Use ``pip`` para a versão do PyPI quando o spaCR deva estar num ambiente Python existente, num caderno, servidor ou agrupamento de computadores, ou quando precisar de um extra do PyPI que não faça parte do pacote conda. O Python 3.12 oferece atualmente a seleção mais ampla de pacotes científicos opcionais."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use a :ref:`container image <container-images>` when spaCR cannot be installed directly on the host, such as a cluster node, a cloud instance or a shared machine you cannot change, or when an analysis must be rerun later with the same software versions. The images are for the CLI and the pipelines; running the desktop interface in a container is supported only on Linux and is described separately below. On a cluster without Docker, build the same image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a workstation that has no network access at all, use an :ref:`offline installer bundle <offline-bundle>`."
-msgstr "Use uma :ref:`imagem de contêiner <container-images>` quando o problema for a própria instalação: um nó de cluster, uma instância na nuvem, uma máquina compartilhada que você não pode alterar ou uma análise que precise poder ser executada novamente daqui a anos. As imagens se destinam à CLI e aos pipelines; a interface de desktop em um contêiner é um extra exclusivo do Linux e está documentada como tal. Em um cluster sem Docker, construa a mesma imagem como um :ref:`arquivo Apptainer ou SingularityCE <apptainer-images>`. Para uma estação de trabalho sem nenhum acesso à rede, use um :ref:`pacote de instalação off-line <offline-bundle>`."
+msgstr "Use uma :ref:`imagem de contêiner <container-images>` quando o spaCR não puder ser instalado diretamente no host, como um nó de cluster, uma instância na nuvem ou uma máquina compartilhada que você não pode alterar, ou quando uma análise precisar ser executada novamente mais tarde com as mesmas versões de software. As imagens se destinam à CLI e aos pipelines; executar a interface de desktop em um contêiner só é suportado no Linux e está descrito separadamente abaixo. Em um cluster sem Docker, construa a mesma imagem como um :ref:`arquivo Apptainer ou SingularityCE <apptainer-images>`. Para uma estação de trabalho sem nenhum acesso à rede, use um :ref:`pacote de instalação off-line <offline-bundle>`."
 
 msgid "Desktop installers"
 msgstr "Instaladores de desktop"
@@ -48,9 +48,9 @@ msgstr "Baixe o instalador atual no `README do spaCR <https://github.com/EinarOl
 msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation."
-msgstr "Execute ``SpaCR-<version>-Windows-Online-Setup.exe``. O local padrão por usuário é ``%LOCALAPPDATA%\\spaCR`` e não exige acesso de administrador. A aceleração de hardware automática fica selecionada por padrão. Ela instala uma versão do PyTorch compatível com CUDA em sistemas NVIDIA compatíveis e recorre com segurança a outra opção nos demais. Desmarque o componente somente quando precisar da instalação menor, apenas para CPU."
+msgstr "Execute ``SpaCR-<version>-Windows-Online-Setup.exe``. O local padrão por usuário é ``%LOCALAPPDATA%\\spaCR`` e não exige acesso de administrador. A aceleração de hardware automática fica selecionada por padrão. Ela instala uma versão do PyTorch compatível com CUDA em sistemas NVIDIA compatíveis. Nos demais sistemas, instala a versão do PyTorch que o ``uv`` seleciona para o hardware detectado, que é a versão para CPU quando nenhuma GPU suportada é detectada. Desmarque o componente somente quando precisar da instalação menor, apenas para CPU."
 
 msgid "macOS 11 or later"
 msgstr "macOS 11 ou posterior"
@@ -79,9 +79,9 @@ msgstr "Baixe e execute o instalador da versão mais nova. A instalação é pre
 msgid "Update channel and What's new"
 msgstr "Canal de atualização e novidades"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Preferences → Modules → Update channel** chooses what **Help → Check for updates** offers. *Stable releases* (the default) offers PyPI's latest release. *Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less; withdrawn (yanked) versions are never offered. After an update, the next launch opens **What's new in spaCR** with the release notes of every version between the previous and the running one: the notes bundled with the build, plus the published GitHub releases when **Release news** is on and GitHub can be reached. **Help → What's new…** reopens it at any time."
-msgstr "**Preferências → Módulos → Canal de atualização** escolhe o que **Ajuda → Check for updates** oferece. *Versões estáveis* (o padrão) oferece a versão mais recente do PyPI. *Builds noturnos* oferece também pré-lançamentos e builds de desenvolvimento, que chegam mais cedo e são menos testados; versões retiradas (yanked) nunca são oferecidas. Após uma atualização, o próximo início abre **Novidades do spaCR** com as notas de cada versão entre a anterior e a que está em execução: as notas incluídas no build, mais as versões publicadas no GitHub quando **Novidades da versão** está ativado e a rede responde. **Ajuda → Novidades…** a reabre a qualquer momento."
+msgstr "**Preferências → Módulos → Canal de atualização** escolhe o que **Ajuda → Check for updates** oferece. *Versões estáveis* (o padrão) oferece a versão mais recente do PyPI. *Builds noturnos* oferece também pré-lançamentos e builds de desenvolvimento, que chegam mais cedo e são menos testados; versões retiradas (yanked) nunca são oferecidas. Após uma atualização, o próximo início abre **Novidades do spaCR** com as notas de cada versão entre a anterior e a que está em execução: as notas incluídas no build, mais as versões publicadas no GitHub quando **Novidades da versão** está ativado e o GitHub está acessível. **Ajuda → Novidades…** a reabre a qualquer momento."
 
 msgid "Proxies and corporate certificates"
 msgstr "Proxies e certificados corporativos"
@@ -106,9 +106,9 @@ msgid "Older installations and full installers"
 msgstr "Instalações anteriores e instaladores completos"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
-msgstr "Os instaladores completos e os demais procedimentos de atualização dos instaladores procuram instalações do spaCR criadas por um instalador anterior e as removem, evitando que duas versões coexistam com uma delas no caminho de busca. Eles localizam as instalações online e offline do Windows, a aplicação macOS e seu ambiente por usuário, a instalação online do Linux e o pacote Debian, junto com seus iniciadores, atalhos, entradas de menu e registros de desinstalação. Ambientes criados por você e cópias do código-fonte são listados, mas nunca removidos; suas pastas de projetos e resultados nunca são alterados. Se uma cópia não puder ser removida -- por exemplo, uma aplicação macOS em ``/Applications`` que exige privilégios de administrador --, o instalador informa qual é e não instala nada, evitando uma atualização incompleta."
+msgstr "Os instaladores completos e os demais procedimentos de atualização dos instaladores procuram instalações do spaCR criadas por um instalador anterior e as removem, de modo que reste apenas uma cópia criada por instalador. Eles localizam as instalações online e offline do Windows, a aplicação macOS e seu ambiente por usuário, a instalação online do Linux e o pacote Debian, junto com seus iniciadores, atalhos, entradas de menu e registros de desinstalação. Ambientes criados por você e cópias do código-fonte são listados, mas nunca removidos; suas pastas de projetos e resultados nunca são alterados. Se uma cópia não puder ser removida -- por exemplo, uma aplicação macOS em ``/Applications`` que exige privilégios de administrador --, o instalador informa qual é e não instala a nova versão."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "Para ver o que ele encontraria sem alterar nada, execute o localizador a partir de uma cópia do spaCR: ``python spacr/install_cleanup.py find``."
@@ -365,15 +365,16 @@ msgstr "Pacotes usados pelo ambiente dos tutoriais interativos."
 msgid "Container images"
 msgstr "Imagens de contêiner"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
-msgstr "Duas imagens são publicadas no GitHub Container Registry como parte de cada versão do spaCR, depois que essa versão chega ao PyPI. Cada uma é gerada e verificada antes de ser enviada — ela precisa informar a versão declarada por sua tag, não pode ser executada como root e precisa concluir um pipeline real —, de modo que uma imagem que existe é uma imagem que funcionou. Uma imagem que falha em uma verificação não é publicada, e a execução de publicação que a gerou aparece com falha."
+msgstr "Duas imagens são publicadas no GitHub Container Registry como parte de cada versão do spaCR, depois que essa versão chega ao PyPI. Cada uma é gerada e verificada antes de ser enviada: ela precisa informar a versão declarada por sua tag, não pode ser executada como root e precisa concluir uma execução do pipeline em um campo sintético. Uma imagem que falha em uma verificação não é publicada, e a execução do workflow que a gerou falha."
 
 msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every older spaCR release has a container image."
 msgstr "A `página pública do pacote no GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lista as versões disponíveis. Os comandos abaixo usam as imagens **1.5.1.0** publicadas; nem toda versão antiga do spaCR tem uma imagem de contêiner."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The images run spaCR without a display: the CLI, the pipelines, cluster jobs and reruns of an earlier analysis with a pinned version. Use the platform installers above to install the desktop application."
-msgstr ""
+msgstr "As imagens executam o spaCR sem tela: a CLI, os pipelines, trabalhos de cluster e reexecuções de uma análise anterior com uma versão fixada. Use os instaladores de plataforma acima para instalar o aplicativo de desktop."
 
 msgid "Image"
 msgstr "Imagem"
@@ -396,9 +397,9 @@ msgstr "CUDA 12.4. Precisa de um driver NVIDIA **550 ou mais recente no host** e
 msgid "``:latest`` and ``:cpu`` follow the newest CPU release; ``:cuda`` and ``:cuda12.4`` follow the newest CUDA release. Name an exact version for anything you intend to reproduce."
 msgstr "``:latest`` e ``:cpu`` acompanham a versão de CPU mais recente; ``:cuda`` e ``:cuda12.4`` acompanham a versão CUDA mais recente. Indique uma versão exata para tudo o que você pretende reproduzir."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Models and data are mounted at run time; neither is included in the image. A cpsam checkpoint is about 1.2 GB and may be updated between releases, so the image ships none: mount a folder on ``/models`` and it becomes both the folder the Model Zoo downloads into and the folder Cellpose loads from. SAMCell and DINOCell are not in the images either, because they pin PyTorch versions that conflict with spaCR's and with each other; install one inside a running container, or let the Model Zoo install it into an isolated environment of its own."
-msgstr "Modelos e dados são montados, nunca incorporados. Um ponto de verificação cpsam tem cerca de 1,2 GB e fica desatualizado entre versões, por isso a imagem não inclui nenhum: monte uma pasta em ``/models`` e ela passará a ser tanto a pasta para onde a biblioteca de modelos baixa quanto aquela de onde o Cellpose carrega. SAMCell e DINOCell também não estão nas imagens, porque fixam versões do PyTorch que conflitam com as do spaCR e entre si; instale um deles dentro de um contêiner em execução ou deixe a biblioteca de modelos instalá-lo em um ambiente isolado próprio."
+msgstr "Modelos e dados são montados em tempo de execução; nenhum deles é incluído na imagem. Um ponto de verificação cpsam tem cerca de 1,2 GB e pode ser atualizado entre versões, por isso a imagem não inclui nenhum: monte uma pasta em ``/models`` e ela passará a ser tanto a pasta para onde a biblioteca de modelos baixa quanto aquela de onde o Cellpose carrega. SAMCell e DINOCell também não estão nas imagens, porque fixam versões do PyTorch que conflitam com a do spaCR e entre si; instale um deles dentro de um contêiner em execução ou deixe a biblioteca de modelos instalá-lo em um ambiente isolado próprio."
 
 msgid "Install Docker and check the image"
 msgstr "Instalar o Docker e verificar a imagem"
@@ -433,9 +434,9 @@ msgstr "A interface de desktop em um contêiner"
 msgid "**Linux only, and unsupported elsewhere.** The images carry the Qt runtime libraries, so a Linux host running X11 can pass its display socket in:"
 msgstr "**Somente Linux, sem suporte em outros sistemas.** As imagens trazem as bibliotecas de execução do Qt, de modo que um host Linux com X11 pode repassar seu soquete de exibição:"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist inside the container, and Qt prints a warning about it at every start; the image makes its own runtime directory under the container's cache folder instead."
-msgstr "Não repasse o ``XDG_RUNTIME_DIR`` do host. Esse caminho não existe dentro do contêiner, e o Qt reclama disso a cada inicialização; a imagem cria, em vez disso, sua própria pasta de execução dentro da pasta de cache do contêiner."
+msgstr "Não repasse o ``XDG_RUNTIME_DIR`` do host. Esse caminho não existe dentro do contêiner, e o Qt exibe um aviso sobre isso a cada inicialização; a imagem cria, em vez disso, seu próprio diretório de execução dentro da pasta de cache do contêiner."
 
 msgid "A container rarely has a usable OpenGL context, so the animated backdrop may not draw. ``safespacr`` starts the same application with the backdrop and GL switched off, and is the right command when the window is slow or blank:"
 msgstr "Um contêiner raramente tem um contexto OpenGL utilizável, por isso o plano de fundo animado pode não ser desenhado. ``safespacr`` inicia o mesmo aplicativo com o plano de fundo e o GL desativados e é o comando certo quando a janela está lenta ou em branco:"

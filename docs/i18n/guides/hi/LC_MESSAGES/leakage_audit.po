@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Train/test leakage audit"
 msgstr "प्रशिक्षण/परीक्षण रिसाव ऑडिट"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A held-out accuracy estimate overstates performance on independent data when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
-msgstr "जब संबंधित क्रॉप किसी मूल्यांकन सीमा के दोनों ओर दिखाई दें तो वर्गीकारक सटीकता अमान्य होती है। फ़िट करने से पहले spaCR स्थायी ``train/``/``test/`` विभाजन, सामान्य प्रशिक्षण/सत्यापन होल्डआउट, हर बाहरी और आंतरिक क्रॉस-वैलिडेशन सीमा, और पूरे क्रॉस-वैलिडेशन विभाजन का ऑडिट करता है।"
+msgstr "जब संबंधित क्रॉप किसी मूल्यांकन सीमा के दोनों ओर दिखाई दें, तो अलग रखे गए डेटा पर सटीकता का अनुमान स्वतंत्र डेटा पर प्रदर्शन को बढ़ा-चढ़ाकर बताता है। फ़िट करने से पहले spaCR स्थायी ``train/``/``test/`` विभाजन, सामान्य प्रशिक्षण/सत्यापन होल्डआउट, हर बाहरी और आंतरिक क्रॉस-वैलिडेशन सीमा, और पूरे क्रॉस-वैलिडेशन विभाजन का ऑडिट करता है।"
 
 msgid "What is verified"
 msgstr "क्या सत्यापित किया जाता है"
@@ -62,9 +62,9 @@ msgstr "सामान्य सत्यापन भी समूह-सज�
 msgid "Run the audit directly"
 msgstr "ऑडिट सीधे चलाएँ"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; their performance estimate is still not independent of the training data."
-msgstr "कमांड JSON छापती है और सत्यापित विभाजन के लिए ``0``, रिसाव या असत्यापनीय पहचान मिलने पर ``1``, और डेटासेट का ऑडिट संभव न होने पर ``2`` के साथ बाहर निकलती है। ``--no-content-hash`` I/O घटाता है लेकिन नाम बदली गई प्रतियों का पता नहीं लगा सकता। ``--allow-unverifiable`` पुराने डेटासेट के निदान के लिए है; यह उनके प्रदर्शन अनुमान को भरोसेमंद नहीं बनाता।"
+msgstr "कमांड JSON छापती है और सत्यापित विभाजन के लिए ``0``, रिसाव या असत्यापनीय पहचान मिलने पर ``1``, और डेटासेट का ऑडिट संभव न होने पर ``2`` के साथ बाहर निकलती है। ``--no-content-hash`` I/O घटाता है लेकिन नाम बदली गई प्रतियों का पता नहीं लगा सकता। ``--allow-unverifiable`` पुराने डेटासेट के निदान के लिए है; उनका प्रदर्शन अनुमान फिर भी प्रशिक्षण डेटा से स्वतंत्र नहीं होता।"
 
 msgid "Classify settings"
 msgstr "वर्गीकरण सेटिंग्स"

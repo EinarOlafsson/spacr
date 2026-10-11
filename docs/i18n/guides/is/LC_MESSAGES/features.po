@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Capabilities"
 msgstr "Getu"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR processes an image-based screen from raw microscopy files to a ranked hit list. This page lists its capabilities by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
-msgstr "spaCR fylgir myndbundinni skimun frá hráum smásjárskrám að raðaðum lista yfir marktækar niðurstöður. Þessi síða gefur heildarkortið; :doc:`flýtileiðarvísirinn að Python API <python_api>` og gagnvirku kennslurnar sýna einstakar leiðir."
+msgstr "spaCR vinnur myndbundna skimun frá hráum smásjárskrám að raðaðum lista yfir marktækar niðurstöður. Þessi síða telur upp getu þess eftir sviðum; :doc:`flýtileiðarvísirinn að Python API <python_api>` og gagnvirku kennslurnar fjalla um einstök verkflæði."
 
 msgid "Core screen workflow"
 msgstr "Kjarnaverkflæði skimunar"
@@ -35,16 +35,16 @@ msgstr "Grímur"
 msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
 msgstr "Grímur undirbýr TIFF-, OME-TIFF-, LIF-, CZI- og ND2-myndatökur og hlutar frumur, kjarna, sýkla og frumulíffæri með Cellpose. Einingin styður tvívíð gögn, rúmmálsgögn og tímaraðagögn, metur þvermál hluta og getur skipst á grímuleiðréttingum við lagaskoðarann eða napari."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
-msgstr "Hlutirnir eru ekki fast sett af fjórum. Verkefni hefur frumu, kjarna og sýkil, umfrymi sem leitt er af þeim, og eins marga frumulíffærareiti og ``number_of_organelles`` biður um -- frá engum upp í tuttugu og sex. Hver reitur er óháður, með eigin rás, þvermál, greiningaraðferð og formgerð."
+msgstr "Hlutirnir eru ekki fast sett af fjórum. Verkefni hefur frumu, kjarna og sýkil, umfrymi sem leitt er af þeim, og eins marga frumulíffærareiti og ``number_of_organelles`` tilgreinir -- frá engum upp í tuttugu og sex. Hver reitur er óháður, með eigin rás, þvermál, greiningaraðferð og formgerð."
 
 msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
 msgstr "Reit er gefin formgerðarforstilling -- punktlaga, blöðrulaga, kúlulaga, þráðlaga, pípulaga, netlaga, flögulaga (cisternal), kleinuhringlaga, hálfmánalaga eða sérsniðin -- og forstillingin velur greiningaraðferðina, eina af spots, network, irregular eða ring."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and the values of a hidden object are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
-msgstr "Grímugerð setur stillingar fyrir hvern hlut fram sem eina töflu undir **Per-object settings**, með dálki fyrir hvern hlut sem hefur stillta rás; frumudálkurinn er alltaf sýndur. Rás hlutar er stillt á venjulega eyðublaðinu og svör falins hlutar eru geymd þar til rás hans er stillt aftur. Hver hlutur hefur gátreitinn **Fjarlægja bakgrunn** og frumudálkurinn hefur einnig **Aðlaga frumur**. **Bæta við síu** bætir við röð sem síar hluti eftir hvaða regionprop sem er úr scikit-image, svo sem flatarmáli eða meðalstyrk; reitur hvers hlutar tekur ``200 – 5000``, lágmark eitt og sér (``200``), hámark eitt og sér (``– 5000``) eða autt fyrir enga síu. Þessar raðir eru stillingin ``object_filters``. Ef Cellpose 3-líkan er valið fyrir hlut birtist flokkurinn **Cellpose 3** með eigin stillingum þess bakenda. **Gæðaeftirlit** geymir hlutunarathuganirnar ásamt stillingum fyrir úttak, geymslu, keyrslu og áreiðanleika."
+msgstr "Grímugerð setur stillingar fyrir hvern hlut fram sem eina töflu undir **Per-object settings**, með dálki fyrir hvern hlut sem hefur stillta rás; frumudálkurinn er alltaf sýndur. Rás hlutar er stillt á venjulega eyðublaðinu og gildi falins hlutar eru geymd þar til rás hans er stillt aftur. Hver hlutur hefur gátreitinn **Fjarlægja bakgrunn** og frumudálkurinn hefur einnig **Aðlaga frumur**. **Bæta við síu** bætir við röð sem síar hluti eftir hvaða regionprop sem er úr scikit-image, svo sem flatarmáli eða meðalstyrk; reitur hvers hlutar tekur ``200 – 5000``, lágmark eitt og sér (``200``), hámark eitt og sér (``– 5000``) eða autt fyrir enga síu. Þessar raðir eru stillingin ``object_filters``. Ef Cellpose 3-líkan er valið fyrir hlut birtist flokkurinn **Cellpose 3** með eigin stillingum þess bakenda. **Gæðaeftirlit** geymir hlutunarathuganirnar ásamt stillingum fyrir úttak, geymslu, keyrslu og áreiðanleika."
 
 msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
 msgstr "Forskoðunin **Beint** í Grímur sýnir niðurstöðuna sem **Yfirlag**, **Grímur**, **Flæði** eða **Líkur á frumu**. Hægrismelltu á mynd til að velja **Save as PNG…** eða **Save as PDF…**. Þegar lota hefur búið til fleiri en eina grímu leggur **Bera saman grímur…** grímurnar og myndirnar sem þú hakar við hverja yfir aðra, hverja með eigið ógegnsæi og staflaröð, í sérstöku spjaldi."
@@ -61,9 +61,9 @@ msgstr "Stillingar Mælingar eru flokkaðar sem **Inntak og tilraun**, **Grímu-
 msgid "Annotate and Classify"
 msgstr "Merking og Flokkun"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are stored; in a two-class column, the next training round uses a rejected suggestion as an example of the other class. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
-msgstr "Merking býður upp á lyklaborðsstýrða grind myndskurða, skráir merki beint í gagnagrunn verkefnisins og getur raðað virkri námsbiðröð eftir óvissu. Síða geymir eins marga myndskurði og komast fyrir og skrunar aldrei; hinir eru á næstu síðu. Eftir **Ráð...** bera tillögðu myndskurðirnir merkið **?**: smelltu á einn eða ýttu á **Y** til að staðfesta hann, hægrismelltu eða ýttu á **N** til að hafna honum, og **U** afturkallar. **Staðfesta restina af síðunni** og **Hafna restinni af síðunni** dæma allar eftirstandandi tillögur í einu. Höfnunum er haldið og þær hafa áhrif á næstu þjálfunarumferð. Flokkun þjálfar PyTorch-myndlíkön eða klassísk og efld (boosted) líkön út frá mælitöflum. Vistunarpunktar skrá gagnasafn sitt, skiptingarreglu, jafnvægi flokka og mælikvarða á geymdum gögnum. Sýnin **Essentials** í Flokkun geymir það sem þarf til að velja og þjálfa hvora fjölskylduna sem er — myndlíkan eins og ResNet eða MaxViT, eða töflulíkan eins og XGBoost eða slembiskóg — og gerir stillingar fjölskyldunnar sem ekki er valin gráar."
+msgstr "Merking býður upp á lyklaborðsstýrða grind myndskurða, skráir merki beint í gagnagrunn verkefnisins og getur raðað virkri námsbiðröð eftir óvissu. Síða geymir eins marga myndskurði og komast fyrir og skrunar aldrei; hinir eru á næstu síðu. Eftir **Ráð...** bera tillögðu myndskurðirnir merkið **?**: smelltu á einn eða ýttu á **Y** til að staðfesta hann, hægrismelltu eða ýttu á **N** til að hafna honum, og **U** afturkallar. **Staðfesta restina af síðunni** og **Hafna restinni af síðunni** dæma allar eftirstandandi tillögur í einu. Höfnunum er haldið til haga; í dálki með tveimur flokkum notar næsta þjálfunarumferð hafnaða tillögu sem dæmi um hinn flokkinn. Flokkun þjálfar PyTorch-myndlíkön eða klassísk og efld (boosted) líkön út frá mælitöflum. Vistunarpunktar skrá gagnasafn sitt, skiptingarreglu, jafnvægi flokka og mælikvarða á geymdum gögnum. Sýnin **Essentials** í Flokkun geymir það sem þarf til að velja og þjálfa hvora fjölskylduna sem er — myndlíkan eins og ResNet eða MaxViT, eða töflulíkan eins og XGBoost eða slembiskóg — og gerir stillingar fjölskyldunnar sem ekki er valin gráar."
 
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "Flokkun CV býður einnig upp á valkvæða snúninga og speglanir við ályktun. Sjá :doc:`classifier_evaluation` fyrir samantektaraðferðirnar, upphaflegar líkur og meðallíkur og merkingar um stöðugleika stefnu."
@@ -117,12 +117,13 @@ msgid "How a module is reached"
 msgstr "Hvernig komist er að einingu"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
-msgstr "Heimaskjárinn flokkar einingar í fjóra flokka — **Kjarni**, **Gögn**, **Verkfæri** og **Lífvera** — og tuttugu og ein eining hefur reit í einum þeirra. Kjarni er vinnsluferlið sem er keyrt í röð; undir Gögn eru inntak þess og úttak; Verkfæri eru tæki sem notuð eru á verkefni fremur en sjálfvirk skref vinnsluferlisins. Lífvera opnar Toxoplasma-leiðbeiningarnar og tiltækar prófanir þess. Fyrirhugaðar greiningar eru merktar Væntanlegt. Búa til grímur er undir **Verkfæri**."
+msgstr "Heimaskjárinn flokkar einingar í fjóra flokka -- **Kjarni**, **Gögn**, **Verkfæri** og **Lífvera** -- og nítján einingar hafa reit í einum þeirra. Kjarni geymir einingar vinnsluferlisins, sem eru keyrðar í röð; Gögn geymir innflutning, innfellingar, samanburð keyrslna, tilraunahönnun, skammta–svörun og gæðaeftirlit; Verkfæri geymir einingar sem vinna á fyrirliggjandi verkefni fremur en að vera skref í vinnsluferlinu; Lífvera opnar Toxoplasma-leiðbeiningarnar og tiltækar prófanir þeirra. Fyrirhugaðar greiningar eru merktar Væntanlegt. Búa til grímur er undir **Verkfæri**."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Most modules do not have a tile; they inspect or extend work started in another module. They open from:"
-msgstr ""
+msgstr "Flestar einingar hafa engan reit; þær skoða eða útvíkka vinnu sem hófst í annarri einingu. Þær opnast úr:"
 
 msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
 msgstr "**hnappi á haus hýsileiningarinnar** -- sem síða við hlið stillinga hýsilsins, sem vísar þegar á sama verkefni. Investigate Hit og Prediction Profiler opnast úr Aðhvarf; Sniðbreytir og Ytri grímur úr Flytja inn; Layer Viewer, Control Charts og Outliers úr QC."
@@ -133,9 +134,9 @@ msgstr "**Hjálp-valmyndinni**, fyrir þær sem skoða eða stjórna vinnu sem �
 msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
 msgstr "**skipanaspjaldinu** (Ctrl+K), sem nær til ALLRA eininga, með reit eða án. Það er eina leiðin án undantekninga og leiðsögn lyklaborðsnotandans."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``."
-msgstr "Engin þeirra er annars flokks: þær eru afhentar, þýddar og skjalfestar eins og hver önnur eining, og þær sem eru vinnslukeðjur keyra enn án myndræns viðmóts undir ``spacr-run``."
+msgstr "Einingar án reits eru settar upp, þýddar og skjalfestar á sama hátt og einingar með reit, og þær sem eru vinnslukeðjur keyra einnig án myndræns viðmóts undir ``spacr-run``."
 
 msgid "Host"
 msgstr "Hýsill"
@@ -248,12 +249,13 @@ msgid "Data-art themes"
 msgstr "Þemu með gagnalist"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "Undir **Kjörstillingar** → **Útlit** velur **Þema** litapallettu viðmótsins; næturpalletturnar tíu eru áfram tiltækar. **Hreyfimynd** velur skreytingarbakgrunn óháð því, eða **Engin** til að stöðva hann. Þessir bakgrunnar sýna ekki mælingar verkefnisins. Aðalglugginn notar **spaCR field** sjálfgefið; bakgrunnur stillinganna er sjálfgefið **spaCR stratified**."
+msgstr "Undir **Kjörstillingar** → **Útlit** velur **Þema** litapallettu viðmótsins; næturpalletturnar tíu eru áfram tiltækar. **Hreyfimynd** velur skreytingarbakgrunn óháð því, eða **Engin** til að stöðva hann. Þessir bakgrunnar sýna ekki mælingar verkefnisins. Aðalglugginn notar **spaCR field** sjálfgefið; bakgrunnur stillinganna er sjálfgefið **Engin**."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr ""
+msgstr "Hreyfimyndavalmyndin telur upp **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** og **spaCR spinn**, í þessari röð."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Skarpt þyngdarsvið punkta með valfrjálsum staðbundnum músaráhrifum og útvíkkandi gárum."
@@ -306,9 +308,9 @@ msgid "**Preferences** keeps four lines of help visible below the settings. Long
 msgstr "**Kjörstillingar** heldur fjórum hjálparlínum sýnilegum undir stillingunum. Lengri hjálp er skrunað innan randarinnar án þess að svarglugginn færist. Dragðu mjóa efri brún randarinnar til að hækka hana eða lækka; stillingaglugginn man valda hæð. Þegar bendillinn færist af stjórnhluta inn á röndina helst hjálpin tiltæk til lesturs og skruns."
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Sættuðu Backdrop** helst óháð aðalhreyfimyndinni bæði þegar stillingar eru notaðar og vistaðar. **Engin** slekkur á hreyfingu í sprettigluggum en heldur bláa jaðrinum. **Hraði hreyfimyndar stillingagluggans**, **Stærð hreyfimyndar stillingagluggans**, **Nákvæmni hreyfimyndar stillingagluggans** og **Þéttleiki hreyfimyndar stillingagluggans** breyta aðeins bakgrunni stillingagluggans. Rennislárnar halda gildum sínum þegar bakgrunnurinn er **Engin**, en stjórnhlutarnir eru þá óvirkir. Samhæfur bakgrunnur virkjar þá aftur. **Dökkvun bakgrunns stillinga** stjórnar ógagnsæi stillingaspjaldsins yfir hreyfimyndinni, frá **0%** til **100%** (sjálfgefið **85%**), ásamt **Ógagnsæi síðu**. Ógagnsæi síðu gildir einnig þegar bakgrunnur stillinga er **Engin**. Meiri dökkvun hylur meira af hreyfimyndinni svo auðveldara sé að lesa textann. Sprettigluggar haldast fyrir ofan spaCR gluggann sem þeir tilheyra, án almennrar stillingar sem heldur þeim yfir öllum gluggum; önnur forrit geta því hulið þá."
+msgstr "**Sættuðu Backdrop** helst óháð aðalhreyfimyndinni bæði þegar stillingar eru notaðar og vistaðar. **Engin** slekkur á hreyfingu í sprettigluggum en heldur bláa jaðrinum. **Dökkvun bakgrunns stillinga** stjórnar ógagnsæi stillingaspjaldsins yfir hreyfimyndinni, frá **0%** til **100%** (sjálfgefið **85%**), ásamt **Ógagnsæi síðu**. Ógagnsæi síðu gildir einnig þegar bakgrunnur stillinga er **Engin**. Meiri dökkvun hylur meira af hreyfimyndinni svo auðveldara sé að lesa textann. Sprettigluggar haldast fyrir ofan spaCR-gluggann sem þeir tilheyra án þess að nota almenna stillingu um að vera alltaf efst, svo önnur forrit geta hulið þá."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
@@ -357,12 +359,13 @@ msgstr "Þegar Cellpose-SAM er keyrt frá þessum skjá eru tvö milliúttök þ
 msgid "Settings that apply"
 msgstr "Stillingar sem eiga við"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The settings panel shows a control only when it applies to the run being set up:"
-msgstr "Stillingaspjaldið sýnir stýringu þegar hún á við keyrsluna sem verið er að setja upp og sleppir henni af eyðublaðinu þegar hún á ekki við:"
+msgstr "Stillingaspjaldið sýnir stýringu aðeins þegar hún á við keyrsluna sem verið er að setja upp:"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "the settings of a slot past ``number_of_organelles``, its channel included, are removed from the form;"
-msgstr ""
+msgstr "stillingar reits umfram ``number_of_organelles``, rás hans meðtalin, eru fjarlægðar af eyðublaðinu;"
 
 msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
 msgstr "hlutur sem hefur rás sem nefnir ekkert plan er alls ekki í keyrslunni, svo stillingar hans eru ekki á eyðublaðinu;"
@@ -467,9 +470,9 @@ msgstr "Vinnsluferli og laust minni"
 msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
 msgstr "Áður en eining ræsir vinnsluferli sín áætlar spaCR hve mikið minni hvert ferli þarf fyrir eitt inntak, svo sem sjónsvið, grímu, skurðarlotu eða töflu. Ef ``n_jobs`` sem þú stilltir myndi skilja eftir minna en 12,5% af vinnsluminni tölvunnar laust sýnir sprettigluggi áætlunina, lausa minnið og fjölda vinnsluferla sem komast fyrir. Veldu **Nota N vinnuþræði (mælt með)** til að keyra með þeim fjölda, eða haltu þínum eigin; Mæling gerir þá hlé á nýjum sjónsviðum þegar laust minni fer undir varaforðann. **Losa RAM með því að loka forritum…** sýnir stærstu forritin þín. Ekkert er hakað í fyrstu og aðeins forrit sem þú hakar við eru beðin að loka, eftir að þú staðfestir; þau geta yfirleitt vistað fyrst, en óvistuð vinna í þeim getur samt glatast."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
-msgstr "Keyrslur sem ræstar eru án myndræns viðmóts lækka ``n_jobs`` í örugga fjöldann og birta viðvörun. Slökktu á ``ram_guard`` í **Ítarlegt** til að halda ``n_jobs`` óbreyttu; Mæling bíður samt meðan laust minni er undir varaforðanum."
+msgstr "Keyrslur sem ræstar eru án myndræns viðmóts lækka ``n_jobs`` í þann fjölda sem heldur varaforðanum lausum og birta viðvörun. Slökktu á ``ram_guard`` í **Ítarlegt** til að halda ``n_jobs`` óbreyttu; Mæling bíður samt meðan laust minni er undir varaforðanum."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Worker startup and final retries"

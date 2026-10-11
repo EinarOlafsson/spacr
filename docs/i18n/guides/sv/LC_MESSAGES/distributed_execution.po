@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -34,9 +34,9 @@ msgstr "En körprofil beskriver *hur beräkningsresurserna nås*, inte en analys
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a detached background process (output redirected to a log, stdin closed) so it continues if the SSH connection drops, and records its exit code."
-msgstr "Laddar upp den lilla JSON-filen med upplösta inställningar över SSH, startar ``spacr-run`` i en beständig bakgrundsprocess och registrerar dess slutkod."
+msgstr "Laddar upp JSON-filen med upplösta inställningar över SSH, startar ``spacr-run`` som en frikopplad bakgrundsprocess (utdata omdirigerad till en logg, stdin stängd) så att den fortsätter om SSH-anslutningen bryts, och registrerar dess slutkod."
 
 msgid "``Slurm cluster``"
 msgstr "``Slurm cluster``"
@@ -47,9 +47,9 @@ msgstr "Laddar upp inställningar, skickar ett ``sbatch``-skript, avfrågar ``sq
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
-msgstr "Kör konfigurerade argumentmallar för inskickning, status och avbrytning. Det stöder molnklienter och platsspecifika schemaläggare utan att leverantörers inloggningsuppgifter byggs in i spaCR. Kommandot måste skriva ut en säker jobbidentifierare, och statuskommandot bör skriva ut ett konventionellt tillstånd som ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` eller ``CANCELLED``."
+msgstr "Kör konfigurerade argumentmallar för inskickning, status och avbrytning. Det stöder molnklienter och platsspecifika schemaläggare utan att leverantörers inloggningsuppgifter byggs in i spaCR. Kommandot måste skriva ut en jobbidentifierare som bara innehåller bokstäver, siffror och ``_.:+-``, och statuskommandot bör skriva ut ett konventionellt tillstånd som ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` eller ``CANCELLED``."
 
 msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
 msgstr "Konfigurera SSH-nycklar, molnautentisering och VPN-åtkomst utanför spaCR. Testa samma anslutning i en terminal innan du skickar en lång körning."

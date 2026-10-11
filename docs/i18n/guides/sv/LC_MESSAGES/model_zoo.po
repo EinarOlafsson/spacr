@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -121,6 +121,18 @@ msgstr "omgång 6:s 556 kurerade bildfält plus 80 manuellt kurerade bildfält f
 msgid "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
 msgstr "F1 0,854 mot standard-cpsam_v2:s 0,765 på de 11 ankarbrunnarna vid IoU 0,5; AJI 0,776 mot 0,505"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``toxoplasma_pv_v5`` (Cellpose-SAM (cpsam_v2, Cellpose 4.0.9))"
+msgstr "``toxoplasma_pv_v5`` (Cellpose-SAM (cpsam_v2, Cellpose 4.0.9))"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "285 curated PV fields (lab fields and published-figure crops), 13,814 vacuoles; 202 train / 33 validation / 50 test grouped by acquisition and paper"
+msgstr "285 kurerade PV-fält (laboratoriefält och utsnitt ur publicerade figurer), 13 814 vakuoler; 202 träning / 33 validering / 50 test, grupperade efter bildtagning och artikel"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5"
+msgstr "F1 0,792 mot standard-cpsam_v2:s 0,559 på de 50 utelämnade fälten vid IoU 0,5"
+
 msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
 
@@ -157,22 +169,37 @@ msgstr "Toxoplasma-PV-masker förutsagda enbart från HOECHST-kanalen; 2567 trä
 msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
 msgstr "F1 0,569 mot 0,002 för standard-cpsam_v2 på 463 utelämnade fält grupperade per brunn, vid IoU 0,5"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
-msgstr "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
+msgstr "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups"
-msgstr ""
+msgstr "496 kurerade plackfält, inklusive 34 granskade tomma negativa exempel och 71 Gel Doc-brunnar; 100 epoker; fasta grupper efter fysisk platta/källa"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Stock was not evaluated in this run; see the named incumbent comparison on the model card"
-msgstr ""
+msgstr "Standardmodellen utvärderades inte i den här körningen; se den namngivna jämförelsen med den tidigare modellen på modellkortet"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``toxoplasma_plaque_v4`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
+msgstr "``toxoplasma_plaque_v4`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "663 curated plaque fields from four domains (published-figure wells, Gel Doc wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 validation / 263 test"
+msgstr "663 kurerade plackfält från fyra domäner (brunnar ur publicerade figurer, Gel Doc-brunnar, laboratorieplattor, iscensatta litteraturutsnitt), 32 717 plack; 335 träning / 65 validering / 263 test"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5"
+msgstr "F1 0,813 mot standard-cpsam 0,300 på de 263 utelämnade fälten vid IoU 0,5"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_well_detector_v3`` (YOLO11n (fine-tuned from detector v3))"
-msgstr "``toxoplasma_well_detector_v1`` (YOLO11n)"
+msgstr "``toxoplasma_well_detector_v3`` (YOLO11n (finjusterad från detektor v3))"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization"
-msgstr ""
+msgstr "452 granskade träningsbilder; 124 valideringsbilder; grupper efter fysisk platta och figur; 150 epoker; initiering från YOLO11n v3"
 
 msgid "Models are hosted on their author's own Hugging Face account, so contributing one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
 msgstr "Modellerna ligger på upphovspersonens eget Hugging Face-konto, så att bidra med en modell innebär inte att ge någon annan skrivåtkomst. ``publish_model`` i ``spacr.model_zoo`` utför uppladdningen och skriver ut den katalograd som ska läggas till."
@@ -251,6 +278,10 @@ msgstr "**Tränad på.** Toxoplasma-plackanalyser färgade med kristallviolett, 
 
 msgid "**Measured.** not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
 msgstr "**Uppmätt.** inte jämförd med standardmodellen; på 81 utelämnade fält är den likvärdig med omgång 3 på litteraturdata (0,819 mot 0,820) och slår den med 0,166 på brunnar fotograferade med mobilkamera (0,415 mot 0,249)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "no longer the default: toxoplasma_plaque_v3 replaced it on 2026-10-10 (F1 0.844 against 0.799 on 263 held-out fields; this model scores 0.013 on Gel Doc wells); kept so recorded runs reproduce"
+msgstr "inte längre standard: toxoplasma_plaque_v3 ersatte den 2026-10-10 (F1 0,844 mot 0,799 på 263 utelämnade fält; den här modellen får 0,013 på Gel Doc-brunnar); behålls så att registrerade körningar kan reproduceras"
 
 msgid "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 (round 3) for microscope-only work, where it scores 0.836 against this model's 0.808 on PFA-fixed wells and is far more precise; prefer this one for mixed or unknown sources"
 msgstr "KOMPLETTERAR toxoplasma_plaque_v1 i stället för att ersätta den: föredra v1 (omgång 3) för arbete enbart med mikroskop, där den får 0,836 mot denna modells 0,808 på PFA-fixerade brunnar och är betydligt mer precis; föredra denna för blandade eller okända källor"
@@ -429,21 +460,25 @@ msgstr "**Tränad på.** Parasitofora vakuoler hos Toxoplasma-takyzoiter: omgån
 msgid "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
 msgstr "**Uppmätt.** F1 0,854 mot standard-cpsam_v2:s 0,765 på de 11 ankarbrunnarna vid IoU 0,5; AJI 0,776 mot 0,505"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published scorecard"
-msgstr ""
+msgstr "Publicerat resultatkort"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Metric"
-msgstr ""
+msgstr "Mått"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "This model"
-msgstr "Modell"
+msgstr "Den här modellen"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Stock"
-msgstr ""
+msgstr "Standardmodell"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Difference"
-msgstr ""
+msgstr "Skillnad"
 
 msgid "f1"
 msgstr "f1"
@@ -457,8 +492,9 @@ msgstr "0.7648"
 msgid "0.0888"
 msgstr "0.0888"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "aji"
-msgstr ""
+msgstr "aji"
 
 msgid "0.7755"
 msgstr "0.7755"
@@ -469,8 +505,9 @@ msgstr "0.5050"
 msgid "0.2705"
 msgstr "0.2705"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "dice"
-msgstr ""
+msgstr "dice"
 
 msgid "0.8905"
 msgstr "0.8905"
@@ -481,8 +518,9 @@ msgstr "0.6431"
 msgid "0.2474"
 msgstr "0.2474"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "precision"
-msgstr ""
+msgstr "precision"
 
 msgid "0.8493"
 msgstr "0.8493"
@@ -493,8 +531,9 @@ msgstr "0.7539"
 msgid "0.0954"
 msgstr "0.0954"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "recall"
-msgstr ""
+msgstr "recall"
 
 msgid "0.8580"
 msgstr "0.8580"
@@ -505,8 +544,9 @@ msgstr "0.7760"
 msgid "0.0820"
 msgstr "0.0820"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "pixel_iou"
-msgstr ""
+msgstr "pixel_iou"
 
 msgid "0.8055"
 msgstr "0.8055"
@@ -517,8 +557,9 @@ msgstr "0.5239"
 msgid "0.2816"
 msgstr "0.2816"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "mAP"
-msgstr ""
+msgstr "mAP"
 
 msgid "0.4921"
 msgstr "0.4921"
@@ -529,11 +570,13 @@ msgstr "0.3620"
 msgid "0.1301"
 msgstr "0.1301"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Evaluation set: ``pv_r7_test``; version ``r7-published-truth``; 10 scored fields and 683 annotated objects."
-msgstr ""
+msgstr "Utvärderingsuppsättning: ``pv_r7_test``; version ``r7-published-truth``; 10 poängsatta fält och 683 annoterade objekt."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Scorecard metrics are means over nonempty fields, not pooled object counts; see aggregation.json."
-msgstr ""
+msgstr "Resultatkortets mått är medelvärden över icke-tomma fält, inte sammanslagna objektantal; se aggregation.json."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate"
@@ -556,13 +599,97 @@ msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://
 msgstr "Publicerad som `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, som ``cpsam_v2_toxo_r7``."
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published scorecard for Toxoplasma PV v4 (round 7)"
-msgstr "Toxoplasma PV v4 (omgång 7)"
+msgstr "Publicerat resultatkort för Toxoplasma PV v4 (omgång 7)"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
 msgstr "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Toxoplasma PV v5 (round 8, alternative)"
+msgstr "Toxoplasma PV v5 (omgång 8, alternativ)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Architecture.** Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)"
+msgstr "**Arkitektur.** Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Trained on.** Toxoplasma parasitophorous vacuoles from lab immunofluorescence and DsRed fields and published-figure crops. Round 8, cellpose 4.0.9, best of 100 epochs (epoch 20), base cpsam_v2"
+msgstr "**Tränad på.** Parasitofora vakuoler hos Toxoplasma från laboratoriets immunfluorescens- och DsRed-fält och utsnitt ur publicerade figurer. Omgång 8, cellpose 4.0.9, bästa av 100 epoker (epok 20), bas cpsam_v2"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5"
+msgstr "**Uppmätt.** F1 0,792 mot standard-cpsam_v2:s 0,559 på de 50 utelämnade fälten vid IoU 0,5"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.7921"
+msgstr "0.7921"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.5586"
+msgstr "0.5586"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.2335"
+msgstr "0.2335"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.7531"
+msgstr "0.7531"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.4635"
+msgstr "0.4635"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.2896"
+msgstr "0.2896"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.8354"
+msgstr "0.8354"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.7028"
+msgstr "0.7028"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.1326"
+msgstr "0.1326"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Evaluation set: ``retrain_20261009_pv_test``; version ``2026-10-09``; 50 scored fields and 3530 annotated objects."
+msgstr "Utvärderingsuppsättning: ``retrain_20261009_pv_test``; version ``2026-10-09``; 50 poängsatta fält och 3530 annoterade objekt."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "ALTERNATIVE, NOT BETTER: on the 15 test fields round 7 never saw it scores F1 0.536 against toxoplasma_pv_v4's 0.525 -- a tie; prefer toxoplasma_pv_v4"
+msgstr "ALTERNATIV, INTE BÄTTRE: på de 15 testfält som omgång 7 aldrig såg får den F1 0,536 mot toxoplasma_pv_v4:s 0,525 -- oavgjort; föredra toxoplasma_pv_v4"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "35 of the 50 test fields were in round 7's training or validation set, so the all-field comparison (0.792 against 0.851) favours toxoplasma_pv_v4 and is not a fair test"
+msgstr "35 av de 50 testfälten ingick i omgång 7:s tränings- eller valideringsuppsättning, så jämförelsen över alla fält (0,792 mot 0,851) gynnar toxoplasma_pv_v4 och är inte ett rättvist test"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "weak on published-figure crops (F1 0.440 on 14 literature fields), as is every PV model"
+msgstr "svag på utsnitt ur publicerade figurer (F1 0,440 på 14 litteraturfält), liksom alla PV-modeller"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r8 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8>`_, as ``cpsam_v2_toxo_r8``."
+msgstr "Publicerad som `einarolafsson/toxoplasma-pv-segmentation-cpsam-r8 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8>`_, som ``cpsam_v2_toxo_r8``."
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard for Toxoplasma PV v5 (round 8, alternative)"
+msgstr "Publicerat resultatkort för Toxoplasma PV v5 (omgång 8, alternativ)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "SHA-256 ``a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c``."
+msgstr "SHA-256 ``a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c``."
 
 msgid "Live cell v1 (phase, brightfield, DIC)"
 msgstr "Live cell v1 (faskontrast, ljusfält, DIC)"
@@ -660,25 +787,28 @@ msgstr "Publicerad som `einarolafsson/toxoplasma-from-hoechst-cpsam <https://hug
 msgid "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
 msgstr "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
 
-#, fuzzy
-msgid "Toxoplasma Plaque v3 (Gel Doc r5 candidate)"
-msgstr "Toxoplasma Plaque v2 (omgång 5)"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Toxoplasma Plaque v3 (Gel Doc r5, default)"
+msgstr "Toxoplasma Plaque v3 (Gel Doc r5, standard)"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Architecture.** Cellpose-SAM (cpsam, Cellpose 4.0.9)"
-msgstr "**Arkitektur.** Cellpose-SAM (cpsam)"
+msgstr "**Arkitektur.** Cellpose-SAM (cpsam, Cellpose 4.0.9)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Trained on.** 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups"
-msgstr ""
+msgstr "**Tränad på.** 496 kurerade plackfält, inklusive 34 granskade tomma negativa exempel och 71 Gel Doc-brunnar; 100 epoker; fasta grupper efter fysisk platta/källa"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Measured.** Stock was not evaluated in this run; see the named incumbent comparison on the model card."
-msgstr ""
+msgstr "**Uppmätt.** Standardmodellen utvärderades inte i den här körningen; se den namngivna jämförelsen med den tidigare modellen på modellkortet."
 
 msgid "0.6419"
 msgstr "0.6419"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "not measured"
-msgstr ""
+msgstr "inte uppmätt"
 
 msgid "0.6943"
 msgstr "0.6943"
@@ -686,74 +816,174 @@ msgstr "0.6943"
 msgid "0.5968"
 msgstr "0.5968"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "ap"
-msgstr ""
+msgstr "ap"
 
 msgid "0.4726"
 msgstr "0.4726"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "true_positives"
-msgstr ""
+msgstr "true_positives"
 
 msgid "302"
 msgstr "302"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "false_positives"
-msgstr ""
+msgstr "false_positives"
 
 msgid "133"
 msgstr "133"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "false_negatives"
-msgstr ""
+msgstr "false_negatives"
 
 msgid "204"
 msgstr "204"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Evaluation set: ``geldoc_heldout_min_size_0``; version ``20261007T205603``; 18 scored fields and 506 annotated objects."
-msgstr ""
+msgstr "Utvärderingsuppsättning: ``geldoc_heldout_min_size_0``; version ``20261007T205603``; 18 poängsatta fält och 506 annoterade objekt."
 
-msgid "Candidate, not promoted; independent literature uncertainty gate did not pass."
-msgstr ""
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The default plaque model since 2026-10-10: on 263 held-out fields F1 0.844 against toxoplasma_plaque_v2 0.799, and 0.913 against 0.013 on Gel Doc wells, with the Plaque assay's own eval (features/data/model_compare_2026-10-10)."
+msgstr "Standardmodellen för plack sedan 2026-10-10: på 263 utelämnade fält F1 0,844 mot toxoplasma_plaque_v2 0,799, och 0,913 mot 0,013 på Gel Doc-brunnar, med plackanalysens egen utvärdering (features/data/model_compare_2026-10-10)."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Its own release gate on independent literature crops did not pass at the time (literature F1 about 0.54 for every model)."
+msgstr "Dess egen releasegrind på oberoende litteraturutsnitt passerades inte vid den tidpunkten (litteratur-F1 ungefär 0,54 för alla modeller)."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Gel Doc score requires min_size=0; min_size=150 gives F1 0.1041."
-msgstr ""
+msgstr "Gel Doc-poängen kräver min_size=0; min_size=150 ger F1 0,1041."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Stock not measured; comparison baseline is incumbent r3."
-msgstr ""
+msgstr "Standardmodellen har inte mätts; jämförelsebasen är den tidigare modellen r3."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2."
-msgstr ""
+msgstr "Skild från cpsam_v2-modellen från omgång 5 som redan är registrerad som toxoplasma_plaque_v2."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc>`_, as ``cpsam_plaque_r5_geldoc``."
-msgstr "Publicerad som `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_, som ``cpsam_plaque_r5``."
+msgstr "Publicerad som `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc>`_, som ``cpsam_plaque_r5_geldoc``."
 
-msgid "Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5 candidate)"
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, default)"
+msgstr "Publicerat resultatkort för Toxoplasma Plaque v3 (Gel Doc r5, standard)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c``."
-msgstr ""
+msgstr "SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c``."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Toxoplasma Plaque v4 (round 6, alternative)"
+msgstr "Toxoplasma Plaque v4 (omgång 6, alternativ)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Trained on.** Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates and staged literature crops; round 6, best of 180 epochs (epoch 130), base cpsam"
+msgstr "**Tränad på.** Toxoplasma-plack från brunnar i publicerade figurer, Bio-Rad Gel Doc-brunnar, laboratorieplattor och iscensatta litteraturutsnitt; omgång 6, bästa av 180 epoker (epok 130), bas cpsam"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** F1 0.813 against stock cpsam 0.300 on the 263 held-out fields at IoU 0.5"
+msgstr "**Uppmätt.** F1 0,813 mot standard-cpsam 0,300 på de 263 utelämnade fälten vid IoU 0,5"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.8127"
+msgstr "0.8127"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.3003"
+msgstr "0.3003"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.5124"
+msgstr "0.5124"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.8232"
+msgstr "0.8232"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.2235"
+msgstr "0.2235"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.5997"
+msgstr "0.5997"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.8025"
+msgstr "0.8025"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.4576"
+msgstr "0.4576"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "0.3448"
+msgstr "0.3448"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Evaluation set: ``retrain_20261009_plaque_test``; version ``2026-10-09``; 263 scored fields and 12792 annotated objects."
+msgstr "Utvärderingsuppsättning: ``retrain_20261009_plaque_test``; version ``2026-10-09``; 263 poängsatta fält och 12792 annoterade objekt."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Alternative, not better: F1 0.813 against toxoplasma_plaque_v3 0.844 on the same held-out fields, lower on every source (Gel Doc 0.826 against 0.917)."
+msgstr "Alternativ, inte bättre: F1 0,813 mot toxoplasma_plaque_v3 0,844 på samma utelämnade fält, lägre för varje källa (Gel Doc 0,826 mot 0,917)."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Above the previous default toxoplasma_plaque_v2 overall (0.798) and on Gel Doc wells, where v2 scores 0.013."
+msgstr "Över den tidigare standardmodellen toxoplasma_plaque_v2 totalt (0,798) och på Gel Doc-brunnar, där v2 får 0,013."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Fine-tuned from first-generation cpsam, not cpsam_v2."
+msgstr "Finjusterad från första generationens cpsam, inte cpsam_v2."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published-figure literature crops stay hard (F1 0.535)."
+msgstr "Litteraturutsnitt ur publicerade figurer är fortfarande svåra (F1 0,535)."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6>`_, as ``cpsam_plaque_r6``."
+msgstr "Publicerad som `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6>`_, som ``cpsam_plaque_r6``."
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard for Toxoplasma Plaque v4 (round 6, alternative)"
+msgstr "Publicerat resultatkort för Toxoplasma Plaque v4 (omgång 6, alternativ)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "SHA-256 ``00f4a86ba1502fd583231e54bc6538f595f67c86cd4f9ee5c415f6f788a0c171``."
+msgstr "SHA-256 ``00f4a86ba1502fd583231e54bc6538f595f67c86cd4f9ee5c415f6f788a0c171``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)"
-msgstr "``toxoplasma_well_detector_v1`` (YOLO11n)"
+msgstr "Toxoplasma Well Detector v3 (YOLO11-kandidat för Gel Doc)"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Architecture.** YOLO11n (fine-tuned from detector v3)"
-msgstr "**Arkitektur.** YOLO11n"
+msgstr "**Arkitektur.** YOLO11n (finjusterad från detektor v3)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Trained on.** 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization"
-msgstr ""
+msgstr "**Tränad på.** 452 granskade träningsbilder; 124 valideringsbilder; grupper efter fysisk platta och figur; 150 epoker; initiering från YOLO11n v3"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "mAP50"
-msgstr ""
+msgstr "mAP50"
 
 msgid "0.9940"
 msgstr "0.9940"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "mAP50_95"
-msgstr ""
+msgstr "mAP50_95"
 
 msgid "0.8842"
 msgstr "0.8842"
@@ -764,29 +994,35 @@ msgstr "0.9698"
 msgid "0.9979"
 msgstr "0.9979"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Evaluation set: ``detector_v3_validation_figure_clean``; version ``20261007T205603``; 73 scored fields and 191 annotated objects."
-msgstr ""
+msgstr "Utvärderingsuppsättning: ``detector_v3_validation_figure_clean``; version ``20261007T205603``; 73 poängsatta fält och 191 annoterade objekt."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Candidate, not promoted: clean incumbent-validation mAP50-95 regresses."
-msgstr ""
+msgstr "Kandidat, inte befordrad: mAP50-95 på den rensade valideringen av den tidigare modellen försämras."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Gel Doc plates selected best.pt, so their scores are validation rather than independent test."
-msgstr "den utelämnade uppdelningen väljer kontrollpunkten, så den är valideringsdata snarare än en oberoende testuppsättning"
+msgstr "Gel Doc-plattorna valde best.pt, så deras poäng är validering snarare än oberoende test."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Distinct from the YOLO26 checkpoint also historically called detector v4."
-msgstr ""
+msgstr "Skild från YOLO26-kontrollpunkten som historiskt också kallades detektor v4."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Locates wells, not plaques; one class plaque_well (0)."
-msgstr ""
+msgstr "Lokaliserar brunnar, inte plack; en klass plaque_well (0)."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc>`_, as ``yolo_welldetect_v4_geldoc.pt``."
-msgstr "Publicerad som `einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_, som ``yolo_welldetect_v3.pt``."
+msgstr "Publicerad som `einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc>`_, som ``yolo_welldetect_v4_geldoc.pt``."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Published scorecard for Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)"
-msgstr ""
+msgstr "Publicerat resultatkort för Toxoplasma Well Detector v3 (YOLO11-kandidat för Gel Doc)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "SHA-256 ``046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18``."
-msgstr ""
+msgstr "SHA-256 ``046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18``."
 

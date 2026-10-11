@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -166,9 +166,9 @@ msgstr "预览运行期间更改选择"
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "更改来源、所选图像或模式会放弃之前的预览。之前预览迟到的结果无法替换新选择的视图。空的源文件夹会清除之前的掩膜、对象视图和图表格。加载完成后，请为目标选择启动新的预览。取消会丢弃旧结果；当前的模型调用完成后，**运行预览** 和孔控件才会再次可用。请等这些控件可用后再使用更改后的设置重新运行。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
-msgstr "选择 **保存标注** 后，请等待预览状态中出现保存确认，再开始批量分析。保存在后台进行，因此图像保持可响应；排队中的保存尚不是已完成的写入。"
+msgstr "选择 **保存标注** 后，请等待预览状态中出现已保存的确认，再开始批量分析。保存在后台进行，因此窗口保持可响应；排队中的保存尚不是已完成的写入。"
 
 msgid "Python preview contracts"
 msgstr "Python 预览约定"

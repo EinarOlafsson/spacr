@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Classifier evaluation workbench"
 msgstr "分类器评估工作台"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
-msgstr "分类器交叉验证会保留每个折外（out-of-fold）概率，而不是把每一折简化为一个准确率数字。工作台没有自己的磁贴：它从 **分类** 标题栏打开，因为评估分类器是训练之后的下一步。在那里按下 **分类器评估**，然后将模型/结果文件夹拖放到页面上。扫描在后台运行，并查找该文件夹下的所有 ``evaluation_manifest.json``。"
+msgstr "分类器交叉验证会保留每个折外（out-of-fold）概率，而不是把每一折简化为一个准确率数字。工作台没有自己的磁贴：它从 **分类** 标题栏打开。在那里按下 **分类器评估**，然后将模型/结果文件夹拖放到页面上。扫描在后台运行，并查找该文件夹下的所有 ``evaluation_manifest.json``。"
 
 msgid "The workbench shows:"
 msgstr "工作台显示："
@@ -68,9 +68,9 @@ msgstr "分组交叉验证与嵌套交叉验证"
 msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
 msgstr "``cross_validation_folds`` 控制外层折数，``cv_group_by`` 使相关的视野、孔或孔板保持在一起。默认按孔分组进行交叉验证。将 ``nested_cv_inner_folds`` 设为 2 或更大即可启用真正的嵌套交叉验证。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
-msgstr "在普通交叉验证中，外层验证折同时用于选择检查点和报告性能。这种方式速度快，适合日常比较，但当针对该折做出许多选择时，可能给出略微乐观的估计。"
+msgstr "在普通交叉验证中，外层验证折同时用于选择检查点和报告性能。这种方式所需的训练次数少于嵌套交叉验证，但当针对该折做出许多选择时，估计值可能偏于乐观。"
 
 msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
 msgstr "在嵌套交叉验证中，每个外层训练分区会再次划分。模型只针对内层验证折选择检查点；未触碰的外层折只用于一次最终评分。内层模型为该外层折构成一个集成。这需要 ``cross_validation_folds * nested_cv_inner_folds`` 次训练运行，但能使模型选择与性能估计相互分离。"
@@ -78,9 +78,9 @@ msgstr "在嵌套交叉验证中，每个外层训练分区会再次划分。模
 msgid "Leakage protection"
 msgstr "泄漏防护"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises ``LeakageError`` before model fitting; the message lists the overlap counts per level. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
-msgstr "训练之前，spaCR 会在每个划分的两侧检查精确路径、数据增强族、对象以及配置的分组层级。使用 ``evaluation_fail_on_leakage=True`` （默认）时，任何受保护的重叠都会在模型拟合前引发一个可据以处理的错误。数据增强在划分之后生成，因此变换后的副本无法进入留出折。"
+msgstr "训练之前，spaCR 会在每个划分的两侧检查精确路径、数据增强族、对象以及配置的分组层级。使用 ``evaluation_fail_on_leakage=True`` （默认）时，任何受保护的重叠都会在模型拟合前引发 ``LeakageError``；错误信息会列出每个层级的重叠数量。数据增强在划分之后生成，因此变换后的副本无法进入留出折。"
 
 msgid "Temperature calibration"
 msgstr "温度校准"

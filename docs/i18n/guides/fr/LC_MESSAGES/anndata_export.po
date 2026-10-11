@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -82,7 +82,7 @@ msgstr "Pour les arguments explicites de la fonction, consultez :func:`spacr.ann
 msgid "Follow the video"
 msgstr "Suivre la vidéo"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
-msgstr "La `vidéo AnnData <tutorials/#lesson=59_anndata_export>`__ présente ces contrôles à l’aide de l’exemple de mesures téléchargeable. Elle montre des exports joints, limités aux cellules et limités aux noyaux, et compare les politiques de valeurs manquantes. L’exportateur normal gère directement les métadonnées entièrement manquantes. Si l’écriture d’un fichier de remplacement échoue, une sortie complète existante est préservée."
+msgstr "La `vidéo AnnData <tutorials/#lesson=59_anndata_export>`__ présente ces contrôles à l’aide de l’exemple de mesures téléchargeable. Elle montre des exports joints, limités aux cellules et limités aux noyaux, et compare les politiques de valeurs manquantes. Les colonnes de métadonnées d’objets entièrement manquantes sont stockées comme colonnes catégorielles vides dans ``obs`` ; aucune valeur de remplacement n’est écrite. Si l’écriture d’un fichier de remplacement échoue, une sortie complète existante est préservée."
 

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "Pontos de verificação e retomada"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "O spaCR cria pontos de verificação em trabalhos longos somente depois que uma unidade segura termina. Um ponto de verificação nunca significa interromper uma gravação no meio: significa que uma invocação posterior pode comprovar quais campos, tentativas ou trabalhos de placa foram concluídos e continuar a partir deles. O botão **Parar** do Qt usa os mesmos limites: solicita um cancelamento cooperativo, deixa a unidade segura atual terminar e mantém o ponto de verificação para a próxima execução. Consulte :doc:`threading_cancellation_audit`."
+msgstr "O spaCR grava um ponto de verificação somente depois que uma unidade de trabalho completa (um campo, uma tentativa ou um trabalho de placa) termina; uma gravação em andamento não é interrompida. Uma invocação posterior lê o ponto de verificação para determinar quais unidades foram concluídas e continua a partir delas. O botão **Parar** do Qt usa os mesmos limites: solicita um cancelamento cooperativo, deixa a unidade segura atual terminar e mantém o ponto de verificação para a próxima execução. Consulte :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Fluxos de trabalho compatíveis"
@@ -44,9 +44,9 @@ msgstr "Ative ``resume`` em **Postprocessing → Execução e confiabilidade**. 
 msgid "Format Converter"
 msgstr "Conversor de formatos"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
-msgstr "Ative a chave **Retomar** no estilo Apple. O conversor grava ``.spacr_conversion.checkpoint.json`` depois que um campo inteiro é concluído. A retomada reabre os metadados TIFF de cada destino antes de aceitar o campo e repara de forma atômica um destino ausente ou corrompido. A identidade da origem e o plano de mapeamento completo devem coincidir."
+msgstr "Ative a chave **Retomar**. O conversor grava ``.spacr_conversion.checkpoint.json`` depois que um campo inteiro é concluído. A retomada reabre os metadados TIFF de cada destino antes de aceitar o campo e repara de forma atômica um destino ausente ou corrompido. A identidade da origem e o plano de mapeamento completo devem coincidir."
 
 msgid "Image UMAP search"
 msgstr "Busca UMAP de imagens"

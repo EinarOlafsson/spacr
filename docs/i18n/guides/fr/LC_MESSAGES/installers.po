@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -49,37 +49,37 @@ msgstr "|Windows|"
 msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "1.5.1.4 (current)"
-msgstr "1.5.1.3 (actuelle)"
+msgstr "1.5.1.4 (actuelle)"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "|Linux-1-5-1-4|"
-msgstr "|Linux-1-5-1-3|"
+msgstr "|Linux-1-5-1-4|"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Download spaCR 1.5.1.4 for 64-bit Linux"
-msgstr "Télécharger spaCR 1.5.1.3 pour Linux 64 bits"
+msgstr "Télécharger spaCR 1.5.1.4 pour Linux 64 bits"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "|MacOS-1-5-1-4|"
-msgstr "|MacOS-1-5-1-3|"
+msgstr "|MacOS-1-5-1-4|"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Download spaCR 1.5.1.4 for macOS 11+ (Intel and Apple silicon)"
-msgstr "Télécharger spaCR 1.5.1.3 pour macOS 11+ (Intel et Apple Silicon)"
+msgstr "Télécharger spaCR 1.5.1.4 pour macOS 11+ (Intel et Apple Silicon)"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "|Windows-1-5-1-4|"
-msgstr "|Windows-1-5-1-3|"
+msgstr "|Windows-1-5-1-4|"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Download spaCR 1.5.1.4 for Windows 10/11"
-msgstr "Télécharger spaCR 1.5.1.3 pour Windows 10/11"
+msgstr "Télécharger spaCR 1.5.1.4 pour Windows 10/11"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "1.5.1.3"
-msgstr "1.5.1.2"
+msgstr "1.5.1.3"
 
 msgid "|Linux-1-5-1-3|"
 msgstr "|Linux-1-5-1-3|"

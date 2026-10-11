@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -34,9 +34,9 @@ msgstr "어떤 점수도 UMAP이 생물학적으로 의미 있는 구조를 담�
 msgid "``neighborhood_preservation``"
 msgstr "``neighborhood_preservation``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The geometric mean of trustworthiness and continuity. Trustworthiness penalizes neighbours invented by the two-dimensional embedding; continuity penalizes feature-space neighbours that the embedding places far apart. Because the geometric mean is low when either term is low, a high value requires both."
-msgstr "신뢰도(trustworthiness)와 연속성(continuity)의 기하 평균입니다. 신뢰도는 2차원 임베딩이 만들어 낸 가짜 이웃에 벌점을 주고, 연속성은 임베딩이 떼어 놓은 실제 특징 공간 이웃에 벌점을 줍니다. 둘을 모두 요구하면 어느 한쪽의 실패도 숨겨지지 않습니다."
+msgstr "신뢰도(trustworthiness)와 연속성(continuity)의 기하 평균입니다. 신뢰도는 2차원 임베딩이 만들어 낸 이웃에 벌점을 주고, 연속성은 임베딩이 멀리 떼어 놓은 특징 공간 이웃에 벌점을 줍니다. 기하 평균은 어느 한 항이 낮으면 낮아지므로, 높은 값을 얻으려면 두 항이 모두 높아야 합니다."
 
 msgid "``stability``"
 msgstr "``stability``"
@@ -47,9 +47,9 @@ msgstr "서로 다른 재현 가능 시드로 적합한 임베딩들이 공유�
 msgid "``cluster_structure``"
 msgstr "``cluster_structure``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows) and reports the highest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
-msgstr "0에서 1 사이 척도의 양의 실루엣 구조입니다. Python API로 레이블을 제공하면 레이블이 분할을 정의합니다. 그렇지 않으면 spaCR이 클러스터 2~8개의 재현 가능한 K-means 분할을 적합하고, 가장 강한 실루엣과 선택된 클러스터 수를 보고합니다. 이는 기하학적 구조의 증거이지 클러스터가 생물학적이라는 증명이 아닙니다."
+msgstr "0에서 1 범위로 잘라 낸 실루엣 계수로, 음수 값은 0점이 됩니다. Python API로 레이블을 제공하면 레이블이 분할을 정의합니다. 그렇지 않으면 spaCR이 클러스터 2~8개(최대 행 수보다 하나 적은 수)로 시드가 지정된 K-means 분할을 적합하고, 가장 높은 실루엣과 선택된 클러스터 수를 함께 보고합니다. 이는 기하학적 구조의 증거이지 클러스터가 생물학적이라는 증명이 아닙니다."
 
 msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
 msgstr "세 가중치는 합이 1이 되도록 정규화됩니다. 이들의 가중 기하 평균을 ``multi_objective`` 라고 하며, 그리드 검색이나 적응형 검색을 이끕니다. 기하 평균은 산술 평균보다 무너진 목표에 더 큰 벌점을 줍니다."
@@ -57,9 +57,9 @@ msgstr "세 가중치는 합이 1이 되도록 정규화됩니다. 이들의 가
 msgid "Pareto front"
 msgstr "파레토 프런트"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The composite score gives one ranking of the trials. spaCR also marks the Pareto front in the result table. A configuration is Pareto-optimal when no other tested configuration improves one objective without making another worse. Inspect the embedding panels and objective tooltips for every non-dominated row before propagating a configuration."
-msgstr "복합 점수를 유일한 답으로 제시하지 않습니다. spaCR은 결과 표에 파레토 프런트도 표시합니다. 다른 어떤 테스트된 구성도 다른 목표를 악화시키지 않고 한 목표를 개선할 수 없을 때 해당 구성은 파레토 최적입니다. 구성을 적용하기 전에 지배되지 않는 모든 행의 임베딩 패널과 목표 툴팁을 검사합니다."
+msgstr "복합 점수는 시행의 순위 하나를 제공합니다. spaCR은 결과 표에 파레토 프런트도 표시합니다. 다른 어떤 테스트된 구성도 다른 목표를 악화시키지 않고 한 목표를 개선할 수 없을 때 해당 구성은 파레토 최적입니다. 구성을 적용하기 전에 지배되지 않는 모든 행의 임베딩 패널과 목표 툴팁을 검사합니다."
 
 msgid "The neighborhood, stability and cluster objectives, normalized weights, repeat count, raw silhouette, cluster source and discovered cluster counts are stored in each trial's ``extra_metrics``."
 msgstr "이웃, 안정성, 클러스터 목표, 정규화된 가중치, 반복 횟수, 원시 실루엣, 클러스터 출처, 발견된 클러스터 수는 각 시행의 ``extra_metrics`` 에 저장됩니다."

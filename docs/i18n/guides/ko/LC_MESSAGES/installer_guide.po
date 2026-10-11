@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -35,9 +35,9 @@ msgstr "애플리케이션 실행 아이콘과 전용 Python 환경을 원하면
 msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and core dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
 msgstr "Conda로 spaCR을 설치하고 데스크톱 및 핵심 의존성을 해결하려면 공식 `conda-forge 패키지 <https://anaconda.org/conda-forge/spacr>`_ 를 사용하세요. 기존 Python 환경, 노트북, 서버 또는 클러스터에 spaCR이 필요하거나 conda 패키지에 없는 PyPI 추가 기능이 필요하면 ``pip`` 로 PyPI 버전을 설치하세요. Python 3.12는 현재 선택적 과학 패키지를 가장 폭넓게 제공합니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use a :ref:`container image <container-images>` when spaCR cannot be installed directly on the host, such as a cluster node, a cloud instance or a shared machine you cannot change, or when an analysis must be rerun later with the same software versions. The images are for the CLI and the pipelines; running the desktop interface in a container is supported only on Linux and is described separately below. On a cluster without Docker, build the same image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a workstation that has no network access at all, use an :ref:`offline installer bundle <offline-bundle>`."
-msgstr "설치 자체가 문제일 때는 :ref:`컨테이너 이미지 <container-images>` 를 사용합니다. 클러스터 노드, 클라우드 인스턴스, 변경할 수 없는 공유 컴퓨터, 몇 년 뒤에도 다시 실행할 수 있어야 하는 분석이 이에 해당합니다. 이미지는 CLI와 파이프라인용이며, 컨테이너 안의 데스크톱 인터페이스는 Linux 전용 부가 기능으로 따로 문서화되어 있습니다. Docker가 없는 클러스터에서는 같은 이미지를 :ref:`Apptainer 또는 SingularityCE 파일 <apptainer-images>` 로 빌드합니다. 네트워크에 전혀 접근할 수 없는 워크스테이션에는 :ref:`오프라인 설치 번들 <offline-bundle>` 을 사용합니다."
+msgstr "클러스터 노드, 클라우드 인스턴스, 변경할 수 없는 공유 컴퓨터처럼 spaCR을 호스트에 직접 설치할 수 없을 때나, 나중에 같은 소프트웨어 버전으로 분석을 다시 실행해야 할 때는 :ref:`컨테이너 이미지 <container-images>`\\ 를 사용합니다. 이미지는 CLI와 파이프라인용이며, 컨테이너에서 데스크톱 인터페이스를 실행하는 것은 Linux에서만 지원되고 아래에서 따로 설명합니다. Docker가 없는 클러스터에서는 같은 이미지를 :ref:`Apptainer 또는 SingularityCE 파일 <apptainer-images>`\\ 로 빌드합니다. 네트워크에 전혀 접근할 수 없는 워크스테이션에는 :ref:`오프라인 설치 번들 <offline-bundle>`\\ 을 사용합니다."
 
 msgid "Desktop installers"
 msgstr "데스크톱 설치 프로그램"
@@ -48,9 +48,9 @@ msgstr "`spaCR README <https://github.com/EinarOlafsson/spacr#install-spacr>`_ �
 msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation."
-msgstr "``SpaCR-<version>-Windows-Online-Setup.exe`` 를 실행합니다. 기본 사용자별 위치는 ``%LOCALAPPDATA%\\spaCR`` 이며 관리자 권한이 필요하지 않습니다. 자동 하드웨어 가속이 기본으로 선택됩니다. 호환되는 NVIDIA 시스템에서는 CUDA 지원 PyTorch 빌드를 설치하고, 그 밖의 시스템에서는 안전하게 대체합니다. 더 작은 CPU 전용 설치가 필요할 때만 이 구성 요소를 해제합니다."
+msgstr "``SpaCR-<version>-Windows-Online-Setup.exe``\\ 를 실행합니다. 기본 사용자별 위치는 ``%LOCALAPPDATA%\\spaCR``\\ 이며 관리자 권한이 필요하지 않습니다. 자동 하드웨어 가속이 기본으로 선택됩니다. 호환되는 NVIDIA 시스템에서는 CUDA 지원 PyTorch 빌드를 설치합니다. 그 밖의 시스템에서는 ``uv``\\ 가 감지된 하드웨어에 맞게 선택하는 PyTorch 빌드를 설치하며, 지원되는 GPU가 감지되지 않으면 CPU 빌드가 설치됩니다. 더 작은 CPU 전용 설치가 필요할 때만 이 구성 요소를 해제합니다."
 
 msgid "macOS 11 or later"
 msgstr "macOS 11 이상"
@@ -79,9 +79,9 @@ msgstr "더 새로운 버전의 설치 프로그램을 다운로드하여 실행
 msgid "Update channel and What's new"
 msgstr "업데이트 채널과 새로운 기능"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Preferences → Modules → Update channel** chooses what **Help → Check for updates** offers. *Stable releases* (the default) offers PyPI's latest release. *Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less; withdrawn (yanked) versions are never offered. After an update, the next launch opens **What's new in spaCR** with the release notes of every version between the previous and the running one: the notes bundled with the build, plus the published GitHub releases when **Release news** is on and GitHub can be reached. **Help → What's new…** reopens it at any time."
-msgstr "**환경설정 → 모듈 → 업데이트 채널** 은 **도움말 → Check for updates** 가 제공하는 항목을 정합니다. *안정 릴리스* (기본값)는 PyPI의 최신 릴리스를 제공합니다. *나이틀리 빌드* 는 사전 릴리스와 개발 빌드도 제공하며, 더 일찍 나오지만 테스트가 덜 되어 있습니다. 철회된(yanked) 버전은 제공되지 않습니다. 업데이트 후 다음 시작 시 **spaCR 새 기능** 이 열리며, 이전 버전과 현재 실행 중인 버전 사이의 모든 버전의 릴리스 노트를 보여 줍니다. 빌드에 포함된 노트와, **릴리스 소식** 이 켜져 있고 네트워크가 응답할 때 게시된 GitHub 릴리스가 표시됩니다. **도움말 → 새 기능…** 으로 언제든 다시 열 수 있습니다."
+msgstr "**환경설정 → 모듈 → 업데이트 채널**\\ 은 **도움말 → Check for updates**\\ 가 제공하는 항목을 정합니다. *안정 릴리스* (기본값)는 PyPI의 최신 릴리스를 제공합니다. *나이틀리 빌드*\\ 는 사전 릴리스와 개발 빌드도 제공하며, 더 일찍 나오지만 테스트가 덜 되어 있습니다. 철회된(yanked) 버전은 제공되지 않습니다. 업데이트 후 다음 시작 시 **spaCR 새 기능**\\ 이 열리며, 이전 버전과 현재 실행 중인 버전 사이의 모든 버전의 릴리스 노트를 보여 줍니다. 빌드에 포함된 노트와, **릴리스 소식**\\ 이 켜져 있고 GitHub에 연결할 수 있을 때 게시된 GitHub 릴리스가 표시됩니다. **도움말 → 새 기능…**\\ 으로 언제든 다시 열 수 있습니다."
 
 msgid "Proxies and corporate certificates"
 msgstr "프록시와 기업 인증서"
@@ -106,9 +106,9 @@ msgid "Older installations and full installers"
 msgstr "이전 설치본과 전체 설치 프로그램"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
-msgstr "전체 설치 프로그램과 다른 설치 프로그램 기반 업데이트 경로는 이전 설치 프로그램이 만든 spaCR 설치본을 찾아 제거합니다. 따라서 두 버전이 나란히 설치되어 그중 하나가 실행 경로에 남는 일이 없습니다. Windows 온라인·오프라인 설치본, macOS 앱과 사용자별 환경, Linux 온라인 설치본과 Debian 패키지뿐 아니라 실행기, 바로가기, 메뉴 항목, 제거 등록 정보도 찾습니다. 직접 만든 환경과 소스 체크아웃은 목록에 표시하지만 제거하지 않으며, 프로젝트 폴더와 결과도 건드리지 않습니다. 예를 들어 관리자 권한이 필요한 ``/Applications``\\ 의 macOS 앱처럼 제거할 수 없는 설치본이 있으면, 어떤 설치본인지 알리고 아무것도 설치하지 않습니다. 따라서 업데이트가 절반만 적용된 상태로 남지 않습니다."
+msgstr "전체 설치 프로그램과 다른 설치 프로그램 기반 업데이트 경로는 이전 설치 프로그램이 만든 spaCR 설치본을 찾아 제거하여, 설치 프로그램이 만든 사본이 하나만 남도록 합니다. Windows 온라인·오프라인 설치본, macOS 앱과 사용자별 환경, Linux 온라인 설치본과 Debian 패키지를 그 실행기, 바로가기, 메뉴 항목, 제거 등록 정보와 함께 찾습니다. 직접 만든 환경과 소스 체크아웃은 목록에 표시하지만 제거하지 않으며, 프로젝트 폴더와 결과는 절대 건드리지 않습니다. 예를 들어 관리자 권한이 필요한 ``/Applications``\\ 의 macOS 앱처럼 제거할 수 없는 사본이 있으면, 설치 프로그램은 그 사본을 알리고 새 버전을 설치하지 않습니다."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "아무것도 바꾸지 않고 무엇을 찾을지 보려면 spaCR 체크아웃에서 찾기 도구를 실행합니다: ``python spacr/install_cleanup.py find``."
@@ -365,15 +365,16 @@ msgstr "대화형 튜토리얼 환경에서 사용하는 패키지."
 msgid "Container images"
 msgstr "컨테이너 이미지"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
-msgstr "모든 spaCR 릴리스에서, 해당 버전이 PyPI에 올라간 뒤 두 이미지가 GitHub Container Registry에 게시됩니다. 각 이미지는 빌드된 다음 푸시되기 전에 검사를 받습니다. 태그가 주장하는 버전을 보고해야 하고, root로 실행되어서는 안 되며, 실제 파이프라인 하나를 끝까지 실행해야 합니다. 따라서 존재하는 이미지는 실행된 적이 있는 이미지입니다. 검사에 실패한 이미지는 게시되지 않으며, 그 이미지를 빌드한 릴리스 실행은 실패(빨간색)로 표시됩니다."
+msgstr "모든 spaCR 릴리스에서, 해당 버전이 PyPI에 올라간 뒤 두 이미지가 GitHub Container Registry에 게시됩니다. 각 이미지는 빌드된 다음 푸시되기 전에 검사를 받습니다. 태그가 주장하는 버전을 보고해야 하고, root로 실행되어서는 안 되며, 합성 시야에서 파이프라인 실행 하나를 완료해야 합니다. 검사에 실패한 이미지는 게시되지 않으며, 그 이미지를 빌드한 워크플로 실행은 실패합니다."
 
 msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every older spaCR release has a container image."
 msgstr "공개 `GHCR 패키지 페이지 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ 에 사용 가능한 버전이 나열되어 있습니다. 아래 명령은 게시된 **1.5.1.0** 이미지를 사용합니다. 모든 이전 spaCR 릴리스에 컨테이너 이미지가 있는 것은 아닙니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The images run spaCR without a display: the CLI, the pipelines, cluster jobs and reruns of an earlier analysis with a pinned version. Use the platform installers above to install the desktop application."
-msgstr ""
+msgstr "이미지는 디스플레이 없이 spaCR을 실행합니다. CLI, 파이프라인, 클러스터 작업, 그리고 고정된 버전으로 이전 분석을 다시 실행하는 용도입니다. 데스크톱 애플리케이션을 설치하려면 위의 플랫폼별 설치 프로그램을 사용합니다."
 
 msgid "Image"
 msgstr "이미지"
@@ -396,9 +397,9 @@ msgstr "CUDA 12.4. **호스트의 550 이상** NVIDIA 드라이버와 NVIDIA Con
 msgid "``:latest`` and ``:cpu`` follow the newest CPU release; ``:cuda`` and ``:cuda12.4`` follow the newest CUDA release. Name an exact version for anything you intend to reproduce."
 msgstr "``:latest`` 와 ``:cpu`` 는 최신 CPU 릴리스를, ``:cuda`` 와 ``:cuda12.4`` 는 최신 CUDA 릴리스를 따릅니다. 재현하려는 작업에는 정확한 버전을 지정합니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Models and data are mounted at run time; neither is included in the image. A cpsam checkpoint is about 1.2 GB and may be updated between releases, so the image ships none: mount a folder on ``/models`` and it becomes both the folder the Model Zoo downloads into and the folder Cellpose loads from. SAMCell and DINOCell are not in the images either, because they pin PyTorch versions that conflict with spaCR's and with each other; install one inside a running container, or let the Model Zoo install it into an isolated environment of its own."
-msgstr "모델과 데이터는 마운트하며 이미지에 넣지 않습니다. cpsam 체크포인트는 약 1.2 GB이고 릴리스 사이에 낡아지므로 이미지에는 포함되지 않습니다. 폴더를 ``/models`` 에 마운트하면 그 폴더가 모델 라이브러리의 다운로드 위치이자 Cellpose가 불러오는 위치가 됩니다. SAMCell과 DINOCell도 이미지에 없습니다. 이들이 고정하는 PyTorch 버전이 spaCR의 버전과도, 서로 간에도 충돌하기 때문입니다. 실행 중인 컨테이너 안에 하나를 설치하거나, 모델 라이브러리가 자체 격리 환경에 설치하도록 합니다."
+msgstr "모델과 데이터는 실행 시 마운트되며, 둘 다 이미지에 포함되지 않습니다. cpsam 체크포인트는 약 1.2 GB이고 릴리스 사이에 업데이트될 수 있으므로 이미지에는 포함되지 않습니다. 폴더를 ``/models``\\ 에 마운트하면 그 폴더가 모델 라이브러리의 다운로드 위치이자 Cellpose가 불러오는 위치가 됩니다. SAMCell과 DINOCell도 이미지에 없습니다. 이들이 고정하는 PyTorch 버전이 spaCR의 버전과도, 서로 간에도 충돌하기 때문입니다. 실행 중인 컨테이너 안에 하나를 설치하거나, 모델 라이브러리가 자체 격리 환경에 설치하도록 합니다."
 
 msgid "Install Docker and check the image"
 msgstr "Docker 설치 및 이미지 확인"
@@ -433,9 +434,9 @@ msgstr "컨테이너 안의 데스크톱 인터페이스"
 msgid "**Linux only, and unsupported elsewhere.** The images carry the Qt runtime libraries, so a Linux host running X11 can pass its display socket in:"
 msgstr "**Linux 전용이며 다른 플랫폼에서는 지원되지 않습니다.** 이미지에는 Qt 런타임 라이브러리가 들어 있으므로 X11을 실행하는 Linux 호스트는 디스플레이 소켓을 전달할 수 있습니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist inside the container, and Qt prints a warning about it at every start; the image makes its own runtime directory under the container's cache folder instead."
-msgstr "호스트의 ``XDG_RUNTIME_DIR`` 은 전달하지 않습니다. 그 경로는 컨테이너 안에 없어서 Qt가 시작할 때마다 경고하며, 이미지가 대신 컨테이너의 캐시 폴더 아래에 자체 런타임 디렉터리를 만듭니다."
+msgstr "호스트의 ``XDG_RUNTIME_DIR``\\ 은 전달하지 않습니다. 그 경로는 컨테이너 안에 존재하지 않아 Qt가 시작할 때마다 이에 대한 경고를 출력하며, 이미지는 대신 컨테이너의 캐시 폴더 아래에 자체 런타임 디렉터리를 만듭니다."
 
 msgid "A container rarely has a usable OpenGL context, so the animated backdrop may not draw. ``safespacr`` starts the same application with the backdrop and GL switched off, and is the right command when the window is slow or blank:"
 msgstr "컨테이너에는 사용할 수 있는 OpenGL 컨텍스트가 거의 없으므로 움직이는 배경이 그려지지 않을 수 있습니다. ``safespacr`` 는 배경과 GL을 끈 채 같은 애플리케이션을 시작하며, 창이 느리거나 비어 있을 때 사용할 명령입니다."

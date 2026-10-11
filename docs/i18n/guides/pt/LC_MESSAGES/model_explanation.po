@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "Explicar modelos de VC e investigar candidatos"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR provides three separate analyses that answer different questions:"
-msgstr ""
+msgstr "O spaCR oferece três análises separadas que respondem a perguntas diferentes:"
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "mapas de ativação ou oclusão mostram **onde** um modelo de visão prestou atenção;"
@@ -73,9 +74,9 @@ msgstr "No cabeçalho de **Regressão**, abra **Lista de candidatos**, selecione
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "Forneça o banco de dados de medições, o CSV original de previsões por objeto e o CSV de frações de guias por poço. As junções usam chaves explícitas de objeto e de placa/linha/coluna. Chaves de objeto duplicadas ou frações poço/guia duplicadas interrompem a execução."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "A primeira saída é uma fila de revisão honesta: células dos poços que contêm o alvo, ordenadas na direção do efeito da regressão, com a fração do guia do alvo no nível do poço mostrada ao lado. Em seguida, o modelo de atribuição opcional:"
+msgstr "A primeira saída é uma fila de revisão: células dos poços que contêm o alvo, ordenadas na direção do efeito da regressão, com a fração do guia do alvo no nível do poço mostrada ao lado. Em seguida, o modelo de atribuição opcional:"
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "trata poços como bolsas e células como instâncias;"

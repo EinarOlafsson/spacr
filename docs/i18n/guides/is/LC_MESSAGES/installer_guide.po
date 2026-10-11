@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -35,9 +35,9 @@ msgstr "Notaðu skjáborðsuppsetningarforrit þegar þú vilt ræsitákn forrit
 msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and core dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
 msgstr "Notaðu opinbera `conda-forge-pakkann <https://anaconda.org/conda-forge/spacr>`_ þegar Conda á að setja spaCR upp ásamt þeim pökkum sem skjáborðsviðmótið og kjarninn þurfa. Notaðu ``pip`` fyrir PyPI-útgáfuna þegar spaCR þarf að vera í fyrirliggjandi Python-umhverfi, glósubók, þjóni eða tölvuklasa, eða þegar þú þarft PyPI-viðbót sem er ekki hluti af conda-pakkanum. Python 3.12 býður nú upp á fjölbreyttasta úrval valfrjálsra vísindapakka."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use a :ref:`container image <container-images>` when spaCR cannot be installed directly on the host, such as a cluster node, a cloud instance or a shared machine you cannot change, or when an analysis must be rerun later with the same software versions. The images are for the CLI and the pipelines; running the desktop interface in a container is supported only on Linux and is described separately below. On a cluster without Docker, build the same image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a workstation that has no network access at all, use an :ref:`offline installer bundle <offline-bundle>`."
-msgstr "Notaðu :ref:`gámamynd <container-images>` þegar uppsetningin sjálf er vandamálið: klasahnútur, tilvik í skýi, sameiginleg vél sem þú getur ekki breytt, eða greining sem þarf að vera hægt að keyra aftur eftir mörg ár. Myndirnar eru fyrir CLI og vinnslukeðjurnar; skjáborðsviðmótið í gámi er aukaatriði eingöngu fyrir Linux og er skjalfest sem slíkt. Á klasa án Docker skaltu byggja sömu mynd sem :ref:`Apptainer- eða SingularityCE-skrá <apptainer-images>`. Fyrir vinnustöð sem hefur alls engan netaðgang skaltu nota :ref:`uppsetningarpakka án nettengingar <offline-bundle>`."
+msgstr "Notaðu :ref:`gámamynd <container-images>` þegar ekki er hægt að setja spaCR beint upp á hýsilinn, svo sem á klasahnút, tilvik í skýi eða sameiginlega vél sem þú getur ekki breytt, eða þegar keyra þarf greiningu aftur síðar með sömu hugbúnaðarútgáfum. Myndirnar eru fyrir CLI og vinnslukeðjurnar; keyrsla skjáborðsviðmótsins í gámi er aðeins studd á Linux og henni er lýst sérstaklega hér að neðan. Á klasa án Docker skaltu byggja sömu mynd sem :ref:`Apptainer- eða SingularityCE-skrá <apptainer-images>`. Fyrir vinnustöð sem hefur alls engan netaðgang skaltu nota :ref:`uppsetningarpakka án nettengingar <offline-bundle>`."
 
 msgid "Desktop installers"
 msgstr "Skjáborðsuppsetningarforrit"
@@ -48,9 +48,9 @@ msgstr "Sæktu núverandi uppsetningarforrit úr `README spaCR <https://github.c
 msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation."
-msgstr "Keyrðu ``SpaCR-<version>-Windows-Online-Setup.exe``. Sjálfgefin staðsetning fyrir hvern notanda er ``%LOCALAPPDATA%\\spaCR`` og krefst ekki stjórnandaaðgangs. Sjálfvirk vélbúnaðarhröðun er valin sjálfgefið. Hún setur upp PyTorch-útgáfu sem styður CUDA á samhæfum NVIDIA-kerfum og fellur örugglega aftur á annað annars staðar. Afveldu íhlutinn aðeins þegar þú þarft minni uppsetninguna sem notar eingöngu örgjörva."
+msgstr "Keyrðu ``SpaCR-<version>-Windows-Online-Setup.exe``. Sjálfgefin staðsetning fyrir hvern notanda er ``%LOCALAPPDATA%\\spaCR`` og krefst ekki stjórnandaaðgangs. Sjálfvirk vélbúnaðarhröðun er valin sjálfgefið. Hún setur upp PyTorch-útgáfu sem styður CUDA á samhæfum NVIDIA-kerfum. Á öðrum kerfum setur hún upp þá PyTorch-útgáfu sem ``uv`` velur fyrir greindan vélbúnað, sem er örgjörvaútgáfan þegar ekkert stutt skjákort greinist. Afveldu íhlutinn aðeins þegar þú þarft minni uppsetninguna sem notar eingöngu örgjörva."
 
 msgid "macOS 11 or later"
 msgstr "macOS 11 eða nýrra"
@@ -79,9 +79,9 @@ msgstr "Sæktu og keyrðu uppsetningarforritið fyrir nýrri útgáfuna. Uppsetn
 msgid "Update channel and What's new"
 msgstr "Uppfærslurás og Hvað er nýtt"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Preferences → Modules → Update channel** chooses what **Help → Check for updates** offers. *Stable releases* (the default) offers PyPI's latest release. *Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less; withdrawn (yanked) versions are never offered. After an update, the next launch opens **What's new in spaCR** with the release notes of every version between the previous and the running one: the notes bundled with the build, plus the published GitHub releases when **Release news** is on and GitHub can be reached. **Help → What's new…** reopens it at any time."
-msgstr "**Kjörstillingar → Modúlar → Uppfærslurás** velur hvað **Hjálp → Check for updates** býður. *Stöðugar útgáfur* (sjálfgefið) býður nýjustu útgáfuna á PyPI. *Næturútgáfur* býður einnig forútgáfur og þróunarútgáfur, sem koma fyrr og eru minna prófaðar; afturkallaðar (yanked) útgáfur eru aldrei boðnar. Eftir uppfærslu opnar næsta ræsing **Nýtt í spaCR** með útgáfuupplýsingum hverrar útgáfu milli þeirrar fyrri og þeirrar sem keyrir: upplýsingunum sem fylgja útgáfunni, auk birtra GitHub-útgáfa þegar **Útgáfufréttir** er á og netið svarar. **Hjálp → Nýjungar…** opnar hana aftur hvenær sem er."
+msgstr "**Kjörstillingar → Modúlar → Uppfærslurás** velur hvað **Hjálp → Check for updates** býður. *Stöðugar útgáfur* (sjálfgefið) býður nýjustu útgáfuna á PyPI. *Næturútgáfur* býður einnig forútgáfur og þróunarútgáfur, sem koma fyrr og eru minna prófaðar; afturkallaðar (yanked) útgáfur eru aldrei boðnar. Eftir uppfærslu opnar næsta ræsing **Nýtt í spaCR** með útgáfuupplýsingum hverrar útgáfu milli þeirrar fyrri og þeirrar sem keyrir: upplýsingunum sem fylgja útgáfunni, auk birtra GitHub-útgáfa þegar **Útgáfufréttir** er á og hægt er að ná sambandi við GitHub. **Hjálp → Nýjungar…** opnar hana aftur hvenær sem er."
 
 msgid "Proxies and corporate certificates"
 msgstr "Milliþjónar og fyrirtækjaskilríki"
@@ -106,9 +106,9 @@ msgid "Older installations and full installers"
 msgstr "Eldri uppsetningar og full uppsetningarforrit"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
-msgstr "Full uppsetningarforrit og aðrar uppfærsluleiðir uppsetningarforrita leita að spaCR-uppsetningum sem eldra uppsetningarforrit bjó til og fjarlægja þær. Þannig sitja tvær útgáfur ekki hlið við hlið með aðra þeirra í leitarslóðinni. Þau finna net- og ótengdar uppsetningar fyrir Windows, macOS-forritið og umhverfi þess fyrir hvern notanda, netuppsetningu Linux og Debian-pakkann, ásamt ræsiforritum, flýtileiðum, valmyndarfærslum og skráningum til fjarlægingar. Umhverfi sem þú bjóst sjálf(ur) til og vinnueintök frumkóða eru talin upp en aldrei fjarlægð, og verkefnamöppur og niðurstöður eru aldrei snertar. Ef ekki er hægt að fjarlægja eintak, til dæmis macOS-forrit í ``/Applications`` sem krefst stjórnandaréttinda, segir uppsetningarforritið hvert það er og setur ekkert upp. Þú situr því ekki uppi með hálfkláraða uppfærslu."
+msgstr "Full uppsetningarforrit og aðrar uppfærsluleiðir uppsetningarforrita leita að spaCR-uppsetningum sem eldra uppsetningarforrit bjó til og fjarlægja þær, svo að aðeins eitt eintak frá uppsetningarforriti verði eftir. Þau finna net- og ótengdar uppsetningar fyrir Windows, macOS-forritið og umhverfi þess fyrir hvern notanda, netuppsetningu Linux og Debian-pakkann, ásamt ræsiforritum, flýtileiðum, valmyndarfærslum og skráningum til fjarlægingar. Umhverfi sem þú bjóst sjálf(ur) til og vinnueintök frumkóða eru talin upp en aldrei fjarlægð, og verkefnamöppur og niðurstöður eru aldrei snertar. Ef ekki er hægt að fjarlægja eintak -- til dæmis macOS-forrit í ``/Applications`` sem krefst stjórnandaréttinda -- nefnir uppsetningarforritið það og setur nýju útgáfuna ekki upp."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "Til að sjá hvað það myndi finna án þess að breyta neinu skaltu keyra leitina úr frumkóðaafriti spaCR: ``python spacr/install_cleanup.py find``."
@@ -365,15 +365,16 @@ msgstr "Pökkum sem gagnvirka kennsluumhverfið notar."
 msgid "Container images"
 msgstr "Gámamyndir"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
-msgstr "Tvær myndir eru birtar í GitHub Container Registry sem hluti af hverri spaCR-útgáfu, eftir að sú útgáfa berst á PyPI. Hver þeirra er byggð og síðan athuguð áður en hún er send — hún verður að tilkynna útgáfuna sem merki hennar segist hafa, hún má ekki keyra sem root og hún verður að ljúka einni raunverulegri vinnslukeðju — svo mynd sem er til er mynd sem hefur keyrt. Mynd sem fellur á athugun er ekki birt og útgáfukeyrslan sem byggði hana er rauð."
+msgstr "Tvær myndir eru birtar í GitHub Container Registry sem hluti af hverri spaCR-útgáfu, eftir að sú útgáfa berst á PyPI. Hver þeirra er byggð og síðan athuguð áður en hún er send: hún verður að tilkynna útgáfuna sem merki hennar segist hafa, hún má ekki keyra sem root og hún verður að ljúka einni keyrslu vinnslukeðju á tilbúnu sjónsviði. Mynd sem fellur á athugun er ekki birt og verkflæðiskeyrslan sem byggði hana mistekst."
 
 msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every older spaCR release has a container image."
 msgstr "Opinbera `GHCR-pakkasíðan <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ sýnir tiltækar útgáfur. Skipanirnar hér að neðan nota birtu **1.5.1.0**-myndirnar; ekki hafa allar eldri spaCR-útgáfur gámamynd."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The images run spaCR without a display: the CLI, the pipelines, cluster jobs and reruns of an earlier analysis with a pinned version. Use the platform installers above to install the desktop application."
-msgstr ""
+msgstr "Myndirnar keyra spaCR án skjás: CLI, vinnslukeðjurnar, klasaverk og endurkeyrslur fyrri greiningar með festri útgáfu. Notaðu uppsetningarforritin fyrir stýrikerfin hér að ofan til að setja upp skjáborðsforritið."
 
 msgid "Image"
 msgstr "Mynd"
@@ -396,9 +397,9 @@ msgstr "CUDA 12.4. Þarf NVIDIA-rekil **550 eða nýrri á hýslinum** og NVIDIA
 msgid "``:latest`` and ``:cpu`` follow the newest CPU release; ``:cuda`` and ``:cuda12.4`` follow the newest CUDA release. Name an exact version for anything you intend to reproduce."
 msgstr "``:latest`` og ``:cpu`` fylgja nýjustu örgjörvaútgáfunni; ``:cuda`` og ``:cuda12.4`` fylgja nýjustu CUDA-útgáfunni. Tilgreindu nákvæma útgáfu fyrir allt sem þú hyggst endurtaka."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Models and data are mounted at run time; neither is included in the image. A cpsam checkpoint is about 1.2 GB and may be updated between releases, so the image ships none: mount a folder on ``/models`` and it becomes both the folder the Model Zoo downloads into and the folder Cellpose loads from. SAMCell and DINOCell are not in the images either, because they pin PyTorch versions that conflict with spaCR's and with each other; install one inside a running container, or let the Model Zoo install it into an isolated environment of its own."
-msgstr "Líkön og gögn eru tengd inn, aldrei bökuð inn. cpsam-vistunarpunktur er um 1,2 GB og úreldist milli útgáfna, svo myndin inniheldur engan: tengdu möppu við ``/models`` og hún verður bæði mappan sem Líkanasafnið sækir í og mappan sem Cellpose hleður úr. SAMCell og DINOCell eru heldur ekki í myndunum, vegna þess að þau festa PyTorch-útgáfur sem stangast á við útgáfu spaCR og hvor við aðra; settu annað upp inni í keyrandi gámi eða láttu Líkanasafnið setja það upp í eigið einangrað umhverfi."
+msgstr "Líkön og gögn eru tengd inn við keyrslu; hvorugt er í myndinni. cpsam-vistunarpunktur er um 1,2 GB og getur verið uppfærður milli útgáfna, svo myndin inniheldur engan: tengdu möppu við ``/models`` og hún verður bæði mappan sem Líkanasafnið sækir í og mappan sem Cellpose hleður úr. SAMCell og DINOCell eru heldur ekki í myndunum, vegna þess að þau festa PyTorch-útgáfur sem stangast á við útgáfu spaCR og hvor við aðra; settu annað upp inni í keyrandi gámi eða láttu Líkanasafnið setja það upp í eigið einangrað umhverfi."
 
 msgid "Install Docker and check the image"
 msgstr "Settu upp Docker og athugaðu myndina"
@@ -433,9 +434,9 @@ msgstr "Skjáborðsviðmótið í gámi"
 msgid "**Linux only, and unsupported elsewhere.** The images carry the Qt runtime libraries, so a Linux host running X11 can pass its display socket in:"
 msgstr "**Eingöngu Linux, og óstutt annars staðar.** Myndirnar bera keyrslusöfn Qt, svo Linux-hýsill sem keyrir X11 getur sent skjáinnstunguna sína inn:"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist inside the container, and Qt prints a warning about it at every start; the image makes its own runtime directory under the container's cache folder instead."
-msgstr "Ekki senda ``XDG_RUNTIME_DIR`` hýsilsins inn. Sú slóð er ekki til inni í gámnum og Qt kvartar yfir henni við hverja ræsingu; myndin býr í staðinn til eigin keyrslumöppu undir skyndiminnismöppu gámsins."
+msgstr "Ekki senda ``XDG_RUNTIME_DIR`` hýsilsins inn. Sú slóð er ekki til inni í gámnum og Qt birtir viðvörun um hana við hverja ræsingu; myndin býr í staðinn til eigin keyrslumöppu undir skyndiminnismöppu gámsins."
 
 msgid "A container rarely has a usable OpenGL context, so the animated backdrop may not draw. ``safespacr`` starts the same application with the backdrop and GL switched off, and is the right command when the window is slow or blank:"
 msgstr "Gámur hefur sjaldan nothæft OpenGL-samhengi, svo hreyfði bakgrunnurinn teiknast hugsanlega ekki. ``safespacr`` ræsir sama forritið með slökkt á bakgrunninum og GL og er rétta skipunin þegar glugginn er hægur eða auður:"

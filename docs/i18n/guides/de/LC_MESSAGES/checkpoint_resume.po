@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "Checkpoints und Fortsetzen"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR setzt bei langen Arbeiten erst dann einen Checkpoint, wenn eine sichere Einheit abgeschlossen ist. Ein Checkpoint bedeutet niemals, einen Schreibvorgang mittendrin abzubrechen: Er bedeutet, dass ein späterer Aufruf nachweisen kann, welche Bildfelder, Versuche oder Plattenaufträge abgeschlossen sind, und danach fortfahren kann. Die Qt-Schaltfläche **Stopp** verwendet dieselben Grenzen: Sie fordert einen kooperativen Abbruch an, lässt die aktuelle sichere Einheit fertig werden und behält den Checkpoint für die nächste Ausführung. Siehe :doc:`threading_cancellation_audit`."
+msgstr "spaCR schreibt einen Checkpoint erst, nachdem eine vollständige Arbeitseinheit (ein Bildfeld, ein Versuch oder ein Plattenauftrag) abgeschlossen ist; ein laufender Schreibvorgang wird nicht unterbrochen. Ein späterer Aufruf liest den Checkpoint, um festzustellen, welche Einheiten abgeschlossen sind, und fährt danach fort. Die Qt-Schaltfläche **Stopp** verwendet dieselben Grenzen: Sie fordert einen kooperativen Abbruch an, lässt die aktuelle sichere Einheit fertig werden und behält den Checkpoint für die nächste Ausführung. Siehe :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Unterstützte Workflows"
@@ -44,9 +44,9 @@ msgstr "Aktivieren Sie ``resume`` unter **Postprocessing → Laufzeit & Zuverlä
 msgid "Format Converter"
 msgstr "Formatkonverter"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
-msgstr "Aktivieren Sie den Schalter **Fortsetzen** im Apple-Stil. Der Konverter schreibt ``.spacr_conversion.checkpoint.json``, nachdem ein ganzes Bildfeld vollständig ist. Beim Fortsetzen werden die TIFF-Metadaten jedes Ziels erneut geöffnet, bevor das Bildfeld akzeptiert wird, und ein fehlendes oder beschädigtes Ziel wird atomar repariert. Die Quellidentität und der vollständige Zuordnungsplan müssen übereinstimmen."
+msgstr "Aktivieren Sie den Schalter **Fortsetzen**. Der Konverter schreibt ``.spacr_conversion.checkpoint.json``, nachdem ein ganzes Bildfeld vollständig ist. Beim Fortsetzen werden die TIFF-Metadaten jedes Ziels erneut geöffnet, bevor das Bildfeld akzeptiert wird, und ein fehlendes oder beschädigtes Ziel wird atomar repariert. Die Quellidentität und der vollständige Zuordnungsplan müssen übereinstimmen."
 
 msgid "Image UMAP search"
 msgstr "Bild-UMAP-Suche"

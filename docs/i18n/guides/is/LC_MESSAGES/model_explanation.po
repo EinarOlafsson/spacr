@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "Skýra CV-líkön og rannsaka marktækar niðurstöður"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR provides three separate analyses that answer different questions:"
-msgstr ""
+msgstr "spaCR býður upp á þrjár aðskildar greiningar sem svara ólíkum spurningum:"
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "virkjunar- eða huliðskort sýna **hvar** sjónlíkan beindi athygli sinni;"
@@ -73,9 +74,9 @@ msgstr "Úr haus **Aðhvarf** skaltu opna **Niðurstöðulisti**, velja nákvæm
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "Leggðu til mæligagnagrunninn, upphaflegu CSV-skrána með spám fyrir hvern hlut og CSV-skrána með hlutföllum leiðara á brunn. Tengingar nota skýra lykla fyrir hlut og plötu/röð/dálk. Tvíteknir hlutalyklar eða tvítekin hlutföll brunns/leiðara stöðva keyrsluna."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "Fyrsta úttakið er heiðarleg yfirferðarröð: frumum í brunnum sem innihalda markið er raðað í stefnu áhrifa aðhvarfsins, með hlutfalli markleiðara á brunnstigi sýnt við hlið þeirra. Valkvæða eignunarlíkanið síðan:"
+msgstr "Fyrsta úttakið er yfirferðarröð: frumum í brunnum sem innihalda markið er raðað í stefnu áhrifa aðhvarfsins, með hlutfalli markleiðara á brunnstigi sýnt við hlið þeirra. Valkvæða eignunarlíkanið síðan:"
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "meðhöndlar brunna sem poka og frumur sem tilvik;"

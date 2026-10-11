@@ -14,19 +14,6 @@
       "source_sha256": "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41",
       "text": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.\n\nWhen ``src`` and ``classes`` are provided the counts are taken from the file\nlistings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS.\n\n:param loader: fallback DataLoader iterated only when folder info is missing.\n:param num_classes: number of output classes.\n:param src: parent folder containing per-class subfolders.\n:param classes: ordered class-folder names matching ``src``.\n:returns: ``LongTensor`` of per-class counts."
     },
-    "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a": {
-      "source_blocks_sha256": [
-        "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
-        "50843f63908d3c7c8e63b6b2d8339f8401aa061b29cdc73ecbc218d9d3bff455",
-        "95e7c086280147c0bc31d6c6d7939b653728e8f666d9e31923ce6d5bef040007",
-        "395296bad60d9c4c3796b006d3402762efae64c1af573ce48e951e0c6c9ea864",
-        "491975835f29fba8f37e15db8304a9fa9f8d564df7cc3f2bba88f45e970875cf",
-        "46629a349877cd9e9c4291b28d51201e7266fcb43f4337e90cf4e79d216541a9",
-        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
-      ],
-      "source_sha256": "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a",
-      "text": "Figures on a reflowing grid, filling as a search produces them.\n\n:param parameters: the searched parameter names, in the order that\n    decides the axes. May be set later with :meth:`set_parameters`.\n:param parent: optional Qt parent.\n:ivar cell_clicked: emitted with the index of a clicked figure.\nBuild the grid that lays a search's figures out by parameter.\n\n:param parameters: the parameters the search varied, which become the\n    grid's captions.\n:param parent: parent widget, or ``None``."
-    },
     "6f461611ba5bcc95abaa4cba6aebae673661d7f0fcb55b843daebe29046eac80": {
       "source_blocks_sha256": [
         "62e113bfff12dc76616660cca42370ac48ae92cdfe812aeb50bf11b56ac01459",

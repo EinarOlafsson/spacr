@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -166,9 +166,9 @@ msgstr "Ändra val medan en förhandsvisning körs"
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "Om källan, den valda bilden eller läget ändras överges den tidigare förhandsvisningen. Dess sena resultat kan inte ersätta den nyss valda vyn. En tom källmapp rensar den tidigare masken, objektvyerna och figurtabellerna. Starta en ny förhandsvisning för det avsedda valet när det har lästs in. Avbrytning kastar det gamla resultatet; det pågående modellanropet blir klart innan **Kör förhandsgranskning** och brunnskontrollerna blir tillgängliga igen. Vänta på de kontrollerna innan du kör igen med ändrade inställningar."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
-msgstr "När du har valt **Spara annoteringar** väntar du på bekräftelsen i förhandsvisningens status innan du startar batchanalysen. Sparandet sker i bakgrunden så att bilden förblir responsiv; ett köat sparande är ännu inte en slutförd skrivning."
+msgstr "När du har valt **Spara annoteringar** väntar du på bekräftelsen i förhandsvisningens status innan du startar batchanalysen. Sparandet sker i bakgrunden så att fönstret förblir responsivt; ett köat sparande är ännu inte en slutförd skrivning."
 
 msgid "Python preview contracts"
 msgstr "Förhandsvisningskontrakt i Python"

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -166,9 +166,9 @@ msgstr "Alterar a seleção enquanto uma prévia está em execução"
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "Alterar a origem, a imagem selecionada ou o modo abandona a prévia anterior. Seu resultado tardio não pode substituir a visualização recém-selecionada. Uma pasta de origem vazia limpa a máscara, as visualizações de objetos e as tabelas de figuras anteriores. Inicie uma nova prévia para a seleção desejada depois que ela carregar. O cancelamento descarta o resultado antigo; a chamada de modelo atual termina antes que **Executar visualização** e os controles dos poços voltem a ficar disponíveis. Aguarde esses controles antes de executar novamente com configurações alteradas."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
-msgstr "Depois de escolher **Salvar anotações**, aguarde a confirmação de salvamento no status da prévia antes de iniciar a análise em lote. O salvamento acontece em segundo plano para que a imagem continue respondendo; um salvamento na fila ainda não é uma gravação concluída."
+msgstr "Depois de escolher **Salvar anotações**, aguarde a confirmação de salvamento no status da prévia antes de iniciar a análise em lote. O salvamento acontece em segundo plano para que a janela continue respondendo; um salvamento na fila ainda não é uma gravação concluída."
 
 msgid "Python preview contracts"
 msgstr "Contratos de prévia em Python"

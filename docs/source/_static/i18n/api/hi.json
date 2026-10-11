@@ -23781,7 +23781,7 @@
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ],
       "source_sha256": "735c94dee3087069fed735729956f2ea70a492eec2edc37e8df3c2a870d9abe8",
-      "text": "यह सेट ``key`` के रूप में जाना जाता है।\n\n:param key: एक :data:`EXAMPLE_SETS` कुंजी, उदाहरण के लिए ``import``, ``mask`` , ``measure`` , ``annotate``, ``dose`` , ``control_chart`` या ``hit``।\n:raises KeyError: एक टाइप जो ``None`` वापस लाता है, कुछ भी डाउनलोड नहीं करेगा और सफलता की रिपोर्ट करेगा, जो एक डाउनलोड कमांड का एक परिणाम है जो कभी नहीं बनाया जाना चाहिए।",
+      "text": "``key`` नाम का उदाहरण सेट।\n\n:param key: :data:`EXAMPLE_SETS` की एक कुंजी, जैसे ``import``, ``mask``, ``measure``, ``annotate``, ``dose``, ``control_chart`` या ``hit``।\n:raises KeyError: जो मौजूद कुंजियों के नाम बताता है। ``None`` लौटाने वाली टाइपिंग की गलती कुछ भी डाउनलोड नहीं करती और फिर भी सफलता बताती, जो वह एकमात्र परिणाम है जो किसी डाउनलोड कमांड को कभी नहीं देना चाहिए।",
       "translation_source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
         "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
@@ -102662,7 +102662,7 @@
         "464d57a3da3361d33fd4674439be0fe00db73f523717124d141ca7710b15b3ac"
       ],
       "source_sha256": "d4b265a7548da016feae4c0200f6f2cac11757575ca8ce2fd6633a28846e00d0",
-      "text": "खोज-स्पेस नियंत्रण, एक लाइव परिणाम तालिका और एक छोटे-बहुत पैनल।\n\n:param app_key: खोज योग्य अनुप्रयोग: ``'umap'``, ``'classify'``, ``'classify_merged'``, ``'ml_analyze'`` या ``'activation'``.\n:param parent: वैकल्पिक Qt माता-पिता।\n:raises ValueError: यदि ``app_key`` में कोई hyperparameter-search परिभाषा नहीं है।\n:ivar search_finished: :class:`SearchResult` के साथ जारी किया जाता है जब एक स्विच समाप्त हो जाता है (एक बंद, पार्टिक एक सहित)।\n``app_key`` के लिए नियंत्रण, तालिका और पूर्वावलोकन बनाएं।",
+      "text": "खोज-स्पेस नियंत्रण, एक लाइव परिणाम तालिका और एक छोटे-बहुत पैनल।\n\n:param app_key: खोज योग्य अनुप्रयोग: ``'umap'``, ``'classify'``, ``'classify_merged'``, ``'ml_analyze'`` या ``'activation'``.\n:param parent: वैकल्पिक Qt पैरेंट।\n:raises ValueError: यदि ``app_key`` में कोई hyperparameter-search परिभाषा नहीं है।\n:ivar search_finished: :class:`SearchResult` के साथ जारी किया जाता है जब एक स्विच समाप्त हो जाता है (एक बंद, पार्टिक एक सहित)।\n``app_key`` के लिए नियंत्रण, तालिका और पूर्वावलोकन बनाएं।",
       "translation_source_blocks_sha256": [
         "91fb0ad2594de56f468780fb257786d252bf7ba1a25804014c5657ef4feb5800",
         "5149d236ac6584ebe3dcf7679cf4077146202f0e42b03e3cc4213bb112c84aa2",
@@ -137759,7 +137759,7 @@
         "eea1c9858fb6e387a52677db6e0a0f8bd8ec9c8849b5d6e701916e6b4dbaf800"
       ],
       "source_sha256": "8ad0f9de3a3b549d70f80fa3466f6875890d490ab28244db83d897c0186dd0c8",
-      "text": "प्रत्येक माप spaCR के लिए खोज योग्य कुंजी-मूल्य मैपिंग लिखता है।\n\nइसे बनाना एक :func:`spacr.feature_dict.search_features` कॉल की लागत है और कोई डेटाबेस नहीं छूता है, इसलिए यह एक घटना घूमने के बिना एम्बेड करने और परीक्षण करने के लिए सस्ता है।\n\n:param parent: वैकल्पिक Qt माता-पिता।\n:param column: वैकल्पिक स्तंभ नाम खुलने के लिए।\nफ़ंक्शन कुंजी-मूल्य मैपिंग पैनल का निर्माण करें।\n\n:param parent: पैरेंट विजेट, या ``None``।\n:param column: एक माप खोलने के लिए कवर किया गया है; ``None`` पूरे कुंजी-मूल्य मैपिंग पर खुलता है।",
+      "text": "प्रत्येक माप spaCR के लिए खोज योग्य कुंजी-मूल्य मैपिंग लिखता है।\n\nइसे बनाना एक :func:`spacr.feature_dict.search_features` कॉल की लागत है और कोई डेटाबेस नहीं छूता है, इसलिए यह एक घटना घूमने के बिना एम्बेड करने और परीक्षण करने के लिए सस्ता है।\n\n:param parent: वैकल्पिक Qt पैरेंट।\n:param column: वैकल्पिक स्तंभ नाम खुलने के लिए।\nफ़ंक्शन कुंजी-मूल्य मैपिंग पैनल का निर्माण करें।\n\n:param parent: पैरेंट विजेट, या ``None``।\n:param column: एक माप खोलने के लिए कवर किया गया है; ``None`` पूरे कुंजी-मूल्य मैपिंग पर खुलता है।",
       "translation_source_blocks_sha256": [
         "9bb8057cafb2daf7c861bd49ff867f976cfc849a307d7b1540e970245b0a2d19",
         "371473cab5ebae7961d56e96ac69d66dac67b89d62d6c2d3e0dd50f2210da2a9",
@@ -138849,18 +138849,20 @@
         "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
         "50843f63908d3c7c8e63b6b2d8339f8401aa061b29cdc73ecbc218d9d3bff455",
         "95e7c086280147c0bc31d6c6d7939b653728e8f666d9e31923ce6d5bef040007",
-        "395296bad60d9c4c3796b006d3402762efae64c1af573ce48e951e0c6c9ea864",
+        "9264ff67c628b2d7ba4f296939682977fbc6110572a5229150e8edcf4e0fb39e",
+        "f196866eac75a9892127040dc7456a694efdfb9aa4f7933c360eeaa08d17abce",
         "491975835f29fba8f37e15db8304a9fa9f8d564df7cc3f2bba88f45e970875cf",
         "46629a349877cd9e9c4291b28d51201e7266fcb43f4337e90cf4e79d216541a9",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a",
-      "text": "एक पुनरावृत्ति नेटवर्क पर आंकड़े, उन्हें एक खोज के रूप में भरने के लिए उत्पादित करता है।\n\n:param parameters: खोजे गए पैरामीटर नाम, उस क्रम में जो ध्रुवों को निर्धारित करता है. बाद में :meth:`set_parameters` के साथ सेट किया जा सकता है.\n:param parent: वैकल्पिक Qt माता-पिता।\n:ivar cell_clicked: एक क्लिक किए गए आंकड़े के सूचकांक के साथ जारी किया गया है।\nनेटवर्क का निर्माण करें जो एक खोज के आंकड़ों को पैरामीटर द्वारा बाहर रखता है।\n\n:param parameters: खोज के पैरामीटर भिन्न होते हैं, जो नेटवर्क के कब्जे बन जाते हैं।\n:param parent: पैरेंट विजेट, या ``None``।",
+      "source_sha256": "927b57e580b38fc95842596ee6f7148001ca5cc5e25d83182fabcb1adfe44a00",
+      "text": "पुनर्व्यवस्थित होने वाली ग्रिड पर चित्र, जो खोज के उन्हें बनाने के साथ-साथ भरती जाती है।\n\n:param parameters: खोजे गए पैरामीटरों के नाम, उस क्रम में जो अक्ष तय करता है। इसे बाद में :meth:`set_parameters` से सेट किया जा सकता है।\n:param parent: वैकल्पिक Qt पैरेंट।\n:ivar cell_clicked: बाएँ बटन से क्लिक किए गए चित्र के सूचकांक के साथ उत्सर्जित होता है।\n:ivar cell_menu_requested: दाएँ क्लिक किए गए चित्र के सूचकांक और क्लिक की वैश्विक स्थिति के साथ, चित्र मेनू के लिए, उत्सर्जित होता है।\nवह ग्रिड बनाता है जो किसी खोज के चित्रों को पैरामीटर के अनुसार व्यवस्थित करती है।\n\n:param parameters: वे पैरामीटर जिन्हें खोज ने बदला, और जो ग्रिड के कैप्शन बनते हैं।\n:param parent: पैरेंट विजेट, या ``None``।",
       "translation_source_blocks_sha256": [
         "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
         "50843f63908d3c7c8e63b6b2d8339f8401aa061b29cdc73ecbc218d9d3bff455",
         "95e7c086280147c0bc31d6c6d7939b653728e8f666d9e31923ce6d5bef040007",
-        "395296bad60d9c4c3796b006d3402762efae64c1af573ce48e951e0c6c9ea864",
+        "9264ff67c628b2d7ba4f296939682977fbc6110572a5229150e8edcf4e0fb39e",
+        "f196866eac75a9892127040dc7456a694efdfb9aa4f7933c360eeaa08d17abce",
         "491975835f29fba8f37e15db8304a9fa9f8d564df7cc3f2bba88f45e970875cf",
         "46629a349877cd9e9c4291b28d51201e7266fcb43f4337e90cf4e79d216541a9",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
@@ -158062,7 +158064,7 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
       "source_sha256": "6cedb61c6f3f6529a27e6bae9fb87588e80e2b1632edf5489426e0480ddb17ed",
-      "text": "इंजेक्शन मेटाडेटा लाइनों का एक संपादित करने योग्य नेटवर्क।\n\n:param rows: प्रारंभिक पूर्वावलोकन पंक्तियां (देखें :mod:`spacr.qt.ingest_preview`)।\n:param parent: वैकल्पिक Qt माता-पिता।\nमेटाडेटा समीक्षा तालिका बनाएं।\n\n:param rows: प्रदर्शित करने के लिए निकाले गए मेटाडेटा; ``None`` खाली शुरू होता है।\n:param parent: पैरेंट विजेट, या ``None``।",
+      "text": "इंजेक्शन मेटाडेटा लाइनों का एक संपादित करने योग्य नेटवर्क।\n\n:param rows: प्रारंभिक पूर्वावलोकन पंक्तियां (देखें :mod:`spacr.qt.ingest_preview`)।\n:param parent: वैकल्पिक Qt पैरेंट।\nमेटाडेटा समीक्षा तालिका बनाएं।\n\n:param rows: प्रदर्शित करने के लिए निकाले गए मेटाडेटा; ``None`` खाली शुरू होता है।\n:param parent: पैरेंट विजेट, या ``None``।",
       "translation_source_blocks_sha256": [
         "3f48095342d2168be3e7f1cb0127346b6aa852b9b61b3042b44ee5ff0aaf9ba5",
         "f10757377f65790ae8732c2244eb15f9cce1867a48aebed208592ce81090db43",

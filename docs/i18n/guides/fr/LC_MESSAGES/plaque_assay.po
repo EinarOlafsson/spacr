@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -166,9 +166,9 @@ msgstr "Modifier la sélection pendant l’exécution d’un aperçu"
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "Changer la source, l’image sélectionnée ou le mode abandonne l’aperçu précédent. Son résultat tardif ne peut pas remplacer la vue nouvellement sélectionnée. Un dossier source vide efface le masque, les vues d’objets et les tableaux de figures précédents. Lancez un nouvel aperçu pour la sélection voulue après son chargement. L’annulation abandonne l’ancien résultat ; l’appel de modèle en cours se termine avant que **Exécuter l'aperçu** et les contrôles des puits redeviennent disponibles. Attendez ces contrôles avant de relancer avec des paramètres modifiés."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
-msgstr "Après avoir choisi **Enregistrer les annotations**, attendez la confirmation d’enregistrement dans l’état de l’aperçu avant de lancer l’analyse par lots. L’enregistrement a lieu en arrière-plan pour que l’image reste réactive ; un enregistrement en file d’attente n’est pas encore une écriture terminée."
+msgstr "Après avoir choisi **Enregistrer les annotations**, attendez la confirmation d’enregistrement dans l’état de l’aperçu avant de lancer l’analyse par lots. L’enregistrement a lieu en arrière-plan pour que la fenêtre reste réactive ; un enregistrement en file d’attente n’est pas encore une écriture terminée."
 
 msgid "Python preview contracts"
 msgstr "Contrats d’aperçu Python"

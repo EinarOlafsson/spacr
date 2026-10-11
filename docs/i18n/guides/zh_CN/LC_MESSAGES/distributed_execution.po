@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -34,9 +34,9 @@ msgstr "执行配置文件描述的是 *如何访问计算资源*，而不是分
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a detached background process (output redirected to a log, stdin closed) so it continues if the SSH connection drops, and records its exit code."
-msgstr "通过 SSH 上传解析后的小型设置 JSON，在持久的后台进程中启动 ``spacr-run``，并记录其退出码。"
+msgstr "通过 SSH 上传解析后的设置 JSON，以分离的后台进程启动 ``spacr-run`` （输出重定向到日志，标准输入关闭），使其在 SSH 连接断开后仍继续运行，并记录其退出码。"
 
 msgid "``Slurm cluster``"
 msgstr "``Slurm cluster``"
@@ -47,9 +47,9 @@ msgstr "上传设置，提交 ``sbatch`` 脚本，先轮询 ``squeue`` 再轮询
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
-msgstr "运行配置的提交/状态/取消参数模板。这样无需在 spaCR 中嵌入厂商凭据即可支持云 CLI 和站点特定的调度器。命令必须输出一个安全的作业标识符，状态命令应输出常规状态，例如 ``PENDING``、``RUNNING``、``SUCCEEDED``、``FAILED`` 或 ``CANCELLED``。"
+msgstr "运行配置的提交/状态/取消参数模板。这样无需在 spaCR 中嵌入厂商凭据即可支持云 CLI 和站点特定的调度器。命令必须输出一个仅包含字母、数字和 ``_.:+-`` 的作业标识符，状态命令应输出常规状态，例如 ``PENDING``、``RUNNING``、``SUCCEEDED``、``FAILED`` 或 ``CANCELLED``。"
 
 msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
 msgstr "请在 spaCR 之外配置 SSH 密钥、云身份验证和 VPN 访问。在提交长时间运行之前，请先在终端中测试相同的连接。"

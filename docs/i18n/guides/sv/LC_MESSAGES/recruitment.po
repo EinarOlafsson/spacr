@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -80,7 +80,7 @@ msgstr "``pathogen_channel_<channel>_periphery_mean``"
 msgid "For example, a channel 2 pathogen mean of 12 and cytoplasm mean of 4 produces ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. If channel 3 has means of 100 and 4, its separate column is ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Calculating channel 3 retains the channel 2 result. These are illustrative intensities, not experiment data."
 msgstr "Exempel: ett patogenmedelvärde på 12 och ett cytoplasmamedelvärde på 4 i kanal 2 ger ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. Om kanal 3 har medelvärdena 100 och 4 blir dess separata kolumn ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Beräkningen för kanal 3 behåller resultatet för kanal 2. Detta är illustrativa intensiteter, inte experimentdata."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The calculation produces fifteen auxiliary ratios per channel. It does not create constant-one pathogen/nucleus slope columns; these ratios do not estimate a spatial slope. Genuine slope columns already supplied by the caller are preserved. When comparing historical exports, check whether their auxiliary column names identify a channel before combining runs."
 msgstr "Beräkningen ger femton hjälpkvoter per kanal. Den skapar inga lutningskolumner för patogen/kärna med konstanten ett; dessa kvoter skattar ingen rumslig lutning. Verkliga lutningskolumner som anroparen redan har tillhandahållit bevaras. När du jämför historiska exporter, kontrollera om deras namn på hjälpkolumner anger en kanal innan du kombinerar körningar."
 

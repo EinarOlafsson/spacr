@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -31,27 +31,28 @@ msgstr "Logotipo de spaCR"
 msgid "**spaCR** — *Spatial phenotype analysis of CRISPR screens.*"
 msgstr "**spaCR** — *Análisis espacial de fenotipos en cribados CRISPR.*"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_"
-msgstr ""
+msgstr "Sitio web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_"
 
 msgid "You are reading the |docs-channel| documentation for spaCR |spacr-version|. The main site follows ``main``. The nightly preview follows ``nightly`` and may describe features not yet in a release. Each branch publishes its own API, guides and committed tutorial catalog automatically."
 msgstr "Está leyendo la documentación |docs-channel| de spaCR |spacr-version|. El sitio principal sigue ``main``. La vista previa nightly sigue ``nightly`` y puede describir funciones que todavía no están en ninguna versión publicada. Cada rama publica automáticamente su propia API, sus guías y su catálogo de tutoriales confirmado."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A Python toolkit for quantifying and visualising phenotypic changes in high-throughput microscopy screens. It provides a PySide6 desktop interface (``spacr``), headless pipeline functions (:mod:`spacr.core`), and a workflow from plate images to object classification built on PyTorch, Cellpose, scikit-image and SciPy."
-msgstr "Un conjunto de herramientas de Python para cuantificar y visualizar cambios fenotípicos en cribados de microscopía de alto rendimiento. Incluye una interfaz gráfica moderna en PySide6 (``spacr``), una canalización sin interfaz gráfica (:mod:`spacr.core`) y un flujo de trabajo de la placa a la clasificación que se ejecuta sobre PyTorch, Cellpose, scikit-image y scipy."
+msgstr "Un conjunto de herramientas de Python para cuantificar y visualizar cambios fenotípicos en cribados de microscopía de alto rendimiento. Ofrece una interfaz de escritorio en PySide6 (``spacr``), funciones de canalización sin interfaz gráfica (:mod:`spacr.core`) y un flujo de trabajo desde las imágenes de la placa hasta la clasificación de objetos, construido sobre PyTorch, Cellpose, scikit-image y SciPy."
 
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "Está pensado para biólogos celulares que realizan cribados CRISPR agrupados o en formato de matriz y necesitan mediciones por célula a partir de imágenes de placas. La vía de la interfaz gráfica no requiere programación; los mismos pasos de procesamiento están disponibles mediante la API de Python para flujos de trabajo automatizados y reproducibles."
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline; *Data* for importing images and tables, feature embeddings, run comparison, experiment and power design, dose–response analysis and quality control; *Tools* for operations on an existing project — hand mask correction, stitching, image UMAP, gating and plotting; and *Organism* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "La interfaz gráfica agrupa sus aplicaciones en cuatro categorías: *Principal* para la canalización de segmentar, medir y clasificar; *Datos* para incorporar imágenes y tablas y procesarlas a gran escala; *Herramientas* para los instrumentos que se aplican a un proyecto — corrección manual de máscaras, unión, incrustaciones, compuertas, gráficos y control de calidad —; y *Organismo* para la guía del organismo Toxoplasma, que enumera sus ensayos disponibles; los análisis previstos aparecen marcados como «Próximamente». Las franjas de «Aplicaciones y flujo de trabajo», más abajo, son esas categorías, en ese orden, con los mosaicos que contiene cada una."
+msgstr "La interfaz gráfica agrupa sus aplicaciones en cuatro categorías: *Principal* para la canalización de segmentar, medir y clasificar; *Datos* para importar imágenes y tablas, incrustaciones de características, comparación de ejecuciones, diseño experimental y de potencia, análisis de dosis–respuesta y control de calidad; *Herramientas* para operaciones sobre un proyecto existente — corrección manual de máscaras, unión, UMAP de imágenes, compuertas y gráficos —; y *Organismo* para la guía del organismo Toxoplasma, que enumera sus ensayos disponibles; los análisis previstos aparecen marcados como «Próximamente». Las franjas de «Aplicaciones y flujo de trabajo», más abajo, son esas categorías, en ese orden, con los mosaicos que contiene cada una."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Not every screen is a tile. Screens used within another step open from that step's masthead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among others. Home shows only the tiles enabled in the running build."
-msgstr "No todas las pantallas son mosaicos, por eso aquí no se indica cuántas hay. El trabajo que solo tiene sentido dentro de otro paso se abre en cambio desde la cabecera de ese paso — entre ellos **Serie temporal** desde Máscaras, **Iluminación** y el **Ensayo de motilidad** desde Medición, **Evaluación del clasificador** y **Explicar modelo CV** desde Clasificar, **Concordancia de anotadores** desde Anotación, y **Banco de trabajo Cellpose**, **Comparar modelos**, **Biblioteca de modelos** y **Curación** desde Crear máscaras —, de modo que una pantalla sin mosaico abajo está un paso más adentro, no ha desaparecido. Inicio muestra todo lo que ofrece la versión en ejecución."
+msgstr "No todas las pantallas son mosaicos. Las pantallas que se usan dentro de otro paso se abren desde la cabecera de ese paso — **Serie temporal** desde Máscaras, **Iluminación** y el **Ensayo de motilidad** desde Medición, **Evaluación del clasificador** y **Explicar modelo CV** desde Clasificar, **Concordancia de anotadores** desde Anotación, y **Banco de trabajo Cellpose**, **Comparar modelos**, **Biblioteca de modelos** y **Curación** desde Crear máscaras, entre otras. Inicio muestra solo los mosaicos habilitados en la versión en ejecución."
 
 msgid "🚀 Get started"
 msgstr "🚀 Primeros pasos"
@@ -179,11 +180,13 @@ msgstr "Abrir la API de Gate Editor"
 msgid "Open the Graph Builder API"
 msgstr "Abrir la API de Graph Builder"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Organism"
-msgstr ""
+msgstr "Organismo"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Organism-specific image analysis and quantitative assay readouts."
-msgstr ""
+msgstr "Análisis de imágenes específico de cada organismo y lecturas cuantitativas de ensayos."
 
 msgid "|DocModule_toxoplasma|"
 msgstr "|DocModule_toxoplasma|"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Capabilities"
 msgstr "क्षमताएँ"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR processes an image-based screen from raw microscopy files to a ranked hit list. This page lists its capabilities by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
-msgstr "spaCR एक छवि-आधारित स्क्रीन को कच्ची सूक्ष्मदर्शी फ़ाइलों से लेकर क्रमबद्ध हिट सूची तक ले जाता है। यह पेज पूरा मानचित्र देता है; :doc:`Python API त्वरित आरंभ <python_api>` और इंटरैक्टिव ट्यूटोरियल अलग-अलग मार्ग दिखाते हैं।"
+msgstr "spaCR एक छवि-आधारित स्क्रीन को कच्ची सूक्ष्मदर्शी फ़ाइलों से लेकर क्रमबद्ध हिट सूची तक संसाधित करता है। यह पेज उसकी क्षमताओं को क्षेत्र के अनुसार सूचीबद्ध करता है; :doc:`Python API त्वरित आरंभ <python_api>` और इंटरैक्टिव ट्यूटोरियल अलग-अलग कार्यप्रवाहों को समझाते हैं।"
 
 msgid "Core screen workflow"
 msgstr "मुख्य स्क्रीन कार्यप्रवाह"
@@ -35,16 +35,16 @@ msgstr "मास्क"
 msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
 msgstr "मास्क मॉड्यूल TIFF, OME-TIFF, LIF, CZI और ND2 अधिग्रहण तैयार करता है और Cellpose से कोशिकाओं, केंद्रकों, रोगजनकों और कोशिकांगों का विभाजन करता है। यह द्विविमीय, आयतनात्मक और समय-श्रृंखला डेटा का समर्थन करता है, ऑब्जेक्ट व्यास का अनुमान लगाता है, और लेयर व्यूअर या napari के साथ मास्क सुधारों का आदान-प्रदान कर सकता है।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
-msgstr "ऑब्जेक्ट चार का कोई निश्चित समूह नहीं हैं। एक प्रोजेक्ट में एक कोशिका, एक केंद्रक और एक रोगजनक, उनसे व्युत्पन्न कोशिकाद्रव्य, और ``number_of_organelles`` जितने माँगे उतने कोशिकांग स्लॉट होते हैं -- शून्य से छब्बीस तक। हर स्लॉट स्वतंत्र है, जिसका अपना चैनल, व्यास, पहचान विधि और आकृति होती है।"
+msgstr "ऑब्जेक्ट चार का कोई निश्चित समूह नहीं हैं। एक प्रोजेक्ट में एक कोशिका, एक केंद्रक और एक रोगजनक, उनसे व्युत्पन्न कोशिकाद्रव्य, और ``number_of_organelles`` में निर्दिष्ट संख्या जितने कोशिकांग स्लॉट होते हैं -- शून्य से छब्बीस तक। हर स्लॉट स्वतंत्र है, जिसका अपना चैनल, व्यास, पहचान विधि और आकृति होती है।"
 
 msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
 msgstr "किसी स्लॉट को एक आकृति प्रीसेट दिया जाता है -- बिंदुवत, पुटिकीय, गोलाकार, तंतुमय, नलिकाकार, जालिकावत, कुंडिका-रूप, वलयाकार, अर्धचंद्राकार या कस्टम -- और प्रीसेट पहचान रणनीति चुनता है, जो spots, network, irregular या ring में से एक होती है।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and the values of a hidden object are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
-msgstr "मास्क निर्माण प्रति-ऑब्जेक्ट सेटिंग्स को **Per-object settings** के अंतर्गत एक तालिका के रूप में रखता है, जिसमें हर उस ऑब्जेक्ट के लिए एक स्तंभ होता है जिसका चैनल सेट है; कोशिका स्तंभ हमेशा दिखाया जाता है। किसी ऑब्जेक्ट का चैनल सामान्य फ़ॉर्म पर सेट किया जाता है, और छिपे हुए ऑब्जेक्ट के उत्तर उसका चैनल फिर से सेट होने तक सुरक्षित रहते हैं। हर ऑब्जेक्ट में **पृष्ठभूमि हटाएँ** चेक बॉक्स होता है, और कोशिका स्तंभ में **कोशिकाएँ समायोजित करें** भी होता है। **फ़िल्टर जोड़ें** एक पंक्ति जोड़ता है जो किसी भी scikit-image regionprop, जैसे क्षेत्रफल या औसत तीव्रता, के आधार पर ऑब्जेक्ट फ़िल्टर करती है; हर ऑब्जेक्ट की कोशिका ``200 – 5000``, केवल न्यूनतम (``200``), केवल अधिकतम (``– 5000``) या बिना फ़िल्टर के लिए खाली मान लेती है। ये पंक्तियाँ ``object_filters`` सेटिंग हैं। किसी ऑब्जेक्ट के लिए Cellpose 3 मॉडल चुनने पर उस बैकएंड की अपनी सेटिंग्स वाली **Cellpose 3** श्रेणी दिखाई देती है। **गुणवत्ता नियंत्रण** में आउटपुट, संग्रहण, रनटाइम और विश्वसनीयता सेटिंग्स के साथ विभाजन जाँचें होती हैं।"
+msgstr "मास्क निर्माण प्रति-ऑब्जेक्ट सेटिंग्स को **Per-object settings** के अंतर्गत एक तालिका के रूप में रखता है, जिसमें हर उस ऑब्जेक्ट के लिए एक स्तंभ होता है जिसका चैनल सेट है; कोशिका स्तंभ हमेशा दिखाया जाता है। किसी ऑब्जेक्ट का चैनल सामान्य फ़ॉर्म पर सेट किया जाता है, और छिपे हुए ऑब्जेक्ट के मान उसका चैनल फिर से सेट होने तक सुरक्षित रहते हैं। हर ऑब्जेक्ट में **पृष्ठभूमि हटाएँ** चेक बॉक्स होता है, और कोशिका स्तंभ में **कोशिकाएँ समायोजित करें** भी होता है। **फ़िल्टर जोड़ें** एक पंक्ति जोड़ता है जो किसी भी scikit-image regionprop, जैसे क्षेत्रफल या औसत तीव्रता, के आधार पर ऑब्जेक्ट फ़िल्टर करती है; हर ऑब्जेक्ट की कोशिका ``200 – 5000``, केवल न्यूनतम (``200``), केवल अधिकतम (``– 5000``) या बिना फ़िल्टर के लिए खाली मान लेती है। ये पंक्तियाँ ``object_filters`` सेटिंग हैं। किसी ऑब्जेक्ट के लिए Cellpose 3 मॉडल चुनने पर उस बैकएंड की अपनी सेटिंग्स वाली **Cellpose 3** श्रेणी दिखाई देती है। **गुणवत्ता नियंत्रण** में आउटपुट, संग्रहण, रनटाइम और विश्वसनीयता सेटिंग्स के साथ विभाजन जाँचें होती हैं।"
 
 msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
 msgstr "मास्क का **लाइव** पूर्वावलोकन परिणाम को **ओवरले**, **मास्क**, **प्रवाह** या **कोशिका प्रायिकता** के रूप में दिखाता है। किसी चित्र पर राइट-क्लिक करके **Save as PNG…** या **Save as PDF…** चुनें। किसी सत्र में एक से अधिक मास्क बनने के बाद **मास्क की तुलना करें…** आपके द्वारा चुने गए मास्क और छवियों को एक अलग पैनल में एक-दूसरे पर रखता है, हर एक की अपनी अपारदर्शिता और स्टैकिंग क्रम के साथ।"
@@ -61,9 +61,9 @@ msgstr "मापन की सेटिंग्स **इनपुट और �
 msgid "Annotate and Classify"
 msgstr "एनोटेशन और वर्गीकरण"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are stored; in a two-class column, the next training round uses a rejected suggestion as an example of the other class. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
-msgstr "एनोटेशन मॉड्यूल कीबोर्ड से चलने वाला क्रॉप ग्रिड देता है, लेबल सीधे प्रोजेक्ट डेटाबेस में दर्ज करता है और अनिश्चितता के आधार पर सक्रिय-अधिगम कतार को क्रमबद्ध कर सकता है। एक पेज में जितने क्रॉप समा सकें उतने होते हैं और वह कभी स्क्रॉल नहीं होता; बाकी अगले पेज पर होते हैं। **सुझाव...** के बाद सुझाए गए क्रॉप पर **?** बैज होता है: पुष्टि के लिए किसी पर क्लिक करें या **Y** दबाएँ, अस्वीकार करने के लिए राइट-क्लिक करें या **N** दबाएँ, और **U** पूर्ववत करता है। **पेज के शेष की पुष्टि करें** और **पेज के शेष को अस्वीकार करें** सभी शेष सुझावों का एक साथ निर्णय करते हैं। अस्वीकृतियाँ सुरक्षित रहती हैं और प्रशिक्षण के अगले दौर को जानकारी देती हैं। वर्गीकरण मापन तालिकाओं से PyTorch छवि मॉडल या पारंपरिक और बूस्टेड मॉडल प्रशिक्षित करता है। चेकपॉइंट अपना डेटासेट, विभाजन नियम, वर्ग संतुलन और अलग रखे गए डेटा के मेट्रिक्स दर्ज करते हैं। वर्गीकरण के **Essentials** दृश्य में किसी भी परिवार को चुनने और प्रशिक्षित करने के लिए आवश्यक सब कुछ होता है — ResNet या MaxViT जैसा छवि मॉडल, या XGBoost या रैंडम फ़ॉरेस्ट जैसा सारणीबद्ध मॉडल — और न चुने गए परिवार की सेटिंग्स धूसर हो जाती हैं।"
+msgstr "एनोटेशन कीबोर्ड से चलने वाला क्रॉप ग्रिड देता है, लेबल सीधे प्रोजेक्ट डेटाबेस में दर्ज करता है और अनिश्चितता के आधार पर सक्रिय-अधिगम कतार को क्रमबद्ध कर सकता है। एक पेज में जितने क्रॉप समा सकें उतने होते हैं और वह कभी स्क्रॉल नहीं होता; बाकी अगले पेज पर होते हैं। **सुझाव...** के बाद सुझाए गए क्रॉप पर **?** बैज होता है: पुष्टि के लिए किसी पर क्लिक करें या **Y** दबाएँ, अस्वीकार करने के लिए राइट-क्लिक करें या **N** दबाएँ, और **U** पूर्ववत करता है। **पेज के शेष की पुष्टि करें** और **पेज के शेष को अस्वीकार करें** सभी शेष सुझावों का एक साथ निर्णय करते हैं। अस्वीकृतियाँ संग्रहीत रहती हैं; दो-वर्ग वाले स्तंभ में प्रशिक्षण का अगला दौर अस्वीकृत सुझाव को दूसरे वर्ग के उदाहरण के रूप में उपयोग करता है। वर्गीकरण मापन तालिकाओं से PyTorch छवि मॉडल या पारंपरिक और बूस्टेड मॉडल प्रशिक्षित करता है। चेकपॉइंट अपना डेटासेट, विभाजन नियम, वर्ग संतुलन और अलग रखे गए डेटा के मेट्रिक्स दर्ज करते हैं। वर्गीकरण के **Essentials** दृश्य में किसी भी परिवार को चुनने और प्रशिक्षित करने के लिए आवश्यक सब कुछ होता है — ResNet या MaxViT जैसा छवि मॉडल, या XGBoost या रैंडम फ़ॉरेस्ट जैसा सारणीबद्ध मॉडल — और न चुने गए परिवार की सेटिंग्स धूसर हो जाती हैं।"
 
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "वर्गीकरण CV अनुमान के समय वैकल्पिक घुमाव और परावर्तन भी देता है। समेकन विधियों, मूल और औसत संभावनाओं, और अभिविन्यास-स्थिरता चिह्नों के लिए :doc:`classifier_evaluation` देखें।"
@@ -117,12 +117,13 @@ msgid "How a module is reached"
 msgstr "किसी मॉड्यूल तक कैसे पहुँचें"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
-msgstr "होम स्क्रीन मॉड्यूलों को चार श्रेणियों — **मुख्य**, **डेटा**, **उपकरण** और **जीव** — में रखती है, और इक्कीस मॉड्यूलों की इनमें से किसी श्रेणी में टाइल है। मुख्य क्रम से चलने वाली पाइपलाइन है; डेटा उसके इनपुट और आउटपुट हैं; उपकरण पाइपलाइन के अपने आप चलने वाले चरणों के बजाय परियोजना पर इस्तेमाल किए जाने वाले साधन हैं। जीव, टोक्सोप्लाज़्मा मार्गदर्शिका और उसके उपलब्ध परीक्षण खोलता है। नियोजित विश्लेषण जल्द आ रहा है के रूप में चिह्नित हैं। मास्क बनाएँ, **उपकरण** में है।"
+msgstr "होम स्क्रीन मॉड्यूलों को चार श्रेणियों — **मुख्य**, **डेटा**, **उपकरण** और **जीव** — में रखती है, और उन्नीस मॉड्यूलों की इनमें से किसी श्रेणी में टाइल है। मुख्य में पाइपलाइन मॉड्यूल हैं, जो क्रम से चलते हैं; डेटा में आयात, एम्बेडिंग, रन तुलना, डिज़ाइन, खुराक–प्रतिक्रिया और गुणवत्ता नियंत्रण हैं; उपकरण में वे मॉड्यूल हैं जो पाइपलाइन चरणों के बजाय किसी मौजूदा परियोजना पर काम करते हैं; जीव, टोक्सोप्लाज़्मा मार्गदर्शिका और उसके उपलब्ध परीक्षण खोलता है। नियोजित विश्लेषण जल्द आ रहा है के रूप में चिह्नित हैं। मास्क बनाएँ, **उपकरण** में है।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Most modules do not have a tile; they inspect or extend work started in another module. They open from:"
-msgstr ""
+msgstr "अधिकांश मॉड्यूलों की कोई टाइल नहीं होती; वे किसी दूसरे मॉड्यूल में शुरू किए गए काम का निरीक्षण या विस्तार करते हैं। वे यहाँ से खुलते हैं:"
 
 msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
 msgstr "**अपने होस्ट की शीर्षपट्टी पर एक बटन** -- होस्ट की सेटिंग्स के बगल में एक पेज के रूप में, जो पहले से उसी प्रोजेक्ट की ओर संकेत करता है। Investigate Hit और Prediction Profiler प्रतिगमन से खुलते हैं; प्रारूप परिवर्तक और बाहरी मास्क आयात से; Layer Viewer, Control Charts और Outliers QC से।"
@@ -133,9 +134,9 @@ msgstr "**सहायता मेनू**, उन मॉड्यूल के
 msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
 msgstr "**कमांड पैलेट** (Ctrl+K), जो हर मॉड्यूल तक पहुँचता है, टाइल हो या न हो। यह बिना किसी अपवाद वाला एकमात्र मार्ग है और कीबोर्ड उपयोगकर्ता का नेविगेशन है।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``."
-msgstr "इनमें से कोई भी दोयम दर्जे का नहीं है: इन्हें किसी भी अन्य मॉड्यूल की तरह जारी, अनुवादित और प्रलेखित किया जाता है, और जो पाइपलाइन हैं वे अब भी ``spacr-run`` के अंतर्गत हेडलेस चलते हैं।"
+msgstr "बिना टाइल वाले मॉड्यूल टाइल वाले मॉड्यूलों की तरह ही स्थापित, अनुवादित और प्रलेखित किए जाते हैं, और जो पाइपलाइन हैं वे ``spacr-run`` के अंतर्गत हेडलेस भी चलते हैं।"
 
 msgid "Host"
 msgstr "पोषक"
@@ -248,12 +249,13 @@ msgid "Data-art themes"
 msgstr "डेटा कला थीम"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "**प्राथमिकताएं** → **रूप-रंग** में **थीम** इंटरफ़ेस की रंग-पैलेट चुनता है; दस रात्रिकालीन पैलेट उपलब्ध रहती हैं। **एनिमेशन** स्वतंत्र रूप से सजावटी पृष्ठभूमि चुनता है, या **कोई नहीं** से उसे रोका जा सकता है। ये पृष्ठभूमियाँ परियोजना की माप नहीं दिखातीं। मुख्य विंडो का डिफ़ॉल्ट **spaCR field** है; सेटिंग की पृष्ठभूमि का डिफ़ॉल्ट **spaCR stratified** है।"
+msgstr "**प्राथमिकताएं** → **रूप-रंग** में **थीम** इंटरफ़ेस की रंग-पैलेट चुनता है; दस रात्रिकालीन पैलेट उपलब्ध रहती हैं। **एनिमेशन** स्वतंत्र रूप से सजावटी पृष्ठभूमि चुनता है, या **कोई नहीं** से उसे रोका जा सकता है। ये पृष्ठभूमियाँ परियोजना की माप नहीं दिखातीं। मुख्य विंडो का डिफ़ॉल्ट **spaCR field** है; सेटिंग की पृष्ठभूमि का डिफ़ॉल्ट **कोई नहीं** है।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr ""
+msgstr "एनिमेशन मेनू **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** और **spaCR spinn** को इसी क्रम में सूचीबद्ध करता है।"
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — स्पष्ट बिंदुओं वाला गुरुत्व क्षेत्र, जिसमें वैकल्पिक स्थानीय माउस प्रभाव और फैलती लहरें हैं।"
@@ -306,9 +308,9 @@ msgid "**Preferences** keeps four lines of help visible below the settings. Long
 msgstr "**प्राथमिकताएं** सेटिंग्स के नीचे सहायता की चार पंक्तियाँ दिखाता है। लंबी सहायता पट्टी के भीतर स्क्रॉल होती है और संवाद नहीं हिलता। पट्टी को ऊँचा या छोटा करने के लिए उसका संकरा ऊपरी किनारा खींचें; वरीयताएँ चुनी गई ऊँचाई याद रखती हैं। पॉइंटर को किसी नियंत्रण से पट्टी में ले जाने पर भी उसकी सहायता पढ़ने और स्क्रॉल करने के लिए उपलब्ध रहती है।"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Backdrop सेटअप** प्राथमिकताएँ लागू करने या सहेजने पर भी मुख्य एनिमेशन से स्वतंत्र रहता है। **कोई नहीं** पॉपअप की गति बंद करता है लेकिन नीली परिधि बनाए रखता है। **सेटिंग विंडो के ऐनिमेशन की गति**, **सेटिंग विंडो के ऐनिमेशन का आकार**, **सेटिंग विंडो के ऐनिमेशन का विवरण** और **सेटिंग विंडो के ऐनिमेशन का घनत्व** केवल सेटिंग्स विंडो की पृष्ठभूमि बदलते हैं। पृष्ठभूमि **कोई नहीं** होने पर नियंत्रण अक्षम रहते हैं, लेकिन स्लाइडर अपने मान बनाए रखते हैं। संगत पृष्ठभूमि चुनने पर वे फिर सक्षम हो जाते हैं। **सेटिंग्स पृष्ठभूमि का अँधेरापन** एनिमेशन पर सेटिंग्स कार्ड की अपारदर्शिता को **0%** से **100%** तक नियंत्रित करता है (डिफ़ॉल्ट **85%**), और **पृष्ठ अपारदर्शिता** के साथ मिलकर लागू होता है। सेटिंग्स की पृष्ठभूमि **कोई नहीं** होने पर भी पृष्ठ अपारदर्शिता लागू होती है। अधिक अँधेरापन एनिमेशन को अधिक ढकता है ताकि पाठ पढ़ना आसान हो। पॉपअप केवल अपनी spaCR विंडो के सामने रहते हैं; वे सभी विंडो के ऊपर बने रहने वाला वैश्विक फ़्लैग उपयोग नहीं करते, इसलिए दूसरे ऐप उन्हें ढक सकते हैं।"
+msgstr "**Backdrop सेटअप** लागू करने और सहेजने, दोनों के दौरान मुख्य एनिमेशन से स्वतंत्र रहता है। **कोई नहीं** पॉपअप की गति बंद करता है लेकिन नीली परिधि बनाए रखता है। **सेटिंग्स पृष्ठभूमि का अँधेरापन** एनिमेशन पर सेटिंग्स कार्ड की अपारदर्शिता को **0%** से **100%** तक नियंत्रित करता है (डिफ़ॉल्ट **85%**), और **पृष्ठ अपारदर्शिता** के साथ मिलकर लागू होता है। सेटिंग्स की पृष्ठभूमि **कोई नहीं** होने पर भी पृष्ठ अपारदर्शिता लागू होती है। अधिक अँधेरापन एनिमेशन को अधिक ढकता है ताकि पाठ पढ़ना आसान हो। पॉपअप वैश्विक सदा-ऊपर (always-on-top) फ़्लैग का उपयोग किए बिना अपनी spaCR विंडो के ऊपर बने रहते हैं, इसलिए दूसरे ऐप उन्हें ढक सकते हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
@@ -357,12 +359,13 @@ msgstr "इस स्क्रीन से Cellpose-SAM चलाने पर 
 msgid "Settings that apply"
 msgstr "लागू होने वाली सेटिंग्स"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The settings panel shows a control only when it applies to the run being set up:"
-msgstr "सेटिंग पैनल कोई नियंत्रण तब दिखाता है जब वह सेट किए जा रहे रन पर लागू होता है, और लागू न होने पर उसे फ़ॉर्म से हटा देता है:"
+msgstr "सेटिंग पैनल कोई नियंत्रण केवल तब दिखाता है जब वह सेट किए जा रहे रन पर लागू होता है:"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "the settings of a slot past ``number_of_organelles``, its channel included, are removed from the form;"
-msgstr ""
+msgstr "``number_of_organelles`` से आगे के किसी स्लॉट की सेटिंग्स, उसके चैनल सहित, फ़ॉर्म से हटा दी जाती हैं;"
 
 msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
 msgstr "जिस ऑब्जेक्ट का चैनल किसी तल का नाम नहीं देता वह रन में है ही नहीं, इसलिए उसकी सेटिंग्स फ़ॉर्म पर नहीं होतीं;"
@@ -467,9 +470,9 @@ msgstr "वर्कर और खाली मेमोरी"
 msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
 msgstr "कोई मॉड्यूल अपने वर्कर शुरू करने से पहले spaCR अनुमान लगाता है कि हर वर्कर को एक इनपुट, जैसे एक फ़ील्ड, मास्क, क्रॉप बैच या तालिका, के लिए कितनी मेमोरी चाहिए। यदि आपका सेट किया ``n_jobs`` कंप्यूटर की RAM का 12.5% से कम खाली छोड़ेगा, तो एक पॉपअप अनुमान, खाली मेमोरी और फ़िट होने वाले वर्करों की संख्या दिखाता है। उस संख्या के साथ चलाने के लिए **N वर्कर्स उपयोग करें (अनुशंसित)** चुनें, या अपनी संख्या रखें; तब मापन नए फ़ील्ड को तब-तब रोक देता है जब खाली मेमोरी आरक्षित सीमा से नीचे जाती है। **एप्लिकेशन बंद करके RAM खाली करें…** आपके अपने सबसे बड़े प्रोग्राम सूचीबद्ध करता है। शुरू में कुछ भी चुना नहीं होता, और केवल आपके चुने प्रोग्रामों से ही, आपकी पुष्टि के बाद, बंद होने को कहा जाता है; वे आम तौर पर पहले सहेज सकते हैं, फिर भी उनमें बिना सहेजा काम खो सकता है।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
-msgstr "GUI के बिना शुरू किए गए रन ``n_jobs`` को सुरक्षित संख्या तक घटाते हैं और चेतावनी छापते हैं। अपना ``n_jobs`` अपरिवर्तित रखने के लिए **उन्नत** में ``ram_guard`` बंद करें; खाली मेमोरी आरक्षित सीमा से नीचे रहने तक मापन फिर भी प्रतीक्षा करता है।"
+msgstr "GUI के बिना शुरू किए गए रन ``n_jobs`` को उस संख्या तक घटाते हैं जो आरक्षित मेमोरी को खाली रखती है, और चेतावनी छापते हैं। अपना ``n_jobs`` अपरिवर्तित रखने के लिए **उन्नत** में ``ram_guard`` बंद करें; खाली मेमोरी आरक्षित सीमा से नीचे रहने तक मापन फिर भी प्रतीक्षा करता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Worker startup and final retries"

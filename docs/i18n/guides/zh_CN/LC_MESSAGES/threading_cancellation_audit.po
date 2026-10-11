@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -49,7 +49,7 @@ msgstr "批处理运行器在作业之间进行检查。当子进程 ``spacr-run
 msgid "Stop first asks how to stop. **Finish current work** requests cancellation and waits for the current unit; if the run has not reached a boundary after five minutes, the question is asked again. The console reports ``Stopped safely`` when the boundary is reached, and the reproducibility manifest records ``status: cancelled`` rather than a failure traceback."
 msgstr "停止时会先询问停止方式。**Finish current work** 请求取消并等待当前单元完成；如果五分钟后运行仍未到达边界，会再次询问。到达边界时，控制台报告 ``Stopped safely``，可重复性清单记录 ``status: cancelled``，而不是失败回溯。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Force stop** returns control to the window immediately. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
 msgstr "**Force stop** 会立即交还窗口控制权。无响应的工作线程（通常处于长时间的 Cellpose 或 PyTorch 调用中）会被搁置而不是被终止：其引用会被保留，并在后台完成，因此它正在写入的内容可能只写了一半。**Force restart** 会保存模块及其设置，然后重新启动 spaCR 并重新打开该模块。"
 
@@ -65,9 +65,9 @@ msgstr "``PipelineWorker.finished`` 直接调用 ``QThread.quit``，因为该 Qt
 msgid "API usage"
 msgstr "API 用法"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Headless and plugin pipelines use the same API::"
-msgstr "无界面流程和插件流程使用同一个小型 API::"
+msgstr "无界面流程和插件流程使用同一个 API::"
 
 msgid "Calling ``checkpoint()`` outside a managed GUI worker is a no-op. Code that catches broad ``Exception`` values must re-raise :class:`spacr.cancellation.PipelineCancelled`; treating it as a failed field would defeat the worker's distinct cancellation status."
 msgstr "在受管理的 GUI 工作线程之外调用 ``checkpoint()`` 不执行任何操作。捕获宽泛 ``Exception`` 值的代码必须重新抛出 :class:`spacr.cancellation.PipelineCancelled`；将其视为失败的视野会破坏工作线程独立的取消状态。"
@@ -75,9 +75,9 @@ msgstr "在受管理的 GUI 工作线程之外调用 ``checkpoint()`` 不执行�
 msgid "Stress coverage"
 msgstr "压力测试覆盖"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``tests/qt/test_threading_cancellation_audit.py`` exercises fifty rapid Start/Stop cycles, registry-wide shutdown, repeated cancellation, screen close while active, and refusal to destroy an unresponsive worker. ``tests/test_cancellation.py`` verifies thread isolation, idempotence, durability-before-cancel, resumable queues, and termination of an active batch subprocess."
-msgstr "``tests/qt/test_threading_cancellation_audit.py`` 测试五十次快速的 Start/Stop 循环、注册表范围的关闭、重复取消、活动状态下关闭屏幕，以及拒绝销毁顽固的工作线程。``tests/test_cancellation.py`` 验证线程隔离、幂等性、取消前的持久化、可继续的队列以及活动批处理子进程的终止。"
+msgstr "``tests/qt/test_threading_cancellation_audit.py`` 测试五十次快速的 Start/Stop 循环、注册表范围的关闭、重复取消、活动状态下关闭屏幕，以及拒绝销毁无响应的工作线程。``tests/test_cancellation.py`` 验证线程隔离、幂等性、取消前的持久化、可继续的队列以及活动批处理子进程的终止。"
 
 msgid "Cooperative cancellation for long-running spaCR pipelines."
 msgstr "针对长时间运行的 spaCR 流程的协作式取消。"

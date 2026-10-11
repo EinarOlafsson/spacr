@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -37,9 +37,9 @@ msgstr "पाइपलाइन द्वारा उपयोग की ग�
 msgid "``manifest.json``"
 msgstr "``manifest.json``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and, for a failed run, the exception traceback."
-msgstr "मॉड्यूल, टाइमस्टैम्प, स्थिति, सेटिंग्स हैश, घोषित रैंडम सीड, Python/NumPy/Torch रैंडम-अवस्था पहचानकर्ता, spaCR और Git संस्करण, सभी स्थापित पैकेज संस्करण, मॉडल हैश, इनपुट हैश, आउटपुट हैश, चेतावनियों और अपवाद ट्रेसबैक का संस्करणित, परमाणु रूप से लिखा गया रिकॉर्ड।"
+msgstr "मॉड्यूल, टाइमस्टैम्प, स्थिति, सेटिंग्स हैश, घोषित रैंडम सीड, Python/NumPy/Torch रैंडम-अवस्था पहचानकर्ता, spaCR और Git संस्करण, सभी स्थापित पैकेज संस्करण, मॉडल हैश, इनपुट हैश, आउटपुट हैश, चेतावनियों और विफल रन के लिए अपवाद ट्रेसबैक का संस्करणित, परमाणु रूप से लिखा गया रिकॉर्ड।"
 
 msgid "``log.txt``"
 msgstr "``log.txt``"
@@ -68,9 +68,9 @@ msgstr "फ़ाइल उद्गम"
 msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
 msgstr "spaCR सेटिंग्स में मौजूद पथों को, प्लेट सूचियों के भीतर नेस्ट किए गए पथों सहित, पुनरावर्ती रूप से खोजता है। हर सामान्य इनपुट फ़ाइल को पूरा SHA-256 डाइजेस्ट, आकार, संशोधन टाइमस्टैम्प और उसे चुनने वाली सेटिंग कुंजी मिलती है। रन के दौरान उन मूलों के अंतर्गत बनाई या बदली गई फ़ाइलें आउटपुट के रूप में दर्ज की जाती हैं। सिमलिंक, संस्करण-नियंत्रण फ़ोल्डर, कैश और स्वयं रन जर्नल शामिल नहीं किए जाते।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. Comparing these single digests shows whether two complete sets match; the per-file records identify which files differ."
-msgstr "मैनिफ़ेस्ट में नियतात्मक समेकित मान ``input_tree_sha256`` और ``output_tree_sha256`` भी होते हैं। इनसे यह कम लागत में तय किया जा सकता है कि दो पूर्ण समूह मेल खाते हैं या नहीं, और अंतर खोजने के लिए आवश्यक प्रति-फ़ाइल रिकॉर्ड भी बने रहते हैं।"
+msgstr "मैनिफ़ेस्ट में नियतात्मक समेकित मान ``input_tree_sha256`` और ``output_tree_sha256`` भी होते हैं। इन एकल डाइजेस्ट की तुलना से पता चलता है कि दो पूर्ण समूह मेल खाते हैं या नहीं; प्रति-फ़ाइल रिकॉर्ड बताते हैं कि कौन-सी फ़ाइलें भिन्न हैं।"
 
 msgid "Crash and failure behavior"
 msgstr "क्रैश और विफलता पर व्यवहार"

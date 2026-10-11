@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -34,9 +34,9 @@ msgstr "Nenhuma pontuação prova que um UMAP contém estrutura biologicamente s
 msgid "``neighborhood_preservation``"
 msgstr "``neighborhood_preservation``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The geometric mean of trustworthiness and continuity. Trustworthiness penalizes neighbours invented by the two-dimensional embedding; continuity penalizes feature-space neighbours that the embedding places far apart. Because the geometric mean is low when either term is low, a high value requires both."
-msgstr "A média geométrica da confiabilidade (trustworthiness) e da continuidade. A confiabilidade penaliza vizinhos inventados pela incorporação bidimensional; a continuidade penaliza vizinhos reais do espaço de características que a incorporação separa. Exigir ambas impede que qualquer uma das falhas fique oculta."
+msgstr "A média geométrica da confiabilidade (trustworthiness) e da continuidade. A confiabilidade penaliza vizinhos inventados pela incorporação bidimensional; a continuidade penaliza vizinhos do espaço de características que a incorporação coloca distantes entre si. Como a média geométrica é baixa quando qualquer um dos termos é baixo, um valor alto exige ambos."
 
 msgid "``stability``"
 msgstr "``stability``"
@@ -47,9 +47,9 @@ msgstr "A fração média de vizinhos mais próximos compartilhados por incorpor
 msgid "``cluster_structure``"
 msgstr "``cluster_structure``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows) and reports the highest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
-msgstr "Estrutura de silhueta positiva em uma escala de zero a um. Quando rótulos são fornecidos pela API Python, eles definem a partição. Caso contrário, o spaCR ajusta partições K-means reprodutíveis de 2 a 8 grupos e informa a silhueta mais forte junto com os números de grupos selecionados. Isso é evidência de estrutura geométrica, não prova de que um grupo seja biológico."
+msgstr "O coeficiente de silhueta limitado ao intervalo de 0 a 1, de modo que valores negativos pontuam 0. Quando rótulos são fornecidos pela API Python, eles definem a partição. Caso contrário, o spaCR ajusta partições K-means com semente de 2 a 8 grupos (no máximo um a menos que o número de linhas) e informa a silhueta mais alta junto com os números de grupos selecionados. Isso é evidência de estrutura geométrica, não prova de que um grupo seja biológico."
 
 msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
 msgstr "Os três pesos são normalizados para somar um. Sua média geométrica ponderada se chama ``multi_objective`` e orienta a busca em grade ou adaptativa. A média geométrica penaliza um objetivo colapsado com mais força do que uma média aritmética."
@@ -57,9 +57,9 @@ msgstr "Os três pesos são normalizados para somar um. Sua média geométrica p
 msgid "Pareto front"
 msgstr "Fronteira de Pareto"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The composite score gives one ranking of the trials. spaCR also marks the Pareto front in the result table. A configuration is Pareto-optimal when no other tested configuration improves one objective without making another worse. Inspect the embedding panels and objective tooltips for every non-dominated row before propagating a configuration."
-msgstr "A pontuação composta não é apresentada como a única resposta. O spaCR também marca a fronteira de Pareto na tabela de resultados. Uma configuração é ótima de Pareto quando nenhuma outra configuração testada melhora um objetivo sem piorar outro. Examine os painéis de incorporação e as dicas dos objetivos de cada linha não dominada antes de adotar uma configuração."
+msgstr "A pontuação composta fornece uma única classificação das tentativas. O spaCR também marca a fronteira de Pareto na tabela de resultados. Uma configuração é ótima de Pareto quando nenhuma outra configuração testada melhora um objetivo sem piorar outro. Examine os painéis de incorporação e as dicas dos objetivos de cada linha não dominada antes de propagar uma configuração."
 
 msgid "The neighborhood, stability and cluster objectives, normalized weights, repeat count, raw silhouette, cluster source and discovered cluster counts are stored in each trial's ``extra_metrics``."
 msgstr "Os objetivos de vizinhança, estabilidade e grupos, os pesos normalizados, o número de repetições, a silhueta bruta, a origem dos grupos e os números de grupos encontrados são armazenados nos ``extra_metrics`` de cada tentativa."

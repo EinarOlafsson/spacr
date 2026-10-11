@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "解释 CV 模型并调查命中项"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR provides three separate analyses that answer different questions:"
-msgstr ""
+msgstr "spaCR 提供三种相互独立的分析，分别回答不同的问题："
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "激活图或遮挡图显示视觉模型关注的 **位置**；"
@@ -73,9 +74,9 @@ msgstr "从 **回归** 标题栏打开 **命中列表**，选择确切的基因�
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "提供测量数据库、原始的逐对象预测 CSV 和逐孔向导比例 CSV。关联使用显式的对象键和孔板/行/列键。重复的对象键或重复的孔/向导比例会使运行停止。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "第一个输出是一个如实的审查队列：含有靶标的孔中的细胞按回归的效应方向排序，并在旁边显示孔水平的靶标向导比例。随后，可选的归因模型会："
+msgstr "第一个输出是一个审查队列：含有靶标的孔中的细胞按回归的效应方向排序，并在旁边显示孔水平的靶标向导比例。随后，可选的归因模型会："
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "将孔视为包（bag），将细胞视为实例；"

@@ -23781,7 +23781,7 @@
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ],
       "source_sha256": "735c94dee3087069fed735729956f2ea70a492eec2edc37e8df3c2a870d9abe8",
-      "text": "세트는 ``key``라고 불립니다.\n\n:param key: :data:`EXAMPLE_SETS` 키, 예를 들면 ``import``, ``mask``, [``measure``], ``annotate``, (``dose``), ``control_chart`` 또는 ``hit``.\n:raises KeyError: ``None``을 반환 한 타이포는 아무것도 다운로드하고 성공을 보고하지 않을 것이며, 하나의 결과는 다운로드 명령이 결코 생성해서는 안됩니다.",
+      "text": "이름이 ``key`` 인 예제 세트.\n\n:param key: :data:`EXAMPLE_SETS` 키이며, 예를 들어 ``import``, ``mask``, ``measure``, ``annotate``, ``dose``, ``control_chart`` 또는 ``hit`` 입니다.\n:raises KeyError: 실제로 존재하는 키를 알려 줍니다. 오타로 ``None`` 을 반환하면 아무것도 내려받지 않고 성공을 보고하게 되는데, 이는 다운로드 명령이 절대 내서는 안 되는 유일한 결과입니다.",
       "translation_source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
         "df2ba7f7fe5eced6a349265120bfa0bfba41bf0a69da4ba73b7855d2c536766e",
@@ -102662,7 +102662,7 @@
         "464d57a3da3361d33fd4674439be0fe00db73f523717124d141ca7710b15b3ac"
       ],
       "source_sha256": "d4b265a7548da016feae4c0200f6f2cac11757575ca8ce2fd6633a28846e00d0",
-      "text": "검색 공간 컨트롤, 라이브 결과 테이블 및 작은 다중 패널.\n\n:param app_key: 검색할 수 있는 응용 프로그램: ``'umap'``, ``'classify'`` , ``'classify_merged'``, ``'ml_analyze'`` 또는 ``'activation'``.\n:param parent: 선택적 Qt 부모.\n:raises ValueError: ``app_key``에는 하이퍼파라미터 검색 정의가 없습니다.\n:ivar search_finished: :class:`SearchResult`로 발행되면 땀이 끝날 때 (멈추고 부분적으로 하나를 포함).\n``app_key``에 대한 컨트롤, 테이블 및 예보를 구축합니다.",
+      "text": "검색 공간 컨트롤, 라이브 결과 테이블 및 작은 다중 패널.\n\n:param app_key: 검색할 수 있는 응용 프로그램: ``'umap'``, ``'classify'`` , ``'classify_merged'``, ``'ml_analyze'`` 또는 ``'activation'``.\n:param parent: 선택적 Qt 부모 객체.\n:raises ValueError: ``app_key``에는 하이퍼파라미터 검색 정의가 없습니다.\n:ivar search_finished: :class:`SearchResult`로 발행되면 땀이 끝날 때 (멈추고 부분적으로 하나를 포함).\n``app_key``에 대한 컨트롤, 테이블 및 예보를 구축합니다.",
       "translation_source_blocks_sha256": [
         "91fb0ad2594de56f468780fb257786d252bf7ba1a25804014c5657ef4feb5800",
         "5149d236ac6584ebe3dcf7679cf4077146202f0e42b03e3cc4213bb112c84aa2",
@@ -137759,7 +137759,7 @@
         "eea1c9858fb6e387a52677db6e0a0f8bd8ec9c8849b5d6e701916e6b4dbaf800"
       ],
       "source_sha256": "8ad0f9de3a3b549d70f80fa3466f6875890d490ab28244db83d897c0186dd0c8",
-      "text": "각 측정 spaCR 글자의 검색 가능한 키 가치 맵링.\n\n그것을 구축하는 것은 하나의 :func:`spacr.feature_dict.search_features` 호출을 지불하고 데이터베이스를 만지지 않으므로 이벤트 루프없이 삽입하고 테스트 할 수있는 저렴합니다.\n\n:param parent: 옵션 Qt 부모.\n:param column: 옵션 열 이름을 열 수 있습니다.\n기능 키 가치 지도 패널을 구축합니다.\n\n:param parent: 부모 위젯, 또는 ``None`` 입니다.\n:param column: ``None``에 열려 있는 측정은 전체 키 값 지도에서 열립니다.",
+      "text": "각 측정 spaCR 글자의 검색 가능한 키 가치 맵링.\n\n그것을 구축하는 것은 하나의 :func:`spacr.feature_dict.search_features` 호출을 지불하고 데이터베이스를 만지지 않으므로 이벤트 루프없이 삽입하고 테스트 할 수있는 저렴합니다.\n\n:param parent: 선택적 Qt 부모 객체.\n:param column: 옵션 열 이름을 열 수 있습니다.\n기능 키 가치 지도 패널을 구축합니다.\n\n:param parent: 부모 위젯, 또는 ``None`` 입니다.\n:param column: ``None``에 열려 있는 측정은 전체 키 값 지도에서 열립니다.",
       "translation_source_blocks_sha256": [
         "9bb8057cafb2daf7c861bd49ff867f976cfc849a307d7b1540e970245b0a2d19",
         "371473cab5ebae7961d56e96ac69d66dac67b89d62d6c2d3e0dd50f2210da2a9",
@@ -138849,18 +138849,20 @@
         "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
         "50843f63908d3c7c8e63b6b2d8339f8401aa061b29cdc73ecbc218d9d3bff455",
         "95e7c086280147c0bc31d6c6d7939b653728e8f666d9e31923ce6d5bef040007",
-        "395296bad60d9c4c3796b006d3402762efae64c1af573ce48e951e0c6c9ea864",
+        "9264ff67c628b2d7ba4f296939682977fbc6110572a5229150e8edcf4e0fb39e",
+        "f196866eac75a9892127040dc7456a694efdfb9aa4f7933c360eeaa08d17abce",
         "491975835f29fba8f37e15db8304a9fa9f8d564df7cc3f2bba88f45e970875cf",
         "46629a349877cd9e9c4291b28d51201e7266fcb43f4337e90cf4e79d216541a9",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "3f6d40f24c251a70d99b5b6d8beca993a2df3254019a4d8c2e2a43b59a66f59a",
-      "text": "흐르는 네트워크에있는 숫자, 검색으로 채우면 그들을 생성합니다.\n\n:param parameters: 검색된 파라미터 이름, 좌석을 결정하는 순서. :meth:`set_parameters`로 나중에 설정할 수 있습니다.\n:param parent: 옵션 Qt 부모.\n:ivar cell_clicked: 클릭된 숫자의 인덱스와 함께 발행됩니다.\n파라미터에 따라 검색의 숫자를 배치하는 네트워크를 구축합니다.\n\n:param parameters: 검색의 매개 변수는 다양하며, 이는 네트워크의 캡션이됩니다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.",
+      "source_sha256": "927b57e580b38fc95842596ee6f7148001ca5cc5e25d83182fabcb1adfe44a00",
+      "text": "검색이 생성하는 대로 채워지며 다시 배치되는 그리드 위의 그림.\n\n:param parameters: 검색한 매개변수 이름이며, 축을 결정하는 순서를 따릅니다. 나중에 :meth:`set_parameters` 로 설정할 수 있습니다.\n:param parent: 선택적 Qt 부모 객체.\n:ivar cell_clicked: 왼쪽 버튼으로 클릭한 그림의 인덱스와 함께 발생합니다.\n:ivar cell_menu_requested: 그림 메뉴를 위해 오른쪽 클릭한 그림의 인덱스와 클릭의 전역 위치와 함께 발생합니다.\n검색의 그림을 매개변수별로 배치하는 그리드를 만듭니다.\n\n:param parameters: 검색에서 변경한 매개변수이며, 그리드의 캡션이 됩니다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.",
       "translation_source_blocks_sha256": [
         "ac5e09dd2e58eddfa2461ff4e9d601364f28659ecab89c07f0a9a6c20507ae7e",
         "50843f63908d3c7c8e63b6b2d8339f8401aa061b29cdc73ecbc218d9d3bff455",
         "95e7c086280147c0bc31d6c6d7939b653728e8f666d9e31923ce6d5bef040007",
-        "395296bad60d9c4c3796b006d3402762efae64c1af573ce48e951e0c6c9ea864",
+        "9264ff67c628b2d7ba4f296939682977fbc6110572a5229150e8edcf4e0fb39e",
+        "f196866eac75a9892127040dc7456a694efdfb9aa4f7933c360eeaa08d17abce",
         "491975835f29fba8f37e15db8304a9fa9f8d564df7cc3f2bba88f45e970875cf",
         "46629a349877cd9e9c4291b28d51201e7266fcb43f4337e90cf4e79d216541a9",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
@@ -158062,7 +158064,7 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
       "source_sha256": "6cedb61c6f3f6529a27e6bae9fb87588e80e2b1632edf5489426e0480ddb17ed",
-      "text": "편집 가능한 메타 데이터 라인의 네트워크.\n\n:param rows: 초기 프리뷰 라인 (보기 :mod:`spacr.qt.ingest_preview`).\n:param parent: 옵션 Qt 부모.\n메타 데이터 검토 테이블을 만드십시오.\n\n:param rows: 추출 된 메타 데이터가 표시됩니다; ``None``는 빈으로 시작됩니다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.",
+      "text": "편집 가능한 메타 데이터 라인의 네트워크.\n\n:param rows: 초기 프리뷰 라인 (보기 :mod:`spacr.qt.ingest_preview`).\n:param parent: 선택적 Qt 부모 객체.\n메타 데이터 검토 테이블을 만드십시오.\n\n:param rows: 추출 된 메타 데이터가 표시됩니다; ``None``는 빈으로 시작됩니다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.",
       "translation_source_blocks_sha256": [
         "3f48095342d2168be3e7f1cb0127346b6aa852b9b61b3042b44ee5ff0aaf9ba5",
         "f10757377f65790ae8732c2244eb15f9cce1867a48aebed208592ce81090db43",

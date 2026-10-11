@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -43,9 +43,9 @@ msgstr "当每块板都包含相同的阴性/参照对照时推荐使用。spaCR
 msgid "``robust_zscore``"
 msgstr "``robust_zscore``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Align plate medians and median absolute deviations. This is less sensitive to outliers than ``zscore``, but can remove genuine differences if biological conditions are unevenly distributed across plates."
-msgstr "对齐各板的中位数和中位数绝对偏差。此方法对离群值稳健，但如果生物学条件在各板之间分布不均，可能会去除真实的差异。"
+msgstr "对齐各板的中位数和中位数绝对偏差。此方法对离群值的敏感度低于 ``zscore``，但如果生物学条件在各板之间分布不均，可能会去除真实的差异。"
 
 msgid "``center``"
 msgstr "``center``"
@@ -56,15 +56,16 @@ msgstr "对齐各板均值，同时保留总体均值。"
 msgid "``zscore``"
 msgstr "``zscore``"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Align both plate means and standard deviations to the pooled values. Use it only when plate composition is comparable, because a difference in condition mix between plates is removed together with the batch effect."
-msgstr ""
+msgstr "将各板的均值和标准差都对齐到合并后的数值。仅在各板组成可比时使用此方法，因为各板之间条件构成的差异会与批次效应一起被去除。"
 
 msgid "``combat``"
 msgstr "``combat``"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Empirical-Bayes ComBat (Johnson, Li & Rabinovich, 2007). Each feature is modelled on batch *and* on the biology named in ``batch_covariate_column``, and only the batch part is removed; per-batch estimates are shrunk across features, which stabilizes the estimates for plates with few samples. It refuses to run until the covariate is answered: name the column(s) to preserve, or pass ``no_covariate`` to record that every batch holds the same mixture of conditions. ``batch_combat_mean_only=True`` corrects only the additive shift and leaves each batch's spread alone."
-msgstr "经验贝叶斯 ComBat（Johnson, Li & Rabinovich, 2007）。每个特征同时按批次 *和* ``batch_covariate_column`` 中指定的生物学因素建模，只去除批次部分；各批次的估计值在特征之间进行收缩，使小板也能使用。在回答协变量问题之前该方法拒绝运行：请指定需要保留的列，或传入 ``no_covariate`` 以记录每个批次包含相同的条件组合。``batch_combat_mean_only=True`` 只校正加性偏移，不改变各批次的离散程度。"
+msgstr "经验贝叶斯 ComBat（Johnson, Li & Rabinovich, 2007）。每个特征同时按批次 *和* ``batch_covariate_column`` 中指定的生物学因素建模，只去除批次部分；各批次的估计值在特征之间进行收缩，从而使样本较少的板的估计值更加稳定。在回答协变量问题之前该方法拒绝运行：请指定需要保留的列，或传入 ``no_covariate`` 以记录每个批次包含相同的条件组合。``batch_combat_mean_only=True`` 只校正加性偏移，不改变各批次的离散程度。"
 
 msgid "Settings"
 msgstr "设置"
@@ -72,9 +73,9 @@ msgstr "设置"
 msgid "Set ``batch_correction`` to a method above and use ``batch_column`` to name the batch identifier (normally ``plateID``). ``batch_min_samples`` rejects unstable estimates from undersized batches."
 msgstr "将 ``batch_correction`` 设置为上述某种方法，并用 ``batch_column`` 指定批次标识（通常为 ``plateID``）。``batch_min_samples`` 会拒绝来自样本过少批次的不稳定估计。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` (the default) stops the run when a plate has fewer than ``batch_min_samples`` usable reference controls; ``skip`` leaves an affected plate unchanged and records a warning."
-msgstr "对于 ``control_center``，``batch_control_column`` 指定包含对照的元数据字段，``batch_control_values`` 选择一个或多个参照值。留空时，图像 UMAP 遵循 ``col_to_compare``/``neg``，而分类模块的 ML 系列遵循 ``location_column`` （当标注定义类别时为 ``annotation_column``）和 ``negative_control_id``。回归需要显式的参照值。``batch_missing_control=error`` 是安全的默认值；``skip`` 会使受影响的板保持不变并记录一条警告。"
+msgstr "对于 ``control_center``，``batch_control_column`` 指定包含对照的元数据字段，``batch_control_values`` 选择一个或多个参照值。留空时，图像 UMAP 遵循 ``col_to_compare``/``neg``，而分类模块的 ML 系列遵循 ``location_column`` （当标注定义类别时为 ``annotation_column``）和 ``negative_control_id``。回归需要显式的参照值。``batch_missing_control=error`` （默认）会在某块板可用的参照对照少于 ``batch_min_samples`` 个时停止运行；``skip`` 会使受影响的板保持不变并记录一条警告。"
 
 msgid "Every regression correction writes ``batch_correction.json`` next to the regression outputs. Image UMAP and Classify print before/after batch-centroid spread in the run log, while the reproducibility manifest records the exact settings used."
 msgstr "每次回归校正都会在回归输出旁写入 ``batch_correction.json``。图像 UMAP 和分类模块会在运行日志中打印校正前后的批次质心离散度，而可重复性清单会记录所用的确切设置。"

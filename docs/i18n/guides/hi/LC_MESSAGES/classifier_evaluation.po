@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Classifier evaluation workbench"
 msgstr "वर्गीकारक मूल्यांकन वर्कबेंच"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
-msgstr "वर्गीकारक क्रॉस-वैलिडेशन किसी फ़ोल्ड को एक सटीकता संख्या में समेटने के बजाय हर फ़ोल्ड-से-बाहर (out-of-fold) संभावना को सुरक्षित रखता है। वर्कबेंच की अपनी कोई टाइल नहीं है: यह **वर्गीकरण** शीर्षपट्टी से खुलता है, क्योंकि किसी वर्गीकारक का आकलन उसे प्रशिक्षित करने के तुरंत बाद का चरण है। वहाँ **वर्गीकारक मूल्यांकन** दबाएँ और किसी मॉडल/परिणाम फ़ोल्डर को पेज पर छोड़ें। स्कैन बैकग्राउंड में चलता है और उस फ़ोल्डर के अंतर्गत हर ``evaluation_manifest.json`` खोजता है।"
+msgstr "वर्गीकारक क्रॉस-वैलिडेशन किसी फ़ोल्ड को एक सटीकता संख्या में समेटने के बजाय हर फ़ोल्ड-से-बाहर (out-of-fold) संभावना को सुरक्षित रखता है। वर्कबेंच की अपनी कोई टाइल नहीं है: यह **वर्गीकरण** शीर्षपट्टी से खुलता है। वहाँ **वर्गीकारक मूल्यांकन** दबाएँ और किसी मॉडल/परिणाम फ़ोल्डर को पेज पर छोड़ें। स्कैन बैकग्राउंड में चलता है और उस फ़ोल्डर के अंतर्गत हर ``evaluation_manifest.json`` खोजता है।"
 
 msgid "The workbench shows:"
 msgstr "वर्कबेंच ये दिखाता है:"
@@ -68,9 +68,9 @@ msgstr "समूहित और नेस्टेड क्रॉस-वै�
 msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
 msgstr "``cross_validation_folds`` बाहरी फ़ोल्ड नियंत्रित करता है और ``cv_group_by`` संबंधित फ़ील्ड, कूपों या प्लेटों को एक साथ रखता है। डिफ़ॉल्ट कूप-समूहित क्रॉस-वैलिडेशन है। वास्तविक नेस्टेड क्रॉस-वैलिडेशन सक्षम करने के लिए ``nested_cv_inner_folds`` को दो या अधिक पर सेट करें।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
-msgstr "सामान्य क्रॉस-वैलिडेशन में बाहरी सत्यापन फ़ोल्ड का उपयोग चेकपॉइंट चयन और प्रदर्शन की सूचना दोनों के लिए होता है। यह तेज़ है और नियमित तुलनाओं के लिए उपयोगी है, लेकिन जब उस फ़ोल्ड के विरुद्ध कई विकल्प चुने जाते हैं तो अनुमान थोड़ा आशावादी हो सकता है।"
+msgstr "सामान्य क्रॉस-वैलिडेशन में बाहरी सत्यापन फ़ोल्ड का उपयोग चेकपॉइंट चयन और प्रदर्शन की सूचना दोनों के लिए होता है। इसमें नेस्टेड क्रॉस-वैलिडेशन की तुलना में कम प्रशिक्षण रन लगते हैं, लेकिन जब उस फ़ोल्ड के विरुद्ध कई विकल्प चुने जाते हैं तो अनुमान आशावादी रूप से पक्षपाती हो सकता है।"
 
 msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
 msgstr "नेस्टेड क्रॉस-वैलिडेशन में हर बाहरी प्रशिक्षण विभाजन को फिर से बाँटा जाता है। मॉडल केवल आंतरिक सत्यापन फ़ोल्ड के विरुद्ध चेकपॉइंट चुनते हैं; अछूता बाहरी फ़ोल्ड अंतिम स्कोरिंग के लिए एक बार उपयोग होता है। आंतरिक मॉडल उस बाहरी फ़ोल्ड के लिए एक समूह (ensemble) बनाते हैं। इसके लिए ``cross_validation_folds * nested_cv_inner_folds`` प्रशिक्षण रन लगते हैं, लेकिन मॉडल चयन प्रदर्शन अनुमान से अलग रहता है।"
@@ -78,9 +78,9 @@ msgstr "नेस्टेड क्रॉस-वैलिडेशन में
 msgid "Leakage protection"
 msgstr "रिसाव से सुरक्षा"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises ``LeakageError`` before model fitting; the message lists the overlap counts per level. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
-msgstr "प्रशिक्षण से पहले spaCR हर विभाजन के दोनों ओर सटीक पथ, संवर्धन परिवार, ऑब्जेक्ट और विन्यस्त समूहन स्तर की जाँच करता है। ``evaluation_fail_on_leakage=True`` (डिफ़ॉल्ट) के साथ कोई भी संरक्षित अधिव्यापन मॉडल फ़िट करने से पहले कार्रवाई योग्य त्रुटि उत्पन्न करता है। संवर्धन विभाजन के बाद उत्पन्न किए जाते हैं ताकि रूपांतरित प्रतियाँ किसी अलग रखे गए फ़ोल्ड में न जा सकें।"
+msgstr "प्रशिक्षण से पहले spaCR हर विभाजन के दोनों ओर सटीक पथ, संवर्धन परिवार, ऑब्जेक्ट और विन्यस्त समूहन स्तर की जाँच करता है। ``evaluation_fail_on_leakage=True`` (डिफ़ॉल्ट) के साथ कोई भी संरक्षित अधिव्यापन मॉडल फ़िट करने से पहले ``LeakageError`` उत्पन्न करता है; संदेश में हर स्तर पर अधिव्यापन की गिनती सूचीबद्ध होती है। संवर्धन विभाजन के बाद उत्पन्न किए जाते हैं ताकि रूपांतरित प्रतियाँ किसी अलग रखे गए फ़ोल्ड में न जा सकें।"
 
 msgid "Temperature calibration"
 msgstr "तापमान अंशांकन"

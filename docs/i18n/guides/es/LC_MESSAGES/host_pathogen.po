@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -88,9 +88,9 @@ msgstr "Interpretar los informes"
 msgid "The output directory ``results/host_pathogen`` contains ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` and the exact ``settings.json``. With multiple input projects, the combined report is saved under the first project. Database paths separate sources even when plate or field identifiers repeat."
 msgstr "La carpeta de salida ``results/host_pathogen`` contiene ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` y el ``settings.json`` exacto. Con varios proyectos de entrada, el informe combinado se guarda en el primer proyecto. Las rutas de las bases de datos separan los orígenes aunque se repitan identificadores de placa o de campo."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These fractions use different denominators, so report each denominator explicitly."
-msgstr "Las vacuolas no vinculadas y las intensidades de referencia del huésped ausentes, no válidas o iguales a cero producen estados de marcador desconocidos. Las fracciones conjuntas de marcadores incluyen las vacuolas desconocidas en su denominador; las fracciones de replicación usan solo las vacuolas con recuentos. Las fracciones de infección del huésped describen las células huésped medidas conservadas. Estos denominadores responden a preguntas distintas y deben indicarse explícitamente."
+msgstr "Las vacuolas no vinculadas y las intensidades de referencia del huésped ausentes, no válidas o iguales a cero producen estados de marcador desconocidos. Las fracciones conjuntas de marcadores incluyen las vacuolas desconocidas en su denominador; las fracciones de replicación usan solo las vacuolas con recuentos. Las fracciones de infección del huésped describen las células huésped medidas conservadas. Estas fracciones usan denominadores distintos, así que indique cada denominador explícitamente."
 
 msgid "For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and :func:`spacr.host_pathogen.summarize_tables`. The headless module name is ``host_pathogen`` in ``spacr-run``."
 msgstr "Para el uso mediante scripts, consulte :func:`spacr.host_pathogen.analyze_host_pathogen` y :func:`spacr.host_pathogen.summarize_tables`. El nombre del módulo sin interfaz gráfica es ``host_pathogen`` en ``spacr-run``."

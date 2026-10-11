@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 13:14-0400\n"
+"POT-Creation-Date: 2026-10-10 19:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -166,9 +166,9 @@ msgstr "Auswahl ändern, während eine Vorschau läuft"
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "Eine Änderung der Quelle, des ausgewählten Bildes oder des Modus verwirft die vorherige Vorschau. Ihr verspätetes Ergebnis kann die neu gewählte Ansicht nicht ersetzen. Ein leerer Quellordner löscht die vorherige Maske, die Objektansichten und die Abbildungstabellen. Starten Sie für die gewünschte Auswahl eine neue Vorschau, nachdem sie geladen ist. Ein Abbruch verwirft das alte Ergebnis; der aktuelle Modellaufruf wird abgeschlossen, bevor **Vorschau ausführen** und die Well-Bedienelemente wieder verfügbar sind. Warten Sie auf diese Bedienelemente, bevor Sie mit geänderten Einstellungen erneut ausführen."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
-msgstr "Warten Sie nach **Annotationen speichern** auf die Speicherbestätigung im Vorschaustatus, bevor Sie die Batch-Analyse starten. Das Speichern erfolgt im Hintergrund, damit das Bild reaktionsfähig bleibt; ein in die Warteschlange gestellter Speichervorgang ist noch kein abgeschlossener Schreibvorgang."
+msgstr "Warten Sie nach Auswahl von **Annotationen speichern** auf die Speicherbestätigung im Vorschaustatus, bevor Sie die Batch-Analyse starten. Das Speichern erfolgt im Hintergrund, damit das Fenster reaktionsfähig bleibt; ein in die Warteschlange gestellter Speichervorgang ist noch kein abgeschlossener Schreibvorgang."
 
 msgid "Python preview contracts"
 msgstr "Vorschau-Verträge in Python"
