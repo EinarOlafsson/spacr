@@ -16,6 +16,19 @@ Two data sources (DATASET):
     Fluo-C2DL-Huh7 widefield movies (8-bit, background ~4 +- 4 grey levels,
     cells ~40), both sequences, every frame with a gold-truth SEG mask
     (13 frames). N2V learns from all 60 raw frames.
+``fmd``
+    A second genuinely low-light acquisition: the FMD WideField_BPAE_B
+    category (Zhang et al., CVPR 2019; BPAE cells, DAPI nuclei, widefield,
+    20 fields of view x 50 raw 8-bit frames taken with the excitation
+    attenuated). FMD_FRAMES (default 0,25) picks the raw frames scored per
+    field of view, FMD_FOVS (default all) the fields of view; ``--stage``
+    only makes the reference masks (run several on disjoint FMD_FOVS to
+    share the work). There are no human masks: the reference is a frozen
+    Cellpose-SAM (cpsam, flow 0.4, cellprob 0, no rescaling) segmentation
+    of the same field's 50-frame mean (``gt/<fov>/avg50.png``), so F1 here
+    is agreement with the high-SNR segmentation, not accuracy against
+    human truth. Fields of view 1-10 and 11-20 are the two folds. N2V
+    learns from the scored raw frames.
 
 N2V is trained once per data set on the noisy images only (no clean image
 is ever shown to it); VARIANT=struct trains structN2V (N2V2 with a
@@ -84,6 +97,11 @@ CP3_PYTHON = os.environ.get("CP3_PYTHON", str(Path.home() / ".spacr/backends/cel
 HUH7 = Path("/nas_mnt/data/training_data/projects/live_cell/datasets/Homo_sapiens/"
             "Masks/timelapse/Widefield_20x/Fluorescence/ctc_fluo_c2dl_huh7/"
             "unpacked/Fluo-C2DL-Huh7/Fluo-C2DL-Huh7")
+FMD = Path(os.environ.get("FMD_ROOT", "/mnt/firecuda2/Claude/scratch/unblock/F557/data/"
+                          "fmd/WideField_BPAE_B"))
+FMD_FRAMES = [int(v) for v in os.environ.get("FMD_FRAMES", "0,25").split(",")]
+FMD_DIAMETER = float(os.environ.get("FMD_DIAMETER", 84))
+FMD_FOVS = [int(v) for v in os.environ.get("FMD_FOVS", "").split(",") if v]
 
 CELLPROB = tuple(float(v) for v in os.environ.get("SWEEP_CELLPROB", "-3,-2,-1,0,1,2").split(","))
 FLOW = tuple(float(v) for v in os.environ.get("SWEEP_FLOW", "0.4,0.6,0.8,1.0").split(","))
@@ -92,8 +110,8 @@ AREA_FRACTION = (0.0, 0.1, 0.2, 0.35, 0.5)
 
 def data_tag():
     """The folder suffix that tells the data sets apart."""
-    if DATASET == "huh7":
-        return "huh7"
+    if DATASET in ("huh7", "fmd"):
+        return DATASET
     tag = f"p{PEAK:g}"
     if NOISE == "correlated":
         tag += f"_corr{CORR:g}s{SPAN}"
@@ -163,6 +181,40 @@ def stage_huh7():
             tifffile.imwrite(folder / "gt" / name, tifffile.imread(seg))
             pairs.append((folder / name, folder / "gt" / name))
     return pairs, planes
+
+
+def stage_fmd():
+    """FMD raw frames, each with the cpsam masks of its 50-frame mean.
+
+    The reference masks are made once and reused, so every arm is scored
+    against the same frozen labels.
+    """
+    import imageio.v3 as iio
+
+    folder = OUT / "fmd"
+    (folder / "gt").mkdir(parents=True, exist_ok=True)
+    model = None
+    pairs = []
+    for fov in sorted((FMD / "raw").iterdir(), key=lambda p: int(p.name)):
+        if FMD_FOVS and int(fov.name) not in FMD_FOVS:
+            continue
+        reference = folder / "gt" / f"fov{int(fov.name):02d}_avg50.tif"
+        if not reference.is_file():
+            if model is None:
+                from cellpose import models
+                model = models.CellposeModel(gpu=False, pretrained_model="cpsam")
+            mean = np.asarray(iio.imread(FMD / "gt" / fov.name / "avg50.png"), dtype=np.float32)
+            masks = model.eval(mean, diameter=FMD_DIAMETER, flow_threshold=0.4, cellprob_threshold=0.0,
+                               normalize=True)[0]
+            tifffile.imwrite(reference, np.asarray(masks, dtype=np.uint16))
+        frames = sorted(fov.glob("*.png"))
+        group = "s01" if int(fov.name) <= 10 else "s02"
+        for index in FMD_FRAMES:
+            name = f"{group}_fov{int(fov.name):02d}_f{index:02d}.tif"
+            if not (folder / name).is_file():
+                tifffile.imwrite(folder / name, np.asarray(iio.imread(frames[index])).astype(np.uint16))
+            pairs.append((folder / name, reference))
+    return pairs, None
 
 
 _CP3_SCRIPT = """
@@ -281,7 +333,8 @@ def save_flows(keeper, result, fields, chain):
 def main():
     """Train N2V on the noisy images, then segment and score every chain."""
     OUT.mkdir(parents=True, exist_ok=True)
-    pairs, planes = stage_huh7() if DATASET == "huh7" else make_lowlight()
+    stage = {"huh7": stage_huh7, "fmd": stage_fmd}.get(DATASET, make_lowlight)
+    pairs, planes = stage()
     fields = []
     for index, (image, truth) in enumerate(pairs):
         item = B._field("lowlight", image, truth, {})
@@ -411,7 +464,8 @@ def _score_grid(path, device=None):
 
 
 def _fold_of(stem, index):
-    """Two folds: the Huh7 sequence, or alternate fields."""
+    """Two folds: the Huh7 sequence (FMD: fields of view 1-10 and 11-20),
+    or alternate fields."""
     if stem.startswith("s01"):
         return 0
     if stem.startswith("s02"):
@@ -476,5 +530,8 @@ def sweep(folder):
 if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "--sweep":
         sweep(sys.argv[2])
+    elif sys.argv[1:] == ["--stage"]:
+        OUT.mkdir(parents=True, exist_ok=True)
+        print(len(stage_fmd()[0]), "fields staged", flush=True)
     else:
         main()

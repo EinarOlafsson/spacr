@@ -354,3 +354,93 @@ training). Other denoisers, same held-out sets and scoring as ROUND 3.
     Receipt: features/data/557_gowt1_gpu_acceptance_2026-10-05.json.
 
 2026-10-06 workstation additional real denoising dataset audit: the primary noisy-nuclei archive DOI 10.5281/zenodo.5750174 matches its published MD5 and all 50 acquired 1024x1024 uint16 TIFFs are independently reverified. Twenty original training pairs and five original test pairs match by basename; exact pixel duplicates and unshifted/phase-correlation diagnostics are recorded without modifying, registering or denoising any original. Maximum diagnostic shift is 0.30000001192092896 px. There are no manual masks, exposure/laser/gain/photon settings, OME metadata or acquisition-calibration text in the original archive; ImageJ display limits are not calibration. The related manual-mask StarDist archive DOI 10.5281/zenodo.3715492 is independently downloaded and verified against both published MD5 and SHA256, inventorying 98 original TIFFs. Exact pixel matches with the noisy/high-signal dataset: 0. Matching species/microscope descriptions do not justify mask transfer to unmatched images. Receipt 557_public_paired_image_audit_2026-10-06.json retains source records, complete original file/pixel inventories, all pair diagnostics, identity comparison, scripts and terminal logs; original archives remain intact in scratch. This advances actual dataset evidence but does not satisfy the still-open second calibrated low-light segmentation-F1 requirement or claim new training/GPU/biological accuracy. The optional request for a local real low-light/manual-mask acquisition with recorded exposure remains pending. Current DINOv2 normal retry continues through the unchanged scheduler; Home retains CPU CI/Qt/source and workstation retains all GPU/documentation lanes. Protected jobs remain untouched.
+
+2026-10-11 — PUBLIC-DATA UNBLOCK ATTEMPT (CPU)
+    SEARCHED. FMD (Zhang et al., CVPR 2019), BioSR, CARE (Weigert 2018),
+    public low-SNR sets with manual masks. None pairs real low-light
+    frames with human masks of countable cells; FMD has the cleanest
+    design (real raw frames + 50-frame mean of the same field), so it
+    was chosen with a pseudo ground truth, as briefed.
+    DATA. FMD, github.com/yinhaoz/denoising-fluorescence (was
+    bmmi/...), files on the authors' Google Drive (download_dataset.sh
+    ids). Code licence MIT; the data carry no separate licence (stated
+    "publicly available" in the paper); used locally, not redistributed.
+    Two BPAE DAPI-nucleus categories, 20 fields x 50 raw 8-bit 512 px
+    frames each: WideField_BPAE_B (tar 719 MB, sha256 a4db37c7...;
+    files PND_16_Exp_200_Gain_46) and TwoPhoton_BPAE_B (826 MB,
+    06cd148b...; WL780_P05_HV130). Confocal_BPAE_B (590 MB, 4b096075...)
+    is downloaded but not run. In /mnt/firecuda2/Claude/scratch/unblock/
+    F557/data/fmd. Raw-frame SNR against the mean (median nuclear
+    signal / noise sd in nuclei): widefield ~10-11 (one field 3.3),
+    noise sd 12-15 grey levels; two-photon 3.0-3.7, noise sd 29-35;
+    confocal 3.6-4.3. Two-photon is noisier than Huh7 (SNR ~8).
+    GT. NOT human truth: "agreement with high-SNR segmentation". The
+    reference is Cellpose-SAM cpsam (flow 0.4, cellprob 0) on each
+    field's avg50.png at a fixed diameter (84 px widefield, the median
+    of unrescaled cpsam on two means; 50 px two-photon, scaled by
+    Otsu sizes). It is frozen and shared by every arm. Widefield: 88
+    nuclei in 20 fields. Two-photon: 130 nuclei in 14 fields.
+    RAN. tools/validate_n2v_lowlight.py gains DATASET=fmd (FMD_ROOT,
+    FMD_FRAMES, FMD_FOVS, FMD_DIAMETER, --stage). Arms raw, NLM,
+    Cellpose 3 denoise_cyto3 and denoise_nuclei (3.1.1.3, CPU), each
+    through Mask generation cpsam at the true diameter, FLOWS=1, then
+    --sweep. The held-out folds are disjoint fields of view (1-10 and
+    11-20). Widefield: raw frames 0 and 25 of every field (40 fields,
+    176 object instances). Two-photon: frame 0 of 14 fields (folds
+    1,2,3,5,6,7,9,10 / 11,13,14,17,18,19). Six reference masks were
+    dropped for time; no frame was picked by its result. CPU only, about
+    2 h wall under load average 45-65.
+    N2V was NOT run. A CPU N2V2 training on the 40 widefield frames (20
+    epochs, 4 threads) was stopped unfinished after 55 min, past the
+    30-minute budget.
+    F1 (pooled; def = spaCR defaults; ho = tuned on one fold, scored on
+    the other):
+      set        arm              def@.5  def@.75  ho@.5   ho@.75  best
+      widefield  raw              0.986   0.968    0.983   0.948   0.989
+      40 fields  NLM              0.980   0.968    0.974   0.957   0.989
+                 CP3 cyto3        0.983   0.983    0.977   0.971   0.986
+                 CP3 nuclei       0.980   0.957    0.980   0.968   0.992
+      two-photon raw              0.992   0.985    0.985   0.969   0.996
+      14 fields  NLM              0.996   0.988    0.996   0.988   1.000
+                 CP3 cyto3        0.988   0.973    0.985   0.969   0.992
+                 CP3 nuclei       0.973   0.919    0.973   0.965   0.992
+    Every difference is 0-3 objects out of 130-176, i.e. noise.
+    WHAT IT SAYS. On these real low-light frames, Cellpose-SAM on a
+    single raw frame already agrees with its own segmentation of the
+    50-frame mean at F1 0.98-0.99, even at SNR ~3. Denoising has no
+    headroom, so no arm gains: NLM +0.004 (default) and +0.011
+    (held-out) on two-photon, -0.006 and -0.009 on widefield. The
+    Huh7 gains (NLM +0.116, N2V +0.065 held-out) are NOT reproduced.
+    Noise alone does not explain them. On large nuclei, noise costs
+    cpsam about 1-2% F1. The Huh7 deficit (raw 0.549 against human
+    truth) must come mostly from other causes: boundary conventions,
+    low contrast, touching cells. Smoothing can change those in either
+    direction. Caveats: a model-made reference rewards matching the
+    model's own clean output, not true boundaries. Objects are large
+    (50-84 px) and few per field. A smaller-object or human-annotated
+    low-light set could still differ.
+    STATUS: still BLOCKED, now with a precise reason. A second public
+    real low-light set is answered and shows NO denoising gain, because
+    raw images already segment as well as the high-SNR mean. A
+    confirming dataset would need low-light frames where raw cpsam
+    disagrees with the high-SNR result (F1 below ~0.9) or human masks.
+    No public set found has that. That needs the maintainer's own
+    acquisition: the same field at short and long exposure, with
+    manual or long-exposure masks. Keep alpha; promote no default.
+    Optional GPU step (completes the arm set; cannot change the verdict,
+    since headroom is <= 0.01): on this machine, from a worktree with
+    this harness,
+      mkdir -p $O/fmd && cp -r /mnt/firecuda2/Claude/scratch/unblock/F557/work/tp/out/fmd/gt $O/fmd/
+      tools/gpu_turn.sh f557-fmd-n2v tools/run_capped.sh 24G env \
+        DEVICE=cuda SPACR_DEVICE=cuda DATASET=fmd \
+        FMD_ROOT=/mnt/firecuda2/Claude/scratch/unblock/F557/data/fmd/TwoPhoton_BPAE_B \
+        FMD_DIAMETER=50 FMD_FRAMES=0 \
+        FMD_FOVS=1,2,3,5,6,7,9,10,11,13,14,17,18,19 EPOCHS=100 \
+        CHAINS=off,n2v FLOWS=1 CROP=4096 OUT=$O \
+        python tools/validate_n2v_lowlight.py
+      CUDA_VISIBLE_DEVICES='' tools/run_capped.sh 16G python \
+        tools/validate_n2v_lowlight.py --sweep $O/flows/fmd_e100
+    ($O = a new folder; the gt copy keeps the CPU references frozen;
+    the CAREamics env is ~/.spacr/backends/careamics, cu124.)
+    Outputs: /mnt/firecuda2/Claude/scratch/unblock/F557/work/
+    sweep_wf/sweep.json, tp/sweep/sweep.json, logs and arm.sh/arm2.sh.
