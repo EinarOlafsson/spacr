@@ -186,3 +186,5 @@ MAINTAINER CHECKLIST
    on one CPU partition (drop --gres/--nv) and one GPU node (--nv); paste
    job IDs, rc and measurements.db row counts here.
 7. Then change "Nothing is published yet" in packaging/apptainer/README.md.
+
+2026-10-11 (Home): .github/workflows/apptainer-images.yml added from the reviewed proposal (dispatch/workflow_call only, actionlint clean, 325 workflow tests pass). Not yet called from release.yml. Maintainer checklist steps 1 is done; remaining: wire into release.yml, merge to main, dispatch with publish=true, make spacr-sif public, anonymous oras pull, Slurm CPU and --nv checks, README line.
