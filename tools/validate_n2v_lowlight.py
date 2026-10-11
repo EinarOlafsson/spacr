@@ -29,6 +29,20 @@ Two data sources (DATASET):
     is agreement with the high-SNR segmentation, not accuracy against
     human truth. Fields of view 1-10 and 11-20 are the two folds. N2V
     learns from the scored raw frames.
+``simulated``
+    A simulated low-light benchmark with a known ground truth. Clean,
+    high-SNR fields (SIM_SOURCE: ``toxo_pv``, the ten toxo_pv fields with
+    curated human masks, cropped as above; or ``fmd``, the 50-frame means of
+    FMD WideField_BPAE_B with the frozen Cellpose-SAM pseudo ground truth in
+    SIM_FMD_GT) are degraded by :func:`simulate_lowlight` to PHOTONS mean
+    signal photons per object pixel (``clean`` keeps the clean images),
+    SIM_DRAWS independent noise draws per field, seeded by SEED, level and
+    field. Fields alternate between the two folds (FMD: fields of view 1-10
+    and 11-20); every draw of a field stays in its field's fold.
+    ``OUT/sim_<source>_p<PHOTONS>/simulation.json`` records the model and
+    the expected and measured SNR. ``--report OUT`` gathers every simulated
+    sweep under OUT/flows into ``simulated_f1.csv`` and a figure of F1
+    against photon budget per arm.
 
 N2V is trained once per data set on the noisy images only (no clean image
 is ever shown to it); VARIANT=struct trains structN2V (N2V2 with a
@@ -60,6 +74,15 @@ outside ~/.spacr/backends. Examples::
         SPACR_DEVICE=cuda EPOCHS=200 python tools/validate_n2v_lowlight.py
     CUDA_VISIBLE_DEVICES='' python tools/validate_n2v_lowlight.py \\
         --sweep OUT/flows/p10_e150
+    CUDA_VISIBLE_DEVICES='' OUT=O DATASET=simulated SIM_SOURCE=fmd PHOTONS=2 \\
+        PREDENOISE=nlm CHAINS=off EPOCHS=0 FLOWS=1 python tools/validate_n2v_lowlight.py
+    SWEEP_GLOB='*_d0.npz' python tools/validate_n2v_lowlight.py --sweep O/flows/sim_fmd_p2_nlm_e0
+    python tools/validate_n2v_lowlight.py --report O
+
+The simulated mode also reads SIM_DRAWS (default 2), SIM_READ (read noise,
+electrons, default 1.5), SIM_GAIN (ADU per electron, default 1),
+SIM_BACKGROUND (background photons as a fraction of PHOTONS, default 0.1),
+SEED and SIM_FMD_GT; the sweep reads SWEEP_GLOB to score a subset of draws.
 """
 import itertools
 import json
@@ -102,6 +125,15 @@ FMD = Path(os.environ.get("FMD_ROOT", "/mnt/firecuda2/Claude/scratch/unblock/F55
 FMD_FRAMES = [int(v) for v in os.environ.get("FMD_FRAMES", "0,25").split(",")]
 FMD_DIAMETER = float(os.environ.get("FMD_DIAMETER", 84))
 FMD_FOVS = [int(v) for v in os.environ.get("FMD_FOVS", "").split(",") if v]
+SIM_SOURCE = os.environ.get("SIM_SOURCE", "toxo_pv")
+PHOTONS = os.environ.get("PHOTONS", "10")
+SIM_DRAWS = int(os.environ.get("SIM_DRAWS", 2))
+SIM_READ = float(os.environ.get("SIM_READ", 1.5))
+SIM_GAIN = float(os.environ.get("SIM_GAIN", 1.0))
+SIM_BACKGROUND = float(os.environ.get("SIM_BACKGROUND", 0.1))
+SIM_SEED = int(os.environ.get("SEED", 0))
+SIM_FMD_GT = Path(os.environ.get("SIM_FMD_GT", "/mnt/firecuda2/Claude/scratch/unblock/F557/work/"
+                                 "out_a/fmd/gt"))
 
 CELLPROB = tuple(float(v) for v in os.environ.get("SWEEP_CELLPROB", "-3,-2,-1,0,1,2").split(","))
 FLOW = tuple(float(v) for v in os.environ.get("SWEEP_FLOW", "0.4,0.6,0.8,1.0").split(","))
@@ -110,6 +142,10 @@ AREA_FRACTION = (0.0, 0.1, 0.2, 0.35, 0.5)
 
 def data_tag():
     """The folder suffix that tells the data sets apart."""
+    if DATASET == "simulated":
+        level = "clean" if PHOTONS == "clean" else f"p{float(PHOTONS):g}"
+        crop = f"_c{CROP}" if SIM_SOURCE == "toxo_pv" and CROP != 512 else ""
+        return f"sim_{SIM_SOURCE}{crop}_{level}"
     if DATASET in ("huh7", "fmd"):
         return DATASET
     tag = f"p{PEAK:g}"
@@ -147,6 +183,8 @@ def make_lowlight():
     (folder / "gt").mkdir(parents=True, exist_ok=True)
     pairs = []
     for image in sorted(B.TOXO_PV.glob("*.tif")):
+        if not (B.TOXO_PV / "ground_truth_masks" / image.name).is_file():
+            continue
         gt = tifffile.imread(B.TOXO_PV / "ground_truth_masks" / image.name)
         y, x = best_window(gt)
         raw = tifffile.imread(image).astype(np.float64)[y:y + CROP, x:x + CROP]
@@ -162,6 +200,141 @@ def make_lowlight():
         tifffile.imwrite(folder / image.name, noisy.astype(np.uint16))
         tifffile.imwrite(folder / "gt" / image.name, gt[y:y + CROP, x:x + CROP])
         pairs.append((folder / image.name, folder / "gt" / image.name))
+    return pairs, None
+
+
+def _default_offset(dtype):
+    """A camera offset that leaves room below the signal: 100 ADU for 16 bit
+    and wider, 10 ADU for 8 bit."""
+    return 10.0 if np.iinfo(dtype).max <= 255 else 100.0
+
+
+def expected_photons(clean, foreground, photons, background_fraction=SIM_BACKGROUND):
+    """The expected photon count per pixel of a clean image at a budget.
+
+    The clean image's background level (the median of the pixels outside
+    ``foreground``) is taken as offset plus background and removed; what is
+    left, clipped at zero, is scaled so the mean over ``foreground`` is
+    ``photons``. A flat background of ``background_fraction * photons``
+    photons is added, since autofluorescence and out-of-focus light scale
+    with exposure just as the signal does. Returns the photon map and the
+    scaling (``scale``, ``background_level``, ``background_photons``), so
+    ``photons_to_clean`` can undo it.
+    """
+    clean = np.asarray(clean, dtype=np.float64)
+    foreground = np.asarray(foreground, dtype=bool)
+    level = float(np.median(clean[~foreground])) if (~foreground).any() else float(clean.min())
+    signal = np.clip(clean - level, 0, None)
+    mean = float(signal[foreground].mean()) if foreground.any() else float(signal.mean())
+    scale = float(photons) / max(mean, 1e-12)
+    background = float(background_fraction) * float(photons)
+    return signal * scale + background, dict(scale=scale, background_level=level,
+                                             background_photons=background)
+
+
+def simulate_lowlight(clean, foreground, photons, rng, *, read_noise=SIM_READ, gain=SIM_GAIN,
+                      offset=None, background_fraction=SIM_BACKGROUND):
+    """A clean image as a camera would record it at a photon budget.
+
+    Expected photons from :func:`expected_photons`, Poisson shot noise on
+    them, Gaussian read noise of ``read_noise`` electrons, then ``gain`` ADU
+    per electron and ``offset`` ADU (default from the bit depth), rounded and
+    clipped to the clean image's own integer type, which the result keeps.
+    Mean ADU is ``gain * lambda + offset`` and variance ``gain**2 * (lambda +
+    read_noise**2)`` (plus 1/12 from rounding) wherever nothing clips.
+    Returns the image and a record of the model, the expected object SNR
+    ``P / sqrt(P + B + read_noise**2)`` and the clipped fraction.
+    """
+    clean = np.asarray(clean)
+    if not np.issubdtype(clean.dtype, np.integer):
+        raise ValueError("simulate_lowlight needs an integer image to keep its bit depth")
+    info = np.iinfo(clean.dtype)
+    offset = _default_offset(clean.dtype) if offset is None else float(offset)
+    lam, scaling = expected_photons(clean, foreground, photons, background_fraction)
+    electrons = rng.poisson(lam).astype(np.float64) + rng.normal(0.0, read_noise, lam.shape)
+    adu = np.round(electrons * gain + offset)
+    clipped = float(np.mean((adu < info.min) | (adu > info.max)))
+    noisy = np.clip(adu, info.min, info.max).astype(clean.dtype)
+    p, b = float(photons), scaling["background_photons"]
+    record = dict(photons=p, read_noise=float(read_noise), gain=float(gain), offset=offset,
+                  dtype=str(clean.dtype), clipped_fraction=clipped,
+                  snr_expected=p / np.sqrt(p + b + read_noise ** 2), **scaling)
+    return noisy, record
+
+
+def photons_to_clean(noisy, record):
+    """Undo the scaling: the noisy image back on the clean image's scale."""
+    electrons = (np.asarray(noisy, dtype=np.float64) - record["offset"]) / record["gain"]
+    signal = (electrons - record["background_photons"]) / record["scale"]
+    return signal + record["background_level"]
+
+
+def measured_snr(noisy, record, lam, foreground):
+    """Object signal over the noise sd in objects, from one noisy draw."""
+    foreground = np.asarray(foreground, dtype=bool)
+    electrons = (np.asarray(noisy, dtype=np.float64) - record["offset"]) / record["gain"]
+    signal = electrons[foreground].mean() - record["background_photons"]
+    noise = (electrons - lam)[foreground].std()
+    return float(signal / max(noise, 1e-12))
+
+
+def _simulation_sources():
+    """(stem, clean image, ground truth, fold, kind) of each clean field."""
+    import imageio.v3 as iio
+
+    sources = []
+    if SIM_SOURCE == "toxo_pv":
+        images = [p for p in sorted(B.TOXO_PV.glob("*.tif"))
+                  if (B.TOXO_PV / "ground_truth_masks" / p.name).is_file()]
+        for index, image in enumerate(images):
+            gt = tifffile.imread(B.TOXO_PV / "ground_truth_masks" / image.name)
+            y, x = best_window(gt)
+            raw = tifffile.imread(image)[y:y + CROP, x:x + CROP]
+            sources.append((image.stem, raw, gt[y:y + CROP, x:x + CROP], index % 2, "human"))
+    elif SIM_SOURCE == "fmd":
+        for reference in sorted(SIM_FMD_GT.glob("fov*_avg50.tif")):
+            fov = int(reference.stem[3:5])
+            mean = np.asarray(iio.imread(FMD / "gt" / str(fov) / "avg50.png"))
+            sources.append((f"fov{fov:02d}", mean, tifffile.imread(reference),
+                            0 if fov <= 10 else 1, "pseudo (cpsam on the 50-frame mean)"))
+    else:
+        raise ValueError(f"unknown SIM_SOURCE {SIM_SOURCE!r}")
+    return sources
+
+
+def stage_simulated():
+    """Clean fields degraded to PHOTONS, SIM_DRAWS draws each, with truth."""
+    folder = OUT / data_tag()
+    (folder / "gt").mkdir(parents=True, exist_ok=True)
+    pairs, records = [], []
+    level = None if PHOTONS == "clean" else float(PHOTONS)
+    for index, (stem, clean, gt, fold, kind) in enumerate(_simulation_sources()):
+        truth = folder / "gt" / f"{stem}.tif"
+        if not truth.is_file():
+            tifffile.imwrite(truth, np.asarray(gt))
+        draws = 1 if level is None else SIM_DRAWS
+        for draw in range(draws):
+            name = f"s0{fold + 1}_{stem}_d{draw}.tif"
+            if level is None:
+                image, record = clean, dict(photons=None)
+            else:
+                rng = np.random.default_rng([SIM_SEED, int(round(level * 1000)), index, draw])
+                image, record = simulate_lowlight(clean, gt > 0, level, rng)
+                lam, _ = expected_photons(clean, gt > 0, level)
+                record["snr_measured"] = measured_snr(image, record, lam, gt > 0)
+            if not (folder / name).is_file():
+                tifffile.imwrite(folder / name, image)
+            records.append(dict(image=name, field=stem, draw=draw, fold=fold, truth_kind=kind,
+                                **record))
+            pairs.append((folder / name, truth))
+    summary = dict(source=SIM_SOURCE, photons=level, draws=SIM_DRAWS, seed=SIM_SEED, crop=CROP,
+                   background_fraction=SIM_BACKGROUND, read_noise=SIM_READ, gain=SIM_GAIN,
+                   images=records)
+    if level is not None:
+        summary["snr_expected_median"] = float(np.median([r["snr_expected"] for r in records]))
+        summary["snr_measured_median"] = float(np.median([r["snr_measured"] for r in records]))
+    if not (folder / "simulation.json").is_file():
+        (folder / "simulation.json").write_text(json.dumps(summary, indent=1))
     return pairs, None
 
 
@@ -333,7 +506,8 @@ def save_flows(keeper, result, fields, chain):
 def main():
     """Train N2V on the noisy images, then segment and score every chain."""
     OUT.mkdir(parents=True, exist_ok=True)
-    stage = {"huh7": stage_huh7, "fmd": stage_fmd}.get(DATASET, make_lowlight)
+    stage = {"huh7": stage_huh7, "fmd": stage_fmd,
+             "simulated": stage_simulated}.get(DATASET, make_lowlight)
     pairs, planes = stage()
     fields = []
     for index, (image, truth) in enumerate(pairs):
@@ -390,6 +564,11 @@ def main():
     records = sorted(prov.glob("lowlight/*/psf/segmentation_application.json"))
     if records:
         results["n2v_provenance_example"] = json.loads(records[0].read_text())["configuration"]
+    if DATASET == "simulated" and FLOWS:
+        meta = dict(source=SIM_SOURCE, photons=None if PHOTONS == "clean" else float(PHOTONS),
+                    predenoise=PREDENOISE, epochs=EPOCHS, chains=chains,
+                    simulation=str(OUT / data_tag() / "simulation.json"))
+        (OUT / "flows" / model_tag() / "meta.json").write_text(json.dumps(meta, indent=1))
     path = OUT / f"results_{model_tag()}.json"
     if path.is_file():
         results = {**json.loads(path.read_text()), **results}
@@ -495,7 +674,7 @@ def sweep(folder):
     workers = int(os.environ.get("SWEEP_WORKERS", 4))
     device = os.environ.get("SWEEP_DEVICE", "cpu")
     for chain_dir in sorted(p for p in folder.iterdir() if p.is_dir()):
-        paths = sorted(chain_dir.glob("*.npz"))
+        paths = sorted(chain_dir.glob(os.environ.get("SWEEP_GLOB", "*.npz")))
         if device == "cpu":
             with ProcessPoolExecutor(workers) as pool:
                 grids = dict(pool.map(_score_grid, paths))
@@ -527,11 +706,117 @@ def sweep(folder):
     (folder / "sweep.json").write_text(json.dumps(report, indent=1))
 
 
+ARM_LABELS = {"raw": "raw (no denoising)", "nlm": "non-local means",
+              "cp3_denoise_cyto3": "Cellpose 3 denoise_cyto3",
+              "cp3_denoise_nuclei": "Cellpose 3 denoise_nuclei", "n2v": "Noise2Void (N2V2)"}
+
+
+def _arm_of(meta, chain):
+    """The denoising arm a kept-flows chain folder belongs to."""
+    if chain.startswith("n2v"):
+        return "n2v"
+    return meta.get("predenoise") or "raw"
+
+
+def report(out):
+    """Gather every simulated sweep under OUT/flows into a table and figure.
+
+    One row per source, photon budget and arm: pooled F1 at IoU 0.5 and 0.75
+    with spaCR's default thresholds and tuned on one fold, scored on the
+    other. Writes ``simulated_f1.csv`` (through :mod:`spacr.tabular`) and
+    ``simulated_f1`` (through :func:`spacr.plot.save_figure`) into OUT.
+    """
+    import pandas as pd
+    from spacr.tabular import write_table
+
+    out = Path(out)
+    rows = []
+    for meta_path in sorted((out / "flows").glob("sim_*/meta.json")):
+        meta = json.loads(meta_path.read_text())
+        sweep_path = meta_path.parent / "sweep.json"
+        if not sweep_path.is_file():
+            continue
+        result = json.loads(sweep_path.read_text())
+        simulation = Path(meta["simulation"])
+        snr = None
+        truth_kind = None
+        if simulation.is_file():
+            record = json.loads(simulation.read_text())
+            snr = record.get("snr_expected_median")
+            truth_kind = record["images"][0]["truth_kind"] if record["images"] else None
+        for chain, entry in result.items():
+            if chain == "grid":
+                continue
+            rows.append(dict(
+                source=meta["source"], truth=truth_kind,
+                photons=meta["photons"] if meta["photons"] is not None else np.inf,
+                snr_expected=snr, arm=_arm_of(meta, chain), epochs=meta["epochs"],
+                fields=entry["fields"],
+                default_f1_50=entry["default"]["f1"], default_f1_75=entry["default_75"]["f1"],
+                heldout_f1_50=entry["tuned_held_out"]["f1"],
+                heldout_f1_75=entry["tuned_held_out_75"]["f1"],
+                default_tp=entry["default"]["tp"], default_fp=entry["default"]["fp"],
+                default_fn=entry["default"]["fn"]))
+    frame = pd.DataFrame(rows).sort_values(["source", "photons", "arm", "epochs"],
+                                           ignore_index=True)
+    write_table(frame, out / "simulated_f1.csv")
+    _plot_report(frame, out / "simulated_f1.png")
+    print(frame.to_string(index=False), flush=True)
+    return frame
+
+
+def _plot_report(frame, path):
+    """F1 against photon budget per arm, one column per source."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from spacr.plot import save_figure
+
+    sources = sorted(frame["source"].unique())
+    metrics = (("default_f1_50", "F1 @ IoU 0.5, default thresholds"),
+               ("heldout_f1_50", "F1 @ IoU 0.5, thresholds tuned on the other fold"))
+    fig, axes = plt.subplots(len(metrics), len(sources), figsize=(5.2 * len(sources), 7.6),
+                             squeeze=False)
+    arms = [a for a in ARM_LABELS if a in set(frame["arm"])]
+    colours = dict(zip(ARM_LABELS, plt.get_cmap("tab10").colors))
+    for column, source in enumerate(sources):
+        data = frame[frame["source"] == source]
+        noisy = data[np.isfinite(data["photons"])]
+        clean = data[~np.isfinite(data["photons"])]
+        for row, (metric, title) in enumerate(metrics):
+            ax = axes[row][column]
+            for arm in arms:
+                runs = sorted(noisy.loc[noisy["arm"] == arm, "epochs"].unique())
+                for rank, epochs in enumerate(runs):
+                    line = noisy[(noisy["arm"] == arm) & (noisy["epochs"] == epochs)]
+                    label = ARM_LABELS[arm] + (f", {epochs} epochs" if arm == "n2v" else "")
+                    ax.plot(line.sort_values("photons")["photons"],
+                            line.sort_values("photons")[metric], marker="o", label=label,
+                            color=colours[arm], linestyle=("-", "--", ":")[rank % 3])
+            if len(clean):
+                ax.axhline(float(clean[metric].iloc[0]), linestyle="--", color="0.4",
+                           label="clean image (no noise)")
+            ax.set_xscale("log")
+            ax.set_ylim(0, 1)
+            ax.set_xlabel("mean signal photons per object pixel")
+            ax.set_ylabel(title)
+            truth = data["truth"].dropna()
+            label = truth.iloc[0] if len(truth) else ""
+            ax.set_title(f"{source} ({label} truth)" if row == 0 else "", fontsize=10)
+    axes[0][0].legend(fontsize=8, loc="lower right")
+    fig.tight_layout()
+    save_figure(fig, path, fmt="png", close=True)
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "--sweep":
         sweep(sys.argv[2])
+    elif len(sys.argv) == 3 and sys.argv[1] == "--report":
+        report(sys.argv[2])
     elif sys.argv[1:] == ["--stage"]:
         OUT.mkdir(parents=True, exist_ok=True)
-        print(len(stage_fmd()[0]), "fields staged", flush=True)
+        staged = stage_simulated if DATASET == "simulated" else stage_fmd
+        print(len(staged()[0]), "fields staged", flush=True)
     else:
         main()
