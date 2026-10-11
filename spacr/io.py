@@ -5820,12 +5820,19 @@ def _save_progress(dst, train_df, validation_df):
 
     return
     
-def _copy_missclassified(df):
-    """Copy every misclassified crop into a ``missclassified`` folder beside its source.
+MISCLASSIFIED_FOLDER = "misclassified"
+LEGACY_MISCLASSIFIED_FOLDER = "missclassified"
 
-    Split into ``pc`` and ``nc`` by what the original path contains, so the
-    two failure directions can be looked at separately -- a model that only
-    ever errs one way is a different problem from one that errs both.
+
+def _copy_misclassified(df):
+    """Copy every misclassified crop into a ``misclassified`` folder beside its source.
+
+    A crop from ``test/<class>/x.png`` goes to ``test/misclassified/<class>/x.png``,
+    named after the class it truly belongs to, so the failure directions can be
+    looked at separately -- a model that only ever errs one way is a different
+    problem from one that errs both. Outputs written before the spelling was
+    corrected sit in ``missclassified`` (:data:`LEGACY_MISCLASSIFIED_FOLDER`);
+    nothing reads either folder back.
 
     :param df: predictions carrying ``true_label``, ``predicted_label`` and
         ``filename``.
@@ -5834,16 +5841,19 @@ def _copy_missclassified(df):
     for _, row in misclassified.iterrows():
         original_path = row['filename']
         filename = os.path.basename(original_path)
-        dest_folder = os.path.dirname(os.path.dirname(original_path))
-        if "pc" in original_path:
-            new_path = os.path.join(dest_folder, "missclassified/pc", filename)
-        else:
-            new_path = os.path.join(dest_folder, "missclassified/nc", filename)
+        class_folder = os.path.dirname(original_path)
+        dest_folder = os.path.dirname(class_folder)
+        new_path = os.path.join(dest_folder, MISCLASSIFIED_FOLDER,
+                                os.path.basename(class_folder), filename)
         os.makedirs(os.path.dirname(new_path), exist_ok=True)
         shutil.copy(original_path, new_path)
     print(f"Copied {len(misclassified)} misclassified images.")
     return
-    
+
+
+_copy_missclassified = _copy_misclassified
+
+
 def _read_db(db_loc, tables):
     """Read tables out of a measurements database as data frames.
 

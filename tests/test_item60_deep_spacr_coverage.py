@@ -803,7 +803,7 @@ def test_train_test_model_tests_the_selected_checkpoint(tmp_path, monkeypatch, c
     monkeypatch.setattr(settings_module, "get_train_test_model_settings", lambda _s: supplied)
     monkeypatch.setattr(utils, "save_settings", lambda *_a, **_k: None)
     monkeypatch.setattr(spacr_io, "generate_loaders", lambda *_a, **_k: ([], [], None))
-    monkeypatch.setattr(spacr_io, "_copy_missclassified", lambda *_a, **_k: None)
+    monkeypatch.setattr(spacr_io, "_copy_misclassified", lambda *_a, **_k: None)
     monkeypatch.setattr(ds, "train_model", lambda **_k: (object(), str(checkpoint)))
     loaded = object()
     monkeypatch.setattr(ds, "_load_inference_model", lambda *_a, **_k: (loaded, {}))

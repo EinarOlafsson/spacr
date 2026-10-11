@@ -1618,7 +1618,7 @@ def train_test_model(settings):
         :func:`spacr.io.generate_dataset` — build the ``train/``/``test/``
         folder tree.
     """
-    from .io import _copy_missclassified
+    from .io import _copy_misclassified
     from .utils import pick_best_model, save_settings
     from .io import generate_loaders, CLASS_BALANCE_MODES
     from .settings import get_train_test_model_settings
@@ -1875,7 +1875,7 @@ def train_test_model(settings):
 
         result.to_csv(result_loc, index=True, header=True, mode='w')
         accuracy.to_csv(acc_loc, index=True, header=True, mode='w')
-        _copy_missclassified(accuracy)
+        _copy_misclassified(accuracy)
 
     _empty_device_cache()
     gc.collect()
