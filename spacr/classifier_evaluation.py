@@ -540,11 +540,31 @@ def augmentation_family(path: Any) -> str:
     return stem
 
 
+def _is_f_row_well(parts: List[str], index: int) -> bool:
+    """Return True when an ``f<digits>`` token is a row-F well, not a field.
+
+    In ``plate1_F01_1_13`` the token ``F01`` is the well in plate row F; the
+    field and object follow it as bare numbers. Wells are written in upper
+    case, and a real ``f<digits>`` field token is never followed by a
+    bare-number field.
+
+    :param parts: the underscore-separated stem.
+    :param index: position of the ``f<digits>`` candidate in ``parts``.
+    """
+    return (
+        re.fullmatch(r"F\d{1,3}", parts[index]) is not None
+        and index <= len(parts) - 3
+        and re.fullmatch(r"\d+", parts[index + 1]) is not None
+        and re.fullmatch(r"(?i)(?:o)?\d+", parts[-1]) is not None
+    )
+
+
 def sample_identity(path: Any) -> Dict[str, str]:
     """Parse plate/well/field/object identities from a crop filename.
 
     Unknown levels are returned as empty strings rather than guessed. The
-    object identity is the augmentation-normalized full stem.
+    object identity is the augmentation-normalized full stem. A well in
+    plate row F (``plate1_F01_1_13``) is read as the well, not as a field.
 
     :param path: crop path or file name. Augmentation suffixes are removed and
         the stem is split on underscores to find the plate, well and field
@@ -557,6 +577,7 @@ def sample_identity(path: Any) -> Dict[str, str]:
             index
             for index in range(len(parts) - 1, -1, -1)
             if re.fullmatch(r"(?i)f\d+", parts[index]) is not None
+            and not _is_f_row_well(parts, index)
         ),
         None,
     )

@@ -57,6 +57,33 @@ def test_sample_identity_parses_separate_letter_and_number_well_tokens():
     assert identity["field"] == "screen_1_A_01_1"
 
 
+def test_sample_identity_reads_row_f_wells_as_wells():
+    """Regression (2026-10-10): in ``plate1_F01_1_13`` the token F01 is the
+    well in plate row F, but it matched the ``f<digits>`` field pattern, so
+    the well became ``plate1`` and every row-F well collapsed into one."""
+    from spacr.classifier_evaluation import sample_identity
+
+    identity = sample_identity("/t/c1/plate1_F01_1_13.png")
+    assert identity["plate"] == "plate1"
+    assert identity["well"] == "plate1_F01"
+    assert identity["field"] == "plate1_F01_1"
+    other = sample_identity("plate1_F02_4_7_rot90.png")
+    assert other["well"] == "plate1_F02"
+    assert other["field"] == "plate1_F02_4"
+    assert sample_identity("plate1_A01_1_13.png")["well"] == "plate1_A01"
+
+
+def test_sample_identity_keeps_f_field_tokens_after_a_row_f_well():
+    from spacr.classifier_evaluation import sample_identity
+
+    identity = sample_identity("plate1_F01_f2_o7.png")
+    assert identity["well"] == "plate1_F01"
+    assert identity["field"] == "plate1_F01_f2"
+    lower = sample_identity("plate1_A01_f2_3.png")
+    assert lower["well"] == "plate1_A01"
+    assert lower["field"] == "plate1_A01_f2"
+
+
 def test_leakage_audit_finds_object_and_requested_group_overlap():
     from spacr.classifier_evaluation import audit_split_leakage
 
