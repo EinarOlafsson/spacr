@@ -2491,6 +2491,18 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # image_pixel_size_nm and MissingTEMReader's constructor;
     # mask_engine.pixel_size_nm; make_masks_demo's tem_example_folder,
     # download_tem_example and load_the_tem_test_data.
+    # 2026-10-11: items 685, 534 and 691 arrive through their dated API
+    # contracts; removing exactly those symbols reproduces the pin.
+    import json
+    contract_arrivals = set()
+    for contract in ("685_model_zoo_api_arrivals_2026-10-11.json",
+                     "534_spatial_api_arrivals_2026-10-11.json",
+                     "691_mitonet_api_arrivals_2026-10-11.json"):
+        contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text()))
+    assert contract_arrivals & by_symbol.keys()
+    callables = [item for item in callables if item.symbol not in contract_arrivals]
+    by_symbol = {item.symbol: item for item in callables}
     assert len(callables) == len(by_symbol) == 10026
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
@@ -2993,7 +3005,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # anchor_density= and show_anchors=.
     # 2026-10-11 item 690: 19,920 - 19,906 = 14, the parameters of its ten
     # TEM callables.
-    assert sum(len(item.parameters) for item in callables) == 19920
+    # 2026-10-11 F534: 19,921 - 19,920 = 1, PlateObject's optional label=
+    # (the kept observation's label in its window); no new callable or
+    # required parameter.
+    assert sum(len(item.parameters) for item in callables) == 19921
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -3233,7 +3248,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-10-11 for item 690 (was 874cc4b1...): the ten callables of
     # 690_tem_api_arrivals_2026-10-11.json added; save_mask's docstring
     # names the pixel size it writes; no signature changed, no row removed.
-) == '257f39b84b27da9571a6fe8e8d3d1f1fd7355ecc7462b1a3830f284446702ada'
+    # Moved 2026-10-11 for F534 (was 257f39b8...): the PlateObject dataclass
+    # constructor gained the optional label=; removing only that field
+    # restores 257f39b8... byte for byte. Items 685, 534 and 691 arrive
+    # through their dated API contracts and are subtracted above.
+) == '7a471ca0134946fc82208387c1b709756f45b831ef8504555113dfe771edb32d'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -4284,6 +4303,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,568 -> 9,579 on 2026-09-29 with item 600's 11 callables.
     # Item 684: +2 (snap_window, set_click_ripples).
     # Item 690: +10, the callables of 690_tem_api_arrivals_2026-10-11.json.
+    # Items 685, 534 and 691: subtracted through their dated API contracts.
+    contract_callables = set()
+    for contract in ("685_model_zoo_api_arrivals_2026-10-11.json",
+                     "534_spatial_api_arrivals_2026-10-11.json",
+                     "691_mitonet_api_arrivals_2026-10-11.json"):
+        contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text()))
+    prior = prior - contract_callables
     assert len(prior - pipeline_callables) == 9675
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
     # Item 690: +10, as above.
