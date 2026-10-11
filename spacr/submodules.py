@@ -88,11 +88,12 @@ except Exception:
     def display(*args, **kwargs):
         """Do nothing: IPython is unavailable, so there is nowhere to display to.
 
-        THE FALLBACK IS THE POINT. `IPython.display.display` is imported at
-        module scope, and IPython can be mid-init -- partially imported by
-        another thread -- which makes that import raise. Letting it propagate
-        would make importing this module fail for a reason that has nothing to
-        do with what the module does. spaCR only calls `display` from notebook
+        This no-op is the fallback used when importing
+        `IPython.display.display` fails. It is imported at module scope, and
+        IPython can be mid-init -- partially imported by another thread --
+        which makes that import raise. Letting it propagate would make
+        importing this module fail for a reason that has nothing to do with
+        what the module does. spaCR only calls `display` from notebook
         contexts; the Qt GUI ignores it.
 
         :param args: whatever the caller would have displayed.
@@ -276,8 +277,8 @@ class CellposeLazyDataset(Dataset):
     def __getitem__(self, idx):
         """Load one item, decoding ``idx`` into a file and an augmentation.
 
-        The file is read HERE rather than at construction, which is what makes the
-        dataset lazy: a plate larger than memory costs one image at a time.
+        The file is read here rather than at construction, so the dataset is
+        lazy: a plate larger than memory costs one image at a time.
         """
         base_idx = idx // self._n_augments
         aug_idx = idx % self._n_augments
@@ -1247,20 +1248,18 @@ def split_wells(settings):
     :returns: the folder holding the crops, or ``src`` unchanged when
         detection is off or finds nothing.
 
-    WHY THIS IS A SEPARATE PASS rather than a branch inside the segmenter: the
-    two shapes of input differ in what a RESULT ROW MEANS. One field per image
-    gives one row per image; a plate gives one row per well, and the well has
-    to be named or the conditions are pooled into a single meaningless count.
-    Splitting first makes every downstream row a well, whichever shape arrived.
+    This is a separate pass rather than a branch inside the segmenter because
+    the two shapes of input differ in what a result row means. One field per
+    image gives one row per image; a plate gives one row per well, and the well
+    has to be named or the conditions are pooled into a single meaningless
+    count. Splitting first makes every downstream row a well, whichever shape
+    arrived.
 
-    AN IMAGE THE DETECTOR FINDS NOTHING IN IS COPIED INTO THE SPLIT FOLDER
-    WHOLE, with no geometry, so it is still analysed and simply has no ruler.
-    A warning that says "passed through whole" and then skips the image
-    passes nothing through: when some images in a
-    folder split and others did not, the others would contribute no crop and
-    no row and nothing would say they had existed. The all-or-nothing case --
-    where the function falls back to ``src`` -- is the only one that would
-    behave as the message promised.
+    An image in which the detector finds nothing is copied into the split
+    folder whole, with no geometry, so it is still analysed but has no scale.
+    Without the copy, when some images in a folder split and others did not,
+    the others would contribute no crop and no row. The function returns
+    ``src`` unchanged only when detection is off or finds nothing in any image.
     """
     from .plaque import crop_well, detect_wells
 
@@ -2144,12 +2143,10 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         def _set_theme(theme):
             """The colours the lines are drawn in, house palette first.
 
-            ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY
-            ARE THE DATA, so these series keep distinct hues -- but they come
-            from the published palette in a fixed order rather than from
-            seaborn's 100-colour 'deep' ramp reordered by an index list. A
-            hundred hues is a hundred series nobody can tell apart, and the
-            eighth one was a pastel that vanished on the dark ground.
+            With one line per measured column the categories are the data, so
+            these series keep distinct hues -- but they come from the published
+            palette in a fixed order rather than from seaborn's 100-colour
+            'deep' ramp reordered by an index list.
 
             An explicit non-default ``theme`` still wins, for a caller who
             deliberately asked for a seaborn palette.
@@ -2709,8 +2706,7 @@ interperate_vision_model = interpret_vision_model
 def analyze_endodyogeny(settings):
     """Bin pathogen *size* by log2 doublings and test the bin proportions per group.
 
-    This is the **size-proxy** replication readout, not a parasite count.
-    Read that sentence twice before quoting a number from it:
+    This is the **size-proxy** replication readout, not a parasite count:
 
     * The rows come from :func:`spacr.io._read_and_merge_data`, which collapses
       the per-object ``pathogen`` table onto the **host cell** (``prcfo`` is
@@ -2727,7 +2723,7 @@ def analyze_endodyogeny(settings):
     cannot be resolved into single parasites. When the individual parasites
     *are* resolvable, :func:`analyze_replication` counts them and reports the
     parasites-per-vacuole distribution directly, which is the readout an
-    endodyogeny experiment is actually after.
+    endodyogeny experiment needs.
 
     :param settings: dict of endodyogeny settings; see
         ``set_analyze_endodyogeny_defaults`` for keys including ``src``,
@@ -3715,12 +3711,11 @@ def analyze_replication(settings):
     moves mass from the 8 and 4 buckets down into 2 and 1, and only the
     distribution shows that.
 
-    **The counting unit is the vacuole.** Not the parasite, and emphatically
-    not the host cell — one host cell routinely carries several vacuoles, so
-    grouping on ``cell_id`` reports their combined count as a single vacuole
-    and produces a plausible but meaningless number. See
-    :func:`_assign_vacuole_ids` for how the vacuole is derived and what each
-    ``vacuole_key`` costs you.
+    **The counting unit is the vacuole.** Not the parasite, and not the host
+    cell — one host cell routinely carries several vacuoles, so grouping on
+    ``cell_id`` reports their combined count as a single vacuole and produces a
+    plausible but meaningless number. See :func:`_assign_vacuole_ids` for how
+    the vacuole is derived and what each ``vacuole_key`` costs you.
 
     Rosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two``
     bucket that is always reported and never folded into a neighbouring bucket.
@@ -5139,34 +5134,33 @@ def analyze_invasion(settings):
     * **attached / outside** = present in the outside-stain channel;
     * **invaded / inside** = *absent* from the outside-stain channel.
 
-    Read that asymmetry carefully, because the whole design follows from it.
-    "Inside" is defined by an absence, and absence is the unreliable
-    direction. Poor antibody penetration, a focal plane off the parasite's
-    equator, photobleaching, a low-expressing parasite — every one of them
-    removes outside signal from a parasite that is genuinely outside, and
-    every one of them therefore *inflates* invasion efficiency. Nothing
+    The design follows from this asymmetry. "Inside" is defined by an absence,
+    and absence is the unreliable direction. Poor antibody penetration, a focal
+    plane off the parasite's equator, photobleaching, a low-expressing parasite
+    — every one of them removes outside signal from a parasite that is outside,
+    and every one of them therefore *inflates* invasion efficiency. Nothing
     plausible pushes the error the other way. The threshold on the outside
     channel is the single number the assay rests on, so it is derived from the
     data, reported per field in ``fields``, cross-checked against a
     control-derived cut when one exists, and bracketed by a sensitivity pair
     that says how much of the answer is the threshold.
 
-    Three design decisions worth stating outright:
+    Three design decisions:
 
     * **The threshold is per field.** Illumination and staining vary field to
       field, and a plate-wide cut turns an illumination gradient into an
       invasion gradient. See :func:`_invasion_field_thresholds`.
-    * **Controls beat any automatic method.** ``control_wells`` names wells
-      whose parasites are known to carry no outside stain; the threshold is
-      then a high quantile of that honest negative distribution
+    * **Controls take precedence over the automatic method.** ``control_wells``
+      names wells whose parasites are known to carry no outside stain; the
+      threshold is then a high quantile of that negative distribution
       (``control_quantile``), the control wells are excluded from the results,
       and ``threshold_source`` says ``'control'`` so the report cannot be
       mistaken for an automatic run.
-    * **A threshold without two populations is arbitrary.** Otsu will happily
-      split a single smear of signal down the middle and return a confident
-      number. ``bimodality_coefficient`` and ``qc_flag_unimodal`` say when
-      that has happened, per field and per well, instead of letting it pass
-      silently. See :func:`_bimodality_coefficient`.
+    * **A threshold without two populations is arbitrary.** Otsu splits a
+      single smear of signal down the middle and return a confident number.
+      ``bimodality_coefficient`` and ``qc_flag_unimodal`` say when that has
+      happened, per field and per well, instead of letting it pass silently.
+      See :func:`_bimodality_coefficient`.
 
     ``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` and it is
     always reported next to ``n_total``: 90% from ten parasites and 90% from
@@ -5681,10 +5675,11 @@ def generate_score_heatmap(settings):
         """Aggregate a CV predictions CSV to a per-(plate, row, column) mean.
 
         :param csv: path to the cross-validation predictions CSV.
-        :param plate: a plate NUMBER, not a column name. Any value but ``None``
-            rewrites every row's ``plateID`` to ``plate<plate>``, discarding the
-            plate the CSV itself recorded; ``None`` keeps the CSV's own value and
-            raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.
+        :param plate: a plate number, not a column name. Any value but ``None``
+            rewrites every row's ``plateID`` to ``plate<plate>``, discarding
+            the plate the CSV itself recorded; ``None`` keeps the CSV's own
+            value and raises ``KeyError`` if it has no ``plateID`` column.
+            Default ``1``.
         :param column: value kept from ``columnID``, or from a legacy ``column``
             column which is copied to ``columnID`` first. A value matching no row
             returns an empty frame rather than raising; a CSV carrying neither
@@ -5711,7 +5706,7 @@ def generate_score_heatmap(settings):
 
         :param csv: path to the reads CSV; needs ``grna_name``, ``count``,
             ``rowID`` and ``columnID`` (a legacy ``column_name`` is renamed).
-        :param plate: a plate NUMBER, not a column name. Any value but ``None``
+        :param plate: a plate number, not a column name. Any value but ``None``
             rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each
             row's own value. Default ``1``.
         :param column: value kept from ``columnID``. Default ``'c3'``.
@@ -5804,7 +5799,7 @@ def generate_score_heatmap(settings):
             after the containing sub-directory (``<sub-folder>_<data_column>``),
             so two parents holding same-named sub-folders collide and pandas
             appends ``_x`` / ``_y``.
-        :param plate: a plate NUMBER, not a column name. Any value but ``None``
+        :param plate: a plate number, not a column name. Any value but ``None``
             rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each
             CSV's own value. Default ``1``.
         :param column: value kept from ``columnID``; a CSV lacking that column

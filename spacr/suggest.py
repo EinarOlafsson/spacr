@@ -1,42 +1,39 @@
-"""Turn a retrained model's scores into labels you can accept or throw away.
+"""Propose labels from a retrained model's scores for review.
 
-Annotating is the slow part of every screen, and the first two hundred crops
-already contain most of what separates the classes. Annotate can already fit a
-model on those and re-rank the queue by uncertainty -- what it could not do is
-WRITE the model's opinion down as a proposed label that a reviewer accepts or
-rejects in bulk. That is all this module adds.
+Annotate can fit a model on the labels so far and re-rank the queue by
+uncertainty. This module writes the model's predictions down as proposed labels
+that a reviewer accepts or rejects in bulk.
 
-IT DELEGATES THE MODEL, DELIBERATELY. :func:`spacr.active_learning.retrain_round`
-already fits on every label, scores on a GROUPED held-out split so the number
-is not an artefact of 190 labels coming from one well, and writes per-class
-probabilities into ``png_list``. Re-fitting here would be a second model with
-a second answer, drifting from the one the queue is ranked by -- and a first
-draft of this file did exactly that before the existing one was found. What is
-new is the three rules below, not the classifier.
+:func:`spacr.active_learning.retrain_round` fits on every label, scores on a
+grouped held-out split so the number is not an artefact of 190 labels coming
+from one well, and writes per-class probabilities into ``png_list``. Re-fitting
+here would be a second model with a second answer, drifting from the one the
+queue is ranked by. What this module adds is the rules below, not the
+classifier.
 
-THREE RULES THAT PROTECT THE ANNOTATIONS
+Rules that protect the annotations
 ========================================
-1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as
+1. A suggestion is never confusable with a decision. Suggestions are stored as
    their own values -- a suggested 1 becomes 11 -- so nothing that reads the
    annotation column can mistake one for a human's answer, and a run that goes
    wrong is undone by deleting a value rather than by remembering which rows
    were touched.
-2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not
+2. A suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not
    when the model is confident, not on a re-run. A human's labels are the
    ground truth the model was fitted on; losing one silently would cost hours
    and would not be noticed until a run came out wrong.
-3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop
-   gets a suggestion, sorted most-confident first, and the reviewer stops
-   where they stop agreeing. A threshold would make that decision for them,
-   with a number nobody chose.
-4. A JUDGEMENT IS RECORDED, NOT INFERRED. Confirming a suggestion
-   turns it into an ordinary label and rejecting one clears it -- and both
-   are written down beside the column, in ``<column>_verdict``, as the class
-   that was confirmed (``+c``) or rejected (``-c``). A rejection is
-   information the next round can train on -- "not class 1" is an example
-   of class 2 in a two-class column -- where a NULL would have been silence.
-   The verdict column is added the first time a source is opened, so tables
-   made before it existed gain it without a migration step.
+3. There is no confidence floor; the order carries the uncertainty. Every
+   unannotated crop gets a suggestion, sorted most-confident first, and the
+   reviewer stops where they stop agreeing. A threshold would make that
+   decision with an arbitrary number.
+4. A judgement is recorded, not inferred. Confirming a suggestion turns it into
+   an ordinary label and rejecting one clears it -- and both are written down
+   beside the column, in ``<column>_verdict``, as the class that was confirmed
+   (``+c``) or rejected (``-c``). A rejection is information the next round can
+   train on -- "not class 1" is an example of class 2 in a two-class column --
+   whereas a NULL would record nothing. The verdict column is added the first
+   time a source is opened, so tables made before it existed gain it without a
+   migration step.
 """
 from __future__ import annotations
 
@@ -157,7 +154,7 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
     """Read the last retrain's probabilities and propose a label for each crop.
 
     Reads rather than re-fits, so the suggestion a reviewer sees and the
-    ranking the queue uses come from ONE model. A second fit here would drift
+    ranking the queue uses come from one model. A second fit here would drift
     from it and there would be no way to tell which was right.
 
     :param db_path: path to a ``measurements.db``.
@@ -167,9 +164,10 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
         the values already present in the annotation column, in order, which
         is what the retrain encoded them from.
     :param withhold_rejected: leave out every crop whose suggestion the
-        annotator REJECTED (a negative ``<column>_verdict``), so a rejected
-        crop is not suggested again in a later round. It still trains as an example of the other class
-        (:func:`rejected_suggestions`); it is only not proposed.
+        annotator rejected (a negative ``<column>_verdict``), so a rejected
+        crop is not suggested again in a later round. It still trains as an
+        example of the other class (:func:`rejected_suggestions`); it is only
+        not proposed.
     :returns: a :class:`Suggestions`; its frame is empty when nothing has been
         scored, and ``note`` says why.
     """
@@ -245,7 +243,7 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
 def write_suggestions(db_path: str, annotation_column: str,
                       suggestions: pd.DataFrame, *,
                       png_table: str = "png_list") -> int:
-    """Store suggestions, and ONLY where nothing has been annotated.
+    """Store suggestions, only where nothing has been annotated.
 
     The ``IS NULL`` is rule 2 and is not an optimisation.
 
@@ -319,7 +317,7 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
     """Accept suggestions as annotations, or clear them away.
 
     Accepting rewrites the offset value to the real class; rejecting sets it
-    back to NULL. Both act ONLY on suggestion values, so a human annotation
+    back to NULL. Both act only on suggestion values, so a human annotation
     caught by the same query is untouched either way.
 
     :param db_path: path to a ``measurements.db``.
@@ -329,11 +327,11 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
     :param paths: restrict to these crops; None means every suggestion.
     :returns: how many rows changed.
 
-    A bulk KEEP is a confirmation of every suggestion it keeps, so it is
-    recorded in the verdict column too (when the column exists): the crops
-    then wear the same mark as ones confirmed one at a time, and the count
-    the screen shows agrees with what happened. A bulk THROW is not a
-    judgement -- "I do not want to review these" is not "these are wrong"
+    Keeping all suggestions at once confirms every suggestion it keeps, so it
+    is recorded in the verdict column too (when the column exists): the crops
+    then wear the same mark as ones confirmed one at a time, and the count the
+    screen shows agrees with what happened. Throwing all suggestions away is
+    not a judgement -- "I do not want to review these" is not "these are wrong"
     -- so it records nothing.
     """
     column = f'"{annotation_column}"'
@@ -515,10 +513,10 @@ def rejected_suggestions(db_path: str, annotation_column: str, *,
                          png_table: str = "png_list") -> Dict[str, int]:
     """The crops whose suggestion was rejected, and the class that was refused.
 
-    Only crops the annotator has NOT since labelled are returned: a label
-    made after a rejection is the stronger statement and is what the fit
-    reads from the column itself, so handing the rejection over as well
-    would count the crop twice.
+    Only crops the annotator has not since labelled are returned: a label made
+    after a rejection is the stronger statement and is what the fit reads from
+    the column itself, so handing the rejection over as well would count the
+    crop twice.
 
     :param db_path: path to a ``measurements.db``.
     :param annotation_column: the column the suggestions were written into.

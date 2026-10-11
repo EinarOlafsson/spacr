@@ -1,28 +1,26 @@
 """The published example datasets: what they are, and how to fetch them.
 
-WHY THIS IS NOT IN :mod:`spacr.qt.hf_download`. That module owns the same
+This module is separate from :mod:`spacr.qt.hf_download`, which owns the same
 downloads with a Qt progress dialog wrapped round them, and it imports PySide6
 at module scope. ``spacr-download`` has to work on a cluster login node with no
-display and no Qt installed at all, so everything that is only about the DATA --
-which repositories publish it, what each archive is called, how a stream is
+display and no Qt installed at all, so everything that is only about the data
+-- which repositories publish it, what each archive is called, how a stream is
 verified, how an archive is safely unpacked, and what has to be repaired on
 arrival -- lives here instead. ``hf_download`` imports these names back out, so
 every existing GUI caller (and every test that patches one of them on that
 module) keeps working unchanged.
 
-NOT TO BE CONFUSED WITH :mod:`spacr.example_data`, which fetches the Regression
-example screen's count and score CSVs from a GitHub release. That is a
-different set of files, a different host and a different transport. This module
-is about the ``.tar`` archives of imaging data: the Mask demo plate, the
-Measure example, the Annotate/Classify example, the Replication and
-Recruitment assay examples, and -- through :mod:`spacr.screen_data` -- the
-pieces of the published TSG101 screen.
+This module is distinct from :mod:`spacr.example_data`, which fetches the
+Regression example screen's count and score CSVs from a GitHub release. That is
+a different set of files, a different host and a different transport. This
+module is about the ``.tar`` archives of imaging data: the Mask demo plate, the
+Measure example, the Annotate/Classify example, the Replication and Recruitment
+assay examples, and -- through :mod:`spacr.screen_data` -- the pieces of the
+published TSG101 screen.
 
-SIZES ARE STATED BEFORE ANYTHING IS FETCHED. A user choosing between example
-sets is choosing how many gigabytes to spend, and a picker (or a CLI) that
-lists names without sizes makes that choice blind. :data:`EXAMPLE_SETS` carries
-one size per set for the same reason :class:`spacr.screen_data.ScreenAsset`
-does.
+:data:`EXAMPLE_SETS` carries one size per set, as
+:class:`spacr.screen_data.ScreenAsset` does, so the picker and the CLI can show
+sizes before anything is fetched.
 """
 from __future__ import annotations
 
@@ -156,19 +154,17 @@ DATASET_PLACEHOLDER = "<dataset>"
 
 
 def example_plate_folder() -> Path:
-    """The ONE folder every example dataset unpacks into.
+    """Return the shared plate folder the plate example sets unpack into.
 
     ``~/.cache/spacr/example_data/plate1`` -- a real spaCR plate directory,
     holding whichever of ``merged/``, ``data/``, ``measurements/`` and
     ``settings/`` have been downloaded.
 
-    ONE FOLDER BECAUSE THE SETS ARE USED TOGETHER. `data/` is the crops and
-    `measurements/measurements.db` is what indexes them; downloading them into
-    separate trees meant the two halves of one plate could not be opened at
-    once, and the user had to know which download had put what where. Each
-    archive's members are relative to this folder, so the three unpack into it
-    side by side and compose into a plate that Measure, Annotate and Classify
-    can all be pointed at.
+    The sets share one folder because they are used together: `data/` holds the
+    crops and `measurements/measurements.db` indexes them. Each archive's
+    members are relative to this folder, so the three unpack into it side by
+    side and compose into a plate that Measure, Annotate and Classify can all
+    be pointed at.
 
     The assay examples are not stages of this plate and each has a folder of
     its own beside it; see :func:`example_set_folder`.
@@ -212,24 +208,21 @@ class ExampleSet:
     :param key: what a user types to ask for this one.
     :param repo: the Hugging Face dataset repository it is published in.
     :param summary: one line saying what the set is and what it is for.
-    :param bytes: the archive's size. APPROXIMATE, and deliberately so: these
-        are the figures the GUI buttons already state ("about 280 MB"), taken
-        from the archives at publication. They exist to let someone decide
-        whether to spend the download, not to be checked against. The exact
-        length is verified during the transfer, against what the server
-        declares.
-    :param markers: what the unpacked set LEAVES BEHIND, as globs relative to
+    :param bytes: the archive's approximate size: the figure the GUI buttons
+        state ("about 280 MB"), taken from the archive at publication. It is
+        not checked against the download. The exact length is verified during
+        the transfer, against what the server declares.
+    :param markers: what the unpacked set leaves behind, as globs relative to
         the folder it unpacks into. Presence is tested on these rather than on
         the folder, because all three sets share one plate directory: the
         directory existing says nothing about which of them is in it.
     :param expands_npz: whether ``.npz`` arrays have to be written back out as
         the ``.npy`` Measure reads. See :func:`expand_measure_arrays`.
-    :param in_default: whether ``spacr-download`` with no arguments fetches
-        it. False for the OPS and Align & Stitch samples: together
-        they are 0.6 GB of one screen's tiles, and adding them would push the
-        default run past ``CONFIRM_ABOVE_BYTES``, so the command would start
-        asking to confirm the thing it does with no arguments. They are
-        fetched when named, and by ``all``.
+    :param in_default: whether ``spacr-download`` with no arguments fetches it.
+        False for the OPS and Align & Stitch samples: together they are 0.6 GB
+        of one screen's tiles, and adding them would push the default run past
+        ``CONFIRM_ABOVE_BYTES``, so the default run would require confirmation.
+        They are fetched when named, and by ``all``.
     :param folder: the folder under the example-data root the set unpacks
         into. ``plate1`` -- the shared plate -- for the three sets that are
         stages of one plate; a folder of its own for a set that would collide
@@ -253,9 +246,9 @@ class ExampleSet:
     def is_present(self, folder) -> bool:
         """Whether this set is already unpacked under ``folder``.
 
-        Every marker has to match. A half-unpacked set -- a transfer that
-        died between the images and the database -- is therefore reported as
-        absent, which is the answer that gets it repaired.
+        Every marker has to match. A half-unpacked set -- a transfer that died
+        between the images and the database -- is therefore reported as absent
+        and is downloaded again.
 
         :param folder: the plate directory the set unpacks into.
         """
@@ -409,9 +402,8 @@ def example_set(key: str) -> ExampleSet:
 
     :param key: an :data:`EXAMPLE_SETS` key, such as ``import``, ``mask``,
         ``measure``, ``annotate``, ``dose``, ``control_chart`` or ``hit``.
-    :raises KeyError: naming the keys that do exist. A typo that returned
-        ``None`` would download nothing and report success, which is the one
-        outcome a download command must never produce.
+    :raises KeyError: naming the keys that do exist. A typo therefore raises
+        rather than returning ``None``.
     """
     for candidate in EXAMPLE_SETS:
         if candidate.key == key:
@@ -431,11 +423,10 @@ def example_set_folder(key: str) -> Path:
 
 
 def explain_download_failure(exc: BaseException) -> str:
-    """Turn a download exception into something a user can act on.
+    """Convert a download exception into a message with cause and remedy.
 
-    Downloading test data requires a network connection. What the user saw before was
-    ``str(exc)``, which for the ordinary offline case is a nested urllib3
-    dump::
+    Downloading test data requires a network connection. For the ordinary
+    offline case ``str(exc)`` is a nested urllib3 dump::
 
         (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443):
         Max retries exceeded with url: /api/datasets/... (Caused by
@@ -443,11 +434,11 @@ def explain_download_failure(exc: BaseException) -> str:
         0x7e8d...>: Failed to establish a new connection: [Errno 101] Network
         is unreachable'))"), '(Request ID: 73ac20ed-...)')
 
-    — 300 characters that never say "you are offline" and never say what to do
-    instead. The three conditions this actually fails on are: no network, the
-    ``huggingface_hub`` extra not installed, and a truncated transfer. Each
-    gets a sentence naming the cause and the way out; anything else keeps its
-    own message with the same closing advice attached.
+    It states neither that the machine is offline nor what to do. The three
+    conditions recognised are: no network, the ``huggingface_hub`` extra not
+    installed, and a truncated transfer. Each gets a sentence naming the cause
+    and the way out; anything else keeps its own message with the same closing
+    advice attached.
 
     :param exc: the exception raised inside the download worker.
     :returns: a multi-line message for the failure dialog.
@@ -540,12 +531,9 @@ def download_archive(repo_id: str, file_name: str, dest_dir: Path, *,
     Uses plain HTTP + streaming so we don't need the full ``hf_hub``
     download machinery (and its cache dir) for a one-shot demo pull.
 
-    The body lands in a sibling ``.part`` file and is only moved onto
-    the final path once every advertised byte has arrived. Writing
-    straight to the destination meant a dropped connection left a
-    truncated image behind that was indistinguishable from a good
-    download — the next pipeline run then failed deep inside the mask
-    stage instead of at the download.
+    The body lands in a sibling ``.part`` file and is only moved onto the final
+    path once every advertised byte has arrived. A dropped connection therefore
+    never leaves a truncated file at the destination.
 
     :param repo_id: the Hugging Face dataset repository.
     :param file_name: the path within it; only the basename is kept on disk.
@@ -554,8 +542,8 @@ def download_archive(repo_id: str, file_name: str, dest_dir: Path, *,
         chunk, where ``expected`` is ``None`` when the server declared no
         length. A CLI draws a percentage from it; the GUI does not use it,
         because its workers emit Qt signals from inside their own loops.
-    :param chunk_size: 32 KB by default, which is the size the per-file demo
-        pull has always used. An archive of gigabytes passes a bigger one.
+    :param chunk_size: 32 KB by default. An archive of gigabytes passes a
+        bigger one.
     """
     import requests
     url = (f"https://huggingface.co/datasets/{repo_id}/resolve/main/"
@@ -602,13 +590,12 @@ _download_one = download_archive
 def extract_example_archive(archive, dest) -> int:
     """Unpack a downloaded example archive under ``dest``.
 
-    EXTRACTED WITH ``filter="data"``, which is the whole reason this is a
-    function rather than two lines at the call site. A tar can name
+    Members are extracted with ``filter="data"``. A tar can name
     ``../../etc/something`` or an absolute path, and a plain ``extractall``
-    will happily write there -- so unpacking downloaded content without a
-    filter hands whoever can publish to the repo a write anywhere the user can
-    write. The filter rejects those members, along with device nodes, setuid
-    bits and symlinks pointing outside the tree.
+    writes there, so an unfiltered unpack would let anyone who can publish to
+    the repository write anywhere the user can write. The filter rejects those
+    members, along with device nodes, setuid bits and symlinks pointing outside
+    the tree.
 
     Python 3.12 and later have it built in. Older interpreters get an explicit
     check instead of a silent unfiltered unpack.
@@ -643,20 +630,18 @@ def extract_example_archive(archive, dest) -> int:
 def expand_measure_arrays(merged: Path) -> None:
     """Write each ``.npz`` back out as the ``.npy`` Measure reads.
 
-    The compression is a TRANSPORT detail -- it halves a 700 MB download -- and
+    The compression is a transport detail -- it halves a 700 MB download -- and
     Measure loads `.npy`. Converting on arrival keeps that entirely inside the
     downloader rather than teaching every reader about a second format.
 
-    The ``.npz`` is removed afterwards: keeping both doubles the disk cost of
-    an example dataset for a file nothing will open again.
+    The ``.npz`` is removed afterwards: keeping both would double the disk cost
+    of an example dataset, and nothing reads the ``.npz`` afterwards.
 
-    A MODULE FUNCTION, NOT A METHOD, and that is the point. `after_extract`
-    runs on the download thread, and reaching this code through
-    ``_MeasureExampleWorker(dest)._expand_arrays(...)`` CONSTRUCTED a QObject
-    there purely to borrow a helper. `thread_guard` reported it exactly as it
-    should have: the object then lived on 'Dummy-6' and every later touch from
-    the GUI thread was illegal. Nothing in here ever read ``self``, so there
-    was never an object to need.
+    This is a module function rather than a method: `after_extract` runs on the
+    download thread, and calling a worker method such as
+    ``_MeasureExampleWorker(dest)._expand_arrays(...)`` would construct a
+    QObject on that thread, which the GUI thread may then not touch. The
+    function needs no ``self``.
 
     :param merged: the folder the ``.npz`` arrays were unpacked into.
     """
@@ -680,12 +665,12 @@ def expand_measure_arrays(merged: Path) -> None:
 
 
 def make_the_example_paths_absolute(root) -> int:
-    """Point a downloaded example at where it actually landed.
+    """Rewrite a downloaded example's stored paths to its unpack location.
 
-    A measurements database stores ABSOLUTE paths to its crops, which name the
+    A measurements database stores absolute paths to its crops, which name the
     machine that made it and resolve nowhere else. The published copy stores
     them relative to the dataset root instead, so it is portable and carries no
-    account name -- and this is what turns them back into paths that open.
+    account name -- and this function turns them back into absolute paths.
 
     The settings files are rewritten the same way: they carry
     :data:`DATASET_PLACEHOLDER` where the unpack location goes, so a user can

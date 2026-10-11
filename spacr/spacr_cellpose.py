@@ -19,9 +19,8 @@ from .tiff_io import write_tiff
 def cellpose_rescale(value):
     """The ``rescale=`` Cellpose should actually receive. Falsy becomes None.
 
-    ``rescale`` was DEPRECATED-AND-IGNORED in Cellpose 4.0, so spaCR passing
-    ``False`` cost nothing and nobody noticed the type was wrong. Cellpose
-    4.2 reads it again::
+    ``rescale`` was deprecated and ignored in Cellpose 4.0, so passing
+    ``False`` had no effect. Cellpose 4.2 reads it again::
 
         niter_scale = 1 if rescale is None or not resample else rescale
         niter = int(200/niter_scale) if niter is None or niter == 0 else niter
@@ -45,11 +44,11 @@ def cellpose_rescale(value):
 def cellpose_channel_axis(stack):
     """Return the ``channel_axis`` Cellpose 4 accepts for one loaded image.
 
-    ``cellpose.transforms.convert_image`` — which ``CellposeModel.eval``
-    calls with whatever ``channel_axis`` it was handed — indexes
+    ``cellpose.transforms.convert_image`` — which ``CellposeModel.eval`` calls
+    with whatever ``channel_axis`` it was handed — indexes
     ``x.shape[channel_axis]`` and rejects a non-``None`` axis outright for a
-    2-D input. The two shapes spaCR's loaders produce are therefore both
-    illegal under the old hard-coded ``channel_axis=3``:
+    2-D input. The two shapes spaCR's loaders produce would therefore both be
+    rejected with a hard-coded ``channel_axis=3``:
 
     * ``(H, W, C)`` -> ``IndexError: tuple index out of range`` (there is no
       axis 3 on a 3-D array; the channel axis is 2, i.e. ``-1``).

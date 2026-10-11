@@ -3,7 +3,7 @@
 This module is the analysis that happens **after**
 :func:`spacr.sequencing.generate_barecode_mapping` has written its
 ``unique_combinations.csv`` / ``qc.csv``. It answers the two questions a
-pooled-screen experimenter actually asks of a mapping run:
+pooled-screen experimenter asks of a mapping run:
 
 1. *Did the run work?* — reads per well and which wells are starved,
    how many reads never mapped, whether the barcode references are
@@ -15,15 +15,13 @@ pooled-screen experimenter actually asks of a mapping run:
    be attributed to any one of them; too high and wells lose the guides
    they did contain, and with them the statistical power of the screen.
 
-The second question used to be answered with a hand-picked number (2% of
-a well's reads, read off a histogram once and then copied forward). Here
-the user states the **biological** quantity instead — how many gRNAs per
-well the design intends — and :func:`derive_threshold` solves for the
-abundance cutoff that delivers it. :func:`threshold_sweep` then walks a
-range around that cutoff so the trade-off is visible rather than
-asserted, and :func:`recommend_threshold` writes the answer out in words,
-with the derived number stated explicitly. The user picks from the curve;
-nothing here silently picks for them.
+Instead of a hand-picked cutoff (such as 2% of a well's reads), the user states
+the **biological** quantity instead — how many gRNAs per well the design
+intends — and :func:`derive_threshold` solves for the abundance cutoff that
+delivers it. :func:`threshold_sweep` then walks a range around that cutoff so
+the trade-off is visible rather than asserted, and :func:`recommend_threshold`
+writes the answer out in words, with the derived number stated explicitly. The
+user picks from the curve; nothing here silently picks for them.
 
 **Why a module of its own rather than more of** :mod:`spacr.sequencing`:
 that module is the read path — FASTQ in, count table out — and it is
@@ -243,8 +241,8 @@ def starvation_cutoff(per_well: pd.DataFrame, min_reads: int = 0,
 
     ``min_reads`` above zero is used verbatim — an absolute floor the
     experimenter knows from the library prep. Otherwise the cut is
-    ``starved_read_fraction`` of the median well's depth, which is the
-    only rule that transfers between runs of different total depth.
+    ``starved_read_fraction`` of the median well's depth, a rule that transfers
+    between runs of different total depth.
 
     :param per_well: output of :func:`reads_per_well`.
     :param min_reads: absolute floor; ``0`` (the default) means derive
@@ -254,8 +252,8 @@ def starvation_cutoff(per_well: pd.DataFrame, min_reads: int = 0,
     :returns: the cutoff as a float. A well is starved when its read
         total is **strictly below** it.
     :raises ValueError: on a negative ``min_reads`` or a
-        ``starved_read_fraction`` outside ``(0, 1]`` — both would mark
-        either no well or every well and say nothing.
+        ``starved_read_fraction`` outside ``(0, 1]`` — both would mark either
+        no well or every well.
     """
     if min_reads < 0:
         raise ValueError(f"min_reads must not be negative; got {min_reads!r}.")
@@ -305,8 +303,8 @@ def position_effects(counts: pd.DataFrame,
     :returns: DataFrame ``[plateID, axis, label, n_wells, median_reads,
         plate_median, ratio_to_plate, flagged]``, one row per plate row
         and per plate column, sorted worst-first.
-    :raises ValueError: when ``ratio`` is not above 1 — at 1 every row is
-        flagged and the report says nothing.
+    :raises ValueError: when ``ratio`` is not above 1 — at 1 every row would be
+        flagged.
     """
     if ratio <= 1:
         raise ValueError(
@@ -362,9 +360,9 @@ def library_depth(counts: pd.DataFrame,
 
     :param counts: normalised table from :func:`load_count_table`.
     :param expected_grnas: the library as designed — names from the gRNA
-        reference. Supplying it is what turns "we saw 4,900 guides" into
-        "2% of the library was never seen", which is the number that says
-        whether the screen has the coverage it was powered for.
+        reference. Supplying it lets the dropout be reported ("2% of the
+        library was never seen") rather than only the observed count, which
+        shows whether the screen has the coverage it was powered for.
     :returns: dict with ``n_grnas_observed``, ``n_grnas_expected``,
         ``dropout_fraction``, ``dropped_grnas`` (sorted names),
         ``gini``, ``skew_ratio`` (90th/10th percentile of per-gRNA read
@@ -412,13 +410,12 @@ def unmapped_read_fractions(qc_data, counts: Optional[pd.DataFrame] = None
     sequence matched no entry in that field's reference CSV, alongside
     ``total_reads``.
 
-    **What the denominator is.** ``total_reads`` counts reads that
-    matched the barcode regex — a read that never found the anchor
-    sequence is not in the file at all. So these fractions are "of the
-    reads that reached barcode lookup", not "of the FASTQ". That is the
-    number that diagnoses a wrong or reverse-complemented barcode
-    reference, which is what this panel is for; a run where the regex
-    itself misses is already loud in the mapping log.
+    **What the denominator is.** ``total_reads`` counts reads that matched the
+    barcode regex — a read that never found the anchor sequence is not in the
+    file at all. So these fractions are "of the reads that reached barcode
+    lookup", not "of the FASTQ". That is the number that diagnoses a wrong or
+    reverse-complemented barcode reference, which is what this panel is for; a
+    run where the regex itself misses is already reported in the mapping log.
 
     :param qc_data: path, DataFrame, or list of either.
     :param counts: optional normalised count table for the same run. When
@@ -624,9 +621,9 @@ def collision_summary(references: Mapping[str, Any],
         :func:`barcode_collisions`.
     :param collisions: its output.
     :param counts: optional normalised count table. When given, the gRNA
-        reference also reports ``reads_at_risk`` — the share of mapped
-        reads carrying a barcode that has a near neighbour, which is what
-        turns a list of risky pairs into an amount of data at risk.
+        reference also reports ``reads_at_risk`` — the share of mapped reads
+        carrying a barcode that has a near neighbour, which gives the amount of
+        data at risk.
     :returns: DataFrame ``[reference, n_barcodes, n_colliding_pairs,
         n_barcodes_at_risk, collision_rate, reads_at_risk]``.
     """
@@ -663,16 +660,16 @@ def collision_summary(references: Mapping[str, Any],
 class WellFractions:
     """Per-well gRNA abundance fractions, prepared for repeated thresholding.
 
-    Sorting each well's fractions once turns "how many gRNAs survive
-    threshold t" into a binary search, which is what makes an exact
-    derivation over every observed fraction affordable — the sweep and the
-    bisection between them evaluate the same population dozens of times.
+    Sorting each well's fractions once turns "how many gRNAs survive threshold
+    t" into a binary search, so an exact derivation over every observed
+    fraction is affordable — the sweep and the bisection between them evaluate
+    the same population dozens of times.
 
     :param counts: normalised table from :func:`load_count_table`.
-    :param wells: optional restriction of the well population, as ``prc``
-        keys. Excluding starved wells here is what keeps them from
-        dragging the derived threshold: a well with nine reads reports one
-        gRNA at any cutoff and pulls the median down.
+    :param wells: optional restriction of the well population, as ``prc`` keys.
+        Excluding starved wells here keeps them from biasing the derived
+        threshold: a well with nine reads reports one gRNA at any cutoff and
+        pulls the median down.
     :raises ValueError: when the restriction leaves no wells.
     """
 
@@ -794,11 +791,10 @@ def derive_threshold(counts: pd.DataFrame, target_grnas_per_well: float,
     """Solve for the abundance threshold that delivers a stated gRNAs-per-well target.
 
     This replaces choosing a cutoff by eye. The experimenter states the
-    biological quantity — how many gRNAs a well is meant to carry, which
-    is a design decision about power versus attributability — and the
-    cutoff is whatever number delivers it *in this run's data*. Two runs
-    at different depth get different numbers for the same target, which is
-    the point.
+    biological quantity — how many gRNAs a well is meant to carry, which is a
+    design decision about power versus attributability — and the cutoff is
+    whatever number delivers it *in this run's data*. Two runs at different
+    depth get different numbers for the same target.
 
     The search is exact rather than gridded: the gRNAs-per-well statistic
     is a step function that can only change at a fraction actually present
@@ -810,16 +806,16 @@ def derive_threshold(counts: pd.DataFrame, target_grnas_per_well: float,
     landing closest is returned, preferring the one that still *meets* the
     target over the one that falls short.
 
-    **The number returned sits in the middle of its plateau, not on its
-    edge.** A whole range of thresholds gives the same gRNAs-per-well
-    answer — on a clean run that range is the empty space between the
-    guides a well really carried and the bleed-through tail below them,
-    which is exactly what a histogram is being read for when a cutoff is
-    picked by eye. Returning either edge of it would put the cutoff where
-    a re-sequenced run or a rounded count flips guides across it. The
-    geometric middle is the same answer and holds up; both edges are
-    reported as ``interval_low`` / ``interval_high`` so the width of the
-    plateau — how much slack the choice has — is visible too.
+    **The number returned sits in the middle of its plateau, not on its edge.**
+    A whole range of thresholds gives the same gRNAs-per-well answer — on a
+    clean run that range is the empty space between the guides a well really
+    carried and the bleed-through tail below them, which is exactly what a
+    histogram is being read for when a cutoff is picked by eye. Returning
+    either edge of it would put the cutoff where a re-sequenced run or a
+    rounded count flips guides across it. The geometric middle gives the same
+    answer and is stable; both edges are reported as ``interval_low`` /
+    ``interval_high`` so the width of the plateau — how much slack the choice
+    has — is visible too.
 
     :param counts: normalised table from :func:`load_count_table`.
     :param target_grnas_per_well: the target. Must be positive.
@@ -863,10 +859,10 @@ def derive_threshold(counts: pd.DataFrame, target_grnas_per_well: float,
                   ) -> ThresholdChoice:
         """Build the result for candidate ``index``, centred in its plateau.
 
-        ``index`` is the strictest candidate yielding ``achieved``. The
-        plateau reaches down to just above the last candidate that
-        yielded MORE than ``achieved``, found by a second bisection on
-        the same monotone statistic.
+        ``index`` is the strictest candidate yielding ``achieved``. The plateau
+        reaches down to just above the last candidate that yielded more than
+        ``achieved``, found by a second bisection on the same monotone
+        statistic.
         """
         high = float(candidates[index])
         low_index = 0
@@ -919,11 +915,10 @@ def sweep_grid(threshold: float, span: float = DEFAULT_SWEEP_SPAN,
     :param span: multiplicative half-width. ``4.0`` sweeps a quarter to
         four times the derived value.
     :param points: how many points, before the centre is inserted.
-    :param low: absolute lower end, overriding ``threshold / span`` when
-        it is lower. :func:`barcode_qc` uses it to make sure the sweep
-        reaches down into the bleed-through tail, where the collision
-        rate turns — a curve that stops above the junk cannot show the
-        user the cost of relaxing into it.
+    :param low: absolute lower end, overriding ``threshold / span`` when it is
+        lower. :func:`barcode_qc` uses it to make sure the sweep reaches down
+        into the bleed-through tail, where the collision rate turns — so the
+        curve shows the cost of relaxing the cutoff into it.
     :param high: absolute upper end, overriding ``threshold * span``.
     :returns: sorted unique array of cutoffs in ``(0, 1]``, always
         containing ``threshold`` itself so the derived point is on the
@@ -1037,11 +1032,9 @@ def _row_at(sweep: pd.DataFrame, threshold: float) -> pd.Series:
 def recommend_threshold(sweep: pd.DataFrame, choice: ThresholdChoice) -> str:
     """Write the threshold recommendation out in words.
 
-    A curve tells a reader where the knee is only if they already know
-    what they are looking for. This states the derived number, what it
-    buys, what relaxing and tightening it cost, and where the collision
-    rate turns — in sentences, so the choice can be quoted in a methods
-    section.
+    States the derived number, what it buys, what relaxing and tightening it
+    cost, and where the collision rate turns — in sentences, so the choice can
+    be quoted in a methods section.
 
     :param sweep: output of :func:`threshold_sweep`.
     :param choice: output of :func:`derive_threshold`.
@@ -1152,14 +1145,13 @@ def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
                          dst: Optional[str] = None):
     """Plot the sweep, with the derived threshold marked and labelled.
 
-    Two stacked panels share one log-scaled threshold axis: gRNAs per
-    well above, well retention and collision rate below. Two panels
-    rather than a twin y-axis because the quantities have nothing in
-    common — a count and two percentages — and overlaying them puts the
-    flat 100% retention line on top of the frame, where it cannot be
-    read. The derived threshold is a labelled vertical line carrying its
-    own numeric value in both panels: the user must be able to see what
-    their target translated to without reading it off the axis.
+    Two stacked panels share one log-scaled threshold axis: gRNAs per well
+    above, well retention and collision rate below. Two panels rather than a
+    twin y-axis because the quantities have nothing in common — a count and two
+    percentages — and overlaying them puts the flat 100% retention line on top
+    of the frame, where it cannot be read. The derived threshold is a labelled
+    vertical line carrying its own numeric value in both panels, so the derived
+    value can be read without the axis.
 
     The gRNAs-per-well axis is symlog around 1. A relaxed threshold puts
     tens of guides in a well while the interesting region is a handful,
@@ -1500,9 +1492,9 @@ def barcode_qc(settings: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     it, writes the figures and tables, and returns everything it computed
     along with a recommendation in words.
 
-    :param settings: dict; see :func:`barcode_qc_defaults` for every key
-        and :data:`_TOOLTIPS` for what each one does. The two that matter
-        are ``count_data`` (the run's ``unique_combinations.csv``) and
+    :param settings: dict; see :func:`barcode_qc_defaults` for every key and
+        :data:`_TOOLTIPS` for what each one does. The two main keys are
+        ``count_data`` (the run's ``unique_combinations.csv``) and
         ``target_grnas_per_well``.
     :returns: dict with ``choice`` (:class:`ThresholdChoice`),
         ``threshold`` (the derived number), ``sweep``, ``recommendation``,

@@ -49,7 +49,6 @@ def table() -> Dict[str, str]:
     which happens on the GUI thread every time the user opens one.
 
     :returns: an empty dict when the table is missing, never raising -- a
-        volcano is still a volcano without compartment colouring, and a
         screen of a different organism has no reason to carry this file.
     """
     try:
@@ -88,9 +87,9 @@ def of(frame, *, key_column: str = "feature"):
     :returns: a pandas Series of compartment names, empty string where the
         gene is not in the table.
 
-    Joined through :func:`spacr.hits.gene_of`, which is the one place that
-    knows how a design term names a gene. Both the per-gene and the per-guide
-    rows resolve, because a guide's gene is where its protein lives too.
+    Joined through :func:`spacr.hits.gene_of`, which maps design terms to gene
+    ids. Both the per-gene and the per-guide rows resolve; a guide row takes
+    its gene's compartment.
     """
     import pandas as pd
 
@@ -111,9 +110,9 @@ def present(frame, *, key_column: str = "feature",
     :param frame: result frame whose represented compartments are to be
         counted.
 
-    NOT ALL 27. A menu listing every compartment in the reference table
-    offers the user 22 choices that would colour nothing, and a choice that
-    colours nothing is indistinguishable from a broken one.
+    Only compartments present in the screen are returned, not all 27 in the
+    reference table, so a menu built from them offers no choice that colours
+    nothing.
     """
     places = of(frame, key_column=key_column)
     if not len(places):
@@ -127,9 +126,8 @@ def mask(frame, compartment: Optional[str], *, key_column: str = "feature"):
 
     :param frame: table whose feature names are classified and whose index is
         preserved on the returned boolean Series.
-    :param compartment: ``None`` or ``""`` selects nothing, which is the
-        right answer for "no compartment chosen" and lets a caller pass the
-        menu's state straight through without a branch.
+    :param compartment: ``None`` or ``""`` selects nothing, so a caller can
+        pass the menu's state straight through without a branch.
     """
     import pandas as pd
 

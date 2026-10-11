@@ -1,16 +1,13 @@
 """Create an attachable diagnostic bundle with ``spacr-crashreport``.
 
-A bug report that says "it crashed" costs a round trip to ask for the log, a
-second one for the settings, a third for the versions, and by then the user has
-re-run the pipeline and the evidence is gone. This module produces one ``.zip``
-the user can drag into a GitHub issue, and it is assembled out of the pieces
-spaCR already keeps rather than collected a second time:
+This module produces one ``.zip`` with the logs, settings, versions and
+diagnostics a bug report needs, for attaching to a GitHub issue, and it is
+assembled out of the pieces spaCR already keeps rather than collected a second
+time:
 
 * :mod:`spacr.doctor` runs 17 checks over the installation — the running
   checkout, duplicate installs, the GPU, the Cellpose version, the project
   database, the settings — and every non-``PASS`` row already carries the fix.
-  Including it avoids asking support to re-derive what one command already
-  knows.
 * :mod:`spacr.runctx` writes a per-run JSONL log keyed by run id, so "show me
   everything from the run that produced this" has an answer. The bundle carries
   that run's log verbatim, not a filtered summary of it.
@@ -19,21 +16,17 @@ spaCR already keeps rather than collected a second time:
   question from whether it crashed just now, and the more useful one when a
   user reports numbers rather than a traceback.
 
-Design rules, all of them load-bearing:
+Design rules:
 
-**Nothing here may raise.** A crash reporter that crashes while reporting a
-crash destroys the only evidence there was. Every collector runs through
-:func:`_collect`, which turns a failure into a manifest entry naming what could
-not be gathered and why. This is the one place in the codebase where catching
-``Exception`` and carrying on is the correct behaviour rather than a swallowed
-error, and the reason it is correct is that the failure is *recorded in the
-output* — the manifest is part of the bundle, so a missing section is visible
-to the report recipient instead of silently absent.
+**Collectors do not raise.** Every collector runs through :func:`_collect`,
+which turns a failure into a manifest entry naming what could not be gathered
+and why. Catching ``Exception`` is acceptable here because the failure is
+recorded in the output: the manifest is part of the bundle, so a missing
+section is visible to the report recipient instead of silently absent.
 
 **Bounded size.** ``spacr.log`` rotates but a single run can still write
 hundreds of megabytes. The bundle takes the *tail* of it, capped by
-:data:`MAX_LOG_BYTES`, and the manifest records how much was dropped. An
-attachment nobody can upload is not evidence.
+:data:`MAX_LOG_BYTES`, and the manifest records how much was dropped.
 
 **Nothing secret.** Environment variables are included because ``SPACR_*``,
 ``CUDA_*`` and ``PATH`` explain a large fraction of "works here, not there" —
@@ -135,7 +128,7 @@ REPORTED_PACKAGES: Tuple[str, ...] = (
 
 @dataclass
 class CrashReport:
-    """Everything gathered, before it is written anywhere.
+    """Collected report sections and manifest, before serialisation.
 
     Kept as data rather than written straight to a zip so that a caller — a
     test, the Qt layer, a support script — can inspect or re-render it without
@@ -159,9 +152,8 @@ class CrashReport:
     def problems(self) -> List[str]:
         """Names of the sections that *failed* while being gathered.
 
-        Distinct from :attr:`omitted`, and the distinction matters: a section
-        that had nothing to collect is an ordinary answer, and listing the two
-        together under one alarming heading would train a reader to skip both.
+        Distinct from :attr:`omitted`: a section that had nothing to collect is
+        not a failure, and the two are listed separately.
 
         :returns: section names, in collection order. Empty on a clean report.
         """
@@ -389,11 +381,9 @@ def find_last_run_id(problems: Optional[List[str]] = None) -> str:
     reported is *this* run, not the one before it.
 
     :param problems: optional list that anything which went wrong on the way to
-        the answer is appended to. The reason this exists rather than a bare
-        ``return ''``: "no run was found" and "the run directory could not be
-        read" are different answers, and a report that cannot tell them apart
-        sends the report recipient looking for a run that was there all along.
-        :func:`collect` passes one and puts it in the manifest.
+        the answer is appended to. It distinguishes "no run was found" from
+        "the run directory could not be read". :func:`collect` passes one and
+        puts it in the manifest.
     :returns: the run id, or ``''`` when none could be identified. Never raises
         -- a missing log directory is an ordinary answer here.
     """
@@ -612,7 +602,7 @@ def collect(run_id: Optional[str] = None, *,
             exception: Optional[BaseException] = None,
             note: str = "",
             probe_gpu: bool = False) -> CrashReport:
-    """Gather everything worth attaching to a bug report.
+    """Collect the crash-report sections into a :class:`CrashReport`.
 
     Composed from :mod:`spacr.doctor`, :mod:`spacr.runctx`, :mod:`spacr.errors`
     and :mod:`spacr.logging_util` rather than collected again, so the report
@@ -626,7 +616,8 @@ def collect(run_id: Optional[str] = None, *,
     :param settings_values: the settings as a mapping, when the caller has them
         in memory. Takes precedence over ``settings``.
     :param checkout: directory the user believes they are editing; defaults to
-        the current one, which is what makes "am I running this code" answerable.
+        the current one; the report states whether the running spaCR is
+        imported from it.
     :param app: app key for the settings file (``mask``, ``measure``, ...).
     :param exception: the exception being reported, if any. Its traceback goes
         in verbatim.
@@ -707,14 +698,13 @@ def write_crash_report(destination: Optional[os.PathLike] = None,
 
     :param destination: where to write. A directory gets
         ``spacr-crashreport-<run id or timestamp>.zip`` inside it; anything
-        else is used as the file name. Defaults to
-        ``<log dir>/spacr-crashreport-<...>.zip``, which exists and is
-        writable on every machine spaCR has ever logged on.
+        else is used as the file name. Defaults to ``<log
+        dir>/spacr-crashreport-<...>.zip``, the spaCR log directory.
     :param kwargs: passed straight to :func:`collect`.
     :returns: the absolute path of the file written.
-    :raises OSError: only when the destination itself cannot be written, which
-        is the one failure this function must not hide -- a report the caller
-        is told about but which is not on disk is worse than an error.
+    :raises OSError: only when the destination itself cannot be written, This
+        failure is raised rather than recorded, so the caller is never given
+        the path of a report that is not on disk.
 
     Example:
         .. code-block:: python
@@ -843,8 +833,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     :param argv: arguments, defaulting to ``sys.argv[1:]``.
     :returns: ``0`` when the bundle was written, ``1`` when it could not be —
-        and never anything else, because a crash reporter that exits non-zero
-        for a section it could not gather would train people to ignore it.
+        and never anything else; a section that could not be gathered does not
+        change the exit code.
     """
     args = build_parser().parse_args(argv)
     try:

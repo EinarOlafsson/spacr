@@ -1,15 +1,14 @@
 """Timeflows: a time head on Cellpose-SAM, trained on tracked movies.
 
-Cellpose predicts, per pixel, a flow toward the centre
-of the object the pixel belongs to. Timeflows adds the same idea through TIME:
-per pixel of frame ``t``, where the centre of that object is in frame ``t+1``,
-and whether it has a successor at all (cells die, divide, leave the field).
-Linking objects between frames then reads the model instead of guessing from
-overlap, which is where the plain IoU stitcher fails: fast cells that move
-more than their own size between frames (the MuSC movies move 3-4 diameters
-per frame at p95).
+Cellpose predicts, per pixel, a flow toward the centre of the object the pixel
+belongs to. Timeflows adds the same idea through time: per pixel of frame
+``t``, where the centre of that object is in frame ``t+1``, and whether it has
+a successor at all (cells die, divide, leave the field). Linking objects
+between frames then reads the model instead of guessing from overlap, which is
+where the plain IoU stitcher fails: fast cells that move more than their own
+size between frames (the MuSC movies move 3-4 diameters per frame at p95).
 
-WHAT IS HERE, ALL RUNNABLE ON A CPU:
+Contents, all runnable on a CPU:
 
 * :func:`track_masks_from_ctc` -- full masks carrying track ids, from a Cell
   Tracking Challenge movie's silver segmentation relabelled by its tracking
@@ -18,7 +17,7 @@ WHAT IS HERE, ALL RUNNABLE ON A CPU:
   displacement field toward the successor's centre, a successor flag, and the
   pixels both are supervised on.
 * :func:`augment_pair` -- one flip/rotation applied identically to both frames
-  and both label images; the targets are computed AFTER it from the labels, so
+  and both label images; the targets are computed after it from the labels, so
   a flip can never teach a displacement that did not happen.
 * :func:`pair_sampling_weights` -- pairs drawn across the displacement
   distribution rather than uniformly over mostly still frames.
@@ -61,11 +60,11 @@ __all__ = [
 
 
 def track_masks_from_ctc(segmentation: np.ndarray, markers: np.ndarray) -> np.ndarray:
-    """Full object masks labelled with their TRACK ids.
+    """Full object masks labelled with their track ids.
 
-    The Cell Tracking Challenge publishes tracking ground truth as MARKERS --
-    a small blob inside each cell, labelled with its track id in every frame
-    -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per
+    The Cell Tracking Challenge publishes tracking ground truth as markers -- a
+    small blob inside each cell, labelled with its track id in every frame --
+    and full outlines separately (the silver ``ST/SEG`` masks, labelled per
     frame). Only one-to-one assignments are retained: the object contains
     exactly one marker ID and that ID overlaps no other segmented object.
     Unmarked, merged and split assignments are excluded rather than guessed.
@@ -163,9 +162,9 @@ def time_targets(labels_t: np.ndarray, labels_t1: np.ndarray
       0 where it is not (it died, divided -- children take new labels in the
       movies checked -- or left the field).
 
-    The vector is supervised only where there IS a successor (``vector_weight``);
-    the successor flag everywhere inside an object (``object_weight``).
-    Background is supervised by neither.
+    The vector is supervised only where there is a successor
+    (``vector_weight``); the successor flag everywhere inside an object
+    (``object_weight``). Background is supervised by neither.
 
     :param labels_t: frame ``t``'s labels, track ids.
     :param labels_t1: frame ``t+1``'s labels, the same ids.
@@ -197,12 +196,12 @@ def time_targets(labels_t: np.ndarray, labels_t1: np.ndarray
 
 def augment_pair(frames: Sequence[np.ndarray], labels: Sequence[np.ndarray],
                  rng: np.random.Generator) -> Tuple[List[np.ndarray], List[np.ndarray]]:
-    """One random flip and quarter-turn, the SAME for every frame and label.
+    """One random flip and quarter-turn, the same for every frame and label.
 
     A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that
-    never happened, which is the easiest way to get a model that trains
-    beautifully and tracks nothing. Targets are computed
-    from the augmented labels afterwards, so the vectors follow automatically.
+    never happened, producing a model that trains well but does not track.
+    Targets are computed from the augmented labels afterwards, so the vectors
+    follow automatically.
 
     :param frames: the images, ``(H, W)`` or ``(H, W, C)``.
     :param labels: the label images, ``(H, W)``.
@@ -245,11 +244,11 @@ def _pad_to(array: np.ndarray, size: int, *, labels: bool) -> np.ndarray:
 def random_window(frames: Sequence[np.ndarray], labels: Sequence[np.ndarray],
                   rng: np.random.Generator, size: int = TILE
                   ) -> Tuple[List[np.ndarray], List[np.ndarray]]:
-    """One ``size`` square, the SAME window of every frame and label.
+    """One ``size`` square, the same window of every frame and label.
 
     Centred on a random object of the first label image, jittered by up to a
     quarter window, so windows hold cells rather than empty background. A
-    window shared by both frames keeps every displacement true.
+    window shared by both frames leaves every displacement unchanged.
 
     :param frames: the images.
     :param labels: the label images.
@@ -281,11 +280,10 @@ def pair_sampling_weights(label_stack: np.ndarray, bins: int = 5) -> np.ndarray:
     """Weights that draw pairs evenly across how far their objects move.
 
     Most consecutive frames are nearly still, so drawing pairs uniformly shows
-    the head mostly easy pairs. Each pair's median
-    displacement over diameter falls in one of ``bins`` equal-width bins
-    across the range seen, and a pair's weight is the inverse of its bin's
-    size. Quantile bins were tried first and collapse when most pairs move
-    alike, which is exactly the movie this exists for.
+    the head mostly easy pairs. Each pair's median displacement over diameter
+    falls in one of ``bins`` equal-width bins across the range seen, and a
+    pair's weight is the inverse of its bin's size. Quantile bins are not used
+    because they collapse when most pairs move alike.
 
     :param label_stack: ``(T, H, W)`` track-labelled frames.
     :param bins: how many displacement bins.
@@ -618,10 +616,10 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
                     consistency_weight: float = 0.0) -> List[float]:
     """Train the time head, then the whole network, on track-labelled pairs.
 
-    A two-stage curriculum: the backbone's segmentation is already
-    paid for, so it is frozen while the new head learns, then everything is
-    trained at a low learning rate. Every pair is augmented identically on
-    both frames before its targets are computed.
+    A two-stage curriculum: the backbone's segmentation is already trained, so
+    it is frozen while the new head learns, then everything is trained at a low
+    learning rate. Every pair is augmented identically on both frames before
+    its targets are computed.
 
     A training crop keeps supervision only for complete source masks and,
     when present in the full target frame, complete successor masks. A

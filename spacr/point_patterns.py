@@ -1,37 +1,30 @@
-"""Is this well clustered, dispersed, or neither -- against the right null.
+"""Test whether a well's points are clustered or dispersed within a mask.
 
-WHAT THE PACKAGE COULD NOT ASK. :mod:`spacr.object_distances` says how far
-one object is from another, and :mod:`spacr.bystanders` says whether a cell
-has an infected neighbour. Neither answers the question a focus of
-infection actually poses: are the infected cells in this well arranged more
-tightly than chance would put them? That is Ripley's K, and it is the
-statistic that turns "these two cells are close" into "this well is
-clustered".
+:mod:`spacr.object_distances` says how far one object is from another, and
+:mod:`spacr.bystanders` says whether a cell has an infected neighbour. Neither
+tests whether the infected cells in a well are arranged more tightly than
+chance would place them; Ripley's K does.
 
-THE NULL IS THE WHOLE STATISTIC. K is meaningless without something to
-compare it against, and the comparison has to respect the shape the cells
-were allowed to occupy. A well is not a rectangle, a field with a torn
-monolayer is not a rectangle, and a null that scatters points over the
-bounding box will call every mask with a concave edge "clustered" -- the
-points are crowded into the tissue because there is nowhere else to be.
-Everything here takes a mask and both the estimator and the simulated null
-stay inside it.
+K is meaningless without something to compare it against, and the comparison
+has to respect the shape the cells were allowed to occupy. A well is not a
+rectangle, a field with a torn monolayer is not a rectangle, and a null that
+scatters points over the bounding box will call every mask with a concave edge
+"clustered" -- the points are crowded into the tissue because there is nowhere
+else to be. Everything here takes a mask and both the estimator and the
+simulated null stay inside it.
 
-EDGE CORRECTION IS NOT OPTIONAL AND IT IS THE PART THAT GETS SKIPPED. A
-point near the boundary has part of its neighbourhood outside the window,
-so it finds fewer neighbours than it has; uncorrected, that deficit reads
-as dispersion, and it is worst at exactly the radii anyone cares about.
-:func:`ripley_k` applies the reduced-sample (border) correction by
-default: at radius r, only points at least r inside the boundary
-contribute. It costs precision at large r -- honestly, by reporting how
-many points were left -- and it is exact for any window shape, which the
-analytic isotropic corrections are not.
+Edge correction is applied by default. A point near the boundary has part of
+its neighbourhood outside the window, so it finds fewer neighbours than it has;
+uncorrected, that deficit reads as dispersion, and it is largest at the radii
+of interest. :func:`ripley_k` applies the reduced-sample (border) correction by
+default: at radius r, only points at least r inside the boundary contribute. It
+costs precision at large r, reported as the number of points left, and it is
+exact for any window shape, which the analytic isotropic corrections are not.
 
-THE FRAME EDGE IS A BOUNDARY TOO. The distance-to-boundary field is
-computed on a mask padded with one row of background all round, so a mask
-that runs to the edge of the image is treated as cut off there, because it
-is. Without the pad, cells at the top of the image would be scored as
-though the monolayer continued past it.
+The frame edge is also a boundary. The distance-to-boundary field is computed
+on a mask padded with one row of background all round, so a mask that runs to
+the edge of the image is treated as cut off there. Without the pad, cells at
+the top of the image would be scored as though the monolayer continued past it.
 """
 from __future__ import annotations
 
@@ -65,7 +58,7 @@ def suggest_radii(mask, *, spacing=None, count: int = 20) -> np.ndarray:
     :returns: ``count`` radii, evenly spaced, ending at
         :data:`MAX_RADIUS_FRACTION` of the window's shorter side.
 
-    NOT STARTING AT ZERO. K(0) is 0 by construction and carries no
+    The radii do not start at zero. K(0) is 0 by construction and carries no
     information; including it only puts a point where every curve agrees.
     """
     window = np.asarray(mask, dtype=bool)
@@ -88,16 +81,15 @@ def ripley_k(points, mask, radii, *, spacing=None,
         ``"none"`` to see what the correction is worth.
     :returns: ``r``, ``k``, ``l``, ``l_minus_r`` and ``n_contributing``.
 
-    ``l_minus_r`` IS THE COLUMN TO READ. K grows as r squared, so two
-    curves are impossible to compare by eye; L is its variance-stabilised
-    square root, and under complete spatial randomness L(r) = r exactly, so
-    L(r) - r is a flat line at zero whatever the density. Above zero is
-    clustering, below is dispersion, and the size of the departure is in
-    the units of the image.
+    ``l_minus_r`` is the column to read. K grows as r squared, so two curves
+    are impossible to compare by eye; L is its variance-stabilised square root,
+    and under complete spatial randomness L(r) = r exactly, so L(r) - r is a
+    flat line at zero whatever the density. Above zero is clustering, below is
+    dispersion, and the size of the departure is in the units of the image.
 
-    ``n_contributing`` IS NOT DECORATION. It is the number of points the
-    border correction kept at that radius, and when it falls into single
-    figures the row is arithmetic, not evidence.
+    ``n_contributing`` is the number of points the border correction kept at
+    that radius, and when it falls into single figures the row is not reliable
+    evidence.
     """
     window = np.asarray(mask, dtype=bool)
     if window.ndim != 2:
@@ -160,14 +152,14 @@ def csr_envelope(mask, n_points: int, radii, *, spacing=None,
     :param correction: the same correction as the observation used.
     :returns: ``r``, ``lo``, ``hi`` and ``mean`` of ``l_minus_r``.
 
-    THE POINTS ARE SCATTERED IN THE MASK, NOT IN ITS BOUNDING BOX. That is
-    the entire reason this function exists rather than a lookup of the
-    analytic CSR variance: the analytic result assumes a rectangle, and a
-    well is a disc with holes in it.
+    The points are scattered in the mask, not in its bounding box, instead of
+    using the analytic CSR variance: the analytic result assumes a rectangle,
+    and a well is a disc with holes in it.
 
-    SAME CORRECTION ON BOTH SIDES. An observation corrected against an
-    envelope that was not -- or the reverse -- compares two different
-    estimators and the difference between them will look like biology.
+    The same correction must be used on both sides. An observation corrected
+    against an envelope that was not -- or the reverse -- compares two
+    different estimators and the difference between them will look like
+    biology.
     """
     window = np.asarray(mask, dtype=bool)
     radii = _as_radii(radii)
@@ -208,11 +200,11 @@ def ripley_test(points, mask, radii=None, *, spacing=None,
     :returns: the columns of :func:`ripley_k`, plus ``lo``, ``hi``,
         ``clustered`` and ``dispersed``.
 
-    ``clustered`` AND ``dispersed`` ARE PER RADIUS AND THAT IS NOT ONE
-    TEST. Twenty radii give twenty chances to leave a 2% envelope, so a
-    single excursion is close to meaningless; a run of them at adjacent
-    radii is the thing to believe. The columns are deliberately named for
-    what they are -- an excursion at this r -- rather than "significant".
+    ``clustered`` and ``dispersed`` are per radius, not one test. Twenty radii
+    give twenty chances to leave a 2% envelope, so a single excursion is close
+    to meaningless; a run of them at adjacent radii is stronger evidence. The
+    columns are deliberately named for what they are -- an excursion at this r
+    -- rather than "significant".
     """
     window = np.asarray(mask, dtype=bool)
     if radii is None:

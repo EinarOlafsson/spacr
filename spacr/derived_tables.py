@@ -259,7 +259,7 @@ def execute(path, definition):
     :returns: ``(frame, diagnostics)`` with full counts and actual aggregation rules.
     :raises MergeError: Missing keys, changed schemas, cardinality or type violations.
 
-    Genuine base provenance is kept: external names are never turned into image
+    Base provenance is kept: external names are never turned into image
     identities just because they happen to be unique. One-to-one joins, once
     validated, still go through the same typed plan on their singleton groups,
     so explicit count and nunique overrides stay real. Gate and filter

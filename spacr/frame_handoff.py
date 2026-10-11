@@ -1,13 +1,13 @@
 """Hand a frame to the next step without a file parse in between.
 
-A step that has built a frame IN MEMORY and hands it to a step in the same
-process has no need of a serialisation round trip. Writing one out and
-parsing it back costs twice: once to write and once to read, and both costs
-scale with the frame rather than with the work being done.
+A step that has built a frame in memory and hands it to a step in the same
+process has no need of a serialisation round trip. Writing one out and parsing
+it back costs twice: once to write and once to read, and both costs scale with
+the frame rather than with the work being done.
 
 The merged measurement frame is the case this was built for. A four-plate
 screen merges to about 2.75 GB; writing that as CSV takes around 160 seconds
-and parsing it back takes longer still, all of it AFTER the frame already
+and parsing it back takes longer still, all of it after the frame already
 existed in the writing process's memory, and all of it before the fit that
 needs it can start.
 
@@ -15,14 +15,14 @@ Two halves, and both are needed:
 
 ``hold``/``held``
     the frame itself is offered under the path it was written to, so a reader
-    that would have parsed that path gets the object instead. The reference
-    is WEAK -- when the producer drops the frame the offer disappears and the
-    file on disk is read as before, so nothing here can keep a multi-gigabyte
-    frame alive after its owner is done with it.
+    that would have parsed that path gets the object instead. The reference is
+    weak -- when the producer drops the frame the offer disappears and the file
+    on disk is read as before, so nothing here can keep a multi-gigabyte frame
+    alive after its owner is done with it.
 ``stage``
-    the durable copy is written in a COLUMNAR format when one is available.
-    The artefact is kept because a user can open it and because every fit of
-    a queue then reads the same numbers; only the format changes, and Parquet
+    the durable copy is written in a columnar format when one is available. The
+    artefact is kept because a user can open it and because every fit of a
+    queue then reads the same numbers; only the format changes, and Parquet
     both writes and reads several times faster than CSV at a fraction of the
     size.
 
@@ -69,7 +69,7 @@ _SHAPES: Dict[str, Tuple[int, int]] = {}
 
 
 def key_for(path: Any) -> str:
-    """The absolute path two callers must agree on to meet here.
+    """Return the expanded absolute path used as an offer's key.
 
     :param path: a path, or anything :func:`os.fspath` accepts.
     :returns: the expanded, absolute path used as the offer's key.
@@ -182,7 +182,7 @@ def stage(frame: pd.DataFrame, folder: Any, stem: str, *,
         be written. Other table-writer errors also propagate after the offer
         registry and any pre-existing durable artefact are left as they were.
 
-    The frame is offered BEFORE the write returns, so a reader that starts
+    The frame is offered before the write returns, so a reader that starts
     while the artefact is still being written gets the object rather than a
     half-written file.
     """

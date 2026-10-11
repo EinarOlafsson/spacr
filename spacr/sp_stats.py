@@ -126,31 +126,27 @@ def choose_p_adjust_method(num_groups, num_data_points):
 def perform_normality_tests(df, grouping_column, data_columns):
     """Report per-group normality, and say when the check had no power.
 
-    The VERDICT and the reported ROWS both come from
+    The verdict and the reported rows both come from
     :func:`spacr.figures.stats.check_normality`, so the summary and the detail
     cannot drift apart. That check is Shapiro-Wilk against a Bonferroni
     threshold across the groups, and it refuses -- reporting NaN and
     ``Informative=False`` -- when the smallest group is below
     :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS`. A row whose statistic is
-    NaN is not a failed computation; it is the check saying it could not see.
+    NaN is not a failed computation; it means the group was too small to test.
 
-    This module used to run D'Agostino-Pearson or Shapiro per group and read
-    "not rejected" as "normal", which on three replicates is a decision the
-    data cannot support. The p-values it printed for such groups looked
-    perfectly reasonable, which is why the defect survived.
+    "Not rejected" is not read as "normal": on three replicates the data cannot
+    support that decision.
 
     Groups with fewer than three observations are still reported as
-    ``'Skipped'``: Shapiro-Wilk genuinely cannot run on two points.
+    ``'Skipped'``: Shapiro-Wilk cannot run on two points.
 
     :param df: Input DataFrame containing the grouping and value columns.
     :param grouping_column: Column name identifying the group of each row.
     :param data_columns: Iterable of numeric column names to test.
     :returns: Tuple ``(is_normal, results)``. ``is_normal`` is True only when
-        every requested column passes -- it used to be the verdict for the LAST
-        column examined, so a two-column call answered about the wrong one.
-        ``results`` is a list of per-group dicts carrying ``Comparison``,
-        ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``, ``n``,
-        ``Informative`` and ``Verdict``.
+        every requested column passes. ``results`` is a list of per-group dicts
+        carrying ``Comparison``, ``Test Statistic``, ``p-value``, ``Test
+        Name``, ``Column``, ``n``, ``Informative`` and ``Verdict``.
     """
     from .figures.stats import check_normality
 
@@ -197,10 +193,10 @@ def perform_normality_tests(df, grouping_column, data_columns):
 
 
 def perform_levene_test(df, grouping_column, data_column):
-    """Levene's test for equal variance, MEDIAN-centred.
+    """Levene's test for equal variance, median-centred.
 
-    Delegates to :func:`spacr.figures.stats.check_equal_variance`. Two things
-    moved when it did, and both change the number a caller writes into a CSV:
+    Delegates to :func:`spacr.figures.stats.check_equal_variance`. Two of its
+    rules affect the numbers a caller writes into a CSV:
 
     * The centring is the median (Brown-Forsythe), not SciPy's default mean.
       Median centring is less sensitive to non-normal data, and this function
@@ -208,8 +204,7 @@ def perform_levene_test(df, grouping_column, data_column):
     * Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in
       the smallest group the result is ``(nan, nan)``. On three replicates
       Levene has almost no power, so "p = 0.7, variances are equal" means "we
-      could not tell", and printing 0.7 into a results table invites exactly
-      the reading that publishes a difference that is not there.
+      could not tell", and a printed 0.7 would invite that reading.
 
     :param df: Input DataFrame containing the grouping and value columns.
     :param grouping_column: Column name identifying the group of each row.
@@ -354,20 +349,19 @@ def chi_pairwise(raw_counts, verbose=False):
     then applies a multiple-comparison correction selected via
     :func:`choose_p_adjust_method`.
 
-    Two degenerate inputs used to crash rather than report, and both are
-    routine for a sparse per-well contingency table:
+    Two degenerate inputs are routine for a sparse per-well contingency table
+    and are reported rather than raised:
 
-    * **Fewer than two groups.** There is no pair to compare, so the p-value
-      correction was handed an empty list and raised ``ZeroDivisionError``.
-      An empty result frame is the correct answer, not an exception.
-    * **A category no group observed**, or a group with no observations at
-      all. ``chi2_contingency`` computes an expected frequency of zero and
-      raises ``ValueError``. A category with zero counts on both sides of a
-      pair carries no information about that pair, so it is dropped before
-      testing -- which is the standard handling, not a fudge. If dropping
-      leaves fewer than two categories, or either group is empty, the test is
-      genuinely undefined and the pair is reported with a NaN p-value and a
-      reason instead of being silently omitted.
+    * **Fewer than two groups.** There is no pair to compare, so an empty
+      result frame is returned.
+    * **A category no group observed**, or a group with no observations at all.
+      ``chi2_contingency`` computes an expected frequency of zero and raises
+      ``ValueError``. A category with zero counts on both sides of a pair
+      carries no information about that pair, so it is dropped before testing,
+      which is the standard handling. If dropping leaves fewer than two
+      categories, or either group is empty, the test is undefined and the pair
+      is reported with a NaN p-value and a reason instead of being silently
+      omitted.
 
     :param raw_counts: Contingency-table DataFrame indexed by group.
     :param verbose: When True, print the resulting DataFrame.
@@ -478,7 +472,7 @@ _BSCORE_MAD_SCALE = 1.4826
 
 
 class HitScoringError(ValueError):
-    """Raised when a screen cannot be scored, with the reason and the way out."""
+    """Raised when a screen cannot be scored; the message gives the remedy."""
 
 
 def _finite(values) -> np.ndarray:

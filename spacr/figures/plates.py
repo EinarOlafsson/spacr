@@ -109,9 +109,8 @@ def plate_names(frame) -> List[str]:
     column, while every preceding token belongs to the plate identifier.
     This preserves plate identifiers that contain underscores.
 
-    Screens whose keys are the plain three-token form -- which is every one
-    this module has been run on -- are unaffected: the plate is still the
-    first token because there is nothing in front of it.
+    Screens whose keys are the plain three-token form are unaffected: the plate
+    is still the first token because there is nothing in front of it.
 
     :param frame: long-format table whose ``prc`` values identify wells.
     :returns: Plate identifiers parsed from the right. Keys with fewer than
@@ -132,14 +131,12 @@ def plate_names(frame) -> List[str]:
     return order
 
 def full_plate_grid(rows: Sequence[int], columns: Sequence[int]) -> Tuple[int, int]:
-    """The plate the measured wells sit on, not the box that bounds them.
+    """Return the smallest standard plate shape containing every measured well.
 
-    THE EDGE HAS TO BE THE EDGE. Pivoting only the wells that carry data
-    drops an entirely unused column, so a screen that never used columns 1-3
-    -- which the tsg101 screen does not -- drew its first measured column
-    hard against the left spine. Every edge effect then reads one plate
-    position out, and an edge effect is the artefact a plate heatmap exists
-    to show.
+    Pivoting only the wells that carry data drops entirely unused columns, so a
+    screen that never used columns 1-3 (such as the tsg101 screen) would draw
+    its first measured column against the left spine and shift every edge
+    effect by the missing positions.
 
     :param rows: measured 1-based plate row indices.
     :param columns: measured 1-based plate column indices.
@@ -163,15 +160,14 @@ def well_matrices(frame, variable: str, *, grouping: str = "mean",
                   min_count=0, plates: Optional[Sequence[str]] = None):
     """One matrix per plate, on a shared grid, with absent wells as ``nan``.
 
-    Wraps :func:`spacr.plot.generate_plate_heatmap` -- which is where the
-    prc parsing, the letter walk past row P and the min_count filter live --
-    and undoes the one thing it does that a picture must not inherit: its
-    ``.fillna(0)``. A well with no rows and a well that measured zero are
-    the same cell afterwards, so the count map is fetched alongside the
-    value map and a well with a count of zero is masked back out.
+    Wraps :func:`spacr.plot.generate_plate_heatmap` -- which is where the prc
+    parsing, the letter walk past row P and the min_count filter live -- and
+    reverses its ``.fillna(0)``. A well with no rows and a well that measured
+    zero are the same cell afterwards, so the count map is fetched alongside
+    the value map and a well with a count of zero is masked back out.
 
     A well with rows but nothing numeric in any of them is masked too. The
-    count map counts ROWS, and the aggregation coerces the variable with
+    count map counts rows, and the aggregation coerces the variable with
     ``errors='coerce'``, so such a well aggregates to NaN and is filled with
     the same invented zero one step further in.
 
@@ -281,11 +277,10 @@ def _drop_unreadable_wells(heatmap, present, subset, readable, name, variable):
 
 def shared_limits(matrices: Sequence[np.ndarray], min_max="allq"
                   ) -> Tuple[float, float]:
-    """One colour scale for every plate, over the wells that exist.
+    """Return one ``(low, high)`` colour range for all plates' measured wells.
 
-    SHARED IS THE POINT. A plate heatmap is read by comparing plates; four
-    independent scales make the same colour mean four different numbers and
-    turn a batch effect into an invisible one.
+    Plate heatmaps are read by comparing plates; independent scales would give
+    one colour a different value on each plate and hide batch effects.
 
     :param matrices: per-plate value matrices; non-finite wells are excluded
         from the shared scale.
@@ -347,13 +342,13 @@ def small_multiple_layout(count: int, plate_aspect: float,
 
 def plate_figure_name(variable: str, prefix: str = "plate_heatmap",
                       suffix: str = ".pdf") -> str:
-    """The file a plate panel is written to: named for what it draws.
+    """Return the file name for a plate panel, built from its variable.
 
-    NOT :func:`spacr.schema.escape_filename_component`, which escapes the
-    key separator -- ``log_pred`` would be written as ``log%5Fpred``. This
-    is a file name and not a key: an underscore is exactly what belongs in
-    it. Unicode alphanumerics and ``-_.`` in ``variable`` are retained;
-    every other character is replaced with an underscore.
+    This does not use :func:`spacr.schema.escape_filename_component`, which
+    escapes the key separator (``log_pred`` would be written as
+    ``log%5Fpred``); in a file name the underscore is kept. Unicode
+    alphanumerics and ``-_.`` in ``variable`` are retained; every other
+    character is replaced with an underscore.
 
     :param variable: measurement name to include in the file name.
     :param prefix: filename prefix, used verbatim.
@@ -460,19 +455,18 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
     :param min_count: minimum number of rows required for a well to be drawn.
     :param min_max: colour-scale spec, as
         :func:`spacr.plot.generate_plate_heatmap` defines it -- but applied
-        ONCE, over every plate at the same time.
+        once, over every plate together.
     :param cmap: a colormap to override the house ramp. ``None`` uses
         :func:`plate_ramp`, which is what the style asks for.
     :param target: ``'screen'`` or ``'print'``; defaults to the user's own
         figure preference.
-    :param width: figure width in inches. The HEIGHT is derived from it, so
+    :param width: figure width in inches. The height is derived from it, so
         that the wells come out square.
     :param plates: draw only these plates, in this order.
-    :param limits: an explicit ``(vmin, vmax)``, overriding ``min_max``.
-        THIS IS WHAT MAKES ONE-PLATE-PER-FIGURE SAFE: a caller that wants a
-        plate to a tile computes :func:`shared_limits` over every plate once
-        and passes the same pair to each figure, so splitting the small
-        multiple up does not silently give each plate its own scale again.
+    :param limits: an explicit ``(vmin, vmax)``, overriding ``min_max``. To
+        draw one plate per figure on a common scale, compute
+        :func:`shared_limits` over every plate once and pass the same pair to
+        each figure.
     :param outline: a column of ``frame``; every well whose mean of it is
         above zero gets a square outline in the ink colour. A hit call drawn
         on the score it was called from, without a second figure.

@@ -190,8 +190,8 @@ class SearchTable:
     def backends(self) -> Tuple[str, ...]:
         """Which backends drew these rows.
 
-        More than one is worth saying out loud: a table mixing cuML and
-        umap-learn rows is comparing two libraries as well as the settings.
+        More than one is reported because a table mixing cuML and umap-learn
+        rows is comparing two libraries as well as the settings.
 
         :returns: sorted distinct backend names from retained recipes.
         """

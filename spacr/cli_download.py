@@ -1,28 +1,22 @@
 """``spacr-download`` — fetch spaCR's published example data, with no GUI.
 
-Every example dataset spaCR publishes has, until now, been reachable only by
-pressing a button inside the application: "Load test data", "Load example
-data", the screen-data picker. That is fine on a laptop and useless on a
-cluster, where the data has to be on disk BEFORE a batch job starts and there
-is no display to press a button on. This is that download as a command.
+Downloads the example datasets that the application's "Load test data" and
+"Load example data" buttons and the screen-data picker fetch, without a
+display. This is for machines such as cluster nodes, where the data has to be
+on disk before a batch job starts.
 
-WHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches
-the example sets -- Import, Mask, Measure, Annotate/Classify, Replication,
-Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. The
-OPS and Align & Stitch samples are fetched only when named (``spacr-download
-ops stitch``) or with ``all``. It does NOT fetch the published TSG101 screen,
-which is 33 GB.
-A command that spent 33 GB of somebody's quota because they typed its name
-with no arguments would be a bug however well documented, so the screen is
-opt-in, is asked for in pieces, and is confirmed before it starts. The pieces
-are :mod:`spacr.screen_data`'s, unchanged: four measurement databases of about
-0.5 GB and four crop folders of about 8 GB, any subset of which can be named.
+With no arguments it fetches the example sets -- Import, Mask, Measure,
+Annotate/Classify, Replication, Recruitment and the synthetic Invasion set --
+which come to about 1.8 GB. The OPS and Align & Stitch samples are fetched only
+when named (``spacr-download ops stitch``) or with ``all``. It does not fetch
+the published TSG101 screen, which is 33 GB. The screen is opt-in, is asked for
+in pieces, and is confirmed before it starts. The pieces are
+:mod:`spacr.screen_data`'s, unchanged: four measurement databases of about 0.5
+GB and four crop folders of about 8 GB, any subset of which can be named.
 
-NOTHING IS DOWNLOADED THAT CANNOT FIRST BE PRICED. ``--list`` prints every
-piece with its size and whether it is already on disk, and the total the
-current selection would cost, without opening a socket. ``--dry-run`` is the
-same listing for the same reason: a user deciding what to spend an hour of
-network on should be able to see the bill first.
+``--list`` prints every piece with its size and whether it is already on disk,
+and the total size of the current selection, without opening a network
+connection. ``--dry-run`` prints the same listing.
 
 Importing this module must stay light -- no Qt, no torch, no matplotlib -- so
 ``spacr-download --help`` answers instantly on a login node with a cold NFS
@@ -39,8 +33,7 @@ Usage::
     spacr-download --screen crops --plate 1   # one plate of crops (~8.9 GB)
     spacr-download all --yes                  # everything, screen included
 
-Exit codes (a job that exits 0 having downloaded nothing is the classic
-footgun, so these are exact)::
+Exit codes::
 
   0  everything asked for is on disk, or a confirmation was declined
   1  a download failed; the pieces that succeeded are still on disk
@@ -116,7 +109,7 @@ KINDS: Tuple[str, ...] = ("measurements", "crops")
 
 
 class SelectionError(Exception):
-    """A name, kind or plate number the user got wrong.
+    """Raised for an unknown example name, screen kind or plate number.
 
     Always exit code 2: nothing was attempted, so it is an argument problem
     rather than a failed download.
@@ -140,10 +133,10 @@ def default_destination() -> Path:
 def example_folder(dest) -> Path:
     """The one plate folder the three plate example sets unpack into.
 
-    ONE FOLDER because the sets compose: the Measure example's ``merged/``,
-    the Annotate example's ``data/`` and ``measurements/``, and the Mask
-    demo's raw images are three stages of the same plate, and spaCR expects to
-    be pointed at a plate.
+    The sets share one folder because they compose: the Measure example's
+    ``merged/``, the Annotate example's ``data/`` and ``measurements/``, and
+    the Mask demo's raw images are three stages of the same plate, and spaCR
+    expects to be pointed at a plate.
 
     The assay sets are not stages of that plate and each unpacks into a
     folder of its own; see :func:`spacr.example_archives.example_set_folder`.
@@ -154,16 +147,16 @@ def example_folder(dest) -> Path:
 
 
 def screen_folder(dest, plate: int) -> Path:
-    """One folder per screen plate, and it has to be.
+    """Return the folder for one screen plate: ``<dest>/screen/plate<N>``.
 
     Every plate's measurements archive unpacks to
     ``measurements/measurements.db`` and every plate's crop archive unpacks to
     ``data/`` -- the same two paths, four times over. Unpacked into one folder
     the fourth plate would silently overwrite the third, and
     :meth:`spacr.screen_data.ScreenAsset.is_present` would report a plate as
-    downloaded because a DIFFERENT plate's file is sitting where its own would
-    go. So the plate number is in the path, and a selection of all four is
-    four plate folders that can each be opened as itself.
+    downloaded because a different plate's file is sitting where its own would
+    go. The plate number is therefore part of the path, and each plate folder
+    can be opened on its own.
 
     :param dest: the root everything unpacks under.
     :param plate: which screen plate.
@@ -191,8 +184,8 @@ class Piece:
     :param repo: the dataset repository it is published in.
     :param archive: the ``.tar`` to fetch from it.
     :param folder: where it unpacks.
-    :param bytes: the archive's size, so a selection can be priced before it
-        is paid.
+    :param bytes: the archive's size, so a selection's total is known before
+        downloading.
     :param present: whether it is already unpacked where it would go. Computed
         when the plan is built rather than looked up later, so the listing and
         the download agree about what will happen.
@@ -406,11 +399,10 @@ def render_listing(plan: Sequence[Piece], chosen: Sequence[Piece], dest,
 
 
 def screen_notice() -> str:
-    """How to ask for the screen, for a run that did not.
+    """Return the notice explaining how to request the screen data.
 
-    Printed on the default run because the screen is the thing this command
-    deliberately does NOT do by itself, and a user who never learns it is
-    there will conclude spaCR does not publish it.
+    Printed on the default run, which does not fetch the screen, so the user
+    learns that the screen is published and how to request it.
     """
     return "\n".join((
         "The published TSG101 screen (33 GB) was not included. Ask for it in "
@@ -427,7 +419,7 @@ def screen_notice() -> str:
 
 
 def room_for(pieces: Sequence[Piece], dest) -> Optional[str]:
-    """Complaint about free disk space, or ``None`` when there is enough.
+    """Return a low-disk-space message, or ``None`` when there is enough room.
 
     The peak is not the total: each archive is unpacked and then deleted, so
     what has to fit at once is everything that will be kept plus the largest
@@ -519,11 +511,10 @@ def _progress(out) -> object:
 
 
 def fetch_piece(piece: Piece, *, out=None, progress: bool = True) -> int:
-    """Download one archive, unpack it, and throw the archive away.
+    """Download one archive, unpack it, and delete the archive.
 
     The archive is removed as soon as it is unpacked: it is a second copy of
-    everything just written, and for a crop plate that is another 8 GB sitting
-    on the disk for no reason.
+    everything just written, and for a crop plate that is another 8 GB.
 
     :param piece: what to fetch.
     :param out: where progress is drawn; ``sys.stdout`` when None.
@@ -548,11 +539,9 @@ def download(pieces: Sequence[Piece], *, out=None, err=None,
              ) -> Tuple[List[Piece], List[Tuple[Piece, BaseException]]]:
     """Fetch every piece, and keep going after one fails.
 
-    ONE FAILURE DOES NOT ABANDON THE REST. A crop plate is an hour of network;
-    losing the three that would have succeeded because the second one's
-    connection dropped means starting the hour again. Each failure is reported
-    as it happens and repeated in the summary, and the caller turns a non-empty
-    result into exit code 1.
+    A failed piece does not stop the remaining pieces; a crop plate can take an
+    hour to download. Each failure is reported as it happens and repeated in
+    the summary, and the caller turns a non-empty result into exit code 1.
 
     :param pieces: what to fetch, in order.
     :param out: stream for progress; ``sys.stdout`` when None.

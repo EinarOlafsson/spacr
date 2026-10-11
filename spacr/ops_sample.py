@@ -1,31 +1,29 @@
 """Every other channel, sampled at the coordinates the numbering assigned.
 
-SAMPLING EVERY OTHER CHANNEL at the object coordinates the numbering step
-assigned -- the part that can be built and checked without a
-real cycle stack. The numbering step produced a plate-level object id and a
-well-frame centroid for every nucleus; this is what reads the remaining
-channels AT those coordinates and keys the result to those ids.
+Sampling every other channel at the object coordinates the numbering step
+assigned -- the part that can be built and checked without a real cycle stack.
+The numbering step produced a plate-level object id and a well-frame centroid
+for every nucleus; this is what reads the remaining channels at those
+coordinates and keys the result to those ids.
 
     C1  SEQUENCING CHANNELS, PER CYCLE ... NEVER averaged across cycles --
         that is the one operation that destroys a barcode while leaving it
         decodable.
 
-THAT SENTENCE IS THE WHOLE DESIGN CONSTRAINT AND IT IS ENFORCED, NOT
-DOCUMENTED. A mean across cycles of a four-channel readout still looks like a
-four-channel readout: ``call_reads`` accepts it, returns a barcode of the
-right length, and every downstream table fills in. The run completes, the
-numbers are plausible, and the barcodes are noise. There is no later check
-that can catch it, because nothing downstream knows what the per-cycle values
-were. So :func:`decode_input` refuses an array whose cycle axis has been
-collapsed, and this module offers no way to average one.
+This constraint is enforced in code. A mean across cycles of a four-channel
+readout still looks like a four-channel readout: ``call_reads`` accepts it,
+returns a barcode of the right length, and every downstream table fills in. The
+run completes, the numbers are plausible, and the barcodes are noise. There is
+no later check that can catch it, because nothing downstream knows what the
+per-cycle values were. So :func:`decode_input` refuses an array whose cycle
+axis has been collapsed, and this module offers no way to average one.
 
-    THE PHENOTYPE PATH IS THE OPPOSITE CASE, which is why the two are
-    separate functions rather than one with a flag. A phenotype channel
-    measured in several cycles IS several samples of one quantity and
-    averaging it is the right thing, and what it emits is the schema
-    ``measure`` already emits. Same plate, same objects, opposite correct
-    answer; a
-    shared flag would make that a caller's choice, and it is not one.
+    The phenotype path is the opposite case, which is why the two are separate
+    functions rather than one with a flag. A phenotype channel measured in
+    several cycles is several samples of one quantity and averaging it is the
+    right thing, and what it emits is the schema ``measure`` already emits.
+    Same plate, same objects, opposite correct answer; a shared flag would make
+    that a caller's choice, and it is not one.
 
 The samplers are injected, as they are in :mod:`spacr.ops_compose` and
 :mod:`spacr.ops_objects`: nothing here opens a file or knows a transform's
@@ -49,7 +47,7 @@ __all__ = [
 
 
 class SampleError(ValueError):
-    """A sampling that cannot mean anything, with the way out in the text."""
+    """Raised for an invalid sampling; the message states the remedy."""
 
 
 def sample_objects(objects: Sequence, image: np.ndarray, *,
@@ -59,20 +57,19 @@ def sample_objects(objects: Sequence, image: np.ndarray, *,
     """Read ``image`` at each object's centroid, through ``transform``.
 
     :param objects: :class:`spacr.ops_objects.PlateObject` values, or anything
-        with ``centroid_y`` and ``centroid_x`` in the WELL frame.
+        with ``centroid_y`` and ``centroid_x`` in the well frame.
     :param image: one channel of one cycle, in that cycle's own frame.
-    :param transform: maps a well-frame ``(y, x)`` into this image's frame --
-        the A2/A3 transforms of PART 7. ``None`` means the image is already in
-        the well frame.
+    :param transform: maps a well-frame ``(y, x)`` into this image's frame.
+        ``None`` means the image is already in the well frame.
     :param radius: half-width of the square averaged around each point. The
         default 1 gives a 3x3, which is what a diffraction-limited spot
         occupies; 0 reads the single pixel.
     :returns: one float per object, NaN where the point falls outside.
 
-    NaN RATHER THAN A CLAMPED EDGE PIXEL. An object whose coordinates land
-    off this cycle's field was not measured in it, and the honest value for
-    "not measured" is not the brightness of the nearest border pixel -- that
-    would be a number, and a number gets averaged into a barcode.
+    NaN rather than a clamped edge pixel: an object whose coordinates land off
+    this cycle's field was not measured in it, and the brightness of the
+    nearest border pixel would be averaged into a barcode as if it were a
+    measurement.
     """
     image = np.asarray(image, dtype=float)
     if image.ndim != 2:
@@ -107,16 +104,14 @@ def decode_input(per_cycle: Sequence[Sequence[np.ndarray]]) -> np.ndarray:
     :returns: ``(objects, cycles, channels)`` -- the shape
         :func:`spacr.ops_sbs.call_reads` expects.
     :raises SampleError: when a cycle is missing channels, when the lengths
-        disagree, or -- the one that matters -- when only ONE cycle is
-        offered, which is what a caller who has already averaged them hands
-        over.
+        disagree, or -- the one that matters -- when only one cycle is offered,
+        which is what a caller who has already averaged them hands over.
 
-    ONE CYCLE IS REFUSED AND THE REFUSAL IS THE POINT. A barcode is a sequence
-    across cycles; a single "cycle" reaching here is either a run that lost
-    its cycle axis or a caller who collapsed it. Both produce a decodable
-    barcode made of nothing, and neither is visible downstream. If a
-    single-cycle experiment ever needs decoding it should say so explicitly
-    rather than arrive looking like this mistake.
+    One cycle is refused. A barcode is a sequence across cycles; a single
+    "cycle" reaching here is either a run that lost its cycle axis or a caller
+    who collapsed it. Both produce a decodable barcode of noise, and neither is
+    visible downstream. If a single-cycle experiment ever needs decoding it
+    should say so explicitly rather than arrive looking like this mistake.
     """
     cycles = [list(one) for one in per_cycle]
     if not cycles:
@@ -147,17 +142,17 @@ def decode_input(per_cycle: Sequence[Sequence[np.ndarray]]) -> np.ndarray:
 
 
 def average_over_cycles(per_cycle: Sequence[np.ndarray]) -> np.ndarray:
-    """Mean of one PHENOTYPE channel across cycles. Correct here, only here.
+    """Mean of one phenotype channel across cycles.
 
     Phenotype channels are sampled "at the same object ids", and a phenotype
     measured in several cycles is several samples of one quantity -- so
     averaging raises its precision, exactly as averaging the Hoechst across
     tiles does when they overlap.
 
-    SEPARATE FROM :func:`decode_input` ON PURPOSE. The same operation is
-    right for a phenotype channel and catastrophic for a sequencing one, so
-    it is two functions and not one with a flag: a flag would make that a
-    caller's decision, and it is a property of the channel.
+    Separate from :func:`decode_input`: the same operation is right for a
+    phenotype channel and destroys a sequencing one, so it is two functions and
+    not one with a flag: a flag would make that a caller's decision, and it is
+    a property of the channel.
 
     NaN-aware, because :func:`sample_objects` returns NaN for an object this
     cycle did not cover, and an object measured in nine cycles of eleven
@@ -224,15 +219,15 @@ def barcode_rows(objects: Sequence, values: np.ndarray, *,
     """``ops_barcodes`` rows: one per object, assembled across cycles.
 
     Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which
-    already normalises each cycle's channels and reports quality as the
-    MINIMUM over cycles -- "a barcode is only as trustworthy as its worst
-    base". Repeating that here would be a second decoder to keep in step.
+    already normalises each cycle's channels and reports quality as the minimum
+    over cycles -- "a barcode is only as trustworthy as its worst base".
+    Repeating that here would be a second decoder to keep in step.
 
     :param objects: the numbered objects, in the same order as ``values``'
         first axis.
-    :param values: ``(objects, cycles, channels)`` intensities, NEVER
-        averaged over cycles -- see :func:`decode_input`, which refuses a
-        single cycle for the same reason.
+    :param values: ``(objects, cycles, channels)`` intensities, never averaged
+        over cycles -- see :func:`decode_input`, which refuses a single cycle
+        for the same reason.
     :param library: when given, each barcode is corrected to the nearest
         library member through :func:`spacr.ops_sbs.correct_to_library`, and
         the row carries what it mapped to.

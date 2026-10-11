@@ -1,34 +1,34 @@
-"""The seven nonparametric methods, sorted by what they can honestly answer.
+"""Seven nonparametric methods, grouped by the kind of result they produce.
 
-WHY THIS IS NOT SEVEN MORE ENTRIES IN THE regression_type MENU. The fits
-spaCR already offers all answer in one currency -- a coefficient per guide,
-with a standard error and a P value -- and the rest of the screen is built
-on it: the volcano plots effect against significance, the hit list ranks
-genes by effect with a q over the genes tested, the attribution and the
-model card consume the same table.
+These are not seven more entries in the regression_type menu. The fits spaCR
+already offers all produce the same output -- a coefficient per guide, with a
+standard error and a P value -- and the rest of the screen is built on it: the
+volcano plots effect against significance, the hit list ranks genes by effect
+with a q over the genes tested, the attribution and the model card consume the
+same table.
 
-FOUR OF THESE SEVEN PRODUCE NO SUCH NUMBER. LOWESS is descriptive. Kernel
+Four of these seven produce no such number. LOWESS is descriptive. Kernel
 regression and KNN give a fitted surface, not a slope. A forest gives
-importances, which are not coefficients and are not comparable across
-features on the same scale. Choosing one of them as "the regression" would
-hand the volcano nothing to draw, so they are offered as what they are:
+importances, which are not coefficients and are not comparable across features
+on the same scale. Choosing one of them as "the regression" would hand the
+volcano nothing to draw, so they are offered as what they are:
 
-  A. A FIT THAT ANSWERS IN THE SAME CURRENCY -- joins `regression_type`.
-  B. A DIAGNOSTIC LAID OVER THE DATA -- belongs on a plot, never decides
+  A. A fit with the same output -- joins `regression_type`.
+  B. A diagnostic laid over the data -- belongs on a plot, never decides
      hits.
-  C. AN AGREEMENT CHECK -- reports a comparison against the linear
+  C. An agreement check -- reports a comparison against the linear
      ranking, and names the guides the two disagree about.
 
-AND WHAT EACH IS FITTING IS NOT ALWAYS THE GUIDE DESIGN. spaCR's fit is
-guide -> phenotype at WELL level with one column per guide: high
-dimensional, sparse and categorical, which is the worst case for most of
-these. Against a CONTINUOUS covariate -- guide abundance in the well, cell
-count, plate position -- they are on home ground, and that is where the
-smoothers earn their place: showing whether the phenotype moves smoothly
-with a nuisance variable the linear model is assuming away.
+What each method fits is not always the guide design. spaCR's fit is guide ->
+phenotype at well level with one column per guide: high dimensional, sparse and
+categorical, which is the worst case for most of these. Against a continuous
+covariate -- guide abundance in the well, cell count, plate position -- they
+are well suited, and the smoothers are used there: showing whether the
+phenotype moves smoothly with a nuisance variable the linear model is assuming
+away.
 
-GROUP BY WELL. Cells in one well are not independent, so any split these
-methods need goes through the well, never through the cell.
+Splits are grouped by well. Cells in one well are not independent, so any split
+these methods need goes through the well, never through the cell.
 """
 from __future__ import annotations
 
@@ -129,8 +129,8 @@ def describe(name: str) -> str:
 
     :param name: registered method name to describe.
 
-    Said WHERE IT IS CHOSEN. The whole point of the three-way split is that
-    a reader knows before picking, not after running.
+    Shown where the method is chosen, so the user knows its category before
+    running it.
     """
     spec = METHODS.get(name)
     if spec is None:
@@ -144,9 +144,8 @@ def refuse(name: str, *, rows: int = 0, ordered: bool = True,
 
     :param name: registered method whose applicability is being checked.
 
-    CHOOSING A METHOD ON DATA IT CANNOT FIT REFUSES WITH THE REASON, rather
-    than returning a fit nobody should read. That is the rule this function
-    exists for.
+    A method chosen for data it cannot fit is refused with the reason, rather
+    than returning an unusable fit.
     """
     if name not in METHODS:
         return f"{name!r} is not one of {sorted(METHODS)}"
@@ -170,9 +169,9 @@ def refuse(name: str, *, rows: int = 0, ordered: bool = True,
 class Curve:
     """A fitted curve to draw over a scatter, and what it is.
 
-    NEVER A HIT LIST. `p_values` does not exist on this object on purpose:
-    a diagnostic that could be mistaken for an inferential test would be
-    more misleading than omitting the method.
+    Not a hit list: `p_values` does not exist on this object on purpose: a
+    diagnostic that could be mistaken for an inferential test would be more
+    misleading than omitting the method.
 
     :param method: registered diagnostic method that produced the curve.
     :param x: ordered predictor coordinates at which the curve is evaluated.
@@ -209,8 +208,8 @@ def smooth(x, y, *, method: str = "lowess", points: int = 200,
         need it, and say so in the note. KNN and the Gaussian process are
         distance-based, so an unscaled covariate silently makes one unit of
         it mean whatever its range happens to be.
-    :raises ValueError: when the method cannot be run on this shape -- with
-        the reason, rather than a fit nobody should read.
+    :raises ValueError: when the method cannot be run on this shape -- with the
+        reason, rather than returning an unusable fit.
     """
     x = np.asarray(x, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
@@ -281,10 +280,9 @@ def smooth(x, y, *, method: str = "lowess", points: int = 200,
 class Agreement:
     """Two rankings of the same guides, and where they disagree.
 
-    THE OUTPUT IS A COMPARISON, NOT A COEFFICIENT TABLE. It asks whether an
+    The output is a comparison, not a coefficient table. It asks whether an
     effect is supported by the data or induced by the model: agreement
-    strengthens the result, while disagreement is itself a finding to
-    inspect.
+    strengthens the result, while disagreement is itself a finding to inspect.
 
     :param method: alternative ranking method compared with the linear fit.
     :param guides: guide names shared by the design and linear-effect mapping,
@@ -332,7 +330,7 @@ def agreement(design, response, linear_effect: Dict[str, float], *,
               moved_by: int = 10, seed: int = 0) -> Agreement:
     """Rank guides a second way and compare it with the linear ranking.
 
-    :param design: wells x guides. One row per WELL, never per cell.
+    :param design: wells x guides. One row per well, never per cell.
     :param response: phenotype value for every row of ``design``.
     :param linear_effect: the fit's own per-guide effect, ranked by
         magnitude to give the ranking this is compared against.
@@ -413,11 +411,11 @@ def spline_design(frame, covariates: Sequence[str], *,
     :param covariates: nuisance columns to replace with spline bases when
         their values support the requested degree.
 
-    THE GUIDE COLUMNS ARE NOT TOUCHED, and that is what keeps this in
-    category A. Each guide keeps exactly one column, so the fit still
-    produces one coefficient and one P value per guide and the volcano and
-    the hit list draw it with no special-casing. What becomes nonlinear is
-    the NUISANCE -- the covariate the straight line was assuming away.
+    The guide columns are not changed, which keeps this in category A. Each
+    guide keeps exactly one column, so the fit still produces one coefficient
+    and one P value per guide and the volcano and the hit list draw it with no
+    special-casing. What becomes nonlinear is the nuisance -- the covariate the
+    straight line was assuming away.
 
     A basis column is named `<covariate>_spline<k>`, which carries no
     `grna` and no `gene`, so every filter that already drops `rowID[T.r2]`
@@ -448,9 +446,9 @@ def isotonic_fit(x, y, *, increasing: bool = True):
     :param x: ordered-predictor values, one per observation.
     :param y: response values aligned one-to-one with ``x``.
 
-    ONE DIMENSION AND ONE DIRECTION, which is the whole of what isotonic
-    regression claims. `refuse('isotonic', ordered=False)` is what says so
-    before a caller points it at the guide design.
+    Isotonic regression fits one dimension in one direction.
+    `refuse('isotonic', ordered=False)` is what says so before a caller points
+    it at the guide design.
     """
     from sklearn.isotonic import IsotonicRegression
 

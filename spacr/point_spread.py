@@ -295,7 +295,7 @@ def apply_psf(image, kernel, *, operation, image_sampling_um,
     :param operation: ``convolve`` (blur) or ``deconvolve`` (Richardson–Lucy).
     :param image_sampling_um: image spacing matching kernel spacing in spatial
         axis order. Mismatches raise; no implicit kernel resampling is done.
-    :param iterations: deconvolution iterations, integer 1..200, default20.
+    :param iterations: deconvolution iterations, integer 1..200, default 20.
     :param channel_axis: None for a spatial image, otherwise the channel axis;
         channels are processed independently and returned in their original order.
     :param cancel: callable or Event; checked between channels, convolutions

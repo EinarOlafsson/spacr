@@ -6,24 +6,20 @@ Two classifiers in this package score *every object of a whole database*:
   by :func:`spacr.deep_spacr.deep_spacr`; and
 * the classical-ML one --- :func:`spacr.ml.generate_ml_scores`.
 
-Both produce one row per crop, and both used to leave those rows in a CSV next
-to the model. A CSV is not where the rest of spaCR looks: the Annotate app, the
-active-learning queue, ``generate_image_umap``, the plate heatmaps and every
-GUI table read the ``png_list`` table of ``measurements.db``. So the scores have
-to land there, on the row they belong to.
+Both produce one row per crop. The Annotate app, the active-learning queue,
+``generate_image_umap``, the plate heatmaps and every GUI table read the
+``png_list`` table of ``measurements.db``, so the scores are written there, on
+the row they belong to.
 
 Why this is its own module
 --------------------------
-The merge used to live in :mod:`spacr.deep_spacr`, which is an odd home for
-something :mod:`spacr.ml` needs just as much --- importing ``deep_spacr`` pulls
-in torch and torchvision, which the classical-ML path has no use for. The
-obvious alternative, :mod:`spacr.utils`, already owns the database *write*
-helpers (``_append_to_measurements_db``, ``rename_columns_in_db``), but it is
-also 8000 lines and imports most of the package; adding a third database
-concern there would make it harder, not easier, to see that CV and ML share one
-code path. This module is small, imports nothing from spaCR at module scope
-except :mod:`spacr.utils` helpers pulled in lazily, and is what both callers
-import.
+The merge is not in :mod:`spacr.deep_spacr`, because importing ``deep_spacr``
+pulls in torch and torchvision, which the classical-ML path does not use. It is
+not in :mod:`spacr.utils`, which owns the database *write* helpers
+(``_append_to_measurements_db``, ``rename_columns_in_db``) but is 8000 lines
+and imports most of the package. This module is small, imports nothing from
+spaCR at module scope except :mod:`spacr.utils` helpers pulled in lazily, and
+is what both callers import.
 
 The join key
 ------------
@@ -32,11 +28,9 @@ identity in this codebase. :func:`spacr.utils.filepaths_to_database` writes it
 onto every ``png_list`` row, :func:`spacr.io._read_and_merge_data` indexes the
 merged feature frame by it, and :func:`spacr.ml.generate_ml_scores` already
 joins annotations onto features with it. Keying the merge on it means the CV
-and the ML stage land on *the same row*, which is the whole point of letting
-them coexist.
+and the ML stage write to *the same row*.
 
-The previous implementation matched on ``os.path.basename(png_path)``. A
-basename is not an identity:
+A basename such as ``os.path.basename(png_path)`` is not an identity:
 
 * the tar handed to the model is built with
   ``arcname=os.path.basename(img_path)`` (:func:`spacr.utils.add_images_to_tar`),
@@ -44,23 +38,21 @@ basename is not an identity:
   --- which is what happens whenever the plate name comes from the source
   folder name, see :mod:`spacr.io` ``_rename_and_organize_image_files`` ---
   puts two different crops in the archive under one member name; and
-* the old lookup was a plain ``dict`` assignment, so the second of those two
-  crops silently overwrote the first and one of the two plates was scored with
-  the other plate's predictions.
+* a plain ``dict`` assignment would let the second of those two crops silently
+  overwrite the first, scoring one plate with the other plate's predictions.
 
-The second half of that is the real defect, and it is not fixed by changing the
-key: two crops that share a basename share a ``prcfo`` too. So the fix is to
-*detect* the collision. A key that arrives twice with two different values is
-recorded as ambiguous, written nowhere, and counted in the report. A wrong score
-is worse than a missing one.
+Changing the key does not prevent this: two crops that share a basename share a
+``prcfo`` too. The collision is therefore *detected*. A key that arrives twice
+with two different values is recorded as ambiguous, written nowhere, and
+counted in the report. A wrong score is worse than a missing one.
 
 Key selection is measured, not assumed. Candidate keys are built for both sides
 (``prcfo``, then the full ``png_path``, then ``file_name`` --- never a basename
 computed behind the caller's back when a real column exists) and the one that
-actually matches the most rows wins, ties going to the earliest in
-:data:`KEY_PRIORITY`. The chosen key and every count are printed, because a
-merge that matched 3 of 40000 rows used to look exactly like one that matched
-all of them.
+matches the most rows is used, ties going to the earliest in
+:data:`KEY_PRIORITY`. The chosen key and every count are printed, so a merge
+that matched 3 of 40000 rows can be told apart from one that matched all of
+them.
 
 Atomicity
 ---------
@@ -407,11 +399,11 @@ def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
     """Parse spaCR crop file names into the metadata ``prcfo`` is built from.
 
     Every consumer of a classifier's results has to answer the same question --
-    which object is this crop? -- and there is exactly one right way to answer
-    it: :func:`spacr.utils._map_wells_png`, the parser
+    which object is this crop? -- answered here by
+    :func:`spacr.utils._map_wells_png`, the parser
     :func:`spacr.utils.filepaths_to_database` used to write these very columns
-    onto ``png_list``. Re-deriving them with the writer's own parser is what
-    guarantees the two sides cannot drift apart.
+    onto ``png_list``. Using the writer's own parser keeps the two sides
+    consistent.
 
     It also recovers what a positional guess gets wrong.
     :func:`spacr.utils.process_vision_results` takes the object id as
@@ -577,9 +569,8 @@ class MergeReport:
         ``(table, column, rows_repaired)`` records.
     :param added_columns: prediction columns newly created in the target table.
 
-    Returned by :func:`merge_prediction_results` and printed by it. Every
-    count is here because a merge that matched three rows of forty thousand
-    used to be indistinguishable from one that matched all of them.
+    Returned by :func:`merge_prediction_results` and printed by it. Every count
+    is reported so a partial merge is visible.
     """
 
     table: str
@@ -1238,13 +1229,12 @@ def attach_predictions(objects, results, *,
                        score_col: str = CV_SCORE_COLUMN,
                        class_col: str = CV_CLASS_COLUMN,
                        timelapse: bool = False):
-    """Join prediction columns onto an object frame IN MEMORY.
+    """Join prediction columns onto an object frame in memory.
 
-    THE SAME JOIN AS :func:`merge_prediction_results`, AND NOTHING WRITTEN.
-    `_choose_key` picks the key by MEASURING which one lands on the most rows,
-    so a montage reading scores out of a score CSV and a database that had the
-    same CSV merged into it cannot disagree about which object got which
-    number -- which two separate join implementations eventually would.
+    The same join as :func:`merge_prediction_results`, without writing
+    anything. `_choose_key` picks the key that matches the most rows, so a
+    montage reading scores from a score CSV and a database with the same CSV
+    merged into it assign each object the same score.
 
     This supports projects whose ``png_list`` table has no prediction column
     but whose regression inputs already contain one score row per cell. The
@@ -1253,10 +1243,10 @@ def attach_predictions(objects, results, *,
     :param objects: the per-object frame, e.g. `png_list` read back.
     :param results: the score table -- `path`, `pred`, `cv_predictions`, as
         `process_vision_results` and the regression module's score CSVs carry.
-    :returns: ``(frame, matched)`` -- a COPY of ``objects`` with the score and
+    :returns: ``(frame, matched)`` -- a copy of ``objects`` with the score and
         class columns added where they joined, and how many rows matched.
         ``matched`` is 0 when nothing lined up, and the frame comes back
-        without the columns, so a caller can refuse with a real number.
+        without the columns, so a caller can report the count.
     """
     if objects is None or results is None or not len(objects) or not len(results):
         return objects, 0

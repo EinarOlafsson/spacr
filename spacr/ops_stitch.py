@@ -1,34 +1,31 @@
 """One well, one cycle, from a folder of tiles to a table of positions.
 
-THE FOURTH VERB, AND THE ONE THAT PRINTS. :mod:`spacr.ops_layout` says
-which tiles touch, :mod:`spacr.ops_register` says how far apart a touching
-pair is, :mod:`spacr.ops_solve` says where each tile ends up, and this
-runs the three of them over a well and reports what happened.
+:mod:`spacr.ops_layout` says which tiles touch, :mod:`spacr.ops_register` says
+how far apart a touching pair is, :mod:`spacr.ops_solve` says where each tile
+ends up, and this runs the three of them over a well and reports what happened.
 
-THE OUTPUT IS COORDINATES, NOT PIXELS. A well of this acquisition is 26,855 x 26,865 px
-and one is enough to exhaust a machine; the transform table is a few
-kilobytes and every later phase reads through it. A canvas, if anybody
-wants one, is rendered from this at whatever downsample suits the screen.
+The output is coordinates, not pixels. A well of this acquisition is 26,855 x
+26,865 px, enough to exhaust a machine's memory; the transform table is a few
+kilobytes and every later phase reads through it. A canvas, if anybody wants
+one, is rendered from this at whatever downsample suits the screen.
 
-IT PRINTS THREE NUMBERS AND NOT TWO, and that is the whole reason this
-module exists rather than three calls at a call site. The first end-to-end
-run of this pipeline reported
+It reports three numbers, not two. An early end-to-end run of this pipeline
+reported
 
     333 of 333 placed    residual median 0.2 px    canvas 35,374 x 35,367
 
-and it was WRONG: the driver negated the correlation's shift, the unwrap
-then chose the representative one period out, identically in every edge of
-a direction, and the well came out one pitch per column too large in both
-axes. Every edge still agreed with every other edge, so the residual was
-perfect and the count was perfect. A UNIFORM ERROR IS INVISIBLE TO A
-RESIDUAL. Only the canvas said otherwise, and only because 21 columns of a
-known pitch has an arithmetic answer -- 20 x 1267 + 1480 = 26,820 -- to
-check it against.
+and was wrong: the driver negated the correlation's shift, the unwrap then
+chose the representative one period out, identically in every edge of a
+direction, and the well came out one pitch per column too large in both axes.
+Every edge still agreed with every other edge, so the residual was perfect and
+the count was perfect. A uniform error is invisible to a residual. Only the
+canvas said otherwise, and only because 21 columns of a known pitch has an
+arithmetic answer -- 20 x 1267 + 1480 = 26,820 -- to check it against.
 
-So :meth:`StitchedWell.summary` gives the count, the residual AND the
-canvas in one line, and :attr:`StitchedWell.expected_canvas` carries what
-the layout says the canvas should be, because a number with nothing to
-compare it to is not a check.
+So :meth:`StitchedWell.summary` gives the count, the residual and the canvas in
+one line, and :attr:`StitchedWell.expected_canvas` carries what the layout says
+the canvas should be, because a number with nothing to compare it to is not a
+check.
 
 Typical use::
 
@@ -56,12 +53,12 @@ __all__ = ["StitchedWell", "stitch_well"]
 
 @dataclass
 class StitchedWell:
-    """What one well's stitch produced, and what it cost.
+    """Result of one well's stitch: positions, registrations and geometry.
 
     :ivar placements: ``site -> (y, x)`` in well pixels, from the solve.
-    :ivar edges: ``(a, b) -> Registration`` for every pair the layout
-        proposed, ACCEPTED OR NOT. A refused pair is a fact about the
-        acquisition and belongs in `ops_geometry`, not in a debug log.
+    :ivar edges: ``(a, b) -> Registration`` for every pair the layout proposed,
+        accepted or not. A refused pair is a fact about the acquisition and
+        belongs in `ops_geometry`, not in a debug log.
     :ivar tile_shape: ``(height, width)`` of one tile.
     :ivar layout: the well model the pairs came from.
     :ivar overlap: the overlap in pixels the run was told to expect, or
@@ -95,9 +92,9 @@ class StitchedWell:
     def residuals(self) -> np.ndarray:
         """Per-edge disagreement between the solve and the measurement.
 
-        The distance, in pixels, between where an accepted edge SAID its
-        two tiles sit relative to each other and where the solve put
-        them. Sub-pixel across a well is what says the geometry closed.
+        The distance, in pixels, between where an accepted edge said its two
+        tiles sit relative to each other and where the solve put them.
+        Sub-pixel across a well is what says the geometry closed.
         """
         if self._residuals is None:
             self._residuals = self._measure_residuals()
@@ -144,10 +141,10 @@ class StitchedWell:
     def expected_canvas(self) -> Tuple[int, int]:
         """What the layout says the canvas should be.
 
-        THE ONLY THING THAT CAUGHT THE UNIFORM ERROR. Columns minus one
-        pitches plus one tile, and the same down the tallest column. A
-        measured canvas with nothing to compare it to is a number, not a
-        check.
+        This check catches a uniform placement error that residuals miss.
+        Columns minus one pitches plus one tile, and the same down the tallest
+        column. A measured canvas with nothing to compare it to is a number,
+        not a check.
         """
         height, width = self.tile_shape
         pitch_y = height - (self.overlap or 0)
@@ -158,7 +155,7 @@ class StitchedWell:
                 int(max(0, columns - 1) * pitch_x + width))
 
     def summary(self) -> str:
-        """The three numbers, on one line, because two of them lie alone."""
+        """Return the placed count, residual and canvas on one line."""
         residuals = self.residuals
         if residuals.size:
             middle = float(np.median(residuals))
@@ -199,10 +196,10 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
                 **kwargs) -> StitchedWell:
     """Register a well's tiles against each other and solve their positions.
 
-    ONE WELL AT A TIME, AND ONE TILE PAIR AT A TIME WITHIN IT. ``tiles``
-    is normally a CALLABLE, because 333 tiles of 1480 px is 2.9 GB and
-    nothing here needs two of them resident: the caller decides what to
-    keep and what to re-read.
+    One well at a time, and one tile pair at a time within it. ``tiles`` is
+    normally a callable, because 333 tiles of 1480 px is 2.9 GB and nothing
+    here needs two of them resident: the caller decides what to keep and what
+    to re-read.
 
     :param tiles: ``site -> 2-D array``, or a callable taking a site.
     :param layout: the well model. None fits the circle to ``sites`` or,
@@ -210,14 +207,13 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
     :param overlap: the raster's overlap in pixels. Given, it sets the
         registration's expectation and the layout's canvas arithmetic;
         omitted, both fall back to weaker answers, so pass it.
-    :param tolerance: how far ALONG the raster an edge may land from the
-        layout's prediction and still be accepted. This is the acceptance
-        the real well used -- 624 of 624 -- and without it the peak ratio
-        decides, which on a real plate it cannot.
-    :param skew: how far ACROSS it may. The stage's skew is real and
-        constant -- 9 px on the measured plate -- so it is a separate
-        number from the tolerance. None takes
-        `spacr.ops_register.SKEW_PX`.
+    :param tolerance: how far along the raster an edge may land from the
+        layout's prediction and still be accepted. This is the acceptance the
+        real well used -- 624 of 624 -- and without it the peak ratio decides,
+        which on a real plate it cannot.
+    :param skew: how far across it may. The stage's skew is real and constant
+        -- 9 px on the measured plate -- so it is a separate number from the
+        tolerance. None takes `spacr.ops_register.SKEW_PX`.
     :param gpu: passed through to the registration.
     :param sites: which sites to place. None uses every site the layout
         holds.

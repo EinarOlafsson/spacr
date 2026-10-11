@@ -1,17 +1,14 @@
 """
-Plate-level QC: is that hit biology, or is it the edge of the plate?
+Plate-level QC: detect edge effects and row/column gradients in well values.
 
-The outer ring of a microtitre plate evaporates faster, sits at a
-different temperature and is handled differently from the interior. A
-well in row A or column 24 that reads three sigma from the plate mean is
-therefore much more likely to be an artefact of *where it sits* than of
-what is in it — and the usual way that gets discovered is a failed
-follow-up experiment six weeks later.
+The outer ring of a microtitre plate evaporates faster, sits at a different
+temperature and is handled differently from the interior. A well in row A or
+column 24 that reads three sigma from the plate mean is therefore much more
+likely to be an artefact of *where it sits* than of what is in it.
 
-This module answers the question up front. It takes the same long-format
-per-object frame the rest of spaCR passes around (a ``prc`` identifier
-plus feature columns), collapses it to one value per well, and then asks
-three separate questions of the resulting grid:
+This module takes the same long-format per-object frame the rest of spaCR
+passes around (a ``prc`` identifier plus feature columns), collapses it to one
+value per well, and then asks three separate questions of the resulting grid:
 
 ``detect_edge_effect``
     Does the outer ring read differently from the interior — and by how
@@ -24,21 +21,21 @@ three separate questions of the resulting grid:
 ``format_edge_report``
     All of it as text.
 
-Statistics this module refuses to get wrong
+Statistical choices
 -------------------------------------------
 **Rank tests, not t-tests.** Per-well aggregates of object measurements
 are routinely skewed and heavy-tailed — a well with three enormous cells
 is not a normal deviate. The ring comparison is a two-sided
 Mann-Whitney U; the gradient test is Spearman. Neither assumes a shape.
 
-**Effect size leads, p-value follows.** With 384 wells, almost any
-systematic drift clears p < 0.05; that fact carries no information. Every
-comparison therefore reports the median difference, the difference as a
-percentage of the interior median, *and* Cliff's delta — a rank-based
-standardised effect in [-1, 1] read straight off the same U statistic
-(``δ = 2U/n₁n₂ − 1``). Detection requires both a small p **and** an
-effect size above :data:`DEFAULT_MIN_EFFECT`, so "significant but 0.4 %"
-is reported as what it is: not an edge effect.
+**Effect size leads, p-value follows.** With 384 wells, almost any systematic
+drift clears p < 0.05; that fact carries no information. Every comparison
+therefore reports the median difference, the difference as a percentage of the
+interior median, *and* Cliff's delta — a rank-based standardised effect in [-1,
+1] read straight off the same U statistic (``δ = 2U/n₁n₂ − 1``). Detection
+requires both a small p **and** an effect size above
+:data:`DEFAULT_MIN_EFFECT`, so a significant but 0.4 % difference is not
+reported as an edge effect.
 
 **Evaporation is not a step function.** The profile walks inward ring by
 ring (outermost = ring 0), comparing each against the plate core, so a
@@ -53,9 +50,8 @@ stays quiet while Spearman on the column index fires. Both are computed,
 both are reported, and :attr:`EdgeEffectReport.dominant` names which one
 better explains the plate.
 
-**Wells with too few objects are noise.** ``min_count`` drops them — and
-the number dropped is reported everywhere, because a heatmap quietly
-missing a third of its wells looks exactly like data.
+**Wells with too few objects are dropped.** ``min_count`` drops them, and the
+number dropped is reported everywhere.
 
 **The plate format is inferred, never assumed.** 6/12/24/48/96/384/1536
 are recognised from the observed row and column labels, and the ring
@@ -63,10 +59,10 @@ geometry uses the *nominal* grid of the inferred format. A screen that
 only used rows A-H of a 384 plate does not get row H promoted to "edge"
 just because nothing was pipetted below it.
 
-**Degenerate input explains itself.** An empty frame, a single well, or a
-plate where every well reads the same comes back as a report that says
-so, with ``None`` where a statistic is genuinely undefined. Nothing here
-returns NaN and nothing here raises on empty.
+**Degenerate input is reported.** An empty frame, a single well, or a plate
+where every well reads the same comes back as a report that says so, with
+``None`` where a statistic is undefined. Nothing here returns NaN and nothing
+here raises on empty.
 
 Nothing in this module imports torch, cellpose or any GPU stack — numpy,
 pandas, scipy and the standard library only — so the Qt screen can draw a
@@ -493,9 +489,9 @@ def load_plate_frame(db_path: str, table: str, value_col: str,
                      limit: Optional[int] = None) -> pd.DataFrame:
     """Read the well identifiers plus ``value_col`` from ``table``.
 
-    Only the columns needed to place and colour a well are selected — a
-    spaCR feature table can be 500 columns wide and half a million rows
-    long, and ``SELECT *`` on one is a minute of nothing happening.
+    Only the columns needed to place and colour a well are selected — a spaCR
+    feature table can be 500 columns wide and half a million rows long, so
+    ``SELECT *`` is avoided.
 
     :param db_path: path to ``measurements.db`` (opened read-only).
     :param table: table to read.
@@ -701,9 +697,8 @@ def plate_layout(df: pd.DataFrame,
     :func:`write_layout_csv` exports it.
 
     Aggregation and the well-identifier handling follow
-    :func:`spacr.plot.generate_plate_heatmap` so the two agree well for
-    well, with two deliberate departures, each of which fixes a way the
-    plotter misleads:
+    :func:`spacr.plot.generate_plate_heatmap` so the two agree well for well,
+    with two deliberate departures from the plotter's behaviour:
 
     * **Missing wells stay missing.** ``generate_plate_heatmap`` ends in
       ``.fillna(0)``, which paints an unpipetted or filtered-out well as
@@ -713,13 +708,9 @@ def plate_layout(df: pd.DataFrame,
       row nobody pipetted still holds its place on the plate and the ring
       geometry :func:`detect_edge_effect` needs stays intact.
 
-    The third departure has since been closed from the other side. The
-    plotter used to pin rows to ``r1..r16`` and columns to ``c1..c27``,
-    silently dropping every well of a 1536 plate past row P; it now reads
-    its axes off the data through :func:`parse_row_label` /
-    :func:`parse_column_label` — these functions — so ``'B'`` and ``'AA'``
-    are row labels in both places, and neither module owns a private
-    letter walk.
+    The plotter reads its axes off the data through :func:`parse_row_label` /
+    :func:`parse_column_label` — these functions — so ``'B'`` and ``'AA'`` are
+    row labels in both places, and neither module owns a private letter walk.
 
     :param df: long frame with a ``prc`` identifier (or ``rowID`` +
         ``columnID``, or a ``well`` column) and ``value_col``. A layout
@@ -992,10 +983,9 @@ def colour_limits(layout: pd.DataFrame,
 def write_layout_csv(layout: pd.DataFrame, path: str) -> str:
     """Write the well grid to ``path`` as CSV, one row per well.
 
-    The tidy form is exported rather than the pivoted matrix: it carries
-    the object count, the ring index and the edge flag alongside the
-    value, which is what anybody re-analysing the plate outside spaCR
-    actually needs.
+    The tidy form is exported rather than the pivoted matrix: it carries the
+    object count, the ring index and the edge flag alongside the value, which
+    re-analysis outside spaCR needs.
 
     :param layout: frame from :func:`plate_layout`.
     :param path: destination file. Parent directories are created.
@@ -1037,10 +1027,9 @@ def row_column_trends(df: pd.DataFrame,
                       min_count: int = 0) -> pd.DataFrame:
     """Per-row and per-column summaries, plus the drift across each axis.
 
-    One output row per plate row and per plate column, each carrying the
-    number of wells behind it — a row average over three surviving wells
-    is not the same claim as one over twenty-four, and the ``n_wells``
-    column is what stops it being read as one.
+    One output row per plate row and per plate column, each carrying the number
+    of wells behind it — a row average over three surviving wells is not the
+    same claim as one over twenty-four, which is why ``n_wells`` is reported.
 
     The Spearman statistic attached to each axis is computed over the
     individual *wells* (not over the 16 row means), because that is where
@@ -1165,7 +1154,7 @@ class GradientStats:
 
 @dataclass
 class EdgeEffectReport:
-    """Everything :func:`detect_edge_effect` worked out, in one object.
+    """Results of :func:`detect_edge_effect`.
 
     The headline numbers are :attr:`pct_difference` and
     :attr:`cliffs_delta` — "the outer ring reads 31 % higher, δ = 0.78" —
@@ -1205,9 +1194,7 @@ class EdgeEffectReport:
         flag a row or column gradient.
     :param rings: ring-by-ring profile, outermost first.
     :param gradients: one :class:`GradientStats` per axis.
-    :param n_dropped_min_count: wells removed by ``min_count``. A heatmap
-        missing a third of its wells looks like data; this is the number
-        that says it isn't.
+    :param n_dropped_min_count: wells removed by ``min_count``.
     :param notes: filtering, geometry, and degenerate-input explanations safe
         to present to the user.
     """
@@ -1263,9 +1250,8 @@ class EdgeEffectReport:
     def magnitude(self) -> str:
         """The edge difference in the most meaningful units available.
 
-        A percentage where the interior median is non-zero, absolute
-        units where it is not — "+300 % of nothing" is not a number to
-        put in front of a user.
+        A percentage where the interior median is non-zero, absolute units
+        where it is not.
         """
         if self.pct_difference is not None:
             return f"{self.pct_difference:+.1f} %"

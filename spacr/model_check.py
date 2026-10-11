@@ -1,22 +1,19 @@
-"""Is this model compatible with spaCR, and with the classes chosen?
+"""Check whether a model is compatible with spaCR and the chosen classes.
 
-Clicking a model should say whether it will work before an hour of training
-finds out. Three questions, in the order they can fail:
+The check runs before training and answers three questions, in the order they
+can fail:
 
-1. Can it be LOADED at all? A custom path may hold a checkpoint saved by a
+1. Can it be loaded at all? A custom path may hold a checkpoint saved by a
    different framework, a state dict with no architecture, or a corrupt file.
-2. Does it take the INPUT this dataset produces -- the right number of image
+2. Does it take the input this dataset produces -- the right number of image
    channels, at the chosen size?
-3. Does it produce the right number of CLASSES?
+3. Does it produce the right number of classes?
 
-The third is the one that silently half-works: a two-class head on a
-three-class problem trains happily and is wrong about every object of the
-third class.
+The third fails silently: a two-class head on a three-class problem trains
+without error and is wrong about every object of the third class.
 
-**A custom model that loads supersedes** ``model_type``. There is no boolean
-saying which to believe, because a path that holds a working model is a
-complete answer on its own and a flag that disagreed with it would just be a
-second thing to get wrong.
+**A custom model that loads supersedes** ``model_type``. No separate flag
+selects between them.
 """
 from __future__ import annotations
 
@@ -30,7 +27,7 @@ LOG = logging.getLogger("spacr.model_check")
 
 @dataclass(frozen=True)
 class ModelReport:
-    """What was found. ``ok`` first, because it is the answer.
+    """Result of a model compatibility check.
 
     :param ok: whether the compatibility check found no blocking problem.
     :param source: display identifier for the checked model: a built-in name,
@@ -67,9 +64,8 @@ def resolve_model_source(settings: Mapping[str, Any]) -> Tuple[str, str]:
 
     :param settings: classification settings containing model choices.
 
-    ``kind`` is ``'custom'`` or ``'builtin'``. A custom path that EXISTS wins:
-    the old ``custom_model`` boolean could disagree with the path beside it,
-    and then which one won depended on which reader you asked.
+    ``kind`` is ``'custom'`` or ``'builtin'``. A custom path that exists takes
+    precedence; otherwise ``model_type`` is used.
     """
     path = str(settings.get("custom_model_path") or "").strip()
     if path and os.path.exists(path):
@@ -180,8 +176,7 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
 
     :param settings: classification settings to validate against the model.
 
-    Never raises: this runs from a click, and a dialog that crashes the screen
-    is a worse answer than one that says what is wrong.
+    Never raises; problems are reported in the returned :class:`ModelReport`.
     """
     kind, name = resolve_model_source(settings)
     if not name:

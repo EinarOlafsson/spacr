@@ -1,12 +1,9 @@
-"""OMERO import / export — a spaCR project out of a server, and results back in.
+"""Import OMERO images as a spaCR project and export results back to OMERO.
 
-A large share of imaging labs never see a filesystem. Their images live in an
-OMERO server, they are addressed by *id*, and the only way anyone looks at a
-result is the right-hand panel in OMERO.web. spaCR, by contrast, is built
-around a flat folder of Yokogawa-named TIFFs. This module is the bridge, in
-both directions, and it is deliberately two directions rather than one: a
-one-way copy out of OMERO leaves the answers stranded in a folder nobody on
-the microscope side will ever open.
+Many imaging labs keep their images in an OMERO server, address them by *id*
+and view results in OMERO.web, while spaCR works on a flat folder of
+Yokogawa-named TIFFs. This module converts in both directions: it imports
+images into a spaCR folder and exports results back onto the OMERO objects.
 
 What it does
 ------------
@@ -37,16 +34,15 @@ figure PDF, and a TagAnnotation for a categorical verdict.
 Why the logic is not in the adapter
 -----------------------------------
 Everything that is easy to get wrong here is *arithmetic and string
-formatting*, not RPC: the row/column mapping, the filename, the id parsing,
-the float formatting, the decision to replace rather than append. All of it
-lives in pure functions over plain data — :func:`well_position`,
+formatting*, not RPC: the row/column mapping, the filename, the id parsing, the
+float formatting, the decision to replace rather than append. All of it lives
+in pure functions over plain data — :func:`well_position`,
 :func:`plane_filename`, :func:`parse_object_ref`, :func:`format_map_value`,
 :func:`measurement_pairs`, :func:`plan_annotation` — and the ``BlitzGateway``
-calls are confined to a thin layer that only walks containers and moves
-bytes. That is why this module has a real test suite on a machine with no
-OMERO server and no ``omero-py`` installed: the fake gateway in
-``tests/test_omero.py`` implements about a dozen methods, and everything worth
-testing is reachable through it.
+calls are confined to a thin layer that only walks containers and moves bytes.
+This module is therefore tested on a machine with no OMERO server and no
+``omero-py`` installed: the fake gateway in ``tests/test_omero.py`` implements
+about a dozen methods, and everything worth testing is reachable through it.
 
 Every adapter function takes ``gateway`` as its first argument. There is no
 module-level connection and no implicit session — a caller that wants one
@@ -57,15 +53,15 @@ The well mapping, stated
 OMERO's ``WellWrapper.getRow()`` and ``.getColumn()`` are **0-based**.
 :func:`well_position` adds one and hands the result to
 :func:`spacr.schema.well_id`, which is spaCR's own definition of a well name.
-Consequences worth writing down because they are the ones that get fumbled:
+Consequences:
 
 * row 0 -> ``A``, row 7 -> ``H`` (a 96-well plate), row 15 -> ``P`` (384).
 * row 25 -> ``Z``.
 * **row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and
   not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives).
-  This is bijective base 26, and it is not a hypothetical: a 1536-well plate
-  has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for
-  the same plate, so nothing here caps the column at 24 either.
+  This is bijective base 26: a 1536-well plate has 32 rows and runs ``A..Z``,
+  ``AA..AF``. Column 47 -> ``48``, for the same plate, so nothing here caps the
+  column at 24 either.
 * the column is zero padded to two digits (``A01``, never ``A1``) because
   spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.
 
@@ -79,8 +75,8 @@ back as µm is a 1000x error in every area in the database and it is silent.
 
 What is written alongside the images
 ------------------------------------
-Two sidecars, in the destination folder, both of which spaCR itself is happy
-to ignore:
+Two sidecars, in the destination folder, both of which spaCR's own readers
+ignore:
 
 ``omero_import.csv``
     one row per plane: the target filename, the OMERO image id and name, the
@@ -96,7 +92,7 @@ to ignore:
 test, along with the fact that :class:`OmeroConnection` will not print one
 either.
 
-Not downloading a 100 GB plate to answer "what is in it"
+Inspecting a container without downloading pixels
 --------------------------------------------------------
 :func:`inspect_container` reports the image count, the wells, the dimensions
 and the channel names **without ever calling** ``getPlane`` — a fact the test
@@ -111,14 +107,13 @@ Annotations are written under a spaCR-owned namespace
 own previous output instead of piling up a fifth copy of the same key/value
 table.
 
-**The default is REPLACE, implemented as update-in-place, and it is the safe
-option rather than a compromise:** an existing MapAnnotation whose namespace
-is exactly spaCR's has its value overwritten. Nothing is created, nothing is
-unlinked, nothing is deleted, and no annotation outside spaCR's namespaces is
-so much as read for its value. :data:`APPEND` is available and explicit for
-anyone who wants a history of runs on the object.
+**The default, REPLACE, updates in place:** an existing MapAnnotation whose
+namespace is exactly spaCR's has its value overwritten. Nothing is created,
+nothing is unlinked, nothing is deleted, and no annotation outside spaCR's
+namespaces is so much as read for its value. :data:`APPEND` is available and
+explicit for anyone who wants a history of runs on the object.
 
-Three consequences are stated rather than hidden:
+Three consequences:
 
 * **This module never deletes anything.** There is no call to
   ``deleteObjects`` in it, under any mode, for any object. If a previous
@@ -155,16 +150,15 @@ needs a C++ toolchain (see the comment beside the extra in ``setup.py``).
 So ``import spacr.omero`` must work without it, and it does: the import is
 function-local, behind :func:`require_omero`, and a missing install produces
 one actionable sentence naming ``pip install "spacr[omero]"`` rather than a
-``ModuleNotFoundError`` six frames deep inside Ice's own import machinery.
-This follows :data:`spacr.qt._QT_MISSING_MESSAGE` and
+``ModuleNotFoundError`` from inside Ice's import machinery. This follows
+:data:`spacr.qt._QT_MISSING_MESSAGE` and
 :func:`spacr.anndata_export.require_anndata`.
 
 Two details of that guard are worth knowing:
 
-* A missing ``Ice`` counts as a missing omero extra. A half-built
-  ``zeroc-ice`` is the single most likely way this fails in the field, and
-  ``No module named 'Ice'`` mentions neither OMERO nor spaCR.
-  :func:`missing_omero_message` says what happened.
+* A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice``
+  is a common cause of this failure, and ``No module named 'Ice'`` mentions
+  neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.
 * This module is called ``spacr/omero.py`` and does not shadow the
   third-party ``omero`` package. Absolute imports have been the default
   since Python 3, so a module inside the ``spacr`` package that asks for
@@ -175,17 +169,15 @@ Two details of that guard are worth knowing:
   arrives — because a self-import here would be silent and would look like a
   broken OMERO install.
 
-The import is written as
-``importlib.import_module(OMERO_GATEWAY_MODULE)`` rather than as a literal
-``import omero.gateway`` for that same reason: the one place the name is
-resolved is a named constant next to the guard that checks what came back,
-instead of a bare statement in a file of the same name. The cost is that
-``tests/test_declared_dependencies_match_imports.py`` — which reads import
-*statements* out of the AST — cannot see it, exactly as it cannot see
-``umap``. That blind spot is pinned from the other side by
+The import is written as ``importlib.import_module(OMERO_GATEWAY_MODULE)``
+rather than as a literal ``import omero.gateway`` for that same reason: the one
+place the name is resolved is a named constant next to the guard that checks
+what came back, instead of a bare statement in a file of the same name. The
+cost is that ``tests/test_declared_dependencies_match_imports.py`` — which
+reads import *statements* out of the AST — cannot see it, exactly as it cannot
+see ``umap``. That blind spot is pinned from the other side by
 ``tests/test_omero.py::test_omero_py_is_reached_through_a_string_literal_and_must_not_be_removed``,
-so the next dependency census that reads "omero-py: unused" finds the answer
-instead of deleting the extra.
+so a dependency audit does not report omero-py as unused.
 """
 from __future__ import annotations
 
@@ -387,7 +379,7 @@ def _missing_omero_extra(exc: ImportError) -> Optional[str]:
 
 
 def require_omero() -> Any:
-    """Import and return :mod:`omero.gateway`, or raise a message worth reading.
+    """Return :mod:`omero.gateway`; raise :exc:`OmeroExtraMissing` if absent.
 
     :returns: the imported ``omero.gateway`` module, which is where
         ``BlitzGateway``, ``MapAnnotationWrapper`` and ``TagAnnotationWrapper``
@@ -431,10 +423,9 @@ def have_omero() -> bool:
 class OmeroError(ValueError):
     """Base class for every refusal this module makes.
 
-    A :class:`ValueError` rather than a bespoke hierarchy root: every one of
-    these is "the input does not describe something I can act on", and a
-    caller that already handles ``ValueError`` around a conversion step keeps
-    working.
+    A :class:`ValueError` rather than a bespoke hierarchy root: each one means
+    the input does not describe something this module can act on, and a caller
+    that already handles ``ValueError`` around a conversion step keeps working.
     """
 
 
@@ -525,13 +516,12 @@ _FALSE_TEXT = frozenset({"0", "false", "no", "off", "n", "f"})
 
 @dataclass(frozen=True, repr=False)
 class OmeroConnection:
-    """Everything needed to open a session, with the secrets kept out of sight.
+    """Settings needed to open a session; secrets are excluded from its repr.
 
     Frozen, so a settings object cannot be mutated halfway through a run, and
-    ``repr``-suppressed, because the single most common way a password reaches
-    a log file, a crash report or a notebook cell is somebody printing the
-    object that holds it. :meth:`redacted` is the form that is safe to write
-    down.
+    ``repr``-suppressed, so printing the object does not write a password into
+    a log file, a crash report or a notebook cell. :meth:`redacted` is the form
+    that is safe to write down.
 
     :param host: server hostname. Required.
     :param port: server port, default :data:`DEFAULT_PORT`.
@@ -557,8 +547,8 @@ class OmeroConnection:
     def auth_mode(self) -> str:
         """Return ``'session'`` or ``'password'`` — which credential is used.
 
-        A session key wins when both are present, because that is what
-        ``BlitzGateway`` itself does with them.
+        A session key takes precedence when both are present, because that is
+        what ``BlitzGateway`` itself does with them.
         """
         return "session" if self.session_key else "password"
 
@@ -645,10 +635,8 @@ def connection_settings(
     """Build an :class:`OmeroConnection` from arguments, then the environment.
 
     Arguments always win; anything left unset is looked up in ``env`` through
-    :data:`ENV_VARS`. Reading the environment matters more here than it looks:
-    it is how a password stays out of a notebook, out of a settings CSV and
-    out of the shell history, which is the same reason ``OMERO_PASSWORD``
-    exists at all.
+    :data:`ENV_VARS`. Reading the environment keeps a password out of a
+    notebook, a settings CSV and the shell history.
 
     :param host: server hostname; falls back to ``OMERO_HOST``.
     :param port: server port; falls back to ``OMERO_PORT``, then
@@ -921,9 +909,9 @@ class WellPosition:
     :param column_id: spaCR's ``columnID``, e.g. ``'c1'``.
     :param well: the well name, e.g. ``'A01'`` — zero padded to two column
         digits, which is what spaCR's strict Yokogawa regex requires.
-    :param plate_format: the smallest standard plate this position fits
-        (96, 384, 1536, ...), or ``None`` when it fits none. Reported, never
-        enforced: a partial or non-standard plate is a real thing.
+    :param plate_format: the smallest standard plate this position fits (96,
+        384, 1536, ...), or ``None`` when it fits none. Reported, never
+        enforced: partial and non-standard plates are accepted.
     """
 
     row_index: int
@@ -945,10 +933,9 @@ class WellPosition:
 def well_position(row: Any, column: Any) -> WellPosition:
     """Map OMERO's 0-based ``(row, column)`` onto spaCR's well keys.
 
-    This is the single most important line of the import, because everything
-    downstream — every group-by, every plate heatmap, every well-level
-    statistic — is keyed off ``rowID``/``columnID``, and a plate that comes in
-    one row out is a plate whose controls are in the wrong place.
+    Everything downstream — every group-by, every plate heatmap, every
+    well-level statistic — is keyed off ``rowID``/``columnID``, so a one-row
+    offset would put the controls in the wrong place.
 
     Row letters are bijective base 26 via :func:`spacr.schema.well_id`, so::
 
@@ -1003,8 +990,8 @@ def _plate_index(value: Any, what: str) -> int:
 def omero_indices(well: str) -> Tuple[int, int]:
     """Invert :func:`well_position`: ``'A01'`` -> ``(0, 0)``.
 
-    The round trip is what makes the export direction possible — matching a
-    spaCR per-well summary back onto the OMERO wells it came from.
+    The round trip lets the export match a spaCR per-well summary back onto the
+    OMERO wells it came from.
 
     :param well: a well name (``'A01'``, ``'aa1'``, ``'AF48'``) or a spaCR
         ``(rowID, columnID)`` pair already joined, e.g. ``'r1_c1'`` is *not*
@@ -1038,12 +1025,11 @@ _WELL_IN_NAME = re.compile(r"(?:^|[_\-. ])([A-Za-z]{1,2}\d{1,2})(?=$|[_\-. ])")
 def plate_token(name: Any) -> str:
     """Reduce ``name`` to a plate token that survives spaCR's filename regex.
 
-    Underscores are stripped along with every other non-alphanumeric
-    character, and the reason is not cosmetic: the ``cellvoyager`` regex
-    splits the plate from the well on ``_``, so a plate literally called
-    ``my run`` would move the split point and misparse every well. This is the
-    same rule as ``spacr.convert._sanitise``, which is the function that
-    already governs the rest of spaCR's conversions.
+    Underscores are stripped along with every other non-alphanumeric character,
+    because the ``cellvoyager`` regex splits the plate from the well on ``_``,
+    so a plate literally called ``my run`` would move the split point and
+    misparse every well. This is the same rule as ``spacr.convert._sanitise``,
+    which is the function that already governs the rest of spaCR's conversions.
 
     :param name: any label — an OMERO plate name, a dataset name, an id.
     :returns: a non-empty token of ``[A-Za-z0-9-]``, falling back to
@@ -1392,10 +1378,10 @@ def inspect_container(gateway: Any, ref: Any, *,
                       kind: Optional[str] = None) -> ContainerListing:
     """Report what a Dataset or Plate contains, **without fetching pixels**.
 
-    This exists so that "what is in plate 4711?" costs a metadata query rather
-    than a 100 GB download. Nothing in this function or anything it calls
-    touches ``getPrimaryPixels`` or ``getPlane``, and the test suite asserts
-    that by counting calls on the fake gateway.
+    Inspecting a container costs a metadata query rather than a full download.
+    Nothing in this function or anything it calls touches ``getPrimaryPixels``
+    or ``getPlane``, and the test suite asserts that by counting calls on the
+    fake gateway.
 
     :param gateway: a connected ``BlitzGateway`` (or anything with the same
         ``getObject`` surface).
@@ -1719,8 +1705,8 @@ def import_dataset(gateway: Any, ref: Any, dst: Union[str, os.PathLike], *,
     ``'sequence'``
         nothing said, so wells are handed out row-major in listing order —
         ``A01``, ``A02``, ... — one per image. This is a *labelling*, not a
-        claim about the physical plate, and it is what makes the images
-        loadable by spaCR at all.
+        claim about the physical plate, and it makes the images loadable by
+        spaCR.
 
     :param gateway: a connected gateway.
     :param ref: a Dataset id, ``'Dataset:123'``, or an OMERO.web URL.
@@ -1804,11 +1790,10 @@ def import_plate(gateway: Any, ref: Any, dst: Union[str, os.PathLike], *,
                  settings: Optional[OmeroConnection] = None) -> ImportResult:
     """Import an OMERO **Plate** into a spaCR source folder.
 
-    A Plate is the case spaCR was built for: every image already knows its
-    well, and the well knows its row and column. Those indices are carried
-    across by :func:`well_position` and become the well name in the filename
-    and ``rowID``/``columnID`` in the sidecar, so a plate map drawn in spaCR
-    lines up with the plate map in OMERO.web.
+    In a Plate every image belongs to a well with a known row and column. Those
+    indices are carried across by :func:`well_position` and become the well
+    name in the filename and ``rowID``/``columnID`` in the sidecar, so a plate
+    map drawn in spaCR lines up with the plate map in OMERO.web.
 
     Fields are the WellSample order within each well, 1-based, which is what
     OMERO means by an imaging site.
@@ -1986,8 +1971,8 @@ def format_map_value(value: Any, *, float_format: str = FLOAT_FORMAT,
     """Render ``value`` as the **string** an OMERO map annotation stores.
 
     OMERO map values are strings — there is no numeric type in the model — so
-    the formatting decision is not cosmetic, it is the only thing that decides
-    what a reader sees and what a re-parser gets back. The rules, all of them:
+    the formatting determines what a reader sees and what a re-parser gets
+    back. The rules:
 
     * ``bool`` first, before the numeric branch, because ``True`` is an
       ``int`` and would otherwise render as ``1``. ``numpy.bool_`` needs its
@@ -2068,13 +2053,12 @@ def measurement_pairs(row: Mapping[str, Any], *,
 
     **Why there is a cap.** A spaCR object table has 300-600 columns. A
     MapAnnotation with 400 entries renders in OMERO.web as a 400-row scrolling
-    table in a 300 px panel, which nobody reads and which makes the panel
-    useless for the annotations that *were* worth showing. So the annotation
-    is a *summary*, capped at ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 by
-    default) and ordered so the useful keys are the ones that survive:
-    ``priority`` keys first in the order given, then the row's own order.
-    When anything is cut, the last pair is :data:`TRUNCATION_KEY`, saying how
-    many were dropped and that the full table is the CSV attached under
+    table in a 300 px panel, which hides the annotations worth showing. So the
+    annotation is a *summary*, capped at ``max_pairs`` (:data:`MAX_MAP_PAIRS` =
+    50 by default) and ordered so the useful keys are the ones that survive:
+    ``priority`` keys first in the order given, then the row's own order. When
+    anything is cut, the last pair is :data:`TRUNCATION_KEY`, saying how many
+    were dropped and that the full table is the CSV attached under
     :data:`NS_FILE`. The full table is never *only* in the annotation.
 
     The result always has at most ``max_pairs`` entries, notice included.
@@ -2272,15 +2256,14 @@ def plan_annotation(existing: Iterable[Sequence[Any]], namespace: str,
     which is all the decision needs, so the rule is testable without a server.
 
     Under :data:`REPLACE` — the default — an annotation whose namespace is
-    *exactly* ``namespace`` is updated in place. Nothing is created, nothing
-    is unlinked and **nothing is deleted**; a re-run therefore leaves one
+    *exactly* ``namespace`` is updated in place. Nothing is created, nothing is
+    unlinked and **nothing is deleted**; a re-run therefore leaves one
     annotation rather than a growing pile, and an annotation in any other
     namespace (a colleague's, OMERO's own bulk annotations) is never even
     considered. When more than one already exists — only possible after an
     :data:`APPEND` run or a concurrent writer — the oldest (lowest id) is
     updated and the rest are reported in ``duplicates`` rather than removed,
-    because deleting an annotation somebody may have linked elsewhere is not a
-    decision an exporter gets to make.
+    because an annotation may be linked elsewhere.
 
     :param existing: ``(id, namespace)`` pairs already on the target.
     :param namespace: the spaCR namespace being written.
@@ -2319,12 +2302,11 @@ def plan_tag(existing: Iterable[Sequence[Any]], namespace: str, text: str,
              mode: str = REPLACE) -> AnnotationPlan:
     """Decide what to do about a categorical verdict tag.
 
-    Tags get their own rule, and the reason is a property of OMERO rather than
-    a preference: **a TagAnnotation is a shared object**. The tag reading
-    ``hit`` on this image is very likely the same row in the database as the
-    tag reading ``hit`` on two hundred other images, so editing its text to
-    say ``not hit`` would silently relabel all of them. Updating in place is
-    therefore not available here, whatever the mode.
+    Tags get their own rule because **a TagAnnotation is a shared object**. The
+    tag reading ``hit`` on this image is very likely the same row in the
+    database as the tag reading ``hit`` on two hundred other images, so editing
+    its text to say ``not hit`` would silently relabel all of them. Updating in
+    place is therefore not available here, whatever the mode.
 
     What happens instead:
 
@@ -2332,9 +2314,9 @@ def plan_tag(existing: Iterable[Sequence[Any]], namespace: str, text: str,
       nothing is written and the export is idempotent;
     * no spaCR verdict is linked -> :data:`ACTION_CREATE`;
     * a *different* spaCR verdict is linked -> :data:`ACTION_CREATE` for the
-      new one, and the old one is reported in ``duplicates`` and left in
-      place. Two verdicts on one object is visibly wrong in OMERO.web, which
-      is better than silently rewriting history.
+      new one, and the old one is reported in ``duplicates`` and left in place.
+      The two verdicts are then both visible in OMERO.web rather than one being
+      silently rewritten.
 
     :param existing: ``(id, namespace, text)`` triples already on the target.
     :param namespace: the spaCR verdict namespace.
@@ -2484,16 +2466,16 @@ def export_map_annotation(gateway: Any, target: Any,
                           ) -> AnnotationResult:
     """Write spaCR measurements onto an OMERO object as key/value pairs.
 
-    A MapAnnotation is what OMERO.web renders in the right-hand panel, which
-    makes it the only annotation an OMERO user reliably *sees*. Build the
-    pairs with :func:`measurement_pairs` (per object) or
-    :func:`well_summary_pairs` (per well) — both already do the string
-    conversion OMERO requires and the truncation the panel requires.
+    A MapAnnotation is what OMERO.web renders in the right-hand panel, so it is
+    the annotation an OMERO user sees. Build the pairs with
+    :func:`measurement_pairs` (per object) or :func:`well_summary_pairs` (per
+    well) — both already do the string conversion OMERO requires and the
+    truncation the panel requires.
 
     :param gateway: a connected gateway; used only to construct the wrapper.
     :param target: the Image, Well, Dataset or Plate wrapper to annotate.
-    :param pairs: the key/value pairs. Values are cast to ``str`` here as a
-        last line of defence — OMERO's model has no numeric map value.
+    :param pairs: the key/value pairs. Values are cast to ``str`` here because
+        OMERO's model has no numeric map value.
     :param namespace: which spaCR namespace to write. Must be one spaCR owns.
     :param mode: :data:`REPLACE` (default: update spaCR's own previous
         annotation in place) or :data:`APPEND`.
@@ -2591,14 +2573,12 @@ def export_file_annotation(gateway: Any, target: Any,
                            ) -> AnnotationResult:
     """Attach a results CSV or a figure PDF to an OMERO object.
 
-    The counterpart to the truncated MapAnnotation: the panel gets the fifty
-    numbers worth reading, this gets the whole table.
+    The counterpart to the truncated MapAnnotation: the file carries the whole
+    table.
 
-    **File annotations always append**, and that is the non-destructive
-    choice rather than an oversight. The bytes of an OriginalFile cannot be
+    **File annotations always append.** The bytes of an OriginalFile cannot be
     rewritten through the gateway, so "replace" would have to mean *delete the
-    previous attachment* — deleting evidence of an earlier run, which is
-    exactly what this module refuses to do anywhere. Previous spaCR file
+    previous attachment*, which this module never does. Previous spaCR file
     annotations are reported in :attr:`AnnotationResult.duplicates`, and the
     description carries a UTC timestamp so the newest is identifiable.
 
@@ -2647,12 +2627,10 @@ def export_plate_summaries(gateway: Any, ref: Any,
                            **pair_kwargs: Any) -> ExportResult:
     """Write one per-well MapAnnotation per well of an OMERO Plate.
 
-    This is the half that closes the loop: spaCR measured the plate, and the
-    numbers land back on the wells they came from, where the person at the
-    microscope will actually see them. Wells are matched by *name*
-    (``'A01'``), which round-trips through :func:`well_position` and
-    :func:`omero_indices`, so the mapping used on the way in is the mapping
-    used on the way out.
+    The measurements are written back onto the wells they came from. Wells are
+    matched by *name* (``'A01'``), which round-trips through
+    :func:`well_position` and :func:`omero_indices`, so the mapping used on the
+    way in is the mapping used on the way out.
 
     :param gateway: a connected gateway.
     :param ref: a Plate id, ``'Plate:4711'``, or an OMERO.web URL.

@@ -1,21 +1,18 @@
 """One reader and one writer for every table spaCR opens or saves.
 
-Why this module exists
+Purpose
 ----------------------
-An audit across ``spacr/`` found 248
-tabular reads and writes -- ``pd.read_csv``, ``pd.read_sql*``, ``.to_csv``,
-``.to_sql`` -- and **thirteen** call sites that normalised a column name at
-all. There was no funnel; there were 248 doors, and which spelling of a key a
-frame ended up with depended on which door it came through.
+spaCR reads and writes tables in many places (``pd.read_csv``,
+``pd.read_sql*``, ``.to_csv``, ``.to_sql``). Without a shared reader, the
+spelling of a key column in a frame depends on which code path read it.
 
-The resulting failure has a consistent shape: ``columnID``
-worked as a filter, because *some* path downstream renamed on the way to the
-fit, while the CSV picker read the raw header and offered ``column_name`` and
-``column`` -- the names a user must not have to know.
+For example, ``columnID`` could work as a filter, because *some* path
+downstream renamed on the way to the fit, while the CSV picker read the raw
+header and offered ``column_name`` and ``column`` -- names a user should not
+need to know.
 
-So: one place normalises, and every reader goes through it. Doing it at the
-funnel is the point. The picker becomes correct for free, because it reads
-through the same door and therefore sees ``columnID``.
+This module normalises names in one place and every reader goes through it, so
+the picker also sees ``columnID``.
 
 What a read guarantees
 ----------------------
@@ -31,16 +28,14 @@ Every frame that leaves :func:`read_table` / :func:`read_database` has
 
 Writing
 -------
-**Decided, not accidental: spaCR writes canonical names.** ``write_table``
-and ``write_database`` canonicalise on the way out by default, so a frame
-assembled by hand cannot re-export ``column_name`` and start the cycle again.
-The header of an exported file therefore changes for anyone whose downstream
-script reads ``column_name`` -- that is a release note, and it is the
-deliberate half of this compatibility trade-off.
-``canonicalise=False`` is there for a caller who owes an external format an
-exact header.
+**spaCR writes canonical names.** ``write_table`` and ``write_database``
+canonicalise on the way out by default, so a frame assembled by hand cannot
+re-export ``column_name`` and start the cycle again. The header of an exported
+file therefore changes for anyone whose downstream script reads ``column_name``
+-- a documented compatibility change. ``canonicalise=False`` is there for a
+caller who owes an external format an exact header.
 
-The guards that moved here rather than being left behind
+Path and schema guards
 --------------------------------------------------------
 * A ``~`` path is expanded, once, for every reader -- GitHub issue #108,
   where a ``src`` beginning with ``~`` was resolved against the working
@@ -48,18 +43,15 @@ The guards that moved here rather than being left behind
   ``%USERPROFILE%`` too: a settings CSV carried between machines routinely
   holds one.
 * **The measurements schema migration runs on open**, exactly as
-  ``io._read_db`` does it, so a legacy database is repaired by any reader
-  rather than only by the one that remembered.
+  ``io._read_db`` does it, so a legacy database is repaired by any reader.
 
 Dependencies
 ------------
-``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative
-measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB,
-Parquet or PostgreSQL store is opened. Nothing else at module
-scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement
-rather than tidiness: the CSV picker and the SQL column list have to be able
-to import this to get canonical names, and they cannot pay for a torch
-import to do it.
+``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement
+stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or
+PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``,
+no matplotlib, no torch. The CSV picker and the SQL column list import this
+module to get canonical names and must not import torch.
 """
 
 from __future__ import annotations
@@ -107,13 +99,12 @@ TABLE_SUFFIXES: Tuple[str, ...] = (
 
 
 def resolve_path(path: Any) -> str:
-    """Expand ``~`` and environment variables in a path, once, for everyone.
+    """Expand ``~`` and environment variables in a path.
 
     GitHub issue #108: a ``src`` beginning with ``~`` produced
-    ``~/.../measurements.db``, which the migration resolved against the
-    working directory and refused with ``FileNotFoundError: ~<DB>``. Fixed at
-    the funnel rather than at the ~99 sites that build a measurements path by
-    string concatenation.
+    ``~/.../measurements.db``, which the migration resolved against the working
+    directory and refused with ``FileNotFoundError: ~<DB>``. Expanding here
+    covers every site that builds a measurements path by string concatenation.
 
     :param path: a path, a :class:`os.PathLike`, or anything else (returned
         unchanged, so a caller may pass an open connection through).
@@ -236,10 +227,9 @@ def read_table(source: Any, *, table: Optional[str] = None,
         cloud address (``s3://``, ``gs://``, ``az://``, ``https://``) is read
         from a cached local copy.
     :param table: the table name, for a database.
-    :param canonicalise: apply the vocabulary. **There is no reason to turn
-        this off on the ordinary path** -- it is what makes the picker and
-        the run agree about what a column is called. Off is for a caller
-        inspecting a file exactly as written.
+    :param canonicalise: apply the vocabulary. Keep it on for ordinary reads:
+        it is what makes the picker and the run agree about what a column is
+        called. Off is for a caller inspecting a file exactly as written.
     :param report: called with each agreeing-collision message; ``print`` by
         default, ``None`` to silence.
     :param warn: called with each disagreeing-collision message; ``None``
@@ -292,8 +282,8 @@ def write_table(frame: pd.DataFrame, path: Any, *,
         directory is created.
     :param canonicalise: rename legacy spellings on the way out.
     :param index: pandas' ``index`` argument, defaulted to ``False`` because
-        every spaCR export that ever wanted the index has a real column for
-        it and an unnamed ``Unnamed: 0`` on re-read is a bug in waiting.
+        every spaCR export that ever wanted the index has a real column for it
+        and an unnamed index reads back as ``Unnamed: 0``.
     :param kwargs: passed to the underlying pandas writer.
     :returns: the resolved path written.
     """

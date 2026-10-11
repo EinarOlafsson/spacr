@@ -1,26 +1,26 @@
 """Match cells between two magnifications by their arrangement, not their pixels.
 
-THE PROBLEM. Optical pooled screening images the same well twice: once at low
-magnification to read the barcodes, once at high magnification to measure the
-phenotype. Every cell must be matched between the two, and the obvious method
--- correlate the images -- does not work. The pixels do not correspond: the
-scale differs, the stains differ, and often the microscope differs too.
+Optical pooled screening images the same well twice: once at low magnification
+to read the barcodes, once at high magnification to measure the phenotype.
+Every cell must be matched between the two, and the obvious method -- correlate
+the images -- does not work. The pixels do not correspond: the scale differs,
+the stains differ, and often the microscope differs too.
 
-THE METHOD. What survives all of that is the ARRANGEMENT of the cells. Take
-three neighbouring cells and the SHAPE of the triangle they form is unchanged
-by magnification, rotation and translation. So the cells are triangulated, each
-triangle is reduced to a descriptor that depends only on its shape, and the two
-sets are matched on those descriptors. The transform between the acquisitions
-falls out of the matched triangles, and the cells are paired under it.
+What is preserved is the arrangement of the cells. Take three neighbouring
+cells and the shape of the triangle they form is unchanged by magnification,
+rotation and translation. So the cells are triangulated, each triangle is
+reduced to a descriptor that depends only on its shape, and the two sets are
+matched on those descriptors. The transform between the acquisitions falls out
+of the matched triangles, and the cells are paired under it.
 
-WHY THE PAIRING REFUSES AMBIGUITY. Matching is MUTUAL nearest neighbour with a
-distance limit: a pair is kept only when each cell is the other's nearest, and
-anything doubtful is dropped rather than assigned. A wrongly matched cell gives
-a real phenotype the wrong barcode, which silently corrupts a screen; a dropped
-one costs only statistical power, which more cells can buy back.
+Matching is mutual nearest neighbour with a distance limit: a pair is kept only
+when each cell is the other's nearest, and anything doubtful is dropped rather
+than assigned. A wrongly matched cell gives a real phenotype the wrong barcode,
+which silently corrupts a screen; a dropped one costs only statistical power,
+which more cells can buy back.
 
-WHERE IT STOPS WORKING, measured on 90 cells over a 500 px field related by a
-known scale of 2.0, an 11 degree rotation and a (137.5, -92.25) shift:
+Accuracy, measured on 90 cells over a 500 px field related by a known scale of
+2.0, an 11 degree rotation and a (137.5, -92.25) shift:
 
     centroid jitter   cells dropped   scale     angle      shift error
     none              none            2.000     11.00      0.00 px
@@ -51,20 +51,18 @@ import numpy as np
 def triangle_descriptors(points: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Delaunay-triangulate ``points`` and describe each triangle by its shape.
 
-    THE DESCRIPTOR IS TWO NUMBERS, and it has to be: the ratios of the two
-    shorter sides to the longest. Scaling a triangle multiplies every side by
-    the same factor, so the ratios do not move; rotating and translating it
-    does not change side lengths at all. That is exactly the invariance the
-    problem needs, and nothing about the absolute size or position survives --
-    which is the point, because those are what differ between the two
-    acquisitions.
+    The descriptor is two numbers: the ratios of the two shorter sides to the
+    longest. Scaling a triangle multiplies every side by the same factor, so
+    the ratios do not move; rotating and translating it does not change side
+    lengths at all. The descriptor therefore ignores absolute size and
+    position, which are what differ between the two acquisitions.
 
     :param points: ``(N, 2)`` cell centroids.
     :returns: ``(descriptors, vertex_indices)`` -- an ``(M, 2)`` array and the
         ``(M, 3)`` indices of each triangle's vertices, ordered so that vertex
-        0 is opposite the shortest side and vertex 2 opposite the longest.
-        That ordering is what makes two matched descriptors also give matched
-        POINTS, without which the transform cannot be solved.
+        0 is opposite the shortest side and vertex 2 opposite the longest. That
+        ordering is what makes two matched descriptors also give matched
+        points, without which the transform cannot be solved.
     """
     from scipy.spatial import Delaunay
 
@@ -194,25 +192,25 @@ def match_cells(source: np.ndarray, target: np.ndarray, *,
                 gpu: bool = True) -> np.ndarray:
     """Pair cells one-to-one, keeping only mutual nearest neighbours.
 
-    AMBIGUITY IS DROPPED, NOT ASSIGNED. A pair survives only when each cell is
-    the other's nearest AND they are within ``threshold``. Two cells competing
-    for the same partner both lose. That asymmetry is deliberate: a wrongly
-    matched cell hands a real phenotype somebody else's barcode and quietly
-    corrupts every statistic computed from it, whereas a dropped cell costs
-    only statistical power that more cells can recover.
+    Ambiguous pairs are dropped, not assigned. A pair survives only when each
+    cell is the other's nearest and they are within ``threshold``. Two cells
+    competing for the same partner both lose. A wrongly matched cell gives a
+    real phenotype the wrong barcode and corrupts every statistic computed from
+    it, whereas a dropped cell costs only statistical power that more cells can
+    recover.
 
     :param source: ``(N, 2)`` centroids.
     :param target: ``(M, 2)`` centroids.
     :param transform: ``(scale, rotation, translation)`` from
         :func:`align_by_triangles`, applied to ``source`` first. ``None``
         means the two sets are already in the same frame.
-    :param threshold: the largest distance, in TARGET units, that may still be
+    :param threshold: the largest distance, in target units, that may still be
         called the same cell.
-    :param gpu: run the two nearest-neighbour searches on the card where
-        there is a usable one. A well carries tens of thousands of nuclei
-        on each side and the search is done twice, once in each direction;
-        `spacr.ops_accel.nearest_neighbours` chunks it so the working set
-        does not grow with the well.
+    :param gpu: run the two nearest-neighbour searches on a GPU when one is
+        usable. A well carries tens of thousands of nuclei on each side and the
+        search is done twice, once in each direction;
+        `spacr.ops_accel.nearest_neighbours` chunks it so the working set does
+        not grow with the well.
     :returns: ``(K, 2)`` array of ``(source_index, target_index)`` pairs.
     """
     from .ops_accel import nearest_neighbours

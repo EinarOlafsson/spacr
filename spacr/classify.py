@@ -31,20 +31,19 @@ estimate which guides and genes explain the phenotype.
 
 Classify (CV) trains a Torch model on object crops. Classify (ML) fits a
 gradient-boosted model on measured features. They answer the same question --
-*which class is this object* -- and until now they were two modules that
-shared six setting names out of 78 and 37, two of which disagreed on their
-default.
+*which class is this object* -- through two modules whose settings overlap in
+only six names.
 
-:mod:`spacr.training_basis` already unified what defines a CLASS. This module
+:mod:`spacr.training_basis` already unified what defines a class. This module
 unifies what runs: one settings dict, one ``classifier_family`` switch, one
-call. The two original modules stay exactly as they are -- a merged screen
-that removed them would strand every saved settings CSV and every notebook
-that imports their entry points.
+call. The two original modules stay exactly as they are -- a merged screen that
+removed them would strand every saved settings CSV and every notebook that
+imports their entry points.
 
-**Nothing here reimplements either pipeline.** ``deep_spacr`` and
-``generate_ml_scores`` are called unchanged, which is what makes the merged
-module honest: a run through it and a run through the module it dispatches to
-produce the same result, because they are the same code.
+**Neither pipeline is reimplemented here.** ``deep_spacr`` and
+``generate_ml_scores`` are called unchanged, so a run through this module and a
+run through the module it dispatches to produce the same result, because they
+are the same code.
 """
 from __future__ import annotations
 
@@ -159,7 +158,7 @@ def resolve_family(settings: Mapping[str, Any]) -> str:
 
 
 def inapplicable_settings(family: str) -> Tuple[str, ...]:
-    """Settings belonging to the OTHER family -- what the panel greys out.
+    """Return the other family's setting keys, which the panel greys out.
 
     Greyed, never removed: INVARIANTS §6. A key absent from the dict makes
     the pipeline fall back to its own default, which can differ from the

@@ -3257,8 +3257,8 @@ def preprocess_pathogen_data(pathogen_df):
     Keys on the column names the measurement writer actually emits:
     ``columnID`` (not ``column_name``), ``timeID`` (not ``timeid``, and absent
     altogether outside a timelapse run) and ``cell_id`` -- the child table's
-    link to its host cell -- not ``pathogen_cell_id``, which no writer has ever
-    produced. Under the old names every call died with ``KeyError``.
+    link to its host cell -- not ``pathogen_cell_id``, which no writer
+    produces.
 
     :param pathogen_df: per-parasite measurements DataFrame with plate/well/field/time/cell identifiers.
     :returns: DataFrame aggregated to (plate, row, column, field, time, host cell) with a ``parasite_count`` column.

@@ -638,10 +638,12 @@ def run_simulation(settings):
 
     :param settings: Dict of simulation parameters (gene counts, distribution
         moments, sequencing error, classifier accuracy, ...).
-    :returns: Tuple ``(cell_scores, cell_roc_dict_df, cell_pr_dict_df,
-        cell_cm, well_score, gene_fraction_map, metadata, results_df,
-        reg_roc_dict_df, reg_pr_dict_df, reg_cm, sim_stats,
-        genes_per_well_df, wells_per_gene_df, dists)``.
+    :returns: Tuple ``(output, dists)``: ``output`` is the 14-element list
+        ``[cell_scores, cell_roc_dict_df, cell_pr_dict_df, cell_cm, well_score,
+        gene_fraction_map, metadata, results_df, reg_roc_dict_df,
+        reg_pr_dict_df, reg_cm, sim_stats, genes_per_well_df,
+        wells_per_gene_df]`` and ``dists`` is the distribution list returned by
+        :func:`run_experiment`.
     """
     active_gene_list = generate_gene_list(settings['number_of_active_genes'], settings['number_of_genes'])
     control_gene_list = generate_gene_list(settings['number_of_control_genes'], settings['number_of_genes'])
@@ -1387,10 +1389,8 @@ def plot_correlation_matrix(df, annot=False, cmap=None, clean=True, dst=None):
         and related outputs.
     :param annot: When True, write numeric correlations in each cell.
     :param cmap: Colormap name or object. ``None`` uses the house diverging
-        map, which is the one case the style allows a diverging map for --
-        a correlation is genuinely signed. The parameter used to default to
-        ``'inferno'`` and then be OVERWRITTEN two lines later, so a caller
-        who passed one got the diverging map anyway and never knew.
+        map, which is the one case the style allows a diverging map for -- a
+        correlation is signed.
     :param clean: When True, drop constant columns before computing correlations.
     :returns: The generated Matplotlib figure.
     """

@@ -1,19 +1,17 @@
 """Pre-flight validation of a spaCR settings dict.
 
-Every crash this module exists to prevent was, in practice, a twenty-line
-check away: an ``organelle_channel`` one past the end of a three-channel
-plate, a ``src`` that points at the plate folder instead of ``plate/merged``,
-a ``cell_mask_dim`` beyond the last plane of the merged array, an integer
-that came back from a settings CSV as the string ``"4"``. Each of those costs
-a full GPU run to discover.
+The checks catch errors such as an ``organelle_channel`` one past the end of a
+three-channel plate, a ``src`` that points at the plate folder instead of
+``plate/merged``, a ``cell_mask_dim`` beyond the last plane of the merged
+array, an integer that came back from a settings CSV as the string ``"4"``.
+Each would otherwise be found only after a full GPU run.
 
 The module is deliberately dependency-light: it imports nothing from spaCR
 except :mod:`spacr.settings` (which itself imports only ``os`` and ``ast``),
-and it touches ``numpy`` only lazily, to read the *header* of a single
-``.npy`` file. No torch, no cellpose, no image decoding. Importing and
-running it costs well under a second, which is the whole point — it is what
-``dry_run`` uses to answer "would this run work?" before anything is
-allocated, loaded or written.
+and it touches ``numpy`` only lazily, to read the *header* of a single ``.npy``
+file. No torch, no cellpose, no image decoding. Importing and running it takes
+well under a second; ``dry_run`` uses it to answer "would this run work?"
+before anything is allocated, loaded or written.
 
 Public API
 ----------
@@ -24,7 +22,7 @@ Public API
 ``format_report(problems, settings, app_key)``
     Human-readable report; errors first, each with its fix line.
 ``describe_plan(settings, app_key)``
-    "Here is what would actually happen" summary.
+    Summary of what the run would do.
 
 Rules are derived from the code that consumes the settings, not invented:
 each check names its source in a comment.
@@ -63,7 +61,7 @@ class Problem:
     :param setting: the settings key at fault, or ``""`` when the problem is
         about the dataset rather than a single key.
     :param message: what is wrong, phrased in the user's terms.
-    :param fix: what to actually do about it.
+    :param fix: the corrective action.
     """
 
     severity: str
@@ -79,8 +77,8 @@ class Problem:
     def __str__(self) -> str:
         """The problem and its fix, on two lines.
 
-        The setting's name leads when there is one, so a reader scanning a list of
-        problems sees WHICH setting each belongs to before the message.
+        The setting's name leads when there is one, so a reader scanning a list
+        of problems sees which setting each belongs to before the message.
         """
         head = f"[{self.setting}] {self.message}" if self.setting else self.message
         return f"{head}\n    fix: {self.fix}"
@@ -929,18 +927,16 @@ def coerce_expected_types(settings: Dict[str, Any],
     meant to satisfy, so converting them to it is restoring what the settings
     already claim to be -- not reinterpreting them.
 
-    Doing it HERE, once, at the boundary, rather than at each point of use, is
-    what stops the next consumer from being the one that crashes: mask
-    generation died inside Cellpose on ``diameter > 0`` with
-    ``cell_diameter='60.0'``, and the same file had already been reported,
-    three times, as an error the user was told to fix by hand -- for a value
-    that was perfectly well-formed.
+    Converting once, at the boundary, rather than at each point of use keeps
+    consumers from failing on string values; for example,
+    ``cell_diameter='60.0'`` would otherwise fail inside Cellpose on ``diameter
+    > 0``.
 
-    CONSERVATIVE BY CONSTRUCTION. Only ``bool``, ``int`` and ``float`` are
-    converted, only from a string, only when the conversion is exact, and
-    never when ``str`` is itself an accepted type for the key. Anything that
-    does not convert cleanly is left exactly as it was, for
-    :func:`validate_settings` to report.
+    The conversion is conservative. Only ``bool``, ``int`` and ``float`` are
+    converted, only from a string, only when the conversion is exact, and never
+    when ``str`` is itself an accepted type for the key. Anything that does not
+    convert cleanly is left exactly as it was, for :func:`validate_settings` to
+    report.
 
     :param settings: the settings mapping.
     :param app: the pipeline, for the same per-app type overrides
@@ -1475,7 +1471,7 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
     problems: List[Problem] = []
 
     def _require_file(key: str, purpose: str, fix: str) -> None:
-        """Refuse a missing or unset path, saying what it was needed FOR.
+        """Refuse a missing or unset path, saying what it was needed for.
 
         Both the purpose and the fix are carried into the message: "not set" on
         its own tells a user what happened and not what to do about it.
@@ -2292,32 +2288,31 @@ def _gpu_line() -> Optional[str]:
 
 
 def describe_resources(settings: Dict[str, Any], app_key: str = "") -> str:
-    """Project what the run would COST, without running it.
+    """Estimate the run's resource needs, without running it.
 
-    The second half of the dry-run card. :func:`describe_plan` says what
-    would happen; this says whether this machine can see it through, which
-    is the question that actually stops a run at three in the morning.
+    The second half of the dry-run card. :func:`describe_plan` says what would
+    happen; this estimates whether this machine has the memory and disk space
+    for it.
 
     :param settings: the settings dict about to be handed to a pipeline.
     :param app_key: which pipeline, as for :func:`validate_settings`.
     :returns: the card as a single string, no trailing newline.
 
-    WHAT IS MEASURED, NOT GUESSED: the bytes already on disk, the shape and
-    dtype of one real array, the free memory, and the free space on the
-    volume that would be written to. Every one is read off the machine.
+    Measured: the bytes already on disk, the shape and dtype of one real array,
+    the free memory, and the free space on the volume that would be written to.
+    Every one is read off the machine.
 
-    WHAT IS DERIVED, AND SAID TO BE: memory is reported as a FLOOR --
-    ``n_jobs`` workers each holding one field is the least the run can use,
-    before a single working copy. A floor is defensible and still catches
-    the case that matters, which is eight workers holding a 900 MB field
-    each on a 16 GB laptop. The measured peak is what
+    Derived: memory is reported as a lower bound -- ``n_jobs`` workers each
+    holding one field is the least the run can use, before a single working
+    copy. A lower bound still catches cases such as eight workers holding a 900
+    MB field each on a 16 GB laptop. The measured peak is what
     :func:`spacr.benchmark.benchmark` reports, and this card says so rather
     than inventing a multiplier for it.
 
-    WHAT IS REFUSED: the size of the PNG crop tree. It is objects times crop
-    modes, and the object count is the thing the run exists to discover. The
-    card names it as unbounded rather than producing a number that would be
-    wrong by an order of magnitude either way.
+    Not estimated: the size of the PNG crop tree. It is objects times crop
+    modes, and the object count is what the run measures. The card names it as
+    unbounded rather than producing a number that would be wrong by an order of
+    magnitude either way.
     """
     if not isinstance(settings, dict):
         return "Resources unavailable: settings is not a dict."

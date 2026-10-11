@@ -1,12 +1,12 @@
 """Export a spaCR ``measurements.db`` as AnnData (``.h5ad``).
 
-spaCR already produces the exact shape AnnData was designed for: N objects
-x M features, plus per-object metadata and an embedding. Writing that out as
-``.h5ad`` puts scanpy, scvi-tools and squidpy within reach of a spaCR user
-for the cost of one function call, instead of a bespoke join script per lab.
+A spaCR measurements database holds N objects x M features, per-object metadata
+and, optionally, embeddings, which map onto AnnData's ``X``, ``obs``/``var``
+and ``obsm``. The written ``.h5ad`` file can be read by scanpy, scvi-tools and
+squidpy.
 
-Nothing here invents an identity, a filter or a feature/metadata boundary.
-All four already exist in spaCR and are reused verbatim:
+The object key, the feature/metadata split, the feature descriptions and the
+filters are the existing spaCR implementations:
 
 ``obs_names``
     :func:`spacr.selection.object_keys` over
@@ -45,22 +45,20 @@ Typical use::
 
 What happens to NaN
 -------------------
-**Nothing, by default, and that is a decision rather than an omission.**
+**By default NaN values are written unchanged.**
 
-AnnData stores NaN happily. Most of what people reach for next does not:
-``sc.pp.scale``, ``sc.pp.pca``, ``sc.pp.neighbors`` and essentially all of
-scvi-tools either propagate NaN across the whole matrix or raise. So a
-silent default matters, and there are only two honest candidates: keep the
-NaN and say so loudly, or impute and say so loudly. Quietly filling with
-zero is not one of them -- in spaCR a NaN is usually *meaningful*: a
-``pathogen_*`` column is NaN for a cell with no pathogen in it, a Zernike
-column is NaN when mahotas was not installed, and a correlation column is
-NaN when one channel was flat. Zero-filling the first turns "no pathogen"
-into "a pathogen of zero size" and puts it into the same distribution as a
-measured one.
+AnnData stores NaN values, but ``sc.pp.scale``, ``sc.pp.pca``,
+``sc.pp.neighbors`` and most of scvi-tools either propagate NaN across the
+whole matrix or raise. Every policy therefore reports the missing values it
+found. Filling with zero is not the default because in spaCR a NaN usually
+carries meaning: a ``pathogen_*`` column is NaN for a cell with no pathogen in
+it, a Zernike column is NaN when mahotas was not installed, and a correlation
+column is NaN when one channel was flat. Zero-filling the first turns "no
+pathogen" into "a pathogen of zero size" and puts it into the same distribution
+as a measured one.
 
-:data:`NAN_KEEP` (the default) therefore writes the NaN through, and pays
-for it with *visibility*:
+:data:`NAN_KEEP` (the default) writes the NaN values unchanged and records them
+in:
 
 * ``var['n_missing']`` / ``var['frac_missing']`` -- per feature;
 * ``obs['n_missing_features']`` -- per object;
@@ -80,17 +78,18 @@ written shape, so it stays a fraction.
 The alternatives are explicit, and every one of them records what it did:
 
 ``NAN_DROP_FEATURES``
-    drop any feature column containing a NaN. Cheap and safe; on a real
-    database it often removes every ``pathogen_*`` column, which is the
-    honest consequence of asking for a complete matrix.
+    drop any feature column containing a NaN. On a real database it often
+    removes every ``pathogen_*`` column, because those columns are NaN for
+    cells without a pathogen.
 ``NAN_DROP_OBJECTS``
     drop any object row containing a NaN. Usually removes almost
     everything, for the same reason; offered because on a
     single-object-type export it is often exactly right.
 ``NAN_ZERO`` / ``NAN_MEAN``
-    impute. Both write a ``layers['missing']`` boolean mask of the same
-    shape by default, because an imputed matrix that cannot be told from a
-    measured one is a trap, and 1 byte per cell against 4 is a fair price.
+    impute. Both write a ``layers['missing']`` boolean mask of the same shape
+    by default, so imputed values can be told apart from measured ones; the
+    boolean mask costs 1 byte per cell against 4 for the default ``float32``
+    ``X``.
 
 **Infinities are treated as missing under every policy.** spaCR produces
 +/-inf from ratio features (a denominator of zero), and an inf survives
@@ -100,7 +99,7 @@ They are converted to NaN before the policy runs and counted separately in
 
 Where the cell -> nucleus -> pathogen links go, and why not ``obsp``
 --------------------------------------------------------------------
-They go in ``obs`` and ``uns``. **Never** ``obsp``.
+They are written to ``obs`` and ``uns``, not to ``obsp``.
 
 ``obsp`` is an ``n_obs x n_obs`` matrix: a relation among *the observations
 of this AnnData*. The parent links are not that, in either export shape:
@@ -121,11 +120,10 @@ What is recorded instead is exact and survives everything ``obsp`` does not
 (subsetting, concatenation, an ``h5ad`` round trip through a tool that
 knows nothing about spaCR):
 
-* joined export -- ``obs['count_nucleus']`` / ``obs['count_pathogen']``
-  (how many children were averaged into this row) and
-  ``var['is_aggregated']`` (which columns are such an average). Without the
-  second one it is genuinely easy to report a per-nucleus statistic that is
-  in fact a per-cell mean of nuclei.
+* joined export -- ``obs['count_nucleus']`` / ``obs['count_pathogen']`` (how
+  many children were averaged into this row) and ``var['is_aggregated']``
+  (which columns are such an average). Without the second, a per-cell mean of
+  nuclei can be mistaken for a per-nucleus statistic.
 * per-table export of a child -- ``obs['cell_id']``, the schema's own
   ``parent_column`` from :data:`spacr.schema.OBJECT_TABLE_SCHEMAS`. A plain
   foreign key, which is what ``adata.obs.groupby('cell_id')`` already
@@ -161,16 +159,14 @@ database path, the tables read, the filter that was applied and the counts
 before and after it. The written file is also registered with
 :mod:`spacr.artifacts` under kind :data:`ANNDATA_KIND`, with the project's
 ``measurements-db`` artifact as its input -- so ``spacr.artifacts.is_stale``
-reports the export as stale the moment Measure is re-run, which is the
-whole reason the registry exists.
+reports the export as stale once Measure is re-run.
 
 The optional dependency
 -----------------------
 ``anndata`` is an optional extra: ``pip install "spacr[anndata]"``. It is
-imported inside the functions that need it, never at module scope, so
-``import spacr.anndata_export`` works without it and the failure is one
-actionable sentence (:exc:`AnnDataExtraMissing`) rather than a traceback
-six frames deep.
+imported inside the functions that need it, never at module scope, so ``import
+spacr.anndata_export`` works without it and the failure is one actionable
+sentence (:exc:`AnnDataExtraMissing`) rather than an import traceback.
 """
 from __future__ import annotations
 
@@ -264,7 +260,7 @@ class DuplicateObjectKeys(ValueError):
 
 
 def require_anndata():
-    """Import and return :mod:`anndata`, or raise a message worth reading.
+    """Return :mod:`anndata`, or raise :exc:`AnnDataExtraMissing` if absent.
 
     :returns: the imported :mod:`anndata` module.
     :raises AnnDataExtraMissing: when the extra is not installed.
@@ -357,14 +353,16 @@ class ExportResult:
     :param n_vars_counted: columns of that same pre-policy matrix.
     :param artifact_id: the :mod:`spacr.artifacts` id, or ``""`` when the
         file was not registered.
-    :param warnings: everything the export decided the user must know.
+    :param warnings: notes about the export: attached ``png_list`` label
+        columns, ``row_limit`` truncation, dropped identity columns, infinities
+        converted to NaN and a skipped UMAP.
 
-    Three object counts live here and they are three different stages, which
-    is the whole reason they are named apart: :attr:`n_obs_before_filter` is
-    what the database held, :attr:`counted_shape` is what survived the filter
-    and was handed to the NaN policy, and :attr:`n_obs` is what was written.
-    :meth:`describe` attributes each loss to the stage that caused it rather
-    than charging all of them to the filter.
+    The three object counts belong to three different stages:
+    :attr:`n_obs_before_filter` is what the database held,
+    :attr:`counted_shape` is what survived the filter and was handed to the NaN
+    policy, and :attr:`n_obs` is what was written. :meth:`describe` attributes
+    each loss to the stage that caused it rather than charging all of them to
+    the filter.
     """
 
     path: str
@@ -406,9 +404,7 @@ class ExportResult:
 
         Numerator and denominator describe **the same matrix** -- the one the
         NaN were counted in, before the policy dropped or imputed anything --
-        so this is a fraction and can never exceed 1.0. Dividing the
-        pre-policy count by the post-policy ``n_obs * n_vars`` is what made
-        ``drop_objects`` report 114.3% missing.
+        so this is a fraction and can never exceed 1.0.
 
         :returns: the fraction, or ``0.0`` for an empty matrix.
         """
@@ -417,12 +413,11 @@ class ExportResult:
         return (self.n_missing / cells) if cells else 0.0
 
     def describe(self) -> str:
-        """One human paragraph: shape, filtering, missingness, provenance.
+        """Return a text summary: shape, filtering, missingness, provenance.
 
         Each count is charged to the stage that caused it: the filter line
-        counts only what the filter removed, and the ``dropped ...`` lines
-        only what the NaN policy removed. Charging the policy's row drops to
-        the filter as well made one loss of four objects read as eight.
+        counts only what the filter removed, and the ``dropped ...`` lines only
+        what the NaN policy removed.
         """
         counted_obs, counted_vars = self.counted_shape
         lines = [
@@ -1394,17 +1389,15 @@ def build_anndata(db_path: Union[str, os.PathLike],
         and re-appliable; recorded in ``uns``.
     :param selection: a :class:`spacr.selection.Selection` -- the keys a
         view pointed at. Applied after ``data_filter``.
-    :param row_limit: hard cap on exported objects, applied last. A blunt
-        instrument on purpose, for "give me something I can open" without
-        inventing a filter that means something it does not.
+    :param row_limit: hard cap on exported objects, applied after the filter
+        and selection; the first ``row_limit`` objects in table order are kept.
     :param timelapse: key each frame of an object separately.
     :param nan_policy: one of :data:`NAN_POLICIES`; see the module
         docstring. The default keeps NaN and reports it.
     :param missing_layer: write ``layers['missing']``. Defaults to True for
         the imputing policies and False otherwise.
-    :param dtype: ``X`` dtype. ``float32`` by default -- the scanpy
-        convention, half the memory, and far more precision than any
-        microscope measurement carries.
+    :param dtype: ``X`` dtype. ``float32`` by default (the scanpy convention;
+        half the memory of ``float64``).
     :param exclude: feature columns to keep out of ``X``.
     :param embeddings: ``{name: array or DataFrame}``. Names are normalised
         to the scanpy ``X_*`` convention, so ``'umap'`` becomes ``X_umap``.
@@ -1702,12 +1695,12 @@ def export_anndata_set(db_path: Union[str, os.PathLike],
                        **kwargs: Any) -> Dict[str, ExportResult]:
     """Write one ``.h5ad`` per object table, cross-referenced by ``uns``.
 
-    The honest shape for a multi-compartment experiment: a nucleus is not a
-    cell and averaging it onto one loses the distribution. Each file holds
-    one object type at its own granularity, and each child file records its
-    parent in ``uns['spacr']['relationships']`` -- table, key column and the
-    sibling file -- so the set can be reassembled (or handed to ``MuData``)
-    without guessing.
+    The joined export averages nuclei and pathogens onto their parent cell,
+    which discards their per-object distribution. Each file holds one object
+    type at its own granularity, and each child file records its parent in
+    ``uns['spacr']['relationships']`` -- table, key column and the sibling file
+    -- so the set can be reassembled (or handed to ``MuData``) without
+    guessing.
 
     :param db_path: a ``measurements.db``.
     :param out_dir: folder to write into; created if missing.
@@ -2470,10 +2463,10 @@ def anndata_export_settings(settings: Optional[Mapping[str, Any]] = None
 def resolve_db_path(src: Union[str, os.PathLike]) -> str:
     """The ``measurements.db`` a settings ``src`` means.
 
-    ``src`` is a project root everywhere else in spaCR, and this module's
-    argument is a database, so one of the two has to give. A path that ends
-    in a database file is taken as one, and anything else is read as a
-    project root laid out the way every spaCR writer leaves it.
+    ``src`` is a project root everywhere else in spaCR, while this module reads
+    a database, so both are accepted. A path that ends in a database file is
+    taken as one, and anything else is read as a project root laid out the way
+    every spaCR writer leaves it.
 
     :param src: project root, or the database itself.
     :returns: an absolute path, which is NOT checked for existence -- an
@@ -2488,11 +2481,11 @@ def resolve_db_path(src: Union[str, os.PathLike]) -> str:
 
 def default_out_path(src: Union[str, os.PathLike],
                      single_table: str = "") -> str:
-    """Where the export lands when ``anndata_out`` is empty.
+    """Return the default ``.h5ad`` path, used when ``anndata_out`` is empty.
 
     ``<project>/results/<project name>.h5ad`` -- beside the other things a
-    finished run produced, named after the project, because a folder of
-    ``export.h5ad`` files is a folder nobody can tell apart.
+    finished run produced, named after the project, so exports of different
+    projects have distinct file names.
 
     :param src: project root, or the database.
     :param single_table: the one object table being exported, if any; it
@@ -2513,9 +2506,8 @@ def run_anndata_export(settings: Optional[Mapping[str, Any]] = None
 
     The ``fn(settings)`` shape ``spacr-run``, the Qt Run button and
     :mod:`spacr.validate` all dispatch to, wrapped around
-    :func:`export_anndata` -- which keeps its own explicit keyword
-    signature, because a function whose arguments are a dict is a function
-    nobody can call from a notebook.
+    :func:`export_anndata` -- which keeps its own explicit keyword signature
+    for use from notebooks.
 
     Every key it reads is one :func:`anndata_export_settings` declares and
     :func:`register_anndata_settings` gave a type and a tooltip, so the form
@@ -2675,8 +2667,7 @@ def register_anndata_settings(replace: bool = False) -> bool:
     """Register this module's settings through the defaults seam.
 
     Uses :func:`spacr.settings.register_defaults` rather than appending to
-    ``spacr/settings.py``, so this module owns its own knobs and adding one
-    is not a merge conflict in a file nobody owns.
+    ``spacr/settings.py``, so the settings are declared in this module.
 
     :param replace: re-register over an existing registration.
     :returns: True if it registered, False if it already was.

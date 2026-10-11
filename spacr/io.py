@@ -18,11 +18,12 @@ except Exception:
     def display(*args, **kwargs):
         """Do nothing: IPython is unavailable, so there is nowhere to display to.
 
-        THE FALLBACK IS THE POINT. `IPython.display.display` is imported at
-        module scope, and IPython can be mid-init -- partially imported by
-        another thread -- which makes that import raise. Letting it propagate
-        would make importing this module fail for a reason that has nothing to
-        do with what the module does. spaCR only calls `display` from notebook
+        This no-op is the fallback used when importing
+        `IPython.display.display` fails. It is imported at module scope, and
+        IPython can be mid-init -- partially imported by another thread --
+        which makes that import raise. Letting it propagate would make
+        importing this module fail for a reason that has nothing to do with
+        what the module does. spaCR only calls `display` from notebook
         contexts; the Qt GUI ignores it.
 
         :param args: whatever the caller would have displayed.
@@ -123,36 +124,34 @@ def migrate_unescaped_plate_names(src, dry_run=False):
     four-component grammar, and ``utils._map_wells`` answered ``('error',) * 5``
     for every field of it. The plate could not be measured at all.
 
-    Nothing in the measurement database needs migrating, because there is
-    none: every frame of such a plate was refused. What DOES need moving is
-    everything upstream of the measurement -- ``stack/``, ``norm_channel_stack/``,
-    ``merged/`` and, above all, ``masks/``, which is hours to days of
-    segmentation. Renaming those makes the plate measurable without
-    re-segmenting it, which is the whole reason this exists rather than a note
-    saying "re-run the plate".
+    Nothing in the measurement database needs migrating, because there is none:
+    every frame of such a plate was refused. What does need moving is
+    everything upstream of the measurement -- ``stack/``,
+    ``norm_channel_stack/``, ``merged/`` and, above all, ``masks/``, which is
+    hours to days of segmentation. Renaming those makes the plate measurable
+    without re-segmenting it.
 
-    THE NEW NAME IS NOT GUESSED. Every stem this module writes ends in three
-    fixed tokens -- well, field, timepoint -- whatever ``timelapse`` is set to,
-    so everything before them is the plate however many underscores it holds.
-    A stem that is already escaped, or whose plate holds no separator, is left
-    alone: the rename is a no-op for every ordinary plate, which is what makes
-    it safe to run over a folder that does not need it.
+    The new name is derived, not guessed: every stem this module writes ends in
+    three fixed tokens -- well, field, timepoint -- whatever ``timelapse`` is
+    set to, so everything before them is the plate however many underscores it
+    holds. A stem that is already escaped, or whose plate holds no separator,
+    is left alone: the rename is a no-op for every ordinary plate, so it is
+    safe to run over a folder that does not need it.
 
     Crops under ``data/`` are not touched. A plate that could not be measured
     has none, and the ``nightly``-only crop names that ``_generate_names``
     mis-escaped came with a ``png_list`` table whose identities are wrong too,
     so there is nothing there to salvage by renaming -- re-run ``measure_crop``.
 
-    PUBLIC, because the person who needs it is a user with an ``exp_1``
-    folder full of masks, and a recovery tool they have to reach past a
-    leading underscore to call is a recovery tool most people will not find.
+    This function is public so that a user with an affected plate folder, such
+    as ``exp_1``, can run it directly.
 
     :param src: the plate source folder, the one holding ``merged/``.
     :param dry_run: report the renames without performing them.
     :returns: list of ``(old_path, new_path)`` pairs, renamed unless
         ``dry_run``.
     :raises FileExistsError: if a destination is already occupied, before
-        anything is moved. A half-applied rename is worse than none.
+        anything is moved.
 
     Example:
         .. code-block:: python
@@ -219,10 +218,10 @@ def process_non_tif_non_2D_images(folder):
     dimensional images (3D/4D/5D) are split into one grayscale TIFF per
     ``(channel, Z, T)`` combination. Bit depth is preserved.
 
-    A file that cannot be read is recorded on a
-    :class:`spacr.errors.RunLedger` and skipped, so one corrupt image
-    does not abort the folder — but the ledger prints a loud summary of
-    everything that was skipped once the folder is done.
+    A file that cannot be read is recorded on a :class:`spacr.errors.RunLedger`
+    and skipped, so one corrupt image does not abort the folder — but the
+    ledger prints a summary of everything that was skipped once the folder is
+    done.
 
     :param folder: Directory containing the input images.
     :returns: the :class:`spacr.errors.RunLedger` for the conversion, so
@@ -240,10 +239,10 @@ def process_non_tif_non_2D_images(folder):
         :param folder: Directory the TIFF is written to. The converter passes
             the folder it is scanning, so planes land beside the
             multi-dimensional file they came from.
-        :param dtype: NumPy dtype the plane is cast to before writing. This
-            cast is the whole of the "bit depth is preserved" promise — pass
-            the dtype ``load_image`` reported for the source rather than a
-            convenient default, or 16-bit data is silently rewritten.
+        :param dtype: NumPy dtype the plane is cast to before writing. Bit
+            depth is preserved only through this cast: pass the dtype
+            ``load_image`` reported for the source rather than a convenient
+            default, or 16-bit data is silently rewritten.
         :param channel: 1-based channel index appended as ``_C``. ``None``
             leaves that part of the suffix off.
         :param z: 1-based Z index appended as ``_Z``; ``None`` omits it.
@@ -994,11 +993,11 @@ class TarImageDataset(Dataset):
     """Image dataset backed by a tar archive, decoded on demand.
 
     A tar written by :func:`generate_dataset` from on-demand crops carries a
-    ``.spacr_crop_format.json`` member -- the same marker
-    :mod:`spacr.crops` writes into a crop folder, travelling with the bytes it
-    describes. It is **not** an image, so it is excluded from the sample list
-    and surfaced as :attr:`crop_format` instead; an archive without one
-    reports None, which is every tar written before this existed.
+    ``.spacr_crop_format.json`` member -- the same marker :mod:`spacr.crops`
+    writes into a crop folder, travelling with the bytes it describes. It is
+    **not** an image, so it is excluded from the sample list and surfaced as
+    :attr:`crop_format` instead; an archive without one, such as a tar written
+    by an older spaCR, reports None.
 
     New datasets default to declared channel order and uint8 narrowing through
     the shared crop decoder. Inference must pass the model's recorded policy;
@@ -1092,10 +1091,10 @@ def load_images_from_paths(images_by_key):
     """Load images grouped by key into NumPy arrays.
 
     :param images_by_key: Mapping of key -> list of image paths.
-    :returns: Mapping of the same keys -> list of ``ndarray`` images.
-        Paths that fail to load are skipped, recorded on a
-        :class:`spacr.errors.RunLedger` and reported in a loud summary,
-        so a short list is never mistaken for a complete one.
+    :returns: Mapping of the same keys -> list of ``ndarray`` images. Paths
+        that fail to load are skipped, recorded on a
+        :class:`spacr.errors.RunLedger` and reported in a summary, so a short
+        list is never mistaken for a complete one.
     """
     images_dict = {}
     ledger = RunLedger('load_images_from_paths')
@@ -2819,11 +2818,11 @@ def select_fields(names, fields):
     def field_of(token):
         """One field's canonical token, so 'f3', '3' and 'F003' are one field.
 
-        NORMALISED THROUGH `schema`, which is the same rule the file names
-        themselves were written by -- matching the raw text instead would
-        make a selection depend on which of three spellings the user typed.
-        Anything schema cannot read is lower-cased and passed through, so a
-        token from a convention it has not met still selects itself.
+        Normalised through `schema`, which is the same rule the file names
+        themselves were written by -- matching the raw text instead would make
+        a selection depend on which of three spellings the user typed. Anything
+        schema cannot read is lower-cased and passed through, so a token from a
+        convention it has not met still selects itself.
         """
         try:
             index = schema.field_index(token)
@@ -4418,9 +4417,8 @@ class TimelapseKeyMismatch(ValueError):
     :func:`spacr.utils._merge_and_save_to_database` onto every object table —
     so a database where one of the two has it and the other does not was
     written by two runs that disagreed about whether the experiment was a
-    timelapse. Joining them without the timepoint silently multiplies every
-    object by the number of frames, which is precisely the failure this
-    exception exists to stop.
+    timelapse. Joining them without the timepoint would silently multiply every
+    object by the number of frames.
     """
 
 
@@ -4522,9 +4520,8 @@ class CropModeMismatch(ValueError):
     and so on; the mapping is :data:`spacr.utils.PNG_OBJECT_ID_COLUMNS`.
     :func:`_read_and_join_tables` anchors on the ``cell`` table, so it needs
     ``cell_id``. A database measured only with nucleus crops does not have that
-    column, and used to fail with ``KeyError: "['cell_id'] not in index"`` --
-    which names neither the table, nor the column's absence, nor the setting
-    that caused it.
+    column; this exception names the missing column, the crop modes present and
+    the ``crop_mode`` setting that would write it.
 
     The cell a nucleus crop belongs to *is* in the crop's file name --
     :func:`spacr.utils._generate_names` writes
@@ -5006,13 +5003,13 @@ def _mask_movie_frame_geometry(masks, *, dpi=MASK_MOVIE_DPI,
     frame_w = max(1, int(round(width * scale)))
 
     def _points(fraction):
-        """A font size in POINTS for a fraction of the frame's short side.
+        """A font size in points for a fraction of the frame's short side.
 
-        Matplotlib sizes text in points and this geometry is in pixels, so
-        the conversion has to use the dpi the writer will actually use --
-        computing it against a default dpi puts the labels at the wrong size
-        in the file while looking right on screen. Floored at 5 pt, below
-        which a label is ink rather than text.
+        Matplotlib sizes text in points and this geometry is in pixels, so the
+        conversion has to use the dpi the writer will actually use -- computing
+        it against a default dpi puts the labels at the wrong size in the file
+        while looking right on screen. Floored at 5 pt, below which a label is
+        not legible.
         """
         return max(5.0, round(min(frame_h, frame_w) * fraction * 72.0 / dpi, 1))
 
@@ -5192,7 +5189,7 @@ def save_object_mask(output_folder, filename, mask, compression='lzw'):
     """Save an integer label mask as a lossless, compressed TIFF.
 
     Masks are saved as TIFF (not .npy) so they're readable by ImageJ/other
-    tools, with lossless compression (default LZW). Object labels are NEVER
+    tools, with lossless compression (default LZW). Object labels are never
     altered — the array is written verbatim as uint16, exactly as recorded in
     the measurements database.
 
@@ -5345,11 +5342,10 @@ def _load_and_concatenate_arrays(
     def add_mask_folder(role, enabled):
         """Queue one object's mask stack, if this run has that object.
 
-        EITHER the caller named a channel dimension for it OR the folder is
-        on disk: a run that segmented an object always has the folder, and a
-        run being re-read from settings may name the object before the
-        folder is written. Requiring both would drop a mask stack that is
-        sitting right there.
+        Either the caller named a channel dimension for it or the folder is on
+        disk: a run that segmented an object always has the folder, and a run
+        being re-read from settings may name the object before the folder is
+        written. Requiring both would drop a mask stack that exists on disk.
 
         :param role: the object, e.g. ``'cell'``.
         :param enabled: that object's channel dimension, or None.
@@ -5644,9 +5640,9 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=None):
         """Draw one training curve -- train against validation -- and write it.
 
-        One function per COLUMN rather than per figure because the caller
-        asks for accuracy, loss and the rest by name, and every one of them
-        is the same plot of the same two frames.
+        One function per column rather than per figure because the caller asks
+        for accuracy, loss and the rest by name, and every one of them is the
+        same plot of the same two frames.
 
         :param train_df: per-epoch training statistics.
         :param val_df: the same for validation.
@@ -5997,13 +5993,9 @@ def _read_and_merge_data(
     def _merge_grouped(left, right, right_name="grouped object data"):
         """Merge grouped tables while keeping only one copy of shared acquisition metadata.
 
-        THE JOIN TYPE NOW COMES FROM THE REGISTRY. It used to be inner
-        unconditionally -- pandas' default, since no ``how=`` was passed --
-        and this docstring said the choice was "deliberately left alone"
-        because the decision had not been made. It has since: `object_roles.
-        join_how` records it and `_read_and_join_tables` already reads it, so
-        the two readers of the same tables were disagreeing about which
-        objects exist.
+        The join type comes from the registry: `object_roles. join_how` records
+        it and `_read_and_join_tables` reads the same value, so both readers of
+        these tables agree on which objects exist.
 
             nucleus     INNER   a cell with no nucleus is debris
             png_list    INNER   a cell with no crop cannot be classified
@@ -6011,20 +6003,18 @@ def _read_and_merge_data(
             pathogen    LEFT    an UNINFECTED cell is usually the control
             organelle   LEFT    same reasoning
 
-        Inner for pathogen was the consequential one: it silently conditioned
-        every result on infection, deleting the control population from the
-        denominator without a word.
+        An inner join on pathogen would condition every result on infection and
+        remove the uninfected control population from the denominator.
 
         A ``right_name`` the registry does not know keeps the historical
         inner join rather than being guessed at -- the metadata and stamp
         merges go through here too, and they are not object tables.
 
-        What is NOT defensible is doing it in silence, which is what this
-        used to do. The discontinuity is brutal: on a 100-cell plate where
-        NO crop carries a usable object id, png_list drops out before the
-        join and all 100 cells survive; where exactly ONE does, the merge
-        keeps that one and deletes the other 99. Nothing printed either way,
-        and every shipped caller passes verbose=False.
+        Rows removed by an inner join must not disappear silently. The effect
+        is discontinuous: on a 100-cell plate where no crop carries a usable
+        object id, png_list drops out before the join and all 100 cells
+        survive; where exactly one does, the merge keeps that one and deletes
+        the other 99. Callers pass verbose=False.
 
         So the shortfall is reported, named by table. This is the mirror of
         `_report_fan_out` for the shrinking direction.
@@ -6447,11 +6437,9 @@ def parse_gz_files(folder_path):
     Illumina run, and ``<run>_1.fastq.gz`` from ENA or the SRA. See
     :data:`_MATE_SPELLINGS`.
 
-    A file whose mate cannot be identified contributes NOTHING rather than an
-    empty entry. The previous version created ``{sample: {}}`` for it, which
-    turned an unrecognised filename into a ``KeyError: 'R1'`` several frames
-    later in :func:`spacr.sequencing.generate_barecode_mapping` -- a crash that
-    named neither the file nor the problem.
+    A file whose mate cannot be identified contributes nothing rather than an
+    empty ``{sample: {}}`` entry, which would otherwise cause a ``KeyError:
+    'R1'`` later in :func:`spacr.sequencing.generate_barecode_mapping`.
 
     :param folder_path: Directory containing gzipped FASTQ files.
     :returns: Mapping ``{sample_name: {"R1": path, "R2": path}}``. Samples may
@@ -6615,10 +6603,9 @@ def open_crop_source(settings, src=None, object_type=None, verbose=True):
     before instead of failing on a project that predates ``merged/``.
 
     The run's own crop-shaping settings are forwarded (see
-    :func:`_crop_shape_overrides`), which is what makes "cut fresh at the
-    current crop settings" true rather than a slogan:
-    ``resolve_crop_source`` starts from the ``measure_crop`` snapshot in
-    ``measurements.db`` and lets those override it, so a run that asks for
+    :func:`_crop_shape_overrides`), so crops are cut at the current crop
+    settings: ``resolve_crop_source`` starts from the ``measure_crop`` snapshot
+    in ``measurements.db`` and lets those override it, so a run that asks for
     96 px crops gets 96 px crops out of ``merged/`` even though the folder on
     disk holds 48 px ones.
 
@@ -6664,9 +6651,8 @@ class LazyCropPNG:
     reach for every thumbnail with ``PIL.Image.open(image_paths[i])``.
     ``Image.open`` accepts a path *or* any seekable binary stream, so an
     instance of this class can sit in that list exactly where a path string
-    used to and the plotting code needs no change -- which is the point: the
-    PNG list and the on-demand list have to be interchangeable, or the two
-    sources are not really alternatives.
+    used to and the plotting code needs no change, so the PNG list and the
+    on-demand list are interchangeable.
 
     Nothing is read until something opens the object, so building one per row
     of a large screen costs a small dict and only the handful of thumbnails
@@ -6907,12 +6893,11 @@ def crop_refs_for_rows(source, df, object_type='cell', name_column=None):
     def _col(name):
         """One column as a plain list, or a column of None when it is absent.
 
-        PLAIN LISTS RATHER THAN `itertuples`, for two measured reasons: the
+        Plain lists are used rather than `itertuples` for two reasons: the
         joined UMAP frame carries a couple of hundred columns, so building a
         namedtuple per row of it costs more than reading the crops does, and
-        itertuples silently RENAMES any column whose name is not a valid
-        identifier -- which is how a lookup starts missing a column that is
-        plainly there.
+        itertuples silently renames any column whose name is not a valid
+        identifier, so a lookup by the original name would miss it.
 
         :param name: the column, or a falsy value for "this frame has none".
         """
@@ -6921,12 +6906,12 @@ def crop_refs_for_rows(source, df, object_type='cell', name_column=None):
         return [None] * n
 
     def _missing(value):
-        """Whether a cell carries no answer.
+        """Whether a value is missing (None or NaN).
 
-        NaN AS WELL AS None, because a column read out of pandas holds NaN
+        NaN as well as None, because a column read out of pandas holds NaN
         where a row had nothing and `None is not float('nan')`. Testing only
-        for None lets a NaN through as if it were a value, and it then
-        reaches a path name or an object label.
+        for None lets a NaN through as if it were a value, and it then reaches
+        a path name or an object label.
         """
         return value is None or (isinstance(value, float) and np.isnan(value))
 
@@ -7246,11 +7231,11 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
     def _filter(frame, column):
         """Keep the rows whose ``column`` contains any of the wanted terms.
 
-        SUBSTRING AND NOT REGEX (`regex=False`): the terms come from a user
-        naming plates or wells, and a stray `(` or `+` in one of them would
-        otherwise raise out of pandas rather than simply matching nothing.
-        Any term matching is enough -- several terms are alternatives, which
-        is what a user listing them means.
+        Terms match as substrings, not regular expressions (`regex=False`): the
+        terms come from a user naming plates or wells, and a stray `(` or `+`
+        in one of them would otherwise raise out of pandas rather than simply
+        matching nothing. Any term matching is enough -- several terms are
+        alternatives, which is what a user listing them means.
 
         :param frame: the rows to filter.
         :param column: the column to search; an absent one filters nothing,
@@ -7510,8 +7495,8 @@ def class_sampling_weights(counts, mode):
 def expected_sampled_fractions(counts, mode):
     """Class frequencies the loader is expected to realise under ``mode``.
 
-    This is what makes the effect visible before a single epoch runs: the
-    report prints the observed fractions next to these.
+    The class-balance report prints the observed fractions next to these, so
+    the effect of ``mode`` is visible before training.
 
     :param counts: per-class sample counts.
     :param mode: any value of ``CLASS_BALANCE_MODES``.
@@ -7594,12 +7579,12 @@ def format_class_balance_report(summary, class_balance='none', split_name='train
 
 def report_class_balance(labels, classes=None, class_balance='none',
                          split_name='train', verbose=True):
-    """Measure class skew, decide what was done about it, and say so out loud.
+    """Measure class skew, choose the balancing action and report both.
 
-    A silent auto-fix is worse than none: the printed report always names the
-    per-class counts, the imbalance ratio and the concrete action taken, and
-    when ``class_balance='none'`` on skewed data it names the modes that would
-    have helped instead of quietly doing nothing.
+    The printed report always names the per-class counts, the imbalance ratio
+    and the concrete action taken, and when ``class_balance='none'`` on skewed
+    data it names the modes that would have helped instead of quietly doing
+    nothing.
 
     :param labels: integer labels of the split.
     :param classes: ordered class names.
@@ -7749,10 +7734,9 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
 def make_validation_holdout(labels, validation_fraction, groups, seed=0):
     """Choose one stratified group fold closest to a requested holdout size.
 
-    The ordinary Classify validation split used to call ``random_split`` and
-    could put crops from one well on both sides even though grouped CV did not.
-    This helper uses the same group-stratified partitioner as CV and selects
-    the candidate fold closest to the requested size and class distribution.
+    This helper uses the same group-stratified partitioner as CV, so a group
+    never straddles the split, and selects the candidate fold closest to the
+    requested size and class distribution.
 
     :param labels: One integer class label per sample, in dataset order; the
         returned indices point back into that same order.
@@ -7765,14 +7749,14 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
         lot. Over eight equal groups, 0.05 holds out 0.125 (no finer split is
         available) and 0.7 holds out 0.5 (the two-fold floor); with one
         dominant group — 70 of 100 samples across four groups — those same two
-        requests instead hold out 0.10 and 0.70. A miss that big is no longer
-        silent: whenever the realised share is further than
-        ``max(0.01, 0.1 * validation_fraction)`` from the requested one, a
-        ``UserWarning`` names both numbers and why they differ.
+        requests instead hold out 0.10 and 0.70. Whenever the realised share is
+        further than ``max(0.01, 0.1 * validation_fraction)`` from the
+        requested one, a ``UserWarning`` names both numbers and why they
+        differ.
     :param groups: Group id per sample — well, field, or whatever
-        ``cv_group_by`` names — and required, not optional, because the point
-        of this function is that a group never straddles the split. Needs the
-        same length as ``labels`` and at least two distinct values.
+        ``cv_group_by`` names — and required, not optional, because a group
+        must never straddle the split. Needs the same length as ``labels`` and
+        at least two distinct values.
     :param seed: Seed passed to :func:`make_cv_folds` and used to break ties
         between equally suitable folds. Different seeds can produce different
         holdouts when several partitions satisfy the constraints. The seed has
@@ -7897,12 +7881,11 @@ def summarize_cv_folds(labels, folds, classes=None, groups=None):
 
 def report_cv_folds(labels, folds, classes=None, groups=None, group_by='none',
                     verbose=True):
-    """Print the fold table and every warning the split earned.
+    """Print the fold table and the warnings raised by the split.
 
-    Two failure modes are called out rather than allowed to surface later as
-    mysterious metrics: a class too rare to reach every fold's validation set
-    (its recall is undefined there), and ungrouped folds on object crops
-    (which leak well identity between train and validation).
+    Two failure modes are reported: a class too rare to reach every fold's
+    validation set (its recall is undefined there), and ungrouped folds on
+    object crops (which leak well identity between train and validation).
 
     :param labels: integer labels, one per sample.
     :param folds: list of ``(train_idx, val_idx)``.
@@ -8165,7 +8148,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     :param verbose: If True, log configuration to stdout.
     :param class_balance: One of ``CLASS_BALANCE_MODES``. ``'none'`` (default)
         leaves sampling untouched; the sampler modes attach a
-        ``WeightedRandomSampler`` to the TRAIN loader only. The skew is
+        ``WeightedRandomSampler`` to the train loader only. The skew is
         reported either way.
     :param seed: Reproducible train/validation split and loader order.
     :param group_by: ``field``, ``well`` or ``plate`` keeps that acquisition
@@ -8370,9 +8353,9 @@ def generate_training_dataset(settings):
     def _ensure_unique_dir(dst_base):
         """``dst_base``, or the first ``dst_base_N`` that does not exist yet.
 
-        A TRAINING SET IS NEVER WRITTEN OVER ONE THAT IS ALREADY THERE. The
-        folder is the record of what a model was trained on, so reusing the
-        name would leave a model whose training data cannot be reconstructed.
+        An existing training set is never overwritten. The folder is the record
+        of what a model was trained on, so reusing the name would leave a model
+        whose training data cannot be reconstructed.
 
         :param dst_base: the folder that was asked for.
         :returns: a folder path nothing occupies.
@@ -8390,15 +8373,14 @@ def generate_training_dataset(settings):
     def _load_png_table(db_path, object_type='cell'):
         """The per-object crop table, or the measurements standing in for it.
 
-        `png_list` ALONE, deliberately: joining it against the measurement
-        tables would drop every object those tables do not also carry, and a
-        training set is allowed to be a subset of what was measured.
+        Only `png_list` is read: joining it against the measurement tables
+        would drop every object those tables do not also carry, and a training
+        set is allowed to be a subset of what was measured.
 
-        NO `png_list` MEANS NO PNG FOLDER WAS EVER WRITTEN, which is not the
-        same as no data. The objects are still in the measurement table with
-        the same well metadata the class rules select on, so that is read
-        instead -- otherwise a project holding everything it needs reports
-        "0 classes".
+        A missing `png_list` means no PNG folder was written, not that there is
+        no data. The objects are still in the measurement table with the same
+        well metadata the class rules select on, so that is read instead --
+        otherwise a project holding everything it needs reports "0 classes".
 
         :param db_path: the measurements database.
         :param object_type: which object's table to fall back to.
@@ -8428,16 +8410,12 @@ def generate_training_dataset(settings):
     def _fix_path_under_src(src_root, p):
         """Make sure png_path lives under the current src root (portable absolute fix).
 
-        THE RULE ITSELF LIVES IN `spacr.portable_paths` and is shared with the
-        montage, which needs exactly this and used to get none of it -- the
-        rule was a nested local here, reachable only from this generator, so a
-        screen that had moved computer showed the montage 60,816 dead paths
-        while this function resolved every one.
+        The rule lives in `spacr.portable_paths` and is shared with the
+        montage.
 
-        The `/data/` rebuild is now only applied when it lands on a file that
-        EXISTS. Rewriting to somewhere equally absent is strictly worse than
-        leaving the recorded path alone: the copy below then fails naming a
-        folder the user never chose.
+        The `/data/` rebuild is applied only when it resolves to an existing
+        file; otherwise the recorded path is kept, so a failed copy names the
+        recorded folder rather than one the user never chose.
         """
         from .portable_paths import reroot_crop_path
 
@@ -8489,10 +8467,10 @@ def generate_training_dataset(settings):
     def _balance_lists(list_of_lists):
         """Cut every class down to the smallest one, when that was asked for.
 
-        A CLASSIFIER TRAINED ON 9,000 negatives and 300 positives learns to
-        say "negative", so balancing is the ordinary case rather than an
-        exotic one -- but it THROWS AWAY DATA, which is why it is a setting
-        and not a default of this function.
+        A classifier trained on 9,000 negatives and 300 positives is biased
+        toward the majority class, so balancing is the ordinary case; it also
+        discards data, which is why it is a setting and not a default of this
+        function.
 
         Sampled rather than truncated: the first N crops of a class share a
         plate, a well and often a field, so taking them in order would trade
@@ -9210,14 +9188,10 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
     1. A ``wellID`` that **is** a well address keeps it —
        :func:`spacr.convert.normalise_well` reads ``a1``, ``A-01``, ``Q01``
-       (row 17) and ``AA13`` (row 27) alike. Every one of those used to be
-       thrown away and replaced with the next free synthetic id, so a real
-       1536-plate came out relabelled ``A01, A02, …`` with only
-       ``rename_log.csv`` to say what had happened.
-    2. Anything else — ``1``, ``well_left``, a positional number — is
-       handed a synthetic id, in ``_natural_key`` order so the same folder
-       always converts the same way. It used to follow ``os.listdir`` order,
-       which is the filesystem's business and not reproducible.
+       (row 17) and ``AA13`` (row 27) alike.
+    2. Anything else — ``1``, ``well_left``, a positional number — is handed a
+       synthetic id, in ``_natural_key`` order so the same folder always
+       converts the same way.
     3. Each distinct source ``plateID`` gets its own ``plate<N>`` token, so
        well ``A01`` of two source plates stays two wells.
 
@@ -9344,13 +9318,12 @@ def convert_to_yokogawa(folder):
     ``plate<N>_<well>_T####F###L01C##.tif``. A ``rename_log.csv``
     records the original-to-new mapping.
 
-    A file that cannot be read is skipped so the rest of the folder
-    still converts — but the skip is recorded on a
-    :class:`spacr.errors.RunLedger`, printed as a loud summary at the
-    end, and **stamped into a sibling** ``rename_log.run_status.json``.
-    That sidecar is what lets a later reader (or
-    :func:`spacr.errors.run_is_complete`) tell that the converted
-    folder is missing inputs, instead of quietly analysing a subset.
+    A file that cannot be read is skipped so the rest of the folder still
+    converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`,
+    printed as a summary at the end, and **stamped into a sibling**
+    ``rename_log.run_status.json``. That sidecar is what lets a later reader
+    (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is
+    missing inputs, instead of quietly analysing a subset.
 
     :param folder: Directory of raw images, converted in place.
     :returns: the :class:`spacr.errors.RunLedger` for the conversion.
@@ -9383,9 +9356,7 @@ def convert_to_yokogawa(folder):
         """Return the next free well, filling one plate before the next.
 
         The well ids come from :func:`spacr.convert.well_sequence`, which
-        builds them out of :data:`spacr.schema.PLATE_FORMATS` — one
-        definition instead of the three copies of ``"ABCDEFGHIJKLMNOP"`` and
-        ``range(1, 25)`` this module used to carry.
+        builds them out of :data:`spacr.schema.PLATE_FORMATS`.
 
         The plate format stays 384 here: unlike
         :func:`convert_separate_files_to_yokogawa`, the inputs carry no well

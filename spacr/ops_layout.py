@@ -1,37 +1,31 @@
-"""Where every tile of a round well is, in closed form.
+"""Compute every tile position of a round well in closed form.
 
-THE ADJACENCY WAS THE OPEN PROBLEM AND THIS IS THE ANSWER. Three earlier
-prototypes tried to RECONSTRUCT the grid from the links that register -- a serpentine with a constant stride, then runs delimited by a
-failed link, then columns as maximal runs of vertical links. All three
-inferred the grid from the very edges that were missing, and all three
-failed on the same acquisition: 27 of 333 tiles placed.
+The tile grid is computed from a circle model, not reconstructed from the links
+that register. Reconstructing it from registered links infers the grid from the
+edges that are missing, and on one acquisition placed only 27 of 333 tiles.
 
-The well is ROUND. Each column holds as many fields as fit inside the
-circle at that x, so the columns have DIFFERENT HEIGHTS and the index
-offset to the next column is that column's height -- which is why the
-measured horizontal offsets were +11, +4, -11, -9, -4, -13 and -5 rather
-than one number. Fitting the circle takes four parameters and answers
-every tile at once::
+The well is round. Each column holds as many fields as fit inside the circle at
+that x, so the columns have different heights and the index offset to the next
+column is that column's height -- which is why the measured horizontal offsets
+were +11, +4, -11, -9, -4, -13 and -5 rather than one number. Fitting the
+circle takes four parameters and answers every tile at once::
 
     columns   21, snaked down (even columns top to bottom)
     circle    radius 10.25 grid units, centre at column 10, row -10
     heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,
               19, 19, 17, 17, 15, 13, 9, 5                SUM = 333
 
-IT IS A FACT ABOUT THE ACQUISITION, NOT A GOOD FIT. Seven measured
-offsets against four free parameters would only be a fit; the model was
-then asked to predict the four neighbours of six sites it had never seen
--- 20, 60, 140, 200, 260, 300 -- and registration confirmed 24 of 24, at
-peak/mean 23.6 to 53.1 against control pairs at 9.0 to 15.6. The controls
-came back at shift (0,0), which is the no-overlap signature behaving as
-it should.
+The model was validated by prediction. Seven measured offsets against four free
+parameters would only be a fit; the model was then asked to predict the four
+neighbours of six sites it had never seen -- 20, 60, 140, 200, 260, 300 -- and
+registration confirmed 24 of 24, at peak/mean 23.6 to 53.1 against control
+pairs at 9.0 to 15.6. The controls came back at shift (0,0), which is the
+no-overlap signature behaving as it should.
 
-THE MISTAKE THAT COST THE FIRST MODEL FOUR OF SEVEN, recorded because it
-is the same class of error as the wrapped shifts in 372's PART 6-A: rows
-were indexed from each column's own top. In a round well every column
-starts at a different row, so "row 3 of column c" and "row 3 of column
-c+1" are not side by side. THE NEIGHBOUR IS AT THE SAME ABSOLUTE GRID
-ROW, which is why :meth:`WellLayout.position` returns absolute rows and
+Rows are absolute grid rows, not counted from each column's own top. In a round
+well every column starts at a different row, so "row 3 of column c" and "row 3
+of column c+1" are not side by side. The neighbour is at the same absolute grid
+row, which is why :meth:`WellLayout.position` returns absolute rows and
 :meth:`WellLayout.neighbours` looks them up directly.
 
 Typical use::
@@ -83,17 +77,16 @@ class WellLayout:
 
     :ivar columns: how many columns of fields the acquisition raster has.
     :ivar radius: the well's radius, in grid units (one tile pitch = 1).
-    :ivar centre: ``(column, row)`` of the circle's centre. The row is
-        negative for the measured well because site 0 is at the TOP and
-        rows increase downwards.
+    :ivar centre: ``(column, row)`` of the circle's centre. The row is negative
+        for the measured well because site 0 is at the top and rows increase
+        downwards.
     :ivar snake: whether the acquisition snakes -- odd columns collected
         bottom to top. Micro-Manager's HCS plugin does, which is why the
         reference implementation carries a `remap_snake` at all.
-    :ivar half_tile: half a tile's side, in grid units. A site is kept
-        when its whole tile lies inside the circle: at ``(dx, dy)`` from
-        the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2
-        <= radius**2``. Zero keeps every site whose centre is inside, which
-        is the rule every layout followed before this field existed.
+    :ivar half_tile: half a tile's side, in grid units. A site is kept when its
+        whole tile lies inside the circle: at ``(dx, dy)`` from the centre,
+        when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``.
+        Zero keeps every site whose centre is inside.
 
     The tile has to fit, not its centre. The centre rule holds the
     333-field sequencing well and cannot produce the column heights the
@@ -163,8 +156,8 @@ class WellLayout:
         """The ``(column, row)`` of one site.
 
         :param site: the site index.
-        :returns: the column and the ABSOLUTE grid row -- not the row
-            counted from this column's own top. See the module note.
+        :returns: the column and the absolute grid row -- not the row counted
+            from this column's own top. See the module note.
         :raises IndexError: when the well holds no such site.
         """
         places = _index(self)[0]
@@ -185,9 +178,9 @@ class WellLayout:
     def neighbours(self, site: int) -> Dict[str, int]:
         """The sites physically adjacent to one site.
 
-        FOUR CANDIDATES, NOT 128. Every one of them is a real adjacency:
-        this is what replaces `max_site_gap`'s window, which offered a
-        band of index neighbours of which at most four could be touching.
+        At most four candidates, each a real adjacency, rather than a band of
+        index neighbours such as `max_site_gap`'s window, of which at most four
+        could touch.
 
         :param site: the site index.
         :returns: ``{direction: site}`` for the neighbours that exist.
@@ -204,23 +197,20 @@ class WellLayout:
     def pairs(self) -> List[Tuple[int, int, str]]:
         """Every adjacent pair once, as ``(first, second, axis)``.
 
-        ONCE, not twice: registering a pair in both directions doubles the
-        work and asks the same question. The axis is "vertical" or
-        "horizontal", which the caller wants because a vertical link
-        continues a column and a horizontal one crosses a snake turn --
-        and because the two carry different expected shifts.
+        Once, not twice: registering a pair in both directions doubles the work
+        and asks the same question. The axis is "vertical" or "horizontal",
+        which the caller wants because a vertical link continues a column and a
+        horizontal one crosses a snake turn -- and because the two carry
+        different expected shifts.
 
-        ORDERED BY GEOMETRY, NOT BY SITE INDEX, and this is the one that
-        will not fail loudly. The SECOND tile is always the one BELOW for
-        a vertical pair and the one to the RIGHT for a horizontal one,
-        because that is what a caller cropping an overlap band has to
-        assume -- `register_edge` takes the bottom of the first and the
-        top of the second. Ordering by index instead looks identical and
-        is wrong on every odd column: the raster snakes, so in a
-        bottom-to-top column the tile ABOVE carries the higher index. It
-        cost half the edges of a toy well and reported itself as a
-        residual of 0.00 px, because each surviving component still
-        solved perfectly.
+        Ordered by geometry, not by site index: the second tile is always the
+        one below for a vertical pair and the one to the right for a horizontal
+        one, because a caller cropping an overlap band assumes that --
+        `register_edge` takes the bottom of the first and the top of the
+        second. Ordering by index is wrong on every odd column, because the
+        raster snakes and in a bottom-to-top column the tile above carries the
+        higher index. That error is silent: edges are lost while each surviving
+        component still solves with a residual of 0.00 px.
 
         :returns: the pairs, ordered by their first site.
         """
@@ -241,10 +231,8 @@ class WellLayout:
                         pitch: float = TILE_PITCH_UM) -> Tuple[float, float]:
         """Where the reference implementation says a tile is, in microns.
 
-        The honest score for a stitch is the residual against THIS, not a
-        count of how many tiles were placed -- 372's PART 6-A, and the
-        reason `plate_coordinate` was read from the source rather than
-        described.
+        A stitch is scored by its residual against this position, not by how
+        many tiles were placed.
 
         :param site: the site index.
         :param pitch: microns between tile centres.
@@ -373,11 +361,10 @@ def round_well_layout(site_count: int = 333,
         between 0.5 and 2.0 gives both wells -- 333 and 1,281 fields -- the
         column heights they were measured at.
     :returns: the layout.
-    :raises ValueError: when no circle holds exactly that many fields,
-        which is the honest answer -- a count that no round well produces
-        means the acquisition is not one, and guessing the nearest would
-        place every tile slightly wrong. Also when ``half_tile`` is
-        negative or not a number.
+    :raises ValueError: when no circle holds exactly that many fields: a count
+        that no round well produces means the acquisition is not one, and
+        guessing the nearest would place every tile slightly wrong. Also when
+        ``half_tile`` is negative or not a number.
 
     For one half tile, the count fixes the fields. The number of fields
     inside the circle only grows with the radius, so every radius that

@@ -1,5 +1,4 @@
-"""Foreign-data importer — somebody else's images, masks and measurements
-turned into a working spaCR project.
+"""Import external images, masks and measurements as a spaCR project.
 
 The problem
 -----------
@@ -23,18 +22,17 @@ project root::
 …which Mask, Measure, Annotate, Classify, the Plate Viewer and the
 Database Browser all read without knowing it was imported.
 
-What is actually hard
+Schema mapping
 ---------------------
 
-Moving files is the easy half, and :mod:`spacr.convert` already does it:
-:func:`spacr.convert.scan` / :func:`~spacr.convert.plan` /
-:func:`~spacr.convert.convert` handle the image formats, the Yokogawa
-naming, the well assignment and the ``conversion_map.csv`` that maps
-every converted name back to the file it came from. This module reuses
-all of it rather than growing a second copy.
+File conversion is done by :mod:`spacr.convert`: :func:`spacr.convert.scan` /
+:func:`~spacr.convert.plan` / :func:`~spacr.convert.convert` handle the image
+formats, the Yokogawa naming, the well assignment and the
+``conversion_map.csv`` that maps every converted name back to the file it came
+from. This module reuses all of it rather than growing a second copy.
 
-The hard half is mapping an **arbitrary external schema** onto spaCR's,
-and the four ways that goes silently wrong:
+This module maps an **arbitrary external schema** onto spaCR's and guards
+against these silent failures:
 
 1. **A guessed mapping applied without review.** Their ``Area`` in µm²
    written into spaCR's ``cell_area`` in px² is a number that is wrong by
@@ -53,11 +51,10 @@ and the four ways that goes silently wrong:
    **not** multiplied by 1.0 and pretended to be pixels: the column is
    redirected to the ``foreign_`` prefix, recorded with its own unit and
    ``calibrated = 0``, and named in the plan and the summary.
-3. **Columns that could not be mapped.** They are listed by name in the
-   plan, in :meth:`ImportResult.summary`, and in the ``foreign_columns``
-   table — and they are still *imported*, under the ``foreign_`` prefix.
-   Dropping a column the user cared about, quietly, is the failure mode
-   this exists to prevent.
+3. **Columns that could not be mapped.** They are listed by name in the plan,
+   in :meth:`ImportResult.summary`, and in the ``foreign_columns`` table — and
+   they are still *imported*, under the ``foreign_`` prefix. No column is
+   dropped silently.
 4. **Name collisions.** A foreign column called ``cell_area`` that means
    something else would corrupt every downstream analysis with no error
    at all. Targets are checked against :func:`spacr.feature_dict.parse_column`
@@ -86,63 +83,59 @@ When the destination already holds measurements:
   holds their rows, and the ``<object>_with_foreign`` view joins the two
   on ``(prcf, object_label)`` — the same key
   :func:`spacr.utils._merge_and_save_to_database` writes.
-* **different fields** — there is nothing to reconcile and no shape in
-  which two experiments belong in one database, so the import refuses,
-  naming the tables, their row counts and the fields on each side, and
-  writes nothing at all.
+* **different fields** — two experiments do not belong in one database, so the
+  import refuses, naming the tables, their row counts and the fields on each
+  side, and writes nothing at all.
 
-This is a merge onto the canonical keys rather than a substitution for
-them because the canonical tables carry things a foreign table cannot
-reproduce: every spaCR feature column, and ``cell_id``, the link from a
-nucleus or pathogen back to the cell that contains it. Replacing the
-table dropped both, and a parent-child link is not recoverable from what
-is left. ``conversion_map`` gets the same treatment — merged on the
-output filename, never replaced — so a project's provenance back to its
-own original files survives an import into it.
+This is a merge onto the canonical keys rather than a substitution for them
+because the canonical tables carry things a foreign table cannot reproduce:
+every spaCR feature column, and ``cell_id``, the link from a nucleus or
+pathogen back to the cell that contains it. Replacing the table would drop
+both, and a parent-child link is not recoverable from what is left.
+``conversion_map`` gets the same treatment — merged on the output filename,
+never replaced — so a project's provenance back to its own original files
+survives an import into it.
 
 The copy in the canonical table is a convenience, and it is handed back
 -----------------------------------------------------------------------
 
-The copy an import-only project gets exists so the rest of spaCR has a
-``cell`` table to read. It stops being useful the moment spaCR measures
-the same objects itself: ``measure_crop`` *appends*, so its rows would
-land in that table beside theirs and every per-well count would be the
-sum of two populations, with nothing marking the seam.
+The copy an import-only project gets exists so the rest of spaCR has a ``cell``
+table to read. It stops being useful the moment spaCR measures the same objects
+itself: ``measure_crop`` *appends*, so its rows would land in that table beside
+theirs and every per-well count would be the sum of two populations, with
+nothing distinguishing them.
 
-:func:`release_canonical_copy` hands the table back. It removes only
-rows it has matched, in SQL, against ``foreign_<object>`` — same value in
-every shared column, NULL in every unshared one — so what it deletes
-provably still exists somewhere; it *un-claims* the table in the same
-transaction, so no record goes on saying the importer owns a table whose
-rows it no longer has; and it builds the ``<object>_with_foreign`` view,
-so their numbers stay one query away. It runs from two places: before
-``run_import(measure=True)`` measures, and from
-:func:`spacr.resume.supersede_imported_copies` when a measure resume is
-about to fill the table. Neither ever runs it half way — a table that is
-half released is worse than one that is not.
+:func:`release_canonical_copy` hands the table back. It removes only rows it
+has matched, in SQL, against ``foreign_<object>`` — same value in every shared
+column, NULL in every unshared one — so every deleted row still exists in
+``foreign_<object>``; it *un-claims* the table in the same transaction, so no
+record goes on saying the importer owns a table whose rows it no longer has;
+and it builds the ``<object>_with_foreign`` view, so their numbers stay one
+query away. It runs from two places: before ``run_import(measure=True)``
+measures, and from :func:`spacr.resume.supersede_imported_copies` when a
+measure resume is about to fill the table. A release either completes or rolls
+back.
 
-The rows are identified by that predicate and by nothing else — no
-``rowid``, no key lookup. Both alternatives were measured against a real
-mixed table and both destroyed spaCR's measurements: an object table
-declares a column called ``rowID``, which shadows SQLite's own row
-identity, and the import's row for an object and ``measure_crop``'s row
-for the same object carry identical
-``plateID``/``rowID``/``columnID``/``fieldID``/``object_label``. What
-tells the two apart is the only thing that ever did — which columns each
-holds a value in. See :data:`_RELEASE_ALIAS`.
+The rows are identified by that predicate and by nothing else — no ``rowid``,
+no key lookup. Both alternatives delete spaCR's measurements from a mixed
+table: an object table declares a column called ``rowID``, which shadows
+SQLite's own row identity, and the import's row for an object and
+``measure_crop``'s row for the same object carry identical
+``plateID``/``rowID``/``columnID``/``fieldID``/``object_label``. The two are
+told apart only by which columns each holds a value in. See
+:data:`_RELEASE_ALIAS`.
 
 Object identity is the join
 ---------------------------
 
-Their measurement rows have to line up with the objects in their masks.
-The key is ``(field, object label)``: an ``image_key`` column that says
-which image a row belongs to, and a ``label_key`` column holding the
-integer label of the object in that image's mask. Both are stated in the
-plan, and both are *verified* against the label images before anything is
-written — :class:`JoinReport` counts the rows that resolve to no field,
-the rows whose label is in no mask, and the mask objects that no row
-measures. An import where 40% of the rows match nothing is broken, and it
-says so with the number rather than quietly inner-joining it away.
+Their measurement rows have to line up with the objects in their masks. The key
+is ``(field, object label)``: an ``image_key`` column that says which image a
+row belongs to, and a ``label_key`` column holding the integer label of the
+object in that image's mask. Both are stated in the plan, and both are
+*verified* against the label images before anything is written —
+:class:`JoinReport` counts the rows that resolve to no field, the rows whose
+label is in no mask, and the mask objects that no row measures. Unmatched rows
+are counted and reported rather than dropped by an inner join.
 
 Typical use::
 
@@ -549,10 +542,9 @@ class ColumnMap:
     def resolve(self, um_per_px: Optional[float] = None) -> Tuple[Optional[float], str]:
         """Return ``(factor, reason)`` for this mapping.
 
-        ``factor`` is None when the conversion cannot be performed — and
-        that is the whole point of returning it separately from a number.
-        ``reason`` is empty on success and names the missing piece
-        otherwise, in words that go straight into the plan.
+        ``factor`` is None when the conversion cannot be performed. ``reason``
+        is empty on success and names the missing piece otherwise, in words
+        that go straight into the plan.
 
         :param um_per_px: micrometres per pixel. None means unknown, and
             an unknown pixel size never silently becomes 1.0.
@@ -655,11 +647,11 @@ class ColumnMap:
 class ResolvedColumn:
     """A :class:`ColumnMap` after conflicts and units have been settled.
 
-    This — not :class:`ColumnMap` — is what :func:`run_import` executes,
-    and what the ``foreign_columns`` table records. Keeping the two apart
-    is what makes "the mapping you saved is the mapping that ran" a
-    property that can be checked: the mapping is the input, the resolution
-    is the derivation, and the derivation is deterministic.
+    This — not :class:`ColumnMap` — is what :func:`run_import` executes, and
+    what the ``foreign_columns`` table records. Keeping the two apart makes it
+    checkable that the saved mapping is the one that ran: the mapping is the
+    input, the resolution is the derivation, and the derivation is
+    deterministic.
 
     :param mapping: reviewed source-to-target column mapping from which this
         resolution was derived.
@@ -694,9 +686,8 @@ class ResolvedColumn:
 
         :param values: foreign-column values to copy or scale.
 
-        A non-numeric column is passed through untouched however the
-        factor reads: multiplying a string column of treatment names by
-        0.65 is not a unit conversion, it is a crash.
+        A non-numeric column is passed through untouched whatever the factor;
+        scaling a string column such as treatment names would fail.
         """
         if self.factor is None or self.factor == 1.0:
             return values
@@ -805,22 +796,19 @@ def infer_column_map(df: 'pd.DataFrame',
                      skip: Optional[Iterable[str]] = None) -> List[ColumnMap]:
     """Propose a mapping for every column of a foreign measurement table.
 
-    **A proposal, never an application.** Nothing in this module writes a
-    database from the output of this function without it having passed
-    through :func:`save_column_map` / :func:`load_column_map` or having
-    been handed back explicitly — because the one mistake this module
-    exists to prevent is an inferred ``Area`` -> ``cell_area`` that nobody
-    read.
+    **The result is a proposal and is never applied directly.** Nothing in this
+    module writes a database from the output of this function unless it has
+    passed through :func:`save_column_map` / :func:`load_column_map` or been
+    handed back explicitly, so an inferred ``Area`` -> ``cell_area`` mapping is
+    never written unreviewed.
 
     The proposal is deliberately conservative:
 
-    * **Nothing is proposed onto a spaCR feature name.** Their ``Area`` is
-      not spaCR's ``cell_area``: different segmentation, different
-      definition, different unit. Every feature column is proposed as
-      ``foreign_<name>``. A user who genuinely wants their column in
-      spaCR's slot edits the target and passes
-      ``allow_spacr_targets=True`` to :func:`plan_import`, which is a
-      decision with a name on it.
+    * **Nothing is proposed onto a spaCR feature name.** Their ``Area`` is not
+      spaCR's ``cell_area``: different segmentation, different definition,
+      different unit. Every feature column is proposed as ``foreign_<name>``.
+      To write a column into spaCR's name, edit the target and pass
+      ``allow_spacr_targets=True`` to :func:`plan_import`.
     * **A unit read out of the header becomes a declared conversion.**
       ``Area (µm²)`` is proposed as ``transform='area'``,
       ``unit_in='um^2'``, ``unit_out='px^2'`` — which then *needs* a pixel
@@ -980,9 +968,9 @@ def read_measurements(source: Union[str, 'pd.DataFrame'],
     CSV / TSV / Excel / Parquet / SQLite, or a DataFrame straight through.
 
     :param source: path, or an already-loaded DataFrame.
-    :param table: table name, for a SQLite source. The only table is used
-        when there is exactly one; otherwise the name is required, because
-        picking one at random is how you import the wrong 40 000 rows.
+    :param table: table name, for a SQLite source. The only table is used when
+        there is exactly one; otherwise the name is required rather than
+        picking one.
     :returns: the table.
     :raises ConfigurationError: unreadable, unknown extension, or an
         ambiguous SQLite source.
@@ -1071,10 +1059,9 @@ class MaskMapping:
 class PairingReport:
     """Which image fields have which masks, and everything that did not pair.
 
-    The rule is field-for-field: a mask with no image and an image with no
-    mask are both reported *per file*. A converter that quietly kept the
-    intersection would produce a smaller, perfectly consistent, wrong
-    experiment.
+    The rule is field-for-field: a mask with no image and an image with no mask
+    are both reported *per file*. Unpaired files are reported, not silently
+    dropped.
 
     :ivar fields: ``{stem: {object_type: MaskMapping}}`` for the fields
         that have a full set of masks.
@@ -1170,11 +1157,9 @@ def _mask_labels(array: np.ndarray) -> Tuple[int, ...]:
 class JoinReport:
     """How their measurement rows line up with the objects in their masks.
 
-    The join key is ``(field, object label)``. Both halves are verified
-    against the label images at plan time, and every failure is *counted*:
-    an import where 40% of the rows match no mask object is broken, and
-    the number is the only thing that makes that visible before the
-    database exists.
+    The join key is ``(field, object label)``. Both halves are verified against
+    the label images at plan time, and every failure is *counted*: a low match
+    rate is therefore visible before the database is written.
 
     :ivar image_key: their column naming the image a row belongs to, or
         ``''`` when the whole table is one field.
@@ -1206,7 +1191,7 @@ class JoinReport:
 
     @property
     def rows_unmatched(self) -> int:
-        """Rows that will carry no object — the honest headline number."""
+        """Number of rows that will carry no object."""
         return max(int(self.rows_total) - int(self.rows_matched), 0)
 
     @property
@@ -1709,7 +1694,7 @@ def plan_import(images: str,
                 verify_labels: bool = True,
                 metadata_type: Optional[str] = None,
                 custom_regex: Optional[str] = None) -> ImportPlan:
-    """Work out the whole import and write nothing.
+    """Plan an import without writing anything.
 
     Five things happen here, in order, and every one of them can only
     produce a report:
@@ -1726,7 +1711,7 @@ def plan_import(images: str,
     4. **Columns are resolved** — collisions with spaCR names settled, unit
        conversions computed or refused.
     5. **The join is verified** against the label images: every count in
-       :class:`JoinReport` is real, not assumed.
+       :class:`JoinReport` is measured from the masks.
 
     :param images: folder of their image files.
     :param masks: folder (taken as ``cell``), or ``{object_type: folder}``.
@@ -1744,17 +1729,17 @@ def plan_import(images: str,
     :param label_key: their column holding the object label. Inferred when
         None.
     :param column_maps: the **reviewed** mapping. When None, an inferred
-        proposal is used and the plan says loudly that it is a proposal.
+        proposal is used and the plan states that it is a proposal.
     :param um_per_px: micrometres per pixel. None means unknown, and any
         column needing it is reported uncalibrated rather than scaled by 1.
     :param on_conflict: ``'refuse'`` (default) or ``'rename'``.
     :param allow_spacr_targets: opt in to writing foreign values into
         spaCR's own column names.
     :param verify_labels: read the masks to check the join. On by default.
-    :param metadata_type: the filename convention their images AND masks are
+    :param metadata_type: the filename convention their images and masks are
         named by -- any of Mask's ``metadata_type`` values. ``None`` or
-        ``'auto'`` reads plate / well / field from the folders, as before.
-        See :func:`spacr.convert.scan`.
+        ``'auto'`` reads plate / well / field from the folders, as before. See
+        :func:`spacr.convert.scan`.
     :param custom_regex: the pattern for ``metadata_type='custom'``.
     :returns: an :class:`ImportPlan`.
     :raises ConfigurationError: for an unreadable input or an unknown
@@ -2055,9 +2040,8 @@ def format_plan(plan: ImportPlan) -> str:
 
     :param plan: proposed import plan to render.
 
-    Ordered by what can hurt them: blocking problems, then conflicts, then
-    the columns that could not be mapped, then the join, then the plain
-    counts.
+    Ordered by severity: blocking problems, then conflicts, then the columns
+    that could not be mapped, then the join, then the plain counts.
     """
     lines: List[str] = ['spaCR foreign import — nothing has been written.']
     lines.extend(plan.notes)
@@ -2139,7 +2123,7 @@ def format_plan(plan: ImportPlan) -> str:
 
 @dataclass
 class ImportResult:
-    """What :func:`run_import` actually did.
+    """Outcome of a :func:`run_import` call.
 
     :param plan: import plan represented by this result.
     :param dst: destination project directory.
@@ -2198,7 +2182,7 @@ class ImportResult:
         return self.ledger is None or self.ledger.is_complete
 
     def summary(self) -> str:
-        """The end-of-run block: what landed, and everything that did not."""
+        """Return the end-of-run summary of what was and was not imported."""
         plan = self.plan
         lines = [f'Imported {self.n_fields} field(s) into {self.dst}.']
         if self.conversion is not None:
@@ -2633,29 +2617,27 @@ def _release_note(object_type: str, count: int) -> str:
 
 def release_canonical_copy(db_path: str, object_type: str,
                            dry_run: bool = False) -> int:
-    """Hand ``<object>`` back to spaCR: remove the copy this importer put in it.
+    """Remove the rows this importer copied into the canonical ``<object>``.
 
-    ``run_import`` copies the imported frame into the canonical
-    ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone
-    else's is there, so that a project built purely by import is readable
-    by every spaCR tool. That copy is a *convenience*, and it stops being
-    one the moment spaCR measures the same project itself: measure appends,
-    so its rows would land in the same table beside theirs, and every
-    per-well count downstream would be the sum of two populations with
-    nothing marking the seam.
+    ``run_import`` copies the imported frame into the canonical ``cell`` /
+    ``nucleus`` / ``pathogen`` table when nothing of anyone else's is there, so
+    that a project built purely by import is readable by every spaCR tool. That
+    copy is a *convenience*, and it stops being one the moment spaCR measures
+    the same project itself: measure appends, so its rows would land in the
+    same table beside theirs, and every per-well count downstream would be the
+    sum of two populations with nothing distinguishing them.
 
-    This removes them — losslessly, and it proves that rather than
-    assuming it. Every row it deletes is checked, in SQL, against
-    ``foreign_<object>``: same value in every column the two tables share,
-    NULL in every column they do not. A row that cannot be matched stops
-    the whole call, because the copy would then be the only copy.
+    This removes them and verifies that nothing is lost. Every row it deletes
+    is checked, in SQL, against ``foreign_<object>``: same value in every
+    column the two tables share, NULL in every column they do not. A row that
+    cannot be matched stops the whole call, because the copy would then be the
+    only copy.
 
-    It also *un-claims* the table, which is the half a previous attempt
-    left out: the ``foreign_columns`` rows for ``<object>`` are deleted
-    and ``foreign_import.canonical_table_written`` is set to 0, so nothing
-    in the database goes on saying the importer owns a table whose rows it
-    no longer has. Without that the claim outlives the rows and no later
-    run can tell the difference.
+    It also *un-claims* the table: the ``foreign_columns`` rows for
+    ``<object>`` are deleted and ``foreign_import.canonical_table_written`` is
+    set to 0, so nothing in the database goes on saying the importer owns a
+    table whose rows it no longer has. Without that, the claim would outlive
+    the rows.
 
     Their numbers stay exactly where they were, in ``foreign_<object>``,
     and the ``<object>_with_foreign`` view is created so they are still
@@ -2667,10 +2649,8 @@ def release_canonical_copy(db_path: str, object_type: str,
 
     :param db_path: path to ``measurements.db``.
     :param object_type: canonical table to release, e.g. ``'cell'``.
-    :param dry_run: run every check and report the count, writing nothing.
-        This is how a caller asks "could this be released?" without a
-        second implementation of the question that could answer
-        differently from the one that does the work.
+    :param dry_run: run every check and report the count, writing nothing. It
+        uses the same checks as a real release.
     :returns: number of imported rows removed from ``<object>`` (or, with
         ``dry_run``, that would be).
     :raises ConfigurationError: when the rows cannot be shown to survive
@@ -3181,14 +3161,13 @@ def run_import(plan: ImportPlan, dst: str, *,
     left alone by the converter, and every table this *owns* is replaced,
     never appended to.
 
-    Owning is the whole of it. Their rows go to ``foreign_<object>``, and
-    the canonical ``<object>`` table is written only when it does not
-    exist or when a previous run of this importer wrote it and nothing has
-    been added to it since. A ``<object>`` table holding somebody's
-    measurements is left exactly as it is and joined to theirs by the
-    ``<object>_with_foreign`` view; a destination whose measurements are
-    of a *different* experiment is refused before a single file is
-    written. See the module docstring.
+    Their rows go to ``foreign_<object>``, and the canonical ``<object>`` table
+    is written only when it does not exist or when a previous run of this
+    importer wrote it and nothing has been added to it since. A ``<object>``
+    table holding somebody's measurements is left exactly as it is and joined
+    to theirs by the ``<object>_with_foreign`` view; a destination whose
+    measurements are of a *different* experiment is refused before a single
+    file is written. See the module docstring.
 
     :param plan: a plan from :func:`plan_import` whose ``ok`` is True.
     :param dst: destination project root. Created if missing. It may be an
@@ -3196,13 +3175,11 @@ def run_import(plan: ImportPlan, dst: str, *,
         will be overwritten.
     :param overwrite: rewrite converted images that already exist.
     :param measure: also run :func:`spacr.measure.measure_crop` over the
-        imported project. Off by default, and *separate*: when it is on,
-        the standard object tables are spaCR's and theirs stay in the
-        ``foreign_*`` tables, joined by a ``<object>_with_foreign`` view.
-        A convenience copy an *earlier* import left in ``<object>`` is
-        released first (:func:`release_canonical_copy`) rather than
-        appended to — that path used to record "the importer did not
-        write this table" while leaving every one of its rows in it.
+        imported project. Off by default, and *separate*: when it is on, the
+        standard object tables are spaCR's and theirs stay in the ``foreign_*``
+        tables, joined by a ``<object>_with_foreign`` view. A convenience copy
+        an *earlier* import left in ``<object>`` is released first
+        (:func:`release_canonical_copy`) rather than appended to.
     :param measure_settings: extra settings for ``measure_crop``.
     :param crops: cut one PNG per imported object.
     :param progress: ``progress(done, total, message)``.
@@ -3409,13 +3386,11 @@ def import_project(settings: Optional[TMapping[str, Any]] = None,
     """Plan and run one foreign import from a settings dict.
 
     Always prints the plan before writing anything, so even a headless run
-    leaves the mapping, the unmapped columns and the join counts in the log
-    where a surprised user can find them.
+    leaves the mapping, the unmapped columns and the join counts in the log.
 
-    ``column_map`` is the path to a reviewed
-    :func:`save_column_map` file. Leaving it None runs with the *inferred*
-    proposal, which the printed plan says in as many words — use
-    ``preview_only`` first, save the map, read it, then run.
+    ``column_map`` is the path to a reviewed :func:`save_column_map` file.
+    Leaving it None runs with the *inferred* proposal, and the printed plan
+    states this — use ``preview_only`` first, save the map, read it, then run.
 
     :returns: the :class:`ImportResult`; for ``preview_only`` an empty one
         carrying the plan.
