@@ -274,7 +274,7 @@ Verified live: 95/95 headless checks (adds tab deep links, arrow keys,
   fractals), one lazy module each, with a picker. Pause, reduced motion and
   the no-WebGL fallback work for every theme. ripple and cells are not
   ported because the app does not offer them in its picker.
-- i18n: 176 new keys (en.json regenerated; 363 keys). Translations of removed
+- i18n: 178 new keys, 14 removed (en.json regenerated; 363 keys). Translations of removed
   strings were pruned and nothing was machine-filled.
 - Leak check: public JSON and camel-case identifiers now count as public
   words; it passes.
