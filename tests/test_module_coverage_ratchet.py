@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 import textwrap
@@ -685,8 +686,16 @@ def test_coverage_batches_discard_an_incomplete_child_database(
     data_dir = tmp_path / "coverage-data"
     written: dict[str, Path] = {}
 
-    def fake_run(command, *, env, check):
+    recoveries: list[list[str]] = []
+
+    def fake_run(command, *, env, check, timeout=None):
         basename = Path(env["COVERAGE_FILE"])
+        if coverage_runner.LEDGER_ENV not in env:
+            recoveries.append(list(command))
+            data = CoverageData(basename=str(basename))
+            data.add_lines({"spacr/example.py": {2}})
+            data.write()
+            return subprocess.CompletedProcess(command, 0)
         readable = basename.with_name(f"{basename.name}.readable")
         data = CoverageData(basename=str(readable))
         data.add_lines({"spacr/example.py": {1}})
@@ -729,6 +738,73 @@ def test_coverage_batches_discard_an_incomplete_child_database(
     assert record["batches"][0]["discarded_data_files"] == [
         written["incomplete"].name
     ]
+    # No worker was lost, yet a child's lines are gone and nothing says which
+    # test started it, so every file of the batch is re-run on its own and
+    # the gate sees a recovered loss rather than an unexplained discard.
+    batch = record["batches"][0]
+    assert batch["lost_files"] == ["tests/test_one.py"]
+    assert written["incomplete"].name in batch["lost"][0]["error"]
+    assert [outcome["file"] for outcome in batch["recovered_files"]] == [
+        "tests/test_one.py"
+    ]
+    assert batch["unrecovered_files"] == []
+    assert len(recoveries) == 1 and "tests/test_one.py" in recoveries[0]
+
+
+def test_sigterm_during_the_exit_save_leaves_a_final_named_unreadable_file(
+    tmp_path,
+):
+    """The shell CI discarded (38138189866, 38151063008), made on purpose.
+
+    coverage's ``sigterm = True`` handler saves again when SIGTERM lands
+    inside the exit-time save.  The inner save renames the file to its final
+    ``.H<hash>h`` name and the process dies before the outer save writes the
+    schema row, so the file has the final name and no ``coverage_schema``
+    row: "isn't a coverage data file: " with an empty reason.
+    """
+    pytest.importorskip("coverage")
+    coverage_runner = _load_coverage_runner()
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (tmp_path / "rc").write_text(
+        "[run]\nparallel = True\nsigterm = True\n", encoding="utf-8",
+    )
+    (tmp_path / "child.py").write_text(textwrap.dedent(
+        """
+        import os
+        import signal
+        import coverage.sqlitedb as sqlitedb
+
+        executescript = sqlitedb.SqliteDb.executescript
+
+        def schema_then_sigterm(self, script):
+            executescript(self, script)
+            if "coverage_schema" in script and not os.environ.get("ONCE"):
+                os.environ["ONCE"] = "1"
+                os.kill(os.getpid(), signal.SIGTERM)
+
+        sqlitedb.SqliteDb.executescript = schema_then_sigterm
+        total = sum(range(10))
+        """
+    ), encoding="utf-8")
+    environment = os.environ.copy()
+    environment["COVERAGE_FILE"] = str(data_dir / ".coverage")
+    for name in ("COVERAGE_PROCESS_START", "COVERAGE_PROCESS_CONFIG"):
+        environment.pop(name, None)
+    finished = subprocess.run(
+        [sys.executable, "-m", "coverage", "run", "--rcfile",
+         str(tmp_path / "rc"), str(tmp_path / "child.py")],
+        cwd=tmp_path, env=environment, capture_output=True, timeout=120,
+    )
+
+    assert finished.returncode != 0
+    shells = sorted(data_dir.glob(".coverage.*"))
+    assert len(shells) == 1
+    assert shells[0].name.endswith("h") and ".H" in shells[0].name
+    assert coverage_runner._unreadable(shells[0]) is not None
+    assert coverage_runner._unreadable(shells[0]).endswith(
+        "isn't a coverage data file: "
+    )
 
 
 def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
