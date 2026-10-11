@@ -709,6 +709,7 @@ Outros trabalhos citando spaCR
 * `Adaptação metabólica e eliminação de nutrientes em Toxoplasma gondii: insights de mutantes deficientes em vias de ingestão. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
 * `O IRE1 promove o fluxo de cálcio fagossomal para aumentar a atividade fungicida dos macrófagos. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
 * `O Toxoplasma GRA8 envolve a proteína acessória do hospedeiro ESCRT ALG-2 e é necessário para a integridade metabólica do parasita. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `Hydrogen sulfide dynamically upregulates copper uptake and localization. <https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1>`_
 * `spaCR: Análise do fenótipo espacial das triagens  CRISPR-Cas9 (versão de pré-impressão 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end

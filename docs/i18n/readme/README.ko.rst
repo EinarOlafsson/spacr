@@ -709,6 +709,7 @@ Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. go
 * `Toxoplasma gondii에서 신진 대사 적응성 및 영양 탐색 : 섭취 경로 결핍 돌연변이의 인식. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
 * `IRE1α는 마크로파지 곰팡이 활동을 향상시키기 위해 파고소마 칼슘 흐름을 촉진합니다. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
 * `Toxoplasma GRA8은 호스트 ESCRT 액세서리 단백질 ALG-2를 포함하고 기생충의 신진 대사 무결성을 위해 필요합니다. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `Hydrogen sulfide dynamically upregulates copper uptake and localization. <https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1>`_
 * `spaCR: CRISPR-Cas9 스크린의 공간 현상 분석 (프리 프린트 버전 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
