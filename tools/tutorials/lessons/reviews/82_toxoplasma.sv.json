@@ -1,13 +1,29 @@
 {
   "lesson": "82_toxoplasma",
-  "english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
+  "english_sha256": "dcc70fed94df66f7694d0d07128c5d22b869a518d284d5ba5cd9f4ca911c7be9",
   "review": {
-    "kind": "Direct AI technical/context review, no native-speaker signoff",
-    "translator": "AI technical/context review from the exact current English source",
-    "date": "2026-10-08",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Scenes 3 and 5 revised for N678 (interactive diagram; Plaque Assay tutorial title); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      3,
+      5
+    ],
+    "previous_english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
+    "previous_review_sha256": "637f0d89b421a2dcb0cb7b33fab697da0a7e7aff6a5e73eca5f51a6ecee87b24",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "sv",
   "title": "Organismen Toxoplasma: guide, diagram och analyser",
@@ -21,9 +37,9 @@
   "scenes": [
     "Välj kategorin Organism på Home och sedan Toxoplasma. Den här sidan kombinerar en organismguide, ett interaktivt celldiagram och de tillgängliga analysvägarna för Toxoplasma. Utforska den innan du väljer en analys.",
     "Börja med introduktionen i informationspanelen. Varje panel rullar för sig, och om du drar i avdelaren får guiden eller analysrutorna mer utrymme.",
-    "Diagrammet är till för att utforskas. Håll pekaren över en cellkomponent så visas dess beskrivning. Markera flera för att hålla dem framhävda, och Clear components återställer bilden.",
+    "Diagrammet är interaktivt. Håll pekaren över en cellkomponent så visas dess beskrivning. Markera flera för att hålla dem framhävda, och Clear components återställer bilden.",
     "Plaque Assay räknar plack och mäter deras areor. Recruitment mäter anrikningen av markören vid den parasitinnehållande vakuolen, och Replication Assay räknar parasiter per vakuol. Välj en analys utifrån den storhet du behöver mäta och de indata som krävs.",
-    "Klicka på Plaque Assay för att öppna analysskärmen. Inställningspanelen anger bildkälla, masker och detektionsalternativ. Load test data ger ett exempel. Kontrollera indata och förhandsvisning innan du startar Run; handledningen Plaque Analysis beskriver hela arbetsflödet.",
+    "Klicka på Plaque Assay för att öppna analysskärmen. Inställningspanelen anger bildkälla, masker och detektionsalternativ. Load test data ger ett exempel. Kontrollera indata och förhandsvisning innan du startar Run; handledningen Plaque Assay beskriver hela arbetsflödet.",
     "Återvänd till Toxoplasma-guiden och skrolla informationspanelen till referenserna. ToxoDB, Toxoplasmas hyperLOPIT-atlas, UniProt och NCBI Taxonomy länkar till resurser om organismen. Länkarna öppnas i webbläsaren; guiden söker inte i databaser och förutsäger inte proteiners lokalisering.",
     "Organismguiden producerar inga analystabeller. Återvänd till Home för bildförberedelse, segmentering eller mätning och välj sedan den analys som passar dina förberedda indata. Varje analys har egna krav och en länkad genomgång."
   ]

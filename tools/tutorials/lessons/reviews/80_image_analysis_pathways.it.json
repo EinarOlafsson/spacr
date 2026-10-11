@@ -1,7 +1,7 @@
 {
   "language": "it",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+  "english_sha256": "489e661b166d4149940cd1d070cea7ef530328cc500f11d9f184e2b59ff4756a",
   "title": "Moduli di analisi delle immagini e loro relazioni",
   "section": "Flussi di lavoro",
   "description": "Segui i percorsi attuali dalle immagini alle misure e scegli esplorazione, etichettatura, confronto o analisi specifiche per un organismo.",
@@ -16,7 +16,7 @@
     "Import organizza i file di microscopia in ingresso e i metadati. Se l’acquisizione contiene riquadri sovrapposti, Align & Stitch può preparare un mosaico con i relativi record di coordinate. Conserva le identità dei canali e i metadati di origine insieme al progetto.",
     "Mask produce etichette degli oggetti dalle immagini di microscopia. Make Masks permette di creare o verificare manualmente le maschere. Le coppie immagine-maschera devono mantenere la stessa identità del campo; un file di maschera isolato non è automaticamente l’array combinato del progetto necessario a Measure.",
     "Measure legge insieme le immagini preparate e i piani delle maschere. Scrive measurements.db con identità degli oggetti e colonne di caratteristiche e può salvare ritagli degli oggetti. Conserva il progetto di origine e la mappatura dei canali insieme a queste tabelle.",
-    "Annotate mostra i ritagli degli oggetti per permetterti di aggiungere etichette verificate. Classify apprende dalla colonna di etichette selezionata, usando immagini ritagliate o caratteristiche misurate. Tieni separati gli oggetti di valutazione da quelli di addestramento e porta la colonna dei punteggi e le identità degli oggetti nelle analisi successive.",
+    "Annotate mostra i ritagli degli oggetti per permetterti di aggiungere etichette verificate. Classify addestra un modello sulla colonna di etichette selezionata, usando immagini ritagliate o caratteristiche misurate. Tieni separati gli oggetti di valutazione da quelli di addestramento e porta la colonna dei punteggi e le identità degli oggetti nelle analisi successive.",
     "Embeddings codifica i ritagli in caratteristiche numeriche. Image UMAP proietta caratteristiche compatibili per esplorarle. Esamina ritagli rappresentativi prima di attribuire un significato a un gruppo; un gruppo da solo non è un fenotipo validato.",
     "Gate Editor seleziona gli oggetti usando colonne di caratteristiche effettive o coordinate di proiezione compatibili. Verifica gli oggetti selezionati prima di scrivere etichette. Queste etichette possono diventare esempi verificati per Annotate o Classify.",
     "QC riporta i controlli di qualità presenti e le evidenze mancanti. Run Compare esamina le esecuzioni salvate affiancandole. Graph Builder traccia le tabelle delle misure usando le colonne e il raggruppamento che scegli.",
@@ -26,11 +26,26 @@
     "Torna a Home e scegli il passaggio successivo dall’output che hai effettivamente a disposizione. Usa le lezioni dei moduli collegate per un’esecuzione completa. Conserva insieme l’identità degli input, le impostazioni, la versione installata e la posizione degli output, così da poter verificare il flusso di lavoro in seguito."
   ],
   "review": {
-    "kind": "Direct AI technical/context review, no native-speaker signoff",
-    "translator": "AI technical/context review from the exact current English source",
-    "date": "2026-10-08",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Scene 5 revised for N678 factual wording (Classify trains a model); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      5
+    ],
+    "previous_english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+    "previous_review_sha256": "a0d56795005620c5b7fdac9e7f1eb0b59c56bc9b829568f8080d02f0cac7d081",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   }
 }

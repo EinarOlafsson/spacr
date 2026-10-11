@@ -55,7 +55,7 @@
     },
     {
       "visual": "home_module_classify_merged",
-      "narration": "Classify learns from reviewed labels and scores other objects, using image-based or tabular approaches.",
+      "narration": "Classify trains a model on reviewed labels and scores other objects, using image crops or measured features.",
       "hold_after": 0.7,
       "focus_modules": [
         "classify_merged"
@@ -154,7 +154,7 @@
     },
     {
       "visual": "home_module_qc_dashboard",
-      "narration": "QC brings together quality checks and identifies evidence that is available or missing.",
+      "narration": "QC lists the saved quality reports of a project and marks the ones that are missing.",
       "hold_after": 0.7,
       "focus_modules": [
         "qc_dashboard"

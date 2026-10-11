@@ -1,7 +1,7 @@
 {
   "language": "nb",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+  "english_sha256": "489e661b166d4149940cd1d070cea7ef530328cc500f11d9f184e2b59ff4756a",
   "title": "Bildeanalysemoduler og sammenhengene mellom dem",
   "section": "Arbeidsflyter",
   "description": "Følg de gjeldende veiene fra bilder til målinger, og velg utforskning, merking, sammenligning eller organismespesifikke analyser.",
@@ -16,7 +16,7 @@
     "Import organiserer innkommende mikroskopifiler og metadata. Hvis opptaket inneholder overlappende bildefliser, kan Align & Stitch forberede en mosaikk med tilhørende koordinatposter. Behold kanalidentitetene og kildemetadataene sammen med prosjektet.",
     "Mask lager objektetiketter fra mikroskopibilder. Make Masks lar deg opprette eller gjennomgå masker manuelt. Bilde-maske-par må beholde samme feltidentitet; en løs maskefil er ikke automatisk de kombinerte prosjektarrayene som Measure trenger.",
     "Measure leser de forberedte bildene og maskeplanene sammen. Det skriver measurements.db med objektidentiteter og egenskapskolonner og kan lagre objektutsnitt. Behold kildeprosjektet og kanaltilordningen sammen med disse tabellene.",
-    "Annotate viser objektutsnitt slik at du kan legge til gjennomgåtte etiketter. Classify lærer fra den valgte etikettkolonnen ved hjelp av utsnittsbilder eller målte egenskaper. Hold evalueringsobjekter atskilt fra treningsobjekter, og før poengkolonnen og objektidentitetene videre til senere analyser.",
+    "Annotate viser objektutsnitt slik at du kan legge til gjennomgåtte etiketter. Classify trener en modell på den valgte etikettkolonnen ved hjelp av utsnittsbilder eller målte egenskaper. Hold evalueringsobjekter atskilt fra treningsobjekter, og før poengkolonnen og objektidentitetene videre til senere analyser.",
     "Embeddings koder utsnitt til numeriske egenskaper. Image UMAP projiserer kompatible egenskaper for utforskning. Undersøk representative utsnitt før du gir en klynge betydning; en klynge alene er ikke en validert fenotype.",
     "Gate Editor velger objekter ved hjelp av faktiske egenskapskolonner eller kompatible projeksjonskoordinater. Gjennomgå de valgte objektene før du skriver etiketter. Disse etikettene kan bli gjennomgåtte eksempler for Annotate eller Classify.",
     "QC rapporterer kvalitetskontrollene som finnes og evidensen som mangler. Run Compare undersøker lagrede kjøringer side om side. Graph Builder plotter måletabeller med kolonnene og grupperingen du velger.",
@@ -26,11 +26,26 @@
     "Gå tilbake til Home, og velg neste trinn ut fra utdataene du faktisk har. Bruk de tilknyttede modulleksjonene for en fullstendig kjøring. Behold inndataidentitet, innstillinger, installert versjon og utdataenes plassering samlet, slik at arbeidsflyten kan kontrolleres senere."
   ],
   "review": {
-    "kind": "Direct AI technical/context review, no native-speaker signoff",
-    "translator": "AI technical/context review from the exact current English source",
-    "date": "2026-10-08",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Scene 5 revised for N678 factual wording (Classify trains a model); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      5
+    ],
+    "previous_english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+    "previous_review_sha256": "39bf72ff39c1dde5da454d63b6aeeb3540c2ba53eb72997d4a6cfafa6c7075fd",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   }
 }

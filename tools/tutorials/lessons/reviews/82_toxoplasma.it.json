@@ -1,13 +1,29 @@
 {
   "lesson": "82_toxoplasma",
-  "english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
+  "english_sha256": "dcc70fed94df66f7694d0d07128c5d22b869a518d284d5ba5cd9f4ca911c7be9",
   "review": {
-    "kind": "Direct AI technical/context review, no native-speaker signoff",
-    "translator": "AI technical/context review from the exact current English source",
-    "date": "2026-10-08",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Scenes 3 and 5 revised for N678 (interactive diagram; Plaque Assay tutorial title); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      3,
+      5
+    ],
+    "previous_english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
+    "previous_review_sha256": "2ea1c5230b3450d0f70d9aa72b4f3442333402a0eb44978aef67967c84043132",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "it",
   "title": "Organismo Toxoplasma: guida, diagramma e saggi",
@@ -21,9 +37,9 @@
   "scenes": [
     "Da Home, scegli la categoria Organism e poi Toxoplasma. Questa pagina combina una guida all’organismo, un diagramma cellulare interattivo e i percorsi dei saggi Toxoplasma disponibili. Esplorala prima di scegliere un’analisi.",
     "Inizia dall’introduzione nel pannello informativo. Ogni pannello scorre per conto suo, e trascinando il divisore dai più spazio alla guida o ai riquadri dei saggi.",
-    "Il diagramma è fatto per essere esplorato. Passa il puntatore su un componente cellulare e compare la sua descrizione. Selezionane diversi per tenerli evidenziati; Clear components ripristina l’immagine.",
+    "Il diagramma è interattivo. Passa il puntatore su un componente cellulare e compare la sua descrizione. Selezionane diversi per tenerli evidenziati; Clear components ripristina l’immagine.",
     "Plaque Assay conta le placche e ne misura le aree. Recruitment misura l’arricchimento del marcatore presso il vacuolo contenente il parassita, mentre Replication Assay conta i parassiti per vacuolo. Seleziona un saggio in base alla grandezza da misurare e ai dati di ingresso richiesti.",
-    "Fai clic su Plaque Assay per aprire la schermata di analisi. Il pannello delle impostazioni specifica la sorgente delle immagini, le maschere e le opzioni di rilevamento. Load test data fornisce un esempio. Controlla i dati di ingresso e l’anteprima prima di avviare Run; il tutorial Plaque Analysis descrive il flusso di lavoro completo.",
+    "Fai clic su Plaque Assay per aprire la schermata di analisi. Il pannello delle impostazioni specifica la sorgente delle immagini, le maschere e le opzioni di rilevamento. Load test data fornisce un esempio. Controlla i dati di ingresso e l’anteprima prima di avviare Run; il tutorial Plaque Assay descrive il flusso di lavoro completo.",
     "Torna alla guida Toxoplasma e scorri il pannello informativo fino ai riferimenti. ToxoDB, l’atlante hyperLOPIT di Toxoplasma, UniProt e NCBI Taxonomy rimandano a risorse sull’organismo. Questi collegamenti si aprono nel browser; la guida non esegue ricerche in un database né predice la localizzazione delle proteine.",
     "La guida all’organismo non produce tabelle di analisi. Torna a Home per preparare le immagini, segmentarle o misurarle, quindi scegli il saggio adatto ai tuoi input preparati. Ogni saggio ha i propri requisiti e una procedura guidata collegata."
   ]
