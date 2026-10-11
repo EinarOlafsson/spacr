@@ -602,7 +602,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify aprende de etiquetas revisadas y puntúa otros objetos mediante métodos basados en imágenes o en tablas.",
+          "narration": "Classify entrena un modelo con etiquetas revisadas y puntúa otros objetos mediante recortes de imagen o características medidas.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -610,7 +610,7 @@
           "related_lessons": [
             "41_classify"
           ],
-          "speech_text": "Classify aprende de etiquetas revisadas y puntúa otros objetos mediante métodos basados en imágenes o en tablas."
+          "speech_text": "Classify entrena un modelo con etiquetas revisadas y puntúa otros objetos mediante recortes de imagen o características medidas."
         },
         {
           "visual": "home_module_map_barcodes",
@@ -710,7 +710,7 @@
         },
         {
           "visual": "home_module_qc_dashboard",
-          "narration": "QC reúne comprobaciones de calidad e identifica qué evidencia está disponible y cuál falta.",
+          "narration": "QC enumera los informes de calidad guardados de un proyecto y marca los que faltan.",
           "hold_after": 0.7,
           "focus_modules": [
             "qc_dashboard"
@@ -718,7 +718,7 @@
           "related_lessons": [
             "54_qc_dashboard"
           ],
-          "speech_text": "QC reúne comprobaciones de calidad e identifica qué evidencia está disponible y cuál falta."
+          "speech_text": "QC enumera los informes de calidad guardados de un proyecto y marca los que faltan."
         },
         {
           "visual": "home_module_make_masks",
@@ -902,7 +902,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Haga clic en Animation para elegir el fondo principal y su paleta. Animation colours establece los colores principal y de acento de Custom colours; Animation background elige un fondo independiente, y Theme colour restaura el tema de la página. Detail controla la resolución del renderizado. Speed, Size y Density cambian el movimiento y la cantidad de elementos. Mouse gravity radius establece el radio de influencia del ratón; cero lo desactiva. Dot blinking controla los destellos blancos, y Popup wave frequency inicia ondas desde las ventanas emergentes abiertas en spaCR field. Field ripples controla las ondas producidas por clics, por abrir o cerrar contenedores y por ajustar la ventana al borde de la pantalla, independientemente de la atracción del ratón. Al desactivarlo también se detienen las ondas automáticas de las ventanas emergentes. Settings animation speed, Settings animation size, Settings animation detail y Settings animation density solo modifican Settings backdrop. Settings backdrop darkness controla la legibilidad del formulario.",
+          "narration": "Haga clic en Animation para elegir el fondo principal y su paleta. Animation colours establece los colores principal y de acento de Custom colours; Animation background elige un fondo independiente, y Theme colour restaura el tema de la página. Detail controla la resolución del renderizado. Speed, Size y Density cambian el movimiento y la cantidad de elementos. Mouse gravity radius establece el radio de influencia del ratón; cero lo desactiva. Dot blinking controla los destellos blancos. Field ripples establece la intensidad de las ondas producidas por clics, por abrir o cerrar contenedores, por ventanas emergentes y por ajustar la ventana al borde de la pantalla, independientemente de la atracción del ratón; cero desactiva las ondas, incluidas las ondas automáticas de las ventanas emergentes. Click ripples decide si un clic en el fondo envía una onda. Popup wave frequency establece cuántas ondas por minuto se propagan desde una ventana emergente abierta en spaCR field. Settings animation speed, Settings animation size, Settings animation detail y Settings animation density solo modifican Settings backdrop. Settings backdrop darkness controla la legibilidad del formulario.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +910,7 @@
             1200,
             1500
           ],
-          "speech_text": "Haga clic en Animation para elegir el fondo principal y su paleta. Animation colours establece los colores principal y de acento de Custom colours; Animation background elige un fondo independiente, y Theme colour restaura el tema de la página. Detail controla la resolución del renderizado. Speed, Size y Density cambian el movimiento y la cantidad de elementos. Mouse gravity radius establece el radio de influencia del ratón; cero lo desactiva. Dot blinking controla los destellos blancos, y Popup wave frequency inicia ondas desde las ventanas emergentes abiertas en espáquer field. Field ripples controla las ondas producidas por clics, por abrir o cerrar contenedores y por ajustar la ventana al borde de la pantalla, independientemente de la atracción del ratón. Al desactivarlo también se detienen las ondas automáticas de las ventanas emergentes. Settings animation speed, Settings animation size, Settings animation detail y Settings animation density solo modifican Settings backdrop. Settings backdrop darkness controla la legibilidad del formulario."
+          "speech_text": "Haga clic en Animation para elegir el fondo principal y su paleta. Animation colours establece los colores principal y de acento de Custom colours; Animation background elige un fondo independiente, y Theme colour restaura el tema de la página. Detail controla la resolución del renderizado. Speed, Size y Density cambian el movimiento y la cantidad de elementos. Mouse gravity radius establece el radio de influencia del ratón; cero lo desactiva. Dot blinking controla los destellos blancos. Field ripples establece la intensidad de las ondas producidas por clics, por abrir o cerrar contenedores, por ventanas emergentes y por ajustar la ventana al borde de la pantalla, independientemente de la atracción del ratón; cero desactiva las ondas, incluidas las ondas automáticas de las ventanas emergentes. Click ripples decide si un clic en el fondo envía una onda. Popup wave frequency establece cuántas ondas por minuto se propagan desde una ventana emergente abierta en espáquer field. Settings animation speed, Settings animation size, Settings animation detail y Settings animation density solo modifican Settings backdrop. Settings backdrop darkness controla la legibilidad del formulario."
         },
         {
           "visual": "13h_preferences_apply",
@@ -2560,12 +2560,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear masks, justo a la izquierda de Discard, pide confirmación antes de eliminar todas las máscaras de la imagen actual.",
+          "narration": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear all objects, justo a la izquierda de Discard, pide confirmación antes de eliminar todos los objetos de la imagen actual.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear masks, justo a la izquierda de Discard, pide confirmación antes de eliminar todas las máscaras de la imagen actual."
+          "speech_text": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear all objects, justo a la izquierda de Discard, pide confirmación antes de eliminar todos los objetos de la imagen actual."
         },
         {
           "visual": "01b_test_data_menu",
@@ -16258,13 +16258,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate muestra recortes de objetos para que pueda añadir etiquetas revisadas. Classify aprende de la columna de etiquetas seleccionada, mediante imágenes recortadas o características medidas. Mantenga separados los objetos de evaluación y de entrenamiento y lleve la columna de puntuaciones y las identidades de objetos a los análisis posteriores.",
+          "narration": "Annotate muestra recortes de objetos para que pueda añadir etiquetas revisadas. Classify entrena un modelo con la columna de etiquetas seleccionada, mediante imágenes recortadas o características medidas. Mantenga separados los objetos de evaluación y de entrenamiento y lleve la columna de puntuaciones y las identidades de objetos a los análisis posteriores.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate muestra recortes de objetos para que pueda añadir etiquetas revisadas. Classify aprende de la columna de etiquetas seleccionada, mediante imágenes recortadas o características medidas. Mantenga separados los objetos de evaluación y de entrenamiento y lleve la columna de puntuaciones y las identidades de objetos a los análisis posteriores."
+          "speech_text": "Annotate muestra recortes de objetos para que pueda añadir etiquetas revisadas. Classify entrena un modelo con la columna de etiquetas seleccionada, mediante imágenes recortadas o características medidas. Mantenga separados los objetos de evaluación y de entrenamiento y lleve la columna de puntuaciones y las identidades de objetos a los análisis posteriores."
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16602,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "El diagrama está para explorarlo. Pasa el cursor sobre un componente celular y aparece su descripción. Selecciona varios para mantenerlos resaltados, y Clear components restablece la imagen.",
+          "narration": "El diagrama es interactivo. Pasa el cursor sobre un componente celular y aparece su descripción. Selecciona varios para mantenerlos resaltados, y Clear components restablece la imagen.",
           "hold_after": 0.7,
-          "speech_text": "El diagrama está para explorarlo. Pasa el cursor sobre un componente celular y aparece su descripción. Selecciona varios para mantenerlos resaltados, y Clear components restablece la imagen."
+          "speech_text": "El diagrama es interactivo. Pasa el cursor sobre un componente celular y aparece su descripción. Selecciona varios para mantenerlos resaltados, y Clear components restablece la imagen."
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16614,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Haz clic en Plaque Assay para abrir su pantalla de análisis. El panel de ajustes especifica el origen de las imágenes, las máscaras y las opciones de detección. Load test data proporciona un ejemplo. Revisa los datos de entrada y la vista previa antes de iniciar Run; el tutorial Plaque Analysis describe el flujo de trabajo completo.",
+          "narration": "Haz clic en Plaque Assay para abrir su pantalla de análisis. El panel de ajustes especifica el origen de las imágenes, las máscaras y las opciones de detección. Load test data proporciona un ejemplo. Revisa los datos de entrada y la vista previa antes de iniciar Run; el tutorial Plaque Assay describe el flujo de trabajo completo.",
           "hold_after": 0.7,
-          "speech_text": "Haz clic en Plaque Assay para abrir su pantalla de análisis. El panel de ajustes especifica el origen de las imágenes, las máscaras y las opciones de detección. Load test data proporciona un ejemplo. Revisa los datos de entrada y la vista previa antes de iniciar Run; el tutorial Plaque Analysis describe el flujo de trabajo completo."
+          "speech_text": "Haz clic en Plaque Assay para abrir su pantalla de análisis. El panel de ajustes especifica el origen de las imágenes, las máscaras y las opciones de detección. Load test data proporciona un ejemplo. Revisa los datos de entrada y la vista previa antes de iniciar Run; el tutorial Plaque Assay describe el flujo de trabajo completo."
         },
         {
           "visual": "05_references",

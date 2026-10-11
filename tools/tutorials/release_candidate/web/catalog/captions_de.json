@@ -538,7 +538,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify lernt aus geprüften Beschriftungen und bewertet weitere Objekte anhand von Bildern oder Tabellenmerkmalen.",
+          "narration": "Classify trainiert ein Modell mit geprüften Beschriftungen und bewertet weitere Objekte anhand von Bildausschnitten oder gemessenen Merkmalen.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -637,7 +637,7 @@
         },
         {
           "visual": "home_module_qc_dashboard",
-          "narration": "QC führt Qualitätsprüfungen zusammen und zeigt vorhandene und fehlende Nachweise.",
+          "narration": "QC listet die gespeicherten Qualitätsberichte eines Projekts auf und markiert die fehlenden.",
           "hold_after": 0.7,
           "focus_modules": [
             "qc_dashboard"
@@ -810,7 +810,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Klicken Sie auf Animation, um den Haupthintergrund und seine Palette zu wählen. Animation colours legt die Haupt- und Akzentfarben für Custom colours fest; Animation background wählt einen unabhängigen Hintergrund, und Theme colour stellt das Seitendesign wieder her. Detail steuert die Darstellungsauflösung. Speed, Size und Density ändern Bewegung und Anzahl der Elemente. Mouse gravity radius legt den Einflussbereich der Maus fest; null deaktiviert ihn. Dot blinking steuert weiße Lichtblitze, und Popup wave frequency lässt in spaCR field Wellen von geöffneten Dialogfenstern ausgehen. Field ripples steuert Wellen durch Klicks, das Öffnen oder Schließen von Bereichen und das Einrasten des Fensters, unabhängig von der Mausanziehung. Beim Ausschalten enden auch die automatischen Dialogwellen. Settings animation speed, Settings animation size, Settings animation detail und Settings animation density ändern nur Settings backdrop. Settings backdrop darkness steuert die Lesbarkeit des Formulars.",
+          "narration": "Klicken Sie auf Animation, um den Haupthintergrund und seine Palette zu wählen. Animation colours legt die Haupt- und Akzentfarben für Custom colours fest; Animation background wählt einen unabhängigen Hintergrund, und Theme colour stellt das Seitendesign wieder her. Detail steuert die Darstellungsauflösung. Speed, Size und Density ändern Bewegung und Anzahl der Elemente. Mouse gravity radius legt den Einflussbereich der Maus fest; null deaktiviert ihn. Dot blinking steuert weiße Lichtblitze. Field ripples legt die Stärke der Wellen durch Klicks, das Öffnen oder Schließen von Bereichen, Dialogfenster und das Einrasten des Fensters fest, unabhängig von der Mausanziehung; null schaltet die Wellen aus, auch die automatischen Dialogwellen. Click ripples bestimmt, ob ein Klick auf den Hintergrund eine Welle auslöst. Popup wave frequency legt fest, wie viele Wellen pro Minute sich von einem geöffneten Dialogfenster in spaCR field ausbreiten. Settings animation speed, Settings animation size, Settings animation detail und Settings animation density ändern nur Settings backdrop. Settings backdrop darkness steuert die Lesbarkeit des Formulars.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -2355,7 +2355,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öffnen Sie von Home aus Make Masks unter Tools. Die Schaltflächen unten links laden Bilder: Open folder, Organize for Measure und Load test data. Rechts legen Discard, Keep, Skip und Upload data fest, was mit jedem Bildfeld nach der Bearbeitung geschieht. Clear masks, direkt links von Discard, fragt nach einer Bestätigung, bevor alle Masken im aktuellen Bild entfernt werden.",
+          "narration": "Öffnen Sie von Home aus Make Masks unter Tools. Die Schaltflächen unten links laden Bilder: Open folder, Organize for Measure und Load test data. Rechts legen Discard, Keep, Skip und Upload data fest, was mit jedem Bildfeld nach der Bearbeitung geschieht. Clear all objects, direkt links von Discard, fragt nach einer Bestätigung, bevor alle Objekte im aktuellen Bild entfernt werden.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -15092,7 +15092,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate zeigt Objektausschnitte, damit Sie geprüfte Labels hinzufügen können. Classify lernt anhand der ausgewählten Labelspalte und verwendet Ausschnittbilder oder gemessene Merkmale. Trennen Sie Evaluierungsobjekte von Trainingsobjekten und übernehmen Sie die Score-Spalte und Objektidentitäten in spätere Analysen.",
+          "narration": "Annotate zeigt Objektausschnitte, damit Sie geprüfte Labels hinzufügen können. Classify trainiert ein Modell mit der ausgewählten Labelspalte und verwendet Ausschnittbilder oder gemessene Merkmale. Trennen Sie Evaluierungsobjekte von Trainingsobjekten und übernehmen Sie die Score-Spalte und Objektidentitäten in spätere Analysen.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15415,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Das Diagramm ist zum Erkunden da. Fahren Sie mit der Maus über einen Zellbestandteil, und seine Beschreibung erscheint. Wählen Sie mehrere aus, damit sie hervorgehoben bleiben; Clear components setzt das Bild zurück.",
+          "narration": "Das Diagramm ist interaktiv. Fahren Sie mit der Maus über einen Zellbestandteil, und seine Beschreibung erscheint. Wählen Sie mehrere aus, damit sie hervorgehoben bleiben; Clear components setzt das Bild zurück.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15425,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Klicken Sie auf Plaque Assay, um den Analysebildschirm zu öffnen. Das Einstellungspanel legt Bildquelle, Masken und Erkennungsoptionen fest. Load test data stellt ein Beispiel bereit. Prüfen Sie Eingaben und Vorschau, bevor Sie Run starten; das Tutorial Plaque Analysis beschreibt den vollständigen Ablauf.",
+          "narration": "Klicken Sie auf Plaque Assay, um den Analysebildschirm zu öffnen. Das Einstellungspanel legt Bildquelle, Masken und Erkennungsoptionen fest. Load test data stellt ein Beispiel bereit. Prüfen Sie Eingaben und Vorschau, bevor Sie Run starten; das Tutorial Plaque Assay beschreibt den vollständigen Ablauf.",
           "hold_after": 0.7
         },
         {

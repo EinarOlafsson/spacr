@@ -602,7 +602,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify 从审核过的标签学习，使用图像或表格方法为其他对象评分。",
+          "narration": "Classify 用审核过的标签训练模型，并使用对象裁剪图或测量特征为其他对象评分。",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -610,7 +610,7 @@
           "related_lessons": [
             "41_classify"
           ],
-          "speech_text": "Classify 从审核过的标签学习，使用图像或表格方法为其他对象评分。"
+          "speech_text": "Classify 用审核过的标签训练模型，并使用对象裁剪图或测量特征为其他对象评分。"
         },
         {
           "visual": "home_module_map_barcodes",
@@ -710,7 +710,7 @@
         },
         {
           "visual": "home_module_qc_dashboard",
-          "narration": "QC 汇集质量检查，指出已有和缺失的证据。",
+          "narration": "QC 列出项目中已保存的质量报告，并标出缺失的报告。",
           "hold_after": 0.7,
           "focus_modules": [
             "qc_dashboard"
@@ -718,7 +718,7 @@
           "related_lessons": [
             "54_qc_dashboard"
           ],
-          "speech_text": "QC 汇集质量检查，指出已有和缺失的证据。"
+          "speech_text": "QC 列出项目中已保存的质量报告，并标出缺失的报告。"
         },
         {
           "visual": "home_module_make_masks",
@@ -902,7 +902,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁，Popup wave frequency 则在 spaCR field 中从打开的弹窗发出波纹。Field ripples 独立于鼠标引力，控制点击、打开或关闭容器以及窗口贴靠屏幕边缘时产生的波纹。关闭它也会停止弹窗的自动波纹。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。",
+          "narration": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁。Field ripples 独立于鼠标引力，设置点击、打开或关闭容器、弹窗以及窗口贴靠屏幕边缘时产生的波纹强度；设为零会关闭波纹，包括弹窗的自动波纹。Click ripples 决定点击背景时是否发出波纹。Popup wave frequency 设置每分钟从打开的弹窗向 spaCR field 扩散的波纹数量。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +910,7 @@
             1200,
             1500
           ],
-          "speech_text": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁，Popup wave frequency 则在 斯佩克尔 field 中从打开的弹窗发出波纹。Field ripples 独立于鼠标引力，控制点击、打开或关闭容器以及窗口贴靠屏幕边缘时产生的波纹。关闭它也会停止弹窗的自动波纹。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。"
+          "speech_text": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁。Field ripples 独立于鼠标引力，设置点击、打开或关闭容器、弹窗以及窗口贴靠屏幕边缘时产生的波纹强度；设为零会关闭波纹，包括弹窗的自动波纹。Click ripples 决定点击背景时是否发出波纹。Popup wave frequency 设置每分钟从打开的弹窗向 斯佩克尔 field 扩散的波纹数量。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。"
         },
         {
           "visual": "13h_preferences_apply",
@@ -2560,12 +2560,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "从Home打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear masks会先请求确认，再删除当前图像中的所有掩膜。",
+          "narration": "从Home打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear all objects会先请求确认，再删除当前图像中的所有对象。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "从主页打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear masks会先请求确认，再删除当前图像中的所有掩膜。"
+          "speech_text": "从主页打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear all objects会先请求确认，再删除当前图像中的所有对象。"
         },
         {
           "visual": "01b_test_data_menu",
@@ -16258,13 +16258,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，从所选标签列中学习。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。",
+          "narration": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，基于所选标签列训练模型。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，从所选标签列中学习。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。"
+          "speech_text": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，基于所选标签列训练模型。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。"
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16602,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "示意图可以随意探索。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。",
+          "narration": "示意图是交互式的。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。",
           "hold_after": 0.7,
-          "speech_text": "示意图可以随意探索。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。"
+          "speech_text": "示意图是交互式的。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。"
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16614,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Analysis教程介绍完整流程。",
+          "narration": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Assay教程介绍完整流程。",
           "hold_after": 0.7,
-          "speech_text": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Analysis教程介绍完整流程。"
+          "speech_text": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Assay教程介绍完整流程。"
         },
         {
           "visual": "05_references",

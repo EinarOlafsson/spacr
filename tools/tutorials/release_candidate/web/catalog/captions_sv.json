@@ -538,7 +538,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify lär sig från granskade etiketter och ger andra objekt poäng med bildbaserade eller tabellbaserade metoder.",
+          "narration": "Classify tränar en modell på granskade etiketter och ger andra objekt poäng utifrån utsnittsbilder eller uppmätta egenskaper.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -637,7 +637,7 @@
         },
         {
           "visual": "home_module_qc_dashboard",
-          "narration": "QC samlar kvalitetskontroller och visar vilka underlag som finns eller saknas.",
+          "narration": "QC listar de sparade kvalitetsrapporterna för ett projekt och markerar dem som saknas.",
           "hold_after": 0.7,
           "focus_modules": [
             "qc_dashboard"
@@ -810,7 +810,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Klicka på Animation för att välja huvudbakgrunden och dess palett. Animation colours ställer in huvud- och accentfärgerna för Custom colours; Animation background väljer en oberoende bakgrund, och Theme colour återställer sidans tema. Detail styr renderingsupplösningen. Speed, Size och Density ändrar rörelse och antal element. Mouse gravity radius anger musens påverkansområde; noll stänger av det. Dot blinking styr vita blinkningar, och Popup wave frequency startar vågor från öppna popupfönster i spaCR field. Field ripples styr vågor från klick, öppning eller stängning av behållare och placering av fönstret vid skärmkanten, oberoende av musens dragningskraft. När det stängs av stoppas även de automatiska popupvågorna. Settings animation speed, Settings animation size, Settings animation detail och Settings animation density ändrar bara Settings backdrop. Settings backdrop darkness styr formulärets läsbarhet.",
+          "narration": "Klicka på Animation för att välja huvudbakgrunden och dess palett. Animation colours ställer in huvud- och accentfärgerna för Custom colours; Animation background väljer en oberoende bakgrund, och Theme colour återställer sidans tema. Detail styr renderingsupplösningen. Speed, Size och Density ändrar rörelse och antal element. Mouse gravity radius anger musens påverkansområde; noll stänger av det. Dot blinking styr vita blinkningar. Field ripples anger styrkan på vågor från klick, öppning eller stängning av behållare, popupfönster och placering av fönstret vid skärmkanten, oberoende av musens dragningskraft; noll stänger av vågorna, även de automatiska popupvågorna. Click ripples avgör om ett klick på bakgrunden skickar en våg. Popup wave frequency anger hur många vågor per minut som sprids från ett öppet popupfönster ut i spaCR field. Settings animation speed, Settings animation size, Settings animation detail och Settings animation density ändrar bara Settings backdrop. Settings backdrop darkness styr formulärets läsbarhet.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -2355,7 +2355,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Från Home öppnar du Make Masks under Tools. Knapparna längst ned till vänster hämtar in bilder: Open folder, Organize for Measure och Load test data. Till höger avgör Discard, Keep, Skip och Upload data vad som händer med varje synfält när det har redigerats. Clear masks, direkt till vänster om Discard, ber om bekräftelse innan alla masker i den aktuella bilden tas bort.",
+          "narration": "Från Home öppnar du Make Masks under Tools. Knapparna längst ned till vänster hämtar in bilder: Open folder, Organize for Measure och Load test data. Till höger avgör Discard, Keep, Skip och Upload data vad som händer med varje synfält när det har redigerats. Clear all objects, direkt till vänster om Discard, ber om bekräftelse innan alla objekt i den aktuella bilden tas bort.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -15092,7 +15092,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate visar objektutsnitt så att du kan lägga till granskade etiketter. Classify lär sig från den valda etikettkolumnen med hjälp av utsnittsbilder eller uppmätta egenskaper. Håll utvärderingsobjekt åtskilda från träningsobjekt och för vidare poängkolumnen och objektidentiteterna till senare analyser.",
+          "narration": "Annotate visar objektutsnitt så att du kan lägga till granskade etiketter. Classify tränar en modell på den valda etikettkolumnen med hjälp av utsnittsbilder eller uppmätta egenskaper. Håll utvärderingsobjekt åtskilda från träningsobjekt och för vidare poängkolumnen och objektidentiteterna till senare analyser.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15415,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Diagrammet är till för att utforskas. Håll pekaren över en cellkomponent så visas dess beskrivning. Markera flera för att hålla dem framhävda, och Clear components återställer bilden.",
+          "narration": "Diagrammet är interaktivt. Håll pekaren över en cellkomponent så visas dess beskrivning. Markera flera för att hålla dem framhävda, och Clear components återställer bilden.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15425,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Klicka på Plaque Assay för att öppna analysskärmen. Inställningspanelen anger bildkälla, masker och detektionsalternativ. Load test data ger ett exempel. Kontrollera indata och förhandsvisning innan du startar Run; handledningen Plaque Analysis beskriver hela arbetsflödet.",
+          "narration": "Klicka på Plaque Assay för att öppna analysskärmen. Inställningspanelen anger bildkälla, masker och detektionsalternativ. Load test data ger ett exempel. Kontrollera indata och förhandsvisning innan du startar Run; handledningen Plaque Assay beskriver hela arbetsflödet.",
           "hold_after": 0.7
         },
         {

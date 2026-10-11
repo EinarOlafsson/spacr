@@ -538,7 +538,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify lærir af yfirförnum merkingum og gefur öðrum hlutum stig með mynd- eða töfluaðferðum.",
+          "narration": "Classify þjálfar líkan á yfirförnum merkingum og gefur öðrum hlutum stig út frá útskurðsmyndum eða mældum eiginleikum.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -637,7 +637,7 @@
         },
         {
           "visual": "home_module_qc_dashboard",
-          "narration": "QC sameinar gæðaprófanir og sýnir hvaða gögn eru fyrir hendi eða vantar.",
+          "narration": "QC birtir lista yfir vistaðar gæðaskýrslur verkefnis og merkir þær sem vantar.",
           "hold_after": 0.7,
           "focus_modules": [
             "qc_dashboard"
@@ -810,7 +810,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Smelltu á Animation til að velja aðalbakgrunninn og litaspjaldið. Animation colours stillir aðal- og áhersluliti fyrir Custom colours; Animation background velur sjálfstæðan bakgrunn og Theme colour endurheimtir þema síðunnar. Detail stjórnar upplausn myndgerðarinnar. Speed, Size og Density breyta hreyfingu og fjölda eininga. Mouse gravity radius ákveður áhrifasvæði músarinnar; núll slekkur á því. Dot blinking stjórnar hvítum leiftrum og Popup wave frequency setur af stað bylgjur frá opnum sprettigluggum í spaCR field. Field ripples stjórnar bylgjum frá smellum, opnun eða lokun íláta og þegar glugginn er festur við skjájaðar, óháð aðdráttarafli músarinnar. Þegar slökkt er á því stöðvast sjálfvirkar bylgjur frá sprettigluggum líka. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density breyta aðeins Settings backdrop. Settings backdrop darkness stjórnar læsileika formsins.",
+          "narration": "Smelltu á Animation til að velja aðalbakgrunninn og litaspjaldið. Animation colours stillir aðal- og áhersluliti fyrir Custom colours; Animation background velur sjálfstæðan bakgrunn og Theme colour endurheimtir þema síðunnar. Detail stjórnar upplausn myndgerðarinnar. Speed, Size og Density breyta hreyfingu og fjölda eininga. Mouse gravity radius ákveður áhrifasvæði músarinnar; núll slekkur á því. Dot blinking stjórnar hvítum leiftrum. Field ripples stillir styrk bylgna frá smellum, opnun eða lokun íláta, sprettigluggum og þegar glugginn er festur við skjájaðar, óháð aðdráttarafli músarinnar; núll slekkur á bylgjunum, líka sjálfvirkum bylgjum frá sprettigluggum. Click ripples ræður því hvort smellur á bakgrunninn sendir bylgju. Popup wave frequency stillir hve margar bylgjur á mínútu breiðast út frá opnum sprettiglugga í spaCR field. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density breyta aðeins Settings backdrop. Settings backdrop darkness stjórnar læsileika formsins.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -2355,7 +2355,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því. Clear masks, beint vinstra megin við Discard, biður um staðfestingu áður en allar grímur í núverandi mynd eru fjarlægðar.",
+          "narration": "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því. Clear all objects, beint vinstra megin við Discard, biður um staðfestingu áður en allir hlutir í núverandi mynd eru fjarlægðir.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -15092,7 +15092,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate sýnir myndútskurði af hlutum svo þú getir bætt við yfirförnum merkingum. Classify lærir af valda merkingadálkinum með útskurðsmyndum eða mældum eiginleikum. Haltu matshlutum aðskildum frá þjálfunarhlutum og færðu stigadálkinn og auðkenni hluta áfram í síðari greiningar.",
+          "narration": "Annotate sýnir myndútskurði af hlutum svo þú getir bætt við yfirförnum merkingum. Classify þjálfar líkan á valda merkingadálkinum með útskurðsmyndum eða mældum eiginleikum. Haltu matshlutum aðskildum frá þjálfunarhlutum og færðu stigadálkinn og auðkenni hluta áfram í síðari greiningar.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15415,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Skýringarmyndin er til að kanna. Haltu bendlinum yfir frumuhluta og lýsing hans birtist. Veldu nokkra til að halda þeim auðkenndum, og Clear components endurstillir myndina.",
+          "narration": "Skýringarmyndin er gagnvirk. Haltu bendlinum yfir frumuhluta og lýsing hans birtist. Veldu nokkra til að halda þeim auðkenndum, og Clear components endurstillir myndina.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15425,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Smelltu á Plaque Assay til að opna greiningarskjáinn. Stillingaspjaldið tilgreinir uppruna mynda, grímur og greiningarvalkosti. Load test data gefur dæmi. Farðu yfir inntak og forskoðun áður en Run er ræst; kennslan Plaque Analysis lýsir öllu vinnuferlinu.",
+          "narration": "Smelltu á Plaque Assay til að opna greiningarskjáinn. Stillingaspjaldið tilgreinir uppruna mynda, grímur og greiningarvalkosti. Load test data gefur dæmi. Farðu yfir inntak og forskoðun áður en Run er ræst; kennslan Plaque Assay lýsir öllu vinnuferlinu.",
           "hold_after": 0.7
         },
         {

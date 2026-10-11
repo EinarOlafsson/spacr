@@ -1,0 +1,58 @@
+{
+ "schema": 1,
+ "item": "N676 phase 1 re-record after 63228d27a (Actions card, spinner, ripples)",
+ "lessons": [
+  "05_home",
+  "04_platform_installers",
+  "80_image_analysis_pathways",
+  "82_toxoplasma",
+  "14_make_masks"
+ ],
+ "capture": {
+  "theme": "data_art_impulse_lens (spaCR field), density 0.25, palette spacr, verified per frame by capture_policy.verify_appearance; 05_home scene 39 records the Spaceout field by design",
+  "alpha_features": "off",
+  "profile": "--fresh",
+  "device": "CPU",
+  "14_make_masks": "converted from 61 stills to native live video (59 unique clips), replay hashes equal to the accepted 662 results"
+ },
+ "narration": [
+  "14 scene 1: 'Clear all objects' (was 'Clear masks')",
+  "678 a6 fixes: 05 scenes 5 and 14, 80 scene 5, 82 scenes 3 and 5",
+  "05 scene 33 describes the N684 ripple controls"
+ ],
+ "translations": "reviewed in 13 caption languages for 05, 14, 80 and 82 (reviewer claude-opus-5.5); 50 voices per lesson",
+ "checks": {
+  "verify_staged_audio": "pass, 50/50 tracks per lesson",
+  "browser_matrix": "pass, 71 runs per lesson",
+  "check_completed_matrix": "pass, 5/5",
+  "verify_release_candidate": "pass, 84/84 routes",
+  "check_placeholder_mutations": "pass",
+  "verify_published_tree": "pass, 84/84",
+  "tools_tutorials_tests": "2920 passed, 45 skipped (no Node/Playwright in the spacr env)"
+ },
+ "encoding": "H.264 kept: the player loads one <video src>; VP9 at crf 40 was larger than x264 crf 28 on a 60 s sample",
+ "size_delta": {
+  "pages_bytes": 2470106,
+  "media_host_bytes": 530008309
+ },
+ "publication": {
+  "repository": "datasets/einarolafsson/spacr-tutorials",
+  "branch": "tutorial-n676-phase1-20261011-r1",
+  "tag": "tutorial-n676-phase1-20261011-r1-verified",
+  "commit": "037c3032722e12269c86be0a8e5aee162f14e6bc",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/037c3032722e12269c86be0a8e5aee162f14e6bc",
+  "manifest_sha256": "0815de2fc5a870abf9fff7c39ae38e89a5964d8f5cc9a57890fe0c09acad89eb",
+  "media_files": 5087,
+  "media_bytes": 6655476090
+ },
+ "readback": {
+  "files_expected": 5087,
+  "metadata_matched": 5087,
+  "downloaded_sha256_matched": 5087,
+  "bytes_read_back": 6655476090,
+  "seconds": 387.5,
+  "passed": true
+ },
+ "hf_upload_approval": "maintainer, 2026-10-10 (directly in the WS session)",
+ "logs": "logs/*.log.gz"
+}

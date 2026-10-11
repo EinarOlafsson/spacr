@@ -538,7 +538,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify는 검토된 레이블에서 학습하고 이미지 또는 표 기반 방법으로 다른 객체의 점수를 계산합니다.",
+          "narration": "Classify는 검토된 레이블로 모델을 학습시키고 크롭 이미지나 측정된 특징을 사용해 다른 객체의 점수를 계산합니다.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -637,7 +637,7 @@
         },
         {
           "visual": "home_module_qc_dashboard",
-          "narration": "QC는 품질 검사를 모아 어떤 근거가 있고 어떤 근거가 없는지 알려줍니다.",
+          "narration": "QC는 프로젝트에 저장된 품질 보고서를 나열하고 누락된 보고서를 표시합니다.",
           "hold_after": 0.7,
           "focus_modules": [
             "qc_dashboard"
@@ -810,7 +810,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Animation을 클릭해 주 배경과 팔레트를 선택합니다. Animation colours는 Custom colours의 기본색과 강조색을 정합니다. Animation background는 독립적인 배경을 선택하며, Theme colour는 페이지 테마의 색상으로 되돌립니다. Detail은 렌더링 해상도를 제어합니다. Speed, Size, Density는 움직임과 요소 수를 바꿉니다. Mouse gravity radius는 마우스의 영향 범위를 정하며, 영으로 설정하면 꺼집니다. Dot blinking은 흰색 깜빡임을 제어하고, Popup wave frequency는 spaCR field에서 열린 팝업을 시작점으로 파동을 만듭니다. Field ripples는 클릭, 컨테이너 열기 또는 닫기, 창을 화면 가장자리에 맞추는 동작으로 생기는 파동을 마우스 인력과 독립적으로 제어합니다. 끄면 팝업에서 자동으로 생기는 파동도 멈춥니다. Settings animation speed, Settings animation size, Settings animation detail 및 Settings animation density는 Settings backdrop만 변경합니다. Settings backdrop darkness는 양식의 가독성을 제어합니다.",
+          "narration": "Animation을 클릭해 주 배경과 팔레트를 선택합니다. Animation colours는 Custom colours의 기본색과 강조색을 정합니다. Animation background는 독립적인 배경을 선택하며, Theme colour는 페이지 테마의 색상으로 되돌립니다. Detail은 렌더링 해상도를 제어합니다. Speed, Size, Density는 움직임과 요소 수를 바꿉니다. Mouse gravity radius는 마우스의 영향 범위를 정하며, 영으로 설정하면 꺼집니다. Dot blinking은 흰색 깜빡임을 제어합니다. Field ripples는 클릭, 컨테이너 열기 또는 닫기, 팝업, 창을 화면 가장자리에 맞추는 동작으로 생기는 파동의 세기를 마우스 인력과 독립적으로 설정하며, 영으로 설정하면 팝업의 자동 파동을 포함해 파동이 꺼집니다. Click ripples는 배경을 클릭할 때 파동을 보낼지 정합니다. Popup wave frequency는 열린 팝업에서 spaCR field로 퍼지는 분당 파동 수를 설정합니다. Settings animation speed, Settings animation size, Settings animation detail 및 Settings animation density는 Settings backdrop만 변경합니다. Settings backdrop darkness는 양식의 가독성을 제어합니다.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -2355,7 +2355,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home에서 Tools의 Make Masks를 여세요. 왼쪽 아래 버튼으로 이미지를 불러옵니다: Open folder, Organize for Measure, Load test data. 오른쪽의 Discard, Keep, Skip, Upload data는 편집을 마친 각 시야를 어떻게 처리할지 정합니다. Discard 바로 왼쪽의 Clear masks는 현재 이미지의 모든 마스크를 제거하기 전에 확인을 요청합니다.",
+          "narration": "Home에서 Tools의 Make Masks를 여세요. 왼쪽 아래 버튼으로 이미지를 불러옵니다: Open folder, Organize for Measure, Load test data. 오른쪽의 Discard, Keep, Skip, Upload data는 편집을 마친 각 시야를 어떻게 처리할지 정합니다. Discard 바로 왼쪽의 Clear all objects는 현재 이미지의 모든 객체를 제거하기 전에 확인을 요청합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -15092,7 +15092,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate는 객체 크롭 이미지를 표시하여 검토된 라벨을 추가할 수 있게 합니다. Classify는 크롭 이미지나 측정된 특징을 사용해 선택한 라벨 열에서 학습합니다. 평가 객체와 학습 객체를 분리하고 점수 열과 객체 식별 정보를 후속 분석에 전달하세요.",
+          "narration": "Annotate는 객체 크롭 이미지를 표시하여 검토된 라벨을 추가할 수 있게 합니다. Classify는 크롭 이미지나 측정된 특징을 사용해 선택한 라벨 열로 모델을 학습시킵니다. 평가 객체와 학습 객체를 분리하고 점수 열과 객체 식별 정보를 후속 분석에 전달하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15415,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "도식은 직접 살펴보라고 있는 것입니다. 세포 구성 요소에 포인터를 올리면 설명이 나타납니다. 여러 개를 선택하면 강조 표시가 유지되고, Clear components를 누르면 그림이 초기화됩니다.",
+          "narration": "도식은 대화형입니다. 세포 구성 요소에 포인터를 올리면 설명이 나타납니다. 여러 개를 선택하면 강조 표시가 유지되고, Clear components를 누르면 그림이 초기화됩니다.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15425,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Plaque Assay를 클릭하여 분석 화면을 엽니다. 설정 패널에서 이미지 원본, 마스크 및 검출 옵션을 지정합니다. Load test data는 예제를 제공합니다. Run을 시작하기 전에 입력과 미리보기를 확인하세요. Plaque Analysis 튜토리얼에서 전체 작업 흐름을 설명합니다.",
+          "narration": "Plaque Assay를 클릭하여 분석 화면을 엽니다. 설정 패널에서 이미지 원본, 마스크 및 검출 옵션을 지정합니다. Load test data는 예제를 제공합니다. Run을 시작하기 전에 입력과 미리보기를 확인하세요. Plaque Assay 튜토리얼에서 전체 작업 흐름을 설명합니다.",
           "hold_after": 0.7
         },
         {

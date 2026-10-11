@@ -143,3 +143,25 @@ fits unchanged950MiB limit after normalmedia staging; first scratchoverage
 retained. Source/API/runtime exactchecks pass. Evidence:
 data/676_historical_media_publication_2026-10-09/receipt.json
 Deployment/currentGitHub and otherlegacy/native scope remainOPEN.
+
+2026-10-11 — PHASE 1 RE-RECORD PUBLISHED (after 63228d27a: Actions card,
+no Make Masks spinner, subtle ripples). Maintainer rules of 2026-10-10:
+every lesson records the spaCR field (data_art_impulse_lens, density 0.25,
+palette spacr, set and verified per frame), as live video, alpha off,
+--fresh, CPU. Lessons 05_home, 04_platform_installers,
+80_image_analysis_pathways, 82_toxoplasma and 14_make_masks; 14 is now a
+native live-video lesson (59 clips, replay hashes equal to the accepted
+662 results). 05 scene 39 shows the Spaceout field because it demonstrates
+Spaceout mode (agreed with Home). Narration: 14 "Clear all objects", the
+678 a6 fixes for 05/80/82, 05 scene 33 on the N684 ripple controls;
+reviewed translations in all caption languages; 50 voices per lesson.
+Checks: audio 50/50, browser matrix 71 runs per lesson, completed matrix
+5/5, candidate and published tree 84/84 routes, placeholder mutations,
+tools/tutorials/tests 2920 passed. Media: HF dataset
+einarolafsson/spacr-tutorials commit 037c3032 (tag
+tutorial-n676-phase1-20261011-r1-verified), 5087/5087 files read back.
+Pages +2.4 MB, media host +530 MB. H.264 kept (single-source player;
+VP9 was not smaller). Receipt:
+data/676_phase1_rerecord_publication_2026-10-11/receipt.json
+Phase 2 (~40 still-frame AppScreen lessons to live video, 08 and 17
+first) is next. Not done: native-speaker review, listening review.

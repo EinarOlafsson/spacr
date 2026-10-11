@@ -602,7 +602,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify apprend à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images ou de données tabulaires.",
+          "narration": "Classify entraîne un modèle à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images recadrées ou de caractéristiques mesurées.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -610,7 +610,7 @@
           "related_lessons": [
             "41_classify"
           ],
-          "speech_text": "Classify apprend à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images ou de données tabulaires."
+          "speech_text": "Classify entraîne un modèle à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images recadrées ou de caractéristiques mesurées."
         },
         {
           "visual": "home_module_map_barcodes",
@@ -710,7 +710,7 @@
         },
         {
           "visual": "home_module_qc_dashboard",
-          "narration": "QC rassemble les contrôles qualité et distingue les éléments disponibles de ceux qui manquent.",
+          "narration": "QC liste les rapports de qualité enregistrés d’un projet et signale ceux qui manquent.",
           "hold_after": 0.7,
           "focus_modules": [
             "qc_dashboard"
@@ -718,7 +718,7 @@
           "related_lessons": [
             "54_qc_dashboard"
           ],
-          "speech_text": "QC rassemble les contrôles qualité et distingue les éléments disponibles de ceux qui manquent."
+          "speech_text": "QC liste les rapports de qualité enregistrés d’un projet et signale ceux qui manquent."
         },
         {
           "visual": "home_module_make_masks",
@@ -902,7 +902,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Cliquez sur Animation pour choisir le fond principal et sa palette. Animation colours définit les couleurs principale et d’accent pour Custom colours ; Animation background choisit un fond indépendant, et Theme colour rétablit le thème de la page. Detail contrôle la résolution du rendu. Speed, Size et Density modifient le mouvement et le nombre d’éléments. Mouse gravity radius définit la zone d’influence de la souris ; zéro la désactive. Dot blinking contrôle les éclats blancs, et Popup wave frequency lance des vagues depuis les fenêtres ouvertes dans spaCR field. Field ripples contrôle les vagues produites par les clics, l’ouverture ou la fermeture de conteneurs et l’alignement de la fenêtre sur un bord, indépendamment de l’attraction de la souris. Le désactiver arrête aussi les vagues automatiques des fenêtres ouvertes. Settings animation speed, Settings animation size, Settings animation detail et Settings animation density modifient uniquement Settings backdrop. Settings backdrop darkness règle la lisibilité du formulaire.",
+          "narration": "Cliquez sur Animation pour choisir le fond principal et sa palette. Animation colours définit les couleurs principale et d’accent pour Custom colours ; Animation background choisit un fond indépendant, et Theme colour rétablit le thème de la page. Detail contrôle la résolution du rendu. Speed, Size et Density modifient le mouvement et le nombre d’éléments. Mouse gravity radius définit la zone d’influence de la souris ; zéro la désactive. Dot blinking contrôle les éclats blancs. Field ripples règle l’intensité des vagues produites par les clics, l’ouverture ou la fermeture de conteneurs, les fenêtres ouvertes et l’alignement de la fenêtre sur un bord, indépendamment de l’attraction de la souris ; zéro désactive les vagues, y compris les vagues automatiques des fenêtres ouvertes. Click ripples détermine si un clic sur le fond envoie une vague. Popup wave frequency règle le nombre de vagues par minute qui se propagent depuis une fenêtre ouverte dans spaCR field. Settings animation speed, Settings animation size, Settings animation detail et Settings animation density modifient uniquement Settings backdrop. Settings backdrop darkness règle la lisibilité du formulaire.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +910,7 @@
             1200,
             1500
           ],
-          "speech_text": "Cliquez sur Animation pour choisir le fond principal et sa palette. Animation colours définit les couleurs principale et d’accent pour Custom colours ; Animation background choisit un fond indépendant, et Theme colour rétablit le thème de la page. Detail contrôle la résolution du rendu. Speed, Size et Density modifient le mouvement et le nombre d’éléments. Mouse gravity radius définit la zone d’influence de la souris ; zéro la désactive. Dot blinking contrôle les éclats blancs, et Popup wave frequency lance des vagues depuis les fenêtres ouvertes dans spakeur field. Field ripples contrôle les vagues produites par les clics, l’ouverture ou la fermeture de conteneurs et l’alignement de la fenêtre sur un bord, indépendamment de l’attraction de la souris. Le désactiver arrête aussi les vagues automatiques des fenêtres ouvertes. Settings animation speed, Settings animation size, Settings animation detail et Settings animation density modifient uniquement Settings backdrop. Settings backdrop darkness règle la lisibilité du formulaire."
+          "speech_text": "Cliquez sur Animation pour choisir le fond principal et sa palette. Animation colours définit les couleurs principale et d’accent pour Custom colours ; Animation background choisit un fond indépendant, et Theme colour rétablit le thème de la page. Detail contrôle la résolution du rendu. Speed, Size et Density modifient le mouvement et le nombre d’éléments. Mouse gravity radius définit la zone d’influence de la souris ; zéro la désactive. Dot blinking contrôle les éclats blancs. Field ripples règle l’intensité des vagues produites par les clics, l’ouverture ou la fermeture de conteneurs, les fenêtres ouvertes et l’alignement de la fenêtre sur un bord, indépendamment de l’attraction de la souris ; zéro désactive les vagues, y compris les vagues automatiques des fenêtres ouvertes. Click ripples détermine si un clic sur le fond envoie une vague. Popup wave frequency règle le nombre de vagues par minute qui se propagent depuis une fenêtre ouverte dans spakeur field. Settings animation speed, Settings animation size, Settings animation detail et Settings animation density modifient uniquement Settings backdrop. Settings backdrop darkness règle la lisibilité du formulaire."
         },
         {
           "visual": "13h_preferences_apply",
@@ -2560,12 +2560,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Depuis Home, ouvrez Make Masks dans Tools. Les boutons en bas à gauche chargent les images : Open folder, Organize for Measure et Load test data. À droite, Discard, Keep, Skip et Upload data décident du sort de chaque champ une fois modifié. Clear masks, immédiatement à gauche de Discard, demande confirmation avant de supprimer tous les masques de l’image actuelle.",
+          "narration": "Depuis Home, ouvrez Make Masks dans Tools. Les boutons en bas à gauche chargent les images : Open folder, Organize for Measure et Load test data. À droite, Discard, Keep, Skip et Upload data décident du sort de chaque champ une fois modifié. Clear all objects, immédiatement à gauche de Discard, demande confirmation avant de supprimer tous les objets de l’image actuelle.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "Depuis Home, ouvrez Make Masks dans Tools. Les boutons en bas à gauche chargent les images : Open folder, Organize for Measure et Load test data. À droite, Discard, Keep, Skip et Upload data décident du sort de chaque champ une fois modifié. Clear masks, immédiatement à gauche de Discard, demande confirmation avant de supprimer tous les masques de l’image actuelle."
+          "speech_text": "Depuis Home, ouvrez Make Masks dans Tools. Les boutons en bas à gauche chargent les images : Open folder, Organize for Measure et Load test data. À droite, Discard, Keep, Skip et Upload data décident du sort de chaque champ une fois modifié. Clear all objects, immédiatement à gauche de Discard, demande confirmation avant de supprimer tous les objets de l’image actuelle."
         },
         {
           "visual": "01b_test_data_menu",
@@ -16258,13 +16258,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify apprend à partir de la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes.",
+          "narration": "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify entraîne un modèle sur la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify apprend à partir de la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes."
+          "speech_text": "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify entraîne un modèle sur la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes."
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16602,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Le schéma est fait pour être exploré. Survolez un composant cellulaire et sa description apparaît. Sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise l’image.",
+          "narration": "Le schéma est interactif. Survolez un composant cellulaire et sa description apparaît. Sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise l’image.",
           "hold_after": 0.7,
-          "speech_text": "Le schéma est fait pour être exploré. Survolez un composant cellulaire et sa description apparaît. Sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise l’image."
+          "speech_text": "Le schéma est interactif. Survolez un composant cellulaire et sa description apparaît. Sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise l’image."
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16614,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Cliquez sur Plaque Assay pour ouvrir son écran d’analyse. Le panneau de paramètres indique la source des images, les masques et les options de détection. Load test data fournit un exemple. Vérifiez les données d’entrée et l’aperçu avant de lancer Run ; le tutoriel Plaque Analysis décrit le déroulement complet.",
+          "narration": "Cliquez sur Plaque Assay pour ouvrir son écran d’analyse. Le panneau de paramètres indique la source des images, les masques et les options de détection. Load test data fournit un exemple. Vérifiez les données d’entrée et l’aperçu avant de lancer Run ; le tutoriel Plaque Assay décrit le déroulement complet.",
           "hold_after": 0.7,
-          "speech_text": "Cliquez sur Plaque Assay pour ouvrir son écran d’analyse. Le panneau de paramètres indique la source des images, les masques et les options de détection. Load test data fournit un exemple. Vérifiez les données d’entrée et l’aperçu avant de lancer Run ; le tutoriel Plaque Analysis décrit le déroulement complet."
+          "speech_text": "Cliquez sur Plaque Assay pour ouvrir son écran d’analyse. Le panneau de paramètres indique la source des images, les masques et les options de détection. Load test data fournit un exemple. Vérifiez les données d’entrée et l’aperçu avant de lancer Run ; le tutoriel Plaque Assay décrit le déroulement complet."
         },
         {
           "visual": "05_references",

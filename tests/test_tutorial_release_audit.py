@@ -480,9 +480,11 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
             visual_references[lesson["id"]] = visual
             record = media_records["media_host/" + visual]
             assert record["bytes"] > 0 and re.fullmatch(r"[0-9a-f]{64}", record["sha256"])
+    # 14_make_masks became a native live-video lesson in N676 phase 1
+    # (2026-10-11).
     native_ids = {"02_install_spacr", "04_platform_installers", "05_home",
-                  "80_image_analysis_pathways", "82_toxoplasma"}
-    original_ids = {"07_mask", "08_measure", "14_make_masks", "18_motility",
+                  "14_make_masks", "80_image_analysis_pathways", "82_toxoplasma"}
+    original_ids = {"07_mask", "08_measure", "18_motility",
                     "19_train_cellpose", "20_cellpose_masks", "24_plaque",
                     "74_import_images", "85_host_pathogen", "87_alpha_features"}
     assert visual_references == {

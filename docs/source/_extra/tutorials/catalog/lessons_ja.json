@@ -602,7 +602,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify は確認済みのラベルから学習し、画像または表の特徴量を使って他の物体にスコアを付けます。",
+          "narration": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -610,7 +610,7 @@
           "related_lessons": [
             "41_classify"
           ],
-          "speech_text": "Classify は確認済みのラベルから学習し、画像または表の特徴量を使って他の物体にスコアを付けます。"
+          "speech_text": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。"
         },
         {
           "visual": "home_module_map_barcodes",
@@ -710,7 +710,7 @@
         },
         {
           "visual": "home_module_qc_dashboard",
-          "narration": "QC は品質確認をまとめ、利用できる証拠と不足する証拠を示します。",
+          "narration": "QC はプロジェクトに保存された品質レポートを一覧表示し、不足しているものを示します。",
           "hold_after": 0.7,
           "focus_modules": [
             "qc_dashboard"
@@ -718,7 +718,7 @@
           "related_lessons": [
             "54_qc_dashboard"
           ],
-          "speech_text": "QC は品質確認をまとめ、利用できる証拠と不足する証拠を示します。"
+          "speech_text": "QC はプロジェクトに保存された品質レポートを一覧表示し、不足しているものを示します。"
         },
         {
           "visual": "home_module_make_masks",
@@ -902,7 +902,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Animation をクリックして、メインの背景とパレットを選びます。Animation colours は Custom colours の主色とアクセント色を設定します。Animation background は独立した背景を選択し、Theme colour はページのテーマ色に戻します。Detail は描画解像度を制御します。Speed、Size、Density は動きや要素の数を変えます。Mouse gravity radius はマウスの影響範囲を設定し、ゼロで無効になります。Dot blinking は白い点滅を制御します。Popup wave frequency は、spaCR field で開いているポップアップから波を発生させます。Field ripples は、クリック、コンテナの開閉、ウィンドウのスナップによる波を、マウスの引力とは独立して制御します。オフにすると、ポップアップの自動的な波も停止します。Settings animation speed、Settings animation size、Settings animation detail、Settings animation density は Settings backdrop だけを変更します。Settings backdrop darkness はフォームの文字の読みやすさを制御します。",
+          "narration": "Animation をクリックして、メインの背景とパレットを選びます。Animation colours は Custom colours の主色とアクセント色を設定します。Animation background は独立した背景を選択し、Theme colour はページのテーマ色に戻します。Detail は描画解像度を制御します。Speed、Size、Density は動きや要素の数を変えます。Mouse gravity radius はマウスの影響範囲を設定し、ゼロで無効になります。Dot blinking は白い点滅を制御します。Field ripples は、クリック、コンテナの開閉、ポップアップ、ウィンドウのスナップによる波の強さを、マウスの引力とは独立して設定します。ゼロにすると、ポップアップの自動的な波も含めて波がオフになります。Click ripples は、背景をクリックしたときに波を出すかどうかを決めます。Popup wave frequency は、開いているポップアップから spaCR field に広がる波の毎分の数を設定します。Settings animation speed、Settings animation size、Settings animation detail、Settings animation density は Settings backdrop だけを変更します。Settings backdrop darkness はフォームの文字の読みやすさを制御します。",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +910,7 @@
             1200,
             1500
           ],
-          "speech_text": "Animation をクリックして、メインの背景とパレットを選びます。Animation colours は Custom colours の主色とアクセント色を設定します。Animation background は独立した背景を選択し、Theme colour はページのテーマ色に戻します。Detail は描画解像度を制御します。Speed、Size、Density は動きや要素の数を変えます。Mouse gravity radius はマウスの影響範囲を設定し、ゼロで無効になります。Dot blinking は白い点滅を制御します。Popup wave frequency は、スペーカー field で開いているポップアップから波を発生させます。Field ripples は、クリック、コンテナの開閉、ウィンドウのスナップによる波を、マウスの引力とは独立して制御します。オフにすると、ポップアップの自動的な波も停止します。Settings animation speed、Settings animation size、Settings animation detail、Settings animation density は Settings backdrop だけを変更します。Settings backdrop darkness はフォームの文字の読みやすさを制御します。"
+          "speech_text": "Animation をクリックして、メインの背景とパレットを選びます。Animation colours は Custom colours の主色とアクセント色を設定します。Animation background は独立した背景を選択し、Theme colour はページのテーマ色に戻します。Detail は描画解像度を制御します。Speed、Size、Density は動きや要素の数を変えます。Mouse gravity radius はマウスの影響範囲を設定し、ゼロで無効になります。Dot blinking は白い点滅を制御します。Field ripples は、クリック、コンテナの開閉、ポップアップ、ウィンドウのスナップによる波の強さを、マウスの引力とは独立して設定します。ゼロにすると、ポップアップの自動的な波も含めて波がオフになります。Click ripples は、背景をクリックしたときに波を出すかどうかを決めます。Popup wave frequency は、開いているポップアップから スペーカー field に広がる波の毎分の数を設定します。Settings animation speed、Settings animation size、Settings animation detail、Settings animation density は Settings backdrop だけを変更します。Settings backdrop darkness はフォームの文字の読みやすさを制御します。"
         },
         {
           "visual": "13h_preferences_apply",
@@ -2560,12 +2560,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "HomeからToolsのMake Masksを開きます。左下のボタンで画像を読み込みます。Open folder、Organize for Measure、Load test dataです。右側のDiscard、Keep、Skip、Upload dataで、編集を終えた各フィールドをどう扱うかを決めます。 Discardのすぐ左にあるClear masksは、現在の画像のすべてのマスクを削除する前に確認を求めます。",
+          "narration": "HomeからToolsのMake Masksを開きます。左下のボタンで画像を読み込みます。Open folder、Organize for Measure、Load test dataです。右側のDiscard、Keep、Skip、Upload dataで、編集を終えた各フィールドをどう扱うかを決めます。 Discardのすぐ左にあるClear all objectsは、現在の画像のすべての物体を削除する前に確認を求めます。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "ホームからToolsのMake Masksを開きます。左下のボタンで画像を読み込みます。Open folder、Organize for Measure、Load test dataです。右側のDiscard、Keep、Skip、Upload dataで、編集を終えた各フィールドをどう扱うかを決めます。 Discardのすぐ左にあるClear masksは、現在の画像のすべてのマスクを削除する前に確認を求めます。"
+          "speech_text": "ホームからToolsのMake Masksを開きます。左下のボタンで画像を読み込みます。Open folder、Organize for Measure、Load test dataです。右側のDiscard、Keep、Skip、Upload dataで、編集を終えた各フィールドをどう扱うかを決めます。 Discardのすぐ左にあるClear all objectsは、現在の画像のすべての物体を削除する前に確認を求めます。"
         },
         {
           "visual": "01b_test_data_menu",
@@ -16258,13 +16258,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate はオブジェクトの切り抜き画像を表示し、確認済みラベルを追加できるようにします。Classify は切り抜き画像または測定した特徴量を使い、選択したラベル列から学習します。評価用オブジェクトを学習用オブジェクトと分け、スコア列とオブジェクトの識別情報を後続の解析に引き継いでください。",
+          "narration": "Annotate はオブジェクトの切り抜き画像を表示し、確認済みラベルを追加できるようにします。Classify は切り抜き画像または測定した特徴量を使い、選択したラベル列でモデルを学習させます。評価用オブジェクトを学習用オブジェクトと分け、スコア列とオブジェクトの識別情報を後続の解析に引き継いでください。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate はオブジェクトの切り抜き画像を表示し、確認済みラベルを追加できるようにします。Classify は切り抜き画像または測定した特徴量を使い、選択したラベル列から学習します。評価用オブジェクトを学習用オブジェクトと分け、スコア列とオブジェクトの識別情報を後続の解析に引き継いでください。"
+          "speech_text": "Annotate はオブジェクトの切り抜き画像を表示し、確認済みラベルを追加できるようにします。Classify は切り抜き画像または測定した特徴量を使い、選択したラベル列でモデルを学習させます。評価用オブジェクトを学習用オブジェクトと分け、スコア列とオブジェクトの識別情報を後続の解析に引き継いでください。"
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16602,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "図は自由に調べられます。細胞の構成要素にポインターを合わせると、その説明が表示されます。いくつか選ぶと強調表示が残り、Clear componentsで図が元に戻ります。",
+          "narration": "図はインタラクティブです。細胞の構成要素にポインターを合わせると、その説明が表示されます。いくつか選ぶと強調表示が残り、Clear componentsで図が元に戻ります。",
           "hold_after": 0.7,
-          "speech_text": "図は自由に調べられます。細胞の構成要素にポインターを合わせると、その説明が表示されます。いくつか選ぶと強調表示が残り、Clear componentsで図が元に戻ります。"
+          "speech_text": "図はインタラクティブです。細胞の構成要素にポインターを合わせると、その説明が表示されます。いくつか選ぶと強調表示が残り、Clear componentsで図が元に戻ります。"
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16614,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Plaque Assayをクリックして解析画面を開きます。設定パネルで画像ソース、マスク、検出オプションを指定します。Load test dataで例を読み込めます。Runを開始する前に入力とプレビューを確認してください。Plaque Analysisのチュートリアルで手順全体を説明しています。",
+          "narration": "Plaque Assayをクリックして解析画面を開きます。設定パネルで画像ソース、マスク、検出オプションを指定します。Load test dataで例を読み込めます。Runを開始する前に入力とプレビューを確認してください。Plaque Assayのチュートリアルで手順全体を説明しています。",
           "hold_after": 0.7,
-          "speech_text": "Plaque Assayをクリックして解析画面を開きます。設定パネルで画像ソース、マスク、検出オプションを指定します。Load test dataで例を読み込めます。Runを開始する前に入力とプレビューを確認してください。Plaque Analysisのチュートリアルで手順全体を説明しています。"
+          "speech_text": "Plaque Assayをクリックして解析画面を開きます。設定パネルで画像ソース、マスク、検出オプションを指定します。Load test dataで例を読み込めます。Runを開始する前に入力とプレビューを確認してください。Plaque Assayのチュートリアルで手順全体を説明しています。"
         },
         {
           "visual": "05_references",

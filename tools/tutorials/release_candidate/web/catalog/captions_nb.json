@@ -538,7 +538,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify lærer fra gjennomgåtte etiketter og gir andre objekter skårer med bildebaserte eller tabellbaserte metoder.",
+          "narration": "Classify trener en modell på gjennomgåtte etiketter og gir andre objekter skårer ut fra utsnittsbilder eller målte egenskaper.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -637,7 +637,7 @@
         },
         {
           "visual": "home_module_qc_dashboard",
-          "narration": "QC samler kvalitetskontroller og viser hvilke bevis som finnes eller mangler.",
+          "narration": "QC viser de lagrede kvalitetsrapportene i et prosjekt og markerer dem som mangler.",
           "hold_after": 0.7,
           "focus_modules": [
             "qc_dashboard"
@@ -810,7 +810,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Klikk på Animation for å velge hovedbakgrunnen og paletten. Animation colours stiller inn hoved- og aksentfargene for Custom colours; Animation background velger en uavhengig bakgrunn, og Theme colour gjenoppretter sidens tema. Detail styrer gjengivelsesoppløsningen. Speed, Size og Density endrer bevegelsen og antallet elementer. Mouse gravity radius angir musens påvirkningsområde; null slår det av. Dot blinking styrer hvite blink, og Popup wave frequency starter bølger fra åpne popupvinduer i spaCR field. Field ripples styrer bølger fra klikk, åpning eller lukking av beholdere og plassering av vinduet ved skjermkanten, uavhengig av musens tiltrekning. Når du slår det av, stopper også de automatiske popupbølgene. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density endrer bare Settings backdrop. Settings backdrop darkness styrer skjemaets lesbarhet.",
+          "narration": "Klikk på Animation for å velge hovedbakgrunnen og paletten. Animation colours stiller inn hoved- og aksentfargene for Custom colours; Animation background velger en uavhengig bakgrunn, og Theme colour gjenoppretter sidens tema. Detail styrer gjengivelsesoppløsningen. Speed, Size og Density endrer bevegelsen og antallet elementer. Mouse gravity radius angir musens påvirkningsområde; null slår det av. Dot blinking styrer hvite blink. Field ripples angir styrken på bølger fra klikk, åpning eller lukking av beholdere, popupvinduer og plassering av vinduet ved skjermkanten, uavhengig av musens tiltrekning; null slår av bølgene, også de automatiske popupbølgene. Click ripples bestemmer om et klikk på bakgrunnen sender en bølge. Popup wave frequency angir hvor mange bølger per minutt som sprer seg fra et åpent popupvindu inn i spaCR field. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density endrer bare Settings backdrop. Settings backdrop darkness styrer skjemaets lesbarhet.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -2355,7 +2355,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Fra Home åpner du Make Masks under Tools. Knappene nederst til venstre henter inn bilder: Open folder, Organize for Measure og Load test data. Til høyre bestemmer Discard, Keep, Skip og Upload data hva som skjer med hvert synsfelt når det er redigert. Clear masks, rett til venstre for Discard, ber om bekreftelse før alle masker i det gjeldende bildet fjernes.",
+          "narration": "Fra Home åpner du Make Masks under Tools. Knappene nederst til venstre henter inn bilder: Open folder, Organize for Measure og Load test data. Til høyre bestemmer Discard, Keep, Skip og Upload data hva som skjer med hvert synsfelt når det er redigert. Clear all objects, rett til venstre for Discard, ber om bekreftelse før alle objekter i det gjeldende bildet fjernes.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -15092,7 +15092,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate viser objektutsnitt slik at du kan legge til gjennomgåtte etiketter. Classify lærer fra den valgte etikettkolonnen ved hjelp av utsnittsbilder eller målte egenskaper. Hold evalueringsobjekter atskilt fra treningsobjekter, og før poengkolonnen og objektidentitetene videre til senere analyser.",
+          "narration": "Annotate viser objektutsnitt slik at du kan legge til gjennomgåtte etiketter. Classify trener en modell på den valgte etikettkolonnen ved hjelp av utsnittsbilder eller målte egenskaper. Hold evalueringsobjekter atskilt fra treningsobjekter, og før poengkolonnen og objektidentitetene videre til senere analyser.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15415,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Diagrammet er der for å utforskes. Hold pekeren over en cellekomponent, så vises beskrivelsen. Velg flere for å holde dem uthevet, og Clear components tilbakestiller bildet.",
+          "narration": "Diagrammet er interaktivt. Hold pekeren over en cellekomponent, så vises beskrivelsen. Velg flere for å holde dem uthevet, og Clear components tilbakestiller bildet.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15425,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Klikk på Plaque Assay for å åpne analyseskjermen. Innstillingspanelet angir bildekilden, masker og deteksjonsvalg. Load test data gir et eksempel. Kontroller inndata og forhåndsvisning før du starter Run; veiledningen Plaque Analysis beskriver hele arbeidsflyten.",
+          "narration": "Klikk på Plaque Assay for å åpne analyseskjermen. Innstillingspanelet angir bildekilden, masker og deteksjonsvalg. Load test data gir et eksempel. Kontroller inndata og forhåndsvisning før du starter Run; veiledningen Plaque Assay beskriver hele arbeidsflyten.",
           "hold_after": 0.7
         },
         {
