@@ -1,7 +1,10 @@
 LINEAGE TREES FROM TRACKS
 
-Status: BLOCKED 2026-10-02 — real tracked Toxoplasma endodyogeny movies
-        (unpublished maintainer lab data). Built and alpha-gated.
+Status: OPEN (alpha) 2026-10-11 — data block lifted: public Toxoplasma
+        endodyogeny movie (Cell Image Library CIL:10522/10524, public
+        domain) run end to end. Left: inferred-division precision on it
+        is 0.33 (manual), so a bud-signal guard is the next step.
+        Built and alpha-gated.
 
 Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external point left: real tracked Toxoplasma endodyogeny movies (maintainer lab data).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
@@ -300,3 +303,67 @@ close the remaining real parasite endodyogeny acceptance for F537.
     Tests: test_lineage_division_guards_f537.py; alpha gate tests cover the key.
     LEFT: Measure-stage trees have no image shape, so the edge rule is off
     there; parasite endodyogeny on real movies still needs maintainer data.
+
+2026-10-11 — PUBLIC-DATA UNBLOCK ATTEMPT (CPU)
+    Searched: BioImage Archive API (toxoplasma / plasmodium / apicomplexa
+    + time-lapse: only EMPIAR volumes, S-BSST429 zebrafish, fixed
+    screens); web search for Zenodo, IDR, figshare, Dryad, paper
+    supplements (Hu/Murray, Striepen, Gubbels lab IMC1/MORN1 movies);
+    Plasmodium fallback (Klaus et al. 2022 Sci Adv): no deposit found
+    in BIA, not needed. FOUND: Cell Image Library (UCSD), John Murray
+    and Ke Hu, Toxoplasma RH in HFF, EGFP-TgIMC1 + mRFP-TgMORN1:
+      CIL:10522 raw, 100 t x 3 ch (EGFP, mRFP, DIC) x 9 z, 256x256 px,
+        0.2134 um/px, 60x/1.2 NA water, every 10 min = 16.5 h, 355 MB
+        https://doi.org/10.7295/W9CIL10522
+      CIL:10523 deconvolved (237 MB); CIL:10524 max projection of the
+        deconvolved stack, 2 ch x 100 t, 26 MB (the one used)
+      CIL:10525 is only an .mpg preview.
+      Licence: public domain (CIL record, CC public-domain mark); cite
+      the DOI and credit Murray and Hu. Unpublished images, similar to
+      PMID 16518471 and 20140195. Meets the 2026-10-03 bar: >=40x,
+      >=12 h, <=30 min, parasite-level IMC1 outlines.
+      (cellimagelibrary.org serves an incomplete TLS chain; curl -k.)
+      Also seen, too short: CIL:10488 (beta3-tubulin, 50 t, ~4 h).
+    Ran (scratch /mnt/firecuda2/Claude/scratch/unblock/F537/work/,
+    run.py, crops.py, score.py; data in ../data/cil/):
+    - Segmentation: cellpose cyto3 on CPU (cellpose 3.1.1.2 in a
+      scratch lib; cpsam on CPU took ~230 s/frame), IMC1 + MORN1,
+      diameter 22, ~3 s/frame. Parasites in 2- and 4-rosettes are
+      split well; budding mothers and 8-rosettes are partly merged.
+      Rim/ridge/watershed thresholds were tried first and failed.
+    - Field drift up to 31 px/frame (stage). Masks registered with
+      phase correlation (kept only when mask IoU improves).
+    - Tracking: spaCR _track_by_iou (contingency-table link_by_iou as
+      on 2026-10-03). 214 tracks; 71% of detections in tracks >= 20
+      frames.
+    - Lineage: _lineage_segments, frame_interval_s=600, field_shape.
+        min_division_h  divisions  complete cycles  median gen. time
+        6.0 (default)   42         8                10.0 h
+        off             81         60               1.3 h
+      Unguarded inference is unusable. The 6 h guard removes short
+      cycles but not false first divisions.
+    - Manual check of all 42 guarded divisions on crops
+      (out/division_crops_*.png, out/manual_division_labels.csv):
+      14 real (IMC1 daughter buds in the mother, then daughters
+      emerge), 4 real but called 1-2 h early, while daughters are
+      still buds, 24 false (17 segmentation reshuffles in mature
+      rosettes, 7 objects entering at field/registration edges).
+      Precision 0.33 strict, 0.43 lenient. Recall not measured.
+    - Biology: vacuoles go 2 -> 4 (t10-12), 4 -> 8 (t29-36) and
+      8 -> 16 (t82-90, partly out of the field). Counts double per
+      vacuole as 2^n; whole-field totals go 16 -> ~33 by 6 h, then
+      level off as vacuoles drift out. The only complete cycle with
+      both ends real: 10.5 h (born t12, divides t75). Division waves
+      ~50-60 frames apart (~9-10 h). That is longer than the 6-8 h
+      RH cycle, likely from 10-min 3D imaging and the overexpressed
+      tagged IMC1/MORN1. Trees render (out/tree_*.png; max
+      generation 2).
+    - A possible guard: IMC1 p95/median inside the mother over the 8
+      frames before the call. Real 2.78 +/- 0.80, false 1.86 +/- 0.32.
+      At >= 2.3, 12 of 18 real are kept and 2 of 24 false; at >= 2.6,
+      10 of 18 real and 0 false. Not implemented: it is a design
+      choice, since it needs a bud/IMC marker channel.
+    Status: no longer blocked on data. The open work is algorithmic:
+    rosette segmentation consistency, plus an optional marker-based
+    bud guard. Maintainer lab movies are still welcome as a second
+    dataset.

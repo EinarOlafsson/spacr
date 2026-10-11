@@ -884,11 +884,12 @@ def _lenient_profile_json(text: str) -> Dict[str, Any]:
     def _value(match):
         """Quote a bare profile value while preserving JSON booleans and null."""
         word = match.group(2).strip()
-        if word in ('true', 'false', 'null'):
+        if word in ('true', 'false', 'null') or re.fullmatch(
+                r'-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?', word):
             return match.group(0)
         return f'{match.group(1)}"{word}"'
 
-    quoted = re.sub(r'(:\s*)([A-Za-z_][^,}\]"]*?)\s*(?=[,}])', _value, quoted)
+    quoted = re.sub(r'(:\s*)([^\s,{}\[\]"][^,}\]"]*?)\s*(?=[,}])', _value, quoted)
     quoted = re.sub(r':\s*(?=[,}])', ': ""', quoted)
     try:
         return json.loads(quoted)
@@ -964,7 +965,12 @@ def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
     :returns: Harmony channel number -> ``{'foreground', 'background',
         'degree', 'name'}``, the surfaces evaluated. A background-only
         profile with a ``Mean`` becomes a unit foreground and the additive
-        offset ``Mean * (B - 1)``.
+        offset ``Mean * (B - 1)``. A foreground ``F`` with a normalised
+        background ``B`` and its ``Mean`` becomes the offset
+        ``Mean * (B - F)``, so the correction is
+        ``(raw - Mean * B) / F + Mean``: the background is flattened at its
+        mean level and the foreground divided by its gain. A background
+        polynomial without a ``Mean`` is taken to be in raw counts.
     :raises IlluminationError: when the file holds no profile.
     """
     import xml.etree.ElementTree as ElementTree
@@ -991,6 +997,11 @@ def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
         background = _harmony_surface(blob.get('Background'))
         if foreground is not None:
             coefficients = blob['Foreground']['Profile']['Coefficients']
+            mean = _harmony_background_mean(blob.get('Background'))
+            if (background is not None and mean is not None
+                    and background.shape == foreground.shape):
+                with np.errstate(over='ignore', invalid='ignore'):
+                    background = mean * (background - foreground)
         else:
             mean = _harmony_background_mean(blob.get('Background'))
             if background is None or mean is None:
@@ -1109,10 +1120,12 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
 
     * **Harmony XML** (PerkinElmer/Revvity Operetta and Opera Phenix). Merged
       channel ``c`` takes Harmony channel ``c + 1``, the order Harmony's
-      ``-ch1``, ``-ch2`` file names merge in. The foreground polynomial is the
-      gain and the background polynomial the spatial offset, both kept at
-      Harmony's own scale, so ``(observed - background) / foreground`` is
-      exactly what Harmony applies. A profile with only a background
+      ``-ch1``, ``-ch2`` file names merge in. The foreground polynomial ``F``
+      is the gain. Harmony normalises the background polynomial ``B`` to
+      about 1 and stores its level as ``Mean``; the correction is then
+      ``(observed - Mean * B) / F + Mean``. A background polynomial without
+      a ``Mean`` is a raw-count offset, ``(observed - B) / F``. A profile
+      with only a background
       polynomial and its ``Mean`` is applied additively as
       ``observed - Mean * (background - 1)``, as Harmony does. ``dark`` is
       added to the background.

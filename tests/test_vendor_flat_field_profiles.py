@@ -336,3 +336,63 @@ def test_a_background_only_profile_without_a_mean_is_refused(tmp_path):
                     + '</FlatfieldProfile></Root>')
     with pytest.raises(ill.IlluminationError, match="background polynomial"):
         ill._vendor_illumination(str(path), [0], verbose=False)
+
+
+JUMP_PHENIX_PROFILE = (
+    "{Background: {Character: NonFlat, Mean: 551.87206, NoiseConst: "
+    "2.2005074, NonFlatness: {Corrected: 0.048616717, Original: 0.71360219, "
+    "Random: 0.028618853}, Profile: {Coefficients: [[1.2679], [-0.0213, "
+    "-0.088], [-1.544, -0.015, -1.5169], [-0.0604, 0.2743, 0.0036, 0.0227], "
+    "[-1.5497, -0.2467, 2.0788, 0.3375, -0.6343]], Dims: [1080, 1080], "
+    "Origin: [539.5, 539.5], Scale: [0.00092592593, 0.00092592593], Type: "
+    "Polynomial}, Quality: 1.0}, Channel: 3, ChannelName: 488 long, "
+    "Foreground: {Character: NonFlat, NonFlatness: {Original: 0.78049314, "
+    "Random: 0.035038}, Profile: {Coefficients: [[1.3324], [-0.1432, "
+    "-0.2304], [-1.9628, 0.0794, -2.7404], [-0.0227, 0.4092, 0.3427, "
+    "0.507], [-0.3783, -0.5332, 4.0555, 0.1062, 2.8874]], Dims: [1080, "
+    "1080], Origin: [539.5, 539.5], Scale: [0.00092592593, 0.00092592593], "
+    "Type: Polynomial}, Quality: 1.0}, Version: Acapella:2013}")
+JUMP_IDENTITY_PROFILE = (
+    "{Background: {Character: Null, Profile: {Type: Identity}, Quality: 1}, "
+    "Channel: 6, ChannelName: Brightfield H, Foreground: {Character: Flat, "
+    "Profile: {Type: Identity}, Quality: 1}, Version: Acapella:2013}")
+
+
+def _real_polynomial(coefficients, n=1080, origin=539.5, scale=0.00092592593):
+    axis = (np.arange(n, dtype=np.float64) - origin) * scale
+    y, x = np.meshgrid(axis, axis, indexing="ij")
+    return sum(c * x ** (i - j) * y ** j
+               for i, row in enumerate(coefficients) for j, c in enumerate(row))
+
+
+def test_a_real_phenix_foreground_and_background_profile(tmp_path):
+    """Verbatim channel 3 of the Opera Phenix FFC profile of JUMP Cell
+    Painting Gallery plate BR00117035 (cpg0016-jump source_4, CC0): a bare
+    value starting with a digit ("488 long") parses, an Identity profile is
+    skipped, and the correction is ``(raw - Mean * B) / F + Mean``."""
+    path = tmp_path / "FFC_Profile_Measurement1.xml"
+    path.write_text(
+        '<?xml version="1.0" encoding="utf-8"?><Results xmlns='
+        '"http://www.perkinelmer.com/PEHH/HarmonyV5"><Map>'
+        '<Entry ChannelID="3"><FlatfieldProfile>' + JUMP_PHENIX_PROFILE
+        + '</FlatfieldProfile></Entry><Entry ChannelID="6"><FlatfieldProfile>'
+        + JUMP_IDENTITY_PROFILE + '</FlatfieldProfile></Entry></Map></Results>')
+    profiles = ill._harmony_profiles(str(path))
+    assert sorted(profiles) == [3]
+    assert profiles[3]["name"] == "488 long"
+
+    model = ill._vendor_illumination(str(path), [0], channel_map="0:3",
+                                     verbose=False)
+    gain = model.fields[ill.ALL_PLATES].flatfield[0]
+    assert gain.min() > 0.4 and abs(float(gain.mean()) - 1.0) < 0.01
+
+    blob = ill._lenient_profile_json(JUMP_PHENIX_PROFILE)
+    foreground = _real_polynomial(blob["Foreground"]["Profile"]["Coefficients"])
+    background = _real_polynomial(blob["Background"]["Profile"]["Coefficients"])
+    mean = 551.87206
+    raw = np.random.default_rng(5).uniform(400, 4000, (1080, 1080, 1))
+    raw = raw.astype(np.float32)
+    expected = (raw[..., 0] - mean * background) / foreground + mean
+    corrected = _correct(model, raw, channels=(0,))
+    np.testing.assert_allclose(corrected[..., 0], expected, rtol=1e-4,
+                               atol=0.05)

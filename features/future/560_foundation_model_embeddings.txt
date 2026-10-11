@@ -3,6 +3,8 @@ FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
 Status: OPEN (alpha) 2026-10-06 — supported-backbone human-label comparisons,
 chance/provenance APIs and four-channel CPU/CUDA parity are verified;
 official Cell-DINO loading and final hosted acceptance remain. See dated notes.
+2026-10-11: official Cell-DINO weights still only via Meta's gated request
+form (maintainer must submit it); see the 2026-10-11 note.
 Previous status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
 VERIFIED 2026-10-04: test_foundation_model_embeddings, qt foundation-picker and embedding use-for gates pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
@@ -308,3 +310,57 @@ refresh is next. Actual official pretrained Cell-DINO weights are still
 unobtained; scientific/GPU acceptance remains OPEN. User theme revisions and
 the preference-save native crash remain Home priority under N663. Protected
 serial Qt 37457998285 is still running at older 237506317; leave it alone.
+
+2026-10-11 — PUBLIC-DATA UNBLOCK ATTEMPT (CPU)
+Target: only the "official pretrained Cell-DINO weights" gap. Nothing
+submitted, no licence accepted, no identity given.
+
+Searched (2026-10-10/11):
+- facebookresearch/dinov2 main is still 7764ea0f912e (2026-06-03), the
+  spaCR pin. README.md "DINOv2 for Biology" and docs/README_CELL_DINO.md
+  give no weight URL; they say: request access at
+  https://ai.meta.com/resources/models-and-libraries/cell-dino-downloads/
+  and "once accepted, an e-mail will be sent with the complete list of
+  URLs". Weights: FAIR Non-Commercial Research License
+  (LICENSE_CELL_DINO_MODELS); research use only, no clinical use.
+  GitHub releases: none. Issues #588 (form broken, fixed 2026-03-06) and
+  #596 (DINO-BoC request unanswered) confirm the gated route.
+- dl.fbaipublicfiles.com/dinov2/cell_dino/, /cell_dino/,
+  /dinov2/celldino/ and a guessed cell_dino_cp_vits8.pth: HTTP 403.
+- Hugging Face: facebook/cell-dino, cell_dino, celldino: 401 (no public
+  repo). API search "cell-dino"/"celldino"/"cell_dino": no official
+  repo. Hits are not Cell-DINO: liantian/CellDinoPTH holds only
+  dinov2_vitl14_reg4_pretrain.pth (general DINOv2); KadenStillwagon/
+  DINOCell is an unrelated MIT demo. Not used (unofficial/wrong model).
+- Zenodo 10.5281/zenodo.14767885 "Cell-DINO models" (Meta AI,
+  2025-01-29, CC-BY-4.0 metadata) is access_right=restricted; files API
+  HTTP 403, login + access request needed. Not requested.
+- PLOS Comput Biol 10.1371/journal.pcbi.1013828 / PMC12826486 data
+  statement points to the dinov2 repo only. BioImage Archive S-BIAD2443
+  holds the HPA training data, not weights. Dino4Cells (Broad, Zenodo
+  8061428) checkpoints are a different model; not substitutes.
+
+Ran (CPU, CUDA_VISIBLE_DEVICES='', run_capped 12G):
+tests/test_cell_dino_checkpoint_cpu.py: 17 passed (synthetic states).
+No checkpoint downloaded; no spacr/ change. A smoke script for the real
+checkpoint is at /mnt/firecuda2/Claude/scratch/unblock/F560/work/
+cell_dino_smoke.py (4 random crops, finite features, width > 0); a dry
+run with a missing path fails cleanly with EmbeddingError.
+
+Status: still OPEN, BLOCKED. Official Cell-DINO weights are only
+available via Meta's gated request form (or the restricted Zenodo
+record); the maintainer must submit it personally.
+
+Steps once the e-mailed URLs arrive:
+1. wget the Cell Painting ViT-S/8 file (factory cell_dino_cp_vits8,
+   5 planes, 128 px) to e.g.
+   /mnt/wd4tb/models/cell_dino/<name>.pth (wget, not a browser).
+2. sha256sum /mnt/wd4tb/models/cell_dino/<name>.pth
+3. CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=4 tools/run_capped.sh 12G \
+   python /mnt/firecuda2/Claude/scratch/unblock/F560/work/\
+cell_dino_smoke.py <path> <sha256> cell_dino_cp_vits8
+   (HPA: cell_dino_hpa_vitl16 or cell_dino_hpa_vitl14, 4 planes.)
+4. In the GUI (Show alpha features) or EmbeddingSpec set backbone
+   cell_dino, cell_dino_factory, checkpoint_path, checkpoint_sha256 and
+   channels = ordered plane indices matching the model's stains.
+5. Then the workstation GPU acceptance via tools/gpu_turn.sh.

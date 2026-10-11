@@ -1,8 +1,14 @@
 IMPORT VENDOR FLAT-FIELD PROFILES (OPERETTA/HARMONY, ZEN, ...)
 
-Status: BLOCKED 2026-10-02 — vendor sample files (Harmony profile with a
-        Foreground polynomial, CZI shading attachment, ND2/Olympus shading).
-        Built and alpha-gated.
+Status: DONE 2026-10-11 (alpha-gated). Real Opera Phenix Foreground+
+        Background profiles found in the JUMP Cell Painting Gallery (CC0)
+        and supported. Residual, not blocking: no public Harmony-corrected
+        export of a Foreground profile, so the Foreground convention is
+        inferred, not pixel-verified; CZI/ND2/Olympus never embed shading.
+
+Previous status (superseded 2026-10-11): BLOCKED 2026-10-02 — vendor sample
+        files (Harmony profile with a Foreground polynomial, CZI shading
+        attachment, ND2/Olympus shading). Built and alpha-gated.
 
 Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external point left: vendor sample files (Harmony profile with a Foreground polynomial, CZI shading attachment, ND2/Olympus shading).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
@@ -203,3 +209,53 @@ features/data/543_vendor_profile_validation_2026-10-01.json.
     CZI's metadata says ShadingReference=true, since applying a second
     correction would double-correct. Still unseen: a Harmony profile with
     a Foreground polynomial.
+
+2026-10-11 — PUBLIC-DATA UNBLOCK ATTEMPT (CPU)
+    Searched: s3://cellpainting-gallery (HTTPS ListObjectsV2, no sign),
+    first plate of every cpg0016-jump source. Harmony exports (Images/
+    Index.idx.xml) in sources 1, 3, 4, 11; sources 1, 4, 11 also carry
+    FFC_Profile/FFC_Profile_Measurement*.xml (7 KB). IDR/BIA not needed.
+    Found (licence CC0, Cell Painting Gallery), in
+    /mnt/firecuda2/Claude/scratch/unblock/F543/data/:
+      src4 BR00117035 (Opera Phenix, 20x, 1080x1080, 2021_04_26_Batch1),
+        FFC_Profile_Measurement1.xml + Maps excerpt of its 47 MB
+        Index.idx.xml (identical profiles); src1 UL000109 and src11
+        EC000001 FFC_Profile files. Prefix: cpg0016-jump/source_4/images/
+        2021_04_26_Batch1/images/BR00117035__2021-05-02T16_02_51-
+        Measurement1/{FFC_Profile,Images}/.
+      Every fluorescence channel (5 per plate) has a NonFlat Foreground
+      AND Background degree-4 polynomial; Background carries Mean (e.g.
+      652 Hoechst .. 1641 Alexa 647); both surfaces are normalised to
+      mean 1.000 (F min 0.22-0.57, max 1.09-1.58). Brightfield channels
+      are Type: Identity (no Coefficients).
+      Raw: 360 fields (40 wells x 9) x ch1/ch2/ch5, 2.4 GB, in
+      data/src4_BR00117035_raw/. No Harmony-corrected export exists for
+      JUMP (CellProfiler illum only), so no pixel comparison.
+    Convention: no public code applies the Foreground polynomial. BIOP
+    Acapella script calls the opaque FlatField::ApplyCorrection;
+    PyPhenix, maestro, Operetta_FFC, ai4ab read Background only.
+    Bugs found and fixed in spacr/illumination.py:
+      1. _lenient_profile_json failed on a bare value starting with a
+         digit ("ChannelName: 488 long"): all of src4 was unreadable.
+         Bare values are now quoted unless they are JSON numbers.
+      2. With a Foreground, the unit-normalised Background surface was
+         subtracted as raw counts (~1 count), so spaCR applied raw/F only.
+         Now offset = Mean*(B - F), i.e. (raw - Mean*B)/F + Mean, which
+         reduces exactly to the Harmony-verified background-only formula
+         raw - Mean*(B-1) when F = 1. Without Mean, B stays raw counts.
+    Run (work/evalffc.py, 40x40 blocks of 27 px, 360 fields): background
+    = block p5 median, signal = block mean - background.
+      ch            raw bg sd/sig CV   raw/F (old)   new spaCR
+      Alexa 647     248.5 / 0.187      83.3 / 0.100  72.8 / 0.099
+      Alexa 568     186.4 / 0.173      54.5 / 0.078  40.8 / 0.078
+      Hoechst       137.6 / 0.218      44.2 / 0.134  16.0 / 0.134
+    Background-only additive gives bg sd 64/43/20 but leaves signal CV
+    at 0.19/0.17/0.22. New spaCR output equals (raw - Mean*B)/F + Mean to
+    0.1 counts via IlluminationCorrector. The dropped "+ Mean" variant
+    flattens identically but puts the background near 0-200 counts.
+    Test: tests/test_vendor_flat_field_profiles.py
+    test_a_real_phenix_foreground_and_background_profile (verbatim src4
+    ch3 blob + Identity brightfield blob). Vendor test files: 122 passed,
+    7 skipped.
+    Status: DONE (alpha). Residual: a Harmony-exported corrected image of
+    a Foreground profile would pin the additive "+ Mean" constant.
