@@ -433,10 +433,12 @@ anisotropy
 (float or None) - Ratio of z step to xy pixel size (dz / dxy), used by volumetric mode to represent inter-plane distance. A value of 1.0 on a confocal stack whose z step is 3-10 times the xy pixel size can fuse objects along z. Leave this None and set voxel_size_z_um / voxel_size_xy_um to derive it; if neither is available, volumetric mode raises an error rather than assuming 1.0. Measure also uses it for 3-D region properties and distance transforms. Default None.
 
 | ``_stardist_volume_batch`` **-- reads it**
+| ``_watch_check_field_voxel``
+|     ``_watch_voxel_known`` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
+|             ``_watch_voxel_known`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
@@ -473,7 +475,7 @@ anisotropy
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 
-Read by ``_stardist_volume_batch``, ``resolve_measurement_spacing``, ``get_measure_crop_settings``, ``plan_4d_from_settings``, ``plan_from_settings``.
+Read by ``_stardist_volume_batch``, ``_watch_voxel_known``, ``resolve_measurement_spacing``, ``get_measure_crop_settings``, ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-anndata_compression:
 
@@ -8214,9 +8216,6 @@ frame_interval_s
 | ``_run_lineage_step`` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -20753,9 +20752,6 @@ seconds_per_frame
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -21618,6 +21614,7 @@ src
 |         ``_watch_folder_and_analyse``
 |             ``_watch_check_settings`` **-- reads it**
 |             ``_watch_closed_pool_spec`` **-- reads it**
+|             ``_watch_vendor_recipe`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             :py:func:`~spacr.illumination.prepare_segmentation_illumination` **-- reads it**
@@ -21895,7 +21892,7 @@ src
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 | :py:func:`~spacr.utils.delete_intermedeate_files` **-- reads it**
 
-Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_source_value``, ``run_import``, ``analyze_host_pathogen``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_prepare_measurement_calibration``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``_folder_of``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
+Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``_watch_vendor_recipe``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_source_value``, ``run_import``, ``analyze_host_pathogen``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_prepare_measurement_calibration``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``_folder_of``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
 
 .. _setting-flow-ssmd_estimator:
 
@@ -21988,9 +21985,6 @@ stitch_threshold
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -22372,7 +22366,7 @@ t_axis
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
+|             ``_watch_vendor_recipe`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
@@ -22388,7 +22382,7 @@ t_axis
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``plan_4d_from_settings``.
+Read by ``_watch_vendor_recipe``, ``plan_4d_from_settings``.
 
 .. _setting-flow-t_axis_order:
 
@@ -22400,7 +22394,7 @@ t_axis_order
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
+|             ``_watch_vendor_recipe`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
@@ -22416,7 +22410,7 @@ t_axis_order
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``plan_4d_from_settings``.
+Read by ``_watch_vendor_recipe``, ``plan_4d_from_settings``.
 
 .. _setting-flow-t_link_threshold:
 
@@ -22427,9 +22421,6 @@ t_link_threshold
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -22455,9 +22446,6 @@ t_max_displacement_px
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -22483,9 +22471,6 @@ t_max_displacement_um
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -22511,9 +22496,6 @@ t_project_for_tracking
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -22543,7 +22525,7 @@ t_stack
 |         ``_watch_folder_and_analyse`` **-- reads it**
 |             ``_watch_check_settings`` **-- reads it**
 |             ``_watch_mask_recipe`` **-- reads it**
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
+|             ``_watch_vendor_recipe`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             ``_preprocess_mapped_volume_series``
@@ -22566,7 +22548,7 @@ t_stack
 |     ``_refuse_t_stack`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 
-Read by ``_parallel_mask_plan``, ``_watch_check_settings``, ``_watch_folder_and_analyse``, ``_watch_mask_recipe``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_refuse_t_stack``, ``plan_4d_from_settings``.
+Read by ``_parallel_mask_plan``, ``_watch_check_settings``, ``_watch_folder_and_analyse``, ``_watch_mask_recipe``, ``_watch_vendor_recipe``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_refuse_t_stack``, ``plan_4d_from_settings``.
 
 .. _setting-flow-t_track_backend:
 
@@ -22577,9 +22559,6 @@ t_track_backend
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -23704,6 +23683,7 @@ timelapse
 |             ``_watch_check_settings`` **-- reads it**
 |             ``_watch_measure_recipe``
 |                 ``_watch_measure_settings`` **-- reads it**
+|             ``_watch_vendor_recipe`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             ``_preprocess_mapped_volume_series`` **-- reads it**
@@ -23785,7 +23765,7 @@ timelapse
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_parallel_mask_plan``, ``_watch_check_settings``, ``_watch_folder_and_analyse``, ``_watch_map_manifest``, ``_watch_measure_settings``, ``preprocess_generate_masks``, ``preprocess_generate_masks_timelapse``, ``_build_calibration_plan``, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_calibration_reference_hashes``, ``_cellprofiler_tables``, ``_measure_crop_core``, ``_measured_fields``, ``_run_plate_barcode_step``, ``_write_confluency_record``, ``_write_intensity_rescale_record``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``, ``plan_measure_resume``, ``get_measure_crop_settings``, ``get_setting_dependencies``, ``get_timelapse_settings``, ``filepaths_to_database``.
+Read by ``_parallel_mask_plan``, ``_watch_check_settings``, ``_watch_folder_and_analyse``, ``_watch_map_manifest``, ``_watch_measure_settings``, ``_watch_vendor_recipe``, ``preprocess_generate_masks``, ``preprocess_generate_masks_timelapse``, ``_build_calibration_plan``, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_calibration_reference_hashes``, ``_cellprofiler_tables``, ``_measure_crop_core``, ``_measured_fields``, ``_run_plate_barcode_step``, ``_write_confluency_record``, ``_write_intensity_rescale_record``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``, ``plan_measure_resume``, ``get_measure_crop_settings``, ``get_setting_dependencies``, ``get_timelapse_settings``, ``filepaths_to_database``.
 
 .. _setting-flow-timelapse_batch_size:
 
@@ -25256,9 +25236,6 @@ voxel_size_xy_um
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -25312,9 +25289,6 @@ voxel_size_z_um
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -25416,8 +25390,11 @@ watch_measure_snapshot
 ----------------------
 
 | ``_watch_analyse_field`` **-- reads it**
+| ``_watch_check_field_voxel`` **-- reads it**
+| ``_watch_field_voxel`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_watch_analyse_field``.
+Read by ``_watch_analyse_field``, ``_watch_check_field_voxel``, ``_watch_field_voxel``.
 
 .. _setting-flow-watch_normalization_pool:
 
@@ -25930,7 +25907,7 @@ z_axis
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         ``_watch_folder_and_analyse``
 |             ``_watch_check_settings`` **-- reads it**
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
+|             ``_watch_vendor_recipe`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
@@ -25952,7 +25929,7 @@ z_axis
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_stardist_volume_batch``, ``_watch_check_settings``, ``_preprocess_volume_tiffs``, ``plan_4d_from_settings``, ``plan_from_settings``.
+Read by ``_stardist_volume_batch``, ``_watch_check_settings``, ``_watch_vendor_recipe``, ``_preprocess_volume_tiffs``, ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-z_handling:
 
@@ -25977,9 +25954,6 @@ z_projection
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_watch_folder_and_analyse``
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
-|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
@@ -26011,7 +25985,7 @@ z_segmentation_mode
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         ``_watch_folder_and_analyse``
 |             ``_watch_check_settings`` **-- reads it**
-|             :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
+|             ``_watch_vendor_recipe`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             ``_preprocess_mapped_volume_series``
@@ -26031,7 +26005,7 @@ z_segmentation_mode
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_watch_check_settings``, ``preprocess_img_data``, ``plan_4d_from_settings``, ``plan_from_settings``.
+Read by ``_watch_check_settings``, ``_watch_vendor_recipe``, ``preprocess_img_data``, ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-z_stack:
 
@@ -26044,6 +26018,7 @@ z_stack
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         ``_watch_folder_and_analyse`` **-- reads it**
 |             ``_watch_check_settings`` **-- reads it**
+|             ``_watch_vendor_recipe`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``_run_robustness_report``
@@ -26055,4 +26030,4 @@ z_stack
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_watch_check_settings``, ``_watch_folder_and_analyse``, ``preprocess_img_data``, ``plan_from_settings``.
+Read by ``_watch_check_settings``, ``_watch_folder_and_analyse``, ``_watch_vendor_recipe``, ``preprocess_img_data``, ``plan_from_settings``.
