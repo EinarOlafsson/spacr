@@ -316,6 +316,8 @@ _IDENTITY_TEXT = {
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
     "Z", "log10", "spaCR", "t", "x", "y", "µM", "µm/pixel",
+    # 2026-10-11: F534 window units, shown alone in its unit menu.
+    "px", "µm",
     "|Tutorials|",
     # Standalone option values are executable configuration identities, not
     # prose.  Translation models repeatedly mapped these short tokens to

@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "timelapse_lineage_bud_guard",
+      "source": "Timelapse lineage bud guard",
+      "source_sha256": "dc5b617446aaf0750ec308f6c16d737b90b1c89aaf826084a689988912a1b3e0",
+      "translation": "टाइमलैप्स वंशावली: कली जाँच"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_lineage_bud_threshold",
+      "source": "Timelapse lineage bud threshold",
+      "source_sha256": "4c15ab7999f08f4bd22cdedd0fd7a04c49b6cafa502bee3479dd1c9fded5ab64",
+      "translation": "टाइमलैप्स वंशावली: कली सीमा"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_lineage_edge_entry",
+      "source": "Timelapse lineage edge entry",
+      "source_sha256": "2c47ae0ec9415b94b1593191275471142da58dde293d627da2c956737e20d380",
+      "translation": "टाइमलैप्स वंशावली: किनारे से प्रवेश"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_lineage_vacuole_count",
+      "source": "Timelapse lineage vacuole count",
+      "source_sha256": "8c23f06afa3e9a2b63d7dc3d7fea4417248badeb97054b53ecc5a52b99e96e05",
+      "translation": "टाइमलैप्स वंशावली: रिक्तिका गणना"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_bud_guard",
+      "source": "Accept an inferred division only when the mother shows daughter buds in the 8 frames before it: inside her mask, the 95th percentile over the median of the channel the objects were segmented on (an inner membrane complex marker such as IMC1) must reach timelapse_lineage_bud_threshold. Very precise, but divisions with faint buds are lost. It needs the images, so it applies when masks are generated and not in Measure. Ignored unless timelapse_lineage. Default False.",
+      "source_sha256": "ca53e3bfc55e62c0fcf4318d444241da7af5fa3d75a6ca3fb20cf562e43f1de5",
+      "translation": "किसी अनुमानित विभाजन को केवल तभी स्वीकार करें जब उससे पहले के 8 फ़्रेम में माँ कोशिका में संतति कलियाँ दिखें: उसके मास्क के भीतर, उस चैनल का 95वाँ प्रतिशतक/माध्यिका अनुपात, जिस पर ऑब्जेक्ट सेगमेंट किए गए थे (जैसे IMC1 जैसा कोई आंतरिक झिल्ली संकुल मार्कर), timelapse_lineage_bud_threshold तक पहुँचना चाहिए। यह बहुत सटीक है, लेकिन धुंधली कलियों वाले विभाजन छूट जाते हैं। इसे छवियों की आवश्यकता होती है, इसलिए यह मास्क बनाते समय लागू होता है, मापन में नहीं। जब तक timelapse_lineage चालू न हो, अनदेखा किया जाता है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_bud_threshold",
+      "source": "Lowest daughter-bud signal for timelapse_lineage_bud_guard: the 95th percentile over the median of the segmentation channel inside the mother. On a Toxoplasma EGFP-IMC1 movie, 2.6 kept 10 of 18 real divisions and no false ones; lower it to keep divisions with fainter buds. Blank uses 2.6. Ignored unless timelapse_lineage_bud_guard. Default 2.6.",
+      "source_sha256": "1b941bbcc381b4392f9772f3140aca58a88516f909cce81460ff7bcc76a3c5b2",
+      "translation": "timelapse_lineage_bud_guard के लिए संतति कली संकेत का न्यूनतम मान: माँ कोशिका के भीतर सेगमेंटेशन चैनल का 95वाँ प्रतिशतक/माध्यिका अनुपात। Toxoplasma की एक EGFP-IMC1 फ़िल्म पर, 2.6 से 10 वास्तविक विभाजन बने रहे (कुल 18 में से) और कोई गलत विभाजन नहीं; धुंधली कलियों वाले विभाजन रखने के लिए इसे घटाएँ। खाली छोड़ने पर 2.6 का उपयोग होता है। जब तक timelapse_lineage_bud_guard चालू न हो, अनदेखा किया जाता है। डिफ़ॉल्ट 2.6।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_edge_entry",
+      "source": "Never take a new track that first appears at the field edge, within one object radius (half the median object length), as a daughter, and let no mother divide while she is still crossing into the field. Objects drifting into view otherwise look like newborn daughters. Applies to inferred divisions only; division links the tracker reports are kept. Ignored unless timelapse_lineage. Default True.",
+      "source_sha256": "44f734dcda1b6f973eba5202110a7c917876f030aba8232021d5f655e7c56c80",
+      "translation": "फ़ील्ड के किनारे पर, एक ऑब्जेक्ट त्रिज्या (ऑब्जेक्ट की माध्यिका लंबाई का आधा) के भीतर पहली बार दिखने वाले नए ट्रैक को कभी संतति न मानें, और किसी माँ कोशिका को तब तक विभाजित न होने दें जब तक वह अभी फ़ील्ड में प्रवेश कर रही हो। अन्यथा दृश्य में बहकर आने वाले ऑब्जेक्ट नवजात संतति कोशिकाओं जैसे दिखते हैं। केवल अनुमानित विभाजनों पर लागू होता है; ट्रैकर द्वारा बताए गए विभाजन लिंक बने रहते हैं। जब तक timelapse_lineage चालू न हो, अनदेखा किया जाता है। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_vacuole_count",
+      "source": "Accept an inferred division only when the mother's vacuole holds more objects in the 6 frames after it than in the 6 frames before, as when a parasite rosette doubles from 2 to 4 to 8. A vacuole is a chain of objects closer than half of timelapse_lineage_max_distance to each other. A mature rosette segmented differently from one frame to the next keeps its count and gives no division; daughters that move apart still count together. Ignored unless timelapse_lineage. Default True.",
+      "source_sha256": "3eddb571f99f6c10ccf3f09d1bbb47a4e840246efe53e01cde8e2eef69bb5bb6",
+      "translation": "किसी अनुमानित विभाजन को केवल तभी स्वीकार करें जब उसके बाद के 6 फ़्रेम में माँ कोशिका की रिक्तिका में उससे पहले के 6 फ़्रेम की तुलना में अधिक ऑब्जेक्ट हों, जैसे जब परजीवी रोसेट 2 से 4 और फिर 8 तक दोगुना होता है। रिक्तिका ऑब्जेक्टों की एक शृंखला है जिनकी आपसी दूरी timelapse_lineage_max_distance के आधे से कम हो। एक फ़्रेम से अगले फ़्रेम में अलग ढंग से सेगमेंट हुआ परिपक्व रोसेट अपनी गिनती बनाए रखता है और कोई विभाजन नहीं देता; एक-दूसरे से दूर जाने वाली संतति कोशिकाएँ फिर भी साथ गिनी जाती हैं। जब तक timelapse_lineage चालू न हो, अनदेखा किया जाता है। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "ui",
+      "key": "A host cell counts as infected when it holds at least this many pathogen-gene transcripts (Visium: UMIs), or, with no pathogen genes named, overlaps at least this many pathogen or vacuole objects. The value is written into the infection and comparison tables. Default 1.",
+      "source": "A host cell counts as infected when it holds at least this many pathogen-gene transcripts (Visium: UMIs), or, with no pathogen genes named, overlaps at least this many pathogen or vacuole objects. The value is written into the infection and comparison tables. Default 1.",
+      "source_sha256": "1b930375b660972f9348dde896e56be9d80196d8c03e6b06d4398f0751e5c115",
+      "translation": "कोई मेज़बान कोशिका संक्रमित गिनी जाती है जब उसमें कम से कम इतने रोगजनक-जीन ट्रांसक्रिप्ट हों (Visium: UMIs), या, यदि कोई रोगजनक जीन नहीं दिया गया है, तो वह कम से कम इतने रोगजनक या रिक्तिका ऑब्जेक्ट से ओवरलैप करे। यह मान संक्रमण और तुलना तालिकाओं में लिखा जाता है। डिफ़ॉल्ट 1।"
+    },
+    {
+      "table": "ui",
+      "key": "Analyse only this part of the platform image: x, y, width and height of a rectangle, in the unit chosen below. Only the image tiles under it are read, so a full-resolution Xenium morphology image (tens of GB) can be the analysis frame. The masks must be made from the cropped image. Default empty, the whole image.",
+      "source": "Analyse only this part of the platform image: x, y, width and height of a rectangle, in the unit chosen below. Only the image tiles under it are read, so a full-resolution Xenium morphology image (tens of GB) can be the analysis frame. The masks must be made from the cropped image. Default empty, the whole image.",
+      "source_sha256": "1114a64bd47bf3d3f120b04d4df46b729e7cceda9c57d5f76950fef2b002ed40",
+      "translation": "प्लेटफ़ॉर्म चित्र के केवल इस भाग का विश्लेषण करें: एक आयत के x, y, चौड़ाई और ऊँचाई, नीचे चुनी गई इकाई में। केवल उसके नीचे के चित्र टाइल पढ़े जाते हैं, इसलिए पूर्ण-रिज़ॉल्यूशन वाला Xenium आकृति-विज्ञान चित्र (दसियों GB) भी विश्लेषण का फ़्रेम बन सकता है। मास्क क्रॉप किए गए चित्र से बनाए जाने चाहिए। डिफ़ॉल्ट: खाली, पूरा चित्र।"
+    },
+    {
+      "table": "ui",
+      "key": "Minimum pathogen transcripts",
+      "source": "Minimum pathogen transcripts",
+      "source_sha256": "dfeb9c1cad761672b890cc74b5d9065c33926940f3cdb5e41d2bc25abe3458b4",
+      "translation": "न्यूनतम रोगजनक ट्रांसक्रिप्ट"
+    },
+    {
+      "table": "ui",
+      "key": "Optional TIFF file the cropped image is written to on Load, to segment it in spaCR. Default empty, nothing written.",
+      "source": "Optional TIFF file the cropped image is written to on Load, to segment it in spaCR. Default empty, nothing written.",
+      "source_sha256": "c04ab0e147fd7608de9dedf954286fdcab1d3c96c121aa4951286e3dcecbcbf2",
+      "translation": "वैकल्पिक TIFF फ़ाइल, जिसमें लोड करने पर क्रॉप किया गया चित्र लिखा जाता है, ताकि उसे spaCR में सेगमेंट किया जा सके। डिफ़ॉल्ट: खाली, कुछ नहीं लिखा जाता।"
+    },
+    {
+      "table": "ui",
+      "key": "Pathogen genes",
+      "source": "Pathogen genes",
+      "source_sha256": "82f41c9d57508fa151cb95d9601152f3ee9c83e5bb250d7a1530d33d5cb3195d",
+      "translation": "रोगजनक जीन"
+    },
+    {
+      "table": "ui",
+      "key": "Save window image",
+      "source": "Save window image",
+      "source_sha256": "3cc0e44f4e8c0dc96d6ac8e9f7a9ae7a99d3a7d6d137d8112026bc1afbe04808",
+      "translation": "विंडो चित्र सहेजें"
+    },
+    {
+      "table": "ui",
+      "key": "The pathogen's own genes or probes, separated by commas; a name ending in * matches every gene starting with it. When given, a host cell's infection is read from its count of these transcripts and they are left out of the host comparisons. Default empty: infection is read from the pathogen and vacuole masks.",
+      "source": "The pathogen's own genes or probes, separated by commas; a name ending in * matches every gene starting with it. When given, a host cell's infection is read from its count of these transcripts and they are left out of the host comparisons. Default empty: infection is read from the pathogen and vacuole masks.",
+      "source_sha256": "d25fb23c9ff872cf13cb97a3ca7ad4e4c2bfdd63694995a45cb30ced944d600d",
+      "translation": "रोगजनक के अपने जीन या प्रोब, कॉमा से अलग किए हुए; * पर समाप्त होने वाला नाम उससे शुरू होने वाले हर जीन से मेल खाता है। दिए जाने पर, किसी मेज़बान कोशिका का संक्रमण उसमें इन ट्रांसक्रिप्ट की गिनती से पढ़ा जाता है, और इन्हें मेज़बान तुलनाओं से बाहर रखा जाता है। डिफ़ॉल्ट: खाली; संक्रमण रोगजनक और रिक्तिका मास्क से पढ़ा जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "The unit of the window: micrometres on the tissue, or pixels of the image at the chosen level. Default µm.",
+      "source": "The unit of the window: micrometres on the tissue, or pixels of the image at the chosen level. Default µm.",
+      "source_sha256": "94b72e8b3900f62768f09dbe922e15ef792b0280e41da2959a2d02b120b1dc5b",
+      "translation": "विंडो की इकाई: ऊतक पर माइक्रोमीटर, या चुने गए स्तर पर चित्र के पिक्सेल। डिफ़ॉल्ट µm।"
+    },
+    {
+      "table": "ui",
+      "key": "Window unit",
+      "source": "Window unit",
+      "source_sha256": "c84b61fdf1ca61cdf29bb532803061ab559218c06d547a60ecf79b784db4b25c",
+      "translation": "विंडो इकाई"
+    },
+    {
+      "table": "ui",
+      "key": "e.g. CHIKV*",
+      "source": "e.g. CHIKV*",
+      "source_sha256": "b67578f7ee9477eca75daa929b5cc3816106ee050d669c4f0d4cd45c21f3aadf",
+      "translation": "उदा. CHIKV*"
+    },
+    {
+      "table": "ui",
+      "key": "px",
+      "source": "px",
+      "source_sha256": "6ee2cc105a67743140cf7e4ac3486675272a77d64b48ccb066d5f3d5bc620be5",
+      "translation": "px"
+    },
+    {
+      "table": "ui",
+      "key": "x, y, width, height",
+      "source": "x, y, width, height",
+      "source_sha256": "e6969dd36a2b8fb08b3acb6c58a3f3534f7c830012fe51539c8851cda71e46f0",
+      "translation": "x, y, चौड़ाई, ऊँचाई"
+    },
+    {
+      "table": "ui",
+      "key": "{infected} infected and {uninfected} uninfected cells at {threshold} or more pathogen objects.",
+      "source": "{infected} infected and {uninfected} uninfected cells at {threshold} or more pathogen objects.",
+      "source_sha256": "acf05648af973e96ba606bcb8683be0289bfafd00a2567d84fcf5ce1ae8b8083",
+      "translation": "{infected} संक्रमित और {uninfected} असंक्रमित कोशिकाएँ, {threshold} या अधिक रोगजनक ऑब्जेक्ट पर।"
+    },
+    {
+      "table": "ui",
+      "key": "{infected} infected and {uninfected} uninfected cells at {threshold} or more pathogen transcripts.",
+      "source": "{infected} infected and {uninfected} uninfected cells at {threshold} or more pathogen transcripts.",
+      "source_sha256": "a1824f26c951b1d3999b161f72dfb01d781a96d07990e7bbb276960f61acede6",
+      "translation": "{infected} संक्रमित और {uninfected} असंक्रमित कोशिकाएँ, {threshold} या अधिक रोगजनक ट्रांसक्रिप्ट पर।"
+    },
+    {
+      "table": "ui",
+      "key": "µm",
+      "source": "µm",
+      "source_sha256": "3b1ec39664627ace73cc50b1ca00dd16aa8873fa04489e7b08ea599c2dcaeff5",
+      "translation": "µm"
+    }
+  ]
+}
