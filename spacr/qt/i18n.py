@@ -3426,14 +3426,15 @@ _CATALOG_GENERATION = 0
 def add_translation(source: str, values: Iterable[str]) -> bool:
     """Add one parallel translation row after the catalogs are built.
 
-    The half of the app-registration seam that lands here. Every app name
-    and every section name has to appear in every one of the nine
-    catalogs — ``tests/qt/test_i18n.py`` walks ``spacr.qt.app.APPS`` and
-    asserts it — so an app registered from its own module used to need
-    nine hand-edits in this file. It now gives its translations once, to
-    :func:`spacr.qt.app.register_app`, and they arrive here.
+    Receives the translations an app passes to
+    :func:`spacr.qt.app.register_app`. Every app name and every section name
+    has to appear in every one of the nine catalogs —
+    ``tests/qt/test_i18n.py`` walks ``spacr.qt.app.APPS`` and asserts it —
+    so an app registered from its own module supplies its translations
+    once, to :func:`spacr.qt.app.register_app`, instead of editing this
+    file.
 
-    :data:`_ROWS` and :data:`CATALOGS` are both updated IN PLACE.
+    :data:`_ROWS` and :data:`CATALOGS` are both updated in place.
     Rebinding either would strand every module that imported the name,
     and ``retranslate_widget_tree`` holds one for the life of a window.
 
@@ -3536,16 +3537,16 @@ def ui_language_resolved_once():
     **346 times**, through 415 ``QSettings`` reads, for one dialog; the Mask
     screen's panel build had the same shape at 3,516.
 
-    THE SCOPE IS THE UNIT, not the process. A permanent cache would keep a
-    language the user has just changed, which is the one moment the answer
-    must be re-read; inside a single synchronous build it cannot change,
-    because nothing runs between the calls. Nested scopes share the
-    outermost dict and only the outermost discards it, so a screen that
-    wraps its whole build and a helper that wraps itself do not fight.
+    The cached value lasts for one scope, not for the process. A permanent
+    cache would keep a language the user has just changed; inside a single
+    synchronous build the language cannot change, because nothing else runs
+    between the calls. Nested scopes share the outermost dict and only the
+    outermost discards it, so a screen that wraps its whole build and a
+    helper that wraps itself use the same cached value.
 
-    This is the ContextVar arm of :func:`current_language`, which was
-    declared and read but set nowhere until this existed. The environment
-    override still wins: it is consulted before the scope is filled.
+    This sets the ContextVar that :func:`current_language` reads. The
+    environment override still takes precedence: it is consulted before the
+    scope is filled.
     """
     scope = _RESOLVED_LANGUAGE.get()
     if scope is not None:
@@ -4325,9 +4326,9 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
     line-edit contents, text editors, table cells, model data, filenames or
     console output.
 
-    Qt's OWN text follows too -- see :func:`_follow_qt_own_catalogs` -- so a
-    language chosen after launch reaches the right-click menu of every text
-    field, not only the captions spaCR wrote.
+    Qt's own text is retranslated too -- see :func:`_follow_qt_own_catalogs`
+    -- so a language chosen after launch reaches the right-click menu of
+    every text field, not only the captions spaCR wrote.
 
     ``only_new`` skips widgets this pass would translate to exactly what they
     already say. Every visited widget is stamped with the language it was
@@ -4336,12 +4337,12 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
     language change changes the stamp, and so does a catalog gaining a row,
     so neither can be missed.
 
-    IT IS OFF BY DEFAULT AND THAT IS DELIBERATE. A caller that has just
-    replaced a caption itself wants the full pass -- `_translate_qt_text`
-    detects an outside setter by comparing the rendered value, and a skipped
-    widget is not compared. The one caller that asks for it is
-    `_LateCaptionTranslator`, where three near-root passes an event turn
-    apart re-walk the same tree while a module screen is being assembled.
+    ``only_new`` is off by default. A caller that has just replaced a caption
+    itself needs the full pass -- `_translate_qt_text` detects an outside
+    setter by comparing the rendered value, and a skipped widget is not
+    compared. The one caller that asks for it is `_LateCaptionTranslator`,
+    where three near-root passes an event turn apart re-walk the same tree
+    while a module screen is being assembled.
 
     :param root: the widget (or other ``QObject``) whose child widgets and
         actions are walked; it is included itself when it is a ``QWidget``.

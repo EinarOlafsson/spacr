@@ -1,9 +1,9 @@
 """Open the Preferences dialog on one tab, at one row.
 
-A preference result in the Help search field has to land on
-the row the user asked for, and the dialog it lands in is built by seven
-thousand lines of procedure with no schema to address. So this module
-navigates the BUILT dialog, by the two handles the build leaves behind:
+A preference result in the Help search field has to land on the row the
+user asked for, and the dialog is built procedurally, with no schema to
+address. This module therefore navigates the built dialog, using the two
+handles the build leaves behind:
 
 * every page sets an object name -- ``PreferencesTabGeneral``,
   ``PreferencesTabAnimation`` -- and those names are what
@@ -13,8 +13,8 @@ navigates the BUILT dialog, by the two handles the build leaves behind:
   in the index is turned into the displayed caption the same way the dialog
   turned it, and a Korean interface is matched as well as an English one.
 
-Matching the DISPLAYED caption against an English literal was the version
-before this one, and it worked in exactly one language.
+Matching the displayed caption against an English literal would work only
+in English.
 
 Kept out of ``preferences.py`` on purpose: that module is imported headless,
 and everything here needs live widgets.
@@ -158,9 +158,9 @@ def row_field(page: QWidget, label: str) -> Optional[QWidget]:
 def reveal_row(page: QWidget, label: str) -> bool:
     """Scroll to the row captioned ``label`` and outline it.
 
-    A STATIC outline for a few seconds rather than anything that moves: a
-    mark that pulses would owe an answer to the Animation preferences, and
-    this one owes none and is not lost on a reader who turned motion off.
+    The outline is static and shown for a few seconds. Because it does not
+    move, it does not depend on the Animation preferences and stays visible
+    when motion is turned off.
 
     :param page: the preferences page.
     :param label: the English caption.

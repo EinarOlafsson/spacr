@@ -215,7 +215,7 @@ UNASSESSED_STAGE = "alpha"
 
 
 def assessed_keys() -> frozenset:
-    """Every app key somebody has actually looked at, in any of the tables."""
+    """Every app key listed in any of the assessment tables."""
     return frozenset(PROMOTIONS) | frozenset(AFFIRMED) | frozenset(RETIREMENTS)
 
 
@@ -235,13 +235,12 @@ def _registered_keys():
 
 
 def unassessed_apps(stages: Dict[str, str] = None, keys=None) -> List[str]:
-    """Registered apps nobody has assessed, in registry order.
+    """Registered apps that have not been assessed, in registry order.
 
     An app is unassessed when it appears in none of :data:`PROMOTIONS`,
-    :data:`AFFIRMED` or :data:`RETIREMENTS`. Whether it *carries* a stage is
-    a different question: a module that declared alpha for itself is
-    unassessed and correctly labelled, which is exactly the state most of
-    the shelf is in.
+    :data:`AFFIRMED` or :data:`RETIREMENTS`. Whether it *carries* a stage is a
+    different question: a module that declared alpha for itself is unassessed
+    and correctly labelled.
 
     :param stages: unused for the decision; accepted so callers can pass the
         same two arguments they pass :func:`apply`.
@@ -255,7 +254,7 @@ def unassessed_apps(stages: Dict[str, str] = None, keys=None) -> List[str]:
 def apply(stages: Dict[str, str] = None, keys=None) -> List[str]:
     """Write the assessment into the shell's stage table, then fill the gaps.
 
-    Two phases, and they answer two different questions:
+    Two phases:
 
     1. :data:`PROMOTIONS` — the apps somebody assessed and moved. Idempotent,
        and it never *demotes*: a module some other code has already promoted
@@ -313,9 +312,8 @@ def apply(stages: Dict[str, str] = None, keys=None) -> List[str]:
 def reason_for(app_key: str) -> str:
     """Why ``app_key`` is where it is, or ``""`` when it was not assessed.
 
-    An empty string is a real answer here and the UI is entitled to say it
-    plainly: this module is alpha because nobody has checked it, not because
-    somebody checked it and concluded alpha.
+    An empty string means the app has not been assessed; it does not mean an
+    assessment concluded alpha.
 
     :param app_key: the app's registry key, e.g. ``"align"``; converted to
         ``str`` and looked up in :data:`PROMOTIONS`, then :data:`AFFIRMED`,

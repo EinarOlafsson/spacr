@@ -693,10 +693,10 @@ class SortableProxyModel(QSortFilterProxyModel):
         return super().headerData(section, orientation, role)
 
     def lessThan(self, left, right):
-        """Order two cells, comparing what they MEAN rather than how they read.
+        """Order two cells by their values rather than by their text.
 
         A column of numbers rendered as text sorts 10 before 9 under a string
-        comparison, which is the bug this exists to prevent.
+        comparison; this compares the values instead.
 
         :param left: the left cell's index.
         :param right: the right cell's index.

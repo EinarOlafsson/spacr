@@ -1,11 +1,11 @@
 """
 Plate Viewer — any measurement as a plate heatmap, with the edge-effect
-test sitting right next to it.
+test beside it.
 
-The heatmap is the delivery mechanism; the statistic beside it is the
-point. A screen hit in row A or column 24 is far more likely to be an
-evaporation artefact than biology, and until now spaCR gave nobody a way
-to notice that before the follow-up experiment failed.
+The edge-effect statistic is the main output; the heatmap shows where it
+comes from. A screen hit in row A or column 24 is more likely to be an
+evaporation artefact than biology, and the test reports such an edge
+effect.
 
 Layout::
 
@@ -323,10 +323,9 @@ def _cmap_lut(name: str, size: int = 256) -> List[QColor]:
 class PlateGridWidget(QWidget):
     """A plate drawn as coloured wells, with row letters and column numbers.
 
-    Painted directly rather than embedded as a matplotlib canvas for one
-    reason that matters: a click has to map back to a *well*, exactly, and
-    a hand-rolled grid gives that for free instead of via a coordinate
-    round-trip through a figure's data transform.
+    Painted directly rather than embedded as a matplotlib canvas because a
+    click has to map back to exactly one *well*; a painted grid gives that
+    directly instead of through a figure's data transform.
 
     :param parent: parent widget.
     :ivar well_clicked: emitted with ``(row_index, column_index)``
@@ -1144,15 +1143,15 @@ class PlateViewScreen(LinkedView, QWidget):
         on every tick of the min-objects spin box. Dragging that box was a
         sequence of half-second freezes.
 
-        THE CONTRACT. ``recompute()`` returns a bool that a caller reads, and
-        it now means "a plate was drawn **or is being drawn**" rather than "a
+        ``recompute()`` returns a bool that a caller reads, and
+        it means "a plate was drawn **or is being drawn**" rather than "a
         plate was drawn". The refusals -- no frame yet, and a failed
         aggregation -- are unchanged and still synchronous, because the first
         does no work and the second is reported by the completion handler in
         exactly the place it was reported before. So the only caller-visible
         difference is that ``True`` may arrive before the grid is painted.
 
-        That was made safe rather than assumed safe: ``threaded=False``
+        ``threaded=False``
         (which every test in ``test_plate_view.py`` and
         ``test_plate_view_linked_filter.py`` constructs the screen with) runs
         the job inline through :meth:`_run_job`, so those callers still get

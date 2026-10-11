@@ -4,13 +4,12 @@ Discovery and CSV/JSON parsing run away from the GUI thread.  The screen only
 renders already-loaded data, so a large OOF prediction table cannot freeze the
 application while it is being read.
 
-``C8`` — the confusion matrix is a query, not a picture
--------------------------------------------------------
+Opening the objects behind a confusion-matrix cell
+--------------------------------------------------
 
 Every cell of the matrix is clickable, and clicking one asks
 :func:`spacr.qt.linked_selection.open_objects` for exactly the crops that cell
-counted — so "43 uninfected called infected" stops being a number and becomes
-43 images you can look at. The analysis behind it is in :mod:`spacr.confusion`,
+counted, so "43 uninfected called infected" opens those 43 crops. The analysis behind it is in :mod:`spacr.confusion`,
 which has no Qt in it; this file is the table, the two lists and the buttons.
 
 Two lists, not one, per cell. The model being **sure** and wrong is evidence
@@ -19,10 +18,9 @@ about the *boundary*. They are different diagnoses with different fixes, so
 they are opened separately and never blended into one confidence-sorted list
 where the distinction disappears somewhere in the middle of a scroll.
 
-And before either: where did the errors come from. A cell broken down per well
-and per plate answers the question that makes re-labelling worth doing at all
-— 43 errors from 20 wells is the model's problem, 43 errors from one well is
-the bench's.
+Each cell is also broken down per well and per plate, which shows where the
+errors came from: 43 errors spread over 20 wells point to the model, 43 errors
+from one well point to that well.
 """
 from __future__ import annotations
 

@@ -2,7 +2,7 @@
 
 :class:`TrellisCanvas` **subclasses**
 :class:`spacr.qt.widgets.graph_builder.GraphCanvas` rather than reimplementing
-it. That is the whole design decision in this file. The mark drawing, the fixed
+it. The mark drawing, the fixed
 categorical hue order, the density raster, the selection ring, the legend and
 the brush are one implementation, and a second one would be a second set of
 rules to keep in step with the first — the mistake
@@ -21,12 +21,12 @@ What the subclass changes is the two things a trellis is:
   panel is handed the identical tuple, which is a property a test can assert
   and an eye can trust.
 
-Two conventions the grid earns
-------------------------------
+Two conventions of the grid
+---------------------------
 
 **Inner tick labels are hidden only when the axis is genuinely shared.** A
-trellis with per-panel scales that hides its inner ticks is a lie with a
-tidy layout; if a panel has its own limits it prints its own numbers.
+trellis with per-panel scales that hid its inner ticks would misstate the
+scales; if a panel has its own limits it prints its own numbers.
 
 **Every panel's title carries its n**, from
 :meth:`~spacr.qt.widgets.trellis_spec.TrellisPanel.label`. Blank slots at the

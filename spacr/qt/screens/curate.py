@@ -1,16 +1,13 @@
-"""``B12`` ``C7`` — the screen where a mask and its tracks get corrected.
+"""The Curate screen, where a mask and its tracks are corrected by hand.
 
 A layer viewer with two panels beside it: the brush, and the track surgery.
-They are on one screen because they are one job. A track breaks *because* the
-mask lost the cell for a frame, so the person who joins the track is the
-person who wants to look at the mask at that frame, and making them two apps
-would mean two file dialogs and two mental models for one correction.
+They share one screen because a track usually breaks where the mask lost the
+cell for a frame, so joining the track and correcting the mask at that frame
+are one correction.
 
-Everything on this screen is recorded. See :mod:`spacr.curation` for why that
-is a rule rather than a feature: a hand-edited mask that looks exactly like a
-segmented one is a reproducibility hole, and the ledger written beside each
-artefact is what lets a curated dataset be told from a raw one six months
-later by someone who was not there.
+Everything on this screen is recorded. A ledger is written beside each artefact
+(see :mod:`spacr.curation`), so a hand-edited mask can be told apart from a
+segmented one later.
 """
 from __future__ import annotations
 
@@ -41,7 +38,7 @@ APP_KEY = "curate"
 
 
 class CurateScreen(QWidget):
-    """Correct a mask by hand and curate its tracks, on the record.
+    """Correct a mask by hand and curate its tracks, recording every change.
 
     :param parent: parent widget.
     """
@@ -168,7 +165,7 @@ class CurateScreen(QWidget):
         return panel
 
     def attach_brush(self, layer, *, artifact: str = "") -> BrushPanel:
-        """Put a brush panel over ``layer``. The seam a test goes through.
+        """Put a brush panel over ``layer``. Tests call this directly.
 
         :param layer: the labels layer the new :class:`BrushPanel` edits; any
             previous brush panel is stopped and removed first.

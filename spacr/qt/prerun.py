@@ -1,8 +1,7 @@
-"""What spaCR already knows about your data, on screen before you press Run.
+"""Show segmentation QC results and measured diameters before a run starts.
 
-Two things the pipeline computes, has always computed, and nobody has ever
-seen — because both of them print to a terminal that has since scrolled, or
-live in a module nothing calls:
+The module shows two results the pipeline computes that would otherwise only
+be printed to a terminal or left in a module that no screen calls:
 
 * **The segmentation verdict.**  :mod:`spacr.seg_qc` scores every mask the
   moment it is written and files
@@ -17,44 +16,41 @@ live in a module nothing calls:
   ``diameter`` is the single most consequential Cellpose 4 setting spaCR
   exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by
   ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is
-  the one users guess at.  The panel this module builds turns the guess into a
-  measurement, per object type, and shows how many objects it measured so the
-  number can be disbelieved.  It opens in a popup of its own from the
-  *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on
-  the main screen.
+  the one users guess at.  The panel this module builds replaces the guess
+  with a measurement, per object type, and shows how many objects it measured
+  so the estimate can be judged.  It opens in a popup of its own from the
+  *Measure diameters…* button in Mask generation's Model zoo popup, next to
+  the choice of model it is the other half of, rather than on the main screen.
 
-**Neither one blocks anything.**  The banner is advisory by construction: it
-never touches the Run button, never disables it, never intercepts the click.
-A plate that failed QC is still a plate its owner may have every reason to
-measure, and a quality report that stops people is a quality report they
-switch off.  :data:`BLOCKS_RUN` is False, ``tests/qt/test_prerun.py`` asserts
-it against the real screen, and there is no code path here that could change
-it.
+**Neither one blocks anything.**  The banner is advisory: it never touches the
+Run button, never disables it and never intercepts the click, because the user
+may have reasons to measure a plate that failed QC. :data:`BLOCKS_RUN` is
+False, ``tests/qt/test_prerun.py`` asserts it against the real screen, and
+there is no code path here that could change it.
 
 Cost
 ----
 The banner **reads** a verdict; it does not compute one.  Opening a plate's
-masks costs seconds to minutes, and a screen that pays that on every visit is
-a screen nobody keeps.  So :func:`spacr.seg_qc.read_digest` parses the CSVs
-the mask run already wrote, dates each one against its mask stack, and reports
-a card older than its masks as OUT OF DATE rather than believing it.  Only the
+masks takes seconds to minutes, which is too slow for every visit to the
+screen.  So :func:`spacr.seg_qc.read_digest` parses the CSVs the mask run
+already wrote, dates each one against its mask stack, and reports a card
+older than its masks as out of date instead of using it.  Only the
 *Score the masks now* button scores anything, only when pressed, and it does
 it on a worker thread and writes the card so the next open is cheap again.
 
 Neither half of that runs on the GUI thread any more.  The *read* moved onto a
 worker on 2026-09-04, when a single ``os.path.exists`` under a sleeping
 ``autofs`` mount was measured not returning for twenty seconds while
-``install_qc_banner`` was doing it inside ``MainWindow._build_screen`` --
-cheap is not the same as free, and only free may run where the frames are
-painted.  See :meth:`SegQCBanner.refresh`.
+``install_qc_banner`` was doing it inside ``MainWindow._build_screen``.  See
+:meth:`SegQCBanner.refresh`.
 
 Installation goes through the seams that already exist rather than through the
 shared screen: :data:`spacr.qt.app.APP_FACTORIES`, consulted by
 ``MainWindow._build_screen``, and :func:`spacr.qt.theme.register_widget_qss`
 for the colours.  ``AppScreen`` is untouched.  A factory already registered
 for one of these keys — :mod:`spacr.qt.chaining` registers one for every
-module that declares ports — is kept and delegated to, so installing this
-never costs a screen the strip it already had, in either registration order.
+module that declares ports — is kept and delegated to, so a screen keeps the
+strip it already had, in either registration order.
 """
 from __future__ import annotations
 
@@ -458,8 +454,7 @@ class SegQCBanner(_JobMixin, QFrame):
     older than the masks" are both answers a user should be able to fix from
     here.
 
-    It has no opinion about whether Measure should run. See
-    :data:`BLOCKS_RUN`.
+    It never prevents Measure from running. See :data:`BLOCKS_RUN`.
 
     :param screen: the ``AppScreen`` it belongs to.
     :param reader: what to call to read a digest, for tests. Defaults to
@@ -597,7 +592,7 @@ class SegQCBanner(_JobMixin, QFrame):
         self._timer.start()
 
     def schedule_refresh(self) -> None:
-        """Ask for a refresh a beat from now, on the same debounce as typing.
+        """Schedule :meth:`refresh` after the typing debounce delay (450 ms).
 
         What screen construction calls instead of :meth:`refresh`. Even the
         asynchronous refresh builds a ``QThread``, and there is no reason to
@@ -649,16 +644,17 @@ class SegQCBanner(_JobMixin, QFrame):
     def refresh(self) -> None:
         """Ask for the verdict and redraw when it lands. Never scores a mask.
 
-        SPLIT IN TWO, and the split is the fix for a frozen application.
-        What stays here is widget state — the ``src`` field, and whether it
-        names anything — and it is free. What moved into :meth:`_refresh_job`
-        is every filesystem call: ``find_scorecards`` walking the user's
-        plate folders, one ``os.stat`` per card, and ``read_digest`` opening
-        and parsing the CSVs. All of it is I/O on a path the USER supplied.
+        The work is split in two so that no filesystem call runs on the GUI
+        thread. What stays here is widget state — the ``src`` field, and
+        whether it names anything — and it is free. What moved into
+        :meth:`_refresh_job` is every filesystem call: ``find_scorecards``
+        walking the user's plate folders, one ``os.stat`` per card, and
+        ``read_digest`` opening and parsing the CSVs. All of it is I/O on a
+        path the user supplied.
 
         Measured on one workstation: ``os.path.exists``
         on a path under ``/nas_mnt`` — an ``autofs`` mount whose share was
-        asleep — had not returned after TWENTY SECONDS, because the stat is
+        asleep — had not returned after twenty seconds, because the stat is
         what triggers the automount. This method used to do that work inline,
         and ``install_qc_banner`` used to call it inside
         ``MainWindow._build_screen``, so it was the whole interface frozen on
@@ -672,8 +668,8 @@ class SegQCBanner(_JobMixin, QFrame):
         scan has to happen off the GUI thread regardless, so a gate would
         only add a first-visit blank for no protection this does not give.
 
-        EVERY CALL BUMPS ``_refresh_gen``, the one that finds the field empty
-        included. That is what makes a read cancellable without being
+        Every call increments ``_refresh_gen``, including a call that finds
+        the field empty. That is what makes a read cancellable without being
         interruptible: nothing can stop the worker mid-``stat``, but its
         answer is checked against the question before it is painted and
         dropped when the source has moved on. Without it, clearing src hid
@@ -1117,13 +1113,11 @@ class DiameterPanel(_JobMixin, QFrame):
 
     Every row carries its evidence: the value, the 10th-90th percentile range,
     how many objects it was pooled from, how many fields contributed, how it
-    was measured and how much to trust it. A proposal without those is just a
-    different guess.
+    was measured and how much to trust it.
 
     It lives in a :class:`DiameterDialog`, opened from the Model zoo popup,
     so the last measurement is kept on the screen it was made for and shown
-    again the next time the popup opens: closing a window is not a reason to
-    measure twice.
+    again the next time the popup opens, without measuring again.
 
     :param screen: the ``AppScreen`` it belongs to.
     :param estimator: what to call to estimate, for tests. Defaults to
@@ -1427,13 +1421,11 @@ class DiameterPanel(_JobMixin, QFrame):
 class DiameterDialog(QDialog):
     """The diameter estimate in a popup of its own, opened from the Model zoo.
 
-    Asked for by a user: "in mask generation the, diamiter calculation
-    should be a button in the model zoo button popup window not on the main
-    screen. pressing the button should bring another pupup with all the
-    information in the current container." So this holds the whole
-    :class:`DiameterPanel` -- the measure button, one row per object type
-    with its evidence and note, *Use* per row and *Use all* -- and the panel
-    still writes into the settings of the screen that opened the zoo.
+    Holds the whole :class:`DiameterPanel` -- the measure button, one row
+    per object type with its evidence and note, *Use* per row and *Use
+    all* -- in a popup opened from the Model zoo popup instead of on the
+    main Mask generation screen. The panel writes into the settings of the
+    screen that opened the zoo.
 
     Being a ``QDialog`` is what dresses it: :mod:`spacr.qt.widgets.glass`
     gives every dialog the translucent card, the rounded corners and the
@@ -1507,8 +1499,8 @@ def diameter_dialog(screen, *, estimator=None,
     :param estimator: diameter estimator, for tests.
     :param parent: the window that opens it.
     :returns: the dialog, or None when the screen has no diameter setting or
-        the popup could not be built. Never raises: a Model zoo that opens
-        without this button's popup is better than one that does not open.
+        the popup could not be built. Never raises, so the Model zoo still
+        opens when this popup cannot be built.
     """
     try:
         if not any(f"{obj}_diameter" in _widgets(screen)
@@ -1665,8 +1657,8 @@ def install_qc_banner(screen, *, reader=None,
     :param reader: digest reader, for tests.
     :param threaded: ``False`` to read inline, for tests.
     :returns: the banner, or None when this screen cannot carry one. Never
-        raises: a screen that opens without the banner is the old behaviour,
-        and that is always better than a screen that does not open.
+        raises: if the banner cannot be installed, the screen opens without
+        it.
     """
     try:
         existing = qc_banner(screen)

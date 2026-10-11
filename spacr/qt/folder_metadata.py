@@ -96,12 +96,11 @@ def detect_folder_metadata(root: Path, max_probe: int = 30,
     :param root: dropped folder.
     :param max_probe: cap on files inspected — the layout should
         repeat, so no need to walk millions.
-    :param files: image paths already collected from ``root``, used
-        instead of walking. This is how a caller that needs both a
-        template *and* a full file list gets them out of ONE traversal:
-        it pulls a probe off :func:`iter_image_files`, hands it here, and
-        keeps draining the same generator afterwards. Dropping a 100 000
-        file plate folder used to walk the tree three times.
+    :param files: image paths already collected from ``root``, used instead of
+        walking. This is how a caller that needs both a template *and* a full
+        file list gets them out of ONE traversal: it pulls a probe off
+        :func:`iter_image_files`, hands it here, and keeps draining the same
+        generator afterwards.
     :returns: a :class:`FolderTemplate` describing the detected
         layout, or None if we can't infer one.
     """
@@ -142,13 +141,11 @@ def detect_folder_metadata(root: Path, max_probe: int = 30,
 def iter_image_files(root: Path, cap: Optional[int] = None):
     """Yield the image files under ``root``, from a single recursive walk.
 
-    **Lazy, and that is the whole point.** The drop handlers need two things
-    from a dropped folder — a small probe to guess the layout from, and (only
-    if the guess succeeds) the full file list to plan an extraction. Pulling
-    both off one generator means the tree is traversed once; abandoning the
-    generator after the probe means a folder with no layout to detect is
-    never fully walked at all. The previous shape returned lists, and the
-    same tree was walked three times per drop.
+    **Lazy.** The drop handlers need two things from a dropped folder — a small
+    probe to guess the layout from, and (only if the guess succeeds) the full
+    file list to plan an extraction. Pulling both off one generator means the
+    tree is traversed once; abandoning the generator after the probe means a
+    folder with no layout to detect is never fully walked.
 
     :param root: folder to walk.
     :param cap: stop after this many image files. ``None`` for no cap.

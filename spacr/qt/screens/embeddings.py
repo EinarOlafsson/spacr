@@ -1,19 +1,18 @@
 """Embeddings — a label-free vector for every object, beside the measured panel.
 
-A SCREEN, NOT A SCRIPT. The upstream Cell-DINO, OpenPhenom and SubCell models
-expose Python interfaces. This screen also accepts an explicitly mapped,
-digest-verified local official Cell-DINO checkpoint.
+The upstream Cell-DINO, OpenPhenom and SubCell models expose Python
+interfaces; this screen runs them without code. It also accepts an explicitly
+mapped, digest-verified local official Cell-DINO checkpoint.
 
-The engine serves this lab. The screen offers that embedding without any
-Python.
+The screen runs the same embedding engine, :mod:`spacr.embeddings`, that the
+Python API exposes, without requiring any Python.
 
 **What it is for.** Giving every object a vector that no label went into.
 The measured panel says how big a cell is and how bright each stain was;
-an embedding says what the cell LOOKS like, in a few hundred numbers a
-pretrained backbone produces without being told what to look for. That is
-what makes it worth having beside the panel rather than instead of it --
-a phenotype nobody thought to measure is in the vector, and is in no
-column.
+an embedding describes what the cell looks like, in a few hundred numbers a
+pretrained backbone produces without being told what to look for. It
+complements the panel rather than replacing it: a phenotype that no
+measured column captures can still be represented in the vector.
 
 **What it needs.** Crops, and a choice about the channels. The crops come
 from the row at the top of the screen, which is :mod:`spacr.crop_loader`:
@@ -40,33 +39,32 @@ object identity and cannot use this action.
 **What to do next.** Treat the columns as a feature source, not as a
 result. They are consumed exactly as the measured panel is -- a reduction
 to see whether the objects separate, a regression against the perturbation,
-a retrieval to find the objects most like one you picked. Which is also the
-warning the screen repeats under the table: a single dimension is not a
-phenotype, and the only honest way to read one of these numbers is through
-something that takes the whole vector.
+a retrieval to find the objects most like one you picked. The screen repeats
+the corresponding warning under the table: a single dimension is not a
+phenotype, and these numbers can only be interpreted through an analysis
+that uses the whole vector.
 
 All the arithmetic is in :mod:`spacr.embeddings` and none is here. This module
 is the surface, and three of the engine's decisions shape it:
 
-**THE CHANNEL POLICY IS THE FIRST CONTROL, NOT A BURIED OPTION.** 386 calls
-the channel problem "the design problem" and warns against letting it be
-decided implicitly by whatever the backbone wants. Per-channel encoding keeps
-the channel in every column name and costs N forward passes; projection mixes
-the channels into three and costs one. Those produce columns of identical
-width and dtype that mean entirely different things, so the screen makes the
-choice explicit and says what each one costs.
+**The channel policy is the first control on the screen.** How channels are
+combined must not be decided implicitly by whatever the backbone expects.
+Per-channel encoding keeps the channel in every column name and costs N
+forward passes; projection mixes the channels into three and costs one. Those
+produce columns of identical width and dtype that mean entirely different
+things, so the screen makes the choice explicit and says what each one costs.
 
-**A DIMENSION IS NOT A PHENOTYPE, and the screen says so where a user will
-read it.** The table shows the first few dimensions because a user needs to
-see that something happened; the caption says they are meaningless
-individually. Presenting `emb_c2_017 = 0.43` without that sentence invites
-exactly the reading the family cannot survive.
+**A single dimension is not a phenotype, and the screen states this under the
+table.** The table shows the first few dimensions so the user can see that
+the embedding ran; the caption says they are not interpretable individually.
+Showing `emb_c2_017 = 0.43` without that caption invites reading one
+dimension as a phenotype.
 
-**THE ENCODER IS A MODEL, so it is named with its checksum.** The run summary
-carries the model-zoo entry from :func:`spacr.embeddings.encoder_entry` --
-backbone, policy and the digest of the weights on this machine -- because two
-runs' dimension 17 are the same number and not the same thing unless all
-three match.
+**The encoder is identified with the checksum of its weights.** The run
+summary carries the model-zoo entry from
+:func:`spacr.embeddings.encoder_entry` -- backbone, policy and the digest of
+the weights on this machine -- because two runs' dimension 17 are the same
+number and not the same thing unless all three match.
 
 The embedding runs off the GUI thread through
 :class:`spacr.qt.job_runner.JobRunner`, like every other compute in the Qt
@@ -204,8 +202,7 @@ class EmbeddingsScreen(QWidget):
 
     The crop loader above the encoder controls is the screen's entry point:
     :mod:`spacr.crop_loader` plans the selection, this screen pages through
-    it on a worker thread, and :meth:`set_crops` -- which used to be
-    reachable only from Python -- is what each finished load calls.
+    it on a worker thread, and each finished load calls :meth:`set_crops`.
 
     :param parent: the usual Qt parent.
     :param threaded: ``False`` runs the embedding and the crop load inline,
@@ -1328,7 +1325,7 @@ class EmbeddingsScreen(QWidget):
         def work():
             """Ask the database what it holds. Two cheap indexed reads.
 
-            THE STAT IS HERE, on the worker, because it is the part that
+            The stat runs here, on the worker, because it is the part that
             blocks on a slow mount. A path that is not a file yet is not an
             error -- it is one somebody is halfway through typing -- so it
             answers with nothing to offer rather than raising, which would
@@ -1391,11 +1388,10 @@ class EmbeddingsScreen(QWidget):
     def load_crops(self) -> None:
         """Plan the selection, then read it a page at a time.
 
-        TWO JOBS, NOT ONE, and the split is the point: planning is a count
-        and a select, so it comes back in milliseconds and the screen can
-        say what was matched -- or why nothing was -- before committing to
-        read a single pixel. Only then does the second job start, and it
-        reports after every page.
+        The load runs as two jobs. Planning is a count and a select, so it
+        comes back in milliseconds and the screen can say what was matched --
+        or why nothing was -- before committing to read a single pixel. Only
+        then does the second job start, and it reports after every page.
         """
         if self._loading:
             self.stop_loading()
@@ -1594,7 +1590,7 @@ class EmbeddingsScreen(QWidget):
         That layout is what :mod:`spacr.crops` produces and what
         :func:`spacr.embeddings.embed_array` documents.
 
-        :param crops: the object stack, channels LAST. Not copied: the
+        :param crops: the object stack, channels last. Not copied: the
             screen keeps this array and hands it to the backbone, so a
             caller that mutates it afterwards changes what gets embedded.
         :raises ValueError: when the stack is not four-dimensional.
@@ -1878,7 +1874,7 @@ class EmbeddingsScreen(QWidget):
     def closeEvent(self, event):            # noqa: N802 - Qt name
         """Let the job runner stop its thread before the widget goes.
 
-        The stop flag is set FIRST. ``shutdown`` waits a bounded time and
+        The stop flag is set first. ``shutdown`` waits a bounded time and
         then parks a worker that outlasts it, so a load told to stop between
         pages finishes in one page instead of reading the rest of the plate
         into an array whose screen has gone.
@@ -1918,8 +1914,7 @@ def register() -> bool:
     ``SECTION_DATA``, beside the other things that turn a table into numbers.
     An embedding is a feature source, not an analysis: it produces columns
     that the reductions, the regressions and the hit calling then consume
-    exactly as they consume the measured panel -- which is the whole point of
-    386 step 5.
+    exactly as they consume the measured panel.
     """
     from ..app import register_app
 

@@ -1,8 +1,8 @@
 """Computed columns — a small expression language, parsed rather than ``eval``-ed.
 
-``ratio = cell_area / cell_perimeter ** 2`` is the sort of thing a user wants
-five seconds after seeing a measurement table, and until this module the answer
-was "export it and open pandas". The obvious implementation is one line::
+A derived column such as ``ratio = cell_area / cell_perimeter ** 2`` is often
+wanted right after a measurement table is opened. The obvious implementation is
+one line::
 
     frame[name] = eval(expression, {}, frame)          # never
 
@@ -34,8 +34,8 @@ The grammar
     COLUMN     := [A-Za-z_][A-Za-z_0-9]*  |  '`' <anything but a backtick> '`'
     NUMBER     := digits ['.' digits] [('e'|'E') ['+'|'-'] digits]
 
-Five deliberate absences, each of which is a class of attack or a class of
-confusion rather than a feature nobody got round to:
+The grammar deliberately omits five things, each of which would allow an attack
+or cause confusion:
 
 * **no string literals** — so no payload can be smuggled through as data, and
   the language has nothing to feed to a function that might want a name;
@@ -51,21 +51,21 @@ confusion rather than a feature nobody got round to:
   silently parsed as something numpy would evaluate elementwise into a shape
   nobody meant. The message says to write the conjunction.
 
-Numbers are read as **floats**, always. That is not cosmetic: ``9 ** 9 ** 9``
-with Python integers is a multi-second allocation of a number with 300 million
-digits — a denial of service typed in eleven characters — and with floats it is
-``inf`` in a nanosecond. The node count and nesting depth are capped as well
-(:data:`MAX_NODES`, :data:`MAX_DEPTH`), so a pathological expression is refused
-at parse time rather than during a redraw.
+Numbers are read as **floats**, always: ``9 ** 9 ** 9`` with Python integers
+is a multi-second allocation of a number with 300 million digits — a denial of
+service typed in eleven characters — and with floats it is ``inf`` in a
+nanosecond. The node count and nesting depth are capped as well
+(:data:`MAX_NODES`, :data:`MAX_DEPTH`), so a pathological expression is
+refused at parse time rather than during a redraw.
 
 What a formula computes over
 ----------------------------
 
 **The whole table, never the filtered view.** ``zscore(area)`` computed over
-whatever the Local Data Filter currently shows would change every time a slider
-moved, which means the column would not be a column: two charts drawn a second
-apart would disagree, and an exported CSV would record one arbitrary moment. So
-:func:`compute` is given the loaded frame and the aggregates
+whatever the Local Data Filter currently shows would change every time a
+slider moved, so the column would not be stable: two charts drawn a second
+apart would disagree, and an exported CSV would record one arbitrary moment.
+So :func:`compute` is given the loaded frame and the aggregates
 (:data:`AGGREGATE_FUNCTIONS`) reduce over all of it. Filtering happens
 afterwards, to the computed column like any other.
 
@@ -81,14 +81,13 @@ Arithmetic gives ``float64``; a comparison or an ``and``/``or``/``not`` gives
 ``bool``. The bool case is on purpose: a boolean column lands in
 :func:`spacr.qt.widgets.data_filter_panel.classify_columns` as a *category*, so
 ``infected = pathogen_count > 0`` immediately becomes a tick box in the filter
-panel and a colour channel in the Graph Builder, which is what anyone writing
-that expression wanted next.
+panel and a colour channel in the Graph Builder.
 
-Division by zero produces ``inf`` rather than an exception — a ratio column with
-a few infinities is a real answer about a few objects — but the count of
+Division by zero produces ``inf`` rather than an exception — a ratio column
+with a few infinities is a real answer about a few objects — but the count of
 non-finite results is carried in :attr:`ColumnResult.n_nonfinite` and said out
-loud in :attr:`ColumnResult.notice`. A column that is 90% ``inf`` is a mistake,
-and the only way to notice is to be told.
+loud in :attr:`ColumnResult.notice`, so a column that is 90% ``inf`` is
+reported rather than drawn silently.
 
 Text columns are not addressable. ``gene`` cannot be used in a formula, and the
 error says to use the Local Data Filter for it. Arithmetic on a gene name has no
@@ -126,8 +125,8 @@ class FormulaError(ValueError):
 
     Every message names the thing that is wrong — the column, the function, the
     character, its position in the string — because the user is looking at a
-    one-line text box and "invalid syntax" tells them nothing about which of
-    the forty characters to change.
+    one-line text box, and "invalid syntax" alone does not say which character
+    to change.
     """
 
 
@@ -224,8 +223,7 @@ class _Token:
 
 
 def tokenize(expression: str) -> Tuple[_Token, ...]:
-    """Split ``expression`` into tokens, or say exactly where it stopped making
-    sense.
+    """Split ``expression`` into tokens, or raise naming where reading stopped.
 
     :param expression: formula text, converted with ``str()``; at most 2,000
         characters, and a backticked name may contain spaces.
@@ -354,7 +352,7 @@ def _elementwise(fn):
         """Apply the function across the arrays, warnings suppressed.
 
         A column of real data contains zeros and negatives, so a log or a divide
-        will legitimately produce inf and nan; the VALUE is what the formula
+        will legitimately produce inf and nan; the value is what the formula
         means, and numpy's warning about it is not something a user can act on.
         """
         with np.errstate(all="ignore"):
@@ -1074,7 +1072,7 @@ class ColumnFormula:
     def __post_init__(self) -> None:
         """Normalise the name and expression, and parse the expression now.
 
-        Parsing at construction is the point: an unparseable formula cannot then
+        Parsing happens at construction, so an unparseable formula cannot
         be stored, serialised, or reach a redraw -- it fails where the user typed
         it.
 
@@ -1104,7 +1102,7 @@ class ColumnFormula:
         """Whether one object's value depends on the other objects.
 
         True for every :data:`TABLE_DEPENDENT_FUNCTIONS` call anywhere in the
-        expression. Worth showing beside the formula, because such a column is
+        expression. It is shown beside the formula because such a column is
         not a property of the object: the same formula over two plates gives
         two different columns, and re-running it after a re-segmentation moves
         every value.
@@ -1138,7 +1136,7 @@ class ColumnFormula:
     def from_dict(cls, payload: Mapping[str, Any]) -> "ColumnFormula":
         """Rebuild a formula from plain data.
 
-        UNKNOWN KEYS ARE IGNORED rather than raising, so a saved set from a
+        Unknown keys are ignored rather than raising, so a saved set from a
         later version still opens with the parts this one knows.
 
         :param payload: what :meth:`to_dict` produced.
@@ -1165,7 +1163,7 @@ class ColumnFormula:
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
-        """The formula, marked when it reads the WHOLE table.
+        """The formula, marked when it reads the whole table.
 
         The mark matters: a formula using a table-wide statistic cannot be
         computed per row, so it behaves differently under filtering and the
@@ -1179,7 +1177,7 @@ class ColumnFormula:
 
 @dataclass(frozen=True)
 class ColumnResult:
-    """One computed column's values and what computing them cost.
+    """One computed column's values, with missing and non-finite counts.
 
     :param formula: the formula that produced the column; its ``name`` heads
         :attr:`notice`.

@@ -8,13 +8,13 @@ Classify already fetch it into the shared example plate folder
 that opens a measurements database can be shown working on the same plate,
 so this module fetches it once and hands it to whichever screen asked.
 
-ONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the
+One helper serves every screen. The cached-or-download decision, the
 button's busy state and the failure message are the same for Plate Viewer,
 Tabulate, Graph Builder and the rest; what differs is only which field is
 filled and which method opens it. So a screen passes that one difference as
 a callback and nothing else.
 
-THE DOWNLOAD IS THE EXISTING ONE. The archive, the worker and the progress
+The download reuses existing code. The archive, the worker and the progress
 dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same
 call Classify's button makes, and a plate already unpacked by any of them is
 reused without touching the network.

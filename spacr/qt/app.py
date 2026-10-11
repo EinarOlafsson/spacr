@@ -732,7 +732,7 @@ _META_TARGETS: Tuple[Tuple[str, str, str], ...] = (
 def registered_metadata(field: str) -> dict:
     """``{app key: value}`` for one :data:`APP_META` field, empty ones dropped.
 
-    The PULL half of the seam. A side table calls this at the end of its
+    The pull half of the seam. A side table calls this at the end of its
     own import to absorb every app that registered before it existed::
 
         _app = sys.modules.get("spacr.qt.app")
@@ -1091,8 +1091,8 @@ def registered_factory(key: str):
     callable, and this is where the stand-in ends: asking for the factory
     imports the screen and returns the module's own function.
 
-    That is deliberate, and it is what makes laziness invisible to everything
-    downstream. :func:`_call_screen_factory` decides whether to pass
+    Code downstream of this function therefore never sees the stand-in.
+    :func:`_call_screen_factory` decides whether to pass
     ``app_key`` and ``host`` by reading the factory's signature, and a
     stand-in's signature is its own, not the real one's; a test that asserts
     the registered factory ``is`` the module's function would likewise be
@@ -1367,16 +1367,14 @@ _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
 def dock_rows() -> List[Tuple[str, str, str, str]]:
     """The dock's TOP-LEVEL rows: Home's tiles, then Help, in that order.
 
-    ONE RULE: a row is a dock host if, and only if, Home draws a tile for
+    A row is a dock host if, and only if, Home draws a tile for
     it. Everything else in the registry reaches the dock as an indented
     child under its fold host, or under one of the Help modules, and
     nothing appears twice.
 
-    THIS USED TO RETURN ALL OF :data:`APPS`, and the result was a dock that
-    did not match the Home screen: modules belonging to Help sat outside it,
-    and modules that should have been nested under a host were listed flat.
-    The dock is meant to mimic the screen module
-    tiles ... everything else is nested and in help dropdown."
+    The rows therefore match the Home screen: modules that belong to Help
+    are listed under Help, and a module folded into a host is nested under
+    that host instead of being listed at the top level.
 
     Measured before the change: 36 top-level dock rows against 19 Home
     tiles, and NINE keys drawn twice -- ``convert``, ``external_masks``,
@@ -1393,13 +1391,13 @@ def dock_rows() -> List[Tuple[str, str, str, str]]:
     already encodes below -- 330's note records one bug from a duplicated
     list and the retired-section map records another.
 
-    WHY HELP IS NOT A REAL SECTION: see :data:`SECTION_HELP`. A section is
+    Help is not a section (see :data:`SECTION_HELP`). A section is
     Home's categorisation and every Help module is tileless, so Help would
     be a tab with nothing on it. The dock has no such constraint.
 
     The dock walks these rows in order and starts a new heading whenever
-    the section changes, so grouping IS ordering here -- a row out of place
-    draws its heading a second time.
+    the section changes, so rows of one section must be adjacent: a row out
+    of place draws its heading a second time.
     """
     helpers = {row[0] for row in _HELP_MODULES}
     tiles = {row[0] for row in tiled_apps()}
@@ -1420,11 +1418,11 @@ def app_is_visible(key: str) -> bool:
     packaging and headless callers. If preferences cannot be read, preserve
     the historical all-modules-visible behaviour.
 
-    NOT A TILE CHECK. This answers "is the user allowed to reach this
-    module", which is the maturity preference and nothing else. A folded
-    module is still reachable -- from its host's button, from Help, and
-    from the command palette -- so it is still VISIBLE; it just has no
-    tile. Use :func:`tiled_apps` for the tile question.
+    This is not a tile check. It answers whether the user may reach this
+    module, which depends only on the maturity preference. A folded module
+    is still reachable -- from its host's button, from Help, and from the
+    command palette -- so it is visible here although it has no tile. Use
+    :func:`tiled_apps` to ask whether a module has a tile.
 
     This function did briefly answer both, and the command palette is
     what caught it: filtering :data:`TILELESS_APPS` out here took nine
@@ -1490,10 +1488,9 @@ _EXTRA_FOLD_HOSTS: Tuple[str, ...] = (
 def folded_children() -> Dict[str, Tuple[str, ...]]:
     """``host key -> the module keys folded onto its masthead``.
 
-    ONE MAPPING, read from the hosts themselves, so the dock, the menu
-    bar and the fold strips cannot disagree about what belongs where.
-    Each host declares its own `FOLDED_APPS`; that tuple is the truth
-    and this only collects them.
+    One mapping, read from the hosts themselves, so the dock, the menu
+    bar and the fold strips use the same assignment. Each host declares
+    its own `FOLDED_APPS`; this function only collects those tuples.
 
     The dock and the spaCR menu both draw the nested structure from this,
     showing a folded module one level below the host it belongs to.
@@ -1709,8 +1706,8 @@ def tiled_apps(
 ) -> List[Tuple[str, str, str, str]]:
     """The ``APPS`` rows that get a TILE, in registry order.
 
-    ``APPS`` is what EXISTS; this is what Home DRAWS. The two stopped
-    being the same thing when modules began folding into hosts -- a
+    ``APPS`` lists every registered app; this lists the apps Home draws
+    a tile for. The two differ because modules fold into hosts -- a
     folded module keeps its registry row (it still has a screen, an
     icon, a section and a key to navigate to) and loses only its tile,
     because it is now reached from a button on its host or from the Help
@@ -1755,10 +1752,10 @@ def section_members(
 ) -> List[Tuple[str, str, str, str]]:
     """The ``APPS`` rows a category's tab shows, in registry order.
 
-    TILELESS APPS ARE NOT MEMBERS. This is what the tab DRAWS and what
-    its label COUNTS, so a module with no tile must be out of both --
-    otherwise the label reads "Results & QC (7)" over three tiles, which
-    is a count of something the user cannot see.
+    Apps without a tile are not members. The result is what the tab
+    draws and what its label counts, so a module with no tile is left
+    out of both; otherwise the label would read "Results & QC (7)" over
+    three tiles.
 
     An explicit ``apps`` list is filtered too. A caller passing its own
     rows is asking "which of these belong to this section", and a
@@ -1868,18 +1865,14 @@ def _icon_for_app(key: str) -> Optional[QIcon]:
 class Sidebar(Dock):
     """The application's navigation dock.
 
-    The behaviour lives in :class:`spacr.qt.widgets.dock.Dock`, rewritten on
-    2026-09-03 after four rounds of fixes to the old one had not settled it.
-    This is only the binding to the registry, and it keeps the old NAME
+    The behaviour lives in :class:`spacr.qt.widgets.dock.Dock`. This class
+    only binds it to the registry, and it keeps the name ``Sidebar``
     because the theme's ``#Sidebar`` rules, the tutorial highlighter, the
     home-variant generators and the tests all reach the dock by it.
 
-    What used to be here was 1,095 lines of ``_DockRow`` and ``Sidebar``:
-    a translucent slab painted in ``paintEvent`` (the "black box" four
-    commits chased), a per-row icon-size model that relaid the column out
-    under the pointer, a name drawn only while hovered, and a folded second
-    level with its own expand state. See the module docstring of
-    :mod:`spacr.qt.widgets.dock` for what replaced each one.
+    The module docstring of :mod:`spacr.qt.widgets.dock` lists the parts of
+    the earlier ``_DockRow``/``Sidebar`` implementation and what replaced
+    each one.
 
     :param parent: parent widget; ownership only.
     """
@@ -3068,11 +3061,10 @@ class MainWindow(QMainWindow):
         """Keep the loading screen covering the whole window, and erase the
         menu bar's old band.
 
-        EVERY RESIZE, not only a state change. Dragging an edge moves the
-        corner buttons without changing the window state, so `changeEvent`
-        never fires -- and the marks are redrawn at their new x over the
-        old ones. That is the "sometimes" in the report: it is not
-        intermittent, it is every resize that is not a fullscreen toggle.
+        This runs on every resize, not only on a state change. Dragging an
+        edge moves the corner buttons without changing the window state, so
+        `changeEvent` does not fire, and without this the marks would be
+        redrawn at their new x over the old ones.
 
         :param event: the resize event, passed to the base class; the new
             geometry is read from the window itself.
@@ -3466,7 +3458,8 @@ class MainWindow(QMainWindow):
     def changeEvent(self, event):               # noqa: N802 - Qt naming
         """Re-lay the menu bar when the window state changes.
 
-        A menu opens where the BAR SAYS its action is. Going fullscreen
+        A menu opens at the rectangle the menu bar holds for its action.
+        Going fullscreen
         resizes the bar and its corner widget in one step, and a menu
         opened before the layout has caught up is placed against the
         previous action rectangle -- which is how pressing spaCR drops a
@@ -4307,8 +4300,8 @@ class MainWindow(QMainWindow):
         dialog carries nine tabs and a result that opened it on whichever
         one it happened to start with has answered half the question.
 
-        Found by OBJECT NAME rather than by tab index or caption. An index
-        moves whenever a tab is added, and a caption is translated -- a
+        The tab is found by object name rather than by index or caption. An
+        index moves whenever a tab is added, and a caption is translated -- a
         Korean interface would have matched nothing. Every page sets its own
         ``PreferencesTab*`` name, and ``tools/build_help_search_index.py``
         reads those same names out of this dialog's source, so the two ends
@@ -5198,13 +5191,11 @@ class MainWindow(QMainWindow):
                     back on — a control that silently does nothing is
                     worse than one that is greyed out.
 
-        THERE IS NO REVEAL-ON-HOVER MODE. It slid the dock in OVER the
-        page, so the home screen's module tiles sat underneath it and did
-        not move aside, and it needed a second container behind the dock's
-        own panel to be legible over whatever it covered. Both were the
-        complaint. The drawer object still exists and is kept closed and
-        disabled, because it also carries the keyboard path that the
-        "All apps" action uses.
+        There is no reveal-on-hover mode: a dock that slides in over the
+        page covers the Home tiles, and needs a second container behind its
+        panel to stay legible. The drawer object still exists and is kept
+        closed and disabled, because it also carries the keyboard path that
+        the "All apps" action uses.
 
         Idempotent, and safe to call before the menu exists.
         """
@@ -5313,16 +5304,14 @@ class MainWindow(QMainWindow):
     def toggle_app_drawer(self) -> None:
         """Put keyboard focus on the app dock. The menu and Ctrl+Shift+A path.
 
-        THE DOCK NO LONGER SLIDES, so there is nothing to open: it is a
-        permanent column when the preference is ``locked``. What the action
-        still has to do is get a keyboard user INTO it, because a column you
-        can only reach by tabbing through the page is one that is hard to
-        reach at all.
+        The dock does not slide, so there is nothing to open: it is a
+        permanent column when the preference is ``locked``. The action moves
+        keyboard focus to its first row, so a keyboard user does not have to
+        tab through the page to reach it.
 
-        A no-op when the dock is hidden -- the user asked for it not to be
-        there, and a shortcut that overrules a preference is a bug. The
-        action is disabled in that mode anyway, so this is the second half
-        of a belt and braces rather than the only guard.
+        A no-op when the dock is hidden, so the shortcut does not override
+        the preference. The action is also disabled in that mode; this check
+        is a second guard.
         """
         if getattr(self, "_dock_mode", "locked") != "locked":
             return
@@ -5340,14 +5329,12 @@ class MainWindow(QMainWindow):
     def resume_after_restart(self) -> str:
         """Reopen the module a Force restart saved. Returns its key, or "".
 
-        TAKEN, NOT READ: `restart_state.take` deletes the state as it hands it
-        over, so a crash on the way back up cannot leave spaCR reopening the
-        same wedged module on every launch afterwards -- which would turn one
-        bad afternoon into a permanently broken installation.
+        The state is taken, not read: `restart_state.take` deletes it as it
+        hands it over, so a crash during startup cannot make spaCR reopen the
+        same failing module on every later launch.
 
-        THE SETTINGS ARE APPLIED, THE RUN IS NOT STARTED. 142 C: the runs do
-        not come back, only the configuration, and starting one unasked would
-        be the opposite of what somebody who just force-restarted wants.
+        The settings are applied and the run is not started: only the
+        configuration is restored, not the runs.
         """
         from ..restart_state import take
 
@@ -5603,9 +5590,8 @@ class MainWindow(QMainWindow):
         A module folded into a host keeps its key everywhere a key is
         saved: a run journal, the force-restart record, ``spacr-qt
         <app>`` in somebody's shell history. That key no longer names a
-        screen, and navigating to it anyway BUILDS one -- an orphan page
-        with no sidebar row, no tile and no way back to it, which is the
-        second front door the fold exists to remove.
+        screen, and navigating to it directly would build one -- an orphan
+        page with no sidebar row, no tile and no way back to it.
 
         So the key is resolved to the host that took it over, and the
         fold it names is switched on: asking for Timelapse is asking for
@@ -5853,9 +5839,9 @@ class MainWindow(QMainWindow):
         :param key: the app whose screen is to be rebuilt.
         :param values: settings to apply to the new screen.
 
-        WHY A WHOLE SCREEN. Which settings a form holds depends on a few of
-        its own values -- the organelle count, and whether an object's
-        channel names a plane -- so a committed change to one of those means
+        The whole screen is rebuilt because which settings a form holds
+        depends on a few of its own values -- the organelle count, and
+        whether an object's channel names a plane -- so a committed change to one of those means
         a different form, not a changed one. Rebuilding is the same path
         every module open already takes.
 

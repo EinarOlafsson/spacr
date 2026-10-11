@@ -1322,14 +1322,11 @@ class QCFieldBrowser(QDialog):
     def toggle_quarantine(self) -> None:
         """Quarantine or restore the current field; also bound to Q.
 
-        THE MOVE RUNS ON A WORKER. It did not until 2026-09-04, and that made
-        the whole `path_probe` gate in `_sync_action` pointless: the poll in
-        front of this button stopped freezing and the button itself still
-        did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk
-        and the rename that follows adds a mkdir, a stat, a link, an
-        ``fsync``-ed ledger write and an unlink -- on the plate path the user
-        chose, which is the sleeping ``autofs`` share by assumption. See
-        `_move_field`.
+        The move runs on a worker. `quarantine_dir_for` is a `Path.resolve()`
+        realpath walk, and the rename that follows adds a mkdir, a stat, a
+        link, an ``fsync``-ed ledger write and an unlink -- on the plate path
+        the user chose, which may be a sleeping ``autofs`` share. On the GUI
+        thread these would freeze the window. See `_move_field`.
         """
         target = self.current_target
         if (target is None or self._is_run_active() or self._jobs.is_busy()

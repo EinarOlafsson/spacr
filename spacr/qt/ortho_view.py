@@ -1,21 +1,20 @@
-"""``B15`` — orthogonal views and the sliders that drive them.
+"""Orthogonal XY, ZX and YZ views of a volume, with the sliders that move them.
 
 Three panels over one volume: the top view, the view from the side and the
 view from the end, crossing at a point the user moves with a slider or a
 click. :class:`spacr.layers.OrthoViews` is the model — it owns the geometry,
-including the part that is silently wrong everywhere else — and this module is
+including the anisotropic voxel scaling described below — and this module is
 the widget over it.
 
 The z slider is labelled in world units
 ---------------------------------------
 
-Not in slice numbers. "Slice 7" is a fact about the file; ``12.0 µm`` is a
-fact about the sample, and it is the one a user can check against the
-acquisition settings. The slider steps by the stack's own voxel size, so
-dragging it moves one slice at a time and the number it shows is where the
-plane actually is. On a stack with no calibration the unit is ``px`` and the
-step is 1, which reads as slice numbers again — the same widget, telling the
-truth in both cases.
+Not in slice numbers. A slice number describes the file; a position such as
+``12.0 µm`` describes the sample and can be checked against the acquisition
+settings. The slider steps by the stack's own voxel size, so dragging it moves
+one slice at a time and the number it shows is the position of the plane. On a
+stack with no calibration the unit is ``px`` and the step is 1, so the value
+equals the slice number.
 
 Why the side panels are not one pixel per slice
 -----------------------------------------------
@@ -186,7 +185,7 @@ class OrthoPanel(QFrame):
     def mousePressEvent(self, event) -> None:
         """Move the crosshair to the clicked voxel.
 
-        MOVES ALL THREE PANELS. An orthogonal view is three cuts through one
+        Moves all three panels: an orthogonal view is three cuts through one
         point, so clicking in any of them re-cuts the other two.
 
         :param event: the Qt mouse event.
@@ -214,8 +213,8 @@ class OrthoView(LinkedView, QWidget):
     :param parent: parent widget; ownership only.
     :param axes: the volume's axis names, slowest first. Defaults to
         :data:`~spacr.layers.OrthoViews.DEFAULT_AXES` (``z``, ``y``, ``x``).
-        NAMES, NOT AN ORDER TO APPLY: the array is already in this order, and
-        this is what to CALL each axis, so a volume stored ``t``-first is
+        These are names, not an order to apply: the array is already in this
+        order, and this names each axis, so a volume stored ``t``-first is
         described here rather than transposed.
     """
 

@@ -21,8 +21,8 @@ Public API::
     # From a Preferences reset button:
     reset_tour_state()
 
-The tour is deliberately spartan — five steps, ~90 seconds tops.
-Users who don't want it hit Esc and never see it again.
+The tour has five steps. Esc dismisses it, and a dismissed tour is not
+shown again unless the "seen" flag is reset.
 """
 from __future__ import annotations
 

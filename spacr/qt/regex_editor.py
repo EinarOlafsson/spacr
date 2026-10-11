@@ -225,11 +225,9 @@ class RegexEditorDialog(QDialog):
     def resizeEvent(self, event):        # noqa: N802  (Qt naming)
         """Re-fit the wrapped labels to the width they have just been given.
 
-        Both labels grow when the dialog narrows, and a label that is only
-        allowed its one-line hint is the clipping this dialog was found
-        with: the intro wrapped to 54 px inside 36, and the sentence naming
-        `chanID` -- the one thing the dialog exists to explain -- was the
-        part cut off.
+        Both labels grow taller when the dialog narrows; a label kept at its
+        one-line size hint is clipped, which cut off the sentence naming
+        `chanID`.
 
         :param event: the resize event, passed to the base class first; the
             labels are then re-fitted to the dialog's new width.

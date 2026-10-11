@@ -36,12 +36,12 @@ def images_under(paths: Sequence[str], *, limit: int = 5000) -> List[str]:
 
     :param paths: files and directories from the drop or file picker. Supported
         files are kept directly and directories are walked recursively.
-    :param limit: stop after this many. A plate is tens of thousands of
-        files and the table is a PREVIEW -- the regex is inferred from an
-        aligned set, and the set does not have to be all of it.
+    :param limit: stop after this many. A plate is tens of thousands of files
+        and the table is a preview -- the regex is inferred from an aligned
+        set, and the set does not have to be all of it.
 
-    NOT FOR THE GUI THREAD. Every path here is one the user chose, which on
-    a microscope rig means the share the images live on: the `isdir` is what
+    Not for the GUI thread. Every path here is one the user chose, which on a
+    microscope rig means the share the images live on: the `isdir` is what
     wakes an `autofs` mount, and the walk is thousands more stats behind it.
     Call it from :func:`_walk` on a worker -- :meth:`ImportWorkbench.add_files`
     is the only caller in this module and that is what it does.
@@ -100,15 +100,14 @@ class ImportWorkbench(QWidget):
                  regex: str = "", parent: Optional[QWidget] = None):
         """Build the workbench: the files, the pattern, and what it would produce.
 
-        The walk over dropped paths runs on its own worker. A drop is a path the
-        user chose, and a plate lives on the microscope's share: one
+        The walk over dropped paths runs on its own worker. A drop is a path
+        the user chose, and a plate lives on the microscope's share: one
         ``os.path.exists`` under a sleeping autofs mount had not returned after
-        twenty seconds, and a walk is thousands of those. Inline, the drop froze
-        the application with no traceback -- a stalled event loop is not a
-        crash, and it was reported as hover flicker and glimpses of other
-        screens. The runner is marked not user-visible because dropping a folder
-        is not starting a run, and it is safe to do so because that runner
-        carries nothing but the walk.
+        twenty seconds, and a walk is thousands of those. Run inline, the walk
+        would freeze the application without a traceback, because a stalled
+        event loop is not a crash. The runner is marked not user-visible
+        because dropping a folder is not starting a run, and it is safe to do
+        so because that runner carries nothing but the walk.
 
         :param filenames: files to start with.
         :param regex: pattern to start with; empty waits for Propose.
@@ -167,7 +166,7 @@ class ImportWorkbench(QWidget):
         self.propose_button = QPushButton("Propose from the names", self)
         self.propose_button.setToolTip(
             "Work the pattern out from the filenames themselves: tokenise "
-            "them, align the set, and the parts that VARY are the groups.")
+            "them, align the set, and the parts that vary are the groups.")
         self.propose_button.clicked.connect(self.propose_from_the_names)
         row.addWidget(self.propose_button)
         outer.addLayout(row)
@@ -237,12 +236,9 @@ class ImportWorkbench(QWidget):
     def ask_for_files(self) -> None:
         """Ask for images through a file dialog.
 
-        RETURNS NOTHING, AND THAT IS THE CHANGE. It used to answer with how
-        many files were taken, which it could only do by walking every
-        dropped folder before returning -- on the GUI thread, which is the
-        freeze this module was rewritten to remove. :meth:`add_files` hands
-        the walk to a worker now, so the count does not exist yet when this
-        returns; it arrives at :meth:`_files_found`.
+        Returns nothing: :meth:`add_files` hands the walk to a worker, so the
+        count does not exist yet when this returns; it arrives at
+        :meth:`_files_found`.
 
         A caller that wants the number should watch the table, not this.
         """
@@ -254,22 +250,21 @@ class ImportWorkbench(QWidget):
     def add_files(self, paths: Sequence[str]) -> None:
         """Add every image under ``paths``, once a worker has found them.
 
-        SPLIT IN TWO, and the split is the fix for a frozen application.
-        Everything here is a list of strings and a caption; the walk runs on
-        this panel's own worker (:func:`_walk`, wrapping
-        :func:`images_under`) because it is an `isdir` and a recursive
-        `os.walk` over a path the user chose, which on one such workstation is
-        an `autofs` share that took twenty seconds to answer a
+        Split in two so the GUI thread does not block. Everything here is a
+        list of strings and a caption; the walk runs on this panel's own worker
+        (:func:`_walk`, wrapping :func:`images_under`) because it is an `isdir`
+        and a recursive `os.walk` over a path the user chose, which on one such
+        workstation is an `autofs` share that took twenty seconds to answer a
         single stat. :meth:`_files_found` takes the answer back on the GUI
         thread.
 
-        Nothing is added by the time this returns, which is the point. Read
-        :meth:`files` from a redraw, not from the line after this one.
+        Nothing is added by the time this returns. Read :meth:`files` from a
+        redraw, not from the line after this one.
 
-        Two drops in a row start two walks rather than one: unlike a
-        refresh, they ask DIFFERENT questions, and coalescing them would
-        lose a plate. Nothing here is shared mutable state -- both answers
-        arrive on the GUI thread and both are kept.
+        Two drops in a row start two walks rather than one: unlike a refresh,
+        they ask different questions, and coalescing them would lose a plate.
+        Nothing here is shared mutable state -- both answers arrive on the GUI
+        thread and both are kept.
 
         :param paths: files and folders from a drop or the file picker; each is
             converted to ``str``, folders are walked recursively on the worker,
@@ -324,19 +319,19 @@ class ImportWorkbench(QWidget):
     def set_files(self, paths: Sequence[str]) -> None:
         """Replace the file set and re-propose a pattern for it.
 
-        A REGEX PROPOSED FOR THE OLD SET IS NOT PROPOSED FOR THIS ONE. The
+        A regex proposed for the old set is not kept for the new one. The
         pattern is inferred from what varies across the names, so carrying it
         over would describe a set the user has replaced.
 
-        ANY WALK STILL RUNNING IS ABANDONED.
+        Any walk still running is abandoned.
 
         The Clear button lands here, and a walk of a share that is not
-        answering is precisely the one the user gives up on. Without the
-        cancel its result arrives half a minute later and quietly refills the
-        table that was just emptied. ``JobRunner.cancel`` bumps a generation,
-        so the result is dropped on arrival rather than handed to
+        answering is the one most likely to be abandoned. Without the cancel
+        its result could arrive half a minute later and refill the table that
+        was just emptied. ``JobRunner.cancel`` bumps a generation, so the
+        result is dropped on arrival rather than handed to
         :meth:`_files_found`; the thread is left to retire itself, because
-        joining it here would be the freeze this all exists to remove.
+        joining it here would block the GUI thread.
 
         :param paths: the image paths.
         """
@@ -502,9 +497,9 @@ class ImportWorkbench(QWidget):
     def shutdown(self) -> None:
         """Abandon any walk in flight, briefly waiting for its thread.
 
-        Qt ABORTS THE PROCESS if a running QThread is destroyed, and a drop
-        on a share that is not answering is exactly the case where the user
-        gives up and closes the window.
+        Qt aborts the process if a running QThread is destroyed, and a drop on
+        a share that is not answering is the usual case where the user gives up
+        and closes the window.
         """
         self._scanner.shutdown()
 
@@ -551,10 +546,9 @@ class ImportWorkbenchDialog(QDialog):
     def done(self, result: int) -> None:
         """Close, and let no walk outlive the dialog.
 
-        ``done`` rather than ``closeEvent`` because it is the one funnel:
-        Ok, Cancel and the window's close button all arrive here, and a
-        dialog dismissed while the share is still being walked is the
-        ordinary case -- it is why the user gave up on it.
+        ``done`` rather than ``closeEvent`` because it is the one funnel: Ok,
+        Cancel and the window's close button all arrive here, and a dialog
+        dismissed while the share is still being walked is the ordinary case.
 
         :param result: the dialog result code (``QDialog.Accepted`` or
             ``QDialog.Rejected``), passed on to ``QDialog.done`` after the

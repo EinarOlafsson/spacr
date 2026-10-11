@@ -1,12 +1,10 @@
 """Two numeric fields for the low and high ends of a percentile window.
 
-A PERCENTILE WINDOW IS TWO NUMBERS, so it is asked for as two numbers. Typed
-into one box it is a small parsing problem handed to the user: ``[1, 99]``
-and ``[1 99]`` are the same intent and only one of them used to survive the
-trip to the renderer, and the user found out by getting a picture that was
-not the one they asked for rather than by being told.
+A percentile window is two numbers, so it is entered as two fields. Typed
+into one box it is a parsing problem: ``[1, 99]`` and ``[1 99]`` have the
+same intent, and a single text field would have to accept both spellings.
 
-The STORED value does not change. :meth:`PercentilePair.value` answers the
+The stored value does not change. :meth:`PercentilePair.value` answers the
 ``[low, high]`` list every settings file already holds, and
 :func:`spacr.picture_settings.percentile_pair` reads both that and every text
 spelling that reached disk before this control existed -- so an old settings
@@ -83,8 +81,8 @@ class PercentilePair(QWidget):
 
         self._low = self._field(low, LOW_LABEL,
                                 "The percentile mapped to black. Raise it to "
-                                "crush more background; 0 keeps the dimmest "
-                                "pixel.")
+                                "darken more of the background; 0 keeps the "
+                                "dimmest pixel.")
         self._high = self._field(high, HIGH_LABEL,
                                  "The percentile mapped to white. Lower it "
                                  "for more contrast at the cost of clipping "

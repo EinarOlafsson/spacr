@@ -1,16 +1,16 @@
-"""Dose–response — a four-parameter logistic that will refuse to name an EC50.
+"""Fit dose–response curves; an EC50 is reported only when the data bound it.
 
-spaCR runs concentration series and has, until this module, had no curve
-fitter at all: a screener with eight doses and three replicates exports a CSV
-and opens Prism. The point of writing one is not that "it fits" — every
-optimiser fits — but that **the answer is often "you cannot tell from this
-experiment", and no fitter in common use says so.** ``curve_fit`` will return
-four numbers and a covariance matrix for a dilution series that never reached
-a plateau, for a bell-shaped cytotoxicity curve, and for eight points of pure
-noise. All three come back looking like an EC50 with a confidence interval.
+This module fits concentration series inside spaCR, so a screener with eight
+doses and three replicates does not need to export a CSV to another program. A
+fit always produces numbers, but **the answer is often "the EC50 cannot be
+determined from this experiment"**, and a plain least-squares fit does not
+report that. ``curve_fit`` will return four numbers and a covariance matrix
+for a dilution series that never reached a plateau, for a bell-shaped
+cytotoxicity curve, and for eight points of pure noise. All three come back
+looking like an EC50 with a confidence interval.
 
-So the decisions here are almost all about refusing, and each one is written
-down.
+Most of the decisions below concern when to withhold a result, and each is
+stated.
 
 Why log10(EC50) is the parameter, and EC50 is derived
 -----------------------------------------------------
@@ -31,12 +31,12 @@ Three reasons, all of which show up in real data:
   skewed in EC50.** That is what makes a quadratic (Wald) approximation
   defensible on ``log10_ec50`` and indefensible on ``EC50``.
 * **A linear-space interval routinely reaches below zero**, and a negative
-  concentration is not a thing. An EC50 of ``1.0 ± 1.4 µM`` is not a wide
-  interval, it is a broken one.
+  concentration is impossible: an EC50 of ``1.0 ± 1.4 µM`` is an interval
+  that includes impossible values.
 
 Reporting therefore back-transforms the *interval*: ``10 ** [lo, hi]``. The
 result is multiplicative (``0.62 – 1.61 µM`` around 1.0, a 1.6-fold factor
-either way), always positive, and reads the way a potency actually behaves.
+either way), always positive, and multiplicative like potency itself.
 
 Which way the curve goes
 ------------------------
@@ -54,8 +54,8 @@ already writes it (and GraphPad's variable-slope equations do):
 
 The direction is *inferred* from the data (Spearman rho of response against
 log dose) and never assumed, so an activation series is not fitted upside
-down. :data:`DIRECTION_INHIBITION` / :data:`DIRECTION_ACTIVATION` pin it when
-the user knows better than the correlation does.
+down. :data:`DIRECTION_INHIBITION` / :data:`DIRECTION_ACTIVATION` fix it when
+the direction is known in advance.
 
 Two confidence intervals, and why the default is the slow one
 -------------------------------------------------------------
@@ -64,8 +64,8 @@ Both are offered on ``log10_ec50`` and both back-transform:
 * :data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit``
   returns, with a t quantile on ``n - 4`` degrees of freedom. Not a
   normal quantile: eight concentrations with no replicates leaves 4 df, where
-  ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width
-  of the published interval, which is not cosmetic.
+  ``t = 2.776`` against ``z = 1.960``, a 42% difference in the width of the
+  published interval.
 * :data:`CI_PROFILE` — profile likelihood, **the default**. For a grid of
   candidate ``log10_ec50`` values the other three parameters are re-optimised
   and the residual sum of squares is compared against
@@ -76,27 +76,26 @@ Both are offered on ``log10_ec50`` and both back-transform:
 
 The profile is the default for one reason that outweighs its cost: **the Wald
 interval is finite by construction.** It is ``L ± t·SE``, so it returns a
-tidy, symmetric, entirely fictional interval for a curve whose midpoint the
-data does not locate at all — which is exactly the case this module exists
-to catch. The profile interval can *fail to close*: the residual sum of
+finite, symmetric interval even for a curve whose midpoint the data does not
+locate at all. The profile interval can *fail to close*: the residual sum of
 squares stays under the threshold all the way out to a concentration ten
-thousand times the highest dose tested, and that failure is the diagnostic.
-It is reported as an open bound, not smoothed into a number.
+thousand times the highest dose tested, and that failure is the diagnostic. It
+is reported as an open bound, not smoothed into a number.
 
 A residual bootstrap was the other candidate and was rejected. It shares the
 profile's homoscedastic-normal assumption so it buys no robustness; it needs
 a seed and gives a slightly different published number per seed; and — the
 deciding objection — percentiles of a bootstrap distribution are *always*
-finite, so it launders an unidentified parameter into a confident interval in
-precisely the situation that matters. Nothing here resamples and nothing here
-is random: the same data gives the same interval, every time.
+finite, so it reports a confident-looking interval for an unidentified
+parameter in precisely the situation that matters. Nothing here resamples and
+nothing here is random: the same data gives the same interval, every time.
 
 ``bottom``, ``top`` and the Hill slope get Wald intervals only. Profiling
-each of them would quadruple the work to improve numbers nobody quotes; the
-EC50 is the number that leaves the building.
+each of them would quadruple the work for numbers that are rarely reported;
+the EC50 is the reported number.
 
-The three things that actually go wrong
----------------------------------------
+Three failure cases
+-------------------
 1. **The curve is incomplete** — one plateau was never reached, or the
    midpoint sits outside the tested range. Then the EC50 is an extrapolation.
    :attr:`DoseResponseResult.ec50` is ``None`` in that case and the number
@@ -135,15 +134,15 @@ series in ``tests/qt/test_dose_response_fits_an_asymmetric_curve.py`` a
 symmetric fit to a curve whose true EC50 is 1.0 reports 0.67, with a tight
 interval and an R² of 0.997.
 
-It is nonetheless **not the default**, and that is a decision rather than an
-oversight. The fifth parameter trades off against the Hill slope — many
-(slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten
-concentrations a plate actually carries it is weakly identified, and the
-profile interval it produces is correspondingly wider. The module therefore
-offers it, fits it **from the 4PL solution** so the asymmetric search starts
-at the symmetric answer, and reports an extra-sum-of-squares F test of the
-one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader
-can see whether the asymmetry was worth what it cost.
+It is nonetheless **not the default**. The fifth parameter trades off against
+the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so
+on the eight or ten concentrations a plate actually carries it is weakly
+identified, and the profile interval it produces is correspondingly wider. The
+module therefore offers it, fits it **from the 4PL solution** so the
+asymmetric search starts at the symmetric answer, and reports an
+extra-sum-of-squares F test of the one added parameter in
+:attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the
+asymmetry was worth what it cost.
 
 The parameterisation is the EC50-preserving one: ``log10_ec50`` means the
 same thing under both models, so every rule in this file — boundedness,
@@ -159,8 +158,7 @@ reversal it is, and the two mean opposite things:
 * the response **collapses at the top dose** — usually the compound killing
   whatever was being counted. The advice is to drop that dose;
 * the response **rises at the bottom dose** before falling — hormesis. The
-  advice is emphatically not to drop those doses, because the rise is the
-  finding.
+  advice is not to drop those doses, because the rise is the finding.
 
 :func:`hormesis` tells them apart by fitting :func:`brain_cousens` — the 4PL
 with a low-dose stimulation term, which is the 4PL exactly when that term is
@@ -174,21 +172,21 @@ response span, and 2% is not a biological claim.
 The test runs on any series whose low-dose end departs from control against
 the trend, not only on the ones :func:`monotonicity` refuses — **a hump can
 carry a fifth of the response span and still sit inside**
-:data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50
-displaced by the hump, and says nothing. Those fits now carry the finding in
+:data:`MAX_REVERSAL`, in which case the monotone fit succeeds and quotes an
+EC50 displaced by the hump. Those fits carry the finding in
 :attr:`DoseResponseResult.hormesis` and in their caveats.
 
 Fit quality, and the reason R² is printed with a warning attached
 -----------------------------------------------------------------
 Every result carries the residual standard error, R², and — when the design
 has replicates — a **lack-of-fit F test against pure error**. That last one
-is the statistic that answers the question people think R² answers.
+tests whether the curve shape fits the data, which R² does not.
 
-R² on a sigmoid is nearly useless. Any monotone curve through a well-sampled
-dose–response scores above 0.95, because the total sum of squares is
-dominated by the difference between the two plateaus and *any* S-shaped line
-captures that. :meth:`DoseResponseResult.caveats` says so next to the number,
-every time.
+R² on a sigmoid is nearly uninformative. Any monotone curve through a
+well-sampled dose–response scores above 0.95, because the total sum of squares
+is dominated by the difference between the two plateaus and *any* S-shaped
+line captures that. :meth:`DoseResponseResult.caveats` says so next to the
+number, every time.
 
 The lack-of-fit test does the real work when replicates exist: pure error
 (within-concentration scatter, ``n - m`` df) is a model-free estimate of
@@ -198,8 +196,8 @@ this data whatever the R² says. With no replicates there is no pure-error
 estimate and the test does not exist — which is itself reported, because
 "cannot be tested" and "passed" are different states.
 
-No Qt in here
--------------
+No Qt dependency
+----------------
 numpy, pandas and scipy only, like :mod:`spacr.qt.widgets.pca_model` and
 :mod:`spacr.selection`: usable from a notebook, testable without a display,
 and with nothing in the fitting path that knows a widget exists. There is not
@@ -301,7 +299,7 @@ __all__ = [
 
 
 class DoseResponseError(ValueError):
-    """A dose–response that cannot mean anything, with the way out in the text.
+    """Raised when a curve cannot be fitted; the message says how to fix it.
 
     Raised rather than returned as an empty result, for the same reason
     :class:`spacr.qt.widgets.pca_model.PCAError` is: every one of these is a
@@ -529,8 +527,8 @@ def five_parameter_logistic(x, bottom, top, log10_ec50, hill, asymmetry):
     ``y = bottom + (top - bottom) / (1 + a·10 ** ((log10_ec50 - log10 x) *
     hill)) ** asymmetry``, with ``a = 2 ** (1 / asymmetry) - 1``.
 
-    **That scale factor is the whole point of this function.** Written the
-    way the 5PL usually is —
+    The scale factor keeps ``log10_ec50`` equal to the half-maximal
+    concentration. Written the way the 5PL usually is —
 
     .. math::
 
@@ -551,8 +549,7 @@ def five_parameter_logistic(x, bottom, top, log10_ec50, hill, asymmetry):
       :func:`fit_dose_response` legitimate;
     * every downstream rule in this module — the boundedness tests, the
       profile interval, the back-transformed reporting — keeps reading
-      ``log10_ec50`` as the same quantity under both models, and none of them
-      had to learn a second meaning.
+      ``log10_ec50`` as the same quantity under both models.
 
     :param x: concentration(s). ``0`` evaluates to the low-dose plateau, as
         in :func:`four_parameter_logistic`.
@@ -682,12 +679,11 @@ class MonotonicityCheck:
 
 def monotonicity(doses: Sequence[float], responses: Sequence[float], *,
                  max_reversal: float = MAX_REVERSAL) -> MonotonicityCheck:
-    """Is this concentration series consistent with a single sigmoid?
+    """Check whether a concentration series is consistent with a single sigmoid.
 
     A 4PL is monotone by construction. Data that is not monotone is not
     described by one, and fitting it anyway returns a confident EC50 for a
-    curve of the wrong shape — the specific failure this module exists to
-    prevent.
+    curve of the wrong shape.
 
     The test is an excursion test rather than a sign-change count, because a
     sign-change count cannot tell a 5% wobble on a plateau from a collapse at
@@ -1013,7 +1009,7 @@ def hormesis(doses: Sequence[float], responses: Sequence[float], *,
              min_effect: float = HORMESIS_MIN_EFFECT,
              alpha: float = HORMESIS_ALPHA,
              min_delta_aic: float = HORMESIS_MIN_AIC) -> HormesisCheck:
-    """Is the low-dose end of this series stimulated, or is it noise?
+    """Test whether the low-dose end of a series is stimulated (hormesis).
 
     Fits a 4PL and a Brain–Cousens curve (:func:`brain_cousens`) to the same
     points and compares them. The two models are nested — Brain–Cousens *is*
@@ -1046,9 +1042,8 @@ def hormesis(doses: Sequence[float], responses: Sequence[float], *,
     **The F test is two-sided and the hypothesis is one-sided**, since only a
     positive stimulation is hormesis. Criterion 1 does the one-sided part by
     inspection rather than by halving the p value, so the reported p is
-    conservative by about a factor of two. Stated rather than corrected: a
-    conservative p on a screen that already refuses this data is the right
-    direction to be wrong in.
+    conservative by about a factor of two. This is stated rather than
+    corrected, because a conservative p errs toward not reporting hormesis.
 
     :param doses: concentrations, one per observation. Zeros are vehicle
         controls and are dropped, as everywhere in this module.
@@ -1120,7 +1115,7 @@ class DoseResponseSpec:
         4PL absorbs it into a displaced EC50, and it is not the default
         because the fifth parameter is weakly identified on the eight or ten
         concentrations a plate actually carries. A fit that chose 5PL
-        reports whether the extra parameter earned itself — see
+        reports whether the extra parameter improved the fit — see
         :attr:`DoseResponseResult.asymmetry_p`.
     :raises DoseResponseError: on an unknown method, direction or model, or
         a confidence outside (0, 1) — at the point the spec is built, not
@@ -1273,7 +1268,7 @@ class DoseResponseResult:
 
     The important field is :attr:`ec50_bounded`. When it is ``False``,
     :attr:`ec50` is ``None`` — there is no way to read a point estimate out of
-    this object without passing the flag, which is the whole design. The
+    this object without passing the flag. The
     fitted number is still there, under :attr:`ec50_unconstrained`, because
     hiding it would only make people re-derive it; the name says what it is.
 
@@ -1606,7 +1601,7 @@ class DoseResponseResult:
                 f"{self.bottom:.4g} to {self.top:.4g}; {where}.")
 
     def caveats(self) -> Tuple[str, ...]:
-        """Everything a reader needs before believing the number."""
+        """The warnings a reader should see before using the number."""
         out: List[str] = []
         model = _MODEL_LABELS.get(self.model, "4PL")
         if not self.ec50_bounded:
@@ -1623,7 +1618,7 @@ class DoseResponseResult:
                 "parameter is not identified by the data — most often the "
                 "plateau that was never reached.")
         out.append(
-            f"R² is {self.r_squared:.4f}, and it is nearly useless here: "
+            f"R² is {self.r_squared:.4f}, and it is uninformative here: "
             f"almost any monotone curve through a dose–response scores above "
             f"0.95, because the total sum of squares is dominated by the gap "
             f"between the plateaus. Read the residual standard error "
@@ -1648,12 +1643,11 @@ class DoseResponseResult:
                 f"{self.lack_of_fit_df[0]} and {self.lack_of_fit_df[1]} df, "
                 f"p = {self.lack_of_fit_p:.3g}: the scatter around the curve "
                 f"is bigger than the scatter between replicates, so a "
-                f"{model} is the wrong shape for this data. Anything below "
-                f"is the EC50 "
-                f"of a curve that does not describe the experiment. (The "
-                f"test is approximate for a nonlinear model and rejects a "
-                f"little above nominal, so read a p just under 0.05 as a "
-                f"hint and a p of 1e-10 as a verdict.)")
+                f"{model} is the wrong shape for this data, and the EC50 "
+                f"below belongs to a curve that does not fit it. (The test "
+                f"is approximate for a nonlinear model and rejects slightly "
+                f"more often than nominal, so a p just under 0.05 is weak "
+                f"evidence and a p of 1e-10 is strong evidence.)")
         if self.is_steep():
             out.append(
                 f"The Hill slope is {self.hill:+.2f}, which is an "
@@ -1670,11 +1664,11 @@ class DoseResponseResult:
             out.append(
                 f"{self.dof} residual degree(s) of freedom. Every interval "
                 f"here uses a t quantile on that df, which is why they are "
-                f"wide; they are not wide by mistake.")
+                f"wide.")
         if self.model == MODEL_5PL and self.asymmetry_p is not None:
             if self.asymmetry_p >= 0.05:
                 out.append(
-                    f"The fifth parameter did not earn itself: the 5PL "
+                    f"The fifth parameter did not improve the fit: the 5PL "
                     f"improves on the 4PL by F = {self.asymmetry_f:.3g} on 1 "
                     f"and {self.dof} df, p = {self.asymmetry_p:.3g}. The "
                     f"asymmetry this fit reports ({self.asymmetry:.3g}) is "
@@ -1716,7 +1710,7 @@ class DoseResponseResult:
         return tuple(out)
 
     def report(self) -> str:
-        """The whole story, as the panel prints it and a report file writes it."""
+        """The full text report, as the panel prints it and a file stores it."""
         lines = [
             f"{_MODEL_LABELS.get(self.model, '4PL')} dose–response"
             f"{f' · {self.group}' if self.group else ''} "
@@ -2657,8 +2651,8 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
             notes.append(
                 "the five-parameter fit did not improve on the symmetric "
                 "one, so the asymmetry is reported as 1 and the curve is the "
-                "4PL. That is a statement about this series, not a failure: "
-                "the fifth parameter had nothing to do. The other four "
+                "4PL. This describes the series and is not a failure. The "
+                "other four "
                 "parameters keep the intervals the symmetric fit estimated "
                 "for them, rescaled to this fit's residual degrees of "
                 "freedom; the asymmetry has no interval, because it was not "
@@ -2906,17 +2900,18 @@ def candidate_response_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
 
 @dataclass(frozen=True)
 class SelectivityIndex:
-    """Host toxicity over parasite killing, with the interval it deserves.
+    """Host toxicity over parasite killing, with its confidence interval.
 
-    THE NUMBER THAT DECIDES WHETHER ANYBODY CARES about an anti-parasitic
-    compound is not the EC50, it is this ratio. A compound that kills the
-    parasite at 1 uM and the host monolayer at 1.2 uM is not a hit, and an
-    EC50 quoted with a clean confidence interval says nothing about that.
+    For an anti-parasitic compound this ratio, not the EC50, shows whether the
+    compound is selective. A compound that kills the parasite at 1 uM and the
+    host monolayer at 1.2 uM is not a hit, and an EC50 quoted with a clean
+    confidence interval does not show that.
 
-    QUOTED WITH ITS INTERVAL OR NOT AT ALL, for the same reason this module
-    already refuses a naked EC50: a ratio of two uncertain numbers is more
-    uncertain than either of them, and a selectivity index without its
-    interval invites a reader to treat 1.2 and 12 as the same kind of claim.
+    The index is reported with its interval or not at all, for the same
+    reason this module refuses an EC50 without one: a ratio of two uncertain
+    numbers is more uncertain than either of them, and a selectivity index
+    without its interval invites a reader to treat 1.2 and 12 as the same kind
+    of claim.
 
     :param status: :data:`STATUS_FITTED`, :data:`STATUS_UNBOUNDED` or
         :data:`STATUS_REFUSED`, reusing the vocabulary the single-curve fits
@@ -2991,19 +2986,18 @@ def selectivity_index(pathogen: Optional[DoseResponseResult],
                       ) -> SelectivityIndex:
     """Divide a host EC50 by a parasite EC50, and carry the uncertainty.
 
-    THE TWO FITS COME OFF ONE PLATE, which is the argument for computing this
-    here rather than in a spreadsheet. spaCR segments host cell and pathogen
+    The two fits come from one plate. spaCR segments host cell and pathogen
     as separate object types from the same image, so host viability and
-    parasite burden are measured at the same doses in the same run. Most
-    selectivity indices divide two numbers from two experiments and hope the
-    conditions matched; these cannot fail to match.
+    parasite burden are measured at the same doses in the same run, whereas
+    most selectivity indices divide two numbers from two experiments whose
+    conditions may differ.
 
-    THE INTERVAL IS PROPAGATED IN LOG SPACE, where the fit lives and where a
+    The interval is propagated in log space, where the fit lives and where a
     ratio is a difference: ``log10 SI = log10 CC50 - log10 EC50``, and the
     two variances add. Back-transforming at the end gives an interval that is
-    asymmetric in linear space, which is the honest shape for a ratio.
+    asymmetric in linear space, as expected for a ratio.
 
-    REFUSAL PROPAGATES TOO. If either curve was refused the index is refused;
+    Refusals propagate. If either curve was refused the index is refused;
     if either EC50 is unbounded the index is unbounded, and whichever side of
     the interval the data still supports is reported rather than dropped --
     "at least 8-fold" is a useful sentence and this returns it.
@@ -3101,17 +3095,16 @@ SYNERGY_MODELS: Tuple[str, ...] = (SYNERGY_BLISS, SYNERGY_LOEWE)
 class InteractionSurface:
     """A checkerboard's interaction, per cell, with its own axes.
 
-    THE SURFACE IS THE RESULT AND A SINGLE INDEX IS NOT. One number for a
-    whole checkerboard hides exactly the concentration-dependent structure
-    that makes synergy interesting. Real combinations are frequently
-    synergistic
-    in one corner of the grid and additive or antagonistic in another, and a
-    mean over the grid reports neither.
+    The result is the surface, not a single index. One number for a whole
+    checkerboard hides the concentration-dependent structure of synergy. Real
+    combinations are frequently synergistic in one corner of the grid and
+    additive or antagonistic in another, and a mean over the grid reports
+    neither.
 
-    SIGN CONVENTION, stated because every paper states a different one:
-    POSITIVE MEANS MORE EFFECT THAN EXPECTED -- synergy for an inhibition
-    assay. The expected surface is what the model predicts from the two
-    single-agent curves; ``excess`` is observed minus expected.
+    Sign convention (papers differ): positive means more effect than
+    expected -- synergy for an inhibition assay. The expected surface is what
+    the model predicts from the two single-agent curves; ``excess`` is
+    observed minus expected.
 
     :param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.
     :param dose_a: the unique concentrations of agent A, ascending.
@@ -3135,9 +3128,9 @@ class InteractionSurface:
     def summary(self) -> Dict[str, Any]:
         """Headline numbers, each said to be over the grid rather than of it.
 
-        Deliberately NOT a synergy index. The strongest cell and where it sits
-        are reportable; a mean over the whole grid is the number this class
-        exists to avoid, so it is absent rather than provided-with-a-warning.
+        This is not a synergy index. The strongest cell and where it sits are
+        reported; a mean over the whole grid is deliberately absent rather
+        than provided with a warning.
         """
         finite = np.isfinite(self.excess)
         if not finite.any():
@@ -3174,7 +3167,7 @@ def _effect_curve(result: DoseResponseResult) -> Callable[[np.ndarray], np.ndarr
         """The affected fraction at each dose, in [0, 1].
 
         Zero and negative doses are clamped to a tiny positive number rather
-        than refused: a checkerboard's first row IS zero, and a 4PL has no
+        than refused: a checkerboard's first row is zero, and a 4PL has no
         value there because log10(0) is undefined. The clamp puts them at the
         curve's own baseline, which is what an untreated well measures.
 
@@ -3303,13 +3296,13 @@ def bliss_surface(dose_a, dose_b, response, *,
                   fit_b: DoseResponseResult) -> InteractionSurface:
     """Bliss independence over a checkerboard.
 
-    THE MODEL IN ONE LINE: if two agents act independently, the fraction
+    Model: if two agents act independently, the fraction
     surviving both is the product of the fractions surviving each, so the
     expected effect is ``Ea + Eb - Ea*Eb``. Excess over that is synergy.
 
-    BLISS NEEDS NOTHING FROM THE COMBINATION FITS, which is why it is the
-    cheaper of the two and the one to reach for first: both single-agent
-    curves already give an effect at every concentration on the grid.
+    Bliss needs nothing from the combination fits, so it is the cheaper of
+    the two: both single-agent curves already give an effect at every
+    concentration on the grid.
 
     :param dose_a: agent A concentration per well.
     :param dose_b: agent B concentration per well.
@@ -3354,21 +3347,19 @@ def loewe_surface(dose_a, dose_b, response, *,
                   fit_b: DoseResponseResult) -> InteractionSurface:
     """Loewe additivity over a checkerboard, as a combination index.
 
-    THE MODEL IN ONE LINE: if two agents are dilutions of one another, then
+    Model: if two agents are dilutions of one another, then
     reaching an effect costs a constant total dose, so
     ``a/Da + b/Db = 1`` where ``Da`` and ``Db`` are the single-agent doses
     giving that same effect. Below 1 is synergy.
 
-    REPORTED AS EXCESS RATHER THAN AS THE INDEX ITSELF, so that the sign
-    convention matches Bliss and a reader comparing the two surfaces is not
-    also flipping a comparison in their head: ``excess = 1 - CI``, positive
-    for synergy.
+    Reported as excess rather than as the index itself, so the sign
+    convention matches Bliss: ``excess = 1 - CI``, positive for synergy.
 
-    WHY IT CAN BE NaN WHERE BLISS IS NOT: Loewe needs the INVERSE curve --
+    It can be NaN where Bliss is not: Loewe needs the inverse curve --
     the dose achieving an observed effect -- and that dose does not exist
     when the observed effect lies outside a single agent's own plateaus. A
     combination that kills more than either agent can alone has no Loewe
-    answer, and NaN is the honest one.
+    value, and NaN is reported.
 
     :param dose_a: agent A concentration per well.
     :param dose_b: agent B concentration per well.
@@ -3439,10 +3430,10 @@ ZPRIME_MARGINAL = 0.5
 class PlateSpec:
     """Which column is the plate, and which wells on it are the controls.
 
-    THE ENGINE HAD NO NOTION OF A PLATE, which is why it could fit a clean
-    EC50 on a plate the rest of the package already knew was bad. This is
-    that notion: the plate column, the control column, and the levels in it
-    that mean "full effect" and "no effect".
+    Without a plate definition the engine could fit a clean EC50 on a plate
+    that other checks had flagged as bad. The spec names the plate column,
+    the control column, and the levels in it that mean "full effect" and "no
+    effect".
 
     Frozen and JSON round-tripping like :class:`DoseResponseSpec`, so the
     normalisation behind a figure travels with the fit that used it.
@@ -3533,7 +3524,7 @@ class PlateSpec:
 class PlateReport:
     """What one plate's controls said, and whether the plate may be fitted.
 
-    ONE ROW PER PLATE, REFUSALS INCLUDED. A plate that is dropped leaves a
+    One row per plate, refusals included. A plate that is dropped leaves a
     report saying why it was dropped, so a user comparing eight plates and
     seeing six curves can find the other two without re-running anything.
 
@@ -3628,12 +3619,12 @@ def normalise_to_controls(frame: pd.DataFrame, spec: PlateSpec, *,
                           ) -> Tuple[pd.DataFrame, Tuple[PlateReport, ...]]:
     """Percent inhibition against each plate's own controls.
 
-    RAW RESPONSES ARE NOT COMPARABLE ACROSS PLATES. Two plates read on
+    Raw responses are not comparable across plates. Two plates read on
     different days differ in absolute signal by more than most compounds
     move it, so three replicate plates fitted raw produce three EC50s whose
     spread is mostly instrument drift. Scaling each plate to its own controls
-    -- negative reads 0, positive reads 100 -- removes exactly that and
-    leaves the biology.
+    -- negative reads 0, positive reads 100 -- removes that plate-to-plate
+    difference.
 
     ``percent = 100 * (value - mean_negative) / (mean_positive - mean_negative)``
 
@@ -3642,12 +3633,12 @@ def normalise_to_controls(frame: pd.DataFrame, spec: PlateSpec, *,
     a viability readout and a burden readout normalise the same way and the
     fit downstream does not need to be told which it got.
 
-    REFUSED RATHER THAN SCALED BY NOISE. When a plate's two controls do not
-    separate there is no assay window, and dividing by that near-zero
-    difference would turn well-to-well noise into hundreds of percent
-    inhibition and a confident EC50 on a plate that measured nothing. Such a
-    plate's rows come back with a NaN response and a :class:`PlateReport`
-    saying so.
+    A plate without an assay window is refused rather than scaled by noise.
+    When a plate's two controls do not separate there is no assay window, and
+    dividing by that near-zero difference would turn well-to-well noise into
+    hundreds of percent inhibition and a confident EC50 on a plate that
+    measured nothing. Such a plate's rows come back with a NaN response and a
+    :class:`PlateReport` saying so.
 
     :param frame: one row per well, with the plate, control and response
         columns the spec and this call name.
@@ -3661,8 +3652,7 @@ def normalise_to_controls(frame: pd.DataFrame, spec: PlateSpec, *,
         appear. Rows on a refused plate carry NaN, so a caller that fits the
         whole table drops those plates without having to filter first.
     :raises DoseResponseError: when a named column is missing, or when no
-        plate has both controls -- there is nothing to normalise against and
-        a frame of NaN would be a worse answer than a sentence.
+        plate has both controls -- there is nothing to normalise against.
     """
     percent, reports = _scan_plates(frame, spec, response)
     if not any(report.usable for report in reports):
@@ -3765,8 +3755,8 @@ def _scan_plates(frame: pd.DataFrame, spec: PlateSpec, response: str
                 status=STATUS_REFUSED,
                 note=(f"plate {plate} fails Z': {shown}, below the {gate:g} "
                       f"asked for. A plate this noisy could not have detected "
-                      f"the effect, so an EC50 fitted on it would be a number "
-                      f"about the instrument, not the compound."),
+                      f"the effect, so an EC50 fitted on it would reflect "
+                      f"assay noise, not the compound."),
                 **common))
             continue
 
@@ -3792,14 +3782,14 @@ def plate_reports(frame: pd.DataFrame, spec: PlateSpec, *,
     For the screen that wants to show the plate table before the user has
     chosen a readout to fit, and for a caller that only wants to know which
     plates would be dropped. A table where every plate is refused returns its
-    refusals rather than raising -- here the refusals ARE the answer.
+    refusals rather than raising -- here the refusals are the result.
 
     :param frame: the long-format table, one row per well.
     :param spec: which column names the plate, which the control, and which
         control values are the two ends.
     :param response: the readout column whose control means decide the
         plate's Z'. Keyword-only, because a plate's verdict is about a
-        PARTICULAR readout and passing it positionally invites reading the
+        particular readout and passing it positionally invites reading the
         report as a property of the plate alone.
     :raises DoseResponseError: when a named column is missing.
     """
@@ -3824,26 +3814,25 @@ MIN_PLATES = 2
 class PooledFit:
     """One EC50 across replicate plates, with plate as a random effect.
 
-    THREE EC50s AND AN EYEBALL is what this replaces. A user with three
-    replicate plates today fits three curves and averages the numbers by
-    hand, which throws away how well each one was determined and says
-    nothing about whether the three agreed.
+    Without pooling, a user with three replicate plates fits three curves and
+    averages the numbers by hand, which ignores how well each one was
+    determined and does not test whether the three agree.
 
-    TWO-STAGE, NOT ONE. Each plate is fitted on its own -- by the same
+    Pooling is two-stage. Each plate is fitted on its own -- by the same
     :func:`fit_dose_response` that fits everything else, with the same
     refusals -- and the per-plate log10 EC50s are then combined with a
     random-effects weight. One joint nonlinear mixed model would be the other
     way to do it; it would also mean a second fitting path with a second set
     of failure modes, and a plate that :func:`fit_dose_response` refuses would
     have to be refused again, differently, inside it. This way a refusal on
-    one plate stays exactly the refusal this module already speaks.
+    one plate is the same refusal :func:`fit_dose_response` reports.
 
-    RANDOM, NOT FIXED. Fixed-effect pooling assumes every plate measures the
-    same value and differs only by noise. Three tight plates that disagree
-    then give a narrow interval around a value none of them support. The
-    DerSimonian-Laird estimate of the between-plate variance is added to each
-    plate's own, so real variation between plates widens the answer instead
-    of being weighted away.
+    The pooling uses random rather than fixed effects. Fixed-effect pooling
+    assumes every plate measures the same value and differs only by noise.
+    Three tight plates that disagree then give a narrow interval around a
+    value none of them support. The DerSimonian-Laird estimate of the
+    between-plate variance is added to each plate's own, so real variation
+    between plates widens the answer instead of being weighted away.
 
     :param status: :data:`STATUS_FITTED`, or :data:`STATUS_REFUSED` when too
         few plates fitted or the plates disagree beyond what their own
@@ -3939,11 +3928,10 @@ def pool_across_plates(fits: Mapping[str, DoseResponseResult], *,
                        ) -> PooledFit:
     """Combine per-plate fits into one EC50 with plate as a random effect.
 
-    POOLED ON THE LOG10 SCALE, because that is the scale the EC50 is
+    Pooling is done on the log10 scale, because that is the scale the EC50 is
     estimated on and the scale its interval is symmetric on. Averaging three
     EC50s of 1, 10 and 100 uM arithmetically gives 37 uM; pooling their
-    logarithms gives 10, which is the middle of the three in the only sense
-    that matters for a concentration.
+    logarithms gives 10, their geometric mean.
 
     :param fits: plate label to that plate's fit. Only fits that are
         :data:`STATUS_FITTED` with a closed interval can carry a weight; the
@@ -4003,9 +3991,8 @@ def pool_across_plates(fits: Mapping[str, DoseResponseResult], *,
             f"the {len(usable)} plates disagree beyond what their own "
             f"uncertainty explains (I-squared {i_squared:.0%}, Q={q:.3g} on "
             f"{dof} df, p={q_p:.3g}): their EC50s span a factor of "
-            f"{spread:.3g}. One pooled number would hide that, and the "
-            f"disagreement is the finding -- look for a plate effect before "
-            f"averaging it away.",
+            f"{spread:.3g}. A single pooled number would hide that "
+            f"disagreement; check for a plate effect before pooling.",
             ordered, n_plates, len(usable), confidence, unit,
             tau=tau, i_squared=i_squared, q=q, q_p=q_p)
 
@@ -4055,8 +4042,7 @@ def pool_frame(frame: pd.DataFrame, spec: DoseResponseSpec, *,
         place.
     :param plate: the column identifying the replicate.
     :raises DoseResponseError: when ``plate`` is not a column, or when no
-        plate produced a fit at all -- there is nothing to pool and a refusal
-        with no plates in it would say nothing about why.
+        plate produced a fit at all -- there is nothing to pool.
     """
     if plate not in frame.columns:
         raise DoseResponseError(

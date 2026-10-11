@@ -1,11 +1,11 @@
-"""The volcano you can click, restyle and export.
+"""Interactive volcano plot that can be clicked, restyled and exported.
 
-The pipeline writes a volcano PDF, and until now that was the end of it: to
-change an axis label, recolour by a covariate or find out which guide a dot
-was, you re-ran the analysis or opened the CSV. This widget makes the plot the
-thing you interrogate.
+The pipeline writes a volcano PDF. This widget lets the plot itself be
+inspected: an axis label can be changed, the points recoloured by a covariate,
+or the guide behind a dot identified without re-running the analysis or
+opening the CSV.
 
-Three ideas hold it together:
+Three design rules:
 
 * **One renderer.** Every pixel comes from
   :func:`spacr.volcano_style.render_volcano`, the same function the headless
@@ -419,7 +419,7 @@ class VolcanoExplorer(QWidget):
     def set_results(self, results: pd.DataFrame) -> None:
         """Plot a new fitted table, clearing any selection.
 
-        THE INDEX IS RESET. Point picking is by POSITION in the plotted
+        The index is reset. Point picking is by position in the plotted
         frame, so a table carrying its old index would have every click
         resolve to the wrong row.
 
@@ -433,7 +433,7 @@ class VolcanoExplorer(QWidget):
     def results(self) -> pd.DataFrame:
         """The table being plotted.
 
-        A COPY, so a caller cannot change what is on screen by editing what
+        A copy, so a caller cannot change what is on screen by editing what
         it was handed.
 
         :returns: the results table.
@@ -450,8 +450,9 @@ class VolcanoExplorer(QWidget):
     def set_style(self, style: VolcanoStyle) -> None:
         """Restyle the plot and push the new values into the controls.
 
-        BOTH, so a style set from code leaves the controls agreeing with the
-        plot rather than showing what they were last set to by hand.
+        Both are updated, so a style set from code leaves the controls
+        agreeing with the plot rather than showing what they were last set to
+        by hand.
 
         :param style: the style to apply.
         """
@@ -931,8 +932,8 @@ class VolcanoExplorer(QWidget):
         box = QGroupBox("Selected point", self)
         layout = QVBoxLayout(box)
         layout.setContentsMargins(8, 8, 8, 8)
-        self._detail_hint = QLabel("Click any point to see everything known "
-                                   "about it.", self)
+        self._detail_hint = QLabel("Click any point to list all of its "
+                                   "values.", self)
         self._detail_hint.setWordWrap(True)
         layout.addWidget(self._detail_hint)
         self._detail_table = QTableWidget(0, 2, self)
@@ -992,8 +993,8 @@ class VolcanoExplorer(QWidget):
     def compartments(self) -> list:
         """The LOPIT compartments this screen actually has, commonest first.
 
-        NOT ALL 27 IN THE REFERENCE TABLE: a tick box that would colour
-        nothing is indistinguishable from a broken one. Empty when no column
+        Not all 27 in the reference table: a tick box that would colour
+        nothing looks the same as a broken one. Empty when no column
         of the results names a gene, which is a volcano without compartment
         colouring rather than an error.
         """
@@ -1064,13 +1065,11 @@ class VolcanoExplorer(QWidget):
     def refresh(self) -> None:
         """Redraw the canvas, and name the settings that could not be used.
 
-        A BAD SETTING DOES NOT COST THE READER THE PICTURE. One mistyped
-        colour used to replace the whole volcano with the words "cannot draw
-        this plot", which takes away the only thing on screen over a single
-        field and does not say which field. Instead the offending settings
-        fall back to the last value that drew, the figure stays up, the name
-        of each offending setting goes red and the reasons are printed under
-        the plot.
+        A bad setting does not remove the plot. Rather than replacing the
+        whole volcano with "cannot draw this plot" over one mistyped field,
+        the offending settings fall back to the last value that drew, the
+        figure stays up, the name of each offending setting goes red and the
+        reasons are printed under the plot.
 
         ``screen=True``: this render is being read, so it takes
         :attr:`VolcanoStyle.screen_background`. The export path does not
@@ -1265,7 +1264,7 @@ class VolcanoExplorer(QWidget):
         """Index of the point closest to ``(x, y)`` in axis-normalised space.
 
         Normalising by each axis's visible range is what makes a click land on
-        the point that LOOKS closest. Raw Euclidean distance in data units
+        the point that looks closest. Raw Euclidean distance in data units
         picks the wrong point whenever the axes have different scales, which
         on a volcano they always do.
 
@@ -1293,7 +1292,7 @@ class VolcanoExplorer(QWidget):
         return index if distance[index] <= 0.05 else None
 
     def select_point(self, index: int) -> dict:
-        """Select a point by row index and show everything known about it.
+        """Select a point by row index, list all of its values, and return them.
 
         :param index: positional row index into the results frame (not a
             label).
@@ -1321,7 +1320,7 @@ class VolcanoExplorer(QWidget):
     def selected_index(self) -> int | None:
         """Which row the user has clicked, if any.
 
-        A POSITION into the plotted frame, not a label -- see
+        A position into the plotted frame, not a label -- see
         :meth:`set_results`.
 
         :returns: the row position, or None when nothing is selected.

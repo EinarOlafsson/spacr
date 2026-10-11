@@ -12,15 +12,14 @@ class DotLink(QToolButton):
     """Small circular link with a generous, accessible hit area.
 
     The dot painted is 7 px, which is far below any usable hit target, so the
-    BUTTON is sized for the pointer and only its painting is small.
+    button is sized for the pointer and only its painting is small.
 
-    NOTHING IN THE APPLICATION CONSTRUCTS ONE, and that is deliberate rather
-    than an oversight: the information dots were taken off the settings
-    surfaces, and several tests asserting they stayed off do it by looking
-    for this type. The class is the sentinel those tests need, so it is kept
-    and not wired up.
+    Nothing in the application constructs one: the information dots were taken
+    off the settings surfaces, and several tests asserting they stayed off do
+    it by looking for this type. The class is the sentinel those tests need,
+    so it is kept and not wired up.
 
-    :param tooltip: the hover text. Also used as the accessible NAME, since a
+    :param tooltip: the hover text. Also used as the accessible name, since a
         dot has no label a screen reader could otherwise announce.
     :param colours: the four states to paint, as ``(normal, hover, pressed,
         disabled)``.

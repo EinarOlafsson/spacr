@@ -188,8 +188,7 @@ class AppTile(QPushButton):
     ``AppTile``, so the stylesheet can give it a height floor without
     giving one to every horizontal tile in the app.
 
-    **Its height floor is in the QSS, not here, and that is not a
-    style choice.** ``setFixedSize`` does not survive polish, and
+    **Its height floor is in the QSS, not here.** ``setFixedSize`` does not survive polish, and
     neither does answering through ``sizeHint`` /
     ``minimumSizeHint``: the app stylesheet's blanket
     ``QPushButton { min-height: 22px }`` becomes a real
@@ -216,11 +215,9 @@ class AppTile(QPushButton):
 
         :param text: the module name drawn on the tile, and what the tile is
             identified by.
-        :param description: accepted and NOT DRAWN. The tile stopped showing
-            it because it was a third copy of a sentence already on the
-            tooltip and in the hint bar, and three lines of grey under every
-            tile is what forced two tile sizes in the first place. Kept in
-            the signature so callers that pass it still work.
+        :param description: accepted and not drawn: the same sentence is
+            already on the tooltip and in the hint bar. Kept in the
+            signature so callers that pass it still work.
         :param icon: the module's mark, drawn above the name.
         :param width: tile width in pixels.
         :param height: tile height in pixels.
@@ -308,7 +305,7 @@ class AppTile(QPushButton):
     def sizeHint(self) -> QSize:               # noqa: N802
         """The tile's preferred size, height derived from its width.
 
-        HEIGHT FOLLOWS WIDTH because the tile is icon-over-name in a fixed
+        Height follows width because the tile is icon-over-name in a fixed
         proportion; asking for a free height would let the grid stretch one
         tile and not its neighbours.
 
@@ -416,16 +413,15 @@ class Panel(QWidget):
 
     def add_action(self, text: str, *, kind: str = "danger",
                    tip: str = "") -> QPushButton:
-        """Put an action WORD on the right of the panel's caption.
+        """Put an action word on the right of the panel's caption.
 
         Not a button in the styled sense -- no frame, no fill, no padding
         that would make it look pressable. It is the word alone, in the
         muted caption ink, and it takes its colour when the pointer is on
-        it or while it is held down: "just the text clear which turns red
-        upon hover or click" (2026-09-03).
+        it or while it is held down.
 
         Rendered through a QPushButton rather than a QLabel because the
-        word is a CONTROL: a button is what Tab reaches, what Space
+        word is a control: a button is what Tab reaches, what Space
         activates, what a screen reader announces as pressable, and what
         already has a `:pressed` state to hang the click colour on. A
         clickable QLabel has none of that.
@@ -516,7 +512,7 @@ def _row(label: str, value: str, value_colour: Optional[str] = None,
 
 
 class RunningBanner(QFrame):
-    """"spaCR is doing something right now" — with honest controls.
+    """Banner for the running job, with only the controls it supports.
 
     Reads :func:`spacr.qt.bridge.registry`, so it reflects a job started
     from *any* screen. Hidden entirely when nothing is running, which is
@@ -526,9 +522,9 @@ class RunningBanner(QFrame):
     job's entry point declares itself ``bridge.pausable`` — i.e. it
     actually polls ``bridge.checkpoint()``. No shipped pipeline does, so
     today it renders disabled with :data:`PAUSE_UNAVAILABLE` as its
-    tooltip. That is the whole point: a Pause button that stops the
-    thread wherever it happens to be is not a pause, and the honest
-    thing to draw is a control that says so.
+    tooltip: a Pause button that stopped the thread wherever it happened
+    to be would not be a safe pause, so the control is shown disabled with
+    the reason.
 
     :param icon_provider: called with a module key for that module's icon.
         A callable rather than a dict of icons, so the banner does not build
@@ -817,7 +813,7 @@ class QueuedPanel(Panel):
     def clear_queue(self) -> int:
         """Drop every item from the plate queue. Returns how many went.
 
-        WRITES, which no other part of this panel does -- the class docstring
+        This method writes, which no other part of this panel does -- the class docstring
         says the Queue screen owns writes, and this is the one exception:
         **Clear** empties the queue from here rather than sending the reader
         to another screen to do it.
@@ -828,8 +824,8 @@ class QueuedPanel(Panel):
         confirmation on a two-word action that costs that little is a
         dialog people learn to dismiss without reading.
 
-        Every failure mode ends with the panel telling the truth about what
-        is in the queue, because it re-reads from disk afterwards either way.
+        After any failure the panel shows what is actually in the queue,
+        because it re-reads from disk afterwards either way.
         """
         removed = 0
         try:
@@ -875,21 +871,15 @@ class QueuedPanel(Panel):
 
 
 class RecentRunsPanel(Panel):
-    """Last few journalled runs of a REAL module; each row navigates.
+    """Last few journalled runs of an existing module; each row navigates.
 
-    "Real module" is doing work here. The panel used to list whatever the
-    run journal's newest manifests said, and those rows were clickable
-    without representing runs -- they opened a ``_job`` module. On one
-    machine the journal held 11,046 run folders of which 7,323 were written
-    under the app_key ``_job`` or ``job``: a test fixture's key, written
-    straight into the real `~/.spacr/runs` because nothing sandboxed it
-    (fixed in ``tests/conftest.py``). So most rows named a module that does
-    not exist, and clicking one asked the window to open it.
+    Only runs of a module Home knows about are listed. A run journal can
+    hold entries under keys that are not modules, such as the ``_job`` or
+    ``job`` key a test fixture once wrote into ``~/.spacr/runs``; a row for
+    one of those would ask the window to open a module that does not exist.
 
-    The pollution is stopped at the source now, but a filter here is still
-    the right thing: this panel NAVIGATES, so a row it draws is a promise
-    that pressing it goes somewhere. Anything whose key is not a module Home
-    knows about is dropped.
+    Because each row opens its module when pressed, any entry whose key is
+    not a module Home knows about is dropped.
 
     :param limit: how many journalled runs to show.
     :param known_keys: callable returning the module keys that exist, or a
@@ -940,10 +930,8 @@ class RecentRunsPanel(Panel):
     def name_for(self, key: str) -> str:
         """``key``'s display name when Home knows one, else ``key`` itself.
 
-        A row used to be captioned with the raw app_key, which is what put
-        ``_job`` and ``mask`` on the dashboard in the same typeface as each
-        other. The names are already in Home; the panel just had no way to
-        ask for them.
+        Without this a row would be captioned with the raw app key, such as
+        ``mask``. The names come from Home's own registry.
 
         :param key: application key to name; returned unchanged when the name
             registry does not know it.
@@ -956,7 +944,7 @@ class RecentRunsPanel(Panel):
     def clear_list(self) -> None:
         """Hide every run listed, by moving the watermark to now.
 
-        NOTHING IS DELETED. See
+        Nothing is deleted. See
         :func:`spacr.qt.preferences.get_dashboard_watermark` for why: this
         panel reads the run journal, and the journal is the record Run
         History searches and a run's manifest documents.
@@ -977,7 +965,7 @@ class RecentRunsPanel(Panel):
         measured at 540 ms over 4,865 of them -- so it is not something the
         GUI thread should be doing on the way back to Home.
 
-        THE FILTERING HAPPENS HERE, not in `refresh`, for two reasons. It is
+        The filtering happens here, not in `refresh`, for two reasons. It is
         the half that runs off the GUI thread, and it changes how much has to
         be read: dropping four rows in five after asking for five leaves one,
         so this asks for a multiple of the limit and truncates afterwards.
@@ -1071,8 +1059,8 @@ class SystemPanel(Panel):
     """GPU / VRAM / Disk, read on build and on every Home revisit.
 
     Every reading degrades to a string rather than vanishing — a blank
-    row reads as "broken", while ``n/a`` honestly says the lightweight
-    system probe could not measure a device.  Home must not import a model
+    row reads as "broken", while ``n/a`` says the lightweight system probe
+    could not measure a device.  Home must not import a model
     runtime merely to decorate the dashboard.
 
     :param parent: parent widget.
@@ -1100,7 +1088,7 @@ class SystemPanel(Panel):
     def gpu_util() -> str:
         """Current GPU utilisation, as text for display.
 
-        NEVER RAISES. A missing NVML, a machine with no GPU and a driver
+        Never raises. A missing NVML, a machine with no GPU and a driver
         mismatch are all ordinary here, and none of them is a reason for the
         Home page to fail to build.
 
@@ -1210,12 +1198,12 @@ class TotalsPanel(Panel):
     def reset_counts(self) -> None:
         """Count from now on, by moving the watermark.
 
-        NOTHING IS DELETED, for the same reason **Clear** on Recent runs
+        Nothing is deleted, for the same reason **Clear** on Recent runs
         deletes nothing — see
-        :func:`spacr.qt.preferences.get_dashboard_watermark`. What these
-        counts are FOR is telling the user how much this installation has
-        done, and a reset that removed the manifests would take Run History
-        and every run's provenance with it.
+        :func:`spacr.qt.preferences.get_dashboard_watermark`. The counts
+        show how much this installation has done, and a reset that removed
+        the manifests would also remove Run History and every run's
+        provenance.
         """
         from ..preferences import set_dashboard_watermark
 
@@ -1396,23 +1384,20 @@ class StageLegend(Panel):
 class NewsPanel(Panel):
     """Every spaCR release, with links, in a box the reader can resize.
 
-    THE NOTES ARE BUNDLED, and the bundle is what draws. They come from
+    The notes are bundled, and the bundle is what is drawn. They come from
     ``spacr/resources/release_notes.json``, which
     ``tools/build_release_notes.py`` writes from the GitHub releases and
     which ``.github/workflows/release.yml`` refreshes on every release.
-    This panel is on the first screen the application shows, so making its
-    CONTENT depend on api.github.com would mean a dashboard that is empty
-    offline, throttled behind a shared NAT, and slower to draw than the
-    window it is in. The bundled file therefore remains the offline source
-    of truth and the panel is complete before anything touches a socket.
+    This panel is on the first screen the application shows; content read
+    from api.github.com would be empty offline, rate-limited behind a shared
+    NAT, and slower to draw than the window. The bundled file therefore
+    remains the offline source and the panel is complete before any network
+    access.
 
-    AND THEN IT CATCHES UP. The wheel for a release cannot contain its own
-    release note -- the note is written when the GitHub release is
+    Newer releases are then added. The wheel for a release cannot contain
+    its own release note -- the note is written when the GitHub release is
     published, which is after that wheel is on PyPI -- so a bundled file is
-    always one release behind the build carrying it, and that is what went
-    wrong: "im on 1.5.1.0 and the news only goes to 1.5.0.7. the news
-    section should always automatically reflect the latest spacr release
-    news." So after the page is shown,
+    always one release behind the build carrying it. After the page is shown,
     :attr:`refresh_requested` asks the window to read the public releases
     list on a worker thread, and :meth:`apply_releases` merges whatever
     comes back in front of the bundled list. Nothing here opens a socket:
@@ -1420,21 +1405,13 @@ class NewsPanel(Panel):
     switched off in Preferences, or simply finds nothing newer leaves the
     bundled list exactly as it was drawn.
 
-    There was previously no feed at all and this panel said so -- "No
-    release notes bundled with this build" -- which was honest and useless.
-    What it shows now is the real thing: "News should contain all the
-    releas information with links. i nkow that there was release information
-    for the current 1.5.0.4 version. this one as well as all of the other
-    ones should be scrollable and the user should be able to controll the
-    height."
-
-    So: every release newest-first, each one's body rendered with its links
+    The panel shows every release newest-first, each one's body rendered with its links
     live, the whole list inside a scroll area, and a grip along the bottom
     edge that drags the box taller or shorter. The height is remembered
-    between sessions -- a reader who made it tall wants it tall next time.
+    between sessions.
 
-    The update check stays a BUTTON. Offering to install something is a
-    decision, so it is still made only when pressed.
+    The update check stays a button: installing an update is a decision,
+    so it is made only when pressed.
 
     :param version: the build to name in the heading. Empty leaves the
         heading as the translated word alone -- the two are kept separate
@@ -1528,7 +1505,7 @@ class NewsPanel(Panel):
     def read_releases() -> list:
         """The bundled release records, newest first, or ``[]``.
 
-        Degrades to an empty list on ANY failure, and the panel then draws
+        Degrades to an empty list on any failure, and the panel then draws
         the placeholder it drew before there was a feed. A dashboard must
         not fail to appear because a resource file is missing from a wheel.
         """
@@ -1567,7 +1544,7 @@ class NewsPanel(Panel):
     def showEvent(self, event):                                  # noqa: N802
         """Ask for a refresh the first time the panel is shown.
 
-        AFTER the page exists and ON THE EVENT LOOP, not during
+        After the page exists and on the event loop, not during
         construction: the single-shot timer means the emit lands on a later
         turn than this show, so Home's first paint is never waiting on it.
         Once per panel, because a page that is shown again -- a tab
@@ -1591,10 +1568,10 @@ class NewsPanel(Panel):
     def apply_releases(self, fetched) -> None:
         """Merge a fetched release list into the list on screen.
 
-        Silence is the contract. An empty list, a list of rubbish, or a
-        list that says nothing the bundled file did not already say leaves
-        the panel untouched and says nothing to the reader -- the failure
-        of an unasked-for background fetch is not the reader's problem.
+        Failures are silent. An empty list, an unreadable list, or a list
+        that adds nothing to the bundled file leaves the panel unchanged
+        and shows no message, because the reader did not ask for the
+        background fetch.
 
         :param fetched: release records from
             :func:`spacr.updater.fetch_release_notes`, or anything at all.
@@ -1688,14 +1665,14 @@ class NewsPanel(Panel):
     def render_body(body: str, link_colour: str) -> str:
         """Turn a release body into the small HTML subset a QLabel draws.
 
-        NOT A MARKDOWN RENDERER, and not trying to be. Release bodies are
-        GitHub-flavoured markdown; what they actually contain is bullet
+        This is not a Markdown renderer. Release bodies are
+        GitHub-flavoured markdown; what they contain in practice is bullet
         lists, bare URLs and ``**bold**``, and a QLabel understands a
         handful of tags. So: escape everything first -- a body is text from
         a web page and must never reach a rich-text widget as markup --
         then put back the three constructs that are worth having.
 
-        Escaping FIRST is what makes this safe. Linkifying first and
+        Escaping first is what makes this safe. Linkifying first and
         escaping after would escape the anchors too and show the reader
         their own tags; escaping after building the HTML is the mistake that
         turns a release note into an injection.

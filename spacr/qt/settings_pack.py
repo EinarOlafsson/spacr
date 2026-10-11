@@ -5,54 +5,35 @@ images. They were written by an older spaCR, so some of what they name no
 longer exists -- keys renamed, keys removed with the feature they
 configured, keys that were never settings at all.
 
-MERGING THEM BLIND IS THE BUG THIS MODULE EXISTS TO FIX. The previous
-loader read every row of the CSV straight over the defaults, so a key the
-current build has never heard of arrived in the settings dict and travelled
-into the pipeline, where it was either ignored silently or produced an
-error naming a setting the user did not type and cannot find in the form.
-Either way the user is told nothing at the point where it could be
-explained.
+Merging every row of the CSV over the defaults would pass keys the current
+build does not have into the pipeline, where they are ignored or cause an error
+naming a setting the user cannot find in the form.
 
-So this MIGRATES rather than merges, and REPORTS rather than guesses:
+This module therefore migrates the pack and reports what it did with each key:
 
 * a key the app still has is applied;
 * a key that has been renamed is applied under its new name and counted;
 * a key that no longer exists anywhere is dropped and named;
-* a key that is a setting in this build but not on THIS app's form is
-  named separately, because "this version has no such setting" is a false
-  sentence about it.
+* a key that is a setting in this build but not on THIS app's form is named
+  separately, because this version does have it.
 
-The report is the deliverable as much as the settings are. "Loaded 34
-settings, renamed 2, dropped 3 this version no longer has" is a sentence a
-user can act on. Thirty-nine settings applied silently, three of which do
-nothing, is not.
+The report states the outcome, for example "Loaded 34 settings, renamed 2,
+dropped 3 this version no longer has".
 
-WHY IT ONCE READ NOTHING AT ALL. This module was written as the safe successor to a reader that
-merged blind, and then could not replace it, because three things it did
-not do are three things the published pack needs:
+The published pack needs three further rules:
 
-* IT LOOKED FOR THE WRONG FILE. It opened ``<app>_settings.csv`` only, and
-  ``einarolafsson/spacr_settings`` has never shipped a file by that name --
-  it ships ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``.
-  Measured on the real pack at ``~/datasets/settings`` on 2026-09-14:
-  applied 0, renamed 0, dropped 0, malformed 0, on a 58-setting file. A
-  miss rather than an error, so the caller filled the form with plain
-  defaults and said nothing. `tests/test_hf_e2e_integration.py` found the
-  same hole from the other side and worked around it with a local reader
-  and a hard assertion on the names, which is where `PACK_FILES` comes
-  from.
-* IT READ THE HEADER ROW AS A SETTING. The shipped files start ``Key,Value``
-  and that arrived as a key named ``Key``, reported to the user as a
-  dropped setting. It is not a setting; it is a column heading.
-* IT HANDED LISTS OVER AS STRINGS. ``channels,"[0, 1, 2, 3]"`` became the
-  eleven-character string, counted as APPLIED, replacing a real list
-  default -- which is worse than a drop, because the report says it worked.
+* File names. ``einarolafsson/spacr_settings`` ships ``gen_masks_settings.csv``
+  and ``crop_measure_settings.csv``, not ``<app>_settings.csv``, so the
+  published names in `PACK_FILES` are tried after ``<app>_settings.csv``.
+* Header row. The shipped files start with ``Key,Value``; that row is skipped
+  rather than read as a setting named ``Key``.
+* List values. ``channels,"[0, 1, 2, 3]"`` is parsed into a list with
+  ``ast.literal_eval`` rather than applied as a string over a list default.
 
-Measured again with those three closed, same file, same defaults: 32
-applied, 9 renamed, 17 dropped, of which 10 are live settings this form does
-not carry. 32 + 9 + 17 = 58, which is every row the reader saw, and the file
-has 59 non-blank lines -- the fifty-ninth is the header it now skips. Nothing
-is excluded from that count.
+On the published mask pack, with the current defaults: 32 applied, 9 renamed,
+17 dropped, of which 10 are live settings this form does not carry.
+32 + 9 + 17 = 58, every row of the file except the header (59 non-blank
+lines).
 """
 from __future__ import annotations
 
@@ -147,15 +128,12 @@ class PackReport:
     def summary(self) -> str:
         """One sentence for a status bar, naming what was lost.
 
-        Names the dropped keys rather than counting them: "dropped 3" tells
-        a user something went missing without telling them what, which is
-        the worst of both.
+        Names the dropped keys rather than counting them: "dropped 3" alone
+        does not say which settings were lost.
 
-        TWO SENTENCES FOR TWO DIFFERENT LOSSES. "this version has no such
-        setting" was said about `timelapse` and nine others on the real
-        mask pack, and it is untrue of every one of them -- they are live
-        settings that this particular form does not show. A user told the
-        version dropped them goes looking for a version that has them.
+        Two different losses get two different sentences. Keys such as
+        `timelapse` are live settings that this form does not show, and are
+        reported separately from keys this version does not have.
         """
         head = f"{len(self.applied) + len(self.renamed)} settings loaded"
         if self.source:

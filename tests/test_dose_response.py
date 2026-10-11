@@ -469,7 +469,7 @@ def test_r_squared_is_reported_with_the_warning_attached():
     result = fit_dose_response(dose, response)
     assert result.r_squared > 0.99
     warning = [c for c in result.caveats() if "R²" in c]
-    assert warning and "nearly useless" in warning[0]
+    assert warning and "uninformative" in warning[0]
     assert "residual standard error" in warning[0]
 
 

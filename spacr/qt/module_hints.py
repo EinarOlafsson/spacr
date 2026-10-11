@@ -4,19 +4,14 @@ into the status bar.
 A module description is shown in ONE place -- the hint strip along the
 bottom of the page -- and never as a popup over the grid.
 
-IT USED TO GO TO THE STATUS BAR, the line in the bottom LEFT of the
-window, with a four-second linger, and it flickered: text that looked as
-though it were going to the hovered module and then to something else and
-back again. Two writers, not one -- this filter put the description there on
-every hover and Qt put the permanent message back four seconds later, so the
-corner alternated. The strip does not alternate -- it holds
-the last module for thirty seconds and is replaced only by the next.
+The status bar is not used: this filter wrote the description there on every
+hover and Qt restored the permanent message four seconds later, so the text
+alternated. The strip holds the last module for thirty seconds and is replaced
+only by the next one.
 
-Home already worked this way and the reason is written on ``AppTile``:
-these blurbs run to several hundred characters, which is fine in a fixed
-line the eye can skip and wrong in a box drawn on top of the very grid
-you are reading to choose between. The sidebar and the fold strip kept
-popping them anyway.
+Home already worked this way, for the reason given on ``AppTile``: the
+descriptions run to several hundred characters, and a popup of that size covers
+the grid the user is choosing from.
 
 The hook is ``QEvent.ToolTip`` rather than hover. It fires exactly when
 Qt has decided to show a tooltip -- after the same delay, at the same
@@ -167,7 +162,7 @@ class _ModuleHints(QObject):
 
 
 def install_module_hints(window) -> Optional[_ModuleHints]:
-    """Send module descriptions to ``window``'s status bar.
+    """Send module descriptions to ``window``'s bottom hint strip.
 
     Installed on the APPLICATION rather than on each button: the fold
     strip builds its buttons lazily, per host masthead, and a filter

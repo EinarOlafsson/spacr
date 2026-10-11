@@ -33,7 +33,7 @@ The clip runs first so that a hot pixel cannot define the interval the
 curves are drawn on; the curves are monotone, so their order only changes
 the shape of the composite curve and never which pixel is brighter.
 
-THE SAME CHAIN REACHES MASK GENERATION. The image steps -- everything before
+Mask generation applies the same chain. The image steps -- everything before
 ``detect`` -- are written as Mask settings by :func:`chain_settings`, one
 ``enhance_<field>`` key per :data:`SETTINGS_FIELDS` entry, and read back by
 :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask pipelines
@@ -621,8 +621,8 @@ def finish(labels: np.ndarray, chain: Chain,
            intensity: Optional[np.ndarray] = None) -> np.ndarray:
     """What the detector labelled, opened or closed and then split.
 
-    Morphology and the split are both questions about WHICH PIXELS ARE ONE
-    OBJECT, so both are asked of the detection as a whole: the labels are
+    Morphology and the split both decide which pixels form one object, so
+    both are applied to the detection as a whole: the labels are
     read as a foreground, reshaped, and labelled again. The ids therefore
     change, which costs nothing here -- Make Masks renumbers every object it
     pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).
@@ -662,7 +662,7 @@ def finish(labels: np.ndarray, chain: Chain,
 def provenance(chain: Chain, *, percentile_stretch: bool = False) -> Dict:
     """The chain as it goes into a mask's ledger entry.
 
-    ONLY THE STEPS THAT RAN, plus the order they ran in, so an entry says
+    Only the steps that ran are recorded, plus the order they ran in, so an entry says
     what was done rather than listing fourteen defaults around it; a chain
     with nothing on records nothing but the switch that was off. The order
     is written out because it is what makes the entry enough to reproduce

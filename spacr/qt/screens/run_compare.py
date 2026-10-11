@@ -4,14 +4,14 @@ Pick a project, pick two of its runs, and the screen answers the three
 questions that follow a re-run:
 
 1. **What did I change?** The settings diff, grouped under the same
-   headings the settings panel groups them by, showing only what moved.
-   Two hundred keys are not a diff; two keys under *Cellpose* are.
+   headings the settings panel groups them by, showing only what moved,
+   so two changed keys under *Cellpose* are not lost among two hundred.
 2. **What came out?** Objects, wells and fields per plate and overall.
    A run that produced 12% fewer cells has a problem, and this is where
    it is visible first.
-3. **Which hits moved?** Appeared, vanished, and — just as importantly —
-   changed rank. A hit list whose membership is stable but whose top ten
-   reshuffles every run is not a stable result.
+3. **Which hits moved?** Appeared, vanished, and changed rank. A hit list
+whose membership is stable but whose top ten reshuffles every run is not a
+stable result.
 
 All three come from :mod:`spacr.run_compare`, which is headless: this
 file picks the runs and draws the tables and knows nothing else. The run
@@ -24,7 +24,7 @@ copy of what produced the numbers somebody is asking about.
 subtract perfectly well and produce a table that looks exactly like a
 regression report. When :func:`spacr.run_compare.comparability` raises a
 blocker the tables stay empty and the banner says why, with a *Compare
-anyway* button for the user who knows better. Warnings — a different
+anyway* button that overrides the blocker. Warnings — a different
 spaCR version above all — are shown with the tables rather than instead
 of them, because a version change explains a count change on its own.
 """
@@ -225,8 +225,8 @@ class RunCompareScreen(QWidget):
         self._force_button = QPushButton("Compare anyway")
         self._force_button.setToolTip(
             "Produce the three tables despite the blocker above. The "
-            "numbers will be subtracted; whether that means anything is "
-            "on you.")
+            "numbers are subtracted, but whether the difference is "
+            "meaningful is not checked.")
         self._force_button.clicked.connect(self._on_force)
         self._force_button.setVisible(False)
         banner_row.addWidget(self._force_button)
@@ -241,8 +241,8 @@ class RunCompareScreen(QWidget):
         options = QHBoxLayout()
         self._show_all = Toggle("Show unchanged settings")
         self._show_all.setToolTip(
-            "Off, the settings tab shows only what differs — which is the "
-            "question. On, it shows every key both runs set, so you can "
+            "Off, the settings tab shows only what differs. On, it shows "
+            "every key both runs set, so you can "
             "confirm that something you expected to change did not.")
         self._show_all.toggled.connect(self._on_show_all)
         options.addWidget(self._show_all)
@@ -610,14 +610,13 @@ def register() -> bool:
     """Add Run Compare to the app registry. Idempotent.
 
     Called at import time so that importing this module is all it takes
-    for the app to exist — the registration seam from ``1a5ac2ab``. It
-    returns rather than raises on a duplicate key so a re-import (a
-    reloaded module, a test that cleared the registry) is a no-op instead
-    of taking the import down.
+    for the app to exist. It returns rather than raises on a duplicate key
+    so a re-import (a reloaded module, a test that cleared the registry) is
+    a no-op instead of failing the import.
 
     It is also named in ``spacr.qt.app._SELF_REGISTERING_APPS`` and in
-    :data:`spacr.qt.SELF_REGISTERING_MODULES`, which is belt and braces
-    rather than a mistake: the first is what makes the row exist under a
+    :data:`spacr.qt.SELF_REGISTERING_MODULES`. The redundancy is
+    deliberate: the first is what makes the row exist under a
     bare ``import spacr.qt.app`` — an inventory that depended on whether
     something else had imported this module is an inventory that fails on
     whichever file pytest collected first — and the second is the launch

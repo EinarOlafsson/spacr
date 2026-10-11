@@ -12,12 +12,12 @@ columns row after row, the number can be trusted. When nothing lines up, a
 badly configured run shows itself at once, rather than after an hour of
 mapping that returns no counts.
 
-So this widget is deliberately plain. It draws the read text in a fixed pitch
-face, one read to a line, and it paints the characters a barcode matched in a
-colour belonging to that barcode type. Nothing wraps, nothing is elided, and
-the character in column forty of one read sits directly above the character in
-column forty of the next, which is the entire reason for looking at reads
-rather than at a table.
+This widget is therefore plain. It draws the read text in a fixed pitch face,
+one read to a line, and it paints the characters a barcode matched in a colour
+belonging to that barcode type. Nothing wraps, nothing is elided, and the
+character in column forty of one read sits directly above the character in
+column forty of the next, which is the reason to look at reads rather than at a
+table.
 
 This module knows nothing about how matches are found. It takes reads and
 spans that somebody else computed, so the search engine and the screen that
@@ -25,15 +25,14 @@ hosts it can change freely without touching anything here, and so this can be
 tested without either of them. The contract is the pair of small record types
 below, and it is meant to be written by hand as easily as it is generated.
 
-A note on colour, because it is the part that is easy to get wrong. Every
-colour painted here is derived from the theme that is on screen, never written
-as a literal, and the derivation preserves the relative luminance of the
-theme's own accent role. Contrast is a function of relative luminance and of
-nothing else, so a colour made this way clears exactly the contrast that the
-accent already clears on that theme, including the themes whose panels are
-translucent over a photograph. That is what lets an arbitrary number of
-barcode types each get a colour of their own without any of them becoming
-unreadable on some theme nobody checked.
+Colour: every colour painted here is derived from the theme that is on screen,
+never written as a literal, and the derivation preserves the relative luminance
+of the theme's own accent role. Contrast is a function of relative luminance
+and of nothing else, so a colour made this way clears exactly the contrast that
+the accent already clears on that theme, including the themes whose panels are
+translucent over a photograph. That is what lets an arbitrary number of barcode
+types each get a colour of their own without any of them becoming unreadable on
+any theme.
 """
 from __future__ import annotations
 
@@ -114,9 +113,9 @@ def barcode_colours(kinds: Sequence[str]) -> Dict[str, str]:
     Repeats are ignored after the first appearance.
 
     The result follows the theme on screen at the moment of the call. It
-    differs between the light and dark palettes, and between both and the
-    image palettes, which is deliberate rather than incidental: each palette
-    has its own readable luminance and the colours are derived from it.
+    differs between the light and dark palettes, and between both and the image
+    palettes, because each palette has its own readable luminance and the
+    colours are derived from it.
 
     :param kinds: Barcode type names, in the order they should be coloured.
     :returns: A mapping from each name to a hex colour string.
@@ -569,13 +568,12 @@ class ReadView(QWidget):
     positions to show.
 
     What it guarantees. Reads are drawn in a fixed pitch face at fixed
-    character positions, so column forty of one read sits above column forty
-    of the next. A read never wraps onto a second visual row: a long one makes
-    the view scroll sideways instead, because a wrapped read would break the
-    one read per row promise that the whole widget exists to keep. A barcode
-    type keeps one colour for as long as the view is showing it, so the eye
-    can follow a match down the rows, and a legend above the reads says which
-    colour is which.
+    character positions, so column forty of one read sits above column forty of
+    the next. A read never wraps onto a second visual row: a long one makes the
+    view scroll sideways instead, because a wrapped read would break the
+    one-read-per-row layout. A barcode type keeps one colour for as long as the
+    view is showing it, so the eye can follow a match down the rows, and a
+    legend above the reads says which colour is which.
 
     How overlaps are settled. The spans of a read are read in the order they
     were given. The first span to cover a character keeps that character.
@@ -627,12 +625,11 @@ class ReadView(QWidget):
                   kinds: Optional[Sequence[str]] = None) -> None:
         """Show these reads, with these barcode types in the legend.
 
-        Passing the barcode types explicitly is worth doing whenever they are
-        known, because it fixes both the legend order and which type gets
-        which colour. A type that is searched for but found in none of the
-        reads on screen then still appears in the legend, which is itself
-        information: it says the search ran and came back empty rather than
-        leaving the user to wonder whether it ran at all.
+        Pass the barcode types explicitly when they are known: this fixes both
+        the legend order and which type gets which colour. A type that is
+        searched for but found in none of the reads on screen then still
+        appears in the legend, which shows that the search ran and found
+        nothing.
 
         Left unsaid, the types are taken from the spans in the order they are
         first seen, and any type already being shown keeps the colour it has.
@@ -658,10 +655,10 @@ class ReadView(QWidget):
     def clear(self) -> None:
         """Drop every read and forget which barcode types were being shown.
 
-        Forgetting the types is the point of having this at all rather than
-        setting an empty list of reads. A fresh run may search for a different
-        set of barcodes, and carrying the previous run's assignment over would
-        give the new first barcode the old second barcode's colour.
+        Unlike setting an empty list of reads, this also forgets the types. A
+        fresh run may search for a different set of barcodes, and carrying the
+        previous run's assignment over would give the new first barcode the old
+        second barcode's colour.
         """
         self._kinds = []
         self._colours = {}
@@ -714,8 +711,8 @@ class ReadView(QWidget):
     def refresh_colours(self) -> None:
         """Take the colours from the theme again and repaint.
 
-        Safe to call at any time and cheap enough to call on a whim: it
-        re-derives one colour per barcode type, not per read.
+        Safe and cheap to call at any time: it re-derives one colour per
+        barcode type, not per read.
         """
         self._delegate.refresh_theme()
         if self._kinds:

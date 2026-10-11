@@ -7,10 +7,10 @@ lookup and a string. The lookup table is
 ``tools/build_tutorial_index.py`` from the docs build's own lesson catalog --
 see there for why it is not the catalog itself.
 
-NO NETWORK, NO HEAVY IMPORT. This is read on the hover path, from Home and
+No network access and no heavy imports: this is read on the hover path, from Home and
 from the dock, so it caches the table on first use and answers ``""`` for
-anything it cannot resolve. A module with no lesson must cost a missing link,
-never an exception in a hover handler.
+anything it cannot resolve. A module with no lesson gets no link, and no
+exception is raised in a hover handler.
 """
 from __future__ import annotations
 

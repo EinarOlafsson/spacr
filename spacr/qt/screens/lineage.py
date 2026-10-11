@@ -1,27 +1,25 @@
-"""``V9`` ``B20`` — the containment tree: cell → nucleus → pathogen.
+"""Lineage screen: the containment tree of cells, nuclei and pathogens.
 
-The links have been in ``measurements.db`` since the first Measure run:
-``nucleus`` and ``pathogen`` rows carry a ``cell_id`` naming the cell they sit
-inside (:data:`spacr.schema.CHILD_OBJECT_TABLES`). Nothing has ever shown
-them. "This cell holds one nucleus and four pathogens" was a fact you could
-compute and could not see, and the questions that follow from it — which cells
-are uninfected, which pathogen is impossibly large for the cell around it,
-which nucleus belongs to no cell at all — had no view.
+In ``measurements.db``, ``nucleus`` and ``pathogen`` rows carry a ``cell_id``
+naming the cell they sit inside (:data:`spacr.schema.CHILD_OBJECT_TABLES`).
+This screen shows those links as a tree, so questions such as which cells are
+uninfected, which pathogen is implausibly large for the cell around it, and
+which nucleus belongs to no cell at all can be answered by inspection.
 
 :mod:`spacr.lineage` builds the tree in plain pandas. This is the tree widget
 over it: a node selected here publishes through
-:mod:`spacr.qt.linked_selection`, so picking a cell rings the same cell on the
-plate view and in the UMAP, and picking it with its contents rings the whole
-family. Double-clicking opens the crops.
+:mod:`spacr.qt.linked_selection`, so picking a cell highlights the same cell
+on the plate view and in the UMAP, and picking it with its contents highlights
+the whole family. Double-clicking opens the crops.
 
-Orphans are a tab, not a footnote
----------------------------------
+Unattached children are listed separately
+-----------------------------------------
 
 A child whose ``cell_id`` names no cell is dropped by every join in the
 codebase. It is not noise: it means the nucleus mask found an object the cell
 mask did not, which is a segmentation disagreement worth looking at. It gets
-its own list here, with the same double-click-to-open, because a finding you
-have to write SQL to see is a finding nobody sees.
+its own list here, with the same double-click-to-open, so these objects can be
+reviewed without writing SQL.
 """
 from __future__ import annotations
 
@@ -117,9 +115,8 @@ class LineageScreen(LinkedView, QWidget):
         title.setObjectName("DisplayHeading")
         outer.addWidget(title)
         intro = QLabel(
-            "What is inside what: every cell with the nuclei and pathogens "
-            "it contains. The links were always in the database; this is the "
-            "first view of them.", self)
+            "Every cell with the nuclei and pathogens it contains, read from "
+            "the cell_id links in the measurements database.", self)
         intro.setObjectName("Muted")
         intro.setWordWrap(True)
         outer.addWidget(intro)
@@ -161,8 +158,8 @@ class LineageScreen(LinkedView, QWidget):
         buttons = QHBoxLayout()
         self._publish_family = QPushButton("Select with contents", left)
         self._publish_family.setToolTip(
-            "Publish the selected object AND everything inside it, so the "
-            "whole family lights up in every other open view.")
+            "Publish the selected object and everything inside it, so the "
+            "whole family is highlighted in every other open view.")
         self._publish_family.clicked.connect(self.publish_family)
         buttons.addWidget(self._publish_family)
         self._open_button = QPushButton("Open crops", left)
@@ -340,11 +337,11 @@ class LineageScreen(LinkedView, QWidget):
         De-duplicated while keeping order: selecting a cell and one of its
         pathogens must not open that pathogen twice.
 
-        The de-duplication is on the SHARED key, which is what the routing
-        contract takes — so a cell whose nucleus 1 and pathogen 1 collide
-        yields three keys for four objects. That is not a bug here, it is the
-        key having no object type in it; :meth:`collision_note` is what puts
-        it on screen instead of leaving the arithmetic unexplained.
+        The de-duplication is on the shared key, which is what the routing
+        contract takes. That key carries the object type, so a cell's
+        nucleus 1 and pathogen 1 stay two keys; if keys ever collide, fewer
+        keys than objects are returned and :meth:`collision_note` reports
+        it on screen.
         """
         out: List[str] = []
         seen = set()
@@ -395,12 +392,11 @@ class LineageScreen(LinkedView, QWidget):
     def collision_note(self) -> str:
         """One line naming any objects the shared key cannot tell apart.
 
-        **Empty, now and normally.** The object key carries the object type,
-        so a cell's nucleus 1 and its pathogen 1 are two keys; this used to
-        fire on every family that had both, and it is kept as the alarm for
-        that ever being true again. It is cheap, and the failure it watches
-        for — "opening four objects showed three crops" — is otherwise a
-        mystery rather than a message.
+        **Normally empty.** The object key carries the object type, so a
+        cell's nucleus 1 and its pathogen 1 are two keys. The check is kept
+        to report a regression in which keys collide again; without it,
+        "opening four objects showed three crops" would have no explanation
+        on screen.
         """
         collisions = lin.forest_key_collisions(self._forest)
         if not collisions:

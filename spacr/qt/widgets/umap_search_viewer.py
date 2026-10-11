@@ -198,7 +198,7 @@ def axis_frame(coords: Any, width: int, height: int, *, yaw: float = 0.0,
     scale = usable * max(0.05, float(zoom)) / max(span, 1e-9)
 
     def projected(points: Sequence[Sequence[float]]) -> np.ndarray:
-        """Project points into the frame, in PIXEL coordinates.
+        """Project points into the frame, in pixel coordinates.
 
         The vertical is negated because screen y grows downward and the data's
         does not -- without it the plot is drawn upside down and still looks
@@ -241,8 +241,8 @@ class UmapAppearanceDialog(QDialog):
         control's own default.
     :param parent: parent widget.
 
-    NON-MODAL, which is the point: the view stays visible and usable while
-    this is open, so a change can be judged against the picture it changes.
+    Non-modal: the view stays visible and usable while this is open, so a
+    change can be judged against the picture it changes.
     """
 
     applied = Signal(dict)
@@ -369,8 +369,8 @@ class UmapEmbeddingView(QWidget):
     def coordinates(self) -> Optional[np.ndarray]:
         """The embedded points.
 
-        A COPY, so a caller cannot move this view's points by writing into
-        the array it was handed.
+        A copy, so a caller cannot move this view's points by writing into the
+        array it was handed.
 
         :returns: an ``(n, dimensions)`` array, or None before a search.
         """
@@ -430,9 +430,8 @@ class UmapEmbeddingView(QWidget):
     def open_appearance_editor(self) -> UmapAppearanceDialog:
         """Open the non-modal appearance editor, wired to apply live.
 
-        NON-MODAL AND LIVE, because the whole question the dialog answers is
-        what the points look like -- an editor that blocked the view it is
-        adjusting would have to be closed to be judged.
+        Non-modal and live, so the effect on the points can be judged while the
+        editor is open.
 
         :returns: the dialog, already shown.
         """
@@ -515,9 +514,9 @@ class UmapEmbeddingView(QWidget):
     def reset_view(self) -> None:
         """Put the camera back to where the embedding was first framed.
 
-        The way out of a spin or a zoom that has lost the cloud: a 3-D view
-        can be rotated until nothing is on screen, and no amount of further
-        dragging necessarily finds it again.
+        Undoes a spin or a zoom that has lost the cloud: a 3-D view can be
+        rotated until nothing is on screen, and no amount of further dragging
+        necessarily finds it again.
         """
         self._yaw = 0.22
         self._pitch = -0.16
@@ -688,9 +687,9 @@ class UmapGalleryDialog(QDialog):
     """All table embeddings on black, with a click returning the real trial.
 
     :param trials: the trials to show. Clicking one emits it through
-        :attr:`trial_chosen` UNCHANGED -- the gallery hands back the object
-        it was given rather than an index into a list the caller would have
-        to keep in step.
+        :attr:`trial_chosen` unchanged -- the gallery hands back the object it
+        was given rather than an index into a list the caller would have to
+        keep in step.
     :param parent: parent widget.
     """
 
@@ -733,11 +732,10 @@ class UmapGalleryDialog(QDialog):
         self.set_trials(trials)
 
     def set_trials(self, trials: Iterable[Any]) -> None:
-        """Show the trials that actually produced an embedding.
+        """Show the trials that produced an embedding.
 
-        FILTERED, NOT ALL. A sweep's failed or skipped trials have no
-        embedding to show, and a gallery cell for one would be a blank tile
-        the user has to work out the meaning of.
+        Filtered: a sweep's failed or skipped trials have no embedding to show,
+        so they get no gallery tile.
 
         :param trials: every trial from the sweep.
         """

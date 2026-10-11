@@ -1,10 +1,10 @@
 """
-Model Compare — two Cellpose models, the same three fields, one table.
+Model Compare: run two Cellpose models on the same fields and compare them.
 
-Picking a segmentation model in spaCR means running a plate, looking at
-montages, changing one number and running it again. This screen makes the
-question small enough to answer in a minute: choose a folder, take three
-fields, configure two models, press Compare. The masks come back side by side
+Without this screen, choosing a segmentation model means running a plate,
+looking at montages, changing one number and running it again. Here the
+comparison runs on a few fields: choose a folder, take three fields (the
+default), configure two models, press Compare. The masks come back side by side
 over the same image with the object counts, the ARI and the split/merge
 attribution underneath.
 
@@ -32,7 +32,7 @@ Layout::
 
 Design notes:
 
-* **The resolved-parameter table is not decoration.** Cellpose 4 accepts
+* **The resolved-parameter table.** Cellpose 4 accepts
   ``model_type``, ``diam_mean``, ``nchan``, ``channels`` and ``rescale`` and
   then ignores every one of them, and it resolves all the pre-SAM model names
   to ``cpsam``. A comparison that differs only in one of those reports "no
@@ -49,8 +49,7 @@ Design notes:
 * **The preview colours by correspondence, not by label id.** Label 3 in A has
   nothing to do with label 3 in B, so a shared random palette would invite
   exactly the wrong comparison. Objects that have a partner in the other mask
-  are drawn in one colour and objects that do not in another, which is the
-  comparison rather than a decoration of it.
+  are drawn in one colour and objects that do not in another.
 * **Neither model is called correct.** The screen renders
   :mod:`spacr.model_compare`'s directional wording as-is.
 """
@@ -606,7 +605,7 @@ class ModelCompareScreen(QWidget):
         restructured.
 
         Every argument is optional; an empty one leaves that control alone.
-        ``n_fields`` is applied BEFORE the folder so the reload the folder
+        ``n_fields`` is applied before the folder so the reload the folder
         triggers already uses the right count, rather than loading N fields and
         immediately reloading with a different N.
 
@@ -929,7 +928,7 @@ class ModelCompareScreen(QWidget):
     def preview_sizes(self):
         """``(a, b)`` preview sizes on screen — ``(0, 0)`` for an empty panel.
 
-        The size the picture OCCUPIES, not the pixel count it was drawn
+        The size the picture occupies, not the pixel count it was drawn
         with: on a HiDPI screen the panel is rendered at twice the density
         and the two answers differ by that factor.
         """
@@ -1104,8 +1103,8 @@ def to_display_gray(image: Optional[np.ndarray], shape) -> np.ndarray:
     mean: a nucleus channel averaged with an empty channel is a dim nucleus.
     Contrast is a 1-99.9 percentile stretch, the same window
     :func:`spacr.qt.mask_engine.normalize_uint16` uses. A missing or
-    wrong-shaped image comes back black rather than raising — the masks are
-    what the screen is really showing.
+    wrong-shaped image comes back black rather than raising, because the
+    backdrop is only context for the masks.
 
     :param image: the field, or None.
     :param shape: ``(height, width)`` the mask expects.
@@ -1135,9 +1134,8 @@ def compose_overlay(image: Optional[np.ndarray], mask: Any,
 
     Objects listed in ``matched`` (they have a partner in the other model's
     mask) are drawn in one colour and the rest in another. Colouring by label id
-    would be worse than useless here: label 3 in A has nothing to do with label
-    3 in B, so a shared palette invites the eye to compare things that are not
-    the same object.
+    would be misleading here: label 3 in A has nothing to do with label 3 in B,
+    so a shared palette invites comparing objects that are not the same.
 
     :param image: the field, or None for a black backdrop.
     :param mask: a 2-D label image.

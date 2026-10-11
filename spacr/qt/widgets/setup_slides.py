@@ -316,12 +316,11 @@ def _gpu_library() -> str:
 def graphics_card() -> Tuple[bool, str]:
     """``(usable, name)`` for the machine's graphics card.
 
-    USABLE MEANS TORCH CAN REACH IT, which is the only sense that matters
-    here: a card spaCR cannot run on is not a compatible card however well
-    the driver reports it. Torch is asked first for that reason, and NVML
-    second because it names the card even when torch was built without
-    CUDA -- which is the case worth telling apart, since the answer there
-    is "install a CUDA build", not "buy a card".
+    Usable means torch can reach it: a card spaCR cannot run on is not a
+    compatible card however well the driver reports it. Torch is asked first
+    for that reason, and NVML second because it names the card even when torch
+    was built without CUDA -- which is the case worth telling apart, since the
+    answer there is "install a CUDA build", not "buy a card".
 
     :returns: ``(True, 'NVIDIA GeForce RTX 3090')`` when segmentation can
         run on it; ``(False, name)`` when it cannot, with the best name
@@ -1147,14 +1146,14 @@ class SetupSlides(QDialog):
     def terms_were_read(self) -> bool:
         """Always ``True``: the acceptance is not gated on scrolling.
 
-        THE SCROLL GATE IS GONE. Dragging a scroll bar to the bottom of a long
-        document does not prove it was read, so scrolling is not a condition
-        of acceptance.
+        There is no scroll gate. Dragging a scroll bar to the bottom of a long
+        document does not prove it was read, so scrolling is not a condition of
+        acceptance.
 
-        WHAT IS NOT GONE IS THE ACCEPTANCE. The full text is still on the
-        page and still scrollable for anyone who wants it, the checkbox is
-        still explicit, and :func:`spacr.qt.terms.record_agreement` still
-        records the version and the moment. Only the greying is removed.
+        The acceptance remains. The full text is still on the page and still
+        scrollable for anyone who wants it, the checkbox is still explicit, and
+        :func:`spacr.qt.terms.record_agreement` still records the version and
+        the moment. Only the greying is removed.
 
         Kept as a method rather than deleted because the slide, the Next
         button and the tests all ask this question, and one answer in one
@@ -1412,11 +1411,9 @@ class SetupSlides(QDialog):
     def provider_status(code: str, command: str) -> str:
         """``ready`` / ``signed out`` / ``not installed`` for one provider.
 
-        THREE STATES, because they need three different things from the
-        user. `available` was one boolean covering "the CLI is missing" and
-        "the CLI is there and signed out", so a mark could not say which,
-        and both were drawn as a ghost -- "GPT brings no text and no color
-        just a rim".
+        Three states, because each needs a different action from the user: a
+        missing CLI and an installed but signed-out CLI are reported
+        separately.
 
         :param code: provider code as in :data:`PROVIDERS`, e.g. ``"claude"``
             or ``"gpt"``; looked up in the AI provider registry.
@@ -2261,22 +2258,21 @@ class SetupSlides(QDialog):
 
 
     def next(self) -> int:
-        """Forward one slide, and one CLOCKWISE circuit of the rim.
+        """Forward one slide, and one clockwise circuit of the rim.
 
-        LEAVING THE LANGUAGE SLIDE WAITS. "there should be a lag after the
-        first next click to make time for Hello in the chosen language" --
-        the greeting is the only proof the choice took, and it lives on the
-        page being left, so without a pause it is on screen for one frame of
-        a fade. The rim starts its circuit immediately, so the click is
-        answered at once and only the page change is held.
+        Leaving the language slide waits briefly, so the greeting in the chosen
+        language stays visible; it is on the page being left, so without a
+        pause it would be on screen for one frame of a fade. The rim starts its
+        circuit immediately, so the click is answered at once and only the page
+        change is held.
 
-        The wait happens ONCE. A pause on every return to the first slide
-        would be a delay the user has already sat through.
+        The wait happens once. A pause on every return to the first slide would
+        be a delay the user has already sat through.
 
-        THE TERMS SLIDE IS THE ONE PAGE THIS WILL NOT LEAVE. Pressing Next
+        The terms slide is the one page this will not leave. Pressing Next
         there without the acceptance ticked stays on the slide and says why,
-        rather than greying the button and leaving the reader to work out
-        which control is holding them.
+        rather than greying the button and leaving the reader to work out which
+        control is holding them.
         """
         if SLIDES[self._index][0] == TERMS_SLIDE and not self.agreed_to_terms():
             self.card.circuit(clockwise=True)
@@ -2317,10 +2313,9 @@ class SetupSlides(QDialog):
         self._show_slide(min(self._index + 1, len(SLIDES) - 1), fade=True)
 
     def previous(self) -> int:
-        """Back one slide, and one ANTICLOCKWISE circuit.
+        """Back one slide, and one anticlockwise circuit.
 
-        THE DIRECTION IS THE MESSAGE: it tells the user which way they went,
-        which is worth more than the animation.
+        The direction shows the user which way they went.
         """
         if self._index <= 0:
             return self._index
@@ -2362,7 +2357,7 @@ class SetupSlides(QDialog):
     def accept(self) -> None:
         """Close the slides and record that they have been seen.
 
-        RECORDED, so first-run guidance does not greet a returning user as a
+        Recorded, so first-run guidance does not greet a returning user as a
         new one. While an installer is running the user is asked first
         (:meth:`_may_close`): keeping it running leaves the screen open, and
         stopping it closes the screen as before.
@@ -2381,15 +2376,15 @@ class SetupSlides(QDialog):
         super().accept()
 
     def reject(self) -> None:
-        """Dismissed at any slide. STILL MARKED ANSWERED.
+        """Dismissed at any slide. Still marked answered.
 
         Every question has a working default, so a user who closes this has
         chosen them -- and reopening on every launch until it is filled in
         would make dismissing it impossible.
 
-        THE TERMS ARE THE EXCEPTION, and they are not marked. A dismissal is
-        a choice of defaults; it is not an acceptance of a licence, so
-        nothing is recorded and `open_setup_if_needed` asks again.
+        The terms are the exception, and they are not marked. A dismissal is a
+        choice of defaults; it is not an acceptance of a licence, so nothing is
+        recorded and `open_setup_if_needed` asks again.
 
         While an installer is running the user is asked first, as
         :meth:`accept` asks; keeping it running leaves the screen open.

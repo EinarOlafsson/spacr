@@ -1,20 +1,19 @@
-"""B9 — Control Charts: is the control still the control, plate after plate?
+"""Control Charts screen: chart one control value per plate to detect drift.
 
-A screening campaign is dozens of plates run over weeks, and the one assumption
-holding the whole analysis up is that the controls are the same thing every
-time. Hit calling, plate normalisation and Z' all measure against them, so when
-the controls drift, everything downstream is already wrong and nothing says so
-— the analysis normalises to whatever controls it is handed.
+A screening campaign is dozens of plates run over weeks, and the analysis
+assumes that the controls behave the same way every time. Hit calling, plate
+normalisation and Z' all measure against them, so when the controls drift,
+every downstream result shifts with them without any warning — the analysis
+normalises to whatever controls it is handed.
 
-This screen is the picture that says so. One control value per plate along run
-order, limits estimated from a stated baseline and applied forward, every
-Nelson rule that fires marked on the plate it fired on and named in words
-underneath.
+This screen plots one control value per plate along run order, with limits
+estimated from a stated baseline and applied forward, and every Nelson rule
+that fires marked on the plate it fired on and named in words underneath.
 
 Everything numeric comes from :mod:`spacr.qt.widgets.control_chart`, which has
-no Qt in it and carries the argument for every decision — most of all the one
-the module turns on, that sigma comes from the average moving range over d2 and
-never from the standard deviation of the series, because the SD is inflated by
+no Qt in it and documents the reasoning for every decision — most of all the
+central one, that sigma comes from the average moving range over d2 and never
+from the standard deviation of the series, because the SD is inflated by
 exactly the drift the chart exists to detect. This file draws that result and
 nothing else: no statistic is computed here, so the chart on screen and the
 chart in a report cannot disagree.
@@ -27,10 +26,10 @@ Assembles:
   it opens there;
 * :class:`spacr.qt.job_runner.JobRunner` — the read *and* the chart run off the
   GUI thread; a campaign table is object rows, and grouping a few hundred
-  thousand of them per redraw is a frozen window;
+  thousand of them per redraw on the GUI thread would freeze the window;
 * the owned-timer matplotlib canvas from
-  :mod:`spacr.qt.widgets.graph_builder`, imported rather than copied because
-  two copies of a segfault fix is one copy too many.
+  :mod:`spacr.qt.widgets.graph_builder`, imported rather than copied so its
+  segfault fix exists in one place.
 
 :func:`register` is not called at import; read its docstring.
 """
@@ -571,7 +570,7 @@ class ControlChartScreen(QWidget):
         self._order.setObjectName("ControlChartOrder")
         self._order.setToolTip(
             "The run order or date. Leave empty and the order is inferred "
-            "from the plate id — which every run-based rule then rests on.")
+            "from the plate id, and every run-based rule uses that order.")
         self._order.currentTextChanged.connect(self._on_control_changed)
         form.addRow("Run order", self._order)
 
@@ -973,9 +972,9 @@ class ControlChartScreen(QWidget):
     def spec(self) -> ControlChartSpec:
         """The spec the form describes.
 
-        :raises ControlChartError: for a form that cannot mean anything — the
-            same refusals the engine makes, at the same point, with the same
-            messages.
+        :raises ControlChartError: for an incomplete or inconsistent form —
+            the same refusals the engine makes, at the same point, with the
+            same messages.
         """
         rules = self._rules.currentData() or RULES_DEFAULT
         column = self._control_column.currentText() or None
@@ -1710,11 +1709,10 @@ def register() -> bool:
     The row itself -- the key, the name, the blurb, the section, the "no
     headless run" sentence, the API doc link and the nine translations of the
     display name -- is declared in :mod:`spacr.qt.app_catalog`.
-    :func:`spacr.qt.app.register_app` distributes those into the four tables
-    each used to need a hand-edit in, and this function's whole job is to name
-    which row. That is what lets the app be registered without importing this
-    module at all: the launch reads the table, and the screen is imported when
-    somebody opens it.
+    :func:`spacr.qt.app.register_app` distributes those into the four
+    registry tables, and this function only names the row. The app can
+    therefore be registered without importing this module: the launch reads
+    the table, and the screen is imported when somebody opens it.
 
     :returns: ``True`` if this call is what registered it. Safe to call again:
         a module imported twice, or a test that re-imports it, must not raise

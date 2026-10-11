@@ -5,20 +5,18 @@ pipeline that depends on them) before the first click on a module can be
 instant. Measured on a real windowed launch: ``spacr.core`` alone is 1968 ms
 and ``spacr.deep_spacr`` 711 ms.
 
-Those imports have to run on the MAIN thread -- doing them on a worker races
+Those imports have to run on the main thread -- doing them on a worker races
 Qt's own GPU initialisation and segfaults, which is recorded above
-:class:`spacr.qt.app._PipelinePreloader`. So the event loop *will* be blocked
-for seconds. The only question is whether the user is looking at a window
-that appears interactive while it happens.
+:class:`spacr.qt.app._PipelinePreloader`. The event loop is therefore blocked
+for seconds, and a window that looked interactive during that time would not
+respond.
 
-This is the answer: cover the whole window until the work is done. A freeze
-behind a screen that says LOADING is not a freeze, and the same three seconds
-stop being a defect.
+This screen covers the whole window until the imports are done, so the
+blocked event loop is not mistaken for a hung window.
 
-THE PROGRESS IS THE PRODUCT'S OWN SENTENCE. Rather than a bar, the three
-phases of :data:`STRAP_LINE` light up in turn as the modules land --
-microscopy, then single-cell analysis, then genotype-to-phenotype. It reads
-as the pipeline describing itself, and it is honest: the denominator is the
+Progress is shown by the strap line rather than a bar: the three phases of
+:data:`STRAP_LINE` light up in turn as the modules load -- microscopy, then
+single-cell analysis, then genotype-to-phenotype. The denominator is the
 number of modules, which is known before the first one is imported.
 """
 from __future__ import annotations

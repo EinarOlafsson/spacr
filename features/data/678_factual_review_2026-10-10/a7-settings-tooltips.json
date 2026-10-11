@@ -39,9 +39,9 @@
   },
   "spacr/settings.py#tooltips": {
    "paragraphs_read": 954,
-   "paragraphs_changed": 17,
+   "paragraphs_changed": 18,
    "entries_read": 954,
-   "entries_changed": 17,
+   "entries_changed": 18,
    "note": "941 tooltip literal entries (932 in tooltips={...}, 9 in tooltips.update({...}) hp_* block) + 13 descriptions; all 954 catalogued in en.py SETTING_TOOLTIPS"
   }
  },
@@ -535,6 +535,15 @@
    "after": "They are kept as accepted-but-mapped aliases rather than removed outright:",
    "kind": "formulaic",
    "evidence": "capitalised emphasis"
+  },
+  {
+   "file": "spacr/settings.py",
+   "symbol": "resnet_features",
+   "surface": "setting_tooltip",
+   "kind": "factual-error",
+   "before": "The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable.",
+   "after": "Not implemented: when it is True, generate_image_umap raises NotImplementedError before embedding.",
+   "evidence": "spacr/core.py:4934-4938 raises NotImplementedError; there is no unbound variable. Added 2026-10-11 after the batch-1 commit."
   }
  ],
  "left_as_is_notable": [

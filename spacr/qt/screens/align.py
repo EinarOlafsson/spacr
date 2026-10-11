@@ -1,13 +1,11 @@
-"""Align & Stitch — see the layout, spot what did not register, then write.
+"""Align & Stitch: plan a tile layout, flag unregistered tiles, then write.
 
-Stitching is one of the few operations where the failure is invisible in
-the output. A tile that did not register is placed at its nominal stage
-position; the result still looks like a mosaic, still has the right
-dimensions, and is still wrong by however far the stage was off. If the
-first time anyone finds out is when a downstream hit fails to reproduce,
-the tool has failed.
+A failed registration is not visible in the stitched output. A tile that did
+not register is placed at its nominal stage position; the result still looks
+like a mosaic and has the right dimensions, but is offset by however far the
+stage was off.
 
-So this screen puts the *plan* before the write:
+This screen therefore shows the *plan* before the write:
 
 * pick a folder of tiles, press **Plan** — nothing is written, no canvas
   is allocated, and only tile headers plus overlap strips are read;
@@ -15,7 +13,7 @@ So this screen puts the *plan* before the write:
   with anything that fell back to the stage position drawn in the warning
   colour and hatched. Those tiles are countable at a glance;
 * the estimated canvas size and the RAM the write would use are stated
-  *before* the button that writes 700 MB is enabled;
+  *before* the write button is enabled;
 * **Write stack** then composites incrementally, and optionally records
   the coordinates into ``measurements.db``.
 
@@ -71,9 +69,9 @@ def confidence_colour(confidence: float, method: str) -> QColor:
     """Colour for one tile in the layout view.
 
     A tile placed by stage position alone is drawn in the warning colour
-    whatever its (zero) confidence, because "we guessed" is a different
-    kind of fact from "we matched, weakly". Registered tiles ramp from the
-    muted surface at confidence 0.3 to full accent at 1.0, so a weak match
+    whatever its (zero) confidence, because a stage-position placement is a
+    different category from a weak registration. Registered tiles ramp from
+    the muted surface at confidence 0.3 to full accent at 1.0, so a weak match
     reads as pale rather than as a different category.
 
     :param confidence: registration confidence from 0 to 1; values outside
@@ -100,7 +98,7 @@ class TileLayoutWidget(QWidget):
     """The stitch layout: one rectangle per tile, coloured by confidence.
 
     Draws the *plan*, not the pixels — it never opens an image, so showing
-    the layout of a 700 MB stitch costs nothing. Hovering is not wired;
+    the layout reads no image data. Hovering is not wired;
     the per-tile detail lives in the report pane beside it, where it can
     be read and copied.
 
@@ -275,8 +273,8 @@ class AlignScreen(QWidget):
             "it incrementally, so a 20000x20000 mosaic never has to fit in "
             "RAM. Offsets are solved globally rather than accumulated, and "
             "any tile that failed to register is drawn in orange and "
-            "recorded as such — a stitch that quietly fell back to stage "
-            "positions is the failure mode this screen exists to expose.")
+            "recorded as such, so tiles placed at their stage positions are "
+            "visible before the stack is written.")
         subtitle.setObjectName("Muted")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
@@ -356,7 +354,7 @@ class AlignScreen(QWidget):
         self._conf_box.setDecimals(2)
         self._conf_box.setValue(align_mod.DEFAULT_MIN_CONFIDENCE)
         self._conf_box.setToolTip(
-            "(float) Cross-correlation below which a pair is not believed "
+            "(float) Cross-correlation below which a pair is rejected "
             "and the tile keeps its stage position.")
         qual_row.addWidget(self._conf_box)
 
@@ -385,8 +383,8 @@ class AlignScreen(QWidget):
         self._budget_box.setRange(1, 8192)
         self._budget_box.setValue(align_mod.DEFAULT_MAX_BUFFER_BYTES >> 20)
         self._budget_box.setToolTip(
-            "(int) Ceiling on the band buffer the write allocates. This, "
-            "not the canvas, is what the stitch costs in RAM.")
+            "(int) Ceiling on the band buffer the write allocates. This "
+            "buffer, not the canvas size, sets the RAM the stitch uses.")
         qual_row.addWidget(self._budget_box)
         qual_row.addStretch(1)
 

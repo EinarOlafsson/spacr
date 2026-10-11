@@ -1,4 +1,5 @@
-"""Dose–Response — a concentration series, a 4PL curve, and an honest EC50.
+"""Dose–Response — a concentration series, a 4PL curve, and an EC50 with its
+confidence interval.
 
 The statistics are all in :mod:`spacr.qt.widgets.dose_response` and there is
 none in here. This module is the surface: pick the concentration column, the
@@ -6,33 +7,29 @@ response column and (optionally) a grouping column, and get one curve per
 gene or compound with its EC50 and confidence interval, drawn on the log axis
 a dilution series is read on.
 
-Three decisions shape the screen, and all three follow from the engine's
-central claim — that the useful answer is sometimes *"this experiment does not
-locate the EC50"*, and a screen that cannot render that sentence would undo
-the module underneath it.
+Three decisions shape the screen. All three follow from the engine reporting,
+when it applies, that an experiment does not locate the EC50.
 
 **Refusals and one-sided bounds are rows, not silence.** A plate where three
 compounds fit and the fourth is cytotoxic at the top dose has four rows. The
 cytotoxic one says ``refused`` and carries the engine's message; a compound
-whose midpoint sits past the highest dose says ``unbounded`` and carries
-``EC50 > 30 µM``, with an empty EC50 cell. Dropping either from the table
-would turn "we checked and the answer is no" into "no data", which is the one
-reading the numbers cannot survive.
+whose midpoint sits past the highest dose says ``unbounded`` and carries ``EC50
+> 30 µM``, with an empty EC50 cell. Neither is dropped from the table, so a
+refused or unbounded fit is not shown as missing data.
 
 **Every number on this screen comes out of the engine.** The table is
 :meth:`~spacr.qt.widgets.dose_response.DoseResponseSet.table`, the text is
 :meth:`~spacr.qt.widgets.dose_response.DoseResponseResult.report`, and the
 plotted line is
 :meth:`~spacr.qt.widgets.dose_response.DoseResponseResult.curve`. Nothing is
-recomputed here, so the figure, the exported CSV and the sentence a user
-pastes into a methods section cannot drift apart.
+recomputed here, so the figure, the exported CSV and the report text use the
+same values.
 
-**The Curve picker offers the asymmetric model and does not choose it.**
-Four-parameter is what Fit uses until someone says otherwise, and a
-five-parameter fit says in its own report whether the fifth parameter earned
-itself. A screen that picked the better-fitting model per group would hand
-back a plate whose EC50s came from two different models, compared as though
-they had not.
+**The Curve picker offers the asymmetric model and does not choose it.** Fit
+uses the four-parameter model unless the five-parameter one is chosen, and a
+five-parameter fit reports an F test of the added parameter (``asymmetry_p``).
+Picking the better-fitting model per group would give one plate EC50s from two
+different models.
 
 **The fit runs off the GUI thread** through
 :class:`spacr.qt.job_runner.JobRunner`, like every other read and compute in
@@ -452,7 +449,7 @@ class DoseResponseScreen(QWidget):
         self.unit_edit.setPlaceholderText("µM")
         self.unit_edit.setMaximumWidth(70)
         self.unit_edit.setToolTip(
-            "Cosmetic only — it never enters the arithmetic")
+            "Display label only — it is not used in the calculation")
         controls.addWidget(self.unit_edit)
 
         controls.addWidget(QLabel("Interval", self))
@@ -477,8 +474,8 @@ class DoseResponseScreen(QWidget):
         self.model_picker.setToolTip(
             "A 4PL is symmetric about its midpoint. Real asymmetry exists, "
             "and a 4PL absorbs it into a displaced EC50; the 5PL fits it with "
-            "one more parameter, needs one more concentration, and says "
-            "whether that parameter earned itself.")
+            "one more parameter, needs one more concentration, and reports "
+            "an F test of whether that parameter improves the fit.")
         controls.addWidget(self.model_picker)
 
         self.force_check = Toggle("Fit non-monotone data", self)
@@ -603,9 +600,8 @@ class DoseResponseScreen(QWidget):
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Offer ``frame``'s columns and wait to be told which ones to fit.
 
-        The one call a host needs. It deliberately does **not** fit: which
-        column is the dose is not guessable from a measurement table, and a
-        curve through the wrong pair of columns is worse than an empty axis.
+        The one call a host needs. It does **not** fit, because the dose column
+        cannot be inferred from a measurement table.
 
         :param frame: the measurement table; its columns fill the
             concentration, response, group, plate, control, host and
@@ -1201,26 +1197,22 @@ def register() -> bool:
     headless run" sentence, the API doc link and the nine translations of the
     display name -- is declared in :mod:`spacr.qt.app_catalog`.
     :func:`spacr.qt.app.register_app` distributes those into the four tables
-    each used to need a hand-edit in, and this function's whole job is to name
-    which row. That is what lets the app be registered without importing this
-    module at all: the launch reads the table, and the screen is imported when
-    somebody opens it.
+    each used to need a hand-edit in, and this function only names the row.
+    That is what lets the app be registered without importing this module at
+    all: the launch reads the table, and the screen is imported when somebody
+    opens it.
 
-    ``SECTION_DESIGN``, which is not the obvious answer and is the right one.
-    Design is "everything that happens before the microscope: power, sample
-    size, plate layout, controls and replicates", and it already holds Power /
-    Design. A dose–response series is the *other* pre-experiment calculation a
-    screening lab runs: nobody fits an EC50 to admire it, they fit it to pick
-    the concentration the actual screen will use, exactly as they run a power
-    calculation to pick n. The output of this screen is an input to the next
-    experiment, which is what the section means.
+    The section is ``SECTION_DESIGN``: "everything that happens before the
+    microscope: power, sample size, plate layout, controls and replicates",
+    which already holds Power / Design. A dose–response series is usually
+    fitted to choose the concentration for the main screen, as a power
+    calculation is run to choose n, so its output is an input to the next
+    experiment.
 
-    The alternative reading — Explore, "ask the numbers a question you did not
-    plan for" — is the weaker one *because* a concentration series is planned:
-    the doses were chosen in advance and the curve is the thing the experiment
-    was for. The cap made the choice concrete: ``MAX_APPS_PER_SECTION`` is 13,
-    Explore stood at 12 before this batch, and Outliers — which really is an
-    open question asked of a finished table — is the one that belongs there.
+    Explore, "ask the numbers a question you did not plan for", does not fit,
+    because a concentration series is planned in advance.
+    ``MAX_APPS_PER_SECTION`` is 13 and Explore held 12 before this batch;
+    Outliers, which examines a finished table, was placed there.
 
     :returns: ``True`` if this call is what registered it.
     """

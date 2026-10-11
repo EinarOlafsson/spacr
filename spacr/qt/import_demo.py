@@ -1,4 +1,4 @@
-"""Import's "Load test data…": every vendor format and naming, one press away.
+"""Load Import test data: one example per vendor format and file naming.
 
 A press of "Test Zeiss CZI import" downloads Zeiss CZI files named by ZEN's
 split-tiles convention, fills the Import screen with their paths on disk and
@@ -6,11 +6,11 @@ previews them, so the user can import them and see each file land on the
 well, field and channel it came from. Every other format and filename
 convention in :data:`spacr.import_examples.IMPORT_VARIANTS` works the same way.
 
-WHAT THE BUTTON DOES. It opens :class:`ImportTestDataChooser`, one button
+The "Load test data…" button opens :class:`ImportTestDataChooser`, one button
 per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described
 on hover. The chosen one is fetched -- the whole set is one archive, so the
-first press downloads every variant and every later press opens from the
-cache -- and then:
+first press downloads every variant and every later press opens from the cache
+-- and then:
 
 * an ``import`` variant fills the Import screen itself: the image folder,
   the three mask folders, the measurement table, the naming convention and,
@@ -20,9 +20,9 @@ cache -- and then:
 * a ``convert`` variant -- the public ND2 and LIF samples, which have no
   masks -- opens the Format Converter page and fills and previews that.
 
-SAME MACHINERY AS EVERY OTHER EXAMPLE SET: :class:`_TarExampleWorker`
-streams the archive on a worker thread behind the shared progress dialog and
-unpacks it through the tar data filter.
+The download uses the same code as the other example sets:
+:class:`_TarExampleWorker` streams the archive on a worker thread behind the
+shared progress dialog and unpacks it through the tar data filter.
 """
 from __future__ import annotations
 

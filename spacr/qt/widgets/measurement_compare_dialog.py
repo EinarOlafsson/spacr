@@ -124,10 +124,9 @@ class MeasurementComparePanel(QWidget):
                  results: Optional[Any] = None):
         """Build the comparison panel: the pickers, the plot and the statistics.
 
-        IT OPENS ON THE TOP HITS. Decision 2026-09-25: "the
-        regression Compare panel opens with the TOP HITS pre-selected (top
-        significant guides/genes and the wells that carry them; user can
-        change it)". The regression's results table gives the hits
+        The panel opens with the top hits selected: the top significant
+        guides or genes and the wells that carry them, which the user can
+        change. The regression's results table gives the hits
         (:func:`spacr.well_scope._top_hits`); without one, the guides of the
         montage's own groups are the selection. The population box then
         starts on "gRNAs + other datapoints in selected wells", the derived
@@ -137,9 +136,8 @@ class MeasurementComparePanel(QWidget):
 
         The join runs off the GUI thread. It reads every object table out of
         every attached database and joins them onto the crop rows -- measured at
-        3.2 s for one plate's 553 objects, so a four-plate screen of 60,000 is
-        minutes with the window frozen solid, which is what "pressing join the
-        measurements table makes spaCR unresponsive" was.
+        3.2 s for one plate's 553 objects, so a four-plate screen of 60,000
+        would block the window for minutes.
 
         The well selection is held as ``None`` for "all of them" rather than as
         the full list: a well that appears after a re-run should be included,
@@ -225,7 +223,7 @@ class MeasurementComparePanel(QWidget):
             self.spread.addItem(label, value)
         self.spread.setCurrentIndex(max(0, self.spread.findData(SPREAD_SEM)))
         self.spread.setToolTip(
-            "What the bar's whisker MEANS. SD describes the spread of the "
+            "What the bar's whisker means. SD describes the spread of the "
             "observations themselves; SEM describes how well their mean is "
             "pinned down and is SD over the square root of n -- at n=3000 "
             "the two differ fifty-five-fold; the variance is SD squared, so "
@@ -348,8 +346,7 @@ class MeasurementComparePanel(QWidget):
             "It joins by plateID, rowID, columnID, fieldID and objectID when "
             "they are all there; when one is missing it falls back to "
             "splitting the crop path, then to translating the well into a "
-            "row and a column. Which route was used is reported — a join "
-            "that silently degraded is one nobody can check.")
+            "row and a column. Which route was used is reported.")
         extras.addWidget(self.join_dependent)
         extras.addStretch(1)
         layout.addLayout(extras)
@@ -1096,7 +1093,7 @@ class MeasurementComparePanel(QWidget):
 
 
 class MeasurementCompareDialog(QDialog):
-    """The panel above, in a window. Kept so the button still opens one.
+    """A window holding one :class:`MeasurementComparePanel`.
 
     Every parameter is handed straight to
     :class:`MeasurementComparePanel`, which documents what each one means.

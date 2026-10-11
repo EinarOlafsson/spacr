@@ -1,9 +1,9 @@
 """Interactive Image UMAP viewer with click, lasso, and DB annotation.
 
-The lasso is also the cheapest way spaCR has of asking "and where are those
-cells on the plate?", so the explorer joins the shared selection through
-:class:`spacr.qt.linked_selection.LinkedView`: a lasso publishes the objects
-it caught, and a selection made anywhere else lights up the same points here.
+The lasso also shows where the selected cells are on the plate: the explorer
+joins the shared selection through
+:class:`spacr.qt.linked_selection.LinkedView`: a lasso publishes the objects it
+caught, and a selection made anywhere else lights up the same points here.
 
 The two directions are deliberately asymmetric, because a filter and a
 selection are not the same thing:
@@ -13,10 +13,9 @@ selection are not the same thing:
   local lasso — "Label lasso selection" keeps meaning *the lasso drawn here*,
   or a highlight arriving from the database browser could write annotations
   the user never drew.
-* an incoming **filter** DIMS the points it excludes. Removing them would
-  redraw the embedding around the survivors, and a UMAP whose axes move when
-  you tick a checkbox is unreadable — the whole value of the projection is
-  that a point stays where it was.
+* an incoming **filter** dims the points it excludes. Removing them would
+  redraw the embedding around the remaining points, so the axes would move each
+  time a filter changed.
 """
 from __future__ import annotations
 
@@ -170,13 +169,10 @@ class UmapDisplaySettings(QDialog):
     """One window holding every Image UMAP display setting.
 
     Some apply to the figure on screen and some cannot, and the window says
-    which rather than leaving the user to discover it. Asked for exactly
-    that way: "the other settings can also be in the same settings window
-    even though they cannot be live applied."
+    which.
 
-    The ones that cannot are not disabled -- they are editable, saved, and
-    take effect on the next run. A greyed control that holds a value the
-    user wants to change is worse than a live one with a note beside it.
+    The ones that cannot are not disabled -- they are editable, saved, and take
+    effect on the next run.
 
     :param values: the settings to open on. Every key in :data:`FIELDS` is
         looked up here; one that is absent falls back to its control's own
@@ -272,7 +268,8 @@ class UmapDisplaySettings(QDialog):
         return out
 
     def live_values(self) -> Dict:
-        """Only the half that can reach the figure already on screen."""
+        """Only the values that can be applied to the figure already on
+        screen."""
         live = {key for key, _l, _k, _lo, _hi, is_live in self.FIELDS
                 if is_live}
         return {k: v for k, v in self.values().items() if k in live}
@@ -451,7 +448,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
                 self._spacr_draw_timer.timeout.connect(self._spacr_draw)
 
             def draw_idle(self):
-                """Queue a redraw on the canvas's OWN timer."""
+                """Queue a redraw on the canvas's own timer."""
                 self._draw_pending = True
                 if not self._spacr_draw_timer.isActive():
                     self._spacr_draw_timer.start(0)
@@ -459,8 +456,8 @@ class ImageUmapExplorer(LinkedView, QWidget):
             def _spacr_draw(self):
                 """Draw once, if a draw is still pending.
 
-                The pending flag is cleared FIRST, so a draw that itself schedules
-                another does not lose it.
+                The pending flag is cleared first, so a draw that itself
+                schedules another does not lose it.
                 """
                 if not self._draw_pending:
                     return
@@ -639,7 +636,8 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._propagate_cb = callback
 
     def open_display_settings(self) -> None:
-        """Open the one window, apply what can apply, propagate all of it."""
+        """Open the display settings window, apply the live settings, and
+        propagate all of them."""
         values = dict(self._display)
         getter = getattr(self, "_settings_getter", None)
         if callable(getter):
@@ -676,11 +674,9 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
             mapping changes nothing.
         :returns: True when something changed and the canvas was redrawn.
 
-        The EMBEDDING is never touched. Only the keys in
-        :data:`LIVE_DISPLAY_KEYS` are honoured; anything else is stored for
-        the next run and reported by the caller, because silently ignoring
-        a setting the user just changed is worse than saying it needs a
-        re-run.
+        The embedding is never changed. Only the keys in
+        :data:`LIVE_DISPLAY_KEYS` are applied; anything else is stored for the
+        next run and reported by the caller as needing a re-run.
         """
         changed = False
         for key, value in (values or {}).items():
@@ -976,7 +972,7 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         return self._linked_points.copy()
 
     def on_linked_selection_changed(self, selection: Selection) -> None:
-        """Ring the points somebody else selected. Nothing is hidden, and the
+        """Ring the points another view selected. Nothing is hidden, and the
         local lasso — which is what the annotation buttons write — is left
         exactly as the user drew it.
 

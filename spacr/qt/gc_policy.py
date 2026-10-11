@@ -1,7 +1,7 @@
 """Collect cyclic garbage on the GUI thread only.
 
-WHY THIS EXISTS, MEASURED. Pressing Run in the live preview with ``cpsam``
-produced, on 2026-09-01::
+Background: pressing Run in the live preview with ``cpsam`` produced, on
+2026-09-01::
 
     QObject::killTimer: Timers cannot be stopped from another thread
     QObject::~QObject: Timers cannot be stopped from another thread
@@ -14,19 +14,17 @@ CYCLE so only the collector can free it, then call ``gc.collect()`` from a
 worker thread. The collector runs the destructor **on whichever thread it
 happens to be running on**, and Qt cannot stop a timer from there.
 
-That is the whole bug, and nothing about it is specific to the preview. CPython
-runs an automatic collection whenever an allocation pushes a generation past
-its threshold -- so the thread that pays for a collection is simply the thread
-that allocated most recently. A Cellpose pass allocates enormously in a worker
-thread, which makes that worker overwhelmingly likely to be the one that
-inherits the sweep, and therefore the one that destroys some unrelated widget
-the GUI thread abandoned earlier. The crash lands nowhere near the code that
-caused it, is timing-dependent, and names no file: it is the shape of defect
-that survives a long time.
+The defect is not specific to the preview. CPython runs an automatic
+collection whenever an allocation pushes a generation past its threshold, so
+the collection runs on the thread that allocated most recently. A Cellpose
+pass allocates heavily in a worker thread, so that worker is the likely
+thread to run the collection and therefore to destroy unrelated widgets the
+GUI thread released earlier. The resulting crash is timing-dependent, occurs
+away from the code that created the cycle, and names no file.
 
-WHAT THIS DOES. Automatic collection is switched off and driven from a QTimer
-instead. That timer lives on the GUI thread, so every destructor the collector
-runs is run there -- which is the thread that owns the widgets.
+Automatic collection is switched off and driven from a QTimer instead. That
+timer lives on the GUI thread, so every destructor the collector runs is run
+there -- which is the thread that owns the widgets.
 
 Explicit pipeline cleanup uses :func:`spacr._gc.collect`, which requests a
 full sweep on the next GUI timer tick. ``gc.disable()`` stops only automatic
@@ -34,9 +32,10 @@ collection, so third-party code calling the standard-library ``gc.collect``
 directly can still collect on a worker. :func:`spacr.qt.thread_guard` reports
 wrong-thread widget destruction if it recurs.
 
-Memory is NOT left to grow: the tick below reproduces CPython's own
-generational policy against the same thresholds, so collection happens at the
-same frequency it otherwise would, on a different thread.
+Memory is still collected: each tick applies CPython's own generational
+policy against the same thresholds, so collections happen about as often as
+they otherwise would, checked every ``INTERVAL_MS`` milliseconds on the
+GUI thread.
 """
 
 from __future__ import annotations
@@ -103,8 +102,8 @@ def install(parent=None) -> bool:
 
     :param parent: a QObject to own the timer, normally the QApplication.
     :returns: whether the policy was installed. ``False`` when it already was,
-        or when Qt is unavailable -- never raises, because failing to install a
-        mitigation must not be worse than the defect it mitigates.
+        or when Qt is unavailable. Never raises; when installation fails the
+        interpreter's own collection policy stays in place.
     """
     global _timer, _saved_thresholds, _was_enabled
     if _timer is not None:

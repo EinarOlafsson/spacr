@@ -11,21 +11,21 @@ The column well is
 :data:`~spacr.qt.widgets.graph_builder.COLUMN_MIME` — the same list, the same
 classification of what is worth offering, and the same payload type, so a
 column dragged in the Graph Builder and a column dragged here are the same
-gesture. The drop targets are different, and that is the only reason there is a
-widget in here at all: a Graph Builder zone holds exactly one column, and a
-pivot axis holds a *nest* of them, outermost first.
+gesture. Only the drop targets differ, which is why this module has its own
+widget: a Graph Builder zone holds exactly one column, and a pivot axis holds a
+*nest* of them, outermost first.
 
-What the grid shows, and what it refuses to
--------------------------------------------
+What the grid shows
+-------------------
 **Every cell prints its n**, under the statistics, whether or not ``n`` was
-ticked. An aggregate over 4 objects and one over 4 000 are three digits either
-way, and the only thing that tells them apart is the number this panel refuses
-to hide. Cells at or below :data:`~spacr.qt.widgets.pivot_spec.LOW_N` are drawn
-muted, so a table can be scanned for "which of these am I allowed to believe".
+ticked. An aggregate over 4 objects and one over 4 000 look alike, and only the
+count tells them apart. Cells at or below
+:data:`~spacr.qt.widgets.pivot_spec.LOW_N` are drawn muted, so a table can be
+scanned for cells that rest on few objects.
 
 **An empty cell is blank, not zero.** The rule and its reasoning are in
-:mod:`spacr.qt.widgets.pivot_spec`; the panel's part is not to paper over it
-with a ``0`` because a ``QTableWidgetItem`` would rather have a number.
+:mod:`spacr.qt.widgets.pivot_spec`; the panel leaves such a cell blank instead
+of writing ``0`` into it.
 
 Plotting the result
 -------------------
@@ -101,15 +101,14 @@ class DropWell(QWidget):
 
     A list rather than a single-slot zone, because a pivot axis is a *nest*:
     ``plateID`` then ``rowID`` then ``columnID`` is three keys on one axis and
-    the order is the hierarchy. Drop order is that order, which is the only
-    rule that needs no explanation at the moment a user drags something.
+    the order is the hierarchy. Drop order is that order.
 
     Removing is Delete, Backspace or a double-click. There is no drag-out: a
     column dragged from here to another well would have to decide whether it
     was a move or a copy, and getting that wrong silently loses an axis.
 
     :param axis: which pivot axis this well holds. Must be a key of
-        :data:`AXIS_LABELS`; anything else RAISES here rather than drawing a
+        :data:`AXIS_LABELS`; anything else raises here rather than drawing a
         well nothing can be dropped into.
     :param parent: parent widget.
     """
@@ -162,9 +161,10 @@ class DropWell(QWidget):
                      for i in range(self._list.count()))
 
     def set_columns(self, columns) -> None:
-        """Replace the contents. Silent when nothing changes — the panel
-        recomputes on every emission and a redundant pass over a million rows
-        is a visible pause for no visible difference.
+        """Replace the contents; no signal is emitted when nothing changes.
+
+        The panel recomputes on every emission, and a redundant pass over a
+        million rows causes a visible pause.
 
         :param columns: the column names to hold, in order; empty names are
             dropped and the rest converted to strings.
@@ -325,7 +325,7 @@ class PivotTable(QTableWidget):
 
     @property
     def truncated_cells(self) -> int:
-        """Cells the grid refused to build. Non-zero means export, not scroll."""
+        """Cells the grid did not build; non-zero means export to see them."""
         return self._truncated
 
     def cell_text(self, row: int, col: int) -> str:

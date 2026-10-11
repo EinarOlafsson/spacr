@@ -3,22 +3,22 @@
 The strip replaces the popup tooltip on the module tiles, and carries an API
 link and a tutorial link beside the description.
 
-THE HOLD IS THE WHOLE POINT, and it is the same argument that shaped the
-per-setting strip: a link that appears only while the pointer is on the tile
-is a link that cannot be clicked, because moving toward it removes it. So the
-strip keeps the LAST module hovered for thirty seconds -- long enough to
-notice it, cross the window and press a word.
+The strip holds its text, for the same reason as the per-setting strip: a link
+that appears only while the pointer is on the tile is a link that cannot be
+clicked, because moving toward it removes it. So the strip keeps the last
+module hovered for thirty seconds -- long enough to notice it, cross the window
+and press a word.
 
 Thirty seconds rather than the per-setting strip's ten, because these two
 links leave the application. Ten seconds is a budget for reaching a word; a
 reader deciding whether to open documentation or a lesson in a browser is
 making a larger decision.
 
-TWO SURFACES, ONE BAR. Home's tiles and the dock's rows both write here, and
-so does a module screen's own strip when the dock is hovered over it -- see
-:meth:`spacr.qt.app.MainWindow._show_module_hint`, which routes to whichever
-bar is on screen. A module explained differently depending on where you
-pointed at it would be two explanations to maintain.
+Two surfaces write to one bar. Home's tiles and the dock's rows both write
+here, and so does a module screen's own strip when the dock is hovered over it
+-- see :meth:`spacr.qt.app.MainWindow._show_module_hint`, which routes to
+whichever bar is on screen. So a module has one explanation wherever it is
+pointed at.
 """
 from __future__ import annotations
 
@@ -60,14 +60,13 @@ class ModuleHintBar(QLabel):
                  parent: Optional[QWidget] = None) -> None:
         """Build the module help strip under the dock.
 
-        The height is fixed, and that is load-bearing rather than tidy: a strip
-        that grows when a long summary wraps relayouts the page under the
-        pointer, and the dock is in that layout -- which is the row moving out
-        from under the pointer and back, delivering an Enter and a Leave each
-        time and leaving a dock row stuck highlighted. Two lines, measured from
-        the font rather than pinned at a number, because a hard number is a
-        promise about text metrics that breaks the moment the scale or the
-        theme's font stack changes.
+        The height is fixed: a strip that grows when a long summary wraps
+        relayouts the page under the pointer, and the dock is in that layout --
+        which is the row moving out from under the pointer and back, delivering
+        an Enter and a Leave each time and leaving a dock row stuck
+        highlighted. Two lines, measured from the font rather than pinned at a
+        number, because a fixed pixel number would be wrong when the scale or
+        the theme's font stack changes.
 
         :param default: what to show with nothing hovered.
         :param parent: parent widget, or ``None``.
@@ -88,22 +87,20 @@ class ModuleHintBar(QLabel):
 
 
     def event(self, event):                     # noqa: N802 - Qt naming
-        """Swallow tooltip requests. THIS BAR IS THE TOOLTIP.
+        """Consume tooltip requests; this bar replaces the tooltip.
 
-        A popup appearing over this bar is a bug, and not one this bar
-        causes: nothing here asks for one -- the bar sets no tooltip
-        on itself or on anything in it. Qt PROPAGATES an unhandled
-        ``QEvent.ToolTip`` up the parent chain, and
-        :func:`spacr.qt.module_hints.install_module_hints` filters the whole
-        application, so the request walked up from this label to an ancestor
-        carrying ``moduleAppKey`` and that ancestor's popup appeared over the
-        strip that exists to replace popups.
+        A popup appearing over this bar is a bug, and not one this bar causes:
+        nothing here asks for one -- the bar sets no tooltip on itself or on
+        anything in it. Qt propagates an unhandled ``QEvent.ToolTip`` up the
+        parent chain, and :func:`spacr.qt.module_hints.install_module_hints`
+        filters the whole application, so the request walked up from this label
+        to an ancestor carrying ``moduleAppKey`` and that ancestor's popup
+        appeared over the strip that exists to replace popups.
 
-        Accepting the event here stops the walk at the bar. The strip keeps
-        its own behaviour -- it is still written by every hover elsewhere,
-        and its API and tutorial links still work -- but hovering the strip
-        itself now shows nothing, which is what it already looked like it
-        promised.
+        Accepting the event here stops the walk at the bar. The strip keeps its
+        own behaviour -- it is still written by every hover elsewhere, and its
+        API and tutorial links still work -- but hovering the strip itself
+        shows no popup.
 
         :param event: any event sent to the bar; a ``QEvent.ToolTip`` is
             accepted and consumed, everything else goes to the base class.
@@ -123,9 +120,9 @@ class ModuleHintBar(QLabel):
 
         :param key: the module's app key. Both links are derived from it.
         :param summary: the sentence to show, already in the UI language.
-        :param stage: an optional maturity word appended to the summary.
-            It rides here because a tile's hover HUE cannot carry it alone
-            -- colour by itself fails WCAG 1.4.1, and a colour-blind sighted
+        :param stage: an optional maturity word appended to the summary. It
+            rides here because a tile's hover hue cannot carry it alone --
+            colour by itself fails WCAG 1.4.1, and a colour-blind sighted
             reader reads neither the hue nor the accessibility tree.
         :returns: the rich text written, so a test can read it back.
         """

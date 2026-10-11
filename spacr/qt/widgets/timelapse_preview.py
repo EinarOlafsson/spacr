@@ -745,7 +745,7 @@ def relabel_by_track(masks: np.ndarray, tracks) -> np.ndarray:
 
 @dataclass
 class TrackStats:
-    """What the user is actually tuning against.
+    """Track-quality indicators the preview reports for tuning the tracker.
 
     ``fragmentation_*`` and ``suspicious_jumps`` are *indicators* computed
     without ground truth, not measurements — the panel labels them as such.
@@ -1089,7 +1089,7 @@ def build_movie_field(
 
 
 def movie_field_payload(**kwargs) -> Dict[str, Any]:
-    """Never let one bad sibling strand the remaining movie-field queue."""
+    """Build one movie field, returning a cancellation or error payload instead of raising."""
     try:
         return build_movie_field(**kwargs)
     except MovieFieldCancelled:
@@ -1735,7 +1735,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     """Interactive tracking preview — Timelapse module.
 
     Same contract as :class:`~spacr.qt.widgets.live_preview.LivePreviewPanel`,
-    and now literally the same code for the shared half: a standalone
+    and the same code for the shared half: a standalone
     ``QWidget``, a ``QThread`` worker that emits results over signals,
     :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract` for the
     run/cancel/status protocol, :meth:`set_propagate_callback` to push tuned
@@ -1870,7 +1870,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._model_box.addItems(list(_model_menu()))
         self._model_box.setToolTip(
             "(str) Cellpose model used to segment every frame. Changing this "
-            "re-segments — it is the expensive half of the preview.")
+            "re-segments every frame, the slower part of the preview.")
         self._object_box = QComboBox(self)
         self._object_box.addItems(["cell", "nucleus", "pathogen"])
         self._object_box.setToolTip(
@@ -2435,16 +2435,14 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     def load_masks_async(self, path) -> bool:
         """Open ``path`` as a mask sequence on a worker, then install it here.
 
-        THE GUI ENTRY POINT, and the reason it exists is that
-        :meth:`load_masks` opens the sequence inline.
-        ``FrameSequence.open`` on a folder of label images is a stat, a
-        listing and one ``is_file()`` per entry -- hundreds of round trips
-        for a plate -- and the folder comes from the user, which on one such
-        workstation means it can be a sleeping ``/nas_mnt`` share
-        where a single stat had not returned after twenty seconds (measured;
-        see :mod:`spacr.qt.path_probe`). Run from
-        :meth:`_pick_masks` that froze the whole window the moment the file
-        dialog closed.
+        This is the GUI entry point; :meth:`load_masks` opens the sequence
+        inline. ``FrameSequence.open`` on a folder of label images is a stat,
+        a listing and one ``is_file()`` per entry -- hundreds of round trips
+        for a plate -- and the folder comes from the user, so it can be a
+        sleeping ``/nas_mnt`` share where a single stat was measured not to
+        return within twenty seconds (see :mod:`spacr.qt.path_probe`). On the
+        GUI thread that would freeze the window after the file dialog
+        closes.
 
         The same worker function as the image sequence, so the mask
         sequence's first frame is warmed off the GUI thread too.

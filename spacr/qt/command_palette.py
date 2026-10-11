@@ -20,8 +20,8 @@ Commands are:
 * an "Open Preferences…" shortcut
 * an "Open Providers…" shortcut
 
-Fuzzy match is a plain substring case-insensitive scan — good
-enough for the ~30 commands the palette will ever hold.
+Matching is a case-insensitive substring search over each command's
+label and keywords; there is no fuzzy or ranked matching.
 """
 from __future__ import annotations
 

@@ -358,9 +358,9 @@ class ChatProvider(CommandLineTool, ABC):
     def cancel_stream(self) -> None:
         """Kill the running subprocess (if any).
 
-        This is the ONLY reliable way to unblock a stream that's stuck
-        waiting on stdout — flipping a Python flag would only unblock
-        between chunks, which may never come."""
+        Terminating the process is what unblocks a stream that is waiting
+        on stdout; a Python flag is only checked between chunks, and the
+        next chunk may never arrive."""
         proc = self._current_proc
         if proc is None:
             return

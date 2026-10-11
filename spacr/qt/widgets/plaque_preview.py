@@ -1,7 +1,7 @@
 """Plaque Assay's live preview, in its two modes, and the switch between them.
 
-Plaque Assay reads two kinds of folder, and the Mask preview it
-used to borrow fitted neither:
+Plaque Assay reads two kinds of folder, and the generic Mask preview fits
+neither:
 
 * **Plaque mode** -- a folder of cropped plaque images. The run segments
   every image and writes one table of per-image values and one of
@@ -428,7 +428,7 @@ RANDOM_COLOUR = "random"
 MAX_OUTLINE_THICKNESS = 20
 MAX_BOX_THICKNESS = 20
 AUTOMATIC_BOX_THICKNESS = 0
-"""The box weight that means: pick one from the figure's size."""
+"""Box weight value meaning: choose the weight from the figure's size."""
 
 IMAGE_TABS = VIEWS
 """The views of the plaque picture, the ones Mask generation's live preview
@@ -474,7 +474,7 @@ class OverlayStyle:
     """How the segmented plaques and the detected wells are drawn.
 
     Changing it redraws what is already segmented; nothing is run again.
-    Every width is in IMAGE pixels: the outlines are grown on the image
+    Every width is in image pixels: the outlines are grown on the image
     array and the boxes are painted into the pixmap before it is shown, so
     a line keeps its share of the picture as the view is zoomed and in a
     saved picture, the way the outlines always did.
@@ -2807,7 +2807,7 @@ class ContributeDialog(QDialog):
                  upload: Optional[Callable[[Path, str], str]] = None,
                  threaded: bool = True, parent: Optional[QWidget] = None,
                  target: Optional[str] = None):
-        """Build the list, the editor area, the conscience and Upload.
+        """Build the list, the editor area, the contribution notice and Upload.
 
         :param mode: see the class docstring.
         :param paths: see the class docstring.
@@ -4576,8 +4576,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def open_overlay_settings(self) -> PlaqueOverlayDialog:
         """Open (or raise) the overlay settings, applied live.
 
-        Non-modal, because what it answers is how the picture beside it
-        looks.
+        Non-modal, so the picture beside it stays visible while the style
+        changes.
 
         :returns: the dialog, shown.
         """

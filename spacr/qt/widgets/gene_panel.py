@@ -1,8 +1,8 @@
-"""Click a gene, see everything spaCR knows about it -- in one panel.
+"""One panel for a clicked gene: its result record and its bundled annotation.
 
-Two modules already hold the two halves of the answer and
-neither of them is a widget, which is deliberate: the parts that can be WRONG
-are testable without a window.
+Two modules hold the two halves of the panel's content and neither of them is
+a widget, so the parts that compute something are testable without a
+window.
 
     :mod:`spacr.gene_tile`    WHICH gene this dot is -- guide to gene, the
                               ambiguous protospacers, and THIS SCREEN's own
@@ -15,23 +15,22 @@ are testable without a window.
                               :mod:`spacr.annotation`.
 
 This module puts them one above the other and does nothing else with the
-numbers. THE PANEL IS NOT A SECOND SOURCE OF TRUTH: the coefficient, the
-p-value, the q-value and the guide agreement are whatever the table on screen
-says they are, because two places computing one number is how they start
-disagreeing.
+numbers. The panel computes none of them: the coefficient, the p-value, the
+q-value and the guide agreement are read from the table on screen, so the two
+cannot disagree.
 
-THE GUI THREAD DOES NOT READ FILES
+The GUI thread does not read files
 ----------------------------------
 
 Cold, the first click costs 360 ms of CSV reading -- five bundled annotation
 tables, DeepTMHMM's 8,140 rows, and the gRNA reference and metadata indices
-:mod:`spacr.gene_tile` keeps -- inside a mouse press. A plot that freezes for
-a third of a second when clicked reads as broken.
+:mod:`spacr.gene_tile` keeps -- which would freeze the plot inside the mouse
+press.
 
 So :func:`warm_annotation` does all of it on a worker thread, through
 :class:`spacr.qt.job_runner.JobRunner`, which is the module that already
 gets the threading rules right: the worker's ``finished`` is relayed through
-a Signal whose receiver is a BOUND METHOD of a GUI-thread object, never a
+a Signal whose receiver is a bound method of a GUI-thread object, never a
 closure, so the handler runs on the GUI thread and the QThread is retired.
 Given the screen's own terms it warms every gene in one join -- 400 genes
 cost the same 21 ms as one -- after which a click is a dictionary lookup.
@@ -75,7 +74,7 @@ _WARMING_TERM = "fraction:grna[000000_1]"
 
 
 def warm_annotation(features: Sequence[Any] = ()) -> Tuple[str, ...]:
-    """Read every table a gene tile needs. RUNS ON A WORKER THREAD.
+    """Read every table a gene tile needs. Runs on a worker thread.
 
     :param features: the terms the user might click -- pass the results
         table's whole ``feature`` column. Every gene among them is joined in
@@ -105,7 +104,7 @@ def warm_annotation(features: Sequence[Any] = ()) -> Tuple[str, ...]:
 
 
 class GenePanel(QWidget):
-    """The gene tile: which gene this is, and everything known about it.
+    """The gene tile: which gene this is, and its bundled annotation.
 
     :param frame_provider: called with no arguments for the current results
         frame. A callable rather than a stored frame so a newly loaded
@@ -114,7 +113,7 @@ class GenePanel(QWidget):
         a test can drive the panel synchronously without the behaviour
         diverging -- :class:`~spacr.qt.job_runner.JobRunner` emits the same
         signals in the same order either way.
-    :param parent: the usual.
+    :param parent: parent widget.
     """
 
     #: Emitted with the feature string whenever a tile is built for it.
@@ -126,7 +125,7 @@ class GenePanel(QWidget):
 
     def __init__(self, frame_provider: Optional[Callable[[], Any]] = None,
                  *, threaded: bool = True, parent=None):
-        """Build the gene panel: the record above what spaCR knows about it.
+        """Build the gene panel: the result record above the gene's annotation.
 
         The annotation lookup is warmed on a worker, and only once the panel has
         actually been shown: a panel re-set with the same table on every filter
@@ -312,13 +311,13 @@ class GenePanel(QWidget):
     def show_feature(self, key) -> None:
         """Build and show the tile for one clicked feature.
 
-        THE SLOT ``key_selected`` CONNECTS TO. It takes the feature string and
+        This is the slot ``key_selected`` connects to. It takes the feature string and
         nothing else, so a volcano click and a results-row click reach it
         identically -- and it is connected once, on the table, because that is
         the funnel both directions already pass through.
 
         Driven straight rather than off ``summary.tile_shown``: that signal
-        is not emitted when the resolver RAISES, and the one case where the
+        is not emitted when the resolver raises, and the one case where the
         lower half must not be left showing the previous gene is exactly the
         one where the upper half failed.
 
@@ -377,8 +376,8 @@ class GenePanel(QWidget):
         parts: List[str] = []
         for candidate, known in zip(tile.candidates, self._facts):
             if len(self._facts) > 1:
-                parts.append("<h3 style='margin-bottom:0'>what spaCR knows "
-                             f"about {_html.escape(candidate.name)}</h3>")
+                parts.append("<h3 style='margin-bottom:0'>bundled annotation "
+                             f"for {_html.escape(candidate.name)}</h3>")
             parts.append(known.to_html())
         self._known.setHtml("".join(parts))
         self._status.setText("")
@@ -516,11 +515,11 @@ class GenePanel(QWidget):
         super().closeEvent(event)
 
     def __del__(self):
-        """The last guard, and the only one that needs nothing to happen.
+        """Stop the warm-up thread when the panel is garbage-collected.
 
-        THREE THINGS CAN START THE WARM-UP -- the first show, `warm_now`, and
-        a frame arriving -- so guarding each start site is guarding the wrong
-        end. This guards the LIFETIME: whenever the panel is collected, with
+        Three things can start the warm-up -- the first show, `warm_now`, and
+        a frame arriving -- so this guards the panel's lifetime rather than
+        each start site: whenever the panel is collected, with
         or without a close, with or without an event loop, the thread is
         asked to stop first.
 

@@ -1,4 +1,4 @@
-"""``B13`` — counting by hand on the layer canvas.
+"""Manual counting on the layer canvas.
 
 :mod:`spacr.counting` is the session: the classes, the markers, the undo stack
 and the export, all in plain numpy so the tally can be tested without a
@@ -160,10 +160,9 @@ class CountingPanel(QWidget):
     :param parent: parent widget; ownership only.
     :param session: an already-built
         :class:`~spacr.counting.CountingSession`. ``None`` builds one from
-        the other arguments, which is the ordinary case; PASSING ONE HANDS THE
-        PANEL A SESSION THAT ALREADY HAS STATE -- a part-finished tally,
-        or one a test wrote directly -- so the panel resumes it instead of
-        starting over.
+        the other arguments, which is the ordinary case. A session passed
+        here may already have state -- a part-finished tally, or one a test
+        wrote directly -- and the panel resumes it instead of starting over.
     """
 
     #: The tally changed. Carries ``{class: count}``.

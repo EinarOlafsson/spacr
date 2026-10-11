@@ -1,21 +1,21 @@
-"""The whole-GUI scale, applied live: one factor for every size spaCR sets (471).
+"""Apply one GUI scale factor to every size spaCR sets, while spaCR runs.
 
-WHAT IT IS. "GUI scale" in Preferences (10 % to 200 %, default 100 %) scales
-widget sizes, fixed sizes, margins, spacing, style-sheet sizes (fonts and
-paddings included), icons, splitter sizes and figure dpi -- and it does so
-while spaCR runs, with no restart.
+"GUI scale" in Preferences (10 % to 200 %, default 100 %) scales widget sizes,
+fixed sizes, margins, spacing, style-sheet sizes (fonts and paddings
+included), icons, splitter sizes and figure dpi -- and it does so while spaCR
+runs, with no restart.
 
-HOW, WITHOUT TOUCHING 1,420 CALL SITES. Counted on nightly 2026-09-22 across
-the 328 modules under ``spacr/qt``: about 1,420 hard-coded geometry calls in
-181 files (470 ``setContentsMargins``, 489 ``setSpacing``, 179
-``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``,
-30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) and
-486 ``px`` literals in style-sheet text in 64 files. Routing each by hand is
-a change to every screen, and every size added later would have to remember
-it. Instead :func:`install_scaling_layer` -- called once from
-:func:`spacr.qt.app.launch` before the first widget exists -- replaces the
-setters themselves on the Qt classes (``QWidget``'s size setters and
-``setStyleSheet``, the layouts' margin and spacing setters, every
+The scale is applied without editing the call sites. Counted on nightly
+2026-09-22 across the 328 modules under ``spacr/qt``: about 1,420 hard-coded
+geometry calls in 181 files (470 ``setContentsMargins``, 489 ``setSpacing``,
+179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74
+``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6
+``setIconSize``) and 486 ``px`` literals in style-sheet text in 64 files.
+Routing each by hand is a change to every screen, and every size added later
+would have to remember it. Instead :func:`install_scaling_layer` -- called
+once from :func:`spacr.qt.app.launch` before the first widget exists --
+replaces the setters themselves on the Qt classes (``QWidget``'s size setters
+and ``setStyleSheet``, the layouts' margin and spacing setters, every
 ``setIconSize``, ``QSplitter.setSizes``). Each replacement
 
 * remembers, on the object, the value the code asked for -- its size at
@@ -30,35 +30,33 @@ A change of scale (:func:`set_gui_scale_live`) walks every live widget and
 layout, puts every remembered value back at the new scale, and asks the
 windows to lay out again. A widget built later is scaled as it is built.
 A splitter's panes keep the room they have on screen -- what shrinks is
-what is inside them -- and ``sizes()`` answers in 100 % units, so the sizes
-slice B persists survive a change of scale.
+what is inside them -- and ``sizes()`` answers in 100 % units, so saved
+splitter sizes survive a change of scale.
 
-HOW IT COMPOSES WITH FONT SCALE. Font scale stays where it is: it writes the
-font sizes into the theme's style sheet. That sheet goes through the
-``setStyleSheet`` replacement like any other, so a font size ends up as
-base x font scale x GUI scale. 50 % GUI at 200 % font is half-size widgets
-with text the usual size on screen.
+Font scale is applied separately: it writes the font sizes into the theme's
+style sheet. That sheet goes through the ``setStyleSheet`` replacement like
+any other, so a font size ends up as base x font scale x GUI scale. 50 % GUI
+at 200 % font is half-size widgets with text the usual size on screen.
 
-A USER'S OWN ``QT_SCALE_FACTOR`` is not touched and multiplies on the
-outside, as Qt always has.
+A user's own ``QT_SCALE_FACTOR`` is not changed and multiplies the result,
+as it does in any Qt application.
 
-KEEP OR REVERT. Every change of GUI scale or font scale applies at once and
-then asks "Keep these settings?" (:class:`KeepOrRevertDialog`), counting down
-15 s; the countdown, Esc and closing the dialog all put the old values back.
-The dialog is exempt from the scale and sets its own text size, so it is
-readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0``
-(:func:`reset_every_scale`) remains the backup.
+Every change of GUI scale or font scale applies at once and then asks "Keep
+these settings?" (:class:`KeepOrRevertDialog`), counting down 15 s; the
+countdown, Esc and closing the dialog all put the old values back. The dialog
+is exempt from the scale and sets its own text size, so it is readable at 10 %
+GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) also
+resets every scale to 100 %.
 
-WHAT DOES NOT FOLLOW LIVE. Sizes the scale cannot see because they do not
-pass through a setter: text and shapes a widget paints itself at fixed pixel
-coordinates, pixmaps a widget scales to a number it computed, ``setFont``
-with an explicit size, ``move``/``setGeometry`` positions, header section
-sizes, a Python ``sizeHint`` override that returns a constant, the Fusion
-style's own metrics that the theme sheet does not restate, and pyqtgraph's
-axis text. Sizes computed from font metrics are already scaled once by the
-font and are scaled again by the setter -- the one way the layer can
-over-shrink. The main window's own size is left alone, so the gained room
-goes to the content.
+Sizes that do not pass through a setter are not rescaled live: text and shapes
+a widget paints itself at fixed pixel coordinates, pixmaps a widget scales to
+a number it computed, ``setFont`` with an explicit size,
+``move``/``setGeometry`` positions, header section sizes, a Python
+``sizeHint`` override that returns a constant, the Fusion style's own metrics
+that the theme sheet does not restate, and pyqtgraph's axis text. Sizes
+computed from font metrics are already scaled once by the font and are scaled
+again by the setter -- the one way the layer can over-shrink. The main
+window's own size is left alone, so the gained room goes to the content.
 """
 from __future__ import annotations
 

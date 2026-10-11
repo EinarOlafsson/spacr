@@ -1,5 +1,5 @@
 """
-Power / Design — how many cells per well, and how many wells, do I need?
+Power / Design — estimate how many cells per well, and how many wells, a screen needs.
 
 The science has been in the tree since the spaCRPower port landed:
 :mod:`spacr.power_simulate` builds a screen you know the truth for, and
@@ -50,7 +50,7 @@ Design notes:
   rest are one click below it.
 * **Off the GUI thread, and the thread actually retires.** A full sweep is
   minutes. It goes through :func:`spacr.qt.bridge.make_thread`, and every
-  ``thread.finished`` slot is a BOUND METHOD — see
+  ``thread.finished`` slot is a bound method — see
   :meth:`PowerScreen._retire_finished_jobs` for what a closure does here and
   why it is not a style preference.
 * **No modal dialogs.** Every failure lands in the inline status line.
@@ -540,10 +540,9 @@ class CaveatPanel(QWidget):
     """The port's departures from spaCRPower, rendered where they are read.
 
     The ones flagged ``changes_the_number`` are always visible; the rest are
-    behind a "show all" toggle. That split is the panel's whole job: a list
-    where the COM-Poisson third moment sits at the same weight as "the R
-    version overstates power" is a list that gets skimmed, and the one line
-    that would have changed somebody's plate count goes with it.
+    behind a "show all" toggle, so a caveat that changes the result, such
+    as "the R version overstates power", is not listed at the same weight
+    as a minor one such as the COM-Poisson third moment.
 
     :param parent: parent widget.
     """
@@ -1507,9 +1506,9 @@ class PowerScreen(QWidget):
             self._library_note.setText(
                 f"{units} constructs get their own coefficient "
                 f"({spec.n_genes} genes x {spec.n_grnas_per_gene} guides). "
-                "Every guide of a hit gene is itself a hit — this prices the "
-                "dilution of a bigger library, not the insurance of several "
-                "guides.")
+                "Every guide of a hit gene is itself a hit, so this measures "
+                "the cost of a larger library, not the benefit of several "
+                "guides per gene.")
         else:
             self._library_note.setText(
                 f"{units} genes get a coefficient; the "

@@ -1,35 +1,31 @@
 """Browse the model zoo, download a model, and hand back its path.
 
-A model setting takes a filesystem path, which is exact and unhelpful: the
-user has to know a model exists, find where it lives, and type it correctly
-before anything happens. This dialog is the other way in -- the list of models
-spaCR knows about, what each was trained on, whether it is already on this
+A model setting takes a filesystem path, so the user has to know a model
+exists, find where it lives, and type it correctly. This dialog lists the
+models in spaCR's catalogue, what each was trained on, whether it is already on this
 machine, and a button that downloads one and returns its path to the field
 that opened it.
 
-WHY THE DOWNLOAD LOCATION IS A CONTROL RATHER THAN A CONSTANT. Checkpoints are
+The download location is a control rather than a constant. Checkpoints are
 large -- the Toxoplasma models are 1.2 GB each -- and on a shared workstation
 or a laptop with a small root volume the default is often the wrong disk. A
 lab that keeps models on a NAS wants them there once, not once per user. So
 the folder is on screen, remembered between openings, and shown before anything
 is fetched rather than discovered afterwards in a full-disk error.
 
-NOTHING IS DOWNLOADED WITHOUT BEING ASKED FOR. Opening the dialog lists; the
-download happens on the button. That matters because the list is useful on its
-own -- seeing that a model exists and what it was trained on is often the whole
-question -- and because a dialog that starts a gigabyte transfer on open is one
-users learn not to open.
+Nothing is downloaded until requested. Opening the dialog lists the models;
+the download happens on the button. The list is useful on its own -- whether a
+model exists and what it was trained on -- and opening the dialog does not
+start a gigabyte transfer.
 
-WHY THE LIST HAS FIVE HEADINGS RATHER THAN A BOOLEAN. It used to be one list
-with "show unvetted community uploads" beside it -- a control that could fold
-away exactly one of the catalogue's five origins. With ten models trained
-here, four stock Cellpose-SAM backbones, bioimage.io's collection, the
-Cellpose 3 backend's own four and a shared catalogue, a user who wanted the
-ten and not the rest had no way to say so. :class:`SourceStrip` is the five
+The list has five source headings rather than one checkbox. The catalogue
+has five origins -- models trained here, the stock Cellpose-SAM backbones,
+bioimage.io's collection, the Cellpose 3 backend's models and a shared
+community catalogue -- and each can be shown or hidden. :class:`SourceStrip` is the five
 origins as five clickable names, each one blue when its rows are on screen and
-muted when they are folded away, remembered between openings. The warning the
-boolean carried is unchanged and still arrives before the first unvetted row
-does -- see :meth:`ModelZooPicker._may_show_source`.
+muted when they are folded away, remembered between openings. A warning is
+shown before the first unvetted community row -- see
+:meth:`ModelZooPicker._may_show_source`.
 """
 from __future__ import annotations
 
@@ -357,10 +353,9 @@ class SourceStrip(QWidget):
 def confirm_community_uploads(parent) -> bool:
     """Say what an unvetted upload is, and ask whether to show them anyway.
 
-    The words are the retired checkbox's own, unchanged. The control that
-    carried them was what was wrong; the sentence was not. It is said rather
-    than merely labelled because the difference between a reviewed model and
-    an unreviewed one is not visible in a table.
+    The words are those of the retired checkbox. The question is asked
+    rather than shown as a label because a reviewed and an unreviewed model
+    look the same in a table.
 
     :param parent: the widget the dialog belongs to.
     :returns: True when the user said to show them.
@@ -547,13 +542,13 @@ class BackendInstallDialog(QDialog):
     """Install, or uninstall, one segmentation backend, with progress and
     Cancel.
 
-    WHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an
+    The dialog states what it changes before it changes it. A backend installs into an
     environment of its own under ``~/.spacr/backends``; spaCR's own
     environment is never touched, so nothing here can stop spaCR starting.
     The dialog says where it goes, what it downloads, how large it is and
     under what licence before Install is pressed.
 
-    THE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for
+    The window keeps responding. The install -- a venv, then pip, often for
     minutes -- runs on a worker thread; the dialog shows which step it is on
     and pip's latest line, and Cancel stops pip and everything it started
     and removes the half-built environment. A failure shows the failing
@@ -572,13 +567,13 @@ class BackendInstallDialog(QDialog):
         in the description.
     :ivar error: the last failure's message, verbatim; empty until one.
 
-    THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,
+    The screen behind it can follow it. :attr:`job_started`,
     :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled`
     tell the widget that opened the dialog what the install is doing, so a
     button can say "installing" while it runs and a console can say why it
     failed after the dialog has gone.
 
-    IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED. A dialog
+    It belongs to the window, not the widget that asked. A dialog
     inherits the style sheet of every widget above it, and Plaque Assay asks
     from its preview, whose own scale slider re-states the application sheet
     at that preview's scale: at 150 % Install and Cancel were 59 px tall,
@@ -586,7 +581,7 @@ class BackendInstallDialog(QDialog):
     is themed like every other dialog and still centred on, and modal to,
     the window that opened it.
 
-    THE BAR SITS ON THE BUTTONS. The progress line is the last thing above
+    The progress bar sits on the buttons. The progress line is the last thing above
     the buttons and the status keeps four lines' room while a job runs, so
     the bar does not move as the status line grows and shrinks.
     """
@@ -1118,7 +1113,7 @@ class ModelZooPicker(QDialog):
         layout = QVBoxLayout(self)
 
         blurb = QLabel(
-            "Models spaCR knows about. A model already on this machine can be "
+            "Models in spaCR's catalogue. A model already on this machine can be "
             "used straight away; the rest are downloaded when you ask for one.")
         blurb.setWordWrap(True)
         layout.addWidget(blurb)

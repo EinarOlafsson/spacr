@@ -1,16 +1,16 @@
-"""The background-activity indicator: a braided ring that turns while spaCR
-is busy, and does not exist on the CPU when it is not.
+"""The background-activity indicator: a braided ring that turns while spaCR is
+busy, and uses no CPU when it is not.
 
 Why this is not the GIF
 =======================
 ``spacr/resources/icons/loading_spinner.gif`` is the asset this widget was
-asked to reuse, and reuse was rejected on three measurements, not on taste:
+asked to reuse, and it is not reused, for three measured reasons:
 
-* **Size.** 800x600, 144 frames, 682 KB on disk. ``QMovie`` decodes a frame
-  to a 32-bit ``QImage``, so one frame is 800 x 600 x 4 = 1.92 MB and the
-  whole loop is 276 MB. ``QMovie.CacheAll`` really does hold all of it;
-  ``CacheNone`` (the default) trades that for re-decoding 1.92 MB, and
-  rescaling it to 16 px, 33 times a second, forever.
+* **Size.** 800x600, 144 frames, 682 KB on disk. ``QMovie`` decodes a frame to
+  a 32-bit ``QImage``, so one frame is 800 x 600 x 4 = 1.92 MB and the whole
+  loop is 276 MB. ``QMovie.CacheAll`` holds all of it; ``CacheNone`` (the
+  default) trades that for re-decoding 1.92 MB, and rescaling it to 16 px, 33
+  times a second, forever.
 * **Transparency.** Every pixel of every frame has alpha 255 and the
   background is ``#000000``. The GIF is not a sprite, it is a *video of* a
   spinner. Dropped beside "Clear console" it paints an opaque black square,
@@ -36,10 +36,10 @@ Reported the way :mod:`spacr.qt.widgets.dna_rain` reports its own
 for the harness that produces the number, and the module-level docstring
 there for the figures.
 
-Idle cost is **zero**, not "small": :meth:`_sync` stops the ``QTimer``
-outright when the registry goes quiet, so an idle spinner posts no timer
-events, schedules no repaints and is hidden as well. There is no invisible
-animation running behind an idle window.
+Idle cost is **zero**: :meth:`_sync` stops the ``QTimer`` outright when the
+registry goes quiet, so an idle spinner posts no timer events, schedules no
+repaints and is hidden as well. There is no invisible animation running behind
+an idle window.
 
 What drives it
 ==============
@@ -54,18 +54,16 @@ When it appears
 ===============
 Not immediately. Most of what goes through ``make_thread`` -- reading a
 measurement table, listing a plate, loading a settings file -- is finished
-inside a second, and an indicator that appears and vanishes in that time is
-not information. It is a flicker at the edge of vision, and it teaches the
-reader to stop looking at the one place the app says it is busy.
+inside a second, and an indicator that appears and vanishes in that time would
+only flicker.
 
 So the widget waits :func:`spacr.qt.preferences.get_spinner_delay` seconds
 (default 2) before showing. The mechanism is a **delay, not a prediction**:
-:meth:`ActivitySpinner._sync` starts a single-shot timer the moment work
-begins and the spinner becomes visible only if :meth:`ActivitySpinner.is_busy`
-is *still* true when that timer fires. A job that finishes at 1.9 s cancels
-the timer on its way out and never puts anything on screen -- there is no
-estimate of duration anywhere in this file, and therefore nothing to be wrong
-about.
+:meth:`ActivitySpinner._sync` starts a single-shot timer the moment work begins
+and the spinner becomes visible only if :meth:`ActivitySpinner.is_busy` is
+*still* true when that timer fires. A job that finishes at 1.9 s cancels the
+timer on its way out and never puts anything on screen -- no duration is
+estimated.
 
 The clock runs on the *work*, not on the job. A second job starting while
 the timer is pending does not restart it: the timer is armed on the
@@ -73,9 +71,8 @@ idle-to-busy edge only, so two seconds of continuous background activity
 shows the spinner even if no single job lasted that long. Going idle
 disarms it, and the next burst of work starts a fresh two seconds.
 
-Hiding is not delayed. The moment the registry goes quiet the widget hides
-and its animation timer stops -- a spinner that lingered after the work
-finished would be saying something untrue.
+Hiding is not delayed. The moment the registry goes quiet the widget hides and
+its animation timer stops.
 """
 from __future__ import annotations
 
@@ -154,11 +151,11 @@ class ActivitySpinner(QWidget):
         """Create the spinner, hidden until work has been going long enough.
 
         It is transparent for mouse events, so it cannot swallow a click meant
-        for the button beside it. Whether the current stretch of work has earned
-        the spinner is kept as its own flag rather than read back from
-        ``isVisible()`` -- a widget can be visible for reasons that have nothing
-        to do with this decision, and reading visibility would let any of them
-        quietly cancel the delay.
+        for the button beside it. Whether the current stretch of work has run
+        long enough to show the spinner is kept as its own flag rather than
+        read back from ``isVisible()`` -- a widget can be visible for reasons
+        that have nothing to do with this decision, and reading visibility
+        would let any of them quietly cancel the delay.
 
         :param parent: parent widget, or ``None``.
         :param diameter: size in pixels.
@@ -265,7 +262,7 @@ class ActivitySpinner(QWidget):
 
     def set_delay_ms(self, value: int) -> None:
         """Change the appearance delay. Applies from the next idle-to-busy
-        edge; it never yanks a spinner that is already up off the screen.
+        edge; a spinner already shown stays shown.
 
         :param value: the appearance delay in milliseconds; converted to
             ``int``, and negative values become 0.
@@ -275,8 +272,7 @@ class ActivitySpinner(QWidget):
     def is_waiting(self) -> bool:
         """True while work is running but the delay has not elapsed.
 
-        The state that makes this a delay rather than a guess: busy, not
-        shown, not spinning, costing nothing but one pending timer.
+        Busy, not shown, not spinning, with one pending timer.
         """
         return self._delay.isActive()
 
@@ -361,9 +357,8 @@ class ActivitySpinner(QWidget):
         """Stop the timer whenever the widget leaves the screen.
 
         Hiding covers the cases the registry cannot see: the module was
-        switched away from, the window was minimised, the screen closed.
-        A timer left running there is exactly the invisible spin this
-        widget exists to avoid.
+        switched away from, the window was minimised, the screen closed. A
+        timer left running there would animate a widget nobody can see.
 
         The pending appearance delay goes with it, for the same reason: a
         screen the user has left should not schedule itself back on.
@@ -376,13 +371,12 @@ class ActivitySpinner(QWidget):
         super().hideEvent(event)
 
     def showEvent(self, event):      # noqa: N802 - Qt override
-        """Resume only if there is still something to report — and only if
-        the work had already earned the spinner before the screen went away.
+        """Resume only if work is still running and the spinner was already due
+        before the screen was hidden.
 
         Without the :attr:`_due` half of that condition, coming back to a
         screen would restart the animation for work that started three
-        milliseconds ago, which is precisely the flicker the delay exists to
-        prevent.
+        milliseconds ago, which is the flicker the delay prevents.
 
         :param event: the show event; passed on to the base class before the
             animation is resumed.

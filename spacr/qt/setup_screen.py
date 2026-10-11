@@ -52,9 +52,10 @@ def should_open(version: Optional[str] = None) -> bool:
 
     :param version: the running version. Defaults to :func:`current_version`.
 
-    True on a profile that has never answered, and again after an UPDATE.
-    False otherwise, so a user who dismissed it is not asked again until
-    something changes.
+    True on a profile that has never answered, and again whenever the
+    running version differs from the answered one (after an update, for
+    example). False otherwise, so a user who dismissed it is not asked again
+    until something changes.
     """
     running = str(version or current_version())
     return answered_version() != running
@@ -70,10 +71,10 @@ SKIP_ENV = "SPACR_NO_SETUP"
 def skipped_on_purpose(environ=None) -> bool:
     """Has this launch asked not to be shown the setup screen?
 
-    THE SCREEN IS MODAL AND IT IS NOW THE FIRST THING A LAUNCH DRAWS, which
-    is right at a desk and wrong on a server: a batch job that inherits a
-    stale profile would sit on an invisible modal dialog until it was
-    killed, and the only symptom would be a run that never starts.
+    The setup screen is modal and is the first thing a launch draws. On a
+    server, a batch job that inherits a stale profile would wait on an
+    invisible modal dialog until it was killed, and the only symptom would
+    be a run that never starts.
 
     So a launch can say no, and one already has when it runs under the
     offscreen or minimal platform plugin -- nobody is there to answer a
@@ -189,10 +190,8 @@ def _provider_choices():
 def apply(answers: Dict[str, Any]) -> List[str]:
     """Write the answers through the preference module. Returns what failed.
 
-    ONE SETTING'S REFUSAL MUST NOT LOSE THE OTHERS. Each is written on its
-    own, so a value the preference module rejects is reported and the rest
-    are still saved -- a setup screen that discards six good answers because
-    the seventh was bad has cost the user the whole screen.
+    Each answer is written on its own, so a value the preference module
+    rejects is reported and the other answers are still saved.
 
     :param answers: ``{question key: value}`` from the setup screen, keyed as
         in :func:`questions` (e.g. ``"language"``, ``"theme"``); keys that are

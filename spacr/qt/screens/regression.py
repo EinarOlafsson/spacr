@@ -1,8 +1,7 @@
-"""Regression, and the three modules that are the rest of the visit.
+"""Regression screen with Volcano Explorer, Hit List and Methods & Results.
 
-A regression run is not finished when the coefficients appear. Three
-screens carry on from there, and none of them duplicates anything the
-results panel does:
+Three screens continue from a regression's coefficients, and none of them
+duplicates anything the results panel does:
 
 * **Volcano Explorer** is the only publication-figure path in spaCR. Its
   volcano is a matplotlib render behind a 56-field style that can be
@@ -34,20 +33,20 @@ results panel does:
 Each of the three is also a button on the Regression masthead: the
 module's own icon with no text, its one-line description as the tooltip,
 lit on hover in the maturity colour its tile used -- see
-:class:`spacr.qt.widgets.fold_strip.FoldStrip`. The button and the place
-the capability lives are the same door: the Hit List button raises the
+:class:`spacr.qt.widgets.fold_strip.FoldStrip`. Each button opens the same
+component as the panel's own entry point: the Hit List button raises the
 Hits tab rather than opening a second hit list, and the Volcano Explorer
 button opens exactly what "Publication figure…" opens.
 
-ONE CORRECTION FAMILY ON ONE VOLCANO. A guide permutation writes every
-minimum-support family stacked into one long table, and fits one family
-per response when several outcomes were fitted. Each of those is its own
-Benjamini-Hochberg family, so drawing the table unfiltered puts a guide on
-the plot two to four times at different heights and pools two corrections
-into one picture. :func:`single_correction_family` is the cut, and
+Each volcano shows one correction family. A guide permutation writes every
+minimum-support family stacked into one long table, and fits one family per
+response when several outcomes were fitted. Each of those is its own
+Benjamini-Hochberg family, so drawing the table unfiltered puts a guide on the
+plot two to four times at different heights and pools two corrections into one
+picture. :func:`single_correction_family` is the cut, and
 :func:`install_correction_families` puts it in front of the panel's own
-``set_frame`` so every route into the panel -- a finished run, a folder
-opened by hand, a dropped bundle -- draws one family.
+``set_frame`` so every route into the panel -- a finished run, a folder opened
+by hand, a dropped bundle -- draws one family.
 
 The shared half of a fold -- opening a module in a window, wiring the host
 signals a sidebar row used to wire, and hanging the strip off the
@@ -115,12 +114,12 @@ PUBLICATION_FIGURE_SECTION = "Publication figure"
 
 
 def single_correction_family(frame):
-    """``frame`` reduced to ONE multiple-testing family, ready to plot.
+    """``frame`` reduced to one multiple-testing family, ready to plot.
 
     A guide permutation fits the same guides once per minimum-support
     threshold and once per response, stacks the lot into one long table,
-    and corrects each stack separately. Two things follow, and both are
-    wrong on a plot: the same guide is drawn two to four times at
+    and corrects each stack separately. Two things follow, and both
+    mislead on a plot: the same guide is drawn two to four times at
     different heights, and two Benjamini-Hochberg corrections share one
     axis -- so a q-value read off the picture belongs to whichever family
     the point came from, which nothing on the picture says.
@@ -241,7 +240,7 @@ def install_publication_figure(panel, opener: Callable[[], object]) -> bool:
 
     The entry goes on the pyqtgraph volcano's own right-click menu, under
     a section of its own, because that is where a user who wants the
-    figure is already looking -- and it is deliberately NOT ``offer_style``
+    figure is already looking -- and it is not ``offer_style``
     on that plot, which would hang 56 style fields off a renderer that can
     honour none of them.
 
@@ -287,9 +286,9 @@ def install_hits_tab(panel):
     """Add the Hit List to ``panel`` as a tab, beside Guide support.
 
     The whole screen goes in, not a copy of its table: the filter bar, the
-    metadata picker and the three export buttons ARE the capability the
-    panel has none of, and a tab that reimplemented the list would keep
-    whichever parts the person doing the folding thought of.
+    metadata picker and the three export buttons are what the panel lacks,
+    and embedding the whole screen keeps all of them instead of a partial
+    reimplementation.
 
     The tab follows the panel: whenever a run is loaded the hit list is
     pointed at the same folder, so it is never showing one run's hits
@@ -506,7 +505,7 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
 class DiagnosticsOpener:
     """The Diagnostics button: show the panels the last run wrote.
 
-    NOT A MODULE. `spacr.ml` writes these panels into the run's results
+    This is not a module. `spacr.ml` writes these panels into the run's results
     folder as it finishes -- see `_write_regression_diagnostics` -- so
     there is nothing to compute here and nothing to configure. The button
     opens what is already on disk.
@@ -551,8 +550,8 @@ class DiagnosticsOpener:
         The button is badged with the worst of score_design /
         score_residuals / score_inference. That worst is
         already computed and written -- ``diagnostic_summary.csv`` carries
-        a ``suite``/``verdict_level`` row -- so this is a READ, and it has
-        to stay one. Recomputing it here would let the button and the
+        a ``suite``/``verdict_level`` row -- so this only reads it.
+        Recomputing it here would let the button and the
         panels disagree about the same run.
 
         ``("", "")`` when there is nothing to read, which is not the same
@@ -609,11 +608,10 @@ class DiagnosticsOpener:
 class HitsOpener:
     """The Hits button: raise the tab, or open the module when there is none.
 
-    ONE HIT LIST, not two. Where the results panel exists the list is
+    There is one hit list. Where the results panel exists the list is
     already a tab on it, loaded with the run on screen, so the button goes
-    there -- and it brings the Results page forward first, because a button
-    that silently changed a tab behind the settings form would read as a
-    button that does nothing.
+    there -- and it brings the Results page forward first, so the tab
+    change is not hidden behind the settings form.
 
     A bare settings screen has no panel and so no tab; then the module
     opens in a window of its own, like every other fold, with the run
@@ -658,7 +656,7 @@ class HitsOpener:
 def install_extras(screen: QWidget) -> bool:
     """Give ``screen``'s results panel the three folded capabilities.
 
-    Separate from the strip because the strip is only the way IN: the Hits
+    Separate from the strip because the strip is only an entry point: the Hits
     tab, the publication-figure entry and the one-family cut are on the
     panel whether or not a masthead could be found to hang buttons on.
 
@@ -716,9 +714,8 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     the three buttons does not open a window: the Hits button raises a tab
     on the screen the user is already looking at.
 
-    Idempotent, and defensive by design: a screen that opens without its
-    fold buttons is a smaller screen, while an exception raised here would
-    be no regression screen at all.
+    Idempotent. A failure while building the strip is caught, so the
+    regression screen opens without its fold buttons rather than failing.
 
     :param screen: app screen whose masthead receives the strip; it must have
         ``app_key`` ``"regression"`` and a ``_header`` with ``add_trailing``.

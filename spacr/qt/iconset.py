@@ -10,16 +10,12 @@ Two sources of icons, both made theme-aware here:
 * **bundled PNGs** in ``spacr/resources/icons`` — flat monochrome
   artwork baked at a fixed colour.
 
-The bundled PNGs were *theme-blind*, and it showed: ``convert.png``
-(Format Converter) shipped as solid black with an alpha mask, so on the
-black home page it rendered as nothing at all. The other twenty-odd were
-solid white, which is the same bug pointed the other way — invisible on
-the light theme, nobody had noticed because nobody used it. A third
-theme made this unavoidable, so :func:`themed_qimage` now re-inks every
-bundled PNG for the active theme. **This is what makes the artwork
-swappable**: seventeen icons were redrawn and reinstalled without a line
-of change here, because nothing in this module knows what any of them
-look like.
+The bundled PNGs have a fixed colour: ``convert.png`` (Format Converter) is
+solid black with an alpha mask, which is invisible on the black home page, and
+most of the others are solid white, which is invisible on the light theme.
+:func:`themed_qimage` therefore re-inks every bundled PNG for the active
+theme. Nothing in this module depends on what an icon depicts, so artwork can
+be replaced without code changes. Re-inking works as follows:
 
 * the artwork's ink polarity is detected from its own alpha-weighted
   mean luminance, so black-on-transparent and white-on-transparent are
@@ -148,8 +144,8 @@ def _glyph_provider(qta, glyph):
 def active_theme() -> str:
     """The theme icons should be drawn for, resolved from preferences.
 
-    Falls back to ``"dark"`` if preferences can't be read at all —
-    icon lookup must never be the thing that stops the GUI booting.
+    Falls back to ``"dark"`` if preferences can't be read at all, so a
+    failed preference read does not stop the GUI from starting.
     """
     try:
         from .preferences import resolve_effective_theme
@@ -242,11 +238,10 @@ def hardest_surface(theme: str) -> str:
 def veil_color(theme: str) -> str:
     """Dimmest ink allowed in a themed icon.
 
-    Solved, not guessed: bisect the blend from the hardest surface
-    toward the theme foreground until the contrast crosses
-    :data:`MIN_ICON_CONTRAST`. That way the shadow end of an icon's
-    tonal range is still a visible shape, and the answer tracks the
-    palette instead of being a magic grey someone eyeballed once.
+    Computed by bisecting the blend from the hardest surface toward the
+    theme foreground until the contrast crosses :data:`MIN_ICON_CONTRAST`.
+    The dark end of an icon's tonal range therefore stays visible, and the
+    value follows the palette rather than being a fixed grey.
 
     :param theme: theme name, one of :data:`spacr.qt.theme.THEMES`; the
         result is cached per theme.
@@ -364,11 +359,10 @@ def _hex_to_array(color: str):
 def carries_tonal_structure(rgba) -> bool:
     """True when an icon's RGB channels carry shading worth preserving.
 
-    Measured, not assumed. Every bundled spaCR icon is **a monochrome
-    mask**: the alpha channel holds the entire shape and the RGB is a
-    uniform fill (white for most of them, black for ``convert.png``).
-    For those, the RGB carries no information at all and the right
-    answer is to paint the alpha mask in the theme's ink.
+    Every bundled spaCR icon is **a monochrome mask**: the alpha channel holds
+    the entire shape and the RGB is a uniform fill (white for most of them,
+    black for ``convert.png``). For those, the RGB carries no information at
+    all and the right answer is to paint the alpha mask in the theme's ink.
 
     A couple of assets (``umap.png``, ``activation.png``) genuinely do
     put shading in RGB, and flattening those to a silhouette would

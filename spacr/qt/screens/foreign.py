@@ -1,14 +1,12 @@
 """
-Import Project — somebody else's images, masks and measurements, reviewed
-column by column before any of it becomes a spaCR database.
+Import Project — images, masks and measurements from another tool, with the
+column mapping reviewed before a spaCR database is written.
 
-:mod:`spacr.foreign` does the work; this screen exists for the one step
-that cannot be automated. Their ``Area`` is in µm², spaCR's ``cell_area``
-is in px², and the difference between an import that is right and one that
-is plausibly wrong by a factor of several hundred is whether a human
-looked at the mapping table. So the mapping table is the middle of the
-screen, it is **editable**, and every edit re-runs the conflict and unit
-checks in place.
+:mod:`spacr.foreign` does the work; this screen is for the step that needs
+review. A foreign ``Area`` can be in µm² where spaCR's ``cell_area`` is in px²,
+so an unreviewed mapping can give values that look plausible and are wrong by a
+factor of several hundred. So the mapping table is the middle of the screen, it
+is **editable**, and every edit re-runs the conflict and unit checks in place.
 
 Layout::
 
@@ -127,12 +125,12 @@ NAMING_AUTO = "auto"
 def naming_choices() -> List[Tuple[str, str]]:
     """Every filename convention Import can read, as ``(key, label)``.
 
-    The SAME list Mask's ``metadata_type`` offers, read from
+    The same list Mask's ``metadata_type`` offers, read from
     :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can
     parse is a plate Import can parse and the two lists cannot drift. Folders
-    come first because they are what Import did before it knew any
-    convention; the vendor conventions follow in Mask's vendor order, each
-    labelled with its vendor and marked when spaCR is guessing about it.
+    come first because they are what Import did before it knew any convention;
+    the vendor conventions follow in Mask's vendor order, each labelled with
+    its vendor and marked when spaCR is guessing about it.
 
     :returns: the choices, ``NAMING_AUTO`` first.
     """
@@ -151,16 +149,14 @@ def naming_choices() -> List[Tuple[str, str]]:
 
 
 def object_label(role: str) -> str:
-    """What a mask class is CALLED, as opposed to what it is keyed by.
+    """The display name of a mask class, as opposed to its storage key.
 
-    NO USER SEES A LETTER, asked for in as many words on 2026-09-02: "i dont
-    want to see organelle a b c d anywhere, organelle number should always be
-    controlled by number of organelles". The slots are stored lettered --
-    ``organelle``, ``organelleb``, ``organellec`` -- because a role name is
-    the prefix of every settings key it owns and ``organelle2`` cannot
+    Organelle slots are shown as numbers, never letters. The slots are stored
+    lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role
+    name is the prefix of every settings key it owns and ``organelle2`` cannot
     round-trip through a ``prcfo`` key without colliding with the object
-    LABELLED 2. That is a storage decision and it has no business on screen,
-    where a slot is a NUMBER: Organelle 1, Organelle 2.
+    LABELLED 2. That is a storage detail; on screen a slot is a number:
+    Organelle 1, Organelle 2.
 
     :param role: a role from :data:`OBJECT_CHOICES`.
     """
@@ -173,12 +169,9 @@ def object_label(role: str) -> str:
 def organelle_slots_offered(added: Sequence[str]) -> int:
     """How many organelle slots a form should show, given what is filled.
 
-    THE COUNT FOLLOWS THE ORGANELLES, not a constant. Offering four slots to
-    a user with one organelle is three questions nobody asked, and offering
-    exactly the ones in use plus one is what "controlled by the number of
-    organelles" means on a form that has no separate count field: adding the
-    first makes the second available, and so on for as many as the mask
-    planes can carry.
+    The count follows the organelles in use: the slots already mapped plus one,
+    so adding the first makes the second available, and so on for as many as
+    the mask planes can carry.
 
     :param added: the roles already mapped.
     :returns: how many organelle slots to list, at least one.
@@ -439,7 +432,7 @@ class ForeignScreen(QWidget):
             "measurements.db carrying their columns next to spaCR's "
             "plateID/rowID/columnID/fieldID/object_label. Their column names "
             "are mapped onto spaCR's here, in a table you edit — an inferred "
-            "mapping is a proposal, never something that runs unread.")
+            "mapping is shown for review and applied only by Import.")
         subtitle.setObjectName("Muted")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
@@ -835,9 +828,8 @@ class ForeignScreen(QWidget):
     def pixel_size(self) -> Optional[float]:
         """The scale as a number, or None when blank or unparseable.
 
-        None is a real answer, not a failure: a column that needs a pixel
-        size and does not have one is reported uncalibrated rather than
-        scaled by 1.0.
+        None is not an error: a column that needs a pixel size and does not
+        have one is reported uncalibrated rather than scaled by 1.0.
         """
         text = self._scale_edit.text().strip()
         if not text:

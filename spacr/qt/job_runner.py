@@ -1,14 +1,12 @@
-"""One correct way to run a callable off the GUI thread.
+"""Run a callable off the GUI thread and deliver its result on the GUI thread.
 
-The Qt layer had eleven copies of this object -- ``DbBrowserScreen._run_job``,
-``PlateViewScreen._run_job``, ``ReportScreen._start_job`` and so on -- and the
-copies did not agree. Two of them wired ``thread.finished`` to a *closure*,
-which silently never retires the job (see :meth:`_retire_finished_jobs` for
-why), and that bug reached production twice. This module is the shape those
-screens converged on, written down once, so a screen that needs to stop
-blocking the GUI thread does not have to re-derive the rules.
+Screens such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen``
+previously each had their own copy of this logic, and the copies differed: two
+connected ``thread.finished`` to a *closure*, which never retires the job (see
+:meth:`_retire_finished_jobs`). This module implements the rules once, for any
+screen that moves work off the GUI thread.
 
-The rules, which are not obvious and are all load-bearing:
+The rules:
 
 * ``PipelineWorker.finished`` is emitted **on the worker thread**. A closure
   connected to it is invoked there. Touching a widget from it is undefined
@@ -132,8 +130,8 @@ class JobRunner(QObject):
             inline, emitting the same signals in the same order.
         :param app_key: how this runner's work is named in the run registry.
         :param user_visible: whether these jobs count as runs the user started.
-            Set ``False`` for housekeeping, or Home's run banner announces work
-            nobody asked for.
+            Set ``False`` for housekeeping, so Home's run banner does not show
+            it as a run.
         """
         super().__init__(parent)
         _LIVE_RUNNERS.add(self)
@@ -295,11 +293,10 @@ class JobRunner(QObject):
     def cancel(self) -> None:
         """Abandon the results of everything in flight.
 
-        The threads are asked to stop and are then left to retire
-        themselves; they are *not* joined, because joining on the GUI thread
-        is the freeze this class exists to remove. Their results are dropped
-        on arrival by the generation check, so nothing reaches a handler that
-        may be about to be destroyed.
+        The threads are asked to stop and are then left to retire themselves;
+        they are *not* joined, because joining would block the GUI thread.
+        Their results are dropped on arrival by the generation check, so
+        nothing reaches a handler that may be about to be destroyed.
         """
         self._generation += 1
         for thread, _worker in list(self._jobs.values()):
@@ -313,9 +310,9 @@ class JobRunner(QObject):
     def shutdown(self, timeout_ms: int = 3000) -> None:
         """Cancel, then wait briefly so no QThread outlives the widget.
 
-        Call from ``closeEvent``. Qt aborts the process if a running QThread
-        is destroyed, so a bounded wait here is the price of leaving a screen
-        mid-load. Threads that outlast the budget are parked by
+        Call from ``closeEvent``. Qt aborts the process if a running QThread is
+        destroyed, so a bounded wait is needed when a screen closes mid-load.
+        Threads that outlast the budget are parked by
         :func:`spacr.qt.bridge.drain_thread` rather than terminated.
         """
         from .bridge import drain_thread

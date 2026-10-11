@@ -5,7 +5,7 @@ columns, and individual wells use the same validated vocabulary in the GUI and
 headless APIs. Rectangular selection is exposed through :meth:`select_region`
 for mouse-drag handling and programmatic use.
 
-ONE GRID, NOT THREE THINGS NEAR EACH OTHER. The column numbers, the row
+The labels and the wells share one grid. The column numbers, the row
 letters and the wells all live in a single :class:`QGridLayout`, every item
 locked to the same square cell, so a column number sits over its column and a
 row letter beside its row at every window size. The grid takes the width and
@@ -13,7 +13,7 @@ height its square cells need and leaves the rest to a trailing empty row and
 column, rather than dividing whatever the window happens to give it -- which
 is what pulls the labels away from the wells they name.
 
-Each cell states that square in its OWN style sheet rather than through
+Each cell states that square in its own style sheet rather than through
 ``setFixedSize``, which does not survive being polished under the application
 stylesheet. See :func:`_locked_square`.
 """
@@ -60,18 +60,18 @@ AUTOSCROLL_MAX_STEP = 40
 def well_side() -> int:
     """The side of a well right now, in pixels, at the user's font scale.
 
-    THE GLYPHS GREW AND THE BOX DID NOT. `WELL_SIDE` was read as a raw pixel
-    constant, so at the 200% font scale a two-digit column header wanted 30 px
-    of width inside a 22 px cell and every one of columns 10 to 24 had its
-    number cut in half -- 15 clipped headers in every language, which is what
-    `KNOWN_OFFENDERS` recorded against PlateMapPicker.
+    The side follows the font scale. When `WELL_SIDE` was read as a raw pixel
+    constant, a two-digit column header at the 200% font scale needed 30 px of
+    width inside a 22 px cell, and columns 10 to 24 had their numbers cut in
+    half -- 15 clipped headers in every language, recorded in
+    `KNOWN_OFFENDERS` against PlateMapPicker.
 
-    `scaled_px` is the house mechanism for exactly this: the font scale is one
+    `scaled_px` is the shared mechanism for this: the font scale is one
     preference with two consumers, the stylesheet that sets font sizes and
     this, which sizes anything set in pixels from Python. A control tuned to
     match a text width has to go through it or the two drift apart.
 
-    READ AT CONSTRUCTION, not cached, because the preference can change while
+    Read at construction, not cached, because the preference can change while
     the application is running and a plate built afterwards should be pitched
     to the new scale.
     """
@@ -396,8 +396,8 @@ class PlateMapPicker(QDialog):
         :param row: zero-based plate row of the pressed well.
         :param column: zero-based plate column of the pressed well.
         :param modifiers: the keyboard state at the press. With Ctrl the
-            rectangle ADDS to what is already chosen; without it the drag
-            REPLACES the selection, which is what every other grid in this
+            rectangle adds to what is already chosen; without it the drag
+            replaces the selection, which is what every other grid in this
             application does.
         """
         self._anchor = (int(row), int(column))
@@ -407,7 +407,7 @@ class PlateMapPicker(QDialog):
         self._dragged = False
 
     def well_at(self, position) -> Optional[Tuple[int, int]]:
-        """The well under a GLOBAL point, or ``None``.
+        """The well under a global point, or ``None``.
 
         Global, because the pointer is over a sibling of the widget that is
         receiving the events -- the pressed one keeps the grab.
@@ -423,17 +423,17 @@ class PlateMapPicker(QDialog):
     def drag_to(self, position) -> None:
         """Preview the rectangle from the anchor to the well under ``position``.
 
-        SHOWN WHILE DRAGGING, because a selection you cannot see until you
-        let go is one you have to undo to correct.
+        The rectangle is shown while dragging, so a selection can be
+        corrected before the button is released.
 
-        A MOVE INSIDE THE PRESSED WELL IS NOT A DRAG. Every real click
+        A move inside the pressed well is not a drag. Every real click
         carries a pixel or two of pointer travel, and drawing a one-well
         rectangle for it both clears the rest of the selection and leaves
         the release to fall through as an ordinary click -- which toggles
         the anchor straight back off, so a wobbled click lands nothing and
         takes the previous selection with it.
 
-        AND ONCE IT IS A DRAG IT STAYS ONE. Sweeping away from the anchor
+        Once a move becomes a drag it stays one. Sweeping away from the anchor
         and back again ends on the anchor, and treating that as no drag
         would hand the release to the click and toggle off the well the
         rectangle had just chosen.
@@ -630,15 +630,15 @@ class PlateMapPicker(QDialog):
 
         :param cells: one-based ``(row, column)`` pairs, well-specification
             text such as ``"A01"`` or ``"c3"``, or a mixture. The field this
-            picker edits is written in the second vocabulary, so it is worth
-            answering to.
+            picker edits is written in the second vocabulary, so both are
+            accepted.
 
-        THE REPAINT IS NOT OPTIONAL. Signals are blocked so that setting a
-        hundred wells says the count once rather than a hundred times, and
-        that also silences the ``toggled -> _paint`` connection -- so a well
-        chosen without a click, which includes the picker's own starting
-        value and everything kept across a layout change, would be checked
-        and still drawn empty.
+        The whole plate is always repainted. Signals are blocked so that
+        setting a hundred wells says the count once rather than a hundred
+        times, and that also silences the ``toggled -> _paint`` connection --
+        so a well chosen without a click, which includes the picker's own
+        starting value and everything kept across a layout change, would be
+        checked and still drawn empty.
         """
         wanted: Set[Tuple[int, int]] = set()
         for cell in cells:

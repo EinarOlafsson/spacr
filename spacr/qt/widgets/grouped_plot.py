@@ -93,7 +93,7 @@ class PlotSpec:
         return shape_of(self.frame, self.group, self.value)
 
     def default_kind(self) -> str:
-        """What this data is born as, when no kind is named."""
+        """The graph type used for this data when no kind is named."""
         from ...graph_types import default_for
 
         return default_for(self.shape())
@@ -314,11 +314,12 @@ class GroupedPlot(FastPlot):
         return groups if len(groups) >= 2 else None
 
     def comparison_unit(self) -> str:
-        """What one point on this plot IS -- a well, a field, an object.
+        """What one point on this plot is -- a well, a field, an object.
 
-        NAMED RATHER THAN ASSUMED, because it decides what a comparison
-        means: the same data compared per well and per object gives
-        different p-values, and only one of them answers the question asked.
+        The unit is named rather than assumed, because it decides what a
+        comparison means: the same data compared per well and per object
+        gives different p-values, and which one is valid depends on the
+        question asked.
 
         :returns: the unit's name, ``observation`` when unspecified.
         """

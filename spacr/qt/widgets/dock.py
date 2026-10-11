@@ -4,9 +4,8 @@ A row is a button with an icon and its name, always both. The only thing the
 pointer changes is the colour, and the explanation goes to the strip along
 the bottom of the window rather than into a popup.
 
-WHAT WAS REMOVED, AND WHY EACH ONE WAS THE BUG. The dock this replaces was
-1,116 lines across ``Sidebar`` and ``_DockRow`` in ``spacr.qt.app``, and
-nearly all of it was machinery that existed to defeat itself:
+The dock this replaces was 1,116 lines across ``Sidebar`` and ``_DockRow`` in
+``spacr.qt.app``. It had these parts, each the cause of a reported problem:
 
 * a translucent slab painted in ``paintEvent`` — the "black box" of four
   separate commits, which turned out to be the dock painting itself rather
@@ -23,24 +22,24 @@ nearly all of it was machinery that existed to defeat itself:
 None of that is here. A row is a button with an icon and its name, always
 both. The only thing the pointer changes is the colour.
 
-WHERE THE EXPLANATION WENT. Not into a popup tooltip — those are explicitly
-unwanted — but into the strip along the bottom of the window, which already
-exists as :mod:`spacr.qt.widgets.module_hint_bar` and already holds the last
-hovered module for thirty seconds with its API and tutorial links. This dock
-only says which module is under the pointer, via :attr:`Dock.module_hovered`;
-the bar decides how to explain it.
+The explanation goes into the strip along the bottom of the window, not into a
+popup tooltip (those are explicitly unwanted). The strip already exists as
+:mod:`spacr.qt.widgets.module_hint_bar` and already holds the last hovered
+module for thirty seconds with its API and tutorial links. This dock only says
+which module is under the pointer, via :attr:`Dock.module_hovered`; the bar
+decides how to explain it.
 
-WHAT IS KEPT, BECAUSE SOMETHING ELSE READS IT. Categories still collapse —
-the list is longer than a short screen. Rows still carry ``navKey`` and
-headers are still ``SidebarSection``, because the theme, the tutorial script
-and the maturity tests all reach the dock through those names. And
+Some behaviour is kept because other code reads it. Categories still collapse —
+the list is longer than a short screen. Rows still carry ``navKey`` and headers
+are still ``SidebarSection``, because the theme, the tutorial script and the
+maturity tests all reach the dock through those names. And
 :meth:`refresh_visibility` still applies the Alpha/Beta maturity filter and
-hides a heading whose modules are all filtered out, which is a separate
-reason for a row to be absent from its section being shut.
+hides a heading whose modules are all filtered out, which is a separate reason
+for a row to be absent from its section being shut.
 
-NOTHING HERE IMPORTS :mod:`spacr.qt.app`. The registry lives there and would
-be a circular import, so the rows, the icon lookup and the maturity
-predicate are all injected.
+Nothing here imports :mod:`spacr.qt.app`. The registry lives there and would be
+a circular import, so the rows, the icon lookup and the maturity predicate are
+all injected.
 """
 from __future__ import annotations
 
@@ -148,10 +147,9 @@ class SectionHeader(QLabel):
     already styled as a heading and a button would have to be un-styled
     back into one; the click arrives through :meth:`Dock.eventFilter`.
 
-    :param section: the category name. Shown as the heading AND kept on the
-        ``sectionName`` property, which is how the dock finds the rows a
-        click should fold -- the visible text is translated, the property
-        is not.
+    :param section: the category name. Shown as the heading and kept on the
+        ``sectionName`` property, which is how the dock finds the rows a click
+        should fold -- the visible text is translated, the property is not.
     :param parent: parent widget; ownership only.
     """
 
@@ -175,7 +173,7 @@ class Dock(QWidget):
     """The navigation column: categories, each holding icon+name rows.
 
     :param rows: the modules to draw, in order, as ``(key, name, desc,
-        section)``. Grouping IS ordering: a new heading starts whenever the
+        section)``. Grouping is ordering: a new heading starts whenever the
         section changes, so a row out of place draws its heading twice.
     :param icon_for: optional ``key -> QIcon | None`` for the row icons.
     :param is_visible: optional ``key -> bool`` maturity predicate. Injected
@@ -368,11 +366,11 @@ class Dock(QWidget):
     def eventFilter(self, watched, event):       # noqa: N802 - Qt naming
         """Light a heading under the pointer, and toggle it on release.
 
-        ON RELEASE, NOT PRESS: a press that toggled would fire while the
+        On release, not press: a press that toggled would fire while the
         pointer was still down, so a drag that began on a heading and ended
         elsewhere would still have shut the section.
 
-        The hover state is a PROPERTY rather than a colour set from here,
+        The hover state is a property rather than a colour set from here,
         because the stylesheet is the one place that decides what the dock
         looks like.
 
@@ -404,9 +402,8 @@ class Dock(QWidget):
     def sync_hover(self, entered=None) -> Optional[str]:
         """Report which row the pointer is on.
 
-        The old dock needed this to repair hover state it had broken by
-        relaying out under the pointer. Nothing relayouts now, so this only
-        answers the question. Kept because ``tools/diagnose_dock.py`` asks.
+        Nothing relays out under the pointer, so this only reports the row.
+        ``tools/diagnose_dock.py`` calls it.
         """
         row = self.hovered_row()
         return row.key if row is not None else None
@@ -483,7 +480,7 @@ class Dock(QWidget):
         self.setFixedWidth(self.column_width())
 
     def column_width(self) -> int:
-        """The width the column wears: the one the user dragged, else fitting.
+        """The column width: the one the user dragged, else the fitting width.
 
         A width the user chose is kept through every refresh, every
         hide and show, and every session; with none stored the column fits
@@ -538,13 +535,12 @@ class Dock(QWidget):
         A QIcon bakes its pixmap when it is built, so re-applying the
         stylesheet does not recolour icons that already exist.
 
-        THE SIZE IS FIXED PER SCALE, NOT PER ROW STATE. The old dock grew
-        and shrank an icon on hover, which relayed out the whole column
-        under the pointer; that is what :data:`ICON_PX` being one number
-        stops. It still has to follow the interface scale, so the base is
-        recorded on each row and re-derived from there -- see
-        :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is
-        never recomputed from the size the row is already wearing.
+        The size is fixed per scale, not per row state: :data:`ICON_PX` is one
+        number, so hovering does not resize an icon and relay out the column.
+        It still has to follow the interface scale, so the base is recorded on
+        each row and re-derived from there -- see
+        :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never
+        recomputed from the size the row is already wearing.
         """
         from ..preferences import _set_scaled_icon_size
         for row in self._rows:
@@ -561,10 +557,9 @@ class Dock(QWidget):
     def apply_theme(self) -> None:
         """Paint the rounded panel, and the one rule hover uses.
 
-        THE PANEL IS THE ONLY THING THAT PAINTS. Everything inside it is
-        transparent on purpose: a title or a heading carrying a fill of its
-        own would draw a square corner over the rounded one directly beneath
-        it, which is the exact shape this was asked to stop being.
+        Only the panel paints. Everything inside it is transparent, because a
+        title or a heading carrying a fill of its own would draw a square
+        corner over the rounded one directly beneath it.
 
         The three values come from HomePanelBox rather than being chosen
         again here -- ``pane_surface('surface_alt')``, ``border_soft`` and an
@@ -626,7 +621,7 @@ class Dock(QWidget):
     def clipped_items(self) -> list:
         """Rows whose name had to be shortened to fit.
 
-        Empty in a healthy layout, and a test asserts that.
+        Empty when every name fits, and a test asserts that.
         """
         return [r for r in self._rows if r.is_elided()]
 

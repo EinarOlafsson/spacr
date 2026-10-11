@@ -1,15 +1,12 @@
 """PCA over a measurement table — the statistics, with the decisions written down.
 
-spaCR measures hundreds of features per object and, until this module, had no
-principal components anywhere. The reason it is worth having is not
-dimensionality reduction for its own sake: it is the one view that answers
-*"these two populations separate — on what?"* in a single picture, because the
-loadings say which measurements carry the separation.
+spaCR measures hundreds of features per object. A PCA shows in one picture
+which measurements separate two populations, because the loadings say which
+measurements carry the separation.
 
-PCA is also easy to get subtly wrong on exactly this kind of table, in ways
-that produce a confident-looking plot of nothing. Three decisions do all the
-damage, so all three are made here, in the open, and reported back to the user
-with every result.
+On this kind of table, three decisions determine whether a PCA plot is
+meaningful, so all three are made here explicitly and reported back to the
+user with every result.
 
 1. Centring and scaling
 -----------------------
@@ -101,8 +98,8 @@ explained variance and a direction chosen by floating-point noise. Groups of
 features that are perfectly correlated are also detected and reported, since a
 duplicated feature silently doubles its own weight in a correlation PCA.
 
-Honest explained variance
--------------------------
+Explained variance
+------------------
 :attr:`PCAResult.explained_variance_ratio` is over the **total variance of the
 analysed matrix**, so it sums to 1 across all ``rank`` components rather than
 across the ones that were kept. Alongside it, every result carries how much of
@@ -111,7 +108,7 @@ the original table it is actually about (:attr:`PCAResult.n_rows_in` versus
 explains 71%" means something different when the matrix is three features and
 8% of the objects.
 
-And the single most common way a PCA of morphology features misleads anyone is
+The most common way a PCA of morphology features misleads is
 that **PC1 is just size**. When every feature loads with the same sign, PC1 is
 a general-magnitude axis — big objects at one end, small at the other — which
 is usually a fact about segmentation rather than biology.
@@ -150,7 +147,7 @@ __all__ = [
 
 
 class PCAError(ValueError):
-    """A PCA that cannot mean anything, with the reason in the message.
+    """Raised when a PCA cannot give a meaningful result; the message says why.
 
     Raised rather than returned as an empty result: every one of these is a
     sentence the user can act on ("every row has a NaN in ``pathogen_area``"),
@@ -330,7 +327,7 @@ class PCASpec:
     def with_features(self, features: Sequence[str]) -> "PCASpec":
         """A copy decomposing a different set of columns.
 
-        A COPY: a spec is a value, so the one a view is showing is never
+        A copy: a spec is a value, so the one a view is showing is never
         edited underneath it.
 
         :param features: the columns to decompose.
@@ -341,7 +338,7 @@ class PCASpec:
     def with_scaling(self, scaling: str) -> "PCASpec":
         """A copy using a different scaling.
 
-        SCALING IS NOT COSMETIC HERE. PCA maximises variance, so unscaled
+        Scaling changes the result. PCA maximises variance, so unscaled
         columns in different units let the largest unit dominate every
         component -- which is why this is a spec field and not a display
         option.
@@ -425,7 +422,7 @@ class PCASpec:
 
 @dataclass(frozen=True)
 class PCAResult:
-    """A decomposition, plus everything needed to read it honestly.
+    """A decomposition, plus the information needed to interpret it.
 
     :param features: the columns actually decomposed, in matrix order. Not
         the ones asked for — see :attr:`dropped_features`.
@@ -592,7 +589,7 @@ class PCAResult:
         segmentation and focus rather than about biology — so it is detected
         and said out loud rather than left for the reader to notice.
 
-        Two guards keep it from crying wolf. It needs three features, because
+        Two guards prevent false detections. It needs three features, because
         with two "same sign" is a coin flip. And it needs the loading spread
         over more than one of them: a component that is a *single* feature
         trivially agrees with itself about sign, and calling that a size axis
@@ -681,7 +678,7 @@ class PCAResult:
         })
 
     def headline(self, k: int = 0) -> str:
-        """One sentence about component ``k``, including the bad news."""
+        """One sentence about component ``k``: its variance share and what dominates it."""
         k = self._check(k)
         name = component_name(k)
         share = self.explained_variance_ratio[k]
@@ -709,7 +706,7 @@ class PCAResult:
         return "; ".join(parts) + "."
 
     def caveats(self) -> Tuple[str, ...]:
-        """Everything a reader needs before believing the picture."""
+        """The caveats that apply to this decomposition, one sentence each."""
         out: List[str] = []
         if self.scaling == SCALE_NONE:
             out.append(
@@ -759,7 +756,7 @@ class PCAResult:
         return tuple(out)
 
     def report(self) -> str:
-        """The whole story, as the panel shows it and a report file writes it."""
+        """The full text report, as the panel shows it and a report file writes it."""
         scaling = ("standardised to unit variance"
                    if self.scaling == SCALE_ZSCORE else "centred only")
         lines = [

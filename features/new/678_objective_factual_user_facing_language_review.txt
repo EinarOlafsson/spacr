@@ -70,3 +70,29 @@ Queued as the final task, as explicitly requested. The three existing agents
 continue their current completion work. Newly authored material should
 already follow this factual style, avoiding a second narration rewrite.
 This is a recorded plan, not a claim that the full text review is complete.
+
+2026-10-11 Home share (API docstrings, setting tooltips, spacr/qt UI):
+Split agreed with the workstation. Ledger files a7-a12 appended to
+features/data/678_factual_review_2026-10-10/ in the a1-a6 record format;
+each change keeps its before/after text, kind and code evidence.
+Units read / changed per surface:
+  setting tooltips      954 literals / 18; templates 3 families (35,058
+                        generated keys) / 0; 5 module tooltips and
+                        descriptions (illumination, OPS) changed  a7, a8
+  settings.py docstrings 293 blocks / 26                          a7
+  API docstrings, spacr/ outside qt  25,645 blocks / 2,564        a8-a11
+  spacr/qt docstrings   17,950 blocks / 1,688                     a12
+  spacr/qt app UI strings 6,706 inventoried strings / 92          a12
+Not reviewed: 63 qt files excluded for scope (Make Masks, curation,
+Gate Editor, themes/animations, shortcuts, figure export, generated
+indexes, i18n catalogs) or activity within 12 h; listed by name in the
+Home scratch inventory, and the out-of-scope text found is listed in each
+ledger's out_of_scope_skipped. Factual corrections are tagged
+factual-error in the ledgers (e.g. resnet_features raises
+NotImplementedError; baseline.apply returns the input unchanged when
+nothing moves; sim.run_simulation returns (output, dists)).
+English sources regenerated with their tools only. Reviewed API and
+runtime translations of the rewritten text are now stale and are left
+for the workstation's translation pass; a12 lists the changed English
+keys of hand-translated UI rows. This is the Home share only; docs,
+guides and narration remain with the workstation.

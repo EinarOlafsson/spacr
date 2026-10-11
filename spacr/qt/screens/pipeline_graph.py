@@ -1,12 +1,11 @@
-"""Pipeline Graph — what produced what, and which of it is still true.
+"""Pipeline Graph — which artifact was made from which, and which are outdated.
 
-A spaCR project accumulates files faster than anyone can hold in their
-head: masks, a measurements database, crops, model weights, predictions,
-regression tables, figures. Some of those were made from each other. Some
-were made from a *previous* version of each other, because the mask step
-was re-run with a different diameter on Tuesday and nothing downstream was.
-Nothing in the GUI showed that, and a stale number does not look stale — it
-looks like a number.
+A spaCR project holds masks, a measurements database, crops, model weights,
+predictions, regression tables and figures. Some of those were made from
+each other. Some were made from a *previous* version of another, for
+example when the mask step was re-run with a different diameter and nothing
+downstream was. An outdated value cannot be recognised from the value
+itself.
 
 This screen draws the DAG:
 
@@ -19,8 +18,8 @@ This screen draws the DAG:
 
 Boxes are artifacts, arrows are "was made from", and the colour is the
 verdict :func:`spacr.artifacts.Registry.is_stale` returns — with its
-``reasons`` shown in the panel beside the graph, because "stale" on its own
-is an accusation, not an explanation. Click a box and the panel names the
+``reasons`` shown in the panel beside the graph, so each verdict comes with
+its cause. Click a box and the panel names the
 run that produced it, the settings digest, the spaCR version, and what
 re-running it would invalidate.
 
@@ -30,8 +29,8 @@ Three deliberate choices:
 pipeline is *supposed* to do is :data:`spacr.ports.PORTS`, and that is
 drawn too — dimmed, underneath, as the "declared order" strip — but the
 boxes and arrows are what actually happened. A project where measure read
-last week's masks does not look like the tidy diagram, and that difference
-is the entire value of the screen.
+last week's masks is drawn with that history, which differs from the
+declared diagram.
 
 **Missing is not stale.** A deleted file is red and says so; an outdated
 one is amber. :mod:`spacr.artifacts` refuses to conflate them and neither

@@ -24,8 +24,8 @@ Drawing it
 
 The panel draws the top features as a strip of small histograms, one row per
 feature, the classes overlaid on **shared bin edges** — the same rule
-:func:`spacr.qt.widgets.graph_spec.scales_for` applies across facets. Two class
-histograms drawn on their own edges are two pictures of nothing.
+:func:`spacr.qt.widgets.graph_spec.scales_for` applies across facets. Class
+histograms drawn on separate bin edges cannot be compared bin by bin.
 """
 from __future__ import annotations
 
@@ -130,8 +130,9 @@ class FeatureExplorerPanel(QWidget):
         self._null.setToolTip(
             "Permute the class labels and re-rank, 50 times, keeping the best "
             "score each time. The 95th percentile is the separation the best "
-            "of your features reaches by chance — a feature below it is not "
-            "news. Costs a pass per shuffle.")
+            "of your features reaches by chance; a feature below it separates "
+            "the classes no better than chance. Each shuffle repeats the "
+            "ranking.")
         self._null.toggled.connect(self._schedule)
         controls.addWidget(self._null)
         outer.addLayout(controls)
@@ -247,7 +248,7 @@ class FeatureExplorerPanel(QWidget):
         self.rank_now()
 
     def current_spec(self) -> ExplorerSpec:
-        """The spec as the controls read RIGHT NOW.
+        """The spec as the controls currently read.
 
         Distinct from :attr:`spec`, which is what the last run used: the two
         differ while the user is changing the controls, and a panel that

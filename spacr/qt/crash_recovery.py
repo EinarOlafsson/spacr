@@ -1,4 +1,4 @@
-"""Notice that spaCR keeps dying on launch, and start without the part that kills it.
+"""Detect repeated launch crashes and start the next launch without the backdrop.
 
 The crash log records `Fatal Python error: Segmentation fault` and `Aborted`
 with `<no Python frame>` on the crashing thread -- the fault is in native
@@ -6,15 +6,14 @@ code, in Qt's render thread or the GL driver, where no Python stack exists to
 report and no `except` can run. The animated backdrop and its optional GL
 canvas are the only things spaCR asks a driver to do at startup.
 
-A user cannot act on that. What they see is an application that will not
-open, and the setting that would turn the backdrop off is behind the window
-that never appears. `safespacr` is the deliberate way in; this is the
-automatic one, for the user who does not know it exists.
+In that case the application does not open, so the setting that turns the
+backdrop off cannot be reached. `safespacr` starts spaCR without the backdrop
+on request; this module does the same automatically.
 
-HOW IT KNOWS: a marker file is written when a launch begins and removed when
-one shuts down cleanly. Finding it already there means the last run died
-without shutting down. Two of those in a row is treated as a pattern rather
-than an accident, and the next start is made without the backdrop.
+A marker file is written when a launch begins and removed on a clean shutdown.
+Finding it at launch means the previous run ended without a clean shutdown.
+After two such exits in a row (``CRASHES_BEFORE_DROPPING_THE_BACKDROP``), the
+next start is made without the backdrop.
 """
 from __future__ import annotations
 
@@ -110,11 +109,10 @@ def note_that_a_launch_began() -> int:
 def note_a_clean_shutdown() -> None:
     """Record that this run ended properly, clearing the count.
 
-    THE COUNT RESETS RATHER THAN DECREMENTS. The question is "is spaCR
-    crashing right now", not "how many times has it ever crashed", and a
-    total that only ever grew would eventually disable the backdrop on a
-    machine where it works. Every instance and project lock this window
-    holds is released first.
+    The count is reset to zero rather than decremented: it counts
+    consecutive unclean exits, and a cumulative total would eventually
+    disable the backdrop on a machine where it works. Every instance and
+    project lock this window holds is released first.
     """
     _release_all_locks()
     if _OTHER_INSTANCE:
@@ -142,10 +140,9 @@ def should_start_without_the_backdrop(unclean: Optional[int] = None) -> bool:
 def take_the_backdrop_out_of_this_launch() -> None:
     """Turn off, for this process only, everything that asks a driver to draw.
 
-    NOT A SAVED PREFERENCE. The user did not choose this and must not have
-    to undo it: the next clean run clears the count and the backdrop comes
-    back on its own. Writing it to the store would turn a diagnosis into a
-    setting the user never made and cannot explain.
+    Only the ``SPACR_NO_GL`` and ``SPACR_NO_BACKDROP`` environment variables
+    of this process are set; no preference is saved. The next clean run
+    clears the count and the backdrop is shown again.
     """
     os.environ["SPACR_NO_GL"] = "1"
     os.environ["SPACR_NO_BACKDROP"] = "1"

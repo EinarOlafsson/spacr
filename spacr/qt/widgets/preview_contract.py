@@ -1,4 +1,4 @@
-"""One contract for every live view, written down once.
+"""One shared contract for every live view.
 
 Four modules ship a live view — Mask
 (:mod:`~spacr.qt.widgets.live_preview`), Timelapse
@@ -61,13 +61,13 @@ UMAP explorer is not one: it makes an already-computed embedding
 clickable, and no setting changes what it draws. Its toggle therefore says
 **Interactive**, not Live — the same word had been on both.
 
-**Cancel** and **Stop** are also two words on purpose. A live view's
-Cancel throws the pass away: nothing it produced is kept, because a half
--segmented field is not a result. A hyperparameter search's Stop
-(:class:`spacr.qt.screens.hyperparam.HyperparamPanel`) finishes the trial
-in flight and keeps every trial already scored, marking the result
-partial. Same button position, deliberately different verbs, because a
-user who presses one expecting the other loses either nothing or hours.
+**Cancel** and **Stop** are also different words. A live view's Cancel throws
+the pass away: nothing it produced is kept, because a half -segmented field is
+not a result. A hyperparameter search's Stop
+(:class:`spacr.qt.screens.hyperparam.HyperparamPanel`) finishes the trial in
+flight and keeps every trial already scored, marking the result partial. Same
+button position, deliberately different verbs, because a user who presses one
+expecting the other loses either nothing or hours.
 
 The search panel's progress is already reported the way this contract
 wants a live view's to be — ``on_trial`` is called with ``idx + 1`` *after*
@@ -77,11 +77,10 @@ work done rather than work started.
 Cellpose
 --------
 :func:`preview_cellpose_model` is the other half of the sharing.
-``model_type=`` is accepted and IGNORED by Cellpose 4, so a preview that
-passed it silently segmented with ``cpsam`` — including for a user who had
-just trained their own checkpoint in spaCR's Train Cellpose module. That
-defect was written twice, in two preview files, and fixed twice. One
-constructor here means the next Cellpose API change is one fix.
+``model_type=`` is accepted and ignored by Cellpose 4, so a preview that passed
+it silently segmented with ``cpsam`` — including for a user who had just
+trained their own checkpoint in spaCR's Train Cellpose module. One constructor
+here means a Cellpose API change needs one fix.
 """
 from __future__ import annotations
 
@@ -143,14 +142,14 @@ def preview_failure_message(error: Any) -> str:
 def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     """Build the Cellpose model a live view segments with.
 
-    ``model_type=`` is accepted-and-IGNORED by Cellpose 4 — it logs "not
-    used in v4.0.1+" and drops it, leaving ``pretrained_model`` at its
-    ``cpsam`` default. Passing the user's choice there therefore segmented
-    with ``cpsam`` whatever they picked, including a checkpoint they had
-    just trained in spaCR's own Train Cellpose module.
-    :func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline
-    uses: it maps the legacy pre-SAM names onto ``cpsam`` and says so once,
-    and returns a path unchanged when the name is a fine-tuned checkpoint.
+    ``model_type=`` is accepted and ignored by Cellpose 4 — it logs "not used
+    in v4.0.1+" and drops it, leaving ``pretrained_model`` at its ``cpsam``
+    default. Passing the user's choice there therefore segmented with ``cpsam``
+    whatever they picked, including a checkpoint they had just trained in
+    spaCR's own Train Cellpose module.
+    :func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline uses:
+    it maps the legacy pre-SAM names onto ``cpsam`` and says so once, and
+    returns a path unchanged when the name is a fine-tuned checkpoint.
 
     Cellpose and torch are imported inside the call, so importing a preview
     module cold — as the test suite does — needs no CUDA-capable stack.
@@ -197,12 +196,12 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
 
 
 class LivePreviewContract:
-    """What every live-view panel promises, implemented once.
+    """The shared behaviour of every live-view panel, implemented once.
 
     A panel mixes this in beside ``QWidget`` and supplies three things: a
     ``_status`` label, a ``_run_btn`` button, and
-    :meth:`_preview_blocked_reason`. It gets the run guard, the cancel
-    token, the busy/idle button state and the shared wording for free.
+    :meth:`_preview_blocked_reason`. It gets the run guard, the cancel token,
+    the busy/idle button state and the shared wording.
 
     The token is the cancellation mechanism. Neither Cellpose nor a numpy
     read exposes an interrupt, so a cancelled pass is left to run itself
@@ -228,8 +227,7 @@ class LivePreviewContract:
     def preview_blocked_reason(self) -> str:
         """Say why the preview cannot run, or ``""`` when it can.
 
-        Never raises: a panel that fails while explaining itself would
-        take the status line down with it.
+        Never raises, so the status line can always be written.
         """
         try:
             return str(self._preview_blocked_reason() or "")
@@ -258,12 +256,11 @@ class LivePreviewContract:
     def display_primaries(self) -> str:
         """Which primaries this view draws channels in.
 
-        Read from the GLOBAL preference, never from a control on one panel.
-        A user who needs the substitution needs it in every view and every
-        session; a per-screen toggle is one they have to re-find, and the
-        screen they forget to set is the one that misleads them.
+        Read from the global preference, never from a control on one panel: a
+        user who needs the substitution needs it in every view and every
+        session.
 
-        A view MAY override this -- a figure being prepared for publication
+        A view may override this -- a figure being prepared for publication
         wants ``cmy`` whatever the author's vision -- but every view starts
         here.
 
@@ -287,10 +284,9 @@ class LivePreviewContract:
     def set_preview_status(self, text: Any) -> None:
         """Put one sentence on the panel's status line.
 
-        The display-primaries note is appended here rather than at each
-        call site, so no panel and no code path can recolour an image
-        without saying so. When the preference is off -- which it is for
-        almost everybody -- this changes nothing at all.
+        The display-primaries note is appended here rather than at each call
+        site, so no panel and no code path can recolour an image without saying
+        so. When the preference is off this changes nothing.
 
         :param text: the sentence to show; converted to ``str`` and translated.
             A panel with no status label ignores it.
@@ -355,9 +351,8 @@ class LivePreviewContract:
     def begin_preview(self) -> bool:
         """The shared guard at the top of every ``run_preview``.
 
-        Refuses out loud — a live view that declines in silence is the
-        defect this contract exists to remove — and otherwise marks the
-        panel busy and hands back a fresh token via :meth:`preview_token`.
+        Refuses with a reason on the status line, and otherwise marks the panel
+        busy and hands back a fresh token via :meth:`preview_token`.
 
         :returns: True when the caller should start a pass.
         """

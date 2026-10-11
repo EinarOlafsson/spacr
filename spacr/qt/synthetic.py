@@ -37,10 +37,10 @@ consume:
   writes) and raises rather than guessing.
 
 Every generator is *reproducible*: identical inputs give byte-identical
-output on any machine. That is not decoration. Two people comparing
-"the demo fails here" have to be looking at the same pixels, and the
-previous seeding (``hash((well, field, time, chan))``) was salted by
-PYTHONHASHSEED, so it changed on every interpreter start.
+output on any machine, so two people comparing "the demo fails here" look
+at the same pixels. Seeds are not taken from ``hash((well, field, time,
+chan))``, which PYTHONHASHSEED salts differently at every interpreter
+start.
 
 Public API::
 
@@ -560,14 +560,11 @@ def generate_measure_demo(
     fields: int = 2,
     channels: Iterable[int] = (0, 1, 2, 3),
 ) -> DemoLayout:
-    """Measure consumes what Mask produces: a ``merged/`` folder of
-    ``.npy`` stacks whose trailing planes are the label masks.
+    """Write a synthetic Measure dataset of merged image and label stacks.
 
-    We pre-build those stacks so a user can jump straight into Measure
-    without a GPU. Before this, the demo wrote a ``masks/`` folder of
-    per-*file* tiffs and an empty ``measurements.db`` — neither of which any
-    pipeline reads — and measure's pre-flight rejected the folder outright
-    with "no merged folder for measure".
+    Measure reads what Mask produces: a ``merged/`` folder of ``.npy`` stacks
+    whose trailing planes are the label masks. The stacks are pre-built here,
+    so Measure can run on the demo without a GPU or a Mask run.
 
     .. note::
        **The organelle plane this writes is measured into nothing, and the
@@ -582,9 +579,8 @@ def generate_measure_demo(
        ``spacr.settings.get_measure_crop_settings`` — the defaults every
        measure run is canonicalised through — never sets that key.
 
-       That much was already known. What was *wrong* was the remedy: "default
-       it for measure the way the Mask app does" does not fix this, and cannot,
-       for two reasons that have to be fixed together.
+       Defaulting the key for measure the way the Mask app does would not
+       fix this, for two reasons that have to be fixed together.
 
        1. ``set_default_settings_preprocess_generate_masks`` defaults it to the
           **string** ``'cell'``, and ``measure.py`` tests it with
@@ -641,11 +637,10 @@ def generate_crop_demo(
     writes PNG crops into per-object folders alongside the DB.
 
     Builds the dataset directly rather than by calling
-    :func:`generate_measure_demo`. Chaining them wrote ``settings_measure.csv``
-    first and then only *reassigned* ``layout.settings_csv``, leaving two
-    settings files in one folder — and the one named after the folder's own
-    demo was the one that turns PNG crops **off**. A folder holds exactly one
-    ``settings_*.csv`` now, so "Import settings…" cannot pick the wrong run.
+    :func:`generate_measure_demo`, so the folder holds exactly one
+    ``settings_*.csv`` (``settings_crop.csv``, with PNG crops on) and
+    "Import settings…" cannot pick the measure settings, which turn PNG
+    crops **off**.
 
     :param dst: destination folder.
     :param plate: plate ID baked into every filename.
@@ -691,13 +686,15 @@ def generate_classify_demo(
     dst: Path, n_crops: int = 64, plate: str = "plate1",
     wells: Sequence[str] = ("A01", "A02", "A03", "A04"),
 ) -> DemoLayout:
-    """Classify wants PNG single-object crops + a `measurements.db`
-    with a `png_list` table + an `annotate` column carrying class
-    labels for training/testing.
+    """Write a synthetic Classify dataset of PNG crops and a `png_list` table.
+
+    Classify reads PNG single-object crops and a `measurements.db` with a
+    `png_list` table whose `annotate` column carries the class labels for
+    training and testing.
 
     This is a hand-built stand-in for a measured plate, not a replica of one.
-    Two of the three things that matter match measure_crop; the third does
-    not, and the docstring used to claim all three did.
+    Two of the four properties below match measure_crop; the other two do
+    not.
 
     **Crop names match.** A real crop is ``<file_name>_<cell_id>.png`` where
     ``file_name`` is the merged stack's ``<plate>_<well>_<field>_<time>``
@@ -804,15 +801,15 @@ def generate_timelapse_demo(
     times: int = 8,
     channels: Iterable[int] = (0, 1),
 ) -> DemoLayout:
-    """Timelapse needs multi-T frames per (well, field) so tracking
-    has something to lock onto. Same cellvoyager naming, just with
-    T01..T<N>, and every frame holds the *same* cells drifting a couple of
-    pixels rather than a fresh random field.
+    """Write a synthetic Timelapse dataset with several frames per field.
 
-    Only the nucleus and cell channels are acquired, and the settings say so:
-    the base settings used to advertise ``channels=[0,1,2,3]`` plus a
-    ``pathogen_channel``/``organelle_channel`` this dataset never had, which
-    pre-flight rejected with two hard errors before the run could start.
+    Tracking needs multi-T frames per (well, field). The files use the
+    cellvoyager naming with T01..T<N>, and every frame holds the *same*
+    cells shifted by a few pixels rather than a new random field.
+
+    Only the nucleus and cell channels are acquired, and the settings list
+    only those channels, with no ``pathogen_channel`` or
+    ``organelle_channel``, so pre-flight accepts them.
 
     .. note::
        The dataset and settings this writes clear pre-flight, but the
@@ -1114,16 +1111,12 @@ def generate_barcode_csv(dst: Path, names: Sequence[str],
     :param sequences: barcode sequences.
     :returns: the resolved ``dst`` path.
     :raises ValueError: when ``names`` and ``sequences`` do not hold the same
-        **number of entries**. This is a count of rows, not a comparison of
-        base counts — the previous wording said the opposite, in a module
-        whose subject is DNA of a declared size, and the two CSVs this writes
-        for a demo folder deliberately carry different barcode lengths (21 for
-        gRNAs, 8 for wells), so a base-length check would be wrong as well as
-        unimplemented. The count check earns its stop because the ``zip``
-        below halts at the shorter list: an unequal pair would silently drop
-        the tail and hand ``map_sequences_to_names`` a table missing barcodes
-        the reads actually carry, and every read of those guides would then
-        map to nothing with no line in the log to say why.
+        **number of entries**. This compares row counts, not barcode
+        lengths: the two CSVs written for a demo folder carry different
+        barcode lengths (21 for gRNAs, 8 for wells). The check is needed
+        because the ``zip`` below stops at the shorter list, so an unequal
+        pair would drop barcodes from the table without a log message, and
+        the reads of those barcodes would map to no name.
     """
     if len(names) != len(sequences):
         raise ValueError(

@@ -52,7 +52,7 @@ class DeclaredApp:
         ``app`` reads this table while it is itself being imported. A
         misspelling is not a silent one — :func:`spacr.qt.app.register_app`
         raises on a section it does not know.
-    :param factory: ATTRIBUTE NAME of the screen factory on ``module``, not
+    :param factory: attribute name of the screen factory on ``module``, not
         the callable. ``None`` for an app that takes the generic settings
         screen.
     :param stage: one of :data:`spacr.qt.app.STAGES`; likewise spelled out.
@@ -140,9 +140,9 @@ class LazyScreenFactory:
     callable. Direct calls are also supported; only keyword arguments accepted
     by the resolved factory are forwarded unless it accepts ``**kwargs``.
 
-    :param module: dotted path of the module holding the factory. NOT
-        imported here -- that is the whole point: naming a screen must not
-        pull its imports into application startup.
+    :param module: dotted path of the module holding the factory. It is not
+        imported here, so naming a screen does not add the screen's imports
+        to application startup.
     :param attribute: the factory's name inside that module.
     """
 
@@ -182,9 +182,9 @@ class LazyScreenFactory:
         Keyword arguments the factory does not accept are dropped rather than
         raising, so a caller can offer ``threaded=`` or ``link=`` to every
         screen and let each take what it understands. ``inspect`` is imported
-        here rather than at module scope: it costs a dozen modules of its own,
-        and this module is read while the splash screen is up to avoid exactly
-        that bill.
+        here rather than at module scope because it imports about a dozen
+        modules of its own, and this module is imported while the splash
+        screen is shown.
 
         :param kwargs: passed to the factory, filtered to what it accepts unless
             it takes ``**kwargs``.

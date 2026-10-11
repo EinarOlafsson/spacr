@@ -1,35 +1,34 @@
 """The repeated per-object settings, drawn as one row per question.
 
-78 of Mask's 201 settings are the SAME twenty-odd questions asked once per
+78 of Mask's 201 settings are the same twenty-odd questions asked once per
 object type -- ``cell_diameter``, ``nucleus_diameter``,
 ``pathogen_diameter``, ``organelle_diameter`` -- and a form that lists them
-flat asks 203 questions before anything is segmented. A table was chosen over
-tabs and over leaving the names flat.
+flat asks each of them separately. A table was chosen over tabs and over
+leaving the names flat.
 
 :mod:`spacr.object_settings_table` is the model and draws nothing; this is
-the view over it. The split matters more than it looks: the stored keys never
-change, so no settings file, notebook, tutorial or ``spacr-run`` invocation
-migrates. What was wrong was the presentation, so only the presentation
-changes.
+the view over it. Because of this split the stored keys never change, so no
+settings file, notebook, tutorial or ``spacr-run`` invocation needs migrating;
+only the presentation differs.
 
-WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of
-organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new
-settings that every tooltip table and translation catalog has to learn; here
-it is one COLUMN, and the number of questions does not move.
-:meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new
-organelle from the first one's answers rather than from a global default
-nobody chose.
+The table shape allows an arbitrary number of organelles. The number of
+organelles a run may declare is not fixed. In a flat vocabulary each new
+organelle is twenty new settings that every tooltip table and translation
+catalog has to include; here it is one column, and the number of questions
+does not change. :meth:`ObjectSettingsGrid.add_organelle` adds one, and it
+starts a new organelle from the first one's answers rather than from a global
+default.
 
-TWO THINGS THIS VIEW IS CAREFUL ABOUT, both of which would corrupt a settings
-file rather than merely look wrong:
+The view enforces two rules; breaking either would corrupt a settings file
+rather than only display it wrongly:
 
 * **A value keeps its type.** ``cell_diameter`` is an int, ``organelle_
   cellprob_threshold`` is a float, and a cell edited in a table arrives as a
-  string. Writing ``"12"`` where ``12`` was is a settings file that has
-  quietly changed meaning, and the pipeline reading it either coerces
-  silently or fails a long way from here.
+  string. Writing ``"12"`` where ``12`` was changes the meaning of the
+  settings file without notice, and the pipeline reading it either coerces
+  silently or fails far from here.
 * **A question an object does not ask stays absent.** ``cytoplasm`` has no
-  channel, no diameter and no detection method -- it is DERIVED, cell minus
+  channel, no diameter and no detection method -- it is derived, cell minus
   the rest, not found in a channel. Those cells are blank and not editable,
   because writing a value there invents a key nothing reads.
 """
@@ -340,9 +339,9 @@ class ObjectSettingsModel(QAbstractTableModel):
     def flags(self, index):
         """Which cells are editable.
 
-        ONLY THE CELLS AN OBJECT ACTUALLY ASKS. A blank cell means that
+        Only the cells an object asks are editable. A blank cell means that
         object does not ask that question, and making it editable would
-        invite an answer to a question nobody posed.
+        accept a value for a key nothing reads.
 
         :param index: the cell.
         :returns: the Qt item flags.
@@ -700,9 +699,8 @@ class ObjectSettingsGrid(QWidget):
         self._status.setWordWrap(True)
         self._add = QPushButton("Add an organelle", self)
         self._add.setToolTip(
-            "One more organelle is one more COLUMN. In the flat settings "
-            "vocabulary it was twenty new settings, which is why the count "
-            "could not be arbitrary before this table existed.")
+            "Each added organelle is one more column in this table, seeded "
+            "with the first organelle's values.")
         self._add.clicked.connect(self.add_organelle)
         self._add_filter = QPushButton("Add a filter", self)
         self._add_filter.setObjectName("ObjectGridAddFilter")
@@ -812,15 +810,15 @@ class ObjectSettingsGrid(QWidget):
     def eventFilter(self, watched, event):               # noqa: N802
         """Show the same sticky, linked tooltip the form shows.
 
-        THE SAME POPUP, NOT A SECOND ONE. The flat form puts rich help on a
-        widget and lets `HoverTooltip` draw it: a typed body, an API link,
-        and the setting's animation when it has one. A table has no widget
-        per cell, so the anchor is the view and the cell under the pointer
-        decides which setting it is speaking for.
+        The table uses the same popup as the form. The flat form puts rich
+        help on a widget and lets `HoverTooltip` draw it: a typed body, an API
+        link, and the setting's animation when it has one. A table has no
+        widget per cell, so the anchor is the view and the cell under the
+        pointer decides which setting it is speaking for.
 
         The native tooltip is swallowed for the same reason the form
         swallows it -- it disappears the moment the pointer moves toward the
-        API link, and that link is the point.
+        API link.
 
         :param watched: the object the filter is installed on: this widget
             (font changes), the help band (enter and leave) or the table's
@@ -1075,9 +1073,9 @@ class ObjectSettingsGrid(QWidget):
     def set_settings(self, settings: Mapping[str, Any]) -> None:
         """Show the per-object half of a flat settings dict.
 
-        The rest is KEPT, not dropped: :meth:`settings` returns it unchanged
-        beside the table's own keys, so this widget can edit a corner of a
-        settings file without holding the whole of it hostage.
+        The rest is kept, not dropped: :meth:`settings` returns it unchanged
+        beside the table's own keys, so this widget can edit part of a
+        settings file without taking over the rest of it.
 
         :param settings: flat settings dict, or ``None``; its
             ``<object>_<question>`` keys become the table.
@@ -1382,13 +1380,12 @@ class ObjectSettingsGrid(QWidget):
 
         Empty at the ceiling. Slot names are lettered -- an object type is
         embedded in an underscore-separated object key, so a digit would be
-        ambiguous against the object LABEL -- and the lettering CARRIES past
+        ambiguous against the object label -- and the lettering carries past
         ``z``, so the ceiling is where two letters run out rather than one.
 
-        COUNTS UP FROM THE SLOTS IN USE rather than from one. Walking every
-        slot from the start was fine while there were 26; there are now 702,
-        and the caller that presses Add repeatedly turned an O(slots) scan
-        into an O(slots squared) one.
+        Counts up from the slots in use rather than from one. With 702 slots,
+        walking every slot from the start on each Add would make repeated
+        presses O(slots squared).
 
         Hidden slots count as in use too.
         """

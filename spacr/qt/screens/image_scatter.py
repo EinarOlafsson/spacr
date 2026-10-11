@@ -1,23 +1,21 @@
-"""``V3`` — a scatter plot where every point is the cell it stands for.
+"""A measurement scatter plot that shows the crop of each point's object.
 
-A measurement scatter is thousands of dots, and the question anybody actually
-has about it is *what does that one look like*. Without an answer, an outlier
-is a coordinate: you can see that something at (0.9, 12.4) is unusual and you
-cannot tell whether it is a real phenotype, a debris fragment or two cells
-segmented as one. That judgement is the whole reason to look at a plot of
-images rather than a plot of numbers, and it needs the image.
+A measurement scatter holds thousands of points. A point's coordinates show
+that an object is unusual, for example at (0.9, 12.4), but not whether it is a
+real phenotype, a debris fragment or two cells segmented as one; telling
+these apart needs the crop.
 
 So: **hover shows the crop, click opens it.** The click goes through
 :func:`spacr.qt.linked_selection.open_objects`, so this screen does not import
 the annotation grid and the grid grows no method for it.
 
-Not stuttering is a design constraint, not an optimisation
-----------------------------------------------------------
+Hover performance
+-----------------
 
 A hover handler runs sixty-plus times a second and a PNG decode costs
 milliseconds, so the obvious implementation — decode the crop under the cursor
-in ``mouseMoveEvent`` — produces a plot that lags behind the mouse and reads
-as broken. Three things keep it honest, and all three are load-bearing:
+in ``mouseMoveEvent`` — produces a plot that lags behind the mouse. Three
+measures keep hover responsive:
 
 * The point cloud is painted once into a pixmap and blitted. Hover repaints a
   ring, never ninety thousand dots.
@@ -427,8 +425,8 @@ class ScatterCanvas(QFrame):
     def leaveEvent(self, event) -> None:
         """Clear the hover when the pointer leaves the canvas.
 
-        OTHERWISE THE THUMBNAIL STICKS: the last hovered point stays drawn
-        over a canvas the pointer has left, which reads as a selection.
+        Without this, the last hovered point's thumbnail stays drawn over a
+        canvas the pointer has left and looks like a selection.
 
         :param event: the Qt leave event.
         """
@@ -499,7 +497,7 @@ class ImageScatterScreen(LinkedView, QWidget):
         outer.addWidget(title)
         intro = QLabel(
             "Hover a point to see the object it stands for; click it to open "
-            "the crop. An outlier you cannot look at is only a coordinate.",
+            "the crop.",
             self)
         intro.setObjectName("Muted")
         intro.setWordWrap(True)

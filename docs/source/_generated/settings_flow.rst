@@ -20057,7 +20057,7 @@ Read by ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_m
 resnet_features
 ---------------
 
-(bool) - Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.
+(bool) - Placeholder for embedding raw crops with ResNet features instead of the measured feature table. Not implemented: when it is True, generate_image_umap raises NotImplementedError before embedding. Leave it False. Default False.
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 

@@ -1,4 +1,4 @@
-"""Batch Runner — the Tools module that spends the night for you.
+"""Batch Runner — the Tools module that runs a queue of jobs unattended.
 
 The Plate Queue chains *plates* through *one* pipeline. This screen is the
 other axis: arbitrary ``(module, settings)`` jobs in any order —
@@ -16,8 +16,8 @@ Three decisions are visible to the user:
 
 * **Jobs are validated when they are added, not when they run.** A job whose
   settings file is missing, whose ``src`` is misspelled or whose module is
-  GUI-only is refused at the Add button, with the reason inline. Finding that
-  out at 3 a.m. from job 9 of 12 is what this whole module exists to prevent.
+  GUI-only is refused at the Add button, with the reason inline, instead of
+  failing when the queue reaches it.
 * **No modal dialogs, ever.** Every failure lands in the inline problems pane
   and in :attr:`BatchScreen.last_error`. A ``QMessageBox`` hangs a headless
   run (it did, in ``MakeMasksScreen``), and this screen is exercised headlessly.
@@ -231,8 +231,8 @@ class BatchScreen(QWidget):
         bar = QHBoxLayout()
         bar.setSpacing(SPACING["sm"])
         self._btn_dup = QPushButton("Duplicate", self)
-        self._btn_dup.setToolTip("Copy the selected job so you can edit the copy — "
-                                 "how a twelve-job night is usually built.")
+        self._btn_dup.setToolTip("Copy the selected job so you can edit the copy, "
+                                 "for example to vary one setting.")
         self._btn_dup.clicked.connect(self.duplicate_selected)
         self._btn_remove = QPushButton("Remove", self)
         self._btn_remove.clicked.connect(self.remove_selected)
@@ -266,8 +266,9 @@ class BatchScreen(QWidget):
         self._threshold_spin.setValue(3)
         self._threshold_spin.setSuffix(" failures in a row")
         self._threshold_spin.setToolTip(
-            "Three jobs failing the same way is a systematic problem, not three "
-            "accidents — the rest of the queue would fail too. 0 disables the check.")
+            "Stop the queue after this many failed jobs in a row; consecutive "
+            "failures usually share a cause that would also fail the remaining "
+            "jobs. 0 disables the check.")
         run_row.addWidget(self._threshold_spin)
         run_row.addStretch(1)
         self._btn_run = QPushButton("Run queue", self)
@@ -316,8 +317,8 @@ class BatchScreen(QWidget):
         self._log_view = QPlainTextEdit()
         self._log_view.setReadOnly(True)
         self._log_view.setPlaceholderText(
-            "Select a job to read its own log. Every job writes its own file — a "
-            "single interleaved log from an overnight run is unreadable.")
+            "Select a job to read its own log. Every job writes its own log "
+            "file, so the logs of different jobs are not interleaved.")
         split.add_section(self._log_view, "Job log",
                           persist_key="batch/Job log", stretch=2)
         outer.addWidget(split, 1)
@@ -370,8 +371,8 @@ class BatchScreen(QWidget):
     def duplicate_selected(self) -> bool:
         """Copy the selected job, never-run, and select the copy.
 
-        Building a night's work means one job and eleven variations of it, so
-        this is the button that actually gets used.
+        A queue is usually built from one job and several edited copies of
+        it.
         """
         job = self.selected_job()
         if job is None:

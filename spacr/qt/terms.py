@@ -323,10 +323,10 @@ def terms_text(language: str | None = None) -> str:
         the profile's current language. A locale with no translated
         presentation gets the English, which is always correct here.
 
-    THE ENGLISH IS THE AGREEMENT. Section 11.4 says so: a translation is a
-    convenience and the English governs. So a missing or partial translation
-    is never an error condition -- it falls back and the document a profile
-    accepts is unchanged, which is why `record_agreement` stores
+    The English text is the agreement: section 11.4 states that a translation
+    is a convenience and the English governs. So a missing or partial
+    translation is never an error condition -- it falls back and the document a
+    profile accepts is unchanged, which is why `record_agreement` stores
     `TERMS_VERSION` and nothing about the language on screen.
     """
     if language is None:

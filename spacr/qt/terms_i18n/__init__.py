@@ -1,23 +1,23 @@
 """Translated presentations of the End User Licence Agreement.
 
-WHY THIS IS NOT IN THE CAPTION CATALOGS: the agreement is 7,621 characters.
+The agreement is not in the caption catalogs: it is 7,621 characters.
 Nine locales of it would be roughly double the entire existing runtime
 catalog, and it would flow into every ratchet, count and coverage figure the
 translation tooling tracks -- so those numbers would stop describing the user
 interface and start being mostly licence text.
 
-WHAT A FILE HERE IS, AND IS NOT. It is a CONVENIENCE PRESENTATION of the
-English agreement. Section 11.4 of the agreement says so in its own words: if
+A presentation registered here is a convenience presentation of the English
+agreement. Section 11.4 of the agreement says so in its own words: if
 a translation differs from the English in any respect, the English governs.
 Nothing here is a separate agreement and nothing here is what a profile
 accepts -- `terms.record_agreement` stores `TERMS_VERSION`, which is the
 English document's version, whichever language was on screen.
 
-REVIEW STATUS IS PER LOCALE and is recorded in each file's `REVIEW` mapping,
-rather than asserted collectively. Icelandic, Swedish and German carry a
-human review; the other six are machine drafts and say so. A locale nobody
-read must never be recorded as reviewed -- that is the whole point of the
-mapping being per file.
+Review status is recorded per locale, through the ``review`` argument of
+:func:`register`, rather than asserted collectively, and :func:`register`
+refuses an empty one. A locale nobody read must not be recorded as reviewed.
+No locale presentation is registered in this package at present, so every
+language shows the English agreement.
 """
 from __future__ import annotations
 

@@ -28,9 +28,8 @@ LOG = logging.getLogger("spacr.qt.model_share_dialog")
 class ShareDialog(QDialog):
     """One line per scorecard column, in the order the card prints them.
 
-    Blank is allowed everywhere: a card that says "not recorded" is honest,
-    and a form that refused to submit without a number would be answered with
-    a made-up one.
+    Blank is allowed everywhere: a blank field reads "not recorded" on the
+    card, so no number has to be invented to submit the form.
     """
 
     def __init__(self, filename: str, parent: Optional[QWidget] = None):
@@ -223,8 +222,8 @@ def contribute_masks_tooltip() -> str:
         "(organism, object type, stain) and they go to their own community "
         "dataset on Hugging Face as a pull request, which the maintainer "
         "reviews before any model is trained on it. They are shared under "
-        "{licence}, so send only images you have the right to share. A "
-        "careful mask makes a good model: every object, hugging its edge.",
+        "{licence}, so send only images you have the right to share. Masks "
+        "should outline every object and follow its edge closely.",
         licence=COMMUNITY_LICENCE)
 
 

@@ -57,10 +57,10 @@ THE THREE PIECES, AND WHAT SLICE C REUSES
 :class:`FocusCollapse`
     The automatic half. Some widgets are FOCUS widgets (a live preview, the
     figures panel): while any of them is on screen, the TARGET panes collapse
-    (console, System, the buttons, the settings column), and when the last
-    one goes they come back. It never fights the user: a target the user
-    expands by hand is PINNED open and left alone until the VIEW ends. See
-    the class for what a view is.
+    (console, System, the buttons, the settings column), and when the last one
+    goes they come back. It does not override the user: a target the user
+    expands by hand is pinned open and left alone until the view ends. See the
+    class for what a view is.
 
 :func:`lock_folded_to_bottom`
     For a folded panel that is NOT in a splitter (a section in a scroll area,
@@ -177,11 +177,10 @@ def lock_folded_to_bottom(container: QWidget, folder,
                           orientation=Qt.Vertical) -> None:
     """Keep ``container``'s heading at the bottom of its room while folded.
 
-    A folded panel given more room than its heading needs -- the last pane
-    in a splitter, a section stretched by its column -- used to lay its
-    heading out in the middle of that room, which is the reported bug
-    ("when i collapse the console it collapses to the middle"). A stretch
-    put ABOVE the heading while it is folded takes the spare room instead.
+    A folded panel given more room than its heading needs -- the last pane in a
+    splitter, a section stretched by its column -- would otherwise lay its
+    heading out in the middle of that room. A stretch put above the heading
+    while it is folded takes the spare room instead.
 
     :param container: the widget whose layout holds the heading (first) and
         the body.
@@ -247,22 +246,21 @@ def _hidden_by_owner(widget) -> bool:
 class FoldSection(QWidget):
     """A body under a clickable heading; folded, the heading sits at the bottom.
 
-    Requested: "any sections inside the figures or live preview
-    containers should also be colapseable ... evey GUI element be it a figure
-    or a table". This is the one way a section inside a screen gets a fold
-    control, so every one of them looks and behaves alike: an arrow and a
-    name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder`
-    the console and System use), a click folds it, and a folded section is
-    its heading locked to the BOTTOM of whatever room it is given
-    (:func:`lock_folded_to_bottom`).
+    Requested: "any sections inside the figures or live preview containers
+    should also be colapseable ... evey GUI element be it a figure or a table".
+    This is the one way a section inside a screen gets a fold control, so every
+    one of them looks and behaves alike: an arrow and a name above the body
+    (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System
+    use), a click folds it, and a folded section is its heading locked to the
+    bottom of whatever room it is given (:func:`lock_folded_to_bottom`).
 
-    THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner
-    holder, never the body, so unfolding cannot show a panel its owner hid
-    or build a panel that is built on first show. The other
-    way round, the section follows its body: while the owner keeps the body
-    hidden the whole section -- heading included -- is hidden too, and it
-    comes back when the owner shows the body. Only the body's hidden flag is
-    read for that, so nothing is shown, measured or built to find out.
+    The body's own visibility stays under its owner's control. The fold hides
+    an inner holder, never the body, so unfolding cannot show a panel its owner
+    hid or build a panel that is built on first show. The other way round, the
+    section follows its body: while the owner keeps the body hidden the whole
+    section -- heading included -- is hidden too, and it comes back when the
+    owner shows the body. Only the body's hidden flag is read for that, so
+    nothing is shown, measured or built to find out.
 
     :param body: the section's content. Re-parented into the section.
     :param name: stable English name; the heading shows it translated.
@@ -1049,7 +1047,7 @@ class CollapsibleSplitter(QSplitter):
         """A new width can wrap a row onto another line; make room for it.
 
         A resize of the window is not a drag -- no handle is held -- so
-        re-fitting here fights nobody.
+        re-fitting here does not interfere with a drag.
 
         :param event: the resize event.
         """
@@ -1192,24 +1190,24 @@ class FocusCollapse(QObject):
     auto-collapse, and the settings collapse to the left", and the same
     whenever figures appear.
 
-    FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the
-    TARGET panes (:meth:`target`) are collapsed, and when the last is hidden
+    Focus widgets are watched (:meth:`watch`); while any of them is shown the
+    target panes (:meth:`target`) are collapsed, and when the last is hidden
     the targets this collapsed are opened again. A target that was already
     collapsed -- by the user, or remembered from last session -- is left
     exactly as it is, both ways.
 
-    NEVER FIGHTS THE USER. A target the user opens by hand (clicking its
-    heading or its handle, or dragging it open) is PINNED: nothing here
-    collapses it again until the view ends. A target the user collapses by
-    hand is theirs too, and is not re-opened when the focus goes.
+    Changes made by hand are kept. A target the user opens by hand (clicking
+    its heading or its handle, or dragging it open) is pinned: nothing here
+    collapses it again until the view ends. A target the user collapses by hand
+    is theirs too, and is not re-opened when the focus goes.
 
-    A VIEW is one visit to one screen: it begins when the screen is shown
+    A view is one visit to one screen: it begins when the screen is shown
     (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden
     because the user went to another screen (:meth:`end_view`, from its
-    ``hideEvent``). Minimising the window does not end it -- the owner
-    passes only non-spontaneous events. Pins last for the view: returning to
-    the screen with its live preview still open collapses the surroundings
-    again, which is what a fresh arrival at that layout would get.
+    ``hideEvent``). Minimising the window does not end it -- the owner passes
+    only non-spontaneous events. Pins last for the view: returning to the
+    screen with its live preview still open collapses the surroundings again,
+    which is what a fresh arrival at that layout would get.
 
     :param parent: owner, normally the screen.
     """
@@ -1354,7 +1352,7 @@ class FocusCollapse(QObject):
         self.refresh(force=True)
 
     def end_view(self) -> None:
-        """The user left the screen: their pins for this view are spent."""
+        """The user left the screen: the pins of this view are cleared."""
         self._pinned.clear()
 
 

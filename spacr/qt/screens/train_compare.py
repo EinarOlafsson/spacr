@@ -1,9 +1,8 @@
 """
 Training Runs — several runs' curves on one axis, with the settings diffed.
 
-The question this screen exists to answer is "why is run B better than run A",
-which today is answered by opening two folders of PDFs in one window, two
-settings CSVs in another, and holding the difference in your head.
+The screen helps explain why one run scored better than another: it draws their
+curves on one axis and lists the settings that differ.
 
 Layout::
 
@@ -37,9 +36,7 @@ Design notes:
   curves, a metric nothing logged — all of it lands in the inline status and
   problem labels. A QMessageBox hangs a headless run.
 * **Broken runs are listed, not hidden.** A folder holding checkpoints but no
-  ``train.csv`` still appears, marked, with its note in the problem line. A
-  scan that silently drops the folder you were looking for is worse than one
-  that says what is wrong with it.
+  ``train.csv`` still appears, marked, with its note in the problem line.
 * **The diff is bucketed, never flat.** It renders
   :func:`spacr.train_compare.diff_settings`, which reuses the provenance
   bucketing from :mod:`spacr.run_journal`: environment drift (paths, hosts,
@@ -345,8 +342,8 @@ class TrainCompareScreen(QWidget):
             self._fold_combo.addItem(label)
         self._fold_combo.setToolTip(
             "How to draw a cross-validated run: every fold, the fold mean "
-            "with a ±1 sd band, or both. A mean drawn as if it were one run "
-            "hides the fold-to-fold spread k-fold exists to show.")
+            "with a ±1 sd band, or both. Drawing only the mean hides the "
+            "spread between folds.")
         self._fold_combo.currentIndexChanged.connect(self._on_fold_changed)
         fold_row.addWidget(self._fold_combo, 1)
         left_layout.addLayout(fold_row)
@@ -565,7 +562,7 @@ class TrainCompareScreen(QWidget):
     def runs(self) -> List[tc.TrainingRun]:
         """Every run the last scan found.
 
-        A LIST COPY, so a caller cannot reorder this screen's runs by
+        A copy of the list, so a caller cannot reorder this screen's runs by
         mutating what it was handed.
 
         :returns: the runs.

@@ -1,30 +1,28 @@
-"""Control charts across a campaign — the statistics, with the decisions argued.
+"""Control-chart statistics for a screening campaign: limits, rules and Z'.
 
-A screening campaign is dozens of plates run over weeks. The positive and
-negative controls are supposed to be *the same thing every time*: that is what
-makes hit calling, plate normalisation and Z' mean anything at all. When the
-controls stop being the same — the cell line drifts, a reagent lot changes, the
-incubator door is left open on a Friday — everything computed downstream is
-already wrong, and nothing in the analysis says so, because the analysis
-normalises to the controls it is given.
+A screening campaign is dozens of plates run over weeks. Hit calling, plate
+normalisation and Z' all assume that the positive and negative controls behave
+the same way on every plate. When the controls drift — the cell line changes, a
+reagent lot changes, incubation conditions change — every downstream result
+shifts with them, and the analysis does not detect it, because it normalises to
+the controls it is given.
 
 This module tracks one control value per plate over run order and puts limits
-round it, so drift is visible **before** it ruins a screen rather than after.
+round it, so drift is visible while the screen is running rather than after.
 It is pure numpy/pandas — no Qt anywhere in it, the same rule
 :mod:`spacr.qt.widgets.graph_spec` and :mod:`spacr.qt.widgets.pca_model`
 follow — so it is usable from a notebook, testable without a display, and
 free for a report or a QC gate to call.
 
-The decision the whole module turns on
---------------------------------------
+Sigma estimation
+----------------
 
 Sigma comes from the average moving range divided by d2 = 1.128
 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.
 
-This is not a stylistic preference and it is not a small effect. The standard
-deviation of the plate-to-plate series is inflated by *exactly the drift the
-chart exists to detect*. Take a control that slides linearly by half a unit per
-plate over thirty plates with no other noise at all:
+The standard deviation of the plate-to-plate series is inflated by *exactly the
+drift the chart exists to detect*. Take a control that slides linearly by half
+a unit per plate over thirty plates with no other noise at all:
 
 * the SD of those thirty values is 4.40, so ``mean ± 3 SD`` is ``[4.0, 30.5]``
   and every single point is comfortably inside. The chart says "in control"
@@ -38,8 +36,7 @@ That asymmetry is the reason short-term (within-subgroup) variation is the only
 admissible sigma for a control chart, and it is pinned by a test. What the SD
 route *would* have said is computed anyway and reported — see
 :func:`sd_reference_limits` and :attr:`ControlChartResult.sd_would_flag` —
-because the argument is more convincing as two numbers side by side than as a
-paragraph.
+so the two sets of limits can be compared directly.
 
 Three estimators, and which one ran is always named
 ---------------------------------------------------
@@ -55,9 +52,8 @@ Three estimators, and which one ran is always named
     X-bar / S, for a plate with several control wells (subgroup ``n > 1``).
     The plotted point is the plate's mean and sigma is ``S-bar / c4(n)``,
     where :func:`c4` is computed from the gamma function rather than looked up
-    in a table. The table in the back of a textbook stops at n = 25, does not
-    interpolate, and is the sort of thing that gets transcribed with a typo
-    into a module nobody re-derives. ``c4(n) = sqrt(2/(n-1)) · Γ(n/2) /
+    in a table. The published table stops at n = 25, does not interpolate,
+    and is prone to transcription errors. ``c4(n) = sqrt(2/(n-1)) · Γ(n/2) /
     Γ((n-1)/2)`` is three lines, is exact for every n, and can be checked
     against the published constant — ``c4(5) = 0.9400`` — which is what the
     test does.
@@ -75,25 +71,24 @@ Three estimators, and which one ran is always named
     moving range (:data:`ESTIMATOR_ROBUST`) or the MAD (:data:`ESTIMATOR_MAD`)
     as the spread.
 
-    The two robust constants are *not* interchangeable and the module refuses
-    to pretend they are. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the
+    The two robust constants are *not* interchangeable, and the module keeps
+    them separate. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the
     factor that makes the MAD of a normal sample an unbiased estimate of its
     SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a
     *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its
     median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma``
     (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826
-    overestimates sigma by exactly ``sqrt(2)`` — 41% wider limits, which is the
-    difference between catching a drift and not. Both constants are computed
+    overestimates sigma by exactly ``sqrt(2)``, which makes the limits 41%
+    wider and can hide a drift. Both constants are computed
     from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma
     function.
 
-Phase I and Phase II — a parameter, not an afterthought
--------------------------------------------------------
+Phase I and Phase II
+--------------------
 
 Limits are estimated from a **stated baseline** set of plates and then applied
-forward. Computing them from all the data including the drift is the standard
-way a control chart is made useless, and it is easy to do by accident because
-"just chart everything" is the obvious call.
+forward. Limits computed from all the data, drift included, widen to contain
+the drift they are meant to detect.
 
 The baseline is the first :data:`DEFAULT_BASELINE` plates in run order by
 default (twenty, the textbook Phase I minimum for an individuals chart), or an
@@ -104,17 +99,16 @@ formed it are in :attr:`ControlChartResult.baseline_plates` and named in
 :meth:`ControlChartResult.report`.
 
 :data:`MIN_BASELINE` is eight, because MR-bar over seven moving ranges is
-already an opinion about one or two plate-to-plate jumps and below that it is
-an opinion about one. Fewer than that is refused rather than answered.
+already dominated by one or two plate-to-plate jumps, and with fewer by one.
+A shorter baseline is refused.
 
-**Limits estimated from an out-of-control baseline are not limits.** When the
-baseline itself contains a violation the result says so, loudly, in
-:meth:`ControlChartResult.caveats`. Re-estimating without the flagged plates is
-*offered* (:attr:`ControlChartSpec.reestimate`) and is off by default, because
-silently deleting the inconvenient plates is how a baseline gets talked into
-agreeing with itself. It runs one pass, not iterations to convergence:
-iterating is a ratchet that shrinks the limits onto the tightest subset of the
-baseline and eventually flags everything.
+**Limits estimated from an out-of-control baseline are unreliable.** When the
+baseline itself contains a violation, :meth:`ControlChartResult.caveats` says
+so. Re-estimating without the flagged plates is *offered*
+(:attr:`ControlChartSpec.reestimate`) and is off by default, so plates are
+never removed from the baseline without the user asking. It runs one pass, not
+iterations to convergence: iterating shrinks the limits onto the tightest
+subset of the baseline and eventually flags everything.
 
 The rules, and saying which one fired
 --------------------------------------
@@ -135,30 +129,29 @@ which is what lets :meth:`ControlChartResult.report` say "plates P22–P30 are
 nine in a row above the centre line" instead of listing three violations. For
 the "k of m" rules (5, 6) it is the qualifying points only: a window can
 trigger on two points beyond 2 sigma with a third sitting on the centre line,
-and flagging that third point would be an accusation against a plate that did
-nothing.
+and that third point is not flagged because it is not part of the evidence.
 
 The rule set is selectable, and it has to be, because **running all eight is
 not eight times the sensitivity**. Each rule has its own in-control false-alarm
 rate; :data:`RULE_ALARM_RATE` carries them, :meth:`ControlChartResult.caveats`
 does the arithmetic for the set that actually ran, and over a 200-plate
-campaign the answer is a number of expected false alarms rather than a
-reassurance. :data:`RULES_DEFAULT` is the Western Electric four (1, 2, 5, 6),
-which is the set the classical ARL figure was worked out for; :data:`RULES_ALL`
-is all eight, and :data:`RULES_LIMITS_ONLY` is rule 1 alone for a user who
-wants limits and nothing else.
+campaign it reports the expected number of false alarms. :data:`RULES_DEFAULT`
+is the Western Electric four (1, 2, 5, 6), which is the set the classical ARL
+figure was worked out for; :data:`RULES_ALL` is all eight, and
+:data:`RULES_LIMITS_ONLY` is rule 1 alone for a user who wants limits and
+nothing else.
 
 Ordering
 --------
 
 "Plate by plate over time" means the x axis is **run order**, and rules 2, 3,
-4, 6, 7 and 8 are statements about a sequence — get the order wrong and they
-are statements about nothing. An explicit order or date column
+4, 6, 7 and 8 are statements about a sequence, so they are meaningless when
+the order is wrong. An explicit order or date column
 (:attr:`ControlChartSpec.order`) is used when given. Without one the plate id
-is sorted with a natural, digit-aware key so plate 2 comes before plate 10, and
-:attr:`ControlChartResult.order_inferred` is set, the note is in
-:attr:`ControlChartResult.notes`, and :meth:`ControlChartResult.report` says it
-in capitals. An inferred order is a guess about the experiment, not a detail.
+is sorted with a natural, digit-aware key so plate 2 comes before plate 10,
+and :attr:`ControlChartResult.order_inferred` is set, the note is in
+:attr:`ControlChartResult.notes`, and :meth:`ControlChartResult.report` says
+it in capitals.
 
 The key is a deliberate extension of
 :func:`spacr.qt.widgets.graph_spec._sort_key`, not a copy of it: that one tries
@@ -171,9 +164,9 @@ Z-prime
 
 :func:`zprime_frame` computes the per-plate Z-factor when both a positive and a
 negative control are named, and :func:`zprime_chart` charts it with everything
-above — same estimator, same rules, same baseline. It is the number a screener
-actually watches, and a Z' that slides from 0.7 to 0.3 over a campaign is the
-same failure this module exists for, one level up.
+above — same estimator, same rules, same baseline. A Z' that slides from 0.7
+to 0.3 over a campaign is a drift in assay quality and is detected the same
+way.
 """
 from __future__ import annotations
 
@@ -210,7 +203,7 @@ __all__ = [
 
 
 class ControlChartError(ValueError):
-    """A chart that cannot mean anything, with the way out in the message.
+    """Raised when a chart cannot be computed; the message says how to fix it.
 
     Raised rather than returned as an empty result. Every one of these is a
     sentence a user can act on — "18 plates carry a control value and the
@@ -281,8 +274,8 @@ def c4(n: int) -> float:
     control wells make, and ``S-bar / c4(n)`` is the correction.
 
     Computed from the gamma function rather than looked up, because the
-    published table stops at 25, does not interpolate, and is a transcription
-    error waiting to happen in a module nobody re-derives. The values agree
+    published table stops at 25, does not interpolate, and is prone to
+    transcription errors. The values agree
     with the published ones to every digit they print: ``c4(2) = 0.7979``,
     ``c4(5) = 0.9400``, ``c4(10) = 0.9727``.
 
@@ -555,8 +548,8 @@ def candidate_value_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     Continuous by :func:`spacr.qt.widgets.graph_spec.column_kinds`, which is
     the one column classifier in this codebase — the Local Data Filter's rule,
     re-read. Reused rather than re-derived: the Graph Builder, the PCA screen
-    and this one must agree about what ``cell_count`` is, or the same table
-    presents three different mental models depending on which screen is open.
+    and this one must agree about what ``cell_count`` is, so all three
+    classify the same table the same way.
 
     :param frame: the per-well table whose columns are classified by
         :func:`spacr.qt.widgets.graph_spec.column_kinds`.
@@ -597,8 +590,7 @@ class ControlChartSpec:
     :class:`~spacr.qt.widgets.graph_spec.GraphSpec` and
     :class:`~spacr.qt.widgets.pca_model.PCASpec`, so a QC configuration is
     something a settings file or a report can carry and re-run against the next
-    campaign — which is the whole point of a chart whose limits were estimated
-    once.
+    campaign.
 
     :param value: the measured column to chart. Required at chart time.
     :param plate: the column identifying the plate. Required at chart time.
@@ -624,8 +616,7 @@ class ControlChartSpec:
         week".
     :param reestimate: when the baseline itself trips a rule, drop the flagged
         plates and estimate once more. Off by default; see the module
-        docstring for why silently deleting the inconvenient plates is not the
-        default behaviour of anything here.
+        docstring for why.
     :raises ControlChartError: on an unknown estimator or rule id, a baseline
         shorter than :data:`MIN_BASELINE`, or a control column with no level
         named — at the point the spec is built, not at render time.
@@ -650,11 +641,10 @@ class ControlChartSpec:
 
         :raises ControlChartError: if the estimator is unknown; if a rule is not
             a number, or not one of rules 1-8; if the baseline is shorter than
-            the module's minimum -- MR-bar over fewer moving ranges is already
-            an opinion about one or two plates rather than an estimate; or if
+            the module's minimum -- MR-bar over fewer moving ranges is
+            dominated by one or two plate-to-plate jumps; or if
             ``control_column`` and ``control_levels`` are given without each
-            other, which says where to look without saying what for, or the
-            reverse.
+            other.
         """
         for name in ("value", "plate"):
             object.__setattr__(self, name, str(getattr(self, name) or ""))
@@ -698,7 +688,8 @@ class ControlChartSpec:
                 f"a baseline of {count} plate(s) is not a baseline; "
                 f"{MIN_BASELINE} is the fewest this module will estimate "
                 f"limits from, because MR-bar over {MIN_BASELINE - 1} moving "
-                f"ranges is already an opinion about one or two plates.")
+                f"ranges is already dominated by one or two plate-to-plate "
+                f"jumps.")
         object.__setattr__(self, "baseline_n", count)
 
         if self.control_column and not self.control_levels:
@@ -760,8 +751,11 @@ class ControlChartSpec:
                              else before))
 
     def to_dict(self) -> Dict[str, Any]:
-        """A plain JSON-able dict. Every field, always — a stable schema beats
-        a compact one for something a QC configuration is stored as."""
+        """Return a plain JSON-compatible dict with every field, always.
+
+        Every field is written even at its default, so the stored schema is
+        stable across versions.
+        """
         return {
             "value": self.value,
             "plate": self.plate,
@@ -783,8 +777,7 @@ class ControlChartSpec:
         """Rebuild from :meth:`to_dict`.
 
         Unknown keys ignored, missing keys defaulted, so a configuration
-        written by another build still opens: a QC chart nobody can reload is
-        a QC chart nobody re-runs.
+        written by another build still opens.
 
         :param payload: a mapping as written by :meth:`to_dict`; unknown keys
             are ignored and missing ones take their defaults.
@@ -845,7 +838,7 @@ class Violation:
     :param end: last index of the span, inclusive.
     :param points: the indices actually flagged. Equal to the whole span for
         the run rules; only the qualifying points for rules 5 and 6, where a
-        window can trigger with an innocent point inside it.
+        window can trigger with a non-qualifying point inside it.
     :param plates: the plate ids of :attr:`points`.
     :param side: :data:`ABOVE`, :data:`BELOW` or :data:`EITHER`. For rule 3
         it is the *direction of travel* (:data:`ABOVE` for a rising trend)
@@ -853,7 +846,7 @@ class Violation:
         entirely on one side of the centre or cross it and is a violation
         either way.
     :param in_baseline: whether any flagged point is inside Phase I. Limits
-        estimated from an out-of-control baseline are not limits, so this is
+        estimated from an out-of-control baseline are unreliable, so this is
         carried per violation rather than recomputed by every reader.
     """
 
@@ -883,10 +876,9 @@ class Violation:
     def describe(self) -> str:
         """The sentence :meth:`ControlChartResult.report` prints.
 
-        Names the rule by number *and* in words, because a report that says
-        "rule 6" to a reader who has not memorised Nelson's numbering has said
-        nothing, and one that says only "four of five beyond 1 sigma" cannot be
-        cross-referenced against anyone else's chart.
+        Names the rule by number *and* in words: the number alone requires
+        the reader to know Nelson's numbering, and the words alone cannot be
+        cross-referenced against another chart.
         """
         side = ("above the centre line" if self.side == ABOVE
                 else "below the centre line" if self.side == BELOW
@@ -924,18 +916,16 @@ class Violation:
 
 def sd_reference_limits(values: Sequence[float]
                         ) -> Tuple[float, float, float, float]:
-    """``(centre, sigma, lower, upper)`` the *wrong* way — mean ± 3 SD.
+    """``(centre, sigma, lower, upper)`` from mean ± 3 SD, for comparison only.
 
-    This is not an estimator option and never will be. It exists so a result
-    can print what the SD route would have said next to what the moving-range
-    route did say, because the central argument of this module is far more
-    convincing as two intervals side by side than as a paragraph: on a drifting
-    series the SD limits are wide enough to contain the drift, and a chart drawn
-    with them reports "in control" all the way down.
+    This is not an estimator option. It exists so a result can print the SD
+    limits next to the moving-range limits: on a drifting series the SD limits
+    are wide enough to contain the drift, and a chart drawn with them reports
+    "in control" throughout.
 
-    Uses the sample SD (``ddof=1``) over every value given, which is exactly
-    the mistake being illustrated — limits computed from all the data,
-    including the excursion they are supposed to detect.
+    Uses the sample SD (``ddof=1``) over every value given — limits computed
+    from all the data, including the excursion they are supposed to detect,
+    which is the error the comparison illustrates.
 
     :param values: the plotted values; non-finite ones are ignored.
     """
@@ -964,15 +954,15 @@ class ControlChartResult:
     :param sigma: sigma of the *plotted statistic*, which is what the zones and
         every rule are stated in. For X-bar/S that is
         ``sigma_within / sqrt(n)``; when subgroup sizes differ it is the median
-        of :attr:`sigma_at` and the per-point values are the truth.
+        of :attr:`sigma_at`, and the per-point values are the ones applied.
     :param sigma_within: the within-plate sigma, before the ``sqrt(n)``. Equal
         to :attr:`sigma` for an individuals chart.
     :param sigma_at: sigma per point.
     :param lower: per-point lower limit (centre - 3 sigma).
     :param upper: per-point upper limit.
-    :param z: ``(value - centre) / sigma_at`` per point — the currency every
-        rule is written in, so that varying subgroup sizes cost the rules
-        nothing.
+    :param z: ``(value - centre) / sigma_at`` per point — the units every
+        rule is written in, so varying subgroup sizes do not affect the
+        rules.
     :param estimator: which estimator actually ran. Never ``"auto"``.
     :param baseline: positional indices of the Phase I plates.
     :param baseline_excluded: plates dropped from Phase I by a re-estimation.
@@ -1116,7 +1106,7 @@ class ControlChartResult:
         return tuple(v for v in self.violations if v.in_baseline)
 
     def headline(self) -> str:
-        """One sentence about the campaign, including the bad news."""
+        """One sentence about the campaign, including any violations."""
         if not len(self):
             return "no plates."
         if self.degenerate:
@@ -1150,7 +1140,7 @@ class ControlChartResult:
         return 1.0 - survive
 
     def caveats(self) -> Tuple[str, ...]:
-        """Everything a reader needs before believing the chart."""
+        """The warnings a reader should see before relying on the chart."""
         out: List[str] = []
         if self.degenerate:
             out.append(
@@ -1160,15 +1150,15 @@ class ControlChartResult:
                 f"rule was run at all — flagging a whole campaign because a "
                 f"column does not vary is not a QC finding. Either the "
                 f"control genuinely never moved (a copied number, a value "
-                f"rounded to death, an integer readout) or the wrong column "
-                f"is charted.")
+                f"rounded to too few digits, an integer readout) or the wrong "
+                f"column is charted.")
         if self.order_inferred:
             out.append(
                 f"The run order was INFERRED by sorting the plate id "
                 f"({self.plate_column}) with a digit-aware key, because no "
                 f"order column was given. Rules 2, 3, 4, 6, 7 and 8 are "
                 f"statements about a sequence, so if the plates were not run "
-                f"in that order those rules are statements about nothing. "
+                f"in that order those rules are meaningless. "
                 f"Point this chart at a date or run-order column.")
         if len(self) and self.baseline.size == len(self):
             out.append(
@@ -1185,9 +1175,8 @@ class ControlChartResult:
             out.append(
                 f"The baseline itself is out of control "
                 f"({len(self.baseline_violations)} violation(s): {names}). "
-                f"Limits estimated from an out-of-control baseline are not "
-                f"limits — they are the spread of a process that was already "
-                f"misbehaving, widened to make the misbehaviour look normal. "
+                f"Limits estimated from an out-of-control baseline include the "
+                f"out-of-control variation, so they are too wide to flag it. "
                 f"Re-estimate without those plates (reestimate=True), or pick "
                 f"an explicit baseline that excludes them.")
         if self.baseline_excluded:
@@ -1229,7 +1218,7 @@ class ControlChartResult:
                 f"{int(self.flagged.sum())} flagged here. That is the failure "
                 f"this chart is built to avoid: the series SD is inflated by "
                 f"the very excursion it is meant to detect, so SD-based "
-                f"limits widen to swallow it.")
+                f"limits widen to include it.")
         varied = np.unique(self.subgroup_sizes)
         if varied.size > 1:
             out.append(
@@ -1241,7 +1230,7 @@ class ControlChartResult:
         return tuple(out)
 
     def report(self) -> str:
-        """The whole story, as the screen shows it and a report file writes it."""
+        """The full text report, as shown on screen and written to a file."""
         control = (f"{self.control_column}="
                    f"{'/'.join(self.control_levels)}"
                    if self.control_column else "every row")
@@ -1572,8 +1561,8 @@ def _control_rows(frame: pd.DataFrame, spec: ControlChartSpec
     if spec.order and spec.order not in frame.columns:
         raise ControlChartError(
             f"the order column {spec.order!r} is not in this table. Leave it "
-            f"empty to sort by the plate id instead, which is a guess the "
-            f"result will say it made.")
+            f"empty to sort by the plate id instead; the result then notes "
+            f"that the order was inferred.")
     if spec.control_column and spec.control_column not in frame.columns:
         raise ControlChartError(
             f"the control column {spec.control_column!r} is not in this table.")
@@ -1681,8 +1670,8 @@ def control_chart(frame: pd.DataFrame,
 
     :param frame: the per-well table holding the spec's value, plate, order and
         control columns.
-    :raises ControlChartError: whenever the chart would be meaningless — with
-        the reason and the way out in the message.
+    :raises ControlChartError: whenever the chart cannot be computed — with
+        the reason and the fix in the message.
     """
     spec = spec or ControlChartSpec()
     notes: List[str] = []
@@ -1695,8 +1684,8 @@ def control_chart(frame: pd.DataFrame,
         raise ControlChartError(
             f"{total} plate(s) carry a control value and the smallest "
             f"defensible baseline is {MIN_BASELINE}. Limits estimated from "
-            f"fewer are an opinion about one or two plate-to-plate jumps, not "
-            f"a limit. Chart this when the campaign is longer.")
+            f"fewer plates are dominated by one or two plate-to-plate jumps. "
+            f"Chart this when the campaign is longer.")
 
     baseline = _baseline_indices(spec, plates, keys, kind, notes)
     if baseline.size < MIN_BASELINE:

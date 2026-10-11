@@ -1,6 +1,6 @@
 """Four views of one segmentation, on one canvas, for any preview.
 
-ONE WIDGET, TWO OWNERS. A segmentation preview has four things worth
+One widget serves two owners. A segmentation preview has four things worth
 looking at: the image with the outlines on it, the label masks alone, the
 flow field the masks were pooled from, and the cell probability the flow
 was thresholded at. Mask generation's live preview showed three of them
@@ -9,12 +9,12 @@ drawn by its own code. This module is the one place both can draw them
 from, so that a change to how a cell probability is coloured reaches both
 previews at once.
 
-THE WIDGET KNOWS ARRAYS, NOT MODULES. It is handed an image, label masks,
+The widget works on arrays, not modules. It is handed an image, label masks,
 flow pictures and cell probability maps -- each either one array or one per
 object -- and draws whichever of :data:`VIEWS` is chosen. Nothing in here
 names the Mask module, Cellpose settings or a plaque.
 
-WHAT AN OWNER CAN CHANGE. The default renderers draw a plain overlay,
+An owner can replace renderers. The default renderers draw a plain overlay,
 categorical masks, the flows as Cellpose hands them and the probability on
 the magma scale. An owner with its own idea of an outline -- the live
 preview's colour choice and thickness -- registers a renderer for that view
@@ -22,7 +22,7 @@ with :meth:`SegmentationViews.set_renderer` and keeps the other three. A
 renderer answers with a picture, with a sentence to show in the picture's
 place, or with ``None`` for the widget's own "nothing yet" sentence.
 
-THE CANVAS IS PLUGGABLE. An owner that already has a canvas with a ruler
+The canvas is pluggable. An owner that already has a canvas with a ruler
 and a hover line on it (the live preview's ``_ZoomView``) hands it in;
 otherwise a :class:`PictureCanvas` is built, which fits, zooms, pans and
 saves on a right click like every other picture in the program.

@@ -1,9 +1,9 @@
 """Add a local model to the zoo, and optionally share it on Hugging Face.
 
-WHY THERE IS NO BUILT-IN TOKEN. Uploading to one account from every user's
-machine would mean shipping a write token inside spaCR. A write token is not
-an upload permit: it can also rewrite and DELETE every model in that account,
-and anyone who installs spaCR can read it out of the package. So the upload
+spaCR ships no built-in token. Uploading to one account from every user's
+machine would mean shipping a write token inside spaCR. A write token can
+also rewrite and delete every model in that account, and anyone who installs
+spaCR could read it out of the package. So the upload
 uses the token belonging to whoever is running it:
 
   - `huggingface-cli login`, or the HF_TOKEN / HUGGING_FACE_HUB_TOKEN
@@ -161,11 +161,10 @@ def central_upload(path: str, fields: Dict[str, Any]) -> str:
     """Publish through the central endpoint. Returns its reply.
 
     Speaks the Gradio HTTP API directly with urllib rather than through
-    gradio_client, because that package is not a spaCR dependency: when it was
-    missing this raised, the caller fell back to the uploader's own token, and
-    the model went somewhere nobody was looking for it. A publish path that
-    depends on an optional import is a publish path that silently does
-    something else.
+    gradio_client, because that package is not a spaCR dependency. If the
+    import were missing, the call would raise, the caller would fall back to
+    the uploader's own token, and the model would be published to a
+    different repository without notice.
 
     :param path: local checkpoint file to upload.
     :param fields: the share form's values; ``display_name``, ``kind``,

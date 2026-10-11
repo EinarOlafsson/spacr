@@ -1,13 +1,12 @@
 """The chaining strip: where a module says what it will read, and what is stale.
 
-Three things a pipeline screen has never been able to say, all of them one
-strip above the Run button — because that is the moment the user is about to
-act, and a panel they would have to go and open is a panel nobody opens:
+The strip sits directly above the Run button of a pipeline screen and shows
+three things:
 
 * **what it will read.**  :mod:`spacr.chaining` asks the artifact registry
   where the previous module actually wrote and fills this module's source
-  folder with it, so opening Measure after Mask no longer means retyping the
-  plate.  A path the user typed themselves is *pinned* and never overwritten
+  folder with it, so Measure opened after Mask has the plate folder filled
+  in.  A path the user typed themselves is *pinned* and never overwritten
   — when the upstream later moves, the new location is offered beside the
   pinned one with a button, never pushed into the field;
 * **what is out of date.**  :func:`spacr.chaining.staleness_notes` turns the
@@ -169,8 +168,8 @@ class _ShowFilter(QObject):
 class ChainingBar(QFrame):
     """The strip above a module's Run button.
 
-    Four rows, each hidden when it has nothing to say, so a project with no
-    recorded runs sees exactly what it saw before this existed:
+    Four rows, each hidden when it has no content, so a project with no
+    recorded runs shows none of them:
 
     1. where the inputs came from;
     2. a pinned path whose upstream has since moved, with a button to take
@@ -570,8 +569,8 @@ class ChainingBar(QFrame):
         """Return the screen's settings, or ``{}`` when they will not collect.
 
         ``collect`` raises on a half-filled form, which is the normal state of
-        a screen the user is still working on — and the strip has to keep
-        working there, because that is exactly when it is useful.
+        a screen the user is still working on; the strip keeps working with
+        ``{}`` in that state.
         """
         self._collect_ok = False
         model = getattr(self._screen, "_settings_model", None)
@@ -619,8 +618,8 @@ class ChainingBar(QFrame):
     def refresh(self, *, finished: bool = False) -> None:
         """Re-read the registry and redraw every row.
 
-        Never raises: the strip is an aid, and an aid that can take a module
-        screen down with it is worse than no aid.
+        Never raises: an error in the strip is logged and does not affect the
+        module screen.
 
         :param finished: a run just finished successfully, so offer the next
             step as well.
@@ -749,11 +748,11 @@ class ChainingBar(QFrame):
         producer = pin.chained.producer if pin.chained else "the previous step"
         where = pin.chained.artifact.path if pin.chained else ""
         self._pinned.setText(
-            f"{pin.setting} is set to {pin.value} — yours, and kept. "
-            f"{producer} now writes to {where}.")
+            f"{pin.setting} is set to {pin.value}, which you entered, and is "
+            f"kept. {producer} now writes to {where}.")
         self._pinned.setToolTip(
-            "A path you entered is never overwritten. This is the offer, "
-            "not the change.")
+            "A path you entered is never overwritten. The button offers the "
+            "new location; the setting changes only if you press it.")
         self._pinned_row.show()
 
     def _draw_staleness(self, settings: Dict[str, Any], notes=None) -> None:
@@ -871,8 +870,8 @@ def chaining_bar(screen) -> Optional[ChainingBar]:
 def install_chaining(screen, *, pins=None) -> Optional[ChainingBar]:
     """Put a :class:`ChainingBar` above ``screen``'s Run row.
 
-    The strip goes into the runtime panel immediately above the actions row,
-    which is the last thing the eye crosses on its way to Run.  Both anchors
+    The strip goes into the runtime panel immediately above the actions row.
+    Both anchors
     (``_runtime_wrap`` and ``_actions_row``) are attributes ``AppScreen``
     keeps for exactly this kind of reach, so nothing here depends on the
     panel's internal layout order.
@@ -881,8 +880,8 @@ def install_chaining(screen, *, pins=None) -> Optional[ChainingBar]:
     :param pins: a pin store, for tests.
     :returns: the strip, or None when this screen cannot carry one — a module
         with no declared ports, or a screen that failed to build its panels.
-        Never raises: a screen that opens without the strip is the old
-        behaviour, and that is always better than a screen that does not open.
+        Never raises: if the strip cannot be installed, the screen opens
+        without it.
     """
     try:
         app_key = str(getattr(screen, "app_key", ""))
@@ -1030,8 +1029,8 @@ def _renamed(step, key: str):
 def chained_app_keys() -> Tuple[str, ...]:
     """Return the app keys that get a chaining strip, sorted.
 
-    Every module that both declares ports and is a registered app: the graph
-    decides, not a list kept in step by hand.
+    Every module that both declares ports and is a registered app. The set
+    is derived from the port graph, not from a hand-maintained list.
     """
     from .app import APPS
 

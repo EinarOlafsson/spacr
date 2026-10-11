@@ -272,16 +272,16 @@ class MeasureInputTable(QWidget):
     def add_dropped(self, paths: Sequence[Any]) -> None:
         """Add every file under ``paths``, once a worker has expanded them.
 
-        SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen
-        application. Everything here is a list of strings; the ``isdir`` and
+        Split from :meth:`add_paths` so the GUI thread does not block on the
+        filesystem. Everything here is a list of strings; the ``isdir`` and
         ``listdir`` that turn a dropped folder into files run on this
         widget's own worker (:func:`files_under`), because a drop is a path
         the user chose and on a microscope rig that is the share the images
         live on -- one stat under a sleeping ``autofs`` mount was measured at
         over twenty seconds, on the thread that paints.
 
-        NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read
-        the table from :attr:`table_changed`, not from the line after this.
+        Nothing has been added when this returns. Read the table from
+        :attr:`table_changed`, not from the line after this.
 
         :param paths: files and folders from a drop or a file dialog.
         :returns: ``None``. The count does not exist yet.
@@ -671,7 +671,7 @@ def files_under(paths: Sequence[str]) -> List[str]:
     A user who drew masks for six fields drops the folder, not the files, so
     a drop that refused a directory would refuse the ordinary case.
 
-    NOT FOR THE GUI THREAD. Every path here is one the user chose, which on a
+    Not for the GUI thread. Every path here is one the user chose, which on a
     microscope rig means a network share, and the ``isdir`` is what wakes the
     automount. :meth:`MeasureInputTable.add_dropped` is the only caller and
     it runs this on a worker. Looked up through the module global so a test

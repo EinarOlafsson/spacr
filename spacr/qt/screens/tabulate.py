@@ -1,10 +1,9 @@
 """The Tabulate screen — a pivot table, and the chart of it underneath.
 
 A JMP-style *Tabulate*: drag ``plateID`` down the rows, ``gene`` across the
-columns, tick the aggregations, read the numbers. It is the first thing most
-people want from a measurement database and the last thing spaCR had.
+columns, tick the aggregations, read the numbers.
 
-Four parts, three of them already written:
+Four parts:
 
 * :class:`spacr.qt.widgets.pivot_builder.PivotPanel` — the wells and the grid;
 * :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the chart of the
@@ -24,11 +23,12 @@ So ``x = plateID``, ``y = mean``, ``size = n`` is a drag, and there is no second
 implementation of scales, facets or colour to keep in step with the first.
 
 Two things follow from the summary being a real frame rather than a picture,
-and both are correct rather than unfortunate:
+and both are intended:
 
 * the chart's own status line reports **no object keys in this table**, because
   a summary row is a *group*, not an object. Brushing it cannot publish an
-  object selection, and saying so beats publishing an empty one.
+  object selection, and the status line says so instead of publishing an
+  empty one.
 * the chart is on its own linked-selection source, so it does not answer to a
   lasso drawn over individual cells somewhere else.
 
@@ -39,9 +39,7 @@ reason it recomputes a PCA: an aggregate is a property of the population, and a
 mean of the unfiltered rows shown next to a filtered plot is the kind of
 mismatch nobody catches by eye.
 
-:func:`register` is **not** called at import; see
-:func:`spacr.qt.screens.graph_builder.register` for the registration collateral
-still owned by ``app.py``.
+:func:`register` is **not** called at import; read its docstring.
 """
 from __future__ import annotations
 
@@ -94,8 +92,8 @@ class TabulateScreen(QWidget):
         joins the process-wide one.
     :param parent: parent widget; ownership only.
     :param threaded: ``False`` runs every table read inline instead of on the
-        job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE
-        CALL; a user needs the window to keep painting while a large table
+        job runner's thread. A test needs the result on the line after the
+        call; a user needs the window to keep painting while a large table
         loads. The jobs are the same either way -- they still register, still
         report failure through ``job_failed`` -- so only the waiting differs.
     """
@@ -230,8 +228,8 @@ class TabulateScreen(QWidget):
 
         The read runs on a worker thread. ``SELECT * FROM cell`` into pandas
         measures 1.5 s for a 200 000-row measurement table on a warm local
-        SSD, and this method used to run it inline: the whole window stopped
-        redrawing for the read. Listing the table names stays inline -- it is
+        SSD; run inline, the read would stop the whole window from
+        redrawing. Listing the table names stays inline -- it is
         one ``sqlite_master`` query, measured at 0.4 ms -- because the picker
         has to be populated before the read is dispatched, to know which
         table to read.
@@ -338,8 +336,8 @@ class TabulateScreen(QWidget):
 
         The summary rows are groups rather than objects, so the chart's status
         line will say the table carries no object keys and that brushing
-        cannot publish a selection. That is the truth about a mean of forty
-        cells, and it is better said than worked around.
+        cannot publish a selection, because a summary row is a group of
+        objects, not an object.
         """
         if frame is None:
             frame = self.pivot.long_frame()
@@ -384,22 +382,18 @@ APP_CLI_NOTE = _ROW.cli_note
 def register() -> bool:
     """Put Tabulate in the app registry, through the public seam. Idempotent.
 
-    The strings above travel with the registration —
-    :func:`spacr.qt.app.register_app` fans ``intro``, ``cli_note``,
-    ``api_module`` and ``translations`` out into the four tables that used to
-    need a hand-edit each.
+    The row -- ``intro``, ``cli_note``, ``api_module`` and ``translations``
+    among it -- is declared in :mod:`spacr.qt.app_catalog`, and
+    :func:`spacr.qt.app.register_app` distributes it into the four registry
+    tables.
 
     :returns: ``True`` if this call is what registered it. Safe to call twice.
 
     **Not called at import**, for the reason ``app.py``'s
     ``_SELF_REGISTERING_APPS`` table documents: a registration made anywhere
-    else is one that some importer's snapshot of ``APPS`` predates. Turning
-    this screen on is **one row** in that table::
+    else is one that some importer's snapshot of ``APPS`` predates. The
+    screen is listed in that table as::
 
         ("spacr.qt.screens.tabulate", "register"),
-
-    left out here because ``spacr/qt/app.py`` belongs to another change in
-    flight, and because a new ``APPS`` row currently reddens the per-app
-    inventory tests for reasons this screen cannot fix.
     """
     return register_declared(__name__) is not None

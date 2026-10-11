@@ -340,15 +340,12 @@ class ClassEditorWidget(QWidget):
         """Show ``value``, whether it is the dict, the old list, or a string.
 
         A settings CSV stores ``repr(value)``, so ``classes`` comes back as
-        the TEXT ``"['nc', 'pc']"``. Without the string branch below, that
-        matched neither the Mapping nor the list arm, fell through to an empty
-        table, and reported SUCCESS: ``apply_settings_dict`` returned
-        ``applied=1`` while ``collect()['classes']`` was ``{}``. The class
-        names were dropped without a word -- and because ``{}`` is a Mapping,
-        ``classify_classes.normalize_settings`` then skipped its own
-        legacy-translation branch too, so nothing downstream recovered them.
-        Every other list-shaped key survived that round trip; this was the one
-        that decides what gets trained.
+        the text ``"['nc', 'pc']"``, which the string branch below parses.
+        Without it, the text would match neither the Mapping nor the list
+        branch and leave an empty table, while ``apply_settings_dict`` still
+        reported the key as applied; and because ``{}`` is a Mapping,
+        ``classify_classes.normalize_settings`` would skip its
+        legacy-translation branch, so the class names would be lost.
 
         :param value: a mapping of class name to ``{column, value,
             random_complement}``, a legacy list or tuple of class names, or
@@ -483,8 +480,8 @@ class ClassEditorWidget(QWidget):
     def add_random_complement(self) -> None:
         """Add a rule taking a random sample of whatever the others leave.
 
-        AT MOST ONE. Two complements would each be defined as "the rest",
-        which is not a partition and cannot both be true.
+        At most one such rule is allowed. Two complements would each be
+        defined as "the rest", which is not a partition.
         """
         if any(r.random_complement for r in self._rules):
             set_translatable_text(

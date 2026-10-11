@@ -20,13 +20,13 @@ preference:
   ``QThread`` keeps the part that is genuinely slow, which is synthesizing
   a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing
   from Qt Multimedia). Connecting to the sound server is slow -- 354 ms
-  measured on a PipeWire workstation -- so it is paid ONCE, on an idle
-  timer after sound is switched on (:meth:`SoundEngine._warm`), and logged
-  rather than felt. Playing an already loaded sound is ``play()``, which
+  measured on a PipeWire workstation -- so it is made once, on an idle
+  timer after sound is switched on (:meth:`SoundEngine._warm`), and its
+  duration is logged. Playing an already loaded sound is ``play()``, which
   returns at once: 0.007-0.014 ms on the GUI thread against the
   real stack.
 
-  This rule is written in a crash. Building the effects on the audio
+  The rule follows from a crash. Building the effects on the audio
   thread instead does move the connection off the GUI thread -- but Qt
   Multimedia's device handling belongs to the thread that owns the event
   loop, so with the FFmpeg backend it enables socket notifiers from the
@@ -167,7 +167,7 @@ class SoundSettings:
     :param music: a WAV of the user's own to play as the bed instead of
         the synthesized one. Empty means spaCR's own. It is also what the
         Resonance backdrop is driven by, because the backdrop follows
-        WHATEVER IS PLAYING and there is only ever one thing.
+        whatever is playing and only one thing plays at a time.
     """
 
     enabled: bool = False
@@ -993,7 +993,7 @@ _INPUT_SOUND_MOMENTS = frozenset({
 
 
 class InputSoundFilter(QObject):
-    """Application-wide filter that hears presses and hovers on controls.
+    """Application-wide filter that reports presses and hovers on controls.
 
     Installed only while a click or hover sound is wanted (see
     :meth:`SoundEngine.apply`). The body is two liveness checks and at most
@@ -1264,7 +1264,8 @@ class SoundEngine(QObject):
         """Play ``event`` once because the user pressed its Preview button.
 
         Plays whatever the stored switches say: the dialog enables Preview
-        only while its own master switch is on, and the press is the ask.
+        only while its own master switch is on, and the press itself is the
+        request.
 
         :param event: any event, the music bed included.
         :param theme_key: the sound set chosen in the dialog.

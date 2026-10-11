@@ -284,7 +284,7 @@ def test_a_successful_cuml_install_insists_on_a_restart(panel, monkeypatch):
     panel._install_cuml()
 
     assert shown[0] == ("ran", ["python", "-m", "pip", "install", "x"])
-    assert "RESTART spaCR" in shown[1]
+    assert "Restart spaCR before using it" in shown[1]
     assert panel._status.text() == "cuML installed. Restart spaCR to use it."
     assert panel.gpu_backend() == "cpu", (
         "an install does not make this session's GPU backend usable")

@@ -2,8 +2,8 @@
 Plate queue — sequential execution of many pipelines.
 
 Users often have 5–20 plates to segment, measure, or classify with the
-same settings. Running each one manually from the Mask app is fine
-for one plate and painful for twenty. This module lets them:
+same settings. This module runs them one after another instead of one at
+a time from the Mask app. It lets users:
 
 1. Enqueue a plate as ``(app_key, settings)`` (or import a batch of
    plates from a CSV).
@@ -161,9 +161,9 @@ class PlateQueue:
     def add(self, item: QueueItem) -> None:
         """Append a plate and save immediately.
 
-        SAVED ON EVERY CHANGE, not on close: the queue is shared with other
-        screens and read from disk, so an unsaved change is one another
-        screen cannot see.
+        The queue is saved on every change, not on close: it is shared with
+        other screens and read from disk, so an unsaved change would not be
+        visible to another screen.
 
         :param item: the plate to queue.
         """
@@ -184,12 +184,11 @@ class PlateQueue:
         return changed
 
     def clear(self) -> int:
-        """Remove EVERY item whatever its status; return count removed.
+        """Remove every item whatever its status; return count removed.
 
         The counterpart to :meth:`clear_finished`, which keeps what is still
-        waiting. This one does not, so a RUNNING item goes too -- and that is
-        the whole reason to say so here: dropping the record does NOT stop
-        the run. The worker holds its own settings and keeps going; what
+        waiting. This one does not, so a running item is removed too, and
+        removing the record does not stop the run. The worker holds its own settings and keeps going; what
         disappears is the queue's knowledge of it, so its completion is never
         written back.
 

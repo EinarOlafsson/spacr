@@ -2,12 +2,10 @@
 
 Anywhere spaCR asks for the *name of a database column* — the annotation
 column, the measurement used to prefilter crops, the heatmap feature, the
-regression's dependent variable — the field has historically been a bare
-text box. Typing into it is blind: nothing tells you what the database
-already contains, so ``annotate`` and ``annotaet`` are equally acceptable
-and equally silent. The second one starts a brand new annotation pass, and
-two passes that should have been one then look like two annotators who
-agree on nothing.
+regression's dependent variable — a bare text box does not show what the
+database already contains, so ``annotate`` and ``annotaet`` are both
+accepted without comment. The second starts a new annotation column, and
+the annotations are then split across two columns.
 
 This module adds the missing half of that interaction:
 
@@ -265,20 +263,18 @@ class SchemaReader:
         estimate and every caller must label it one. ``None`` for a view,
         a WITHOUT ROWID table, or an empty table.
 
-        It is spelt ``_rowid_``, and that is load-bearing. Every
+        It is spelt ``_rowid_`` for a reason. Every
         spaCR object table declares a column called ``rowID`` — the plate
         row, ``'r1'``, ``'r2'`` — and SQLite identifiers are
         case-insensitive, so a bare ``rowid`` resolves to *that column*
-        rather than to the row id. The version this replaces asked for
-        ``max(rowid)`` and got two things wrong at once on every real
-        measurements database: it scanned the whole table to take the
-        maximum of a text column (measured: 21 ms warm, 41 ms cold, on a
-        200 000-row table — precisely the ``COUNT(*)`` cost this method
-        exists to avoid), and then ``int('r16')`` raised ``ValueError``,
-        which is not a ``sqlite3.Error`` and so escaped the caller's
-        handler into the Qt event loop. :mod:`spacr.predictions`,
-        :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a
-        comment about this shadowing; this method had not got the memo.
+        rather than to the row id. On a measurements database,
+        ``max(rowid)`` scans the whole table to take the maximum of a text
+        column (measured: 21 ms warm, 41 ms cold, on a 200 000-row table,
+        the ``COUNT(*)`` cost this method avoids), and ``int('r16')`` then
+        raises ``ValueError``, which is not a ``sqlite3.Error`` and would
+        escape the caller's handler into the Qt event loop.
+        :mod:`spacr.predictions`, :mod:`spacr.foreign` and
+        :mod:`spacr.data_manager` handle the same shadowing.
 
         The remaining spellings are tried in turn for the pathological
         table that declares ``_rowid_`` as well, and a value that will not
@@ -378,8 +374,8 @@ using vacuum values view virtual when where window with without
 def validate_column_name(name: str) -> str:
     """Return why ``name`` cannot be a new column, or ``""`` if it can.
 
-    The point is to fail here, with a sentence, rather than three screens
-    later inside an ``ALTER TABLE`` the user never sees.
+    An invalid name is reported here, with a sentence, rather than later
+    as an error inside an ``ALTER TABLE`` the user never sees.
 
     :param name: candidate column name as typed.
     :returns: an explanation, or the empty string when the name is fine.
@@ -479,7 +475,7 @@ def read_table(reader: Optional[SchemaReader],
         payload.
     :returns: ``{"table", "columns", "rows", "error"}``. ``error`` is the
         sentence to put in the banner; an empty ``columns`` list with no
-        ``error`` means the table honestly has none.
+        ``error`` means the table has no columns.
     """
     payload: Dict[str, Any] = {"table": str(table or ""), "columns": [],
                                "rows": None, "error": ""}
@@ -990,10 +986,10 @@ class ColumnPickerDialog(QDialog):
                 self._action = ACTION_CONFIRM
                 self._status.setText(
                     f"'{name.strip()}' is new, but {table} already has "
-                    f"'{self._near}'. Did you mean '{self._near}'? One "
-                    f"mistyped character here splits your work across two "
-                    f"near-identical columns that then look like two "
-                    f"annotators who agree on nothing. Tick the box below to "
+                    f"'{self._near}'. Did you mean '{self._near}'? A "
+                    f"mistyped name creates a second, near-identical column "
+                    f"and splits the values between the two. Tick the box "
+                    f"below to "
                     f"create '{name.strip()}' anyway.")
             self._sync_ok()
             return

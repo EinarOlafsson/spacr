@@ -76,7 +76,7 @@ class QuestionsPage(QWidget):
     """The questions the data cannot answer, and why each one matters.
 
     :param reading: what was measured from the data. The questions are what
-        it could NOT answer, so this decides which rows exist -- a reading
+        it could not answer, so this decides which rows exist -- a reading
         that answered everything builds an empty page rather than a page of
         questions with answers already in them.
     :param parent: parent widget.
@@ -85,9 +85,8 @@ class QuestionsPage(QWidget):
     def __init__(self, reading: Reading, parent: Optional[QWidget] = None):
         """Build the page asking only what the tables cannot answer.
 
-        Each question carries why it matters underneath it: a user who cannot
-        see what an answer buys cannot answer it well, and the alternative is a
-        number typed to make the dialog go away.
+        Each question carries why it matters underneath it, so the user can
+        see what each answer affects.
 
         :param reading: what was measured from the data.
         :param parent: parent widget, or ``None``.
@@ -285,7 +284,7 @@ class SettingsAdvisorDialog(QDialog):
     :param reading: what was measured from the user's data, which is what the
         questions are derived from.
     :param current: the settings as they stand. Copied, not held: nothing is
-        written back until Apply, which is the promise in the summary above.
+        written back until Apply.
     :param parent: parent widget.
     """
 

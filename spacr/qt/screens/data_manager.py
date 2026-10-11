@@ -1,17 +1,17 @@
-"""The Data Manager screen — what the project costs, and how to get it back.
+"""The Data Manager screen: disk usage, pruning and archiving for one project.
 
 Three surfaces over :mod:`spacr.data_manager`, in the order a user needs
 them:
 
 **Usage** — one row per artifact kind, measured by walking the project, with
-the unregistered bytes called out. The row that is always the surprise is
-"unregistered": bytes spaCR did not put there and cannot account for, which
-is also why none of them is ever offered for deletion.
+the unregistered bytes called out. The "unregistered" row counts bytes spaCR
+did not write and has no record of; none of them is ever offered for
+deletion.
 
 **Prune** — the plan, in full, *before* anything happens. Every candidate
 with its size and the module that would make it again; every kept item with
-the rule that kept it, because a user who expected 300 GB back and was
-offered 12 needs to read why rather than guess. Deleting requires the
+the rule that kept it, so the user can see why less space is freed than
+expected. Deleting requires the
 confirmation dialog, and the dialog shows the file list and the total one
 more time.
 
@@ -117,30 +117,28 @@ register_widget_qss("DataManager", _data_manager_qss, replace=True)
 
 
 class ConfirmDeleteDialog(QDialog):
-    """The last thing between a plan and an irreversible deletion.
+    """Confirmation dialog shown before a prune plan deletes any files.
 
     It shows the total, the item list and every file that would go — the
     same list :meth:`spacr.data_manager.PrunePlan.file_list` returns, not a
     summary of it — and its accept button stays disabled until the user
-    ticks the box that says they have read it. The box is deliberately not
-    pre-ticked and deliberately not a plain OK: this data is somebody's
-    experiment and there is no undo.
+    ticks the box that says they have read it. The box is not pre-ticked and
+    is not a plain OK, because the deletion cannot be undone.
 
-    IT FILLS IN TWO STAGES, and the reason is the whole point of this
-    exercise. The file list is not stored on the plan: every call to
-    ``file_list`` runs ``os.walk`` over every candidate directory, because a
-    plan for a project with millions of crops must not carry millions of
-    strings. Doing that in ``__init__`` put a full recursive walk of the
-    user's project on the GUI thread, at the one moment they are waiting for
-    a window to appear — and on a share that is asleep it is the walk's FIRST
-    stat that spends twenty seconds waking the mount, not the walk. So the
-    dialog opens with the half that needs nothing from the disk (the totals,
-    every candidate, every kept item and its reason) and the file list
+    The dialog fills in two stages. The file list is not stored on the plan:
+    every call to ``file_list`` runs ``os.walk`` over every candidate
+    directory, because a plan for a project with millions of crops must not
+    carry millions of strings. Doing that in ``__init__`` would put a full
+    recursive walk of the user's project on the GUI thread, at the one moment
+    they are waiting for a window to appear — and on a share that is asleep,
+    the walk's first stat alone can take twenty seconds while the mount wakes.
+    So the dialog opens with the half that needs nothing from the disk (the
+    totals, every candidate, every kept item and its reason) and the file list
     arrives behind it. Nothing is dropped: the user still reads every path
     before anything is deleted, which is why the acknowledgement is held
     disabled until the list is on screen — or, when the walk fails, until
-    :meth:`_on_listing_failed` has said so in the list's place. The one
-    thing that never happens is that box being armed over a placeholder.
+    :meth:`_on_listing_failed` has said so in the list's place. The box is
+    never enabled while the list shows a placeholder.
 
     :param plan: the plan to confirm.
     :param parent: Qt parent.
@@ -228,10 +226,10 @@ class ConfirmDeleteDialog(QDialog):
     def describe(self) -> str:
         """The whole text — the plan, then every file — walked right now.
 
-        WALKS THE PROJECT, AND THE DIALOG NO LONGER CALLS IT.
+        This walks the project, and the dialog does not call it.
         :meth:`spacr.data_manager.PrunePlan.file_list` runs ``os.walk`` over
-        every candidate each time it is asked, which is the twenty seconds
-        this exercise removed, so nothing on the GUI thread may call this.
+        every candidate each time it is asked, which can block for many
+        seconds, so nothing on the GUI thread may call this.
         The dialog builds the same string in two pieces instead:
         :meth:`_heading` at once, then :meth:`_with_the_files` on the walk
         that :meth:`_start_the_file_list` sent to a worker.
@@ -360,7 +358,7 @@ class ConfirmDeleteDialog(QDialog):
     def done(self, result: int) -> None:
         """Close the dialog, having first stopped the walk.
 
-        Both Delete and Cancel come through here and NEITHER sends a close
+        Both Delete and Cancel come through here and neither sends a close
         event — ``QDialog.done`` hides the widget — so this, not
         ``closeEvent``, is where a modal dialog's teardown has to live. Qt
         aborts the process outright if a running ``QThread`` is destroyed
@@ -996,11 +994,10 @@ class DataManagerScreen(QWidget):
         def measure():
             """Measure ``root``, having first made sure it is a folder.
 
-            The isdir the guard above can no longer do lives here, where the
-            thread waiting on it is a worker and waiting is free. The sentence
-            it raises is the one the guard has always said, because a root
-            that is not a folder has to read the same to the user however
-            spaCR found out.
+            The isdir check runs here, on the worker thread, rather than in
+            the guard on the GUI thread. It raises the same message the
+            guard uses, so a root that is not a folder is reported the same
+            way in both places.
             """
             if not os.path.isdir(root):
                 raise NotADirectoryError("Choose a project folder first.")
@@ -1172,7 +1169,7 @@ class DataManagerScreen(QWidget):
             f"{plan.total_files:,} files from\n{plan.root}\nto\n"
             f"{plan.destination}?\n\n"
             f"A manifest is written at the destination and a log is left at "
-            f"the origin, so the registry still knows where it went.",
+            f"the origin, so the registry records where the files went.",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if answer != QMessageBox.Yes:
             self._note("Nothing was moved.")
@@ -1238,7 +1235,7 @@ def register() -> bool:
 
     Called at import time, so importing this module is all it takes for the
     app to exist. Returns rather than raises on a duplicate key, so a
-    re-import is a no-op instead of taking the import down.
+    re-import is a no-op instead of failing the import.
 
     :returns: True when this call is what registered it.
     """

@@ -277,21 +277,19 @@ _Drawn = namedtuple("_Drawn", "item x y blocks kind counts")
 
 
 def menu_entries(menu) -> list:
-    """Every action a user can actually TRIGGER on ``menu``, submenus included.
+    """Every action a user can trigger on ``menu``, submenus included.
 
-    THE MIGRATION THIS EXISTS FOR. ``QMenu.actions()`` returns a SUBMENU'S OWN
-    action and not what is inside it, so sixty-odd assertions written against
-    a flat menu read every grouped entry as a removed feature -- which is what
-    reverted the first attempt at the design. Asserting REACHABILITY
-    instead of depth makes those assertions true of the flat menu and of the
-    grouped one alike, so the restructure stops being a rewrite of the suite.
+    ``QMenu.actions()`` returns a submenu's own action and not what is inside
+    it, so assertions written against a flat menu would miss every grouped
+    entry. Listing every reachable action instead lets the same assertions hold
+    for a flat menu and a grouped one.
 
     Two things are skipped because a user cannot do them:
 
     * separators, which are not entries at all;
-    * ``addSection`` labels, which Qt implements as a separator that HAS text
-      -- so ``isSeparator()`` catches both, and a naive text filter would
-      count a heading as a feature.
+    * ``addSection`` labels, which Qt implements as a separator that has text
+      -- so ``isSeparator()`` catches both, where a text filter would count a
+      heading as an entry.
 
     :param menu: a ``QMenu``.
     :returns: the ``QAction`` objects, in the order a reader meets them, with each
@@ -310,11 +308,9 @@ def menu_entries(menu) -> list:
 def menu_groups(menu) -> list:
     """The names a reader sees dividing ``menu`` into parts, in order.
 
-    An ``addSection`` heading and a submenu title are the same idea to a
-    reader and two different objects to Qt -- which is exactly why a test
-    that names one cannot be written against the other, and why moving a
-    heading into a submenu title read as a deleted feature the first time
-    the design was attempted.
+    An ``addSection`` heading and a submenu title are the same idea to a reader
+    and two different objects to Qt -- so this returns both, and a test can
+    name either.
 
     :param menu: a ``QMenu``.
     """
@@ -431,11 +427,11 @@ def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
 def style_field_choices(style, name: str, choices=None):
     """The closed set ``name`` may take, or ``()``.
 
-    Looked for in three places, most specific first: the argument, the
-    field's own ``metadata["choices"]``, and a ``CHOICES`` mapping on the
-    style's class. Three, because the styles in this package declare their
-    sets in all three ways and a mechanism that read only one would silently
-    turn a closed set into a free-text box.
+    Looked for in three places, most specific first: the argument, the field's
+    own ``metadata["choices"]``, and a ``CHOICES`` mapping on the style's
+    class. Three, because the styles in this package declare their sets in all
+    three ways and reading only one would show some closed sets as free-text
+    boxes.
 
     :param style: the style dataclass instance whose field metadata and
         class ``CHOICES`` are consulted.
@@ -472,11 +468,10 @@ def style_field_group(name: str) -> str:
 
 
 def style_field_label(name: str, value, kind: str) -> str:
-    """What the entry for ``name`` reads.
+    """The menu text of the entry for ``name``.
 
-    The CURRENT VALUE is in the label for everything but a flag, which shows
-    its state as a tick. A menu of settings that does not say what they are
-    set to is one the user has to open each entry to read.
+    The current value is in the label for everything but a flag, which shows
+    its state as a tick.
 
     :param name: the field name; underscores become spaces and the first
         letter is capitalised.
@@ -505,16 +500,13 @@ def style_field_label(name: str, value, kind: str) -> str:
 
 def add_style_entries(menu, style, on_change=None, *, choices=None,
                       labels=None) -> list:
-    """Put EVERY field of ``style`` onto ``menu``, grouped and editable.
+    """Put every field of ``style`` onto ``menu``, grouped and editable.
 
-    The point 3: the menu is built FROM THE STYLE OBJECT'S
-    FIELDS rather than from a hand-written list per figure, so "as many
-    settings as possible, depending on the graph" is automatic -- a style
-    gains a field, the menu gains an entry, and the two cannot fall out of
-    step. The acceptance test compares what this produces against
-    ``dataclasses.fields(style)``, which is only a meaningful check because
-    NOTHING IS SKIPPED: a field this cannot edit is still listed, greyed, and
-    says why, exactly as the design requires of every other control here.
+    The menu is built from the style object's fields rather than from a
+    hand-written list per figure, so a style that gains a field gains a menu
+    entry. The acceptance test compares what this produces against
+    ``dataclasses.fields(style)``, which works because nothing is skipped: a
+    field this cannot edit is still listed, greyed, and says why.
 
     :param menu: a ``QMenu`` to add groups to.
     :param style: any dataclass instance describing how a figure looks.
@@ -533,11 +525,11 @@ def add_style_entries(menu, style, on_change=None, *, choices=None,
     Data, Axes, Appearance, Size -- so a figure's own settings and the plot's
     read as one menu rather than two conventions side by side.
 
-    ``menu`` MUST OUTLIVE THE CALL. The groups are parented to it, but a
-    ``QMenu()`` built with no parent of its own is Python-owned and takes
-    every action here with it when the local holding it goes out of scope.
-    :meth:`FastPlot.build_style_menu` parents its menu to the widget, which
-    is why the application does not meet this.
+    ``menu`` must outlive the call. The groups are parented to it, but a
+    ``QMenu()`` built with no parent of its own is Python-owned and takes every
+    action here with it when the local holding it goes out of scope.
+    :meth:`FastPlot.build_style_menu` parents its menu to the widget, which is
+    why the application does not meet this.
     """
     import dataclasses
     from PySide6.QtWidgets import QMenu
@@ -561,12 +553,12 @@ def add_style_entries(menu, style, on_change=None, *, choices=None,
 
 
 def style_kind(style) -> str:
-    """A stable name for the KIND of style ``style`` is.
+    """A stable name for the kind of style ``style`` is.
 
     ``VolcanoStyle`` -> ``"volcano"``. It is what a saved default is keyed on,
-    so it has to be derived from the class rather than passed in: a caller
-    that had to name its own kind would eventually name two of them the same
-    and one lab's house style would land on another figure type.
+    so it has to be derived from the class rather than passed in:
+    caller-supplied names could collide and apply one figure type's house style
+    to another.
 
     :param style: a style instance; its class name, less a ``Style`` suffix,
         is converted to snake case (``"figure"`` if nothing is left).
@@ -601,17 +593,17 @@ def style_as_dict(style) -> dict:
 def apply_style_dict(style, values, on_change=None) -> list:
     """Write ``values`` into ``style``. Returns the field names that changed.
 
-    FORWARDS-COMPATIBLE LOADING, which is the half a bare ``**values`` would
-    lose: a style file written by a later spaCR carries fields this one has
-    never heard of, and a file written by an earlier one is missing some. An
-    unknown field is skipped rather than raising, and a missing one keeps
-    whatever the style already had -- so a house style saved today is still
-    loadable after the dataclass grows.
+    Loading is forward-compatible, which a bare ``**values`` would not be: a
+    style file written by a later spaCR carries fields this one has never heard
+    of, and a file written by an earlier one is missing some. An unknown field
+    is skipped rather than raising, and a missing one keeps whatever the style
+    already had -- so a house style saved today is still loadable after the
+    dataclass grows.
 
-    ``on_change`` is called ONCE, with ``(None, style)``, rather than per
-    field: a host that redraws per field would redraw sixty times for one
-    load, and the interesting question for the host is "the whole style
-    changed", not "line_width did".
+    ``on_change`` is called once, with ``(None, style)``, rather than per
+    field: a host that redraws per field would redraw sixty times for one load,
+    and the host needs to know that the whole style changed, not that
+    ``line_width`` did.
 
     :param style: the style dataclass instance, modified in place.
     :param values: mapping of field name to value; ``None`` applies nothing,
@@ -639,10 +631,8 @@ def apply_style_dict(style, values, on_change=None) -> list:
 def save_style(style, path) -> str:
     """Write ``style`` to ``path`` as JSON. Returns the path written.
 
-    The serialisation already existed
-    (``VolcanoStyle.from_dict`` / ``asdict``); what did not was any way for a
-    user to reach it, which made a restyle something they redid every time
-    they needed the picture.
+    This makes the existing serialisation (``VolcanoStyle.from_dict`` /
+    ``asdict``) available to the user, so a style can be saved and reused.
 
     :param style: the style dataclass instance to save, together with its
         :func:`style_kind`.
@@ -667,11 +657,10 @@ def load_style(style, path, on_change=None) -> list:
 
     :param style: the style dataclass instance to update in place.
     :param path: a JSON style file written by :func:`save_style`.
-    :raises ValueError: for a file that is not a style, and for a style of
-        the WRONG KIND. Refused rather than partially applied: a volcano's
-        style loaded into a heatmap would set the four fields whose names
-        happen to match and leave the rest, which looks like a corrupted
-        figure rather than like a mistake.
+    :raises ValueError: for a file that is not a style, and for a style of the
+        wrong kind. Refused rather than partially applied: a volcano's style
+        loaded into a heatmap would set only the four fields whose names happen
+        to match.
     """
     import json
     from pathlib import Path
@@ -692,23 +681,21 @@ def load_style(style, path, on_change=None) -> list:
 
 def add_style_file_entries(menu, style, on_change=None, *, parent=None,
                            note=None, ask_path=None) -> list:
-    """Save, load and default a whole style -- the design.
+    """Add entries that save, load and set as default a whole style.
 
     :param menu: the "Figure style" group to add to.
     :param style: the style dataclass the figure is drawn from.
     :param on_change: called ``(None, style)`` when a load or a default
         changes it, i.e. where the host redraws.
     :param parent: the widget file dialogs are parented to.
-    :param note: called with one sentence saying what happened, for the
-        plot's status line. A save that says nothing is a save the user
-        repeats because they cannot tell whether it worked.
+    :param note: called with one sentence saying what happened, for the plot's
+        status line.
     :param ask_path: ``(mode, suggested) -> path`` for a test to answer
         instead of a modal. ``None`` uses ``QFileDialog``.
     :returns: the actions added, in menu order.
 
-    THE DEFAULT IS PER STYLE KIND, not per figure. That is what makes it a
-    house style: every volcano this project draws from now on starts from it,
-    which is the difference between saving a style and re-picking one.
+    The default is per style kind, not per figure: every volcano this project
+    draws from then on starts from it.
     """
     from PySide6.QtWidgets import QFileDialog
 
@@ -723,7 +710,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
     def _ask(mode: str, suggested: str) -> str:
         """Ask for a path, through the injected picker or a file dialog.
 
-        INJECTED so the menu can be exercised without a modal dialog, which is
+        Injected so the menu can be exercised without a modal dialog, which is
         otherwise the only way to reach these entries in a test.
         """
         if ask_path is not None:
@@ -820,11 +807,9 @@ def apply_default_style(style, on_change=None) -> list:
     """Start ``style`` from this project's saved default. Returns the fields
     it changed, or ``[]`` when there is no default for this kind.
 
-    Called by the HOST before it draws, not by the menu: only the host knows
+    Called by the host before it draws, not by the menu: only the host knows
     when a figure is new, and applying a default to a style the user has
-    already edited would undo their edits at the next redraw -- the same
-    mistake as a host that re-asserts an axis choice, which cost this module
-    a day.
+    already edited would undo their edits at the next redraw.
 
     :param style: the style dataclass instance to update in place; the
         default saved in preferences for its :func:`style_kind` is applied.
@@ -909,13 +894,12 @@ def _add_style_entry(menu, style, name: str, on_change, choices, labels=None):
 
 
 def style_menu_fields(menu) -> set:
-    """The style FIELDS a built menu offers, by name.
+    """The style fields a built menu offers, by name.
 
     What a reader meets is prose -- "Marker size: 26…" -- so the field's own
     name travels on its action as the object name. That is what lets "the
-    right-click menu and the side panel offer the same settings" be asserted
-    as a comparison of two sets rather than by reading two lists of words and
-    hoping they mean the same thing.
+    right-click menu and the side panel offer the same settings" be asserted as
+    a comparison of two sets.
 
     :param menu: a ``QMenu`` that :func:`add_style_entries` has been called on.
     """
@@ -1068,25 +1052,22 @@ def _figure_colors() -> tuple:
 
 
 def pick_colour(parent, initial=None, title: str = "Colour"):
-    """Ask for a colour with QT'S OWN dialog. Re-exported, not implemented.
+    """Ask for a colour with Qt's own dialog. Re-exported, not implemented.
 
-    The implementation is
-    :func:`spacr.qt.widgets.colour_picker.pick_colour`, and this module goes
-    through it rather than keeping a second copy. ``QColorDialog.getColor``
-    defaults to the PLATFORM's chooser, and on a GNOME session that request
-    is brokered through ``xdg-desktop-portal`` -- the tens-of-seconds stall
-    behind slow native colour dialogs. One helper, because an option that has to be
-    remembered at each call site is one that gets forgotten at the seventh --
-    and there WERE seven here: the six the design counted plus
-    :func:`_ask_style_value`, which its count missed.
+    The implementation is :func:`spacr.qt.widgets.colour_picker.pick_colour`,
+    and this module goes through it rather than keeping a second copy.
+    ``QColorDialog.getColor`` defaults to the platform's chooser, and on a
+    GNOME session that request is brokered through ``xdg-desktop-portal`` --
+    the tens-of-seconds stall behind slow native colour dialogs. One helper, so
+    no call site has to remember the option.
 
     Imported inside the function because this module is imported at GUI start
     on installs that may not have every sibling widget module, and a colour
     picker is not worth an import-time dependency at the top of the file.
 
     :param parent: the dialog's parent widget, or ``None``.
-    :returns: a :class:`QColor`. Check ``isValid()`` -- an invalid one is the
-        user cancelling, which is an answer and not a failure.
+    :returns: a :class:`QColor`. Check ``isValid()`` -- an invalid one means
+        the user cancelled.
     """
     from .colour_picker import pick_colour as shared
 
@@ -1161,23 +1142,23 @@ def _violin_profile(values, half_width: float):
 class FastPlot(QWidget):
     """A pyqtgraph plot with the controls every plot here wants.
 
-    :ivar point_clicked: emitted with the position of a clicked point IN THIS
-        PLOT'S OWN FRAME. It is not an index into anyone else's table; see
+    :ivar point_clicked: emitted with the position of a clicked point in this
+        plot's own frame. It is not an index into anyone else's table; see
         :attr:`key_selected` for the link that survives sorting and filtering.
     :ivar key_selected: emitted with the identifier of a clicked point.
-    :ivar keys_selected: emitted with the identifiers of EVERY row behind the
+    :ivar keys_selected: emitted with the identifiers of every row behind the
         thing that was clicked. A scatter point is one row and emits both; a
-        histogram bar is a hundred rows and can only honestly emit this one.
+        histogram bar can hold many rows and emits only this one.
 
     :param title: heading above the plot.
     :param x_label: caption under the horizontal axis.
     :param y_label: caption beside the vertical axis.
     :param parent: parent widget.
 
-    Constructing this without pyqtgraph installed does NOT raise: the widget
+    Constructing this without pyqtgraph installed does not raise: the widget
     lays itself out, sets :attr:`plots_available` to False and says why it is
-    empty, because a missing optional plotting library should not take a
-    screen down with it.
+    empty, because a missing optional plotting library should not take a screen
+    down with it.
     """
 
     point_clicked = Signal(int)
@@ -1426,7 +1407,7 @@ class FastPlot(QWidget):
 
 
     def offer_refit(self, callback, label: str = "Re-fit with another model…"):
-        """Add an action that CHANGES THE NUMBERS to the right-click menu.
+        """Add an action that changes the numbers to the right-click menu.
 
         :param callback: called with no arguments when the user picks it.
         :param label: what the action says.
@@ -1459,20 +1440,19 @@ class FastPlot(QWidget):
         self._p_values = list(options or ())
 
     def offer_corrections(self, options) -> None:
-        """Offer the multiple-testing correction, ON the graph.
+        """Offer the multiple-testing correction, on the graph.
 
         :param options: ``[(label, callback, checked)]``, or empty when this
             plot has no correction to redo.
 
-        :data:`spacr.multiple_testing.METHODS` holds thirteen methods
-        and the run picks one; comparing BH against Bonferroni against Storey
-        on the screen in front of you is a two-second question that otherwise
-        costs a re-run.
+        :data:`spacr.multiple_testing.METHODS` holds thirteen methods and the
+        run picks one; comparing BH, Bonferroni and Storey on screen avoids a
+        re-run.
         """
         self._corrections = list(options or ())
 
     def offer_encodings(self, options) -> None:
-        """Offer every field-acceptable way of SHOWING the adjusted p.
+        """Offer every field-acceptable way of showing the adjusted p.
 
         :param options: ``[(label, callback, checked)]``, or empty when this
             plot has no corrected p to encode.
@@ -1482,11 +1462,11 @@ class FastPlot(QWidget):
         as color, showing the descrete P on the axis buy showing the line
         where the adjusted p threshold lands, etc."
 
-        BESIDE THE CORRECTION AND ABOVE THE RESTYLING, because these are
-        statements about what the picture MEANS -- which channel carries the
-        FDR -- and not about how it looks. Two of them compete for the colour
-        channel and one composes with whatever is on it; the entries say so
-        and the caption says which is in force.
+        Placed beside the correction and above the restyling, because these
+        change what the picture means -- which channel carries the FDR -- and
+        not about how it looks. Two of them compete for the colour channel and
+        one composes with whatever is on it; the entries say so and the caption
+        says which is in force.
         """
         self._encodings = list(options or ())
 
@@ -1498,10 +1478,10 @@ class FastPlot(QWidget):
         :param multiplier: the current width, shown on its own entry.
         :param on_multiplier: called with the new number when it is changed.
 
-        On the PLOT because the settings-panel controls for these grey out
+        On the plot because the settings-panel controls for these grey out
         under `inference='nonparametric'` -- correctly, since the permutation
-        path uses no control-spread cut -- and users may otherwise not
-        being able to find them.
+        path uses no control-spread cut -- so users might otherwise not find
+        them.
         """
         self._thresholds = (list(options or ()), multiplier, on_multiplier)
 
@@ -1541,11 +1521,10 @@ class FastPlot(QWidget):
             with ``""`` for none. The host redraws from it.
         :param chosen: which one is currently drawn.
 
-        SEPARATE FROM :meth:`offer_refit` DELIBERATELY, and the menu says so.
-        These curves are laid over a fit that has already happened; none of
-        them replaces it, and none of them decides a hit. They therefore
-        belong to a different category from the inferential entries in
-        ``regression_type``.
+        Separate from :meth:`offer_refit`, and the menu says so. These curves
+        are laid over a fit that has already happened; none of them replaces
+        it, and none of them decides a hit. They therefore belong to a
+        different category from the inferential entries in ``regression_type``.
         """
         self._smoothers = on_change
         self._smoother_chosen = str(chosen or "")
@@ -1579,11 +1558,11 @@ class FastPlot(QWidget):
             when ``method`` is empty, so "none" is not a special case at
             every call site.
 
-        The curve carries no p-value and cannot acquire one: it comes back as
-        a :class:`spacr.nonparametric_fits.Curve`, which has no such
-        attribute. A smoother that bends where the straight trend line is
-        flat is the finding -- it means the mean model is missing a term --
-        and that is a statement about the FIT, not a test of a guide.
+        The curve carries no p-value and cannot acquire one: it comes back as a
+        :class:`spacr.nonparametric_fits.Curve`, which has no such attribute. A
+        smoother that bends where the straight trend line is flat is the
+        finding -- it means the mean model is missing a term -- and that is a
+        statement about the fit, not a test of a guide.
         """
         if not method:
             return ""
@@ -1611,7 +1590,7 @@ class FastPlot(QWidget):
 
     def offer_style(self, style, on_change=None, *, choices=None,
                     use_default: bool = True) -> None:
-        """Put a figure's OWN style object onto this plot's right-click menu.
+        """Put a figure's own style object onto this plot's right-click menu.
 
         :param style: any dataclass describing how the figure looks --
             :class:`spacr.volcano_style.VolcanoStyle` and whatever joins it.
@@ -1619,17 +1598,15 @@ class FastPlot(QWidget):
             which is where the host redraws.
         :param choices: ``{field: values}`` for fields that are a closed set.
         :param use_default: start ``style`` from this project's saved default
-            for its kind, if there is one. This is where a house style
-            actually reaches a figure -- point 5 is otherwise a preference
-            nothing reads.
+            for its kind, if there is one. This is where a saved house style is
+            applied to a figure.
 
-            APPLIED ONCE PER STYLE OBJECT, not on every call. A host that
-            re-offers the SAME object after the user has edited it gets
-            nothing done to it; a host that builds a fresh one per redraw had
-            no edits to lose. Re-asserting it unconditionally is the mistake
-            that cost this module a day on the p-axis: the host redraws on
-            every level, baseline and compartment change, and any one of them
-            would silently undo a choice the user had made.
+            Applied once per style object, not on every call. A host that
+            re-offers the same object after the user has edited it gets nothing
+            done to it; a host that builds a fresh one per redraw has no edits
+            to lose. Applying it on every call would undo the user's edits,
+            because the host redraws on every level, baseline and compartment
+            change.
 
         The design: the entries come from ``dataclasses.fields(style)``,
         so a style that gains a field gains a menu entry and the two cannot
@@ -1657,7 +1634,7 @@ class FastPlot(QWidget):
 
         Offered by the host rather than built in, and for the same reason
         :meth:`offer_refit` is: only the plot that owns the arrays knows
-        whether its x-axis is a set of GROUPS at all. A volcano's x is an
+        whether its x-axis is a set of groups at all. A volcano's x is an
         effect size, and "show it as a violin" is not a question that has an
         answer there.
         """
@@ -1761,24 +1738,22 @@ class FastPlot(QWidget):
         """The table this plot was drawn from, or ``None``.
 
         The two column-mapping controls need it -- "cmap (choose any column)"
-        and "point shape (choose any column)" both name a column of THIS
-        plot's own table -- and a plot handed bare arrays honestly has none,
-        which is why those entries grey out rather than offering a list of
-        nothing.
+        and "point shape (choose any column)" both name a column of this plot's
+        own table -- and a plot handed bare arrays has none, which is why those
+        entries grey out rather than offering a list of nothing.
         """
         return getattr(self, "_frame", None)
 
     def numeric_columns(self) -> list:
-        """Columns a COLOUR SCALE could read, in table order.
+        """Columns a colour scale could read, in table order.
 
         A cmap belongs only on a continuous quantity: mapping one onto a
         nominal category is the mistake the house style warns about, because
         it puts an order into the picture that the data does not have.
 
-        So: numeric dtype, not boolean -- ``True``/``False`` is two
-        categories wearing a number's dtype -- and at least two distinct
-        finite values, because a column with one value maps every point to
-        the same colour and a scale with no range is not a scale.
+        So: numeric dtype, not boolean -- ``True``/``False`` are two categories
+        with a numeric dtype -- and at least two distinct finite values,
+        because a column with one value maps every point to the same colour.
         """
         frame = self.frame()
         if frame is None or not len(frame):
@@ -1797,19 +1772,16 @@ class FastPlot(QWidget):
         return found
 
     def shape_columns(self) -> list:
-        """Columns a POINT SHAPE could read, in table order.
+        """Columns a point shape could read, in table order.
 
         Low cardinality and nothing else: two to :data:`MAX_SHAPE_VALUES`
-        distinct values. Both ends are real limits rather than tidiness --
-        one value gives every point the same shape and says nothing, and past
-        eight the shapes stop being tellable apart at scatter-plot size, so
-        the reader is decoding a key instead of reading a figure.
+        distinct values. One value gives every point the same shape, and past
+        eight the shapes stop being tellable apart at scatter-plot size, so the
+        reader is decoding a key instead of reading a figure.
 
-        DTYPE IS NOT THE TEST. ``n_guides`` is an integer column with four
-        values and is exactly what a reader wants shapes for, while
-        ``feature`` is a string column with 1,215 and is exactly what they do
-        not. Counting the values answers both; asking the dtype answers
-        neither.
+        The test is the number of distinct values, not the dtype: ``n_guides``
+        is an integer column with four values and suits shapes, while
+        ``feature`` is a string column with 1,215 values and does not.
         """
         frame = self.frame()
         if frame is None or not len(frame):
@@ -1827,10 +1799,8 @@ class FastPlot(QWidget):
     def colour_map_reason(self) -> str:
         """Why "colour by a column" cannot act here, or ``""``.
 
-        The rule, applied to a menu: an entry that cannot do
-        anything is greyed out AND SAYS WHY. Silently absent leaves the user
-        hunting for a control they were told about; present-but-inert leaves
-        them clicking it and concluding the application is broken.
+        A menu entry that cannot act is greyed out and states why, rather than
+        being hidden or doing nothing when clicked.
         """
         if not self._scatter_items():
             return "nothing on this plot is drawn as points"
@@ -1871,12 +1841,9 @@ class FastPlot(QWidget):
                 else "this plot has nothing drawn as a line")
 
     def follow_the_theme(self) -> None:
-        """Put BOTH colour controls back to automatic.
+        """Put both colour controls back to automatic.
 
-        The way out of a colour, and it has to exist: the design is a
-        preference that froze because a resolved default was written back
-        over the word "auto", and a control a user can only set is the same
-        freeze performed by hand.
+        Without it, a colour once chosen could not be returned to automatic.
         """
         self.set_line_colour(None)
         self.set_font_colour(None)
@@ -1885,8 +1852,8 @@ class FastPlot(QWidget):
     def point_reason(self) -> str:
         """Why the point controls cannot act here, or ``""``.
 
-        A p-value histogram is bars. "Point size" on it is the plainest case
-        of a control that looks live and does nothing.
+        A p-value histogram is bars. "Point size" would have no effect on it,
+        so the control is greyed out with this reason.
         """
         return ("" if self._scatter_items()
                 else "nothing on this plot is drawn as points")
@@ -1948,7 +1915,8 @@ class FastPlot(QWidget):
         set_label = plot_item.setLabel
 
         def _add(item, *args, **kwargs):
-            """Add the item AND record it, so the canvas can clear its own drawings."""
+            """Add the item and record it, so the canvas can clear its own
+            drawings."""
             add_item(item, *args, **kwargs)
             self._register_drawn(item)
 
@@ -2066,10 +2034,9 @@ class FastPlot(QWidget):
     def log_reason(self, axis: str) -> str:
         """Why ``axis`` cannot be drawn on a log scale, or ``""``.
 
-        The rule, and the decision: a value at or
-        below zero has no logarithm, and the answer is to REFUSE the axis
-        rather than drop the points. Dropping them would make a volcano whose
-        visible point count is a number nobody can account for.
+        A value at or below zero has no logarithm, so the log axis is refused
+        rather than the points dropped; dropping them would change the visible
+        point count without explanation.
 
         :param axis: ``"x"`` or ``"y"``.
         """
@@ -2112,19 +2079,17 @@ class FastPlot(QWidget):
     def set_log_axes(self, x=None, y=None) -> tuple:
         """Put an axis onto a log scale, or take it off one.
 
-        THE DATA IS TRANSFORMED, NOT ONLY THE AXIS. ``PlotItem.setLogMode``
-        relabels the axis and then walks its items asking each to re-transform
-        itself -- and ``ScatterPlotItem`` HAS NO ``setLogMode``, while every
-        point on every plot in this module is one. The axis therefore claimed
-        a log scale and the dots did not move: a reader took p-values off a
-        ruler that did not describe the marks beside it, with nothing on
-        screen to say so. That is a wrong figure, not an inert control.
+        The data is transformed, not only the axis. ``PlotItem.setLogMode``
+        relabels the axis and then asks each item to re-transform itself, and
+        ``ScatterPlotItem`` has no ``setLogMode``, while every point on every
+        plot in this module is one. Without transforming the data here, the
+        axis would show a log scale while the points stayed at linear
+        positions.
 
         :param x: True, False, or None to leave the bottom axis alone.
         :param y: the same for the left axis.
-        :returns: :meth:`log_axes` afterwards, because a request can be
-            REFUSED -- see :meth:`log_reason` -- and a caller that assumed it
-            was honoured would be making the original mistake again.
+        :returns: :meth:`log_axes` afterwards, because a request can be refused
+            -- see :meth:`log_reason`.
         """
         for axis, wanted in (("x", x), ("y", y)):
             if wanted is None:
@@ -2163,7 +2128,7 @@ class FastPlot(QWidget):
 
 
     def y_split(self) -> Optional[tuple]:
-        """``(low, high)`` of the hidden band IN DATA UNITS, or ``None``."""
+        """``(low, high)`` of the hidden band in data units, or ``None``."""
         return self._split.get("y")
 
     def _split_drawn(self) -> tuple:
@@ -2193,15 +2158,16 @@ class FastPlot(QWidget):
     def y_split_reason(self, low, high) -> str:
         """Why ``(low, high)`` cannot be hidden on the y axis, or ``""``.
 
-        A SPLIT THAT SWALLOWS POINTS IS REFUSED, and this is the one place
-        that rule is stated. A broken axis is a piecewise-linear ruler whose
-        tick labels still read the data's own values, so every mark stays at
-        its own number -- but a mark INSIDE the hidden band has no number left
-        on the ruler to sit at, and drawing it in the break would put a point
+        A split that would hide points is refused; this is the one place that
+        rule is applied. A broken axis is a piecewise-linear ruler whose tick
+        labels still read the data's own values, so every mark stays at its own
+        number -- but a mark inside the hidden band has no number left on the
+        ruler to sit at, and drawing it in the break would put a point
         somewhere its value is not. That is the same thing y-axis jitter does,
         and the design forbids it for the same reason.
 
-        So the answer is the count, and the user moves the band.
+        The reason names how many points are inside, so the user can move the
+        band.
 
         :param low: bottom of the band to hide, in y data units.
         :param high: top of the band to hide, in y data units; it must be
@@ -2356,7 +2322,7 @@ class FastPlot(QWidget):
             return out
 
         def tick_strings(values, scale, spacing):
-            """Tick labels for a split axis, in the ORIGINAL data's values.
+            """Tick labels for a split axis, in the original data's values.
 
             The axis is drawn on a compressed coordinate, so labelling it with the
             drawn position would put numbers on it that the data never had.
@@ -2370,7 +2336,7 @@ class FastPlot(QWidget):
         self._axis_ticks = (axis, original_values, original_strings)
 
     def clear_y_split(self) -> None:
-        """Put the y axis back in one piece. The way out of a split."""
+        """Put the y axis back in one piece, undoing a split."""
         if self._split.get("y") is None:
             return
         self._split["y"] = None
@@ -2523,13 +2489,12 @@ class FastPlot(QWidget):
             update()
 
     def axis_limits(self) -> tuple:
-        """``((x from, x to), (y from, y to))`` as shown, IN DATA UNITS.
+        """``((x from, x to), (y from, y to))`` as shown, in data units.
 
-        Data units whatever the scale, because that is the only answer that
-        means one thing. pyqtgraph's view range is in DRAWN units, so on a
-        logged axis it reads ``(-6, 0)`` where the plot shows a millionth to
-        one -- and a caller pre-filling a dialog from it would offer the user
-        a logarithm to edit.
+        Data units whatever the scale. pyqtgraph's view range is in drawn
+        units, so on a logged axis it reads ``(-6, 0)`` where the plot shows a
+        millionth to one -- and a caller pre-filling a dialog from it would
+        offer the user a logarithm to edit.
         """
         self._sync_auto_range()
         ranges = self.plot.getViewBox().viewRange()
@@ -2539,25 +2504,22 @@ class FastPlot(QWidget):
                  self._to_data(ranges[1][1], "y")))
 
     def set_axis_limits(self, x=None, y=None) -> None:
-        """Pin an axis to ``(from, to)`` IN DATA UNITS. ``None`` skips it.
+        """Pin an axis to ``(from, to)`` in data units. ``None`` skips it.
 
-        DATA UNITS, and converted here, because the transform is this class's
-        own: a user who types ``1e-6, 1`` on a logged axis means a millionth
-        to one, not log10 of those, and pyqtgraph's ranges are in the drawn
-        units it knows nothing about the meaning of.
+        Data units, converted here, because the transform is this class's own:
+        a user who types ``1e-6, 1`` on a logged axis means a millionth to one,
+        not log10 of those, and pyqtgraph's ranges are in the drawn units it
+        knows nothing about the meaning of.
 
-        AUTO-RANGE IS TURNED OFF ON THE AXIS THAT IS PINNED, and only that
-        one. pyqtgraph re-fits the view to the data on the next redraw
-        otherwise, so a limit the user typed would survive until the first
-        recolour and then silently spring back -- which reads as the control
-        not working rather than as a redraw. The pin is REMEMBERED as well as
-        applied, so a scale change re-imposes the same data window rather
-        than leaving the view where the old units put it.
+        Auto-range is turned off on the pinned axis only. Otherwise pyqtgraph
+        re-fits the view to the data on the next redraw, so a typed limit would
+        be lost at the first recolour. The pin is remembered as well as
+        applied, so a scale change re-imposes the same data window rather than
+        leaving the view where the old units put it.
 
-        A NON-POSITIVE LIMIT ON A LOGGED AXIS IS REFUSED, with the reason in
-        the status line: it has no logarithm, and quietly substituting a
-        bound the user did not type is how a figure comes to show a range
-        nobody chose.
+        A non-positive limit on a logged axis is refused, with the reason in
+        the status line: it has no logarithm, and no other bound is
+        substituted.
 
         :param x: ``(from, to)`` for the bottom axis, or None.
         :param y: ``(from, to)`` for the left axis, or None.
@@ -2616,11 +2578,10 @@ class FastPlot(QWidget):
             box.enableAutoRange(axis=which, enable=False)
 
     def auto_range_axes(self) -> None:
-        """Give both axes back to the data. The way out of a typed limit.
+        """Return both axes to automatic ranging, undoing a typed limit.
 
-        A control that can only be set is a trap: a user who pins x to the
-        wrong decade has no way back to the picture they started from except
-        reloading the run.
+        Without it, a user who set a wrong limit could return to the original
+        view only by reloading the run.
         """
         self._pinned = {"x": None, "y": None}
         box = self.plot.getViewBox()
@@ -2652,15 +2613,11 @@ class FastPlot(QWidget):
         return self._font_size
 
     def set_font_size(self, points: int) -> None:
-        """Draw the labels, TICKS and title at ``points``.
+        """Draw the labels, ticks and title at ``points``.
 
-        THE TICKS ARE THE HALF THAT WAS MISSING. The old handler passed
-        ``tickFont=None`` -- which asks for pyqtgraph's default rather than
-        for a size -- so "Font size: 20" enlarged the two axis labels and
-        left every tick number at its original size. Measured on the volcano
-        before this change: the bottom axis' tick font came back as None at
-        every setting, i.e. the control moved two strings out of about
-        twenty.
+        The tick numbers are resized too. Passing ``tickFont=None`` asks for
+        pyqtgraph's default rather than for a size, which would enlarge the two
+        axis labels and leave every tick number at its original size.
 
         :param points: font size in points, converted to ``int``.
         """
@@ -2674,8 +2631,8 @@ class FastPlot(QWidget):
     def set_font_colour(self, colour) -> None:
         """Draw every piece of text on the plot in ``colour``.
 
-        Separate from :meth:`restyle`, which resolves the THEME's ink. This
-        is the user overriding it for one figure, so it is re-applied after a
+        Separate from :meth:`restyle`, which resolves the theme's ink. This is
+        the user overriding it for one figure, so it is re-applied after a
         theme switch rather than being quietly reverted by one.
 
         :param colour: anything ``QColor`` accepts (a name, ``"#rrggbb"`` or a
@@ -2689,8 +2646,7 @@ class FastPlot(QWidget):
 
         One place, because the size and the colour are set from two different
         menu entries and each has to leave the other's choice standing --
-        applying them separately is how "font size" quietly reverts "font
-        colour" and the user concludes one of the two is broken.
+        applied separately, one would revert the other.
         """
         colour = self._font_colour or self._foreground
         size = self._font_size
@@ -2740,13 +2696,12 @@ class FastPlot(QWidget):
 
 
     def line_items(self) -> list:
-        """Every LINE on this plot, for a restyle to reach.
+        """Every line on this plot, for a restyle to reach.
 
-        The reference lines and threshold lines added by :meth:`add_line`,
-        the Q-Q's diagonal, the residual and scale-location trends, and the
-        summary line across a points/jitter group -- all of them, because
-        each is a visible line with colour and width controls, and a
-        control that reached three of five kinds would be worse than none.
+        The reference lines and threshold lines added by :meth:`add_line`, the
+        Q-Q's diagonal, the residual and scale-location trends, and the summary
+        line across a points/jitter group -- all of them, because each is a
+        visible line with colour and width controls.
 
         The scatters are excluded because they have their own controls, and
         the selection ring is excluded because it is a cursor rather than
@@ -2763,13 +2718,10 @@ class FastPlot(QWidget):
     def axis_items(self) -> list:
         """The four axes, for the line control to reach.
 
-        THE SPINES AND THE TICK MARKS ARE LINES. They were unreachable: the
-        axis takes ``foreground`` at CONSTRUCTION and nothing changed it
-        afterwards, so the first report on the design -- "doesnt look
-        like there is an option to change the axis color for the volcano
-        plot" -- was exactly right, and :meth:`line_items` deliberately
-        excludes anything that is not a plot item, so no existing call could
-        have reached them.
+        The spines and the tick marks are lines too. The axis takes
+        ``foreground`` at construction, and :meth:`line_items` excludes
+        anything that is not a plot item, so this method is how the line
+        control reaches them.
         """
         if not HAVE_PYQTGRAPH:
             return []
@@ -2788,12 +2740,10 @@ class FastPlot(QWidget):
         return self._line_colour
 
     def set_line_colour(self, colour) -> int:
-        """Colour EVERY line, axis spines and tick marks included.
+        """Colour every line, axis spines and tick marks included.
 
         ``None`` puts every line back to the colour it was drawn with and the
-        axes back to the theme's -- the "Follow the theme" half, which a user
-        who has set a colour needs or the freeze the API is intended to fix
-        just happens by hand instead of by accident.
+        axes back to the theme's -- the "Follow the theme" action.
 
         :param colour: anything ``QColor`` accepts, or ``None`` to follow the
             theme.
@@ -2888,7 +2838,7 @@ class FastPlot(QWidget):
         if column not in self.numeric_columns():
             raise ValueError(
                 f"{column!r} is not a continuous column, and a colour scale "
-                f"on a category invents an order the data does not have")
+                f"would impose an order on its categories")
         if colormap not in COLORMAPS:
             raise ValueError(
                 f"unknown colormap {colormap!r}; this build offers "
@@ -2943,9 +2893,8 @@ class FastPlot(QWidget):
             as strings, and each distinct one gets its own marker.
         :raises ValueError: for a column that is not there, or one with more
             values than there are shapes a reader can tell apart. Refused
-            rather than truncated: reusing a circle for the ninth and the
-            first value would draw two different things identically, which is
-            worse than not offering the column at all.
+            rather than truncated: reusing a circle for the ninth and the first
+            value would draw two different values identically.
         """
         frame = self.frame()
         if frame is None:
@@ -2963,7 +2912,7 @@ class FastPlot(QWidget):
         if len(names) < 2:
             raise ValueError(
                 f"{column!r} has one value, so every point would be the same "
-                f"shape and the column would say nothing")
+                f"shape")
         order = {name: i for i, name in enumerate(names)}
         codes = text.map(order).to_numpy()
 
@@ -2986,12 +2935,11 @@ class FastPlot(QWidget):
     def clear_column_mapping(self) -> int:
         """Put the original colours and shapes back. Returns items restored.
 
-        The brushes and symbols each scatter was BUILT with are kept the
-        first time a mapping touches it, because they are the only record of
-        what the plot's own colouring said -- the compartment split, the
-        single-guide genes, the influential wells. Recomputing them here
-        would need this class to know every subclass's rule, and a "restore"
-        that guessed would quietly replace one sentence with another.
+        The brushes and symbols each scatter was built with are kept the first
+        time a mapping touches it, because they are the only record of what the
+        plot's own colouring said -- the compartment split, the single-guide
+        genes, the influential wells. Recomputing them here would need this
+        class to know every subclass's rule.
         """
         restored = 0
         for item in self._scatter_items():
@@ -3057,11 +3005,11 @@ class FastPlot(QWidget):
     def clear_screen_size(self) -> None:
         """Let the layout size the plot again, keeping its original floors.
 
-        NOT ``setMinimumSize(0, 0)``. `RegressionResultsPanel` gives the
-        volcano ``setMinimumHeight(240)`` so a splitter cannot collapse it to
-        a sliver; releasing the widget to nothing would silently drop that
-        floor, and the plot would then vanish the first time the user dragged
-        the divider.
+        Not ``setMinimumSize(0, 0)``. `RegressionResultsPanel` gives the
+        volcano ``setMinimumHeight(240)`` so a splitter cannot collapse it to a
+        sliver; releasing the widget to nothing would silently drop that floor,
+        and the plot would then vanish the first time the user dragged the
+        divider.
         """
         if self._size_bounds is None:
             return
@@ -3072,7 +3020,7 @@ class FastPlot(QWidget):
         self._size_bounds = None
 
     def canvas_shape(self) -> str:
-        """Which of :data:`CANVAS_SHAPES` the FIGURE is held at."""
+        """Which of :data:`CANVAS_SHAPES` the figure is held at."""
         return self._canvas_shape
 
     def canvas_ratio(self) -> Optional[float]:
@@ -3276,31 +3224,29 @@ class FastPlot(QWidget):
             action.setChecked(bool(checked))
 
     def build_style_menu(self):
-        """The right-click menu, built from what the plot actually has on it.
+        """The right-click menu, built from what the plot has on it.
 
-        SEPARATE FROM SHOWING IT so the menu can be inspected without a modal
+        Separate from showing it so the menu can be inspected without a modal
         event loop. `QMenu.exec` blocks until the user picks something and is
         not patchable from a test -- it is a C++ slot, and assigning over it
         leaves the real one dispatching -- so a test that reached in to read
         the entries hung the suite instead of failing it.
 
-        THE ORDER IS THE ORDER OF USE, not alphabetical, and it is the whole
-        design of the design:
+        Entries are in order of use, not alphabetical:
 
-          * the two entries every user reaches for stay at the TOP LEVEL and
-            one click away. A menu reorganised until nothing is one click
-            away is worse than the flat list it replaced.
-          * then what changes the CLAIM -- which rows are drawn, which
-            p-value the axis means, where the cut is, what zero is measured
-            from. These come first because they change what the figure says.
-          * then what changes the LOOK -- the mark, the colour, the axes, the
+          * the two entries every user reaches for stay at the top level and
+            one click away.
+          * then what changes the claim -- which rows are drawn, which p-value
+            the axis means, where the cut is, what zero is measured from. These
+            come first because they change what the figure says.
+          * then what changes the look -- the mark, the colour, the axes, the
             appearance, the size.
           * then, alone under its own heading, the one entry that re-runs the
             analysis. A user reaching for "Point size" must not be one slip
             away from starting a fit.
 
-        Groups appear only when this plot HAS the thing they hold, so a Q-Q
-        is not offered a p-value axis it does not draw and a volcano is not
+        Groups appear only when this plot has the thing they hold, so a Q-Q is
+        not offered a p-value axis it does not draw and a volcano is not
         offered a violin.
         """
         from PySide6.QtWidgets import QMenu
@@ -4149,7 +4095,7 @@ class FastPlot(QWidget):
                 pass
 
     def set_status(self, text: str) -> None:
-        """What this plot has to say about ITSELF. Survives a selection.
+        """Set the plot's own status sentence; it survives a selection.
 
         :param text: the headline sentence; the status line is rewritten from
             it, the level note and the style note.
@@ -4159,14 +4105,13 @@ class FastPlot(QWidget):
                                            self._style_note))
 
     def set_style_note(self, note: str) -> None:
-        """What a RESTYLE has to say. Survives a redraw and a selection.
+        """Set the sentence a restyle adds; it survives a redraw and a
+        selection.
 
         A colour scale is unreadable without its range and a shape mapping is
-        unreadable without its key, so those sentences are not decoration --
-        they are the legend. They cannot live in the headline, which every
-        redraw rewrites, nor in the click note, which every click rewrites;
-        either would leave the reader looking at a picture whose key had been
-        overwritten by something unrelated.
+        unreadable without its key, so those sentences act as the legend. They
+        cannot go in the headline, which every redraw rewrites, nor in the
+        click note, which every click rewrites.
 
         :param note: the restyle's sentence, e.g. a colour scale's range;
             an empty string removes it.
@@ -4181,13 +4126,11 @@ class FastPlot(QWidget):
         return "   ".join(part for part in parts if part)
 
     def set_status_note(self, note: str) -> None:
-        """Add a sentence about the CLICKED thing, keeping the headline.
+        """Add a sentence about the clicked item, keeping the headline.
 
         The diagnostics' status lines carry the numbers they exist for -- the
-        inflation factor, the control medians, how many genes rest on one
-        guide -- and overwriting those with the name of whatever was just
-        clicked trades the panel's whole content for a string the user can
-        already read in the table. Both fit.
+        inflation factor, the control medians, how many genes rest on one guide
+        -- and the click note is added after them rather than replacing them.
 
         :param note: the sentence about the clicked item, shown last; an
             empty string removes it.
@@ -4209,23 +4152,23 @@ class FastPlot(QWidget):
                                      getattr(self, "_note", "")))
 
     def note_selection(self, key, found: bool) -> None:
-        """Say a row was picked -- unless this plot already said MORE about it.
+        """Say a row was picked -- unless this plot already said more about it.
 
-        A click travels: the dot announces its key, the table selects that
-        row, and every other plot then marks it. That last step arrives AFTER
-        the clicked plot has written its own answer, and the clicked plot
-        knows the most -- which control group a dot is in and what its effect
-        was, how many of a gene's guides agree, what the p-value is. The plots
-        that merely received the key know only the key, so letting them write
-        last replaces the answer with the question.
+        A click travels: the dot announces its key, the table selects that row,
+        and every other plot then marks it. That last step arrives AFTER the
+        clicked plot has written its own answer, and the clicked plot knows the
+        most -- which control group a dot is in and what its effect was, how
+        many of a gene's guides agree, what the p-value is. The plots that only
+        received the key know only the key, so they do not overwrite the
+        clicked plot's report.
 
         :param key: the shared row identifier to name in the status line. It
             is compared as text with the plot's existing detail so a richer
             click report for the same row is not overwritten.
-        :param found: whether this plot actually drew that row. ``False`` is a
-            real answer and is said out loud: a coefficient with an unusable
-            p-value is on no plot, a nuisance term is off the volcano on
-            purpose, and a guide is not a point on a per-gene plot at all.
+        :param found: whether this plot actually drew that row. ``False`` is
+            reported in the status line: a coefficient with an unusable p-value
+            is on no plot, a nuisance term is off the volcano on purpose, and a
+            guide is not a point on a per-gene plot at all.
         """
         if found and str(key) in getattr(self, "_note", ""):
             return
@@ -4252,16 +4195,14 @@ class FastPlot(QWidget):
             into its own arrays, so unlike a brush per point this costs
             nothing per point.
         :param labels: per-point text, shown on hover and on click.
-        :param rows: the FRAME ROW each element of ``x``/``y`` came from.
+        :param rows: the frame row each element of ``x``/``y`` came from.
             Default ``None`` means the arrays are already in frame order.
 
-            THIS IS THE WHOLE OF THE Q-Q TRAP. A Q-Q plot is SORTED by
-            p-value, so its nth drawn point is not its nth table row; a
-            control panel is split into groups, so its nth point is not the
-            nth row either. Left to assume otherwise, every one of those
-            plots would carry an index that looks like a row, joins like a
-            row, and names a different guide -- silently, and in the
-            direction nobody questions, because something did light up.
+            A Q-Q plot is sorted by p-value, so its nth drawn point is not its
+            nth table row; a control panel is split into groups, so its nth
+            point is not the nth row either. Without ``rows``, such a plot
+            would carry an index that looks and joins like a row but names a
+            different guide.
         """
         x = _finite(x)
         y = _finite(y)
@@ -4310,15 +4251,14 @@ class FastPlot(QWidget):
     def set_keys(self, keys) -> int:
         """Give each frame row its identifier. Returns the number of rows.
 
-        Duplicates are kept as the FIRST row carrying the key, and counted:
-        an identifier that names two rows cannot select one of them, and
-        picking silently is how the wrong point gets highlighted.
+        Duplicates are kept as the first row carrying the key, and counted: an
+        identifier that names two rows cannot select one of them.
 
-        ``None`` -- either as the whole argument or as one entry -- means
-        "this row has no identifier". Such a row still draws and can still be
-        clicked; it reports no identifier to other components, which is the
-        truthful answer and is not the same as reporting the empty string,
-        which would collide with every other unidentified row.
+        ``None`` -- either as the whole argument or as one entry -- means "this
+        row has no identifier". Such a row still draws and can still be
+        clicked; it reports no identifier to other components, which differs
+        from reporting the empty string, which would collide with every other
+        unidentified row.
 
         :param keys: one identifier per frame row, in row order; each is
             stored as ``str``, and ``None`` or NaN marks a row without one.
@@ -4357,10 +4297,9 @@ class FastPlot(QWidget):
     def highlight_key(self, key) -> bool:
         """Ring the point identified by ``key``. Returns whether one was found.
 
-        ``False`` is a real answer, not a failure: a key can be absent because
-        its point was not plotted (an unusable p-value) or because it is a
-        nuisance term this plot deliberately leaves off. Saying so beats
-        ringing something near it.
+        ``False`` is not an error: a key can be absent because its point was
+        not plotted (an unusable p-value) or because it is a nuisance term this
+        plot deliberately leaves off. Nothing else is ringed instead.
 
         :param key: the row identifier to select, compared as ``str``;
             ``None`` clears the selection and the ring.
@@ -4415,11 +4354,11 @@ class FastPlot(QWidget):
     def highlight_keys(self, keys) -> int:
         """Ring every key in ``keys``. Returns how many were found and drawn.
 
-        A KEY THAT IS NOT ON THE PLOT IS STILL SELECTED. It can be missing
+        A key that is not on the plot is still selected. It can be missing
         because its point was not plotted -- an unusable p-value, a nuisance
         term this plot leaves off -- and dropping it from the selection would
-        make the count on screen disagree with what the consumers receive.
-        So the ring is what is conditional here, never the membership.
+        make the count on screen disagree with what the consumers receive. So
+        the ring is what is conditional here, never the membership.
 
         :param keys: the identifiers to select, in pick order; compared as
             ``str``, duplicates dropped, and the last one is the current
@@ -4578,19 +4517,18 @@ class FastPlot(QWidget):
     def add_ranked_bars(self, labels, values, *, colour=None,
                         highlight: int = 0, thickness: float = 0.72,
                         descending: bool = True) -> int:
-        """Draw a HORIZONTAL bar per label, longest at the top.
+        """Draw a horizontal bar per label, longest at the top.
 
         The shape a feature-importance chart is: twenty names against one
-        number each. It is horizontal because twenty names on a vertical
-        axis are unreadable at any font size that fits them -- which is why
-        matplotlib's ``barh`` was reached for, and why this plot could not
-        replace it until now.
+        number each. It is horizontal because twenty names on a vertical axis
+        are unreadable at any font size that fits them -- which is why
+        matplotlib's ``barh`` was used before.
 
-        NOT ``add_group_mark``. That method draws at categorical positions
-        in x, one group at a time, and every one of its eight marks assumes
-        the measurement is y. A named orientation flag through all of them
-        would be eight branches doubled to serve one chart; this is the one
-        chart, drawn directly.
+        Not ``add_group_mark``. That method draws at categorical positions in
+        x, one group at a time, and every one of its eight marks assumes the
+        measurement is y. A named orientation flag through all of them would be
+        eight branches doubled to serve one chart; this is the one chart, drawn
+        directly.
 
         Parameters
         ----------
@@ -4677,10 +4615,8 @@ class FastPlot(QWidget):
         """A line through ordered points, optionally inside a spread band.
 
         The shape of a convergence or sweep chart: one series against an
-        ordered x, with the spread it was summarised from drawn behind it.
-        A line with no band claims a precision the data does not have, and
-        it is the band that tells a reader where the curve stops meaning
-        anything.
+        ordered x, with the spread it was summarised from drawn behind it. The
+        band shows the spread behind each point of the line.
 
         Parameters
         ----------
@@ -4751,16 +4687,14 @@ class FastPlot(QWidget):
 
         The shape of a SHAP summary: for each of the top features, every
         sample's contribution as a dot on that feature's row, spread by how
-        many share a value, and coloured by how large that sample's own
-        feature value was. Reading it is the point of the chart -- a wide
-        row matters more than a narrow one, and the colour split along it
-        says which direction the feature pushes.
+        many share a value, and coloured by how large that sample's own feature
+        value was. A wide row matters more than a narrow one, and the colour
+        split along it says which direction the feature pushes.
 
-        DRAWN HERE RATHER THAN BY THE LIBRARY. ``shap.summary_plot`` draws
-        into a matplotlib figure it makes itself, so it cannot be handed a
-        pyqtgraph scene; it was the last thing on this path that kept the
-        second renderer alive. It is not much of a chart to reproduce, and
-        reproducing it is what makes the saved file and the tab the same
+        Drawn here rather than by the library. ``shap.summary_plot`` draws into
+        a matplotlib figure it makes itself, so it cannot be handed a pyqtgraph
+        scene; it was the last thing on this path that kept the second renderer
+        alive. Drawing it here makes the saved file and the tab the same
         picture.
 
         :param labels: one feature name per row, in the order they should
@@ -4898,16 +4832,16 @@ class FastPlot(QWidget):
                   rings: int = 0, label_pad: float = 1.16) -> int:
         """Draw a closed radar polygon, one spoke per label.
 
-        A RADAR IS A POLYGON, NOT AN AXIS. pyqtgraph has no polar view, and
-        matplotlib's ``subplot_kw=dict(polar=True)`` was the only reason two
-        of this module's figures could not move to the screen's renderer.
-        The chart itself is elementary once that is said out loud: each
-        label takes an angle, each value a radius, and the whole thing is a
-        line through the resulting points with the axes hidden.
+        A radar is drawn as a polygon, not on a polar axis. pyqtgraph has no
+        polar view, and matplotlib's ``subplot_kw=dict(polar=True)`` was the
+        only reason two of this module's figures could not move to the screen's
+        renderer. The chart is then simple: each label takes an angle, each
+        value a radius, and the whole thing is a line through the resulting
+        points with the axes hidden.
 
-        THE GRID IS DRAWN, not inherited. A radar read against a square grid
-        is unreadable -- the reference a reader needs is the concentric
-        rings, which say what a radius is worth.
+        The grid is drawn, not inherited. A radar read against a square grid is
+        unreadable -- the reference a reader needs is the concentric rings,
+        which say what a radius is worth.
 
         Parameters
         ----------
@@ -5048,11 +4982,11 @@ class FastPlot(QWidget):
         centre : {"mean", "median"}, default="mean"
             Summary used by point, jitter, and line marks.
         spread : {"sd", "sem", "var", "none"}, default="sem"
-            What the bar's whisker MEANS, from
+            What the bar's whisker means, from
             :data:`spacr.figures.spread.SPREAD_CHOICES`. The three are not
             interchangeable -- SD describes the observations, SEM the
-            confidence in their mean, and at n=3000 they differ by a factor
-            of fifty-five -- so a caller that draws one has to say which, and
+            confidence in their mean, and at n=3000 they differ by a factor of
+            fifty-five -- so a caller that draws one has to say which, and
             ``none`` draws no whisker at all.
 
         Returns
@@ -5806,27 +5740,22 @@ class FastPlot(QWidget):
 class VolcanoPlot(FastPlot):
     """Effect against -log10(p), with the FDR carried by colour and a line.
 
-    The y axis is the raw P value and is continuous. The reasoning is worth
-    keeping beside the code because the
-    observation that produced it looked like a bug and was not.
+    The y axis is the raw P value and is continuous. The reason follows.
 
     Benjamini-Hochberg's adjusted P is a cumulative minimum taken from the
     largest P downwards -- ``q_(i) = min over j >= i of (n * p_(j) / j)`` --
     and the ``min`` is both what enforces monotonicity and what creates ties:
-    the moment a later rank produces a smaller value, EVERY earlier rank is
-    pulled down onto it. Measured on reference runs: 823 q values
-    with 31 distinct, 19 tied levels covering 811 coefficients, GRA14 and
-    225160 both at 4.1150e-03. A volcano drawn against that has a staircase
-    for a y-axis, and no transform can separate two tests that hold the same
-    number.
+    the moment a later rank produces a smaller value, every earlier rank is
+    pulled down onto it. Measured on reference runs: 823 q values with 31
+    distinct, 19 tied levels covering 811 coefficients, GRA14 and 225160 both
+    at 4.1150e-03. A volcano drawn against that has a staircase for a y-axis,
+    and no transform can separate two tests that hold the same number.
 
-    So the height is the RAW P, which is continuous and is the evidence per
-    test, and the correction decides the COLOUR and the LINE, which is the
-    discrete thing it actually is. The same two numbers are on the plot, each
-    doing the job it can do, and nothing is invented -- which is also why the
-    one thing this plot will not do is jitter the y axis to separate ties.
-    That moves a point away from its own value, and this class exists because
-    a plot was showing something the data did not say.
+    So the height is the raw P, which is continuous and is the evidence per
+    test, and the correction decides the colour and the threshold line, which
+    are discrete. Nothing is invented, which is also why this plot does not
+    jitter the y axis to separate ties: that would move a point away from its
+    own value.
 
     :param parent: parent widget.
     """
@@ -5949,9 +5878,9 @@ class VolcanoPlot(FastPlot):
     def set_p_axis(self, kind: str) -> None:
         """Draw the height against the raw P, the adjusted P, or the lfdr.
 
-        ``"adjusted"`` IS KEPT AND IS NOT THE DEFAULT. It is honest and
-        stepped, because that is what BH is, and a user reproducing a
-        published figure drawn that way needs to be able to.
+        ``"adjusted"`` is kept but is not the default. It is stepped, because
+        BH-adjusted values are, and a user reproducing a published figure drawn
+        that way needs to be able to.
 
         :param kind: ``"raw"``, ``"adjusted"`` or ``"lfdr"`` (see
             :attr:`P_AXES`); anything else raises :class:`ValueError`, and
@@ -5975,17 +5904,14 @@ class VolcanoPlot(FastPlot):
     def set_q_colour(self, mode: str) -> None:
         """Carry the FDR as a binary call, or as a continuous ramp over q.
 
-        THEY CANNOT BOTH BE ON, and not because this refuses: a dot has one
-        colour. The design says so and says what follows from it --
-        whichever is chosen, the other is not shown, and the LEGEND says
-        which is in force. That is the localisation rule again: one sentence
-        per figure.
+        They cannot both be on, because a dot has one colour: whichever is
+        chosen, the other is not shown, and the legend says which is in force.
 
-        THE RAMP DOES NOT REPLACE THE CALL AS THE DEFAULT. F.1 is the
-        field's own volcano -- continuous height, binary colour, and the
-        colour carrying the claim -- and a ramp answers a different question:
-        it shows how far each test is from the threshold, which is a reading
-        aid and not a call. It is an OFFER.
+        The ramp does not replace the call as the default. F.1 is the field's
+        own volcano -- continuous height, binary colour, and the colour
+        carrying the claim -- and a ramp answers a different question: it shows
+        how far each test is from the threshold, which is a reading aid and not
+        a call. It is optional.
 
         :param mode: ``"call"`` (binary significance colour) or ``"ramp"``
             (continuous over q); anything else raises :class:`ValueError`.
@@ -6002,13 +5928,13 @@ class VolcanoPlot(FastPlot):
         return self._q_mark
 
     def set_q_mark(self, mode: str) -> None:
-        """Put the FDR into the SIZE or the OPACITY of the mark, or neither.
+        """Put the FDR into the size or the opacity of the mark, or neither.
 
-        THE ONE ENCODING THAT COMPOSES. Size and
-        opacity are channels the colour is not using, so this can be on at
-        the same time as either colouring -- a volcano coloured by condition
-        with the marks sized by q says both things at once, which is what the
-        colour ramp cannot do.
+        This is the one encoding that combines with colour. Size and opacity
+        are channels the colour is not using, so this can be on at the same
+        time as either colouring -- a volcano coloured by condition with the
+        marks sized by q says both things at once, which is what the colour
+        ramp cannot do.
 
         Both are offers, not defaults. Neither is on until it is asked for.
 
@@ -6063,9 +5989,9 @@ class VolcanoPlot(FastPlot):
         def _brush(step: int):
             """One step of the ramp as a brush, cached.
 
-            Cached because a scatter asks for a brush PER POINT: building them fresh
-            allocates one QBrush per point per repaint, which is the whole cost of
-            drawing a large scatter.
+            Cached because a scatter asks for a brush per point: building them
+            fresh allocates one QBrush per point per repaint, which is the
+            whole cost of drawing a large scatter.
             """
             brush = cache.get(step)
             if brush is None:
@@ -6137,7 +6063,7 @@ class VolcanoPlot(FastPlot):
         return out
 
     def correction(self) -> str:
-        """The correction being DRAWN, canonical, whoever chose it."""
+        """The correction being drawn, canonical, whoever chose it."""
         from ...multiple_testing import canonical_method
 
         chosen = self._correction or self._run_method or "fdr_bh"
@@ -6147,7 +6073,7 @@ class VolcanoPlot(FastPlot):
             return "fdr_bh"
 
     def run_correction(self) -> str:
-        """The correction the RUN used, or ``""`` if the table does not say."""
+        """The correction the run used, or ``""`` if the table does not say."""
         return self._run_method
 
     def set_correction(self, method) -> None:
@@ -6174,12 +6100,12 @@ class VolcanoPlot(FastPlot):
         return dict(self._families)
 
     def local_fdr_values(self):
-        """The local FDR per row, computed once and per FAMILY.
+        """The local FDR per row, computed once and per family.
 
-        LAZY ON PURPOSE. The beta-uniform fit is 25 ms on the real screen's
+        Computed lazily. The beta-uniform fit is 25 ms on the real screen's
         1,215 coefficients -- more than drawing the whole plot -- and the
-        default axis does not use it. Computing it on every redraw would put
-        the lag back that this module's whole first half exists to remove.
+        default axis does not use it, so computing it on every redraw would
+        slow every redraw.
         """
         if self._lfdr_values is not None:
             return self._lfdr_values
@@ -6231,7 +6157,7 @@ class VolcanoPlot(FastPlot):
                     compartment: Optional[str] = None,
                     q_column: Optional[str] = None,
                     run_method: Optional[str] = None):
-        """Draw ``frame``. Returns the number of points actually plotted.
+        """Draw ``frame``. Returns the number of points plotted.
 
         :param frame: the coefficient table. Rows without a finite effect and
             raw p-value are left off the plot, while their original positions
@@ -6242,17 +6168,16 @@ class VolcanoPlot(FastPlot):
             Encodings are applied in the stable order colour, shape, opacity.
             The caller rejects requests for additional visual channels.
 
-        :param p_column: the RAW P value. Not the corrected one -- the height
+        :param p_column: the raw P value. Not the corrected one -- the height
             is the raw P by default and the correction is recomputed here.
         :param q_column: the run's own corrected column, for the plot to
             check itself against. Found in the table when omitted.
         :param run_method: which correction the run used. Read off the
             table's ``multiple_testing_method`` column when omitted.
         :param compartment: one TAGM/LOPIT compartment to pick out against
-            grey. ONE, not all 27 -- see :mod:`spacr.localisation`. It
-            REPLACES any category colouring rather than combining with it: a
-            volcano where a coloured dot might be coloured for its condition
-            or for its compartment has no sentence.
+            grey. One, not all 27 -- see :mod:`spacr.localisation`. It replaces
+            any category colouring rather than combining with it, so a coloured
+            dot is never ambiguous between condition and compartment.
         """
         from ...multiple_testing import (LOCAL_FDR_MIN_TESTS, METHODS,
                                          adjust_p_values, canonical_method,
@@ -6596,7 +6521,7 @@ class VolcanoPlot(FastPlot):
                 f"The RAW p is itself quantised -- {distinct:,} distinct "
                 f"values among {total:,}, the smallest {finest:.3g} -- so a "
                 f"permutation p can be no finer than 1/(permutations + 1) "
-                f"and raising that count is what buys resolution here.")
+                f"so only more permutations give a finer p.")
         return " ".join(parts)
 
 
@@ -6721,23 +6646,20 @@ class VolcanoPlot(FastPlot):
 class EffectRankPlot(FastPlot):
     """Every coefficient ranked by effect, as a dot with its interval.
 
-    The interactive twin of :func:`spacr.figures.panels.effect_rank`, and the
-    panel that answers what a volcano structurally cannot: HOW BIG, and how
-    sure. A volcano ranks by significance, so an effect of 0.02 measured on
-    six hundred wells outranks one of 2.0 measured on four; ranking by the
-    effect itself puts them the other way round, and the interval drawn
-    through each dot is what says which of the two to believe.
+    The interactive twin of :func:`spacr.figures.panels.effect_rank`, and shows
+    what a volcano cannot: how large each effect is, and how certain. A volcano
+    ranks by significance, so an effect of 0.02 measured on six hundred wells
+    outranks one of 2.0 measured on four; ranking by the effect itself puts
+    them the other way round, and the interval drawn through each dot is what
+    says which of the two to believe.
 
-    A BAR CHART OF COEFFICIENTS IS THE WRONG PICTURE, which is why this is
-    dots and lines. A bar replaces every observation with one height and hides
-    the uncertainty that decides whether to believe any of them -- and on a
-    ranked list, that uncertainty is the only question worth asking.
+    Coefficients are drawn as dots and lines, not bars: a bar replaces every
+    observation with one height and hides the uncertainty of each estimate.
 
-    THE SAVED PANEL DRAWS THE STRONGEST FOURTEEN AND THIS ONE DRAWS THEM ALL.
-    That is the difference a zoomable plot is FOR: a sheet has one cell and
-    has to choose, a screen does not. The opening view is the strongest
-    :data:`LABELLED`, because that is as many names as a y-axis can carry and
-    still be read, and "Reset view" reaches the rest -- the same rule
+    The saved panel draws the strongest fourteen and this one draws them all,
+    because a zoomable plot does not have to choose. The opening view is the
+    strongest :data:`LABELLED`, because that is as many names as a y-axis can
+    carry and still be read, and "Reset view" reaches the rest -- the same rule
     :class:`GuideAgreementPlot` follows for its over-represented gene, and for
     the same reason: a point outside the opening view is still a point, and a
     point that was dropped is gone.
@@ -6788,7 +6710,7 @@ class EffectRankPlot(FastPlot):
         :param effect: the fitted-effect column.
         :param error_column: the standard error, so an interval can be drawn.
             ``None`` looks for :data:`ERROR_COLUMNS`; a table carrying none
-            gets dots and no bars, and the status line SAYS the effects are
+            gets dots and no bars, and the status line says the effects are
             drawn without their uncertainty rather than leaving a reader to
             assume they are exact.
         :param significance_column: what decides the colour. ``None`` looks
@@ -6801,12 +6723,11 @@ class EffectRankPlot(FastPlot):
         :param drop_untested: leave the nuisance terms off, as the volcano and
             :func:`spacr.figures.panels.effect_rank` both do.
 
-            NOT FOR THE AXIS, and that is worth writing down because it is the
-            obvious reason and it is wrong here. The volcano drops the
-            intercept because it OWNS the p-axis -- 3.6x the tallest real hit
-            on plate1_dv. Measured on the TSG101 screen, its COEFFICIENT is
-            0.190 against a tested maximum of 4.37, so by effect it ranks 547
-            of 1,213 and stretches nothing at all.
+            The reason is not the axis. The volcano drops the intercept because
+            it dominates the p-axis -- 3.6x the tallest real hit on plate1_dv.
+            Measured on the TSG101 screen, its COEFFICIENT is 0.190 against a
+            tested maximum of 4.37, so by effect it ranks 547 of 1,213 and
+            stretches nothing at all.
 
             It is dropped because it is not a hypothesis. Its ``q_value`` is
             NaN -- ``perform_regression`` leaves the covariates out of the
@@ -6815,12 +6736,11 @@ class EffectRankPlot(FastPlot):
             for it and nothing on the picture saying why. A fit carrying plate
             row and column terms has ~25 more of them.
 
-        THE SORT IS THE TRAP, and here it is the plot's whole shape: drawn dot
-        n is the nth LARGEST effect and almost never row n of the table. The
-        frame rows are therefore carried through the sort explicitly
-        (``rows=``) rather than re-derived from the drawing order -- see
-        :meth:`FastPlot.add_scatter`, where the same trap is written out for
-        the Q-Q.
+        Sorting changes the order: drawn dot n is the nth largest effect and
+        almost never row n of the table. The frame rows are therefore carried
+        through the sort explicitly (``rows=``) rather than re-derived from the
+        drawing order -- see :meth:`FastPlot.add_scatter`, where the same trap
+        is written out for the Q-Q.
         """
         self._reset_scene()
         self._frame = None
@@ -7002,19 +6922,17 @@ class BinnedPlot(FastPlot):
     """A histogram whose bars remember which rows they were built from.
 
     Two panels here are histograms of a coefficient table -- the p-values and
-    the effects -- and both need the three things a scatter gets for free:
-    which rows are in which bar, a click that lands in the bar under the
-    cursor, and an outline marking the bar a row selected elsewhere falls in.
-    That machinery is subtle -- half-open bins with the last one closed, a
-    row-to-bar index built without a per-coefficient Python loop -- and it is
-    exactly the kind of thing that drifts when it is written twice.
+    the effects -- and both need three things a scatter already has: which rows
+    are in which bar, a click that lands in the bar under the cursor, and an
+    outline marking the bar a row selected elsewhere falls in. That machinery
+    is subtle -- half-open bins with the last one closed, a row-to-bar index
+    built without a per-coefficient Python loop -- so it is written once, here.
 
-    A BAR IS NOT A POINT, which is the rule this whole class is shaped by. A
-    bar holding a hundred coefficients cannot select one of them, and picking
-    the first, the strongest or the nearest would be a guess dressed up as an
-    answer -- the same mistake as joining on a position. So a bar of many
-    hands the whole set over for the table to narrow to, and only a bar
-    holding exactly one row selects it like any other mark.
+    A bar is not a point. A bar holding a hundred coefficients cannot select
+    one of them, and picking the first, the strongest or the nearest would be
+    arbitrary. So a bar of many rows hands the whole set to the table to narrow
+    down, and only a bar holding exactly one row selects it like any other
+    mark.
     """
 
     #: What one observation IS, for the sentence a clicked bar writes. Named
@@ -7113,12 +7031,11 @@ class BinnedPlot(FastPlot):
     def select_bin(self, index: int) -> list:
         """Answer a click on one bar. Returns the identifiers inside it.
 
-        A BAR HOLDING A HUNDRED COEFFICIENTS CANNOT SELECT ONE OF THEM, and
-        picking the first, the strongest or the nearest would be a guess
-        dressed up as an answer -- the same mistake as joining on a position.
-        So the honest split: a bar that holds exactly one row selects it like
-        any other point, and a bar that holds more says what it holds and
-        hands the whole set over for the table to narrow to.
+        A bar holding a hundred coefficients cannot select one of them, and
+        picking the first, the strongest or the nearest would be arbitrary. So:
+        a bar that holds exactly one row selects it like any other point, and a
+        bar that holds more says what it holds and hands the whole set over for
+        the table to narrow to.
 
         :param index: zero-based bar number; out of range selects nothing.
         """
@@ -7164,7 +7081,7 @@ class BinnedPlot(FastPlot):
             self.select_bin(index)
 
     def highlight_bin(self, index: int) -> bool:
-        """Outline one bar. The histogram's answer to ringing a point.
+        """Outline one bar. The histogram's equivalent of ringing a point.
 
         :param index: zero-based bar number; out of range (or no histogram
             drawn yet) gives ``False``.
@@ -7213,12 +7130,13 @@ class BinnedPlot(FastPlot):
 
 
 class PValueHistogram(BinnedPlot):
-    """The single most informative check that a correction means anything.
+    """The p-value histogram: a check that the multiple-testing correction is
+    valid.
 
     Under the null, p-values are uniform. A histogram that is flat with a spike
     at zero is a screen with real hits in it; one that slopes, or piles up near
-    one, says the model is misspecified and every q-value downstream of it is
-    decoration.
+    one, indicates a misspecified model, and the q-values derived from it are
+    unreliable.
 
     :param parent: parent widget.
     """
@@ -7263,22 +7181,20 @@ class PValueHistogram(BinnedPlot):
 class EffectDistribution(BinnedPlot):
     """Where the screen's effects sit, and how wide the null under them is.
 
-    The interactive twin of
-    :func:`spacr.figures.panels.effect_distribution`. The volcano says which
-    coefficients are extreme; this says what "extreme" is worth on THIS
-    screen, which is the number a reader needs before they believe any of
-    them. A screen whose effects are a tight bell with nothing in the tails
-    has no hits however small its p-values are.
+    The interactive twin of :func:`spacr.figures.panels.effect_distribution`.
+    The volcano says which coefficients are extreme; this shows the spread of
+    effects on this screen, against which "extreme" is judged. A screen whose
+    effects are a tight bell with nothing in the tails has no hits however
+    small its p-values are.
 
-    σ IS A MAD, NOT A STANDARD DEVIATION, and that is the point of the panel
-    rather than a detail of it: a standard deviation is inflated by exactly
-    the outliers a screen exists to find, so a cut measured from one is pulled
-    outwards by the hits and then fails to call them. The median absolute
-    deviation is not, and ×1.4826 makes it the consistent estimator for a
-    normal -- the same statistic
-    :func:`spacr.figures.panels.control_threshold` measures the effect-size
-    cut from, so the dashed lines here and the lines on the volcano cannot
-    disagree about where three sigmas is.
+    σ is a MAD, not a standard deviation: a standard deviation is inflated by
+    exactly the outliers a screen exists to find, so a cut measured from one is
+    pulled outwards by the hits and then fails to call them. The median
+    absolute deviation is not, and ×1.4826 makes it the consistent estimator
+    for a normal -- the same statistic
+    :func:`spacr.figures.panels.control_threshold` measures the effect-size cut
+    from, so the dashed lines here and the lines on the volcano put three
+    sigmas at the same value.
 
     :param parent: parent widget.
     """
@@ -7305,20 +7221,19 @@ class EffectDistribution(BinnedPlot):
         :param bins: how many bars across the data's own range.
         :param keys: one identifier per element of ``values``, in frame order.
             Given them, clicking a bar names the coefficients inside it.
-        :param untested: how many nuisance terms the CALLER left out, so the
+        :param untested: how many nuisance terms the caller left out, so the
             plot can say so. It is the caller that knows spaCR's term grammar,
             which is why the drop is not done here.
 
-            IT IS THE FAMILY, NOT THE AXIS, and the measurement says so: on
-            the TSG101 screen σ (MAD) is 0.229228 over the tested family and
-            0.229036 with the intercept added, a difference of 0.08%. Dropping
-            it does not visibly move this picture -- it makes the picture be
-            OF something, namely the 1,212 coefficients the q-values describe,
-            which is the same family
-            :func:`spacr.figures.panels.effect_distribution` draws and the
-            same one the effect-size cut is measured from.
+            The reason is the tested family, not the axis: on the TSG101 screen
+            σ (MAD) is 0.229228 over the tested family and 0.229036 with the
+            intercept added, a difference of 0.08%. Dropping it does not
+            visibly move this picture; it restricts the picture to the 1,212
+            coefficients the q-values describe, which is the same family
+            :func:`spacr.figures.panels.effect_distribution` draws and the same
+            one the effect-size cut is measured from.
 
-        THE RANGE IS THE DATA'S OWN, unlike the p-value histogram's. An effect
+        The range is the data's own, unlike the p-value histogram's. An effect
         size has no fixed domain, and pinning one would invent a scale the fit
         never produced.
         """
@@ -7365,7 +7280,8 @@ class EffectDistribution(BinnedPlot):
 
 
 class QQPlot(FastPlot):
-    """Observed against expected quantiles -- is the null calibrated?
+    """Observed against expected quantiles, to check that the null is
+    calibrated.
 
     Points on the diagonal mean the test is behaving. A curve that lifts off it
     early means inflation: the design is confounded, and the hits at the top of
@@ -7385,16 +7301,15 @@ class QQPlot(FastPlot):
 
         :param values: one p-value per frame row, including missing entries;
             only finite positive values are ranked and drawn.
-        :param keys: one identifier per element of ``values``, IN THE ORDER
-            THEY WERE HANDED IN -- i.e. in frame order, including the ones
-            with no usable p-value. Given them, every point is clickable and
-            selects the coefficient it was computed from.
+        :param keys: one identifier per element of ``values``, in the order
+            they were passed -- i.e. in frame order, including the ones with no
+            usable p-value. Given them, every point is clickable and selects
+            the coefficient it was computed from.
 
-        THE SORT IS THE TRAP. A Q-Q is ranked by p, so the nth drawn point is
-        the nth SMALLEST p-value and almost never the nth row of the table.
-        The rows are therefore carried through the sort explicitly (``rows=``)
-        rather than re-derived from the drawing order, which is the mistake
-        that lights up the wrong guide and looks entirely correct doing it.
+        A Q-Q is ranked by p, so the nth drawn point is the nth smallest
+        p-value and almost never the nth row of the table. The rows are
+        therefore carried through the sort explicitly (``rows=``) rather than
+        re-derived from the drawing order, which would select the wrong guide.
         """
         self._reset_scene()
         self.set_keys(keys)
@@ -7460,9 +7375,9 @@ class ResidualPlot(FastPlot):
     def set_residuals(self, fitted, residuals, labels: Sequence[str] = ()):
         """Show a fit's residuals against its fitted values.
 
-        THE PLOT THAT SHOWS A BAD MODEL. A residual cloud with structure in
-        it means the fit is missing something, and that is visible here in a
-        way no single summary number reports.
+        A residual cloud with structure in it means the fit is missing
+        something, and that is visible here in a way no single summary number
+        reports.
 
         :param fitted: the fitted values.
         :param residuals: the residual for each.
@@ -7503,10 +7418,9 @@ class ScaleLocationPlot(FastPlot):
     p-value on the volcano -- are wrong in a direction that depends on the
     fitted value.
 
-    Drawn on the STANDARDISED residual, so it is empty for a model class that
-    has no error scale (quantile regression, a hinge classifier). That is a
-    real answer and is said out loud rather than drawn from ``y - fitted`` and
-    labelled as though it were the same quantity.
+    Drawn on the standardised residual, so it is empty for a model class that
+    has no error scale (quantile regression, a hinge classifier). The plot says
+    so rather than drawing ``y - fitted`` under the same label.
 
     :param parent: parent widget.
     """
@@ -7528,7 +7442,7 @@ class ScaleLocationPlot(FastPlot):
 
     def set_scale_location(self, fitted, std_resid,
                            labels: Sequence[str] = (), reason: str = ""):
-        """Draw it. Returns the number of wells plotted.
+        """Draw the scale-location plot. Returns the number of wells plotted.
 
         :param fitted: one fitted response per well, aligned with
             ``std_resid`` and ``labels``; pairs containing a non-finite value
@@ -7568,16 +7482,16 @@ class ScaleLocationPlot(FastPlot):
 class InfluencePlot(FastPlot):
     """Leverage against standardised residual, with Cook's distance on top.
 
-    The interactive twin of :func:`spacr.regression_qc._panel_influence`. The
-    question it answers is the one a screen cannot answer from the volcano: is
-    a hit the shape of the data, or the shape of ONE WELL? A well far to the
-    right has an unusual combination of guides; a well far up or down is
-    poorly predicted; a well that is both is one whose removal moves the
-    coefficients, and Cook's distance is the product that says so.
+    The interactive twin of :func:`spacr.regression_qc._panel_influence`. It
+    shows what the volcano cannot: whether a hit reflects the data as a whole
+    or a single well. A well far to the right has an unusual combination of
+    guides; a well far up or down is poorly predicted; a well that is both is
+    one whose removal moves the coefficients, and Cook's distance is the
+    product that says so.
 
     The wells past the 4/n screening rule are the only ones coloured, which is
-    the house rule -- everything else is grey, because the sentence here is
-    "these ones are worth going back to the microscope for".
+    the house rule -- everything else is grey, because these are the wells
+    worth re-examining.
 
     :param parent: parent widget.
     """
@@ -7597,7 +7511,7 @@ class InfluencePlot(FastPlot):
     def set_influence(self, leverage, std_resid, cooks,
                       labels: Sequence[str] = (), n_params: int = 0,
                       reason: str = ""):
-        """Draw it. Returns the number of wells plotted.
+        """Draw the influence plot. Returns the number of wells plotted.
 
         Every array comes from :mod:`spacr.regression_qc` -- ``ctx.leverage``,
         ``ctx.std_resid`` and :func:`spacr.regression_qc.cooks_distance` --
@@ -7722,14 +7636,13 @@ class GroupedPlot(FastPlot):
         :returns: ``(mark, note)``. The note is empty whenever the mark drawn
             is the mark asked for.
 
-        THE SETTING DECIDES, NOT THE WIDGET. A saved DEFAULT GRAPH TYPE for
+        The setting decides, not the widget. A saved DEFAULT GRAPH TYPE for
         this plot's :attr:`DATA_SHAPE` is what gets drawn before the first
-        right-click; with nothing saved the plot keeps :attr:`DEFAULT_MARK`,
-        because a preference nobody expressed must not move existing views.
+        right-click; with nothing saved the plot keeps :attr:`DEFAULT_MARK`, so
+        existing views do not change without a saved preference.
 
-        A BROKEN PREFERENCE STORE DRAWS THE PLOT ANYWAY. This is the opening
-        frame of a panel; refusing to draw it over a settings read would cost
-        the whole figure.
+        An unreadable preference store does not stop the plot being drawn,
+        because this is the opening frame of a panel.
         """
         try:
             from ...graph_types import (chosen_for, mark_for, start_for,
@@ -7788,7 +7701,7 @@ class GroupedPlot(FastPlot):
         :param kind: a mark key from :data:`MARK_TYPES`, e.g. ``"points"``,
             ``"bar"``, ``"box"`` or ``"violin"``; it becomes the user's choice,
             so later redraws keep it.
-        :raises ValueError: on a mark this module cannot draw. Loudly, because
+        :raises ValueError: on a mark this module cannot draw. Raised, because
             the only callers are this class's own menu and a test -- a silent
             fallback would make a typo look like a working option.
         """
@@ -7824,15 +7737,13 @@ class GroupedPlot(FastPlot):
         return []
 
     def mark_note(self) -> str:
-        """The sentence about the CURRENT mark, or ``""``.
+        """The sentence about the current mark, or ``""``.
 
-        Three things now. A start that could not honour the DEFAULT GRAPH
-        TYPE setting says so first -- a user who asked for violins and got a
-        jitter is owed the reason on the plot rather than in a log. Then the
-        two a user who picks "bar" has done at once: they have chosen a mark
-        that may misrepresent the spread, and they have given up the ability
-        to click a guide -- one rectangle stands for forty-one rows and
-        cannot honestly select one of them.
+        It can say three things. First, when the plot could not start with the
+        DEFAULT GRAPH TYPE setting, why, on the plot rather than in a log.
+        Then, for "bar", that the mark may misrepresent the spread and that a
+        guide can no longer be clicked: one rectangle stands for forty-one rows
+        and cannot select one of them.
         """
         parts = []
         if self._start_note:
@@ -7864,9 +7775,9 @@ class GroupedPlot(FastPlot):
 class ControlSeparation(GroupedPlot):
     """How far apart the positive and negative controls sit.
 
-    This is the assay window. If the controls do not separate, nothing further
-    down the pipeline can be trusted, and it is worth seeing before the volcano
-    rather than after arguing about a hit list.
+    This is the assay window. If the controls do not separate, results further
+    down the pipeline are unreliable, so this is worth checking before the
+    volcano.
 
     :param parent: parent widget.
     """
@@ -7899,7 +7810,7 @@ class ControlSeparation(GroupedPlot):
             self.set_groups(self._groups, keys=self._group_keys)
 
     def group_sizes(self) -> list:
-        """How many FINITE values each control group contributed.
+        """How many finite values each control group contributed.
 
         Not the group's length: a NaN is a well that produced no measurement,
         and counting it would overstate the evidence behind the separation.
@@ -7914,15 +7825,15 @@ class ControlSeparation(GroupedPlot):
 
         :param groups: ``{'negative': array, 'positive': array, ...}``
         :param keys: ``{'negative': identifiers, ...}``, one identifier per
-            value of the SAME group, in the same order. Given them, every dot
+            value of the same group, in the same order. Given them, every dot
             is clickable and selects the coefficient behind it.
 
-        THE GROUPS ARE THE SECOND FORM OF THE SORT TRAP. These arrays are
-        slices of the table taken by condition, so a dot's position within
-        its own group is not its row -- and the negative controls are drawn
-        before the screen, so it is not its position on the plot either. Rows
-        are therefore laid out in one flat sequence up front and carried into
-        each scatter, rather than being inferred from the drawing order.
+        The groups have the same row-order problem as a sorted plot. These
+        arrays are slices of the table taken by condition, so a dot's position
+        within its own group is not its row -- and the negative controls are
+        drawn before the screen, so it is not its position on the plot either.
+        Rows are therefore laid out in one flat sequence up front and carried
+        into each scatter, rather than being inferred from the drawing order.
         """
         self._reset_scene()
         self._spans = []
@@ -8022,19 +7933,18 @@ class ControlSeparation(GroupedPlot):
 
 
 class GuideAgreementPlot(GroupedPlot):
-    """Per gene: do its own guides push the same way?
+    """Per gene: whether its own guides have effects in the same direction.
 
     The interactive twin of :func:`spacr.figures.panels.guide_agreement`, and
-    the one thing a volcano structurally cannot show. A gene called by one
-    guide out of six and a gene whose six guides agree are the same dot on a
-    volcano, ranked by the same number, and only one of them is corroborated
-    evidence.
+    shows what a volcano cannot. A gene called by one guide out of six and a
+    gene whose six guides agree are the same dot on a volcano, ranked by the
+    same number, and only one of them is corroborated evidence.
 
     Measured on the TSG101 screen: 389 genes, of which 102 rest on a single
-    surviving guide -- including 244480, whose gene-level p of 2.9e-13 ranks
-    it above everything else in the screen and IS that one guide's p-value.
+    surviving guide -- including 244480, whose gene-level p of 2.9e-13 ranks it
+    above everything else in the screen and is that one guide's p-value.
 
-    THE HOUSE RULE DECIDES THE COLOURING. Everything is grey except what the
+    The house rule decides the colouring. Everything is grey except what the
     sentence is about, and the sentence here is "these ones rest on a single
     guide", so those are the only points that get colour.
 
@@ -8097,13 +8007,12 @@ class GuideAgreementPlot(GroupedPlot):
         :param keys: one identifier per row of ``support``. Default is
             ``support[key_column]`` when that column is there.
 
-        THE KEY IS THE GENE-LEVEL TERM, NOT THE GENE ID. A gene appears in
-        the coefficient table as ``gene_fraction:gene[244480]``, and that is
-        what the volcano, the table and the gene tile all join on. Handing
-        this plot the bare ``244480`` would make a second key space that
-        nothing else can resolve, so the caller passes the term and clicking
-        a gene here selects exactly the row clicking its dot on the volcano
-        would.
+        The key is the gene-level term, not the gene ID. A gene appears in the
+        coefficient table as ``gene_fraction:gene[244480]``, and that is what
+        the volcano, the table and the gene tile all join on. Handing this plot
+        the bare ``244480`` would make a second key space that nothing else can
+        resolve, so the caller passes the term and clicking a gene here selects
+        exactly the row clicking its dot on the volcano would.
         """
         self._reset_scene()
         self._support = support
@@ -8341,10 +8250,10 @@ class ResultsTable(QWidget):
     def show_keys(self, keys) -> int:
         """Narrow the table to a set of identifiers. ``None`` clears it.
 
-        The other end of :attr:`FastPlot.keys_selected`: a histogram bar is a
-        hundred coefficients and cannot select one of them, but "show me the
-        hundred" is a question the table can answer exactly. Returns how many
-        rows are visible afterwards.
+        The other end of :attr:`FastPlot.keys_selected`: a histogram bar can
+        hold many coefficients and cannot select one of them, so the table
+        shows all of them instead. Returns how many rows are visible
+        afterwards.
 
         :param keys: identifiers to keep visible, compared as ``str`` against
             the key column; ``None`` removes the restriction.
@@ -8418,7 +8327,7 @@ class ResultsTable(QWidget):
 
     def configure(self, *, placeholder: Optional[str] = None,
                   significance_filter: Optional[bool] = None) -> None:
-        """Adapt the controls to what the table actually holds.
+        """Adapt the controls to what the table holds.
 
         This widget is reused for tables that are not coefficient tables --
         the sweep's runs, for one -- and a filter offering "significant only"
@@ -8464,15 +8373,15 @@ class ResultsTable(QWidget):
         return False
 
     def select_key(self, key) -> bool:
-        """Select the row whose identifier is ``key``. The safe direction.
+        """Select the row whose identifier is ``key``, wherever sorting has put
+        it.
 
-        A plot has no business knowing where a row sits in this table -- the
-        user sorts it, filters it, and after the redesign it may not even
-        be drawn from the same frame. It knows the key, and the key is enough.
+        A plot does not know where a row sits in this table -- the user sorts
+        it, filters it, and after the redesign it may not even be drawn from
+        the same frame. It knows the key, and the key is enough.
 
-        A hidden row is unhidden to select it: silently doing nothing because
-        the filter box excludes the point the user just clicked reads as a
-        broken click.
+        A hidden row is unhidden to select it, so a click on a point the filter
+        box excludes still selects its row.
 
         :param key: the identifier, compared as ``str`` with the text of the
             key column's cells.

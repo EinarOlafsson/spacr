@@ -218,11 +218,10 @@ def parse_channels(text: str) -> Optional[Tuple[int, ...]]:
 def coefficient_from_frame(key: str, frame) -> Tuple[str, str, Optional[float]]:
     """Turn a clicked coefficient into ``(name, level, effect)``.
 
-    The join is on the KEY and the parse is
-    :func:`spacr.hits.guide_of` / :func:`spacr.hits.gene_of`, which is the
-    same rule the volcano, the gene tile and the metadata join already use --
-    a fourth copy of "which gene is this term" is how two surfaces start
-    naming different guides for one dot.
+    The join is on the KEY and the parse is :func:`spacr.hits.guide_of` /
+    :func:`spacr.hits.gene_of`, which is the same rule the volcano, the gene
+    tile and the metadata join already use -- so every surface names the same
+    guide for one point.
 
     :param key: the ``feature`` the panel emitted, e.g.
         ``fraction:grna[233460_1]`` or ``gene_fraction:gene[233460]``.
@@ -230,8 +229,8 @@ def coefficient_from_frame(key: str, frame) -> Tuple[str, str, Optional[float]]:
         allowed and yields ``None`` for the effect rather than raising.
     :returns: the gene or guide name, ``'grna'`` or ``'gene'``, and the fitted
         coefficient. The name is ``''`` for a term that names neither -- an
-        Intercept or a row/column nuisance term -- which is a real answer and
-        the reason the montage is refused for it.
+        Intercept or a row/column nuisance term -- and the montage is refused
+        for it.
     """
     from ...hits import gene_of, guide_of
 
@@ -259,11 +258,11 @@ def coefficient_from_frame(key: str, frame) -> Tuple[str, str, Optional[float]]:
 def intercept_from_frame(frame) -> Optional[float]:
     """The fitted intercept out of the coefficient table, or ``None``.
 
-    The other baseline the score window can be centred on. Under the
-    well-level model the intercept IS the score of a well carrying none of
-    the guide, which is the same quantity the screen median estimates -- so
-    offering both is offering the model's answer beside the data's, and the
-    caption says which produced the picture.
+    The other baseline the score window can be centred on. Under the well-level
+    model the intercept is the score of a well carrying none of the guide, the
+    same quantity the screen median estimates -- so the two are the model's and
+    the data's estimates of one baseline, and the caption says which produced
+    the picture.
 
     :param frame: the coefficient table. Every spelling statsmodels and this
         project use is accepted (``Intercept``, ``(Intercept)``, ``const``),
@@ -296,19 +295,16 @@ def intercept_from_frame(frame) -> Optional[float]:
 
 
 def well_tab_label(well, guides, name="", level="gene"):
-    """The tab's own name: THE WELL AND THE gRNA, both.
+    """The tab's name: the well and the gRNA.
 
-    A gene with several guides pulls the same well more than once, so two
-    tabs called ``p1_r3_c7`` are indistinguishable -- and the whole point of
-    a tab that outlives the selection is comparing one gene's cells with
-    another's, which a label naming only the well makes impossible.
+    A gene with several guides pulls the same well more than once, so two tabs
+    called ``p1_r3_c7`` are indistinguishable -- and a tab that outlives the
+    selection is used to compare one gene's cells with another's.
 
-    THE COEFFICIENT IS NAMED TOO WHEN THE GUIDE ALONE DOES NOT IDENTIFY IT.
-    Driving the real tab found the case: the guide-level coefficient
-    ``GRA14_1``, and the GENE ``GRA14`` shown one guide at a time, both open
-    a tab for ``GRA14_1`` in the same well -- and they are DIFFERENT montages
-    with different effects, different windows and different cells. Both read
-    ``plate1_r1_c1 \u00b7 GRA14_1`` and nothing on the tab bar told them apart.
+    The coefficient is also named when the guide alone does not identify it.
+    The guide-level coefficient ``GRA14_1`` and the gene ``GRA14`` shown one
+    guide at a time both open a tab for ``GRA14_1`` in the same well, and they
+    are different montages with different effects, windows and cells.
 
     :param well: the well key as the plan spells it.
     :param guides: the guides this montage covers.
@@ -343,13 +339,13 @@ class MontageRequest:
     :param name: the gene or guide the coefficient names.
     :param effect: its fitted coefficient.
     :param level: ``'gene'`` or ``'grna'``.
-    :param results_path: the results CSV, or the folder holding it. Either
-        way ``regression_data.csv`` in that FOLDER is what is read -- see
-        :func:`spacr.cell_montage.read_well_guide_fractions`, which refuses
-        the two obvious wrong CSVs by name.
+    :param results_path: the results CSV, or the folder holding it. Either way
+        ``regression_data.csv`` in that folder is what is read -- see
+        :func:`spacr.cell_montage.read_well_guide_fractions`, which refuses the
+        two obvious wrong CSVs by name.
     :param databases: the ``measurements.db`` files attached to the run's
         input table.
-    :param count_csvs: the COUNT CSVs from the same input table. The fallback
+    :param count_csvs: the count CSVs from the same input table. The fallback
         source of the per-well guide fractions, and the reason a run folder is
         no longer required: a fraction is ``count / well total``, which these
         files carry outright. Used only when ``results_path`` yields nothing
@@ -415,25 +411,25 @@ class MontageLoad:
         nothing for a row.
     :param sources: ``{experiment root: description}`` -- which crop source
         drew each plate, in words.
-    :param error: why there is no montage, or ``''``. A SENTENCE, not an
+    :param error: why there is no montage, or ``''``. A sentence, not an
         exception: a tab that cannot be filled has to say why and stay on
         screen.
     :param unavailable: ``True`` when the reason is a permanent property of
         this run -- no crop source anywhere -- rather than a bad request.
         That is what lets the button grey itself out afterwards instead of
         inviting the same click again.
-    :param shapes: the crop shapes EVERY plate's route can actually cut. A
-        shape one plate cannot produce is not offered, because a montage in
-        which some crops follow the mask and some do not is a montage whose
-        pictures are not comparable.
+    :param shapes: the crop shapes every plate's route can cut. A shape one
+        plate cannot produce is not offered, because a montage in which some
+        crops follow the mask and some do not is a montage whose pictures are
+        not comparable.
     :param shape_reason: why a shape is missing from ``shapes``, for the
         disabled entry's tooltip.
-    :param objects: EVERY object row the load read, not just the ones the
-        plans selected. The Compare panel's wider contrasts (187 B) need the
-        cells the montage did NOT pick -- "against every other well" has
-        nothing on its other side without them -- and the join that makes
-        every database measurement reachable (187 A) is keyed on these rows.
-        A reference, not a copy: the frame is already in memory.
+    :param objects: Every object row the load read, not just the ones the plans
+        selected. The Compare panel's wider contrasts (187 B) need the cells
+        the montage did not pick -- "against every other well" has nothing on
+        its other side without them -- and the join that makes every database
+        measurement reachable (187 A) is keyed on these rows. A reference, not
+        a copy: the frame is already in memory.
     :param counts: the per-well guide fractions this load resolved. Carried
         for the same reason: naming a control (184) is a question about the
         COUNT data, and the panel cannot answer it from object rows.
@@ -454,9 +450,9 @@ class MontageLoad:
     def ok(self) -> bool:
         """True when at least one plan came back, empty or not.
 
-        An EMPTY plan is a success: it carries the wells that reported the
-        guide, the window that admitted nothing and the caption that says so,
-        which is an answer. Only a missing plan is a failure.
+        An empty plan is a success: it carries the wells that reported the
+        guide, the window that admitted nothing and the caption that says so.
+        Only a missing plan is a failure.
         """
         return bool(self.plans) and not self.error
 
@@ -930,12 +926,11 @@ def montage_figure(plans: Sequence[Any], images: Sequence[Sequence[Any]],
                    columns: int = 8):
     """Draw the montage as one matplotlib figure, caption and all.
 
-    The caption is not decoration and is not optional: it is what stops a
-    reader taking these for genotyped cells, and
-    :meth:`~spacr.cell_montage.MontagePlan.caption` always ends with the
-    sentence that says membership is inferred from a well-level fraction.
-    A figure without it is the one output this feature must never produce, so
-    it is drawn from the plan rather than passed in.
+    The caption is always drawn.
+    :meth:`~spacr.cell_montage.MontagePlan.caption` ends with the sentence
+    stating that membership is inferred from a well-level fraction, so the
+    cells are not read as genotyped. It is drawn from the plan rather than
+    passed in.
 
     :param plans: the plans to draw, in order.
     :param images: the crops for each plan.
@@ -1431,12 +1426,12 @@ def _tooltip(row) -> str:
 
 
 def candidate_colour() -> str:
-    """The border a likely cell wears, in the annotation app's own palette.
+    """The border colour of a likely cell, in the annotation app's own palette.
 
-    Class 1 -- the first annotation colour -- because these ARE the panel's
-    first class of thing: the cells consistent with the coefficient. Theme
-    aware, because `label_to_hex` is: the same hue deepens against a light
-    tile so it stays readable, which is issue #6.
+    Class 1 -- the first annotation colour -- because these are the panel's
+    first class: the cells consistent with the coefficient. Theme aware,
+    because `label_to_hex` is: the same hue deepens against a light tile so it
+    stays readable, which is issue #6.
     """
     try:
         from ..annotate_engine import label_to_hex
@@ -1522,10 +1517,8 @@ class CellMontageView(QWidget):
 
     Connect :meth:`set_coefficient` to the panel's existing selection --
     ``RegressionResultsPanel.table.key_selected``, which is the funnel every
-    plot and the table already pass through. There is deliberately no second
-    selection mechanism here: a montage of a different gene from the one the
-    volcano is ringing is exactly the plausible-and-wrong output this feature
-    is most at risk of.
+    plot and the table already pass through. There is no second selection
+    mechanism, so the montage shows the same gene as the volcano and the table.
 
     :param frame_provider: called with no arguments for the coefficient
         table, which is where the fitted effect for a clicked key comes from.
@@ -1579,14 +1572,11 @@ class CellMontageView(QWidget):
         """Build the montage tab.
 
         Every piece of state a control reads is created before any signal is
-        connected: a widget whose controls are live before its state exists is
-        the crash that took the application down at launch, and the rule has its
-        own test file.
+        connected: a control that fires before its state exists raises at
+        launch, and a dedicated test file checks the rule.
 
         The controls sit in a flow rather than a row, so they wrap before they
-        clip -- the four buttons alone measure over 550 px, and squeezing a
-        required selector down to a few pixels was what met the nominal minimum
-        before.
+        clip -- the four buttons alone measure over 550 px.
 
         :param frame_provider: called for the coefficient table.
         :param results_provider: called for the run's results path.
@@ -1854,7 +1844,7 @@ class CellMontageView(QWidget):
                 self._tabs.tabBar().setTabButton(fixed, side, None)
         install_close_marks(self._tabs)
         self._tabs.setTabToolTip(
-            0, "The whole montage in words: the wells, the window, the "
+            0, "A text summary of the montage: the wells, the window, the "
                "arithmetic and every setting that decided which cells these "
                "are. The pictures are in the per-well tabs beside it.")
         layout.addWidget(self._tabs, 1)
@@ -1875,15 +1865,15 @@ class CellMontageView(QWidget):
 
 
     def set_coefficient(self, key: str) -> None:
-        """A coefficient was picked. THE SLOT TO CONNECT ``key_selected`` TO.
+        """Handle a picked coefficient; ``key_selected`` connects to this slot.
 
         Takes the feature string and nothing else, so the volcano, the Q-Q,
         the effect-rank plot and the coefficient table all reach it by the
         same one route the gene tile already uses.
 
-        It does NOT load. A montage is seconds of disk for a click whose usual
-        purpose is to read a row, so the selection arms the button and the
-        user asks for the pictures.
+        It does not load. A montage is seconds of disk for a click whose usual
+        purpose is to read a row, so the selection arms the button and the user
+        asks for the pictures.
 
         :param key: the ``feature`` the panel emitted.
         """
@@ -2003,10 +1993,9 @@ class CellMontageView(QWidget):
     def reason(self) -> str:
         """Why the montage cannot be built right now, or ``''``.
 
-        The rule: a control that cannot do anything is greyed
-        out AND SAYS WHY. Every branch here is a sentence a user can act on,
-        and the order is the order the inputs are needed in, so the first
-        missing thing is the one named.
+        A control that cannot act is greyed out and states why. Every branch
+        here returns a sentence a user can act on, and the order is the order
+        the inputs are needed in, so the first missing thing is the one named.
         """
         if self._pending is not None:
             return "A montage is loading."
@@ -2045,12 +2034,11 @@ class CellMontageView(QWidget):
         return self._unavailable
 
     def count_csvs(self) -> Tuple[str, ...]:
-        """The COUNT CSVs attached to the run's input table.
+        """The count CSVs attached to the run's input table.
 
-        THE SAME PROVIDER THE DATABASES COME FROM. The input table's rows are
-        ``{"plate", "score", "count", "database"}``, so the counts were always
-        one field away -- which is why requiring a run folder for the guide
-        fractions was never necessary, only unexamined.
+        Read from the same provider as the databases. The input table's rows
+        are ``{"plate", "score", "count", "database"}``, so no run folder is
+        needed for the guide fractions.
         """
         if self._database_provider is None:
             return ()
@@ -2068,11 +2056,11 @@ class CellMontageView(QWidget):
         return tuple(out)
 
     def score_csvs(self) -> Tuple[str, ...]:
-        """The SCORE CSVs attached to the run's input table.
+        """The score CSVs attached to the run's input table.
 
         The same provider and the same rows as :meth:`count_csvs` -- the input
         table's rows are ``{"plate", "score", "count", "database"}``, so the
-        scores were always one field away too.
+        scores come from the same rows.
 
         A database whose ``png_list`` has no ``pred`` column is not necessarily
         a screen without scores:
@@ -2483,10 +2471,9 @@ class CellMontageView(QWidget):
     def picked_groups(self) -> dict:
         """``{gene: the object index values this tab picked for it}``.
 
-        THE PICKER'S OWN ANSWER, read off the plans rather than recomputed --
-        `montage_candidate` is the column `select_montage` marks, so
-        whichever mode is in force (rank, attributed, assigned,
-        multivariate) this is what the montage actually drew.
+        Read off the plans rather than recomputed -- `montage_candidate` is the
+        column `select_montage` marks, so whichever mode is in force (rank,
+        attributed, assigned, multivariate) this is what the montage drew.
         """
         out: dict = {}
         for plan in self.plans():
@@ -2506,16 +2493,17 @@ class CellMontageView(QWidget):
     def workspace_state(self) -> dict:
         """The montage the session had open, as data.
 
-        THE SETTINGS AND THE CHOICE, NOT THE PIXELS. A montage is tens of
-        megabytes of crops that the run's own images regenerate exactly; what
-        cannot be regenerated is which coefficient was on screen, how the
-        cells were picked, and how they were drawn. Those are what go in.
+        The settings and the choice are saved, not the pixels. A montage is
+        tens of megabytes of crops that the run's own images regenerate
+        exactly; what cannot be regenerated is which coefficient was on screen,
+        how the cells were picked, and how they were drawn. Those are what go
+        in.
 
-        The picked groups ride along as a RECORD, not as an input --
+        The picked groups are saved as a record, not as an input --
         `picked_groups()` is what the picker chose given these settings, and
-        restoring the settings reproduces it. Written down because a reader
-        of a saved run wants to know which cells the claim rested on without
-        re-running anything.
+        restoring the settings reproduces it. They are saved so a reader of a
+        saved run can see which cells the result rested on without re-running
+        anything.
         """
         return {
             "coefficient": str(self._key or ""),
@@ -2530,15 +2518,14 @@ class CellMontageView(QWidget):
         }
 
     def apply_workspace_state(self, state) -> bool:
-        """Put the montage's settings back. Does NOT rebuild it.
+        """Put the montage's settings back. Does not rebuild it.
 
         Returns whether anything was applied.
 
-        DELIBERATELY NOT REBUILT. Loading the crops is the slow half -- the
-        first montage of a run reads images off disk for seconds -- and a
-        restore that started it would freeze a window the user had just
-        opened to look around in. The settings are put back and the button is
-        there; 155's "the montage says how it chose" is on screen either way.
+        The montage is not rebuilt. Loading the crops is the slow half -- the
+        first montage of a run reads images off disk for seconds -- and
+        starting it on restore would freeze a window that was just opened. The
+        settings are put back and the button is available.
 
         :param state: mapping as saved with the workspace; its
             ``picture_settings``, ``widgets``, ``picture_mode`` and
@@ -2635,7 +2622,7 @@ class CellMontageView(QWidget):
 
     def remember_inventory(self, source=None, objects=None) -> None:
         """Keep what the last load resolved, so the settings window can offer
-        THIS screen's mask planes and object columns rather than free text."""
+        this screen's mask planes and object columns rather than free text."""
         if source is not None:
             self._last_source = source
         if objects is not None:
@@ -2716,9 +2703,9 @@ class CellMontageView(QWidget):
         """Write the montage as a figure, honouring the format preference.
 
         :param path: where to write. ``None`` asks. The extension is left to
-            :func:`spacr.plot.save_figure`, which corrects it to the format
-            the user chose -- naming one here is how a PNG ends up in a file
-            called ``.pdf``, which is a complaint this project has had twice.
+            :func:`spacr.plot.save_figure`, which corrects it to the format the
+            user chose -- naming one here could put a PNG in a file called
+            ``.pdf``.
         :returns: the path written, or ``None``.
         """
         if not self._plans:
@@ -3276,7 +3263,7 @@ class CellMontageView(QWidget):
                 self._columns)
         if refused:
             captions.append(
-                f"{len(refused)} well tab(s) were NOT opened -- "
+                f"{len(refused)} well tab(s) were not opened -- "
                 f"{', '.join(refused[:6])}"
                 + (" and others" if len(refused) > 6 else "")
                 + f" -- because {MAX_WELL_TABS} well tabs are already open. "
@@ -3313,14 +3300,9 @@ class CellMontageView(QWidget):
     def clear(self) -> None:
         """Empty every open well tab's grid, leaving the tabs standing.
 
-        PUBLIC BECAUSE IT IS CALLED FROM OUTSIDE, which it was already: the
-        Regression screen empties this view when the loaded run changes,
-        because a montage answering a coefficient from the previous run's
-        table means nothing under the new one. It called ``clear()`` -- the
-        obvious name, and the name the well tabs themselves use -- and got an
-        AttributeError every time, reported by a user on 2026-09-02 (issue
-        116) whose Cells tab kept showing the run before the one he had just
-        loaded.
+        Public because the Regression screen calls it to empty this view when
+        the loaded run changes: a montage for a coefficient from the previous
+        run's table does not apply to the new one (issue 116).
         """
         self._cancel_loading()
         self._queue.clear()
@@ -3357,7 +3339,7 @@ class CellMontageView(QWidget):
         and a merged-source montage is seconds long -- so leaving the screen
         mid-load is not a rare case. ``JobRunner.shutdown`` drops the results
         and waits a bounded time rather than joining on the GUI thread, which
-        is the freeze it exists to remove.
+        would freeze the window.
         """
         self._cancel_loading()
         self._queue.clear()

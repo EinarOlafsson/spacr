@@ -4,9 +4,9 @@ Resizable sections let users give the active panel more room, while folding
 inactive sections prevents controls from competing for the same vertical
 space.
 
-FOLDED, NOT REMOVED, and the header stays put: a section that disappeared
-would take with it the only clue that the feature exists, which is the same
-rule the greyed-out picture settings follow.
+A folded section keeps its header visible: a section that disappeared would
+remove the only indication that the feature exists, which is the same rule
+the greyed-out picture settings follow.
 """
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QSizePolicy, QToolButton, QVBoxLayout, QWidget
@@ -89,8 +89,9 @@ class CollapsibleSection(QWidget):
     def is_expanded(self) -> bool:
         """Whether the body is showing.
 
-        READ OFF THE HEADER, not a flag beside it. The header button IS the
-        state, so a cached copy could disagree with what the user sees.
+        Read from the header button rather than from a separate flag: the
+        button holds the state, so a cached copy could disagree with what
+        the user sees.
 
         :returns: True when open.
         """

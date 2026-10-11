@@ -303,8 +303,8 @@ class QueueScreen(QWidget):
     def start_runner(self):
         """Start working through the queue, unless it is already running.
 
-        IDEMPOTENT ON PURPOSE. The button can be pressed twice, and a second
-        runner over one queue would run every item twice.
+        Idempotent: the button can be pressed twice, and a second runner
+        over one queue would run every item twice.
         """
         if self._runner is not None and self._runner.isRunning():
             return
@@ -322,8 +322,8 @@ class QueueScreen(QWidget):
     def stop_runner(self):
         """Ask the runner to stop after the item it is on.
 
-        AFTER, not during: a half-written plate is worse than a queue that
-        takes another minute to come to rest.
+        The current item is allowed to finish, so no plate is left half
+        written.
         """
         if self._runner is not None and self._runner.isRunning():
             self._runner.stop()
@@ -343,7 +343,7 @@ class QueueScreen(QWidget):
         ``qFatal("QThread: Destroyed while thread is still running")``.
         It also does not go through :func:`spacr.qt.bridge.make_thread`, so
         the process-wide run registry — and therefore
-        ``MainWindow.closeEvent``'s drain — has never been able to see it.
+        ``MainWindow.closeEvent``'s drain — cannot see it.
 
         :param event: the close event; it is passed on to the base class once
             the queue runner has been aborted and drained.

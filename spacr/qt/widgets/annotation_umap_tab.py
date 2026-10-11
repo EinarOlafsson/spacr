@@ -6,13 +6,13 @@ controls, reports neighbour purity rather than cluster membership, and
 refuses circular evaluation when phenotype scores were used to select the
 annotated cells.
 
-THE EMBEDDING IS DRAWN THROUGH THE SAME PLOT EVERY OTHER PANEL USES --
+The embedding is drawn through the same plot every other panel uses --
 :class:`spacr.qt.widgets.fast_plots.FastPlot` beside
 :class:`~spacr.qt.widgets.fast_plots.ResultsTable` -- rather than on a canvas
 of its own. A scatter here needs exactly what those already carry: hovering a
 point to see which guide it came from, the right-click restyle menu, the
 export, and a table whose rows can be read against the picture. A second
-canvas would be a second set of all of that, drifting from the first.
+canvas would need its own copy of each of these.
 """
 from __future__ import annotations
 

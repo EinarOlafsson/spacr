@@ -1,9 +1,9 @@
 """The tile that appears when a gene is clicked in the interactive regression.
 
-A thin renderer, deliberately: everything that can be wrong
-about which gene a dot names lives in :mod:`spacr.gene_tile`, which is a pure
-function over the ``feature`` string and the results frame and is tested
-without a window. This module lays that record out and opens the links.
+A thin renderer: everything that can be wrong about which gene a dot names
+lives in :mod:`spacr.gene_tile`, which is a pure function over the ``feature``
+string and the results frame and is tested without a window. This module lays
+that record out and opens the links.
 
 There are two entry points:
 
@@ -11,8 +11,8 @@ There are two entry points:
   table, wired to the ``key_selected`` signal they both emit.
 * :meth:`GeneTilePanel.to_pixmap` — the same record rendered to a ``QPixmap``,
   so the tile can go into the figure grid as "the same pressable tile every
-  figure is, holding text instead of a plot" WITHOUT ``_FigureCell`` learning
-  about text. The grid takes pixmaps; this gives it one.
+  figure is, holding text instead of a plot" without ``_FigureCell`` handling
+  text. The grid takes pixmaps; this gives it one.
 
 The links are opened on click and never followed on render. Building a ToxoDB
 URL is string formatting; a tile that fetched it would put a network round
@@ -49,12 +49,11 @@ TILE_WIDTH = 220
 
 
 class GeneTilePanel(QWidget):
-    """Everything spaCR knows about the clicked gene, laid out.
+    """The record for the clicked gene, laid out.
 
     :param frame_provider: called with no arguments to get the current results
         frame. A callable rather than a stored frame so the panel cannot go on
-        answering from the previous regression after a new one is loaded —
-        which is the bug shape this whole cluster keeps producing.
+        answering from the previous regression after a new one is loaded.
     :param parent: the usual.
     """
 
@@ -108,7 +107,7 @@ class GeneTilePanel(QWidget):
         return self._feature
 
     def clear(self) -> None:
-        """Back to the waiting state, which says it is waiting."""
+        """Return to the waiting state, which shows a waiting message."""
         self._tile = None
         self._feature = ""
         self._error_feature = ""
@@ -128,13 +127,12 @@ class GeneTilePanel(QWidget):
     def show_feature(self, key: str) -> None:
         """Build and show the tile for one clicked feature.
 
-        THE SLOT TO CONNECT ``key_selected`` TO. Takes the feature string and
+        ``key_selected`` connects to this slot. Takes the feature string and
         nothing else, so the volcano and the results table reach it
         identically.
 
-        A failure here must not take the plot down with it: a tile is an
-        explanation, and an explanation that raises leaves the user with a
-        traceback instead of the point they clicked.
+        A failure here is reported in the tile and not raised, so the plot is
+        unaffected.
 
         :param key: the clicked feature, a regression model term such as
             ``fraction:grna[239740_3]``, passed to

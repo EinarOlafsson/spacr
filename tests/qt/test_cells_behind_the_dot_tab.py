@@ -1492,7 +1492,7 @@ def test_the_number_of_well_tabs_is_bounded_and_the_bound_is_stated(
 
     assert len(view.well_tabs()) == 2
     caption = view.caption_text()
-    assert "1 well tab(s) were NOT opened" in caption
+    assert "1 well tab(s) were not opened" in caption
     assert "plate1_r1_c3" in caption
     assert "because 2 well tabs are already open" in caption
     assert "close one with its × to make room" in caption

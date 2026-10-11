@@ -3,12 +3,11 @@
 Map Barcodes offers the paper's own reads, and lets the user say how many
 sequencing lines to take from each file.
 
-THE LIMIT IS THE FEATURE, not a convenience. The four runs are 20.4 GB in
-full; a hundred thousand reads from each is about 30 MB, because ENA serves
-gzipped FASTQ that :func:`spacr.sra.fetch_reads` reads as a stream and
-abandons once it has enough. The estimate is shown before anything starts, and
-it is recomputed as the limit changes, so the size is a decision rather than a
-surprise.
+The read limit sets the download size. The four runs are 20.4 GB in full; a
+hundred thousand reads from each is about 30 MB, because ENA serves gzipped
+FASTQ that :func:`spacr.sra.fetch_reads` reads as a stream and abandons once it
+has enough. The estimate is shown before anything starts and is recomputed as
+the limit changes, so the size is known before the download begins.
 """
 from __future__ import annotations
 

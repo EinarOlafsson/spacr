@@ -16,7 +16,7 @@ This module makes the tour per module and repeatable:
   because the one global flag was set in 2026.
 
 A walkthrough is built from the module's own settings layout rather than
-hand-written per module. That is what stops it rotting: the steps name the
+hand-written per module, so it stays current: the steps name the
 module's first curated group and its essential settings, both of which come
 from :mod:`spacr.qt.screens.settings_model`, so a layout change updates the
 walkthrough with it. Modules that want more can register extra steps::
@@ -256,8 +256,8 @@ def build_steps(app_key: str) -> List[WalkStep]:
     steps.append(WalkStep(
         title="Run it",
         body=("Run starts the module and streams its log into the console "
-              "below. Once a set of settings works, save it as a recipe so "
-              "the next plate is one click instead of a form."),
+              "below. Once a set of settings works, save it as a recipe to "
+              "load it again for the next plate."),
         highlight=_run_button,
     ))
 

@@ -74,14 +74,13 @@ def pin_menu_roles(actions: Iterable[Any],
                    about: Optional[Any] = None) -> None:
     """Give every action in ``actions`` an explicit role.
 
-    Everything gets ``NoRole`` except the three named, so adding a menu item
-    later cannot accidentally claim the Preferences slot by being called
-    something reasonable.
+    Everything gets ``NoRole`` except the three named, so a menu item added
+    later cannot take the Preferences slot because of its text.
 
     :param actions: every action on the menu bar.
-    :param preferences: the action that really is Preferences, if any.
-    :param quit_action: the action that really is Quit, if any.
-    :param about: the action that really is About, if any.
+    :param preferences: the Preferences action, if any.
+    :param quit_action: the Quit action, if any.
+    :param about: the About action, if any.
     """
     special = {id(a): name for a, name in (
         (preferences, "preferences"), (quit_action, "quit"), (about, "about"))

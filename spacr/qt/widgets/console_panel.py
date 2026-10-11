@@ -1229,8 +1229,8 @@ class ConsolePanel(QWidget):
     def split_sizes(self) -> List[int]:
         """Current ``[console_height, chat_height]`` in pixels.
 
-        Public because it is the honest thing for a test — or a caller
-        arranging the screen — to read, rather than reaching into ``_split``.
+        Public so a test, or a caller arranging the screen, can read it rather
+        than reaching into ``_split``.
         """
         return list(self._split.sizes())
 
@@ -1348,9 +1348,9 @@ class ConsolePanel(QWidget):
     def jump_to_the_end(self) -> None:
         """Show the newest line, and follow the tail again.
 
-        BOTH HALVES, because they are one decision. A console that jumped
-        without resuming the follow would slide back off the end on the very
-        next line written, and the user would press it again.
+        Both are done together: a console that jumped without resuming the
+        follow would slide back off the end on the very next line written, and
+        the user would press it again.
         """
         bar = self._scroll.verticalScrollBar()
         bar.setValue(bar.maximum())
@@ -1425,10 +1425,10 @@ class ConsolePanel(QWidget):
                     ) -> Optional["_TopicBar"]:
         """Insert a divider bar labeled `label` (e.g. 'spaCR output — …').
 
-        A BAR IS NOT REDRAWN WHEN IT WOULD SAY THE SAME THING. Three bands now
-        write under the "spaCR output" heading -- stdout, warnings, and the
-        notice path -- and each opens its topic. A run that alternates between
-        them therefore drew the identical banner before EVERY line:
+        A bar is not redrawn when its label would repeat. Three bands now write
+        under the "spaCR output" heading -- stdout, warnings, and the notice
+        path -- and each opens its topic. A run that alternates between them
+        therefore drew the identical banner before every line:
 
             === spaCR output — Mask Generation ===
             Source directory (src): ...
@@ -1438,11 +1438,11 @@ class ConsolePanel(QWidget):
             12:09:47 [INFO] spacr.qt.resource_cleanup: memory budget...
 
         which is what the console looked like when this was reported. The
-        divider exists to say the subject CHANGED; repeating it says nothing
-        and costs three lines of a panel people read during a run.
+        divider marks a change of subject; repeating it adds three lines to the
+        panel and no information.
 
-        The accent is deliberately not part of the comparison. It rides on the
-        TEXT below the bar -- amber for a warning, blue for output -- so a
+        The accent is deliberately not part of the comparison. It is applied to
+        the text below the bar -- amber for a warning, blue for output -- so a
         warning still reads differently without a second identical heading
         above it.
 
@@ -1609,13 +1609,11 @@ class ConsolePanel(QWidget):
     def append_warning(self, text: str) -> None:
         """Append warning text in the theme's amber, under the output banner.
 
-        DELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one
-        rather than a design one: a "spaCR warning" heading would need a new
-        row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the
-        COMPACT caption ratchet. Amber under the existing translated "spaCR
-        output" heading already achieves the point -- warnings out of the
-        ERROR pane, errors still in it -- without reaching into that
-        machinery. A dedicated banner would be the nicer end state.
+        Warnings have no banner of their own: a "spaCR warning" heading would
+        need a new row in ``spacr.qt.i18n._ROWS`` with nine translations, which
+        moves the COMPACT caption ratchet. Amber under the existing translated
+        "spaCR output" heading keeps warnings out of the error pane and errors
+        in it without that change.
 
         :param text: the formatted record; empty strings are ignored.
         """
@@ -1750,13 +1748,13 @@ class ConsolePanel(QWidget):
         """Bring ``bar``'s section to the top of the view and expand it.
 
         The console is a transcript, so the order of its sections is the one
-        property a log has: this SCROLLS, it does not reorder.
+        property a log has: this scrolls, it does not reorder.
 
-        Raising a section also stops the view following new output. A user
-        who clicked a heading is reading THERE, and appending output that
-        yanks the viewport away is what makes a live log unreadable.
-        Following resumes when they scroll back to the bottom, which is the
-        convention every log viewer uses.
+        Raising a section also stops the view following new output. A user who
+        clicked a heading is reading that section, and new output would
+        otherwise move the viewport away from it. Following resumes when they
+        scroll back to the bottom, which is the convention every log viewer
+        uses.
 
         :param bar: the topic bar (section heading) whose section is meant.
         """
@@ -1804,18 +1802,14 @@ class ConsolePanel(QWidget):
         return abs(scrollbar.value() - min(top, scrollbar.maximum())) <= 4
 
     def toggle_section(self, bar: "_TopicBar") -> None:
-        """Reach the section first; fold it away second.
+        """Scroll to the section first; fold it on a second click.
 
-        Sections are created EXPANDED, so a plain expanded/collapsed toggle
-        spent the user's first click hiding the very section they were
-        reaching for, and the viewport never moved -- the opposite of "click
-        a console section heading to bring it to the top of the console".
+        Sections are created expanded, so a plain expanded/collapsed toggle
+        would hide the section on the first click without scrolling to it.
 
-        A heading that is not already at the top of the viewport is therefore
-        a request to GO THERE, whatever its state. Only a heading already
-        sitting at the top has nowhere left to navigate to, and there
-        collapsing is the one thing the gesture can still mean -- reachable
-        on a second click, exactly where the user's hand already is.
+        A heading that is not already at the top of the viewport is therefore a
+        request to scroll there, whatever its state. Only a heading already at
+        the top is collapsed by the click.
 
         :param bar: the topic bar (section heading) whose section is meant.
         """
@@ -2258,15 +2252,13 @@ class ConsolePanel(QWidget):
         """spaCR AI's answer about ``traceback_text``, or ``""``.
 
         Used by the bug reporter: when the AI is switched on it has usually
-        already diagnosed the crash by the time the user files, and that
-        analysis is the most useful thing in the report -- it is what whoever
-        picks the report up would otherwise spend the first hour
-        reproducing.
+        already diagnosed the crash by the time the user files, and including
+        that analysis saves the reader of the report from reproducing it.
 
-        Empty unless there IS an answer AND it is an answer to THIS error.
-        The console holds one conversation across a whole session, so without
-        the second condition a report about one crash would carry an
-        explanation of an earlier one, stated with equal confidence.
+        Empty unless there is an answer and it is an answer to this error. The
+        console holds one conversation across a whole session, so without the
+        second condition a report about one crash would carry an explanation of
+        an earlier one, stated with equal confidence.
 
         :param traceback_text: the traceback the report is about; compared,
             whitespace-stripped, with the traceback the AI last explained.
@@ -2283,7 +2275,7 @@ class ConsolePanel(QWidget):
 
         :param traceback_text: raw traceback captured from the pipeline.
         :param active_app: optional app label used in the framing prompt.
-        :param show_raw: when False, the raw traceback is NOT printed to the
+        :param show_raw: when False, the raw traceback is not printed to the
             console (only a short note); the AI still receives it in its
             prompt, so the user can ask the AI to show the error.
         """

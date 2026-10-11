@@ -1,14 +1,13 @@
 """The search field beside the Help menu, and what each result opens.
 
-:mod:`spacr.qt.help_index` decides WHAT is addressable by
+:mod:`spacr.qt.help_index` decides what is addressable by
 name; this module is where a user types a name and where the answer takes
 them. The two halves are apart because only this one needs a display.
 
-WHAT A RESULT DOES IS REGISTERED, NOT SWITCHED ON. :func:`register_opener`
-binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind
-up. A new kind of thing therefore needs a provider in the index module and an
-opener here, and no existing function changes -- which is the instruction's
-"and so on" clause taken literally.
+What a result does is registered per kind, not chosen in a switch.
+:func:`register_opener` binds a kind to ``(window, entry) -> str``;
+:func:`open_entry` looks the kind up. A new kind therefore needs a provider in
+the index module and an opener here, and no existing function changes.
 
 The four that ship:
 
@@ -19,32 +18,30 @@ The four that ship:
 ``setting``
     Opens the module and then :func:`reveal_setting`: every category
     collapsed except the one holding the setting, the row scrolled to and
-    marked. NOT by filtering the panel -- the per-module strip already has a
-    filter and it leaves the other categories hidden, so a user who wanted to
-    look around next has to work out what happened to the form.
+    marked. The panel is not filtered: the per-module strip's filter leaves
+    the other categories hidden, which would leave the form looking
+    incomplete afterwards.
 
 ``preference``
     Opens Preferences on the tab that holds the row and marks the row.
 
 ``api``
-    Opens the published page WHEN IT IS REACHABLE, and otherwise shows the
-    docstring that is on this machine and says the page is not reachable.
-    A search result is believed, so a result that opens a 404 is worse than
-    no result at all.
+    Opens the published page when it is reachable, and otherwise shows the
+    docstring that is on this machine and says the page is not reachable,
+    so a result never opens a 404 page.
 
-NOTHING THIS MODULE DOES ON THE GUI THREAD BLOCKS IT. The index costs about a
-second to build, so it is built on a worker the first time the field is typed
+Nothing this module does on the GUI thread blocks it. The index takes about
+a second to build, so it is built on a worker the first time the field is typed
 in (:class:`_IndexLoader`), and the field says so until it lands. Whether the
 documentation site answers is a network question, so it is asked on a worker
 too (:class:`_DocsReach`) and only ever when the user has opened an API
-result -- spaCR does not reach the network because somebody typed.
+result; typing in the field does not use the network.
 
-OPENING A RESULT NEVER DISCARDS SETTINGS. ``MainWindow._on_nav_selected``
+Opening a result does not discard settings. ``MainWindow._on_nav_selected``
 keeps every screen it has built in ``self._screens`` and switches the stack to
 it, so a half-filled Mask form is still half-filled when the user comes back
-from Measure. That was true before this field existed and it is now pinned by
-``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a
-future rebuild-on-navigate cannot quietly take it away.
+from Measure. ``tests/qt/test_the_help_search_field_lands_where_it_says.py``
+tests this behaviour.
 """
 from __future__ import annotations
 
@@ -309,7 +306,7 @@ def api_url(symbol: str, language: Optional[str] = None) -> str:
     same ``DOCS_API_BASE``, so the search field and a settings row cannot
     disagree about where the documentation lives.
 
-    WHICH PREFIX IS THE MODULE is answered from the disk rather than assumed:
+    Which prefix is the module is answered from the disk rather than assumed:
     ``spacr.qt.screens.mask`` is a module and ``spacr.layers.ShapesLayer.mask``
     is an attribute two levels inside one, and only the file layout knows
     which of the dots is the last one in the path.
@@ -716,9 +713,8 @@ class HelpSearchField(QLineEdit):
     def type_and_search(self, text: str) -> List[HelpEntry]:
         """Put ``text`` in the box and search now, skipping the debounce.
 
-        The seam tests drive: typing is the user's action, and waiting 140 ms
-        for a timer in every assertion would make the suite slower and no
-        more honest about what the field does.
+        The entry point tests use: it runs the same search as typing,
+        without waiting 140 ms for the debounce timer.
 
         :param text: what the user typed.
         :returns: the results now on screen.
@@ -1044,11 +1040,9 @@ class _FieldPlacer(QObject):
 def install(window: QMainWindow) -> Optional[HelpSearchField]:
     """Put the search field directly to the right of the Help menu.
 
-    IN THE MENU ROW, NOT THE CORNER. The field was first installed in the
-    menu bar's top-right corner widget, which put it beside the minimise,
-    full screen and close marks at the far right of the window, away from
-    the menus. It belongs directly to the right of Help, so it is placed in
-    the menu row itself: the bar lays its actions
+    The field is placed in the menu row, not in the menu bar's top-right
+    corner widget, which holds the minimise, full screen and close marks at
+    the far right of the window. The bar lays its actions
     out left to right, and Help is the last menu, so the field follows Help
     and moves with it when the menus are re-translated or re-ordered.
 

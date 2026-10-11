@@ -1,4 +1,4 @@
-"""One screen that answers "is this run usable?".
+"""QC dashboard screen: every stored QC verdict for a project, side by side.
 
 The screen half of :mod:`spacr.qt.widgets.qc_summary`. It shows the
 segmentation, units, leakage, plate-effect and agreement verdicts side by
@@ -31,14 +31,13 @@ the same checks over time and Outliers finds the wells or objects unlike the
 rest; all three open from this screen's masthead.
 
 It **reads**; it does not score. The rule is :mod:`spacr.qt.prerun`'s, and
-that module says why: opening a plate's masks costs seconds to minutes, and a
-screen that pays that on every visit is a screen nobody keeps. So the reads go
+that module says why: opening a plate's masks costs seconds to minutes, which
+is too slow to repeat on every visit. So the reads go
 through a fingerprint cache -- one listdir and one stat per artifact -- and
 the parse only happens when something on disk has actually changed.
 
 Nothing here disables anything. ``Dashboard.blocks_run`` is a constant False,
-and this screen has no Run button to gate. A QC verdict that stops work gets
-switched off; one that informs it gets read.
+and this screen has no Run button to gate.
 """
 
 from __future__ import annotations
@@ -350,29 +349,26 @@ class QCDashboardScreen(QWidget):
         return tuple(out)
 
     def refresh(self, *, force: bool = False) -> bool:
-        """Re-read the verdicts. Off the GUI thread -- all of it, now.
+        """Re-read the verdicts, entirely off the GUI thread.
 
-        SPLIT IN TWO, and the split is the fix for a frozen application.
-        Only the parse used to be handed to the runner; the two decisions in
-        front of it -- "is this a folder?" and "has anything changed?" --
-        were taken inline, and both of them touch the disk at a path the
-        user typed. `os.path.isdir` was one call, and `_fingerprint` is a
+        The parse and the two decisions in front of it -- "is this a
+        folder?" and "has anything changed?" -- all run on the worker,
+        because both decisions touch the disk at a path the user typed.
+        `os.path.isdir` is one call, and `_fingerprint` is a
         `find_scorecards` listing plus a stat per artifact.
 
         Measured on one workstation: a single
         `os.path.exists` under `/nas_mnt`, an `autofs` mount whose share was
-        asleep, had not returned after TWENTY SECONDS -- the stat is what
-        triggers the automount. A project folder on that mount is exactly
-        what this screen is for, and the whole interface stopped the moment
-        one was dropped on it, browsed to, or simply refreshed. It left no
-        traceback, because a stalled event loop is not a crash.
+        asleep, had not returned after twenty seconds -- the stat is what
+        triggers the automount. Run on the GUI thread, that call would freeze
+        the whole interface, with no traceback, whenever such a folder was
+        dropped, browsed to or refreshed.
 
-        `path_probe` is deliberately NOT used for the folder guard. It
-        answers optimistically, so it could only ever say "go on and read",
-        which the worker then decides properly anyway; a second guard on the
-        GUI thread would add a way for the two answers to disagree and buy
-        nothing. Every message the screen showed still appears -- a moment
-        later, and that is the only difference the user can see.
+        `path_probe` is not used for the folder guard. It answers
+        optimistically, so it could only ever say "go on and read", which
+        the worker then checks anyway; a second guard on the GUI thread
+        would only allow the two answers to disagree. The screen's messages
+        are unchanged; they appear when the worker finishes.
 
         :param force: read even when the fingerprint says nothing changed.
         :returns: whether a read of the disk was started. Reading inline
@@ -394,7 +390,7 @@ class QCDashboardScreen(QWidget):
             """Off the GUI thread. Touches no widget -- returns a verdict.
 
             The cache comparison comes with it rather than staying behind:
-            the key it compares IS the walk of the disk, so leaving the
+            the key it compares is the walk of the disk, so leaving the
             comparison on the GUI thread would leave the walk there too.
             """
             if not os.path.isdir(s):

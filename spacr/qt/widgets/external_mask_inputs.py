@@ -190,9 +190,8 @@ class ExternalMaskInputWidget(QWidget):
     def get_value(self) -> List[dict]:
         """The groups worth saving, in the shape the settings dict wants.
 
-        IGNORED GROUPS ARE DROPPED. "Ignore" is the user saying these files
-        are not part of the run, so carrying them into the settings would
-        make the next reader wonder what they are for.
+        Ignored groups are dropped: "Ignore" marks files that are not part
+        of the run, so they are not written into the settings.
 
         :returns: one dict per kept group.
         """
@@ -224,7 +223,7 @@ class ExternalMaskInputWidget(QWidget):
     def set_group_role(self, row: int, role: str) -> bool:
         """Correct one group's inferred role.
 
-        REFUSES AN UNKNOWN ROLE rather than storing it: the role decides how
+        An unknown role is refused rather than stored: the role decides how
         the files are read, and an unrecognised one would fail later, in the
         run, rather than here where the user can see what they typed.
 

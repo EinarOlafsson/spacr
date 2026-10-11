@@ -1,13 +1,10 @@
 """
-Import Images — a pile of files from any microscope, read before it is written.
+Import Images — parse microscope files and show the result before writing.
 
-:mod:`spacr.image_import` does the work; this screen exists for the step the
-instruction that asked for it calls "the single most important requirement":
-**showing the proposal**. spaCR's import path before this asked the user to
-pick a filename convention from a closed list — ``cellvoyager``, ``cq1``, or
-write your own regular expression — and gave them no way to see whether it
-worked until masks came out wrong. Of ten real acquisition layouts, two
-parsed and eight recovered nothing.
+:mod:`spacr.image_import` does the work; this screen **shows the proposal**
+before anything is written. The filename convention is inferred from the
+files rather than picked from a fixed list (``cellvoyager``, ``cq1`` or a
+custom regular expression).
 
 So the middle of this screen is the parse, one row per file, **with the
 filename beside the fields it was parsed into**. A field read as a channel is
@@ -241,7 +238,7 @@ class ProposalModel(QAbstractTableModel):
 class AnswerModel(QAbstractTableModel):
     """Editable table of the tokens inference could not name.
 
-    ONE ROW PER VALUE, not per token: the question "what does ``DAPI`` mean"
+    One row per value, not per token: the question "what does ``DAPI`` mean"
     has a different answer from "what does ``GFP`` mean", and a single cell
     holding both would have to be parsed back out of a string the user typed.
 
@@ -288,9 +285,9 @@ class AnswerModel(QAbstractTableModel):
         """The answers as :meth:`spacr.image_import.ImportPlan.with_mapping`
         wants them, skipping every row still blank or not yet a number.
 
-        A HALF-TYPED ANSWER IS NOT AN ANSWER. ``"1"`` arrives one keystroke
-        after ``""``, and treating a blank or a stray letter as zero would
-        write a channel nobody asked for.
+        A half-typed answer is skipped. ``"1"`` arrives one keystroke after
+        ``""``, and treating a blank or a stray letter as zero would write a
+        channel nobody asked for.
         """
         out: Dict[int, Dict[str, int]] = {}
         for position, value, answer in self._rows:
@@ -415,8 +412,8 @@ class ImageImportScreen(QWidget):
     def __init__(self, parent=None, threaded: bool = True):
         """Build the screen and arm its drop zone.
 
-        The drop handler also takes a saved plan, so last week's answers arrive
-        by the same gesture this week's images do.
+        The drop handler also takes a saved plan, which restores the answers
+        of an earlier import.
 
         :param parent: parent widget, or ``None``.
         :param threaded: run the scan and the import on a worker thread. Set
@@ -508,15 +505,15 @@ class ImageImportScreen(QWidget):
         self._sample_box.setRange(10, 1000000)
         self._sample_box.setValue(400)
         self._sample_box.setToolTip(
-            "How many files to read before deciding what the names mean. A "
-            "sample, so a 400-plate archive is as quick to inspect as one "
-            "plate: the convention is the same in the first hundred files as "
-            "in the last hundred thousand.")
+            "How many files to read before deciding what the names mean. Only "
+            "this sample is read, so inspecting a 400-plate archive takes as "
+            "long as one plate; the naming convention is assumed to be the "
+            "same in the rest of the folder.")
         self._inside_box = QCheckBox("Read inside each file", self)
         self._inside_box.setChecked(True)
         self._inside_box.setToolTip(
             "Open each file for its own axis metadata. A channel that lives "
-            "as a page INSIDE an OME-TIFF is invisible without this, and it "
+            "as a page inside an OME-TIFF is invisible without this, and it "
             "is the only thing that can tell a Z-stack from a timelapse when "
             "their filenames are identical. Turn it off for a fast first "
             "look at a very large archive.")
@@ -598,8 +595,8 @@ class ImageImportScreen(QWidget):
         self._link_box.setChecked(True)
         self._link_box.setToolTip(
             "Symlink each image under its spaCR name rather than duplicating "
-            "it. Nothing about renaming requires copying bytes, and a 300 GB "
-            "plate would otherwise cost 600 GB to import. Untick it if the "
+            "it. Renaming does not require copying, and copying a 300 GB plate "
+            "would use another 300 GB of disk. Untick it if the "
             "project has to survive the originals moving, or if it is going "
             "somewhere symlinks do not work.")
         self._tiles_box = QComboBox(self)
@@ -608,12 +605,12 @@ class ImageImportScreen(QWidget):
         self._tiles_box.currentIndexChanged.connect(self._on_tiles_changed)
         self._tiles_box.setToolTip(
             "What to do when a field arrives as several tiles. Stitching is "
-            "the default and is what makes spaCR's filename enough: the "
-            "convention has no tile slot, so four tiles of one field would "
-            "share one name — and a stitched field IS one image with one "
-            "name. Keeping the tiles as fields discards the fact that they "
-            "are one field, which anything measuring per field then gets "
-            "wrong; skipping them loses them, with a reason.")
+            "the default: spaCR's filename convention has no tile slot, so "
+            "four tiles of one field would share one name, while a stitched "
+            "field is one image with one name. Keeping the tiles as fields "
+            "loses the information that they are one field, so per-field "
+            "measurements are wrong; skipping them leaves them out, with a "
+            "reason.")
         self._btn_save_plan = QPushButton("Save plan…", self)
         self._btn_save_plan.clicked.connect(self._pick_save_plan)
         self._btn_load_plan = QPushButton("Load plan…", self)

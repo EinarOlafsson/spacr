@@ -1,17 +1,16 @@
 """A brief accent flash, for controls whose action leaves no other trace.
 
-WHY THIS IS SHARED. Two controls need the same feedback for the same reason,
-and the reason is not cosmetic: a click that produces no visible change is
-indistinguishable from a click that was not received. The console's copy glyph
-writes to the clipboard, which is invisible; the figure queue's clear control
-empties a list that may already look empty. Both need to say "that happened".
+Two controls need the same feedback: a click that produces no visible change
+cannot be told apart from a click that was not received. The console's copy
+glyph writes to the clipboard, which is invisible; the figure queue's clear
+control empties a list that may already look empty. Both flash to confirm the
+click.
 
-It lives here rather than being written twice because a second copy is a
-second duration, and two controls that flash for different lengths read as a
-bug in whichever one you notice second.
+It lives here rather than being written twice so both controls flash for the
+same duration.
 
-The colour is deliberately NOT decided here. A flash is drawn differently by a
-painted glyph and by a text label, so each control paints itself and asks
+The colour is not decided here. A flash is drawn differently by a painted glyph
+and by a text label, so each control paints itself and asks
 :meth:`Flash.active` whether it is flashing. What is shared is the timing and
 the state machine, which is the part that must agree.
 """
@@ -35,8 +34,7 @@ class Flash:
 
     Owned by the widget, not inherited, so a control can flash without
     committing to a base class -- the copy glyph is a ``QAbstractButton`` and
-    the clear control is a ``QLabel``, and neither should have to change what
-    it is in order to blink.
+    the clear control is a ``QLabel``.
 
     :param widget: the widget to repaint when the flash starts and ends.
     :param duration_ms: how long to stay lit; defaults to :data:`FLASH_MS`.

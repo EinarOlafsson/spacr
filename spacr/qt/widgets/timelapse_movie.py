@@ -1,10 +1,10 @@
-"""Watching a track break, rather than reading that one did.
+"""Play tracked fields as movies and filmstrips to inspect track breaks.
 
 ``TrackStats`` can tell you that a field produced 41 tracks with a median
-length of 6 frames in a 30-frame series. It cannot tell you *why*, and why
-is the only thing that changes what you do next: two cells that touch for
-three frames and come apart with their identities swapped needs a different
-setting from one cell that leaves the field and comes back.
+length of 6 frames in a 30-frame series. It cannot tell you *why*, and the
+cause decides which setting to change: two cells that touch for three frames
+and come apart with their identities swapped needs a different setting from
+one cell that leaves the field and comes back.
 
 So this shows the frames. One field plays as a movie; clicking it opens a
 filmstrip above, which is the same frames laid out at once and scrollable,
@@ -14,7 +14,7 @@ by seeing the frames either side of it together.
 Everything reuses the rendering already in
 :mod:`spacr.qt.widgets.timelapse_preview` -- ``render_frame`` colours mask
 outlines by track id and draws the trailing polyline, and ``track_colour``
-is deterministic. That is what makes the colours mean something: an object
+is deterministic, so a colour identifies a track: an object
 that keeps its track id keeps its colour in every frame and in every
 thumbnail, so an identity swap reads as an object that changes colour
 partway through the strip.
@@ -88,8 +88,8 @@ def _ensure_cache_budget_sweep() -> None:
 class FilmStrip(QScrollArea):
     """One field's frames, side by side and scrollable.
 
-    Horizontal only. A vertical scrollbar here would fight the panel's own,
-    and there is never more than one row.
+    Horizontal only. A vertical scrollbar here would compete with the panel's
+    own, and there is never more than one row.
 
     :param parent: parent widget.
     """
@@ -245,7 +245,7 @@ class FovMovie(QWidget):
                      channel: int = 0) -> None:
         """Bind one field's frames, its per-frame labels and its tracks.
 
-        ``labels`` is expected to be ALREADY relabelled by track id (see
+        ``labels`` is expected to be already relabelled by track id (see
         ``relabel_by_track``). That is what makes a colour mean a track
         rather than a per-frame segmentation index, and it is the caller's
         job because the relabelling is what the tracker produced.
@@ -390,7 +390,7 @@ class FovMovie(QWidget):
     def play(self) -> None:
         """Start playing, unless there is nothing to animate.
 
-        A SINGLE FRAME IS NOT A MOVIE: starting a timer for it would spin
+        A single frame does not start the timer: a timer for it would spin
         the event loop to redraw the same picture.
         """
         if self.frame_count() < 2:
@@ -440,7 +440,7 @@ class FovMovie(QWidget):
             self._strip.highlight(self._frame)
 
     def strip_is_open(self) -> bool:
-        """Expanded or not -- a state, not a question about the screen.
+        """Whether the filmstrip is expanded, as set, regardless of visibility.
 
         `isHidden()` and not `isVisible()`: a widget inside a parent that
         has not been shown yet reports `isVisible() == False` however it
@@ -454,9 +454,8 @@ class FovMovie(QWidget):
 class TimelapseMoviePanel(QWidget):
     """Several fields stacked, with one set of controls over all of them.
 
-    Stacked rather than tabbed on purpose: comparing two fields is the
-    point of showing more than one, and a tab hides the thing you are
-    comparing against.
+    Stacked rather than tabbed, because the fields are shown together to be
+    compared, and a tab would hide the field being compared against.
 
     :param parent: parent widget.
     """
@@ -565,8 +564,7 @@ class TimelapseMoviePanel(QWidget):
         """Cap how many fields are held at once.
 
         Applied by dropping the surplus immediately rather than at the next
-        preview: a user lowering this has just been told the machine is
-        short of memory, and the setting has to give it back now.
+        preview, so lowering the cap frees memory at once.
 
         :param count: how many fields may be held at once; clamped to 1 through
             ``MAX_FIELDS_CEILING`` (8), and fields beyond it are dropped at
@@ -589,7 +587,7 @@ class TimelapseMoviePanel(QWidget):
     def max_fields(self) -> int:
         """How many fields this panel will stack at once.
 
-        A CAP, because each field is its own movie with its own timer, and a
+        A cap, because each field is its own movie with its own timer, and a
         plate with hundreds would start hundreds of them.
 
         :returns: the field cap.
@@ -599,7 +597,7 @@ class TimelapseMoviePanel(QWidget):
     def movies(self) -> List[FovMovie]:
         """The field movies currently stacked.
 
-        A LIST COPY, so a caller cannot restack the panel by mutating it.
+        A list copy, so a caller cannot restack the panel by mutating it.
 
         :returns: the movies, in display order.
         """

@@ -76,15 +76,13 @@ class StreamWorker(QObject):
         cancelled gives ``(False, "Cancelled.")`` even when ending the child
         made the provider raise, because the user asked for the stop.
 
-        THE EXCEPTION'S CLASS NAME IS PREFIXED ONLY WHEN IT SAYS SOMETHING.
-        The console writes this text after "[AI error] ", so for a
-        :class:`~spacr.qt.ai.providers.ProviderFailed` -- whose whole message
-        is written to be read there, down to the sign-in command to run --
-        the prefix turned a sentence the user could act on into
-        "[AI error] ProviderFailed: claude stopped with exit status 1: ...".
-        Every other exception keeps its class, which is often the only thing
-        naming what went wrong: a bare ``[Errno 2] No such file or
-        directory`` does not say it is a FileNotFoundError.
+        The exception's class name is prefixed to its message, except for a
+        :class:`~spacr.qt.ai.providers.ProviderFailed` with a non-empty
+        message. The console writes this text after "[AI error] ", and a
+        ProviderFailed message is written to be read there, including the
+        sign-in command to run. For every other exception the class name is
+        kept because it often names the error: a bare ``[Errno 2] No such
+        file or directory`` does not say it is a FileNotFoundError.
         """
         buf: List[str] = []
         try:

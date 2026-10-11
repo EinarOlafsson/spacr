@@ -1,11 +1,11 @@
-"""Test data for OPS and for Align & Stitch, one button away in each.
+"""Test data for OPS and for Align & Stitch, loaded by one button in each
+screen.
 
 OPS uses a small sample of an optical pooled screen, and Align & Stitch uses
 a small segment of the same OPS data.
 
-TWO SAMPLES OF ONE PUBLISHED SCREEN. Both are cut from plate
-``20200202_6W-LaC024A``, well A1, of Funk et al. 2022 (BioImage Archive
-S-BIAD394), unmodified:
+Both samples are cut from plate ``20200202_6W-LaC024A``, well A1, of Funk et
+al. 2022 (BioImage Archive S-BIAD394), unmodified:
 
 * :data:`~spacr.example_archives.STITCH_EXAMPLE_REPO` -- nine cycle-1 tiles,
   a 3 x 3 block from the middle of the well, acquired in snake-column order
@@ -14,23 +14,23 @@ S-BIAD394), unmodified:
   one of the eleven sequencing cycles, and the guide library's 11-base
   prefixes. The OPS engine stitches, segments and decodes them.
 
-WHY THE OPS SAMPLE IS THE WELL'S LAST TWO SITES. The engine takes a well's
-field count as its highest site number plus one and fits the round well to
-that count, so a sample has to include the last site to keep the measured
-333-field layout; see :func:`spacr.ops_engine.run_ops`. And it carries no
-phenotype images, because the phenotype phase aligns anchors spread over the
-whole well, which a two-field sample cannot supply.
+The OPS sample is the well's last two sites because the engine takes a well's
+field count as its highest site number plus one and fits the round well to that
+count, so a sample has to include the last site to keep the measured 333-field
+layout; see :func:`spacr.ops_engine.run_ops`. And it carries no phenotype
+images, because the phenotype phase aligns anchors spread over the whole well,
+which a two-field sample cannot supply.
 
-THE SAME PATTERN AS EVERY OTHER EXAMPLE SET. One uncompressed ``.tar`` per
-repository, streamed behind the shared progress dialog and unpacked through
-the tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a
+As for every other example set, there is one uncompressed ``.tar`` per
+repository, streamed behind the shared progress dialog and unpacked through the
+tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a
 folder of its own beside the shared example plate (:func:`example_folder`). A
 cached copy is used without a request.
 
-WHAT "FILLS THE SETTINGS" MEANS HERE. The OPS panel gets its source, output
+Loading the data fills these settings: the OPS panel gets its source, output
 folder, library and plate name; Align & Stitch gets its tile folder, the
-block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or
-Plan -- is then the next action.
+block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or Plan
+-- is then the next action.
 """
 from __future__ import annotations
 
@@ -125,8 +125,8 @@ def is_present(folder) -> bool:
 
     :param folder: where the sample is expected.
     :returns: True only when the manifest exists and every file it lists is
-        there. A half-unpacked sample reads as absent, which is the answer
-        that gets it downloaded again.
+        there. A partly unpacked sample counts as absent, so it is downloaded
+        again.
     """
     folder = Path(folder)
     files = listed_files(folder)

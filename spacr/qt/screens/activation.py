@@ -234,10 +234,9 @@ def open_page(host_screen: Optional[QWidget]) -> Optional[QWidget]:
 def apply_seed(screen: Optional[QWidget], values: Dict[str, Any]) -> None:
     """Push ``values`` into ``screen``'s settings form.
 
-    The rule ``MainWindow._on_train_requested`` applies, asked of the same
-    function rather than written out a second time: a navigation that
-    seeded differently from the sidebar's would be a second answer to one
-    question. A key with no widget is skipped, as it is there.
+    Applies the same rule as ``MainWindow._on_train_requested``, through
+    the same function, so a navigation seeds the form exactly as the
+    sidebar does. A key with no widget is skipped, as it is there.
 
     :param screen: the screen whose ``_settings_model`` widgets are set; None,
         or a screen without a settings model, does nothing.

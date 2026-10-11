@@ -261,8 +261,8 @@ def candidate_labels(frame: pd.DataFrame) -> Tuple[str, ...]:
     between two and :data:`MAX_CLASSES` levels, and **not floating point**. A
     class label is text, an integer code or a boolean; a float column with
     eleven distinct values is a measurement that happens to be coarse, and
-    offering it as "the thing to separate by" is how someone ends up ranking
-    every feature against ``cell_eccentricity``.
+    offering it as the class column would allow ranking every feature against
+    a measurement such as ``cell_eccentricity``.
 
     :param frame: measurement table whose columns are screened.
     """
@@ -298,8 +298,8 @@ def candidate_features(frame: pd.DataFrame,
 
     Booleans are included as 0/1. A plate or batch column that is numeric is
     included too, deliberately: if ``plateID`` ranks near the top, the classes
-    are separated by which plate they were on, and that is the most useful
-    thing this screen can tell anyone.
+    are separated by which plate they were on, which points to a plate
+    effect rather than biology.
 
     :param frame: measurement table whose columns are screened.
     """
@@ -321,7 +321,7 @@ class ExplorerSpec:
 
     :param label: the column holding the class or condition.
     :param features: the columns to rank. Empty means *every* continuous
-        column, which is the point of the screen.
+        column.
     :param statistic: one of :data:`STATISTICS`.
     :param top: how many to keep in :attr:`ExplorerResult.scores`. The rest are
         counted, not silently dropped.
@@ -366,8 +366,8 @@ class ExplorerSpec:
     def with_statistic(self, statistic: str) -> "ExplorerSpec":
         """A copy ranked by a different statistic.
 
-        A COPY: a spec is a value, so the one a panel is already showing is
-        never edited underneath it.
+        Returns a copy: a spec is a value, so the one a panel is already
+        showing is never edited underneath it.
 
         :param statistic: the statistic's name.
         :returns: the new spec.
@@ -404,7 +404,7 @@ class ExplorerSpec:
     def from_dict(cls, payload: Mapping[str, Any]) -> "ExplorerSpec":
         """Rebuild a spec from plain data.
 
-        UNKNOWN KEYS ARE IGNORED rather than raising, so a spec saved by a
+        Unknown keys are ignored rather than raising, so a spec saved by a
         later version still opens with the parts this one knows.
 
         :param payload: what :meth:`to_dict` produced.
@@ -471,9 +471,9 @@ class ClassSummary:
     def is_low_n(self) -> bool:
         """Whether this class has too few objects to read as a distribution.
 
-        ZERO IS NOT LOW-N, it is empty: a class with no objects is a
-        different problem from one with four, and marking it "low n" would
-        suggest the number could be trusted a little.
+        Zero is not low n but empty: a class with no objects is a different
+        problem from one with four, and marking it "low n" would suggest the
+        number could be trusted a little.
 
         :returns: True when sparse but not empty.
         """
@@ -529,12 +529,13 @@ class FeatureScore:
 
     @property
     def is_shape_not_shift(self) -> bool:
-        """Whether the classes differ in SHAPE rather than in location.
+        """Whether the classes differ in shape rather than in location.
 
         AUC near 0.5 with a large KS means the two distributions overlap as
         much as chance would predict while still being different -- so a
         feature that looks useless by AUC alone is separating on spread or
-        modality. Worth marking, because ranking by AUC would bury it.
+        modality. It is flagged because ranking by AUC alone would place it
+        low.
 
         :returns: True when the pattern holds and both statistics are finite.
         """
@@ -652,8 +653,8 @@ class ExplorerResult:
     def summary(self) -> str:
         """What was ranked, over how much, and what was skipped.
 
-        NAMES THE SKIPPED ONES. A ranking that quietly dropped constant or
-        all-null columns would read as a complete answer over a set of
+        The skipped features are named: a ranking that silently dropped
+        constant or all-null columns would read as complete over a set of
         features the user did not choose.
 
         :returns: a one-line summary.

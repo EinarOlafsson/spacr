@@ -1,10 +1,9 @@
 """The aggregation chosen for every merged column, shown and overridable.
 
-Merging four pathogens onto their cell means picking one number per column,
-and which number depends on what the column measures. The rules get that right
-most of the time -- and a default that is right most of the time is a wrong
-answer nobody can find the rest of the time. So the whole plan is shown, with
-every row changeable.
+Merging four pathogens onto their cell means picking one number per column, and
+which number depends on what the column measures. The rules choose correctly
+for most columns; because a wrong default would otherwise go unnoticed, the
+whole plan is shown, with every row changeable.
 """
 from __future__ import annotations
 
@@ -25,11 +24,11 @@ from .sortable_table import install_sorting, tree_item
 class AggregationRulesDialog(QDialog):
     """One row per column: the rule, and a dropdown to change it.
 
-    Only columns that were CHANGED become overrides. Recording every row would
+    Only columns that were changed become overrides. Recording every row would
     freeze today's defaults into the settings, so a later improvement to the
     rules would never reach a user who had once opened this window.
 
-    :param frame: the loaded table. Its COLUMNS are what the dialog offers a
+    :param frame: the loaded table. Its columns are what the dialog offers a
         rule for, so a screen with nothing loaded offers nothing.
     :param parent: parent widget.
     :param overrides: the rules the user has already chosen, column to rule.
@@ -133,7 +132,7 @@ class AggregationRulesDialog(QDialog):
     def overrides(self) -> Dict[str, str]:
         """The per-column aggregations the user chose.
 
-        A COPY, so the dialog's own state cannot be edited through it.
+        A copy, so the dialog's own state cannot be edited through it.
 
         :returns: ``{column: aggregation}``.
         """

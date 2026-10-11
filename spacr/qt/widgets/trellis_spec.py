@@ -1,25 +1,25 @@
-"""Small multiples — one chart repeated per group, on axes that really are shared.
+"""Small multiples: one chart repeated per group, on shared axes by default.
 
-A trellis is the cheapest correct comparison there is: the same plot, once per
-plate or once per gene, laid out in a grid so the eye does the differencing. It
-is also the easiest one to break, in a way that produces a figure everybody
-believes. Three rules, and this module exists to hold all three in one place.
+A trellis repeats the same plot once per plate or once per gene, laid out in a
+grid so the panels can be compared by eye. A comparison of this kind is easily
+made misleading, so three rules apply, and this module enforces all three in
+one place.
 
-**Shared axes, by default and loudly.** Two panels whose y axes differ by an
-order of magnitude look identical, so a per-panel autoscale turns "the knockdown
-halved the count" into "the two panels look the same". Every scale here is
-computed over the whole grid unless the user explicitly asks otherwise, and
-when they do ask otherwise :attr:`Trellis.notice` says so in words — because a
-free-scale trellis screenshotted into a slide has no other way to admit it.
+**Shared axes by default.** Two panels whose y axes differ by an order of
+magnitude look identical, so a per-panel autoscale turns "the knockdown halved
+the count" into "the two panels look the same". Every scale here is computed
+over the whole grid unless the user explicitly asks otherwise, and when they
+do ask otherwise :attr:`Trellis.notice` says so in words, so a free-scale
+trellis copied into a slide still states that its scales differ.
 :data:`SCALE_ROW` and :data:`SCALE_COL` are the middle grounds: panels down a
-column of the grid share, or panels across a row do, which is what you want when
-the rows are three different measurements and the columns are three conditions.
+column of the grid share, or panels across a row do, which is what you want
+when the rows are three different measurements and the columns are three
+conditions.
 
-**Every panel prints its n.** Not a toggle. A box over four objects and a box
-over four thousand are the same box, and the number that separates them is the
-one an option would let people turn off. The same stance
-:mod:`spacr.qt.widgets.pivot_spec` takes about cells, and :data:`LOW_N` is
-imported from there rather than written again.
+**Every panel prints its n.** This cannot be turned off: a box over four
+objects and a box over four thousand look the same, and only n tells them
+apart. :mod:`spacr.qt.widgets.pivot_spec` applies the same rule to cells, and
+:data:`LOW_N` is imported from there rather than written again.
 
 **Empty panels are drawn.** Inherited whole from
 :func:`spacr.qt.widgets.graph_spec.facet_grid`: the grid is the full cartesian
@@ -32,7 +32,7 @@ What this adds over the Graph Builder
 The Graph Builder already facets — it has to, since dragging a column onto
 Facet ↓ has to do something. What is here and not there:
 
-* **two-way faceting as the subject** rather than a decoration, including
+* **two-way faceting as the main layout**, including
   :func:`wrap` for the single-channel case, so twelve plates are a 4 × 3 block
   rather than a strip twelve panels wide;
 * **per-panel scale groups** — the four :data:`SCALE_MODES` above, per axis,
@@ -46,9 +46,9 @@ Colour and size are never per-panel
 
 Whatever the scale mode, the colour levels, the colour ramp limits and the size
 limits are computed once over the whole grid. A gene that is blue in one panel
-and orange in the next is not a legend, it is a trap; and a mark area that means
-200 px² on the left and 20 000 px² on the right is worse, because nothing on
-screen says so.
+and orange in the next would be misleading, and a mark area that meant 200 px²
+on the left and 20 000 px² on the right would mislead with nothing on screen
+to show it.
 
 No Qt in here — pure pandas and numpy, like the modules it builds on.
 """
@@ -238,8 +238,8 @@ class TrellisSpec:
     def with_graph(self, graph: GraphSpec) -> "TrellisSpec":
         """A copy wrapping a different graph spec.
 
-        A COPY: a spec is a value, so the one a view is already drawing from
-        is never edited underneath it.
+        Returns a copy: a spec is a value, so the one a view is already
+        drawing from is never edited underneath it.
 
         :param graph: the replacement graph spec.
         :returns: the new spec.
@@ -267,7 +267,7 @@ class TrellisSpec:
                     scale_y: Optional[str] = None) -> "TrellisSpec":
         """A copy with either axis's scale policy changed.
 
-        An omitted argument KEEPS the current policy rather than clearing
+        An omitted argument keeps the current policy rather than clearing
         it, so changing only the y scale does not silently reset x.
 
         :param scale_x: the x policy, or None to keep it.
@@ -297,7 +297,7 @@ class TrellisSpec:
     def from_dict(cls, payload: Mapping[str, Any]) -> "TrellisSpec":
         """Rebuild a spec from plain data.
 
-        UNKNOWN KEYS ARE IGNORED rather than raising, so a spec saved by a
+        Unknown keys are ignored rather than raising, so a spec saved by a
         later version still opens here with the parts this version knows.
 
         :param payload: what :meth:`to_dict` produced.
@@ -328,9 +328,9 @@ class TrellisSpec:
     def describe(self, kinds: Optional[Mapping[str, str]] = None) -> str:
         """The whole grid in one line: the chart, then anything non-default.
 
-        SAYS ONLY WHAT DIFFERS. A description that always listed the scale
-        policies would bury the chart it is describing under two clauses that
-        are usually "shared".
+        Only settings that differ from the defaults are listed, because the
+        scale policies are usually "shared" and listing them would bury the
+        chart description.
 
         :param kinds: display names for chart kinds, when the caller has them.
         :returns: a one-line description.
@@ -369,7 +369,7 @@ class TrellisPanel:
     computed over, exactly as
     :class:`~spacr.qt.widgets.graph_spec.FacetPanel` does and for the same
     reason — a measurement frame carries a duplicated index often enough that
-    positions are the only safe currency.
+    positions are the only safe reference.
 
     :param row: the panel's grid row, from 0.
     :param col: the panel's grid column, from 0.
@@ -411,8 +411,8 @@ class TrellisPanel:
     def frame(self, source: pd.DataFrame) -> pd.DataFrame:
         """The rows this panel holds, taken out of ``source``.
 
-        POSITIONAL, NOT LABELLED. `index` holds positions into the frame the
-        trellis was computed over, so this must be given THAT frame -- a
+        Positional, not labelled. `index` holds positions into the frame the
+        trellis was computed over, so this must be given that frame -- a
         reindexed or differently filtered one would select the wrong rows
         without raising.
 
@@ -481,7 +481,7 @@ class Trellis:
 
     @property
     def n_empty(self) -> int:
-        """Real groups with no rows. Non-zero is a fact worth reading."""
+        """How many real groups have no rows."""
         return sum(1 for p in self.panels if p.is_empty)
 
     def panel(self, row: int, col: int) -> TrellisPanel:

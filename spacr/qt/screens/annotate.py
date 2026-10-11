@@ -32,7 +32,7 @@ The cursor and the keyboard move the same current tile: entering a tile
 makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
-A PAGE IS WHAT FITS. The grid holds exactly the crops that fit
+A page is what fits. The grid holds exactly the crops that fit
 the room the crop pane gives it, at the crop size the settings ask for, and
 it never scrolls: opening the console, folding a pane, changing the GUI
 scale or resizing the window recomputes the page and pushes the rest to
@@ -40,7 +40,7 @@ the next one, the page counter follows, and the first crop on screen stays
 where it was. See :func:`grid_that_fits` and
 :meth:`AnnotateScreen._refit_grid`.
 
-A SUGGESTION IS JUDGED, NOT RELABELLED. A crop Suggest proposed a
+A suggestion is judged, not relabelled. A crop Suggest proposed a
 class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y``
 confirms it (it becomes an ordinary label and wears a green tick); a
 right-click or ``N`` rejects it (it goes back to unanswered and wears a red
@@ -50,11 +50,11 @@ counts what the page and the column hold. Each judgement is written to the
 and the next Suggest round is handed the rejections to train on. See
 :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.
 
-Shift + left click blows one crop up to fill the grid's container, drawn in
+Shift + left click enlarges one crop to fill the grid's container, drawn in
 front of the tiles rather than reflowing them (:class:`_ZoomOverlay`); a
-click beside it, or ``Escape``, folds it back. It is an EXTRA gesture --
-plain left click goes on labelling, because that is what this screen is
-for, and the class keys still land while a crop is open.
+click beside it, or ``Escape``, closes it. It is an additional gesture:
+plain left click still labels, and the class keys still apply while a crop
+is open.
 
 Annotator Agreement is folded onto this screen's masthead rather than
 carrying a tile of its own: κ between annotation columns is a question
@@ -2573,9 +2573,9 @@ class _SettingsDialog(QDialog):
             str(getattr(settings, "queue_diversity", "well")))
         self._queue_diversity.setToolTip(
             "Spread the queue across wells rather than serving the most "
-            "uncertain crops in ranked order. Pure uncertainty collapses onto "
-            "one or two wells, so you end up labelling the same ambiguity a "
-            "hundred times. 'none' turns that protection off.")
+            "uncertain crops in ranked order. Ranking by uncertainty alone "
+            "tends to concentrate on one or two wells, so the same kind of "
+            "crop is labelled repeatedly. 'none' turns the spreading off.")
         form.addRow("Queue diversity", self._queue_diversity)
 
         self._queue_limit = QSpinBox()
@@ -3731,7 +3731,8 @@ class AnnotateScreen(QWidget):
         self._btn_curve.setCursor(Qt.PointingHandCursor)
         self._btn_curve.setToolTip(
             "Held-out accuracy per round, and whether the last stretch of "
-            "labelling moved it. This is how you find out you can stop."
+            "labelling moved it. A flat curve indicates that more labels no "
+            "longer improve the model."
         )
         self._btn_curve.clicked.connect(self._on_learning_curve)
         row.addWidget(self._btn_curve)
@@ -3912,9 +3913,8 @@ class AnnotateScreen(QWidget):
         def _append_error_and_offer_the_report(text, *args, **kwargs):
             """Show the error as before, then offer to file it.
 
-            WRAPS rather than replaces, so the original behaviour is unchanged even
-            if the offer fails -- an error message must still appear when the thing
-            that would report it is broken.
+            The original handler is wrapped rather than replaced, so the error
+            message still appears even if offering the report fails.
             """
             try:
                 return _original_append_error(text, *args, **kwargs)

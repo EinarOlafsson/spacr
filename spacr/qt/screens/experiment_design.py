@@ -5,11 +5,10 @@ lists what is wrong with the layout, and writes the three files the rest of
 spaCR reads -- so the plate map is typed once rather than once for the plate
 handler and again into ``treatment_plate_metadata`` when the data comes back.
 
-The warnings are the point rather than the drawing. Every finding it shows is
-about something that cannot be repaired after acquisition: controls sitting
-only on the plate edge, a control confined to one column, a condition with a
-single replicate. All of them are free to fix the day before and impossible to
-fix the day after.
+Every finding the screen shows is about something that cannot be repaired after
+acquisition: controls sitting only on the plate edge, a control confined to one
+column, a condition with a single replicate. Each can be fixed before imaging
+and not after.
 
 **What it is for.** Planning a plate before it is imaged, as the first step
 of a screen: a layout can still be changed then, and the plate map exported
@@ -35,16 +34,16 @@ data comes back, ``plate_map.csv`` joins the measurement tables on
 ``plateID``, ``rowID`` and ``columnID`` without a translation step, and the
 settings file fills in the treatment settings of the analysis.
 
-ONE PLATE WIDGET WHERE THERE CAN BE ONE. The square, the constant it is
+The plate drawing is shared where it can be. The square, the constant it is
 pitched at and the row/column headers come from
 :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second
-time here; the two plates had already drifted apart once. What cannot be
-shared is the well itself, and the difference is real rather than
-historical: the picker's well is a checkable ``QPushButton`` whose checked
-state IS the selection and which paints itself from a fixed pair of colours,
-while this one is a ``QLabel`` carrying a role, an edge mark, a name and a
-condition, painted by the theme through the properties below -- a plate map
-that says what each well holds rather than only whether it is chosen.
+time here; the two plates had already drifted apart once. What cannot be shared
+is the well itself, and the difference is functional: the picker's well is a
+checkable ``QPushButton`` whose checked state IS the selection and which paints
+itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a
+role, an edge mark, a name and a condition, painted by the theme through the
+properties below -- a plate map that says what each well holds rather than only
+whether it is chosen.
 """
 
 from __future__ import annotations
@@ -458,8 +457,8 @@ class ExperimentDesignScreen(QWidget):
         self._seed = QSpinBox()
         self._seed.setRange(0, 999999)
         self._seed.setToolTip(
-            "A random layout nobody can regenerate is a layout nobody can "
-            "check.")
+            "Seed for the random layout. The same seed regenerates the same "
+            "layout, so it can be checked later.")
         self._seed.valueChanged.connect(self._on_changed)
         form.addWidget(QLabel("Seed:"))
         form.addWidget(self._seed)
@@ -659,9 +658,8 @@ class ExperimentDesignScreen(QWidget):
     def conditions(self) -> Tuple[Condition, ...]:
         """The conditions currently in the table, skipping unusable rows.
 
-        A half-typed row is not an error to shout about -- the user is in the
-        middle of typing it -- so it is dropped and the plate redrawn from
-        what is complete.
+        A partly typed row is not reported as an error; it is skipped and the
+        plate redrawn from the complete rows.
         """
         out: List[Condition] = []
         for row in range(self._table.rowCount()):

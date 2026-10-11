@@ -1,10 +1,8 @@
 """
 Model Zoo — every model this machine can segment or classify with, in one list.
 
-The question "which models do I have, where did they come from, and does this
-one work on my images" is currently answered with ``find``, memory and a full
-plate run. This screen answers it in a list, a provenance card and three
-fields.
+The screen shows which models are available, where each came from and how one
+segments the user's images: a list, a provenance card and a three-field test.
 
 Layout::
 
@@ -51,16 +49,14 @@ Design notes:
 * **No modal dialogs on any error path.** A folder with no models, a checksum
   mismatch, a corrupt checkpoint, a cancelled download: all inline. A
   QMessageBox hangs a headless run.
-* **Two selected models hand off to Model Compare.** Benchmarking each one
-  separately and reading the two tables is not a comparison — the A/B harness
-  in :mod:`spacr.model_compare` is, and it is the one that says out loud that
-  neither model is ground truth. This screen builds a configured
-  ``ModelCompareScreen`` and emits it rather than growing a second, weaker
-  comparison of its own.
+* **Two selected models hand off to Model Compare.** The A/B harness in
+  :mod:`spacr.model_compare` compares the two models directly and states that
+  neither is ground truth. This screen builds a configured
+  ``ModelCompareScreen`` and emits it instead of comparing two separate
+  benchmarks.
 * **Benchmarks are never sorted across field sets.** The results table belongs
   to one model on one set of fields, and the summary line names the field set,
-  because a score on your three fields says nothing about a score on anybody
-  else's.
+  because a score on one set of fields does not carry over to another.
 """
 from __future__ import annotations
 
@@ -200,9 +196,8 @@ def _status_of(entry) -> str:
 def group_entries(entries) -> list:
     """Collapse a listing to one row per model family, newest version first.
 
-    The zoo used to show one row per checkpoint, so a model with three
-    versions pushed two unrelated models off the screen. Grouping makes the
-    row a MODEL and the version a choice within it.
+    Grouping makes each row a model and the version a choice within it, so a
+    model with three versions takes one row instead of three.
     """
     groups: dict = {}
     for entry in entries:
@@ -489,8 +484,8 @@ class ModelZooScreen(QWidget):
 
         subtitle = QLabel(
             "Every Cellpose and classifier checkpoint this machine can reach, "
-            "with what it was trained on, whether its bytes check out, and "
-            "what it does to three of your fields.")
+            "with what it was trained on, whether its checksum matches, and "
+            "its result on three of your fields.")
         subtitle.setObjectName("Muted")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
@@ -1019,8 +1014,8 @@ class ModelZooScreen(QWidget):
         """Override how bytes are fetched.
 
         ``fn(uri) -> chunks`` or ``fn(uri) -> (chunks, total)``; None restores
-        :func:`spacr.model_zoo.open_uri`. This is the seam the tests use, and
-        it is why no test in this suite touches the network.
+        :func:`spacr.model_zoo.open_uri`. Tests use this, so no test in this
+        suite touches the network.
 
         :param opener: callable of that form, or ``None``.
         """
@@ -1356,7 +1351,7 @@ class ModelZooScreen(QWidget):
         object matching, no split/merge attribution and no statement about
         which differences are real. :mod:`spacr.model_compare` has all three,
         so this emits :attr:`compare_requested` for the host to open that
-        screen rather than growing a weaker comparison here.
+        screen.
 
         :returns: True when the request was emitted.
         """
@@ -1588,7 +1583,7 @@ class ModelZooScreen(QWidget):
         """Let every in-flight job finish before the widget dies.
 
         A QThread collected while still running aborts the process, so the
-        widget waits rather than dropping its references and hoping.
+        widget waits for them.
 
         :param event: the close event, passed on to the base class after
             running jobs are cancelled and waited on (up to five seconds each).

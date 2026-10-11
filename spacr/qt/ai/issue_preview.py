@@ -35,9 +35,8 @@ DIAGNOSE_TIMEOUT_MS = 180_000
 class IssuePreviewDialog(QDialog):
     """Show the exact public payload and require a Send click.
 
-    :param report: the payload, as ``body`` and ``fingerprint``. What this
-        dialog shows is what would be sent, with nothing added afterwards --
-        which is the whole reason it exists.
+    :param report: the payload, as ``body`` and ``fingerprint``. The dialog
+        shows the text that would be sent; nothing is added to it afterwards.
     :param parent: parent widget.
     :param console: the AI console that owns the conversation. Taken from
         ``parent`` when not given, so the screen opening this does not have
@@ -53,10 +52,8 @@ class IssuePreviewDialog(QDialog):
         so: a public issue is world-readable, indexed and mirrored, and cannot
         be reliably unpublished. Path stripping is on by default.
 
-        Diagnose is offered here because this is the moment the user is looking
-        hardest at the error and the last moment before it goes somewhere
-        public -- an explanation may save the report entirely, and makes it
-        better when it does not.
+        Diagnose asks spaCR AI to explain the error before the report is
+        sent. Its analysis is added to the report body.
 
         :param report: the drafted issue -- its ``title``, ``body`` and
             ``fingerprint``.

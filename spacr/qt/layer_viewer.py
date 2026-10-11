@@ -6,7 +6,7 @@ that can only exist with a display: a canvas that paints the model's composite,
 a layer list that reorders it, and the controls that set the properties the
 model already knows how to honour.
 
-The split is not tidiness. Five later features build on the layer model — ROI
+The split keeps the model testable. Five later features build on the layer model — ROI
 shapes read by Measure, a counting points layer, a label brush with timelapse
 track curation, orthogonal views with dimension sliders, and a synchronised
 comparison grid — and every one of them is a change to the model with a small
@@ -491,9 +491,8 @@ class LayerCanvas(QFrame):
     def wheelEvent(self, event) -> None:
         """Zoom the world window about the pointer.
 
-        ABOUT THE POINTER, not the centre, so zooming toward something keeps
-        it under the cursor -- which is the only way to navigate a large
-        field without losing the thing you were looking at.
+        The zoom is centred on the pointer, not on the widget centre, so the
+        point under the cursor stays under the cursor while zooming.
 
         :param event: the Qt wheel event.
         """
@@ -1161,9 +1160,9 @@ class LayerViewer(LinkedView, QWidget):
     def closeEvent(self, event) -> None:
         """Unlink the selection and unsubscribe from the stack before going.
 
-        BOTH, and both matter: a linked view outliving its window is a
-        broadcast to a dead widget, and a live subscription on the stack is a
-        callback into one. Either is a crash rather than a leak.
+        Both steps are needed: a linked view outliving its window receives
+        broadcasts as a deleted widget, and a live subscription on the stack
+        calls back into one. Either causes a crash.
 
         :param event: the Qt close event.
         """

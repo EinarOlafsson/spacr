@@ -1,28 +1,25 @@
 """Draw the assistant providers as their marks rather than as their names.
 
-    "the claude gpt and gemeni buttons should be the logos for each not just
-     buttons"
+The setup screen shows each provider as its logo mark rather than as a text
+button, because a mark is recognised before it is read, and on this question
+the user already knows the answer and only has to point at it.
 
-THREE WORDS IN THREE BOXES IS A LIST WEARING BUTTONS. A mark is recognised
-before it is read, which is the whole reason a vendor has one -- and this is
-the one question on the setup screen where the user already knows the answer
-and only has to point at it.
-
-DRAWN, NOT SHIPPED. Each mark is a `QPainterPath` built here: a bitmap would
-be a vendor asset in the repository with its own licence, its own resolution
-and its own two versions for light and dark. A path scales to any button
-size, takes the brand colour when the provider is available and the theme's
-muted ink when it is not, and adds nothing to the wheel.
+Each mark is drawn as a `QPainterPath` built here rather than shipped as a
+bitmap: a bitmap would be a vendor asset in the repository with its own
+licence, its own resolution and its own two versions for light and dark. A
+path scales to any button size, takes the brand colour when the provider is
+available and the theme's muted ink when it is not, and adds nothing to the
+wheel.
 
 The three assistant shapes are the recognisable geometry of each mark, not
 a facsimile: Claude's radiating burst, OpenAI's six-fold knot, Gemini's
 four-pointed spark. They identify whose command-line tool spaCR would
 drive, which is what the question is asking.
 
-GITHUB IS THE EXCEPTION, and deliberately. GitHub publishes the Octocat's
-path data for use as a link mark, so that one is the real thing rather
-than a circle with ears -- still a path, still recoloured per theme,
-still nothing added to the wheel.
+GitHub is the exception: GitHub publishes the Octocat's path data for use
+as a link mark, so that one is the actual mark rather than an approximation
+-- still a path, still recoloured per theme, still nothing added to the
+wheel.
 """
 from __future__ import annotations
 
@@ -54,8 +51,8 @@ MARK_FRACTION = 0.52
 def claude_path(box: QRectF) -> QPainterPath:
     """A radiating burst: petals narrow at the hub and wide at the tip.
 
-    WIDE AT THE OUTSIDE, which is both the shape of the mark and what
-    makes it carry. Drawn as tapered points -- narrow at the tip, all the
+    The petals are wide at the outside, which matches the mark and gives it
+    enough ink. Drawn as tapered points -- narrow at the tip, all the
     area at the centre -- it measured a third of the ink of the knot beside
     it, and the lightest of three logos in a row reads as the disabled one.
 
@@ -330,15 +327,15 @@ class ProviderMark(QWidget):
 
     :param code: provider key -- ``claude``, ``gpt`` or ``gemini``.
     :param label: the name under the mark.
-    :param available: whether the vendor CLI is on PATH. This is SHOWN, not
+    :param available: whether the vendor CLI is on PATH. This is shown, not
         enforced: an unavailable provider is drawn in the muted ink and says
         what would install it, and is still choosable. The setup screen
-        writes a PREFERENCE and launches nothing, so choosing a provider
+        writes a preference and launches nothing, so choosing a provider
         before installing its CLI is an ordinary thing to want, and the
         console says so at the point it would actually be used.
     :param parent: parent widget; ownership only.
     :param status: ``READY``, ``SIGNED_OUT`` or ``NOT_INSTALLED``. Empty
-        DERIVES ONE FROM ``available``, which is what every caller written
+        derives one from ``available``, which is what every caller written
         before the third state did; that derivation can only ever produce
         ready-or-not-installed, so a caller that knows the CLI is present
         but signed out has to say so here.

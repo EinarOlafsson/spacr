@@ -1,10 +1,10 @@
 """
-Annotator Agreement — how much do two annotation passes actually agree?
+Annotator Agreement — agreement between the annotation columns of one database.
 
-The Annotate app writes one ``INTEGER`` column per pass into
-``png_list``. Two people labelling the same crops therefore leave two
-columns side by side, and the only question that matters before either
-set is used as ground truth is: *do they agree, and where don't they?*
+The Annotate app writes one ``INTEGER`` column per pass into ``png_list``. Two
+people labelling the same crops therefore leave two columns side by side, and
+this screen reports whether they agree, and on which rows they differ, before
+either set is used as ground truth.
 
 Layout::
 
@@ -29,9 +29,8 @@ Design notes:
 
 * **Read-only, structurally.** Every connection goes through
   :mod:`spacr.agreement`. It opens the file with ``file:…?mode=ro`` and
-  ``PRAGMA query_only = ON``, the same approach the Database Browser
-  takes. Adjudicating a disagreement is a job for the Annotate app. This
-  screen only ever looks.
+  ``PRAGMA query_only = ON``, the same approach the Database Browser takes.
+  Disagreements are resolved in the Annotate app; this screen does not write.
 * **Off the GUI thread.** The report reads the whole ``png_list``
   annotation block, so it runs through :func:`spacr.qt.bridge.make_thread`
   like every other spaCR job. Tests pass ``threaded=False``.
@@ -96,7 +95,7 @@ _KAPPA_HEADERS = ("annotator A", "annotator B", "n compared", "abstentions",
 
 
 def format_kappa(value: Any) -> str:
-    """Render a κ for display — ``"undefined"`` rather than a fake number.
+    """Render a κ for display, or ``"undefined"`` when it is NaN.
 
     :param value: a κ, possibly ``nan``.
     :returns: signed 3-decimal string, or ``"undefined"``.
@@ -235,8 +234,8 @@ class AgreementScreen(QWidget):
         left_layout = QVBoxLayout(left)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(SPACING["xs"])
-        hint = QLabel("Tick two or more — one annotator cannot disagree "
-                      "with anybody.")
+        hint = QLabel("Tick two or more columns — agreement needs at least "
+                      "two annotators.")
         hint.setObjectName("Caption")
         hint.setWordWrap(True)
         left_layout.addWidget(hint)
@@ -768,7 +767,8 @@ class AgreementScreen(QWidget):
         if path is None:
             self._crop_label.setText(
                 f"Crop not found on disk:\n{raw}\n\n"
-                "The labels above still stand — only the picture is missing.")
+                "The labels above are unaffected — only the image file is "
+                "missing.")
             return False
         pixmap = QPixmap(path)
         if pixmap.isNull():

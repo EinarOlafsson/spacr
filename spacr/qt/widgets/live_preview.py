@@ -14,8 +14,7 @@ Interactive Cellpose tuning surface for the Mask app screen. It provides:
   for RGB) so raw low-contrast tiles are legible.
 * **Model-aware options.** Every model shows the full segmentation set.
   Cellpose-SAM does *not* ignore ``flow_threshold``, ``cellprob`` or
-  ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that
-  killed that belief.
+  ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement.
 * **Outline colour + thickness.** Chosen from the toolbar; effect is
   live once a mask exists. ``color (random)`` assigns a stable categorical
   colour to every object label so touching masks remain distinguishable.
@@ -23,13 +22,12 @@ Interactive Cellpose tuning surface for the Mask app screen. It provides:
   ``cell``, ``nucleus``, and ``cell + nucleus``. In cell+nucleus mode
   the panel runs two Cellpose passes and overlays both masks in
   distinct colours.
-* **The model the RUN will use, and it says which.** The panel reads the
-  same setting the pipeline reads -- ``pathogen_model`` over
-  ``pathogen_model_name`` for pathogens, ``<object>_model_name``
-  otherwise (:func:`_model_keys_for`) -- offers the model zoo beside the
-  combo, and names the model that produced the masks on the status line.
-  A checkpoint that is not on this machine previews with cpsam AND SAYS
-  SO rather than stalling or substituting in silence.
+* **The model the run will use, named on screen.** The panel reads the same
+  setting the pipeline reads -- ``pathogen_model`` over ``pathogen_model_name``
+  for pathogens, ``<object>_model_name`` otherwise (:func:`_model_keys_for`) --
+  offers the model zoo beside the combo, and names the model that produced the
+  masks on the status line. A checkpoint that is not on this machine previews
+  with cpsam and says so rather than stalling or substituting in silence.
 * **Pre / Post filters.** When the object type is ``cell`` (or the
   combined mode) the panel routes pre / post-processing settings from
   the Mask app (``cell_min_size``, ``cell_max_size``,
@@ -158,7 +156,7 @@ def organelle_label(number: int) -> str:
 
 
 def object_role(label: str) -> str:
-    """The settings ROLE an object-dropdown caption stands for.
+    """The settings role an object-dropdown caption stands for.
 
     ``organelle`` is slot 1, whose role has the same name; ``organelle 2`` is
     ``organelleb``, which is the prefix its settings keys actually carry. The
@@ -340,9 +338,8 @@ VIEW_MODES = ("Overlay", "Masks", "Flows", "Cell probability")
 
 SESSION_MASK_LIMIT = 8
 """How many of this session's masks the comparison panel can lay over one
-another: the last eight, oldest dropped first. Each is a full-size label
-array, and a panel that kept every run of an afternoon would hold them all
-in memory for a popup that lists eight comfortably."""
+another: the last eight, oldest dropped first. Each is a full-size label array,
+and keeping every run would hold them all in memory."""
 
 
 
@@ -378,10 +375,10 @@ def load_preview_image(path: Path) -> np.ndarray:
 def load_preview_mip(paths) -> np.ndarray:
     """Max-project a field's planes, the way the ingest already does.
 
-    ``io._rename_and_organize_image_files`` reduces every z-stack to
-    ``np.max`` over its planes, per field and per channel, before anything
-    reaches ``stack/``. This is the preview's copy of that, so what the user
-    is looking at is what masking will actually run on.
+    ``io._rename_and_organize_image_files`` reduces every z-stack to ``np.max``
+    over its planes, per field and per channel, before anything reaches
+    ``stack/``. This is the preview's copy of that, so what the user is looking
+    at is what masking runs on.
 
     Planes are folded one at a time rather than stacked: a 60-plane field at
     2048x2048 uint16 is 500 MB as one array and 8 MB folded.
@@ -562,13 +559,11 @@ _AUTO_COLOUR_RNG = random.Random()
 def safe_outline_palette() -> Optional[List[Tuple[int, int, int]]]:
     """Colours ``auto`` may draw from, or ``None`` when any colour will do.
 
-    A random hue is right for a sighted user and exactly wrong for a
-    colour-blind one: uniform over the circle, it will sooner or later hand
-    two adjacent compartments a pair that user cannot tell apart, and the
-    outlines are the one thing on the screen whose whole job is to be told
-    apart. When a colour-vision mode is set, ``auto`` draws from the
-    Okabe-Ito set instead -- eight colours chosen to stay distinct under all
-    three deficiencies.
+    A random hue suits normal colour vision but not a colour-vision deficiency:
+    uniform over the circle, it will sooner or later give two adjacent
+    compartments a pair of colours that user cannot tell apart. When a
+    colour-vision mode is set, ``auto`` draws from the Okabe-Ito set instead --
+    eight colours chosen to stay distinct under all three deficiencies.
 
     :returns: RGB triples, or ``None`` when the preference is ``off``.
     """
@@ -600,7 +595,7 @@ def random_outline_colour(rng: Optional[random.Random] = None,
 
     Hue is uniform over the full circle while saturation and value stay high,
     so the colour is always legible on top of a micrograph — a uniform draw in
-    RGB would regularly produce muddy near-grey outlines nobody can see.
+    RGB would regularly produce low-contrast near-grey outlines.
 
     :param rng: optional generator, for reproducible tests.
     :param palette: draw from these instead of the hue circle. This is how
@@ -648,15 +643,15 @@ def overlay_masks(image: np.ndarray,
         mode reaches the renderer: it holds one random colour per
         compartment for the current run. Falls back to
         :data:`OBJECT_COLORS` for anything it does not name.
-    :param primaries: one of :data:`spacr.crops.DISPLAY_PRIMARIES`. Applied
-        to the IMAGE ONLY, before a single outline is drawn.
+    :param primaries: one of :data:`spacr.crops.DISPLAY_PRIMARIES`. Applied to
+        the image only, before a single outline is drawn.
 
-    WHY THE ORDER MATTERS, and it is the whole reason this parameter is here
-    rather than in :func:`numpy_to_qpixmap`. The primaries are a
-    channel-to-colour mapping and only channels belong in it. An outline is
-    not a channel -- it is a colour the user chose, or a categorical label
-    -- so putting it through the same matrix would answer a request for a
-    red outline with a yellow one. Recolour the image, then draw on top.
+    The order is why this parameter is here rather than in
+    :func:`numpy_to_qpixmap`. The primaries are a channel-to-colour mapping and
+    only channels belong in it. An outline is not a channel -- it is a colour
+    the user chose, or a categorical label -- so putting it through the same
+    matrix would answer a request for a red outline with a yellow one. Recolour
+    the image, then draw on top.
     """
     base = _to_uint8(image, normalise=normalise,
                         lo_pct=lo_pct, hi_pct=hi_pct)
@@ -794,11 +789,9 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
 
     This is the whole of a preview load, written so it touches **no widget and
     no Qt object** and can therefore be handed straight to
-    :class:`spacr.qt.job_runner.JobRunner`. It used to be the ``run`` method of
-    a hand-rolled ``QThread`` that emitted two signals, which kept the panel's
-    sampler warm by ordering ``enumerated`` before ``loaded``; returning both
-    halves in one dict gets the same ordering for free, because the caller
-    adopts the enumeration and installs the image in a single GUI-thread call.
+    :class:`spacr.qt.job_runner.JobRunner`. Both halves are returned in one
+    dict, so the caller adopts the enumeration and installs the image in a
+    single GUI-thread call.
 
     The enumeration reads **file names only**. Decoding reads the selected
     image, plus its channel's z-planes when projection is requested.
@@ -807,8 +800,8 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
     :param max_sets: cap for the sample drawn when ``source`` is a directory.
     :param enumerate_sets: ``False`` skips the folder scan entirely. The FOV
         dropdown hands out a path from a set the sampler already produced, so
-        re-scanning for it would burn a full pass over a 98 000-file plate to
-        rediscover what is already cached.
+        re-scanning for it would repeat a full pass over a plate of up to 98
+        000 files for a listing that is already cached.
     :param project: project the selected channel's z-stack on this worker.
     :param known_sets: cached image sets used when enumeration is skipped.
     :returns: ``{path, array, directory, sets, channels, error}``. ``sets`` is
@@ -2009,9 +2002,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     """Interactive segmentation preview — Mask app only.
 
     The reference implementation of
-    :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`: the
-    other three live views wear the same run button, the same cancel
-    button and the same words as this one.
+    :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`: the other
+    three live views use the same run button, the same cancel button and the
+    same words as this one.
 
     :param parent: parent widget.
     :param threaded: whether the panel's jobs run off the GUI thread. False
@@ -2588,9 +2581,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         **Every** GUI path — the drop handler, the FOV dropdown and the
         Choose-image dialog — goes through :meth:`load_source_async`, so that
         neither the decode nor the folder enumeration behind
-        ``_refresh_source_selectors`` can block the application thread. Three of
-        them used to call this instead, which is what the docstring already
-        claimed was not happening.
+        ``_refresh_source_selectors`` can block the application thread.
 
         :param path: the image file to show; with MIP on, its field's stack is
             max-projected instead. A failure is reported in the status line
@@ -2864,10 +2855,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
         The table is grouped when a folder is loaded, with the
         ``metadata_type`` and ``custom_regex`` the Mask form held at that
-        moment. Loading first and choosing the naming second left every file
-        under one column until something else reloaded the folder. The
-        screen calls this when either setting changes. The folder's file
-        names are read off the GUI thread, and nothing is decoded.
+        moment. Without this, choosing the naming after loading would leave
+        every file under one column until the folder was reloaded. The screen
+        calls this when either setting changes. The folder's file names are
+        read off the GUI thread, and nothing is decoded.
 
         :returns: ``True`` when a regrouping was started, ``False`` when no
             image is loaded.
@@ -3516,19 +3507,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     def settings_for_propagation(self) -> dict:
         """Map the live-preview widget values to main-panel settings keys.
 
-        THE MODEL IS WRITTEN BACK TO THE KEY IT WAS READ FROM. Propagation
-        used to write ``model_name`` and ``<primary>_model_name`` only, and
-        for pathogens the run reads neither first: ``pathogen_model``
-        overrides both when it is set. A user seeded from a
-        ``pathogen_model`` checkpoint, switched the live model, and
-        propagated, and the run went on using the checkpoint -- the same
-        preview/run disagreement as before, pointing the other way.
+        The model is written back to the key it was read from. For pathogens
+        the run reads ``pathogen_model`` first, overriding ``model_name`` and
+        ``<primary>_model_name`` when it is set, so writing only the name keys
+        would leave the run on the old checkpoint after the user switched the
+        live model.
 
-        Only when the settings the panel holds ALREADY set that key. Writing
-        it otherwise would newly switch the override on for a user who never
-        asked for it, and ``pathogen_model`` is validated harder than the
-        name key (:mod:`spacr.validate` stops a run on a path that is not
-        there).
+        Only when the settings the panel holds already set that key. Writing it
+        otherwise would switch the override on when the user did not set it,
+        and ``pathogen_model`` is validated harder than the name key
+        (:mod:`spacr.validate` stops a run on a path that is not there).
         """
         model = self._model_box.currentText()
         primary = self._primary_object()
@@ -3633,18 +3621,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """Seed the panel from a module's settings, and cache the whole dict
         for the Pre / Post routes to read from.
 
-        This is the inverse of :meth:`settings_for_propagation` and is
-        tested as one — the defect it was written for is that the two spoke
-        different vocabularies. The panel emitted ``cell_diameter`` and read
-        back ``diameter``, which Mask does not declare, so a Mask screen
-        seeded here kept the panel's own hardcoded 30 px, 0.4 flow and 0.0
-        probability while ``cell_channel`` and ``nucleus_channel`` DID land
-        — the preview visibly changed and looked seeded, having silently
-        dropped exactly the three settings it is opened to check.
+        This is the inverse of :meth:`settings_for_propagation` and is tested
+        as one: it reads the panel's own key and the ``<object>_`` key Mask
+        declares, such as ``cell_diameter``, so the diameter, flow threshold
+        and cell probability are seeded along with the channels.
 
-        Every field is copied independently. A single unusable value used to
-        abort the whole copy through the shared ``except``, so one junk
-        diameter also cost the flow threshold, the channels and the model.
+        Every field is copied independently, so one unusable value does not
+        stop the others being copied.
 
         A retired ``{object}_min_area``-family bound in ``settings`` is
         folded into ``object_filters`` first, as a Mask run folds it, so the
@@ -3675,7 +3658,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         def _seed(widget, keys, cast):
             """Write the first present, usable value of ``keys``.
 
-            A SPIN BOX CLAMPS WHAT IT CANNOT HOLD, silently. The flow
+            A spin box silently clamps a value outside its range. The flow
             threshold runs -1 to 3 here while Mask ships 100 -- "accept
             everything Cellpose proposes" -- so seeding wrote 3, and
             propagating then handed 3 back as if the user had chosen it. The
@@ -5417,9 +5400,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         time the panel is shown. After the first segmentation Cellpose is
         loaded and a checkpoint the user registered appears here.
 
-        Additive on purpose: the current selection is never disturbed, and
-        an entry is never removed, so a value the user picked cannot vanish
-        under them because a probe came back thinner.
+        Additive: the current selection is never changed and an entry is never
+        removed, so a value the user picked stays listed when a later probe
+        returns fewer models.
         """
         wanted = _model_menu()
         have = {self._model_box.itemText(i)
@@ -5465,10 +5448,10 @@ class LiveSettingsDialog(QDialog):
       * Pre  (bool)
       * Post (bool)
 
-    :param panel: the preview panel this dialog edits. It is also the
-        dialog's PARENT, and the widgets the dialog lays out belong to the
-        panel rather than to it -- the dialog only knows which rows they sit
-        on, which is what lets a morphology change re-gate them.
+    :param panel: the preview panel this dialog edits. It is also the dialog's
+        parent, and the widgets the dialog lays out belong to the panel rather
+        than to it -- the dialog only knows which rows they sit on, which is
+        what lets a morphology change re-gate them.
     """
 
     def __init__(self, panel: "LivePreviewPanel"):

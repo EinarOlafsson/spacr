@@ -16,14 +16,14 @@ class ApiHelpLabel(QLabel):
     an application key retain their description but omit the documentation
     link. Hover content is also exposed through the Qt accessibility tree.
 
-    IT ELIDES RATHER THAN CLIPS, which is the difference between a sentence
-    the reader can SEE is unfinished and one that simply stops. This label is
+    It elides rather than clips, so the reader can see that a shortened
+    sentence is unfinished. This label is
     the module masthead's blurb, and the masthead deliberately keeps it to
     one line that "may shrink below its ideal width rather than force the
     window wider" -- so being cut short is designed, and the hover help is
     where the rest is meant to live.
 
-    A `wordWrap(False)` QLabel gives none of that away: Qt paints as many
+    A `wordWrap(False)` QLabel shows none of this: Qt paints as many
     characters as fit and stops, with no ellipsis and no hint there is more.
     Measured on Classify in German, where the blurb is 1,354 px of text on
     a 1,281 px line -- 73 px, about six
@@ -75,40 +75,37 @@ class ApiHelpLabel(QLabel):
     def minimumSizeHint(self) -> QSize:            # noqa: N802 (Qt casing)
         """Ask the layout for one word, not for the whole sentence.
 
-        THE MASTHEAD ALREADY SAID THIS AND QT WAS NOT LISTENING. It builds
-        this label with ``setSizePolicy(QSizePolicy.Maximum, ...)`` and
-        ``setMinimumWidth(0)`` and documents the intent -- the blurb "may
-        shrink below its ideal width rather than force the window wider".
-        Neither call achieves it: ``qSmartMinSize`` takes a shrinkable
-        widget's minimum from ``minimumSizeHint()``, which for a
-        non-wrapping ``QLabel`` is the width of the ENTIRE sentence, and it
-        only lets an explicit ``minimumWidth`` override that when the value
-        is greater than zero. So the one control on the masthead that can
-        lose text harmlessly was the one control that refused to give any
-        width up.
+        The masthead builds this label with
+        ``setSizePolicy(QSizePolicy.Maximum, ...)`` and ``setMinimumWidth(0)``
+        and documents the intent -- the blurb "may shrink below its ideal
+        width rather than force the window wider". Neither call achieves it:
+        ``qSmartMinSize`` takes a shrinkable widget's minimum from
+        ``minimumSizeHint()``, which for a non-wrapping ``QLabel`` is the
+        width of the entire sentence, and it only lets an explicit
+        ``minimumWidth`` override that when the value is greater than zero.
+        Without this override the blurb, the one masthead control that can
+        lose text harmlessly, gave up no width.
 
-        TWO THINGS FOLLOWED, both measured on the Power screen in Icelandic
-        at the largest font scale preferences offers:
+        Two consequences were measured on the Power screen in Icelandic at
+        the largest font scale preferences offers:
 
-          * THE MODULE TITLE WAS WHAT GOT CUT. The header needed 1274 px and
+          * The module title was cut. The header needed 1274 px and
             had 1168, and every one of those 106 px came off the title --
             'Tölfræðilegt afl / hönnun' painted in 577 px of a 683 px hint --
-            while the blurb sat at its full width beside it. A module name
-            cut mid-word, next to a sentence that had room to spare and a
-            hover copy of itself.
-          * AND IT SET THE FLOOR UNDER EVERY MODULE SCREEN. The masthead's
-            minimum was 1166 px at 100 %, which is most of the ~1198 px
-            minimum the whole screen reported -- so this label, alone, was
-            why a module page could not be shown narrow.
+            while the blurb sat at its full width beside it.
+          * The label set the minimum width of every module screen. The
+            masthead's minimum was 1166 px at 100 %, which is most of the
+            ~1198 px minimum the whole screen reported -- so this label,
+            alone, was why a module page could not be shown narrow.
 
-        ONE WORD PLUS THE ELLIPSIS, rather than a constant: it is measured
-        in the label's own font, so it tracks the font scale without being
-        told about it, and at its narrowest the blurb still says what it is
-        about instead of collapsing to a dot. Never wider than the sentence
-        itself, so a short description keeps behaving exactly as it did.
+        The minimum is one word plus the ellipsis rather than a constant: it
+        is measured in the label's own font, so it follows the font scale, and
+        at its narrowest the blurb still shows its first word instead of only
+        an ellipsis. Never wider than the sentence itself, so a short
+        description keeps behaving exactly as it did.
 
         Only when the label does not wrap. A wrapping label trades width for
-        HEIGHT, and Qt's own minimum already knows how.
+        height, which Qt's own minimum already handles.
         """
         base = super().minimumSizeHint()
         if self.wordWrap():

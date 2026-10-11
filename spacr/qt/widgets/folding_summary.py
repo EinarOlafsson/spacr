@@ -166,13 +166,12 @@ class FoldingSummaryView(QScrollArea):
     def __init__(self, parent=None):
         """Build the scrolling summary view with its copy and save actions.
 
-        The action row is held as one widget rather than as a bare layout, and
-        that is load-bearing: the rebuild empties the body by taking items out
-        and deleting them, and it only finds widgets. A bare layout was taken
-        out and dropped while the buttons inside it stayed children of the body
-        with nothing laying them out -- still visible, still clickable, stuck at
-        their last geometry and painted under everything added afterwards, which
-        is the giant save button reachable only where no text covered it.
+        The action row is held as one widget rather than as a bare layout,
+        because the rebuild empties the body by taking items out and deleting
+        them, and it only finds widgets. A bare layout would be removed while
+        the buttons inside it stayed children of the body with nothing laying
+        them out -- still visible and clickable, stuck at their last geometry
+        and painted under everything added afterwards.
 
         :param parent: parent widget, or ``None``.
         """
@@ -220,9 +219,9 @@ class FoldingSummaryView(QScrollArea):
     def toPlainText(self) -> str:                   # noqa: N802 - Qt naming
         """The text as set, whatever is folded away right now.
 
-        THE SOURCE, NOT THE VIEW. Folding is a display state, so a caller
-        copying this out gets the whole summary rather than only the parts
-        that happen to be open.
+        Returns the source text, not the view. Folding is a display state, so
+        a caller copying this out gets the whole summary rather than only the
+        parts that happen to be open.
 
         :returns: the summary text.
         """
@@ -246,7 +245,7 @@ class FoldingSummaryView(QScrollArea):
         """The fixed-width font the bodies are laid out in.
 
         The summary is aligned with spaces, so the font is part of whether it
-        is readable at all -- and a test asserts the widget was GIVEN a fixed
+        is readable at all -- and a test asserts the widget was given a fixed
         font rather than trusting a style hint.
         """
         return self._mono
@@ -268,9 +267,9 @@ class FoldingSummaryView(QScrollArea):
     def save_to_file(self, path: str = "") -> str:
         """Write the summary out. Returns the path written, or ``""``.
 
-        A COPY, NOT A RE-RENDER. The run wrote this text when it was fitted;
-        rendering it again here would differ in the statsmodels `Time:`
-        header alone and invite the reader to wonder which is authoritative.
+        The text is copied, not re-rendered. The run wrote this text when it
+        was fitted; rendering it again would change at least the statsmodels
+        `Time:` header and leave two versions of the same summary.
         """
         from PySide6.QtWidgets import QFileDialog
 

@@ -1,11 +1,10 @@
 """
 Verbose diagnostic logger for the Qt GUI.
 
-When the "Verbose logging" preference is on, spaCR's Python loggers are
-dialled up to DEBUG and the log files keep those records. The active
-ConsolePanel shows only the levels switched on for the console on the
-Logging tab of Preferences. That puts a detailed trail on disk, which is
-what you want when triaging a bug report.
+When the "Verbose logging" preference is on, spaCR's Python loggers are dialled
+up to DEBUG and the log files keep those records. The active ConsolePanel shows
+only the levels switched on for the console on the Logging tab of Preferences.
+That puts a detailed trail on disk for triaging a bug report.
 
 The handler is a lazy module-level singleton so multiple
 :func:`apply_verbose_logging` calls (e.g. every time the Preferences
@@ -482,8 +481,8 @@ def apply_verbose_logging(on: bool) -> None:
 
 
 def is_verbose() -> bool:
-    """Cheap runtime check — decorated functions call this on entry so
-    they emit NOTHING when verbose mode is off.
+    """Cheap runtime check — decorated functions call this on entry so they
+    emit nothing when verbose mode is off.
 
     It reads the verbose PREFERENCE as :func:`apply_verbose_logging` last
     applied it, not the console forwarder's level, which
@@ -501,8 +500,8 @@ def log_call(fn: Callable) -> Callable:
         [class.func] args=… kwargs=…
         [class.func] -> return-repr
 
-    Truncates giant reprs to 240 chars so a settings dict with 100
-    entries doesn't wreck the console.
+    Truncates each repr to 240 characters so a settings dict with 100 entries
+    does not flood the console.
 
     :param fn: the function or method to wrap; its arguments, return value or
         raised exception are logged to ``spacr.trace`` while verbose mode is

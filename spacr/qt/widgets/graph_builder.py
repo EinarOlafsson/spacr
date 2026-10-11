@@ -1,19 +1,19 @@
 """Graph Builder — drag a column onto a channel and the chart appears.
 
-The direct-manipulation surface that replaces "which of the forty ``plot_*``
-functions do I want, and what does it expect?". Six drop zones — x, y, colour,
-size, facet-row, facet-column — a well of the columns worth plotting, and a
-canvas that re-renders the moment a zone changes.
+A drag-and-drop alternative to choosing among the forty ``plot_*`` functions
+and their arguments. Six drop zones — x, y, colour, size, facet-row,
+facet-column — a well of the columns worth plotting, and a canvas that
+re-renders the moment a zone changes.
 
 What is in here and what is not
 -------------------------------
 
 Everything about *what to draw* lives in :mod:`spacr.qt.widgets.graph_spec`:
-the spec object, the plot-type inference, the facet grid, the shared scales
-and the large-data policy. This module is the chrome and the matplotlib calls.
-The split is not tidiness — small multiples, the gate editor, the feature
-explorer and the campaign control charts are all "the graph builder with one
-more rule", and they need the engine without inheriting a drag-and-drop panel.
+the spec object, the plot-type inference, the facet grid, the shared scales and
+the large-data policy. This module is the chrome and the matplotlib calls. The
+split exists because small multiples, the gate editor, the feature explorer and
+the campaign control charts are all "the graph builder with one more rule", and
+they need the engine without inheriting a drag-and-drop panel.
 
 Linked, and asymmetric on purpose
 ---------------------------------
@@ -39,9 +39,9 @@ Colour
 Categorical series take a fixed eight-hue order — never cycled, never
 re-assigned when a filter changes the series count, so a gene keeps its colour
 between two charts. The order is the validated reference palette (light and
-dark steps kept separately rather than flipped), and a continuous colour
-column gets a single-hue light-to-dark ramp. Beyond eight levels the extras
-fold into one "other" grey rather than inventing hues nobody can tell apart.
+dark steps kept separately rather than flipped), and a continuous colour column
+gets a single-hue light-to-dark ramp. Beyond eight levels the extras fold into
+one "other" grey rather than adding hues that are hard to tell apart.
 """
 from __future__ import annotations
 
@@ -193,9 +193,9 @@ class ColumnWell(QWidget):
     """The list of plottable columns, filtered by a search box, draggable out.
 
     Only the columns :func:`spacr.qt.widgets.graph_spec.plottable_columns`
-    offers — the same rule the Local Data Filter uses to decide what is worth
-    a control. A measurement table has hundreds of columns and listing all of
-    them is the same as listing none.
+    offers — the same rule the Local Data Filter uses to decide what is worth a
+    control. A measurement table has hundreds of columns, too many to list
+    usefully.
 
     :param parent: parent widget.
     """
@@ -253,8 +253,8 @@ class ColumnWell(QWidget):
     def visible_columns(self) -> List[str]:
         """The columns the search box is currently letting through.
 
-        Read off the LIST rather than refiltered, so it is what the user can
-        actually see and drag.
+        Read off the list rather than refiltered, so it is what the user can
+        see and drag.
 
         :returns: the visible column names, in list order.
         """
@@ -595,7 +595,7 @@ def _canvas_class():
             super().paintEvent(event)
 
         def draw_idle(self):
-            """Ask for a redraw on the OWNED timer rather than a static one.
+            """Ask for a redraw on the owned timer rather than a static one.
 
             Matplotlib's Qt canvas uses static ``QTimer.singleShot``, whose callback
             is not owned by the canvas and can run after Qt has deleted it. The
@@ -611,8 +611,8 @@ def _canvas_class():
         def _spacr_draw(self):
             """Draw once, if a draw is still pending.
 
-            The flag is cleared FIRST so a draw that schedules another does not lose
-            it.
+            The flag is cleared first so a draw that schedules another does not
+            lose it.
             """
             if not self._draw_pending:
                 return
@@ -764,9 +764,9 @@ class GraphCanvas(LinkedView, QWidget):
     def figure(self):
         """The matplotlib Figure this canvas draws on.
 
-        Public so a caller can EXPORT the graph without reaching into a
-        private attribute. Do not draw on it from outside -- `set_spec` and
-        the redraw path own its contents.
+        Public so a caller can export the graph without reaching into a private
+        attribute. Do not draw on it from outside -- `set_spec` and the redraw
+        path own its contents.
         """
         return self._figure
 
@@ -812,7 +812,7 @@ class GraphCanvas(LinkedView, QWidget):
 
     @property
     def render_data(self) -> Optional[RenderData]:
-        """What the last draw actually plotted, or None before the first.
+        """What the last draw plotted, or None before the first.
 
         The rendered data rather than the source table: a large frame is
         sampled or binned before it is drawn, and this is what is on screen.
@@ -1716,8 +1716,8 @@ class GraphCanvas(LinkedView, QWidget):
     def closeEvent(self, event):  # noqa: N802 - Qt name
         """Unlink from the shared selection before going away.
 
-        A LINKED VIEW THAT OUTLIVES ITS WINDOW is a selection broadcast to a
-        widget whose C++ half is gone, which is a crash rather than a leak.
+        A linked view that outlives its window would receive selection
+        broadcasts after its C++ half is gone, which crashes.
 
         :param event: the Qt close event.
         """
@@ -1826,8 +1826,8 @@ class GraphBuilderPanel(QWidget):
         self._shared_y = Toggle("Shared Y", shelf)
         for box in (self._shared_x, self._shared_y):
             box.setChecked(True)
-            box.setToolTip("Every panel on the same scale. Off makes panels "
-                           "incomparable — which is occasionally what you want.")
+            box.setToolTip("Every panel on the same scale. When off, each panel "
+                           "has its own scale, so panels cannot be compared.")
             box.toggled.connect(self._on_controls_changed)
         controls.addWidget(self._shared_x, 2, 0)
         controls.addWidget(self._shared_y, 2, 1)

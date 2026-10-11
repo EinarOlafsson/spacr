@@ -6,20 +6,19 @@ missing is a place to see them together, so "is this run usable?" does not
 require opening five screens and remembering which of them was run last.
 
 **Nothing here computes a verdict.** The rule comes from
-:mod:`spacr.qt.prerun`, which states it plainly: opening a plate's masks costs
-seconds to minutes, and a screen that pays that on every visit is a screen
-nobody keeps. So each reader here does a directory listing, a stat and a
-parse, and reports what it found -- including that it found nothing, which is
-emphatically not the same as finding nothing wrong.
+:mod:`spacr.qt.prerun`: opening a plate's masks takes seconds to minutes, which
+is too slow to repeat on every visit. So each reader here does a directory
+listing, a stat and a parse, and reports what it found -- including that it
+found nothing, which is not the same as finding nothing wrong.
 
 Staleness follows the same rule. ``seg_qc.read_digest`` dates each scorecard
 against its mask stack and reports one written before its masks as out of
 date; this module carries that through to the card rather than re-deriving it,
 and applies the same idea to the other sources against their own inputs.
 
-The vocabulary is borrowed, not reinvented. A segmentation flag's explanation
-comes from :data:`spacr.seg_qc.FLAG_GUIDANCE`, which is where those sentences
-were written and where they will be maintained.
+Explanations are reused rather than rewritten. A segmentation flag's
+explanation comes from :data:`spacr.seg_qc.FLAG_GUIDANCE`, which is where those
+sentences are written and maintained.
 """
 
 from __future__ import annotations
@@ -71,8 +70,8 @@ class QCCard:
     :ivar headline: the one line worth reading.
     :ivar detail: the sentences behind it, already in plain language. For
         segmentation these come from :data:`spacr.seg_qc.FLAG_GUIDANCE` --
-        the same words that screen uses, because two vocabularies for one
-        flag is how a codebase ends up disagreeing with itself.
+        the same words that screen uses, so the two screens describe a flag
+        identically.
     :ivar source: the file the verdict was read from, or ``""``.
     :ivar mtime: that file's modification time, or ``0.0``.
     :ivar stale: whether its inputs are newer than it is. A stale card is
@@ -397,7 +396,8 @@ def _read_units(src: Any) -> QCCard:
             "3-D run cannot be told apart in them.")
         card.detail.append(
             "Tables written before the stamp existed. Re-measure to get one, "
-            "or take on faith that everything in them came from one run.")
+            "or check by other means that everything in them came from one "
+            "run.")
     else:
         card.headline = "The measurements database holds no object tables."
     return card

@@ -10,11 +10,11 @@ from ..theme import SPACING
 class UsageBar(QWidget):
     """Labeled thin progress bar with a right-aligned percent readout.
 
-    BOTH TEXT COLUMNS ARE FIXED-WIDTH ON PURPOSE, and that is what made them
-    a bug at a large font scale. The caption column is wider than "RAM" needs
-    so the four bars of the System card line up; the readout column is fixed
-    so the bar does not jitter sideways as 9 % becomes 10 %. Neither reason
-    survives being written as a constant: see :meth:`_size_the_columns`.
+    Both text columns have fixed widths. The caption column is wider than "RAM"
+    needs so the four bars of the System card line up; the readout column is
+    fixed so the bar does not shift sideways as 9 % becomes 10 %. The widths
+    are measured from the font rather than written as constants, so they hold
+    at a large font scale: see :meth:`_size_the_columns`.
 
     :param label: text shown to the left of the bar (e.g. "RAM", "GPU").
     :param parent: parent widget; ownership only.
@@ -104,11 +104,11 @@ class UsageBar(QWidget):
         """Re-measure when the font under this row changes.
 
         The stylesheet is what carries the font scale, and it is installed on
-        the application AFTER these widgets are built -- a preferences save
+        the application after these widgets are built -- a preferences save
         re-installs it on a live window. Both arrive as a font change on the
-        widgets whose resolved font moved, so the columns are re-measured
-        there rather than being right only for the sheet that happened to be
-        current at construction.
+        widgets whose resolved font moved, so the columns are re-measured there
+        rather than being right only for the sheet that happened to be current
+        at construction.
 
         :param event: the change event, passed to the base class; a font,
             application-font or style change re-measures the columns.

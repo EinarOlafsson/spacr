@@ -1,12 +1,11 @@
-"""Answer "is this path there?" without ever blocking the interface.
+"""Check whether paths exist, from a cache, without blocking the GUI thread.
 
-WHY THIS EXISTS. `spacr/qt/widgets/file_list.py` asked `os.path.exists` for
-every remembered path, on the GUI thread, to colour the missing ones red.
-That is free for a local disk and it is not free for a network one: measured
-on one workstation, ``os.path.exists`` on a path under
-``/nas_mnt`` -- an ``autofs`` mount with ``timeout=600`` -- had not returned
-after TWENTY SECONDS, because the stat is what triggers the automount and the
-share was asleep.
+`spacr/qt/widgets/file_list.py` asked `os.path.exists` for every remembered
+path, on the GUI thread, to colour the missing ones red. That is free for a
+local disk and it is not free for a network one: measured on one workstation,
+``os.path.exists`` on a path under ``/nas_mnt`` -- an ``autofs`` mount with
+``timeout=600`` -- had not returned after twenty seconds, because the stat is
+what triggers the automount and the share was asleep.
 
 A blocked GUI thread does not look like a slow path check. It looks like
 this, and every one of these was reported as a separate defect on 2026-09-04:
@@ -24,15 +23,15 @@ this, and every one of these was reported as a separate defect on 2026-09-04:
   * "it seems to happen ... after i have opened one or two moduals" -- each
     module adds its own remembered paths, so there is more to stat.
 
-So the rule is absolute: NOTHING on the GUI thread may touch the
-filesystem for a path the user supplied. This module is how that is kept.
+Code on the GUI thread must therefore not access the filesystem for a path
+the user supplied; this module provides the check it uses instead.
 
-HOW IT ANSWERS. From a cache, immediately. A path it has not seen is
-reported as PRESENT and queued for a background check; when the answer
-arrives the cache is updated and :data:`probes` emits, so a widget can
-redraw. Optimistic on purpose: a path drawn as missing for a moment and
-then corrected is a widget that cried wolf, while a path drawn as present
-and then corrected is one that simply learned something.
+Answers come from a cache, immediately. A path not yet seen is reported as
+present and queued for a background check; when the answer arrives the
+cache is updated and :data:`probes` emits, so a widget can redraw. The
+default is optimistic because a path briefly drawn as missing and then
+corrected is a false alarm, whereas a path briefly drawn as present and
+then marked missing is an ordinary update.
 """
 from __future__ import annotations
 
@@ -104,10 +103,9 @@ def _stat_with_timeout(path: str, want_dir: bool = False) -> bool:
     def run() -> None:
         """Ask the filesystem the question that is allowed to block.
 
-        This body is the reason the module exists: it runs on a worker, where
-        an `autofs` mount taking twenty seconds to wake costs nobody a frozen
-        window. `OSError` is an answer of "no", not a failure -- a path that
-        cannot be stat-ed is a path the user cannot use either.
+        It runs on a worker, so an `autofs` mount that takes twenty seconds
+        to wake does not freeze the window. `OSError` is an answer of "no",
+        not a failure -- a path that cannot be stat-ed cannot be used either.
         """
         try:
             result[0] = (os.path.isdir(path) if want_dir
@@ -147,8 +145,8 @@ def exists(path, *, default: bool = True, want_dir: bool = False,
 
     :param path: the path to ask about. Anything falsy is ``False``.
     :param default: what to say while the answer is unknown. ``True`` by
-        default -- see the module docstring on why optimism is the right
-        way round here.
+        default -- see the module docstring for why the default is
+        optimistic.
     :param want_dir: ask ``isdir`` rather than ``exists``. Cached
         separately, because a path can exist and not be a directory.
     :param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of
@@ -192,18 +190,18 @@ def isdir(path, *, default: bool = False, wait: bool = False) -> bool:
     :param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of
         answering ``default`` immediately, and cache what comes back.
 
-    WHY `wait` EXISTS, and why it is not the default. The freeze this module
-    was written for came from statting REMEMBERED paths -- a passive pass
-    over everything a settings file mentions, on the GUI thread, to colour
-    the missing ones red. Nobody asked for it and nobody was waiting on it,
-    so answering from cache and checking later is strictly better.
+    ``wait`` is off by default. The freeze this module was written for came
+    from statting remembered paths -- a passive pass over everything a
+    settings file mentions, on the GUI thread, to colour the missing ones
+    red. No user action waits on that pass, so answering from cache and
+    checking later costs nothing.
 
     Expanding a folder the user has just dropped or chosen is the opposite
     situation. They performed an action and are waiting for its result, and
     the unknown-path default turns "add this folder's files" into "add this
-    folder AS a file" -- silently, and only the first time a path is seen,
-    which is why it survived review. The wait is still bounded, so a sleeping
-    autofs mount costs a fraction of a second rather than twenty.
+    folder as a file" -- silently, and only the first time a path is seen.
+    The wait is bounded by :data:`PROBE_TIMEOUT_S` (5 s), so a sleeping
+    autofs mount costs at most that rather than twenty seconds.
     """
     return exists(path, default=default, want_dir=True, wait=wait)
 
@@ -245,9 +243,8 @@ def prime(path, answer: bool, *, want_dir: bool = False) -> None:
     :param want_dir: record it against :func:`isdir` rather than
         :func:`exists`. The two are cached separately -- a path can exist and
         not be a directory -- so a caller who knows both must say so twice.
-        Without this there was no way to state the directory half at all, and
-        `isdir` kept answering with its `False` default until a background
-        probe caught up.
+        Without it, :func:`isdir` answers with its ``False`` default until a
+        background probe completes.
     """
     text = str(path or "")
     if text:

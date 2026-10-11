@@ -6,38 +6,30 @@ inspect several. It uses
 Editor's table working set. Databases get the same control rather than a
 second one for the same idea.
 
-WHAT THIS WIDGET IS FOR, beyond holding a list of paths:
+Besides holding a list of paths, the widget does the following:
 
-    THE ANSWER HAS TO ARRIVE BEFORE THE USER COMMITS.
+    It describes the merge before the user runs it.
 
-The column set produced by a merge defines the analysis about to run, and
-finding out afterwards that half the
-measurements were dropped is finding out too late. So every time the set
-changes this asks :func:`spacr.multi_database.describe_merge` -- which reads
-only sqlite metadata and the distinct plate ids -- and puts the answer on
-screen: how many rows, how many columns are common, which measurements are in
-only some, and whether two databases claim the same plate.
+The column set produced by a merge defines the analysis about to run, so every
+time the set changes this asks :func:`spacr.multi_database.describe_merge` --
+which reads only sqlite metadata and the distinct plate ids -- and puts the
+answer on screen: how many rows, how many columns are common, which
+measurements are in only some, and whether two databases claim the same plate.
 
-AND IT ASKS OFF THE GUI THREAD. That read is cheap in the VOLUME it reads and
-it is not cheap in LATENCY, and this file used to hold the first as a reason
-to believe the second: it stats every database and then opens each one with
-sqlite five times over, on paths that are folders the user chose. Measured on
-one workstation, a single ``os.path.exists`` under an
-``autofs`` mount whose share was asleep had not returned after TWENTY SECONDS.
-This widget is built while a settings panel is laid out and refreshed on every
-drop, so that was the whole application frozen, and it left no traceback
-because a stalled event loop is not a crash. Everything the summary needs is
-now read by :func:`_read_the_merge` on a worker thread
-(:mod:`spacr.qt.job_runner`) and painted when it lands: every line this widget
-used to print, it still prints, a moment later.
+The description is read off the GUI thread. The read is small but can be slow:
+it stats every database and then opens each one with sqlite five times over, on
+folders the user chose, and a single ``os.path.exists`` under an ``autofs``
+mount whose share was asleep has been measured not returning after twenty
+seconds. Everything the summary needs is read by :func:`_read_the_merge` on a
+worker thread (:mod:`spacr.qt.job_runner`) and painted when it arrives.
 
-A COLLISION IS SHOWN, NOT RESOLVED. Two databases that each hold a ``plate1``
-are two experiments, and the widget says so and names them. It deliberately
-does NOT offer ``on_collision='qualify'``: rewriting ``plate1`` to
-``runA-plate1`` makes the keys unique and hides which experiment a plate came
-from inside its own id, where nothing can block on it, test for it or colour
-by it. The resolutions offered are the ones that keep the experiment
-analysable -- remove one of the databases, or rename the plates.
+A collision is shown, not resolved. Two databases that each hold a ``plate1``
+are two experiments, and the widget says so and names them. It does not offer
+``on_collision='qualify'``: rewriting ``plate1`` to ``runA-plate1`` makes the
+keys unique and hides which experiment a plate came from inside its own id,
+where nothing can block on it, test for it or colour by it. The resolutions
+offered are the ones that keep the experiment analysable -- remove one of the
+databases, or rename the plates.
 """
 from __future__ import annotations
 
@@ -297,10 +289,9 @@ class DatabaseSetWidget(QWidget):
             "Colour the map by source database", self)
         self.colour_by_source.setObjectName("DatabaseSetColourBySource")
         self.colour_by_source.setToolTip(
-            "A merged embedding whose clusters turn out to be the plates "
-            "rather than biology is the most important thing a multi-database "
-            "map can show — and it can only show it if the points are "
-            "coloured by where they came from.")
+            "Colour each point by the database it came from. This shows "
+            "whether the clusters of a merged embedding are the plates "
+            "rather than biology.")
         self.colour_by_source.toggled.connect(self._on_colour_toggled)
         self.colour_by_source.setVisible(False)
         outer.addWidget(self.colour_by_source)
@@ -310,13 +301,12 @@ class DatabaseSetWidget(QWidget):
     def get_value(self):
         """The chosen sources: a bare string for one, a list for several.
 
-        NOT always a list, deliberately. ``src`` has been a string for every
-        module since spaCR had modules, and it is written to the settings
-        CSV, read by the CLI, replayed by the run journal and joined onto by
-        anything that does ``os.path.join(src, ...)``. Returning
-        ``['/data/plate1']`` where a string was returned before would change
-        what every one of those sees for a user who chose ONE folder and
-        wanted nothing to do with this feature -- exactly the regression the
+        Not always a list. ``src`` has been a string for every module since
+        spaCR had modules, and it is written to the settings CSV, read by the
+        CLI, replayed by the run journal and joined onto by anything that does
+        ``os.path.join(src, ...)``. Returning ``['/data/plate1']`` where a
+        string was returned before would change what every one of those sees
+        for a user who chose one folder -- exactly the regression the
         one-element list caused for ``column_csv`` (see
         ``settings_model.PATH_LIST_SINGLE_KEYS``).
 
@@ -353,7 +343,7 @@ class DatabaseSetWidget(QWidget):
 
 
     def workspace_state(self) -> dict:
-        """The attached set, IN ORDER, and the databases behind it.
+        """The attached set, in order, and the databases behind it.
 
         Order is state, not presentation: a merge resolves a column
         collision in favour of the first source that has it, so the same two
@@ -374,31 +364,22 @@ class DatabaseSetWidget(QWidget):
         """Re-attach the set. Returns whether anything was attached.
 
         A source that is no longer there is left out and the rest are still
-        attached -- one moved plate must not cost the user the other three.
-        The workspace document names every missing one in its own report, so
+        attached -- one moved plate does not stop the others attaching. The
+        workspace document names every missing one in its own report, so
         nothing dropped here is dropped silently.
 
-        WHICH ONES ARE STILL THERE IS ASKED OFF THE GUI THREAD. This was an
-        ``os.path.exists`` per source, inline, and these are the paths of a
-        workspace saved days ago -- precisely the ones most likely to sit on a
-        mount that has since gone to sleep, and reopening a saved session is
-        not a moment to freeze the application in. So the whole set is
-        attached now and the ones that turn out to be gone are dropped when
-        the answer lands. Attaching a moved plate and removing it a moment
-        later costs one redraw; waiting twenty seconds for its stat costs the
-        session.
+        Whether each source still exists is checked off the GUI thread, because
+        the paths of a saved workspace can be on a mount that has since gone to
+        sleep. The whole set is attached now and the ones that turn out to be
+        gone are dropped when the answer arrives, which costs one redraw
+        instead of a blocking stat.
 
-        WHAT THE RETURN VALUE MEANS NOW, because it is the one thing the move
-        changed: it answers "was there anything to attach", not "was any of it
-        still on disk". :func:`spacr.workspace.restore_workspace` prints the
-        section as restored either way, where a set whose every source had
-        moved used to be printed as declined. Nothing is hidden from the user
-        by that -- the ones that turn out to be gone are dropped when the
-        answer lands, and the summary line names every source with no database
-        behind it -- but the report line is a moment earlier than the truth,
-        and the alternative is blocking the restore on the stat, which is the
-        freeze. Unthreaded (a test, and every other test file here) the check
-        has already run by the time this returns, so the old answer stands.
+        The return value answers "was there anything to attach", not "was any
+        of it still on disk". :func:`spacr.workspace.restore_workspace`
+        therefore reports the section as restored either way; the sources that
+        turn out to be gone are dropped when the check finishes, and the
+        summary line names every source with no database behind it. Unthreaded
+        (in tests) the check has already run by the time this returns.
 
         :param state: dict saved by :meth:`workspace_state`; only its
             ``sources`` list is read, and anything that is not a dict, or has
@@ -440,11 +421,11 @@ class DatabaseSetWidget(QWidget):
     def shutdown(self) -> None:
         """Stop reading; let no worker outlive the widget. Idempotent.
 
-        Qt ABORTS THE PROCESS when a running QThread is destroyed, and this
-        widget now starts them. Public because it is a CHILD -- a settings
-        panel builds it inside a form, and Qt delivers a close event to the
-        window rather than to every widget in it, so a host that wants the
-        reads stopped when the user navigates away has to say so.
+        Qt aborts the process when a running QThread is destroyed, and this
+        widget starts them. Public because it is a child -- a settings panel
+        builds it inside a form, and Qt delivers a close event to the window
+        rather than to every widget in it, so a host that wants the reads
+        stopped when the user navigates away has to say so.
 
         Not the only line of defence: the QThreads are unparented and retire
         themselves, and ``JobRunner._relay`` catches the ``RuntimeError``
@@ -457,7 +438,7 @@ class DatabaseSetWidget(QWidget):
         self._presence_jobs.shutdown()
 
     def closeEvent(self, event):        # noqa: N802 - Qt override
-        """Closing mid-read must not leave a worker behind.
+        """Stop any reading worker before the widget closes.
 
         :param event: the close event; it is not inspected, only passed on to
             the base class after :meth:`shutdown`.
@@ -466,7 +447,7 @@ class DatabaseSetWidget(QWidget):
         super().closeEvent(event)
 
     def choose_sources(self) -> None:
-        """Open the picker and ADD what comes back.
+        """Open the picker and add what comes back.
 
         The dialog is opened at ``""`` -- no remembered root. That is the one
         reason this stays on the GUI thread while the rest of the file's
@@ -507,9 +488,9 @@ class DatabaseSetWidget(QWidget):
     def remove_source(self, name: str) -> bool:
         """Drop one member of the set, by its chip's label or its path.
 
-        The chip carries the LABEL -- ``plate1``, not
-        ``/data/plate1/measurements/measurements.db`` -- because that is what
-        a legend and the provenance column say. Both are accepted so a caller
+        The chip carries the label -- ``plate1``, not
+        ``/data/plate1/measurements/measurements.db`` -- because that is what a
+        legend and the provenance column say. Both are accepted so a caller
         with the path does not have to work out the label first.
 
         :param name: the source's path or its chip label; nothing is removed
@@ -730,7 +711,7 @@ class DatabaseSetWidget(QWidget):
                 f"{plate} in {', '.join(labels)}"
                 for plate, labels in sorted(plan.colliding_plates.items()))
             lines.append(
-                f"THE SAME PLATE ID IS IN MORE THAN ONE DATABASE: {detail}. "
+                f"The same plate ID is in more than one database: {detail}. "
                 "Merging would compute every per-well number over two "
                 "experiments at once. Remove one of them, or rename the "
                 "plates.")

@@ -349,7 +349,7 @@ class ExplainCvPanel(QWidget):
                      shap_explainer: str = "auto"):
         """Run the surrogate explanation and render it.
 
-        SEPARATE FROM :meth:`run` so the analysis can be driven without the
+        Separate from :meth:`run` so the analysis can be driven without the
         form -- a test, or another screen handing over inputs it already has.
 
         :param database: the measurements database.
@@ -481,8 +481,8 @@ class ExplainCvPanel(QWidget):
     def closeEvent(self, event) -> None:  # noqa: N802
         """Shut the job pool down before going away.
 
-        A WORKER OUTLIVING ITS PANEL writes results into a widget whose C++
-        half is gone, which is a crash rather than a leak.
+        A worker that outlives its panel writes results into a widget whose
+        C++ object is gone, which crashes the application.
 
         :param event: the Qt close event.
         """
@@ -808,9 +808,8 @@ class InvestigateHitPanel(QWidget):
     def promote(self) -> None:
         """Record this hit as annotated, against the attribution run.
 
-        REFUSES WITHOUT AN ANNOTATION. A promotion is a claim about the
-        biology, and one with no note attached says only that somebody
-        pressed a button.
+        Does nothing unless an attribution run exists and an annotation
+        column is named: the promoted calls are written into that column.
         """
         if not self.attribution_run_id or not self.annotation.text().strip():
             return

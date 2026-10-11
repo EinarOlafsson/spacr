@@ -299,8 +299,8 @@ def strip_report_paths(text: str) -> str:
     sending; with issue reporting set to 'always' there is no preview, so
     what this leaves behind is what gets published.
 
-    A PATH CAN CONTAIN A SPACE, and the rule that stopped one at the first
-    whitespace published the rest of it. ``/Volumes/Lab Drive/Patient 042``
+    A path can contain a space, and a rule that stops a path at the first
+    whitespace publishes the rest of it. ``/Volumes/Lab Drive/Patient 042``
     came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive
     - Karolinska Institutet\\Screens`` kept the institution and the
     screen — the two operating systems whose own folders have spaces in
@@ -460,10 +460,8 @@ def save_log_bundle(fingerprint: str,
     """Write the log tail to a file beside the report and return its path.
 
     The public issue names this path instead of carrying the log itself.
-    More lines are kept here than would ever have gone in an issue --
-    once the log is not being pasted into a URL there is no length to
-    stay under, and whoever reads the report wants the whole run, not a
-    keyhole.
+    More lines are kept here than an issue would carry, because the
+    file is not limited by the length of a URL.
 
     :param fingerprint: the traceback hash, so one report's log is easy
         to match to the issue that names it.

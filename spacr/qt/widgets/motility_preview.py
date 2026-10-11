@@ -6,22 +6,21 @@ folder itself) and it rebuilds, for a handful of frames, exactly what
 velocity and straightness from the cell-mask centroids, split by infection
 state read off the pathogen mask.
 
-Two things this preview refuses to fudge.
+Two rules apply to what the preview reports.
 
 **Units.** The assay converts pixels per frame into physical units with
 ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when
-*both* are known; otherwise it reports ``px/frame``. A preview that printed
-"velocity 4.2" while the user was thinking in µm/s would be worse than
-printing nothing, so the calibration fields start **unset**, every velocity
-carries its unit, and while the calibration is unknown the panel says so in
-words instead of quietly borrowing the 1.78 px/µm default.
+*both* are known; otherwise it reports ``px/frame``. So that a velocity is
+never read in the wrong unit, the calibration fields start **unset**, every
+velocity carries its unit, and while the calibration is unknown the panel says
+so in words instead of silently using the 1.78 px/µm default.
 
-**Short tracks.** Mean step length and straightness are wildly unstable on a
-three-point track — straightness is exactly 1.0 for any two-point track, no
-matter what the cell did. So the track-length distribution is drawn beside
-the velocity plot with the cutoff marked, and the minimum length is a live
-setting: it is the knob that actually decides whether the numbers mean
-anything.
+**Short tracks.** Mean step length and straightness are unstable on a
+three-point track — straightness is exactly 1.0 for any two-point track,
+whatever the cell did. So the track-length distribution is drawn beside the
+velocity plot with the cutoff marked, and the minimum length is a live
+setting that decides which tracks enter the velocity and straightness
+numbers.
 
 The expensive half (reading merged arrays and extracting centroids) runs
 once in a worker thread and is **cached** as a point table. Every metric
@@ -266,7 +265,7 @@ TRACK_KEYS = ["plateID", "wellID", "fieldID", "cellID"]
 
 
 def smooth_and_filter_tracks(points, max_displacement: float):
-    """Apply the assay's centroid QC: fix teleports, drop impossible tracks.
+    """Apply the assay's centroid QC: fix one-frame jumps, drop impossible tracks.
 
     A single frame whose steps in and out both exceed ``max_displacement``
     while its neighbours are within it is a segmentation glitch, and the
@@ -469,8 +468,7 @@ def render_motility_figure(points, tracks, calibration: Calibration,
     1. **Tracks**, drawn from the origin so paths are comparable, coloured
        by infection state.
     2. **Track-length distribution**, with the minimum-length cutoff drawn
-       on it — this is the plot that says whether the velocity numbers can
-       be trusted.
+       on it — this plot shows how many tracks the cutoff excludes.
     3. **Velocity and straightness**, split by infection state, with the
        unit in the axis label so ``px/frame`` is never mistaken for µm/s.
 
@@ -658,10 +656,10 @@ def scan_plate_payload(path) -> Dict[str, Any]:
 def read_plane_count(merged_dir: str, filename: str) -> int:
     """Planes held by one merged array. No Qt: worker-safe.
 
-    ``np.load(..., mmap_mode="r")`` sounds free and is not. Before it maps
-    anything it OPENS the file and reads the ``.npy`` header, so it is a
-    filesystem round trip on a path the user supplied -- and an open is no
-    cheaper than the stat that started this exercise. Measured on one
+    ``np.load(..., mmap_mode="r")`` is not free: before it maps anything it
+    opens the file and reads the ``.npy`` header, so it is a filesystem
+    round trip on a path the user supplied, and an open costs as much as a
+    stat. Measured on one
     workstation, one stat under ``/nas_mnt`` -- an
     ``autofs`` mount whose share was asleep -- had not returned after twenty
     seconds.
@@ -669,9 +667,8 @@ def read_plane_count(merged_dir: str, filename: str) -> int:
     :param merged_dir: the ``merged`` folder holding the array.
     :param filename: the array's basename inside it.
     :returns: the plane count, or ``0`` when the array cannot be read. Zero
-        is the same soft failure the two inline ``except`` branches used to
-        give: the spinners keep the values they had and the channel dropdown
-        empties, rather than the panel raising at the user.
+        is a soft failure: the spinners keep the values they had and the
+        channel dropdown empties, rather than the panel raising.
     """
     try:
         arr = np.load(os.path.join(merged_dir, filename), mmap_mode="r")
@@ -710,11 +707,10 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
     def __init__(self, parent=None, *, threaded: bool = True):
         """Build the motility preview panel.
 
-        Two job runners, and the separation is load-bearing twice: the pending
-        work on the main one is what reports "a plate is still being scanned",
-        and a plane-count read is not a plate scan; and the second is marked not
-        user-visible so the Home run banner does not announce a read the user
-        never started.
+        Two job runners, for two reasons: the pending work on the main one is
+        what reports "a plate is still being scanned", and a plane-count read
+        is not a plate scan; and the second is marked not user-visible so the
+        Home run banner does not announce a read the user never started.
 
         :param parent: parent widget, or ``None``.
         :param threaded: run scans and reads on worker threads. Set ``False`` in
@@ -842,7 +838,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._max_disp.setValue(50.0)
         self._max_disp.setSuffix(" px")
         self._max_disp.setToolTip(
-            "(float, px) max_displacement — single-frame teleports are "
+            "(float, px) max_displacement — single-frame jumps are "
             "interpolated, and any track that still jumps further than this "
             "is dropped as an impossible link.")
         self._straightness = QDoubleSpinBox(self)
@@ -864,7 +860,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._pixels_per_um.setSpecialValueText("unknown")
         self._pixels_per_um.setToolTip(
             "(float, px/µm) pixels_per_um. Left unknown, velocities are "
-            "reported in px/frame — the preview will not invent a scale.")
+            "reported in px/frame; no scale is assumed.")
         self._seconds_per_frame = QDoubleSpinBox(self)
         self._seconds_per_frame.setRange(0.0, 100000.0)
         self._seconds_per_frame.setDecimals(2)
@@ -872,7 +868,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._seconds_per_frame.setSpecialValueText("unknown")
         self._seconds_per_frame.setToolTip(
             "(float, s) seconds_per_frame. Left unknown, velocities are "
-            "reported in px/frame — the preview will not invent an interval.")
+            "reported in px/frame; no interval is assumed.")
 
         layout_group = QGroupBox("Merged arrays (changing these re-reads)")
         lform = QFormLayout(layout_group)
@@ -1097,7 +1093,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
     def shutdown(self) -> None:
         """Abandon anything in flight and leave no QThread behind.
 
-        BOTH runners -- the plate scan and the plane-count read. Qt aborts
+        Both runners -- the plate scan and the plane-count read. Qt aborts
         the process when a running QThread is destroyed, so a runner left out
         of here is a crash at teardown rather than a leak.
         """
@@ -1224,8 +1220,8 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         """Map the preview's widgets onto real Motility Assay setting keys.
 
         ``pixels_per_um`` / ``seconds_per_frame`` are only propagated when
-        the user actually set them — pushing a fabricated calibration into
-        the run would be exactly the mistake this panel exists to prevent.
+        the user actually set them, so no assumed calibration is written into
+        the run's settings.
         """
         cal = self.calibration()
         out: Dict[str, Any] = {

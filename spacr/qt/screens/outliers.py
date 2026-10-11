@@ -1,10 +1,10 @@
-"""The Outliers screen — which objects are wrong, and which *wells* are wrong.
+"""The Outliers screen — flag outlying objects and outlying *wells*.
 
-A thin surface over :mod:`spacr.qt.widgets.outlier_model`, which is where all
-the statistics and all the arguments live. The screen's only jobs are to load a
-table, collect the four decisions the engine needs (features, method,
-threshold, transform), run it off the GUI thread, and show what came back
-without recomputing a single number of its own.
+A thin surface over :mod:`spacr.qt.widgets.outlier_model`, which holds all the
+statistics. The screen's only jobs are to load a table, collect the four
+decisions the engine needs (features, method, threshold, transform), run it off
+the GUI thread, and show what came back without recomputing a single number of
+its own.
 
 Assembles what already exists:
 
@@ -16,16 +16,16 @@ Assembles what already exists:
   uses, offering the same continuous columns by the same classifier, so a user
   who ticked eight features for a decomposition does not meet a different list
   here;
-* :class:`spacr.qt.job_runner.JobRunner` — an MCD fit on 200,000 objects is
-  seconds of work and must not be seconds of a frozen window.
+* :class:`spacr.qt.job_runner.JobRunner` — an MCD fit on 200,000 objects takes
+  seconds, so it runs off the GUI thread.
 
 Two tables, because there are two answers
 -----------------------------------------
 The **Objects** tab is the per-object flags; the **Wells** tab is the
 across-well pass. They are separate tabs rather than one merged view because
 they answer different questions and routinely disagree: a well shifted as a
-whole flags almost none of its individual objects and is nevertheless the
-loudest point among wells. The engine's ``report()`` is shown verbatim in the
+whole flags almost none of its individual objects and is nevertheless the most
+extreme point among wells. The engine's ``report()`` is shown verbatim in the
 third tab, caveats included — the share flagged is not interpretable without
 the sentence saying whether a symmetric fence on skewed data produced it.
 
@@ -38,8 +38,7 @@ Nothing is deleted here
 -----------------------
 The export writes the whole table with the flag columns added, and separately
 the flagged rows on their own. There is no "remove outliers" button: dropping
-objects is a decision about the analysis, made in the analysis, and a screen
-that offered it as a single click would make it the default.
+objects is a decision made in the analysis.
 
 :func:`register` is **not** called at import; read its docstring.
 """
@@ -143,7 +142,7 @@ _THRESHOLD_FIELDS = {
 
 
 class OutliersScreen(QWidget):
-    """Load a measurement table, flag the bad objects, and name the bad wells.
+    """Load a measurement table and flag outlying objects and wells.
 
     :param threaded: ``False`` runs the table read and the scan inline, in the
         same order and through the same signals, so a test can drive the whole
@@ -305,9 +304,9 @@ class OutliersScreen(QWidget):
         self.transform.addItem("log10", TRANSFORM_LOG10)
         self.transform.setToolTip(
             "A symmetric fence on a right-skewed measurement flags a large "
-            "share of the right tail whatever the data. log10 makes the rule "
-            "mean what it looks like — and refuses on zero or negative "
-            "values rather than inventing a pseudocount.")
+            "share of the right tail whatever the data. log10 makes the fence "
+            "symmetric on the log scale — and refuses zero or negative "
+            "values rather than adding a pseudocount.")
         form.addRow("Transform", self.transform)
 
         self.per_well = Toggle("Score wells too", panel)
@@ -326,8 +325,8 @@ class OutliersScreen(QWidget):
         self.min_well.setValue(DEFAULT_MIN_WELL_OBJECTS)
         self.min_well.setToolTip(
             "A well with fewer objects than this is reported 'not scored' "
-            "rather than compared or dropped — a median over a handful of "
-            "objects moves more than any plate effect worth finding.")
+            "rather than compared or dropped — a median over a few objects "
+            "varies more than the plate effects the scan looks for.")
         form.addRow("Min objects / well", self.min_well)
         layout.addLayout(form)
 
@@ -579,13 +578,12 @@ class OutliersScreen(QWidget):
     def export_csv(self) -> None:
         """Write the flags out: the whole table, the flagged rows, the wells.
 
-        Three files, because they have three different row meanings and one
-        sheet mixing them would have to be unpicked before anyone could use it.
-        The first is the *whole* table with the columns added — the "write
-        columns" case, and the one that keeps every object — and the second is
-        the same rows filtered down to the flagged ones for a quick look. The
-        engine's own ``filtered()`` is what produces it, so the file and the
-        screen cannot disagree about what was flagged.
+        Three files, because the three have different row meanings. The first
+        is the *whole* table with the columns added — the "write columns" case,
+        and the one that keeps every object — and the second is the same rows
+        filtered down to the flagged ones for a quick look. The engine's own
+        ``filtered()`` is what produces it, so the file and the screen flag the
+        same rows.
         """
         result = self._result
         if result is None or self._objects is None:
@@ -671,27 +669,21 @@ def register() -> bool:
     headless run" sentence, the API doc link and the nine translations of the
     display name -- is declared in :mod:`spacr.qt.app_catalog`.
     :func:`spacr.qt.app.register_app` distributes those into the four tables
-    each used to need a hand-edit in, and this function's whole job is to name
-    which row. That is what lets the app be registered without importing this
-    module at all: the launch reads the table, and the screen is imported when
-    somebody opens it.
+    each used to need a hand-edit in, and this function only names the row.
+    That is what lets the app be registered without importing this module at
+    all: the launch reads the table, and the screen is imported when somebody
+    opens it.
 
-    ``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is
-    worth writing down because the first instinct is the other one. This screen
-    looks like QC — it is about whether to believe what a run produced — but
-    what it *does* is what the Gate Editor and the Feature Explorer do, and it
-    sits beside them: you pick features, you move a threshold, you watch a
-    distribution answer, and what comes out is a **column** the user then
-    filters or gates on. Results & QC holds the screens that hand back a
-    verdict; this one hands back a question with the evidence attached, and
+    ``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``. The screen concerns
+    whether to trust a run's output, but it works like the Gate Editor and the
+    Feature Explorer beside it: the user picks features and a threshold, and
+    the output is a **column** to filter or gate on. Results & QC holds screens
+    that return a verdict; this one returns flags, and
     :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` is the only
-    place a row is ever dropped and it has to be called on purpose.
+    place a row is dropped, and only when it is called explicitly.
 
-    The cap made the choice concrete rather than academic:
-    ``MAX_APPS_PER_SECTION`` is 13 and Results & QC was already at 12 with
-    Control Charts — the campaign-level verdict — arriving in the same batch.
-    That is the section's honest occupant, and this one had somewhere honest
-    to go. Both were checked against the cap before the placement, not after.
+    ``MAX_APPS_PER_SECTION`` is 13, and Results & QC was already at 12 with
+    Control Charts, a campaign-level verdict, arriving in the same batch.
 
     **Not called at import.** ``app.py`` imports ``spacr.qt.widgets`` before
     ``register_app`` exists, so nothing reachable from the top of that file can

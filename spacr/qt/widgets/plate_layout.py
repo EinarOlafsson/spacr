@@ -76,7 +76,7 @@ EDGE_LEAVE_EMPTY = "leave_empty"
 
 @dataclass(frozen=True)
 class Condition:
-    """One thing being put on the plate.
+    """One condition placed on the plate.
 
     :ivar name: label written into the exported table. Becomes the value of
         ``treatment`` (or ``host_cells``/``pathogen``) downstream.
@@ -117,9 +117,8 @@ class PlateDesign:
     :ivar conditions: what goes on it.
     :ivar layout: one of :data:`LAYOUTS`.
     :ivar edge_policy: :data:`EDGE_USE` or :data:`EDGE_LEAVE_EMPTY`.
-    :ivar seed: makes ``random`` reproducible. A layout nobody can regenerate
-        is a layout nobody can check, and the plate map is the one record
-        that has to survive the person who made it.
+    :ivar seed: makes ``random`` reproducible, so the layout can be regenerated
+        and checked later.
     """
 
     plate_id: str = "plate1"
@@ -168,11 +167,11 @@ class PlateDesign:
 
 @dataclass(frozen=True)
 class DesignFinding:
-    """One thing worth knowing before the plate is poured.
+    """One finding about a design, reported before the plate is prepared.
 
     :ivar key: stable identifier, for tests and for the exported record.
-    :ivar severity: ``"error"`` (the design cannot be laid out), ``"warn"``
-        (it can, and it will cost you), or ``"note"``.
+    :ivar severity: ``"error"`` (the design cannot be laid out), ``"warn"`` (it
+        can, at a cost), or ``"note"``.
     :ivar message: one sentence, naming the wells involved where that helps.
     """
 
@@ -292,7 +291,7 @@ def _columns_used(block: pd.DataFrame) -> set:
 
 def check_design(design: PlateDesign,
                  table: Optional[pd.DataFrame] = None) -> List[DesignFinding]:
-    """Everything worth saying about a design before it is acquired.
+    """Every finding about a design, before it is acquired.
 
     Ordered worst first. An empty list means nothing was found, which is not
     the same as the design being good -- there is no check here for whether
@@ -505,9 +504,8 @@ def write_design(design: PlateDesign, folder: Any, *,
       columnID)``. The artifact: it joins straight onto a measurements table
       and it survives a randomised layout, which the settings fragment does
       not.
-    * ``plate_map.json`` -- the design itself plus its findings, so the
-      layout can be regenerated and so the warnings that were shown are on
-      the record rather than only on somebody's screen.
+    * ``plate_map.json`` -- the design itself plus its findings, so the layout
+      can be regenerated and the warnings that were shown are recorded.
     * ``plate_map_settings.json`` -- the ``treatments`` /
       ``treatment_plate_metadata`` pair to paste into an analysis settings
       file, when the layout can be expressed that way.
@@ -605,9 +603,9 @@ def plate_templates() -> List[PlateTemplate]:
     """The layouts shipped in ``spacr/resources/plate_templates``, in order.
 
     Read from package data on every call; the folder holds a handful of small
-    files and is only read when Experiment Design builds its menu. A file
-    that does not parse is skipped rather than raised: one bad template must
-    not take the others off the menu.
+    files and is only read when Experiment Design builds its menu. A file that
+    does not parse is skipped rather than raised, so one bad template does not
+    remove the others from the menu.
 
     :returns: every template that loaded, sorted by key.
     """

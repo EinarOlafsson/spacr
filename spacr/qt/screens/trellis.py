@@ -1,4 +1,4 @@
-"""V5 — Small Multiples: one chart per group, in a grid, on shared axes.
+"""Small Multiples: one chart per group, in a grid, on shared axes.
 
 Assembles four things that already exist into one surface:
 
@@ -14,8 +14,8 @@ Assembles four things that already exist into one surface:
 Why it is a screen of its own and not a checkbox on the Graph Builder: the
 question a trellis answers is "does this shift hold in every plate?", and the
 options that make that answerable — which panels share a scale, how a long
-strip of levels wraps, what n each panel is built on — are not decoration on a
-single chart. They are the chart.
+strip of levels wraps, what n each panel is built on — belong to the grid as
+a whole, not to a single chart.
 
 :func:`register` is not called at import; read its docstring.
 """
@@ -61,8 +61,8 @@ class TrellisScreen(QWidget):
         for tests. ``None`` joins the process-wide one.
     :param parent: parent widget; ownership only.
     :param threaded: ``False`` runs every table read inline instead of on the
-        job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE
-        CALL; a user needs the window to keep painting while a large table
+        job runner's thread. A test needs the result on the line after the
+        call; a user needs the window to keep painting while a large table
         loads. The jobs are the same either way -- they still register, still
         report failure through ``job_failed`` -- so only the waiting differs.
     """

@@ -345,7 +345,7 @@ APP_KEY_ATTR = "__spacr_app_key__"
 
 
 class PauseGate:
-    """A latch a worker thread waits on, so a pause is a *pause*.
+    """A latch a worker thread waits on at a checkpoint while paused.
 
     **Why this is not connected to every pipeline.** Pausing a
     running job can only mean one of two things:
@@ -354,22 +354,22 @@ class PauseGate:
       means possibly mid-``np.save`` of a mask (``spacr.object`` writes
       ``.npy`` without a tmp+rename) or between the several ``INSERT``\\ s
       that make up one measured field. Both leave exactly the
-      half-written artefact ``spacr.resume`` exists to clean up. That is
-      not a pause, it is corruption with a friendly label.
+      half-written artefact ``spacr.resume`` exists to clean up, so this
+      is not a safe pause.
     * let the pipeline reach a boundary where nothing is half-written,
       and hold it there. That requires the pipeline to *ask*, which is
       what :func:`checkpoint` is for.
 
-    Only the second is honest, and it cannot be bolted on from outside:
-    a gate can be *set* from the GUI thread, but if nothing ever *reads*
-    it the button does nothing. Pause therefore remains disabled until an
+    Only the second leaves no half-written output, and it needs the
+    pipeline's cooperation: a gate can be *set* from the GUI thread, but
+    if nothing ever *reads* it the button does nothing. Pause therefore remains disabled until an
     entry point opts in via :func:`pausable`. Stop is a separate contract:
     :mod:`spacr.cancellation` is polled by shipped workflows at durable
     boundaries and never claims to suspend an in-progress write.
 
     Thread-safety: :meth:`pause` / :meth:`resume` are called from the GUI
-    thread; :meth:`wait_if_paused` blocks the worker thread. That is the
-    whole contract — a :class:`threading.Event` does the rest.
+    thread; :meth:`wait_if_paused` blocks the worker thread. A
+    :class:`threading.Event` holds the paused state.
     """
 
     def __init__(self) -> None:
@@ -439,9 +439,9 @@ def checkpoint() -> None:
 def pausable(fn: Callable) -> Callable:
     """Mark an entry point as honouring :func:`checkpoint`.
 
-    Setting this on a function that does *not* actually call
-    :func:`checkpoint` is how you ship a Pause button that lies, so the
-    marker is deliberately explicit rather than inferred.
+    Setting this on a function that does *not* call :func:`checkpoint`
+    enables a Pause button that has no effect, so the marker is set
+    explicitly rather than inferred.
 
     :param fn: the entry-point callable to mark; it is returned, and an object
         that cannot take attributes is returned unmarked.
@@ -1359,9 +1359,9 @@ class PipelineWorker(QObject):
     def supports_pause(self) -> bool:
         """True only when the entry point declares :func:`pausable`.
 
-        No shipped pipeline does, so this is False everywhere today —
-        see :class:`PauseGate` for why that is the honest answer rather
-        than a missing feature.
+        No shipped pipeline does, so this is False everywhere —
+        see :class:`PauseGate` for why Pause stays disabled until a
+        pipeline calls :func:`checkpoint`.
         """
         return bool(getattr(self._fn, PAUSABLE_ATTR, False))
 
@@ -1372,7 +1372,7 @@ class PipelineWorker(QObject):
         True for analysis runs. They write masks, measurements and model
         files, so stopping one anywhere other than a declared safe boundary
         risks the half-written artefact :mod:`spacr.resume` exists to clean
-        up, and the honest response to "close now" is to wait.
+        up, so closing waits for them.
 
         False for the read-only background jobs the UI runs on its own
         behalf — refreshing run history, scanning a model folder, polling a

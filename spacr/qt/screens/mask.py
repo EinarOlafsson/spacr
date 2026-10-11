@@ -1,15 +1,14 @@
 """The modules folded onto Mask Generation: Timelapse, and OPS.
 
-TWO KINDS OF FOLD MEET HERE, and the difference is what each one does to
-this screen. Timelapse is SETTINGS: switching it on mounts its categories
-on Mask's own form and sets the pipeline gate the run reads, so its switch
-belongs on the masthead strip beside the heading. OPS is a PAGE: it has 63
-settings of its own and its own run entry point, none of which is
-`preprocess_generate_masks`, so switching it on puts it on this screen's
-page strip instead and its switch sits in the actions row beside Live --
-"add the ops button to Mask add it beside the Live and 3D buttons in the
-same format", 2026-09-09. See :data:`CATEGORY_FOLDS`, :data:`PAGE_FOLDS`
-and :func:`install_ops_switch`.
+Two kinds of fold are used here, and they change this screen differently.
+Timelapse is a settings fold: switching it on mounts its categories on Mask's
+own form and sets the pipeline gate the run reads, so its switch belongs on the
+masthead strip beside the heading. OPS is a page fold: it has 63 settings of
+its own and its own run entry point, none of which is
+`preprocess_generate_masks`, so switching it on puts it on this screen's page
+strip instead and its switch sits in the actions row beside the Live and 3D
+buttons, in the same format. See :data:`CATEGORY_FOLDS`, :data:`PAGE_FOLDS` and
+:func:`install_ops_switch`.
 
 The Timelapse switch enables ``timelapse=True`` for the standard mask
 pipeline and displays the additional time-series and tracking settings on the
@@ -633,9 +632,8 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     reaches this screen from outside, so everything hung on Mask Generation
     is hung here. See :func:`install_example_data_button`.
 
-    Idempotent, and defensive by design: a screen that opens without its
-    switches is a smaller screen, while an exception raised here would be
-    no screen at all.
+    Idempotent, and errors are not raised, so a failure leaves the screen
+    without its switches rather than stopping it from opening.
 
     :param screen: the host module's screen.
     :returns: the strip, or None when this screen cannot carry one -- it
@@ -687,10 +685,10 @@ def sync_folds(screen: QWidget,
                settings: Dict[str, object]) -> Sequence[str]:
     """Move the switches to match a settings dict that was just applied.
 
-    The tracking and assay CONTROLS take their values through the ordinary
-    bulk apply, because they are ordinary controls on this form. Their
-    gates are not controls -- the switch is -- so a Timelapse settings file
-    would otherwise fill in every tracking knob and leave tracking off.
+    The tracking and assay CONTROLS take their values through the ordinary bulk
+    apply, because they are ordinary controls on this form. Their gates are not
+    controls -- the switch is -- so a Timelapse settings file would otherwise
+    fill in every tracking setting and leave tracking off.
 
     Safe to call on any screen: one that has no category folds returns an
     empty tuple.

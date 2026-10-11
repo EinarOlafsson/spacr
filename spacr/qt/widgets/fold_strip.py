@@ -6,13 +6,12 @@ icon: no text beside it, the module's own one-line description as its
 tooltip, and the same maturity colour on hover that the tile used to
 light up in -- green-cyan for alpha, magenta for beta, blue for stable.
 
-That last part is the whole point of doing it here rather than with a
-plain ``QPushButton`` at each site. The hover colour is not decoration,
-it is the maturity of the code behind the button, and it is read from
-:data:`spacr.qt.theme.STAGE_HOVER` through :func:`spacr.qt.app.app_stage`
--- the same two tables the tiles read. A fold that hard-coded its colour
-would drift the day a module was signed off, and the button would go on
-promising alpha long after the tile had stopped.
+The hover colour is the reason for a shared class rather than a plain
+``QPushButton`` at each site: it shows the maturity of the module behind
+the button, and it is read from :data:`spacr.qt.theme.STAGE_HOVER` through
+:func:`spacr.qt.app.app_stage` -- the same two tables the tiles read. A fold
+that hard-coded its colour would keep showing alpha after the module's
+stage changed.
 
 Typical use, from a host screen's ``__init__``::
 
@@ -165,13 +164,12 @@ def _declared(key: str):
 def fold_label(key: str) -> Tuple[str, str, str]:
     """``(name, description, stage)`` for one folded key, from anywhere.
 
-    THE ANSWER FOR A CALLER THAT HAS A KEY AND NEEDS WORDS, whether or not
-    that key's host is one this module walks. :func:`folded_modules` walks
-    eight hosts; the dock draws rows for eleven, because four more grew fold
-    strips later and are named only in :data:`spacr.qt.app._EXTRA_FOLD_HOSTS`
-    -- so the seven modules folded onto Graph Builder, QC Dashboard and
-    Database Browser had no catalogue entry and their rows read as the raw
-    key: `lineage`, `tabulate`, `control_chart`.
+    For a caller that has a key and needs its name, description and stage,
+    whether or not the key's host is one :func:`folded_modules` walks. Hosts
+    named only in :data:`spacr.qt.app._EXTRA_FOLD_HOSTS` -- Graph Builder,
+    QC Dashboard and Database Browser -- are not walked there, so without
+    this the dock rows of the modules folded onto them would show the raw
+    key, such as `lineage`, `tabulate` or `control_chart`.
 
     Adding those hosts here would fix the rows and import three more screen
     modules while the window is still being built, which is precisely the
@@ -346,21 +344,18 @@ def folded_modules() -> dict:
     list a duplicated key still wins, making an accidental double fold
     deterministic until its invariant test reports the duplication.
 
-    AND THEN THE REGISTRY, for a fold that still holds its row. Those keep
-    their name, sentence and maturity where every other module keeps them,
-    so their hosts deliberately record nothing -- Regression says so in as
-    many words beside `investigate_hit` and `profiler`. Reading only the
-    fallback tables therefore left four folded modules out of this answer
-    entirely, and the dock drew their rows as the raw key: a user looking
-    for Investigate Hit found `investigate_hit` indented under Regression.
-    A copy of the registry text in each host would fix the rows and be the
-    same sentence written twice, with the copy free to go stale; asking the
-    registry costs nothing and cannot.
+    The registry is read as well, for a fold that still holds its row.
+    Those modules keep their name, description and maturity in the
+    registry, so their hosts record nothing (Regression notes this beside
+    `investigate_hit` and `profiler`). Without the registry these modules
+    would be missing from the answer and the dock would show their rows as
+    the raw key. Reading the registry avoids a second copy of the same text
+    in each host.
 
     Imported lazily, one host at a time and each guarded: this module is
     imported while a screen is being built, and the hosts import it back.
 
-    THE REGISTRY HALF IS ONLY COMPLETE ONCE THE REGISTRY IS. Several rows
+    The registry part is complete only after registration. Several rows
     arrive from :func:`spacr.qt.register_self_registering_modules`, so a
     caller that asks before registration gets the folds whose hosts kept a
     record and not the ones whose rows have not been added yet. Every caller
@@ -561,7 +556,7 @@ class FoldButton(QPushButton):
     def set_verdict(self, level: str, detail: str = "") -> None:
         """Badge this button with a run's worst verdict.
 
-        A DOT, NOT A COLOURED BUTTON. The button's own colour already
+        The verdict is a dot, not a button colour. The button's own colour already
         means maturity -- alpha, beta, stable -- and a second meaning on
         the same surface makes both unreadable. The dot is drawn over the
         corner instead, and the detail goes in the tooltip where the
@@ -582,7 +577,7 @@ class FoldButton(QPushButton):
     def paintEvent(self, event):        # noqa: N802 - Qt naming
         """Draw the folded module's icon, and its maturity as a rim colour.
 
-        THE COLOUR CARRIES INFORMATION, so it is drawn rather than left to a
+        The colour carries information, so it is drawn rather than left to a
         stylesheet: alpha and beta modules are marked, and a reader who
         cannot distinguish the hues still gets the tooltip.
 

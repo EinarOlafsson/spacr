@@ -76,8 +76,8 @@ class ExecutionProfileDialog(QDialog):
     """Create or edit one distributed execution profile.
 
     :param parent: parent widget.
-    :param profile: the profile to edit. ``None`` CREATES one -- the dialog
-        is both routes, which is why it is not two classes.
+    :param profile: the profile to edit. ``None`` creates one -- the same
+        dialog handles both cases.
     """
 
     def __init__(
@@ -916,8 +916,8 @@ class DistributedJobsScreen(QWidget):
         def _done(updated):
             """Redraw with the cancelled job still selected.
 
-            Keeping the SELECTION is the point: a list that jumps to the top after a
-            cancel loses the row the user was working with.
+            The selection is kept so the list does not jump to the top after
+            a cancel and the user's row stays selected.
             """
             self._render_jobs(self.manager.jobs.list(), select=updated.job_id)
             self._set_status(
@@ -1075,11 +1075,11 @@ class DistributedJobsScreen(QWidget):
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt override
         """Stop polling and drain live workers before the screen goes away.
 
-        ``requestInterruption`` on its own was decorative — ``_work`` never
-        polls it — and left the screen's REST calls running with nobody
-        owning them. An ownerless job stays in the process-wide run
-        registry, which is what ``MainWindow.closeEvent`` consults when it
-        decides whether the application may quit.
+        ``requestInterruption`` alone has no effect — ``_work`` never polls
+        it — and would leave the screen's REST calls running with no owner. An
+        ownerless job stays in the process-wide run registry, which is what
+        ``MainWindow.closeEvent`` consults when it decides whether the
+        application may quit.
 
         :param event: the close event; it is passed on unchanged to the
             base-class handler after the workers are drained.

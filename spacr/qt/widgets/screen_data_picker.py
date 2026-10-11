@@ -1,14 +1,12 @@
 """Choose which pieces of the published screen to download.
 
-The screen is 33 GB across four plates, and almost nobody wants all of it: the
-Regression measurement and cell functions read the DATABASES, and the crop
-folders are only needed when something has to display an image. One download
-would make trying one function cost 33 GB, so each piece is fetched on its own
-and this is where they are chosen.
+The screen is 33 GB across four plates. The Regression measurement and cell
+functions read only the databases, and the crop folders are needed only when
+something has to display an image, so each piece is fetched on its own and
+chosen here.
 
-EVERY ROW STATES ITS SIZE, and the total updates as rows are ticked. A picker
-that lists eight items and then downloads an unstated number of gigabytes is
-the thing this exists to avoid.
+Every row states its size, and the total updates as rows are ticked, so the
+download size is known before it starts.
 """
 from __future__ import annotations
 

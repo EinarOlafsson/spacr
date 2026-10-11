@@ -1,22 +1,22 @@
-"""Hit List — the deliverable at the end of a screen.
+"""Hit List: a ranked, filtered and annotated gene table from a regression run.
 
 A regression run leaves a folder of plots and four CSVs, and none of them is
-the thing the experiment was for. ``results_significant.csv`` is
+a ranked gene list. ``results_significant.csv`` is
 ``p <= 0.05`` with no multiple-testing correction, no gene names, and no
-indication of whether a gene's own guides agree with each other. What the
-user wants is one table they can sort, narrow and send to a collaborator.
+indication of whether a gene's own guides agree with each other.
 
-This screen is that table. Point it at a results folder and it builds the
+This screen builds one table that can be sorted, narrowed and sent to a
+collaborator. Point it at a results folder and it builds the
 list through :mod:`spacr.hits`, which does the work that makes a hit list
 interpretable rather than merely present:
 
 * the **effect size** with its standard error and 95% interval;
-* a **q-value** across the genes actually tested, so a 0.05 on two thousand
-  genes stops meaning what it does not mean;
+* a **q-value** across the genes actually tested, so a 0.05 threshold
+  controls the false discovery rate over all of them rather than the error
+  rate of each gene;
 * **gRNA agreement** — how many of the gene's own guides push the same way.
   A gene called by one guide of six is the commonest way a pooled screen
-  produces a confident artefact, and it was invisible in every table spaCR
-  wrote before this one;
+  produces a confident artefact;
 * the **metadata join**, collapsed to one row per gene before it is joined.
 
 The filters across the top are the ones a user actually applies: FDR,
@@ -28,7 +28,7 @@ anonymous subset.
 
 Three exports, because the three uses are different: **CSV** to re-analyse,
 **Markdown** to paste into an email or an issue, **HTML** to open on a
-machine that has never heard of spaCR. The HTML is self-contained — no
+machine without spaCR. The HTML is self-contained — no
 stylesheet, no script, no network — which is what makes it safe to send.
 
 Building the list reads several CSVs and joins them, so it runs through

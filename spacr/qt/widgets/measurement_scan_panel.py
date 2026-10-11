@@ -72,7 +72,7 @@ VERDICT_NEITHER = "no effect"
 
 
 def verdict_for(row) -> str:
-    """One phrase per measurement, from BOTH corrections.
+    """One phrase per measurement, from both corrections.
 
     :param row: one scan row; its ``survives_across_scan`` and
         ``survives_within_run`` attributes are read, and missing ones count as
@@ -348,19 +348,18 @@ class AttachedDatabase:
     def present(self) -> bool:
         """Whether the attached database is on disk right now.
 
-        Checked here rather than at run time: the design asks that a row
-        whose database has gone missing says so BEFORE the run, not four
-        minutes into it.
+        Checked here rather than at run time: the design asks that a row whose
+        database has gone missing says so before the run, not four minutes into
+        it.
 
-        Asked of :mod:`spacr.qt.path_probe` rather than of ``os.path``, and
-        that is not a style choice. This property is read once per plate row
-        by `_fill_table`, and again by `paths`, `screens` and `describe` --
-        so a project with eight plates on a sleeping `autofs` mount was
-        eight twenty-second stats on the GUI thread before the tab had drawn
-        anything. The probe answers from a cache, reports a path it has not
-        seen as present, and stats it on its own bounded worker;
-        `DatabaseMergePanel._follow_path_probes` is the half that corrects
-        the row when the real answer lands.
+        Asked of :mod:`spacr.qt.path_probe` rather than of ``os.path``. This
+        property is read once per plate row by `_fill_table`, and again by
+        `paths`, `screens` and `describe` -- so a project with eight plates on
+        a sleeping `autofs` mount was eight twenty-second stats on the GUI
+        thread before the tab had drawn anything. The probe answers from a
+        cache, reports a path it has not seen as present, and stats it on its
+        own bounded worker; `DatabaseMergePanel._follow_path_probes` is the
+        half that corrects the row when the real answer lands.
         """
         return self.attached and path_probe.exists(str(self.path))
 
@@ -398,7 +397,7 @@ def attached_databases(rows: Any) -> Tuple[AttachedDatabase, ...]:
         "database"}`` dicts; a ``(plate, path)`` pair, a ``(plate, path,
         screen)`` triple and a bare path are accepted too, so a caller with a
         plainer list does not have to build dicts to be understood.
-    :returns: one entry per row, IN THE ROW ORDER, including the rows with no
+    :returns: one entry per row, in row order, including the rows with no
         database -- they are the plates this tab has to disable rather than
         drop, and dropping them here would make them invisible instead.
     """
@@ -429,9 +428,9 @@ def attached_databases(rows: Any) -> Tuple[AttachedDatabase, ...]:
 
 
 def joinable_tables(paths: Sequence[str]) -> Tuple[str, ...]:
-    """The object tables EVERY one of these databases has, in table order.
+    """The object tables every one of these databases has, in table order.
 
-    The intersection, not the union, and this is not a nicety:
+    The intersection, not the union:
     :func:`spacr.multi_database.describe_merge` reads a row count from every
     path, so asking it for a table one database lacks raises a bare
     ``sqlite3.OperationalError`` naming the table and nothing else. Offering
@@ -459,9 +458,8 @@ def anchor_tables(tables: Sequence[str]) -> Tuple[str, ...]:
 
     One row per cell, from :data:`spacr.object_roles.ONE_ROW_PER_CELL`.
     Anchoring on a many-per-cell table would make a row of the merged frame
-    mean one nucleus or one pathogen, with the cell's own measurements
-    repeated across its children -- which is the fan-out the roll-up exists to
-    prevent, arrived at from the other side.
+    mean one nucleus or one pathogen, with the cell's own measurements repeated
+    across its children -- the fan-out the roll-up prevents.
 
     :param tables: measurement table names; those holding one row per cell are
         kept, in their given order.
@@ -472,11 +470,10 @@ def anchor_tables(tables: Sequence[str]) -> Tuple[str, ...]:
 def default_aggregation_columns(columns: Sequence[str], *,
                                 overrides: Optional[Dict[str, str]] = None
                                 ) -> Tuple[str, ...]:
-    """The columns NO :data:`~spacr.merge_tables.AGGREGATION_RULES` rule names.
+    """The columns no :data:`~spacr.merge_tables.AGGREGATION_RULES` rule names.
 
-    third bullet: a measurement nobody thought
-    about is exactly the one worth naming. These fall through to
-    :data:`~spacr.merge_tables.DEFAULT_AGGREGATION`, which is MEAN -- right
+    A measurement no rule covers is listed by name. These fall through to
+    :data:`~spacr.merge_tables.DEFAULT_AGGREGATION`, which is the mean -- right
     more often than not for an unrecognised number, and silently wrong for a
     total.
 
@@ -527,17 +524,17 @@ def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
                            on_ambiguous_identifier: str = "refuse"):
     """Every chosen table of every chosen database, on one anchor.
 
-    THE COMPOSITION OF THE TWO MERGES THAT ALREADY EXIST, and deliberately
-    nothing else. :func:`spacr.multi_database.read_merged` is *many databases,
-    one table*; :func:`spacr.merge_tables.merge_tables` is *one database, many
-    tables* and takes a path, so it cannot be handed a frame that already spans
-    databases. This runs the first per chosen table and then joins them with
-    the second's own :func:`~spacr.merge_tables.roll_up` and
+    This composes the two existing merges and adds nothing else.
+    :func:`spacr.multi_database.read_merged` is *many databases, one table*;
+    :func:`spacr.merge_tables.merge_tables` is *one database, many tables* and
+    takes a path, so it cannot be handed a frame that already spans databases.
+    This runs the first per chosen table and then joins them with the second's
+    own :func:`~spacr.merge_tables.roll_up` and
     :meth:`~spacr.merge_tables.MergePolicy.how_for`. There is no sum and no
     mean written here; every number comes from the rules.
 
-    THE ROLL-UP KEYS CARRY THE SCREEN AND THE SOURCE. Omit them and two
-    screens legitimately sharing ``plate1`` -- the case
+    The roll-up keys carry the screen and the source. Omit them and two screens
+    legitimately sharing ``plate1`` -- the case
     :func:`~spacr.multi_database.describe_merge` deliberately permits -- would
     collapse into one parent, reintroducing one layer up the exact pooling
     :mod:`spacr.multi_database` exists to prevent.
@@ -545,7 +542,7 @@ def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
     :param paths: measurement databases. Repeats are read once.
     :param tables: the object tables to join. The anchor is added if absent.
     :param policy: how each measurement combines and what happens to a cell
-        with no children. ``policy.primary`` IS the anchor and defaults to
+        with no children. ``policy.primary`` is the anchor and defaults to
         :data:`DEFAULT_ANCHOR`.
     :param screens: screen label per database -- a sequence parallel to
         ``paths`` or a mapping from path. Passed to both the plan and the read.
@@ -554,12 +551,12 @@ def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
     :param limit_per_source: row cap per database, for a preview.
     :param progress: called ``progress(stage, done, total)`` as the merge
         moves. ``stage`` names the table and the database; ``done``/``total``
-        are ROWS, against the same total the plan prints. Runs on whatever
-        thread the merge does, so a GUI caller relays it rather than touching
-        a widget in it.
+        are rows, against the same total the plan prints. Runs on whatever
+        thread the merge does, so a GUI caller relays it rather than touching a
+        widget in it.
     :param cancelled: called between stages; a true answer raises
         :class:`~spacr.multi_database.MergeCancelled`. Nothing is written
-        anywhere until this function RETURNS, so a cancelled merge leaves the
+        anywhere until this function returns, so a cancelled merge leaves the
         previous result exactly where it was.
     :param on_ambiguous_identifier: ``'refuse'`` (default) leaves out a text
         identifier that differs within a roll-up group and names it;
@@ -591,16 +588,15 @@ def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
     wanted = list(dict.fromkeys([anchor] + [str(name) for name in tables]))
 
     def _say(stage: str) -> None:
-        """Report the current stage, if anyone is listening."""
+        """Report the current stage, if a callback was given."""
         if progress is not None:
             progress(stage, tracker["done"], tracker["total"])
 
     def _stop(where: str) -> None:
         """Raise if the caller has cancelled, naming where it stopped.
 
-        Checked BETWEEN stages rather than only at the start: a merge across
-        databases runs for minutes, and a cancel that is only noticed at the end
-        is not a cancel.
+        Checked between stages rather than only at the start, because a merge
+        across databases runs for minutes.
         """
         if cancelled is not None and cancelled():
             raise MergeCancelled(
@@ -750,7 +746,7 @@ def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
 
 
 def displayed_plates(plates: Sequence[str]) -> Tuple[str, ...]:
-    """Plate ids as the plates are CALLED, in their given order.
+    """Plate ids as the plates are called, in their given order.
 
     :param plates: plate ids, each passed through ``canonical_plate_id``.
     """
@@ -797,18 +793,17 @@ def _rows_per_source(frame) -> Dict[str, int]:
 
 
 def merge_summary(frame) -> str:
-    """What the merge cost, as COUNTS. This is what fits in the box.
+    """What the merge cost, as counts. This is what fits in the box.
 
-    The old report put eighty-five column names inline and
-    then another eighty-five, so the three lines that matter -- what joined
-    how, how many rows, what the anchor is -- were buried in
-    ``nucleus_channel_2_channel_3_M2_correlation_85`` and its brothers.
+    Column names are not listed inline, so the three key lines -- what joined
+    how, how many rows, what the anchor is -- are not buried among names such
+    as ``nucleus_channel_2_channel_3_M2_correlation_85``.
 
-        The COUNT is the sentence. The LIST is the evidence, and evidence goes
-        behind a disclosure.
+        The count is the summary. The list is the evidence, and goes behind a
+        disclosure.
 
     A refusal is the exception and stays here whatever its length: it is not
-    evidence for a claim, it IS the claim, and a user who never opens the
+    evidence for a claim, it is the claim, and a user who never opens the
     disclosure still has to be told a column was left out.
 
     :param frame: the output of :func:`merge_across_databases`.
@@ -874,7 +869,8 @@ def merge_summary(frame) -> str:
 
 
 def merge_evidence(frame) -> str:
-    """The lists behind :func:`merge_summary`'s counts. One click away.
+    """The lists behind :func:`merge_summary`'s counts, shown behind a
+    disclosure.
 
     Every name the summary counted, so that a user who wants to check the
     claim can, and one who does not is not made to read it.
@@ -907,8 +903,7 @@ def merge_report(frame) -> str:
     """The whole statement: :func:`merge_summary` and then its evidence.
 
     Kept as one string for a caller that wants everything -- a log line, a
-    test, a headless script. The PANEL shows the two halves in two places,
-    which is the whole of the design.
+    test, a headless script. The panel shows the two halves in two places.
 
     :param frame: the merged frame, passed to :func:`merge_summary` and
         :func:`merge_evidence`.
@@ -943,12 +938,9 @@ def step_header(number: int, title: str, parent=None):
 class WorkflowStep(QWidget):
     """One numbered step of the Measurements workflow: a fold and a body.
 
-    THE THIRD LEVEL OF NESTING ON THIS TAB. Its three panels are splitter
-    children that fold (see :class:`MeasurementScanPanel`), but the numbered
-    steps inside them were bold labels with the step's controls loose in the
-    panel's own column underneath. So "collapse the step I am not on" was not
-    offered at all, and a step could only lose height to its neighbours --
-    never take it back.
+    The third level of nesting on this tab. Its three panels are splitter
+    children that fold (see :class:`MeasurementScanPanel`), and each numbered
+    step inside them folds too, so a step that is not in use can be collapsed.
 
     The heading is still the ``WorkflowStep`` ``QLabel`` :func:`step_header`
     makes, inside the header row rather than replacing it: it is what the
@@ -959,9 +951,9 @@ class WorkflowStep(QWidget):
     :param number: one-based step number, as the tab counts them.
     :param title: the step's title, translated by :func:`step_header`.
     :param parent: parent widget; ownership only.
-    :param expanded: whether it starts open. Steps DO start open: unlike the
-        tab's three panels, a step is a stage of one procedure and hiding all
-        of them would leave a panel that says nothing about what it does.
+    :param expanded: whether it starts open. Steps start open: unlike the tab's
+        three panels, a step is a stage of one procedure and hiding all of them
+        would leave a panel that says nothing about what it does.
     """
 
     toggled = Signal(bool)
@@ -1020,7 +1012,7 @@ class WorkflowStep(QWidget):
     def is_expanded(self) -> bool:
         """Whether the step's controls are showing.
 
-        READ OFF THE BUTTON, not a flag beside it, for the reason
+        Read off the button, not a flag beside it, for the reason
         :meth:`CollapsibleSection.is_expanded` gives: a cached copy can
         disagree with what the user sees.
         """
@@ -1074,11 +1066,11 @@ def resizable_box(owner, widget, layout, *, key: str, minimum: int,
                   default: int, maximum: int, name: str):
     """Give ``widget`` a user-draggable height instead of a hard cap.
 
-    WHAT THIS REPLACES, and why it was wrong twice over. Every tall box on
-    this tab was pinned with ``setMaximumHeight(N)`` at a literal N chosen
-    against a 100 % font. Measured offscreen at a 200 % font scale -- a
-    supported accessibility setting -- each one lost about half its content
-    and could not be dragged back:
+    This replaces fixed maximum heights. Every tall box on this tab was pinned
+    with ``setMaximumHeight(N)`` at a literal N chosen against a 100 % font.
+    Measured offscreen at a 200 % font scale -- a supported accessibility
+    setting -- each one lost about half its content and could not be dragged
+    back:
 
     ======================  =========  =========  =========
     box                     cap        @100 %     @200 %
@@ -1091,21 +1083,20 @@ def resizable_box(owner, widget, layout, *, key: str, minimum: int,
     outcomes                120 px     7 lines    3 lines
     ======================  =========  =========  =========
 
-    So the height now starts at ``default`` SCALED BY THE FONT PREFERENCE --
-    at 200 % the report opens twice as tall and keeps its eleven lines -- and
-    a :class:`~.height_grip.HeightGrip` under it drags it anywhere between
-    ``minimum`` and ``maximum``. Home's release-notes panel has had that
-    handle for a while; this is the same class, moved to
+    So the height now starts at ``default`` scaled by the font preference -- at
+    200 % the report opens twice as tall and keeps its eleven lines -- and a
+    :class:`~.height_grip.HeightGrip` under it drags it anywhere between
+    ``minimum`` and ``maximum``. Home's release-notes panel has had that handle
+    for a while; this is the same class, moved to
     :mod:`spacr.qt.widgets.height_grip` rather than written a second time.
 
     :param owner: the panel the box belongs to. The handle is registered on
         it under ``key`` so the tab can store and restore the height.
     :param widget: the box to make resizable. Added to ``layout`` here.
     :param layout: the column the box and its handle go into.
-    :param key: stable name for the stored height. NOT ``name``: that one is
-        read aloud and will be translated one day, and a stored layout keyed
-        on a translated string is a layout that is lost when the user
-        switches language.
+    :param key: stable name for the stored height. Not ``name``: that one is
+        read aloud and may be translated, and a layout keyed on a translated
+        string would be lost when the user switches language.
     :param minimum: floor in px at 100 % font scale.
     :param default: opening height in px at 100 % font scale.
     :param maximum: ceiling in px at 100 % font scale.
@@ -1169,10 +1160,10 @@ def regressable_columns(frame) -> Tuple[str, ...]:
     :param frame: a merged measurement frame, or ``None``.
     :returns: the numeric measurement columns, in the frame's own order.
 
-    NUMERIC AND NOT IDENTITY, and both halves are checked rather than assumed.
-    A merged frame carries `plateID`, `object_label`, `source_database` and
-    the text identifiers `merge_across_databases` carries through; a picker
-    that offered those would offer a fit onto a well name.
+    Numeric and not an identifier; both conditions are checked. A merged frame
+    carries `plateID`, `object_label`, `source_database` and the text
+    identifiers `merge_across_databases` carries through; a picker that offered
+    those would offer a fit onto a well name.
 
     A column of one value is left out too. It has no variance, so the fit is
     degenerate -- and every backend reports that differently, which turns one
@@ -1205,7 +1196,7 @@ def write_merged_frame(frame, folder: str,
 
     :param frame: the merged frame.
     :param folder: where to put it. Created if it is not there.
-    :param name: what the artefact is called. Only its STEM is used -- the
+    :param name: what the artefact is called. Only its stem is used -- the
         suffix belongs to the writer, so the same call produces Parquet where
         an engine is installed and CSV where none is, and a reader dispatches
         on what it finds.
@@ -1213,21 +1204,21 @@ def write_merged_frame(frame, folder: str,
         cost; ``None`` to say nothing.
     :returns: the path written, or ``""`` when there was nothing to write.
 
-    THE ARTEFACT IS STILL WRITTEN. A user can open it, and every fit of a
-    queue then reads the same numbers, which is what made it an artefact
+    The artefact is still written to disk. A user can open it, and every fit of
+    a queue then reads the same numbers, which is what made it an artefact
     rather than a preview in the first place.
 
-    WHAT CHANGES IS THAT NOTHING PARSES IT BACK. The frame is already in this
+    Nothing in this process parses it back. The frame is already in this
     process when it is written, and the fits run in this process too, so
-    :func:`spacr.frame_handoff.stage` offers it under the path it wrote
-    BEFORE the write returns. A four-plate screen merges to about 2.75 GB:
-    the CSV write cost around 160 seconds before anything read it, and each
-    fit then parsed the whole file back out of the page cache -- minutes of
-    CPU with no disk I/O at all, which is what made a working run look hung.
+    :func:`spacr.frame_handoff.stage` offers it under the path it wrote before
+    the write returns. A four-plate screen merges to about 2.75 GB: the CSV
+    write cost around 160 seconds before anything read it, and each fit then
+    parsed the whole file back out of the page cache -- minutes of CPU with no
+    disk I/O at all, which is what made a working run look hung.
 
-    The offer is a WEAK reference, so it cannot keep a multi-gigabyte frame
-    alive after the panel that merged it lets go, and a reader that was
-    offered nothing reads the file exactly as before.
+    The offer is a weak reference, so it cannot keep a multi-gigabyte frame
+    alive after the panel that merged it lets go, and a reader that was offered
+    nothing reads the file exactly as before.
     """
     if frame is None or not len(frame) or not folder:
         return ""
@@ -1238,19 +1229,19 @@ def write_merged_frame(frame, folder: str,
 
 def column_run_settings(base: Optional[Dict[str, Any]], column: str,
                         score_path: str) -> Dict[str, Any]:
-    """The settings for ONE fit of the queue: this column, this score file.
+    """The settings for one fit of the queue: this column, this score file.
 
     :param base: the regression screen's own settings, or ``None``.
     :param column: the response to fit.
     :param score_path: the merged frame written by :func:`write_merged_frame`.
 
-    A COPY, never the caller's dict. Twelve fits built by mutating one dict
-    are twelve fits of whatever the last one asked for -- and the base is the
-    live settings panel, which the user may be editing while the queue runs.
+    A copy, never the caller's dict. Twelve fits built by mutating one dict are
+    twelve fits of whatever the last one asked for -- and the base is the live
+    settings panel, which the user may be editing while the queue runs.
 
-    THE COUNT SIDE IS LEFT ALONE. What varies between these runs is the
-    RESPONSE and nothing else, which is what makes them comparable in the Runs
-    tab; the guides each well got are the same guides.
+    The count side is left unchanged. Only the response varies between these
+    runs, which is what makes them comparable in the Runs tab; the guides each
+    well got are the same guides.
     """
     settings: Dict[str, Any] = dict(base or {})
     settings["dependent_variable"] = str(column)
@@ -1300,8 +1291,8 @@ class QueueCancelled(Exception):
     """The user stopped the queue between fits.
 
     Not an error and not a refusal, for the same reason
-    :class:`spacr.multi_database.MergeCancelled` is neither: wording a cancel
-    like a failure puts "did not fit" in front of somebody who pressed Stop.
+    :class:`spacr.multi_database.MergeCancelled` is neither: a cancel is not
+    reported as a fit that failed.
     """
 
 
@@ -1385,7 +1376,7 @@ def _fit_outcome(column: str, payload) -> ColumnFit:
 class WorkflowSteps:
     """The numbered-step half of a Measurements panel, shared by both of them.
 
-    A MIXIN AND NOT A BASE CLASS: ``DatabaseMergePanel`` and
+    A mixin, not a base class: ``DatabaseMergePanel`` and
     ``ColumnRegressionPanel`` are both ``QWidget`` already, and the thing they
     share is bookkeeping rather than a widget. ``step_folds_changed`` stays
     declared on each of them -- a ``Signal`` on a non-``QObject`` mixin is not
@@ -1427,9 +1418,9 @@ class WorkflowSteps:
     def set_step_folds(self, folds) -> None:
         """Put back what :meth:`step_folds` returned.
 
-        A number this panel does not have is IGNORED rather than an error: a
-        layout stored by a version with five steps must not stop this one
-        from starting.
+        A number this panel does not have is ignored rather than an error: a
+        layout stored by a version with five steps must not stop this one from
+        starting.
 
         :param folds: mapping of step number to ``True`` (open) or ``False``
             (folded), as :meth:`step_folds` returns; unknown numbers are
@@ -1456,7 +1447,7 @@ class WorkflowSteps:
         self.step_folds_changed.emit()
 
     def box_heights(self) -> dict:
-        """The dragged heights, in px AT 100 % FONT SCALE.
+        """The dragged heights, in px at 100 % font scale.
 
         Divided by the scale on the way out and multiplied on the way back in
         (:meth:`set_box_heights`), so a height chosen at 200 % is the same
@@ -1502,20 +1493,16 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
     disabled here, because it still runs in the regression and the user needs
     to see why it is absent from this tab.
 
-    WHAT IS NOT OFFERED IS AS DELIBERATE AS WHAT IS. There is no join-type
-    control: the join follows object cardinality per table through
-    :meth:`spacr.merge_tables.MergePolicy.how_for`, and a blanket ``how`` is
-    the finding the design raised. The two checkboxes here are the two
-    settings that policy actually reads.
+    There is no join-type control: the join follows object cardinality per
+    table through :meth:`spacr.merge_tables.MergePolicy.how_for`, and a blanket
+    ``how`` is the finding the design raised. The two checkboxes here are the
+    two settings that policy actually reads.
 
-    THE MERGE RUNS OFF THE GUI THREAD, and it did not used to. Four
-    databases, 226,467 cell rows and three joined tables ran inside the
-    button's own click handler, so Qt could not paint, could not show a
-    spinner and could not accept a cancel until it returned. The application
-    was not hung; it was working, and had no way to say so -- which is
-    the design in full. :class:`~spacr.qt.job_runner.JobRunner` is the
-    idiom every other long job here already uses, and this panel was the one
-    that did not.
+    The merge runs off the GUI thread. Run inside the click handler, four
+    databases, 226,467 cell rows and three joined tables kept Qt from painting,
+    showing a spinner or accepting a cancel until the merge returned.
+    :class:`~spacr.qt.job_runner.JobRunner` runs it, as it runs every other
+    long job here.
 
     :ivar databases_changed: emitted with the number of readable databases
         whenever the list is re-read.
@@ -1698,14 +1685,14 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         self.consolidate.setToolTip(
             "consolidate_on_cell. Off keeps every cell and leaves the child's "
             "columns empty. This is not a blanket join type: the join is "
-            "decided per table by what that object IS.")
+            "decided per table by the object type.")
         self.consolidate.toggled.connect(self._on_choice)
         options.addWidget(self.consolidate)
         self.keep_uninfected = QCheckBox("keep uninfected cells")
         self.keep_uninfected.setChecked(True)
         self.keep_uninfected.setToolTip(
-            "An uninfected cell is a cell, and in a screen it is usually the "
-            "control population. Off restricts the analysis to cells that "
+            "Keeps cells without a pathogen or organelle, which in a screen are "
+            "usually the control population. Off restricts the analysis to cells that "
             "contain a pathogen or organelle.")
         self.keep_uninfected.toggled.connect(self._on_choice)
         options.addWidget(self.keep_uninfected)
@@ -2063,7 +2050,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         return self._databases
 
     def paths(self) -> Tuple[str, ...]:
-        """The databases that are attached AND on disk, de-duplicated."""
+        """The databases that are attached and on disk, de-duplicated."""
         return tuple(dict.fromkeys(
             entry.path for entry in self._databases if entry.present))
 
@@ -2082,12 +2069,12 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
     def refresh(self) -> int:
         """Re-read the provider and describe what is attached.
 
-        A RE-READ, so the previous paint's answers are not reused: a measure
+        A re-read, so the previous paint's answers are not reused: a measure
         run may have rewritten a database at a path this panel already knows,
         and `_prepare_merge` refreshes precisely to catch that. It is bounded
         rather than blocking -- see :meth:`_read_off_thread` -- so a database
         that has not answered within the budget is drawn as it was, or as
-        "reading…", and put right the moment it does.
+        "reading…", and corrected when it does.
 
         :returns: the number of readable databases.
         """
@@ -2313,7 +2300,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
     def policy(self) -> MergePolicy:
         """The merge policy the controls describe.
 
-        Note what is NOT here: a join type. ``how_for`` derives it per table
+        Note what is not here: a join type. ``how_for`` derives it per table
         from cardinality, and these two checkboxes are the only settings that
         change it.
         """
@@ -2381,9 +2368,9 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
     def merged_frame_path(self) -> str:
         """Where the merged frame was written, or ``""``.
 
-        The artefact the design asks for: written ONCE when the merge
-        finishes, named, and read by every fit in the column queue rather
-        than the merge being redone per fit.
+        The artefact the design asks for: written once when the merge finishes,
+        named, and read by every fit in the column queue rather than the merge
+        being redone per fit.
         """
         return self._artefact
 
@@ -2398,23 +2385,20 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
 
 
     def describe(self) -> str:
-        """State what the merge WOULD do, before it is done.
+        """State what the merge would do, before it is done.
 
-        Called on every click, and it CANNOT read the databases on every
-        click. What it needs is sqlite metadata and the distinct plate ids,
-        which is a millisecond on a local disk and was the reason the old
-        comment here called it cheap -- but the same read on a share that is
-        asleep did not return at all, and this is reached from a checkbox.
-        So it draws from what `refresh` asked for, waits at most
-        :data:`READ_BUDGET_S` for anything not back yet, and says
-        "reading…" for the rest until :meth:`_on_read_landed` puts it right.
+        Called on every click, so it cannot read the databases each time. What
+        it needs is sqlite metadata and the distinct plate ids, a millisecond
+        on a local disk, but the same read on a share that is asleep may not
+        return at all. So it draws from what `refresh` asked for, waits at most
+        :data:`READ_BUDGET_S` for anything not back yet, and says "reading…"
+        for the rest until :meth:`_on_read_landed` corrects it.
 
-        THE COUNT GOES IN THE BOX AND THE NAMES GO BEHIND THE DISCLOSURE
-        (154 B). Putting both in the box is what buried the three lines that
-        matter under a hundred and seventy column names.
+        The counts go in the box and the names behind the disclosure, so the
+        summary is not buried under a long list of column names.
 
         :returns: the whole statement, summary and evidence, as one string --
-            what the panel SAYS, wherever it puts it.
+            what the panel says, wherever it puts it.
         """
         with self._read_budget():
             summary, evidence = self._plan_lines()
@@ -2427,9 +2411,9 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
     def plan_text(self) -> str:
         """The whole pre-merge statement: the summary and then its evidence.
 
-        Kept whole for a caller that wants everything. What the PANEL shows is
+        Kept whole for a caller that wants everything. What the panel shows is
         :meth:`plan_summary` in the box and :meth:`plan_evidence` behind the
-        disclosure -- the design.
+        disclosure.
         """
         with self._read_budget():
             summary, evidence = self._plan_lines()
@@ -2437,7 +2421,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         return text + ("\n\n" + "\n".join(evidence) if evidence else "")
 
     def plan_summary(self) -> str:
-        """The pre-merge statement as COUNTS -- what fits in the box."""
+        """The pre-merge statement as counts -- what fits in the box."""
         with self._read_budget():
             return "\n".join(self._plan_lines()[0])
 
@@ -2493,7 +2477,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         lines.extend(plate_id_notes(plan))
 
         if tables:
-            lines.append("Joined per table, by what the object IS — there is "
+            lines.append("Joined per table, by object type — there is "
                          "no single join type to choose:")
             for table in tables:
                 lines.append(f"  {table}: {policy.how_for(table)} join")
@@ -2621,7 +2605,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
 
 
     def merge(self, **kwargs):
-        """Merge the chosen tables and report what it cost, RIGHT NOW.
+        """Merge the chosen tables synchronously and report what it cost.
 
         **This blocks the calling thread until the whole join is done.** On
         four databases that is minutes, so the GUI must not call it: the Merge
@@ -2631,8 +2615,8 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         wants the frame back on the next line.
 
         :returns: the merged frame, or ``None`` when nothing was merged. A
-            refusal is shown in full rather than summarised: it is an ANSWER,
-            and it says what to do about it.
+            refusal is shown in full rather than summarised, including what to
+            do about it.
         """
         prepared = self._prepare_merge()
         if prepared is None:
@@ -2642,12 +2626,12 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         return self._finish_merge(prepared, outcome)
 
     def start_merge(self, *_args, **kwargs) -> bool:
-        """Merge OFF the GUI thread, saying where it is and taking a cancel.
+        """Merge off the GUI thread, reporting progress and accepting a cancel.
 
-        The whole of the design. Everything that touches a widget --
-        re-reading the input table, printing the plan, showing the result --
-        happens here on the GUI thread; the join itself happens on a worker,
-        and the only thing that crosses back is a Signal.
+        Everything that touches a widget -- re-reading the input table,
+        printing the plan, showing the result -- happens here on the GUI
+        thread; the join itself happens on a worker, and the only thing that
+        crosses back is a Signal.
 
         :returns: whether a merge was started. ``False`` when there is nothing
             to merge, or when one is already running -- a second Merge click
@@ -2846,7 +2830,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         return self._frame
 
     def statement(self) -> str:
-        """EVERYTHING the panel is saying: the box and the disclosure.
+        """Everything the panel is saying: the box and the disclosure.
 
         The box holds the counts and the disclosure holds the names, so a
         caller that wants to know whether the panel
@@ -2858,28 +2842,24 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
 
     @property
     def overrides(self) -> Dict[str, str]:
-        """The user's per-column aggregation choices, which beat every rule."""
+        """The user's per-column aggregation choices, which take precedence
+        over every rule."""
         return dict(self._overrides)
 
     def show_aggregation_rules(self) -> None:
         """The per-column rules, for the columns actually about to be merged.
 
         Reuses the Gate Editor's dialog rather than growing a second one: the
-        rules are the same rules, and two editors of one decision is how they
-        come to disagree.
+        rules are the same rules, so one editor keeps them consistent.
 
-        THE PREVIEW READ IS OFF THE GUI THREAD, and it is the one the rest of
-        this panel's fix had left behind. Everything else here reads sqlite
-        METADATA; this reads ROWS -- `read_merged` opens every attached
-        database and pulls :data:`PREVIEW_ROWS` rows out of each -- and it ran
-        inside the button's own click handler. On a local disk that is a
-        blink; on the `autofs` mount this whole exercise came from it is the
-        freeze again, on a button rather than on a tab.
+        The preview read is off the GUI thread. Everything else here reads
+        sqlite metadata; this reads rows -- `read_merged` opens every attached
+        database and pulls :data:`PREVIEW_ROWS` rows out of each -- which on a
+        sleeping `autofs` mount would freeze a click handler.
 
-        So the click either opens the dialog straight away, as it always did,
-        or says the button is reading and opens it from
-        :meth:`_on_read_landed` when the databases answer. Nothing is lost
-        either way: the dialog the user asked for still arrives.
+        So the click either opens the dialog straight away or says the button
+        is reading and opens it from :meth:`_on_read_landed` when the databases
+        answer.
         """
         from PySide6.QtWidgets import QMessageBox
         from .aggregation_rules import AggregationRulesDialog
@@ -2902,7 +2882,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
             question = ("rules preview", paths, table, _screen_key(screens))
 
             def preview():
-                """Read the preview. WORKER THREAD; touches no widget.
+                """Read the preview. Worker thread; touches no widget.
 
                 :returns: what :func:`~spacr.multi_database.read_merged`
                     returns for the chosen table.
@@ -2962,15 +2942,15 @@ def well_keys(frame) -> Tuple[str, Tuple[str, ...]]:
     """``(what the key is called, the distinct well keys)`` for one frame.
 
     ``prc`` when the frame carries it, otherwise built from
-    ``plateID``/``rowID``/``columnID`` -- which is what ``prc`` IS, and the
-    reason a measurements table with no ``prc`` column is still comparable to
-    a regression frame that has one.
+    ``plateID``/``rowID``/``columnID`` -- which is what ``prc`` is, and the
+    reason a measurements table with no ``prc`` column is still comparable to a
+    regression frame that has one.
 
     :param frame: the frame to read; its ``prc`` column is used when present,
         else ``plateID``, ``rowID`` and ``columnID`` joined with underscores.
         ``None`` or a frame without columns gives ``("", ())``.
-    :returns: ``("", ())`` for a frame carrying no well identity at all,
-        which is itself the answer to "why did nothing join".
+    :returns: ``("", ())`` for a frame carrying no well identity at all, which
+        explains why nothing joined.
     """
     if frame is None or not len(getattr(frame, "columns", ())):
         return ("", ())
@@ -2991,9 +2971,8 @@ def describe_key_overlap(left_name: str, left, right_name: str,
                          right) -> str:
     """Whether two frames' wells meet, and one example from each side if not.
 
-    The sentence the design asks for, and it is computed rather than
-    asserted. ``""`` when the two do overlap, because then the join is not the
-    problem and saying anything about it would send the user the wrong way.
+    The sentence is computed from the keys. ``""`` when the two do overlap,
+    because then the join is not the problem.
 
     :param left_name: how the first frame is named in the sentence, such as
         ``'merged measurements'``.
@@ -3135,7 +3114,7 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
             QAbstractItemView.ExtendedSelection)
         self.columns_list.setToolTip(
             "The numeric measurements of the merged frame. Pick as many as "
-            "you like: EACH ONE BECOMES ITS OWN RUN, with its own folder and "
+            "you like: each one becomes its own run, with its own folder and "
             "its own row in the Runs tab, so they can be compared there.")
         self.columns_list.itemSelectionChanged.connect(self._on_selection)
         resizable_box(self, self.columns_list, step.body, key="columns",
@@ -3184,7 +3163,7 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
 
         :returns: how many columns can be regressed on.
 
-        THE SELECTION SURVIVES A REFRESH where the column survives with it.
+        The selection survives a refresh for every column that still exists.
         Re-merging with one more database must not silently empty a queue the
         user has just built.
         """
@@ -3238,9 +3217,9 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
     def selected_columns(self) -> Tuple[str, ...]:
         """The columns the user picked, in the list's order.
 
-        The LIST's order and not the click order, so the queue is read the
-        same way the picker is -- and two users who picked the same three
-        columns get the same three runs in the same order.
+        The list's order and not the click order, so the queue is read the same
+        way the picker is -- and two users who picked the same three columns
+        get the same three runs in the same order.
         """
         return tuple(self.columns_list.item(index).text()
                      for index in range(self.columns_list.count())
@@ -3332,8 +3311,7 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
 
         :returns: whether a queue was started. ``False`` when nothing is
             selected, when one is already going, or when the merged frame was
-            never written -- and each of those SAYS which it was, because a
-            button that does nothing is the failure this file keeps fixing.
+            never written -- and each of those says which it was.
         """
         if self._running:
             return False
@@ -3384,10 +3362,9 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
 
         :returns: whether there was one to stop.
 
-        NOT MID-FIT, and the honesty is the point: a regression stopped
-        half-way has written part of a results folder, and there is no way to
-        say what that folder means. The fits that finished are complete runs
-        and stay in the Runs tab.
+        Not mid-fit: a regression stopped half-way has written part of a
+        results folder, and there is no way to say what that folder means. The
+        fits that finished are complete runs and stay in the Runs tab.
         """
         if not self._running:
             return False
@@ -3817,15 +3794,12 @@ class MeasurementScanPanel(QWidget):
             LOG.debug("could not store the section layout", exc_info=True)
 
     def section_is_shown(self, title: str) -> bool:
-        """Whether a section is on the tab at all -- FOLDED OR NOT.
+        """Whether a section is on the tab at all -- folded or not.
 
-        TWO DIFFERENT QUESTIONS, and they used to be asked with one call.
-        `_show_section` HIDES a section that has nothing to show; a fold
-        merely closes one that does. Testing the content's visibility answers
-        both at once, so when the sections started closed (2026-08-20) three
-        tests about "the databases appear without a scan" began failing --
-        the databases were there, the section was shown, and its content was
-        simply folded away, which is what folded means.
+        Two different questions: `_show_section` hides a section that has
+        nothing to show, while a fold only closes one that does. Testing the
+        content's visibility would answer both at once, because a folded
+        section's content is hidden too.
 
         :param title: the section's title; an unknown title returns ``False``.
         """
@@ -3873,9 +3847,9 @@ class MeasurementScanPanel(QWidget):
     def add_section(self, widget, title: str = "") -> None:
         """Put ``widget`` in the tab as its own resizable, foldable section.
 
-        Anything added to this tab goes HERE and not into the layout: a widget
-        appended to the layout takes its height out of the others, which is
-        how the sections came to overlap.
+        Anything added to this tab goes here and not into the layout: a widget
+        appended to the layout takes its height out of the others, which is how
+        the sections came to overlap.
 
         :param widget: the widget to add as a foldable section; ``None`` does
             nothing.
@@ -3929,8 +3903,8 @@ class MeasurementScanPanel(QWidget):
     def databases_frame(self):
         """The merged frame step 3 produced, or ``None``.
 
-        A method rather than the attribute, so step 4 reads the CURRENT
-        frame every time instead of a copy taken when it was built.
+        A method rather than the attribute, so step 4 reads the current frame
+        every time instead of a copy taken when it was built.
         """
         return self.databases.frame
 
@@ -3953,12 +3927,10 @@ class MeasurementScanPanel(QWidget):
         return self.scan(frame, **kwargs)
 
     def why_nothing_to_scan(self, frame=None) -> str:
-        """Which half is missing, checked rather than asserted.
+        """Report which half is missing, after checking both.
 
-        The old sentence named two things a well must
-        carry, checked neither, and was shown while four
-        measurement databases were loaded -- so it was wrong about the half
-        that was there and silent about the half that was not.
+        Both halves are checked, so the message names only the half that is
+        missing.
 
         :param frame: whatever the provider returned, or ``None``.
         """

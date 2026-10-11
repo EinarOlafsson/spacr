@@ -1,15 +1,14 @@
-"""Safe-mode launcher: the least spaCR that can still change a setting.
+"""Start spaCR in safe mode, with every preference read as its default.
 
 When a saved preference is what makes spaCR die on launch there is otherwise
 no way in -- the ordinary start reads that preference before it has drawn
-anything. ``safespacr`` reads every preference as its default instead, forces
-off the parts that are known to be able to take the process down with them,
-and opens far enough for the user to change a value and save it.
+anything. ``safespacr`` reads every preference as its default instead, turns
+off the backdrop, setting animations, verbose logging and preloading, and
+opens far enough for the user to change a value and save it.
 
-WRITES ARE NOT SHADOWED. Reading defaults is what makes safe mode start;
-writing to the real store is what makes it useful. A safe mode that saved to
-a scratch file would leave the broken value in place and the next ordinary
-start would die again on it.
+Writes go to the real preference store. A safe mode that saved to a scratch
+file would leave the broken value in place, and the next ordinary start
+would fail on it again.
 """
 from __future__ import annotations
 
