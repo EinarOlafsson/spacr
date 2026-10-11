@@ -4,7 +4,7 @@ Kernels are captured once per run. Only private intensity arrays are processed;
 raw stacks and mask labels are never rewritten by this module. V1 reuse checks
 both the requested kernel/settings and the exact completed archive bytes.
 
-THE ENHANCEMENT CHAIN TRAVELS THE SAME ROUTE. Make Masks' chain
+The enhancement chain follows the same route. Make Masks' chain
 (:mod:`spacr.qt.detect_chain`) is written into a settings file as the
 ``enhance_*`` keys and read back here by :func:`prepare_chain`, with the
 ``psf_*`` settings folded in as the chain's PSF stage, so one plate run
@@ -16,7 +16,7 @@ same ``psf/segmentation_application.json`` record, so a changed chain is
 refused on resume the way a changed kernel is. With no chain step on, a
 run is byte for byte what it was before the chain existed.
 
-SPECTRAL UNMIXING COMES FIRST. With ``unmix`` on, a bleed-through matrix is
+Spectral unmixing comes first. With ``unmix`` on, a bleed-through matrix is
 estimated from the single-stain control wells ``unmix_controls`` names and
 every raw field is unmixed across all its channels before illumination
 correction, the PSF and the chain; the matrix joins the same record. Measure
@@ -24,7 +24,7 @@ estimates its own over the measured channels and unmixes each field before
 its preprocessing hooks, recording the matrix in the saved run settings and
 ``measurements/bleed_through.json``.
 
-SELF-SUPERVISED DENOISING COMES BEFORE THE CHAIN. With ``n2v_denoise`` on,
+Self-supervised denoising comes before the chain. With ``n2v_denoise`` on,
 a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics,
 in its own environment, on a sample of the run's own raw fields -- no clean
 images are needed -- or read from ``n2v_model``. Each field's selected

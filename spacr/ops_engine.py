@@ -913,12 +913,12 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         :param window: the rectangle about to be composed.
         :returns: ``site -> (y, x)`` for :func:`~spacr.ops_compose.compose_window`.
 
-        A WELL IS NOT OPENED TO COMPOSE A WINDOW OF IT. Six anchors need
-        about nine tiles each; testing readability over every placement
-        instead pulled all 333 of the reference well's sequencing tiles,
-        and ``tifffile`` reads the whole five-plane 1,480 px file for one
-        plane of it -- 22 MB each, about 7 GB over NFS per well, before
-        ``compose_window`` then re-read the nine it wanted. The overlap
+        Only tiles that touch the window are opened, not the whole well. Six
+        anchors need about nine tiles each; testing readability over every
+        placement instead would read all 333 of the reference well's
+        sequencing tiles, and ``tifffile`` reads the whole five-plane
+        1,480 px file for one plane of it -- 22 MB each, about 7 GB over NFS
+        per well, before ``compose_window`` re-reads the nine it needs. The overlap
         test is the same rounding ``compose_window`` uses, so a tile is
         offered here exactly when it would have been used there; a tile
         that will not read is dropped so the composer never sees a None.
@@ -1799,7 +1799,7 @@ def run_ops(settings: Mapping[str, Any], *,
         back to the value this plate was validated at. ``ops_store_reads``
         writes ``ops_reads``.
 
-        EITHER FOLDER MAY BE A PARENT OF BOTH HALVES, and each setting
+        Either folder may be a parent of both halves, and each setting
         still reads its own: ``genotype_source`` indexes only names that
         carry a cycle and ``phenotype_source`` only names that do not,
         falling back to cycled names for a phenotype acquisition that

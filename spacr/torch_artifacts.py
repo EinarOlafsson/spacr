@@ -123,14 +123,14 @@ def make_model_artifact(
 ) -> dict[str, Any]:
     """Build the canonical serializable spaCR PyTorch artifact.
 
-    Everything needed to REBUILD the model, not only to load its weights:
+    Everything needed to rebuild the model, not only to load its weights:
     :func:`model_configuration` records the architecture so
     :func:`build_model_from_configuration` can reconstruct it without the
     caller remembering what it was.
 
     :param model: the module to serialise. Its ``state_dict`` and its
         configuration are both captured.
-    :param optimizer: optimiser whose state to store, so training can RESUME
+    :param optimizer: optimiser whose state to store, so training can resume
         rather than restart. Silently stored as ``None`` if it has no
         ``state_dict``, which is what makes a plain object safe to pass.
     :param scheduler: learning-rate scheduler, same contract as ``optimizer``.
@@ -145,13 +145,13 @@ def make_model_artifact(
     :param preprocessing: the transform the inputs were prepared with.
         Without it a loaded model can be fed differently-normalised images
         and can produce incorrect results without failing.
-    :param classes: class names in OUTPUT-COLUMN order. The order is the
+    :param classes: class names in output-column order. The order is the
         contract -- a reordered list silently relabels every prediction.
     :param channels: input channel names, in channel order, same contract.
     :param include_rng: capture Python/NumPy/torch RNG state, so a resumed
         run continues the same stream. Turn it off for a smaller artifact
         when exact resumption does not matter.
-    :param artifact_role: what this file IS -- ``model`` for a trained
+    :param artifact_role: what this file is -- ``model`` for a trained
         model, another role for a companion artifact -- recorded so a loader
         can tell them apart.
     :returns: the artifact dict, ready for :func:`atomic_torch_save`.
@@ -248,7 +248,7 @@ def load_model_artifact(
         unrecognised device string raises ``RuntimeError`` from torch.
     :param model: ``None`` rebuilds the architecture from the recorded
         config -- a legacy bare state dict records none, so ``maxvit_t`` is
-        assumed silently. A module passed here is loaded IN PLACE and
+        assumed silently. A module passed here is loaded in place and
         returned as the same object; for legacy full-module files it is
         ignored and the file's own module comes back.
     :param strict: forwarded to ``load_state_dict``; ``True`` raises
@@ -343,7 +343,7 @@ def restore_training_state(
         the checkpoint's.
     :param scheduler: same contract, restoring ``last_epoch`` and with it the
         position in the schedule.
-    :param restore_random_generators: reseeds the PROCESS-WIDE Python, NumPy
+    :param restore_random_generators: reseeds the process-wide Python, NumPy
         and torch generators, not just this model's. A no-op for artifacts
         written with ``include_rng=False``.
     :returns: a copy of the payload's ``training_state``; ``{}`` when it is

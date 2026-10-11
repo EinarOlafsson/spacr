@@ -1,4 +1,4 @@
-"""Attribution — what a trained classifier attends to, and whether that means anything.
+"""Attribution maps for trained classifiers, and checks of their validity.
 
 spaCR already drew Grad-CAM and saliency maps (``spacr.utils.GradCAMGenerator``,
 ``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``). This
@@ -14,20 +14,18 @@ Not every method applies to every backbone. :func:`method_applicability` says
 which do for a model or a ``model_type`` name, and why the others do not, so a
 method selector can grey an entry with its reason instead of failing mid-run.
 
-Almost none of it is written here. The CAM variants come from the optional
-**torchcam** attribution extra, while the gradient and perturbation methods
-come from the core **captum** dependency. What is written here is the part no
-library can supply: the
-adapters that make every method agree on one output shape, the handling of
-spaCR's two classifier head shapes, and — the reason this module exists — the
-analyses in the second half.
+Most methods are implemented by other libraries. The CAM variants come from
+the optional **torchcam** attribution extra, while the gradient and
+perturbation methods come from the core **captum** dependency. This module
+adds the adapters that give every method one output shape, the handling of
+spaCR's two classifier head shapes, and the evaluation analyses in the second
+half.
 
 **An attribution map is not an explanation.** It is a number per pixel produced
 by a procedure. It does not show what the model "looked at", it does not
 establish that the highlighted pixels caused the prediction, and it will render
-a confident, beautiful, plausible picture for a model with random weights. Four
-checks stand between a map and wishful thinking, and they are the point of this
-module:
+a plausible-looking map for a model with random weights. This module provides
+four checks of whether a map reflects the model:
 
 * :func:`deletion_curve` / :func:`insertion_curve` — remove (or add) the pixels
   the map ranks highest and watch the score. A map whose deletion curve is flat
@@ -160,7 +158,7 @@ CRITERION_CAVEATS: Dict[str, str] = {
 
 
 class AttributionError(RuntimeError):
-    """Base class for the failures this module reports instead of guessing."""
+    """Base class for the errors raised by this module."""
 
 
 class UnknownMethodError(AttributionError):
@@ -477,7 +475,7 @@ def _check_spatial_activation(module: nn.Module, wrapped: ClassScoreModel,
 
 @dataclass
 class Attribution:
-    """One attribution map plus everything needed to judge it.
+    """One attribution map with its target, prediction and caveats.
 
     :param method: Requested attribution-method name; normally a key of
         :data:`ATTRIBUTION_METHODS`, and retained verbatim on a skipped-failure
@@ -1998,7 +1996,7 @@ def faithfulness(model: nn.Module, image: Any, amap: Any, *,
                  target: Optional[int] = None, n_steps: int = 20,
                  baseline: Any = "blur",
                  mask: Optional[Any] = None) -> Dict[str, Any]:
-    """Every faithfulness number for one map, with the caveats attached.
+    """Compute deletion, insertion and pointing-game scores for one map.
 
     :param model: the trained classifier.
     :param image: the image the map explains.
@@ -2036,12 +2034,11 @@ def faithfulness(model: nn.Module, image: Any, amap: Any, *,
 
 
 def pointing_game(amap: Any, mask: Any, *, tolerance: int = 0) -> float:
-    """Does the map's brightest pixel land inside the object?
+    """Test whether the map's highest-ranked pixel lies inside the object.
 
-    spaCR already has the answer key: ``merged/*.npy`` stores the label-mask
-    planes next to the image channels, so a boolean object mask is free. The
-    game is deliberately crude — one pixel, hit or miss — because that is all it
-    claims to measure.
+    ``merged/*.npy`` stores the label-mask planes next to the image channels,
+    so an object mask is available without extra input. The test scores a
+    single pixel as a hit or a miss and measures nothing else.
 
     :param amap: an :class:`Attribution` or a ``(H, W)`` map.
     :param mask: object mask, same spatial shape. Any non-zero value is inside
@@ -2130,8 +2127,8 @@ class SanityCheck:
     :ivar stages: ``(layer_name, similarity)`` after each randomisation step, in
         the order applied.
     :ivar final_similarity: similarity to the trained model's map once every
-        parameterised layer has been randomised. This is the number that
-        matters: at that point the model is noise.
+        parameterised layer has been randomised. ``passed`` is decided on
+        this value.
     :ivar max_similarity: the largest similarity over all stages.
     :ivar threshold: the value ``final_similarity`` must fall below to pass.
     :ivar passed: whether the method's map changed when the weights did.
@@ -2161,7 +2158,7 @@ class SanityCheck:
         return float(min(1.0, max(0.0, 1.0 - self.final_similarity)))
 
     def verdict(self) -> str:
-        """One sentence a user can act on."""
+        """Return a one-sentence pass/fail statement for the check."""
         if self.passed:
             return (f"{self.method} PASSES the randomisation sanity check: "
                     f"after randomising every layer its map correlates "
@@ -2232,7 +2229,7 @@ def randomization_sanity_check(
         max_stages: Optional[int] = None,
         attribute_fn: Optional[Callable[..., Any]] = None,
         **kw) -> SanityCheck:
-    """Adebayo et al. 2018: does the map change when the weights are destroyed?
+    """Test whether the map changes when the weights are randomised (Adebayo 2018).
 
     Randomise the model's parameters layer by layer, from the output backwards,
     re-attribute at every stage, and correlate each map with the map from the
@@ -2364,7 +2361,7 @@ class Agreement:
     notes: List[str] = field(default_factory=list)
 
     def verdict(self) -> str:
-        """One sentence, deliberately asymmetric — see the note in the source."""
+        """Return a one-sentence interpretation of the agreement values."""
         if not math.isfinite(self.mean):
             return ("Agreement could not be computed: at least one map is "
                     "constant and has no pixel ordering to correlate.")
@@ -2447,7 +2444,8 @@ class AttributionMapGenerator:
     :class:`spacr.utils.SaliencyMapGenerator` expose
     ``compute_*_and_predictions(X)`` plus ``plot_activation_grid``. This offers
     the same two calls for every method in :data:`ATTRIBUTION_METHODS`, so the
-    existing batch loop gains twelve methods without changing shape.
+    existing batch loop can use any registered method without changing
+    shape.
 
     :param model: the trained classifier.
     :param method: a key of :data:`ATTRIBUTION_METHODS`.

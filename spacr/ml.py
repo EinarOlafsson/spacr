@@ -1,6 +1,6 @@
 """Find screen phenotypes and test which guides or genes explain them.
 
-WHAT IT IS FOR
+What it is for
 ==============
 The **Regression** tile opens this module because
 :func:`perform_regression` is its main entry point: it joins per-well image
@@ -10,7 +10,7 @@ machine-learning workflow, :func:`generate_ml_scores`, which trains a
 classifier on measured single-object features and turns those predictions
 into the score table a regression can consume.
 
-WHAT IT NEEDS
+What it needs
 =============
 A regression run is configured with ``paired_data``: ordered score/count CSV
 pairs whose plate and well identities agree.  Older ``score_data`` and
@@ -24,7 +24,7 @@ one or more ``measurements.db`` files, labelled positive and negative controls
 or an annotation column, and a model choice such as XGBoost, logistic
 regression, or random forest.
 
-WHAT IT PRODUCES
+What it produces
 ================
 Regression results go into a new, non-overwriting
 ``<output root>/results/<analysis kind>[_n]`` directory.  ``results.csv`` is
@@ -37,7 +37,7 @@ as a header-only CSV so downstream tools can distinguish "tested, no rows"
 from a missing artifact.  Classical ML writes predictions, feature-importance
 tables, evaluation results, and a plate heatmap beneath ``results``.
 
-WHAT TO DO NEXT
+What to do next
 ===============
 Read the diagnostic and failure/resource records before ranking hits, then
 review the significant table alongside the complete level tables and check
@@ -681,7 +681,7 @@ def calculate_p_values(X, y, model):
     is divided into has been shrunk, so the test is mis-specified. The
     direction of the error is the one that matters here and it is the safe one:
     the penalty shrinks the numerator and inflates the residual in the
-    denominator, so the statistic is too SMALL and the p-value too large. A
+    denominator, so the statistic is too small and the p-value too large. A
     penalised fit under-detects here; it does not manufacture hits.
 
     ``lasso`` and ``elasticnet`` do not rely on this at all —
@@ -726,7 +726,7 @@ def perform_mixed_model(y, X, groups, alpha=None,
                         regression_backend=DEFAULT_REGRESSION_BACKEND):
     """Fit a mixed-effects linear model with ``groups`` as the random intercept.
 
-    Collinearity is REPORTED, never silently corrected. The previous revision
+    Collinearity is reported, never silently corrected. The previous revision
     reacted to any VIF above 10 by fitting
 
     .. code-block:: python
@@ -749,7 +749,7 @@ def perform_mixed_model(y, X, groups, alpha=None,
       response at all. That is the worse of the two outcomes, because it
       completes.
 
-    A one-hot design against an intercept ALWAYS trips VIF > 10, so this path
+    A one-hot design against an intercept always trips VIF > 10, so this path
     was the normal one, not the exception.
 
     :param y: Response vector.
@@ -758,13 +758,13 @@ def perform_mixed_model(y, X, groups, alpha=None,
         per row of ``X``.
     :param alpha: Must be None. Accepted only so an old call site fails with
         an explanation instead of a TypeError.
-    :param regression_backend: WHO fits it. ``'statsmodels'``
+    :param regression_backend: the backend that fits the model. ``'statsmodels'``
         is the default and produced every existing result; ``'torch'`` fits
         the same profiled REML objective on the GPU
         (:mod:`spacr.mixed_gpu`) and returns a result object with the same
         attributes, so nothing downstream can tell which ran except by
         asking. A backend that cannot fit ``'mixed'`` here, is not installed,
-        or needs a GPU that is absent is REFUSED with the reason -- see
+        or needs a GPU that is absent is rejected with the reason -- see
         :func:`_require_backend`.
     :returns: Fitted ``statsmodels`` ``MixedLMResults``, or the equivalent
         :class:`spacr.mixed_gpu.TorchMixedResults`.
@@ -893,7 +893,7 @@ def create_volcano_filename(csv_path, regression_type, alpha, dst):
 def scale_variables(X, y):
     """Min-max scale the independent (X) and dependent (y) variables to [0, 1].
 
-    Constant columns are passed through UNCHANGED. ``MinMaxScaler`` maps a
+    Constant columns are passed through unchanged. ``MinMaxScaler`` maps a
     column with zero range to all-zeros, and patsy's intercept is exactly such
     a column, so scaling a design matrix used to silently delete its
     intercept: statsmodels then fitted a model through the origin and still
@@ -1010,7 +1010,7 @@ INTERCEPT_MODES = ("fitted", "zero", "control", "value")
 def centre_on_controls(df, dependent_variable, nc):
     """Subtract the negative controls' median response. Returns (df, offset).
 
-    THIS IS WHAT MAKES THE INTERCEPT MEAN SOMETHING. A fitted intercept is
+    Centring gives the intercept a meaning. A fitted intercept is
     the response where every predictor is zero, which on a screen design is
     a well with no guide in it -- a point that does not exist. Centred on
     the negative controls, the intercept is the control level, and every
@@ -1018,7 +1018,7 @@ def centre_on_controls(df, dependent_variable, nc):
 
     The offset is returned rather than swallowed so the caller can report
     it: a coefficient table whose response was shifted, with nothing saying
-    by how much, is a table nobody can compare with another run.
+    by how much, cannot be compared with another run.
 
     :param df: the long frame the fit runs on.
     :param dependent_variable: the response column.
@@ -1848,7 +1848,7 @@ def label_control_condition(features, guides, nc=None, pc=None, controls=None,
     The ``condition`` column: what the volcano colours by, what the results
     panel offers in "colour by", and -- the reason this is a function rather
     than four lines inside :func:`process_model_coefficients` -- what the
-    EFFECT-SIZE CUT measures its spread on. A coefficient table without it is
+    effect-size cut measures its spread on. A coefficient table without it is
     a table :meth:`spacr.qt.widgets.regression_results.RegressionResultsPanel.
     set_threshold_method` answers "No control coefficients, so no effect-size
     cut" for, which is what every guide-permutation run used to get.
@@ -1857,7 +1857,7 @@ def label_control_condition(features, guides, nc=None, pc=None, controls=None,
     a guide named in two of them is reported once and always the same way.
 
     :param features: the model term per row, e.g. ``fraction:grna[000000_1]``.
-        ``nc`` and ``pc`` are matched as SUBSTRINGS of it, which is how a
+        ``nc`` and ``pc`` are matched as substrings of it, which is how a
         negative control given as a gene id reaches a term named for a guide.
     :param guides: the guide identifier per row, matched whole against
         ``controls``. Both sides are compared as text, so a control list that
@@ -1927,7 +1927,7 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
     :param pc: Positive-control identifier.
     :param controls: Explicit list of control gRNA identifiers.
     :param hinge_threshold: The binarisation cut used by the hinge fit; the
-        bootstrap below must reproduce the SAME two classes the fit saw.
+        bootstrap below must reproduce the same two classes the fit saw.
     :param hinge_n_boot: Bootstrap resamples used for the hinge p-values.
     :returns: Coefficient DataFrame with the row/column nuisance terms removed.
     :raises ValueError: on an unsupported ``regression_type``.
@@ -2357,7 +2357,7 @@ def _choose_glm_family(y, name="", transform=""):
     return sm.families.Gaussian(link=sm.families.links.Identity())
 
 def binarise_response(y, threshold=None, name='response'):
-    """Return ``y`` as a 0/1 vector for a classifier backend, refusing to guess.
+    """Return ``y`` as a 0/1 vector for a classifier backend.
 
     The hinge backend fits a decision boundary, so it needs two classes. There
     are exactly two ways to get them and this function will not invent a
@@ -2370,8 +2370,8 @@ def binarise_response(y, threshold=None, name='response'):
       class", which is the same direction the continuous models report.
     * ``threshold`` is given explicitly, and ``y > threshold`` becomes 1.
 
-    A continuous response with no threshold is REFUSED. Picking a cut for the
-    user — the mean, the median, 0.5 — would silently redefine the hypothesis
+    A continuous response with no threshold raises ``ValueError``. Picking a
+    cut for the user — the mean, the median, 0.5 — would silently redefine the hypothesis
     being tested: on a screen whose well scores run 0.2-0.8 a median split
     calls half the plate positive by construction, and the resulting hit list
     is a plausible, unfalsifiable artefact of the split.
@@ -3230,7 +3230,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                                         :func:`pick_glm_family_and_link`.
     ``poisson``                         Poisson GLM with a log link and
                                         ``offset(log(exposure))``, for per-well counts - so the
-                                        coefficients are effects on the per-cell RATE, not on
+                                        coefficients are effects on the per-cell rate, not on
                                         the well's headcount.
     ``quasi_binomial``                  Binomial GLM whose dispersion is estimated from the
                                         Pearson chi-square, for overdispersed fractions.
@@ -3245,29 +3245,29 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     ``horseshoe``                       Sparse Poisson GLM with a horseshoe prior (spaCRPower's
                                         power-analysis model), via :mod:`spacr.power_model`.
     ``group_lasso``                     Penalised least squares with a gene's guide columns
-                                        penalised as ONE block, so a gene is selected or dropped
+                                        penalised as one block, so a gene is selected or dropped
                                         as a set rather than one guide at a time - the penalised
                                         analogue of the mixed model's nesting, via
                                         :mod:`spacr.group_lasso`.
     ``rra``                             MAGeCK-style robust rank aggregation: guides ranked by
-                                        their marginal effect, aggregated to the gene BY RANK
+                                        their marginal effect, aggregated to the gene by rank
                                         with a permutation P value, via :mod:`spacr.rra`. It
                                         forms no joint fit, so the collinearity and the p >> n
                                         width that constrain every backend above do not reach it.
     ==================================  ========================================================
 
-    Settings a backend cannot read are REFUSED, not ignored — see
+    Settings a backend cannot read are rejected, not ignored — see
     :data:`REGRESSION_SETTINGS_USED`.
 
     :param X: Design matrix (DataFrame; column names become feature names).
     :param y: Response variable.
     :param regression_type: One of :data:`REGRESSION_TYPES`.
-    :param regression_backend: WHO fits it -- one of
+    :param regression_backend: the backend that fits the model -- one of
         :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``, which
         produced every existing result. A backend that cannot fit
-        ``regression_type`` is REFUSED here with the reason, not ignored:
-        the two controls constrain each other in both directions
-       , and a settings CSV reaches this function
+        ``regression_type`` is rejected here with the reason, not ignored:
+        the two controls constrain each other in both directions, and a
+        settings CSV reaches this function
         without passing a panel that could have greyed the entry out.
     :param groups: Cluster identifiers for the mixed model.
     :param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and
@@ -3380,7 +3380,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     def _poisson_offset():
         """``log(exposure)``, or None with a warning when there is no exposure.
 
-        A per-well POSITIVE COUNT is not comparable between wells of different
+        A per-well positive count is not comparable between wells of different
         size: ``process_scores`` sums the response for the count models, so a
         well of 2000 cells contributes roughly four times the count of a well
         of 500 at the identical underlying rate. Modelling that count without
@@ -3692,14 +3692,14 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return _fit_horseshoe_poisson(X, y, exposure)
 
     def _spline():
-        """OLS on a design whose COVARIATES carry a spline basis.
+        """Fit OLS on a design whose covariates carry a spline basis.
 
         The guide columns are untouched, so one coefficient and one P value
         per guide survive. The volcano, hit list and attribution can therefore
         read the result with no special case. What becomes free to bend is the
         nuisance trend that the straight line was assuming away.
 
-        A column is treated as a covariate when it is CONTINUOUS and is not
+        A column is treated as a covariate when it is continuous and is not
         a guide or gene term -- an indicator has nothing to bend through,
         and expanding one would spend degrees of freedom on nothing.
         """
@@ -4275,16 +4275,16 @@ def _write_regression_qc(model, X, y, df, dst, *, coef_df=None,
 
 
 def resolve_levels(regression_type, level='both'):
-    """Which level(s) a run fits, given the backend and the ``level`` setting.
+    """Return the level(s) a run fits, given the backend and ``level``.
 
-    ``mixed`` fits ONE model that already contains both levels -- the gene as a
+    ``mixed`` fits one model that already contains both levels -- the gene as a
     fixed effect and the guide as a random effect nested inside it -- so it
     ignores ``level`` entirely and answers ``('gene',)``. That is why the GUI
     greys the dropdown out rather than hiding it: the
     setting exists, but this model does not read it.
 
     Every other backend is fixed effects only and cannot nest, so it fits one
-    level at a time and ``level`` chooses which. ``'both'`` is TWO FITS.
+    level at a time and ``level`` chooses which. ``'both'`` is two fits.
 
     :param regression_type: the backend name, or ``None`` (not yet chosen).
     :param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.
@@ -4408,7 +4408,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         ``'predictions'``.
     :param regression_type: Model type; auto-selected via
         :func:`check_distribution` when ``None``.
-    :param regression_backend: WHO fits it, one of
+    :param regression_backend: the backend that fits the model, one of
         :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``. It is
         threaded to whichever fitter this run reaches -- the mixed branch and
         :func:`regression_model` alike -- so one setting answers for the
@@ -4441,24 +4441,24 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     :param rra_alpha: Top fraction of the guide ranking ``rra`` aggregates.
     :param rra_permutations: Draws per guide count in ``rra``'s null.
     :param qc: Write the regression QC suite into ``<dst>/regression_qc/``.
-    :param legacy_volcano: also draw the ORIGINAL matplotlib volcano.
+    :param legacy_volcano: also draw the original matplotlib volcano.
         Default ``False``. The interactive one is far faster and the
         house-style panel is what a run now produces; drawing both gives two
         volcanoes in two idioms on the same grid.
         Requires ``dst`` and a design matrix, so it is skipped for the mixed
         branch and when no destination was given.
-    :param level: WHICH MODEL TO FIT -- ``'grna'`` (default) or ``'gene'``.
+    :param level: the level to fit -- ``'grna'`` (default) or ``'gene'``.
         One level, one design; ``'both'`` is refused here because it is two
         fits. :func:`regression_levels` is the entry point that does both.
         Ignored by ``regression_type='mixed'``, which fits the gene fixed and
         the guide random inside it and so is already both levels.
-    :param level_dst: Where THIS LEVEL's figures go -- the QC suite, the
+    :param level_dst: Where this level's figures go -- the QC suite, the
         volcano, the publication sheet. Defaults to ``dst``, which is what a
         single-level run wants. :func:`regression_levels` gives each level its
         own subfolder so two fits cannot overwrite each other's
         ``regression_figure.pdf``.
     :param draw_shared_panels: Draw the guide-fraction and response
-        distributions, which describe the DATA and not the fit. False on the
+        distributions, which describe the data and not the fit. False on the
         second of two fits, so the figure grid gets one copy rather than two
         identical ones.
     :param model_data_layout: ``'long'`` preserves the historical formula
@@ -4698,29 +4698,29 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
 def regression_levels(df, csv_path, dependent_variable='predictions',
                       regression_type=None, level='both', dst=None, **kwargs):
-    """Fit every level the run asked for, SEPARATELY, and return one per level.
+    """Fit every requested level separately and return one result per level.
 
-    THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one
-    design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the
-    SUM of the gene's gRNA fractions, so
+    This is the entry point for fitting both levels. A single design with
+    both levels cannot be fitted: ``gene_fraction`` is the sum of the gene's
+    gRNA fractions, so
 
         ``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``
 
     puts a block of columns and their own sums into one design. Measured on
     the reference TSG101 screen: 1248 parameters at rank 862 -- a
-    386-dimensional EXACT null space -- and the fit statsmodels returned had a
+    386-dimensional exact null space -- and the fit statsmodels returned had a
     residual sum of squares bit-identical to the one you get by adding seven
     times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.
 
-    Two fits, two tables, TWO CORRECTIONS. Each fit is its own
-    multiple-testing family and is corrected within itself. Pooling them would
-    be wrong twice over: they are not independent -- same wells, and the gene
-    regressor IS the sum of the guide regressors -- and doubling the family
-    size costs power for no protection. :func:`perform_regression` applies the
+    Two fits give two tables and two corrections. Each fit is its own
+    multiple-testing family and is corrected within itself. They are not
+    pooled because they are not independent -- same wells, and the gene
+    regressor is the sum of the guide regressors -- and doubling the family
+    size would reduce power without added protection. :func:`perform_regression` applies the
     correction per level and writes ``results_grna.csv`` and
     ``results_gene.csv``.
 
-    ``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``:
+    ``regression_type='mixed'`` fits once and returns one entry, ``'gene'``:
     that model has both levels inside it already, the gene as a fixed effect
     and the guide as a random effect nested in the gene. Its guide output is
     BLUPs, which is why it cannot be split into two testing families.
@@ -4730,7 +4730,7 @@ def regression_levels(df, csv_path, dependent_variable='predictions',
     :param csv_path: path passed to :func:`regression`, which derives the
         volcano-plot filename from it.
     :param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.
-    :param dst: the run folder. With more than one fit each level's FIGURES go
+    :param dst: the run folder. With more than one fit each level's figures go
         into ``<dst>/<level>/`` so they cannot overwrite each other; the
         tables stay in ``<dst>``, where every consumer looks for them.
     :param kwargs: passed straight through to :func:`regression`.
@@ -5065,10 +5065,9 @@ def save_summary_to_file(model, file_path=SUMMARY_FILENAME):
     :param file_path: Destination path. Default :data:`SUMMARY_FILENAME`.
     :returns: the path written, or ``None`` if there was nothing to write.
 
-    NEVER RAISES INTO A FINISHED RUN. This is called after every table has
-    been written; a backend whose ``summary()`` throws must not take the run
-    down with it, and the caller is told by the ``None`` rather than by a
-    traceback.
+    Never raises. This is called after every table has been written, so an
+    exception from a backend's ``summary()`` is not propagated; ``None`` is
+    returned instead.
     """
     summary = getattr(model, 'summary', None)
     if not callable(summary):
@@ -5270,7 +5269,7 @@ def resolve_auto_inference(data, settings, *, well_column='prc',
     number for every guide, but the numbers are one arbitrary solution out of
     infinitely many, and their P values describe nothing.
 
-    That is not a hypothetical. The screen this was written for has 824 guides
+    This occurs in practice. The screen this was written for has 824 guides
     in 587 analysed wells; the published fit had 825 parameters, rank 579 and
     8 residual degrees of freedom, and refitting it did not reproduce its own
     coefficients.
@@ -6193,18 +6192,16 @@ def _perform_regression_set_paths(settings):
 
 
 def results_folder_kind(settings) -> str:
-    """What a run's results folder is NAMED after.
+    """Return the name of a run's results folder.
 
     The inference method when it decides the answer, and the regression type
     otherwise. Under `analysis_mode='guide_permutation'` the regression type
     is never read -- ols and mixed produce byte-identical results -- so a
     folder called `ridge` would name something the run did not do.
 
-    PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale
-    when the rule changed and reported 39 missing CSVs while every run that
-    wrote them was fine, which is the failure the `results_dir` helper in
-    tests/test_cov_ml_perform_regression.py was already written to prevent
-    once. A suite pointing at the wrong file is worse than a silent one.
+    This function is the single public definition of the rule; tests and
+    other callers should import it rather than re-derive it (see the
+    `results_dir` helper in tests/test_cov_ml_perform_regression.py).
 
     :param settings: run settings mapping, or ``None`` (treated as empty);
         only ``analysis_mode`` and ``regression_type`` are read.
@@ -9533,7 +9530,7 @@ def write_plot(plot, path, title=""):
 
     The counterpart of :func:`spacr.figure_sink.publish` for a scene rather
     than a matplotlib figure: the format follows the user's preference, the
-    file NAME follows the format, and the written file reaches the gallery,
+    file name follows the format, and the written file reaches the gallery,
     because saved and visible are the same event.
 
     ``None`` writes nothing, announces nothing and returns None -- a plot
@@ -10007,12 +10004,10 @@ def interpret_vision_model(settings=None):
     def create_extended_radar_plot(values, labels, title):
         """Draw a filled radar for ``values`` labelled by ``labels``.
 
-        A RADAR IS A POLYGON, NOT AN AXIS. This was the last figure on the
-        explanation path that could not move to the screen's renderer, on
-        the grounds that pyqtgraph has no polar view -- which is true and
-        was never the obstacle: each label takes an angle, each value a
-        radius, and `FastPlot.add_radar` draws its own rings because a
-        radar read against a square grid is unreadable.
+        The radar is drawn as a polygon, so pyqtgraph needs no polar view:
+        each label takes an angle, each value a radius, and
+        `FastPlot.add_radar` draws its own rings because a radar read
+        against a square grid is unreadable.
         """
         return _draw_radar_in_pyqtgraph(
             list(labels), list(values), title,

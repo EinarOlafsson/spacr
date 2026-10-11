@@ -90,16 +90,16 @@ class ImportPlan:
     def n_files(self) -> int:
         """Every file the plan covers, matched or not.
 
-        THE DENOMINATOR. A pattern matching 900 files means nothing until you
-        know whether there were 900 or 9,000, and this is the number that
-        makes the first one readable.
+        This is the denominator for :attr:`n_matched`: a pattern matching
+        900 files means something different when there were 900 files than
+        when there were 9,000.
 
         :returns: the total count.
         """
         return len(self.renamed) + len(self.unmatched)
 
     def summary(self) -> str:
-        """The one line the panel leads with."""
+        """Return the one-line summary shown at the top of the panel."""
         if not self.n_files:
             return "No files yet. Drop images or a folder here."
         said = f"{self.n_matched} of {self.n_files} file(s) matched"
@@ -185,7 +185,7 @@ def role_trouble(roles: Mapping[str, str]) -> Tuple[str, ...]:
 def plan(filenames: Sequence[str], regex: str,
          roles: Optional[Mapping[str, str]] = None,
          *, plate: str = "", timelapse: bool = False) -> ImportPlan:
-    """What the import would do to ``filenames`` under ``regex``.
+    """Preview how ``regex`` would parse and rename ``filenames`` on import.
 
     :param filenames: bare names, as dropped. Paths are reduced to their
         basename, because that is what the regex is matched against.

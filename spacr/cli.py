@@ -1,12 +1,11 @@
 """``spacr-run`` — run any spaCR module from a settings file, with no GUI.
 
-Every spaCR pipeline has, until now, been reachable only through a GUI: the
-PySide6 app (``spacr`` / ``spacr-qt``) or the classic Tk app (``spacr-tk``).
-That is fine on a workstation and impossible on a cluster — importing either
-entry point pulls Qt or Tk, and a compute node has no display to give them.
+The GUI entry points — the PySide6 app (``spacr`` / ``spacr-qt``) and the
+classic Tk app (``spacr-tk``) — import Qt or Tk, which cannot run on a compute
+node without a display.
 
-This module is the headless path. It is deliberately, testably light: importing
-``spacr.cli`` must not pull Qt, Tk, torch, cellpose, numpy or pandas. Everything
+This module runs pipelines without a GUI. Importing ``spacr.cli`` does not
+import Qt, Tk, torch, cellpose, numpy or pandas. Everything
 heavy is imported inside the command that needs it, so ``spacr-run --help`` and
 ``spacr-run --list`` answer instantly on a login node, and ``--dry-run``
 validates a 40-plate settings file without touching a GPU.
@@ -26,8 +25,8 @@ each run-journal folder. So the round trip is: click through the GUI once on a
 laptop, copy ``<src>/settings/gen_mask_settings.csv`` to the cluster, and
 ``sbatch`` it unchanged.
 
-Exit codes (a cluster job that exits 0 after failing is the classic headless
-footgun, so spaCR's own codes are exact):
+Exit codes (a failed run never exits with 0, so a cluster scheduler sees
+the failure):
 
   0  the module ran to completion, or the dry run / validation found no errors
   1  the module raised
@@ -82,7 +81,7 @@ LOG = logging.getLogger("spacr.cli")
 
 
 class SettingsError(Exception):
-    """A settings file, an override or a module name the user got wrong.
+    """Raised for an invalid settings file, override or module name.
 
     Always maps to exit code 2: the run never started, so it is an argument
     problem rather than a runtime failure.
@@ -851,16 +850,12 @@ def module_defaults(module: Module) -> Dict[str, Any]:
 
     :param module: the module whose defaults are wanted.
     :returns: dict of defaults; empty when the pipeline has no helper.
-    :raises SettingsError: when the defaults module will not import. This used
-        to return ``{}`` so that ``--describe`` survived a missing optional
-        dependency, but :func:`resolve_settings` is the **run** path, not just
-        the describe path: convert, illumination, foreign, external_masks,
-        barcode_qc, anndata_export and every plugin app then ran on a settings
-        dict with no defaults in it, and ``spacr-run convert --set
-        z_handling=max`` was rejected with "names a setting that does not exist
-        for module 'convert'" — pointing the user at their own command line
-        instead of at the dependency that is actually missing. ``--describe``
-        is unaffected: it has its own guard around this call.
+    :raises SettingsError: when the defaults module will not import. No
+        empty ``{}`` is returned in that case, because :func:`resolve_settings`
+        uses this function on the run path: with empty defaults, a valid
+        override such as ``spacr-run convert --set z_handling=max`` would be
+        rejected as an unknown setting instead of reporting the missing
+        dependency. ``--describe`` has its own guard around this call.
     """
     fn = None
     if module.defaults_entry:
@@ -1304,7 +1299,7 @@ def _under_todays_names(settings: Dict[str, Any],
 def resolve_settings(module: Module, settings_path: Optional[str],
                      overrides: Sequence[str] = (),
                      moved: Optional[List[Any]] = None) -> Dict[str, Any]:
-    """Build the settings dict the pipeline will actually receive.
+    """Build the settings dict that the pipeline receives.
 
     Layered lowest-to-highest: the module's own defaults, the settings file,
     then the ``--set`` overrides. The file is read under today's names first
@@ -1343,7 +1338,7 @@ def use_agg_if_headless() -> bool:
 
     Called before the first spaCR import that could pull pyplot. An explicit
     ``MPLBACKEND`` in the environment always wins, and interactive local use
-    (a display is present) is left alone, so this only bites on a compute node.
+    (a display is present) is left alone, so this applies only without a display.
 
     :returns: True when Agg was forced.
     """
@@ -1665,7 +1660,7 @@ def cmd_validate(args: argparse.Namespace) -> int:
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    """``<module> --settings f`` — the real thing, or ``--dry-run`` for the plan."""
+    """``<module> --settings f`` — run the module, or print the plan with ``--dry-run``."""
     module = resolve_module(args.module)
     if module is None:
         print(_unknown_module_message(args.module), file=sys.stderr)

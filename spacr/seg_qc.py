@@ -8,11 +8,11 @@ and writes them to SQLite. On a full plate that is hours. A plate whose
 segmentation collapsed — a channel out of focus, a diameter two-fold wrong, a
 confluent monolayer that fused into slabs — costs exactly the same hours and
 then produces a measurement table that has to be thrown away. The failure is
-obvious from the masks alone; nobody looks, because looking means opening a
-thousand ``.npy`` files by hand. Mask statistics can highlight suspicious
+obvious from the masks alone, but checking them by hand means opening a
+thousand ``.npy`` files. Mask statistics can highlight suspicious
 fields, but cannot establish their cause or validate biological interpretation.
 
-So this module looks. It reads the label masks that
+This module checks them. It reads the label masks that
 :mod:`spacr.object` has just written, scores every field against a handful of
 robust statistics, and prints a scorecard naming fields that exceed configured
 thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the
@@ -24,8 +24,8 @@ plate, so it must be cheap. Everything below is ``np.bincount`` on a label
 image — microseconds per field. The one expensive check (the distance-transform
 cross-check for fusion) runs *only* on fields dense enough for fusion to be the
 explanation, so a healthy plate never pays for it. Like :mod:`spacr.diameter`,
-this module imports **no torch and no cellpose** — that is a tested property
-(see ``tests/test_seg_qc.py``), not an aspiration.
+this module imports **no torch and no cellpose**; this is tested
+(see ``tests/test_seg_qc.py``).
 
 What is measured, and why that number
 -------------------------------------
@@ -94,12 +94,12 @@ confluent assay can move it.
     defects can all trigger it; the flag does not identify which is present.
     Border objects are excluded from every size statistic, exactly as
     ``diameter._region_diameters`` excludes them, because a truncated object's
-    area is a lie.
+    area is underestimated.
 
 ``empty / near-empty fields``
     Zero objects is a failure. Fewer than ``seg_qc_min_objects`` (10) is a
     warning and suppresses the per-field robust statistics, because below ten
-    objects a MAD is one object's opinion — the same threshold at which
+    objects a MAD is not a reliable spread estimate — the same threshold at which
     diameter.py collapses its confidence two levels. If the *plate* median is
     also below that floor (a low-MOI pathogen channel, say), empty fields are
     demoted to a warning: that is a property of the assay, not of the field.
@@ -288,11 +288,11 @@ MODES: Tuple[str, ...] = ("off", "report", "flag", "stop")
 class SegmentationQCFailed(RuntimeError):
     """The plate failed segmentation QC and ``seg_qc='stop'`` was set.
 
-    Carries the summary so a caller can report WHICH fields failed and why,
+    Carries the summary so a caller can report which fields failed and why,
     rather than only that something did.
 
     :param message: the exception's own message.
-    :param summary: the QC summary, so a caller can report WHICH fields
+    :param summary: the QC summary, so a caller can report which fields
         failed and why rather than only that something did. ``None`` when
         there is nothing to carry.
     """
@@ -877,7 +877,7 @@ def summarize_qc(
         itself is called a failure; defaults to
         ``QC_DEFAULTS['plate_fail_fraction']`` (0.10 — roughly one column of a
         96-well plate. Below that you can drop the bad fields and keep the
-        plate; above it, what Measure produces is not the experiment).
+        plate; above it, the measurements no longer represent the plate).
     :returns: a dict with the counts, the flag tally, the failing and warning
         field names, the plate medians and a one-line ``message``.
     """
@@ -1100,7 +1100,7 @@ def run_segmentation_qc(
         computes, writes and prints, changing nothing; ``'flag'`` additionally
         writes ``segmentation_qc_<object_type>_flags.json`` mapping field name
         to flags, for a downstream step to consume. No mode deletes or skips a
-        field — surfacing the problem is the job.
+        field.
     :param thresholds: overrides for :data:`QC_DEFAULTS`, e.g. from
         :func:`thresholds_from_settings`.
     :param verbose: True prints the full card, False prints the one-line
@@ -1175,7 +1175,7 @@ def run_segmentation_qc(
 
 @dataclass(frozen=True)
 class FlagGuidance:
-    """One flag, in the words of someone deciding whether to run Measure.
+    """Plain-language guidance for one QC flag: effect, causes and remedy.
 
     :param flag: the flag name, a member of :data:`FLAGS`.
     :param severity: ``'fail'`` or ``'warn'``, from :data:`_FLAG_SEVERITY`.
@@ -1476,7 +1476,7 @@ class FieldAddress:
 
     @property
     def known(self) -> bool:
-        """True when a well could actually be read out of the name."""
+        """True when a well could be parsed from the name."""
         return bool(self.well)
 
     def __str__(self) -> str:
@@ -1568,7 +1568,7 @@ MAX_NAMED = 6
 
 @dataclass
 class Finding:
-    """One thing worth telling the user, with the evidence attached.
+    """One reported QC finding, with its evidence.
 
     :param severity: ``'fail'``, ``'warn'`` or ``'ok'`` — how a banner should
         colour it. Never a gate: nothing in this module blocks anything.
@@ -1927,7 +1927,7 @@ class Scorecard:
 
 @dataclass
 class QCDigest:
-    """Everything a screen needs to show a segmentation verdict.
+    """Segmentation-QC verdict, findings and counts for a project, for display.
 
     Advisory by construction: there is no field here a caller is meant to
     branch a Run button on, and :attr:`blocks_run` is a constant False that
@@ -2301,7 +2301,7 @@ def read_digest(src: Any, **kwargs) -> QCDigest:
         folder, a list of plates or a project root.
     :param kwargs: passed to :func:`diagnose`.
     :returns: a :class:`QCDigest`. ``verdict == 'missing'`` when no card
-        exists, which is emphatically not the same as ``'ok'``.
+        exists, which is not the same as ``'ok'``.
     """
     paths = find_scorecards(src)
     root = os.path.dirname(os.path.dirname(paths[0])) if paths else (

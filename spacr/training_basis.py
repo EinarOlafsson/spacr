@@ -17,13 +17,13 @@ accordingly. Classify (ML) had two, and chose between them **implicitly**:
 the settings panel, so a user who filled in an annotation column silently
 stopped training on their plate controls.
 
-So there is no new concept to invent here. ``dataset_mode`` becomes the shared
+No new concept is introduced: ``dataset_mode`` becomes the shared
 name, ML gains the basis it lacked, and the choice becomes something the user
 makes rather than something they trigger.
 
-**Backward compatibility is the whole difficulty.** A settings CSV written
-before this exists in every user's project folder, and INVARIANTS §6 is the
-trap: a key *absent* from the dict means the pipeline falls back to its own
+**Backward compatibility.** A settings CSV written
+before this exists in every user's project folder, and, as INVARIANTS §6
+records, a key *absent* from the dict means the pipeline falls back to its own
 default, which can differ from the GUI's, and nothing says so. Every rename
 here is therefore an alias, not a replacement — :func:`normalize_settings`
 translates the old name and the old *implicit* basis into the new explicit
@@ -79,7 +79,7 @@ BASIS_SETTINGS: Dict[str, Tuple[str, ...]] = {
 
 
 class TrainingBasisError(ValueError):
-    """A basis that spaCR does not have, or one that cannot run as configured."""
+    """Raised for an unknown training basis, or one that cannot run as configured."""
 
 
 def resolve_basis(settings: Mapping[str, Any]) -> str:
@@ -151,7 +151,7 @@ def settings_for_basis(basis: str) -> Tuple[str, ...]:
 
 
 def inapplicable_settings(basis: str) -> Tuple[str, ...]:
-    """Settings belonging to the OTHER bases -- what the GUI greys out.
+    """Settings belonging to the other bases, which the GUI greys out.
 
     Greyed, not removed. INVARIANTS §6: a key absent from the dict makes the
     pipeline fall back to its own default, which can differ from the value

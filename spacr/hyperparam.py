@@ -9,7 +9,7 @@ sweep, an incremental progress callback, early stopping, reproducible sampling,
 and — most importantly — an explicit, named scoring criterion instead of an
 unscored eyeball grid.
 
-Three things this module refuses to pretend:
+Three limitations are stated explicitly:
 
 **UMAP has no ground truth.** There is no measurement that says one embedding is
 correct and another is wrong. Every criterion here (trustworthiness, continuity,
@@ -24,9 +24,9 @@ cross-validation folds, never on test, and refuses to run if a caller hands it
 folds that touch the held-out test indices. It defaults to *grouped* folds
 (``group_by='well'``) and reuses :func:`spacr.io.make_cv_folds` — crops from one
 well share focus, illumination and seeding density, so an ungrouped search picks
-the model that memorised wells and reports a beautiful, meaningless score.
+the model that memorised wells and reports an inflated score.
 
-**A winner without a spread is a lie.** When the top ten configurations sit
+**A winner is reported with its spread.** When the top ten configurations sit
 inside the fold-to-fold standard deviation, the hyperparameter did not matter and
 the "winner" is noise. Every :class:`SearchResult` reports the spread and raises
 a ``within_noise`` flag when that is what happened.
@@ -374,7 +374,7 @@ class Trial:
 
 @dataclass
 class SearchResult:
-    """Everything one sweep produced, including what it failed to produce.
+    """Trials, best trial, caveats and completion state of one sweep.
 
     :ivar trials: every trial attempted, in deterministic order, failures
         included.
@@ -499,7 +499,7 @@ class SearchResult:
         }
 
     def noise_level(self) -> Tuple[Optional[float], str]:
-        """The yardstick used to decide whether the winner is real.
+        """Return the noise level used to test whether the winner stands out.
 
         Prefers the best trial's own fold-to-fold standard deviation, because
         that is the run-to-run variation of a single configuration. Falls back
@@ -1065,7 +1065,7 @@ UMAP_METRICS: Tuple[str, ...] = (
 
 
 def umap_metrics() -> Tuple[str, ...]:
-    """Every metric the INSTALLED umap-learn will accept.
+    """Return every metric the installed umap-learn accepts.
 
     Falls back to :data:`UMAP_METRICS` when umap-learn is absent, because
     the settings panel has to build on a machine that cannot run UMAP --
@@ -1120,8 +1120,8 @@ MAX_WALK_CANDIDATES_PER_ROUND = 48
 class WalkAxis:
     """One searchable direction in hyperparameter space.
 
-    An axis is either NUMERIC -- it has a ``step`` and the walk moves along
-    it by multiples of that step -- or CATEGORICAL, where ``choices`` lists
+    An axis is either numeric -- it has a ``step`` and the walk moves along
+    it by multiples of that step -- or categorical, where ``choices`` lists
     the values and there is no direction to move in, only other values to
     try.
 
@@ -1134,9 +1134,9 @@ class WalkAxis:
         order the walk should try them.
     :param resolution: how many values this axis contributes to one round,
         counting the centre. 2 is the classic ``±step`` pair with no centre;
-        3 adds the centre back; 5 reaches two steps out. **The old 2-by-2
-        search is exactly two numeric axes at resolution 2**, which is why
-        that number is the default and not a special case in the code.
+        3 adds the centre back; 5 reaches two steps out. The 2-by-2 search
+        is two numeric axes at resolution 2, which is why 2 is the default
+        and not a special case in the code.
     """
 
     name: str
@@ -1202,8 +1202,8 @@ class WalkAxis:
         """Bring ``value`` inside this axis's declared range.
 
         Categorical axes clamp by membership: a value that is not a choice
-        becomes the first choice, because a walk that steps outside its own
-        alphabet has nowhere to come back from.
+        becomes the first choice, because the walk can only step between
+        listed choices.
         """
         if self.categorical:
             return value if value in self.choices else self.choices[0]
@@ -1263,7 +1263,7 @@ def walk_neighbourhood(axes: Sequence[WalkAxis],
     The full neighbourhood is the Cartesian product of every axis's
     :meth:`WalkAxis.values_around`, minus the centre itself. With two
     numeric axes at resolution 2 that is the four diagonal corners the
-    original 2-by-2 search used, which is the point: the old behaviour is
+    original 2-by-2 search used: the old behaviour is
     this function's two-axis case and not a separate code path.
 
     The product is exponential in the number of axes, so when it exceeds
@@ -1330,7 +1330,7 @@ def umap_walk_axes(start: Mapping[str, Any],
     were never typed by anyone, and an out-of-range one fails inside the
     fit rather than at the edge.
 
-    :param start: only its KEYS are read. Every searched name must be
+    :param start: only its keys are read. Every searched name must be
         present or this raises; the starting *values* never reach the
         axes, so two different starting points build identical axes.
     :param parameters: which names take part. Empty or ``None`` falls back
@@ -1416,7 +1416,7 @@ def walk_search(fit_fn: Callable[[Dict[str, Any]], Any],
     :param start: one value per axis, plus any parameters held fixed --
         anything not named by an axis is passed to every fit unchanged.
     :param axes: the search space. Empty raises.
-    :param n_trials: maximum complete rounds (100 when blank/None). NOT the
+    :param n_trials: maximum complete rounds (100 when blank/None), not the
         number of fits, which is rounds times the neighbourhood size.
     :param max_candidates_per_round: past this, a round varies one axis at
         a time instead of taking the full product. Recorded in the notes.
@@ -1694,7 +1694,7 @@ def local_direction_search(
         rejected (``n_neighbors`` up to at least 2, ``min_dist`` into
         ``[0, 1]``). Any other key is held fixed and passed to every fit
         unchanged.
-    :param n_trials: maximum ROUNDS, not fits; each round costs up to
+    :param n_trials: maximum rounds, not fits; each round costs up to
         four. Blank or ``None`` means 100. Zero, negative or non-numeric
         raises.
     :param n_neighbors_step: truncated by ``int()``, so 1.9 steps by 1 and
@@ -1705,7 +1705,7 @@ def local_direction_search(
         stops improving. Below 2 raises.
     :param min_dist_step: step along ``min_dist``; must be strictly
         positive.
-    :param min_improvement: a round must beat the running best by MORE
+    :param min_improvement: a round must beat the running best by more
         than this to continue, so the default 0.0 still stops on an exact
         tie. Negative raises.
     :param metric: a label recorded on the result, nothing more. It does
@@ -1719,7 +1719,7 @@ def local_direction_search(
         configuration is never refitted.
     :param should_stop: polled before each new fit; True truncates the
         walk and marks the result partial.
-    :param notes: caveats placed BEFORE the walk's own generated notes.
+    :param notes: caveats placed before the walk's own generated notes.
     :param checkpoint: resumes an interrupted walk -- completed trials are
         replayed without refitting and the centre, round count and best
         score are restored. ``None`` runs without persistence.
@@ -2125,7 +2125,7 @@ def umap_search(features,
                 ) -> SearchResult:
     """Sweep UMAP parameters, scoring each embedding with a named criterion.
 
-    The honest deliverable is the panel of embeddings, not the top row of the
+    The result to review is the panel of embeddings, not the top row of the
     table. Every trial keeps its embedding (unless ``keep_embeddings`` is off)
     so the caller can draw small multiples, and every criterion is computed for
     every trial so the caller can see how the ranking changes when the criterion
@@ -2628,7 +2628,7 @@ def activation_fit_fn(data: ActivationSearchData,
     ways — deletion AUC, insertion AUC, the pointing game (when masks exist)
     and the randomisation sanity check — so the table can be re-ranked by any
     criterion without re-running the sweep. **All four are reported for every
-    trial precisely because they disagree**; a sweep that reported only the one
+    trial because they can disagree**; a sweep that reported only the one
     it ranked by would hide the disagreement, which is the informative part.
 
     :param data: the model and images to score on.
@@ -2757,7 +2757,7 @@ def activation_search(data: ActivationSearchData,
                       ) -> SearchResult:
     """Sweep attribution settings, scoring each with the faithfulness checks.
 
-    The honest deliverable is the panel of maps plus the four scores per trial,
+    The result to review is the panel of maps plus the four scores per trial,
     not the top row. There is no ground truth for attribution, so this refuses
     to name a single "best": :data:`ACTIVATION_NO_GROUND_TRUTH` leads the notes,
     every criterion is computed for every trial, and the usual within-noise flag
@@ -2770,8 +2770,8 @@ def activation_search(data: ActivationSearchData,
         ``ig_baseline``).
     :param criterion: which criterion ranks the trials.
     :param mode: ``'grid'`` or ``'random'``.
-    :param n_trials: configurations when ``mode='random'``; maximum complete
-        2-by-2 rounds when adaptive UMAP is enabled.
+    :param n_trials: configurations to evaluate when ``mode='random'``;
+        unused for ``mode='grid'``.
     :param seed: seed for random sampling.
     :param n_steps: steps in the deletion / insertion curves.
     :param baseline: removal baseline for those curves.
@@ -3205,8 +3205,7 @@ def format_search(result: SearchResult, max_rows: int = 20) -> str:
 
     The layout is deliberate: the criterion and its caveat come before the
     table, the spread and the within-noise flag come immediately after the
-    winner, and a partial or all-failed sweep says so in the header rather than
-    in a footnote nobody reads.
+    winner, and a partial or all-failed sweep says so in the header.
 
     :param result: the :class:`SearchResult` to render.
     :param max_rows: how many ranked trials to print.
@@ -3292,7 +3291,7 @@ class SearchData:
 
     :ivar features: 2-D numeric matrix, one row per object.
     :ivar labels: per-row class labels, or None for an unsupervised search.
-    :ivar groups: per-row group ids used to keep folds honest, or None.
+    :ivar groups: per-row group ids that keep each group within one fold, or None.
     :ivar frame: the joined measurement table the matrix came from.
     :ivar notes: provenance and warnings the caller must surface.
     """
@@ -3610,8 +3609,7 @@ def classify_cv_fit_fn(settings: Mapping[str, Any],
     the search splits the data exactly the way the training run will.
 
     Each trial trains ``n_folds`` models, so a grid of ``g`` configurations
-    trains ``g × n_folds`` models. That is the honest cost; there is no cheap
-    proxy for it.
+    trains ``g × n_folds`` models.
 
     :param settings: base Classify (CV) settings dict; each trial's parameters
         are layered on top.
@@ -3705,7 +3703,7 @@ def run_search_for_app(app_key: str,
                        checkpoint_path: Optional[str] = None,
                        resume: bool = False,
                        ) -> SearchResult:
-    """Run the right search for a spaCR app. This is what the GUI calls.
+    """Run the search that matches ``app_key``; this is the GUI's entry point.
 
     * ``umap`` — embeds the measurement features once per configuration and
       ranks them with a named criterion (see :func:`umap_search`).

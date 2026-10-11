@@ -46,20 +46,20 @@ NO_PLATFORM = ("Qt could not start any window platform, not even offscreen, "
 def application():
     """The ``QApplication`` to render under, or ``(None, reason)``.
 
-    DELEGATED TO :func:`spacr.figures.scene.pyqtgraph_ready`, which is the
-    one place that answers "can a scene be built here and now". It knows two
-    things this module must not get wrong on its own:
+    Delegates to :func:`spacr.figures.scene.pyqtgraph_ready`, the single
+    function that decides whether a scene can be built in the current
+    process. It handles two requirements:
 
-    * pyqtgraph binds its Qt library on FIRST import, and this environment
+    * pyqtgraph binds its Qt library on first import, and this environment
       also has PyQt6 -- so a bare ``import pyqtgraph`` can leave PySide6
       unloadable. It sets ``PYQTGRAPH_QT_LIB`` before anything imports it.
     * a QWidget must be built on the GUI thread. The regression QC suite runs
       on the run's worker thread under a live application, and a widget built
-      there lives on a thread that is about to end -- traced from two
-      segfaults that landed nowhere near the cause.
+      there lives on a thread that is about to end, which can cause a
+      segmentation fault later.
 
-    A second answer to that question is how one of those two rules gets
-    forgotten, so there is only one.
+    Keeping this check in one function ensures both requirements are always
+    applied.
 
     :returns: ``(app, "")`` on success, ``(None, reason)`` when rendering is
         impossible. The reason is a sentence for the user, not a traceback.

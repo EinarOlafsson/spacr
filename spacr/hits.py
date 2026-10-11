@@ -379,7 +379,7 @@ def benjamini_hochberg(p_values: Sequence[Any]) -> np.ndarray:
 def grna_agreement(gene_effects: Mapping[str, float],
                    grna_frame: Optional[pd.DataFrame]
                    ) -> Dict[str, Tuple[int, int, List[str]]]:
-    """How many of each gene's guides push the same way as the gene.
+    """Count each gene's guides whose coefficient has the gene effect's sign.
 
     :param gene_effects: ``{gene id: gene-level coefficient}``.
     :param grna_frame: the per-gRNA coefficient table (``feature`` and
@@ -531,7 +531,7 @@ def join_metadata(frame: pd.DataFrame,
     ``validate="many_to_one"`` on every join: many result rows may name one
     gene (one per guide), but each gene gets one annotation row. pandas
     raises rather than fanning out if a file ever breaks that, which is the
-    guard that keeps the collapse in :func:`load_gene_metadata` honest.
+    guard that verifies the collapse in :func:`load_gene_metadata`.
 
     :param frame: a table with a ``gene`` column.
     :param metadata_files: annotation CSVs, applied in order. A later file's
@@ -561,7 +561,7 @@ def join_metadata(frame: pd.DataFrame,
 
 @dataclass(frozen=True)
 class Hit:
-    """One gene, everything known about it, and why to believe it.
+    """One hit-list row: a gene's effect, uncertainty, guides and annotation.
 
     :param gene: the gene id parsed from the model term.
     :param feature: the model term itself, so a row can be traced back.
@@ -608,7 +608,7 @@ class Hit:
 
     @property
     def name(self) -> str:
-        """The most human name available: an annotated one, else the id."""
+        """The first non-empty annotated name or description, else the gene id."""
         for column in ("Gene Name", "gene_name", "Name", "Product Description",
                        "product", "description"):
             value = self.annotation.get(column)
@@ -638,7 +638,7 @@ class Hit:
 
 @dataclass(frozen=True)
 class HitList:
-    """A ranked list of hits plus everything needed to interpret it.
+    """A ranked list of hits with its source, ranking rule and caveats.
 
     :param hits: the rows, already ranked.
     :param source: the results folder or a description of where it came from.
@@ -717,7 +717,7 @@ class HitList:
                ) -> "HitList":
         """Return a narrowed list. Every argument is optional and ANDed.
 
-        A row whose value for a criterion is missing FAILS that criterion
+        A row whose value for a criterion is missing fails that criterion
         rather than passing it: a gene with no q-value has not been shown to
         clear an FDR, and letting missing data through a filter is how an
         untested term ends up in a hit list.
@@ -922,8 +922,7 @@ class HitList:
         """A standalone HTML table — the form handed to a collaborator.
 
         Self-contained: no stylesheet, no script, no network. It opens in a
-        browser on a machine that has never heard of spaCR, which is the
-        whole requirement.
+        browser on a machine without spaCR.
         """
         summary = self.summary()
         rows = []
@@ -1029,7 +1028,7 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
     :param toxoplasma: also join the bundled *Toxoplasma* annotation — gene
         name, signal peptide and transmembrane, hyperLOPIT compartment, the
         published CRISPR fitness scores, and tachyzoite / tissue-cyst /
-        EES1-5 expression. Applied AFTER ``metadata_files`` so a column the
+        EES1-5 expression. Applied after ``metadata_files`` so a column the
         user's own file supplies is never replaced by the bundle's.
     :param regression_type: the backend, if known. Only affects how the list
         is ranked: the penalised backends have no p-value, so they rank by

@@ -8,20 +8,20 @@ The reads are NCBI BioProject :data:`DEFAULT_BIOPROJECT`, runs
 SRR33531217-SRR33531220 -- the four plates, paired, named ``hilib_p1`` through
 ``hilib_p4`` in the submission.
 
-WHY ENA AND NOT NCBI'S OWN DOWNLOAD. The three routes are not equivalent
+ENA is used rather than NCBI's own download. The three routes are not equivalent
 here. ``fasterq-dump`` needs the SRA toolkit installed, which spaCR does not
 ship and cannot assume. NCBI's own FASTQ endpoint does not support fetching a
 prefix. ENA mirrors every SRA submission as plain gzipped FASTQ over HTTPS,
 which is what makes the read limit meaningful rather than cosmetic: the file
-is read as a STREAM and the connection is dropped as soon as enough reads have
+is read as a stream and the connection is dropped as soon as enough reads have
 arrived.
 
-That distinction is the whole feature. The four runs are 2.2-3.2 GB per mate,
+Streaming is what makes the read limit useful. The four runs are 2.2-3.2 GB per mate,
 about 19 GB in total, and 60-74 million reads each. Measured against the live
 archive on 2026-09-01: 3,662 reads arrived in 0.13 MB and 1.7 seconds from a
 2,833 MB file. Asking for a hundred thousand reads costs a few megabytes, not
-a few gigabytes, so a laptop on hotel wifi can have a real subset of the real
-screen in under a minute.
+a few gigabytes, so a subset of the screen can be downloaded in under a
+minute on a slow connection.
 """
 from __future__ import annotations
 
@@ -79,7 +79,7 @@ class RunFile:
     def label(self) -> str:
         """A one-line description for a picker.
 
-        Names the LIBRARY as well as the run, because ``hilib_p3`` says which
+        Names the library as well as the run, because ``hilib_p3`` says which
         plate this is and ``SRR33531218`` does not.
         """
         size = f"{self.size_bytes / 1e9:.1f} GB" if self.size_bytes else "?"
@@ -227,7 +227,7 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
 
 
 def total_bytes(files: Iterable[RunFile]) -> int:
-    """What downloading all of ``files`` in full would cost.
+    """Total compressed size, in bytes, of downloading all of ``files``.
 
     :param files: the run files; their ``size_bytes`` are summed, so a file of
         unknown size adds zero.
@@ -236,7 +236,7 @@ def total_bytes(files: Iterable[RunFile]) -> int:
 
 
 def estimated_bytes(files: Sequence[RunFile], max_reads: Optional[int]) -> int:
-    """Roughly what ``max_reads`` from each of ``files`` will transfer.
+    """Estimate the bytes transferred when taking ``max_reads`` from each file.
 
     Scaled from each run's own read count rather than from a fixed rate, so a
     run with longer reads is not under-quoted. Returns the full size when no

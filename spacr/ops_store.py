@@ -1,4 +1,4 @@
-"""Where an OPS run's tables live, and the gate that says the objects exist.
+"""Storage of an OPS run's tables, and the check that its objects exist.
 
 The storage contract has two halves. In ``measurements.db``, which is
 authoritative: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``,
@@ -7,19 +7,17 @@ authoritative: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``,
 counts asserted equal, so the sidecar cannot drift from the authority
 unnoticed.
 
-SQLITE IS THE AUTHORITY AND PARQUET IS A CACHE, which is a decision and not a
-detail. The two can disagree, so one of them has to be right by definition --
+SQLite is authoritative and Parquet is a cache. The two can disagree, so one of them has to be right by definition --
 otherwise a reader that picked the faster one would sometimes be reading
 yesterday's numbers with no way to tell. :func:`write_table` writes both in
 one call and asserts the counts match before either is visible as complete;
 :func:`read_table` prefers the cache and falls back without complaining,
 because a missing cache is a performance question and not a correctness one.
 
-READINESS IS A GATE, NOT A STEP. No sequencing or phenotype channel is read
-until ``ops_objects`` is on disk and its row count checked.
-:func:`objects_ready` is that sentence, and it returns a REASON when the
-answer is no -- a gate that only says "not yet" makes the operator guess
-which half failed.
+Readiness is checked before any channel is read: no sequencing or phenotype
+channel is read until ``ops_objects`` is on disk and its row count checked.
+:func:`objects_ready` performs this check and returns a reason when the
+answer is no, so the operator can see which condition failed.
 
 Other measurement tables use the same object ids, so later steps need no
 special case. The numbering is deterministic for that reason: those ids join
@@ -44,7 +42,7 @@ __all__ = [
 
 
 class StoreError(ValueError):
-    """A store that cannot be trusted, with the way out in the text."""
+    """Raised for an inconsistent OPS store; the message says how to recover."""
 
 
 #: The authoritative tables, in the order the phases write them.
@@ -98,10 +96,10 @@ def write_table(db_path: str, table: str, frame, *,
                 if_exists: str = "replace") -> int:
     """Write one OPS table to sqlite, and its parquet cache if it has one.
 
-    BOTH IN ONE CALL, because 372 asks for the row counts to be asserted
-    equal and two calls could not do that -- a caller who wrote the database
-    and then crashed would leave a sidecar describing a different run, and
-    nothing would notice until a reader silently preferred it.
+    Both are written in one call so that their row counts can be asserted
+    equal. With two calls, a caller that wrote the database and then crashed
+    would leave a sidecar describing a different run, which a reader that
+    prefers the cache would then use.
 
     :param db_path: the measurements database.
     :param table: one of :data:`OPS_TABLES`.
@@ -380,7 +378,7 @@ def read_table(db_path: str, table: str, *, prefer_cache: bool = True):
 
     A missing or unreadable cache falls back to sqlite silently, because that
     is a speed question. A cache whose row count disagrees with the database
-    is NOT silent -- it is removed and the authority is returned, since a
+    is not silent -- it is removed and the authority is returned, since a
     disagreement is the one failure this arrangement can produce.
 
     :param db_path: the run's sqlite database, which is the authority.
@@ -473,7 +471,7 @@ class Readiness:
 
 
 def objects_ready(db_path: str, *, minimum: int = 1) -> Readiness:
-    """May a sequencing or phenotype channel be read yet?
+    """Check whether ``ops_objects`` is ready so that channels may be read.
 
     The gate is one sentence -- "no sequencing or phenotype
     channel is read until `ops_objects` is on disk and its row count
@@ -481,15 +479,15 @@ def objects_ready(db_path: str, *, minimum: int = 1) -> Readiness:
     pass an empty table, and an empty ops_objects means every later phase
     silently produces nothing while appearing to run.
 
-    IT RETURNS A REASON, not just a verdict. "Not yet" leaves the operator
+    It returns a reason, not just a verdict. "Not yet" leaves the operator
     guessing which of three things went wrong: no database, no table, or a
     table with nothing in it. Those have different fixes.
 
     :param minimum: the fewest objects a real well can have. One is the
-        honest floor -- a well with a single nucleus is a bad well, not an
+        lowest meaningful value -- a well with a single nucleus is a bad well, not an
         impossible one -- so this exists to be raised by a caller who knows
         their plate, not to encode a guess here.
-    :param db_path: the run's sqlite database. Its ABSENCE is one of the
+    :param db_path: the run's sqlite database. Its absence is one of the
         three answers, so this is not required to exist.
     """
     db_path = _resolved(db_path)

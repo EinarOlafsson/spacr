@@ -10,8 +10,8 @@ was watching, ``measurements.db`` would be written anyway, and every
 downstream regression would silently run on 344 wells while reporting
 as if it had 384.
 
-This module supplies the missing half — **survive, but account for
-it, and make the accounting impossible to miss**:
+This module lets a batch continue past a failed item while recording
+and reporting every failure:
 
 * :class:`RunLedger` records every per-item success and failure,
   logs each failure at ``ERROR`` with the item id and traceback, and
@@ -25,7 +25,7 @@ it, and make the accounting impossible to miss**:
   trusts a file.
 * :class:`ConfigurationError` marks the failures that must *not* be
   survived. A wrong ``src`` path or a missing metadata column is not
-  a per-item problem — continuing past it only produces garbage.
+  a per-item problem — continuing past it produces invalid output.
   :meth:`RunLedger.item` deliberately re-raises it.
 
 Typical adoption inside a batch loop::
@@ -131,13 +131,13 @@ class ConfigurationError(SpacrError):
 
     A missing ``src`` folder, an unparseable regex, a metadata column
     that does not exist. These are *not* per-item failures: continuing
-    past one produces garbage for every item, so
+    past one produces invalid output for every item, so
     :meth:`RunLedger.item` re-raises this instead of recording it.
     """
 
 
 class DataIntegrityError(SpacrError):
-    """The data produced cannot be trusted.
+    """Raised when produced data is inconsistent or too incomplete to use.
 
     Raised when an artifact is internally inconsistent, or when a run
     failed on so many items that its output is not meaningful.
@@ -160,15 +160,10 @@ class RunStatusUnreadable(DataIntegrityError):
     reader was *stopped*: the database is locked by a writer that still
     holds it, or the file is truncated or otherwise not a database.
 
-    Both of those are what an interrupted run leaves behind, and both used
-    to be swallowed by one ``except sqlite3.Error: return []`` and reported
-    as "no stamps, therefore complete" — so a run killed mid-write, whose
-    process still held the lock, read as finished. Measured on a real
-    measurements.db stamped ``partial``: ``run_is_complete`` said ``False``
-    when nothing held the file, and ``True`` — with ``assert_run_complete``
-    passing — while a second connection held ``BEGIN EXCLUSIVE``. The
-    database said the run failed a field either way; the lock is what
-    stopped anyone hearing it.
+    Both conditions are typical of an interrupted run. Reporting them as
+    "no stamps, therefore complete" would let a run killed mid-write, whose
+    process still holds the lock, read as finished; this exception is
+    raised instead.
     """
 
 
@@ -184,7 +179,7 @@ class Failure:
     :param exc_type: exception class name, used as the grouping key.
     :param message: ``str(exc)``.
     :param traceback_str: formatted traceback, kept so the ``ERROR``
-        log record carries the whole story.
+        log record carries the full traceback.
     :param timestamp: Unix time the failure was recorded.
     """
 
@@ -356,7 +351,7 @@ class RunLedger:
     @contextmanager
     def item(self, name: Any, stage: Optional[str] = None,
              echo: Optional[str] = None) -> Iterator['RunLedger']:
-        """Run one loop body: swallow and record its failure, keep the batch alive.
+        """Run one loop body; record any failure and let the batch continue.
 
         On a clean exit the item is counted as a success. On an
         ordinary exception the item is recorded as a failure and the
@@ -662,9 +657,8 @@ def read_run_status(artifact: Union[str, os.PathLike],
       written before a ledger reached that code path;
     * **the artifact could not be read** — :class:`RunStatusUnreadable`.
       A database still locked by its writer, or truncated by a ``kill``
-      mid-write, is exactly what an *interrupted* run leaves, and folding
-      it into the second case is how an interrupted run came back
-      "complete".
+      mid-write, is what an *interrupted* run leaves; treating it as the
+      second case would report an interrupted run as complete.
 
     :param artifact: path of a spaCR output — e.g. ``measurements.db``.
     :param timeout: seconds to wait for a locked database before giving
@@ -734,8 +728,8 @@ def run_is_complete(artifact: Union[str, os.PathLike],
     """True when no stamp on ``artifact`` recorded a failure.
 
     An artifact that was never stamped reads as complete — stamping is
-    opt-in and predates neither the older outputs on disk nor the code
-    paths that have not adopted a ledger yet. Use
+    opt-in, and older outputs and code paths without a ledger carry no
+    stamp. Use
     :func:`read_run_status` when you need to distinguish "verified
     clean" from "no information".
 
@@ -743,7 +737,7 @@ def run_is_complete(artifact: Union[str, os.PathLike],
     That is the one case where the two answers differ in consequence: an
     unstamped file is silent, whereas a locked or truncated one is
     positive evidence that something was interrupted, and answering
-    "complete" there is how a killed run passed for a finished one.
+    "complete" there would report a killed run as finished.
 
     :param artifact: path of a spaCR output.
     :param timeout: seconds to wait for a locked database.

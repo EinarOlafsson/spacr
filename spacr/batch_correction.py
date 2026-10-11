@@ -593,7 +593,7 @@ def correct_batch_effects(
     without it absorbs any contrast that happens to differ between plates --
     which, in a screen where treatments are laid out plate by plate, is the
     treatment effect. The correction then reports a cleaner batch diagnostic
-    and a dead result. Pass the biology to keep, or pass :data:`NO_COVARIATE`
+    and removes the treatment effect. Pass the biology to keep, or pass :data:`NO_COVARIATE`
     to record that there is none.
 
     :param features: numeric feature DataFrame; metadata must not be included.

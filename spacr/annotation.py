@@ -58,9 +58,9 @@ def gene_number(value) -> Optional[str]:
     :returns: the number as a string, or ``None`` for anything that names no
         gene -- ``Intercept``, ``rowID[T.r03]``, an empty cell, NaN.
 
-    A SPLIT GENE MODEL COLLAPSES TO ITS PARENT. ``TGME49_201180A`` and
+    A split gene model resolves to its parent number. ``TGME49_201180A`` and
     ``TGME49_201180B`` are both ``201180``, because the screen's library
-    targets the locus and has no way to tell the two models apart. It is why
+    targets the locus and cannot distinguish the two models. For this reason
     every source here is deduplicated before it is joined.
     """
     if value is None:
@@ -229,12 +229,12 @@ def annotate(frame, *, key_column: Optional[str] = None, quiet: bool = False):
     :param frame: any exported table -- coefficients, significant hits, the
         montage sidecar.
     :param key_column: the column naming a gene. Found automatically when not
-        given, and a table naming no gene comes back UNCHANGED rather than
+        given, and a table naming no gene is returned unchanged rather than
         gaining a block of empty columns.
     :param quiet: suppress the console line saying what was joined.
-    :returns: a COPY. The caller is usually holding the run's own results,
-        and annotating them in place would move what every other panel and
-        export sees.
+    :returns: a copy of ``frame`` with the annotation columns added;
+        ``frame`` itself is not modified. When no gene column is found,
+        ``frame`` is returned as is.
 
     Columns already present in ``frame`` are not overwritten -- a run that
     computed its own ``gene_name`` keeps it, and the annotation's version is
@@ -304,15 +304,14 @@ def supplementary(genes=None, path=None):
     :param path: write here as CSV as well as returning the frame.
     :returns: the table, or ``None`` when DeepTMHMM is not bundled.
 
-    SEPARATE FROM :func:`annotate` ON PURPOSE. The per-segment coordinates
-    are 72 columns, and a coefficient export carrying them is a table nobody
-    opens twice. What belongs beside a coefficient is "does this protein have
-    a signal peptide, and how many transmembrane helices"; where each helix
-    starts is a different question and gets a different file.
+    This table is kept separate from :func:`annotate` because the
+    per-segment coordinates add 72 columns. :func:`annotate` joins only the
+    summary fields (signal peptide and transmembrane-helix count) to
+    coefficient exports; segment positions are written to this table.
 
-    ONLY THE SEGMENTS THAT EXIST. A screen of soluble proteins gets a table
-    ending at `n_tm`, not 72 columns of nothing -- the same rule the rest of
-    this module follows.
+    Segment columns that are empty for every selected protein are dropped,
+    so a set of soluble proteins yields a table ending at `n_tm`; the rest
+    of this module follows the same rule.
     """
     frame = _read("deeptmhmm.csv")
     if frame is None:
@@ -334,7 +333,7 @@ def supplementary(genes=None, path=None):
 
 
 def clear_cache() -> None:
-    """Forget the bundled tables. For tests, and for a reinstall mid-session."""
+    """Clear the cached bundled tables so the next access re-reads them."""
     for _label, source in SOURCES:
         source.cache_clear()
 
@@ -409,10 +408,9 @@ def annotate_from_uniprot(frame, source, *, cache_dir=None,
                           quiet: bool = False):
     """``frame`` with UniProt's annotation for ``source`` joined onto it.
 
-    The non-bundled half of :func:`annotate_with`. Joins on the gene NAME --
+    The UniProt branch of :func:`annotate_with`. Joins on the gene name --
     UniProt's own, including its synonyms -- and on the accession, because a
-    screen library names its targets one way or the other and neither is
-    wrong.
+    screen library may name its targets either way.
 
     Never raises and never multiplies rows: the annotation is collapsed to
     one row per key before the merge, and the merge is ``many_to_one``, for
@@ -477,11 +475,11 @@ def annotate_with(frame, source, *, cache_dir=None,
                   key_column: Optional[str] = None, quiet: bool = False):
     """Annotate ``frame`` from whatever ``source`` names.
 
-    The one call the pipeline makes. ``source`` is the ``annotation_source``
-    setting:
+    This is the function the pipeline calls. ``source`` is the
+    ``annotation_source`` setting:
 
-    * empty or any spelling of Toxoplasma -- the BUNDLED tables, offline,
-      exactly as before. This is the default and it does not touch
+    * empty or any spelling of Toxoplasma -- the bundled tables, offline.
+      This is the default and it does not touch
       :mod:`spacr.uniprot` at all;
     * an organism name or taxon id -- that organism from UniProt;
     * an accession -- that entry.

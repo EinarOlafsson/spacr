@@ -121,24 +121,23 @@ def runs_root() -> Path:
 def delete_runs(directories: Iterable[Any]) -> Tuple[int, List[str]]:
     """Delete journalled run folders. Returns ``(deleted, refused)``.
 
-    THIS REMOVES FILES, so every guard below is load-bearing rather than
-    defensive habit:
+    This removes files, so the following guards apply:
 
-    * A path is deleted only if, once resolved, it is strictly INSIDE
+    * A path is deleted only if, once resolved, it is strictly inside
       :func:`runs_root`. A record's ``dir`` is read from a manifest on
       disk, and a manifest is a file a user can edit; ``../../..`` in one
       must not reach anything. Resolving first is what makes the check
       real -- comparing unresolved strings passes for a symlink that
       points anywhere.
-    * ``runs_root()`` ITSELF is refused. "Delete everything" is a loop
+    * ``runs_root()`` itself is refused. "Delete everything" is a loop
       over children, never a removal of the root, so a caller that
       computes an empty selection cannot take the journal with it.
-    * The run OPEN ON THIS THREAD is refused: deleting the folder a run
+    * The run open on this thread is refused: deleting the folder a run
       is still writing into leaves it failing on its next write with an
       error that names nothing.
     * A path that is not a directory is refused rather than unlinked.
 
-    Refusals are RETURNED, not raised. Deleting fifty runs where one is
+    Refusals are returned, not raised. Deleting fifty runs where one is
     live should delete forty-nine and say which one it kept -- an
     exception at that point has already deleted an unknown number and
     tells the caller nothing about which.
@@ -998,7 +997,7 @@ class Run:
         """Whether to hash inputs and outputs for this run.
 
         Off unless the settings say otherwise. Hashing every file under
-        every path-valued setting is proportional to the DATA, not to the
+        every path-valued setting is proportional to the data, not to the
         run: on a plate of raw images it is minutes of reading before the
         first mask is made, and it happens whether or not anybody will ever
         compare the digests.
@@ -1880,7 +1879,7 @@ def _dispatch_notification(message: Dict[str, Any],
     results: Dict[str, str] = {}
 
     def work() -> None:
-        """Send, and keep what happened."""
+        """Send the notification and store its results."""
         try:
             results.update(_send_notification(message, notify))
         except Exception:
@@ -1981,9 +1980,9 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     (for non-negative ``limit``), so startup cost does not grow with the
     size of the journal.
 
-    PASS ``None`` FOR "EVERY RUN", never a negative number. The truncation
+    Pass ``None`` for every run, never a negative number. The truncation
     at the end is ``all_entries[:limit]``, so ``limit=-1`` reads the whole
-    journal and then hands back all but the OLDEST entry -- observed
+    journal and then hands back all but the oldest entry -- observed
     2026-09-03 on an 11,027-run journal, which returned 11,026. A folder with no ``manifest.json`` is skipped
     quietly; one whose manifest cannot be parsed is skipped with a
     logged warning.
@@ -2434,7 +2433,7 @@ def values_equal(a: Any, b: Any) -> bool:
     Compares :func:`_normalize_value` output structurally, falling back
     to a ``repr`` comparison for exotic values whose ``__eq__`` refuses
     to produce a bool (numpy-style elementwise comparison, etc.) — and
-    to "not equal" if even that blows up. A settings comparison must
+    to "not equal" if that also fails. A settings comparison must
     never be the thing that raises.
     """
     try:
@@ -2584,7 +2583,7 @@ def diff_runs(run_a: Any, run_b: Any) -> Dict[str, Any]:
         }
 
     ``changed`` holds only keys present in *both* runs whose values
-    actually differ, sorted by key — those are the knobs someone turned.
+    actually differ, sorted by key — those are the settings that were changed.
     Values are compared structurally, not by ``repr``
     (see :func:`_normalize_value`): ``[1, 2] == [1, 2]``, ``"[1, 2]"``
     (as CSV round-trips it) ``== [1, 2]``, and ``"None" == None``.
@@ -2905,7 +2904,7 @@ def _read_blinding_key(key_id: str) -> Dict[str, Any]:
 
 def start_blinding(items: Iterable[Any], *, scope: str, src: Any = "",
                    seed: Optional[int] = None) -> Dict[str, Any]:
-    """Shuffle ``items`` under coded names and keep the key away from them.
+    """Shuffle ``items`` under coded names and store the key separately.
 
     Blind scoring: the person scoring sees each item only by its code
     (``B0001``, ``B0002`` and so on, numbered in the shuffled order) and in

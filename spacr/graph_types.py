@@ -5,14 +5,13 @@ compatible graph types first and supplies a reason for each incompatible
 option, allowing interfaces to disable unsupported choices without hiding
 them.
 
-IT IS ALSO WHERE EVERY GRAPH IN spaCR GETS ITS STARTING FORM. The DEFAULT
-GRAPH TYPE setting is stored per data shape (`spacr.qt.preferences`), read
-back through :func:`chosen_for`, and turned into "what is drawn before the
-first right-click" by :func:`default_for` and :func:`start_for`. A widget
-asks one of those two and gets an answer that already accounts for the
-user's choice, whether that choice fits the data, and whether the data is
-thick enough to support it -- so the setting reaches a new graph by the
-graph doing the ordinary thing rather than by remembering to.
+The module also sets the starting form of every graph in spaCR. The
+Default Graph Type preference is stored per data shape
+(`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned
+into the graph drawn before the first right-click by :func:`default_for` and
+:func:`start_for`. Their answer accounts for the user's choice, whether that
+choice fits the data, and whether there are enough observations to support
+it, so every new graph applies the preference without extra code.
 """
 from __future__ import annotations
 
@@ -242,26 +241,27 @@ def types_for(shape: str) -> Tuple[str, ...]:
 
 
 def chosen_for(shape: str) -> str:
-    """The graph type the user asked to see FIRST for ``shape``, or ``""``.
+    """Return the saved first graph type for ``shape``, or ``""``.
 
     :param shape: one of the keys of :data:`DATA_SHAPES`.
     :returns: the saved graph type, or an empty string when the user has
         expressed no preference for this shape -- or expressed one this shape
         cannot take.
 
-    EMPTY MEANS "NOTHING WAS CHOSEN", which is not the same answer as the
+    An empty string means that nothing was chosen, which differs from the
     table's default: a widget with a starting form of its own keeps it when
     nothing was chosen, and the preference overrides it when something was.
     :func:`default_for` is the caller that turns "nothing" into the table's
     own answer.
 
-    A SAVED CHOICE THAT DOES NOT FIT THE DATA IS NOT A CHOICE FOR IT.
-    Someone who prefers bars has not asked for a bar of a continuous x
+    A saved choice that does not fit the data is ignored. Someone who
+    prefers bars has not asked for a bar of a continuous x
     against a continuous y -- that is a different graph of different data,
     and :data:`WHY_NOT` says so.
 
-    A MISSING PREFERENCE STORE IS NOT AN ERROR. A headless render has no Qt
-    and no QSettings, and a figure still has to be drawn.
+    A missing preference store is not an error and returns ``""``: a
+    headless render has no Qt and no QSettings, and a figure still has to be
+    drawn.
     """
     shape = str(shape)
     if not _READ_THE_PREFERENCE_STORE.get():
@@ -276,13 +276,13 @@ def chosen_for(shape: str) -> str:
 
 
 def default_for(shape: str) -> str:
-    """The graph type drawn FIRST for ``shape``.
+    """Return the graph type drawn first for ``shape``.
 
     :param shape: one of the keys of :data:`DATA_SHAPES`.
     :returns: a graph type from :data:`GRAPH_TYPES`.
     :raises KeyError: if ``shape`` is unsupported.
 
-    THE USER'S CHOICE COMES FIRST. The preference decides which compatible
+    The user's saved choice takes precedence. The preference decides which compatible
     graph is drawn first, and right-click can still change it afterwards.
     Every graph in spaCR reaches its starting form through this function or
     through :func:`start_for`, so the preference applies consistently across
@@ -294,43 +294,35 @@ def default_for(shape: str) -> str:
 
 
 def mark_to_start_on(shape: str, fallback_mark: str) -> Tuple[str, str]:
-    """What to draw FIRST, in the vocabulary the DRAWING code speaks.
+    """Return the mark to draw first for ``shape``, in drawing-code vocabulary.
 
     :param shape: one of the keys of :data:`DATA_SHAPES`.
-    :param fallback_mark: what the caller drew BEFORE the setting existed, in
+    :param fallback_mark: what the caller drew before the setting existed, in
         mark vocabulary -- ``'jitter_box'``, ``'jitter_bar'`` and so on.
     :returns: ``(mark, note)``, the mark to draw and the sentence explaining
         any fallback, empty when the choice was honoured.
 
-    TWO VOCABULARIES MEET HERE AND THEY ARE NOT THE SAME. This module stores
+    Two vocabularies are used. This module stores
     ``bar_jitter`` and ``box_jitter``; :class:`spacr.plot.spacrGraph` and the
     live panels draw ``jitter_bar`` and ``jitter_box``. A caller that reads
     the setting and forgets :func:`mark_for` hands matplotlib a name that
-    ``plot.py``'s own error message lists as unknown -- which is the mistake
-    this function exists to stop anyone making twice. Every call site that
+    ``plot.py``'s own error message lists as unknown. Every call site that
     reads the setting and then draws should come through here.
 
-    THE FALLBACK IS THE CALLER'S OWN FORM, NOT THE TABLE'S DEFAULT, and it is
-    taken in MARK vocabulary because that is what a caller already has
-    written down. A preference nobody expressed must not move an existing
-    view, so a caller passing what it used to hardcode gets exactly that back
-    until someone chooses otherwise.
+    The fallback is the caller's own form, not the table's default, and it
+    is given in mark vocabulary because that is what the caller already
+    uses. Without a saved preference the caller gets its fallback back
+    unchanged.
 
-    THE FALLBACK IS HANDED TO :func:`start_for` UNTRANSLATED, on purpose.
-    It looks like it needs mapping back to graph-type vocabulary first, and
-    the first version of this function did that with a reverse lookup over
-    :data:`MARKS`. A mutation test could not tell the two versions apart, and
-    reading `start_for` says why: with no preference stored it answers the
-    fallback AS GIVEN, without validating it, because "a widget knows what it
-    can draw". The reverse lookup was dead code.
+    The fallback is passed to :func:`start_for` without translation to
+    graph-type vocabulary. With no saved preference, `start_for` returns the
+    fallback as given, without validating it.
 
-    IT WOULD STOP BEING DEAD the day a caller passes ``counts``. `start_for`
-    uses the fallback a second time on the too-thin-for-a-distribution path,
-    where `fits(shape, fallback)` decides between the caller's form and the
-    table default -- and a MARK spelling fails `fits`. No caller here has
-    counts: these are settings defaults, built before any data is read. If
-    one ever does, this function needs the mapping back and a test that
-    reaches that path.
+    Translation would be needed if ``counts`` were passed: `start_for` then
+    also tests the fallback with `fits(shape, fallback)` on the
+    too-few-observations path, and a mark spelling fails `fits`. This
+    function passes no ``counts``, because it computes settings defaults
+    before any data is read.
     """
     chosen, note = start_for(str(shape), fallback=str(fallback_mark))
     return mark_for(chosen, fallback=str(fallback_mark)), note
@@ -375,7 +367,7 @@ def too_thin_for(graph_type: str, counts) -> str:
     :returns: a sentence naming the smallest group, or an empty string when
         the graph type is supported by the data.
 
-    Only the types that REPLACE the observations can be too thin; see
+    Only the types that replace the observations can be too thin; see
     :data:`HIDES_THE_OBSERVATIONS`. A jitter of two points is two points,
     which is the truth; a violin of two points is a density that was never
     measured.
@@ -397,11 +389,11 @@ def too_thin_for(graph_type: str, counts) -> str:
 
 
 def start_for(shape: str, counts=(), fallback: str = "") -> Tuple[str, str]:
-    """What to draw FIRST, and why that is not what was asked for.
+    """Return the graph type to draw first and a note explaining any fallback.
 
     :param shape: one of the keys of :data:`DATA_SHAPES`.
     :param counts: observations per group, when they are known.
-    :param fallback: the caller's OWN starting form, for when the user has
+    :param fallback: the caller's own starting form, for when the user has
         expressed no preference. It is answered as given -- a widget knows
         what it can draw -- and an empty one means :data:`DEFAULTS`.
     :returns: ``(graph_type, note)``. The note is empty whenever the graph
@@ -409,17 +401,15 @@ def start_for(shape: str, counts=(), fallback: str = "") -> Tuple[str, str]:
     :raises KeyError: if ``shape`` is unsupported and no usable fallback was
         given.
 
-    THE FALLBACK IS SAID OUT LOUD. A preference is a blanket statement --
-    "draw violins" -- and a blanket statement meets data it cannot describe
-    eventually. Drawing the points instead and saying nothing would leave a
-    user who asked for violins looking at a jitter with no explanation, so
-    the sentence comes back with the answer and the caller puts it on the
-    plot.
+    A fallback is always explained. A preference such as "draw violins"
+    applies to all data, and some data cannot support it; when the points
+    are drawn instead, the returned note explains why and the caller puts
+    it on the plot.
 
-    THE TABLE'S OWN DEFAULT IS NEVER OVERRIDDEN THIS WAY. Only a saved
-    choice is re-examined against the data: :data:`DEFAULTS` already picks
-    types that keep the observations, and a line of one point per x -- the
-    ordered default -- would otherwise be talked out of itself every time.
+    The table's own default is never replaced this way. Only a saved choice
+    is re-examined against the data: :data:`DEFAULTS` already picks types
+    that keep the observations, and a line of one point per x -- the ordered
+    default -- would otherwise always be replaced.
     """
     shape = str(shape)
     chosen = chosen_for(shape)

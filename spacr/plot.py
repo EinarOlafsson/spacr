@@ -5887,27 +5887,21 @@ LEGACY_PLATE_CMAP = 'viridis'
 
 
 def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
-    """Render every plate of a screen as ONE panel, wells square, on one colour scale.
+    """Render every plate of a screen as one panel, wells square, on one colour scale.
 
     The layout, the colour scale and the treatment of unmeasured wells live
     in :mod:`spacr.figures.plates`; this function is the call the pipeline
     already makes, kept at its own signature.
 
-    WHAT CHANGED, AND WHY (the design -- "the lpates look super small
-    on the collected figure"): the plates were laid out four-per-row on a
-    40 x 5 inch figure, an 8:1 strip that uses about an eighth of a square
-    tile in the figure grid, with wells 1.14:1 rather than square. They are
-    now a SMALL MULTIPLE -- 2 x 2 for a four-plate screen -- which is a
-    1.3:1 composite, and the figure is sized from the well grid so the wells
-    come out exactly square.
+    The plates are drawn as a small multiple -- 2 x 2 for a four-plate
+    screen, a 1.3:1 composite -- and the figure is sized from the well grid
+    so the wells come out exactly square.
 
-    Two things that were wrong with the picture and not only with its size:
-    each plate carried its OWN colour scale, so the same blue meant a
-    different number on the plate beside it; and a well that was never
-    measured was drawn as a measurement of zero, which on a screen with 155
-    of 384 wells used is more than half the panel — and set the bottom of
-    the scale. One scale is now shared across the plates, and an unmeasured
-    well is drawn as a neutral wash and left out of the scale.
+    One colour scale is shared across the plates, so the same colour means
+    the same number on every plate. A well that was never measured is drawn
+    as a neutral wash and left out of the scale; drawing it as zero would,
+    on a screen with 155 of 384 wells used, fill more than half the panel
+    and set the bottom of the scale.
 
     :param df: Long-format DataFrame with a ``prc`` column of the form
         ``plateID_rowID_columnID`` and the column named by ``variable``.
@@ -5916,7 +5910,7 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
     :param grouping: Aggregation mode — ``'count'``, ``'mean'`` or
         ``'sum'``.
     :param min_max: Color-scale spec (``'all'``, ``'allq'``,
-        ``[vmin, vmax]``), applied ONCE over every plate rather than once
+        ``[vmin, vmax]``), applied once over every plate rather than once
         per plate.
     :param cmap: Matplotlib colormap name or object. ``None`` — or the
         legacy ``'viridis'`` literal — uses the house single-hue ramp.
@@ -6223,7 +6217,7 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
 def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=None):
     """Display several Cellpose-style label masks side by side for a quick visual QC.
 
-    Handy for sanity-checking the masks produced by
+    Useful for checking the masks produced by
     :func:`spacr.core.preprocess_generate_masks` (e.g. compare the cell,
     nucleus and pathogen masks of the same field, or two runs against
     each other). Each mask is rendered with a random-color palette so
@@ -6612,7 +6606,7 @@ def plot_feature_importance(feature_importance_df, title=""):
 
     :param feature_importance_df: DataFrame with columns ``feature`` and
         ``importance``.
-    :param title: what the bars MEAN, when it is not the model's own
+    :param title: what the bars mean, when it is not the model's own
         importances. Four of the classifiers spaCR offers expose no
         ``feature_importances_`` and are drawn from permutation importance
         instead -- a different quantity, measuring what the fitted model
@@ -6826,7 +6820,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
     checks; an underpowered assumption check selects the rank test. When at
     least three groups jointly pass normality, Tukey HSD rows are added.
 
-    The ``'jitter_box'`` default is a STATISTICAL CORRECTION, not a
+    The ``'jitter_box'`` default is a statistical choice, not a
     presentation preference: it shows the observations and their distribution
     instead of reducing each group to a mean bar.
     Two groups can have the same mean while having different spreads.
@@ -7131,7 +7125,7 @@ class spacrGraph:
     :param data_column: Metric column (or list of columns) to summarise.
     :param graph_type: Plot type. Default ``'jitter_box'`` -- a box with the
         points over it. See :func:`create_grouped_plot` for why that default
-        is a correction rather than a taste.
+        is a statistical choice rather than a style preference.
     :param summary_func: Aggregator for well/plate level. Default ``'mean'``.
     :param order: Explicit ordering of groups.
     :param colors: Optional colour palette.
@@ -7455,7 +7449,7 @@ class spacrGraph:
         return is_normal, normality_results
 
     def perform_levene_test(self, unique_groups):
-        """Levene's test for equal variance on ``data_column[0]``, MEDIAN-centred.
+        """Levene's test for equal variance on ``data_column[0]``, median-centred.
 
         Delegates to :func:`spacr.figures.stats.check_equal_variance`. Two
         things moved when it did, and both change the number a caller writes
@@ -9097,7 +9091,7 @@ def _compare_groups(samples):
 
 
 def proportion_test_by_unit(df, group_column, bin_column, unit_column):
-    """Compare conditions on their PER-UNIT proportions, one row per bin.
+    """Compare conditions on their per-unit proportions, one row per bin.
 
     :param df: object-level observations carrying group, bin, and unit fields.
     :param group_column: column naming the conditions to compare.
@@ -9106,10 +9100,10 @@ def proportion_test_by_unit(df, group_column, bin_column, unit_column):
 
     The object-level chi-squared asks whether 20,000 objects came from one
     distribution. Objects in a well share a treatment, a transfection, an
-    imaging session and a monolayer, so that is not the question anyone
-    asked, and its p-value is smaller than the experiment supports by orders
-    of magnitude. This asks the question the design supports: do the WELLS
-    differ, with n = the number of wells.
+    imaging session and a monolayer, so they are not independent, and its
+    p-value is smaller than the experiment supports by orders of magnitude.
+    This tests what the design supports: whether the wells differ, with n =
+    the number of wells.
     """
     if unit_column == group_column:
         return pd.DataFrame([{
@@ -9145,7 +9139,7 @@ def proportion_test_by_unit(df, group_column, bin_column, unit_column):
 
 
 def proportion_mixed_model(df, group_column, bin_column, unit_column):
-    """A binomial GLM on the per-object outcome, standard errors clustered by unit.
+    """Fit a binomial GLM on the per-object outcome, clustering errors by unit.
 
     :param df: object-level observations carrying group, bin, and unit fields.
     :param group_column: column naming the conditions to compare.
@@ -9153,7 +9147,7 @@ def proportion_mixed_model(df, group_column, bin_column, unit_column):
     :param unit_column: column naming clusters used for robust standard errors.
 
     The proportions test throws away how many objects each well contributed;
-    this keeps them while still charging the degrees of freedom the DESIGN
+    this keeps them while still charging the degrees of freedom the design
     supports, by clustering on the unit. Reported beside the other two
     because when it disagrees with them, the disagreement is the finding.
     """

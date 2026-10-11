@@ -1,5 +1,5 @@
 """
-Cellpose mask I/O — write + read masks as EITHER TIFF or NumPy.
+Cellpose mask I/O — write + read masks as either TIFF or NumPy.
 
 Introduces two helpers to replace scattered ``np.save``/``np.load``
 calls across :mod:`spacr.object` and :mod:`spacr.io`:
@@ -42,7 +42,7 @@ other tools curate and train on: :func:`masks_to_geojson` and
 Every object is one feature, ROI or annotation, carrying its object type
 (``cell``, ``nucleus`` ...), its object id and its class; the class defaults to
 the object type. Each object is traced on its own, so objects that touch stay
-separate. Outlines follow PIXEL EDGES, not pixel centres: a pixel ``(row,
+separate. Outlines follow pixel edges, not pixel centres: a pixel ``(row,
 col)`` is the square from ``x = col`` to ``col + 1`` and ``y = row`` to
 ``row + 1``, the convention QuPath and ImageJ both use. A pixel is inside a
 polygon when its centre is, so a traced outline rasterised back gives the
@@ -156,7 +156,7 @@ def load_mask(path: PathLike) -> np.ndarray:
 
     :param path: mask file or extensionless stem to resolve and load.
 
-    Accepts a full path (``foo.tif`` / ``foo.npy``) OR a stem
+    Accepts a full path (``foo.tif`` / ``foo.npy``) or a stem
     (``foo``) — in the stem case, tif → tiff → npy is tried and the
     first extant file is loaded.
 

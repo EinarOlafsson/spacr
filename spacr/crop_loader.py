@@ -1,15 +1,10 @@
 """Choose a set of crops, then read them a page at a time.
 
-**WHAT IT IS FOR.** Every screen that shows objects has had its own way of
-finding them, and the Embeddings screen had none at all --
-:meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` existed and
-nothing in ``spacr/`` called it, so the only route to a label-free vector was
-to open Python. This module is the missing half: it turns a question about a
-plate into a stack of pixels, and it does it in two steps so a GUI can stay
-answerable between them.
+This module selects crops from a plate and loads them as one pixel stack,
+for example for :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops`.
+It works in two steps so a GUI stays responsive between them.
 
-**PLANNING IS NOT LOADING, and that separation is the whole design.**
-:func:`plan_crops` asks the database or the folder *which objects match* and
+Planning and loading are separate. :func:`plan_crops` asks the database or the folder *which objects match* and
 reads no pixels at all: a ``COUNT`` and a ``SELECT`` of identifiers, or one
 ``scandir``. It is milliseconds on a plate of sixty thousand crops, so a
 screen can run it on a click and tell the user what they asked for before
@@ -18,49 +13,45 @@ pages, reporting after each one. A caller that runs the second half on a
 worker thread gets a progress number per page and a stop that takes effect
 within a page rather than at the end.
 
-**WHAT IT NEEDS.** Either a ``measurements.db`` -- where the crops are chosen
-by object class, by plate, or by a predicate over ``png_list`` -- or a folder
-of crop PNGs. Nothing else: the pixels themselves come from
-:func:`spacr.crops.resolve_crop_source`, so this module inherits the existing
-answer to "are there pre-generated crops here, or do we cut from
-``merged/*.npy``" rather than inventing a second one, and a legacy folder is
-corrected on load exactly as it is everywhere else.
+The input is either a ``measurements.db`` -- where the crops are chosen by
+object class, by plate, or by a predicate over ``png_list`` -- or a folder of
+crop PNGs. The pixels come from :func:`spacr.crops.resolve_crop_source`, which
+decides whether to read pre-generated crops or cut them from
+``merged/*.npy``, and a legacy folder is corrected on load as it is
+elsewhere.
 
-**WHAT IT PRODUCES.** One ``(objects, height, width, channels)`` uint8 array,
+The output is one ``(objects, height, width, channels)`` uint8 array,
 which is the layout :func:`spacr.embeddings.embed_array` documents and
 :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus
 a JSON-serialisable ``record`` of what was actually read -- how many matched,
 how many were taken, the crop shape, and how many crops had to be conformed
 to it.
 
-**WHAT TO DO NEXT.** Hand the array to the Embeddings screen, or straight to
+The array can be passed to the Embeddings screen or to
 :func:`spacr.embeddings.embed_array`.
 
-**A CAP IS PART OF THE ANSWER, NOT A FAILURE TO LOAD EVERYTHING.** Sixty
-thousand crops of 96x96x3 is 1.6 GB before a backbone has seen one of them,
-and a screen that tries it dies on a machine that could have embedded the
-first two thousand happily. So :attr:`CropQuery.limit` is a real default and
-the plan says what it left behind -- "the first 2,000 of 61,433" -- rather
-than quietly returning a subset that looks like the whole plate.
+The number of crops is capped by default. Sixty thousand crops of 96x96x3
+take 1.6 GB before embedding, which can exhaust memory on a machine that
+could embed the first two thousand. :attr:`CropQuery.limit` therefore has a
+non-zero default, and the plan states what was left out -- "the first 2,000
+of 61,433".
 
-**AND A CAP IS NOT THE ONLY THING THAT REMOVES A ROW, SO IT IS COUNTED ON ITS
-OWN.** The merged route drops every row it cannot cut, and reporting that as
-a cap is the same sentence read backwards: a complete answer dressed as a
-subset, telling the user to raise a limit that never bit. So
-:attr:`CropPlan.matched`, :attr:`CropPlan.selected` and
+Rows dropped for other reasons are counted separately from the cap. The
+merged route drops every row it cannot cut; reporting that as a cap would
+suggest raising a limit that was not reached. :attr:`CropPlan.matched`, :attr:`CropPlan.selected` and
 :attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap
 between the first two and :attr:`CropPlan.dropped` the gap between the last
 two, and they reach the panel as separate clauses.
 
-**AN EMPTY RESULT IS A SENTENCE, NEVER AN EMPTY ARRAY.** A plan that matched
-nothing carries :attr:`CropPlan.empty_reason`, which names the table, the
-class, the plate and the predicate that were asked for AND what the database
-does hold, because "no crops" on its own sends a user to look for a broken
-install when they have asked for plate 9 of an eight-plate screen.
+An empty result is reported with a reason, not returned as an empty array.
+A plan that matched nothing carries :attr:`CropPlan.empty_reason`, which
+names the table, the class, the plate and the predicate that were asked for
+and what the database does hold, for example when plate 9 is requested from
+an eight-plate screen.
 
-**THE PREDICATE IS SQL AND THE DATABASE IS OPENED READ-ONLY.** ``where`` is a
-fragment of the user's own query language against their own file; refusing it
-would mean inventing a worse one. It is spliced into a ``WHERE`` clause, so
+The predicate is SQL and the database is opened read-only. ``where`` is an
+SQL fragment against the user's own file. It is spliced into a ``WHERE``
+clause, so
 the connection is opened with ``readonly=True`` -- SQLite's ``query_only``,
 which refuses every write at the engine -- and a predicate carrying a
 statement separator is rejected before it is sent.
@@ -100,11 +91,11 @@ __all__ = [
 
 
 class CropLoadError(ValueError):
-    """A set of crops that cannot be loaded, and why.
+    """Raised when a set of crops cannot be planned or loaded.
 
-    Carries a sentence fit for a status bar: every raise in this module names
-    the path, the class or the predicate that produced it, because the caller
-    is a screen and its only way to explain a failure is to repeat this text.
+    The message is a sentence suitable for a status bar: every raise in this
+    module names the path, the class or the predicate that produced it, since
+    the calling screen shows this text as the explanation.
     """
 
 
@@ -205,14 +196,13 @@ class CropPlan:
     :param empty_reason: the sentence to show when nothing matched, naming
         both what was asked and what is there. Empty when something did.
 
-    **THREE NUMBERS, NOT TWO, BECAUSE TWO THINGS REMOVE ROWS AND THEY ASK
-    THE READER FOR DIFFERENT THINGS.** ``matched`` is what the query found,
+    Three counts are kept because rows are removed at two stages, for
+    different reasons. ``matched`` is what the query found,
     ``selected`` is what the limit left of it, and ``count`` is what
     survived the merged route's join -- which drops every row with no single
     object label (``'omulti'`` / ``'onone'``) or no merged array recorded.
     Only the first gap is a cap, and only a cap is repaired by raising 'At
-    most'; telling a user to raise a limit that never bit hands them an
-    action that returns the same rows and reprints the same sentence.
+    most'; raising a limit that was not reached returns the same rows.
     """
 
     query: CropQuery
@@ -248,9 +238,8 @@ class CropPlan:
         """Whether the limit kept crops out of this plan.
 
         Against :attr:`selected`, never against :attr:`count`: a merged-route
-        load that lost rows to the join has ``matched > count`` with no limit
-        anywhere near it, and reporting that as a cap is this module's own
-        promise -- that a cap is part of the answer -- running backwards.
+        load that lost rows to the join has ``matched > count`` without
+        reaching the limit, and that is not a cap.
         """
         return self.matched > self.selected
 
@@ -276,7 +265,7 @@ class CropPlan:
                      for start in range(0, self.count, size))
 
     def describe(self) -> str:
-        """One line a status bar can show the moment planning returns.
+        """Return a one-line status-bar description of the plan.
 
         Says what was taken out of what, so a capped load reads as a
         deliberate subset rather than as the whole plate -- and names a
@@ -331,7 +320,7 @@ def _table_columns(conn, table: str) -> Tuple[str, ...]:
 
 
 def object_classes(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
-    """Which object classes this database actually has crops for.
+    """Return the object classes this database has crops for.
 
     A class is offered only when its id column is present AND holds at least
     one value, because a ``png_list`` written for cells carries an empty
@@ -771,12 +760,12 @@ def _empty_folder_reason(folder: str) -> str:
 
 
 def plan_crops(query: CropQuery) -> CropPlan:
-    """Answer ``query`` without reading a pixel.
+    """Plan the crops that match ``query`` without reading pixels.
 
     :param query: what to select.
     :returns: a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before
-        loading -- an empty plan is an answer, not a failure, and it carries
-        the sentence explaining itself.
+        loading -- an empty plan is not an error, and it carries an
+        explanation in :attr:`CropPlan.empty_reason`.
     :raises CropLoadError: an unknown source, or a path that is not there.
     """
     source = str(query.source or "").strip().lower()
@@ -792,7 +781,7 @@ def plan_crops(query: CropQuery) -> CropPlan:
 def conform_crop(crop: np.ndarray, height: int, width: int) -> np.ndarray:
     """Centre a crop in a ``height`` x ``width`` frame, padding or trimming.
 
-    Padding rather than resizing, and that is the whole of the decision: a
+    The crop is padded, not resized: a
     stack has to be rectangular before a backbone sees it, and rescaling a
     crop changes the apparent size of the object in it, which is a phenotype.
     Zero-padding changes the background, which is not. It is also what

@@ -1,13 +1,12 @@
-"""Methods and Results sections, written from a run digest the model cannot leave.
+"""Write Methods and Results text from a run digest and verify its numbers.
 
-The deliverable is two paragraphs of a paper: a **methods** section that says
-what was actually done, and a **results** section that says what came out. The
-hard part is not the prose. The hard part is that a language model asked to
-write about an experiment will produce numbers, and the numbers will be
-plausible, and nobody reading the paragraph can tell which of them came from
-the run.
+The output is two paragraphs of a paper: a **methods** section that states
+what was done, and a **results** section that states what came out. A
+language model asked to write about an experiment can produce plausible
+numbers that did not come from the run, and a reader cannot tell which ones
+did.
 
-So the model never sees the data. It sees a **run digest**: a structured
+The model therefore never sees the data. It sees a **run digest**: a structured
 record of the modules that ran, the parameters they ran with, the counts, the
 versions, the QC verdicts and the statistics *already computed* by the rest of
 spaCR. It writes prose around those numbers, and then:
@@ -16,11 +15,10 @@ spaCR. It writes prose around those numbers, and then:
   each one against the digest. A number that is not in the digest — not as a
   value, not as a correct rounding of one, not as a verbatim quote of a
   digest string — is **unsupported**, and
-* :func:`check_draft` refuses a draft that carries one. The refusal is the
-  guarantee: the model cannot introduce a figure, because a draft carrying an
-  invented figure does not get returned as a draft.
+* :func:`check_draft` rejects a draft that carries one, so a draft with an
+  invented figure is never returned as a draft.
 
-Two consequences worth stating plainly. First, the digest is the contract:
+Two consequences follow. First, the digest is the contract:
 anything the prose may quote has to be *in* it, which is why the digest
 carries the alpha, the confidence level and the seed as numbers rather than
 leaving the model to supply the obvious ones. Second, there is a deterministic
@@ -31,10 +29,9 @@ it is what the number-provenance tests assert against, because a test that
 plants a number in the digest and requires it in the output must not be
 testing a stub.
 
-**The caveats are not optional.** A methods section that omits a QC failure,
-or the fact that illumination correction did not run, or the ``on_error=skip``
-that dropped eleven fields, is not a shorter methods section — it is a wrong
-one. :func:`build_digest` collects those into :data:`DIGEST_CAVEATS` and both
+**Caveats are required.** A methods section that omits a QC failure, or the
+fact that illumination correction did not run, or the ``on_error=skip`` that
+dropped eleven fields, is incorrect. :func:`build_digest` collects those into :data:`DIGEST_CAVEATS` and both
 renderers, and the prompt, are required to state every one.
 
 Public API::
@@ -151,12 +148,12 @@ def _walk_keyed(value: Any, key: str = "") -> Iterable[Tuple[str, Any]]:
 
 
 def digest_numbers(digest: Mapping[str, Any]) -> Set[float]:
-    """Every number the digest actually asserts.
+    """Return every number the digest asserts, as floats.
 
     Numeric leaves, plus strings that are *entirely* a number (a gene id such
     as ``"233460"`` is a string in the tables and a number in prose). Digits
     embedded in a longer string — a path, a run id, a version — are
-    deliberately NOT harvested here: those are handled by
+    not harvested here: those are handled by
     :func:`digest_strings`, which lets the prose quote them verbatim without
     also licensing every digit inside them as a free-standing figure.
 
@@ -276,7 +273,7 @@ class Verification:
     :param ok: no unsupported number was found.
     :param checked: how many number tokens were examined.
     :param supported: the tokens that trace to the digest.
-    :param unsupported: the tokens that do not. These are the inventions.
+    :param unsupported: the tokens that do not.
     :param missing_caveats: caveats the digest carries that the text omits.
     """
 
@@ -316,8 +313,7 @@ def verify_numbers(text: str, digest: Mapping[str, Any], *,
                    require_caveats: bool = False) -> Verification:
     """Check that every number in ``text`` came from ``digest``.
 
-    This is the assertion the whole module exists to make. It is applied to
-    what a model returns, and a draft that fails it is not returned as a
+    It is applied to what a model returns, and a draft that fails it is not returned as a
     draft — see :func:`check_draft`.
 
     :param text: the generated prose.
@@ -409,8 +405,8 @@ def build_digest(*,
 
     Every source is optional and every one of them is read defensively: a
     subsystem that cannot answer contributes a note rather than an exception,
-    because a digest is written at the END of a long run and losing it to a
-    missing model card would be absurd.
+    because a digest is written at the end of a long run and should not be
+    lost to, for example, a missing model card.
 
     :param project: the project root. Supplies the provenance summary from
         :mod:`spacr.pipeline_graph` and the segmentation QC from
@@ -789,9 +785,9 @@ def _finite(value: Any) -> Optional[float]:
 
 
 def caveats_for(digest: Mapping[str, Any]) -> List[str]:
-    """The sentences a methods section is not allowed to leave out.
+    """Return the caveat sentences that a methods section must include.
 
-    Everything the pipeline KNOWS about the run's limitations, stated as
+    Every limitation the pipeline records about the run, stated as
     prose the paragraph has to carry: which QC flags fired, whether
     illumination correction ran, the seed, the ``on_error`` policy and what
     it dropped, the classifier's held-out metrics, and whether any artifact
@@ -1080,7 +1076,7 @@ def render_results(digest: Mapping[str, Any]) -> str:
 
 
 def system_prompt() -> str:
-    """The instruction the model is held to. Names the rule it must not break."""
+    """Return the system prompt; it requires every number to be in the digest."""
     return (
         "You are writing two sections of a methods-and-results manuscript for "
         "a CRISPR imaging screen analysed with spaCR.\n"
@@ -1114,7 +1110,7 @@ def system_prompt() -> str:
 def render_prompt(digest: Mapping[str, Any]) -> Tuple[str, str]:
     """``(system prompt, user message)`` for one digest.
 
-    A pure function of the digest — which is the point. The model receives
+    A pure function of the digest. The model receives
     this and nothing else, so there is no path by which raw data could reach
     it, and a test can assert that a number planted in the digest is the only
     place a number in the prompt can have come from.

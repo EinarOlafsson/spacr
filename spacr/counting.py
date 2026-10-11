@@ -1,16 +1,14 @@
 """Manual counting on a points layer — click to add, click to remove, tally.
 
-The oldest measurement in the building. Somebody opens a field, counts the
-infected cells by eye, writes a number on a sticky note, and the number is the
-result: no record of where the clicks were, no way to recount, no way for a
-second scorer to agree or disagree with anything but the total.
+Counting by eye usually records only a total: there is no record of where
+each object was counted, no way to recount, and no way to compare two
+scorers beyond the total.
 
-This module is that job done on top of :class:`spacr.layers.PointsLayer`, so
-the clicks are *data*. Every marker is a world coordinate on a layer that can
+This module records manual counts on a :class:`spacr.layers.PointsLayer`, so
+each click is stored as data. Every marker is a world coordinate on a layer that can
 be hidden, recoloured, saved and reopened; the tally is derived from the
 markers rather than typed; and the export is one row per click, so two scorers
-can be compared point by point and a disputed count can be looked at rather
-than argued about.
+can be compared point by point and a disputed count can be inspected.
 
 One layer per class
 -------------------
@@ -65,7 +63,7 @@ DEFAULT_CLASSES: Tuple[Tuple[str, str], ...] = (
 
 @dataclass(frozen=True)
 class CountClass:
-    """One thing being counted: a name, a colour and a shortcut.
+    """One counted class: a name, a marker colour and a keyboard shortcut.
 
     :param name: what it is called, in the tally and in the export. Unique
         within a session — two classes with one name is a count nobody can
@@ -98,7 +96,7 @@ class CountClass:
 
 
 class CountingSession:
-    """Counting by hand over a :class:`~spacr.layers.LayerStack`.
+    """Manual point-counting session on a :class:`~spacr.layers.LayerStack`.
 
     :param stack: the stack the markers are added to. Its layers supply the
         spacing, so a marker is placed in the same world as the image being
@@ -108,8 +106,8 @@ class CountingSession:
         :data:`DEFAULT_CLASSES`.
     :param spacing: the spacing for the marker layers. Defaults to the first
         2-D layer's, which is what makes a count line up with the field.
-    :param size: marker DIAMETER in world units — world, so a marker is the
-        same physical size at every zoom.
+    :param size: marker diameter in world units, so a marker is the same
+        physical size at every zoom.
     :param field: the :class:`~spacr.layers.FieldKey` being counted, if it is
         known. It is written into the export, which is what lets a count join
         the measurement tables instead of being a loose CSV.
@@ -174,7 +172,7 @@ class CountingSession:
 
     @property
     def class_names(self) -> Tuple[str, ...]:
-        """Just the names, in order."""
+        """Class names, in the order the classes were added."""
         return tuple(c.name for c in self._classes)
 
     def add_class(self, spec: Any, *,
@@ -305,7 +303,7 @@ class CountingSession:
         return None
 
     def remove_at(self, world: Mapping[str, float]) -> Optional[Tuple[str, int]]:
-        """Take away the marker under a world point; returns what went.
+        """Remove the marker under a world point; return (class, index) or None.
 
         :param world: world-axis coordinates whose marker should be removed.
         """

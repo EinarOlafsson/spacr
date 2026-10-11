@@ -926,12 +926,12 @@ def host_rss() -> Optional[int]:
 
 
 def gpu_allocated() -> Optional[int]:
-    """The HIGH-WATER mark of torch's CUDA allocation, or ``None``.
+    """The high-water mark of torch's CUDA allocation, or ``None``.
 
-    ASKED ONLY IF TORCH IS ALREADY IMPORTED. Importing it to take a
+    Read only if torch is already imported. Importing it to take a
     measurement would make the measurement the most expensive thing in the
-    stage, and on a settings panel it is the import this project has twice
-    had to keep out (`tests/test_a_settings_panel_does_not_import_torch.py`).
+    stage, and a settings panel must not import torch
+    (`tests/test_a_settings_panel_does_not_import_torch.py`).
 
     Uses ``max_memory_allocated`` rather than the current allocation because
     fit tensors may already be released when a stage boundary is recorded.
@@ -953,7 +953,7 @@ def gpu_allocated() -> Optional[int]:
 
 
 def readable(total: Optional[int]) -> str:
-    """Bytes as the unit a person decides in, or "not measured".
+    """Format a byte count with a B to TB unit, or return "not measured".
 
     :param total: byte count to format, or None when no measurement exists.
     """
@@ -999,7 +999,7 @@ def peak(settings: Any) -> Dict[str, Any]:
     :param settings: mapping-like fit settings carrying the recorded resource
         history.
 
-    Empty when nothing was recorded -- NOT zero, for the reason `host_rss`
+    Empty when nothing was recorded -- not zero, for the reason `host_rss`
     gives.
     """
     try:
@@ -1019,7 +1019,7 @@ def peak(settings: Any) -> Dict[str, Any]:
 
 
 def describe_resources(settings: Any) -> str:
-    """The per-stage table, for a summary or a failure report. "" when empty.
+    """Return the per-stage resource table as text; "" when nothing was recorded.
 
     :param settings: mapping-like fit settings carrying the recorded resource
         history.

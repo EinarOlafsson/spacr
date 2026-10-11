@@ -1,7 +1,7 @@
 """Format converter / importer — vendor microscopy files into Yokogawa TIFFs.
 
-This is the standalone version of "get my images into a shape spaCR can
-read". It is deliberately **decoupled from the mask pipeline**: nothing
+This module converts vendor image files into a layout spaCR can read.
+It is **decoupled from the mask pipeline**: nothing
 here imports torch, cellpose or :mod:`spacr.core`, so it can be run,
 tested and previewed on a laptop with no GPU and no segmentation
 settings in sight.
@@ -35,7 +35,7 @@ Why a second converter
 
 :func:`spacr.io.convert_to_yokogawa` already converts ND2/CZI/LIF/TIFF,
 and it is still the right tool when you want an in-place rename of a
-flat folder. It cannot do the three things this module exists for:
+flat folder. It does not provide the three features of this module:
 
 * **Preview.** It writes as it walks. There is no point at which you can
   look at "``run1/wt/fov01_C1.tif`` → ``plate1_A01_…C01.tif``" and say
@@ -298,7 +298,7 @@ def reader_requirement(ext: str) -> Optional[Tuple[str, str]]:
 
 
 def reader_available(ext: str) -> bool:
-    """True when ``ext`` can actually be read on this machine.
+    """True when ``ext`` can be read on this machine.
 
     :param ext: file extension including the dot.
     """
@@ -454,11 +454,10 @@ def normalise_well(name: str, *, n_wells: Optional[int] = None) -> Optional[str]
 def off_plate_reason(name: str) -> Optional[str]:
     """Say why ``name`` looks like a well but is not one, or return None.
 
-    The dangerous middle case. ``wt`` is obviously not a well and nobody is
-    surprised when it gets a synthetic address; ``ZZ99`` and ``A0`` *parse*
-    into a row and a column and then turn out to sit on no plate that
-    exists, so handing them a synthetic address silently is how a typo
-    becomes a well name nobody can trace.
+    ``wt`` is clearly not a well and receives a synthetic address.
+    ``ZZ99`` and ``A0`` *parse* into a row and a column but lie on no
+    standard plate; giving them a synthetic address without a message would
+    turn a typo into a well name that cannot be traced.
 
     :param name: the source well-folder name.
     :returns: a sentence naming the name and the position it read as, or
@@ -482,8 +481,8 @@ def plate_format_for_names(n_names: int, wells: Sequence[str],
 
     The smallest standard format that is at least ``minimum``, holds every
     address in ``wells``, and has room for ``n_names`` distinct sources.
-    That second clause is the 1536 fix: one folder named ``AA01`` means the
-    plate *is* a 1536, whether or not there are 1536 of them.
+    Because of the address clause, one folder named ``AA01`` selects the
+    1536-well format, however few names there are.
 
     :param n_names: how many distinct source names must be given a well.
     :param wells: the canonical addresses already claimed by name.
@@ -517,8 +516,8 @@ def assign_wells(names: Sequence[str], *,
 
     All three are deterministic — the same folder names always produce the
     same wells — and step 3 is only *reversible* because the map file
-    records ``source_well`` next to ``well``. Which is the point: after
-    conversion ``plate1_A01`` means nothing without the map, so
+    records ``source_well`` next to ``well``. After conversion
+    ``plate1_A01`` cannot be traced to its folder without the map, so
     :func:`plan` also reports every synthetic assignment by name.
 
     :param names: the well-folder names found for one plate.
@@ -658,8 +657,8 @@ class SourceImage:
 class Mapping:
     """One source plane and the one output TIFF it becomes.
 
-    Every field needed to walk the arrow backwards is here, which is why
-    the map file can be a straight dump of these.
+    It holds every field needed to trace an output back to its source, so
+    the map file is a direct dump of these records.
 
     :param source: path of the source image as retained by the scan.
     :param target: basename of the output TIFF.
@@ -754,7 +753,7 @@ class Mapping:
 
 @dataclass
 class ConversionPlan:
-    """The preview: what would be written, and what would go wrong.
+    """Conversion preview: planned outputs, blocking errors and warnings.
 
     Nothing in here has touched the disk. ``plan.to_frame()`` is the
     table a user reads before deciding; ``plan.ok`` is what a caller
@@ -809,9 +808,8 @@ class ConversionPlan:
         """Return the preview table.
 
         One row per output, plus one row per unreadable source with an
-        empty ``target`` and the reason in ``status`` — a preview that
-        quietly omitted the files it could not read would be exactly the
-        wrong shape of honest.
+        empty ``target`` and the reason in ``status``, so unreadable files
+        appear in the preview.
         """
         rows: List[Dict[str, Any]] = []
         for mapping in self.mappings:
@@ -869,7 +867,7 @@ class ConversionPlan:
 
 @dataclass
 class ConversionResult:
-    """What :func:`convert` actually did.
+    """Outcome of :func:`convert`: written, existing and failed mappings.
 
     :param plan: conversion plan supplied to the run or returned with a
         preview-only result.
@@ -1884,11 +1882,11 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
     * **channel** — 1..N per plate, over the distinct channel keys, so
       ``C01`` means the same stain in every well of a plate.
 
-    ``z_handling`` is explicit on purpose. :data:`Z_KEEP` (default)
+    Z projection is never implicit. :data:`Z_KEEP` (default)
     writes every plane; :data:`Z_MAX` max-projects and :data:`Z_FIRST`
     keeps only plane 1 — both are announced in :attr:`ConversionPlan.warnings`
-    and recorded per row in the map file, because a converter that
-    silently flattens a z-stack loses data nobody notices for months.
+    and recorded per row in the map file, so discarded planes are always
+    reported.
 
     :param sources: output of :func:`scan`.
     :param z_handling: one of :data:`Z_HANDLING`.
@@ -2559,9 +2557,9 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
 def write_map(result: ConversionResult, path: str) -> Path:
     """Write the map file for ``result``.
 
-    The map is the whole point of the exercise: once the images are
-    called ``plate1_A01_T0001F001L01A01Z01C01.tif``, the only thing that
-    can say which microscope file that came from is this table.
+    Once the images are called ``plate1_A01_T0001F001L01A01Z01C01.tif``,
+    this table is the only record of which microscope file each came
+    from.
 
     One row per output TIFF, columns :data:`MAP_COLUMNS`:
 
@@ -2624,8 +2622,7 @@ def populate_db_from_map(db_path: str, map_path: str,
                          table: str = CONVERSION_TABLE) -> int:
     """Load a map file into ``measurements.db`` so the run can be joined back.
 
-    This is the read-back that closes the loop. After spaCR has measured
-    the converted images, every row of every measurement table carries
+    After spaCR has measured the converted images, every row of every measurement table carries
     ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` — but nothing
     that says the field came from ``run1/wt/fov07_C2.tif``. This writes
     the map into the same database as ``conversion_map``, keyed exactly
@@ -3011,11 +3008,11 @@ def convert_folder(settings: Optional[TMapping[str, Any]] = None,
                    **overrides: Any) -> ConversionResult:
     """Scan, preview, convert and map one folder in a single call.
 
-    The entry point the CLI and the Qt bridge want: one function, one
+    The entry point used by the CLI and the Qt bridge: one function, one
     settings dict, the same three phases underneath. It always prints
-    the plan before writing anything, so even a headless
-    ``spacr-run format_convert`` leaves the source → target table in the
-    log where a surprised user can find it.
+    the plan before writing anything, so a headless
+    ``spacr-run format_convert`` also records the source → target table
+    in the log.
 
     Settings (see :func:`default_settings`):
 

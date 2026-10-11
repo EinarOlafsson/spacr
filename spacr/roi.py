@@ -121,7 +121,7 @@ ON_MISSING: Tuple[str, ...] = ('error', 'all', 'none')
 
 
 class RoiError(ConfigurationError):
-    """An ROI that cannot be placed on the mask it was handed.
+    """Raised when an ROI cannot be placed on the mask it is given.
 
     A :class:`spacr.errors.ConfigurationError`, like every other measurement
     hook failure: a mis-specified ROI is wrong for every field on the plate,
@@ -226,7 +226,7 @@ class RoiSet:
     :param fields: ``{field name: (RegionOfInterest, ...)}``. The field name is
         the ``.npy`` stem the pipeline uses, e.g. ``plate1_A01_F001``;
         :data:`ANY_FIELD` (``'*'``) is the fallback for every field with no
-        entry of its own. Several ROIs on one field are a UNION — drawing a
+        entry of its own. Several ROIs on one field are a union — drawing a
         second polygon adds to what is measured.
     :param axes: which world axes the vertex columns are, **outermost first**,
         matching the mask's own array axis order — ``('y', 'x')`` unless the
@@ -239,7 +239,7 @@ class RoiSet:
     :param mode: ``'centroid'`` or ``'overlap'``; see the module docstring.
     :param min_overlap: for ``'overlap'``, the fraction of an object's pixels
         that must be inside for it to be kept.
-    :param invert: keep the objects OUTSIDE the ROI instead. "Exclude this
+    :param invert: keep the objects outside the ROI instead. "Exclude this
         debris" is as common a request as "measure this colony".
     :param object_types: which of :data:`spacr.measure_hooks.OBJECT_TYPES` the
         ROI applies to. The default is all of them, which is what makes the
@@ -327,7 +327,7 @@ class RoiSet:
         return sum(len(v) for v in self.fields.values())
 
     def covers(self, file_name: str) -> bool:
-        """Whether this set has anything to say about ``file_name``.
+        """Whether any ROI in this set (or the fallback) applies to ``file_name``.
 
         :param file_name: merged-field filename or stem to test.
         """
@@ -711,7 +711,7 @@ def install() -> str:
 
     :returns: the registry key the filter was registered under.
     :raises RoiError: if the environment does not name a readable ROI file.
-        Refusing loudly is the point — a worker that cannot load the ROI must
+        The error is raised because a worker that cannot load the ROI must
         not go on to measure every object in the field.
     """
     path = os.environ.get(ROI_ENV_VAR, '').strip()
@@ -732,12 +732,12 @@ def enable_roi_filter(roi_set: Any, *, path: Optional[str] = None,
                       verbose: bool = True) -> str:
     """Measure only inside these regions, here and in every worker process.
 
-    Three things happen, and the third is the one that matters:
+    Three things happen:
 
     1. the ROI is written to disk if it is not already a path — a ``spawn``
        worker can only reach it through the file system;
     2. :data:`ROI_ENV_VAR` (and :data:`ON_MISSING_ENV_VAR`) are set;
-    3. ``spacr.roi:install`` is APPENDED to
+    3. ``spacr.roi:install`` is appended to
        :data:`~spacr.measure_hooks.HOOKS_ENV_VAR` — appended, not assigned,
        because the illumination correction may already be in there — and the
        registry is then consulted so this process installs the filter through
@@ -803,7 +803,7 @@ def disable_roi_filter() -> bool:
 
 def worker_delivery_status(start_method: Optional[str] = None
                            ) -> Tuple[bool, str]:
-    """Whether the ROI will actually reach ``measure_crop``'s workers.
+    """Whether the ROI will reach ``measure_crop``'s worker processes.
 
     The failure this answers is silent by construction: a filter registered
     only in the parent process is a no-op in every ``spawn`` worker, the run

@@ -266,7 +266,7 @@ def fetch_release_notes(timeout: float = 4.0,
                         max_age: float = NEWS_MAX_AGE_S) -> list:
     """The repository's releases, newest first, or ``[]``.
 
-    NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News
+    Do not call this on the GUI thread: it opens a socket. Home's News
     panel asks for it through the same :class:`_UpdateWorker` the manual
     update check runs on, after the page has been shown.
 
@@ -550,7 +550,7 @@ def find_uv() -> Optional[str]:
 
 
 def upgrade_command(pre_release: bool = False, *, target_version=None) -> list:
-    """Upgrade this interpreter, optionally to the exact version offered.
+    """Return the command that upgrades spaCR in this environment.
 
     :param pre_release: allow prerelease packages.
     :param target_version: explicit version selected by the update check.
@@ -747,7 +747,7 @@ def installed_version(name) -> Optional[str]:
 
 
 def pip_available() -> bool:
-    """Is ``python -m pip`` usable in this interpreter?
+    """Whether ``python -m pip`` is usable in this interpreter.
 
     ``uv venv`` does not seed pip, which is the case :func:`find_uv` exists
     for. It matters here because pip is the only one of the two that can
@@ -814,24 +814,24 @@ class PackageChange:
 
     @property
     def is_addition(self) -> bool:
-        """Nothing is installed under this name today."""
+        """True when no package is currently installed under this name."""
         return self.current is None
 
     @property
     def is_move(self) -> bool:
-        """A version already here would change."""
+        """True when an installed version would change."""
         return (self.current is not None
                 and self.proposed is not None
                 and self.current != self.proposed)
 
     @property
     def is_removal(self) -> bool:
-        """A distribution installed today would be removed."""
+        """True when an installed distribution would be removed."""
         return self.current is not None and self.proposed is None
 
     @property
     def protected(self) -> bool:
-        """Is this one of :data:`PROTECTED_PACKAGES`?"""
+        """Whether this package is one of :data:`PROTECTED_PACKAGES`."""
         return canonical_package_name(self.name) in {
             canonical_package_name(p) for p in PROTECTED_PACKAGES}
 
@@ -872,7 +872,7 @@ class DryRun:
 
     @property
     def additions(self) -> Tuple[PackageChange, ...]:
-        """Packages that are not here at all today."""
+        """Packages that are not currently installed."""
         return tuple(c for c in self.changes if c.is_addition)
 
     @property

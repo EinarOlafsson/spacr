@@ -1,4 +1,4 @@
-"""Merging object tables, aggregating each measurement by what it MEASURES.
+"""Merge object tables, aggregating each measurement by what it measures.
 
 A cell with four pathogens in it has four rows in ``pathogen`` and one in
 ``cell``. Putting a pathogen measurement on the same axis as a cell
@@ -15,7 +15,7 @@ depends entirely on what is being measured:
 ``spacr.io._read_and_join_tables`` already does this join, and aggregates
 every numeric column with ``mean``. That silently answers a different question
 per column: four pathogens' total area becomes an average area, a count
-becomes an average count, and a MINIMUM becomes a mean of minima, which is not
+becomes an average count, and a minimum becomes a mean of minima, which is not
 a minimum of anything. The join is otherwise sound -- it is where the parent
 link, the timelapse key and the cardinality checks live -- so this module
 changes what the aggregation is, not how the tables find each other.
@@ -24,7 +24,7 @@ changes what the aggregation is, not how the tables find each other.
 becomes ``nucleus_area``. Prefix rather than suffix so every column of one
 object sorts together in the axis picker, which is how anyone looks for them.
 
-**The primary object.** Everything is rolled up onto ONE table -- the cell by
+**The primary object.** Everything is rolled up onto one table -- the cell by
 default. That choice decides what a row means, so it is a setting rather than
 an assumption: rolling cells onto pathogens is a legitimate thing to want and
 gives a different table.
@@ -110,7 +110,7 @@ DEFAULT_PRIMARY = "cell"
 
 
 class MergeError(ValueError):
-    """A merge that cannot be done, and why."""
+    """Raised when tables cannot be merged; the message gives the reason."""
 
 
 @dataclass(frozen=True)
@@ -118,14 +118,13 @@ class MergePolicy:
     """How a merge is performed. Every field is a user-facing setting.
 
     :param primary: the object everything is rolled up onto. Decides what a
-        row of the merged table MEANS.
+        row of the merged table means.
     :param na: what happens to a primary object with no children --
         ``keep`` leaves NaN, ``zero`` fills with 0, ``drop`` removes the row.
         Not interchangeable: a cell with no pathogens genuinely has a pathogen
-        COUNT of zero, and genuinely has no pathogen mean intensity at all.
-    :param overrides: column -> aggregation, beating the rules. The rules are
-        right most of the time, and a default that is right most of the time
-        is a wrong answer nobody can find the rest of it.
+        count of zero, and genuinely has no pathogen mean intensity at all.
+    :param overrides: column -> aggregation; an override takes precedence
+        over the rules, for columns where the rule-based choice is wrong.
     :param consolidate_on_cell: whether many-per-cell child tables restrict
         output to cells that contributed a child.
     :param keep_uninfected: preserve cells without pathogens or organelles as
@@ -156,7 +155,7 @@ class MergePolicy:
         :func:`roll_up`), and ``consolidate_on_cell`` decides what happens to
         a cell the roll-up found nothing for:
 
-            consolidate_on_cell=True   the analysis is about cells that HAVE
+            consolidate_on_cell=True   the analysis is about cells that have
                                        the child, so the join is inner
             consolidate_on_cell=False  keep the cell and leave the child's
                                        columns NA
@@ -273,15 +272,15 @@ def object_keys(values: pd.Series) -> pd.Series:
 
     :param values: object-label series to coerce to nullable integers.
 
-    The object key is an integer in every object table and TEXT in
+    The object key is an integer in every object table and text in
     ``png_list`` -- ``'o5'`` -- so merging the two raised
 
         you are trying to merge on int64 and object columns for key
         object_label
 
     which names the dtypes and not the tables, and stopped the whole merge.
-    The ``'o5'`` form is translated by the one function that already knows
-    every way it goes wrong (``'omulti'``, ``'onone'``, ``'error'``, NULL);
+    The ``'o5'`` form is translated by the existing parser, which handles
+    ``'omulti'``, ``'onone'``, ``'error'`` and NULL;
     plain numeric text is converted directly. Anything left becomes NA, so
     those rows do not match rather than causing the merge to fail.
     """
@@ -501,7 +500,7 @@ def reconcile_duplicates(frame: pd.DataFrame, suffix: str, *,
     stages of the same run. Carrying both doubles the width of the frame and
     invites a downstream reader to pick the wrong one.
 
-    So the pair is COMPARED, object by object, rather than assumed: identical
+    The pair is therefore compared, object by object, rather than assumed: identical
     columns collapse to one, and a column that disagrees means the two tables
     describe different objects under the same identity, which is a defect in
     the data no analysis should quietly average over.
@@ -557,7 +556,7 @@ def reconcile_duplicates(frame: pd.DataFrame, suffix: str, *,
 
 def merge_tables(db_path: str, tables: Sequence[str], *,
                  policy: Optional[MergePolicy] = None) -> pd.DataFrame:
-    """One table with every chosen object's measurements on it.
+    """Merge the chosen object tables into one table, one row per primary object.
 
     This is what makes "a cell measurement on one axis, nuclear on another and
     pathogen on a third" possible: each table's columns arrive prefixed with
@@ -698,7 +697,7 @@ REDUCTIONS: Tuple[str, ...] = ("pca", "umap", "tsne")
 
 
 class ReductionError(ValueError):
-    """A reduction that cannot be computed, and why."""
+    """Raised when a reduction cannot be computed; the message gives the reason."""
 
 
 def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
@@ -710,7 +709,7 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
     """Reduce many measurements to a few, for gating in xD.
 
     Gating in more dimensions than can be drawn means drawing something else:
-    a projection. The components come back as ORDINARY COLUMNS (``PC1``,
+    a projection. The components come back as ordinary columns (``PC1``,
     ``PC2``, ...), so every existing gate tool works on them unchanged -- a
     gate on PC1 vs PC2 is the same kind of object as a gate on area vs
     intensity, and saves, re-applies and exports identically.
@@ -722,16 +721,16 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
     :param scale: standardise first. Without it a measurement whose numbers
         are larger dominates every component regardless of what it means.
     :param min_coverage: a column with fewer than this fraction of real values
-        is left out. What remains is median-filled rather than row-dropped --
-        see the comment in the body, which is the difference between xD
-        working on a real table and returning nothing at all.
+        is left out. What remains is median-filled rather than row-dropped,
+        because dropping every row with a missing value can leave no rows on
+        a real table.
     :param n_neighbors: UMAP only. How much of the data each point is placed
         against: small values keep local structure and fragment the map,
         large ones preserve the global shape and merge populations. Ignored
         by PCA and t-SNE, which have no such parameter -- hence the greying
         in the xD tab rather than a control that silently does nothing.
     :param min_dist: UMAP only. How tightly points may pack. Ignored elsewhere.
-    :param perplexity: t-SNE only, and CLAMPED to ``(n - 1) / 3``: sklearn
+    :param perplexity: t-SNE only, and clamped to ``(n - 1) / 3``: sklearn
         raises outright when it exceeds the sample size, which would turn a
         legitimate setting into a failed projection on a small selection.
     :returns: a frame of components, indexed like ``frame``.
@@ -865,7 +864,7 @@ def group_variance_share(frame: pd.DataFrame,
 def missingness_leak(components: pd.DataFrame, frame: pd.DataFrame,
                      columns: Sequence[str], *,
                      min_objects: int = 30) -> pd.DataFrame:
-    """Does "was this object measured" predict where it landed?
+    """Test whether missing values determine where objects land in a projection.
 
     For each column, the objects that HAVE a value and the objects that do
     not are compared by the distance between their centroids in the
@@ -874,8 +873,8 @@ def missingness_leak(components: pd.DataFrame, frame: pd.DataFrame,
 
     A gap near 1 means the projection has separated the two groups about as
     far as the map is wide -- on the fact of measurement, not on a
-    measurement. In spaCR that is usually infected against uninfected, and it
-    is exactly the kind of split a user would otherwise write up.
+    measurement. In spaCR that is usually infected against uninfected, a
+    split that could be mistaken for a biological result.
 
     :param components: the reducer's output, indexed like ``frame``.
     :param frame: original measurement table used to determine which component
@@ -885,25 +884,25 @@ def missingness_leak(components: pd.DataFrame, frame: pd.DataFrame,
         many objects. A gap computed from four objects is noise, and
         reporting it would bury the real ones.
     :returns: one row per checked column, worst ``severity`` first. Empty --
-        WITH ITS COLUMNS -- when nothing was checkable, so a caller can sort
+        with its columns -- when nothing was checkable, so a caller can sort
         it without a KeyError.
 
-    TWO ARTEFACTS, NOT ONE, and this is where spaCR differs from the tool the
-    idea came from. Which one appears depends on how the gap was filled:
+    Two artefacts are checked. Which one appears depends on how the gap was
+    filled:
 
     ``centroid_gap``
-        the missing objects sit SOMEWHERE ELSE. Near 1 means the projection
+        the missing objects sit elsewhere. Near 1 means the projection
         has moved them about as far as the map is wide.
     ``dispersion_ratio``
-        the missing objects COLLAPSE. ``reduce_dimensions`` fills with the
-        column median, so every uninfected cell gets the SAME value on every
+        the missing objects collapse. ``reduce_dimensions`` fills with the
+        column median, so every uninfected cell gets the same value on every
         pathogen column and they land on one point. Near 0 means they have
         no spread of their own.
 
     Measured on a synthetic infected/uninfected table with twelve pathogen
     columns, the median fill produced a centroid gap of 0.06 -- almost
-    nothing -- and a dispersion ratio of 0.11. THE CENTROID STATISTIC ALONE
-    WOULD HAVE MISSED IT, because a median fill puts the missing objects in
+    nothing -- and a dispersion ratio of 0.11. The centroid statistic alone
+    would not have detected it, because a median fill puts the missing objects in
     the middle of the present ones rather than away from them. Both are
     reported, and ``severity`` is whichever is worse.
     """

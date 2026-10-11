@@ -26,8 +26,8 @@ Public API
 ``predict_probabilities(model, batches)``
     Optional live-model bridge; the only function that touches torch.
 
-Things this module refuses to get wrong
----------------------------------------
+Design constraints
+------------------
 **A softmax is not a probability.** Everything here is called an
 uncertainty *score*, never a confidence. Modern networks are badly
 calibrated — typically over-confident, and more so the deeper they are
@@ -71,9 +71,8 @@ covers. What that costs is stated plainly in :func:`build_queue`.
 
 **Uncertainty sampling skews toward the majority class.** On a screen
 that is 98 % negative, the decision boundary is mostly populated by
-negatives, so the queue will be too. That is not a bug to hide — it is
-reported as a class-balance table so the annotator can see it and cap or
-rebalance if they want to.
+negatives, so the queue will be too. The queue summary reports this as a
+class-balance table so the annotator can cap or rebalance the queue.
 
 **Determinism.** Same inputs, same seed, same order — including ties.
 Ties break on row index by default; ``seed`` swaps in a seeded
@@ -1698,7 +1697,7 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
                     untyped_rows.setdefault(candidate, entry)
 
     def _resolve(name: str) -> Optional[Tuple[str, Optional[int]]]:
-        """The escaped spelling first — it is the one a producer emits today."""
+        """Look up ``name`` among escaped keys first, then among raw keys."""
         found = by_escaped_key.get(name)
         return by_key.get(name) if found is None else found
 
@@ -2030,7 +2029,7 @@ def _as_float_or_none(value: Any) -> Optional[float]:
 
 def learning_curve(db_path: str,
                    annotation_column: str = "annotate") -> pd.DataFrame:
-    """Held-out accuracy per round, oldest first — the curve to watch flatten.
+    """Held-out accuracy per round, oldest first.
 
     :param db_path: path to ``measurements.db``.
     :param annotation_column: the column the rounds labelled into.
@@ -2080,7 +2079,7 @@ def learning_curve(db_path: str,
 
 
 class StoppingVerdict:
-    """Whether the last stretch of annotation bought anything measurable.
+    """Stop/continue recommendation from the learning curve, with evidence.
 
     :param stop: the recommendation.
     :param reason: one sentence, in the words the screen shows.
@@ -2124,14 +2123,14 @@ class StoppingVerdict:
                 f"{self.labels_in_window!r})")
 
     def to_dict(self) -> Dict[str, Any]:
-        """A JSON-friendly copy, for a card or a log."""
+        """Return the verdict's fields as a plain dict for JSON or logs."""
         return {name: getattr(self, name) for name in self.__slots__}
 
 
 def should_stop(curve: pd.DataFrame, *, label_window: int = 50,
                 min_gain: float = 0.003,
                 min_rounds: int = 2) -> StoppingVerdict:
-    """Has the last ``label_window`` labels moved held-out accuracy at all?
+    """Recommend whether to stop annotating, from held-out accuracy change.
 
     The rule, in one line: look back over whole rounds until at least
     ``label_window`` new labels have accumulated, and compare held-out
@@ -2990,7 +2989,7 @@ def _similarity_agreement(index: _SimilarityIndex, labels: Mapping[Any, Any],
 
 
 class RoundResult:
-    """What one retrain round produced.
+    """Result of one active-learning retrain round.
 
     :param fields: named values for the round fields below; omitted list and
         mapping fields are normalized to empty containers.
@@ -3004,7 +3003,7 @@ class RoundResult:
     :param model_path: where the fitted model was saved, if it was.
     :param card_path: the model card beside it, if one was written.
     :param verdict: the :class:`StoppingVerdict` after this round.
-    :param notes: anything the round wants the annotator to know.
+    :param notes: notes for the annotator recorded during the round.
     """
 
     __slots__ = ("round_index", "n_labels", "n_new_labels", "report",
@@ -3038,7 +3037,7 @@ class RoundResult:
                 f"n_labels={self.n_labels!r}, accuracy={self.accuracy:.4f})")
 
     def summary(self) -> str:
-        """One paragraph: the round, its numbers and what to do next."""
+        """Return a multi-line summary of the round, metrics and verdict."""
         lines = [f"Round {self.round_index}: fitted on {self.n_labels} labels "
                  f"({self.n_new_labels} new), held out "
                  f"{self.report.get('n', 0)}."]
@@ -3084,14 +3083,11 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                   synthetic_negatives: Optional[int] = None,
                   rejections: Optional[Mapping[Any, Any]] = None
                   ) -> RoundResult:
-    """Fit a model on the labels so far, score every crop, close the loop.
+    """Fit a model on the current labels, re-score all crops, log the round.
 
-    This is the half of active learning that has been missing: the queue put
-    the informative crops in front of the annotator, and then nothing
-    happened. Annotating without retraining is not active learning — it is
-    ordinary annotation in a clever order, and the order goes stale after the
-    first few dozen labels because it still reflects a model that has not
-    seen any of them.
+    Without a retrain, the queue order still reflects a model fitted before
+    any of the new labels, so it becomes outdated after the first few dozen
+    labels.
 
     One call does all five things the loop needs:
 
@@ -3138,36 +3134,31 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         own ``class_weight='balanced'``; ``'downsample'`` cuts every class to
         the size of the smallest BEFORE the grouped split.
 
-        THE TWO ARE NOT THE SAME ANSWER. Reweighting and downsampling produce
-        different probabilities from the same crops, and
-        :func:`spacr.suggest.suggest_from_scores` sorts on those
-        probabilities -- so the round records which was in force, in
-        ``notes`` and on the model card. The smaller
-        class ("if there is class imbalance use the class with fewer").
+        Reweighting and downsampling produce different probabilities from
+        the same crops, and :func:`spacr.suggest.suggest_from_scores` sorts
+        on those probabilities, so the round records the setting in
+        ``notes`` and on the model card. Downsampling keeps the size of the
+        smaller class.
     :param rejections: ``{crop key: rejected class}`` -- suggestions the
-        annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In
+        annotator rejected (:func:`spacr.suggest.rejected_suggestions`). In
         a two-class column a rejection of class 1 is an example of class 2,
         and it is fitted as one; a crop that has since been labelled is
         left to its label, and in a column with any other classes the
         rejection cannot be turned into a label and is counted in the notes
-        instead. A rejection is information, not silence: without this the
-        model that proposed the wrong class would be fitted on exactly the
-        same evidence next round and propose it again.
+        instead. Without this, the model that proposed the wrong class would
+        be fitted on the same evidence next round and propose it again.
     :param synthetic_negatives: how many unannotated crops to draw at random
-        and fit as the ABSENT class when only one class has been annotated.
+        and fit as the absent class when only one class has been annotated.
         ``None`` (default) refuses instead, as before.
 
-        THIS IS A DELIBERATE LIE AND THE ROUND SAYS SO. A random draw from
-        the unannotated pool is mostly-negative, not negative, so what comes
-        back is a ranking rather than a verdict; the count reaches the model
-        card, because a card that does not say the negatives were invented
-        describes a model that does not exist. Defined for the binary classes
-        1 and 2 only -- see :func:`_absent_binary_class`.
+        A random draw from the unannotated pool is mostly negative, not
+        negative, so the result is a ranking rather than a classification.
+        The round notes and the model card record how many synthetic
+        negatives were used. Defined for the binary classes 1 and 2 only --
+        see :func:`_absent_binary_class`.
     :returns: a :class:`RoundResult`.
     :raises ValueError: below ``min_labels`` labels, with fewer than two
-        classes annotated — neither is something to paper over with a model
-        that will produce a confident-looking ranking out of nothing — or
-        for an unrecognised ``group_by``.
+        classes annotated, or for an unrecognised ``group_by``.
     """
     notes: List[str] = []
 

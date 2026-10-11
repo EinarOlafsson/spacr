@@ -117,12 +117,12 @@ class FigureStyle:
         return {f.name: getattr(self, f.name) for f in fields(self)}
 
     def shared_with(self, other: "FigureStyle") -> Dict[str, Any]:
-        """The fields BOTH styles have, so one can be applied to the other.
+        """The fields both styles have, so one can be applied to the other.
 
         :param other: figure-style dataclass whose shared field names define
             the returned values.
 
-        What makes a house style a house style: a font size and a grid
+        This is how a house style carries over: a font size and a grid
         chosen on a volcano should reach the comparison figure beside it,
         while the volcano's effect-size threshold must not follow it there.
         """
@@ -163,7 +163,7 @@ def style_kind(style: Any) -> str:
 
 
 def font_names(style: FigureStyle) -> List[str]:
-    """The families to ask matplotlib for, best first, face REGISTERED.
+    """Return font families for matplotlib, best first, registering bundled faces.
 
     :param style: figure style whose ``font_family`` is the first choice.
     :returns: a family list suitable for ``font.family``, a ``FontProperties``
@@ -174,7 +174,7 @@ def font_names(style: FigureStyle) -> List[str]:
     cannot find by falling back -- silently, bar a ``findfont`` warning -- to
     DejaVu Sans, so a style saying "Open Sans" on a machine where Open Sans
     was never installed drew in DejaVu Sans and looked nothing like the
-    interface around it. This REGISTERS the faces spaCR ships before naming
+    interface around it. This registers the faces spaCR ships before naming
     them, which is what makes the name resolve on that machine, and puts
     :data:`FONT_FAMILY` last so a chosen family the machine lacks lands on the
     house face instead of DejaVu Sans.

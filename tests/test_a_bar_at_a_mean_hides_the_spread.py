@@ -74,7 +74,8 @@ def test_the_reason_is_written_where_the_default_is():
     import spacr.plot as plot
 
     doc = inspect.getdoc(plot.create_grouped_plot) or ""
-    assert "STATISTICAL CORRECTION" in doc
+    assert "statistical choice, not a" in doc
+    assert "presentation preference" in doc
     assert "same mean" in doc
     # The jitter is kept, and the docstring says why: the box summarises and
     # the points are the evidence.
