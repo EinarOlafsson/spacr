@@ -6452,6 +6452,14 @@ class AppScreen(QWidget):
                 LOG.debug("could not re-apply the settings search",
                           exc_info=True)
         self.refresh_maturity_visibility()
+        folds = getattr(self, "_category_folds", None)
+        refresh_folds = getattr(folds, "_refresh_alpha", None)
+        if callable(refresh_folds):
+            try:
+                refresh_folds()
+            except Exception:
+                LOG.debug("could not re-decide the folded categories",
+                          exc_info=True)
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self)

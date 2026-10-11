@@ -848,6 +848,7 @@ class CategoryFold:
         self.model = None
         self.settings_keys: Tuple[str, ...] = ()
         self._active = False
+        self._section_keys: Dict[int, Tuple[str, ...]] = {}
 
     def mount(self) -> bool:
         """Build the module's categories and put them on the host, hidden.
@@ -893,6 +894,8 @@ class CategoryFold:
             layout.insertWidget(max(0, layout.count() - 1), section)
             section.setVisible(False)
             self.sections.append(section)
+            self._section_keys[id(section)] = tuple(
+                by_widget[id(widget)] for _label, widget in own)
             mounted_keys.extend(by_widget[id(widget)] for _label, widget in own)
         if not self.sections:
             return False
@@ -963,8 +966,38 @@ class CategoryFold:
             hide them; coerced with ``bool()``.
         """
         self._active = bool(on)
+        held = self._alpha_held_sections()
         for section in self.sections:
-            section.setVisible(self._active)
+            section.setVisible(self._active and id(section) not in held)
+
+    def _alpha_held_sections(self) -> set:
+        """``id()`` of each mounted category made only of alpha settings.
+
+        While Preferences -> Show alpha features is off such a category stays
+        hidden with the fold on, as its rows do, so its heading does not
+        announce a feature the gate is holding back. A category that also
+        holds ordinary settings keeps its card.
+        """
+        try:
+            from ..preferences import _is_alpha_visible
+            from ...settings import _alpha_names
+
+            if _is_alpha_visible():
+                return set()
+            alpha = set(_alpha_names("settings", self.key))
+            host_key = getattr(self.screen, "app_key", None)
+            if host_key:
+                alpha |= set(_alpha_names("settings", host_key))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the alpha gate for %s", self.key,
+                      exc_info=True)
+            return set()
+        return {marker for marker, keys in self._section_keys.items()
+                if keys and all(key in alpha for key in keys)}
+
+    def _refresh_alpha(self) -> None:
+        """Re-decide the mounted categories after the alpha gate changed."""
+        self.set_active(self._active)
 
     def collect(self) -> Dict[str, object]:
         """Return the settings contributed by this fold.
@@ -1071,6 +1104,11 @@ class CategoryFoldSet:
                 if key in needed and self.is_active(other):
                     self._set_button(other, False)
         self.apply_gates()
+
+    def _refresh_alpha(self) -> None:
+        """Re-decide every fold's categories after the alpha gate changed."""
+        for fold in self.folds.values():
+            fold._refresh_alpha()
 
     def is_active(self, key: str) -> bool:
         """Whether ``key``'s categories are showing and its gate is on.
