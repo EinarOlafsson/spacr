@@ -11567,14 +11567,14 @@
     "spacr.classifier_evaluation.sample_identity": {
       "source_blocks_sha256": [
         "63cd2c1e99a8850935b06318b7cc0cb62439ea967d3952a1698dbf889fdc8ee8",
-        "2acc2bbdd4a987cd0a9e6a30d1722cef15caebe24d6d9eec94cec7175599ab6d",
+        "f2a721492af2266da773e3c330a55a955197625a5d58ffe8b7ed7e0e093d9bb6",
         "37cec808b989aaa1f35c33691d0a0cf761995f47f6b6aaf2878708997e473fac"
       ],
-      "source_sha256": "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9",
-      "text": "Lestu plötu, skugga, sviði, og objekti kennslum frá gróðursnafn.\n\nUnknown stigir eru aftur sem laust stringa en ekki gaman. Eigendur identity er fullstór stóð-normalized.\n\n:param path: slóð myndskurðar eða skráarheiti. Aukningarviðskeyti eru fjarlægð og stofninum er skipt við undirstrik til að finna hluta plötu, brunns og sjónsviðs.",
+      "source_sha256": "a2914d48d985413e4f94917baa19038e1112f27421877334da9af6723346fb3b",
+      "text": "Lestu plötu, skugga, sviði, og objekti kennslum frá gróðursnafn.\n\nUnknown niveys eru aftur sem laust stringa en ekki hugað. Eigendaherfi er auglýsingu-normalized fullstæmi. A mikrópstæðan staðsetningu í mikróbstæðu stefnu F (``plate1_F01_1_13``) er lesið sem mikrómstæði staðsetning, ekki sem mikroskópur sviði sýn.\n\n:param path: slóð myndskurðar eða skráarheiti. Aukningarviðskeyti eru fjarlægð og stofninum er skipt við undirstrik til að finna hluta plötu, brunns og sjónsviðs.",
       "translation_source_blocks_sha256": [
         "56a9914081d47da06a58903b583bf12ff5053af4ff33a7021fb9d860cd7b4339",
-        "2acc2bbdd4a987cd0a9e6a30d1722cef15caebe24d6d9eec94cec7175599ab6d",
+        "4816b11793898bfe9c19bf50e314c80af3f27f923cce424c611ee406eadd24cc",
         "f186cc12f1425f1d126b4b7cde3898b74201e58089c4b73a1435866a94ee64d0"
       ]
     },
@@ -50702,6 +50702,22 @@
         "13db91cf82b5c398f593023beb05c288c73fe0a4a7bd11c72c4ca058c02d2a40"
       ]
     },
+    "spacr.model_zoo.default_version_index": {
+      "source_blocks_sha256": [
+        "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
+        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
+        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+      ],
+      "source_sha256": "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293",
+      "text": "Hvaða útgáfa mönnun fjölskyldunnar fer upp á.\n\nNýjasta útgáfa sem er ekki valkostur, þannig að útgáfu valkostunnar breytir aldrei það sem fjölskyldunnar skiptir út í staðsetningu.\n\n:param pairs: ``(label, entry)`` parir, nýjustu fyrsta.\n:returns: áætlun í ``pairs``; 0 þegar hvert útgáfur er annað eða það er engin.",
+      "translation_source_blocks_sha256": [
+        "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
+        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
+        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+      ]
+    },
     "spacr.model_zoo.discover_local": {
       "source_blocks_sha256": [
         "6f070c3b8560990fa11b16939c102e6c0d7fee9643fe4c13f19b0ec0d35c8ecd",
@@ -50920,6 +50936,24 @@
         "a3ff8d8f50ee67901cd178b71115655e6ff19666ea14d8ae1ecb6757e6742d69"
       ]
     },
+    "spacr.model_zoo.hf_repo_of": {
+      "source_blocks_sha256": [
+        "5a51adff809b22fe7834bc0ea589e00e0ba116626ef43365ca8291afbcf3a810",
+        "eb25398c844f07160aecd4a4b1e4a9f6a774b1f268340fbf82cdb373e8cebd86",
+        "cc5b908ae914b53bbd737b8c827a22da780cc82ffe2157ddffd2840450146aab",
+        "bbd81a1a8078caa80aaa2791398c2365dc912eddaf98a63eff065aa650976643",
+        "7c599a9a2a6d8f2915a3430fb6d035756d4790a22262c29cc5549dd63987e4c2"
+      ],
+      "source_sha256": "ef50ecdd1a67570ee6699154a233cac16ea5830d8e716fd097ee15d0e197785b",
+      "text": "``owner/repo`` er Hugging Face hlaupið URL staður inn, eða ``''``.\n\nLesað frá URL er rán er FETCHED frá, aldrei frá ``trained_by`` eða ``owner`` sviði er hægt að veita fyrir sjálfan sig: byturnar koma frá þessu stofnunum, þannig að það er eina eigandi sem ekki hægt er að borga.\n\nAðeins ``https://huggingface.co/<owner>/<repo>/...`` og ``https://huggingface.co/datasets/<owner>/<repo>/...`` kvalifa; annar herbergi, port, notandi upplýsingar, ``..`` eða hlutfall flýja á leiðinni gefur ``''``, þannig að ``huggingface.co.example.org/einarolafsson/...`` er enginn.\n\n:param uri: Sækja um URL.\n:returns: ``owner/repo`` eða ``''``",
+      "translation_source_blocks_sha256": [
+        "5a51adff809b22fe7834bc0ea589e00e0ba116626ef43365ca8291afbcf3a810",
+        "eb25398c844f07160aecd4a4b1e4a9f6a774b1f268340fbf82cdb373e8cebd86",
+        "cc5b908ae914b53bbd737b8c827a22da780cc82ffe2157ddffd2840450146aab",
+        "bbd81a1a8078caa80aaa2791398c2365dc912eddaf98a63eff065aa650976643",
+        "7c599a9a2a6d8f2915a3430fb6d035756d4790a22262c29cc5549dd63987e4c2"
+      ]
+    },
     "spacr.model_zoo.hf_uri": {
       "source_blocks_sha256": [
         "201488179802ee453add75adc8b9f1a10678316cf946fc844a6a52511cd0fbc7",
@@ -50996,6 +51030,34 @@
       "translation_source_blocks_sha256": [
         "2dad6e2a409441275a53d9a859b204ce6ef9619484fea6495717c2d1380a4883",
         "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84"
+      ]
+    },
+    "spacr.model_zoo.is_alternative": {
+      "source_blocks_sha256": [
+        "89e4e42072ebac0227e7c77b343e19e86fde23d680ea37ea0bc0012f4802fcc0",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "ffb6a5ad4266662dc904b2a4f671d4132a84a61d5441c91a605b3e3ff9b71449"
+      ],
+      "source_sha256": "18635aba3bac18facb1079d962f38d2b8cc8602d53fc33af30b32b28d15fc7f7",
+      "text": "Eða hvort rán er opinbera valkostur í stað þess að standa.\n\n:param entry: Eða óþægilegt Zoo.\n:returns: True fyrir key í :data:`ALTERNATIVE_MODEL_KEYS`.",
+      "translation_source_blocks_sha256": [
+        "89e4e42072ebac0227e7c77b343e19e86fde23d680ea37ea0bc0012f4802fcc0",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "ffb6a5ad4266662dc904b2a4f671d4132a84a61d5441c91a605b3e3ff9b71449"
+      ]
+    },
+    "spacr.model_zoo.is_spacr_owned": {
+      "source_blocks_sha256": [
+        "999909e39db985172f9413af22da4ecb728123e18840ea622f8cb154d4b6340a",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "b499c3e38bdaf482341346f24feb7d545a49c159c12975b76d7e9ed35b76edda"
+      ],
+      "source_sha256": "92b555808857374fffb3fdb2d54a201e5051d982d9b30befb0976a55ee8f8e36",
+      "text": "Hvernig á að veita að skáldarmál lifir í veitingastaðinu spaCR eigandi viðhalda.\n\n:param entry: Eða óþægilegt Zoo.\n:returns: True þegar :func:`hf_repo_of` er ``uri`` í reikninginu sem heitir :data:`SPACR_HF_OWNERS` og er ekki :data:`COMMUNITY_REPO`.",
+      "translation_source_blocks_sha256": [
+        "999909e39db985172f9413af22da4ecb728123e18840ea622f8cb154d4b6340a",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "b499c3e38bdaf482341346f24feb7d545a49c159c12975b76d7e9ed35b76edda"
       ]
     },
     "spacr.model_zoo.load_catalogue_file": {
@@ -51203,10 +51265,11 @@
         "933222380fa8ccdc50236c518c8f8045ea1ce2bb26751b0270dc9dbbaf4a1d48",
         "7aefb1fe26428e65edf007b7786bb33b1fb75ee44c89c7d0adc1588f9ab471d5",
         "60ed1b2259fd67117ec0a7a9d9aa0a948e574bacfdfc991acf217b4532d3382c",
-        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a",
+        "3c38655b7204ca11b38f94f4e38c889187dd67f91617944f158ebcedf0355fe2"
       ],
-      "source_sha256": "1b32cd5c05e056c7322ad58a1ce80fd09e84ccc4a060d40b76215d0ebb9c0c96",
-      "text": "Samfélagskálagurinn, greint frá :data:`REMOTE_CATALOGUE_URI`.\n\n:param uri: Hugsaðu yfir staðsetningu katalógans.\n:param timeout: Sekundum til að bíða eftir forritinu.\n:param force: Hugsaðu upp og re-fetch.\n:param block: ``None`` - áætlað, og hvað óþekkt kallaður fær - bíður alls staðar í GUI framkvæmdspjall EXCEPT Qt, þar sem það svara frá skjölinu og refreses á daemon sjálfstætt framkvæmdsspjall. ``True`` bíður hvar sem það er kallaður, sem aðeins kallaður sem veit að það er á starfsmennum eða í CLI getur spyrja. ``False`` aldrei bíður.\n:returns: innræðir, eða ``()`` þegar sögu er ekki hægt að lesa.\n\nAldrei fetið á heiminum GUI framkvæmd stefnu, og það er ekki optimization. Þetta er kominn frá ``spacr.settings.downloaded_zoo_models`` þar sem settingspanel er að byggja, þannig að það fór inn í ``MainWindow._on_nav_selected`` með ekkert sem getur litlað eða svarað tegundina. Mæddur með notandi veitingahús (10.255.255.1, form af niður VPN eða fangelsi portals - tengslin er ekki fullkominn eða neitað): opnun Maska modul tók **32.2 s**, öll það er mikilvæg GUI framkvæmd leið stökk í ``urlopen``. GNOME spyr vinduna hvort það er lifandi eftir fimm, þannig að það sem notandi sé er \"force quit\" samskipti spaCR, sem er hvernig þetta var sagt. Með fetið flytja frá sjálfstæðri útferð sama opið er 2.4 s.\n\nKostnaður þess að ekki bíða er fyrsti opinn móddur sem Cellpose dropdown listar bundlað og staðbundna móður en ekki samfélagið; bakgrunnurinn endurnýja þýðir að annað hefur þá.\n\nAldrei kasta, og það er hugsanlega. Þetta gerist þegar notandi opnar mól sem bjóða upp á móllist, og listan er gagnlegt án þess: bundleð innræðir og hvaða staðbundna mól eru enn þar. Læktur á lestinu, tákn bak proxy og Hugging Face otage allt framleiðir sömu hluti - stóru listan og dagblöð - en mólur sem mun ekki opna.\n\nÞað mismunandi að WOULD sé hlýtur og skaðlegur er reiðanlegur eða ótrúlegur sögu, þannig að greinar sem ekki parse eru hættir einstaklega, og greinar án ``sha256`` er enn ekki hægt að setja upp með :func:`fetch` án skýrsla yfirrita.",
+      "source_sha256": "424b90595b94f2d909d4bc896943a348674e36ef082898588b3c465155a7c3c5",
+      "text": "Samfélagskálagurinn, greint frá :data:`REMOTE_CATALOGUE_URI`.\n\n:param uri: Hugsaðu yfir staðsetningu katalógans.\n:param timeout: Sekundum til að bíða eftir forritinu.\n:param force: Hugsaðu upp og re-fetch.\n:param block: ``None`` - áætlað, og hvað óþekkt kallaður fær - bíður alls staðar í GUI framkvæmdspjall EXCEPT Qt, þar sem það svara frá skjölinu og refreses á daemon sjálfstætt framkvæmdsspjall. ``True`` bíður hvar sem það er kallaður, sem aðeins kallaður sem veit að það er á starfsmennum eða í CLI getur spyrja. ``False`` aldrei bíður.\n:returns: innræðir, eða ``()`` þegar sögu er ekki hægt að lesa.\n\nAldrei fetið á heiminum GUI framkvæmd stefnu, og það er ekki optimization. Þetta er kominn frá ``spacr.settings.downloaded_zoo_models`` þar sem settingspanel er að byggja, þannig að það fór inn í ``MainWindow._on_nav_selected`` með ekkert sem getur litlað eða svarað tegundina. Mæddur með notandi veitingahús (10.255.255.1, form af niður VPN eða fangelsi portals - tengslin er ekki fullkominn eða neitað): opnun Maska modul tók **32.2 s**, öll það er mikilvæg GUI framkvæmd leið stökk í ``urlopen``. GNOME spyr vinduna hvort það er lifandi eftir fimm, þannig að það sem notandi sé er \"force quit\" samskipti spaCR, sem er hvernig þetta var sagt. Með fetið flytja frá sjálfstæðri útferð sama opið er 2.4 s.\n\nKostnaður þess að ekki bíða er fyrsti opinn móddur sem Cellpose dropdown listar bundlað og staðbundna móður en ekki samfélagið; bakgrunnurinn endurnýja þýðir að annað hefur þá.\n\nAldrei kasta, og það er hugsanlega. Þetta gerist þegar notandi opnar mól sem bjóða upp á móllist, og listan er gagnlegt án þess: bundleð innræðir og hvaða staðbundna mól eru enn þar. Læktur á lestinu, tákn bak proxy og Hugging Face otage allt framleiðir sömu hluti - stóru listan og dagblöð - en mólur sem mun ekki opna.\n\nÞað mismunandi að WOULD sé hlýtur og skaðlegur er reiðanlegur eða ótrúlegur sögu, þannig að greinar sem ekki parse eru hættir einstaklega, og greinar án ``sha256`` er enn ekki hægt að setja upp með :func:`fetch` án skýrsla yfirrita.\n\nAð eigin ``source`` sviði á ránum er niður: hver ránur hér er ``shared``, og sem heitir það land undir er ákvörðun :func:`source_of`, sem er gerður úr skammsum sínum og af skammsmann sem það er fótt frá.",
       "translation_source_blocks_sha256": [
         "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
         "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
@@ -51217,7 +51280,8 @@
         "fc573f9f39175e3480369c1e2d5507cadaccc0540267fc48c86848c43b3852a6",
         "7aefb1fe26428e65edf007b7786bb33b1fb75ee44c89c7d0adc1588f9ab471d5",
         "4a4607e2c765b31a3936ba0bd24e3ac3bb9d094706352f353f032e708ea735ff",
-        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a",
+        "3c38655b7204ca11b38f94f4e38c889187dd67f91617944f158ebcedf0355fe2"
       ]
     },
     "spacr.model_zoo.shared_catalogue_is_stale": {
@@ -51237,16 +51301,18 @@
         "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
         "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
         "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
+        "ff993f6f9d9825d23ccc00fe30d2734d236edd119ddc87ae97fa48dc52aba69d",
         "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
         "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
         "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec"
       ],
-      "source_sha256": "1499c58daf110d55d5564b267331edbd0231f0763e76b216abf9f61e286bba32",
-      "text": "Undir hvaða :data:`ZOO_SOURCES` þessi röð á heima.\n\nÁkveðið ÚT FRÁ RÖÐINNI, aldrei út frá lista yfir heiti sem geymdur er annars staðar: handskrifaður listi úreldist í fyrsta sinn sem líkani er bætt við, og bilunin sem hann veldur er líkan sem er í líkanaskránni en undir engri fyrirsögn, sem er líkan sem enginn getur séð.\n\nRöð prófananna er reglan, og hún skiptir máli á einum stað: Cellpose 3-vistunarpunktur sem birtur er á bioimage.io er bioimage.io-röð, ekki Cellpose 3-röð. ``cellpose3`` merkir EIGIN líkön bakendans -- cyto, cyto2, cyto3, nuclei -- og bakendapakkann sem keyrir þau.\n\nRöð sem passar við ekkert er skráð undir ``spaCR`` OG ÞAÐ ER SAGT UPPHÁTT. Hún er varaúrræði frekar en sjötta fyrirsögnin því líkan undir rangri fyrirsögn er óþægindi en líkan undir engri fyrirsögn er villa sem notandinn upplifir sem líkan sem vantar.\n\n:param entry: hvaða röð sem er í líkanasafninu -- :class:`ModelEntry`, eða hvaðeina með ``kind``, ``source`` og ``uri``.\n:returns: ein af :data:`ZOO_SOURCES`.",
+      "source_sha256": "72fe36c0e89a5ed45c8d8f4d1deda1da5417234c686411a834649379f8304512",
+      "text": "Undir hvaða :data:`ZOO_SOURCES` þessi röð á heima.\n\nÁkveðið ÚT FRÁ RÖÐINNI, aldrei út frá lista yfir heiti sem geymdur er annars staðar: handskrifaður listi úreldist í fyrsta sinn sem líkani er bætt við, og bilunin sem hann veldur er líkan sem er í líkanaskránni en undir engri fyrirsögn, sem er líkan sem enginn getur séð.\n\nRöð prófananna er reglan, og hún skiptir máli á einum stað: Cellpose 3-vistunarpunktur sem birtur er á bioimage.io er bioimage.io-röð, ekki Cellpose 3-röð. ``cellpose3`` merkir EIGIN líkön bakendans -- cyto, cyto2, cyto3, nuclei -- og bakendapakkann sem keyrir þau.\n\nSameiginleg lína eða samfélagslína tilheyrir spaCR þegar hún er nákvæmlega skráin sem meðfylgjandi færsla nefnir (lykill og gátsumma) eða þegar hún er sótt úr einni af eigin geymslum umsjónarmannsins (:func:`is_spacr_owned`). Allt annað sem einhver annar hefur hlaðið upp verður áfram undir ``spaCR community``.\n\nRöð sem passar við ekkert er skráð undir ``spaCR`` OG ÞAÐ ER SAGT UPPHÁTT. Hún er varaúrræði frekar en sjötta fyrirsögnin því líkan undir rangri fyrirsögn er óþægindi en líkan undir engri fyrirsögn er villa sem notandinn upplifir sem líkan sem vantar.\n\n:param entry: hvaða röð sem er í líkanasafninu -- :class:`ModelEntry`, eða hvaðeina með ``kind``, ``source`` og ``uri``.\n:returns: ein af :data:`ZOO_SOURCES`.",
       "translation_source_blocks_sha256": [
         "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
         "69cdef51910999c5aa739a6efc0428cd3e792ffcfec301daf357b1fcc6d3fdfe",
         "ef5487cac3cd5a1259e3f30d2e8d38dc7f8e8db3020d5c4a953bf1eda859c8cd",
+        "c1d82229fcee380114cdd7edff89654a37cd5143bd15785269786c0f2b7c631f",
         "8ed7bf4dbf3ad0a7d2faffe4e7553dc392ebf22a153ef20b67b275c2e802e356",
         "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
         "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec"
@@ -202025,18 +202091,18 @@
     "spacr.utils.estimate_class_counts": {
       "source_blocks_sha256": [
         "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
-        "22ce6051b68cbf75e610357b2b05b163900ff3e5f774557a109bb525e253795d",
+        "b471d7eac01680da31d1a0dbc897d2c51406d53f8b04f21923670b2c55964b31",
         "ef5193b583d0a2b33e6e3f0fda658de78da5a310f5593a305eac43992189968d",
         "f4d430278d19c6cbd779e6cd654784c369e9f45ac446bc40c1a1933ff8df250f",
         "ad47a1ddcdf1db4442c35d9ba47853fa0a36d09b7cac743e6a23df2ed3dbbbe0",
         "e0d2d8f592d43404c60ad70fc702e8b169b5e9c69fac91f9a7313341a7adfeab",
         "9fc6824b21ad226a833badbb4c27c8cca4896812acff5c90062401a612ee49b5"
       ],
-      "source_sha256": "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41",
-      "text": "Til baka pr. klásamenn er talin sem ``LongTensor`` af lengdinu ``num_classes``.\n\nÞegar ``src`` og ``classes`` eru veitt, er tölur taka úr skálum á ``src/<class>``, sem forðast slæm DataLoader iteraði á NAS.\n\n:param loader: Fallback DataLoader er ekki að vera íþrótt þegar upplýsingar um skáld eru saknar.\n:param num_classes: fjölda af útleiðslu klás.\n:param src: Fólkið með undirbúningar á klásum.\n:param classes: Námskeiðin sem er að mæla með ``src``.\n:returns: ``LongTensor`` af persónum reikningum.",
+      "source_sha256": "05523e0b5a36cf46be5dba9418477266a2d15b5c631e4a296e0b414dab8ced5b",
+      "text": "Til baka pr. klásamenn er talin sem ``LongTensor`` af lengdinu ``num_classes``.\n\nÞegar ``src`` og ``classes`` eru veitt, eru tölur taka úr skráum undir ``src/<class>`` og koma í veg fyrir slæm DataLoader iteration á NAS. Skuggafaðir eins og ``.spacr_crop_format.json`` sidecar eru ekki mönnunir og eru ekki talin, sama regla sem dataset loader notar.\n\n:param loader: Fallback DataLoader er ekki að vera íþrótt þegar upplýsingar um skáld eru saknar.\n:param num_classes: fjölda af útleiðslu klás.\n:param src: Fólkið með undirbúningar á klásum.\n:param classes: Námskeiðin sem er að mæla með ``src``.\n:returns: ``LongTensor`` af persónum reikningum.",
       "translation_source_blocks_sha256": [
         "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
-        "22ce6051b68cbf75e610357b2b05b163900ff3e5f774557a109bb525e253795d",
+        "b471d7eac01680da31d1a0dbc897d2c51406d53f8b04f21923670b2c55964b31",
         "ef5193b583d0a2b33e6e3f0fda658de78da5a310f5593a305eac43992189968d",
         "f4d430278d19c6cbd779e6cd654784c369e9f45ac446bc40c1a1933ff8df250f",
         "ad47a1ddcdf1db4442c35d9ba47853fa0a36d09b7cac743e6a23df2ed3dbbbe0",

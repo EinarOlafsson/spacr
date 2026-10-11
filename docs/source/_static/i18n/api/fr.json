@@ -11567,14 +11567,14 @@
     "spacr.classifier_evaluation.sample_identity": {
       "source_blocks_sha256": [
         "63cd2c1e99a8850935b06318b7cc0cb62439ea967d3952a1698dbf889fdc8ee8",
-        "2acc2bbdd4a987cd0a9e6a30d1722cef15caebe24d6d9eec94cec7175599ab6d",
+        "f2a721492af2266da773e3c330a55a955197625a5d58ffe8b7ed7e0e093d9bb6",
         "37cec808b989aaa1f35c33691d0a0cf761995f47f6b6aaf2878708997e473fac"
       ],
-      "source_sha256": "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9",
-      "text": "Lisez les identifiants de la plaque, du champ et de l'objet à partir d'un nom de fichier de vignette.\n\nLes niveaux inconnus sont retournés comme des chaînes vides plutôt que devinés. L'identité de l'objet est la tige complète normalisée par augmentation.\n\n:param path: chemin ou nom de fichier de vignette. Les suffixes d’augmentation sont supprimés et la racine du nom est découpée sur les tirets bas pour trouver les parties plaque, puits et champ.",
+      "source_sha256": "a2914d48d985413e4f94917baa19038e1112f27421877334da9af6723346fb3b",
+      "text": "Lisez les identifiants de la plaque, du champ et de l'objet à partir d'un nom de fichier de vignette.\n\nLes niveaux inconnus sont retournés sous forme de chaînes vides plutôt que de suppositions. L'identité de l'objet est la tige complète normalisée par augmentation. Une position d'échantillon microplaqué dans la rangée de microplaques de laboratoire F (``plate1_F01_1_13``) est lue comme la position du échantillon microplacé, et non comme un champ de vision au microscope.\n\n:param path: chemin ou nom de fichier de vignette. Les suffixes d’augmentation sont supprimés et la racine du nom est découpée sur les tirets bas pour trouver les parties plaque, puits et champ.",
       "translation_source_blocks_sha256": [
         "56a9914081d47da06a58903b583bf12ff5053af4ff33a7021fb9d860cd7b4339",
-        "2acc2bbdd4a987cd0a9e6a30d1722cef15caebe24d6d9eec94cec7175599ab6d",
+        "4816b11793898bfe9c19bf50e314c80af3f27f923cce424c611ee406eadd24cc",
         "f186cc12f1425f1d126b4b7cde3898b74201e58089c4b73a1435866a94ee64d0"
       ]
     },
@@ -50702,6 +50702,22 @@
         "13db91cf82b5c398f593023beb05c288c73fe0a4a7bd11c72c4ca058c02d2a40"
       ]
     },
+    "spacr.model_zoo.default_version_index": {
+      "source_blocks_sha256": [
+        "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
+        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
+        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+      ],
+      "source_sha256": "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293",
+      "text": "Quelle version une ligne de famille de modèles s'ouvre.\n\nLa nouvelle version qui n'est pas une alternative, donc publier une alternative ne change jamais ce que la ligne d'une famille tend par défaut.\n\n:param pairs: Les paires ``(label, entry)``, les plus récentes d'abord.\n:returns: un index dans ``pairs``; 0 lorsque chaque version est une alternative ou qu'il n'y en a pas.",
+      "translation_source_blocks_sha256": [
+        "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
+        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
+        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+      ]
+    },
     "spacr.model_zoo.discover_local": {
       "source_blocks_sha256": [
         "6f070c3b8560990fa11b16939c102e6c0d7fee9643fe4c13f19b0ec0d35c8ecd",
@@ -50920,6 +50936,24 @@
         "a3ff8d8f50ee67901cd178b71115655e6ff19666ea14d8ae1ecb6757e6742d69"
       ]
     },
+    "spacr.model_zoo.hf_repo_of": {
+      "source_blocks_sha256": [
+        "5a51adff809b22fe7834bc0ea589e00e0ba116626ef43365ca8291afbcf3a810",
+        "eb25398c844f07160aecd4a4b1e4a9f6a774b1f268340fbf82cdb373e8cebd86",
+        "cc5b908ae914b53bbd737b8c827a22da780cc82ffe2157ddffd2840450146aab",
+        "bbd81a1a8078caa80aaa2791398c2365dc912eddaf98a63eff065aa650976643",
+        "7c599a9a2a6d8f2915a3430fb6d035756d4790a22262c29cc5549dd63987e4c2"
+      ],
+      "source_sha256": "ef50ecdd1a67570ee6699154a233cac16ea5830d8e716fd097ee15d0e197785b",
+      "text": "Les ``owner/repo`` un Hugging Face télécharger des points d'URL dans, ou ``''``.\n\nLire à partir de l'URL d'une ligne est FETCHED de, jamais à partir d'un champ ``trained_by`` ou ``owner`` une ligne de catalogue peut se réclamer : les octets viennent de ce dépôt, donc c'est le seul propriétaire qui ne peut pas être emprunté.\n\nSeulement ``https://huggingface.co/<owner>/<repo>/...`` et ``https://huggingface.co/datasets/<owner>/<repo>/...`` sont admissibles; un autre hôte, un port, des informations utilisateur, ``..`` ou des évasions en pourcentage dans le chemin donnent ``''``, donc ``huggingface.co.example.org/einarolafsson/...`` n'est personne.\n\n:param uri: une URL de téléchargement.\n:returns: ``owner/repo`` ou ``''``.",
+      "translation_source_blocks_sha256": [
+        "5a51adff809b22fe7834bc0ea589e00e0ba116626ef43365ca8291afbcf3a810",
+        "eb25398c844f07160aecd4a4b1e4a9f6a774b1f268340fbf82cdb373e8cebd86",
+        "cc5b908ae914b53bbd737b8c827a22da780cc82ffe2157ddffd2840450146aab",
+        "bbd81a1a8078caa80aaa2791398c2365dc912eddaf98a63eff065aa650976643",
+        "7c599a9a2a6d8f2915a3430fb6d035756d4790a22262c29cc5549dd63987e4c2"
+      ]
+    },
     "spacr.model_zoo.hf_uri": {
       "source_blocks_sha256": [
         "201488179802ee453add75adc8b9f1a10678316cf946fc844a6a52511cd0fbc7",
@@ -50996,6 +51030,34 @@
       "translation_source_blocks_sha256": [
         "2dad6e2a409441275a53d9a859b204ce6ef9619484fea6495717c2d1380a4883",
         "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84"
+      ]
+    },
+    "spacr.model_zoo.is_alternative": {
+      "source_blocks_sha256": [
+        "89e4e42072ebac0227e7c77b343e19e86fde23d680ea37ea0bc0012f4802fcc0",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "ffb6a5ad4266662dc904b2a4f671d4132a84a61d5441c91a605b3e3ff9b71449"
+      ],
+      "source_sha256": "18635aba3bac18facb1079d962f38d2b8cc8602d53fc33af30b32b28d15fc7f7",
+      "text": "Indique si une ligne est une alternative publiée plutôt qu'une valeur par défaut.\n\n:param entry: n'importe quelle rangée de zoo.\n:returns: True pour une clé dans :data:`ALTERNATIVE_MODEL_KEYS`.",
+      "translation_source_blocks_sha256": [
+        "89e4e42072ebac0227e7c77b343e19e86fde23d680ea37ea0bc0012f4802fcc0",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "ffb6a5ad4266662dc904b2a4f671d4132a84a61d5441c91a605b3e3ff9b71449"
+      ]
+    },
+    "spacr.model_zoo.is_spacr_owned": {
+      "source_blocks_sha256": [
+        "999909e39db985172f9413af22da4ecb728123e18840ea622f8cb154d4b6340a",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "b499c3e38bdaf482341346f24feb7d545a49c159c12975b76d7e9ed35b76edda"
+      ],
+      "source_sha256": "92b555808857374fffb3fdb2d54a201e5051d982d9b30befb0976a55ee8f8e36",
+      "text": "Indique si le fichier d'une ligne vit dans un dépôt spaCR.\n\n:param entry: n'importe quelle rangée de zoo.\n:returns: True lorsque :func:`hf_repo_of` son ``uri`` est dans un compte nommé par :data:`SPACR_HF_OWNERS` et n'est pas :data:`COMMUNITY_REPO`.",
+      "translation_source_blocks_sha256": [
+        "999909e39db985172f9413af22da4ecb728123e18840ea622f8cb154d4b6340a",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "b499c3e38bdaf482341346f24feb7d545a49c159c12975b76d7e9ed35b76edda"
       ]
     },
     "spacr.model_zoo.load_catalogue_file": {
@@ -51203,10 +51265,11 @@
         "933222380fa8ccdc50236c518c8f8045ea1ce2bb26751b0270dc9dbbaf4a1d48",
         "7aefb1fe26428e65edf007b7786bb33b1fb75ee44c89c7d0adc1588f9ab471d5",
         "60ed1b2259fd67117ec0a7a9d9aa0a948e574bacfdfc991acf217b4532d3382c",
-        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a",
+        "3c38655b7204ca11b38f94f4e38c889187dd67f91617944f158ebcedf0355fe2"
       ],
-      "source_sha256": "1b32cd5c05e056c7322ad58a1ce80fd09e84ccc4a060d40b76215d0ebb9c0c96",
-      "text": "Le catalogue communautaire, extrait de :data:`REMOTE_CATALOGUE_URI`.\n\n:param uri: remplacer l'emplacement du catalogue.\n:param timeout: secondes pour attendre la demande.\n:param force: ignorez le cache et re-fetch.\n:param block: s'il faut attendre le réseau. ``None`` -- la valeur par défaut, et ce qu'un appelant non réfléchi obtient -- attend partout EXCEPT Qt le principal chemin d'exécution GUI, où il répond à partir du cache et se rafraîchit sur un chemin indépendant de l'exécution du démon. ``True`` attend partout où il est appelé, ce que seul un appelant qui sait qu'il est sur un travailleur ou dans un CLI peut demander. ``False`` n'attend jamais.\n:returns: les entrées, ou ``()`` lorsque le catalogue ne peut pas être lu.\n\nIl n'est jamais récupéré sur le chemin d'exécution principal GUI, et ce n'était pas une optimisation. Ceci est atteint de ``spacr.settings.downloaded_zoo_models`` pendant qu'un panneau de paramètres est en cours de construction, de sorte qu'il a couru à l'intérieur ``MainWindow._on_nav_selected`` avec rien capable de peindre ou de répondre au compositeur. Mesuré avec l'hôte du catalogue non-routable (10.255.255,1; la forme d'un VPN descendant ou d'une portail captif -- la connexion ne complète ni ne se refuse) : ouverture du module Masque a pris **32,2 s**, tout cela un chemin principal d'exécutation GUI coincé dans ``urlopen``. GNOME demande à une fenêtre s'il est vivant après cinq ans, ce que l'utilisateur voit est donc la boîte de dialogue spaCR de \"force quit\", ce qui est comment cela a été rapporté.\n\nLe coût de ne pas attendre est un premier module ouvert dont le menu déroulant Cellpose énumère les modèles groupés et locaux, mais pas les modèles communautaires; la mise à jour de l'arrière-plan signifie que le second les a.\n\nCela s'exécute quand un utilisateur ouvre un module qui offre une liste de modèles, et la liste est utile sans elle : les entrées groupées et tous les modèles locaux sont toujours là. Un ordinateur portable sur un train, un labo derrière un proxy et une panne Hugging Face produisent tous la même chose -- une liste plus courte et une ligne de journal -- plutôt qu'un module qui ne s'ouvrira pas.\n\nL'échec que WOULD soit silencieux et nuisible est un catalogue corrompu ou hostile, de sorte que les entrées qui n'analysent pas individuellement, et une entrée sans ``sha256`` ne peut toujours pas être installée par :func:`fetch` sans une priorité explicite. Une ligne de catalogue est une revendication sur l'endroit où vit un fichier; le somme de contrôle est ce qui en fait une revendication au sujet de quel fichier.",
+      "source_sha256": "424b90595b94f2d909d4bc896943a348674e36ef082898588b3c465155a7c3c5",
+      "text": "Le catalogue communautaire, extrait de :data:`REMOTE_CATALOGUE_URI`.\n\n:param uri: remplacer l'emplacement du catalogue.\n:param timeout: secondes pour attendre la demande.\n:param force: ignorez le cache et re-fetch.\n:param block: s'il faut attendre le réseau. ``None`` -- la valeur par défaut, et ce qu'un appelant non réfléchi obtient -- attend partout EXCEPT Qt le principal chemin d'exécution GUI, où il répond à partir du cache et se rafraîchit sur un chemin indépendant de l'exécution du démon. ``True`` attend partout où il est appelé, ce que seul un appelant qui sait qu'il est sur un travailleur ou dans un CLI peut demander. ``False`` n'attend jamais.\n:returns: les entrées, ou ``()`` lorsque le catalogue ne peut pas être lu.\n\nIl n'est jamais récupéré sur le chemin d'exécution principal GUI, et ce n'était pas une optimisation. Ceci est atteint de ``spacr.settings.downloaded_zoo_models`` pendant qu'un panneau de paramètres est en cours de construction, de sorte qu'il a couru à l'intérieur ``MainWindow._on_nav_selected`` avec rien capable de peindre ou de répondre au compositeur. Mesuré avec l'hôte du catalogue non-routable (10.255.255,1; la forme d'un VPN descendant ou d'une portail captif -- la connexion ne complète ni ne se refuse) : ouverture du module Masque a pris **32,2 s**, tout cela un chemin principal d'exécutation GUI coincé dans ``urlopen``. GNOME demande à une fenêtre s'il est vivant après cinq ans, ce que l'utilisateur voit est donc la boîte de dialogue spaCR de \"force quit\", ce qui est comment cela a été rapporté.\n\nLe coût de ne pas attendre est un premier module ouvert dont le menu déroulant Cellpose énumère les modèles groupés et locaux, mais pas les modèles communautaires; la mise à jour de l'arrière-plan signifie que le second les a.\n\nCela s'exécute quand un utilisateur ouvre un module qui offre une liste de modèles, et la liste est utile sans elle : les entrées groupées et tous les modèles locaux sont toujours là. Un ordinateur portable sur un train, un labo derrière un proxy et une panne Hugging Face produisent tous la même chose -- une liste plus courte et une ligne de journal -- plutôt qu'un module qui ne s'ouvrira pas.\n\nL'échec que WOULD soit silencieux et nuisible est un catalogue corrompu ou hostile, de sorte que les entrées qui n'analysent pas individuellement, et une entrée sans ``sha256`` ne peut toujours pas être installée par :func:`fetch` sans une priorité explicite. Une ligne de catalogue est une revendication sur l'endroit où vit un fichier; le somme de contrôle est ce qui en fait une revendication au sujet de quel fichier.\n\nLe champ ``source`` d'une ligne est abandonné : chaque ligne ici est ``shared``, et la position qu'elle se trouve sous est la décision de :func:`source_of`, prise à partir de son somme de contrôle et du dépôt où elle est récupérée.",
       "translation_source_blocks_sha256": [
         "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
         "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
@@ -51217,7 +51280,8 @@
         "fc573f9f39175e3480369c1e2d5507cadaccc0540267fc48c86848c43b3852a6",
         "7aefb1fe26428e65edf007b7786bb33b1fb75ee44c89c7d0adc1588f9ab471d5",
         "4a4607e2c765b31a3936ba0bd24e3ac3bb9d094706352f353f032e708ea735ff",
-        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a",
+        "3c38655b7204ca11b38f94f4e38c889187dd67f91617944f158ebcedf0355fe2"
       ]
     },
     "spacr.model_zoo.shared_catalogue_is_stale": {
@@ -51237,16 +51301,18 @@
         "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
         "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
         "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
+        "ff993f6f9d9825d23ccc00fe30d2734d236edd119ddc87ae97fa48dc52aba69d",
         "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
         "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
         "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec"
       ],
-      "source_sha256": "1499c58daf110d55d5564b267331edbd0231f0763e76b216abf9f61e286bba32",
-      "text": "La rubrique de :data:`ZOO_SOURCES` à laquelle appartient cette ligne.\n\nDécidé À PARTIR DE LA LIGNE, jamais à partir d’une liste de noms conservée ailleurs : une liste écrite à la main devient obsolète dès le premier ajout d’un modèle, et l’échec qu’elle produit est un modèle présent dans le catalogue mais sous aucune rubrique, c’est-à-dire un modèle que personne ne peut voir.\n\nL’ordre des tests constitue la règle, et il compte à un seul endroit : un point de contrôle Cellpose 3 publié sur bioimage.io est une ligne bioimage.io, et non une ligne Cellpose 3. ``cellpose3`` désigne les PROPRES modèles du backend -- cyto, cyto2, cyto3, nuclei -- et le paquet du backend qui les exécute.\n\nUne ligne qui ne correspond à rien est classée sous ``spaCR`` ET SIGNALÉE CLAIREMENT. C’est le repli plutôt qu’une sixième rubrique, car un modèle sous la mauvaise rubrique est une gêne, tandis qu’un modèle sous aucune rubrique est un bogue que l’utilisateur perçoit comme un modèle manquant.\n\n:param entry: n’importe quelle ligne du zoo -- un :class:`ModelEntry`, ou tout objet doté de ``kind``, ``source`` et ``uri``.\n:returns: l’une des :data:`ZOO_SOURCES`.",
+      "source_sha256": "72fe36c0e89a5ed45c8d8f4d1deda1da5417234c686411a834649379f8304512",
+      "text": "La rubrique de :data:`ZOO_SOURCES` à laquelle appartient cette ligne.\n\nDécidé À PARTIR DE LA LIGNE, jamais à partir d’une liste de noms conservée ailleurs : une liste écrite à la main devient obsolète dès le premier ajout d’un modèle, et l’échec qu’elle produit est un modèle présent dans le catalogue mais sous aucune rubrique, c’est-à-dire un modèle que personne ne peut voir.\n\nL’ordre des tests constitue la règle, et il compte à un seul endroit : un point de contrôle Cellpose 3 publié sur bioimage.io est une ligne bioimage.io, et non une ligne Cellpose 3. ``cellpose3`` désigne les PROPRES modèles du backend -- cyto, cyto2, cyto3, nuclei -- et le paquet du backend qui les exécute.\n\nUne ligne partagée ou communautaire relève de spaCR lorsqu’elle correspond exactement au fichier qu’indique un enregistrement fourni (clé et somme de contrôle) ou lorsqu’elle est téléchargée depuis l’un des dépôts du mainteneur (:func:`is_spacr_owned`). Tout autre fichier déposé par quelqu’un d’autre reste sous ``spaCR community``.\n\nUne ligne qui ne correspond à rien est classée sous ``spaCR`` ET SIGNALÉE CLAIREMENT. C’est le repli plutôt qu’une sixième rubrique, car un modèle sous la mauvaise rubrique est une gêne, tandis qu’un modèle sous aucune rubrique est un bogue que l’utilisateur perçoit comme un modèle manquant.\n\n:param entry: n’importe quelle ligne du zoo -- un :class:`ModelEntry`, ou tout objet doté de ``kind``, ``source`` et ``uri``.\n:returns: l’une des :data:`ZOO_SOURCES`.",
       "translation_source_blocks_sha256": [
         "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
         "69cdef51910999c5aa739a6efc0428cd3e792ffcfec301daf357b1fcc6d3fdfe",
         "ef5487cac3cd5a1259e3f30d2e8d38dc7f8e8db3020d5c4a953bf1eda859c8cd",
+        "c1d82229fcee380114cdd7edff89654a37cd5143bd15785269786c0f2b7c631f",
         "8ed7bf4dbf3ad0a7d2faffe4e7553dc392ebf22a153ef20b67b275c2e802e356",
         "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
         "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec"
@@ -202025,18 +202091,18 @@
     "spacr.utils.estimate_class_counts": {
       "source_blocks_sha256": [
         "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
-        "22ce6051b68cbf75e610357b2b05b163900ff3e5f774557a109bb525e253795d",
+        "b471d7eac01680da31d1a0dbc897d2c51406d53f8b04f21923670b2c55964b31",
         "ef5193b583d0a2b33e6e3f0fda658de78da5a310f5593a305eac43992189968d",
         "f4d430278d19c6cbd779e6cd654784c369e9f45ac446bc40c1a1933ff8df250f",
         "ad47a1ddcdf1db4442c35d9ba47853fa0a36d09b7cac743e6a23df2ed3dbbbe0",
         "e0d2d8f592d43404c60ad70fc702e8b169b5e9c69fac91f9a7313341a7adfeab",
         "9fc6824b21ad226a833badbb4c27c8cca4896812acff5c90062401a612ee49b5"
       ],
-      "source_sha256": "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41",
-      "text": "Retour par classe d'échantillon compte comme un ``LongTensor`` de longueur ``num_classes``.\n\nLorsque ``src`` et ``classes`` sont fournis, les nombres sont prélevés dans les listes de fichiers sous ``src/<class>``, évitant ainsi une itération lente de DataLoader sur le NAS.\n\n:param loader: fallback DataLoader n'a été itéré que lorsque les informations du dossier sont manquantes.\n:param num_classes: nombre de classes de sortie.\n:param src: dossier parent contenant des sous-dossiers par classe.\n:param classes: les noms de classe commandés correspondant à ``src``.\n:returns: ``LongTensor`` des nombres par classe.",
+      "source_sha256": "05523e0b5a36cf46be5dba9418477266a2d15b5c631e4a296e0b414dab8ced5b",
+      "text": "Retour par classe d'échantillon compte comme un ``LongTensor`` de longueur ``num_classes``.\n\nLorsque ``src`` et ``classes`` sont fournis, les nombres sont tirés des listes de fichiers sous ``src/<class>``, évitant une itération lente de DataLoader sur le NAS. Les fichiers cachés tels que le sidecar ``.spacr_crop_format.json`` ne sont pas des échantillons et ne sont plus comptés, la même règle que le chargeur de données utilise.\n\n:param loader: fallback DataLoader n'a été itéré que lorsque les informations du dossier sont manquantes.\n:param num_classes: nombre de classes de sortie.\n:param src: dossier parent contenant des sous-dossiers par classe.\n:param classes: les noms de classe commandés correspondant à ``src``.\n:returns: ``LongTensor`` des nombres par classe.",
       "translation_source_blocks_sha256": [
         "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
-        "22ce6051b68cbf75e610357b2b05b163900ff3e5f774557a109bb525e253795d",
+        "b471d7eac01680da31d1a0dbc897d2c51406d53f8b04f21923670b2c55964b31",
         "ef5193b583d0a2b33e6e3f0fda658de78da5a310f5593a305eac43992189968d",
         "f4d430278d19c6cbd779e6cd654784c369e9f45ac446bc40c1a1933ff8df250f",
         "ad47a1ddcdf1db4442c35d9ba47853fa0a36d09b7cac743e6a23df2ed3dbbbe0",

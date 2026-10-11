@@ -847,7 +847,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.model_zoo.source_of#3",
+      "label": "spacr.model_zoo.source_of#4",
       "source": "A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "source_sha256": "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
       "context": "A row that matches nothing is filed under ``spaCR`` and said out loud. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
@@ -855,7 +855,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.model_zoo.source_of#4",
+      "label": "spacr.model_zoo.source_of#5",
       "source": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
       "source_sha256": "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
       "context": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
@@ -863,7 +863,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.model_zoo.source_of#5",
+      "label": "spacr.model_zoo.source_of#6",
       "source": "one of :data:`ZOO_SOURCES`.",
       "source_sha256": "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec",
       "context": "one of :data:`ZOO_SOURCES`.",

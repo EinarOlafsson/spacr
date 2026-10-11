@@ -3870,11 +3870,18 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert not volume_additions.keys() & (
         home_ui_arrivals.keys() | worker_additions.keys()
         | private_additions.keys() | popup_additions.keys())
+    # 2026-10-11 item 685: the four model-zoo helpers of 9d48eefa6.
+    zoo_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text())
+    assert len(zoo_additions) == 4
+    assert {key: docs[key] for key in zoo_additions} == zoo_additions
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
-               - volume_additions.keys()) == 13182
+               - volume_additions.keys()
+               - zoo_additions.keys()) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

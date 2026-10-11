@@ -3321,8 +3321,15 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text())
     assert len(volume_arrivals) == 32
     assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
+    # 2026-10-11: N685's four model-zoo helpers (9d48eefa6: default_version_index,
+    # hf_repo_of, is_alternative, is_spacr_owned) are one named contract; the
+    # ratchet is unchanged.
+    zoo_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text())
+    assert len(zoo_arrivals) == 4
+    assert {key: docs[key] for key in zoo_arrivals} == zoo_arrivals
     assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
-               - volume_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+               - volume_arrivals.keys() - zoo_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
         "catalog, review the diff, and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."

@@ -1,27 +1,4 @@
 {
   "schema": 1,
-  "sources": {
-    "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41": {
-      "source_blocks_sha256": [
-        "826209bfe0c3ccc6cfe3ca21e9d3bdbd8fc08a8fb8a0fb754cf1a9dcc23c9977",
-        "22ce6051b68cbf75e610357b2b05b163900ff3e5f774557a109bb525e253795d",
-        "ef5193b583d0a2b33e6e3f0fda658de78da5a310f5593a305eac43992189968d",
-        "f4d430278d19c6cbd779e6cd654784c369e9f45ac446bc40c1a1933ff8df250f",
-        "ad47a1ddcdf1db4442c35d9ba47853fa0a36d09b7cac743e6a23df2ed3dbbbe0",
-        "e0d2d8f592d43404c60ad70fc702e8b169b5e9c69fac91f9a7313341a7adfeab",
-        "9fc6824b21ad226a833badbb4c27c8cca4896812acff5c90062401a612ee49b5"
-      ],
-      "source_sha256": "24b5dc93e6ffde3a4f4fc18314b2459e521b2664b3d088a872cc90e65f5a5c41",
-      "text": "Return per-class sample counts as a ``LongTensor`` of length ``num_classes``.\n\nWhen ``src`` and ``classes`` are provided the counts are taken from the file\nlistings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS.\n\n:param loader: fallback DataLoader iterated only when folder info is missing.\n:param num_classes: number of output classes.\n:param src: parent folder containing per-class subfolders.\n:param classes: ordered class-folder names matching ``src``.\n:returns: ``LongTensor`` of per-class counts."
-    },
-    "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9": {
-      "source_blocks_sha256": [
-        "63cd2c1e99a8850935b06318b7cc0cb62439ea967d3952a1698dbf889fdc8ee8",
-        "2acc2bbdd4a987cd0a9e6a30d1722cef15caebe24d6d9eec94cec7175599ab6d",
-        "37cec808b989aaa1f35c33691d0a0cf761995f47f6b6aaf2878708997e473fac"
-      ],
-      "source_sha256": "778707a306fd5c5b383ce60b00724cb53c50ab7d214f14748786e6cf03db19b9",
-      "text": "Parse plate/well/field/object identities from a crop filename.\n\nUnknown levels are returned as empty strings rather than guessed. The\nobject identity is the augmentation-normalized full stem.\n\n:param path: crop path or file name. Augmentation suffixes are removed and\n    the stem is split on underscores to find the plate, well and field\n    parts."
-    }
-  }
+  "sources": {}
 }

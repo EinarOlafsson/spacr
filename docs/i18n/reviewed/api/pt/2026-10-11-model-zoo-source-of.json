@@ -1,0 +1,13 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "A shared or community row is spaCR's when it is the very file a bundled record names (structured-data name and checksum) or when it is fetched from one of the maintainer's own repositories (:func:`is_spacr_owned`). Anything else uploaded by somebody else stays under ``spaCR community``.",
+      "label": "spacr.model_zoo.source_of#3",
+      "source": "A shared or community row is spaCR's when it is the very file a bundled record names (key and checksum) or when it is fetched from one of the maintainer's own repositories (:func:`is_spacr_owned`). Anything else uploaded by somebody else stays under ``spaCR community``.",
+      "source_sha256": "ff993f6f9d9825d23ccc00fe30d2734d236edd119ddc87ae97fa48dc52aba69d",
+      "translation": "Uma linha compartilhada ou da comunidade pertence ao spaCR quando é exatamente o arquivo que um registro incluído nomeia (chave e soma de verificação) ou quando é baixada de um dos repositórios do próprio mantenedor (:func:`is_spacr_owned`). Todo o resto enviado por outra pessoa permanece em ``spaCR community``."
+    }
+  ],
+  "schema": 1
+}

@@ -1425,7 +1425,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
     assert not volume_arrivals.keys() & (
         worker_arrivals.keys() | home_ui_arrivals.keys())
-    actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys()) - len(builder.API_DOC_ALIASES)
+    # 2026-10-11 item 685: the four model-zoo helpers of 9d48eefa6
+    # (default_version_index, hf_repo_of, is_alternative, is_spacr_owned) are
+    # one named arrival contract; all nine API catalogs were regenerated first.
+    zoo_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text())
+    assert len(zoo_arrivals) == 4
+    assert {key: docs[key] for key in zoo_arrivals} == zoo_arrivals
+    actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
         f"({actual - expected:+d}). A public docstring addition must bump this "
@@ -1473,7 +1481,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_218
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_218
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
