@@ -85,7 +85,11 @@ def test_save_writes_the_named_recipe_and_relists_it(dialog, mask_screen,
                                                      monkeypatch, existing_name):
     """The button's whole job: name it, and find it in the list afterwards."""
     if existing_name:
-        R.save_recipe(R.capture_recipe(mask_screen, existing_name))
+        earlier = R.capture_recipe(mask_screen, existing_name)
+        # Saved a day earlier: the list is newest first, to the second, so
+        # two saves within one second would otherwise tie.
+        earlier.created = "2026-01-01T00:00:00"
+        R.save_recipe(earlier)
     mask_screen._settings_model.set_value_for_key("n_jobs", 9)
     monkeypatch.setattr(QInputDialog, "getText",
                         staticmethod(lambda *a, **k: ("Toxo PVM, 40×", True)))
@@ -94,7 +98,7 @@ def test_save_writes_the_named_recipe_and_relists_it(dialog, mask_screen,
 
     expected = ([existing_name] if existing_name else []) + ["Toxo PVM, 40×"]
     assert _stored_names() == expected
-    assert [r.name for r in dialog.recipes()] == expected
+    assert [r.name for r in dialog.recipes()] == expected[::-1]
     # and what was saved is what the screen actually held
     saved = dialog.selected()
     assert saved.name == "Toxo PVM, 40×"
