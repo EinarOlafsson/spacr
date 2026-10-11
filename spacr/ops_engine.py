@@ -3130,14 +3130,14 @@ def _st_register(bundle: Mapping[str, Any], request: Mapping[str, Any]):
                           "unit": "px", "level": level}
         target = str(request.get("window_image") or "").strip()
         if target:
-            import tifffile
+            from .tiff_io import write_tiff
 
             target = os.path.expanduser(target)
             os.makedirs(os.path.dirname(os.path.abspath(target)),
                         exist_ok=True)
-            tifffile.imwrite(target, platform_image,
-                             photometric=("rgb" if platform_image.ndim == 3
-                                          else "minisblack"))
+            write_tiff(target, platform_image,
+                       photometric=("rgb" if platform_image.ndim == 3
+                                    else "minisblack"))
             info["window"]["image"] = target
     result = {"xy": xy, "radius": radius, "microns_per_pixel": microns,
               "image": platform_image, "matrix": np.eye(3),
