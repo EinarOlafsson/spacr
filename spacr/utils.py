@@ -10415,32 +10415,32 @@ def format_path_for_system(path):
 def normalize_src_path(src):
     """Return ``src`` as a list of paths or a single path string.
 
-    A list is returned unchanged; a string that evaluates to a list of strings
-    (for example ``"['a', 'b']"``) is returned as that list; any other string
-    is returned unchanged.
+    Reads ``src`` with the path-list reader in :mod:`spacr.portable_paths`,
+    so a pasted list in any of the forms it accepts (a JSON or Python list, curly
+    quotes, one path per line, comma-separated paths) becomes a list, and a
+    single path, with its wrapping quotes removed and ``~`` expanded, stays a
+    string. A path that exists exactly as given is never split.
 
     Args:
         src (str or list): The input source path(s).
 
     Returns:
-        list or str: A list if the input was a list (or string representation of a list of strings),
-                     otherwise the input string.
+        list or str: A list when ``src`` was a list or names several paths,
+                     otherwise the one path as a string.
 
     Raises:
         ValueError: if ``src`` is neither a string nor a list.
     """
+    from .portable_paths import _parse_path_list
+
     if isinstance(src, list):
-        return src
+        return _parse_path_list(src)
 
     if isinstance(src, str):
-        try:
-            evaluated_src = ast.literal_eval(src)
-            if isinstance(evaluated_src, list) and all(isinstance(item, str) for item in evaluated_src):
-                return evaluated_src
-        except (SyntaxError, ValueError):
-            pass
-
-        return src
+        paths = _parse_path_list(src)
+        if len(paths) > 1:
+            return paths
+        return paths[0] if paths else src
 
     raise ValueError(f"Invalid type for 'src': {type(src).__name__}, expected str or list")
 

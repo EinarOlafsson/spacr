@@ -1016,6 +1016,8 @@ _TYPE_OVERRIDES: Dict[str, Tuple[type, ...]] = {
     "save": (bool, list),
 }
 
+_PATH_LIST_KEYS = frozenset({"src"})
+
 _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Tuple[type, ...]]] = {
     "foreign": {"masks": (str, list)},
 }
@@ -1118,6 +1120,13 @@ def coerce_value(key: str, text: str, current: Any,
 
     if lowered in _NONE_WORDS and (not types or type(None) in types):
         return None
+
+    if key in _PATH_LIST_KEYS:
+        from .portable_paths import _parse_path_list
+
+        paths = _parse_path_list(text)
+        if all(isinstance(path, str) for path in paths) and paths:
+            return paths[0] if len(paths) == 1 else paths
 
     if stripped.startswith("{") and allow(dict):
         try:

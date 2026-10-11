@@ -586,7 +586,7 @@ def _source_key(app: str) -> str:
 
 
 def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
-    """The app's source folder(s), mirroring spacr.utils.normalize_src_path."""
+    """The app's source folder(s), read by spacr.portable_paths._parse_path_list."""
     src = settings.get(_source_key(app))
     if app == "external_masks":
         values = src if isinstance(src, (list, tuple)) else [src]
@@ -605,20 +605,10 @@ def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
                 roots.append(
                     os.path.dirname(value) if os.path.isfile(value) else value)
         return list(dict.fromkeys(roots))
-    if isinstance(src, (list, tuple)):
-        return list(src)
-    if isinstance(src, str):
-        stripped = src.strip()
-        if stripped.startswith("[") and stripped.endswith("]"):
-            import ast
+    if isinstance(src, (list, tuple, str)):
+        from .portable_paths import _parse_path_list
 
-            try:
-                parsed = ast.literal_eval(stripped)
-            except (ValueError, SyntaxError):
-                return [src]
-            if isinstance(parsed, list):
-                return parsed
-        return [src]
+        return _parse_path_list(src) or ([src] if isinstance(src, str) else [])
     return [src]
 
 
@@ -725,8 +715,12 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
         if not isinstance(inv.src, str) or not inv.src:
             continue
         if not inv.exists:
+            from .portable_paths import _describe_missing_paths
+
+            described = _describe_missing_paths([inv.src])
             problems.append(Problem(
-                ERROR, key, f"{key} does not exist: {inv.src}",
+                ERROR, key,
+                f"{key} does not exist: {(described or [inv.src])[0].strip()}",
                 "Check the path for typos, and that the drive or share is mounted."))
             continue
         if inv.is_db_file:

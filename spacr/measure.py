@@ -9241,14 +9241,53 @@ def _measure_merged_folder(src):
     if os.path.isdir(merged):
         return merged
     if not os.path.exists(src):
-        raise ConfigurationError(
-            f"Measure cannot start: src does not exist: {src}. Set src to "
-            "the plate folder that Make Masks wrote, the one holding "
-            "merged/, and check that the drive or share is mounted.")
+        raise ConfigurationError(_missing_measure_sources_message([src]))
     raise ConfigurationError(
         f"Measure cannot start: there is no merged folder at {merged}. "
         "Set src to the plate folder that Make Masks wrote (the one holding "
         "merged/), or run Make Masks on this plate first.")
+
+
+def _missing_measure_sources(paths):
+    """The ``src`` paths measure cannot read: no merged folder and no path.
+
+    :param paths: the plate folders ``src`` names, already parsed.
+    :returns: the ones that do not exist and resolve to no merged folder.
+    """
+    from .validate import _resolve_measure_src
+    missing = []
+    for path in paths:
+        if not isinstance(path, str):
+            continue
+        merged, _note = _resolve_measure_src(path)
+        if not os.path.isdir(merged) and not os.path.exists(path):
+            missing.append(path)
+    return missing
+
+
+def _missing_measure_sources_message(missing, parsed=None):
+    """Why measure cannot start, one missing ``src`` path per line.
+
+    Each line says whether the path's parent folder exists, which tells an
+    unmounted drive or share apart from a typo.
+
+    :param missing: the ``src`` paths that do not exist.
+    :param parsed: every path ``src`` was read as, listed when it named more
+        than one, so a wrongly split paste is visible.
+    :returns: the message for :class:`ConfigurationError`.
+    """
+    from .portable_paths import _describe_missing_paths
+    from .qt.i18n import tr
+    lines = [tr("Measure cannot start: src does not exist:")]
+    lines += _describe_missing_paths(missing)
+    if parsed and len(parsed) > 1:
+        lines.append(tr("src was read as {count} folders:", count=len(parsed)))
+        lines += [f"  {path}" for path in parsed]
+    lines.append(tr("Set src to the plate folder that Make Masks wrote, the "
+                    "one holding merged/, and check that the drive or share "
+                    "is mounted. Several plates can be given one per line or "
+                    "as a list."))
+    return "\n".join(lines)
 
 
 def _sql_value(value):
@@ -9361,7 +9400,10 @@ def measure_crop(settings):
         :func:`spacr.settings.get_measure_crop_settings`. Key entries the
         function reads:
 
-        - ``src`` (str or list) — one or more ``…/merged`` folders. A
+        - ``src`` (str or list) — one or more plate or ``…/merged``
+          folders, each measured in turn into its own ``measurements``
+          folder. Text naming several plates (a pasted list, curly quotes,
+          one path per line) is split into its plate folders. A
           cloud address Make Masks has analysed is measured from the local
           folder Make Masks staged it in; a cloud folder of merged stacks is
           mirrored under ``cloud_cache`` first. ``cloud_results`` copies the
@@ -9456,6 +9498,13 @@ def measure_crop(settings):
 
     if isinstance(settings['src'], list):
         source_folders = list(settings['src'])
+        if len(source_folders) > 1:
+            print(f"[measure] src names {len(source_folders)} plate folders; "
+                  "measuring each in turn into its own measurements folder.")
+        missing = _missing_measure_sources(source_folders)
+        if missing:
+            raise ConfigurationError(
+                _missing_measure_sources_message(missing, source_folders))
         base_settings = dict(settings)
         
         with run_context('measure', settings) as run:

@@ -725,16 +725,18 @@ def load_queue(path: Union[str, os.PathLike]) -> Queue:
 def _src_values(settings: Mapping[str, Any]) -> List[str]:
     """``src`` normalised to a list of strings.
 
-    Mirrors :func:`spacr.validate._src_values` (itself mirroring
-    ``spacr.utils.normalize_src_path``); copied rather than imported so this
-    module depends only on validate's public API.
+    Read by ``spacr.portable_paths._parse_path_list``, the same reader
+    :func:`spacr.validate._src_values` and ``spacr.utils.normalize_src_path``
+    use, so a pasted list of plates is split the same way everywhere.
     """
+    from .portable_paths import _parse_path_list
+
     src = settings.get('src')
     if isinstance(src, (list, tuple)):
-        return [str(v) for v in src if isinstance(v, (str, os.PathLike))]
-    if isinstance(src, str) and src.strip():
-        return [src]
-    return []
+        src = [v for v in src if isinstance(v, (str, os.PathLike))]
+    elif not isinstance(src, str):
+        return []
+    return [str(v) for v in _parse_path_list(src)]
 
 
 def _within(path: str, root: str) -> bool:

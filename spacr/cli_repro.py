@@ -126,10 +126,10 @@ def _workflow_plates(settings: Dict[str, Any],
     src = settings.get("src")
     if plates:
         sources = [str(p) for p in plates]
-    elif isinstance(src, (list, tuple)):
-        sources = [str(p) for p in src if str(p).strip()]
-    elif isinstance(src, str) and src.strip():
-        sources = [src]
+    elif isinstance(src, (list, tuple, str)):
+        from .portable_paths import _parse_path_list
+
+        sources = [str(p) for p in _parse_path_list(src) if str(p).strip()]
     else:
         sources = []
     if not sources:
