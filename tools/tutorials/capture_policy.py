@@ -6,7 +6,10 @@ import sys
 from pathlib import Path
 
 CAPTURE_THEME = "dark"
-CAPTURE_BACKDROP = "blobs"
+#: Every lesson records the spaCR field at its shipped density and default
+#: palette (maintainer rule, 2026-10-10). Mask scenes used Blobs at density
+#: 2.0 until then; that exception is gone.
+CAPTURE_BACKDROP = "data_art_impulse_lens"
 _PRIVATE_PATH = re.compile(r"(?:/home/[^/\s]+|/Users/[^/\s]+|[A-Za-z]:[\\/]Users[\\/][^\\/\s]+|/mnt/[^\s<>\"']+|/(?:run/)?media/[^\s<>\"']+|/nas_mnt(?:/[^\s<>\"']*)?)")
 
 
@@ -354,6 +357,13 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP, *, home
 
     prefs.set_theme(theme)
     prefs.set_ambient_animation(backdrop)
+    prefs.set_ambient_enabled(True)
+    if backdrop == "data_art_impulse_lens":
+        # Explicit, not inherited: a stale palette or density in a reused
+        # profile would otherwise reach the recording unnoticed.
+        from spacr.qt.widgets.ambient import _default_density_for
+        prefs.set_ambient_palette(prefs.ambient_default_palette(backdrop))
+        prefs.set_ambient_density(_default_density_for(backdrop))
     force_alpha_features_off()
     force_fresh_start()
 
@@ -383,16 +393,22 @@ def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=No
         if not spaceout_enabled():
             raise RuntimeError("Spaceout companion requires the actual Spaceout process mode")
     if not prefs.get_ambient_enabled() or prefs.get_ambient_animation() != expected:
-        raise RuntimeError("Capture refused: Blobs is disabled or another backdrop is selected")
+        raise RuntimeError("Capture refused: the backdrop is disabled or another backdrop is selected")
+    if expected == "data_art_impulse_lens":
+        from spacr.qt.widgets.ambient import _default_density_for
+        if prefs.get_ambient_palette() != prefs.ambient_default_palette(expected):
+            raise RuntimeError("Capture refused: the spaCR field is not on its default palette")
+        if abs(prefs.get_ambient_density(expected) - _default_density_for(expected)) > 0.005:
+            raise RuntimeError("Capture refused: the spaCR field is not at its shipped density")
     if window.palette().color(QPalette.Window).lightness() >= 128:
         raise RuntimeError("Capture refused: the window is painting a light palette")
     visible = [widget for widget in window.findChildren(AmbientWidget) if widget.isVisible()]
     if not visible or any(widget.theme() != expected for widget in visible):
-        raise RuntimeError("Capture refused: visible backdrop widgets are not Blobs")
+        raise RuntimeError("Capture refused: visible backdrop widgets are not the requested backdrop")
     if not any(widget.frames_painted > 0 for widget in visible):
-        raise RuntimeError("Capture refused: the Blobs backdrop has not painted a frame")
+        raise RuntimeError("Capture refused: the backdrop has not painted a frame")
     if any(widget.isVisible() for widget in window.findChildren(DnaRainWidget)):
-        raise RuntimeError("Capture refused: DNA rain covers the requested Blobs backdrop")
+        raise RuntimeError("Capture refused: DNA rain covers the requested backdrop")
     receipt = {"theme": CAPTURE_THEME, "backdrop": expected,
                "painted_frames": sum(widget.frames_painted for widget in visible)}
     if spaceout_effects:

@@ -329,3 +329,29 @@ def test_installed_app_recordings_never_record_whats_new():
     body = terminal[terminal.index("    def shot(self"):]
     # The grab is ffmpeg x11grab since 0fbbd1e47 (was ImageMagick import).
     assert body.index("refuse_whats_new_titles(") < body.index("'x11grab'")
+
+
+def test_every_recording_uses_the_spacr_field_at_its_shipped_defaults(_private_store):
+    """Maintainer rule, 2026-10-10: every lesson records the spaCR field,
+    set explicitly at its shipped density and default palette. Mask scenes
+    used Blobs at density 2.0 until then."""
+    from spacr.qt import preferences as prefs
+    from spacr.qt.widgets.ambient import _default_density_for
+
+    prefs.set_ambient_animation("data_art_impulse_lens")
+    prefs.set_ambient_palette("ember")
+    prefs.set_ambient_density(1.5)
+    capture_policy.configure_appearance()
+    assert capture_policy.CAPTURE_BACKDROP == "data_art_impulse_lens"
+    assert prefs.get_ambient_animation() == "data_art_impulse_lens"
+    assert prefs.get_ambient_enabled()
+    assert prefs.get_ambient_palette() == prefs.ambient_default_palette(
+        "data_art_impulse_lens")
+    assert abs(prefs.get_ambient_density("data_art_impulse_lens")
+               - _default_density_for("data_art_impulse_lens")) < 0.005
+    tools = Path(capture_policy.__file__).resolve().parent
+    for path in (*tools.glob("capture_*.py"),
+                 *(tools / "authoring" / "tools").glob("capture_*.py")):
+        source = path.read_text(encoding="utf-8")
+        assert "set_ambient_animation('blobs')" not in source, path.name
+        assert "'dark', 'blobs'" not in source, path.name

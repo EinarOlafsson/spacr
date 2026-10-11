@@ -47,7 +47,7 @@ def main() -> int:
     parser.add_argument('--stage', type=Path,
                         default=Path(tempfile.gettempdir()) / 'spacr-tutorials-current')
     parser.add_argument('--theme', choices=('dark',), default='dark')
-    parser.add_argument('--backdrop', choices=('blobs', 'data_art_impulse_lens'),
+    parser.add_argument('--backdrop', choices=('data_art_impulse_lens',),
                         default='data_art_impulse_lens')
     parser.add_argument('--live-video', action='store_true',
                         help='Record actual animated native application clips on isolated X11')
@@ -407,9 +407,6 @@ def main() -> int:
                          home_preferences=args.home_preferences_only or args.home_navigation_only,
                          spaceout_effects=args.spaceout_effects_only,
                          default_field=args.backdrop == 'data_art_impulse_lens')
-    if args.backdrop == 'blobs' and args.module in ('mask', 'make_masks', 'cellpose_masks'):
-        from spacr.qt.preferences import set_ambient_density
-        set_ambient_density(2.0)
     set_font_scale(args.font_scale)
     if args.module in ('regression', 'queue', 'train_cellpose'):
         from spacr.qt.preferences import set_figure_format
@@ -462,11 +459,9 @@ def main() -> int:
         appearance = verify_appearance(
             window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene,
             alpha_lesson=args.alpha_lesson,
-            home_preferences=(args.home_preferences_only or args.home_navigation_only)
-                             and not window.property('tutorialMaskBlobs'),
+            home_preferences=args.home_preferences_only or args.home_navigation_only,
             spaceout_effects=args.spaceout_effects_only,
-            default_field=args.backdrop == 'data_art_impulse_lens'
-                          and not window.property('tutorialMaskBlobs'))
+            default_field=args.backdrop == 'data_art_impulse_lens')
         try:
             verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
         except RuntimeError:

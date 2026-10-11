@@ -64,7 +64,7 @@ def main():
     preferences.set_language('en')
     preferences.set_preload_policy('on_demand')
     preferences.set_refresh_news(False)
-    configure_appearance('dark', 'blobs')
+    configure_appearance('dark')
     mark_tour_seen()
     _load_bundled_fonts()
     _use_open_sans(app)
