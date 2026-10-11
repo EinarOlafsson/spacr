@@ -1277,9 +1277,10 @@ def test_timelapse_lineage_and_events_run_after_tracking(
     calls = []
     monkeypatch.setattr(TL, "_run_lineage_step",
                         lambda src, name, obj, mode, settings, *, frame_sources,
-                        label_stack:
+                        label_stack, images=None:
                         calls.append(("lineage", name, obj, mode,
-                                      len(frame_sources), len(label_stack))))
+                                      len(frame_sources), len(label_stack),
+                                      None if images is None else len(images))))
     monkeypatch.setattr(TL, "_run_event_features_step",
                         lambda src, name, obj, stack, images, mode, settings:
                         calls.append(("events", name, obj, mode, len(stack))))
@@ -1287,5 +1288,6 @@ def test_timelapse_lineage_and_events_run_after_tracking(
     _write_npz(src, n=3)
     O.generate_cellpose_masks(str(src), _tl(src, timelapse_lineage=True,
                                             timelapse_events=True), "nucleus")
-    assert calls == [("lineage", "batch1", "nucleus", "trackpy", 3, 3),
+    # F537 (ccccb694d) hands the lineage step the frames' images as well.
+    assert calls == [("lineage", "batch1", "nucleus", "trackpy", 3, 3, 3),
                      ("events", "batch1", "nucleus", "trackpy", 3)]
