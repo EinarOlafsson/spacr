@@ -137,10 +137,12 @@ def test_an_unusable_start_method_falls_back_rather_than_raising(monkeypatch, ca
     assert 'not a multiprocessing start method' in capsys.readouterr().out
 
 
-def test_fork_starts_exactly_what_was_asked_for():
-    """A surplus fork worker is a page-table copy; capping it would be a
-    behaviour change for no gain."""
-    assert M.resolve_pool_size(12, 1, start_method='fork') == 12
+def test_fork_is_capped_at_the_field_count_too():
+    """A surplus fork worker was once only a page-table copy. Worker starts
+    are paced ten seconds apart now (664), so each surplus worker delayed
+    the run by ten seconds: one field with 30 workers spent about 290 s
+    starting processes that had nothing to measure (N47 serial Qt run)."""
+    assert M.resolve_pool_size(12, 1, start_method='fork') == 1
     assert M.resolve_pool_size(12, 40, start_method='fork') == 12
 
 
@@ -161,8 +163,7 @@ def test_no_fields_still_yields_a_legal_pool(method):
 
 def test_resolve_pool_size_defaults_to_the_live_start_method():
     """Called without an explicit method it must agree with the interpreter."""
-    expected = 8 if mp.get_start_method() == 'fork' else 3
-    assert M.resolve_pool_size(8, 3) == expected
+    assert M.resolve_pool_size(8, 3) == 3
 
 
 # ---------------------------------------------------------------------------

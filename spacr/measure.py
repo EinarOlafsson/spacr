@@ -346,21 +346,18 @@ def _start_manager(ctx):
 def resolve_pool_size(n_jobs, n_files, start_method=None):
     """Return the worker count for a set of image fields.
 
+    The count is capped at the number of fields for every start method.
     ``spawn`` and ``forkserver`` start a fresh interpreter for every worker,
-    so their worker count is capped at the number of fields. ``fork`` keeps
-    the requested count for compatibility.
+    and worker starts are paced ten seconds apart, so a surplus ``fork``
+    worker also delays the run by ten seconds and then has nothing to do.
 
     :param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.
     :param n_files: how many fields there are to measure.
-    :param start_method: start method name to decide against; defaults to the
-        interpreter's current default.
+    :param start_method: accepted for existing callers; every start method
+        is capped the same way.
     :returns: an int >= 1.
     """
     n_jobs = max(1, int(n_jobs))
-    if start_method is None:
-        start_method = mp.get_start_method()
-    if start_method == 'fork':
-        return n_jobs
     return max(1, min(n_jobs, int(n_files)))
 
 

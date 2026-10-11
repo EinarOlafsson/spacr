@@ -9327,6 +9327,7 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     from .resource_log import _array_file_nbytes, _guard_workers
     n_jobs = _guard_workers('adjust_masks', n_jobs, _array_file_nbytes(
         os.path.join(cell_folder, parasite_files[0])))
+    n_jobs = max(1, min(n_jobs, len(parasite_files)))
 
     time_ls = []
     files_to_process = len(parasite_files)
