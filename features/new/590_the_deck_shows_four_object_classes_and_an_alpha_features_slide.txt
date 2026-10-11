@@ -139,3 +139,5 @@ SAMCell/DINOCell (alpha) removed; 4 alpha labels for 534 (spatial masks,
 barcodes) and 557 (low-light benchmark). F586 not shown: spacr-sif is not
 public yet. Receipt folder: features/data/590_deck_refresh_2026-10-11/.
 Every changed page read at full size. Deck tests: 18 + 32 + 16 passed.
+
+2026-10-11 (later): maintainer decision: slide 48 shows both Live cell v1 numbers. The row reads "F1 0.960 (stock 0.885) *" with a footnote under the table: "* Live cell v1: F1 0.960 vs 0.885 on data stock never saw; 0.694 vs 0.738 over all 2,199 test fields (stock trained on LIVECell)." Only page 48 was republished (--refresh-pages 48); read at full size; deck tests pass.
