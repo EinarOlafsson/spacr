@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import math
 from typing import Dict, Optional
+from .. import _after
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import QTextDocument, QTextOption
@@ -184,7 +185,7 @@ class HintBar(QLabel):
         self.setFixedHeight(max(self._minimum_help_height(),
                                 self._manual_height or 0))
         if self._manual_height is not None:
-            QTimer.singleShot(0, self, lambda: self._set_manual_height(
+            _after(0, self, lambda: self._set_manual_height(
                 self._manual_height) if self.isVisible() else None)
 
     def setText(self, text: str) -> None:

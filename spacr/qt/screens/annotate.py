@@ -72,6 +72,7 @@ settings, but page queries do not apply it.
 from __future__ import annotations
 
 import inspect
+from .. import _after
 import logging
 import os
 import re
@@ -4183,8 +4184,8 @@ class AnnotateScreen(QWidget):
             return
         button = self._btn_copy_console
         button.setText(tr("Copied"))
-        QTimer.singleShot(1200, button,
-                          lambda: button.setText(tr("Copy console")))
+        _after(1200, button,
+               lambda: button.setText(tr("Copy console")))
         LOG.debug("copied %d console characters", len(text))
 
     def note_console_error(self) -> None:

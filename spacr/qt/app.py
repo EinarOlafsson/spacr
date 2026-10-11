@@ -13,6 +13,7 @@ import logging
 import os
 import sys
 import threading
+from . import _after
 
 from . import timing as _timing
 import traceback
@@ -3488,7 +3489,7 @@ class MainWindow(QMainWindow):
             if current & (Qt.WindowFullScreen | Qt.WindowMaximized) & ~previous:
                 from .widgets.ambient import field_ripple_for_widget
 
-                QTimer.singleShot(0, self, lambda: QTimer.singleShot(
+                _after(0, self, lambda: _after(
                     0, self, lambda: field_ripple_for_widget(self, edge="top")
                     if not self.isMinimized() and (self.isFullScreen() or self.isMaximized())
                     else None))
@@ -6025,7 +6026,7 @@ class MainWindow(QMainWindow):
         if getattr(self, "_opening_a_screen", False):
             from PySide6.QtCore import QTimer
 
-            QTimer.singleShot(0, self, lambda: self._on_nav_selected(key))
+            _after(0, self, lambda: self._on_nav_selected(key))
             return
         interaction_started = _timing.interval_started("navigation", key)
         if key == "__home__":

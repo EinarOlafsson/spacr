@@ -114,6 +114,7 @@ tables rather than generating masks.
 from __future__ import annotations
 
 import logging
+from .. import _after
 import math
 import os
 import re
@@ -2204,7 +2205,7 @@ class _MaskCanvas(QLabel):
         if self._readout_pos is None or self._readout_queued:
             return
         self._readout_queued = True
-        QTimer.singleShot(0, self, self._reread_readout)
+        _after(0, self, self._reread_readout)
 
     def _reread_readout(self) -> None:
         """Measure the pixel the mouse is resting on again, after an edit."""
@@ -7187,7 +7188,7 @@ class _LiveMagnifier(QObject):
             self.mask_generation()
             if self._ghost_is_stale() and not self._asking:
                 self._asking = True
-                QTimer.singleShot(0, self, self._ask_again)
+                _after(0, self, self._ask_again)
             shown = self._shown
             if shown is not None and self._shown_image is not None:
                 sx0, sy0, sx1, sy1 = shown.request.box

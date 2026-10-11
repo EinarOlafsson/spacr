@@ -31,6 +31,7 @@ like the first one.
 from __future__ import annotations
 
 import logging
+from . import _after
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional
 
@@ -570,7 +571,7 @@ class _WalkthroughHandler(QObject):
             return
         from PySide6.QtCore import QTimer
 
-        QTimer.singleShot(_OFFER_AFTER_MS, self, lambda: self._offer(app_key))
+        _after(_OFFER_AFTER_MS, self, lambda: self._offer(app_key))
 
     def _offer(self, app_key: str) -> None:
         """Show ``app_key``'s walkthrough if its screen is still the one on show.

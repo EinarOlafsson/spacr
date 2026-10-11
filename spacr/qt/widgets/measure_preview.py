@@ -22,6 +22,7 @@ import threading
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from .. import _after
 
 import numpy as np
 from PySide6.QtCore import QDir, QRectF, Qt, QTimer, Signal
@@ -2380,8 +2381,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         else:
             self._start_crop_request(request)
         token = self._crop_token
-        QTimer.singleShot(0, self, lambda: self._render_grid()
-                          if token == self._crop_token and self._crop_running
+        _after(0, self, lambda: self._render_grid()
+               if token == self._crop_token and self._crop_running
                           else None)
 
     def _start_crop_request(self, request) -> None:

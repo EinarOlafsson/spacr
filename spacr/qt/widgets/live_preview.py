@@ -53,6 +53,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from threading import Event
 from typing import Any, Dict, List, Optional, Sequence, Tuple
+from .. import _after
 
 import numpy as np
 
@@ -2852,7 +2853,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._localise_channel_combo()
         self._populate_set_table()
         self._refresh_mip_toggle()
-        QTimer.singleShot(0, self, self._follow_object_channel)
+        _after(0, self, self._follow_object_channel)
 
     def sample_note(self) -> str:
         """The sentence stating this preview is a sample of N of M sets."""

@@ -65,6 +65,7 @@ import logging
 import os
 from pathlib import Path
 from typing import List, Optional, Tuple
+from .. import _after
 
 import pandas as pd
 from PySide6.QtCore import QEvent, Qt, QTimer
@@ -547,7 +548,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         from PySide6.QtCore import QEvent
 
         if event.type() in (QEvent.Move, QEvent.Resize, QEvent.Show):
-            QTimer.singleShot(0, self, self.align_side_panel)
+            _after(0, self, self.align_side_panel)
         return super().eventFilter(watched, event)
 
     def align_side_panel(self) -> int:

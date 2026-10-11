@@ -204,6 +204,7 @@ selected population into that buffer or directly at full Detail.
 from __future__ import annotations
 
 import logging
+from .. import _after
 import math
 import random
 import sys
@@ -9796,8 +9797,8 @@ class AmbientWidget(QWidget):
         candidate = self._click_candidate
         if candidate is None:
             return
-        QTimer.singleShot(CLICK_RIPPLE_SETTLE_MS, self,
-                          partial(self._commit_click_ripple, candidate))
+        _after(CLICK_RIPPLE_SETTLE_MS, self,
+               partial(self._commit_click_ripple, candidate))
 
     def _commit_click_ripple(self, candidate) -> bool:
         """Emit one click ripple unless its click produced a container ripple.

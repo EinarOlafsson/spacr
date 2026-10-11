@@ -76,6 +76,30 @@ _QT_INOTIFY = re.compile(r"inotify_add_watch.*No space left on device")
 _SAID_IT_ONCE = False
 
 
+
+def _after(msec: int, owner, callback):
+    """Call ``callback`` once after ``msec`` milliseconds unless ``owner`` is deleted first.
+
+    ``QTimer.singleShot(msec, owner, callable)`` is not accepted by the oldest
+    PySide6 spaCR supports (6.6), which only takes an owner with a slot name.
+    This builds the same behaviour from a single-shot timer parented to
+    ``owner``: deleting ``owner`` deletes the timer, so the call never runs
+    against a destroyed widget.
+
+    :param msec: delay in milliseconds.
+    :param owner: the ``QObject`` whose lifetime bounds the call.
+    :param callback: the function to call, with no arguments.
+    :returns: the started ``QTimer``.
+    """
+    from PySide6.QtCore import QTimer
+
+    timer = QTimer(owner)
+    timer.setSingleShot(True)
+    timer.timeout.connect(callback)
+    timer.timeout.connect(timer.deleteLater)
+    timer.start(int(msec))
+    return timer
+
 def _explain_the_inotify_line() -> None:
     """Say what ENOSPC from inotify really means, once per process."""
     global _SAID_IT_ONCE
