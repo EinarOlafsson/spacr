@@ -10,6 +10,9 @@ CAPTURE_THEME = "dark"
 #: palette (maintainer rule, 2026-10-10). Mask scenes used Blobs at density
 #: 2.0 until then; that exception is gone.
 CAPTURE_BACKDROP = "data_art_impulse_lens"
+#: The one exception: the Spaceout companion recorded with
+#: ``--spaceout-effects-only`` (05_home scene 39) shows the Spaceout field,
+#: because that scene demonstrates Spaceout mode (agreed 2026-10-11).
 _PRIVATE_PATH = re.compile(r"(?:/home/[^/\s]+|/Users/[^/\s]+|[A-Za-z]:[\\/]Users[\\/][^\\/\s]+|/mnt/[^\s<>\"']+|/(?:run/)?media/[^\s<>\"']+|/nas_mnt(?:/[^\s<>\"']*)?)")
 
 
