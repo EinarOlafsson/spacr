@@ -319,6 +319,46 @@ def _fill_holes_smaller_than(binary, area_threshold):
         return remove_small_holes(
             binary, area_threshold=int(area_threshold))
 
+
+def _mask_at_field_size(mask, field_shape, object_type=""):
+    """Return ``mask`` at its field's ``(height, width)``, labels unchanged.
+
+    Every mask is saved at the size of the field it was segmented from, so
+    the cell, nucleus and pathogen masks of one field line up pixel for
+    pixel. A segmentation route that hands back labels at its working scale
+    (Cellpose works at ``30 / diameter``, twice the field for a pathogen
+    diameter of 15) is brought back here by nearest-neighbour sampling,
+    which keeps every label an integer id and invents none.
+
+    :param mask: a 2-D label image; anything else is returned untouched.
+    :param field_shape: the field's ``(height, width)``, or ``None``.
+    :param object_type: named in the note printed when a mask is resized.
+    :returns: the mask, resized when its shape differed from the field's.
+    """
+    if field_shape is None or getattr(mask, "ndim", 0) != 2:
+        return mask
+    height, width = (int(field_shape[0]), int(field_shape[1]))
+    if tuple(mask.shape) == (height, width):
+        return mask
+    rows = (np.arange(height) * mask.shape[0]) // height
+    cols = (np.arange(width) * mask.shape[1]) // width
+    print(f"{object_type} mask came back at {tuple(mask.shape)}; returned to "
+          f"the field's {(height, width)}")
+    return np.ascontiguousarray(mask[rows[:, None], cols[None, :]])
+
+
+def _field_shape_of(batch):
+    """``(height, width)`` of a channel-last batch of fields, or ``None``.
+
+    :param batch: an ``(N, ..., Y, X, C)`` batch; the two axes before the
+        channel axis are the field's height and width.
+    """
+    shape = getattr(batch, "shape", None)
+    if shape is None or len(shape) < 4:
+        return None
+    return (int(shape[-3]), int(shape[-2]))
+
+
 def merge_split_filter_masks(masks, intensity_images, settings, object_type, batch_filenames=None):
     """Merge by perimeter and filter each in-memory field's objects.
 
@@ -1747,7 +1787,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
 
                     if settings['save']:
-                        mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
+                        field_shape = _field_shape_of(batch)
+                        mask_stack = [_as_uint16_mask(_mask_at_field_size(
+                            mask, field_shape, object_type))
+                            for mask in mask_stack]
                         for mask_index, mask in enumerate(mask_stack):
                             output_filename = os.path.join(output_folder, batch_filenames[mask_index])
                             _save_array_atomic(output_filename, mask)
@@ -2051,7 +2094,9 @@ def generate_cellpose_masks(src, settings, object_type):
                     plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=batch_size)
 
             if settings['save']:
-                mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
+                field_shape = _field_shape_of(batch)
+                mask_stack = [_as_uint16_mask(_mask_at_field_size(
+                    mask, field_shape, object_type)) for mask in mask_stack]
                 for mask_index, mask in enumerate(mask_stack):
                     output_filename = os.path.join(output_folder, batch_filenames[mask_index])
                     _save_array_atomic(output_filename, mask)

@@ -4305,7 +4305,9 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
     Returns:
         tuple: A tuple containing the filtered batch (numpy array) and the filtered filenames (list).
     """
-    from .resume import validate_merged_field
+    from .resume import read_npy_header, validate_merged_field
+
+    fields = dict(zip(batch_filenames, batch))
 
     def needs_processing(filename):
         """Report whether a field still has to be generated.
@@ -4324,7 +4326,19 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
         ok, reason = validate_merged_field(path)
         if not ok:
             print(f"{path} is damaged ({reason}); generating it again.")
-        return not ok
+            return True
+        field = getattr(fields.get(filename), "shape", None)
+        if field is not None and len(field) >= 3:
+            try:
+                shape = tuple(read_npy_header(path)["shape"])
+            except Exception:
+                return True
+            if len(shape) == 2 and shape not in (tuple(field[-3:-1]),
+                                                 tuple(field[-2:])):
+                print(f"{path} is {shape}, not its field's "
+                      f"{tuple(field[-3:-1])}; generating it again.")
+                return True
+        return False
 
     existing_files_mask = [
         needs_processing(filename) for filename in batch_filenames]

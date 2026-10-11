@@ -1759,6 +1759,30 @@ def close_multiprocessing_processes():
 
     close_file_descriptors()
 
+def _mask_fits_its_field(mask_path, stack_path):
+    """Whether a saved 2-D mask has its stacked field's ``(height, width)``.
+
+    A mask left by an earlier run on a field of another size is complete as
+    a file but cannot be merged with this run's masks, so it is generated
+    again rather than kept. The field is read channel-last ``(..., Y, X, C)``
+    or channel-first ``(C, Y, X)``; either layout's ``(Y, X)`` fits.
+
+    :param mask_path: the saved mask.
+    :param stack_path: the stacked field it belongs to.
+    :returns: ``False`` only when both headers read and the sizes differ.
+    """
+    from .resume import read_npy_header
+
+    try:
+        mask = tuple(read_npy_header(mask_path)["shape"])
+        field = tuple(read_npy_header(stack_path)["shape"])
+    except Exception:
+        return True
+    if len(mask) != 2 or len(field) < 3:
+        return True
+    return mask in (field[-3:-1], field[-2:])
+
+
 def check_mask_folder(src, mask_fldr, resume=False):
     """Return ``True`` if masks in ``src/masks/mask_fldr`` still need generating.
 
@@ -1768,8 +1792,9 @@ def check_mask_folder(src, mask_fldr, resume=False):
         complete mask arrays are counted whether or not it is set, so an
         empty or truncated array left by an interrupted run is re-queued.
     :returns: ``True`` when the mask folder is missing or any expected stack
-        filename lacks a complete mask. Unrelated masks cannot substitute
-        for a missing field and do not force complete fields to run again.
+        filename lacks a complete mask of its field's size. Unrelated masks
+        cannot substitute for a missing field and do not force complete
+        fields to run again.
     """
     from .io import _listdir_visible
     from .resume import validate_merged_field
@@ -1783,6 +1808,8 @@ def check_mask_folder(src, mask_fldr, resume=False):
     expected = [file for file in _listdir_visible(stack_folder)
                 if file.endswith('.npy')]
     if all(validate_merged_field(os.path.join(mask_folder, file))[0]
+           and _mask_fits_its_field(os.path.join(mask_folder, file),
+                                    os.path.join(stack_folder, file))
            for file in expected):
         print(f'All masks have been generated for {mask_fldr}')
         return False
