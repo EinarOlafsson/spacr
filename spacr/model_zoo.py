@@ -172,6 +172,12 @@ __all__ = [
     "ChecksumMismatch",
     "ZOO_SOURCES",
     "DEFAULT_ZOO_SOURCES",
+    "MITONET_KEY",
+    "THIRD_PARTY_MODEL_KEYS",
+    "is_third_party",
+    "mitonet_instances",
+    "mitonet_weights",
+    "segment_mitonet",
     "source_of",
     "group_by_source",
     "entries_from_sources",
@@ -246,7 +252,7 @@ UNKNOWN = "unknown"
 PREFIXED_KINDS = tuple(_name for _name, _spec in _BACKEND_SPECS.items()
                        if _spec.prefix)
 KINDS = ("cellpose", "classifier", "detector", "encoder", "backend",
-         "cellpose3", "cellpose_dino") + PREFIXED_KINDS
+         "cellpose3", "cellpose_dino", "mitonet") + PREFIXED_KINDS
 #: "backend" is not a checkpoint: it is a segmentation PACKAGE the zoo
 #: lists so a user learns it exists and can install it from inside spaCR.
 
@@ -1084,6 +1090,66 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                'independent test.',
                'Distinct from the YOLO26 checkpoint also historically called detector v4.',
                'Locates wells, not plaques; one class plaque_well (0).']},
+    {
+        "key": "mitonet_mini_v1",
+        "name": "MitoNet_v1_mini.pth",
+        "kind": "mitonet",
+        "third_party": True,
+        "uri": "https://zenodo.org/records/6861565/files/"
+               "MitoNet_v1_mini.pth?download=1",
+        "sha256":
+            "6554a42fbdcb70a46700f20281b1a5f1ae2f4140a63f519193046c7c9a9f2f4c",
+        "size_bytes": 110074368,
+        "metrics": {'n_train': 'CEM-MitoLab (EMPIAR-11037), about 22,000 '
+                               '2-D EM images, per the authors',
+                    'train_objects': 'not recorded here',
+                    'n_test': '10 TEM fields of spacr-example-tem '
+                              '(EMPIAR-10982 TEM benchmark)',
+                    'test_objects': '195 mitochondria',
+                    'cv': 'no; the benchmark is its held-out test set',
+                    'f1': '0.823 at IoU 0.5 (TP 142, FP 8, FN 53)',
+                    'aji': 'not recorded',
+                    'dice': '0.842 (foreground pixels)',
+                    'stock_f1': 'cpsam 0.467 on the same fields',
+                    'stock_aji': 'not recorded',
+                    'stock_dice': 'cpsam 0.50',
+                    'train_loss': 'not recorded',
+                    'val_loss': 'not recorded',
+                    'best_epoch': 'not recorded'},
+        "display_name": "MitoNet v1 mini (TEM mitochondria, third-party)",
+        "architecture": "Panoptic-DeepLab style network (empanada), "
+                        "TorchScript; spaCR's own post-processing",
+        "dataset": "CEM-MitoLab, 2-D electron micrographs with every "
+                   "mitochondrion outlined (Conrad and Narayan 2023)",
+        "versus_stock": "F1 0.823 against cpsam's 0.467 on the ten "
+                        "spacr-example-tem fields at IoU 0.5",
+        "trained_on": (
+            "CEM-MitoLab: 2-D TEM and volume-EM images of mitochondria from "
+            "many tissues and labs, curated by the empanada authors "
+            "(Conrad and Narayan, Cell Systems 14:58-71, 2023)"
+        ),
+        "trained_by": "Ryan Conrad and Kedar Narayan (empanada, NCI)",
+        "licence": "CC-BY-4.0",
+        "code_licence": "BSD-3-Clause",
+        "citation": (
+            "Conrad R, Narayan K. Instance segmentation of mitochondria in "
+            "electron microscopy images with a generalist deep learning "
+            "model trained on a diverse dataset. Cell Systems "
+            "14(1):58-71.e5, 2023. doi:10.1016/j.cels.2022.12.006"
+        ),
+        "notes": (
+            "third-party weights from Zenodo record 6861565, licensed "
+            "CC-BY-4.0: cite Conrad and Narayan, Cell Systems 2023, "
+            "doi:10.1016/j.cels.2022.12.006",
+            "the empanada code is BSD-3-Clause; spaCR runs the TorchScript "
+            "weights with its own port of the post-processing and does not "
+            "need empanada-dl",
+            "Make Masks offers it as the MitoNet (TEM mitochondria) "
+            "detection method; the weights download on first use",
+            "trained by the lab that made the benchmark it is scored on, "
+            "though that benchmark is its held-out test set",
+        ),
+    },
 )
 
 #: Models that are no longer OFFERED, by filename.
@@ -3028,7 +3094,8 @@ def community_entries(allow_network: bool = False,
 #: as captions: :func:`source_of` returns one of them, and the picker
 #: remembers which are on by this spelling. Renaming one is a migration.
 ZOO_SOURCES: Tuple[str, ...] = (
-    "cellposeSAM", "spaCR", "spaCR community", "bioimage.io", "cellpose3")
+    "cellposeSAM", "spaCR", "spaCR community", "bioimage.io", "cellpose3",
+    "Third-party")
 
 #: The headings a user who has never touched them sees turned on.
 #:
@@ -3159,6 +3226,27 @@ ALTERNATIVE_MODEL_KEYS: frozenset = frozenset(
     if _record_is_alternative(record))
 
 
+THIRD_PARTY_MODEL_KEYS: frozenset = frozenset(
+    str(record.get("key") or "") for record in BUNDLED_REMOTE_MODELS
+    if record.get("third_party"))
+
+
+def is_third_party(entry: Any) -> bool:
+    """Whether a row is a published model that spaCR did not train.
+
+    Item 691. Such a row is offered by spaCR, with its download and checksum
+    in :data:`BUNDLED_REMOTE_MODELS`, but its weights belong to someone else
+    and carry their own licence and citation, so it is listed under
+    ``Third-party`` rather than ``spaCR``.
+
+    :param entry: any zoo row.
+    :returns: True for a key in :data:`THIRD_PARTY_MODEL_KEYS` or a row of
+        kind ``mitonet``.
+    """
+    return (str(getattr(entry, "key", "") or "") in THIRD_PARTY_MODEL_KEYS
+            or str(getattr(entry, "kind", "") or "") == "mitonet")
+
+
 def is_alternative(entry: Any) -> bool:
     """Whether a row is a published alternative rather than a default.
 
@@ -3214,6 +3302,9 @@ def source_of(entry: Any) -> str:
     source = str(getattr(entry, "source", "") or "")
     kind = str(getattr(entry, "kind", "") or "")
     uri = str(getattr(entry, "uri", "") or "")
+    if str(getattr(entry, "key", "") or "") in THIRD_PARTY_MODEL_KEYS and (
+            source not in _COMMUNITY_SOURCES or _is_spacr_published(entry)):
+        return "Third-party"
     if source in _COMMUNITY_SOURCES:
         if _is_spacr_published(entry) or is_spacr_owned(entry):
             return "spaCR"
@@ -3224,6 +3315,8 @@ def source_of(entry: Any) -> str:
         return "cellpose3"
     if kind == "cellpose" and source == "stock":
         return "cellposeSAM"
+    if is_third_party(entry):
+        return "Third-party"
     if (kind == "backend" or kind in PREFIXED_KINDS
             or source in _SPACR_OWN_SOURCES):
         return "spaCR"
@@ -4495,3 +4588,300 @@ def format_benchmarks(results: Sequence[BenchmarkResult],
                  "is not an accuracy: there is no ground truth here. To put "
                  "two models against each other, use compare_entries().")
     return "\n".join(lines)
+
+
+MITONET_KEY = "mitonet_mini_v1"
+
+_MITONET_MEAN = 0.57571
+_MITONET_STD = 0.12765
+_MITONET_STRIDE = 128
+_MITONET_TILE = 1024
+_MITONET_HALO = 128
+_MITONET_MODELS: Dict[str, Any] = {}
+_MITONET_VERIFIED: Dict[str, Tuple[int, int]] = {}
+_MITONET_LOCK = threading.Lock()
+
+
+def _mitonet_record() -> Mapping[str, Any]:
+    """The :data:`BUNDLED_REMOTE_MODELS` record of :data:`MITONET_KEY`."""
+    return next(record for record in BUNDLED_REMOTE_MODELS
+                if record.get("key") == MITONET_KEY)
+
+
+def _verified_once(path: Path, sha256: str) -> bool:
+    """Whether ``path`` holds the bytes ``sha256`` names, hashing it once.
+
+    The digest of a file that matched is remembered by its size and change
+    time, so a second segmentation does not read 110 MB again.
+    """
+    try:
+        stat = path.stat()
+    except OSError:
+        return False
+    stamp = (int(stat.st_size), int(stat.st_mtime_ns))
+    if _MITONET_VERIFIED.get(str(path)) == stamp:
+        return True
+    if sha256_file(path) != sha256:
+        return False
+    _MITONET_VERIFIED[str(path)] = stamp
+    return True
+
+
+def mitonet_weights(dest: Any = None, download: bool = True,
+                    opener: Optional[Callable[[str], Any]] = None,
+                    progress: Optional[Callable[[int, int], None]] = None,
+                    cancel: Optional[Callable[[], bool]] = None) -> Path:
+    """The MitoNet v1 mini weights on this machine, downloaded on first use.
+
+    The file is the TorchScript checkpoint of Zenodo record 6861565
+    (CC-BY-4.0; cite Conrad and Narayan, Cell Systems 2023). It is cached
+    in the folder the Model Zoo downloads into, ``~/.spacr/models`` unless
+    ``dest`` names another, and a cached copy is used only when its sha256
+    is the published one. A download goes through :func:`fetch`, so it is
+    checksummed and written atomically.
+
+    :param dest: the folder to look in and download into.
+    :param download: fetch the weights when no verified copy is here.
+    :param opener: passed to :func:`fetch`; tests replace the network.
+    :param progress: passed to :func:`fetch`.
+    :param cancel: passed to :func:`fetch`.
+    :returns: the path of the verified weights.
+    :raises ModelUnreadable: when no verified copy is here and ``download``
+        is False.
+    :raises ChecksumMismatch: when the downloaded bytes are not the
+        published ones.
+    """
+    entry = _entry_from_mapping(_mitonet_record())
+    folder = Path(dest).expanduser() if dest is not None else (
+        _spacr_home() / "models")
+    cached = folder / entry.name
+    candidates = [cached]
+    if folder.is_dir():
+        candidates.extend(sorted(folder.glob(
+            f"{cached.stem}_v*{cached.suffix}")))
+    for path in candidates:
+        if path.is_file() and _verified_once(path, entry.sha256):
+            return path
+    if not download:
+        raise ModelUnreadable(
+            f"the MitoNet weights are not in {folder}; they download from "
+            f"{entry.uri} on first use")
+    LOG.info("Downloading %s into %s", entry.name, folder)
+    path = fetch(entry, folder, opener=opener, progress=progress,
+                 cancel=cancel)
+    _verified_once(path, entry.sha256)
+    return path
+
+
+def _mitonet_model(path: Path, device: str) -> Any:
+    """The TorchScript network at ``path`` on ``device``, loaded once."""
+    import torch
+
+    key = f"{path}|{device}"
+    with _MITONET_LOCK:
+        model = _MITONET_MODELS.get(key)
+        if model is None:
+            model = torch.jit.load(str(path), map_location=device).eval()
+            _MITONET_MODELS[key] = model
+    return model
+
+
+def _mitonet_input(image: Any) -> np.ndarray:
+    """``image`` as one float32 plane on MitoNet's 0..1 scale.
+
+    An 8-bit image is divided by 255, as the network was trained; a float
+    image already within 0..1 is kept; anything else is stretched from its
+    0.5th to its 99.5th percentile. A colour or multichannel image is
+    averaged over its last axis.
+    """
+    array = np.asarray(image)
+    if array.ndim == 3 and array.shape[-1] <= 4:
+        array = array.mean(axis=-1) if array.dtype != np.uint8 else (
+            array.mean(axis=-1).astype(np.uint8))
+    if array.ndim != 2:
+        raise ValueError(
+            f"MitoNet segments one 2-D image, not shape {array.shape}")
+    if array.dtype == np.uint8:
+        return array.astype(np.float32) / 255.0
+    plane = array.astype(np.float32)
+    finite = plane[np.isfinite(plane)]
+    if not finite.size:
+        return np.zeros(plane.shape, np.float32)
+    if np.issubdtype(array.dtype, np.floating) and finite.min() >= 0.0 \
+            and finite.max() <= 1.0:
+        return np.nan_to_num(plane, nan=0.0)
+    low, high = np.percentile(finite, (0.5, 99.5))
+    if high <= low:
+        return np.zeros(plane.shape, np.float32)
+    return np.clip((np.nan_to_num(plane, nan=low) - low) / (high - low),
+                   0.0, 1.0).astype(np.float32)
+
+
+def _mitonet_heads(model: Any, plane: np.ndarray, device: str
+                   ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Run the network once over ``plane``: probability, centres, offsets.
+
+    The plane is padded by reflection to a multiple of 128 pixels, the
+    network's stride, and the outputs are cut back to the plane's size.
+    """
+    import torch
+
+    height, width = plane.shape
+    pad_h, pad_w = -height % _MITONET_STRIDE, -width % _MITONET_STRIDE
+    mode = "reflect" if min(height, width) > 1 else "edge"
+    padded = np.pad((plane - _MITONET_MEAN) / _MITONET_STD,
+                    ((0, pad_h), (0, pad_w)), mode=mode).astype(np.float32)
+    with torch.no_grad():
+        out = model(torch.from_numpy(padded)[None, None].to(device))
+    logits = out["sem_logits"]
+    if logits.shape[1] == 1:
+        semantic = torch.sigmoid(logits)[0, 0]
+    else:
+        semantic = torch.softmax(logits, dim=1)[0, 1]
+    semantic = semantic[:height, :width].float().cpu().numpy()
+    centres = out["ctr_hmp"][0, 0, :height, :width].float().cpu().numpy()
+    offsets = out["offsets"][0, :, :height, :width].float().cpu().numpy()
+    return semantic, centres, offsets
+
+
+def _tile_starts(size: int, tile: int) -> List[int]:
+    """Where the tiles along an axis of ``size`` pixels begin."""
+    return list(range(0, max(1, size), tile)) if size > tile else [0]
+
+
+def mitonet_instances(semantic: Any, centres: Any, offsets: Any, *,
+                      threshold: float = 0.5,
+                      centre_threshold: float = 0.1,
+                      centre_window: int = 7,
+                      min_size: int = 64,
+                      chunk: int = 1 << 16) -> np.ndarray:
+    """Turn MitoNet's three output heads into labelled mitochondria.
+
+    The post-processing of empanada's Panoptic-DeepLab models, ported so
+    spaCR does not depend on empanada-dl. A pixel is mitochondrion when
+    ``semantic`` reaches ``threshold``. Instance centres are the local
+    maxima of ``centres`` in a ``centre_window`` square that reach
+    ``centre_threshold``. Each mitochondrion pixel votes, through its
+    ``offsets`` (row, column), for the place its centre is, and joins the
+    nearest centre found. Instances smaller than ``min_size`` pixels are
+    dropped and the rest are numbered 1..n in raster order of their
+    centres.
+
+    :param semantic: (rows, columns) foreground probability.
+    :param centres: (rows, columns) centre heatmap.
+    :param offsets: (2, rows, columns) offsets from each pixel to its
+        centre, in pixels, rows first.
+    :param threshold: the foreground probability cut.
+    :param centre_threshold: the lowest heatmap value a centre may have.
+    :param centre_window: the side of the square a centre is the maximum of.
+    :param min_size: the smallest instance kept, in pixels.
+    :param chunk: foreground pixels assigned per step, which bounds memory.
+    :returns: an int32 label image shaped like ``semantic``.
+    """
+    from scipy import ndimage
+
+    semantic = np.asarray(semantic, dtype=np.float32)
+    centres = np.asarray(centres, dtype=np.float32)
+    offsets = np.asarray(offsets, dtype=np.float32)
+    if semantic.ndim != 2 or centres.shape != semantic.shape or \
+            offsets.shape != (2,) + semantic.shape:
+        raise ValueError(
+            "semantic and centres must be (rows, columns) and offsets "
+            "(2, rows, columns) of the same size")
+    labels = np.zeros(semantic.shape, np.int32)
+    foreground = semantic >= float(threshold)
+    pooled = ndimage.maximum_filter(
+        centres, size=max(1, int(centre_window)), mode="constant",
+        cval=-np.inf)
+    peaks = np.argwhere((centres == pooled)
+                        & (centres >= float(centre_threshold)))
+    if not len(peaks) or not foreground.any():
+        return labels
+    peaks = peaks.astype(np.float32)
+    rows, cols = np.nonzero(foreground)
+    owner = np.empty(rows.size, np.int64)
+    peak_norm = (peaks ** 2).sum(axis=1)
+    step = max(1, int(chunk))
+    for start in range(0, rows.size, step):
+        r = rows[start:start + step]
+        c = cols[start:start + step]
+        votes = np.stack([r + offsets[0, r, c], c + offsets[1, r, c]], 1)
+        distance = (peak_norm[None, :] - 2.0 * votes @ peaks.T)
+        owner[start:start + step] = distance.argmin(axis=1)
+    counts = np.bincount(owner, minlength=len(peaks))
+    keep = counts >= max(1, int(min_size))
+    number = np.zeros(len(peaks), np.int32)
+    number[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
+    labels[rows, cols] = number[owner]
+    return labels
+
+
+def segment_mitonet(image: Any, weights: Any = None, *,
+                    threshold: float = 0.5,
+                    centre_threshold: float = 0.1,
+                    min_size: int = 64,
+                    device: Optional[str] = None,
+                    tile: int = _MITONET_TILE,
+                    halo: int = _MITONET_HALO,
+                    on_tile: Optional[Callable[[int, int], None]] = None
+                    ) -> np.ndarray:
+    """Segment the mitochondria of a TEM image with MitoNet v1 mini.
+
+    The network runs over tiles of ``tile`` pixels with ``halo`` pixels of
+    context on every side, so a large field never needs the whole image on
+    the network at once, and the three heads are stitched before
+    :func:`mitonet_instances` turns them into labels. MitoNet was trained
+    on electron micrographs with dark membranes; it is not a fluorescence
+    model.
+
+    :param image: a 2-D image (8-bit is read as the network was trained;
+        see :func:`mitonet_weights` for where the weights come from).
+    :param weights: the TorchScript file; None uses :func:`mitonet_weights`,
+        which downloads it on first use.
+    :param threshold: passed to :func:`mitonet_instances`.
+    :param centre_threshold: passed to :func:`mitonet_instances`.
+    :param min_size: passed to :func:`mitonet_instances`.
+    :param device: a torch device; None uses CUDA when torch sees it and
+        the CPU otherwise.
+    :param tile: the side of the core of one tile, in pixels.
+    :param halo: the context around each tile's core, in pixels.
+    :param on_tile: called as ``on_tile(done, total)`` after each tile; an
+        exception it raises stops the run.
+    :returns: an int32 label image shaped like the image's plane.
+    """
+    import torch
+
+    plane = _mitonet_input(image)
+    if device is None:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    path = Path(weights) if weights is not None else mitonet_weights()
+    model = _mitonet_model(path, str(device))
+    height, width = plane.shape
+    tile = max(_MITONET_STRIDE, int(tile))
+    halo = max(0, int(halo))
+    starts = [(y, x) for y in _tile_starts(height, tile)
+              for x in _tile_starts(width, tile)]
+    if len(starts) == 1:
+        semantic, centres, offsets = _mitonet_heads(model, plane, device)
+        if on_tile is not None:
+            on_tile(1, 1)
+    else:
+        semantic = np.zeros((height, width), np.float32)
+        centres = np.zeros((height, width), np.float32)
+        offsets = np.zeros((2, height, width), np.float32)
+        for done, (y0, x0) in enumerate(starts, 1):
+            y1, x1 = min(height, y0 + tile), min(width, x0 + tile)
+            top, left = max(0, y0 - halo), max(0, x0 - halo)
+            bottom, right = min(height, y1 + halo), min(width, x1 + halo)
+            part = _mitonet_heads(model, plane[top:bottom, left:right],
+                                  device)
+            core = (slice(y0 - top, y1 - top), slice(x0 - left, x1 - left))
+            semantic[y0:y1, x0:x1] = part[0][core]
+            centres[y0:y1, x0:x1] = part[1][core]
+            offsets[:, y0:y1, x0:x1] = part[2][(slice(None),) + core]
+            if on_tile is not None:
+                on_tile(done, len(starts))
+    return mitonet_instances(semantic, centres, offsets,
+                             threshold=threshold,
+                             centre_threshold=centre_threshold,
+                             min_size=min_size)

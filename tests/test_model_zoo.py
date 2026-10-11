@@ -644,6 +644,11 @@ def test_every_bundled_catalogue_entry_is_provenanced_and_verifiable():
     for mapping, entry in zip(zoo.BUNDLED_REMOTE_MODELS, entries):
         where = ("datasets/" if mapping.get("repo_type") == "dataset"
                  else "")
+        if mapping.get("third_party"):
+            assert entry.uri.startswith("https://zenodo.org/records/")
+            assert entry.licence and mapping.get("citation")
+            assert entry.sha256 and entry.checksum_state == "published"
+            continue
         assert entry.uri.startswith(
             f"https://huggingface.co/{where}{mapping['repo_id']}/resolve/main/"
         )

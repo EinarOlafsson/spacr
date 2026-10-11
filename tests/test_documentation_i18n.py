@@ -3339,6 +3339,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in spatial_arrivals} == spatial_arrivals
     assert not spatial_arrivals.keys() & (zoo_arrivals.keys() | tem_arrivals.keys())
     zoo_arrivals = {**zoo_arrivals, **tem_arrivals, **spatial_arrivals}
+    # N691's 4 MitoNet symbols in spacr.model_zoo (2026-10-11).
+    mitonet_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "691_mitonet_api_arrivals_2026-10-11.json").read_text())
+    assert len(mitonet_arrivals) == 4
+    assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
+    assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
     assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                - volume_arrivals.keys() - zoo_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "

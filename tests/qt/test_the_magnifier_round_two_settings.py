@@ -729,7 +729,7 @@ def test_dinocell_and_samcell_are_offered_where_installed(
     try:
         assert _modes(made) == ["otsu", *mm.cpu_modes.modes(),
                                 *mm.organelle_modes.modes(),
-                                "cellpose", *_BACKEND_MODES]
+                                "cellpose", "mitonet", *_BACKEND_MODES]
         backends = _modes(made).index("cellpose3:cyto3")
         assert [made._mag_mode.itemText(i)
                 for i in range(backends, made._mag_mode.count())] == [
@@ -764,7 +764,7 @@ def test_where_not_installed_the_modes_are_greyed_and_offer_to_install(
     try:
         assert _modes(made) == ["otsu", *mm.cpu_modes.modes(),
                                 *mm.organelle_modes.modes(),
-                                "cellpose", *_BACKEND_MODES]
+                                "cellpose", "mitonet", *_BACKEND_MODES]
         assert made._mag_uninstalled == set(_BACKEND_MODES)
         for mode in _BACKEND_MODES:
             index = made._mag_mode.findData(mode)

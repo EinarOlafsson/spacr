@@ -31672,6 +31672,16 @@
       "source_sha256": "b9454f57c825dedec1613296f880e3024f1a61d49978829f0a022ad76be6c16d",
       "text": "Whether a row's file lives in a repository owned by the einarolafsson account.\n\n:param entry: any zoo row.\n:returns: True when :func:`hf_repo_of` its ``uri`` is in an account named\n    by :data:`SPACR_HF_OWNERS` and is not :data:`COMMUNITY_REPO`."
     },
+    "spacr.model_zoo.is_third_party": {
+      "source_blocks_sha256": [
+        "2484fe27415fc1779b6ca0c3ec8a3fb04a957c5988dfb6fe3124c3d847c9e091",
+        "b1a3e5c7531f8e6b15bd3f979901a6f62d66858a5aaa8bf257483582c814f1e6",
+        "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+        "29fbf60c3239bc71a1b040af4934a77e343c72c712c102708c7023cd4cc514d7"
+      ],
+      "source_sha256": "46c828c1661da33d03f8671dd08bdeebd0f06a9828439fc950051a411c139435",
+      "text": "Whether a row is a published model that spaCR did not train.\n\nItem 691. Such a row is offered by spaCR, with its download and checksum\nin :data:`BUNDLED_REMOTE_MODELS`, but its weights belong to someone else\nand carry their own licence and citation, so it is listed under\n``Third-party`` rather than ``spaCR``.\n\n:param entry: any zoo row.\n:returns: True for a key in :data:`THIRD_PARTY_MODEL_KEYS` or a row of\n    kind ``mitonet``."
+    },
     "spacr.model_zoo.load_catalogue_file": {
       "source_blocks_sha256": [
         "f32fe13e182f4dc728e191864224783cc89f61b4e2c2afcd859e9d1a69dcd9e1",
@@ -31683,6 +31693,39 @@
       ],
       "source_sha256": "8d075ab1db4e3687e0e5f09dc0d12e180f231672d8788d6c7f90f664931d0c06",
       "text": "Read a JSON catalogue of remote models.\n\nFormat — a list, or an object with a ``models`` list::\n\n    {\"models\": [\n      {\"key\": \"hela_60x\",\n       \"name\": \"hela_60x_confluent.CP_model\",\n       \"kind\": \"cellpose\",\n       \"uri\": \"https://…/hela_60x_confluent.CP_model\",\n       \"sha256\": \"9f86d0…\",\n       \"size_bytes\": 26566572,\n       \"trained_on\": \"HeLa, 60x, confluent monolayer, 512px crops\",\n       \"trained_by\": \"A. Researcher, 2026-02\",\n       \"metrics\": {\"note\": \"benchmarked on plate3 fields 1-3\"}}\n    ]}\n\n``sha256`` is the field that decides whether the entry is usable without an\nexplicit override: :func:`fetch` refuses an entry without one unless\n``require_checksum=False`` is passed.\n\n:param path: the JSON file.\n:returns: the entries.\n:raises ModelZooError: when the file cannot be read or is not a catalogue,\n    naming the file."
+    },
+    "spacr.model_zoo.mitonet_instances": {
+      "source_blocks_sha256": [
+        "9947e976a84ced12e46195890c9f8e7ba0e2615941b218317ad80b26246dac7e",
+        "fb2d6bb3fa4e16bfe93a21add3b6e730fb20b41e0fbd72b7069d726aa85a41db",
+        "d7f59e5e91cb799b6c9dfd58c7d5a3d8b26c2d4e8d38c1af6f34d4beb6b90bd0",
+        "8dbbba0420d8346fc659057c785dff5fa990237944c904c7b5063d353e53f5e8",
+        "7b7d4d64965f4bbf8b44e00aba7f98ea67ce0a667d81b2b46d654ec3da9c3a68",
+        "5580287bee5e3d449515b42a5fff6425bf347dfc3f2567b30ce9bdd450838c93",
+        "2cc38d7e70b5e97ef2166a9fe6905ee1b83b574d0fcde4ed093186c60a26cc82",
+        "ea7a97394921a8dce4f7fe755be08bf4aba7d4cfcd034abf8f5ff68d0b441cfe",
+        "9c50d38a5051376d02735d9bae1d6a42978b773442a2e752622eb37bc1eccda5",
+        "6c2b2bd62fd10a3d94124ce408a9f30cca2348267af7e5e8f49bd5078e7b2026",
+        "df58a281daaf27b3bc30da58252ea14f459f0464c6bef25fa943a63b06097915"
+      ],
+      "source_sha256": "dcf04af8c5b42b45c8b0aac56b14519d8ee0dcb56d655b2d6c921a37058ece75",
+      "text": "Turn MitoNet's three output heads into labelled mitochondria.\n\nThe post-processing of empanada's Panoptic-DeepLab models, ported so\nspaCR does not depend on empanada-dl. A pixel is mitochondrion when\n``semantic`` reaches ``threshold``. Instance centres are the local\nmaxima of ``centres`` in a ``centre_window`` square that reach\n``centre_threshold``. Each mitochondrion pixel votes, through its\n``offsets`` (row, column), for the place its centre is, and joins the\nnearest centre found. Instances smaller than ``min_size`` pixels are\ndropped and the rest are numbered 1..n in raster order of their\ncentres.\n\n:param semantic: (rows, columns) foreground probability.\n:param centres: (rows, columns) centre heatmap.\n:param offsets: (2, rows, columns) offsets from each pixel to its\n    centre, in pixels, rows first.\n:param threshold: the foreground probability cut.\n:param centre_threshold: the lowest heatmap value a centre may have.\n:param centre_window: the side of the square a centre is the maximum of.\n:param min_size: the smallest instance kept, in pixels.\n:param chunk: foreground pixels assigned per step, which bounds memory.\n:returns: an int32 label image shaped like ``semantic``."
+    },
+    "spacr.model_zoo.mitonet_weights": {
+      "source_blocks_sha256": [
+        "40150ccfd5fd9e33647cdb9bf41fc170ad4427fcaf42a3ad81764cadb4743509",
+        "ba96b219e2cfe1b2234f4526cbd9f6a9b26601179a84ed67901893dcffc33fc8",
+        "d4fe89dfa82eb8f9367fbfa19cb0c895c43f1435eb60094d1f405f4f5322b82e",
+        "d4e2caccfe2e5d1612a2d936dfa1ba9d4598c210888f36adce01ba12c1617533",
+        "3edf5aadf67cac7ba3c2a7c8bb476370ef928834faf221febc55f104efe615ca",
+        "1cded087ce2c4b6601721d11ff1245f1f074a2b288df7cf3b20faa7ae85f2146",
+        "1cded087ce2c4b6601721d11ff1245f1f074a2b288df7cf3b20faa7ae85f2146",
+        "7a8cf293725bc372d0f7219b42abfb6a96940cebce10712849e6d85be1ccd126",
+        "85f32bcb4dcbaaf1d577bb14e68154349c140bfd898d62316c3e72be404ae275",
+        "1aad773594e22a1a227a9400fd78281e6564cfee97e23f427b0a2b59c1ac1fe3"
+      ],
+      "source_sha256": "169e847a6dd5ca496cf103f5a8347c7c761f0048b12e212033e70d79615334b8",
+      "text": "The MitoNet v1 mini weights on this machine, downloaded on first use.\n\nThe file is the TorchScript checkpoint of Zenodo record 6861565\n(CC-BY-4.0; cite Conrad and Narayan, Cell Systems 2023). It is cached\nin the folder the Model Zoo downloads into, ``~/.spacr/models`` unless\n``dest`` names another, and a cached copy is used only when its sha256\nis the published one. A download goes through :func:`fetch`, so it is\nchecksummed and written atomically.\n\n:param dest: the folder to look in and download into.\n:param download: fetch the weights when no verified copy is here.\n:param opener: passed to :func:`fetch`; tests replace the network.\n:param progress: passed to :func:`fetch`.\n:param cancel: passed to :func:`fetch`.\n:returns: the path of the verified weights.\n:raises ModelUnreadable: when no verified copy is here and ``download``\n    is False.\n:raises ChecksumMismatch: when the downloaded bytes are not the\n    published ones."
     },
     "spacr.model_zoo.open_uri": {
       "source_blocks_sha256": [
@@ -31777,6 +31820,24 @@
       ],
       "source_sha256": "1724c72a9405c9004a0a4f59fbcdbcb4d82cdcd9345fd7fe91a317991205bfad",
       "text": "A scorecard value as shown, or \"not recorded\" when blank."
+    },
+    "spacr.model_zoo.segment_mitonet": {
+      "source_blocks_sha256": [
+        "b4ed7065aa1901624d4433d2e70b2691ef8269a4bad842563735b08876fea31b",
+        "018aeef7dce7f0732242f19f59786e6377966c5666a5b9a347112bd5691db384",
+        "73a7baeaf2fa9df8e326f079441239ca47a47f4b96010f63027d46f63e5fa5df",
+        "bdac090668a81bb8f1d59bd5f53ddf592611d53371f6e3c8dba87c346a67b3c7",
+        "55c5076b48e9cde7d8e6ed9814730f2e8749217824ac3eafd971395480d8590f",
+        "55c5076b48e9cde7d8e6ed9814730f2e8749217824ac3eafd971395480d8590f",
+        "55c5076b48e9cde7d8e6ed9814730f2e8749217824ac3eafd971395480d8590f",
+        "1ba5190a0189e1cf6d192435362ce399c821984791acad4ad55dac1892fbb9f8",
+        "d8288684cf6bdd47b6794752e140a0a079ad76128efed2e9b7b57a1b57f789d8",
+        "3d8a6497d6171f6046424c6fc18a114ad04ccd1457706a01999c5ab8d7facb05",
+        "a4ce5f58c8a1bb5277990dbeb8d2446255db32303560ffab4ff126de2684575c",
+        "cb0a2ac7a2e56964dba8798ab057589e64524768cc75601c1dad4a550c3b5df2"
+      ],
+      "source_sha256": "04182dc98518d6d754b1fb63d27e8c43766e7f64342426d0707b872f2588e718",
+      "text": "Segment the mitochondria of a TEM image with MitoNet v1 mini.\n\nThe network runs over tiles of ``tile`` pixels with ``halo`` pixels of\ncontext on every side, so a large field never needs the whole image on\nthe network at once, and the three heads are stitched before\n:func:`mitonet_instances` turns them into labels. MitoNet was trained\non electron micrographs with dark membranes; it is not a fluorescence\nmodel.\n\n:param image: a 2-D image (8-bit is read as the network was trained;\n    see :func:`mitonet_weights` for where the weights come from).\n:param weights: the TorchScript file; None uses :func:`mitonet_weights`,\n    which downloads it on first use.\n:param threshold: passed to :func:`mitonet_instances`.\n:param centre_threshold: passed to :func:`mitonet_instances`.\n:param min_size: passed to :func:`mitonet_instances`.\n:param device: a torch device; None uses CUDA when torch sees it and\n    the CPU otherwise.\n:param tile: the side of the core of one tile, in pixels.\n:param halo: the context around each tile's core, in pixels.\n:param on_tile: called as ``on_tile(done, total)`` after each tile; an\n    exception it raises stops the run.\n:returns: an int32 label image shaped like the image's plane."
     },
     "spacr.model_zoo.sha256_file": {
       "source_blocks_sha256": [

@@ -37,6 +37,7 @@ GROUPS = (
         (558, "Virtual staining from brightfield"),
         (493, "Mask batches across several GPUs"),
         (508, "Use Make Masks settings in Mask Generation"),
+        (691, "MitoNet: mitochondria in TEM images"),
     )),
     ("Image preprocessing", (
         (538, "Spectral unmixing (bleed-through correction)"),

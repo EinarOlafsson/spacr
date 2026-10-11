@@ -173,6 +173,21 @@ def _cellpose3_heading_turns_on(chosen) -> bool:
     return True
 
 
+def _third_party_heading_visible() -> bool:
+    """Whether the Third-party heading is shown (item 691).
+
+    Its only row, MitoNet, is an alpha feature, so the heading is
+    registered with the alpha gate as ``ModelZooSourceThirdParty`` and is
+    hidden, rather than shown empty, while Show alpha features is off.
+    """
+    try:
+        from ..preferences import _is_alpha_visible
+
+        return bool(_is_alpha_visible("widgets", "ModelZooSourceThirdParty"))
+    except Exception:
+        return False
+
+
 def _remember_sources(names) -> None:
     """Persist the headings that are on, quietly."""
     try:
@@ -252,7 +267,7 @@ class _SourceHeading(QLabel):
         palette = active_palette()
         colour = palette["accent"] if self._on else palette["fg_muted"]
         size = font_px("body")
-        sheet = (f"QLabel#ModelZooSource {{"
+        sheet = (f"QLabel#{self.objectName() or 'ModelZooSource'} {{"
                  f"  color: {colour};"
                  f"  font-size: {size}px;"
                  f"  font-weight: 600;"
@@ -300,6 +315,20 @@ class SourceStrip(QWidget):
         for name in model_zoo.ZOO_SOURCES:
             heading = _SourceHeading(name, self)
             heading.setToolTip(_SOURCE_TOOLTIPS.get(name, ""))
+            if name == "Third-party":
+                from ..i18n import tr
+
+                heading.setObjectName("ModelZooSourceThirdParty")
+                heading.setText(tr("Third-party"))
+                heading.setToolTip(tr(
+                    "Published models that spaCR did not train, such as "
+                    "MitoNet for mitochondria in electron micrographs. Each "
+                    "row carries its authors' licence and the paper to "
+                    "cite."))
+                heading._restyle()
+                if not _third_party_heading_visible():
+                    heading.setProperty("_spacr_alpha_hid", True)
+                    heading.setVisible(False)
             heading.set_on(name in on_now)
             heading.clicked.connect(
                 lambda n=name: self.set_on(n, not self.is_on(n)))

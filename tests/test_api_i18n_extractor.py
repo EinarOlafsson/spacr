@@ -1461,6 +1461,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in tem_arrivals} == tem_arrivals
     assert not spatial_arrivals.keys() & (zoo_arrivals.keys() | tem_arrivals.keys())
     zoo_arrivals = {**zoo_arrivals, **tem_arrivals, **spatial_arrivals}
+    # 2026-10-11 item 691: MitoNet's weights, post-processing and runner and
+    # the Third-party test in spacr.model_zoo are one named arrival contract.
+    mitonet_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "691_mitonet_api_arrivals_2026-10-11.json").read_text())
+    assert len(mitonet_arrivals) == 4
+    assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
+    assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "

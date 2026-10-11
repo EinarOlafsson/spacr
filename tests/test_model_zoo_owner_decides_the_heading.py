@@ -112,6 +112,11 @@ def test_every_published_spacr_model_is_spacr_from_any_transport():
     for record in mz.BUNDLED_REMOTE_MODELS:
         for source in ("remote", "shared", "community"):
             row = mz._entry_from_mapping(record, source=source)
+            if record.get("third_party"):
+                assert not mz.is_spacr_owned(row), record["key"]
+                assert mz.source_of(row) == "Third-party", (record["key"],
+                                                            source)
+                continue
             assert mz.is_spacr_owned(row), record["key"]
             assert mz.source_of(row) == "spaCR", (record["key"], source)
 

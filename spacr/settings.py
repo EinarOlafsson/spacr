@@ -7353,6 +7353,10 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 
 
 ALPHA_FEATURES = {
+    691: {
+        'models': ('mitonet_mini_v1',),
+        'widgets': ('MakeMasksMitoNetSettings', 'ModelZooSourceThirdParty'),
+    },
     426: {
         'settings': ('timeflows_model',),
         'choices': {'timelapse_mode': ('timeflows',)},

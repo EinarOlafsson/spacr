@@ -3912,6 +3912,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert not spatial_additions.keys() & (
         zoo_additions.keys() | tem_additions.keys() | volume_additions.keys())
     zoo_additions = {**zoo_additions, **tem_additions, **spatial_additions}
+    # N691 (2026-10-11): MitoNet's weights, post-processing, runner and the
+    # Third-party test in spacr.model_zoo.
+    mitonet_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "691_mitonet_api_arrivals_2026-10-11.json").read_text())
+    assert len(mitonet_additions) == 4
+    assert {key: docs[key] for key in mitonet_additions} == mitonet_additions
+    assert not mitonet_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **mitonet_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()

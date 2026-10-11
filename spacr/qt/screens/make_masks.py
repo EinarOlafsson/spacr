@@ -4275,6 +4275,50 @@ def _organelle_segmenter(request: _MagnifierRequest, load_model=None):
     return labels
 
 
+def _mitonet_segmenter(request: _MagnifierRequest, load_model=None):
+    """Segment the region's mitochondria with MitoNet (item 691, alpha).
+
+    :func:`spacr.model_zoo.segment_mitonet` runs MitoNet v1 mini, a
+    third-party TEM model whose weights download from Zenodo on first use
+    into the Model Zoo's folder. It reads the raw micrograph, so a crop the
+    Invert switch turned over is turned back first; the Object detection
+    minimum area is its smallest mitochondrion. A whole-image run counts
+    its tiles on the request's :class:`_RunTicket` and stops between two of
+    them on a Cancel. ``load_model`` is the Cellpose loader and is not used.
+    """
+    from ... import model_zoo
+
+    crop = np.asarray(request.crop)
+    if request.invert:
+        crop = 1.0 - crop.astype(np.float32)
+    ticket = request.ticket
+    if ticket is not None:
+        ticket.check()
+    with _CELLPOSE_LOCK:
+        labels = model_zoo.segment_mitonet(
+            crop, min_size=max(1, int(request.min_area)),
+            on_tile=partial(_count_mitonet_tile, ticket))
+    if ticket is not None:
+        ticket.check()
+    return labels
+
+
+def _count_mitonet_tile(ticket, done, total) -> None:
+    """Count one finished MitoNet tile on ``ticket``, and stop on a Cancel."""
+    if ticket is not None:
+        ticket.total = int(total)
+        ticket.step(1)
+        ticket.check()
+
+
+def _mitonet_visible() -> bool:
+    """Whether the alpha gate shows the MitoNet mode now (item 691)."""
+    from ..preferences import _is_alpha_visible
+    from ...model_zoo import MITONET_KEY
+
+    return bool(_is_alpha_visible("models", MITONET_KEY))
+
+
 #: ``mode -> segmenter``, in the order the Mode box offers them. A segmenter
 #: takes ``(request, load_model)`` and returns labels shaped like
 #: ``request.crop``. ADDING A MODEL IS ONE FUNCTION AND ONE LINE HERE, and
@@ -4287,6 +4331,7 @@ _MAGNIFIER_SEGMENTERS = {
     cpu_modes.PUNCTA: _puncta_segmenter,
     **{mode: _organelle_segmenter for mode in organelle_modes.modes()},
     "cellpose": _cellpose_segmenter,
+    "mitonet": _mitonet_segmenter,
     **{mode: _backend_segmenter for mode in _MAGNIFIER_BACKENDS},
 }
 
@@ -4315,7 +4360,8 @@ def canonical_magnifier_mode(mode) -> str:
 _MAGNIFIER_MODE_LABELS = {"otsu": "Otsu",
                           **cpu_modes.MODE_LABELS,
                           **organelle_modes.MODE_LABELS,
-                          "cellpose": "Cellpose"}
+                          "cellpose": "Cellpose",
+                          "mitonet": "MitoNet (TEM mitochondria)"}
 
 
 def _magnifier_mode_label(mode: str) -> str:
@@ -14402,6 +14448,10 @@ class MakeMasksScreen(QWidget):
                     Qt.ToolTipRole)
         if _cellpose_installed():
             self._mag_mode.addItem("Cellpose", "cellpose")
+        self._mag_mode.addItem(tr("MitoNet (TEM mitochondria)"), "mitonet")
+        self._mag_mode.setItemData(
+            self._mag_mode.count() - 1, self._mode_guidance("mitonet"),
+            Qt.ToolTipRole)
         self._mag_uninstalled = set()
         _offer_cellpose_dino_modes()
         _offer_prefixed_modes()
@@ -14436,6 +14486,7 @@ class MakeMasksScreen(QWidget):
             ("secondary", partial(self._build_propagate_card, secondary=True)),
             ("puncta", self._build_puncta_card),
             ("cellpose", self._build_cellpose_card),
+            ("mitonet", self._build_mitonet_card),
         )
         self._method_groups = {}
         for name, build in builders:
@@ -14443,6 +14494,7 @@ class MakeMasksScreen(QWidget):
             self._method_groups[name] = build()
         for group in self._method_groups.values():
             card.body_layout.addWidget(group)
+        self._gate_mitonet_mode()
         card.body_layout.addWidget(self._build_uncertainty_ensemble_setting())
         self._magnification_card = self._build_magnifier_card()
         card.body_layout.addWidget(self._magnification_card)
@@ -14457,9 +14509,60 @@ class MakeMasksScreen(QWidget):
         """
         if mode in organelle_modes.MODE_LABELS:
             return organelle_modes.guidance(mode)
+        if mode == "mitonet":
+            from ..i18n import tr
+
+            return tr(
+                "MitoNet v1 mini finds mitochondria in transmission electron "
+                "micrographs with dark membranes; it is not a fluorescence "
+                "model. Third-party weights (CC-BY-4.0, Conrad and Narayan, "
+                "Cell Systems 2023), downloaded from Zenodo (110 MB) the "
+                "first time it runs. Minimum area sets the smallest "
+                "mitochondrion kept.")
         if mode in _MAGNIFIER_BACKENDS:
             return cpu_modes.guidance("cellpose")
         return cpu_modes.guidance(mode)
+
+    def _build_mitonet_card(self) -> _MethodGroup:
+        """The MitoNet mode's group: where its weights come from (item 691).
+
+        MitoNet reads no setting of its own beyond Minimum area, so the
+        group says what the weights are, their licence and the paper to
+        cite. Registered with the alpha gate by its object name.
+        """
+        from ..i18n import tr
+
+        card = _MethodGroup()
+        card.setObjectName("MakeMasksMitoNetSettings")
+        note = QLabel(tr(
+            "MitoNet v1 mini, by Conrad and Narayan (empanada). Weights: "
+            "Zenodo record 6861565, CC-BY-4.0; code: BSD-3-Clause. Cite "
+            "Conrad and Narayan, Cell Systems 14:58-71 (2023), "
+            "doi:10.1016/j.cels.2022.12.006."))
+        note.setWordWrap(True)
+        note.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        note.setToolTip(tr(
+            "A third-party model, listed under Third-party in the Model "
+            "Zoo. The weights are cached in the Model Zoo's download folder "
+            "and checked against their published checksum before use."))
+        card.body_layout.addWidget(note)
+        return card
+
+    def _gate_mitonet_mode(self) -> None:
+        """Hide the MitoNet row of the Method box while the alpha gate is shut.
+
+        The row stays in the box, as an alpha backend's does, so a session
+        that saved it still restores and runs it; it only cannot be chosen.
+        """
+        index = self._mag_mode.findData("mitonet")
+        if index < 0:
+            return
+        hidden = not _mitonet_visible()
+        self._mag_mode.view().setRowHidden(index, hidden)
+        item = self._mag_mode.model().item(index)
+        if item is not None:
+            item.setEnabled(not hidden)
+            item.setSelectable(not hidden)
 
     @staticmethod
     def _mode_family(mode: str) -> str:
@@ -14474,6 +14577,8 @@ class MakeMasksScreen(QWidget):
             return "secondary"
         if mode == "cellpose" or mode in _MAGNIFIER_BACKENDS:
             return "cellpose"
+        if mode == "mitonet":
+            return "mitonet"
         return "threshold"
 
     def _build_puncta_card(self) -> _MethodGroup:
@@ -16280,6 +16385,9 @@ class MakeMasksScreen(QWidget):
                 if item is not None:
                     item.setEnabled(not hidden)
                     item.setSelectable(not hidden)
+        gate = getattr(self, "_gate_mitonet_mode", None)
+        if callable(gate):
+            gate()
         self._resync_magnifier_modes()
         _apply_alpha_widgets(self)
         for screen in list(self._fold_screens.values()):
