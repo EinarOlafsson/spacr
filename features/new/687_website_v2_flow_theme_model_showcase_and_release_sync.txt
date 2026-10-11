@@ -230,3 +230,59 @@ plt.show() unless MPLBACKEND=Agg.
 Verified live: 95/95 headless checks (adds tab deep links, arrow keys,
 #cite scroll, link styling); Lighthouse mobile home 100/100, spaCR
 95/100, live_cell lock 100/100, Cellect lock 100/100.
+
+
+2026-10-10 (round 3) — Maintainer feedback applied and deployed (site-src
+449e3c6, deploy run 38104758395; live build 2026-10-11T02:19:31Z).
+- Header: the maintainer's name is gone from the top left of every page,
+  including the password pages; a neutral mark plus "Microscopy projects"
+  instead. About section (#about) on the landing page and as an About tab on
+  the spaCR page: maintainer, affiliation and biography marked pending,
+  GitHub and ORCID (no email is on the site), how to cite.
+- Overview: composite strip of one example-screen field (plate 1 H02 f4,
+  GRA14 well): image, masks, measurement rows from measurements.db,
+  classifier scores, hit volcano; re-run with spaCR on CPU. Modules with what
+  each produces, inputs (live watch and vvvv export marked alpha), organisms,
+  outputs, models, ways to run (app, API, spacr-run, notebooks, Docker),
+  learn and cite, stat tiles linking to tabs.
+- Models: toxoplasma_pv_v4 (round 7) is the zoo's PV default: newest entry not
+  marked alternative, and v5 says "prefer toxoplasma_pv_v4". Weights sha256
+  checked. Run on CPU on held-out anchor well plate7_K07_8 of
+  toxoplasma-pv-segmentation-dataset-r7 (CC BY 4.0): 125 vacuoles, 136 hand
+  curated, F1 0.874 at IoU 0.5 (matches the card's QC row).
+- Screen results: only preprint Fig. 5 kept. Interactive OLS volcano (vanilla
+  SVG, lazy 56 kB JSON): spacr.ml.perform_regression, regression_type ols, on
+  all four spacr-example-screen plates with spacr-example-hit's shipped
+  settings (1,290 wells, 414 genes, 953 guides; commit b0952ec3a; record in
+  site-src tools/screen/run_record_ols.json). BH FDR 5% calls 4 genes;
+  GRA14 and TGGT1_225160 (EAF1 in the preprint) also pass 3 sigma. Hover,
+  click and keyboard open a gene card mirroring spacr.gene_tile.
+- Phenotypes: classification of the control wells (SAG1 col 1 vs GRA14 col 2)
+  with spaCR on CPU: XGBoost (well-held-out 5-fold CV, AUC 0.922) and
+  MobileNetV3-small for 8 epochs (4 held-out wells, AUC 0.968); class crops,
+  confusion matrices, ROC/PR, Grad-CAM, SHAP beeswarm and per-cell
+  waterfall, feature importance. UMAP kept.
+- Papers: Kaur et al. 2026 is CC0, so its card uses a clean crop of Fig. 4C.
+  McFadden et al. 2025 is CC BY-NC-ND 4.0, so no crop; its card is an
+  illustration made with spaCR (Cellpose segmentation and spaCR trackpy
+  tracking of YCaM calcium time-lapse, Zenodo 10.5281/zenodo.4501412,
+  CC BY 4.0).
+- Install: Docker on GHCR ({version}, -cpu, -cuda12.4, latest), filled at
+  build time.
+- Backgrounds: all ten app themes ported to WebGL (advection default, field,
+  field phenomena, waves, blobs, stratified, aurora, growth, spinn,
+  fractals), one lazy module each, with a picker. Pause, reduced motion and
+  the no-WebGL fallback work for every theme. ripple and cells are not
+  ported because the app does not offer them in its picker.
+- i18n: 176 new keys (en.json regenerated; 363 keys). Translations of removed
+  strings were pruned and nothing was machine-filled.
+- Leak check: public JSON and camel-case identifiers now count as public
+  words; it passes.
+Verified live: 85/85 site checks and 23/23 theme checks headless; no
+horizontal scroll at 375 px; Lighthouse mobile home 100/100, spaCR 95/100
+(median of 3), spaCR/de 92/100, both lock pages 100/100.
+spaCR issues seen: classifier_evaluation.sample_identity reads wells F01/F02
+as a field; generate_training_dataset's .spacr_crop_format.json is counted as
+a sample; save_figure print mode recolours confusion-matrix numbers;
+train_test_model writes misclassified crops to test/missclassified/nc;
+perform_regression defaults now differ from the hit example's settings.
