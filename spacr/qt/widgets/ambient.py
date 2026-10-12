@@ -9064,7 +9064,11 @@ class AmbientWidget(QWidget):
         self._timer = QTimer(self)
         self._timer.setTimerType(Qt.PreciseTimer)
         self._timer.setInterval(max(1, 1000 // self._fps))
-        self._timer.timeout.connect(self._on_tick)
+        owner, timer = weakref.ref(self), self._timer
+        self._timer.timeout.connect(
+            lambda: owner()._on_tick()
+            if owner() is not None and vars(owner()).get("_timer") is timer
+            else timer.stop())
         self._watched: Optional[weakref.ReferenceType] = None
 
     def focusInEvent(self, event) -> None:  # noqa: N802 (Qt override)
