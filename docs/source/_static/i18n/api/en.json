@@ -30573,32 +30573,36 @@
     },
     "spacr.model_cards.about_lines": {
       "source_blocks_sha256": [
-        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ],
-      "source_sha256": "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
-      "text": "Page 3 as plain sentences, without the empty fields."
+      "source_sha256": "7c9c6f235a6487590a9d2efd2ecc96006cf5d260e79795635033a5450c24d029",
+      "text": "Page 3 as plain sentences, without the empty fields.\n\n:param card: the card data."
     },
     "spacr.model_cards.cache_dir": {
       "source_blocks_sha256": [
-        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ],
-      "source_sha256": "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
-      "text": "Where the page images of ``repo`` are cached, under the spaCR home."
+      "source_sha256": "4ec4fc5dabc1e0b483ec9587b8cb95cb1cfcbff397b2bc5789a154ac3a2b9414",
+      "text": "Where the page images of ``repo`` are cached, under the spaCR home.\n\n:param repo: ``owner/repo``."
     },
     "spacr.model_cards.cached_pages": {
       "source_blocks_sha256": [
-        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ],
-      "source_sha256": "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
-      "text": "The cached image of each page, ``None`` where it is not cached."
+      "source_sha256": "e9a475bacb9b5982ddee4534922eaf4b4d124e903bf5525d6f10f105e5792590",
+      "text": "The cached image of each page, ``None`` where it is not cached.\n\n:param repo: ``owner/repo``."
     },
     "spacr.model_cards.card_for_entry": {
       "source_blocks_sha256": [
         "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
-        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87",
+        "29ea311a0a8f6ea02d1046661a5d7c35dfa784f3161bbfefaa704c7896d3a4f0"
       ],
-      "source_sha256": "4d5f9290e79d20daa927814dcbd90d676e709ad489f24a6da3fb00cd96c6185b",
-      "text": "The card data of a :class:`~spacr.model_zoo.ModelEntry`, or ``None``.\n\nMatched on the zoo key, then on the repository the entry is fetched from."
+      "source_sha256": "3168d019b2668c25fc7d4055942123022b7ee8438adc03d13cc146467af13824",
+      "text": "The card data of a :class:`~spacr.model_zoo.ModelEntry`, or ``None``.\n\nMatched on the zoo key, then on the repository the entry is fetched from.\n\n:param entry: the model zoo entry."
     },
     "spacr.model_cards.card_keys": {
       "source_blocks_sha256": [
@@ -30609,17 +30613,19 @@
     },
     "spacr.model_cards.clear_cache": {
       "source_blocks_sha256": [
-        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ],
-      "source_sha256": "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
-      "text": "Remove the cached images of ``repo``."
+      "source_sha256": "bc1b86bdcc1c45522d7f11f4885d8cf157913cbf53823fb8b11a5dc1af363c85",
+      "text": "Remove the cached images of ``repo``.\n\n:param repo: ``owner/repo``."
     },
     "spacr.model_cards.fact_rows": {
       "source_blocks_sha256": [
-        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ],
-      "source_sha256": "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
-      "text": "Page 2 as ``(fact, value)`` pairs."
+      "source_sha256": "4f136ba07fe333369c1142b5db842e07410a2e4bded00f5c1ab7ea8b7aad0206",
+      "text": "Page 2 as ``(fact, value)`` pairs.\n\n:param card: the card data."
     },
     "spacr.model_cards.fetch_pages": {
       "source_blocks_sha256": [
@@ -30634,46 +30640,54 @@
     },
     "spacr.model_cards.model_link": {
       "source_blocks_sha256": [
-        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ],
-      "source_sha256": "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
-      "text": "The Hugging Face URL of the model the card describes."
+      "source_sha256": "151843687c11623825bea96f7dee34f2d41d53a77e7b04653adc6127b5af3265",
+      "text": "The Hugging Face URL of the model the card describes.\n\n:param card: the card data."
     },
     "spacr.model_cards.page_html": {
       "source_blocks_sha256": [
         "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1",
+        "7727ccb07de1e000a1eba299eddfad3aee0404423d12a3994a475cb5d1017c42",
         "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
       ],
-      "source_sha256": "9c42ea7e68c5e36d93f078d5c07fd6bed075feee45968945b6e3a5df9bcb24bc",
-      "text": "The text fallback of one card page (1-based) as a small HTML body.\n\n:param headers: the already translated column headings for the scores\n    and facts tables."
+      "source_sha256": "f5e3a18a78b9a99df49ee878f9aa185c45439988a0ea3877cb7a8a94c0a02e5e",
+      "text": "The text fallback of one card page (1-based) as a small HTML body.\n\n:param card: the card data.\n:param page: the page number, from 1.\n:param headers: the already translated column headings for the scores\n    and facts tables."
     },
     "spacr.model_cards.page_url": {
       "source_blocks_sha256": [
-        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "7727ccb07de1e000a1eba299eddfad3aee0404423d12a3994a475cb5d1017c42"
       ],
-      "source_sha256": "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
-      "text": "The Hugging Face URL of card page ``page`` (1-based) of ``repo``."
+      "source_sha256": "478edf3729ef27789abbc881eeb76afc8e8b4dd8d2069faccfa0ab4cc5bef04c",
+      "text": "The Hugging Face URL of card page ``page`` (1-based) of ``repo``.\n\n:param repo: ``owner/repo``.\n:param page: the page number, from 1."
     },
     "spacr.model_cards.repo_of_key": {
       "source_blocks_sha256": [
-        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
+        "b8354ed3666eb345239a60ffa9c015e4848d52ec20da5b8ece0ec9ca2b01bf24"
       ],
-      "source_sha256": "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
-      "text": "The ``owner/repo`` of a zoo key that has a card, else ``''``."
+      "source_sha256": "e3c0a9135dc20f44ad75006544ff59d0f2814b3c7aa65d94abeba76a7cb69676",
+      "text": "The ``owner/repo`` of a zoo key that has a card, else ``''``.\n\n:param key: a model zoo key."
     },
     "spacr.model_cards.repo_url": {
       "source_blocks_sha256": [
-        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ],
-      "source_sha256": "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
-      "text": "The Hugging Face page of a model repository."
+      "source_sha256": "aab6d036d8cf70f242cbbd8447e7a580d9181484b575a29ad16eaaab75fe658c",
+      "text": "The Hugging Face page of a model repository.\n\n:param repo: ``owner/repo``."
     },
     "spacr.model_cards.score_rows": {
       "source_blocks_sha256": [
-        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ],
-      "source_sha256": "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
-      "text": "Page 1 as ``(metric, \"this (stock x)\")`` pairs."
+      "source_sha256": "212088bd8dafff16c5dfaee1fc7785579da794ab0861227ddf985fe6480cf83b",
+      "text": "Page 1 as ``(metric, \"this (stock x)\")`` pairs.\n\n:param card: the card data."
     },
     "spacr.model_check": {
       "source_blocks_sha256": [
@@ -100782,17 +100796,19 @@
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.go_to": {
       "source_blocks_sha256": [
-        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
+        "f482c7873de06da7b79dac2cb3685e6910bc9f882ff19db52a2a9c95d4487473"
       ],
-      "source_sha256": "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
-      "text": "Show page ``page`` (zero-based), clamped to the pages."
+      "source_sha256": "14c49e952106b50b0127f7fd7098a540ae2aef69e539e46b10356145a289267a",
+      "text": "Show page ``page`` (zero-based), clamped to the pages.\n\n:param page: the page index, from 0."
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.keyPressEvent": {
       "source_blocks_sha256": [
-        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
+        "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
       ],
-      "source_sha256": "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
-      "text": "Left and Right turn the page."
+      "source_sha256": "64a71afbd82724781ba0e4398be94805c93b0b6ee940892540bf532c3f20c1ae",
+      "text": "Left and Right turn the page.\n\n:param event: the Qt key event."
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.next_page": {
       "source_blocks_sha256": [
@@ -100817,10 +100833,11 @@
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.set_card": {
       "source_blocks_sha256": [
-        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
+        "2f296a0d042dcec27c901230ceddaac84ae6bb3f3671b1c849f6a34b5989fd07"
       ],
-      "source_sha256": "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
-      "text": "Show ``card`` from page 1, fetching its images when not cached."
+      "source_sha256": "024ee182233f1bdc0ac0504af2b3c1c056e7cab01edbe93a53f8a8e2cafd7fba",
+      "text": "Show ``card`` from page 1, fetching its images when not cached.\n\n:param card: the card data, or None to show nothing."
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.showing_image": {
       "source_blocks_sha256": [

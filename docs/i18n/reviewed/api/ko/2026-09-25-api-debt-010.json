@@ -2324,7 +2324,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
       "source_sha256": "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882",
-      "translation": "변경 이벤트입니다. 먼저 기본 클래스로 전달되며, ``ApplicationPaletteChange`` 만 처리합니다."
+      "translation": "변경 이벤트입니다. 먼저 기본 클래스로 전달되며, ``ApplicationPaletteChange`` 만 처리합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English docstring dropped this sentence (nightly field-composite work); kept as evidence, not loaded."
     },
     {
       "context": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",

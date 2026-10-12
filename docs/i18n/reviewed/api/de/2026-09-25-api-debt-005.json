@@ -2578,7 +2578,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
       "source_sha256": "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882",
-      "translation": "das Änderungsereignis; es geht zuerst an die Basisklasse, und nur auf ein ``ApplicationPaletteChange`` wird reagiert."
+      "translation": "das Änderungsereignis; es geht zuerst an die Basisklasse, und nur auf ein ``ApplicationPaletteChange`` wird reagiert.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English docstring dropped this sentence (nightly field-composite work); kept as evidence, not loaded."
     },
     {
       "context": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
