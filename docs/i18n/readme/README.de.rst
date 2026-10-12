@@ -484,44 +484,72 @@ spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage 
 .. spacr-model-zoo-begin
 
 .. list-table::
-   :header-rows: 1
-   :widths: 24 34 42
+   :widths: 50 50
 
-   * - Model
-     - Training data
-     - Hold-out performance
-   * - `toxoplasma_pv_v4 <../../models/toxoplasma_pv_v4.md>`__
-       (Cellpose-SAM (cpsam_v2))
-     - round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7
-     - F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505
-   * - `toxoplasma_plaque_v4 <../../models/toxoplasma_plaque_v4.md>`__
-       (Cellpose-SAM (cpsam_v2, Cellpose 4.0.9))
-     - 663 curated plaque fields from four domains (published-figure wells, Gel Doc wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 validation / 263 test
-     - F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer
-   * - `toxoplasma_well_detector_v3 <../../models/toxoplasma_well_detector_v3.md>`__
-       (YOLO11n (fine-tuned from detector v3))
-     - 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization
-     - Stock was not evaluated in this run; see the named incumbent comparison on the model card
-   * - `toxoplasma_from_cellmask_v1 <../../models/toxoplasma_from_cellmask_v1.md>`__
-       (Cellpose-SAM (cpsam_v2))
-     - Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
-     - F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
-   * - `live_cell_v1 <../../models/live_cell_v1.md>`__
-       (Cellpose-SAM (cpsam_v2))
-     - 11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset
-     - on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell
-   * - `nuclei_from_cellmask_v1 <../../models/nuclei_from_cellmask_v1.md>`__
-       (Cellpose-SAM (cpsam_v2))
-     - nuclei predicted from the HOST CELL MASK channel alone; 453 well-grouped held-out fields, hosts HFF/HeLa/THP1
-     - F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5
-   * - `cell_from_hoechst_v1 <../../models/cell_from_hoechst_v1.md>`__
-       (Cellpose-SAM (cpsam_v2))
-     - the HOST CELL outline predicted from the Hoechst (nuclear) channel alone; 2,578 training fields and 451 held-out test fields, split by well so no well is on both sides
-     - F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569
-   * - `toxoplasma_from_hoechst_v1 <../../models/toxoplasma_from_hoechst_v1.md>`__
-       (Cellpose-SAM (cpsam_v2))
-     - Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
-     - F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+   * - |zoo_card_toxoplasma_pv_v4|
+
+       `toxoplasma_pv_v4 <../../models/toxoplasma_pv_v4.md>`__
+     - |zoo_card_toxoplasma_plaque_v4|
+
+       `toxoplasma_plaque_v4 <../../models/toxoplasma_plaque_v4.md>`__
+   * - |zoo_card_toxoplasma_well_detector_v3|
+
+       `toxoplasma_well_detector_v3 <../../models/toxoplasma_well_detector_v3.md>`__
+     - |zoo_card_toxoplasma_from_cellmask_v1|
+
+       `toxoplasma_from_cellmask_v1 <../../models/toxoplasma_from_cellmask_v1.md>`__
+   * - |zoo_card_live_cell_v1|
+
+       `live_cell_v1 <../../models/live_cell_v1.md>`__
+     - |zoo_card_nuclei_from_cellmask_v1|
+
+       `nuclei_from_cellmask_v1 <../../models/nuclei_from_cellmask_v1.md>`__
+   * - |zoo_card_cell_from_hoechst_v1|
+
+       `cell_from_hoechst_v1 <../../models/cell_from_hoechst_v1.md>`__
+     - |zoo_card_toxoplasma_from_hoechst_v1|
+
+       `toxoplasma_from_hoechst_v1 <../../models/toxoplasma_from_hoechst_v1.md>`__
+
+.. |zoo_card_toxoplasma_pv_v4| image:: ../../models/cards/toxoplasma_pv_v4.svg
+   :alt: Score card of Toxoplasma PV v4 (round 7) (default): F1 at IoU 0.5 0.854 against 0.765 for stock cpsam_v2. F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505.
+   :target: ../../models/toxoplasma_pv_v4.md
+   :width: 380
+
+.. |zoo_card_toxoplasma_plaque_v4| image:: ../../models/cards/toxoplasma_plaque_v4.svg
+   :alt: Score card of Toxoplasma Plaque v4 (round 6, cpsam_v2) (default): F1 at IoU 0.5 0.815 against 0.373 for stock cpsam_v2. F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer.
+   :target: ../../models/toxoplasma_plaque_v4.md
+   :width: 380
+
+.. |zoo_card_toxoplasma_well_detector_v3| image:: ../../models/cards/toxoplasma_well_detector_v3.svg
+   :alt: Score card of Toxoplasma Well Detector v3 (YOLO11 Gel Doc) (default): Box mAP at IoU 0.5 0.994. Stock was not evaluated in this run; see the named incumbent comparison on the model card.
+   :target: ../../models/toxoplasma_well_detector_v3.md
+   :width: 380
+
+.. |zoo_card_toxoplasma_from_cellmask_v1| image:: ../../models/cards/toxoplasma_from_cellmask_v1.svg
+   :alt: Score card of Toxoplasma from Cell Mask (cross-channel) (default): F1 at IoU 0.5 0.606 against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5.
+   :target: ../../models/toxoplasma_from_cellmask_v1.md
+   :width: 380
+
+.. |zoo_card_live_cell_v1| image:: ../../models/cards/live_cell_v1.svg
+   :alt: Score card of Live cell v1 (phase, brightfield, DIC) (default): F1 at IoU 0.5, all test fields 0.694 against 0.738 for stock cpsam_v2. On the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell.
+   :target: ../../models/live_cell_v1.md
+   :width: 380
+
+.. |zoo_card_nuclei_from_cellmask_v1| image:: ../../models/cards/nuclei_from_cellmask_v1.svg
+   :alt: Score card of Cross-channel nuclei-from-cellmask (default): F1 at IoU 0.5 0.888 against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5.
+   :target: ../../models/nuclei_from_cellmask_v1.md
+   :width: 380
+
+.. |zoo_card_cell_from_hoechst_v1| image:: ../../models/cards/cell_from_hoechst_v1.svg
+   :alt: Score card of Cross-channel cell-from-hoechst (default): F1 at IoU 0.5 0.870 against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569.
+   :target: ../../models/cell_from_hoechst_v1.md
+   :width: 380
+
+.. |zoo_card_toxoplasma_from_hoechst_v1| image:: ../../models/cards/toxoplasma_from_hoechst_v1.svg
+   :alt: Score card of Toxoplasma from Hoechst (cross-channel) (default): F1 at IoU 0.5 0.569 against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5.
+   :target: ../../models/toxoplasma_from_hoechst_v1.md
+   :width: 380
 
 Older models: `toxoplasma_pv_v3 <../../models/toxoplasma_pv_v3.md>`__, `toxoplasma_pv_v2 <../../models/toxoplasma_pv_v2.md>`__, `toxoplasma_pv_v1 <../../models/toxoplasma_pv_v1.md>`__, `toxoplasma_plaque_v2 <../../models/toxoplasma_plaque_v2.md>`__, `toxoplasma_plaque_v1 <../../models/toxoplasma_plaque_v1.md>`__, `toxoplasma_well_detector_v2 <../../models/toxoplasma_well_detector_v2.md>`__, `toxoplasma_well_detector_v1 <../../models/toxoplasma_well_detector_v1.md>`__
 

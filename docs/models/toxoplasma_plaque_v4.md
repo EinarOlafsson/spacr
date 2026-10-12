@@ -2,6 +2,8 @@
 
 # Toxoplasma Plaque v4 (round 6, cpsam_v2, default)
 
+![Score card of Toxoplasma Plaque v4 (round 6, cpsam_v2) (default): F1 at IoU 0.5 0.815 against 0.373 for stock cpsam_v2.](cards/toxoplasma_plaque_v4.svg)
+
 `toxoplasma_plaque_v4` · Cellpose-SAM (cpsam_v2, Cellpose 4.0.9) · default in the `toxoplasma_plaque` family
 
 Other versions: [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).

@@ -635,8 +635,9 @@ def test_the_readme_lists_the_default_model_of_each_family():
     """The model zoo section is generated from the catalogue, not typed.
 
     Asked for on 2026-09-02, narrowed on 2026-10-12: the README shows only
-    the default model of each family, each linking its card in docs/models,
-    with the older models and alternatives on one line each. A re-score in
+    the default model of each family, as a grid of SVG score cards each
+    linking its card in docs/models, with the older models and alternatives
+    on one line each. A re-score in
     the zoo must make this test fail until the generator is re-run.
     """
     import importlib.util
@@ -662,13 +663,16 @@ def test_the_readme_lists_the_default_model_of_each_family():
     for entry in defaults:
         key = cards.key_of(entry)
         assert f"`{key} <docs/models/{key}.md>`__" in table, key
-        assert str(entry["versus_stock"]).strip().rstrip(".") in table, key
-        assert str(entry["dataset"]).strip().rstrip(".") in table, key
+        assert f"|zoo_card_{key}|" in table, key
+        assert f"image:: docs/models/cards/{key}.svg" in table, key
+        assert f":target: docs/models/{key}.md" in table, key
+        versus = str(entry["versus_stock"]).strip().rstrip(".")
+        assert versus[1:] in table, key
     for entry, _status in cards.other_records(published):
         key = cards.key_of(entry)
         assert f"`{key} <docs/models/{key}.md>`__" in block, key
-        assert f"<docs/models/{key}.md>`__\n       (" not in table, (
-            f"{key} is not a family default but has a table row")
+        assert f"cards/{key}.svg" not in table, (
+            f"{key} is not a family default but has a score card in the grid")
     assert "Older models: " in block
 
     for key in ("toxoplasma_pv", "toxoplasma_plaque", "live_cell"):
@@ -704,6 +708,11 @@ def test_every_readme_carries_the_same_model_zoo_block():
             generator._card_prefix(readme), generator._readme_language(readme))
         assert block.strip() == expected.strip(), readme.name
         for target in re.findall(r"<([^<>]+\.md)>`__", block):
+            assert (readme.parent / target).resolve().is_file(), (
+                readme.name, target)
+        images = re.findall(r"image:: (\S+\.svg)", block)
+        assert images, readme.name
+        for target in images:
             assert (readme.parent / target).resolve().is_file(), (
                 readme.name, target)
 

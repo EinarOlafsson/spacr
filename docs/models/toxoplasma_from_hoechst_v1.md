@@ -2,6 +2,8 @@
 
 # Toxoplasma from Hoechst (cross-channel)
 
+![Score card of Toxoplasma from Hoechst (cross-channel) (default): F1 at IoU 0.5 0.569 against 0.002 for stock cpsam_v2.](cards/toxoplasma_from_hoechst_v1.svg)
+
 `toxoplasma_from_hoechst_v1` · Cellpose-SAM (cpsam_v2) · default in the `toxoplasma_from_hoechst` family
 
 ## Training data

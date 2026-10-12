@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="411" viewBox="0 0 480 411" role="img" aria-labelledby="t d">
+<title id="t">Cross-channel nuclei-from-cellmask score card</title>
+<desc id="d">Score card of Cross-channel nuclei-from-cellmask (default): F1 at IoU 0.5 0.888 against 0.201 for stock cpsam_v2.</desc>
+<style>.bg{fill:#fcfcfb;stroke:#d9d8d3}.t1{fill:#0b0b0b}.t2{fill:#52514e}.t3{fill:#6b6a65}.ft{fill:#2a78d6}.va{fill:#86857f}.tr{fill:#efeeea}.ax{stroke:#d9d8d3}.pl{fill:none;stroke:#2a78d6}.pt{fill:#1c5cab}.po{fill:none;stroke:#86857f}.pu{fill:#52514e}@media (prefers-color-scheme: dark){.bg{fill:#1a1a19;stroke:#3a3936}.t1{fill:#f0efec}.t2{fill:#c3c2b7}.t3{fill:#a3a29a}.ft{fill:#3987e5}.va{fill:#7c7b75}.tr{fill:#262624}.ax{stroke:#3a3936}.pl{stroke:#3987e5}.pt{fill:#86b6ef}.po{stroke:#7c7b75}.pu{fill:#c3c2b7}}</style>
+<rect class="bg" x="0.5" y="0.5" width="479" height="410" rx="12" stroke-width="1"/>
+<text x="20.0" y="38.0" class="t1" font-size="17" font-weight="600" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Cross-channel nuclei-from-cellmask</text>
+<rect class="pl" x="401.8" y="24" width="58.2" height="20" rx="10"/>
+<text x="430.9" y="38.0" class="pt" font-size="12" font-weight="600" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">default</text>
+<text x="20.0" y="58.0" class="t3" font-size="12" font-weight="400" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">nuclei_from_cellmask_v1 · v1</text>
+<text x="20.0" y="76.0" class="t2" font-size="13" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Nuclei from a whole-cell stain alone</text>
+<text x="20.0" y="94.0" class="t3" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Cellpose-SAM (cpsam_v2)</text>
+<text x="20.0" y="154.0" class="t1" font-size="44" font-weight="600" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.888</text>
+<text x="148.0" y="130.0" class="t2" font-size="13" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">F1 at IoU 0.5</text>
+<text x="148.0" y="148.0" class="t2" font-size="13" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Stock cpsam_v2: 0.201</text>
+<text x="148.0" y="166.0" class="t1" font-size="13" font-weight="600" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Difference +0.687</text>
+<rect class="ft" x="20" y="181" width="10" height="10" rx="2"/>
+<text x="36.0" y="190.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">This model</text>
+<rect class="va" x="120" y="181" width="10" height="10" rx="2"/>
+<text x="136.0" y="190.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Stock cpsam_v2</text>
+<text x="20.0" y="215.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">F1</text>
+<rect class="tr" x="112" y="206" width="300" height="10" rx="2"/>
+<path class="ft" d="M112.0 206.0h263.4a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-263.4z"/>
+<text x="418.0" y="215.0" class="t1" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.888</text>
+<rect class="tr" x="112" y="218" width="300" height="10" rx="2"/>
+<path class="va" d="M112.0 218.0h57.3a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-57.3z"/>
+<text x="418.0" y="227.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.201</text>
+<text x="20.0" y="253.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">AJI</text>
+<rect class="tr" x="112" y="244" width="300" height="10" rx="2"/>
+<path class="ft" d="M112.0 244.0h234.5a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-234.5z"/>
+<text x="418.0" y="253.0" class="t1" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.792</text>
+<rect class="tr" x="112" y="256" width="300" height="10" rx="2"/>
+<path class="va" d="M112.0 256.0h82.8a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-82.8z"/>
+<text x="418.0" y="265.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.286</text>
+<text x="20.0" y="291.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Dice</text>
+<rect class="tr" x="112" y="282" width="300" height="10" rx="2"/>
+<path class="ft" d="M112.0 282.0h260.2a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-260.2z"/>
+<text x="418.0" y="291.0" class="t1" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.877</text>
+<rect class="tr" x="112" y="294" width="300" height="10" rx="2"/>
+<path class="va" d="M112.0 294.0h131.7a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-131.7z"/>
+<text x="418.0" y="303.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.449</text>
+<line class="ax" x1="112.0" y1="202" x2="112.0" y2="312" stroke-width="1" stroke-dasharray="2 3"/>
+<text x="112.0" y="324.0" class="t3" font-size="11" font-weight="400" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0</text>
+<line class="ax" x1="262.0" y1="202" x2="262.0" y2="312" stroke-width="1" stroke-dasharray="2 3"/>
+<text x="262.0" y="324.0" class="t3" font-size="11" font-weight="400" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.5</text>
+<line class="ax" x1="412.0" y1="202" x2="412.0" y2="312" stroke-width="1" stroke-dasharray="2 3"/>
+<text x="412.0" y="324.0" class="t3" font-size="11" font-weight="400" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">1</text>
+<text x="20.0" y="357.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Hold-out: 453 well-grouped held-out fields</text>
+<text x="20.0" y="374.0" class="t1" font-size="12.5" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif" font-style="italic">Frees the DAPI or Hoechst channel for another marker; stock</text>
+<text x="20.0" y="391.0" class="t1" font-size="12.5" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif" font-style="italic">Cellpose-SAM segments the stain it is shown.</text>
+</svg>

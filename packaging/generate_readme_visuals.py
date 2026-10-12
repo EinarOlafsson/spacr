@@ -58,6 +58,8 @@ WORKFLOW_BEGIN = ".. spacr-workflow-begin"
 WORKFLOW_END = ".. spacr-workflow-end"
 MODEL_ZOO_BEGIN = ".. spacr-model-zoo-begin"
 MODEL_ZOO_END = ".. spacr-model-zoo-end"
+SCORE_CARDS_PER_ROW = 2
+SCORE_CARD_WIDTH = 380
 HARDWARE_BEGIN = ".. spacr-hardware-begin"
 HARDWARE_END = ".. spacr-hardware-end"
 INSTALLER_BEGIN = ".. spacr-installer-links-begin"
@@ -900,13 +902,17 @@ def _card_prefix(path) -> str:
 
 def _readme_model_zoo_block(prefix: str = "docs/models/",
                             language: str = "en") -> str:
-    """The README's model-zoo block: the default model of each family.
+    """The README's model-zoo block: a grid of score cards, one per family.
 
-    Each row links the model's card in ``docs/models`` (written by
-    ``tools/build_model_cards.py``). The other versions follow on one line
-    each, older models and alternatives, linking their cards. Every number
-    comes from the zoo record, so a re-score reaches the README by
-    re-running this generator.
+    Each cell is the default model's SVG score card
+    (``docs/models/cards/<key>.svg``, drawn by ``tools/build_score_cards.py``
+    through ``tools/build_model_cards.py``) linking its Markdown card, with
+    the key underneath as a text link. The image's alt text carries the
+    record's own ``versus_stock`` sentence, so the numbers are readable
+    without the picture. The other versions follow on one line each, older
+    models and alternatives, linking their cards. Every number comes from
+    the zoo record, so a re-score reaches the README by re-running this
+    generator.
     """
     def label(text: str) -> str:
         return localize_model_zoo_label(text, language)
@@ -915,26 +921,40 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
         key = build_model_cards.key_of(entry)
         return f"`{key} <{prefix}{build_model_cards.card_file(key)}>`__"
 
+    scores = build_model_cards.score_cards()
     published = _published_models()
+    families = build_model_cards.families(published)
+    defaults = [family["default"] for family in families]
+    per_row = SCORE_CARDS_PER_ROW
     lines = [
         ".. list-table::",
-        "   :header-rows: 1",
-        "   :widths: 24 34 42",
+        f"   :widths: {' '.join(['50'] * per_row)}",
         "",
-        f"   * - {label('Model')}",
-        f"     - {label('Training data')}",
-        f"     - {label('Hold-out performance')}",
     ]
-    for entry in build_model_cards.default_records(published):
-        architecture = str(entry.get("architecture") or "").strip().rstrip(".")
-        dataset = str(entry.get("dataset") or "").strip().rstrip(".")
-        versus = str(entry.get("versus_stock") or "").strip().rstrip(".")
-        lines.extend([
-            f"   * - {link(entry)}",
-            f"       ({architecture})",
-            f"     - {dataset}",
-            f"     - {versus}",
-        ])
+    substitutions = []
+    for start in range(0, len(defaults), per_row):
+        row = list(defaults[start:start + per_row])
+        for column in range(per_row):
+            bullet = "   * -" if column == 0 else "     -"
+            if column >= len(row):
+                lines.append(bullet)
+                continue
+            entry = row[column]
+            key = build_model_cards.key_of(entry)
+            name = f"zoo_card_{key}"
+            lines += [f"{bullet} |{name}|", "", f"       {link(entry)}"]
+            versus = str(entry.get("versus_stock") or "").strip().rstrip(".")
+            alt = scores.alt_text(entry, "default")
+            if versus:
+                alt += " " + build_model_cards._sentence(versus)
+            substitutions += [
+                "",
+                f".. |{name}| image:: {prefix}{scores.card_name(key)}",
+                f"   :alt: {alt}",
+                f"   :target: {prefix}{build_model_cards.card_file(key)}",
+                f"   :width: {SCORE_CARD_WIDTH}",
+            ]
+    lines += substitutions
     others = build_model_cards.other_records(published)
     older = [entry for entry, status in others if status == "older"]
     alternatives = [(entry, status) for entry, status in others

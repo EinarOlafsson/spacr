@@ -2,6 +2,8 @@
 
 # Live cell v1 (phase, brightfield, DIC)
 
+![Score card of Live cell v1 (phase, brightfield, DIC) (default): F1 at IoU 0.5, all test fields 0.694 against 0.738 for stock cpsam_v2.](cards/live_cell_v1.svg)
+
 `live_cell_v1` · Cellpose-SAM (cpsam_v2) · default in the `live_cell` family
 
 ## Training data

@@ -2,6 +2,8 @@
 
 # Toxoplasma PV v4 (round 7)
 
+![Score card of Toxoplasma PV v4 (round 7) (default): F1 at IoU 0.5 0.854 against 0.765 for stock cpsam_v2.](cards/toxoplasma_pv_v4.svg)
+
 `toxoplasma_pv_v4` · Cellpose-SAM (cpsam_v2) · default in the `toxoplasma_pv` family
 
 Other versions: [toxoplasma_pv_v5](toxoplasma_pv_v5.md) (alternative), [toxoplasma_pv_v3](toxoplasma_pv_v3.md), [toxoplasma_pv_v2](toxoplasma_pv_v2.md), [toxoplasma_pv_v1](toxoplasma_pv_v1.md).

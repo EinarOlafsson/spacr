@@ -2,6 +2,8 @@
 
 # Toxoplasma Plaque Well Detector v2
 
+![Score card of Toxoplasma Plaque Well Detector v2 (older version): Box mAP at IoU 0.5 0.946 against 0.884 for v1 (earlier version).](cards/toxoplasma_well_detector_v2.svg)
+
 `toxoplasma_well_detector_v2` · YOLO26n (ultralytics 8.4.155) · older version in the `toxoplasma_well_detector` family
 
 The family's default is [toxoplasma_well_detector_v3](toxoplasma_well_detector_v3.md).
