@@ -90,7 +90,7 @@ LANGUAGES = ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 
 #: Bump when a change to this file changes what an image looks like, so the
 #: currency check fails until the images are redrawn.
-RENDERER_VERSION = "1"
+RENDERER_VERSION = "2"
 
 #: Every block kind this README may contain. ``generated`` blocks are written
 #: by ``packaging/generate_readme_visuals.py`` (and the installer row by
@@ -125,16 +125,21 @@ PALETTE = {
     "beta": "#8b8cf7",
     "shadow": "#1f2328",
 }
-#: The share of the column a full-width image takes. The model-zoo heading
-#: strip is 99.5% wide so its edges meet two 49.5% score cards and the space
-#: GitHub leaves inside each image link; the panels use the same width so
-#: every left and right edge on the page lines up with the card grid.
-FULL_WIDTH = "99.5%"
-#: Button widths for two and three to a row, each with that space after it.
+#: The share of the column a panel takes: all of it, edge to edge, so a
+#: panel's sides line up with the code blocks and the deck cover between
+#: which it sits (measured on GitHub's own render on 2026-10-12, where a
+#: 6 px inset on each side read as a misalignment at every code block).
+FULL_WIDTH = "100%"
+#: Button widths for two and three to a row. Not exact halves and thirds:
+#: GitHub leaves one space inside each image link, and exact shares plus
+#: that space wrap the last button onto a line of its own -- the same
+#: reason the score cards are 49.5% wide.
 GRID_WIDTHS = {2: 49.5, 3: 32.8}
+#: The gap between two buttons in a row, split across their two cells.
+GUTTER = 12
 
 WIDTH = 880
-MARGIN = 6
+MARGIN = 0
 PAD_X = 40
 PAD_TOP = 30
 PAD_BOTTOM = 30
@@ -1309,15 +1314,19 @@ def _out_arrow(x: float, y: float, color: str) -> str:
 
 def render_chip(label: str, language: str, width: float, digest: str,
                 description: str, *, align: str = "left",
-                icon: str = "arrow", weight: int = 400) -> str:
+                icon: str = "arrow", weight: int = 400,
+                first: bool = True, last: bool = True) -> str:
     """One link button: a rounded chip filling a fixed-width grid cell.
 
     ``width`` is the cell in panel units, so a button's text is drawn at
-    the same scale as the panels' text.
+    the same scale as the panels' text. The row's outer buttons run to the
+    cell's outer edge, so a row starts where the panels start; between two
+    buttons each gives up half of :data:`GUTTER`.
     """
     canvas = Canvas(language)
-    inset = MARGIN
-    chip_width = width - 2 * inset
+    inset = 0 if first else GUTTER / 2
+    right = 0 if last else GUTTER / 2
+    chip_width = width - inset - right
     style = Style(CHIP_TEXT, weight, PALETTE["ink_primary"])
     space = chip_width - 2 * 20 - (24 if icon else 0)
     size = CHIP_TEXT
@@ -1419,11 +1428,15 @@ def _chip_grid(language: str, prefix: str, links: list[tuple[str, str]],
         align = "left"
         if nav:
             align = "left" if position == 0 else "right"
-        digest = digest_of(["chip", language, label, target, columns, align])
+        column = position % columns
+        first, last = column == 0, column == columns - 1
+        digest = digest_of(["chip", language, label, target, columns, align,
+                            first, last])
         if render:
             images[name] = render_chip(label, language, cell, digest, label,
                                        align=align,
-                                       icon=None if nav else "arrow")
+                                       icon=None if nav else "arrow",
+                                       first=first, last=last)
         else:
             images[name] = digest
         names.append(name)

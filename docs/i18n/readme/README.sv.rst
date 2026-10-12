@@ -104,12 +104,12 @@
 
 .. image:: ../../readme_images/sv/spacr.svg
    :alt: spaCR. Rumslig fenotypanalys av CRISPR-screeningar. spaCR segmenterar och mäter enskilda celler i mikroskopibilder, integrerar fenotyper per objekt med sekvenseringshärledd guideförekomst och uppskattar vilka gener som är associerade med fenotypiska förändringar. Med plattbilder och FASTQ-läsningar som utgångspunkt producerar programmet mätningar per objekt, tränade klassificerare, effektskattningar per guide och gen samt en rangordnad träfflista. Segmenterings-, mät-, annoterings- och klassificeringsmodulerna körs även utan en sekvensarm. Make Masks korrigerar segmenteringsmasker och annoterar oberoende, klassmärkta rektanglar med verktyget Box för YOLO-export. Rutorna har egna etiketter och egen historik utan att ändra källbilder eller masker. Se funktionsguiden för varje verktyg. Bilder, masker och bildutsnitt är filer på disk. Mätningar, annoteringar och modellprediktioner är tabeller i projektets SQLite-databas measurements.db. Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/features.rst
 
 .. image:: ../../readme_images/sv/try-spacr.svg
    :alt: Prova spaCR.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -120,23 +120,23 @@
 
 .. image:: ../../readme_images/sv/try-spacr-2.svg
    :alt: Använd Ladda testdata… i Import, Make Masks, Annotate eller en analysskärm för att hämta exempeldata. Från en terminal använder du spacr-download.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/hardware-support.svg
    :alt: Hårdvarustöd.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-hardware-begin
 
 .. image:: ../../readme_images/sv/generated-hardware-1.svg
    :alt: NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. stöds (stabilt) implementerat (beta) endast CPU-stöd.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-hardware-end
 
 .. image:: ../../readme_images/sv/install-spacr.svg
    :alt: Installera spaCR. Välj en installationsväg: Skrivbordsprogram: ett installationsprogram för Linux, macOS eller Windows med egen Python. pip: python -m pip install spacr i en Conda-miljö. conda-forge: conda install conda-forge::spacr i en Conda-miljö. Docker: kommandoradens bearbetningsflöden i en Linux-container, från CPU-avbildningen eller avbildningen för NVIDIA-GPU:er:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -145,12 +145,12 @@
 
 .. image:: ../../readme_images/sv/install-spacr-2.svg
    :alt: Docker-guiden beskriver GPU-inställning, montering av data och kommandon för bearbetningsflödena.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/installer_guide.rst#container-images
 
 .. image:: ../../readme_images/sv/desktop-application.svg
    :alt: Skrivbordsprogram. Installatörerna buntar ihop sina egna Python. Conda krävs inte.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-installer-links-begin
 
@@ -173,7 +173,7 @@
 
 .. image:: ../../readme_images/sv/desktop-application-2.svg
    :alt: Gör den hämtade filen körbar i Linux och kör den:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -182,7 +182,7 @@
 
 .. image:: ../../readme_images/sv/desktop-application-3.svg
    :alt: På macOS, öppna .pkg. Nuvarande beta notariseras inte. Om Gatekeeper blockerar den, välj Systeminställningar → Integritet & Säkerhet → Öppna ändå. Se installationsguiden för instruktioner om uppdatering, avinstallation, offlineanvändning och felsökning, och systemkraven för rekommendationer om arbetsstationer och servrar samt tabeller över GPU-kompatibilitet.
-   :width: 99.5%
+   :width: 100%
 
 | |desktop-application-3-link-1|\ |desktop-application-3-link-2|
 
@@ -198,7 +198,7 @@
 
 .. image:: ../../readme_images/sv/pypi-installation.svg
    :alt: Installation från PyPI. För PyPI-utgåvan installerar du spaCR med pip i en Conda-miljö. Python 3.12 ger det största urvalet av valfria vetenskapliga paket:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -210,7 +210,7 @@
 
 .. image:: ../../readme_images/sv/pypi-installation-2.svg
    :alt: spaCR stöder Python 3.9 through 3.14, utom Python 3.14.1, som torchvision utesluter. Linux rekommenderas för de tyngsta CUDA- och ROCm-arbetsflödena; macOS och Windows stöds också, och båda använder sina GPU:er — macOS via Metal, som täcker Apple Silicon och AMD-korten i Intel-Mac-datorer, och Windows via CUDA eller DirectML. Standardinstallationen innehåller Qt-gränssnittet för skrivbordet. På en server, ett kluster eller en CI-körmiljö kan du köra kommandoradspipelines utan att öppna det:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -219,12 +219,12 @@
 
 .. image:: ../../readme_images/sv/pypi-installation-3.svg
    :alt: Optional integrations are installed separately, for example spacr[zarr], spacr[omero], spacr[napari] and spacr[czi,nd2,lif]. See the installationsguide for the complete extras and Python-version compatibility table.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/installer_guide.rst
 
 .. image:: ../../readme_images/sv/conda-forge-installation.svg
    :alt: Installation med conda-forge. Det officiella conda-forge-paketet installerar spaCR och dess skrivbordsberoenden i den aktiva miljön:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -235,7 +235,7 @@
 
 .. image:: ../../readme_images/sv/install-from-source.svg
    :alt: Installation från källkod. Klona kodförrådet och installera det i redigerbart läge, så att din arbetskopia är det installerade paketet och ändringar börjar gälla utan ominstallation:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -248,7 +248,7 @@
 
 .. image:: ../../readme_images/sv/install-from-source-2.svg
    :alt: Detta klonar main, standardgrenen, som innehåller den senaste utgåvan. Utvecklingen sker på nightly; lägg till --branch nightly för att klona den i stället. För en specifik utgåva:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -256,7 +256,7 @@
 
 .. image:: ../../readme_images/sv/install-from-source-3.svg
    :alt: För att hämta senare ändringar kör du inifrån klonen:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -265,11 +265,11 @@
 
 .. image:: ../../readme_images/sv/install-from-source-4.svg
    :alt: Installera om när beroenden eller kommandostarter ändras. Ändringar i Python-koden gäller direkt; spacr-doctor visar vilken installation som används.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/install-from-source-light.svg
    :alt: Installation från källkod (lättviktig). Bidragsgivare behöver versionshistoriken; välj ett alternativ nedan om du bara vill köra spaCR. Mätningarna gäller nightly vid 05302fd5c den 2026-10-07 och gjordes med packaging/measure_clone_forms.sh:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -289,11 +289,11 @@
 
 .. image:: ../../readme_images/sv/install-from-source-light-2.svg
    :alt: Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till --filter=blob:none till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 3416 MB (uppmätt 2026-10-08), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/command-line-entry-points.svg
    :alt: Kommandoradskommandon.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -312,40 +312,40 @@
 
 .. image:: ../../readme_images/sv/command-line-entry-points-2.svg
    :alt: spacr-run --list listar moduler med kommandoradsposter för körning utan grafiskt gränssnitt. GUI-bundna moduler för annotering, kurering, jämförelse och utforskning utelämnas.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/core-workflow.svg
    :alt: Kärnarbetsflöde. Det primära arbetsflödet består av sex moduler: Mask segmenterar celler, cellkärnor, patogener och organeller med Cellpose. Measure skriver morfologiska, intensitets-, textur-, rumsliga och kolokaliseringsmått samt objektutsnitt till SQLite. Annotate märker objektutsnitt i ett tangentbordsstyrt rutnät och stöder köer för aktiv inlärning. Classify tränar bild- eller mätningsbaserade modeller och sparar prestandan på undanhållna data med varje kontrollpunkt. Map Barcodes kopplar FASTQ-läsningar till brunnar och gRNA:er och rapporterar QC för förekomst, kollisioner och täckning. Regression skattar effekter för guider, gener, betingelser och kontroller med modellfamiljer för kontinuerliga data, andelar och antal.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/spacr-modules.svg
    :alt: spaCR-moduler.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-workflow-begin
 
 .. image:: ../../readme_images/sv/generated-workflow-1.svg
    :alt: Kärna. Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
 .. image:: ../../readme_images/sv/generated-workflow-2.svg
    :alt: Data. Import images and tables into spaCR projects and execute reproducible multi-plate workflows.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_foreign|\ |Module_embeddings|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|
 | |Module_qc_dashboard|
 
 .. image:: ../../readme_images/sv/generated-workflow-3.svg
    :alt: Verktyg. Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
 .. image:: ../../readme_images/sv/generated-workflow-4.svg
    :alt: Organism. Organismspecifik bildanalys och kvantitativa resultat från biologiska analyser.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_toxoplasma|
 
@@ -429,50 +429,50 @@
 
 .. image:: ../../readme_images/sv/spacr-modules-2.svg
    :alt: Alla moduler med en ruta på startskärmen, i startskärmens ordning: först de sex pipelinemodulerna, sedan resten. Välj en ruta för att öppna modulens API-sida.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/other-resources.svg
    :alt: Övriga resurser.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/other-resources-2-1.svg
    :alt: Interaktiva handledningar — guidade arbetsflöden från installation till undersökning av träffar.
-   :width: 99.5%
+   :width: 100%
    :target: https://einarolafsson.github.io/spacr/tutorials/
 
 .. image:: ../../readme_images/sv/other-resources-2-2.svg
    :alt: Snabbstart Python API – kör och validera arbetsflöden från skript, anteckningsböcker eller ett kluster.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/python_api.rst
 
 .. image:: ../../readme_images/sv/other-resources-2-3.svg
    :alt: Handbok för funktioner – kapacitet, mognad och valfria integrationer.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/features.rst
 
 .. image:: ../../readme_images/sv/other-resources-2-4.svg
    :alt: Kurerad API referens – understödda ingångspunkter för uppgift, med den fullständiga modulreferensen en nivå djupare.
-   :width: 99.5%
+   :width: 100%
    :target: https://einarolafsson.github.io/spacr/api/index.html
 
 .. image:: ../../readme_images/sv/other-resources-2-5.svg
    :alt: Språk- och översättningsguide – gränssnittsspråk, kontextuell hjälp och policy för vetenskaplig output.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/localization.rst
 
 .. image:: ../../readme_images/sv/language-translation.svg
    :alt: Språk och översättning. Gränssnittet stöder tio språk i navigering och inställningar. AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp översätts också. Byt språk under spaCR → Inställningar → Språk utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se policyn för kontexthjälp.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/localization.rst#contextual-help
 
 .. image:: ../../readme_images/sv/language-translation-2.svg
    :alt: De nio icke-engelska katalogerna är maskinskrivna och tekniskt recenserade snarare än lästa ända till slut av en infödd talare. De Översynens tillämpningsområde skivor som språken har haft ett mänskligt pass och varje term kvar på engelska av beslut.
-   :width: 99.5%
+   :width: 100%
    :target: ../REVIEW_SCOPE_2026-09-04.md
 
 .. image:: ../../readme_images/sv/animated-setting-guidance.svg
    :alt: Animerad hjälp för inställningar. Inställningar med en visuell förklaring har kontrollen Animation i verktygstipset. Bläddra i galleriet med inställningsanimationer eller registret över inställningsanimationer.
-   :width: 99.5%
+   :width: 100%
 
 | |animated-setting-guidance-link-1|\ |animated-setting-guidance-link-2|
 
@@ -488,7 +488,7 @@
 
 .. image:: ../../readme_images/sv/data.svg
    :alt: Data. Referensdatauppsättningar.
-   :width: 99.5%
+   :width: 100%
 
 |DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
@@ -519,7 +519,7 @@
 
 .. image:: ../../readme_images/sv/model-zoo.svg
    :alt: Modellbibliotek. spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Öppna Modellzoo från startskärmen för att bläddra och installera dem, eller namnge en nyckel i en inställningsfil -- pathogen_model: toxoplasma_pv_v1 -- och modellen laddas ner och kontrolleras första gången den behövs. Varje publicerad post innehåller en SHA-256; en post utan en nekas snarare än installeras, eftersom en trunkerad eller ersatt kontrollpunkt inte kan meddelas från den verkliga.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-model-zoo-begin
 
@@ -576,7 +576,7 @@
 
 .. image:: ../../readme_images/sv/generated-model-zoo-1.svg
    :alt: Older models.
-   :width: 99.5%
+   :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
 | |generated-model-zoo-1-link-4|\ |generated-model-zoo-1-link-5|\ |generated-model-zoo-1-link-6|
@@ -619,7 +619,7 @@
 
 .. image:: ../../readme_images/sv/generated-model-zoo-2.svg
    :alt: Alternatives.
-   :width: 99.5%
+   :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
 
@@ -637,7 +637,7 @@
 
 .. image:: ../../readme_images/sv/diagnosing-performance.svg
    :alt: Prestandadiagnostik. Skapa en maskinvarurapport och bifoga den till ett prestandarelaterat ärende:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -645,15 +645,15 @@
 
 .. image:: ../../readme_images/sv/diagnosing-performance-2.svg
    :alt: Sparar till ~/.spacr/reports och skriver ut sökvägen. --quick hoppar över de längre riktmärkena; --out PATH anger platsen. Läser inga projektdata. Mäter tiden för importer, numeriska bibliotek, fönsterkonstruktion och animering, och rapporterar x86_64-emulering på Apple Silicon samt NumPys BLAS.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/command-line-reference.svg
    :alt: Kommandoradsreferens. Varje kommando nedan installeras av pip install spacr. Alla av dem accepterar --help.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/launching-the-application.svg
    :alt: Lansering av ansökan.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -663,7 +663,7 @@
 
 .. image:: ../../readme_images/sv/when-spacr-will-not-start.svg
    :alt: När spaCR inte kommer att starta.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -672,11 +672,11 @@
 
 .. image:: ../../readme_images/sv/when-spacr-will-not-start-2.svg
    :alt: spacr-doctor skriver ut en rad per check, med ett kommando att köra för varje fel. Det rapporterar också vilken spacr som finns på sökvägen. safespacr läser varje inställning som dess standardvärde och stänger av bakgrunden, animationerna, utförlig loggning och förladdning. Använd det när en sparad inställning hindrar programmet från att starta. Inställningar som sparas i säkert läge skrivs som vanligt och finns kvar.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/running-modules-headlessly.svg
    :alt: Drivmoduler utan grafiskt gränssnitt. Ingen Qt, ingen visning – för kluster, servrar och CI.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -689,11 +689,11 @@
 
 .. image:: ../../readme_images/sv/running-modules-headlessly-2.svg
    :alt: validate läser samma inställningar som körningen skulle läsa och listar varje problem, till exempel en saknad inställning eller en sökväg som inte finns, tillsammans med en åtgärd.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/inspecting-a-run.svg
    :alt: Inspektera en körning. Varje körning är journaliserad till ~/.spacr/runs med dess inställningar, hashade ingångar, utgångar, varningar, versioner och frön.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -702,7 +702,7 @@
 
 .. image:: ../../readme_images/sv/auditing-data-and-installation.svg
    :alt: Granskning av data och installation.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -712,7 +712,7 @@
 
 .. image:: ../../readme_images/sv/environment.svg
    :alt: Miljö.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -720,26 +720,26 @@
 
 .. image:: ../../readme_images/sv/environment-2.svg
    :alt: Roterande loggar skrivs till ~/.spacr/logs/spacr.log. Bifoga filen till en felrapport.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/sv/contributing-and-support.svg
    :alt: Bidrag och support. Skicka felrapporter och avgränsade funktionsförslag via GitHub-ärenden. Ange spaCR-version, operativsystem, Python-version, modulinställningar och relevant loggutdrag när du rapporterar ett fel. spacr-doctor samlar in det mesta av denna information; bifoga maskinvarurapporten vid prestandaproblem.
-   :width: 99.5%
+   :width: 100%
    :target: https://github.com/EinarOlafsson/spacr/issues
 
 .. image:: ../../readme_images/sv/licensing.svg
    :alt: Licens. spaCR frisätts under BSD 3-Clause-licens. Om spaCR bidrog till publicerade verk uppskattas en hänvisning och är inte ett villkor för licensen – se Citera spaCR nedan.
-   :width: 99.5%
+   :width: 100%
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
 
 .. image:: ../../readme_images/sv/tutorials.svg
    :alt: Handledningar. Det interaktiva biblioteket med spaCR-handledningar visar installation och användning av moduler steg för steg. Tillgänglig berättarröst och språk anges för varje lektion.
-   :width: 99.5%
+   :width: 100%
    :target: https://einarolafsson.github.io/spacr/tutorials/
 
 .. image:: ../../readme_images/sv/citing-spacr.svg
    :alt: Citera spaCR. Om spaCR bidrar till din forskning, citera: Olafsson EB, et al. En poolad bildbaserad CRISPR screening identifierar EAF1 som en T. gondii modulator för ESCRT subversion.
-   :width: 99.5%
+   :width: 100%
 
 | |citing-spacr-2-1|\ |citing-spacr-2-2|
 
@@ -755,38 +755,38 @@
 
 .. image:: ../../readme_images/sv/other-work-citing-spacr.svg
    :alt: Andra arbeten med hänvisning till spaCR.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-citing-papers-begin
 
 .. image:: ../../readme_images/sv/other-work-citing-spacr-2-1.svg
    :alt: Metabol anpassningsförmåga och näringsavlagring i Toxoplasma gondii: insikter från intag väg-deficen mutanter.
-   :width: 99.5%
+   :width: 100%
    :target: https://journals.asm.org/doi/full/10.1128/msphere.01011-24
 
 .. image:: ../../readme_images/sv/other-work-citing-spacr-2-2.svg
    :alt: IRE1α främjar fagsomalt kalciumflöde för att öka makrofag fungicid aktivitet.
-   :width: 99.5%
+   :width: 100%
    :target: https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6
 
 .. image:: ../../readme_images/sv/other-work-citing-spacr-2-3.svg
    :alt: Toxoplasma GRA8 engagerar värd ESCRT tillbehör protein ALG-2 och är nödvändig för parasit metabolisk integritet.
-   :width: 99.5%
+   :width: 100%
    :target: https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract
 
 .. image:: ../../readme_images/sv/other-work-citing-spacr-2-4.svg
    :alt: Hydrogen sulfide dynamically upregulates copper uptake and localization.
-   :width: 99.5%
+   :width: 100%
    :target: https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1
 
 .. image:: ../../readme_images/sv/other-work-citing-spacr-2-5.svg
    :alt: spaCR: Spatial fenotypanalys av CRISPR-Cas9-screeningar (preprint version 1).
-   :width: 99.5%
+   :width: 100%
    :target: https://www.researchsquare.com/article/rs-7368254/v1
 
 .. spacr-citing-papers-end
 
 .. image:: ../../readme_images/sv/acknowledgments.svg
    :alt: Tack. spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se information om översättningsmodellerna för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna.
-   :width: 99.5%
+   :width: 100%
    :target: ../TRANSLATION_MODELS.md

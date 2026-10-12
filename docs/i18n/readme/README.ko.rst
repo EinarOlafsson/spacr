@@ -104,12 +104,12 @@
 
 .. image:: ../../readme_images/ko/spacr.svg
    :alt: spaCR. CRISPR 스크리닝의 공간 표현형 분석. spaCR는 현미경 영상에서 단일 세포를 분할하고 측정하며, 객체별 표현형을 시퀀싱에서 산출한 가이드 풍부도와 통합하고, 어떤 유전자가 표현형 변화와 연관되는지 추정합니다. 플레이트 영상과 FASTQ 리드에서 시작하여 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 추정치, 우선순위가 지정된 히트 목록을 생성합니다. 분류, 측정, 기록 및 분류 모듈은 또한 순서 팔없이 실행됩니다. Make Masks는 분할 마스크를 수정하고 YOLO 내보내기를 위해 Box 도구로 클래스 라벨이 있는 독립적인 사각형을 주석 처리합니다. 박스는 원본 이미지나 마스크를 변경하지 않고 자체 라벨과 편집 이력을 유지합니다. 각 도구에 대한 설명은 기능 가이드 문서를 참조하십시오. 이미지, 마스크, 크롭은 디스크에 있는 파일입니다. 측정값, 주석, 모델 예측은 프로젝트의 SQLite 데이터베이스 measurements.db에 있는 테이블입니다. 데스크톱 애플리케이션으로 실행되거나 워크스테이션, 서버 또는 클러스터에서 헤드리스로 실행됩니다.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/features.rst
 
 .. image:: ../../readme_images/ko/try-spacr.svg
    :alt: spaCR 사용해 보기.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -120,23 +120,23 @@
 
 .. image:: ../../readme_images/ko/try-spacr-2.svg
    :alt: Import, Make Masks, Annotate 또는 분석 화면에서 테스트 데이터 불러오기…를 사용하여 예제 데이터를 다운로드합니다. 터미널에서는 spacr-download를 사용합니다.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/hardware-support.svg
    :alt: 하드웨어 지원.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-hardware-begin
 
 .. image:: ../../readme_images/ko/generated-hardware-1.svg
    :alt: NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. 지원 (안정) 구현됨 (베타) CPU만 지원.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-hardware-end
 
 .. image:: ../../readme_images/ko/install-spacr.svg
    :alt: spaCR 설치. 설치 방법을 선택하세요: 데스크톱 애플리케이션: 자체 Python이 포함된 Linux, macOS 또는 Windows용 설치 프로그램입니다. pip: Conda 환경에서 python -m pip install spacr 명령을 실행합니다. conda-forge: Conda 환경에서 conda install conda-forge::spacr 명령을 실행합니다. Docker: CPU 이미지 또는 NVIDIA GPU 이미지를 사용해 Linux 컨테이너에서 명령줄 파이프라인을 실행합니다:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -145,12 +145,12 @@
 
 .. image:: ../../readme_images/ko/install-spacr-2.svg
    :alt: Docker 가이드에서 GPU 설정, 데이터 마운트, 파이프라인 명령을 설명합니다.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/installer_guide.rst#container-images
 
 .. image:: ../../readme_images/ko/desktop-application.svg
    :alt: 데스크톱 애플리케이션. 설치자는 자신의 Python을 묶습니다.Conda는 필요하지 않습니다.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-installer-links-begin
 
@@ -173,7 +173,7 @@
 
 .. image:: ../../readme_images/ko/desktop-application-2.svg
    :alt: Linux에서는 다운로드한 파일에 실행 권한을 부여한 후 실행합니다:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -182,7 +182,7 @@
 
 .. image:: ../../readme_images/ko/desktop-application-3.svg
    :alt: macOS에서는 .pkg를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기를 선택하세요. 업데이트, 제거, 오프라인 사용 및 문제 해결 지침은 설치 안내서를 참조하십시오. 워크스테이션과 서버 권장 사항 및 GPU 호환성 표는 시스템 요구 사항을 참조하십시오.
-   :width: 99.5%
+   :width: 100%
 
 | |desktop-application-3-link-1|\ |desktop-application-3-link-2|
 
@@ -198,7 +198,7 @@
 
 .. image:: ../../readme_images/ko/pypi-installation.svg
    :alt: PyPI 설치. PyPI 릴리스는 Conda 환경 안에서 pip로 spaCR를 설치하세요. Python 3.12에서 선택 가능한 과학 패키지의 범위가 가장 넓습니다:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -210,7 +210,7 @@
 
 .. image:: ../../readme_images/ko/pypi-installation-2.svg
    :alt: spaCR는 Python 3.9 through 3.14 버전을 지원하며, torchvision이 제외하는 Python 3.14.1은 예외입니다. 가장 부하가 큰 CUDA 및 ROCm 워크플로에는 Linux를 권장합니다. macOS와 Windows도 지원되며, 두 플랫폼 모두 GPU를 사용합니다 — macOS는 Apple Silicon과 Intel Mac의 AMD 카드를 모두 포괄하는 Metal을 통해, Windows는 CUDA 또는 DirectML을 통해 GPU를 사용합니다. 표준 설치에는 Qt 데스크톱 인터페이스가 포함됩니다. 서버, 클러스터 또는 CI 실행기에서는 인터페이스를 열지 않고 명령줄 파이프라인을 실행하세요:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -219,12 +219,12 @@
 
 .. image:: ../../readme_images/ko/pypi-installation-3.svg
    :alt: 선택적 통합 기능은 spacr[zarr], spacr[omero], spacr[napari] 및 spacr[czi,nd2,lif]과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 설치 안내서를 참조하십시오.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/installer_guide.rst
 
 .. image:: ../../readme_images/ko/conda-forge-installation.svg
    :alt: conda-forge 설치. 공식 conda-forge 패키지는 활성 환경에 spaCR 및 데스크톱 실행에 필요한 종속성을 설치합니다:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -235,7 +235,7 @@
 
 .. image:: ../../readme_images/ko/install-from-source.svg
    :alt: 소스 코드에서 설치. 저장소를 클론한 뒤 편집 가능 모드로 설치하십시오. 그러면 작업 사본 자체가 설치된 패키지가 되어, 수정 사항이 재설치 없이 반영됩니다:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -248,7 +248,7 @@
 
 .. image:: ../../readme_images/ko/install-from-source-2.svg
    :alt: 이 명령은 최신 릴리스가 담긴 기본 브랜치인 main 브랜치를 클론합니다. 개발은 nightly 브랜치에서 이루어지며, 대신 이 브랜치를 클론하려면 --branch nightly 옵션을 추가하십시오. 특정 릴리스를 클론하려면:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -256,7 +256,7 @@
 
 .. image:: ../../readme_images/ko/install-from-source-3.svg
    :alt: 이후 변경 사항을 가져오려면 클론한 디렉터리 안에서 다음을 실행하십시오:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -265,11 +265,11 @@
 
 .. image:: ../../readme_images/ko/install-from-source-4.svg
    :alt: 의존성이나 진입점이 바뀌면 다시 설치하세요. Python 코드 변경은 바로 적용되며, spacr-doctor 로 현재 사용 중인 설치를 확인할 수 있습니다.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/install-from-source-light.svg
    :alt: 소스 코드에서 설치 (경량). 기여자는 버전 이력이 필요합니다. spaCR를 실행하기만 하려면 아래 방법 중 하나를 선택하세요. packaging/measure_clone_forms.sh 를 사용하여 2026-10-07에 nightly 의 05302fd5c 커밋을 측정했습니다:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -289,11 +289,11 @@
 
 .. image:: ../../readme_images/ko/install-from-source-light-2.svg
    :alt: nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 --filter=blob:none을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 3416 MB를 차지합니다(2026-10-08 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/command-line-entry-points.svg
    :alt: 명령줄 진입점.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -312,40 +312,40 @@
 
 .. image:: ../../readme_images/ko/command-line-entry-points-2.svg
    :alt: spacr-run --list는 그래픽 인터페이스 없이 실행할 수 있는 명령줄 진입점이 있는 모듈을 나열합니다. GUI에서만 제공되는 주석, 큐레이션, 비교 및 탐색 모듈은 목록에서 제외됩니다.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/core-workflow.svg
    :alt: 핵심 워크플로. 기본 워크플로는 6개 모듈로 구성됩니다: Mask Cellpose로 세포, 핵, 병원체 및 세포소기관을 분할합니다. Measure 형태, 강도, 텍스처, 공간 및 공위치 특성과 객체 크롭을 SQLite에 저장합니다. Annotate 키보드로 조작하는 격자에서 크롭에 라벨을 지정하고 능동 학습 대기열을 지원합니다. Classify 이미지 또는 측정값 기반 모델을 학습하고 각 체크포인트에 홀드아웃 데이터 성능을 기록합니다. Map Barcodes FASTQ 리드를 웰과 gRNA에 매핑하고 풍부도, 충돌 및 커버리지 QC를 제공합니다. Regression 연속형, 비율형 및 계수형 반응에 적합한 모델 계열로 가이드, 유전자, 조건 및 대조군 효과를 추정합니다.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/spacr-modules.svg
    :alt: spaCR 모듈.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-workflow-begin
 
 .. image:: ../../readme_images/ko/generated-workflow-1.svg
    :alt: 핵심. Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
 .. image:: ../../readme_images/ko/generated-workflow-2.svg
    :alt: 데이터. Import images and tables into spaCR projects and execute reproducible multi-plate workflows.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_foreign|\ |Module_embeddings|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|
 | |Module_qc_dashboard|
 
 .. image:: ../../readme_images/ko/generated-workflow-3.svg
    :alt: 도구. Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
 .. image:: ../../readme_images/ko/generated-workflow-4.svg
    :alt: 생물체. 생물체별 이미지 분석과 정량적 분석 결과.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_toxoplasma|
 
@@ -429,50 +429,50 @@
 
 .. image:: ../../readme_images/ko/spacr-modules-2.svg
    :alt: 홈 화면에 타일이 있는 모든 모듈을 홈 화면 순서대로 표시합니다. 먼저 여섯 파이프라인 모듈이 나오고 나머지 모듈이 이어집니다. 타일을 선택하면 해당 모듈의 API 페이지가 열립니다.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/other-resources.svg
    :alt: 다른 자원.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/other-resources-2-1.svg
    :alt: 대화형 튜토리얼 — 설치부터 스크리닝 히트 조사까지 안내하는 작업 흐름.
-   :width: 99.5%
+   :width: 100%
    :target: https://einarolafsson.github.io/spacr/tutorials/
 
 .. image:: ../../readme_images/ko/other-resources-2-2.svg
    :alt: Python API 빠른 시작 - 스크립트, 노트북 또는 클러스터에서 튜브를 실행하고 검증합니다.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/python_api.rst
 
 .. image:: ../../readme_images/ko/other-resources-2-3.svg
    :alt: 특징 가이드 - 능력, 성숙성 및 선택적 통합.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/features.rst
 
 .. image:: ../../readme_images/ko/other-resources-2-4.svg
    :alt: 정리된 API 참조 - 작업에 따라 지원되는 입력 포인트, 전체 모듈 참조 1 레벨 더 깊습니다.
-   :width: 99.5%
+   :width: 100%
    :target: https://einarolafsson.github.io/spacr/api/index.html
 
 .. image:: ../../readme_images/ko/other-resources-2-5.svg
    :alt: 언어 & 번역 가이드 - 인터페이스 언어, 컨텍스트 지원 및 과학 출력 정책.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/localization.rst
 
 .. image:: ../../readme_images/ko/language-translation.svg
    :alt: 언어 및 번역. 인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 spaCR → 환경 설정 → 언어 메뉴에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. 상황별 도움말 정책 문서를 참조하세요.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/localization.rst#contextual-help
 
 .. image:: ../../readme_images/ko/language-translation-2.svg
    :alt: 영어가 아닌 9개의 카탈로그는 기계적으로 작성되고 기술적으로 검토되며, 원주민 연설자에 의해 끝까지 읽기보다는 검토 범위 기록은 언어가 인간의 통로를 가졌으며 각 용어는 결정에 따라 영어로 남아 있습니다.
-   :width: 99.5%
+   :width: 100%
    :target: ../REVIEW_SCOPE_2026-09-04.md
 
 .. image:: ../../readme_images/ko/animated-setting-guidance.svg
    :alt: 애니메이션 설정 안내. 시각적 설명이 있는 설정은 도구 설명에 Animation 컨트롤을 제공합니다. 다음 리소스를 살펴보세요: 설정 애니메이션 갤러리 및 설정 애니메이션 레지스트리.
-   :width: 99.5%
+   :width: 100%
 
 | |animated-setting-guidance-link-1|\ |animated-setting-guidance-link-2|
 
@@ -488,7 +488,7 @@
 
 .. image:: ../../readme_images/ko/data.svg
    :alt: 데이터. 참조 데이터세트.
-   :width: 99.5%
+   :width: 100%
 
 |DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
@@ -519,7 +519,7 @@
 
 .. image:: ../../readme_images/ko/model-zoo.svg
    :alt: 모델 라이브러리. spaCR는 훈련 된 모델의 카탈로그를 배치하고 수요에 따라 그들을 잡습니다. 모델 동물원 홈 화면에서 탐색하고 설치하거나 설정을 파일에 키를 지정하십시오 - pathogen_model: toxoplasma_pv_v1 - 그리고 모델이 다운로드되고 처음으로 필요합니다. 각 게시 된 입력은 SHA-256을 가지고; 하나가없는 입력은 설치되지 않고 거부됩니다, 왜냐하면 흔들리거나 대체 된 체크 포인트가 실제로 말할 수 없기 때문에.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-model-zoo-begin
 
@@ -576,7 +576,7 @@
 
 .. image:: ../../readme_images/ko/generated-model-zoo-1.svg
    :alt: Older models.
-   :width: 99.5%
+   :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
 | |generated-model-zoo-1-link-4|\ |generated-model-zoo-1-link-5|\ |generated-model-zoo-1-link-6|
@@ -619,7 +619,7 @@
 
 .. image:: ../../readme_images/ko/generated-model-zoo-2.svg
    :alt: Alternatives.
-   :width: 99.5%
+   :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
 
@@ -637,7 +637,7 @@
 
 .. image:: ../../readme_images/ko/diagnosing-performance.svg
    :alt: 성능 진단. 하드웨어 보고서를 생성하여 성능 관련 이슈에 첨부하세요:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -645,15 +645,15 @@
 
 .. image:: ../../readme_images/ko/diagnosing-performance-2.svg
    :alt: ~/.spacr/reports로 저장하고 경로를 인쇄합니다. --quick는 더 긴 좌표를 스키; --out PATH는 위치를 설정합니다. 프로젝트 데이터를 읽지 않습니다. 가져오기, 수치 라이브러리, 창 구성 및 애니메이션에 걸리는 시간을 측정하고 Apple Silicon의 x86_64 에뮬레이션과 NumPy의 BLAS 구현 정보를 보고합니다.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/command-line-reference.svg
    :alt: 명령선 참조. Every command below is installed by pip install spacr. All of them accept --help.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/launching-the-application.svg
    :alt: 신청을 시작하는 방법.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -663,7 +663,7 @@
 
 .. image:: ../../readme_images/ko/when-spacr-will-not-start.svg
    :alt: spaCR 시작하지 않을 때.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -672,11 +672,11 @@
 
 .. image:: ../../readme_images/ko/when-spacr-will-not-start-2.svg
    :alt: spacr-doctor은 각 실패에 대해 실행하는 명령이있는 한 줄을 인쇄합니다. spacr이 경로에있는 것을보고합니다. safespacr는 모든 환경설정을 기본값으로 읽고 배경, 애니메이션, 상세 로깅, 미리 불러오기를 끕니다. 저장된 환경설정 때문에 프로그램이 시작되지 않을 때 사용하세요. 안전 모드에서 저장한 환경설정은 평소처럼 기록되며 유지됩니다.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/running-modules-headlessly.svg
    :alt: 모듈을 끊임없이 실행하는 방법. Qt 없으며, 클러스터, 서버 및 CI를 위한 디스플레이가 없습니다.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -689,11 +689,11 @@
 
 .. image:: ../../readme_images/ko/running-modules-headlessly-2.svg
    :alt: validate는 실행 시 읽을 설정과 같은 설정을 읽고, 누락된 설정이나 존재하지 않는 경로 같은 각 문제를 해결 방법과 함께 나열합니다.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/inspecting-a-run.svg
    :alt: 실행 검사. 각 라운드는 ~/.spacr/runs로 기록되며 설정, 해시된 입력, 출력, 경고, 버전 및 씨앗이 있습니다.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -702,7 +702,7 @@
 
 .. image:: ../../readme_images/ko/auditing-data-and-installation.svg
    :alt: 데이터 검토 및 설치.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -712,7 +712,7 @@
 
 .. image:: ../../readme_images/ko/environment.svg
    :alt: 환경.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -720,26 +720,26 @@
 
 .. image:: ../../readme_images/ko/environment-2.svg
    :alt: 회전 기록은 ~/.spacr/logs/spacr.log로 작성됩니다.이 파일을 오류 보고서에 붙여 넣으십시오.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/ko/contributing-and-support.svg
    :alt: 기여 및 지원. 버그 보고와 범위가 명확한 기능 요청은 GitHub Issues를 통해 제출하세요. 오류를 보고할 때는 spaCR 버전, 운영 체제, Python 버전, 모듈 설정 및 관련 로그 일부를 포함하십시오. spacr-doctor가 이 정보의 대부분을 수집합니다. 성능 문제를 보고할 때는 하드웨어 보고서도 포함하십시오.
-   :width: 99.5%
+   :width: 100%
    :target: https://github.com/EinarOlafsson/spacr/issues
 
 .. image:: ../../readme_images/ko/licensing.svg
    :alt: 라이선스. spaCR is released under the BSD 3 클래스 라이센스. spaCR이 출판된 작품에 기여한 경우, 인용문이 평가되고 라이센스의 조건이 아닙니다. - 아래의 `spaCR 인용`_을 참조하십시오.
-   :width: 99.5%
+   :width: 100%
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
 
 .. image:: ../../readme_images/ko/tutorials.svg
    :alt: 튜토리얼. spaCR 대화형 튜토리얼 라이브러리는 설치와 모듈 사용을 단계별로 안내합니다. 각 강의에는 사용 가능한 내레이션과 언어가 표시됩니다.
-   :width: 99.5%
+   :width: 100%
    :target: https://einarolafsson.github.io/spacr/tutorials/
 
 .. image:: ../../readme_images/ko/citing-spacr.svg
    :alt: spaCR 인용. spaCR가 연구에 기여했다면 다음을 인용해 주세요: Olafsson EB, et al. 풀드 이미지 기반 CRISPR 스크린은 EAF1을 T. gondii의 ESCRT 기능 탈취 조절 인자로 규명합니다.
-   :width: 99.5%
+   :width: 100%
 
 | |citing-spacr-2-1|\ |citing-spacr-2-2|
 
@@ -755,38 +755,38 @@
 
 .. image:: ../../readme_images/ko/other-work-citing-spacr.svg
    :alt: 다른 작품은 spaCR을 인용합니다.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-citing-papers-begin
 
 .. image:: ../../readme_images/ko/other-work-citing-spacr-2-1.svg
    :alt: Toxoplasma gondii에서 신진 대사 적응성 및 영양 탐색 : 섭취 경로 결핍 돌연변이의 인식.
-   :width: 99.5%
+   :width: 100%
    :target: https://journals.asm.org/doi/full/10.1128/msphere.01011-24
 
 .. image:: ../../readme_images/ko/other-work-citing-spacr-2-2.svg
    :alt: IRE1α는 마크로파지 곰팡이 활동을 향상시키기 위해 파고소마 칼슘 흐름을 촉진합니다.
-   :width: 99.5%
+   :width: 100%
    :target: https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6
 
 .. image:: ../../readme_images/ko/other-work-citing-spacr-2-3.svg
    :alt: Toxoplasma GRA8은 호스트 ESCRT 액세서리 단백질 ALG-2를 포함하고 기생충의 신진 대사 무결성을 위해 필요합니다.
-   :width: 99.5%
+   :width: 100%
    :target: https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract
 
 .. image:: ../../readme_images/ko/other-work-citing-spacr-2-4.svg
    :alt: Hydrogen sulfide dynamically upregulates copper uptake and localization.
-   :width: 99.5%
+   :width: 100%
    :target: https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1
 
 .. image:: ../../readme_images/ko/other-work-citing-spacr-2-5.svg
    :alt: spaCR: CRISPR-Cas9 스크린의 공간 현상 분석 (프리 프린트 버전 1).
-   :width: 99.5%
+   :width: 100%
    :target: https://www.researchsquare.com/article/rs-7368254/v1
 
 .. spacr-citing-papers-end
 
 .. image:: ../../readme_images/ko/acknowledgments.svg
    :alt: 감사의 말. spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 번역 모델 표기 문서에서 확인할 수 있습니다.
-   :width: 99.5%
+   :width: 100%
    :target: ../TRANSLATION_MODELS.md

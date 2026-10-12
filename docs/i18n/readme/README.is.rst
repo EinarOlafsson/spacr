@@ -104,12 +104,12 @@
 
 .. image:: ../../readme_images/is/spacr.svg
    :alt: spaCR. Rýmisbundin svipgerðargreining á CRISPR-skimunum. spaCR aðgreinir og mælir stakar frumur í smásjármyndum, samþættir svipgerðir einstakra viðfanga við magn leiðarsameinda sem fæst úr raðgreiningu og metur hvaða gen tengjast svipgerðarbreytingum. Út frá plötumyndum og FASTQ-röðum býr það til mælingar fyrir hvert viðfang, þjálfaða flokkara, áhrifamat fyrir hverja leiðarsameind og hvert gen og forgangsraðaðan lista yfir niðurstöður. Segmingu, mæling, notkun og flokksmiðju mótmælur virkar einnig án sekkunararms. Make Masks leiðréttir skiptingargrímur og merkir sjálfstæða rétthyrninga með flokkamerkjum með Box verkfærinu fyrir YOLO-útflutning. Rammarnir halda eigin merkjum og sögu án þess að breyta upprunamyndum eða grímum. Hvert verkfæri er útskýrt í eiginleikahandbókinni. Myndir, grímur og myndúrklippur eru skrár á diski. Mælingar, merkingar og spár líkana eru töflur í SQLite-gagnagrunni verkefnisins, measurements.db. Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/features.rst
 
 .. image:: ../../readme_images/is/try-spacr.svg
    :alt: Prófa spaCR.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -120,23 +120,23 @@
 
 .. image:: ../../readme_images/is/try-spacr-2.svg
    :alt: Notaðu Hlaða prófunargögnum… í Import, Make Masks, Annotate eða á greiningarskjá til að sækja sýnigögn. Notaðu spacr-download í skipanalínu.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/hardware-support.svg
    :alt: Hardware aðstoð.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-hardware-begin
 
 .. image:: ../../readme_images/is/generated-hardware-1.svg
    :alt: NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. stutt (stöðugt) útfært (beta) aðeins CPU-stuðningur.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-hardware-end
 
 .. image:: ../../readme_images/is/install-spacr.svg
    :alt: Setja upp spaCR. Veldu uppsetningarleið: Skjáborðsforrit: uppsetningarforrit fyrir Linux, macOS eða Windows með eigið Python. pip: python -m pip install spacr í Conda-umhverfi. conda-forge: conda install conda-forge::spacr í Conda-umhverfi. Docker: skipanalínuvinnslurnar í Linux-gámi, úr CPU-myndinni eða myndinni fyrir NVIDIA-skjákort:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -145,12 +145,12 @@
 
 .. image:: ../../readme_images/is/install-spacr-2.svg
    :alt: Docker-leiðbeiningarnar fjalla um uppsetningu skjákorts, tengingu gagnamappa og skipanir fyrir vinnslurnar.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/installer_guide.rst#container-images
 
 .. image:: ../../readme_images/is/desktop-application.svg
    :alt: Skjáborðsforrit. Þessir uppbyggingar búnir eigin Python. Conda er ekki nauðsynlegt.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-installer-links-begin
 
@@ -173,7 +173,7 @@
 
 .. image:: ../../readme_images/is/desktop-application-2.svg
    :alt: Í Linux skaltu gera skrána sem var sótt keyranlega og keyra hana:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -182,7 +182,7 @@
 
 .. image:: ../../readme_images/is/desktop-application-3.svg
    :alt: Á macOS, opna .pkg. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja System Settings → Privacy & Security → Open Anyway. Sjá uppsetningarleiðbeiningarnar fyrir leiðbeiningar um uppfærslu, fjarlægingu, notkun án nettengingar og bilanagreiningu. Í kerfiskröfunum eru ráðleggingar um vinnustöðvar og netþjóna og töflur um GPU-samhæfi.
-   :width: 99.5%
+   :width: 100%
 
 | |desktop-application-3-link-1|\ |desktop-application-3-link-2|
 
@@ -198,7 +198,7 @@
 
 .. image:: ../../readme_images/is/pypi-installation.svg
    :alt: Uppsetning frá PyPI. Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi. Python 3.12 býður upp á mesta úrvalið af valfrjálsum vísindapökkum:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -210,7 +210,7 @@
 
 .. image:: ../../readme_images/is/pypi-installation-2.svg
    :alt: spaCR styður Python 3.9 til 3.14, nema Python 3.14.1, sem torchvision útilokar. Mælt er með Linux fyrir þyngstu CUDA- og ROCm-verkflæðin; macOS og Windows eru einnig studd og nýta bæði GPU sín — macOS í gegnum Metal, sem nær yfir Apple Silicon og AMD-kortin í Intel-Mac-tölvum, og Windows í gegnum CUDA eða DirectML. Hefðbundin uppsetning inniheldur Qt-skjáborðsviðmótið. Á þjóni, reikniklasa eða CI-keyrsluumhverfi má keyra skipanalínuverkflæðin án þess að opna það:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -219,12 +219,12 @@
 
 .. image:: ../../readme_images/is/pypi-installation-3.svg
    :alt: Opinlegri samsetningar eru settar sérstakt, t.d. spacr[zarr], spacr[omero],spacr[napari] og spacr[czi,nd2,lif]. Sjá Uppsetningu leiðbeiningar fyrir fullkomna útgáfur og Python-version samskipti tól.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/installer_guide.rst
 
 .. image:: ../../readme_images/is/conda-forge-installation.svg
    :alt: Uppsetning með conda-forge. Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsforritsins upp í virka umhverfinu:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -235,7 +235,7 @@
 
 .. image:: ../../readme_images/is/install-from-source.svg
    :alt: Uppsetning frá frumkóða. Klónaðu kóðasafnið og settu það upp í breytanlegum ham, svo að vinnueintakið þitt sé uppsetti pakkinn og breytingar taki gildi án enduruppsetningar:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -248,7 +248,7 @@
 
 .. image:: ../../readme_images/is/install-from-source-2.svg
    :alt: Þetta klónar main, sjálfgefnu greinina, sem geymir nýjustu útgáfuna. Þróunin fer fram á nightly; bættu --branch nightly við til að klóna hana í staðinn. Fyrir tiltekna útgáfu:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -256,7 +256,7 @@
 
 .. image:: ../../readme_images/is/install-from-source-3.svg
    :alt: Til að sækja síðari breytingar skaltu keyra inni í klóninu:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -265,11 +265,11 @@
 
 .. image:: ../../readme_images/is/install-from-source-4.svg
    :alt: Settu upp aftur þegar háðir pakkar eða inngangspunktar breytast. Breytingar á Python-kóða taka gildi beint; spacr-doctor sýnir hvaða uppsetning er virk.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/install-from-source-light.svg
    :alt: Uppsetning frá frumkóða (létt). Þátttakendur þurfa útgáfusöguna; veldu einn af kostunum hér fyrir neðan ef þú vilt aðeins keyra spaCR. Mælingar á nightly við 05302fd5c þann 2026-10-07 með packaging/measure_clone_forms.sh:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -289,11 +289,11 @@
 
 .. image:: ../../readme_images/is/install-from-source-light-2.svg
    :alt: Full klónun nightly sótti 9.25 GiB. Að bæta --filter=blob:none við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í nightly taka 3416 MB í vinnueintakinu (mælt 2026-10-08), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/command-line-entry-points.svg
    :alt: Skipanalínuskipanir.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -312,40 +312,40 @@
 
 .. image:: ../../readme_images/is/command-line-entry-points-2.svg
    :alt: spacr-run --list listar einingar sem hafa skipanalínuinngang til keyrslu án grafísks viðmóts. Einingum fyrir merkingu, gagnayfirferð, samanburð og könnun sem eingöngu eru í GUI er sleppt.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/core-workflow.svg
    :alt: Kjarnaverkflæði. Aðalvinnuflæðið samanstendur af sex einingum: Mask hlutgreinir frumur, frumukjarna, sýkla og frumulíffæri með Cellpose. Measure skrifar lögunar-, styrkleika-, áferðar-, rúm- og samstaðsetningareiginleika ásamt myndúrklippum viðfanga í SQLite. Annotate merkir myndúrklippur í lyklaborðsstýrðu hnitaneti og styður biðraðir virks náms. Classify þjálfar líkön byggð á myndum eða mælingum og skráir frammistöðu á fráteknum gögnum með hverjum varðpunkti. Map Barcodes varpar FASTQ-lestrum á brunna og gRNA og veitir gæðamat fyrir magn, árekstra og þekju. Regression metur áhrif leiðarsameinda, gena, skilyrða og viðmiða með líkanafjölskyldum sem henta samfelldum gildum, hlutföllum og talningum.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/spacr-modules.svg
    :alt: spaCR-einingar.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-workflow-begin
 
 .. image:: ../../readme_images/is/generated-workflow-1.svg
    :alt: Kjarni. Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
 .. image:: ../../readme_images/is/generated-workflow-2.svg
    :alt: Gögn. Import images and tables into spaCR projects and execute reproducible multi-plate workflows.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_foreign|\ |Module_embeddings|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|
 | |Module_qc_dashboard|
 
 .. image:: ../../readme_images/is/generated-workflow-3.svg
    :alt: Verkfæri. Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
 .. image:: ../../readme_images/is/generated-workflow-4.svg
    :alt: Lífvera. Myndgreining fyrir tilteknar lífverur og megindlegar niðurstöður líffræðilegra prófana.
-   :width: 99.5%
+   :width: 100%
 
 | |Module_toxoplasma|
 
@@ -429,50 +429,50 @@
 
 .. image:: ../../readme_images/is/spacr-modules-2.svg
    :alt: Allar einingar sem eiga reit á upphafsskjánum, í sömu röð og þar: fyrst sex einingar vinnslukeðjunnar, síðan hinar. Veldu reit til að opna API-síðu einingarinnar.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/other-resources.svg
    :alt: Öll aðrar auðlindir.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/other-resources-2-1.svg
    :alt: Gagnvirkt kennsluefni — leiðsögn um verkferla frá uppsetningu til rannsóknar á niðurstöðum skimunar.
-   :width: 99.5%
+   :width: 100%
    :target: https://einarolafsson.github.io/spacr/tutorials/
 
 .. image:: ../../readme_images/is/other-resources-2-2.svg
    :alt: Python API snemma byrjun — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/python_api.rst
 
 .. image:: ../../readme_images/is/other-resources-2-3.svg
    :alt: Leikstjóri — hæfileika, fullnægjandi og valfrjáls tengsl.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/features.rst
 
 .. image:: ../../readme_images/is/other-resources-2-4.svg
    :alt: Heilluð API reference — stuðlað innfangspunktur eftir verkefni, með fullkomna mótum tengslum einn hærra.
-   :width: 99.5%
+   :width: 100%
    :target: https://einarolafsson.github.io/spacr/api/index.html
 
 .. image:: ../../readme_images/is/other-resources-2-5.svg
    :alt: Sjálf tungumál og þýðingu leiðbeining — samskipti tungumál, kontext hjálp og vísindaleg útleiðslu.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/localization.rst
 
 .. image:: ../../readme_images/is/language-translation.svg
    :alt: Tungumál og þýðingar. Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir spaCR → Stillingar → Tungumál án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá stefnu um samhengishjálp.
-   :width: 99.5%
+   :width: 100%
    :target: ../../source/localization.rst#contextual-help
 
 .. image:: ../../readme_images/is/language-translation-2.svg
    :alt: Nín ekki Engleska sögu eru stutt og tæknilegt endurskoðað í stað þess að lesa end til end af heimilum tala. Sjáðu skammt skrá sem tungumálir hafa haft mannleg útgang og hvert orð eftir á Englesku eftir ákvörðun.
-   :width: 99.5%
+   :width: 100%
    :target: ../REVIEW_SCOPE_2026-09-04.md
 
 .. image:: ../../readme_images/is/animated-setting-guidance.svg
    :alt: Hreyfimyndaleiðbeiningar fyrir stillingar. Stillingar með sjónræna skýringu bjóða upp á Animation-stýringu í verkfæraábendingunni. Skoðaðu myndasafn stillingahreyfimynda eða skrá stillingahreyfimynda.
-   :width: 99.5%
+   :width: 100%
 
 | |animated-setting-guidance-link-1|\ |animated-setting-guidance-link-2|
 
@@ -488,7 +488,7 @@
 
 .. image:: ../../readme_images/is/data.svg
    :alt: Gögn. Viðmiðunargagnasöfn.
-   :width: 99.5%
+   :width: 100%
 
 |DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
@@ -519,7 +519,7 @@
 
 .. image:: ../../readme_images/is/model-zoo.svg
    :alt: Líkanasafn. spaCR skipar listan af þjálfað mönnunum og snúa þeim á eftirspurn. Opna Mönnun Zoo frá heimaskjólum til að skoða og setja upp þá, eða nefna key í setningarfilenni - pathogen_model: toxoplasma_pv_v1 - og mönnin er hlaðið niður og checksum-verified fyrsta sinn sem það er nauðsynlegt.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-model-zoo-begin
 
@@ -576,7 +576,7 @@
 
 .. image:: ../../readme_images/is/generated-model-zoo-1.svg
    :alt: Older models.
-   :width: 99.5%
+   :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
 | |generated-model-zoo-1-link-4|\ |generated-model-zoo-1-link-5|\ |generated-model-zoo-1-link-6|
@@ -619,7 +619,7 @@
 
 .. image:: ../../readme_images/is/generated-model-zoo-2.svg
    :alt: Alternatives.
-   :width: 99.5%
+   :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
 
@@ -637,7 +637,7 @@
 
 .. image:: ../../readme_images/is/diagnosing-performance.svg
    :alt: Greining á afköstum. Búðu til vélbúnaðarskýrslu og hengdu hana við mál um afköst:
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -645,15 +645,15 @@
 
 .. image:: ../../readme_images/is/diagnosing-performance-2.svg
    :alt: Spara til ~/.spacr/reports og trúa leiðinni. --quick skiptir lengri skilyrði; --out PATH setur staðsetningu. Les engin verkefnisgögn. Mælir tímann sem innflutningur, töluleg söfn, gerð glugga og hreyfimyndir taka og greinir frá x86_64-hermun á Apple Silicon og BLAS-útfærslu NumPy.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/command-line-reference.svg
    :alt: Orðlinna reference. Öll beint hér að neðan er sett með pip install spacr. Allir samþykkir --help.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/launching-the-application.svg
    :alt: Að byrja við umsókn.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -663,7 +663,7 @@
 
 .. image:: ../../readme_images/is/when-spacr-will-not-start.svg
    :alt: Þegar spaCR mun ekki byrja.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -672,11 +672,11 @@
 
 .. image:: ../../readme_images/is/when-spacr-will-not-start-2.svg
    :alt: spacr-doctor drukkar eitt línu á athygli, með komandi til að kjósa fyrir hvert mismunandi. Það segir einnig hvaða spacr er á slóðinni. safespacr les hverja stillingu sem sjálfgefið gildi hennar og slekkur á bakgrunni, hreyfimyndum, ítarlegri skráningu og forhleðslu. Notaðu það þegar vistuð stilling kemur í veg fyrir að forritið ræsist. Stillingar sem vistaðar eru í öruggum ham eru skrifaðar eins og venjulega og haldast.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/running-modules-headlessly.svg
    :alt: Að hlaupa modúlum án heiðar. Engin Qt, engin sýning — fyrir klúster, þjónusta og CI.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -689,11 +689,11 @@
 
 .. image:: ../../readme_images/is/running-modules-headlessly-2.svg
    :alt: validate les sömu stillingar og keyrslan myndi lesa og telur upp hvert vandamál, til dæmis stillingu sem vantar eða slóð sem er ekki til, ásamt lagfæringu.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/inspecting-a-run.svg
    :alt: Skoða keyrslu. Hver rán er skráður á ~/.spacr/runs með settum sínum, hashed inntölum, úttökum, varningar, útgáfur og frönum.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -702,7 +702,7 @@
 
 .. image:: ../../readme_images/is/auditing-data-and-installation.svg
    :alt: Ákvarðanir gögnum og uppsetningu.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -712,7 +712,7 @@
 
 .. image:: ../../readme_images/is/environment.svg
    :alt: Umhverfi.
-   :width: 99.5%
+   :width: 100%
 
 .. code-block:: bash
 
@@ -720,26 +720,26 @@
 
 .. image:: ../../readme_images/is/environment-2.svg
    :alt: Rotating logs eru skrifað í ~/.spacr/logs/spacr.log. Sættu þessar skál á bug-report.
-   :width: 99.5%
+   :width: 100%
 
 .. image:: ../../readme_images/is/contributing-and-support.svg
    :alt: Framlög og aðstoð. Sendu villutilkynningar og afmarkaðar óskir um eiginleika í gegnum GitHub-mál. Þegar bilun er tilkynnt skal tilgreina útgáfu spaCR, stýrikerfi, útgáfu Python, stillingar einingarinnar og viðeigandi hluta úr annálnum. spacr-doctor safnar flestum þessara upplýsinga; láttu vélbúnaðarskýrsluna fylgja þegar tilkynnt er um afkastavandamál.
-   :width: 99.5%
+   :width: 100%
    :target: https://github.com/EinarOlafsson/spacr/issues
 
 .. image:: ../../readme_images/is/licensing.svg
    :alt: Leyfi. spaCR er frelsað undir BSD 3-Klausur leyfi. Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði fyrir leyfi — sjá Tilvísun í spaCR hér neðan.
-   :width: 99.5%
+   :width: 100%
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
 
 .. image:: ../../readme_images/is/tutorials.svg
    :alt: Kennsluefni. Gagnvirka spaCR-kennslusafnið leiðir þig í gegnum uppsetningu og notkun eininganna. Hver kennslustund tilgreinir hvaða upplestur og tungumál eru í boði.
-   :width: 99.5%
+   :width: 100%
    :target: https://einarolafsson.github.io/spacr/tutorials/
 
 .. image:: ../../readme_images/is/citing-spacr.svg
    :alt: Tilvísun í spaCR. Ef spaCR nýtist við rannsóknina skaltu vitna í: Olafsson EB, et al. A sameiginlegur myndbönd sem er bastir á CRISPR skrefinn skilur EAF1 sem T. gondii modulator ESCRT subversion.
-   :width: 99.5%
+   :width: 100%
 
 | |citing-spacr-2-1|\ |citing-spacr-2-2|
 
@@ -755,38 +755,38 @@
 
 .. image:: ../../readme_images/is/other-work-citing-spacr.svg
    :alt: Aðrir verk sem heitir spaCR.
-   :width: 99.5%
+   :width: 100%
 
 .. spacr-citing-papers-begin
 
 .. image:: ../../readme_images/is/other-work-citing-spacr-2-1.svg
    :alt: Metabolic adaptability og næringssvopning í Toxoplasma gondii: innsýn frá innihaldskortum mutantum.
-   :width: 99.5%
+   :width: 100%
    :target: https://journals.asm.org/doi/full/10.1128/msphere.01011-24
 
 .. image:: ../../readme_images/is/other-work-citing-spacr-2-2.svg
    :alt: IRE1α stuðlar að fagosomal kalsiumflokk til að bæta makrofága svítilverkefni.
-   :width: 99.5%
+   :width: 100%
    :target: https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6
 
 .. image:: ../../readme_images/is/other-work-citing-spacr-2-3.svg
    :alt: Toxoplasma GRA8 er nauðsynlegur fyrir aðstoðproteín ALG-2 og er mikilvægt fyrir efnahagsleikum parasita.
-   :width: 99.5%
+   :width: 100%
    :target: https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract
 
 .. image:: ../../readme_images/is/other-work-citing-spacr-2-4.svg
    :alt: Hydrogen sulfide dynamically upregulates copper uptake and localization.
-   :width: 99.5%
+   :width: 100%
    :target: https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1
 
 .. image:: ../../readme_images/is/other-work-citing-spacr-2-5.svg
    :alt: spaCR: Spatial fenotypeanalyse af CRISPR-Cas9 skrefum (preprint útgáfa 1).
-   :width: 99.5%
+   :width: 100%
    :target: https://www.researchsquare.com/article/rs-7368254/v1
 
 .. spacr-citing-papers-end
 
 .. image:: ../../readme_images/is/acknowledgments.svg
    :alt: Þakkir. spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá upplýsingar um þýðingarlíkön fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.
-   :width: 99.5%
+   :width: 100%
    :target: ../TRANSLATION_MODELS.md
