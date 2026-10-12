@@ -1,0 +1,56 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Edit mode",
+      "source": "Edit mode",
+      "source_sha256": "e7c3e7e5dd6c5682f02211072dd95a09af8f7a76422d812c23f712a4bf0431d0",
+      "table": "ui",
+      "translation": "编辑模式"
+    },
+    {
+      "key": "Edit mode is off — back to read-only.",
+      "source": "Edit mode is off — back to read-only.",
+      "source_sha256": "96e568fc2dc4bdc1e6235a8df32965b66281ebfbe00bea4f3e2e68c9dbc1ad7f",
+      "table": "ui",
+      "translation": "编辑模式已关闭 — 返回只读。"
+    },
+    {
+      "key": "Edit mode not enabled — still read-only.",
+      "source": "Edit mode not enabled — still read-only.",
+      "source_sha256": "dafebfae8803b4981a7c30fee870641d462027f98f1ece6b3ec466315f028da7",
+      "table": "ui",
+      "translation": "编辑模式未启用 — 仍为只读。"
+    },
+    {
+      "key": "Edit mode was armed for a different database — turning it off.",
+      "source": "Edit mode was armed for a different database — turning it off.",
+      "source_sha256": "14e0a14ff563c469c04b0b2c073c018a4c5c6be9ca3c967758830451af42033c",
+      "table": "ui",
+      "translation": "编辑模式曾为另一个数据库启用 — 正在将其关闭。"
+    },
+    {
+      "key": "Read-only. Tick 'Edit mode' to write to this file; you will be asked to confirm.",
+      "source": "Read-only. Tick 'Edit mode' to write to this file; you will be asked to confirm.",
+      "source_sha256": "41ed63e1d764e86006882ce40d14b75a6e97b9df4da5bfb0ab38dca3ef5545bd",
+      "table": "ui",
+      "translation": "只读。勾选“编辑模式”即可写入此文件；系统会要求您确认。"
+    },
+    {
+      "key": "This database is open read-only — tick 'Edit mode' to change values.",
+      "source": "This database is open read-only — tick 'Edit mode' to change values.",
+      "source_sha256": "00807bf83c3e3601e228e9ee2cdad7c598823756ef7708bafa72b4d952b9129b",
+      "table": "ui",
+      "translation": "此数据库以只读方式打开 — 勾选“编辑模式”即可更改值。"
+    },
+    {
+      "key": "Off by default. The Database Browser opens measurements.db read-only (mode=ro). With this on you can still only edit after arming 'Edit mode' for a database you chose yourself, and every change is one UPDATE scoped to one row. There is no undo — spaCR writes straight into your measurements file.",
+      "source": "Off by default. The Database Browser opens measurements.db read-only (mode=ro). With this on you can still only edit after arming 'Edit mode' for a database you chose yourself, and every change is one UPDATE scoped to one row. There is no undo — spaCR writes straight into your measurements file.",
+      "source_sha256": "5225c5707ef7c1c76152105a40ee60e306fd8ba586f9e1072eb3c41f895fa572",
+      "table": "ui",
+      "translation": "默认关闭。Database Browser 以只读方式（mode=ro）打开 measurements.db。开启后，只有为您自己选择的数据库启用“编辑模式”之后才能编辑，并且每次更改都是针对一行的单个 UPDATE。没有撤销 — spaCR 直接写入您的测量文件。"
+    }
+  ],
+  "review_scope": "AI technical review (Claude Sonnet 5.5); no native-speaker signoff.",
+  "schema": 1
+}
