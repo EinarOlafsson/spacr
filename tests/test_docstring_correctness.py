@@ -2499,7 +2499,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "534_spatial_api_arrivals_2026-10-11.json",
                      "691_mitonet_api_arrivals_2026-10-11.json",
                      "692_three_d_mask_drawing_api_arrivals_2026-10-11.json",
-                     "prefs_apply_api_arrivals_2026-10-12.json"):
+                     "prefs_apply_api_arrivals_2026-10-12.json",
+                     "655_accessibility_api_arrivals_2026-10-12.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     assert contract_arrivals & by_symbol.keys()
@@ -3964,6 +3965,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in apply_additions} == apply_additions
     assert not apply_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **apply_additions}
+    a11y_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "655_accessibility_api_arrivals_2026-10-12.json").read_text())
+    assert len(a11y_additions) == 15
+    assert {key: docs[key] for key in a11y_additions} == a11y_additions
+    assert not a11y_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **a11y_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -4333,7 +4341,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "534_spatial_api_arrivals_2026-10-11.json",
                      "691_mitonet_api_arrivals_2026-10-11.json",
                      "692_three_d_mask_drawing_api_arrivals_2026-10-11.json",
-                     "prefs_apply_api_arrivals_2026-10-12.json"):
+                     "prefs_apply_api_arrivals_2026-10-12.json",
+                     "655_accessibility_api_arrivals_2026-10-12.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     prior = prior - contract_callables
@@ -4359,7 +4368,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "685_model_zoo_api_arrivals_2026-10-11.json",
                      "691_mitonet_api_arrivals_2026-10-11.json",
                      "692_three_d_mask_drawing_api_arrivals_2026-10-11.json",
-                     "prefs_apply_api_arrivals_2026-10-12.json"):
+                     "prefs_apply_api_arrivals_2026-10-12.json",
+                     "655_accessibility_api_arrivals_2026-10-12.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables &= rendered_documented_callables.keys()

@@ -255,6 +255,23 @@ moves out of text boxes and tables to the next control instead of typing a
 tab. **Preferences → Appearance → Theme** offers **High contrast**, in which
 all text has a contrast ratio of at least 7:1 against its background.
 
+**Preferences → Appearance → Accessibility** gathers the settings that help
+most:
+
+- **High contrast** chooses the High contrast theme. Clear it to return to
+  the theme you had before. The Theme control shows the same choice.
+- **Text size** makes all text larger or smaller. It is the same setting as
+  **Font scale** on the General tab.
+- **Reduce motion** holds every animated backdrop still and turns off
+  ripples, click ripples, popup waves and mouse gravity. Clear it to get your
+  previous motion settings back exactly.
+- **Focus outlines** draws a thick outline round the control that has
+  keyboard focus, in a colour that stands out in every theme.
+- **Keyboard shortcuts…** opens the shortcut editor, where you can change
+  the key for any action.
+
+Apply, Cancel and Save work as they do for every other preference.
+
 Data-art themes
 ---------------
 

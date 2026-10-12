@@ -10129,7 +10129,9 @@ class AmbientWidget(QWidget):
         """
         if not self._animating or not self.isVisible():
             return False
-        if _animation_paused_for_work():
+        from ..preferences import get_reduce_motion
+
+        if _animation_paused_for_work() or get_reduce_motion():
             return False
         window = self.window()
         if window is not None and window.isMinimized():
@@ -11570,6 +11572,9 @@ def install_ambient(host: QWidget, layout=None, *,
     """
     replacement = _the_spaceout_fractal(host, theme)
     if replacement is not None:
+        from ..preferences import _hold_still_when_motion_is_reduced
+
+        _hold_still_when_motion_is_reduced(replacement)
         return replacement
 
     auto_art_fps = "fps" not in kwargs

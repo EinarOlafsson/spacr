@@ -1097,7 +1097,9 @@ class DnaRainWidget(QWidget):
 
         :returns: True when the timer should keep firing.
         """
-        if not self.isVisible():
+        from ..preferences import get_reduce_motion
+
+        if not self.isVisible() or get_reduce_motion():
             return False
         window = self.window()
         if window is not None and window.isMinimized():

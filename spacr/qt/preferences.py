@@ -2964,6 +2964,7 @@ def apply_ambient_preferences(app=None) -> None:
                           exc_info=True)
         except Exception:
             continue
+    _hold_the_backdrops_still(app)
 
 
 
@@ -5097,6 +5098,256 @@ def set_field_fade_enabled(on: bool) -> None:
     except Exception:
         pass
 
+
+#: Preferences > Appearance > Accessibility (item 655). The theme High
+#: contrast replaced, so that turning it off goes back to it.
+_KEY_HIGH_CONTRAST_PREVIOUS = "prefs/high_contrast_previous_theme"
+_KEY_REDUCE_MOTION = "prefs/reduce_motion"
+#: The motion values Reduce motion replaced, one key each under this group,
+#: so that turning it off puts back exactly what the user had.
+_KEY_REDUCE_MOTION_BEFORE = "prefs/reduce_motion_before"
+_KEY_STRONG_FOCUS = "prefs/strong_focus"
+HIGH_CONTRAST_THEME = "high_contrast"
+
+#: The motion preferences Reduce motion holds, with the value each has on a
+#: fresh install. Holding them still is zero, or off.
+_MOTION_DEFAULTS = {
+    "field_ripple_intensity": 1.0,
+    "field_click_ripples": True,
+    "field_popup_wave_frequency": 5.0,
+    "ambient_gravity_radius": DEFAULT_AMBIENT_GRAVITY_RADIUS,
+}
+_STILL_MOTION = {
+    "field_ripple_intensity": 0.0,
+    "field_click_ripples": False,
+    "field_popup_wave_frequency": 0.0,
+    "ambient_gravity_radius": 0.0,
+}
+
+#: Set on a spaCR fractal backdrop that Reduce motion paused, so that
+#: turning it off resumes exactly those and none a run had paused.
+_MOTION_HELD_PROPERTY = "spacrHeldByReduceMotion"
+
+def get_high_contrast() -> bool:
+    """Whether the High contrast theme is the chosen theme.
+
+    :returns: ``True`` when Preferences > Appearance > Theme reads High
+        contrast.
+    """
+    return get_theme_choice() == HIGH_CONTRAST_THEME
+
+
+def _high_contrast_previous_theme() -> str:
+    """The theme High contrast replaced, or ``""`` when none is stored."""
+    return str(_settings().value(_KEY_HIGH_CONTRAST_PREVIOUS, "") or "")
+
+
+def _remember_the_theme_before_contrast(choice: str, before) -> None:
+    """Store the theme to go back to while High contrast is chosen.
+
+    :param choice: the theme token being saved.
+    :param before: the theme High contrast replaced, or ``None``.
+    """
+    store = _settings()
+    if choice != HIGH_CONTRAST_THEME:
+        store.remove(_KEY_HIGH_CONTRAST_PREVIOUS)
+    elif before and before != HIGH_CONTRAST_THEME:
+        store.setValue(_KEY_HIGH_CONTRAST_PREVIOUS, before)
+
+
+def _theme_to_go_back_to(before) -> str:
+    """The theme unticking High contrast returns to.
+
+    :param before: the theme High contrast replaced, or ``None``.
+    :returns: ``before`` when it is still a theme choice, otherwise
+        :data:`DEFAULT_THEME`.
+    """
+    valid = {token for _label, token in theme_choices()}
+    if before in valid and before != HIGH_CONTRAST_THEME:
+        return before
+    return DEFAULT_THEME
+
+
+def set_high_contrast(on: bool) -> str:
+    """Choose High contrast, or go back to the theme it replaced.
+
+    The replaced theme is kept in the preference store, so it survives a
+    restart.
+
+    :param on: true to choose High contrast, false to leave it.
+    :returns: the theme choice in force afterwards.
+    """
+    current = get_theme_choice()
+    if on:
+        if current != HIGH_CONTRAST_THEME:
+            set_theme_choice(HIGH_CONTRAST_THEME)
+            _remember_the_theme_before_contrast(HIGH_CONTRAST_THEME, current)
+        return HIGH_CONTRAST_THEME
+    if current == HIGH_CONTRAST_THEME:
+        set_theme_choice(_theme_to_go_back_to(_high_contrast_previous_theme()))
+    _remember_the_theme_before_contrast(get_theme_choice(), None)
+    return get_theme_choice()
+
+
+def get_reduce_motion() -> bool:
+    """Whether Reduce motion holds every animated backdrop still.
+
+    While it is on, the backdrops draw one still frame and do not tick, and
+    ripples, click ripples, popup waves and mouse gravity are off.
+
+    :returns: ``True`` when Reduce motion is on; off by default.
+    """
+    return _as_bool(_settings().value(_KEY_REDUCE_MOTION, False), False)
+
+
+def _motion_values() -> dict:
+    """The motion preferences Reduce motion holds, as stored now."""
+    return {
+        "field_ripple_intensity": _field_ripple_intensity(),
+        "field_click_ripples": _field_click_ripples(),
+        "field_popup_wave_frequency": _field_popup_wave_frequency(),
+        "ambient_gravity_radius": _ambient_gravity_radius(),
+    }
+
+
+def _write_motion_values(values: dict) -> None:
+    """Store a full set of the motion preferences Reduce motion holds.
+
+    :param values: a value for every key of :data:`_MOTION_DEFAULTS`.
+    """
+    _set_field_ripple_intensity(values["field_ripple_intensity"])
+    _set_field_click_ripples(values["field_click_ripples"])
+    _set_field_popup_wave_frequency(values["field_popup_wave_frequency"])
+    _set_ambient_gravity_radius(values["ambient_gravity_radius"])
+
+
+def _reduce_motion_previous() -> dict:
+    """The motion values Reduce motion replaced.
+
+    :returns: a value for every key of :data:`_MOTION_DEFAULTS`; a key that
+        was never stored, or cannot be read, has its fresh-install value.
+    """
+    store = _settings()
+    kept = {}
+    for name, default in _MOTION_DEFAULTS.items():
+        raw = store.value(f"{_KEY_REDUCE_MOTION_BEFORE}/{name}", default)
+        if isinstance(default, bool):
+            kept[name] = _as_bool(raw, default)
+            continue
+        try:
+            kept[name] = float(raw)
+        except (TypeError, ValueError):
+            kept[name] = default
+    return kept
+
+
+def _remember_reduce_motion(on: bool, previous) -> None:
+    """Store the Reduce motion switch and the values to give back.
+
+    :param on: the switch.
+    :param previous: while on, the motion values it replaced; ignored off,
+        when the stored ones are removed.
+    """
+    store = _settings()
+    store.setValue(_KEY_REDUCE_MOTION, bool(on))
+    for name in _MOTION_DEFAULTS:
+        key = f"{_KEY_REDUCE_MOTION_BEFORE}/{name}"
+        if on:
+            store.setValue(key, previous[name])
+        else:
+            store.remove(key)
+
+
+def set_reduce_motion(on: bool) -> None:
+    """Turn Reduce motion on or off.
+
+    On, it stores the ripple, click ripple, popup wave and mouse gravity
+    values in force and sets each of them to zero or off. Off, it puts
+    the stored values back exactly. Call :func:`apply_ambient_preferences`
+    to bring the running backdrops along.
+
+    :param on: true to hold the backdrops still.
+    """
+    on = bool(on)
+    if on == get_reduce_motion():
+        return
+    if on:
+        _remember_reduce_motion(True, _motion_values())
+        _write_motion_values(_STILL_MOTION)
+        return
+    _write_motion_values(_reduce_motion_previous())
+    _remember_reduce_motion(False, None)
+
+
+def _hold_still_when_motion_is_reduced(widget) -> bool:
+    """Pause a spaCR fractal backdrop when Reduce motion is on.
+
+    :param widget: a backdrop answering to ``pause`` and ``is_paused``.
+    :returns: whether this call paused it.
+    """
+    if not get_reduce_motion() or widget.is_paused():
+        return False
+    widget.pause()
+    widget.setProperty(_MOTION_HELD_PROPERTY, True)
+    return True
+
+
+def _hold_the_backdrops_still(app) -> int:
+    """Bring every running backdrop in line with Reduce motion.
+
+    Fractal backdrops are paused, and resumed only when it was Reduce
+    motion that paused them; every other backdrop asks again whether it
+    may tick, which Reduce motion answers in its ``_should_run``.
+
+    :param app: the application.
+    :returns: how many backdrops were asked.
+    """
+    import importlib
+
+    ambient = importlib.import_module(".widgets.ambient", __package__)
+    live = getattr(ambient, "_live_spaceout_fractals", None)
+    still = get_reduce_motion()
+    asked = 0
+    for widget in (live() if callable(live) else ()):
+        try:
+            if still:
+                _hold_still_when_motion_is_reduced(widget)
+            elif widget.property(_MOTION_HELD_PROPERTY):
+                widget.setProperty(_MOTION_HELD_PROPERTY, False)
+                widget.resume()
+        except RuntimeError:
+            continue
+        asked += 1
+    for widget in list(app.allWidgets()):
+        sync = getattr(widget, "_sync_run_state", None)
+        if not callable(sync):
+            continue
+        try:
+            sync()
+        except RuntimeError:
+            continue
+        asked += 1
+    return asked
+
+
+def get_strong_focus() -> bool:
+    """Whether the keyboard-focused control wears a thick focus ring.
+
+    :returns: ``True`` when Stronger focus outlines is on; off by default.
+    """
+    return _as_bool(_settings().value(_KEY_STRONG_FOCUS, False), False)
+
+
+def set_strong_focus(on: bool) -> None:
+    """Turn the thick focus ring on or off.
+
+    The ring is a rule of :func:`spacr.qt.theme.stylesheet`
+    (:func:`spacr.qt.theme.focus_ring_qss`); call
+    :func:`apply_preferences_to_app` to put it on the windows.
+
+    :param on: true for the thick ring.
+    """
+    _settings().setValue(_KEY_STRONG_FOCUS, bool(on))
 
 
 def get_color_blind_mode() -> str:
@@ -7420,6 +7671,7 @@ def apply_preferences_to_app(app=None, *, in_slices: bool = False) -> None:
         pane_opacity,
         str(background or ""),
         bool(get_field_fade_enabled()),
+        bool(get_strong_focus()),
         widget_qss_names(),
     )
     style_changed = (
@@ -9500,6 +9752,20 @@ class PreferencesDialog:
         _wrap = _hbox_wrap(scale_row)
         form.addRow(tr("Font scale"), _wrap)
 
+        text_size_slider = QSlider(Qt.Horizontal)
+        text_size_slider.setObjectName("AccessibilityTextSize")
+        text_size_slider.setRange(scale_slider.minimum(), scale_slider.maximum())
+        text_size_slider.setSingleStep(5)
+        text_size_slider.setPageStep(25)
+        text_size_slider.setTickInterval(25)
+        text_size_slider.setValue(scale_slider.value())
+        text_size_value = QLabel(f"{text_size_slider.value()}%")
+        text_size_value.setObjectName("AccessibilityTextSizeValue")
+        text_size_slider.valueChanged.connect(
+            lambda v: text_size_value.setText(f"{v}%"))
+        text_size_slider.valueChanged.connect(scale_slider.setValue)
+        scale_slider.valueChanged.connect(text_size_slider.setValue)
+
         from PySide6.QtCore import QTimer
 
         from .gui_scale import change_scales
@@ -9539,6 +9805,7 @@ class PreferencesDialog:
                     slider.blockSignals(False)
                     scale_value.setText(f"{scale_slider.value()}%")
                     gui_scale_value.setText(f"{gui_scale_slider.value()}%")
+                    text_size_slider.setValue(scale_slider.value())
                 except RuntimeError:
                     return
 
@@ -9556,14 +9823,19 @@ class PreferencesDialog:
         scale_settle.timeout.connect(_apply_the_scales_live)
 
         def _settle_unless_dragging(slider) -> None:
-            """A drag applies on release; a click or key applies at once."""
-            if not slider.isSliderDown():
+            """A drag applies on release; a click or key applies at once.
+
+            Text size under Accessibility moves Font scale with it, so a
+            drag of either is a drag.
+            """
+            if not (slider.isSliderDown() or text_size_slider.isSliderDown()):
                 scale_settle.start()
 
         for slider in (scale_slider, gui_scale_slider):
             slider.sliderReleased.connect(scale_settle.start)
             slider.valueChanged.connect(
                 lambda _v, s=slider: _settle_unless_dragging(s))
+        text_size_slider.sliderReleased.connect(scale_settle.start)
 
         dock_combo = QComboBox()
         for label, key in (
@@ -10929,6 +11201,145 @@ class PreferencesDialog:
             if index >= 0:
                 combo.setCurrentIndex(index)
 
+        accessibility_category, accessibility = _category(
+            "Accessibility", "PreferencesTabAccessibility")
+        accessibility_help = QLabel(tr(
+            "Settings that make spaCR easier to see, read and use from the "
+            "keyboard. Screen readers announce every control by name."))
+        accessibility_help.setObjectName("AccessibilityHelp")
+        accessibility_help.setWordWrap(True)
+        accessibility.addRow(accessibility_help)
+
+        contrast_check = Toggle()
+        contrast_check.setObjectName("AccessibilityHighContrast")
+        contrast_check.setAccessibleName(tr("High contrast"))
+        contrast_check.setToolTip(tr(
+            "Use the High contrast theme: white text and outlines on black "
+            "with a yellow accent. Clear it to go back to the theme you had. "
+            "The Theme control under Appearance shows the same choice."))
+        contrast_check.setChecked(
+            theme_combo.currentData() == HIGH_CONTRAST_THEME)
+        accessibility.addRow(tr("High contrast"), contrast_check)
+        theme_before_contrast = [_high_contrast_previous_theme() or None]
+        theme_seen = [theme_combo.currentData()]
+
+        def _contrast_follows_the_theme(_index=0) -> None:
+            """Tick High contrast exactly while the Theme control shows it."""
+            choice = theme_combo.currentData()
+            if (choice == HIGH_CONTRAST_THEME
+                    and theme_seen[0] != HIGH_CONTRAST_THEME):
+                theme_before_contrast[0] = theme_seen[0]
+            theme_seen[0] = choice
+            blocked = contrast_check.blockSignals(True)
+            contrast_check.setChecked(choice == HIGH_CONTRAST_THEME)
+            contrast_check.blockSignals(blocked)
+
+        def _theme_follows_contrast(on) -> None:
+            """Choose High contrast, or the theme it replaced."""
+            _select(theme_combo, HIGH_CONTRAST_THEME if on
+                    else _theme_to_go_back_to(theme_before_contrast[0]))
+
+        theme_combo.currentIndexChanged.connect(_contrast_follows_the_theme)
+        contrast_check.toggled.connect(_theme_follows_contrast)
+
+        text_size_slider.setToolTip(tr(
+            "Make all text in spaCR larger or smaller. This is the same "
+            "setting as Font scale on the General tab."))
+        text_size_column = QVBoxLayout()
+        text_size_column.setContentsMargins(0, 0, 0, 0)
+        text_size_column.addWidget(text_size_slider)
+        text_size_column.addWidget(text_size_value)
+        accessibility.addRow(tr("Text size"), _hbox_wrap(text_size_column))
+
+        reduce_motion_check = Toggle()
+        reduce_motion_check.setObjectName("AccessibilityReduceMotion")
+        reduce_motion_check.setAccessibleName(tr("Reduce motion"))
+        reduce_motion_check.setToolTip(tr(
+            "Hold every animated backdrop still and turn off ripples, click "
+            "ripples, popup waves and mouse gravity. Clear it to get your "
+            "previous motion settings back."))
+        reduce_motion_check.setChecked(get_reduce_motion())
+        accessibility.addRow(tr("Reduce motion"), reduce_motion_check)
+        motion_before = [_reduce_motion_previous()]
+        motion_given_back = [None]
+
+        def _motion_shown() -> dict:
+            """The motion values the Animation controls show now."""
+            return {
+                "field_ripple_intensity":
+                    ripple_intensity_value.value() / 100.0,
+                "field_click_ripples": click_ripples_check.isChecked(),
+                "field_popup_wave_frequency": popup_waves_value.value(),
+                "ambient_gravity_radius": gravity_slider.value() / 100.0,
+            }
+
+        def _show_motion(values: dict) -> None:
+            """Put a set of motion values on the Animation controls."""
+            ripple_intensity_value.setValue(
+                values["field_ripple_intensity"] * 100.0)
+            click_ripples_check.setChecked(values["field_click_ripples"])
+            popup_waves_value.setValue(values["field_popup_wave_frequency"])
+            gravity_slider.setValue(
+                int(round(values["ambient_gravity_radius"] * 100)))
+
+        motion_known = [(_motion_shown(), _motion_values())]
+
+        def _exact_motion(shown: dict) -> dict:
+            """The stored values behind what the controls show, when known.
+
+            A slider holds whole percents, so what it shows is not always
+            what is stored; giving back what it shows would round the
+            user's own values.
+            """
+            for seen, exact in motion_known:
+                if seen == shown:
+                    return exact
+            return shown
+
+        def _motion_follows_the_switch(on) -> None:
+            """Hold the motion controls still, or give back what they had."""
+            if on:
+                motion_before[0] = _exact_motion(_motion_shown())
+                motion_given_back[0] = None
+                _show_motion(_STILL_MOTION)
+                return
+            _show_motion(motion_before[0])
+            motion_given_back[0] = _motion_shown()
+            motion_known.append((motion_given_back[0], motion_before[0]))
+
+        reduce_motion_check.toggled.connect(_motion_follows_the_switch)
+
+        focus_check = Toggle()
+        focus_check.setObjectName("AccessibilityStrongFocus")
+        focus_check.setAccessibleName(tr("Stronger focus outlines"))
+        focus_check.setToolTip(tr(
+            "Draw a thick outline round the control that has keyboard focus, "
+            "so you can follow Tab from control to control."))
+        focus_check.setChecked(get_strong_focus())
+        accessibility.addRow(tr("Focus outlines"), focus_check)
+
+        shortcuts_button = QPushButton(tr("Keyboard shortcuts…"))
+        shortcuts_button.setObjectName("AccessibilityShortcuts")
+        shortcuts_button.setToolTip(tr(
+            "See every keyboard shortcut and change the key for any of them."))
+
+        def _open_the_shortcuts_editor():
+            """Open the shortcut editor above Preferences and return it."""
+            from .shortcuts import _KeymapDialog
+
+            editor = _KeymapDialog(parent if parent is not None else dlg)
+            editor.setWindowModality(Qt.ApplicationModal)
+            editor.show()
+            dlg._shortcuts_editor = editor
+            return editor
+
+        shortcuts_button.clicked.connect(_open_the_shortcuts_editor)
+        accessibility.addRow(tr("Keyboard"), shortcuts_button)
+        for described in (contrast_check, text_size_slider,
+                          reduce_motion_check, focus_check, shortcuts_button):
+            described.setAccessibleDescription(described.toolTip())
+        appearance.addRow(accessibility_category)
+
         def _reset_to_defaults() -> None:
             """Put every control back to what a fresh install would show.
 
@@ -10954,6 +11365,8 @@ class PreferencesDialog:
                 tempfile.mkdtemp(prefix="spacr-defaults-"), "defaults.ini")
             _settings = lambda: QSettings(empty, QSettings.IniFormat)
             try:
+                reduce_motion_check.setChecked(get_reduce_motion())
+                focus_check.setChecked(get_strong_focus())
                 _select(language_combo, get_language())
                 _select(theme_combo, get_theme_choice())
                 _select(ambient_theme_combo, get_ambient_animation())
@@ -11071,6 +11484,8 @@ class PreferencesDialog:
             _tell_the_cards_the_rim_changed()
             set_language(language_combo.currentData())
             set_theme_choice(theme_combo.currentData())
+            _remember_the_theme_before_contrast(theme_combo.currentData(),
+                                                theme_before_contrast[0])
             set_ambient_animation(ambient_theme_combo.currentData())
             palette_choice = ambient_palette_combo.currentData()
             if palette_choice is not None:
@@ -11093,6 +11508,13 @@ class PreferencesDialog:
                 })
             _set_field_popup_wave_frequency(popup_waves_value.value())
             _set_ambient_gravity_radius(gravity_slider.value() / 100.0)
+            _remember_reduce_motion(reduce_motion_check.isChecked(),
+                                    motion_before[0])
+            if (not reduce_motion_check.isChecked()
+                    and motion_given_back[0] is not None
+                    and _motion_shown() == motion_given_back[0]):
+                _write_motion_values(motion_before[0])
+            set_strong_focus(focus_check.isChecked())
             direction_choice = ambient_dir_combo.currentData()
             if direction_choice is not None:
                 set_ambient_drift_direction(direction_choice)
@@ -11394,7 +11816,8 @@ class PreferencesDialog:
         _reload_ambient_palettes(ambient_palette_combo.currentData())
         dlg._draft_extras = lambda: (
             tuple(custom_colors), custom_background[0], _chosen_debug[0],
-            style_panel.values(), dlg._storage_page._rows)
+            style_panel.values(), dlg._storage_page._rows,
+            theme_before_contrast[0], tuple(sorted(motion_before[0].items())))
         dlg._show_only_the_open_page_at_first(tabs)
         return dlg
 

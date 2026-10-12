@@ -54997,6 +54997,13 @@
       "source_sha256": "c38843999435ffcf9bd5d22f8bf490aa30bae0dbaee370e0c029d7e3e18078d1",
       "text": "Add a folded category to Appearance and return its form.\n\nThe category is the same widget the module screens group their\nsettings with, so it folds and looks the way every other\nsettings category does. Its rows sit in a holder named\n``object_name``, which is what the Help search opens the dialog\non; the navigation unfolds the category on the way to a row."
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._contrast_follows_the_theme": {
+      "source_blocks_sha256": [
+        "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0"
+      ],
+      "source_sha256": "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0",
+      "text": "Tick High contrast exactly while the Theme control shows it."
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._debug_follows_verbose": {
       "source_blocks_sha256": [
         "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
@@ -55012,6 +55019,14 @@
       "source_sha256": "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d",
       "text": "Show the new theme's own default while density was never chosen."
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._exact_motion": {
+      "source_blocks_sha256": [
+        "6a66e862030761189140b65a8ae6c60adea63c8cc35fc6a80850d4745521647a",
+        "7d090888e8ef75ed82be076601a4664a1f6dc21d9a6757fe4817a85661770990"
+      ],
+      "source_sha256": "d47ad516b5371ebd753df5381ff2b3a7daac8464d1db7c2a33cc5df869c5e366",
+      "text": "The stored values behind what the controls show, when known.\n\nA slider holds whole percents, so what it shows is not always\nwhat is stored; giving back what it shows would round the\nuser's own values."
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says": {
       "source_blocks_sha256": [
         "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
@@ -55019,12 +55034,33 @@
       "source_sha256": "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c",
       "text": "Show the lens size the slider is at, as a percentage."
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_follows_the_switch": {
+      "source_blocks_sha256": [
+        "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b"
+      ],
+      "source_sha256": "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b",
+      "text": "Hold the motion controls still, or give back what they had."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_shown": {
+      "source_blocks_sha256": [
+        "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee"
+      ],
+      "source_sha256": "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee",
+      "text": "The motion values the Animation controls show now."
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers": {
       "source_blocks_sha256": [
         "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
       ],
       "source_sha256": "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f",
       "text": "Open the install/login dialog, then re-list the providers."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {
+      "source_blocks_sha256": [
+        "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf"
+      ],
+      "source_sha256": "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf",
+      "text": "Open the shortcut editor above Preferences and return it."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._page": {
       "source_blocks_sha256": [
@@ -55155,10 +55191,18 @@
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._settle_unless_dragging": {
       "source_blocks_sha256": [
-        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+        "6695c23caa5a90761a060615877ae5d9e5e707d90baaa23f56d7e1e7bc110462"
       ],
-      "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
-      "text": "A drag applies on release; a click or key applies at once."
+      "source_sha256": "0ed7543b627b36735b6e61eed81352ae3673b3ac8c7bcc8934028d628685c8c9",
+      "text": "A drag applies on release; a click or key applies at once.\n\nText size under Accessibility moves Font scale with it, so a\ndrag of either is a drag."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._show_motion": {
+      "source_blocks_sha256": [
+        "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e"
+      ],
+      "source_sha256": "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e",
+      "text": "Put a set of motion values on the Animation controls."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._steering_only_matters_when_guided": {
       "source_blocks_sha256": [
@@ -55245,6 +55289,13 @@
       ],
       "source_sha256": "40b6ae848b8dda8a17ed45cf97354474f19ad499d17fca2ae17934f5e558fbd0",
       "text": "Move the other three controls when a night theme is picked.\n\nTHE BINDING HAS TO HAPPEN HERE AND NOT ONLY IN\n`set_theme_choice`. Save writes the Theme control and then\nwrites the Animation, palette and Sound set controls straight\nafter it, so a preset applied inside `set_theme_choice` would\nbe overwritten three lines later by whatever the untouched\ncombos still held. Moving the controls instead means the two\npaths agree and, more to the point, that the user SEES what\nthe theme brought with it and can put any of it back before\npressing Save.\n\nThe four themes that are not night themes change nothing else,\nwhich is why this returns early rather than reaching for a\ndefault: Dark has never carried an opinion about the backdrop\nand is not being given one now.\n\nAND IT LEAVES THE ANIMATION ALONE WHEN THE CONTROL SAYS NONE,\nfor the reason :func:`apply_night_theme` gives: a theme must\nnot start something moving for a user who has turned motion\noff. The Sound set still moves, because that control decides\nWHICH sounds would play and not WHETHER any do."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._theme_follows_contrast": {
+      "source_blocks_sha256": [
+        "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6"
+      ],
+      "source_sha256": "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6",
+      "text": "Choose High contrast, or the theme it replaced."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_opacity_lbl": {
       "source_blocks_sha256": [
@@ -55996,6 +56047,14 @@
       "source_sha256": "c61b7aa01ad90ddb495638a65119506cfa48abd13ad3deda2b4978d4d2012b95",
       "text": "How much memory must stay free for everything else on the machine.\n\nTHE FIRST OF THE THREE. The idle timeout and the ceiling say what may be\nkept; this says when keeping it stops being acceptable, and without it\nneither of the others has anything to answer to."
     },
+    "spacr.qt.preferences.get_high_contrast": {
+      "source_blocks_sha256": [
+        "6b4c01028f49a57def170567d9e1968585e65d00ee10e6fd8277a7687d368e38",
+        "08e28ba4bc78ed62d1354044bfbcc78ae0112b091a3a8903c71c150fe27e55ca"
+      ],
+      "source_sha256": "1a1e7de437bb6bb6894c5da81bfe44502fcdb9942d2409d6623eabdee2244642",
+      "text": "Whether the High contrast theme is the chosen theme.\n\n:returns: ``True`` when Preferences > Appearance > Theme reads High\n    contrast."
+    },
     "spacr.qt.preferences.get_idle_minutes": {
       "source_blocks_sha256": [
         "990f38412e880238acbd97192c6f552e899adb7e908dd9f04d487a89f1e2a087",
@@ -56118,6 +56177,15 @@
       ],
       "source_sha256": "8d6379188f60f4ffdeea6b4e93cda8478c130a9fc7abe4d7d0f7f213e8de08ed",
       "text": "When to import torch and the rest. 'on_demand' or 'eager'."
+    },
+    "spacr.qt.preferences.get_reduce_motion": {
+      "source_blocks_sha256": [
+        "e50f51fe89d622cab13d601ed8b69b5b3960e319fc98b2d50c1461171cc8b59a",
+        "c0d745aef4fb30187ea11e959cc92fd244dec68c607b178bc176df828e9d5e0c",
+        "b2c203a04c70b5682b1e25bb9e11804b53c354d34da2bfdeacf50b1d66ddaa6b"
+      ],
+      "source_sha256": "9c30210a0a8b2039a1ef5799ba17533a1f55929e6c2a0b5a119f10a69b81b413",
+      "text": "Whether Reduce motion holds every animated backdrop still.\n\nWhile it is on, the backdrops draw one still frame and do not tick, and\nripples, click ripples, popup waves and mouse gravity are off.\n\n:returns: ``True`` when Reduce motion is on; off by default."
     },
     "spacr.qt.preferences.get_refresh_news": {
       "source_blocks_sha256": [
@@ -56292,6 +56360,14 @@
       ],
       "source_sha256": "f401e47d46b457ca6e366102613e325fc184efe3f8a347870d2084b447bcce77",
       "text": "How long background work must run before the activity spinner shows.\n\nIn seconds, default :data:`DEFAULT_SPINNER_DELAY`. This is a *delay\nbefore showing*, not a prediction: the widget starts a single-shot timer\nwhen work begins and only becomes visible if the work is still running\nwhen it fires, so a job that finishes at 1.9 s never puts a spinner on\nscreen at all. See :class:`spacr.qt.widgets.activity_spinner\n.ActivitySpinner`.\n\nClamped on read: a hand-edited file must not be able to hide the\nindicator for the length of a real job."
+    },
+    "spacr.qt.preferences.get_strong_focus": {
+      "source_blocks_sha256": [
+        "1e1e3e6f48f6aaf52322e8f936b67c19647a9c4eaabc818bf11154045a757861",
+        "d138af1f20420f74d6776c2b24435b9b6a4ec5a3b1fc996d6dddeaefe9d32d6d"
+      ],
+      "source_sha256": "c04220e0d4ba0ba91783ed616ac12073989c5e156004f96a3bf430beac3c4e04",
+      "text": "Whether the keyboard-focused control wears a thick focus ring.\n\n:returns: ``True`` when Stronger focus outlines is on; off by default."
     },
     "spacr.qt.preferences.get_theme": {
       "source_blocks_sha256": [
@@ -56816,6 +56892,16 @@
       "source_sha256": "0181430bbb2ea7f351dfeae87447cdedda10f575f17267acda20f60b2797bce3",
       "text": "Persist the headroom floor.\n\n:param megabytes: the memory that must stay free for everything else on the\n    machine, in megabytes; stored as an ``int``."
     },
+    "spacr.qt.preferences.set_high_contrast": {
+      "source_blocks_sha256": [
+        "7a8ee2899451dea14e16adf8dce0c9d45496cd1521d7ba5e1b0a84dbab32bc7e",
+        "66d21713b81af7e8b452ce4111c33e140c707a46f712167e3e8fe0b1a47fe25b",
+        "0a3d8a7db10ae0fd395e5e29d5fafd6704e68979bdd0269de928978cce135d25",
+        "0ef9b95594e39de8e9098d353e85bdcddc424d95ab007d907e5fa51e9dc19cd9"
+      ],
+      "source_sha256": "603abc439cb9b46748448e4f01be6a2d8e5eec3b788d2f49021d91e85bff479a",
+      "text": "Choose High contrast, or go back to the theme it replaced.\n\nThe replaced theme is kept in the preference store, so it survives a\nrestart.\n\n:param on: true to choose High contrast, false to leave it.\n:returns: the theme choice in force afterwards."
+    },
     "spacr.qt.preferences.set_idle_minutes": {
       "source_blocks_sha256": [
         "ba929b8317f0b11dfc56312aa5b520c321134b1805b8f24bc8d98ada12225239",
@@ -56940,6 +57026,15 @@
       ],
       "source_sha256": "45daff3122a589b55a03e412a960b04d0e7556d4b2d00a58d7c3b6b669ef5e13",
       "text": "Persist it. Takes effect at the next launch, and says so.\n\n:param policy: one of :data:`PRELOAD_POLICIES`, matched after stripping and\n    lower-casing.\n:raises ValueError: on anything but the two policies."
+    },
+    "spacr.qt.preferences.set_reduce_motion": {
+      "source_blocks_sha256": [
+        "e9a9b8e4b229d01ae9491e9b301c5cff4dfe22fcfaeb86206e4d43e0bc831fb9",
+        "8438099a202aa8b74a4862d6e14777545f384175b6b854ff045832da7f15d550",
+        "e112e381bb7e461321afb2ca55340695167c2793cb8877e1a222a1a82b5c6f38"
+      ],
+      "source_sha256": "63ab1f7cb37d04fb121a86f32d30d9e9828ea2f90e6c622a4f2f96efe25a26e1",
+      "text": "Turn Reduce motion on or off.\n\nOn, it stores the ripple, click ripple, popup wave and mouse gravity\nvalues in force and sets each of them to zero or off. Off, it puts\nthe stored values back exactly. Call :func:`apply_ambient_preferences`\nto bring the running backdrops along.\n\n:param on: true to hold the backdrops still."
     },
     "spacr.qt.preferences.set_refresh_news": {
       "source_blocks_sha256": [
@@ -57115,6 +57210,15 @@
       ],
       "source_sha256": "f608c31fd82cb85601645dfe068378d0a357d0e8e12bf490dcdfebebf8b35565",
       "text": "Set the spinner's appearance delay, in seconds. Clamped, not\nrefused.\n\n:param seconds: how long background work must run before the spinner shows;\n    clamped between :data:`SPINNER_DELAY_MIN` and\n    :data:`SPINNER_DELAY_MAX`, and an unparseable value or NaN stores\n    :data:`DEFAULT_SPINNER_DELAY`."
+    },
+    "spacr.qt.preferences.set_strong_focus": {
+      "source_blocks_sha256": [
+        "879b384771f08044251e4313b1f801ea251dd327569afc63afb592c123a3dcbc",
+        "92fb1f9b5c37c586121eba47ff500ee5996a67fb95d9b6be6ddf4d07ca00fe87",
+        "e102942987b756eb40f825e1192a2ca75d308f1521af85dc03b5d349543c3cbc"
+      ],
+      "source_sha256": "2446a06ddd7b70570d9419384071b6c29f40fffae5d04558dbc26d8ca15369e3",
+      "text": "Turn the thick focus ring on or off.\n\nThe ring is a rule of :func:`spacr.qt.theme.stylesheet`\n(:func:`spacr.qt.theme.focus_ring_qss`); call\n:func:`apply_preferences_to_app` to put it on the windows.\n\n:param on: true for the thick ring."
     },
     "spacr.qt.preferences.set_theme": {
       "source_blocks_sha256": [
@@ -74787,6 +74891,26 @@
       ],
       "source_sha256": "59be874621f968345146fd85adc9f53f53b1f48c69ea695a48ab0d912700b59b",
       "text": "Pay every root still owed its sheet now. For tests and shutdown.\n\n:returns: how many roots were sheeted."
+    },
+    "spacr.qt.theme.focus_ring_colour": {
+      "source_blocks_sha256": [
+        "e40b2877895df99578064c3f07f461c8d1092652e882a378b3e4bbf6fec775ab",
+        "e7d4e9e4d135e1c9ff9e7093ca381bf1656c11cbcc7dbcc21416e5889166dfb8",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "0a7bf58bcd2bae87ce29bdac0f675b89e540f6e840e465d8e3c9873d6fc05b5e"
+      ],
+      "source_sha256": "e8642ee49143742b251c230a326dc6296563f81d57a7d0c042f192216954ab93",
+      "text": "The colour of the thick focus ring for ``theme``.\n\nThe theme's accent, which is what its own thin focus border already\nuses, while the accent clears :data:`FOCUS_RING_MIN_CONTRAST` against\nthe page and the field surface; otherwise the theme's ink.\n\n:param theme: one of :data:`THEMES`.\n:returns: a ``#rrggbb`` colour."
+    },
+    "spacr.qt.theme.focus_ring_qss": {
+      "source_blocks_sha256": [
+        "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
+        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
+      ],
+      "source_sha256": "f9736dec835b6f030d2649c6a0321eee80b6ef9feaa4e07fd1ee119906cdf718",
+      "text": "The rules that put a thick ring round the keyboard-focused control.\n\nPreferences > Appearance > Accessibility > Stronger focus outlines. A\n1 px accent border is the only focus mark the themes draw, and on a\nbusy backdrop it is easy to lose; this one is :data:`FOCUS_RING_PX`\nwide in :func:`focus_ring_colour`.\n\n:param theme: one of :data:`THEMES`.\n:returns: QSS, appended last by :func:`stylesheet` while the\n    preference is on."
     },
     "spacr.qt.theme.font_px": {
       "source_blocks_sha256": [

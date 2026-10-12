@@ -97,3 +97,33 @@ WHAT IS LEFT
   checks native Linux accessibility semantics, not OS screen-reader speech
   or Windows/macOS acceptance; broader native review remains open.
   Proof: data/655_native_header_context_cpu_2026-10-08/receipt.json.
+
+2026-10-12 — Preferences > Appearance > Accessibility (maintainer-approved
+  section). A folded category after Animation, holder
+  PreferencesTabAccessibility:
+  - High contrast: a switch kept in step with the Theme control; clearing it
+    goes back to the replaced theme (prefs/high_contrast_previous_theme,
+    get_high_contrast/set_high_contrast). An unknown previous goes to Dark.
+  - Text size: the Font scale preference (prefs/font_scale) mirrored, no new
+    key; a drag of either waits for release before the live apply.
+  - Reduce motion (prefs/reduce_motion): ripples, click ripples, popup waves
+    and mouse gravity go to zero/off, the replaced values kept under
+    prefs/reduce_motion_before/* and given back exactly when it is cleared.
+    AmbientWidget._should_run and DnaRainWidget._should_run return False
+    while it is on (a still frame, popup backdrops included); install_ambient
+    and apply_ambient_preferences pause spaceout fractals and resume only
+    those it paused.
+  - Stronger focus outlines (prefs/strong_focus): theme.focus_ring_qss, a
+    3 px ring in theme.focus_ring_colour (accent when it clears 3:1 against
+    bg and field surface, else ink), appended by stylesheet(); part of the
+    applied style signature.
+  - Keyboard shortcuts…: opens the N656 editor (_KeymapDialog), app-modal
+    above Preferences.
+  Apply/Cancel/Save/Reset like every row; new keys are in group prefs, so
+  the kept-dialog comparison sees them. Docs: features.rst Accessibility.
+  Tests: tests/qt/test_655_accessibility_preferences.py (35); every changed
+  line and branch in preferences.py, theme.py, ambient.py and dna_rain.py
+  covered by it. API: 655_accessibility_api_arrivals_2026-10-12.json (15).
+  Left: 10 new UI captions need WS translations and caption-arrival
+  registration (tests/qt/test_i18n_caption_arrivals.py fails until then);
+  Preferences tutorials showing Appearance need re-recording (spacr-d7).

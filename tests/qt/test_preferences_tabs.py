@@ -42,6 +42,11 @@ CONTROLS = {
     "AmbientSize": "Appearance",
     "AmbientDensity": "Appearance",
     "AmbientGravityRadius": "Appearance",
+    "AccessibilityHighContrast": "Appearance",
+    "AccessibilityTextSize": "Appearance",
+    "AccessibilityReduceMotion": "Appearance",
+    "AccessibilityStrongFocus": "Appearance",
+    "AccessibilityShortcuts": "Appearance",
     "AmbientBlinkPercent": "Appearance",
     "FieldPopupWaveFrequency": "Appearance",
     "PopupBackdrop": "Appearance",
@@ -575,8 +580,10 @@ def test_a_late_part_that_will_not_go_transparent_is_only_logged(
 
 
 #: The categories of the Appearance tab, in order, and a control in each.
+#: Accessibility joined them on 2026-10-12 (item 655).
 APPEARANCE_CATEGORIES = (("Theme", "PaneOpacity"),
-                         ("Animation", "AmbientSpeed"))
+                         ("Animation", "AmbientSpeed"),
+                         ("Accessibility", "AccessibilityReduceMotion"))
 
 
 def test_theme_and_animation_are_categories_of_appearance(dialog):

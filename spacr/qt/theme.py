@@ -3015,6 +3015,67 @@ def _the_backdrop_is_on() -> bool:
         return False
 
 
+#: How thick the Accessibility focus ring is, in pixels.
+FOCUS_RING_PX = 3
+
+#: The least contrast the focus ring keeps against the surfaces it is drawn
+#: on: WCAG 2.2's 3:1 for user-interface components (1.4.11).
+FOCUS_RING_MIN_CONTRAST = 3.0
+
+
+def focus_ring_colour(theme: str = "dark") -> str:
+    """The colour of the thick focus ring for ``theme``.
+
+    The theme's accent, which is what its own thin focus border already
+    uses, while the accent clears :data:`FOCUS_RING_MIN_CONTRAST` against
+    the page and the field surface; otherwise the theme's ink.
+
+    :param theme: one of :data:`THEMES`.
+    :returns: a ``#rrggbb`` colour.
+    """
+    base = palette_for(theme)
+    accent = base["accent"]
+    if min(contrast_ratio(accent, base["bg"]),
+           contrast_ratio(accent, base["surface_alt"])) >= FOCUS_RING_MIN_CONTRAST:
+        return accent
+    return base["fg"]
+
+
+def focus_ring_qss(theme: str = "dark") -> str:
+    """The rules that put a thick ring round the keyboard-focused control.
+
+    Preferences > Appearance > Accessibility > Stronger focus outlines. A
+    1 px accent border is the only focus mark the themes draw, and on a
+    busy backdrop it is easy to lose; this one is :data:`FOCUS_RING_PX`
+    wide in :func:`focus_ring_colour`.
+
+    :param theme: one of :data:`THEMES`.
+    :returns: QSS, appended last by :func:`stylesheet` while the
+        preference is on.
+    """
+    ring = f"{FOCUS_RING_PX}px solid {focus_ring_colour(theme)}"
+    return f"""
+QAbstractButton:focus, QLineEdit:focus, QAbstractSpinBox:focus,
+QComboBox:focus, QAbstractSlider:focus, QPlainTextEdit:focus,
+QTextEdit:focus, QAbstractItemView:focus,
+QPushButton#AppTile:focus, QPushButton#Tile:focus,
+QPushButton#HTile:focus {{
+    border: {ring};
+}}
+"""
+
+
+def _the_focus_ring(theme: str) -> str:
+    """The focus ring rules when the user asked for them, else nothing.
+
+    Read here, as :func:`_the_backdrop_is_on` is, because
+    :func:`stylesheet`'s callers do not know about the preference.
+    """
+    from .preferences import get_strong_focus
+
+    return focus_ring_qss(theme) if get_strong_focus() else ""
+
+
 def _window_block(theme: str, P: dict, background, body_px: int,
                   backdrop: bool = False) -> str:
     """The base + top-level-window rules, which image themes rewrite.
@@ -6004,7 +6065,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
     background: transparent;
     border-top: 1px solid {base["button_accent"]};
 }}
-{GLASS_LAYER}{WIDGET_QSS}{CLOSE_MARK_RULES}
+{GLASS_LAYER}{WIDGET_QSS}{CLOSE_MARK_RULES}{_the_focus_ring(theme)}
 """
 
 

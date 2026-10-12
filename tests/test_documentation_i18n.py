@@ -3358,6 +3358,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in apply_arrivals} == apply_arrivals
     assert not apply_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **apply_arrivals}
+    a11y_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "655_accessibility_api_arrivals_2026-10-12.json").read_text())
+    assert len(a11y_arrivals) == 15
+    assert {key: docs[key] for key in a11y_arrivals} == a11y_arrivals
+    assert not a11y_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **a11y_arrivals}
     assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                - volume_arrivals.keys() - zoo_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
