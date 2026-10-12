@@ -180,6 +180,12 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
     documents for sequencing ("the folder of .fastq.gz reads"), so a subset
     and a full download are the same shape to everything downstream.
 
+    Without an ``opener``, the downloaded ``reads`` example set is read
+    first: when it holds this file with at least ``max_reads`` reads, they
+    are taken from it rather than from ENA, so a limited request works
+    offline and gives the same reads. A whole-file request, or one larger
+    than the cache, streams from ENA as before.
+
     :param run_file: the archive file to stream; its ``url`` is read and its
         ``filename`` names the output.
     :param destination: folder the ``.fastq.gz`` file is written into; created
@@ -187,12 +193,6 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
     :param progress: called with ``(reads_so_far, compressed_bytes_so_far)``.
     :param should_stop: polled between chunks; a truthy answer abandons the
         download and removes the partial file.
-
-    Without an ``opener``, the downloaded ``reads`` example set is read
-    first: when it holds this file with at least ``max_reads`` reads, they
-    are taken from it rather than from ENA, so a limited request works
-    offline and gives the same reads. A whole-file request, or one larger
-    than the cache, streams from ENA as before.
     :returns: the path written.
     :raises ValueError: for a non-positive ``max_reads``.
     :raises ConnectionError: when the stream stops before the reads asked for
