@@ -575,7 +575,7 @@
    :width: 49.5%
 
 .. image:: ../../readme_images/hi/generated-model-zoo-1.svg
-   :alt: Older models.
+   :alt: पुराने मॉडल.
    :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
@@ -618,7 +618,7 @@
    :target: ../../models/toxoplasma_well_detector_v1.md
 
 .. image:: ../../readme_images/hi/generated-model-zoo-2.svg
-   :alt: Alternatives.
+   :alt: विकल्प.
    :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
@@ -671,7 +671,7 @@
    safespacr          # the least spaCR that can still change a setting
 
 .. image:: ../../readme_images/hi/when-spacr-will-not-start-2.svg
-   :alt: spacr-doctor प्रत्येक चेक पर एक पंक्ति प्रिंट करता है, जिसमें प्रत्येक विफलता के लिए एक कमांड चलाया जाता है. यह यह भी बताता है कि पथ पर कौन-सा spacr है. safespacr हर प्राथमिकता को उसके डिफ़ॉल्ट मान से पढ़ता है और पृष्ठभूमि, एनिमेशन, विस्तृत लॉगिंग और प्रीलोडिंग बंद कर देता है। जब कोई सहेजी गई प्राथमिकता प्रोग्राम को शुरू होने से रोके, तब इसका उपयोग करें। सुरक्षित मोड में सहेजी गई प्राथमिकताएँ सामान्य रूप से लिखी जाती हैं और बनी रहती हैं।
+   :alt: spacr-doctor प्रत्येक जाँच के लिए एक पंक्ति प्रिंट करता है, और प्रत्येक विफलता के लिए चलाने का एक कमांड देता है। यह यह भी बताता है कि पथ पर कौन-सा spacr है। safespacr हर प्राथमिकता को उसके डिफ़ॉल्ट मान से पढ़ता है और पृष्ठभूमि, एनिमेशन, विस्तृत लॉगिंग और प्रीलोडिंग बंद कर देता है। जब कोई सहेजी गई प्राथमिकता प्रोग्राम को शुरू होने से रोके, तब इसका उपयोग करें। सुरक्षित मोड में सहेजी गई प्राथमिकताएँ सामान्य रूप से लिखी जाती हैं और बनी रहती हैं।
    :width: 100%
 
 .. image:: ../../readme_images/hi/running-modules-headlessly.svg

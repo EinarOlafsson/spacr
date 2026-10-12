@@ -31,4 +31,4 @@
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 pris en charge (stable)   🟣 implémenté (bêta)   🔴 CPU uniquement
+🟢 pris en charge (stable)   🟣 implémenté (bêta)   🔴 uniquement sur CPU

@@ -575,7 +575,7 @@
    :width: 49.5%
 
 .. image:: ../../readme_images/es/generated-model-zoo-1.svg
-   :alt: Older models.
+   :alt: Modelos anteriores.
    :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
@@ -618,7 +618,7 @@
    :target: ../../models/toxoplasma_well_detector_v1.md
 
 .. image:: ../../readme_images/es/generated-model-zoo-2.svg
-   :alt: Alternatives.
+   :alt: Alternativas.
    :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
@@ -671,7 +671,7 @@
    safespacr          # the least spaCR that can still change a setting
 
 .. image:: ../../readme_images/es/when-spacr-will-not-start-2.svg
-   :alt: spacr-doctor imprime una línea por cheque, con un comando para ejecutar por cada fallo. También informa qué spacr está en la ruta. safespacr lee cada preferencia con su valor predeterminado y desactiva el fondo, las animaciones, el registro detallado y la precarga. Úselo cuando una preferencia guardada impide el inicio. Las preferencias guardadas en modo seguro se escriben normalmente y se conservan.
+   :alt: spacr-doctor imprime una línea por comprobación, con un comando para ejecutar por cada fallo. También informa qué spacr está en la ruta. safespacr lee cada preferencia con su valor predeterminado y desactiva el fondo, las animaciones, el registro detallado y la precarga. Úselo cuando una preferencia guardada impide el inicio. Las preferencias guardadas en modo seguro se escriben normalmente y se conservan.
    :width: 100%
 
 .. image:: ../../readme_images/es/running-modules-headlessly.svg

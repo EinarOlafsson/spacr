@@ -367,9 +367,8 @@ blocks:
     spacr-doctor       # diagnose the installation and say how to fix it
     safespacr          # the least spaCR that can still change a setting
   lang: bash
-- p: '``spacr-doctor`` gibt eine Zeile pro Check aus, mit einem Befehl, der für jeden
-    Fehler ausgeführt werden soll. Es wird auch berichtet, welcher ``spacr`` auf
-    dem Pfad ist.'
+- p: '``spacr-doctor`` gibt pro Prüfung eine Zeile aus, mit einem Befehl, der bei
+    jedem Fehler auszuführen ist. Außerdem meldet es, welches ``spacr`` im Pfad liegt.'
 - p: '``safespacr`` liest jede Einstellung mit ihrem Standardwert und schaltet Hintergrund,
     Animationen, ausführliche Protokollierung und Vorabladen ab. Verwenden Sie es,
     wenn eine gespeicherte Einstellung den Start verhindert. Im abgesicherten Modus

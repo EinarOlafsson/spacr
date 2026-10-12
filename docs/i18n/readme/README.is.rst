@@ -129,7 +129,7 @@
 .. spacr-hardware-begin
 
 .. image:: ../../readme_images/is/generated-hardware-1.svg
-   :alt: NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. stutt (stöðugt) útfært (beta) aðeins CPU-stuðningur.
+   :alt: NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. með stuðningi (stöðugt) útfært (beta) aðeins CPU-stuðningur.
    :width: 100%
 
 .. spacr-hardware-end
@@ -575,7 +575,7 @@
    :width: 49.5%
 
 .. image:: ../../readme_images/is/generated-model-zoo-1.svg
-   :alt: Older models.
+   :alt: Eldri líkön.
    :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
@@ -618,7 +618,7 @@
    :target: ../../models/toxoplasma_well_detector_v1.md
 
 .. image:: ../../readme_images/is/generated-model-zoo-2.svg
-   :alt: Alternatives.
+   :alt: Valkostir.
    :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
@@ -671,7 +671,7 @@
    safespacr          # the least spaCR that can still change a setting
 
 .. image:: ../../readme_images/is/when-spacr-will-not-start-2.svg
-   :alt: spacr-doctor drukkar eitt línu á athygli, með komandi til að kjósa fyrir hvert mismunandi. Það segir einnig hvaða spacr er á slóðinni. safespacr les hverja stillingu sem sjálfgefið gildi hennar og slekkur á bakgrunni, hreyfimyndum, ítarlegri skráningu og forhleðslu. Notaðu það þegar vistuð stilling kemur í veg fyrir að forritið ræsist. Stillingar sem vistaðar eru í öruggum ham eru skrifaðar eins og venjulega og haldast.
+   :alt: spacr-doctor prentar eina línu fyrir hverja athugun, með skipun til að keyra fyrir hverja bilun. Það segir einnig hvaða spacr er á slóðinni. safespacr les hverja stillingu sem sjálfgefið gildi hennar og slekkur á bakgrunni, hreyfimyndum, ítarlegri skráningu og forhleðslu. Notaðu það þegar vistuð stilling kemur í veg fyrir að forritið ræsist. Stillingar sem vistaðar eru í öruggum ham eru skrifaðar eins og venjulega og haldast.
    :width: 100%
 
 .. image:: ../../readme_images/is/running-modules-headlessly.svg

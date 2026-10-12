@@ -353,8 +353,8 @@ blocks:
     spacr-doctor       # diagnose the installation and say how to fix it
     safespacr          # the least spaCR that can still change a setting
   lang: bash
-- p: '``spacr-doctor`` skriver ut en rad per check, med ett kommando att köra för
-    varje fel. Det rapporterar också vilken ``spacr`` som finns på sökvägen.'
+- p: '``spacr-doctor`` skriver ut en rad per kontroll, med ett kommando att köra
+    för varje fel. Det rapporterar också vilken ``spacr`` som finns på sökvägen.'
 - p: '``safespacr`` läser varje inställning som dess standardvärde och stänger av
     bakgrunden, animationerna, utförlig loggning och förladdning. Använd det när
     en sparad inställning hindrar programmet från att starta. Inställningar som sparas

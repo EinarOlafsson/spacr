@@ -575,7 +575,7 @@
    :width: 49.5%
 
 .. image:: ../../readme_images/zh_CN/generated-model-zoo-1.svg
-   :alt: Older models.
+   :alt: 旧模型.
    :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
@@ -618,7 +618,7 @@
    :target: ../../models/toxoplasma_well_detector_v1.md
 
 .. image:: ../../readme_images/zh_CN/generated-model-zoo-2.svg
-   :alt: Alternatives.
+   :alt: 替代模型.
    :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
@@ -671,7 +671,7 @@
    safespacr          # the least spaCR that can still change a setting
 
 .. image:: ../../readme_images/zh_CN/when-spacr-will-not-start-2.svg
-   :alt: spacr-doctor 打印一个行每检查,每个故障运行一个命令. 它还报告路径上是哪个 spacr。 safespacr 以默认值读取每项偏好设置，并关闭背景、动画、详细日志和预加载。当已保存的偏好设置导致程序无法启动时使用它。在安全模式下保存的偏好设置会正常写入并保留。
+   :alt: spacr-doctor 每项检查输出一行，并为每个失败项给出一条可运行的命令。它还会报告路径上的是哪个 spacr。 safespacr 以默认值读取每项偏好设置，并关闭背景、动画、详细日志和预加载。当已保存的偏好设置导致程序无法启动时使用它。在安全模式下保存的偏好设置会正常写入并保留。
    :width: 100%
 
 .. image:: ../../readme_images/zh_CN/running-modules-headlessly.svg

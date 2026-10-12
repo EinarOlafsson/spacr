@@ -321,7 +321,8 @@ blocks:
     spacr-doctor       # diagnose the installation and say how to fix it
     safespacr          # the least spaCR that can still change a setting
   lang: bash
-- p: '``spacr-doctor``은 각 실패에 대해 실행하는 명령이있는 한 줄을 인쇄합니다. ``spacr``이 경로에있는 것을보고합니다.'
+- p: '``spacr-doctor``\ 는 검사마다 한 줄을 출력하며, 실패한 항목마다 실행할 명령을 함께 보여 줍니다. 경로에 있는 ``spacr``
+    가 어느 것인지도 알려 줍니다.'
 - p: '``safespacr``\ 는 모든 환경설정을 기본값으로 읽고 배경, 애니메이션, 상세 로깅, 미리 불러오기를 끕니다. 저장된 환경설정
     때문에 프로그램이 시작되지 않을 때 사용하세요. 안전 모드에서 저장한 환경설정은 평소처럼 기록되며 유지됩니다.'
 - h2: 모듈을 끊임없이 실행하는 방법
@@ -336,7 +337,7 @@ blocks:
   lang: bash
 - p: '``validate``\ 는 실행 시 읽을 설정과 같은 설정을 읽고, 누락된 설정이나 존재하지 않는 경로 같은 각 문제를 해결 방법과
     함께 나열합니다.'
-- h2: 실행 검사
+- h2: 실행 살펴보기
 - p: 각 라운드는 ``~/.spacr/runs``로 기록되며 설정, 해시된 입력, 출력, 경고, 버전 및 씨앗이 있습니다.
 - code: |-
     spacr-repro RUN_DIR        # replay a recorded run from its journal

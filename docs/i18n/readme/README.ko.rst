@@ -575,7 +575,7 @@
    :width: 49.5%
 
 .. image:: ../../readme_images/ko/generated-model-zoo-1.svg
-   :alt: Older models.
+   :alt: 이전 모델.
    :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
@@ -618,7 +618,7 @@
    :target: ../../models/toxoplasma_well_detector_v1.md
 
 .. image:: ../../readme_images/ko/generated-model-zoo-2.svg
-   :alt: Alternatives.
+   :alt: 대안.
    :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
@@ -671,7 +671,7 @@
    safespacr          # the least spaCR that can still change a setting
 
 .. image:: ../../readme_images/ko/when-spacr-will-not-start-2.svg
-   :alt: spacr-doctor은 각 실패에 대해 실행하는 명령이있는 한 줄을 인쇄합니다. spacr이 경로에있는 것을보고합니다. safespacr는 모든 환경설정을 기본값으로 읽고 배경, 애니메이션, 상세 로깅, 미리 불러오기를 끕니다. 저장된 환경설정 때문에 프로그램이 시작되지 않을 때 사용하세요. 안전 모드에서 저장한 환경설정은 평소처럼 기록되며 유지됩니다.
+   :alt: spacr-doctor는 검사마다 한 줄을 출력하며, 실패한 항목마다 실행할 명령을 함께 보여 줍니다. 경로에 있는 spacr 가 어느 것인지도 알려 줍니다. safespacr는 모든 환경설정을 기본값으로 읽고 배경, 애니메이션, 상세 로깅, 미리 불러오기를 끕니다. 저장된 환경설정 때문에 프로그램이 시작되지 않을 때 사용하세요. 안전 모드에서 저장한 환경설정은 평소처럼 기록되며 유지됩니다.
    :width: 100%
 
 .. image:: ../../readme_images/ko/running-modules-headlessly.svg
@@ -692,7 +692,7 @@
    :width: 100%
 
 .. image:: ../../readme_images/ko/inspecting-a-run.svg
-   :alt: 실행 검사. 각 라운드는 ~/.spacr/runs로 기록되며 설정, 해시된 입력, 출력, 경고, 버전 및 씨앗이 있습니다.
+   :alt: 실행 살펴보기. 각 라운드는 ~/.spacr/runs로 기록되며 설정, 해시된 입력, 출력, 경고, 버전 및 씨앗이 있습니다.
    :width: 100%
 
 .. code-block:: bash

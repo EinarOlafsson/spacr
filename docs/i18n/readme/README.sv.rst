@@ -575,7 +575,7 @@
    :width: 49.5%
 
 .. image:: ../../readme_images/sv/generated-model-zoo-1.svg
-   :alt: Older models.
+   :alt: Äldre modeller.
    :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
@@ -618,7 +618,7 @@
    :target: ../../models/toxoplasma_well_detector_v1.md
 
 .. image:: ../../readme_images/sv/generated-model-zoo-2.svg
-   :alt: Alternatives.
+   :alt: Alternativ.
    :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
@@ -671,7 +671,7 @@
    safespacr          # the least spaCR that can still change a setting
 
 .. image:: ../../readme_images/sv/when-spacr-will-not-start-2.svg
-   :alt: spacr-doctor skriver ut en rad per check, med ett kommando att köra för varje fel. Det rapporterar också vilken spacr som finns på sökvägen. safespacr läser varje inställning som dess standardvärde och stänger av bakgrunden, animationerna, utförlig loggning och förladdning. Använd det när en sparad inställning hindrar programmet från att starta. Inställningar som sparas i säkert läge skrivs som vanligt och finns kvar.
+   :alt: spacr-doctor skriver ut en rad per kontroll, med ett kommando att köra för varje fel. Det rapporterar också vilken spacr som finns på sökvägen. safespacr läser varje inställning som dess standardvärde och stänger av bakgrunden, animationerna, utförlig loggning och förladdning. Använd det när en sparad inställning hindrar programmet från att starta. Inställningar som sparas i säkert läge skrivs som vanligt och finns kvar.
    :width: 100%
 
 .. image:: ../../readme_images/sv/running-modules-headlessly.svg
