@@ -219,7 +219,17 @@ def _key_in_a_detached_body(screen):
     raise AssertionError("no setting sat in a detached category")
 
 
-def test_opening_a_module_takes_what_it_hides_off_the_page(qtbot):
+def test_opening_a_module_takes_what_it_hides_off_the_page(qtbot, monkeypatch):
+    from spacr.qt.screens.app_screen import _IdlePrebuild
+
+    # 2026-10-12: this checks what OPENING leaves off the page, so the idle
+    # prebuild (ce0e6f6cc, intended) is held off. When the open takes longer
+    # than IDLE_MS -- a loaded machine or coverage -- `_pump(60)` ran about
+    # sixty idle slices: a category part-way through its idle build counted
+    # as away with its rows already on the page, and finished ones left the
+    # floor short (28 of 30). Not a regression of any commit; the same hold
+    # is in test_a_closed_category_builds_nothing_until_opened.py.
+    monkeypatch.setattr(_IdlePrebuild, "IDLE_MS", 10 ** 8)
     _window_, screen = _window(qtbot, "classify_merged")
     away = _away(screen)
     assert away, "no category left the page"
