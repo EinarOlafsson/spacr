@@ -16,8 +16,8 @@ from spacr.settings_spec import convert_settings_dict_for_gui
 
 
 CONVERTED = {
-    ("spatial_masks", "spatial_platform"): (["auto", "xenium", "visium_hd"], "auto"),
-    ("spatial_map", "spatial_platform"): (["auto", "xenium", "visium_hd"], "auto"),
+    ("spatial_masks", "spatial_platform"): (["auto", "xenium", "visium_hd", "visium"], "auto"),
+    ("spatial_map", "spatial_platform"): (["auto", "xenium", "visium_hd", "visium"], "auto"),
     ("spatial_masks", "spatial_window_unit"): (["um", "px"], "um"),
     ("spatial_masks", "spatial_segmenter"): (["cellpose", "threshold"], "cellpose"),
     ("spatial_masks", "spatial_stain"): (["auto", "dapi", "hematoxylin", "rgb"], "auto"),
@@ -73,8 +73,8 @@ def test_every_old_string_loads_as_the_same_value(qapp, app, key):
 
 
 def test_a_value_outside_the_list_is_kept_rather_than_replaced(qapp):
-    """Standard Visium is accepted by the engine though not offered."""
-    model, widget = _build("spatial_map", "spatial_platform", "visium")
-    assert widget.currentData() == "visium"
-    assert model.collect()["spatial_platform"] == "visium"
+    """A saved value the menu does not offer comes back unchanged."""
+    model, widget = _build("spatial_map", "spatial_platform", "visium_v2")
+    assert widget.currentData() == "visium_v2"
+    assert model.collect()["spatial_platform"] == "visium_v2"
     widget.deleteLater()

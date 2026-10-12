@@ -335,7 +335,7 @@ def convert_settings_dict_for_gui(settings):
         'enhance_denoise': ('combo', ['none', 'gaussian', 'median', 'bilateral', 'nlm', 'tv'], 'none'),
         'image_qc_mode': ('combo', ['off', 'report', 'exclude'], 'off'),
         'tta_aggregation': ('combo', ['probability_mean', 'majority_vote'], 'probability_mean'),
-        'spatial_platform': ('combo', ['auto', 'xenium', 'visium_hd'], 'auto'),
+        'spatial_platform': ('combo', ['auto', 'xenium', 'visium_hd', 'visium'], 'auto'),
         'spatial_window_unit': ('combo', ['um', 'px'], 'um'),
         'spatial_segmenter': ('combo', ['cellpose', 'threshold'], 'cellpose'),
         'spatial_stain': ('combo', ['auto', 'dapi', 'hematoxylin', 'rgb'], 'auto'),
