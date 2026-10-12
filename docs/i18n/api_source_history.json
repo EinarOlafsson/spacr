@@ -12,6 +12,16 @@
       "source_sha256": "1befeadd72d1bd21a749b0a702c3c7409b369f551dc4257babb4cda879b769de",
       "text": "Stitch the tiles of one field into one image.\n\nspaCR's filename convention -- ``plate_well_T####F###L##A##Z##C##`` -- has no\ntile slot, so a field split into four tiles produces four images with one\ncanonical name and three of them would be overwritten. Three answers were\npossible: grow the convention a tile slot, give each tile its own field number,\nor put the field back together. spaCR stitches at import, with the option to\nturn it off: a stitched field is one image with one name, so nothing downstream\nhas to handle tiles.\n\nA tile index is not a position. ``tile03`` says an image is the third of some\nnumber; it does not say where it goes, how the tiles are ordered, or how far\nthey overlap. Every one of those has to come from evidence, and this module is\narranged around where the evidence is:\n\n1. The file's own stage coordinates, when it has them. An OME-TIFF records\n   ``PositionX``/``PositionY`` in microns and the pixel size beside them, so\n   the layout is read rather than inferred. 2. The pixels, otherwise. Adjacent\n   tiles overlap, and the overlap is the same picture twice, so the right\n   displacement is the one whose implied overlap correlates -- scored for every\n   admissible displacement rather than picked from a phase-correlation peak,\n   which a small overlap buries. This also settles the order -- row-major and\n   serpentine put different tiles beside each other, so the arrangement that\n   correlates is the arrangement the microscope used.\n3. No evidence. Blank tiles, single-pixel overlaps and images with no shared\n   content produce no correlation to speak of. The tiles are then butt-joined\n   in a square-ish grid and the mosaic is marked ``assumed`` with its\n   confidence, so the user is told the layout was not verified.\n\nA mosaic assembled at the wrong overlap is a field with a duplicated band\nthrough it, every measurement in that band counted twice, and nothing on screen\nsaying so. The confidence is therefore returned with the result, and a caller\ncan refuse a mosaic below a chosen confidence."
     },
+    "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6": {
+      "source_blocks_sha256": [
+        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
+        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
+        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+      ],
+      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
+      "text": "Open a native spatial TIFF in the shared 3-D anchor editor.\n\nThe existing 2-D image, mask tools and YOLO annotations stay separate.\nTime/channel/RGB TIFFs are refused rather than interpreted as depth.\n\n:param path: optional spatial TIFF path; otherwise opens a file picker.\n:returns: the native volume dialog, or None on cancellation/refusal."
+    },
     "21e43c59c82bb5da5291e33a3ce28dad00f74ad29fd6ca1161d9a60cbde9d115": {
       "source_blocks_sha256": [
         "ce7775715fff9d81d149724bf84d5f6b919eba0088109ee8e6e71d9f206600cd",
@@ -22,6 +32,18 @@
       ],
       "source_sha256": "21e43c59c82bb5da5291e33a3ce28dad00f74ad29fd6ca1161d9a60cbde9d115",
       "text": "Run Compare — two runs of the same project, side by side.\n\nPick a project, pick two of its runs, and the screen answers the three\nquestions that follow a re-run:\n\n1. **What did I change?** The settings diff, grouped under the same\n   headings the settings panel groups them by, showing only what moved,\n   so two changed keys under *Cellpose* are not lost among two hundred.\n2. **What came out?** Objects, wells and fields per plate and overall.\n   A run that produced 12% fewer cells has a problem, and this is where\n   it is visible first.\n3. **Which hits moved?** Appeared, vanished, and changed rank. A hit list\nwhose membership is stable but whose top ten reshuffles every run is not a\nstable result.\n\nAll three come from :mod:`spacr.run_compare`, which is headless: this\nfile picks the runs and draws the tables and knows nothing else. The run\nlists come from the artifact registry (:mod:`spacr.artifacts`), never\nfrom a filesystem scan — a run whose outputs were deleted still has its\nsettings recorded, and dropping it from the dropdown would lose the only\ncopy of what produced the numbers somebody is asking about.\n\n**Incomparable runs are not diffed.** Two runs of different plates\nsubtract perfectly well and produce a table that looks exactly like a\nregression report. When :func:`spacr.run_compare.comparability` raises a\nblocker the tables stay empty and the banner says why, with a *Compare\nanyway* button that overrides the blocker. Warnings — a different\nspaCR version above all — are shown with the tables rather than instead\nof them, because a version change explains a count change on its own."
+    },
+    "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b": {
+      "source_blocks_sha256": [
+        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
+        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+        "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
+      ],
+      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
+      "text": "Open an explicitly declared grayscale spatial TIFF for native 3-D editing.\n\nExactly three spatial axes are supported, in any order. Time, channel,\ncolour and inferred page axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF image filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
     },
     "b730aa423d768af8ae37c4e4fee96268251fb8c72c844d52f14ef1a4bf92a014": {
       "source_blocks_sha256": [

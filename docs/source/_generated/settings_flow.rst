@@ -21688,7 +21688,7 @@ Read by ``run_spatial_map``, ``spatial_map_defaults``.
 spatial_platform
 ----------------
 
-Which 10x platform wrote spatial_source: auto, xenium or visium_hd. auto reads it from the files present; set it only when a folder holds both layouts. Default auto.
+Which 10x platform wrote spatial_source: auto, xenium, visium_hd (Visium HD bins) or visium (standard spot-based Visium). auto reads it from the files present; set it only when a folder holds more than one layout. Default auto.
 
 | :py:func:`~spacr.ops_engine.run_spatial_map` **-- reads it**
 | :py:func:`~spacr.ops_engine.run_spatial_masks` **-- reads it**
