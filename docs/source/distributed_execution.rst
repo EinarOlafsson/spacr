@@ -54,6 +54,35 @@ Settings can be dragged onto the Distributed Jobs screen, selected with
 **Browse**, or handed off directly with **Submit remote…** in any ordinary
 module.
 
+Settings files from the GUI
+---------------------------
+
+Every module screen with **Import settings…** has **Export settings…** next
+to it. It saves the values currently in the form, exactly what **Run** would
+use, to a CSV you choose. Nothing runs: the source folder is not listed or
+opened, so a form set up for a slow network share is saved at once. The
+dialog suggests ``<module>_settings.csv`` in the source folder.
+
+The file has the layout spaCR writes into ``<src>/settings/`` at the start
+of every run: a ``Key,Value`` header and one row per setting, with lists in
+Python form (``[0, 1, 2]``), ``True``/``False`` and empty cells for unset
+values. Paths are saved exactly as the form shows them. A ``.json`` copy
+with the same settings is written beside it. **Import settings…** reads the
+file back to the same form values, and the command line runs it unchanged::
+
+   spacr-run measure --settings measure_settings.csv --dry-run
+   spacr-run measure --settings measure_settings.csv
+
+From Python, ``spacr.cli.load_settings_file`` reads it and
+``spacr.cli.write_settings_file`` writes one. When the cluster mounts the
+data under another path, change ``src`` with
+``--set src=/cluster/projects/plate-A`` or use the dataset roots of an
+execution profile.
+
+After **Submit remote…**, **Save settings CSV…** on the Distributed Jobs
+screen saves the snapshot it received as the same file. Submitting is
+unchanged.
+
 Command-line workflow
 ---------------------
 

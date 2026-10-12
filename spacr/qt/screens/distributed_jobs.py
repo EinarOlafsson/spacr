@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Callable, List, Optional
 
@@ -449,6 +450,7 @@ class DistributedJobsScreen(QWidget):
         self._pending_error = ""
         self._pending_callback: Optional[Callable] = None
         self._settings_snapshot: Optional[dict] = None
+        self._snapshot_module = ""
         self.setAcceptDrops(True)
         self._build_ui()
         self._reload_profiles()
@@ -527,6 +529,15 @@ class DistributedJobsScreen(QWidget):
         self._settings_path.textEdited.connect(self._clear_settings_snapshot)
         browse = QPushButton("Browse…", self)
         browse.clicked.connect(self._browse_settings)
+        from ..i18n import set_translatable_text
+        self._save_snapshot = QPushButton(self)
+        set_translatable_text(self._save_snapshot, "Save settings CSV…")
+        self._save_snapshot.setObjectName("DistributedSaveSnapshot")
+        self._save_snapshot.setToolTip(tr(
+            "Save the settings snapshot sent by Submit remote… as a settings "
+            "CSV, to copy to a cluster and run with spacr-run --settings."))
+        self._save_snapshot.setEnabled(False)
+        self._save_snapshot.clicked.connect(self._save_snapshot_csv)
         self._submit = QPushButton("Submit", self)
         self._submit.setObjectName("PrimaryButton")
         self._submit.clicked.connect(self.submit)
@@ -534,6 +545,7 @@ class DistributedJobsScreen(QWidget):
         job_row.addWidget(self._module)
         job_row.addWidget(self._settings_path, 1)
         job_row.addWidget(browse)
+        job_row.addWidget(self._save_snapshot)
         job_row.addWidget(self._submit)
         submit_card.body_layout.addLayout(job_row)
         self._allocated_gpus = QCheckBox(
@@ -614,6 +626,8 @@ class DistributedJobsScreen(QWidget):
         if index >= 0:
             self._module.setCurrentIndex(index)
         self._settings_snapshot = dict(settings)
+        self._snapshot_module = str(module)
+        self._save_snapshot.setEnabled(True)
         self._settings_path.setText(
             tr("[current {module} settings snapshot]").format(module=module)
         )
@@ -629,6 +643,35 @@ class DistributedJobsScreen(QWidget):
     def _clear_settings_snapshot(self, _text: str = "") -> None:
         """Switch back to file mode when the user edits the path field."""
         self._settings_snapshot = None
+        self._save_snapshot.setEnabled(False)
+
+    def _save_snapshot_csv(self) -> None:
+        """Save the settings snapshot as a CSV that ``spacr-run`` reads.
+
+        Submitting is unchanged: the snapshot stays what Submit sends. The
+        file is the one Export settings… writes on the module's own screen.
+        """
+        if self._settings_snapshot is None:
+            return
+        from .app_screen import default_settings_csv_path, export_settings_csv
+
+        module = self._snapshot_module
+        default = default_settings_csv_path(
+            module, self._settings_snapshot.get("src"))
+        try:
+            written = export_settings_csv(self, self._settings_snapshot,
+                                          default)
+        except Exception as exc:
+            self._set_status(
+                tr("Could not save the settings: {error}").format(error=exc),
+                error=True)
+            return
+        if written:
+            self._set_status(
+                tr("Saved the settings to {path}. On the cluster run: "
+                   "spacr-run {module} --settings {name}").format(
+                       path=written[0], module=module,
+                       name=os.path.basename(written[0])))
 
 
     def _reload_profiles(self, selected: str = "") -> None:

@@ -7834,6 +7834,19 @@
       "source_sha256": "8bc455915ad0067f7d64cc5051882265fbf3265331249a14f312b28dbfe4b45a",
       "text": "Force matplotlib's Agg backend when there is no display.\n\nCalled before the first spaCR import that could pull pyplot. An explicit\n``MPLBACKEND`` in the environment always wins, and interactive local use\n(a display is present) is left alone, so this applies only without a display.\n\n:returns: True when Agg was forced."
     },
+    "spacr.cli.write_settings_file": {
+      "source_blocks_sha256": [
+        "d4ad906ee8f76b4c869676960c30691129055163b9c898adb8a6341f02d81c33",
+        "ead4e18e73bcea9a24a6024c3ffb71a8fad0383e4f74f4ef735c1ffa59206671",
+        "8ab64ba1f98d624c8178d6ea086e1baf6c6224481b58b4500fe3fe162c0816a5",
+        "cf9178f87bb80a6a0d26319f9f7fb6b2e992889b19481c22b9a16dc722606465",
+        "370b66dfaa7bcb2b866779a8bd3a3129f39c18b489dfad769f470a425e61fb18",
+        "39ebc8ed05d2ae69ed8ae0f64b9ff6d25fe3f2cd8d4a9607da08fd296dfae2cb",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ],
+      "source_sha256": "d7ce4ef41a27b0c42eac08ff6b1beea5fcd4f4cc13ab6c7f98d7235b07153d62",
+      "text": "Write a settings dict to a CSV that the GUI and ``spacr-run`` read back.\n\nThe inverse of :func:`load_settings_file`, and the file the GUI's\n\"Export settings…\" button writes. The layout is the one\n:func:`spacr.utils.save_settings` writes next to every run: a\n``Key,Value`` header, one row per setting in the dict's order, ``None``\nas an empty cell, booleans as ``True`` / ``False``, and lists, tuples and\ndicts in Python literal form. The settings are written as given: unlike\n``save_settings``, ``test_mode`` and ``plot`` are not turned off, and\nnothing is listed, scanned or opened except the files written.\n\nA ``.json`` copy is written beside the CSV, as ``save_settings`` writes\none, so the types survive exactly; ``spacr-run --settings`` reads either.\n\n:param settings: the settings to write.\n:param path: the CSV to write; ``~`` and ``$VARS`` are expanded and the\n    folder is created.\n:returns: the CSV and JSON paths written, in that order.\n\nExample:\n    .. code-block:: python\n\n        from spacr.cli import load_settings_file, write_settings_file\n        write_settings_file({\"src\": \"/data/plate1\", \"channels\": [0, 1]},\n                            \"measure_settings.csv\")\n        load_settings_file(\"measure_settings.csv\")"
+    },
     "spacr.cli_database": {
       "source_blocks_sha256": [
         "5f3f416486e5633b344e7e34f5b6c59ae40bfda4d7628fcfb9e41f626c07c995"
@@ -60412,6 +60425,17 @@
       "source_sha256": "de9c74a593db19b7fca1a120def5a4f09f45bd4aaaa012174e6890409a453919",
       "text": "How many lines ``candidate`` wraps to at the measured width.\n\nMeasured against the font Qt is actually painting, so it stays right at\nany font scale rather than at the one this was written on."
     },
+    "spacr.qt.screens.app_screen.default_settings_csv_path": {
+      "source_blocks_sha256": [
+        "fe690a2956aac8acf9bf9b0eeb2a2d92a69332fc553101d217c6ffd03455efaa",
+        "5f90e9d02f9105dfa237f94fe9ab38b0ce28e2330239bea872b282b07d95994e",
+        "2221aae575b1fc7fa2c9d91a748c3e8ce4e6c70af8c00e11e1a46e810d3f3299",
+        "a097aebba093064b67a6f77c644fa48ec682c7196f8612b2ad159f782877888d",
+        "3860ce8374fa2c904ebd5d3de4eadafa2030750e6894a8bbdc944d271e63a01f"
+      ],
+      "source_sha256": "b3e3651572e271f2bf24ee789ac635a7f3f3d4e1a69df3c7062cf8a8c5b8a687",
+      "text": "The path Export settings… offers: ``<module>_settings.csv``.\n\nIt goes in the source folder the form names, else the folder the last\nsettings CSV was imported from or exported to, else the home folder.\nThe folder is only named, never listed or checked, so a slow or missing\nnetwork share cannot hold the dialog up.\n\n:param module: the module's key, such as ``measure``.\n:param src: the form's source folder; a list offers its first entry.\n:returns: the suggested CSV path."
+    },
     "spacr.qt.screens.app_screen.dimension_settings": {
       "source_blocks_sha256": [
         "1b27a83ed2953a975a517837d5a1ab51b884e82974a51eeab1a78dc27f07d7ae",
@@ -60424,6 +60448,19 @@
       ],
       "source_sha256": "61f9147fe316bc3a6eeacf308cad0fb1b6e0a3dd9155faa663255168ecd4bcf7",
       "text": "``dimension -> the setting keys that only mean something in it``.\n\nREAD OFF THE SETTINGS, NOT LISTED HERE. :data:`spacr.settings.categories`\nalready carries the answer, because the split was made deliberately when\nthe experimental axes were added:\n\n* ``\"3D Settings (Beta)\"`` is every key that presumes a z axis --\n  ``z_stack``, the segmentation mode, the projection, the two voxel\n  sizes and the ``anisotropy`` they derive (all three of which answer\n  \"how far apart are two planes\"), and ``stitch_threshold``, which links\n  labels BETWEEN planes.\n* ``\"4D Settings (Beta)\"`` is the time half of the same split, and the\n  source says so where the split is written: ``z_axis`` is filed under\n  3D \"because 4D builds on the same z plan\", which leaves the 4D list\n  holding \"only time-axis and inter-frame tracking controls\".\n* the Timelapse and Motility modules' own key lists join the time set,\n  because every key in them is a per-frame or between-frame quantity --\n  the frame rate, which tracker links the frames, how far an object may\n  move between two of them, how long it may vanish for.\n\nA key in neither set is dimension-free and stays visible whatever the\nswitches say.\n\n:returns: a fresh dict of ``str -> frozenset``; callers may keep it."
+    },
+    "spacr.qt.screens.app_screen.export_settings_csv": {
+      "source_blocks_sha256": [
+        "04640b88a31ac82d1a26d54cb0ca17a576f2bf8832d0f80a95cb7e32154469a4",
+        "ff72d9a82c520b395ad4bcd825f1fe48db9f93f8b08f1ebfd1f6a9d8c5241435",
+        "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+        "62cd4ceab9383e49e8a9a662b55ed0dd21c6e43553d58cd0e49c11a72dc4baab",
+        "4e3e8ec5918a5e20924fc36c438de8621c73a2c05ec6277001818eb5d6200400",
+        "d3b78b97ad706ebdf0cb2cc235616f67f1da85f540d5fdbfc1e0b32a614c659a",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
+      ],
+      "source_sha256": "9b166ca9ac2419860b6336ec9d1a8ca456dcf5c6d0478c39fea6ea7fc9b17063",
+      "text": "Ask where to save ``settings`` as a settings CSV, and write it there.\n\nThe one implementation behind every Export settings… button and the\nDistributed Jobs snapshot. The file is what\n:func:`spacr.cli.write_settings_file` writes, which Import settings… and\n``spacr-run --settings`` both read.\n\n:param parent: the dialog's parent widget.\n:param settings: the settings to write, exactly as given.\n:param default_path: the path the dialog offers first.\n:returns: the CSV and JSON paths written, or an empty list when the\n    dialog was cancelled.\n:raises OSError: when the file cannot be written."
     },
     "spacr.qt.screens.app_screen.module_maturity": {
       "source_blocks_sha256": [

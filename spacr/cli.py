@@ -66,6 +66,7 @@ __all__ = [
     "resolve_module",
     "module_defaults",
     "load_settings_file",
+    "write_settings_file",
     "coerce_value",
     "apply_overrides",
     "resolve_settings",
@@ -1042,6 +1043,97 @@ def load_settings_file(path: Any) -> Dict[str, Any]:
         raise SettingsError(f"could not read {path}: {exc}") from exc
     except (json.JSONDecodeError, csv.Error) as exc:
         raise SettingsError(f"could not parse {path}: {exc}") from exc
+
+
+def _settings_csv_cell(value: Any) -> str:
+    """One settings value as the text :func:`spacr.utils.save_settings` writes.
+
+    ``None`` is an empty cell and every other value is its ``str``, as
+    pandas writes them. The one change is a float whose ``str`` has an
+    exponent and no decimal point, such as ``1e-05``: it is written in
+    positional form, ``0.00001``, because the loaders read text without a
+    point as an integer or a word, and would give the float back as the
+    string ``'1e-05'``.
+
+    :param value: a settings value.
+    :returns: the cell text.
+    """
+    if value is None:
+        return ""
+    text = str(value)
+    if isinstance(value, float) and "e" in text and "." not in text:
+        from decimal import Decimal
+
+        positional = format(Decimal(text), "f")
+        return positional if "." in positional else positional + ".0"
+    return text
+
+
+def _settings_json_value(value: Any) -> Any:
+    """A settings value as something JSON can hold, or its ``repr``.
+
+    :param value: a settings value.
+    :returns: ``None``, a bool, number or string, a list or dict of those,
+        or the ``repr`` of anything else.
+    """
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    if isinstance(value, dict):
+        return {str(k): _settings_json_value(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_settings_json_value(v) for v in value]
+    item = getattr(value, "item", None)
+    if callable(item):
+        try:
+            return _settings_json_value(item())
+        except (TypeError, ValueError):
+            pass
+    return repr(value)
+
+
+def write_settings_file(settings: Mapping[str, Any], path: Any) -> List[str]:
+    """Write a settings dict to a CSV that the GUI and ``spacr-run`` read back.
+
+    The inverse of :func:`load_settings_file`, and the file the GUI's
+    "Export settings…" button writes. The layout is the one
+    :func:`spacr.utils.save_settings` writes next to every run: a
+    ``Key,Value`` header, one row per setting in the dict's order, ``None``
+    as an empty cell, booleans as ``True`` / ``False``, and lists, tuples and
+    dicts in Python literal form. The settings are written as given: unlike
+    ``save_settings``, ``test_mode`` and ``plot`` are not turned off, and
+    nothing is listed, scanned or opened except the files written.
+
+    A ``.json`` copy is written beside the CSV, as ``save_settings`` writes
+    one, so the types survive exactly; ``spacr-run --settings`` reads either.
+
+    :param settings: the settings to write.
+    :param path: the CSV to write; ``~`` and ``$VARS`` are expanded and the
+        folder is created.
+    :returns: the CSV and JSON paths written, in that order.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.cli import load_settings_file, write_settings_file
+            write_settings_file({"src": "/data/plate1", "channels": [0, 1]},
+                                "measure_settings.csv")
+            load_settings_file("measure_settings.csv")
+    """
+    import pandas as pd
+
+    from . import tabular
+
+    values = dict(settings)
+    rows = [(str(key), _settings_csv_cell(value))
+            for key, value in values.items()]
+    frame = pd.DataFrame(rows, columns=["Key", "Value"])
+    written = tabular.write_table(frame, path, canonicalise=False)
+    sibling = os.path.splitext(written)[0] + ".json"
+    with open(sibling, "w", encoding="utf-8") as out:
+        json.dump({str(k): _settings_json_value(v)
+                   for k, v in values.items()},
+                  out, indent=2, sort_keys=True)
+    return [written, sibling]
 
 
 _TYPE_OVERRIDES: Dict[str, Tuple[type, ...]] = {

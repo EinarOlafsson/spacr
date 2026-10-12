@@ -10909,6 +10909,9 @@ class SettingsWidgets:
         :param value: new value, coerced to the setting's expected type before
             it is stored.
         """
+        current = self._defaults.get(key)
+        if value is None and isinstance(current, str) and not current:
+            value = ""
         if key not in self._defaults:
             from ...organelle_types import (NUMBER_OF_ORGANELLES,
                                             organelle_role_of)

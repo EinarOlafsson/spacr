@@ -1968,6 +1968,61 @@ class _DeferredWatchLivePlate(QWidget):
         self.setVisible(False)
 
 
+_SETTINGS_CSV_FOLDER = {"last": ""}
+
+
+def default_settings_csv_path(module: str, src="") -> str:
+    """The path Export settings… offers: ``<module>_settings.csv``.
+
+    It goes in the source folder the form names, else the folder the last
+    settings CSV was imported from or exported to, else the home folder.
+    The folder is only named, never listed or checked, so a slow or missing
+    network share cannot hold the dialog up.
+
+    :param module: the module's key, such as ``measure``.
+    :param src: the form's source folder; a list offers its first entry.
+    :returns: the suggested CSV path.
+    """
+    if isinstance(src, (list, tuple)):
+        src = next((str(item).strip() for item in src if str(item).strip()),
+                   "")
+    folder = (str(src or "").strip() or _SETTINGS_CSV_FOLDER["last"]
+              or os.path.expanduser("~"))
+    return os.path.join(folder, f"{module}_settings.csv")
+
+
+def export_settings_csv(parent, settings: dict, default_path: str) -> list:
+    """Ask where to save ``settings`` as a settings CSV, and write it there.
+
+    The one implementation behind every Export settings… button and the
+    Distributed Jobs snapshot. The file is what
+    :func:`spacr.cli.write_settings_file` writes, which Import settings… and
+    ``spacr-run --settings`` both read.
+
+    :param parent: the dialog's parent widget.
+    :param settings: the settings to write, exactly as given.
+    :param default_path: the path the dialog offers first.
+    :returns: the CSV and JSON paths written, or an empty list when the
+        dialog was cancelled.
+    :raises OSError: when the file cannot be written.
+    """
+    from PySide6.QtWidgets import QFileDialog
+
+    from ...cli import write_settings_file
+
+    path, _ = QFileDialog.getSaveFileName(
+        parent, tr("Export settings CSV"), default_path,
+        f"{tr('Settings')} (*.csv);;{tr('All files')} (*)",
+    )
+    if not path:
+        return []
+    if not path.lower().endswith(".csv"):
+        path += ".csv"
+    written = write_settings_file(settings, path)
+    _SETTINGS_CSV_FOLDER["last"] = os.path.dirname(written[0])
+    return written
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -7734,6 +7789,14 @@ class AppScreen(QWidget):
         self._btn_import.setCursor(Qt.PointingHandCursor)
         self._btn_import.clicked.connect(self._on_import_settings)
         buttons.addWidget(self._btn_import)
+
+        from ..i18n import set_translatable_text as _set_text
+        self._btn_export = QPushButton()
+        _set_text(self._btn_export, "Export settings…")
+        self._btn_export.setObjectName("GhostButton")
+        self._btn_export.setCursor(Qt.PointingHandCursor)
+        self._btn_export.clicked.connect(self._on_export_settings)
+        buttons.addWidget(self._btn_export)
         buttons.addWidget(self._build_analysis_lock_button())
         from ..preferences import _apply_alpha_widgets
 
@@ -8243,6 +8306,11 @@ class AppScreen(QWidget):
             return tr("Stop the active run without changing its saved inputs.")
         if control is self._btn_import:
             return tr("Import settings from a saved file into this form before running.")
+        if control is self._btn_export:
+            return tr(
+                "Save this form's current settings to a CSV without running "
+                "anything. Import settings reads it back, and spacr-run "
+                "--settings runs it on a cluster.")
         if control is self._btn_clear:
             return tr("Clear the visible console output; saved results remain on disk.")
         if control is self._btn_analysis_lock:
@@ -8268,6 +8336,7 @@ class AppScreen(QWidget):
             (self._btn_run, None),
             (self._btn_stop, None),
             (self._btn_import, None),
+            (self._btn_export, None),
             (self._btn_clear, None),
             (getattr(getattr(self, "_virtual_stain", None), "button", None), None),
         ]
@@ -11814,6 +11883,7 @@ class AppScreen(QWidget):
         )
         if not path:
             return
+        _SETTINGS_CSV_FOLDER["last"] = os.path.dirname(path)
         try:
             loaded = self._load_settings_csv(path)
             applied = self.apply_settings_dict(loaded)
@@ -11824,6 +11894,32 @@ class AppScreen(QWidget):
             self._warn_about_moved_settings(loaded)
         except Exception as e:
             QMessageBox.warning(self, tr("Import failed"), str(e))
+
+    def _on_export_settings(self):
+        """Save the form's current settings to a CSV that Import reads back.
+
+        The settings are what Run collects from the form, and nothing else
+        happens: no run starts and the source folder is not listed or
+        opened, so a configuration made on a workstation can be copied to a
+        cluster and run with ``spacr-run <module> --settings <file>``.
+        """
+        try:
+            settings = dict(self._settings_model.collect())
+        except Exception as e:
+            QMessageBox.warning(self, tr("Bad settings"), str(e))
+            return
+        default = default_settings_csv_path(
+            self.app_key, self._settings_src_path())
+        try:
+            written = export_settings_csv(self, settings, default)
+        except Exception as e:
+            QMessageBox.warning(self, tr("Export failed"), str(e))
+            return
+        if written:
+            self._console.append_notice(
+                "Saved {count} settings to {path}\n",
+                count=len(settings), path=written[0],
+            )
 
     #: Key/value column-name pairs a spaCR settings CSV can use, in the order
     #: they are tried. Mirrors ``spacr.cli._CSV_COLUMNS``: ``Key,Value`` is
