@@ -60367,10 +60367,11 @@
     "spacr.qt.screens.app_screen.AppScreen.register_workspace": {
       "source_blocks_sha256": [
         "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
-        "3cf2bd0b7fa7b2c1ab1e487d13b604ce9b9b9fbe8e05d6e5a8bc1736df6ec525"
+        "3cf2bd0b7fa7b2c1ab1e487d13b604ce9b9b9fbe8e05d6e5a8bc1736df6ec525",
+        "6d0960f86615b508076afdf00592ee7cf20dd813070e276fa59f1755d3fd8131"
       ],
-      "source_sha256": "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850",
-      "text": "Enrol this screen and its panels with the workspace registry.\n\nRegistered as CALLABLES returning the attribute, never as the widget:\n`_results_panel` is rebuilt when the module changes, and a captured\nreference would hand a run journal a deleted C++ peer to ask."
+      "source_sha256": "d3dfb740da01f93219760b4f0f3972c05c16c96f611da4ac1bdf1b6d09095aa6",
+      "text": "Enrol this screen and its panels with the workspace registry.\n\nRegistered as CALLABLES returning the attribute, never as the widget:\n`_results_panel` is rebuilt when the module changes, and a captured\nreference would hand a run journal a deleted C++ peer to ask.\n\nThe callable reads the attribute with :meth:`_if_built`, so asking for\na section never builds a deferred panel. The run journal asks from the\nworker thread that ran the pipeline, and a panel built there is a\nwidget created off the GUI thread; a panel that was never built has\nno state to save."
     },
     "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections": {
       "source_blocks_sha256": [
