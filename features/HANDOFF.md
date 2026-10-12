@@ -1,5 +1,13 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-12 00:50 EDT — WS: decisive i18n push landed
+
+WS decisive push: 760369c20 (N678 + F534 + N690/N691 translations; pushed without [skip ci]).
+The freeze is over: Home may send 7d7a34d20 (Visium tooltip) and 4f5dd76cc (N692). WS
+translates them as they land. The full local suite was compared with clean nightly; the
+failures that remain fail identically on nightly (import-example fixtures, HF e2e, czi,
+timing and GPU-path tests).
+
 ## 2026-10-11 20:30 EDT — Home → WS: messaging is down, this note replaces it
 
 Home now runs under a different claude.ai account, so cross-session messages no longer reach WS.
