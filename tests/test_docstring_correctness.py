@@ -2503,7 +2503,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "655_accessibility_api_arrivals_2026-10-12.json",
                      "673_volume_in_container_api_arrivals_2026-10-12.json",
                      "693_export_settings_api_arrivals_2026-10-12.json",
-                     "144_regression_response_api_arrivals_2026-10-12.json"):
+                     "144_regression_response_api_arrivals_2026-10-12.json",
+                     "694_startup_splash_api_arrivals_2026-10-12.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
@@ -3999,6 +4000,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in response_additions} == response_additions
     assert not response_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **response_additions}
+    splash_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts" / "694_startup_splash_api_arrivals_2026-10-12.json").read_text())
+    assert len(splash_additions) == 21
+    assert {key: docs[key] for key in splash_additions} == splash_additions
+    assert not splash_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **splash_additions}
     tutorial_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"]
@@ -4379,7 +4386,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "655_accessibility_api_arrivals_2026-10-12.json",
                      "673_volume_in_container_api_arrivals_2026-10-12.json",
                      "693_export_settings_api_arrivals_2026-10-12.json",
-                     "144_regression_response_api_arrivals_2026-10-12.json"):
+                     "144_regression_response_api_arrivals_2026-10-12.json",
+                     "694_startup_splash_api_arrivals_2026-10-12.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
@@ -4412,7 +4420,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "655_accessibility_api_arrivals_2026-10-12.json",
                      "673_volume_in_container_api_arrivals_2026-10-12.json",
                      "693_export_settings_api_arrivals_2026-10-12.json",
-                     "144_regression_response_api_arrivals_2026-10-12.json"):
+                     "144_regression_response_api_arrivals_2026-10-12.json",
+                     "694_startup_splash_api_arrivals_2026-10-12.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent

@@ -11,6 +11,14 @@
       "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
       "text": "Open a z-stack or volume in the 3-D mask editor.\n\nMasks are drawn and erased slice by slice on XY, XZ or YZ sections,\ninterpolated between drawn slices, assigned to 3-D objects and edited\nwith the shared anchors. TIFF stacks, OME-TIFF and MRC volumes open;\ntime/channel/RGB TIFFs are refused rather than interpreted as depth.\nThe existing 2-D image, mask tools and YOLO annotations stay separate.\n\n:param path: optional volume path; otherwise opens a file picker.\n:returns: the native volume dialog, or None on cancellation/refusal."
     },
+    "219811605a7a8578e78714185cd616585a8e9ec4cb3e86f07c19c31a6b8717c1": {
+      "source_blocks_sha256": [
+        "b30fdd4132f494c60cfd5ef1c87a4e27c480a1651c81bc269b134558dc63d7b1",
+        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
+      ],
+      "source_sha256": "219811605a7a8578e78714185cd616585a8e9ec4cb3e86f07c19c31a6b8717c1",
+      "text": "Draw the loading state.\n\n:param event: the Qt paint event."
+    },
     "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1": {
       "source_blocks_sha256": [
         "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
@@ -32,6 +40,19 @@
       ],
       "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
       "text": "A drag applies on release; a click or key applies at once."
+    },
+    "69005d582b0bc65cab72695c80e6a368943aee0cc0b0bc66ecb6a7b8edc8257e": {
+      "source_blocks_sha256": [
+        "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+        "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
+        "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
+        "79a32a90fbb1078f7a69a7402e50b25d76dfd4a31922faf40102561791b6fcb7",
+        "76c607b35e253840185db1a67af7dbca99a26207c67d0cd74e014109a565012b",
+        "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
+        "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
+      ],
+      "source_sha256": "69005d582b0bc65cab72695c80e6a368943aee0cc0b0bc66ecb6a7b8edc8257e",
+      "text": "Full-window cover shown until the pipeline modules are imported.\n\n:param total: how many steps will be reported. Zero or negative means\n    \"unknown\", and the phases stay dim rather than dividing by it.\n:param parent: the window this fills. It is sized to the parent and\n    resizes with it, rather than being a separate top-level -- a second\n    window would earn its own taskbar entry and could be dragged off the\n    thing it is supposed to be covering.\nBuild the splash that covers the window while it is being assembled.\n\nOpaque by construction: it covers a partly-built window, and any\ntransparency would show the thing it exists to hide.\n\n:param total: how many steps the progress bar counts to; ``0`` shows no\n    proportion.\n:param parent: the window to cover; its geometry is adopted."
     },
     "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293": {
       "source_blocks_sha256": [

@@ -28,6 +28,9 @@ recursive-include spacr/resources/setting_animations *.gif *.json
 # 3840x2400 and pre-exposed by spacr/qt/imagery.py; the originals
 # (25 MB) are deliberately not shipped.
 recursive-include spacr/resources/themes *.jpg
+# The startup photomosaic: one 1600 px JPEG (~0.7 MB) and its tile map,
+# written by tools/build_splash_mosaic.py.
+recursive-include spacr/resources/splash *.jpg *.json
 
 # Include essential files
 include *.py

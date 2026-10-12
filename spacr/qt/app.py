@@ -2765,6 +2765,10 @@ class _ScreenPrewarm(QObject):
             return "modal"
         if getattr(self._window, "_opening_a_screen", False):
             return "opening"
+        from .widgets.loading_screen import blow_away_running
+
+        if blow_away_running():
+            return "startup animation"
         return ""
 
     def _slice(self) -> None:
@@ -2959,11 +2963,16 @@ class MainWindow(QMainWindow):
         if get_preload_policy() != "eager":
             self._preloader = None
             if self._loading_screen is not None:
-                try:
-                    self._loading_screen.close()
-                except Exception:                            # noqa: BLE001
-                    pass
-                self._loading_screen = None
+                from .widgets.loading_screen import will_blow_away
+
+                if will_blow_away(self._loading_screen):
+                    _after(0, self, self._on_preload_done)
+                else:
+                    try:
+                        self._loading_screen.close()
+                    except Exception:                        # noqa: BLE001
+                        pass
+                    self._loading_screen = None
         elif self._loading_screen is None:
             QTimer.singleShot(1500, self._preloader.start)
         else:
@@ -3029,9 +3038,12 @@ class MainWindow(QMainWindow):
             app = QApplication.instance()
             if app is not None and app.platformName() == "offscreen":
                 return None
-            from .widgets.loading_screen import LoadingScreen
+            from .widgets.loading_screen import (LoadingScreen,
+                                                 mosaic_splash_wanted)
             screen = LoadingScreen(parent=self)
             screen.setGeometry(self.rect())
+            if mosaic_splash_wanted():
+                screen.show_mosaic()
             screen.raise_()
             screen.show()
             return screen
@@ -3052,12 +3064,20 @@ class MainWindow(QMainWindow):
             self._loading_screen = None
 
     def _on_preload_done(self) -> None:
-        """Take the loading screen down and hand the window over."""
+        """Take the loading screen down and hand the window over.
+
+        A cover showing the photomosaic blows it away and takes itself down
+        when the last tile has gone; any other cover is hidden at once.
+        """
         screen = getattr(self, "_loading_screen", None)
         self._loading_screen = None
         if screen is None:
             return
+        from .widgets.loading_screen import will_blow_away
+
         try:
+            if will_blow_away(screen) and screen.blow_away():
+                return
             screen.hide()
             screen.deleteLater()
         except RuntimeError:

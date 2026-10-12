@@ -222,6 +222,7 @@ _KEY_FIELD_RIPPLES = "prefs/field_ripples"
 _KEY_FIELD_RIPPLE_INTENSITY = "prefs/field_ripple_intensity"
 _KEY_FIELD_RIPPLES_SLIDER = "prefs/field_ripples_slider_migrated"
 _KEY_FIELD_CLICK_RIPPLES = "prefs/field_click_ripples"
+_KEY_STARTUP_ANIMATION = "prefs/startup_animation"
 _KEY_ANIMATION_GPU = "prefs/animation_gpu"
 _KEY_DYNAMIC_ANIMATION = "prefs/dynamic_animation"
 #: Animation renderers in slider order; mirrors ``ambient.GRAPHICS_BACKENDS``.
@@ -2656,6 +2657,25 @@ def _field_click_ripples() -> bool:
 def _set_field_click_ripples(value: bool) -> None:
     """Persist the click-ripple switch independently of the ripple slider."""
     _settings().setValue(_KEY_FIELD_CLICK_RIPPLES, bool(value))
+    _settings().sync()
+
+
+def get_startup_animation() -> bool:
+    """Whether the startup photomosaic blows away when spaCR is ready.
+
+    Preferences > Animation > Startup animation. Reduce motion overrides it.
+
+    :returns: ``True`` unless the switch was turned off; on by default.
+    """
+    return _as_bool(_settings().value(_KEY_STARTUP_ANIMATION, True), True)
+
+
+def set_startup_animation(on: bool) -> None:
+    """Turn the startup animation on or off.
+
+    :param on: whether the photomosaic blows away at startup.
+    """
+    _settings().setValue(_KEY_STARTUP_ANIMATION, bool(on))
     _settings().sync()
 
 
@@ -8782,6 +8802,10 @@ def _the_user_is_busy(window) -> bool:
         return True
     if app.activeModalWidget() is not None:
         return True
+    from .widgets.loading_screen import blow_away_running
+
+    if blow_away_running():
+        return True
     return bool(getattr(window, "_opening_a_screen", False))
 
 
@@ -9546,6 +9570,17 @@ class PreferencesDialog:
             "clicked. A click that opens or closes a container sends only "
             "that container's ripple."))
         animation.addRow(tr("Click ripples"), click_ripples_check)
+
+        startup_animation_check = Toggle()
+        startup_animation_check.setObjectName("StartupAnimation")
+        startup_animation_check.setAccessibleName(tr("Startup animation"))
+        startup_animation_check.setChecked(get_startup_animation())
+        startup_animation_check.setToolTip(tr(
+            "When spaCR starts, the logo photomosaic blows away tile by tile "
+            "to reveal the window. Off shows the mosaic without the "
+            "animation. Reduce motion also turns it off. A click or a key "
+            "skips it."))
+        animation.addRow(tr("Startup animation"), startup_animation_check)
 
         popup_waves_slider = QSlider(Qt.Horizontal)
         popup_waves_slider.setObjectName("FieldPopupWaveFrequency")
@@ -11397,6 +11432,7 @@ class PreferencesDialog:
                 blink_value.setValue(_ambient_blink_percent())
                 ripple_intensity_value.setValue(_field_ripple_intensity() * 100.0)
                 click_ripples_check.setChecked(_field_click_ripples())
+                startup_animation_check.setChecked(get_startup_animation())
                 gpu_slider.setValue(GRAPHICS_BACKENDS.index(_flow_graphics_backend()))
                 dynamic_animation_check.setChecked(_dynamic_animation_enabled())
                 for key, enabled in _spaceout_field_effects().items():
@@ -11499,6 +11535,7 @@ class PreferencesDialog:
             _set_ambient_blink_percent(blink_value.value())
             _set_field_ripple_intensity(ripple_intensity_value.value() / 100.0)
             _set_field_click_ripples(click_ripples_check.isChecked())
+            set_startup_animation(startup_animation_check.isChecked())
             _set_flow_graphics_backend(GRAPHICS_BACKENDS[gpu_slider.value()])
             _set_dynamic_animation_enabled(dynamic_animation_check.isChecked())
             if spaceout_field_checks:

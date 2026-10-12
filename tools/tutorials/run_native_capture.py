@@ -82,7 +82,7 @@ def main():
             copy_inputs(args.inputs, stage)
     for name in ('cache', 'example_data', 'app-state', 'logs', 'mpl', 'tmp', 'profile'):
         (stage / name).mkdir(parents=True, exist_ok=True)
-    os.environ.update(CUDA_VISIBLE_DEVICES='', SPACR_TUTORIAL_CACHE_ISOLATED='1',
+    os.environ.update(CUDA_VISIBLE_DEVICES='', SPACR_TUTORIAL_CACHE_ISOLATED='1', SPACR_NO_SPLASH='1',
                       SPACR_HOME=str(stage/'app-state'), SPACR_LOG_DIR=str(stage/'logs'),
                       XDG_CACHE_HOME=str(stage/'cache'), SPACR_NEWS_CACHE=str(stage/'cache/news'),
                       MPLCONFIGDIR=str(stage/'mpl'), TMPDIR=str(stage/'tmp'),
