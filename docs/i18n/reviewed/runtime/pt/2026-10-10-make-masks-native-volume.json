@@ -2,13 +2,6 @@
   "language": "pt",
   "records": [
     {
-      "key": "3D mask editor",
-      "source": "3D mask editor",
-      "source_sha256": "851c38a587d130ceb761534dacc43a2785a4c44b03c78d3c364a77da48f6ba8c",
-      "table": "ui",
-      "translation": "Editor de máscaras 3D"
-    },
-    {
       "key": "3D masks require a finite numeric spatial TIFF within the volume memory budget.",
       "source": "3D masks require a finite numeric spatial TIFF within the volume memory budget.",
       "source_sha256": "3a399576089d8bd4a024614e475156534cfae7dc5c1d078d77ccec840fa9b65d",
@@ -65,13 +58,6 @@
       "translation": "ID do objeto"
     },
     {
-      "key": "Object {label}: {n} voxels\nAxes: {axes}\nSpacing: {spacing} {unit}",
-      "source": "Object {label}: {n} voxels\nAxes: {axes}\nSpacing: {spacing} {unit}",
-      "source_sha256": "31c6970dc7be5dcb7734991be503d591ad714377342e5224a6cc1e7c4d8de38c",
-      "table": "ui",
-      "translation": "Objeto {label}: {n} voxels\nEixos: {axes}\nEspaçamento: {spacing} {unit}"
-    },
-    {
       "key": "Open 3D image…",
       "source": "Open 3D image…",
       "source_sha256": "6ea6e40ff44e2de686180d13647a5f5ba7b46f092cfb00d81f93101834a967b8",
@@ -84,20 +70,6 @@
       "source_sha256": "42c22a30eb64464500f33fbfbc59ad83b9b2ba41dd36e2e13c715d8684d5a2d0",
       "table": "ui",
       "translation": "Abrir imagem espacial 3D"
-    },
-    {
-      "key": "Redo the last volume edit.",
-      "source": "Redo the last volume edit.",
-      "source_sha256": "d3f9310dc596a4ae1f4a35af6abd7f8c2dc4abc0f45b9f41fb865ad8327546cf",
-      "table": "ui",
-      "translation": "Refazer a última edição do volume."
-    },
-    {
-      "key": "Save 3D mask",
-      "source": "Save 3D mask",
-      "source_sha256": "1d89b96dfcc1e6742c1ca93098748285736db32f3180c9091aab4356cda2d93f",
-      "table": "ui",
-      "translation": "Salvar máscara 3D"
     },
     {
       "key": "Save 3D mask?",
@@ -114,25 +86,11 @@
       "translation": "Salvar o volume editado antes de fechar?"
     },
     {
-      "key": "Save the full 3D labels and their editable boundary without changing the source image.",
-      "source": "Save the full 3D labels and their editable boundary without changing the source image.",
-      "source_sha256": "7e0ea751ce0326e94a98370f363ae40de392928a422fb1ddac68154784cde425",
-      "table": "ui",
-      "translation": "Salva todos os rótulos 3D e seu contorno editável sem alterar a imagem de origem."
-    },
-    {
       "key": "Saved 3D mask: {path}",
       "source": "Saved 3D mask: {path}",
       "source_sha256": "43732e8e6f691ee3b2e9c055dd7bd856d6c849f578d4e510bf992b4aee3cefe6",
       "table": "ui",
       "translation": "Máscara 3D salva: {path}"
-    },
-    {
-      "key": "Select an object to inspect its exact voxel count and spacing.",
-      "source": "Select an object to inspect its exact voxel count and spacing.",
-      "source_sha256": "94ff5e73f34221f1cd9b50e886a77f77e6ac29b053539fe1fc11c51c9ca1cfab",
-      "table": "ui",
-      "translation": "Selecione um objeto para ver sua contagem exata de voxels e seu espaçamento."
     },
     {
       "key": "Show anchors",
@@ -289,13 +247,6 @@
       "translation": "Este volume já está sendo salvo."
     },
     {
-      "key": "Undo the last volume edit, including its exact labels and boundary.",
-      "source": "Undo the last volume edit, including its exact labels and boundary.",
-      "source_sha256": "faea3aed5474ecb37ada868a32bbc37066dd70d8989a716af68bd2a2831b06e8",
-      "table": "ui",
-      "translation": "Desfaz a última edição do volume, incluindo seus rótulos e contorno exatos."
-    },
-    {
       "key": "Updated {n} voxels; source image and other labels are unchanged.",
       "source": "Updated {n} voxels; source image and other labels are unchanged.",
       "source_sha256": "79586f1b5eed4b688276d627fd4150193025d398fd474250c3500a3baedb580a",
@@ -351,6 +302,62 @@
       "table": "ui",
       "translation": "Fatia Z (índice)",
       "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "3D mask editor",
+      "source": "3D mask editor",
+      "source_sha256": "851c38a587d130ceb761534dacc43a2785a4c44b03c78d3c364a77da48f6ba8c",
+      "table": "ui",
+      "translation": "Editor de máscaras 3D",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Object {label}: {n} voxels\nAxes: {axes}\nSpacing: {spacing} {unit}",
+      "source": "Object {label}: {n} voxels\nAxes: {axes}\nSpacing: {spacing} {unit}",
+      "source_sha256": "31c6970dc7be5dcb7734991be503d591ad714377342e5224a6cc1e7c4d8de38c",
+      "table": "ui",
+      "translation": "Objeto {label}: {n} voxels\nEixos: {axes}\nEspaçamento: {spacing} {unit}",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Redo the last volume edit.",
+      "source": "Redo the last volume edit.",
+      "source_sha256": "d3f9310dc596a4ae1f4a35af6abd7f8c2dc4abc0f45b9f41fb865ad8327546cf",
+      "table": "ui",
+      "translation": "Refazer a última edição do volume.",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Save 3D mask",
+      "source": "Save 3D mask",
+      "source_sha256": "1d89b96dfcc1e6742c1ca93098748285736db32f3180c9091aab4356cda2d93f",
+      "table": "ui",
+      "translation": "Salvar máscara 3D",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Save the full 3D labels and their editable boundary without changing the source image.",
+      "source": "Save the full 3D labels and their editable boundary without changing the source image.",
+      "source_sha256": "7e0ea751ce0326e94a98370f363ae40de392928a422fb1ddac68154784cde425",
+      "table": "ui",
+      "translation": "Salva todos os rótulos 3D e seu contorno editável sem alterar a imagem de origem.",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Select an object to inspect its exact voxel count and spacing.",
+      "source": "Select an object to inspect its exact voxel count and spacing.",
+      "source_sha256": "94ff5e73f34221f1cd9b50e886a77f77e6ac29b053539fe1fc11c51c9ca1cfab",
+      "table": "ui",
+      "translation": "Selecione um objeto para ver sua contagem exata de voxels e seu espaçamento.",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Undo the last volume edit, including its exact labels and boundary.",
+      "source": "Undo the last volume edit, including its exact labels and boundary.",
+      "source_sha256": "faea3aed5474ecb37ada868a32bbc37066dd70d8989a716af68bd2a2831b06e8",
+      "table": "ui",
+      "translation": "Desfaz a última edição do volume, incluindo seus rótulos e contorno exatos.",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
     }
   ]
 }

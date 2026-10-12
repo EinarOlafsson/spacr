@@ -40,13 +40,6 @@
     },
     {
       "table": "ui",
-      "key": "3D anchors",
-      "source": "3D anchors",
-      "source_sha256": "a7b767b4a59790bd5ec32a2ffdebd36618c6c3ae76354ffc12b60e10dc7ab8e2",
-      "translation": "3D 锚点"
-    },
-    {
-      "table": "ui",
       "key": "3D images (*.tif *.tiff *.mrc *.rec *.map)",
       "source": "3D images (*.tif *.tiff *.mrc *.rec *.map)",
       "source_sha256": "9dff4721f9599e84b851ec7d77fe08aeb8e11255b29fe0e4f4e0d1ede571045a",
@@ -61,20 +54,6 @@
     },
     {
       "table": "ui",
-      "key": "Brush radius in screen pixels.",
-      "source": "Brush radius in screen pixels.",
-      "source_sha256": "adeac54d9f88781b572e4d4a4160fe2ea7cd7652543e03c11357250fa00efa0a",
-      "translation": "画笔半径，单位为显示器像素。"
-    },
-    {
-      "table": "ui",
-      "key": "Brush size",
-      "source": "Brush size",
-      "source_sha256": "da6f847e1715b04d162799cb6846e45fbf155baa1b820490d6ac95c9b5b60558",
-      "translation": "画笔大小"
-    },
-    {
-      "table": "ui",
       "key": "Choose a positive object ID that the mask can store.",
       "source": "Choose a positive object ID that the mask can store.",
       "source_sha256": "9eba23ec5ef419efe4e8c1b3371f897ab93343b0687537f2788567b0361c044b",
@@ -86,13 +65,6 @@
       "source": "Choose an object drawn on at least two slices to interpolate.",
       "source_sha256": "67426b66eca8a75fd2953e8f45ccdf99ba446b255f42fb2f7e0e97e856cbc9ad",
       "translation": "选择至少在两个切片上绘制过的对象以进行插值。"
-    },
-    {
-      "table": "ui",
-      "key": "Choose an object, then draw it on a few slices; Interpolate slices fills the slices between. Drag anchors in the 3D anchors tab.",
-      "source": "Choose an object, then draw it on a few slices; Interpolate slices fills the slices between. Drag anchors in the 3D anchors tab.",
-      "source_sha256": "db981d846c309fca009d718e82856b3ca4674cbf3eebee943eb27b218921c019",
-      "translation": "选择一个对象，并在几个切片上绘制；“插值切片”会填充其间的切片。请在“3D 锚点”选项卡中拖动锚点。"
     },
     {
       "table": "ui",
@@ -114,27 +86,6 @@
       "source": "Downloading the Make Masks FIB-SEM test data",
       "source_sha256": "413cbc15f071bd0fc3fdb43032614a978f9dc1da2729feaea6487ba744a0e0b7",
       "translation": "正在下载 Make Masks 的 FIB-SEM 测试数据"
-    },
-    {
-      "table": "ui",
-      "key": "Draw on XY sections, or on the XZ and YZ side views through the volume.",
-      "source": "Draw on XY sections, or on the XZ and YZ side views through the volume.",
-      "source_sha256": "b660c3c624665e8618caf12b983df584237f81d8b6787ebc20e2d9bd5689556c",
-      "translation": "在 XY 截面上绘制，或在穿过体积的 XZ 和 YZ 侧视图上绘制。"
-    },
-    {
-      "table": "ui",
-      "key": "Draw slices",
-      "source": "Draw slices",
-      "source_sha256": "aaa8c5c7f317683bbc57b36d91b6cf31307e7d0cf47c76f4fba1e0ccb0edffbf",
-      "translation": "绘制切片"
-    },
-    {
-      "table": "ui",
-      "key": "Erase every object under the brush on this section.",
-      "source": "Erase every object under the brush on this section.",
-      "source_sha256": "fe7012ccda35984dc2158df0ec1b4f18590872f7d7ce3db317c56164ede76edc",
-      "translation": "擦除此截面上画笔下的所有对象。"
     },
     {
       "table": "ui",
@@ -222,31 +173,10 @@
     },
     {
       "table": "ui",
-      "key": "Paint the chosen object on this section. Other objects are never overwritten.",
-      "source": "Paint the chosen object on this section. Other objects are never overwritten.",
-      "source_sha256": "0a7544deb2cabf0827ce2e761e2db6b04d6f7e9f32943eee0679435fb4f01672",
-      "translation": "在此截面上绘制所选对象。其他对象绝不会被覆盖。"
-    },
-    {
-      "table": "ui",
-      "key": "Slice",
-      "source": "Slice",
-      "source_sha256": "87bd786502645b41722cc9421c3b8b79c1a64b1ab6e44eb856cdf1c1efc54b1d",
-      "translation": "切片"
-    },
-    {
-      "table": "ui",
       "key": "The drawn section does not match the volume section.",
       "source": "The drawn section does not match the volume section.",
       "source_sha256": "bed1ebdb42163502f31d881fbfd7ec07aa89ab1714b47b78061b6714f53f3312",
       "translation": "所绘制的截面与体积截面不匹配。"
-    },
-    {
-      "table": "ui",
-      "key": "The section being drawn. Page Up and Page Down step through the volume.",
-      "source": "The section being drawn. Page Up and Page Down step through the volume.",
-      "source_sha256": "ede8c16e9eb7c7c2353ad617e04e7b655111efeb002f340ee5278cdd5feb7c71",
-      "translation": "正在绘制的截面。Page Up 和 Page Down 可逐步浏览体积。"
     },
     {
       "table": "ui",
@@ -271,13 +201,6 @@
     },
     {
       "table": "ui",
-      "key": "View",
-      "source": "View",
-      "source_sha256": "dcc839a4015c4b7dd9db959a8f757833b8adb92462a751b973386e453c6d58a3",
-      "translation": "视图"
-    },
-    {
-      "table": "ui",
       "key": "Which genes belong to the pathogen and how many of their transcripts make an object infected. Every object's distance to the nearest infected one is measured from this call.",
       "source": "Which genes belong to the pathogen and how many of their transcripts make an object infected. Every object's distance to the nearest infected one is measured from this call.",
       "source_sha256": "79cf624c8ec11877ff7adfb033d493301602073cd28b41463fc03a651b3b8882",
@@ -292,34 +215,6 @@
     },
     {
       "table": "ui",
-      "key": "XY (top)",
-      "source": "XY (top)",
-      "source_sha256": "4897115b6ed884788c5220e97d404afe1a96b859c0513dd9c6fbb719594a7598",
-      "translation": "XY（顶部）"
-    },
-    {
-      "table": "ui",
-      "key": "XZ (side)",
-      "source": "XZ (side)",
-      "source_sha256": "48beaf99e8cfc2dee4beedfa4dd195106aeb738c71e0ed1b505331c9e5c85284",
-      "translation": "XZ（侧面）"
-    },
-    {
-      "table": "ui",
-      "key": "YZ (side)",
-      "source": "YZ (side)",
-      "source_sha256": "13cd8dda079c45d8713736e5c178851b029c75ff3222b13e2d3c7e5dcf140737",
-      "translation": "YZ（侧面）"
-    },
-    {
-      "table": "ui",
-      "key": "of {n}",
-      "source": "of {n}",
-      "source_sha256": "a2eabdeb19290bf8a0e8a3c2a17c1209c55e40e17e9999ec0b56ec6717daf3a9",
-      "translation": "共 {n}"
-    },
-    {
-      "table": "ui",
       "key": "{objects} objects in 3D; {n} voxels received new IDs.",
       "source": "{objects} objects in 3D; {n} voxels received new IDs.",
       "source_sha256": "f4bd70aeef32ed4c484679480ceac756f7a325a3c6f25998a7053ac57eb2d403",
@@ -331,6 +226,128 @@
       "source": "Which 10x platform wrote spatial_source: auto, xenium, visium_hd (Visium HD bins) or visium (standard spot-based Visium). auto reads it from the files present; set it only when a folder holds more than one layout. Default auto.",
       "source_sha256": "a80812be0b7269626171fdec705fb27aac11cacf28fb46eb4ec1ac558d179c0a",
       "translation": "由哪个 10x 平台写出 spatial_source：auto、xenium、visium_hd（Visium HD bin）或 visium（标准的基于 spot 的 Visium）。auto 根据现有文件判断；仅当一个文件夹包含多种布局时才设置。默认 auto。"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "3D anchors",
+      "source": "3D anchors",
+      "source_sha256": "a7b767b4a59790bd5ec32a2ffdebd36618c6c3ae76354ffc12b60e10dc7ab8e2",
+      "translation": "3D 锚点",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Brush radius in screen pixels.",
+      "source": "Brush radius in screen pixels.",
+      "source_sha256": "adeac54d9f88781b572e4d4a4160fe2ea7cd7652543e03c11357250fa00efa0a",
+      "translation": "画笔半径，单位为显示器像素。",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Brush size",
+      "source": "Brush size",
+      "source_sha256": "da6f847e1715b04d162799cb6846e45fbf155baa1b820490d6ac95c9b5b60558",
+      "translation": "画笔大小",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Choose an object, then draw it on a few slices; Interpolate slices fills the slices between. Drag anchors in the 3D anchors tab.",
+      "source": "Choose an object, then draw it on a few slices; Interpolate slices fills the slices between. Drag anchors in the 3D anchors tab.",
+      "source_sha256": "db981d846c309fca009d718e82856b3ca4674cbf3eebee943eb27b218921c019",
+      "translation": "选择一个对象，并在几个切片上绘制；“插值切片”会填充其间的切片。请在“3D 锚点”选项卡中拖动锚点。",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Draw on XY sections, or on the XZ and YZ side views through the volume.",
+      "source": "Draw on XY sections, or on the XZ and YZ side views through the volume.",
+      "source_sha256": "b660c3c624665e8618caf12b983df584237f81d8b6787ebc20e2d9bd5689556c",
+      "translation": "在 XY 截面上绘制，或在穿过体积的 XZ 和 YZ 侧视图上绘制。",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Draw slices",
+      "source": "Draw slices",
+      "source_sha256": "aaa8c5c7f317683bbc57b36d91b6cf31307e7d0cf47c76f4fba1e0ccb0edffbf",
+      "translation": "绘制切片",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Erase every object under the brush on this section.",
+      "source": "Erase every object under the brush on this section.",
+      "source_sha256": "fe7012ccda35984dc2158df0ec1b4f18590872f7d7ce3db317c56164ede76edc",
+      "translation": "擦除此截面上画笔下的所有对象。",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Paint the chosen object on this section. Other objects are never overwritten.",
+      "source": "Paint the chosen object on this section. Other objects are never overwritten.",
+      "source_sha256": "0a7544deb2cabf0827ce2e761e2db6b04d6f7e9f32943eee0679435fb4f01672",
+      "translation": "在此截面上绘制所选对象。其他对象绝不会被覆盖。",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Slice",
+      "source": "Slice",
+      "source_sha256": "87bd786502645b41722cc9421c3b8b79c1a64b1ab6e44eb856cdf1c1efc54b1d",
+      "translation": "切片",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "The section being drawn. Page Up and Page Down step through the volume.",
+      "source": "The section being drawn. Page Up and Page Down step through the volume.",
+      "source_sha256": "ede8c16e9eb7c7c2353ad617e04e7b655111efeb002f340ee5278cdd5feb7c71",
+      "translation": "正在绘制的截面。Page Up 和 Page Down 可逐步浏览体积。",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "View",
+      "source": "View",
+      "source_sha256": "dcc839a4015c4b7dd9db959a8f757833b8adb92462a751b973386e453c6d58a3",
+      "translation": "视图",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "XY (top)",
+      "source": "XY (top)",
+      "source_sha256": "4897115b6ed884788c5220e97d404afe1a96b859c0513dd9c6fbb719594a7598",
+      "translation": "XY（顶部）",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "XZ (side)",
+      "source": "XZ (side)",
+      "source_sha256": "48beaf99e8cfc2dee4beedfa4dd195106aeb738c71e0ed1b505331c9e5c85284",
+      "translation": "XZ（侧面）",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "YZ (side)",
+      "source": "YZ (side)",
+      "source_sha256": "13cd8dda079c45d8713736e5c178851b029c75ff3222b13e2d3c7e5dcf140737",
+      "translation": "YZ（侧面）",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "of {n}",
+      "source": "of {n}",
+      "source_sha256": "a2eabdeb19290bf8a0e8a3c2a17c1209c55e40e17e9999ec0b56ec6717daf3a9",
+      "translation": "共 {n}",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
     }
   ]
 }

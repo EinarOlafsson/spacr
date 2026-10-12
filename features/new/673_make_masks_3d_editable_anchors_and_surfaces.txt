@@ -50,3 +50,21 @@ tests/qt/test_primary_mask_worker_outlives_its_cpp_half.py. Checks: native
 volume model/editor 60 PASS; all Make Masks, gate, shortcut and worker Qt
 files PASS (3,284 cases). Left for the maintainer: hands-on desktop check on
 a real display; AI-reviewed translations have no native-speaker signoff.
+
+2026-10-12 — The maintainer's desktop check: a 3D image opened in a separate
+window; it should open in the same container as the 2-D test data. Done: the
+"3D mask editor" window (_VolumeMaskEditor) is retired and a volume opens in
+the Make Masks Mask tab (_VolumeStage): slice slider with index/total on the
+left, a Z button (blue when on) that makes the wheel change the slice, Page
+Up/Down, and a View list left of the Mask tab (Default / Orthogonal / True
+3D, shown only for a volume). The old "3D anchors" tab is True 3D: the gate
+editor's 3-D view with every object drawn as coloured surface voxels; draw
+(New object), reshape with anchors, Delete object, spin free or about X/Y/Z;
+Shift+E/S/D and Shift+X/Y/Z (after Shift+S: spin axis), rebindable on the
+Make Masks keymap. A large object's anchor boundary is built off the GUI
+thread (FIB-SEM object of 1,310 voxels: about 9 s in the shared mesh
+validation, the GUI stays live). Not alpha. API: replace_plane and
+delete_label in tests/data/release_contracts/673_volume_in_container_api_
+arrivals_2026-10-12.json; open_volume's pin carries its new docstring.
+Tests: tests/qt/test_673_make_masks_3d_in_container.py; the window tests in
+test_make_masks_native_volume_editor.py now drive True 3D.

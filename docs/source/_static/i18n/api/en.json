@@ -52527,6 +52527,15 @@
       "source_sha256": "ce71d0fd888ccd0811f7372c95c0e5c8c62b3de9f63bf2c2fa72b32dde35e725",
       "text": "Split every label into its 3-D connected objects.\n\nThe largest connected part of each label keeps its ID; every other\npart, touching it neither by face, edge nor corner, receives the next\nunused ID. Drawing many objects with one ID and then assigning them\ngives each its own ID.\n\n:returns: ``(changed voxels, objects after assigning)``."
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.delete_label": {
+      "source_blocks_sha256": [
+        "6757527de2a3afcb8d57f45ff91800b55b9484dce0b1b92edf83990724023eb7",
+        "18662fcb4057687a8c82acdd189a63bb2d75843f792b163d43b8128ee5902762",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "d8aa49e97cca56def653e4a77df0acc6a70077e0073a8ceb39f51b04556d81d1",
+      "text": "Remove one object from every section as a single undo step.\n\n:param label: the object ID to remove.\n:returns: number of changed voxels."
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
       "source_blocks_sha256": [
         "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
@@ -52592,6 +52601,19 @@
       ],
       "source_sha256": "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173",
       "text": "Reapply the most recently undone voxel delta and geometry."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.replace_plane": {
+      "source_blocks_sha256": [
+        "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
+        "424cc65b58d6346d59adeb03f7f5903849870d302acce442981bf3b3b83b235a",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "076cf7d46317fcf2e7f28d74ebb8252709ae40845143e04af533d1a7b90f43f9",
+        "80684ea15eabed5e31c1ffc55bc06536b1ef1feeb82d0c44cb1a3755658b621c",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "2cf0e511d9e90c1c121f08a1674a2f10838d51d64a060b205b75e559975979a3",
+      "text": "Write one edited section back as a single undo step.\n\nThis is how the two-dimensional Make Masks tools edit a volume: they\nchange a section, and the section is written back whole. An object\nalready on this section keeps its ID, and so does any ID in ``keep``\n(the object being drawn). An ID new to this section that belongs to\nanother object elsewhere in the volume is given the next unused ID\ninstead, so a tool that numbered its own objects never joins them to\na distant 3-D object.\n\n:param axis: the axis held fixed, as for :meth:`plane`.\n:param index: the section's index along ``axis``.\n:param labels: the edited section, shaped as :meth:`plane` returns it.\n:param keep: object IDs that may enter the section unchanged.\n:returns: number of changed voxels."
     },
     "spacr.qt.mask_engine.VolumeMaskSession.section_count": {
       "source_blocks_sha256": [
@@ -66194,13 +66216,13 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
       "source_blocks_sha256": [
-        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
-        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+        "76e53240b31de97857883e47a8db1d3f9e2a8cd97f79b7dfb341e389f801702b",
+        "4a0313fb9023404c9e07485502853439caed64b9ea55fddb491040331c412da7",
         "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
-        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+        "b317cc3382ee51e288ab9dfc410a0a079e356dd809caa6127f3e254b91b2e092"
       ],
-      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
-      "text": "Open a z-stack or volume in the 3-D mask editor.\n\nMasks are drawn and erased slice by slice on XY, XZ or YZ sections,\ninterpolated between drawn slices, assigned to 3-D objects and edited\nwith the shared anchors. TIFF stacks, OME-TIFF and MRC volumes open;\ntime/channel/RGB TIFFs are refused rather than interpreted as depth.\nThe existing 2-D image, mask tools and YOLO annotations stay separate.\n\n:param path: optional volume path; otherwise opens a file picker.\n:returns: the native volume dialog, or None on cancellation/refusal."
+      "source_sha256": "dd4fd1c0adac15b7e1ea3dcc6677d33f0ae62992666d4d5f9ba98c8becc90005",
+      "text": "Open a z-stack or volume in the Mask view, where 2-D fields open.\n\nA slider on the left steps through the slices; every 2-D tool draws\non the slice on screen. The View list beside the Mask tab adds the\nXZ and YZ side views (Orthogonal) or shows the volume and its\nobjects in 3D, where they are drawn and reshaped with anchors (True\n3D). TIFF stacks, OME-TIFF and MRC volumes open; time/channel/RGB\nTIFFs are refused rather than interpreted as depth.\n\n:param path: optional volume path; otherwise opens a file picker.\n:returns: the Mask view's volume stage, or None on cancellation or\n    refusal."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
       "source_blocks_sha256": [

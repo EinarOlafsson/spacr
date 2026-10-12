@@ -1491,6 +1491,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in a11y_arrivals} == a11y_arrivals
     assert not a11y_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **a11y_arrivals}
+    in_container_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "673_volume_in_container_api_arrivals_2026-10-12.json").read_text())
+    assert len(in_container_arrivals) == 2
+    assert {key: docs[key] for key in in_container_arrivals} == in_container_arrivals
+    assert not in_container_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **in_container_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "

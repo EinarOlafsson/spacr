@@ -139,3 +139,16 @@ Tutorial (not alpha; WS records it, current layout only):
    mitochondria open for correction; erase one, undo, save (corrected_masks).
 10. Mention "Open 3D image..." opens TIFF stacks, OME-TIFF and MRC; the
     3D anchors tab still drags surfaces.
+
+2026-10-12 — Draw slices moved into the Make Masks view (N673 follow-up):
+both FIB-SEM entries, "Open 3D image..." and any z-stack in a queue open in
+the Mask tab, not a window. Every 2-D tool (brush, erase, fill, wand,
+magnifier, undo/redo, save, Prev/Next) works on the shown slice; a slice
+edited by a tool that numbers its own objects is written back with
+VolumeMaskSession.replace_plane, which gives an ID that names a distant
+object the next unused ID. XZ/YZ drawing is the Orthogonal view (panes
+through a crosshair the middle button moves). Unsaved volume edits are
+asked about on Next/Prev/Keep/Discard/close (Save on navigation saves).
+Tests updated with dated notes in test_692_three_d_mask_drawing.py and
+test_cov_mmcov_three_d_draw_guards.py. Tutorial steps 2, 4, 6 and 10 change:
+see the N673 report (WS re-records).
