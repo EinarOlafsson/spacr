@@ -2230,7 +2230,7 @@
     },
     {
       "context": "A settings category's body that is waiting off the page is parentless, so Qt lists it among the top-level widgets, but it is not a window: it goes back under its page before anybody sees it and wears the page's sheet from there. Sheeting it here would leave it carrying a copy of the sheet of the moment when it went back, which the next theme change would not reach. See :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
-      "label": "spacr.qt.theme.apply_stylesheet_per_window#7",
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#8",
       "review_basis": "written from the English (no current MT draft)",
       "source": "A settings category's body that is waiting off the page is parentless, so Qt lists it among the top-level widgets, but it is not a window: it goes back under its page before anybody sees it and wears the page's sheet from there. Sheeting it here would leave it carrying a copy of the sheet of the moment when it went back, which the next theme change would not reach. See :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
       "source_sha256": "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b",

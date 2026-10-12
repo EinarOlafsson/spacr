@@ -209,7 +209,9 @@
       "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
       "context": "Retranslate a dialog's tree the first time it is shown.",
       "translation": "Übersetzt den Baum eines Dialogs beim ersten Anzeigen neu.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the Preferences open/close change (6be4c1d70, 4c776c10d) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo._load_import_variant._done#0",

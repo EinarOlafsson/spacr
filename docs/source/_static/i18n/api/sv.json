@@ -37086,8 +37086,8 @@
         "e45c1f30d8eaf61e66cb6ee790b79df2fbeb8ce81bea2b860b756e2334a5ce20",
         "05dd9fc0b45a7c6cf35c8e0d00229a1adfedec6a765f9298dd2f8ea9379618a5"
       ],
-      "source_sha256": "1befeadd72d1bd21a749b0a702c3c7409b369f551dc4257babb4cda879b769de",
-      "text": "Lägg in mikroskopbildfälten i ett mikroskopfält i en bild.\n\nspaCR s filnamn konvention -- ``plate_well_T####F###L##A##Z##C##`` -- har ingen mikroskop bildfält slits, så ett fält delas upp i fyra mikroskop bild fält producerar fyra bilder med ett kanoniskt namn och tre av dem skulle skrivas över. Tre svar var möjliga: växa konventionen en mikroskop bildfältet slot, ge varje mikroskop bild fältet sitt eget fält nummer, eller sätta fältet tillbaka tillsammans. spaCR stygn vid import, med möjlighet att stänga av den: ett sytt fält är en bild med ett namn, så ingenting nedströms behöver hantera mikroskop bildområden.\n\nEtt mikroskopbildfältsindex är inte en position. ``tile03`` säger att en bild är den tredje av ett visst tal; det säger inte vart den går, hur mikroskopbildsfälten är ordnade, eller hur långt de överlappar. Var och en av dem måste komma från bevis, och denna modul är arrangerad runt där bevisen är:\n\n1. Filens egna stegkoordinater, när den har dem. En OME-TIFF registrerar ``PositionX``/ ``PositionY`` i mikroner och pixelstorleken bredvid dem, så layouten läses istället för att härledas. 2. pixlarna, annars. Intillstående mikroskopbildfält överlappar, och överlappningen är samma bild två gånger, så den högra förskjutningen är den vars underförstådda överlappning korrelerar -- skårad för varje tillåten förskjutning snarare än plockad från en faskorreleringstopp, som en liten överlappningsgravar. Detta avgör också ordningen -- rad- stor och serpentin satte olika mikroskopbildsfält bredvid varandra, så arrangemanget som korrelerar är det arrangemang som mikroskopet använde. 3. Inga bevis. Blanka mikroskopbildfält, enkelpixel överlappar och bilder utan delat innehåll ger ingen korrelation att tala om. Mikroskopbildfälten är sedan bakade i ett fyrkantigt rutnät och det sydda bildnätet är markerat ``assumed`` med sitt självförtroende, så användaren får veta att layouten inte verifierades.\n\nEtt sytt bildnät som är monterat vid fel överlappning är ett fält med ett duplicerat band genom det, varje mätning i det bandet räknas två gånger, och inget på programvyn säger så. Konfident returneras därför med resultatet, och en uppringare kan vägra ett sömt bildnät under ett valt förtroende.",
+      "source_sha256": "ad5fc26149b4b4fa21e9441fa2348bb42179fd5a38200dc2a69a1b60f0709954",
+      "text": "Foga ihop rutorna i ett fält till en bild.\n\nspaCR:s filnamnskonvention -- ``plate_well_T####F###L##A##Z##C##`` -- har ingen plats för en ruta, så ett fält som delats i fyra rutor ger fyra bilder med ett enda kanoniskt namn, och tre av dem skulle skrivas över. Tre svar var möjliga: ge konventionen en rutplats, ge varje ruta ett eget fältnummer eller sätta ihop fältet igen. spaCR fogar ihop vid import, med möjlighet att stänga av det: ett hopfogat fält är en bild med ett namn, så ingenting längre ned behöver hantera rutor.\n\nEtt rutindex är ingen position. ``tile03`` säger att en bild är den tredje av ett visst antal; det säger inte var den hör hemma, hur rutorna är ordnade eller hur mycket de överlappar. Allt detta måste komma från belägg, och den här modulen är upplagd efter var beläggen finns:\n\n1. Filens egna bordskoordinater, när den har några. En OME-TIFF registrerar ``PositionX``/``PositionY`` i mikrometer och pixelstorleken bredvid, så att layouten läses i stället för att härledas. 2. Annars pixlarna. Intilliggande rutor överlappar och överlappningen är samma bild två gånger, så den rätta förskjutningen är den vars underförstådda överlappning korrelerar -- bedömd för varje tillåten förskjutning i stället för att väljas ur en faskorrelationstopp, som en liten överlappning begraver. Detta avgör också ordningen -- radvis och serpentin placerar olika rutor bredvid varandra, så den arrangemang som korrelerar är det mikroskopet använde. 3. Inga belägg. Tomma rutor, överlappningar på en enda pixel och bilder utan gemensamt innehåll ger ingen nämnvärd korrelation. Rutorna fogas då kant mot kant i ett ungefär kvadratiskt rutnät och mosaiken märks ``assumed`` med sin konfidens, så att användaren får veta att layouten inte verifierades.\n\nEn mosaik som satts ihop med fel överlappning är ett fält med ett duplicerat band, där varje mätning i bandet räknas två gånger och ingenting på skärmen säger det. Konfidensen returneras därför med resultatet, och en anropare kan avvisa en mosaik under en vald konfidens.",
       "translation_source_blocks_sha256": [
         "a03fe2a4c3c69bb3d6de90a9324c6751d73970a81396ea5665f6319d7a801c26",
         "5ed8ec00ed452476cf25d718e81b9b8bf46b8365f5c5605dd6d75b35069839f1",
@@ -71493,16 +71493,18 @@
         "7052761aa439828ec859b1dbbc9fc9bf9adef7aabc510652d2fe1e99f2f80d2c",
         "06314e72ef419c36898c6e57fc3a1373b90b5f7fb608f5e601abc64ae800eaeb",
         "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+        "64aa5e132fe7f224a52b5161705f8759f8d3177f7199c4e4d5cb7a1b1d383148",
         "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
         "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
       ],
-      "source_sha256": "200cb40fc00c995187b4a020e4a61e406f1af39e2bdb3edda9498cddfd6937c1",
-      "text": "Öppna Inställningar på en namngiven flik, med en namngiven rad markerad.\n\nDen väg som sökfältet i Hjälp tar för ett inställningsresultat: dialogen har nio flikar, och ett resultat som öppnade den på den flik den råkade börja med har bara besvarat halva frågan.\n\nFliken hittas med objektnamn snarare än med index eller bildtext. Ett index flyttar när en flik läggs till, och en bildtext översätts – ett koreanskt gränssnitt skulle inte ha matchat någonting. Varje sida anger sitt eget namn ``PreferencesTab*`` och ``tools/build_help_search_index.py`` läser samma namn utanför dialogrutans källa, så de två ändarna av avlämningen är samma sträng genom konstruktion.\n\n:param tab: sidans objektnamn, t.ex. ``\"PreferencesTabTheme\"``; ``\"\"`` öppnar dialogen så som den öppnas från menyn.\n:param label: radrubriken som ska markeras; ``\"\"`` markerar ingenting.\n:returns: True när den namngivna fliken hittades och visades.",
+      "source_sha256": "f6331e2b40bf31ddcb7813f3133b013a1c52da25df2afb796a94760309ba29d6",
+      "text": "Öppna Inställningar på en namngiven flik, med en namngiven rad markerad.\n\nDen väg som sökfältet i Hjälp tar för ett inställningsresultat: dialogen har nio flikar, och ett resultat som öppnade den på den flik den råkade börja med har bara besvarat halva frågan.\n\nFliken hittas via objektnamn, inte via index eller rubrik. Ett index flyttar sig varje gång en flik läggs till, och en rubrik översätts -- ett koreanskt gränssnitt skulle inte ha hittat något. Varje sida sätter sitt eget ``PreferencesTab*``-namn, och ``tools/build_help_search_index.py`` läser samma namn ur källkoden för denna dialogruta, så att de två ändarna av överlämnandet per konstruktion är samma sträng.\n\nDialogrutan är oftast redan byggd (:func:`spacr.qt.preferences._warm_the_preferences`), och fönstret ritas om efter stängning bara när något som det ritar har ändrats: byggandet, den första visningen och den ovillkorliga omritningen höll var och en kvar GUI-tråden i mer än en bildruta.\n\n:param tab: sidans objektnamn, t.ex. ``\"PreferencesTabTheme\"``; ``\"\"`` öppnar dialogen så som den öppnas från menyn.\n:param label: radrubriken som ska markeras; ``\"\"`` markerar ingenting.\n:returns: True när den namngivna fliken hittades och visades.",
       "translation_source_blocks_sha256": [
         "7052761aa439828ec859b1dbbc9fc9bf9adef7aabc510652d2fe1e99f2f80d2c",
         "06314e72ef419c36898c6e57fc3a1373b90b5f7fb608f5e601abc64ae800eaeb",
         "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+        "113d9ce153114158cda7366c0293a748de9c94447dac98c8ea253316c91d6bcf",
         "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
         "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
@@ -71536,16 +71538,18 @@
         "32ca1fbc116633fe8b91fc76a079e2015441dc9c163861adb06359ba4de97f0d",
         "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
         "aeaef5c37cc830ff43bf7d91e35de1626403f23e63ca5415f16980d98de3bba9",
-        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+        "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d"
       ],
-      "source_sha256": "2fb5c2026226033df3e4bf347f2b4453fd4e244c273483cdd855580a508d644f",
-      "text": "De widgets som bär ansökningsformuläret, istället för mig.\n\nVarför inte fönstret. Att ställa in ett stilmall på ett fönster repetinerar varje ättling, och en session som har öppnat fyra moduler äger 8 002 widgets varav 7,595 är inuti modulprogramvyer – varav en är på programvyn. Mätt på den här rutan, fyra moduler öppna, alternerande mörka och ljus:\n\n    hela fönstret 945 ms först, ~1,479 ms stadig krom + den synliga sidan 300 ms första, ~310 ms stadigt\n\nVad som finns i listan, och formen är inte den självklara. Kromet är 407 widgets och endast TVO av dem kan nås från den centrala widgen -- dockan, sidofältet och statusremsan hänger utanför fönstret själv. En implementation som gick den centrala komponenten skulle lämna 405 ostilat och ser nästan rätt ut, vilket är varför `tests/qt/test_every_widget_wears_the_current_theme.py` gör exakt det med flit och hävdar att den fångas.\n\nSå: varje direkt barn i fönstret förutom den centrala widgeten, varje direktbarn i den centrala komponenten utom stacken, och stackens CURRENT-sida. Sidorna som inte visas är markerade istället, och arkade på egen hand `showEvent` innan de målas.",
+      "source_sha256": "58525ec9f307c0923b5d8f7a7783772252bc76137fc27de73158394d1451ded3",
+      "text": "De widgets som bär programmets stilmall, i stället för mig.\n\nVARFÖR INTE FÖNSTRET. Att sätta en stilmall på ett fönster poliserar om varje underordnad, och en session som har öppnat fyra moduler äger 8,002 widgetar, varav 7,595 ligger i modulskärmar -- EN av dem är synlig. Uppmätt på den här maskinen, med fyra moduler öppna, växlande mellan mörkt och ljust:\n\n    hela fönstret            945 ms första gången, ~1,479 ms i jämnt läge ramen + den synliga sidan   300 ms första gången,   ~310 ms i jämnt läge\n\nVAD SOM FINNS I LISTAN, och formen är inte den självklara. Ramen är 407 widgetar och bara TVÅ av dem kan nås från den centrala widgeten -- dockan, sidofältet och statusremsan hänger på själva fönstret. En implementation som gick igenom den centrala widgeten skulle lämna 405 utan stil och se nästan rätt ut, och därför gör `tests/qt/test_every_widget_wears_the_current_theme.py` precis det med avsikt och kontrollerar att det upptäcks.\n\nAlltså: varje direkt barn till fönstret utom den centrala widgeten, varje direkt barn till den centrala widgeten utom stapeln, och stapelns NUVARANDE sida. Sidor som inte visas markeras på plats och får stilmallen i sin egen `showEvent` innan de målas.\n\nEtt barn som är ett eget fönster -- en dialogruta med detta som förälder, som Preferences -- är inte ram: stilmallen når det som fönster, och ett dolt fönster som bett att få vänta på sin visning (:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`) väntar.",
       "translation_source_blocks_sha256": [
         "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
         "2c3be7cc5e05f5f4d56b22e736c551c5f62be6fdd0f4fb9b70134abe53882004",
         "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
         "58e6c2c05ea0d87fa6facbd19aedbfe938ec35d285f8037108d7b72e5e59bace",
-        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+        "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d"
       ]
     },
     "spacr.qt.app.MainWindow.toggle_app_drawer": {
@@ -80664,12 +80668,14 @@
     },
     "spacr.qt.i18n.install_dialog_translation._DialogTranslationFilter.eventFilter": {
       "source_blocks_sha256": [
-        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+        "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+        "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2"
       ],
-      "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
-      "text": "Översätter om en dialogs träd första gången den visas.",
+      "source_sha256": "e2a84a49ea0b2b9c926543e1509632512486db5b9198bec4702387e0aa72b003",
+      "text": "Översätt en dialogrutas träd på nytt när den visas.\n\nEn dialogruta med :data:`TRANSLATE_ONCE_PER_LANGUAGE` gås igenom en gång per språk i stället för vid varje visning: den behålls och visas igen, dess text ändras inte mellan visningarna, och genomgången var den största delen av att visa den igen.",
       "translation_source_blocks_sha256": [
-        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+        "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+        "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2"
       ]
     },
     "spacr.qt.i18n.install_qt_translations": {
@@ -83962,6 +83968,22 @@
         "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3"
       ]
     },
+    "spacr.qt.make_masks_demo.download_fibsem_example": {
+      "source_blocks_sha256": [
+        "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
+      ],
+      "source_sha256": "2fb02c74dc99f539da849d577b03bffd5a68ec0f56279d2ba1afcf22e8565a07",
+      "text": "Hämta FIB-SEM-testvolymen bakom den delade förloppsdialogen.\n\n:param parent: widgeten som förloppsdialogen hör till.\n:param dest: mappen som arkivet packas upp i.\n:param on_done: anropas i GUI-tråden som ``on_done(result, error)``, på samma sätt som :func:`download_make_masks_example` anropar den.",
+      "translation_source_blocks_sha256": [
+        "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab"
+      ]
+    },
     "spacr.qt.make_masks_demo.download_make_masks_example": {
       "source_blocks_sha256": [
         "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
@@ -83986,12 +84008,26 @@
         "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
       ],
       "source_sha256": "f696650f77dacd0a277bdf0709f64a4db136b61b1e19312621e3dd7a61e1b0d4",
-      "text": "Hämta TEM- testdata bakom den delade förloppsdialogrutan.\n\n:param parent: widgeten som förloppsdialogen hör till.\n:param dest: mappen som arkivet packas upp i.\n:param on_done: anropas på huvudsökvägen GUI som ``on_done(result, error)``, som :func:`download_make_masks_example` kallar den.",
+      "text": "Hämta TEM- testdata bakom den delade förloppsdialogrutan.\n\n:param parent: widgeten som förloppsdialogen hör till.\n:param dest: mappen som arkivet packas upp i.\n:param on_done: anropas i GUI-tråden som ``on_done(result, error)``, på samma sätt som :func:`download_make_masks_example` anropar den.",
       "translation_source_blocks_sha256": [
         "000fa4ade4b3928f84d602c2949a80d63ab96df51c84e6aa8023e6a815559eea",
         "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
         "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
         "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab"
+      ]
+    },
+    "spacr.qt.make_masks_demo.fibsem_example_folder": {
+      "source_blocks_sha256": [
+        "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+        "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
+      ],
+      "source_sha256": "704247536f44640c6b8368b9bfc8b870cd985aeaa484ee4d8a818d55cf9926ec",
+      "text": "Var FIB-SEM-testvolymen packas upp och cachas.\n\n``~/.cache/spacr/example_data/make_masks_fibsem``, mappen som :data:`spacr.example_archives.EXAMPLE_SETS` anger för uppsättningen ``fibsem``, så att ``spacr-download fibsem`` och menyn delar en cache.\n\n:returns: mappen. Den skapas inte här.",
+      "translation_source_blocks_sha256": [
+        "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+        "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
       ]
     },
     "spacr.qt.make_masks_demo.install_test_data_button": {
@@ -84034,6 +84070,28 @@
         "9eb145b856650b218ffd74cad6f85233ac32e8b2845b25a672155ac60b6a47a5",
         "01c48271aad649718107c1cbfe52467d06c19ec71cb0d64c8082cf08bd194f82",
         "7503e22ae286417c5260c5759bd2c28d081e473220f0ac080d4c28ae41797e2e"
+      ]
+    },
+    "spacr.qt.make_masks_demo.load_the_fibsem_test_data": {
+      "source_blocks_sha256": [
+        "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+        "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+        "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+        "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+        "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+        "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+        "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3"
+      ],
+      "source_sha256": "30adb54a8cce890291368b1fb461a062bd92b634e709832cd9a6bfc3cd6e65ad",
+      "text": "Öppna FIB-SEM-testvolymen i 3D-maskredigeraren.\n\nSamma sekvens som :func:`load_the_test_data`, och laddar ner :data:`FIBSEM_EXAMPLE_REPO` till :func:`fibsem_example_folder` när den inte finns i cachen. Utan masker öppnas volymen osegmenterad, med dess utkast sparade i ``masks/``. Med masker kopieras de publicerade etiketterna en gång till ``corrected_masks/`` och öppnas där för korrigering, så att ``ground_truth_masks/`` aldrig skrivs över.\n\n:param screen: fönstret Make Masks vars 3D-redigerare öppnar volymen.\n:param with_masks: öppna volymen med dess mitokondrieetiketter inlästa.\n:param ask: ersätter :func:`download_fibsem_example`, för tester.\n:param folder: ersätter :func:`fibsem_example_folder`, för tester.\n:returns: om detta anrop öppnade volymen.",
+      "translation_source_blocks_sha256": [
+        "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+        "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+        "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+        "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+        "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+        "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+        "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3"
       ]
     },
     "spacr.qt.make_masks_demo.load_the_tem_test_data": {
@@ -84544,6 +84602,20 @@
         "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.assign_objects": {
+      "source_blocks_sha256": [
+        "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+        "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+        "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
+      ],
+      "source_sha256": "ce71d0fd888ccd0811f7372c95c0e5c8c62b3de9f63bf2c2fa72b32dde35e725",
+      "text": "Dela upp varje etikett i dess sammanhängande 3D-objekt.\n\nDen största sammanhängande delen av varje etikett behåller sitt ID; varje annan del, som inte rör vid den varken med sida, kant eller hörn, får nästa oanvända ID. Att rita många objekt med ett ID och sedan tilldela dem ger varje objekt ett eget ID.\n\n:returns: ``(changed voxels, objects after assigning)``.",
+      "translation_source_blocks_sha256": [
+        "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+        "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+        "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
       "source_blocks_sha256": [
         "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
@@ -84558,6 +84630,24 @@
         "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
         "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
         "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.interpolate": {
+      "source_blocks_sha256": [
+        "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+        "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+        "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+        "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "88f82179e30f33c3c1292b0c9cd235c697f0d45e098005470a552c76286777ee",
+      "text": "Fyll de tomma snitten mellan ritade snitt av ett objekt.\n\nVarje lucka mellan två snitt som innehåller ``label`` fylls genom att blanda deras signerade avståndskartor, mätta i fysiska enheter, så att konturen ändrar form jämnt från ett ritat snitt till nästa. Endast bakgrundsvoxlar fylls.\n\n:param label: objektet som ska interpoleras.\n:param axis: axeln längs vilken snitten är staplade.\n:returns: antal ändrade voxlar.",
+      "translation_source_blocks_sha256": [
+        "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+        "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+        "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+        "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.limits": {
@@ -84580,6 +84670,46 @@
         "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.paint_plane": {
+      "source_blocks_sha256": [
+        "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+        "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+        "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+        "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "dd3723871b7310838597758924916904db250445454f1b57101ec9f943b98b6c",
+      "text": "Rita eller radera ett objekt på ett snitt som ett enda ångra-steg.\n\nMålning fyller bara bakgrund och objektets egna voxlar, så andra objekt skrivs aldrig över. Radering rensar varje etikett under de raderade pixlarna. En etikett vars voxlar ändras förlorar varje sparad ankargräns, som inte längre beskriver den.\n\n:param axis: axeln som hålls fast, som för :meth:`plane`.\n:param index: snittets index längs ``axis``.\n:param label: objekt-ID:t som ska ritas.\n:param paint: booleska pixlar som tilldelas ``label``, med snittets form.\n:param erase: booleska pixlar som rensas, med snittets form.\n:returns: antal ändrade voxlar.",
+      "translation_source_blocks_sha256": [
+        "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+        "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+        "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+        "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.plane": {
+      "source_blocks_sha256": [
+        "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+        "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb"
+      ],
+      "source_sha256": "4975c81d43ade92846ad3a9856c56a2526b759ef88435ad8ff397a00ce7f6a67",
+      "text": "Returnera ett ortogonalt snitt av bilden och dess etiketter.\n\n:param axis: axeln som hålls fast. ``Z`` ger XY-snittet (rader Y, kolumner X), ``Y`` XZ-snittet (rader Z, kolumner X) och ``X`` YZ-snittet (rader Z, kolumner Y).\n:param index: snittets index längs ``axis``.\n:returns: ``(image, labels)``, kopior av det snittet.",
+      "translation_source_blocks_sha256": [
+        "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+        "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.redo": {
       "source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
@@ -84588,6 +84718,20 @@
       "text": "Tillämpa på nytt det senast ångrade voxeldeltat och geometrin.",
       "translation_source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.section_count": {
+      "source_blocks_sha256": [
+        "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+        "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+        "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c"
+      ],
+      "source_sha256": "05a30aa15f7eafd8a4d2de98202e8289ff1970bbb6da246c9c2c4783da252ad6",
+      "text": "Antal snitt längs en rumslig axel.\n\n:param axis: ``X``, ``Y`` eller ``Z``.\n:returns: volymens längd längs den axeln.",
+      "translation_source_blocks_sha256": [
+        "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+        "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+        "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.undo": {
@@ -85282,20 +85426,20 @@
     },
     "spacr.qt.mask_engine.load_volume_image_and_mask": {
       "source_blocks_sha256": [
-        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
-        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ],
-      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
-      "text": "Öppna en uttryckligen deklarerad rumslig gråskale-TIFF för inbyggd 3-D-redigering.\n\nExakt tre rumsliga axlar stöds, i valfri ordning. Tids-, kanal-, färg- och härledda sidaxlar nekas. ``voxel_spacing``-metadata läses i lagringsaxelordning. Fysiska OME-storlekar konverteras till mikrometer; ImageJ-avstånd och XY-upplösning behålls. Saknade fysiska metadata innebär pixelkoordinater. Etiketter behåller dtype och identitet. En sparad geometrisidofil är bunden till den exakta källfilen och maskpixlarna och nekas när den är inaktuell.\n\n:param folder: källbildskatalog.\n:param filename: filnamn för den rumsliga TIFF-bilden.\n:param masks_dir: valfri befintlig intilliggande maskkatalog.\n:returns: en ``VolumeMaskSession`` som äger etiketterna och källans metadata.",
+      "source_sha256": "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69",
+      "text": "Öppna en rumslig gråskalevolym för inbyggd 3D-redigering.\n\nTIFF-volymer behöver exakt tre rumsliga axlar, i valfri ordning. En enkel tredimensionell sidstapel (tifffiles sidaxel ``Q`` eller ``I`` över ``YX``) läses som Z-snitt, så som Z-staplar och FIB-SEM-serier sparas; tids-, kanal- och färgaxlar avvisas. Metadata för ``voxel_spacing`` läses i lagringsaxlarnas ordning. OME-fysiska storlekar omvandlas till mikrometer; ImageJ-avstånd och XY-upplösning behålls. MRC-volymer (``.mrc``, ``.rec``, ``.map``) läses som ZYX med sin voxelstorlek i nanometer; de behöver det valfria paketet ``mrcfile``. Saknade fysiska metadata betyder pixelkoordinater. Etiketter behåller datatyp och identitet. En sparad geometrisidofil är bunden till den exakta källfilen och maskpixlarna och avvisas när den är föråldrad.\n\n:param folder: källbildskatalog.\n:param filename: filnamn på den rumsliga TIFF- eller MRC-volymen.\n:param masks_dir: valfri befintlig intilliggande maskkatalog.\n:returns: en ``VolumeMaskSession`` som äger etiketterna och källans metadata.",
       "translation_source_blocks_sha256": [
-        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-        "a9ba5e8105b8b0a9e311ee0abf0d2d9cb5498e34d21fb1572af99de1ee6e25d0",
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "62824efb710452c5066519395b857a92e5d0ddf28faa782792f7db486ec99033",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
-        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ]
@@ -88667,13 +88811,15 @@
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save": {
       "source_blocks_sha256": [
         "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
-        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa"
+        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa",
+        "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e"
       ],
-      "source_sha256": "fb1112d0625fb1f7e2e2a5f37d1aca8a5ebfbb287a27def61a9058b9e5930fd1",
-      "text": "Skriver varje inställning som denna dialog äger, kanten först.\n\nKANTEN KOMMER FÖRST eftersom varje öppet kort läser om den: att göra det före temaarbetet innebär en omritning i stället för två.",
+      "source_sha256": "a2a74efcc11ff40adc345b4b1614ac7de1f8d2f9819ddc33948d41877cc6d91e",
+      "text": "Skriver varje inställning som denna dialog äger, kanten först.\n\nKANTEN KOMMER FÖRST eftersom varje öppet kort läser om den: att göra det före temaarbetet innebär en omritning i stället för två.\n\nEtt Spara som stänger döljer dialogrutan innan programmet tar över de nya värdena: att ge stil åt ett fönster som strax försvinner var den största delen av ett Spara.",
       "translation_source_blocks_sha256": [
         "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
-        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a"
+        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a",
+        "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._select": {
@@ -89032,13 +89178,17 @@
       "source_blocks_sha256": [
         "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
         "56c9ac8b7e9786e63b36dece67b6dbbfc74c6a412eca6b53a467887c4317ad96",
+        "be73e082bf417ffaea91b305ce47470418f04924193388f9c698c73c7feea218",
+        "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ],
-      "source_sha256": "de1511916cb3ee37057da5b9c3bf44d12cbea358e75226a541815f9f7f6561ad",
-      "text": "Skickar bort de osedda sidorna strax före den första visningen.\n\nHÄR, OCH INTE VID DEN FÖRSTA ``Polish``. Fönstrets formatmall, glaset och storleksfiltret reagerar alla på den händelsen från programmet, som hör den före fönstret, och storleksfiltret polerar varje barn medan det gör det. Qt:s egen visning börjar i detta anrop, så sidorna är borta innan någon av dem körs.\n\n:param visible: som för ``QWidget.setVisible``.",
+      "source_sha256": "0bee4ead6a964a72514382029d31e0df8c64a4d071528869508951aa18691f5b",
+      "text": "Skickar bort de osedda sidorna strax före den första visningen.\n\nHÄR, OCH INTE VID DEN FÖRSTA ``Polish``. Fönstrets formatmall, glaset och storleksfiltret reagerar alla på den händelsen från programmet, som hör den före fönstret, och storleksfiltret polerar varje barn medan det gör det. Qt:s egen visning börjar i detta anrop, så sidorna är borta innan någon av dem körs.\n\nVARJE VISNING, INTE BARA DEN FÖRSTA, går bara igenom fönstret. En dialogruta som behållits till nästa öppning (:func:`_take_the_warm_preferences`) visas igen och samma filter går igenom den på nytt; en sida som fortfarande väntar får det den missade när dess flik väljs, som vid den första öppningen.\n\nVarje visning noterar också fönstrets utseende (:func:`_window_signature`), så att stängningen kan veta om fönstret har något att ta igen.\n\n:param visible: som för ``QWidget.setVisible``.",
       "translation_source_blocks_sha256": [
         "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
         "f2df76b60fda60ff3ca25d33dfa0318c8e7501370e9c8e0dbb90c206a87f0fc6",
+        "c2812f19d670e0fc6d6198b31f2e967c7f53e313837c721b363de94b630f0190",
+        "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ]
     },
@@ -105562,17 +105712,17 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
       "source_blocks_sha256": [
-        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
-        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
         "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ],
-      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
-      "text": "Öppna en inbyggd rumslig TIFF i den delade 3-D-ankarredigeraren.\n\nDen befintliga 2-D-bilden, maskverktygen och YOLO-annoteringarna hålls åtskilda. Tids-/kanal-/RGB-TIFF:er nekas i stället för att tolkas som djup.\n\n:param path: valfri sökväg till en rumslig TIFF; annars öppnas en filväljare.\n:returns: den inbyggda volymdialogen, eller None vid avbrott/nekande.",
+      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
+      "text": "Öppna en Z-stapel eller en volym i 3D-maskredigeraren.\n\nMasker ritas och raderas snitt för snitt på XY-, XZ- eller YZ-snitt, interpoleras mellan ritade snitt, tilldelas 3D-objekt och redigeras med de delade ankarna. TIFF-staplar, OME-TIFF och MRC-volymer öppnas; tids-/kanal-/RGB-TIFF avvisas i stället för att tolkas som djup. Den befintliga 2D-bilden, maskverktygen och YOLO-annoteringarna förblir åtskilda.\n\n:param path: valfri volymsökväg; annars öppnas en filväljare.\n:returns: den inbyggda volymdialogen, eller None vid avbrott/nekande.",
       "translation_source_blocks_sha256": [
-        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-        "9a2cedf269b09b9d40b2e783dfdfc3cf243b7982330d4918b2734beab5056ff9",
-        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+        "dd8337393063df88b68ff4b8a82ee7b42999a0c8cd3149406613f7a647baf363",
+        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
         "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ]
     },
@@ -112460,8 +112610,8 @@
         "ed97db2de081b82fe5bfa71dfdc1dc8715531e6cf71681aca9035afbc1140ffa",
         "bd889371c666873661054ada8bb6417df2e2e6335b4eaf302f6a86a193438c42"
       ],
-      "source_sha256": "21e43c59c82bb5da5291e33a3ce28dad00f74ad29fd6ca1161d9a60cbde9d115",
-      "text": "Kör Jämför — två körningar av samma projekt, sida vid sida.\n\nVälj ett projekt, välj två av dess körningar, och skärmen svarar på de tre frågorna som följer en omkörning:\n\n1. **Vad har jag ändrat?** Inställningsdiffen, grupperad under samma rubriker, grupperas inställningspanelen efter, visar endast vad som flyttades, så två ändrade strukturerade datanamn under *Cellpose* inte förlorade bland två hundra. 2. **Vad kom ut?** Objekt, mikroplattors provpositioner och mikroskopfält av vy per laboratoriemikroplatta och totalt sett. En processsession som producerade 12% färre celler har ett problem, och det är här det syns först. 3. **Vilka träffar flyttade?** Visas, försvann och ändrade rankning. En träfflista vars medlemskap är stabilt men vars topp tio ändrar varje bearbetningssession är inte ett stabilt resultat.\n\nAlla tre kommer från :mod:`spacr.run_compare`, vilket är huvudlöst: den här filen plockar körningarna och ritar tabellerna och vet ingenting annat. Processionssessionslistorna kommer från artefaktregistret (:mod:`spacr.artifacts`), aldrig från en filsystemskanning – en processsession vars utgångar togs bort har fortfarande sina inställningar registrerade, och att släppa den från rullgardinsrutan skulle förlora den enda kopian av det som producerade siffrorna någon frågar om.\n\n**Ojämförbara körningar är inte diffed.** Två körningar av olika laboratoriemikroplattor subtrahera perfekt och producera en tabell som ser exakt ut som en regressionsrapport. När :func:`spacr.run_compare.comparability` höjer en blocker tabellerna förblir tomma och bannern säger varför, med en *Jämför ändå*-knapp som överskrider blockerare. Varningar - en annan spaCR-version över alla - visas med tabellerna snarare än i stället för dem, eftersom en version ändring förklarar en räkna förändring på egen hand.",
+      "source_sha256": "5d975d0f4e9ad3409dc61e471a263ee500c7d9581e1a169cceaa403c88df62ea",
+      "text": "Run Compare -- två körningar av samma projekt, sida vid sida.\n\nVälj ett projekt, välj två av dess körningar, så besvarar fönstret de tre frågor som följer efter en ny körning:\n\n1. **Vad ändrade jag?** Inställningsdiffen, grupperad under samma rubriker som inställningspanelen grupperar dem under, och som bara visar det som rörde sig, så att två ändrade nycklar under *Cellpose* inte försvinner bland tvåhundra. 2. **Vad kom ut?** Objekt, brunnar och fält per platta och totalt. En körning som gav 12% färre celler har ett problem, och här syns det först. 3. **Vilka träffar rörde sig?** Tillkomna, försvunna och med ändrad rang. En träfflista vars sammansättning är stabil men vars tio främsta ordnas om vid varje körning är inget stabilt resultat.\n\nAlla tre kommer från :mod:`spacr.run_compare`, som är headless: den här filen väljer körningarna, ritar tabellerna och vet ingenting annat. Körningslistorna kommer från artefaktregistret (:mod:`spacr.artifacts`), aldrig från en filsystemsskanning -- en körning vars utdata raderats har fortfarande sina inställningar registrerade, och att ta bort den ur rullgardinsmenyn skulle förlora den enda kopian av det som gav siffrorna som någon frågar om.\n\n**Ojämförbara körningar jämförs inte.** Två körningar av olika plattor går alldeles utmärkt att subtrahera och ger en tabell som ser ut precis som en regressionsrapport. När :func:`spacr.run_compare.comparability` ger ett hinder förblir tabellerna tomma och banderollen säger varför, med en knapp *Compare anyway* som åsidosätter hindret. Varningar -- framför allt en annan spaCR-version -- visas tillsammans med tabellerna i stället för i deras ställe, eftersom en versionsändring ensam förklarar en ändring i ett antal.",
       "translation_source_blocks_sha256": [
         "ce7775715fff9d81d149724bf84d5f6b919eba0088109ee8e6e71d9f206600cd",
         "49dd605d2f7260bd9714a41e848ce5cc5718b2c16f8222dba8d270e3516d4178",
@@ -118801,10 +118951,11 @@
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
         "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ],
-      "source_sha256": "4708eaeace506fe3477e7d95f36392f3a937b708b00d2c7b75b410749501f5ab",
-      "text": "Installera ``sheet`` på varje fönster på toppnivå istället för på ``app``.\n\nVARFÖR, med numret. `QApplication.setStyleSheet` återerövrar varje widget processen äger, och en session som har öppnat några moduler äger tusentals det kan inte se -- `MainWindow` bygger en modulprogramvy på första navigeringen och håller den i stacken efteråt. Mätt på denna ruta, offscreen, fyra moduler öppna, 9,045 levande widges varav 6,111 är på programvyer ingen tittar på:\n\n    app.setStyleSheet 2,836 ms först, ~7,500 ms därefter varje toppnivå fönster 1.684 ms första, ~1,900 ms senare endast den synliga skärmen 222 ms\n\nEn fjärdedel av kostnaden för samma bild. Golvet är lägre fortfarande -- 222 ms är vad den synliga skärmen kostar på egen hand -- och nå det innebär att inte plåta de dolda skärmarna heller, vilket är en större förändring än denna.\n\n:param app: Den ``QApplication`` vars fönster bär arket, och där själva arket står parkerat så att ett fönster som skapats senare kan hitta det. ``None`` accepteras och gör ingenting, så en uppringare som kör utan ett program behöver inte kontrollera först.\n:param sheet: Det fullständiga formatmallen för tillämpning, som :func:`stylesheet` komponerar den.\n:returns: Antalet fönster som lakanet sattes på.\n\nEn inställningskategoris innehåll som väntar utanför sidan saknar förälder, så Qt listar det bland toppnivåwidgetarna, men det är inget fönster: det går tillbaka under sin sida innan någon ser det och bär sidans stilmall därifrån. Att ge det en stilmall här skulle lämna det med en kopia av stilmallen från det ögonblick då det gick tillbaka, som nästa temaändring inte skulle nå. Se :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
+      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
+      "text": "Installera ``sheet`` på varje toppnivåfönster i stället för på ``app``.\n\nVARFÖR, MED SIFFRAN. `QApplication.setStyleSheet` poliserar om varje widget som processen äger, och en session som har öppnat några moduler äger tusentals som den inte kan se -- `MainWindow` bygger en modulskärm vid första navigeringen och behåller den sedan i stapeln. Uppmätt på den här maskinen, offscreen, med fyra moduler öppna, 9,045 levande widgetar varav 6,111 ligger på skärmar som ingen tittar på:\n\n    app.setStyleSheet            2,836 ms första gången, ~7,500 ms därefter varje toppnivåfönster       1,684 ms första gången, ~1,900 ms därefter bara den synliga skärmen       222 ms\n\nEN FJÄRDEDEL AV KOSTNADEN FÖR SAMMA BILD. Golvet är ännu lägre -- 222 ms är vad den synliga skärmen kostar ensam -- och att nå dit innebär att inte heller ge de dolda skärmarna stilmallen, vilket är en större ändring än denna.\n\n:param app: den ``QApplication`` vars fönster bär stilmallen, och där själva stilmallen förvaras så att ett fönster som skapas senare kan hitta den. ``None`` accepteras och gör ingenting, så att en anropare utan program inte behöver kontrollera det först.\n:param sheet: programmets fullständiga stilmall, så som :func:`stylesheet` sätter ihop den.\n:returns: antalet fönster som stilmallen sattes på.\n\nEtt dolt fönster märkt med :data:`SHEETED_WHEN_SHOWN` lämnas till sin nästa ``Show``, där :class:`_SheetsEveryWindowThatAppears` ger det stilmallen innan det målas: Preferences-fönstret som behållits till nästa öppning är ~750 widgetar som ingen kan se.\n\nEn inställningskategoris innehåll som väntar utanför sidan saknar förälder, så Qt listar det bland toppnivåwidgetarna, men det är inget fönster: det går tillbaka under sin sida innan någon ser det och bär sidans stilmall därifrån. Att ge det en stilmall här skulle lämna det med en kopia av stilmallen från det ögonblick då det gick tillbaka, som nästa temaändring inte skulle nå. Se :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
       "translation_source_blocks_sha256": [
         "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
         "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
@@ -118813,6 +118964,7 @@
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
         "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ]
     },
@@ -194037,26 +194189,26 @@
         "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
         "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
         "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
         "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
         "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
         "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
-        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
         "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
         "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6"
       ],
-      "source_sha256": "b730aa423d768af8ae37c4e4fee96268251fb8c72c844d52f14ef1a4bf92a014",
-      "text": "Ladda ner ``run_file`` till ``destination`` och sluta efter ``max_reads``.\n\nStrömmen dekomprimeras när den anländer och anslutningen släpps så fort tillräckligt många läsningar finns i handen, så en begränsad begäran överför bara vad den behöver. ``max_reads`` av ``None`` hämtar hela filen.\n\nSkriven tillbaka ut som ``.fastq.gz`` eftersom det är vad ``src`` ställa in dokument för sekvensering (\"mappen av . fastq.gz läser\"), så en delmängd och en fullständig nedladdning är samma form till allt nedströms.\n\n:param run_file: arkivfilen som ska strömmas; dess ``url`` läses och dess ``filename`` namnger utdata.\n:param destination: mapp som ``.fastq.gz``-filen skrivs till; skapas om den saknas.\n:param progress: för användning tillsammans med ``(reads_so_far, compressed_bytes_so_far)``.\n:param should_stop: tillfrågade mellan bitar; ett sanningsenligt svar överger nedladdningen och tar bort den partiella filen.\n\nUtan en ``opener`` läses exemplet ``reads`` först: när den håller filen med minst ``max_reads`` läser man den istället för från ENA, så en begränsad begäran fungerar offline och ger samma avläsningar. En helfilsbegäran, eller en större än cachen, strömmar från EN A som tidigare.\n:returns: den skrivna sökvägen.\n:raises ValueError: för en icke-positiv ``max_reads``.\n:raises ConnectionError: när strömmen stannar innan läsningen begärs och innan filen avslutas, så en nedsläppt anslutning lämnar aldrig en kort fil som ser komplett ut.",
+      "source_sha256": "30d0f1c7c5221ee173b29d95edcb68516f539dd7a29dbfba3c9fe393d78a71f8",
+      "text": "Ladda ner ``run_file`` till ``destination`` och sluta efter ``max_reads``.\n\nStrömmen packas upp allteftersom den anländer och anslutningen bryts så fort tillräckligt många avläsningar finns, så att en begränsad begäran bara överför det den behöver. Med ``max_reads`` lika med ``None`` hämtas hela filen.\n\nSkrivs tillbaka som ``.fastq.gz`` eftersom det är vad inställningen ``src`` dokumenterar för sekvensering (\"the folder of .fastq.gz reads\"), så att en delmängd och en fullständig nedladdning har samma form för allt längre ned.\n\nUtan ``opener`` läses den nedladdade exempeluppsättningen ``reads`` först: när den innehåller den här filen med minst ``max_reads`` avläsningar tas de därifrån i stället för från ENA, så att en begränsad begäran fungerar offline och ger samma avläsningar. En begäran om hela filen, eller en större än cachen, strömmas från ENA som tidigare.\n\n:param run_file: arkivfilen som ska strömmas; dess ``url`` läses och dess ``filename`` namnger utdata.\n:param destination: mapp som ``.fastq.gz``-filen skrivs till; skapas om den saknas.\n:param progress: anropas med ``(reads_so_far, compressed_bytes_so_far)``.\n:param should_stop: efterfrågas mellan delarna; ett sant svar överger nedladdningen och tar bort den ofullständiga filen.\n:returns: den skrivna sökvägen.\n:raises ValueError: för ett icke-positivt ``max_reads``.\n:raises ConnectionError: när strömmen upphör före de begärda avläsningarna och före filens slut, så att en bruten anslutning aldrig lämnar kvar en kort fil som ser fullständig ut.",
       "translation_source_blocks_sha256": [
         "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
         "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
         "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
         "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
         "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
         "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
-        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
         "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
         "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6"

@@ -195,14 +195,18 @@
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#0",
       "source": "Open an explicitly declared grayscale spatial TIFF for native 3-D editing.",
       "source_sha256": "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-      "translation": "打开明确声明的灰度空间 TIFF，用于原生 3-D 编辑。"
+      "translation": "打开明确声明的灰度空间 TIFF，用于原生 3-D 编辑。",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Exactly three spatial axes are supported, in any order. Time, image data channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#1",
       "source": "Exactly three spatial axes are supported, in any order. Time, channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
       "source_sha256": "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
-      "translation": "支持恰好三个空间轴，顺序不限。时间、通道、颜色和推断出的页面轴将被拒绝。``voxel_spacing`` 元数据按存储轴顺序读取。OME 物理尺寸会转换为微米；ImageJ 间距和 XY 分辨率予以保留。缺少物理元数据时使用像素坐标。标签保留 dtype 和身份。已保存的几何附属文件与确切的源文件和掩膜像素绑定，过期时将被拒绝。"
+      "translation": "支持恰好三个空间轴，顺序不限。时间、通道、颜色和推断出的页面轴将被拒绝。``voxel_spacing`` 元数据按存储轴顺序读取。OME 物理尺寸会转换为微米；ImageJ 间距和 XY 分辨率予以保留。缺少物理元数据时使用像素坐标。标签保留 dtype 和身份。已保存的几何附属文件与确切的源文件和掩膜像素绑定，过期时将被拒绝。",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "source image directory.",
@@ -216,7 +220,9 @@
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#3",
       "source": "spatial TIFF image filename.",
       "source_sha256": "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
-      "translation": "空间 TIFF 图像文件名。"
+      "translation": "空间 TIFF 图像文件名。",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional existing sibling mask directory.",
@@ -265,21 +271,27 @@
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#0",
       "source": "Open a native spatial TIFF in the shared 3-D anchor editor.",
       "source_sha256": "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-      "translation": "在共享的 3-D 锚点编辑器中打开原生空间 TIFF。"
+      "translation": "在共享的 3-D 锚点编辑器中打开原生空间 TIFF。",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/image data channel/RGB TIFFs are refused rather than interpreted as depth.",
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#1",
       "source": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/channel/RGB TIFFs are refused rather than interpreted as depth.",
       "source_sha256": "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
-      "translation": "现有的 2-D 图像、掩膜工具和 YOLO 标注保持独立。时间/通道/RGB TIFF 将被拒绝，而不会被解释为深度。"
+      "translation": "现有的 2-D 图像、掩膜工具和 YOLO 标注保持独立。时间/通道/RGB TIFF 将被拒绝，而不会被解释为深度。",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional spatial TIFF path; otherwise opens a file picker.",
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#2",
       "source": "optional spatial TIFF path; otherwise opens a file picker.",
       "source_sha256": "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
-      "translation": "可选的空间 TIFF 路径；否则打开文件选择器。"
+      "translation": "可选的空间 TIFF 路径；否则打开文件选择器。",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "the native volume dialog, or None on cancellation/refusal.",

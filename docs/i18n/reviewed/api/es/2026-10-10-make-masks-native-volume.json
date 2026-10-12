@@ -195,14 +195,18 @@
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#0",
       "source": "Open an explicitly declared grayscale spatial TIFF for native 3-D editing.",
       "source_sha256": "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-      "translation": "Abre un TIFF espacial en escala de grises declarado explícitamente para edición 3-D nativa."
+      "translation": "Abre un TIFF espacial en escala de grises declarado explícitamente para edición 3-D nativa.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Exactly three spatial axes are supported, in any order. Time, image data channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#1",
       "source": "Exactly three spatial axes are supported, in any order. Time, channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
       "source_sha256": "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
-      "translation": "Se admiten exactamente tres ejes espaciales, en cualquier orden. Se rechazan los ejes de tiempo, canal, color y de página inferidos. Los metadatos ``voxel_spacing`` se leen en el orden de los ejes de almacenamiento. Los tamaños físicos OME se convierten a micrómetros; se conservan el espaciado de ImageJ y la resolución XY. La ausencia de metadatos físicos implica coordenadas en píxeles. Las etiquetas conservan su dtype e identidad. Un archivo complementario de geometría guardado está vinculado al archivo de origen y a los píxeles de máscara exactos, y se rechaza si está desactualizado."
+      "translation": "Se admiten exactamente tres ejes espaciales, en cualquier orden. Se rechazan los ejes de tiempo, canal, color y de página inferidos. Los metadatos ``voxel_spacing`` se leen en el orden de los ejes de almacenamiento. Los tamaños físicos OME se convierten a micrómetros; se conservan el espaciado de ImageJ y la resolución XY. La ausencia de metadatos físicos implica coordenadas en píxeles. Las etiquetas conservan su dtype e identidad. Un archivo complementario de geometría guardado está vinculado al archivo de origen y a los píxeles de máscara exactos, y se rechaza si está desactualizado.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "source image directory.",
@@ -216,7 +220,9 @@
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#3",
       "source": "spatial TIFF image filename.",
       "source_sha256": "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
-      "translation": "nombre del archivo de imagen TIFF espacial."
+      "translation": "nombre del archivo de imagen TIFF espacial.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional existing sibling mask directory.",
@@ -265,21 +271,27 @@
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#0",
       "source": "Open a native spatial TIFF in the shared 3-D anchor editor.",
       "source_sha256": "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-      "translation": "Abre un TIFF espacial nativo en el editor de anclas 3-D compartido."
+      "translation": "Abre un TIFF espacial nativo en el editor de anclas 3-D compartido.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/image data channel/RGB TIFFs are refused rather than interpreted as depth.",
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#1",
       "source": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/channel/RGB TIFFs are refused rather than interpreted as depth.",
       "source_sha256": "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
-      "translation": "La imagen 2-D existente, las herramientas de máscara y las anotaciones YOLO permanecen separadas. Los TIFF de tiempo/canal/RGB se rechazan en lugar de interpretarse como profundidad."
+      "translation": "La imagen 2-D existente, las herramientas de máscara y las anotaciones YOLO permanecen separadas. Los TIFF de tiempo/canal/RGB se rechazan en lugar de interpretarse como profundidad.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional spatial TIFF path; otherwise opens a file picker.",
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#2",
       "source": "optional spatial TIFF path; otherwise opens a file picker.",
       "source_sha256": "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
-      "translation": "ruta opcional de un TIFF espacial; si no se indica, abre un selector de archivos."
+      "translation": "ruta opcional de un TIFF espacial; si no se indica, abre un selector de archivos.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "the native volume dialog, or None on cancellation/refusal.",

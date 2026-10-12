@@ -37086,8 +37086,8 @@
         "e45c1f30d8eaf61e66cb6ee790b79df2fbeb8ce81bea2b860b756e2334a5ce20",
         "05dd9fc0b45a7c6cf35c8e0d00229a1adfedec6a765f9298dd2f8ea9379618a5"
       ],
-      "source_sha256": "1befeadd72d1bd21a749b0a702c3c7409b369f551dc4257babb4cda879b769de",
-      "text": "한 마이크로스코프 시각 필드의 미생물 이미지 필드를 하나의 이미지로 삽입합니다.\n\nspaCR의 파일 이름 컨벤션 - ``plate_well_T####F###L##A##Z##C##`` - 마이크로스코프 이미지 필드 슬롯이 없으므로 4 개의 마이크로는 이미지 필드로 분할 된 필드는 하나의 캐논 이름과 3 개의 이미지를 생성 할 수 있습니다. 세 가지 답변이 가능합니다 : 마이크는 이미지 필드를 크고, 각 마이크로부터 이미지를 자신의 필드 번호를 제공하거나, 필드를 다시 함께 넣습니다. spaCR 스티커는 가져오고, 그것을 끄는 옵션으로 : 스티치 필드는 하나의 이름을 가진 하나의 이미지입니다.\n\n마이크로스코프 이미지 필드 인덱스는 위치가 아닙니다. ``tile03``는 이미지가 어떤 숫자의 세 번째라고 말하지 않습니다; 그것은 그것이 어디로 가고 있는지, 어떻게 미생물 이미지 필드를 주문하는지, 또는 얼마나 멀리 그들이 덮여 있는지 말합니다.\n\n파일 자체 단계 조정, 그것이 그들을 가지고있을 때. OME-TIFF 기록 ``PositionX``/``PositionY`` 미크론과 그 옆의 픽셀 크기, 그래서 레이아웃은 끝이 아닌 읽을 수 있습니다. 2. 피크셀, 그렇지 않으면. 근처 미크로스코프 이미지 필드는 두 번 동일한 이미지, 그래서 올바른 배치는 그 의미의 배치와 관련이있다 - 각 허용되는 배치에 대한 점수 대신 단계 배치에서 선택, 작은 배치 부어. 흰색 미크로스코프 이미지 필드, 단일 픽셀 덮개 및 공유 콘텐츠가없는 이미지는 언급 할 수있는 상호 작용을 생성하지 않습니다. 미크로는 이미지 필드는 그 후에 쿼드 이쉬 네트워크에 묶여 있으며 묶인 이미지 네트워드는 자신감으로 ``assumed`` 표시되므로 사용자에게 배열이 확인되지 않았다고 말합니다.\n\n잘못된 덮개에 집합 된 스티치 이미지 네트워크는 그것을 통해 복제 된 밴드가있는 필드이며, 그 테이프의 각 측정은 두 번 계산되었으며 응용 프로그램 보기에서는 아무것도 그렇게 말하지 않습니다.",
+      "source_sha256": "ad5fc26149b4b4fa21e9441fa2348bb42179fd5a38200dc2a69a1b60f0709954",
+      "text": "하나의 시야의 타일을 하나의 이미지로 이어 붙입니다.\n\nspaCR의 파일 이름 규칙 -- ``plate_well_T####F###L##A##Z##C##`` -- 에는 타일 자리가 없으므로, 타일 네 개로 나뉜 시야는 하나의 표준 이름을 가진 이미지 네 개를 만들고 그중 세 개는 덮어써지게 됩니다. 가능한 해법은 세 가지였습니다. 규칙에 타일 자리를 추가하거나, 타일마다 고유한 시야 번호를 주거나, 시야를 다시 합치는 것입니다. spaCR는 가져올 때 이어 붙이며 이를 끌 수도 있습니다. 이어 붙인 시야는 이름이 하나인 이미지 하나이므로 하류에서는 타일을 다룰 필요가 없습니다.\n\n타일 인덱스는 위치가 아닙니다. ``tile03``은 이미지가 어떤 수 가운데 세 번째라는 것만 알려 주며, 그것이 어디에 놓이는지, 타일이 어떻게 정렬되는지, 얼마나 겹치는지는 알려 주지 않습니다. 이 모두는 근거에서 나와야 하며, 이 모듈은 그 근거가 있는 곳을 기준으로 구성되어 있습니다.\n\n1. 파일 자체의 스테이지 좌표, 있을 때. OME-TIFF는 ``PositionX``/``PositionY``를 마이크로미터 단위로 기록하고 그 옆에 픽셀 크기도 기록하므로, 배치는 추정이 아니라 읽어 냅니다. 2. 그렇지 않으면 픽셀. 인접한 타일은 겹치고 겹친 부분은 같은 그림이 두 번 나온 것이므로, 올바른 변위는 그것이 암시하는 겹침이 상관되는 변위입니다 -- 작은 겹침이 묻어 버리는 위상 상관 피크에서 고르는 대신, 허용되는 모든 변위에 대해 점수를 매깁니다. 이것으로 순서도 정해집니다 -- 행 우선과 지그재그는 서로 다른 타일을 나란히 놓으므로, 상관되는 배열이 현미경이 사용한 배열입니다. 3. 근거 없음. 빈 타일, 한 픽셀 겹침, 공통 내용이 없는 이미지는 말할 만한 상관을 만들지 못합니다. 그러면 타일은 거의 정사각형인 격자에 맞대어 이어지고, 모자이크에는 신뢰도와 함께 ``assumed`` 표시가 붙어 배치가 검증되지 않았음을 사용자에게 알립니다.\n\n잘못된 겹침으로 조립한 모자이크는 중복된 띠가 가로지르는 시야이며, 그 띠 안의 모든 측정은 두 번 세어지는데 화면에는 그 사실을 알리는 것이 없습니다. 그래서 신뢰도가 결과와 함께 반환되고, 호출자는 선택한 신뢰도 미만의 모자이크를 거부할 수 있습니다.",
       "translation_source_blocks_sha256": [
         "a03fe2a4c3c69bb3d6de90a9324c6751d73970a81396ea5665f6319d7a801c26",
         "5ed8ec00ed452476cf25d718e81b9b8bf46b8365f5c5605dd6d75b35069839f1",
@@ -71493,16 +71493,18 @@
         "7052761aa439828ec859b1dbbc9fc9bf9adef7aabc510652d2fe1e99f2f80d2c",
         "06314e72ef419c36898c6e57fc3a1373b90b5f7fb608f5e601abc64ae800eaeb",
         "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+        "64aa5e132fe7f224a52b5161705f8759f8d3177f7199c4e4d5cb7a1b1d383148",
         "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
         "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
       ],
-      "source_sha256": "200cb40fc00c995187b4a020e4a61e406f1af39e2bdb3edda9498cddfd6937c1",
-      "text": "이름이 지정된 탭에서 이름이 지정된 행을 표시한 채로 Preferences 를 엽니다.\n\nHelp 검색 필드가 환경설정 결과에 대해 사용하는 경로입니다. 대화 상자에는 탭이 아홉 개 있으며, 처음 열리는 탭이 무엇이든 거기서 연다면 질문의 절반에만 답한 셈입니다.\n\n탭은 인덱스 또는 탭이 아닌 객체 이름으로 찾을 수 있습니다. 인덱스는 탭을 추가 할 때마다 이동하고 탭 번역됩니다. 한국 인터페이스는 아무것도 일치하지 않았을 것입니다. 각 페이지는 자신의 ``PreferencesTab*`` 이름을 설정하고 ``tools/build_help_search_index.py``이 대화의 출처에서 동일한 이름을 읽으므로 핸드 오프의 두 끝은 구조에 따라 동일합니다.\n\n:param tab: 페이지의 객체 이름입니다(예: ``\"PreferencesTabTheme\"``). ``\"\"`` 이면 메뉴에서 열 때와 같이 대화 상자를 엽니다.\n:param label: 표시할 행 캡션입니다. ``\"\"`` 이면 아무것도 표시하지 않습니다.\n:returns: 이름이 지정된 탭을 찾아 표시했으면 True 입니다.",
+      "source_sha256": "f6331e2b40bf31ddcb7813f3133b013a1c52da25df2afb796a94760309ba29d6",
+      "text": "이름이 지정된 탭에서 이름이 지정된 행을 표시한 채로 Preferences 를 엽니다.\n\nHelp 검색 필드가 환경설정 결과에 대해 사용하는 경로입니다. 대화 상자에는 탭이 아홉 개 있으며, 처음 열리는 탭이 무엇이든 거기서 연다면 질문의 절반에만 답한 셈입니다.\n\n탭은 인덱스나 제목이 아니라 객체 이름으로 찾습니다. 인덱스는 탭이 추가될 때마다 밀리고, 제목은 번역됩니다 -- 한국어 인터페이스라면 아무것도 찾지 못했을 것입니다. 각 페이지는 자체 ``PreferencesTab*`` 이름을 설정하고, ``tools/build_help_search_index.py`` 는 이 대화 상자의 소스 코드에서 같은 이름을 읽으므로 인계의 양쪽 끝은 구성상 같은 문자열입니다.\n\n대화 상자는 보통 이미 만들어져 있으며(:func:`spacr.qt.preferences._warm_the_preferences`), 창은 닫힌 뒤에 창이 그리는 내용 중 무언가가 바뀌었을 때만 다시 그려집니다. 생성, 첫 표시, 무조건적인 다시 그리기는 각각 GUI 스레드를 한 프레임보다 오래 붙잡고 있었습니다.\n\n:param tab: 페이지의 객체 이름입니다(예: ``\"PreferencesTabTheme\"``). ``\"\"`` 이면 메뉴에서 열 때와 같이 대화 상자를 엽니다.\n:param label: 표시할 행 캡션입니다. ``\"\"`` 이면 아무것도 표시하지 않습니다.\n:returns: 이름이 지정된 탭을 찾아 표시했으면 True 입니다.",
       "translation_source_blocks_sha256": [
         "7052761aa439828ec859b1dbbc9fc9bf9adef7aabc510652d2fe1e99f2f80d2c",
         "06314e72ef419c36898c6e57fc3a1373b90b5f7fb608f5e601abc64ae800eaeb",
         "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+        "113d9ce153114158cda7366c0293a748de9c94447dac98c8ea253316c91d6bcf",
         "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
         "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
@@ -71536,16 +71538,18 @@
         "32ca1fbc116633fe8b91fc76a079e2015441dc9c163861adb06359ba4de97f0d",
         "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
         "aeaef5c37cc830ff43bf7d91e35de1626403f23e63ca5415f16980d98de3bba9",
-        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+        "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d"
       ],
-      "source_sha256": "2fb5c2026226033df3e4bf347f2b4453fd4e244c273483cdd855580a508d644f",
-      "text": "내 대신에 애플리케이션 잎을 운반하는 위젯.\n\n왜 창이 아닌가. 창에 스타일리스트를 설정하는 것은 모든 후손을 망치고, 4 개의 모듈을 열었던 세션은 8,002 위젯을 소유하고 있으며, 그 중 7,595 개는 모듈 응용 프로그램 전망 내부입니다.\n\n    전체 창 945 ms 첫 번째, ~1,479 ms 안정적인 크롬 + 눈에 띄는 페이지 300 ms 첫째, ~310 ms 안정을\n\n목록에 무엇이 있고 모양은 분명한 하나가 아닙니다. 크롬은 407 위젯이며 중앙 위젯에서 접근 할 수있는 두 가지 만 있습니다 - 도크, 측면 바 및 상태 스트립은 창 자체에서 묶여 있습니다. 중앙 비젯을 걷는 구현은 405을 스타일이없고 거의 올바르게 보일 것입니다, 그래서 `tests/qt/test_every_widget_wears_the_current_theme.py`는 정확히 목적과 그것이 잡혀 있다고 주장합니다.\n\n따라서 : 중앙 위젯을 제외한 창의 모든 직접 아이, 중앙 비젯의 모든 직접 아이, 스택을 제한하고 스택의 CURRENT 페이지. 표시되지 않는 페이지는 대신 표시되며 그들이 그려지기 전에 자신의 `showEvent`에 표시됩니다.",
+      "source_sha256": "58525ec9f307c0923b5d8f7a7783772252bc76137fc27de73158394d1451ded3",
+      "text": "나 대신 애플리케이션의 스타일시트를 가지는 위젯.\n\n왜 창이 아닌가. 창에 스타일시트를 지정하면 모든 하위 위젯을 다시 다듬게 되며, 모듈 네 개를 연 세션은 8,002개의 위젯을 가지고 그중 7,595개가 모듈 화면 안에 있습니다 -- 그중 하나만 보입니다. 이 컴퓨터에서 모듈 네 개를 연 채 어두운 테마와 밝은 테마를 번갈아 측정한 결과:\n\n    창 전체            처음 945 ms, 안정 상태 ~1,479 ms 프레임 + 보이는 페이지   처음 300 ms,   안정 상태 ~310 ms\n\n목록에 무엇이 들어가는가, 그리고 그 형태는 뻔한 것이 아닙니다. 프레임은 위젯 407개이며 그중 중앙 위젯에서 닿는 것은 단 둘뿐입니다 -- 도크, 사이드바, 상태 표시줄은 창 자체에 매달려 있습니다. 중앙 위젯을 따라 내려가는 구현은 405개를 스타일 없이 남기고 거의 맞는 것처럼 보일 것이며, 그래서 `tests/qt/test_every_widget_wears_the_current_theme.py` 는 바로 그렇게 일부러 수행하고 그것이 감지되는지 확인합니다.\n\n따라서 중앙 위젯을 제외한 창의 모든 직계 자식, 스택을 제외한 중앙 위젯의 모든 직계 자식, 그리고 스택의 현재 페이지입니다. 표시되지 않는 페이지는 제자리에서 표시를 달고, 그려지기 전에 자체 `showEvent` 에서 시트를 받습니다.\n\n그 자체로 창인 자식 -- Preferences처럼 이것을 부모로 둔 대화 상자 -- 은 프레임이 아닙니다. 시트는 창으로서 그것에 도달하며, 표시될 때까지 기다리도록 요청한 숨겨진 창(:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`)은 기다립니다.",
       "translation_source_blocks_sha256": [
         "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
         "2c3be7cc5e05f5f4d56b22e736c551c5f62be6fdd0f4fb9b70134abe53882004",
         "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
         "58e6c2c05ea0d87fa6facbd19aedbfe938ec35d285f8037108d7b72e5e59bace",
-        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+        "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d"
       ]
     },
     "spacr.qt.app.MainWindow.toggle_app_drawer": {
@@ -80664,12 +80668,14 @@
     },
     "spacr.qt.i18n.install_dialog_translation._DialogTranslationFilter.eventFilter": {
       "source_blocks_sha256": [
-        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+        "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+        "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2"
       ],
-      "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
-      "text": "대화 상자가 처음 표시될 때 그 트리를 다시 번역합니다.",
+      "source_sha256": "e2a84a49ea0b2b9c926543e1509632512486db5b9198bec4702387e0aa72b003",
+      "text": "대화 상자가 표시될 때 그 트리를 다시 번역합니다.\n\n:data:`TRANSLATE_ONCE_PER_LANGUAGE` 가 있는 대화 상자는 표시할 때마다가 아니라 언어당 한 번 순회됩니다. 대화 상자는 유지되었다가 다시 표시되고, 그 텍스트는 표시 사이에 바뀌지 않으며, 순회가 다시 표시하는 비용의 대부분이었습니다.",
       "translation_source_blocks_sha256": [
-        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+        "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+        "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2"
       ]
     },
     "spacr.qt.i18n.install_qt_translations": {
@@ -83962,6 +83968,22 @@
         "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3"
       ]
     },
+    "spacr.qt.make_masks_demo.download_fibsem_example": {
+      "source_blocks_sha256": [
+        "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
+      ],
+      "source_sha256": "2fb02c74dc99f539da849d577b03bffd5a68ec0f56279d2ba1afcf22e8565a07",
+      "text": "공유 진행률 대화상자 뒤에서 FIB-SEM 테스트 볼륨을 내려받습니다.\n\n:param parent: 진행 대화상자가 속한 위젯.\n:param dest: 아카이브를 풀 폴더.\n:param on_done: GUI 스레드에서 ``on_done(result, error)``로 호출되며, :func:`download_make_masks_example`이 호출하는 방식과 같습니다.",
+      "translation_source_blocks_sha256": [
+        "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab"
+      ]
+    },
     "spacr.qt.make_masks_demo.download_make_masks_example": {
       "source_blocks_sha256": [
         "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
@@ -83986,12 +84008,26 @@
         "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
       ],
       "source_sha256": "f696650f77dacd0a277bdf0709f64a4db136b61b1e19312621e3dd7a61e1b0d4",
-      "text": "TEM 테스트 데이터를 공유 진행 대화 뒤에 삽입합니다.\n\n:param parent: 진행 대화상자가 속한 위젯.\n:param dest: 아카이브를 풀 폴더.\n:param on_done: 주요 GUI 실행 경로에서 ``on_done(result, error)``로 호출되며 :func:`download_make_masks_example`이 그것을 호출합니다.",
+      "text": "TEM 테스트 데이터를 공유 진행 대화 뒤에 삽입합니다.\n\n:param parent: 진행 대화상자가 속한 위젯.\n:param dest: 아카이브를 풀 폴더.\n:param on_done: GUI 스레드에서 ``on_done(result, error)``로 호출되며, :func:`download_make_masks_example`이 호출하는 방식과 같습니다.",
       "translation_source_blocks_sha256": [
         "000fa4ade4b3928f84d602c2949a80d63ab96df51c84e6aa8023e6a815559eea",
         "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
         "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
         "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab"
+      ]
+    },
+    "spacr.qt.make_masks_demo.fibsem_example_folder": {
+      "source_blocks_sha256": [
+        "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+        "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
+      ],
+      "source_sha256": "704247536f44640c6b8368b9bfc8b870cd985aeaa484ee4d8a818d55cf9926ec",
+      "text": "FIB-SEM 테스트 볼륨을 풀어 캐시해 두는 위치.\n\n``~/.cache/spacr/example_data/make_masks_fibsem``. :data:`spacr.example_archives.EXAMPLE_SETS`가 ``fibsem`` 세트에 지정하는 폴더이므로, ``spacr-download fibsem``과 메뉴가 하나의 캐시를 공유합니다.\n\n:returns: 그 폴더. 여기서 만들지는 않습니다.",
+      "translation_source_blocks_sha256": [
+        "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+        "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
       ]
     },
     "spacr.qt.make_masks_demo.install_test_data_button": {
@@ -84034,6 +84070,28 @@
         "9eb145b856650b218ffd74cad6f85233ac32e8b2845b25a672155ac60b6a47a5",
         "01c48271aad649718107c1cbfe52467d06c19ec71cb0d64c8082cf08bd194f82",
         "7503e22ae286417c5260c5759bd2c28d081e473220f0ac080d4c28ae41797e2e"
+      ]
+    },
+    "spacr.qt.make_masks_demo.load_the_fibsem_test_data": {
+      "source_blocks_sha256": [
+        "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+        "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+        "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+        "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+        "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+        "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+        "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3"
+      ],
+      "source_sha256": "30adb54a8cce890291368b1fb461a062bd92b634e709832cd9a6bfc3cd6e65ad",
+      "text": "FIB-SEM 테스트 볼륨을 3D 마스크 편집기에서 엽니다.\n\n:func:`load_the_test_data`와 같은 순서로, 캐시에 없으면 :data:`FIBSEM_EXAMPLE_REPO`를 :func:`fibsem_example_folder`로 내려받습니다. 마스크 없이 열면 볼륨은 세그먼트되지 않은 상태로 열리며 그 초안은 ``masks/``에 저장됩니다. 마스크와 함께 열면 게시된 레이블이 한 번 ``corrected_masks/``로 복사되어 거기서 교정용으로 열리므로, ``ground_truth_masks/``는 절대 덮어써지지 않습니다.\n\n:param screen: 3D 편집기가 볼륨을 여는 Make Masks 창.\n:param with_masks: 미토콘드리아 레이블을 불러온 채 볼륨을 엽니다.\n:param ask: 테스트용으로 :func:`download_fibsem_example`을 대체합니다.\n:param folder: 테스트용으로 :func:`fibsem_example_folder`를 대체합니다.\n:returns: 이 호출이 볼륨을 열었는지 여부.",
+      "translation_source_blocks_sha256": [
+        "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+        "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+        "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+        "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+        "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+        "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+        "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3"
       ]
     },
     "spacr.qt.make_masks_demo.load_the_tem_test_data": {
@@ -84544,6 +84602,20 @@
         "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.assign_objects": {
+      "source_blocks_sha256": [
+        "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+        "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+        "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
+      ],
+      "source_sha256": "ce71d0fd888ccd0811f7372c95c0e5c8c62b3de9f63bf2c2fa72b32dde35e725",
+      "text": "모든 레이블을 3D로 연결된 객체로 나눕니다.\n\n각 레이블에서 가장 큰 연결 부분은 ID를 유지하고, 면, 모서리, 꼭짓점 어느 쪽으로도 그것에 닿지 않는 다른 부분은 아직 쓰지 않은 다음 ID를 받습니다. 하나의 ID로 여러 객체를 그린 뒤 할당하면 각 객체가 고유한 ID를 갖게 됩니다.\n\n:returns: ``(changed voxels, objects after assigning)``.",
+      "translation_source_blocks_sha256": [
+        "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+        "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+        "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
       "source_blocks_sha256": [
         "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
@@ -84558,6 +84630,24 @@
         "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
         "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
         "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.interpolate": {
+      "source_blocks_sha256": [
+        "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+        "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+        "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+        "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "88f82179e30f33c3c1292b0c9cd235c697f0d45e098005470a552c76286777ee",
+      "text": "한 객체의 그려진 단면 사이의 빈 단면을 채웁니다.\n\n``label``이 들어 있는 두 단면 사이의 각 간격은 물리 단위로 측정한 부호 있는 거리 맵을 혼합하여 채워지므로, 윤곽이 그려진 한 단면에서 다음 단면으로 부드럽게 모양을 바꿉니다. 배경 복셀만 채워집니다.\n\n:param label: 보간할 객체.\n:param axis: 단면이 쌓인 축.\n:returns: 변경된 복셀 수.",
+      "translation_source_blocks_sha256": [
+        "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+        "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+        "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+        "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.limits": {
@@ -84580,6 +84670,46 @@
         "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.paint_plane": {
+      "source_blocks_sha256": [
+        "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+        "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+        "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+        "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "dd3723871b7310838597758924916904db250445454f1b57101ec9f943b98b6c",
+      "text": "한 단면에서 객체 하나를 그리거나 지우며, 실행 취소 한 단계로 처리됩니다.\n\n칠하기는 배경과 객체 자신의 복셀만 채우므로 다른 객체는 절대 덮어써지지 않습니다. 지우기는 지워진 픽셀 아래의 모든 레이블을 지웁니다. 복셀이 바뀐 레이블은 더 이상 그것을 설명하지 못하는 저장된 앵커 경계를 잃습니다.\n\n:param axis: :meth:`plane`과 같이 고정된 축.\n:param index: ``axis``를 따른 단면의 인덱스.\n:param label: 그릴 객체 ID.\n:param paint: ``label``에 할당할 불리언 픽셀로, 단면과 같은 형태입니다.\n:param erase: 지울 불리언 픽셀로, 단면과 같은 형태입니다.\n:returns: 변경된 복셀 수.",
+      "translation_source_blocks_sha256": [
+        "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+        "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+        "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+        "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.plane": {
+      "source_blocks_sha256": [
+        "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+        "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb"
+      ],
+      "source_sha256": "4975c81d43ade92846ad3a9856c56a2526b759ef88435ad8ff397a00ce7f6a67",
+      "text": "이미지와 그 레이블의 직교 단면 하나를 반환합니다.\n\n:param axis: 고정된 축. ``Z``는 XY 단면(행 Y, 열 X), ``Y``는 XZ 단면(행 Z, 열 X), ``X``는 YZ 단면(행 Z, 열 Y)을 줍니다.\n:param index: ``axis``를 따른 단면의 인덱스.\n:returns: ``(image, labels)``, 그 단면의 복사본.",
+      "translation_source_blocks_sha256": [
+        "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+        "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.redo": {
       "source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
@@ -84588,6 +84718,20 @@
       "text": "가장 최근에 실행 취소한 복셀 델타와 기하 구조를 다시 적용합니다.",
       "translation_source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.section_count": {
+      "source_blocks_sha256": [
+        "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+        "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+        "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c"
+      ],
+      "source_sha256": "05a30aa15f7eafd8a4d2de98202e8289ff1970bbb6da246c9c2c4783da252ad6",
+      "text": "한 공간 축을 따른 단면의 수.\n\n:param axis: ``X``, ``Y`` 또는 ``Z``.\n:returns: 그 축을 따른 볼륨의 길이.",
+      "translation_source_blocks_sha256": [
+        "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+        "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+        "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.undo": {
@@ -85282,20 +85426,20 @@
     },
     "spacr.qt.mask_engine.load_volume_image_and_mask": {
       "source_blocks_sha256": [
-        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
-        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ],
-      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
-      "text": "기본 3-D 편집을 위해 명시적으로 선언된 회색조 공간 TIFF를 엽니다.\n\n정확히 세 개의 공간 축이 순서에 관계없이 지원됩니다. 시간, 채널, 색상 및 추론된 페이지 축은 거부됩니다. ``voxel_spacing`` 메타데이터는 저장 축 순서로 읽습니다. OME 물리적 크기는 마이크로미터로 변환되며, ImageJ 간격과 XY 해상도는 유지됩니다. 물리적 메타데이터가 없으면 픽셀 좌표를 의미합니다. 레이블은 dtype과 식별을 유지합니다. 저장된 기하 구조 사이드카는 정확한 원본 파일과 마스크 픽셀에 결합되며, 오래된 경우 거부됩니다.\n\n:param folder: 원본 이미지 디렉터리.\n:param filename: 공간 TIFF 이미지 파일 이름.\n:param masks_dir: 선택적인 기존 형제 마스크 디렉터리.\n:returns: 레이블과 원본 메타데이터를 소유하는 ``VolumeMaskSession``.",
+      "source_sha256": "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69",
+      "text": "네이티브 3D 편집을 위해 회색조 공간 볼륨을 엽니다.\n\nTIFF 볼륨에는 순서에 관계없이 정확히 세 개의 공간 축이 필요합니다. tifffile ``Q`` 또는 ``I`` 페이지 축이 ``YX`` 위에 놓인 평범한 3차원 페이지 스택은 z-스택과 FIB-SEM 시리즈가 저장되는 방식대로 Z 단면으로 읽으며, 시간, 채널, 색상 축은 거부됩니다. ``voxel_spacing`` 메타데이터는 저장 축 순서로 읽습니다. OME 물리 크기는 마이크로미터로 변환되고, ImageJ 간격과 XY 해상도는 유지됩니다. MRC 볼륨(``.mrc``, ``.rec``, ``.map``)은 나노미터 단위의 복셀 크기와 함께 ZYX로 읽으며, 선택적 ``mrcfile`` 패키지가 필요합니다. 물리 메타데이터가 없으면 픽셀 좌표를 뜻합니다. 레이블은 dtype과 정체성을 유지합니다. 저장된 기하 보조 파일은 정확한 원본 파일과 마스크 픽셀에 묶여 있으며, 오래된 경우 거부됩니다.\n\n:param folder: 원본 이미지 디렉터리.\n:param filename: 공간 TIFF 또는 MRC 볼륨의 파일 이름.\n:param masks_dir: 선택적인 기존 형제 마스크 디렉터리.\n:returns: 레이블과 원본 메타데이터를 소유하는 ``VolumeMaskSession``.",
       "translation_source_blocks_sha256": [
-        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-        "a9ba5e8105b8b0a9e311ee0abf0d2d9cb5498e34d21fb1572af99de1ee6e25d0",
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "62824efb710452c5066519395b857a92e5d0ddf28faa782792f7db486ec99033",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
-        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ]
@@ -88667,13 +88811,15 @@
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save": {
       "source_blocks_sha256": [
         "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
-        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa"
+        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa",
+        "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e"
       ],
-      "source_sha256": "fb1112d0625fb1f7e2e2a5f37d1aca8a5ebfbb287a27def61a9058b9e5930fd1",
-      "text": "이 대화 상자가 소유한 모든 환경설정을 쓰며, 테두리를 먼저 씁니다.\n\n테두리가 먼저인 이유는 열려 있는 모든 카드가 이를 다시 읽기 때문입니다. 테마 작업 전에 하면 다시 그리기가 두 번이 아니라 한 번입니다.",
+      "source_sha256": "a2a74efcc11ff40adc345b4b1614ac7de1f8d2f9819ddc33948d41877cc6d91e",
+      "text": "이 대화 상자가 소유한 모든 환경설정을 쓰며, 테두리를 먼저 씁니다.\n\n테두리가 먼저인 이유는 열려 있는 모든 카드가 이를 다시 읽기 때문입니다. 테마 작업 전에 하면 다시 그리기가 두 번이 아니라 한 번입니다.\n\n닫는 저장은 애플리케이션이 새 값을 가져가기 전에 대화 상자를 숨깁니다. 곧 사라질 창에 스타일을 적용하는 것이 저장 비용의 대부분이었습니다.",
       "translation_source_blocks_sha256": [
         "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
-        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a"
+        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a",
+        "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._select": {
@@ -89032,13 +89178,17 @@
       "source_blocks_sha256": [
         "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
         "56c9ac8b7e9786e63b36dece67b6dbbfc74c6a412eca6b53a467887c4317ad96",
+        "be73e082bf417ffaea91b305ce47470418f04924193388f9c698c73c7feea218",
+        "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ],
-      "source_sha256": "de1511916cb3ee37057da5b9c3bf44d12cbea358e75226a541815f9f7f6561ad",
-      "text": "첫 표시 직전에 보이지 않은 페이지를 내보냅니다.\n\n여기서 하며, 첫 ``Polish``에서 하지 않습니다. 창 스타일시트, 유리, 크기 조정 필터는 모두 애플리케이션에서 오는 그 이벤트에 반응하는데, 애플리케이션은 창보다 먼저 그 이벤트를 받으며, 크기 조정 필터는 그때 모든 자식을 다듬습니다. Qt 자체의 표시는 이 호출 안에서 시작되므로, 그중 어느 것이 실행되기 전에 페이지가 사라집니다.\n\n:param visible: ``QWidget.setVisible``과 같습니다.",
+      "source_sha256": "0bee4ead6a964a72514382029d31e0df8c64a4d071528869508951aa18691f5b",
+      "text": "첫 표시 직전에 보이지 않은 페이지를 내보냅니다.\n\n여기서 하며, 첫 ``Polish``에서 하지 않습니다. 창 스타일시트, 유리, 크기 조정 필터는 모두 애플리케이션에서 오는 그 이벤트에 반응하는데, 애플리케이션은 창보다 먼저 그 이벤트를 받으며, 크기 조정 필터는 그때 모든 자식을 다듬습니다. Qt 자체의 표시는 이 호출 안에서 시작되므로, 그중 어느 것이 실행되기 전에 페이지가 사라집니다.\n\n첫 번째만이 아니라 모든 표시에서 창만 순회합니다. 다음 열기를 위해 유지된 대화 상자(:func:`_take_the_warm_preferences`)는 다시 표시되고 같은 필터가 그것을 다시 순회합니다. 아직 기다리는 페이지는 첫 열기와 마찬가지로 그 탭이 선택될 때 놓친 것을 받습니다.\n\n모든 표시는 또한 창의 모양(:func:`_window_signature`)을 기록하여, 닫을 때 창에 따라잡을 것이 있는지 알 수 있게 합니다.\n\n:param visible: ``QWidget.setVisible``과 같습니다.",
       "translation_source_blocks_sha256": [
         "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
         "f2df76b60fda60ff3ca25d33dfa0318c8e7501370e9c8e0dbb90c206a87f0fc6",
+        "c2812f19d670e0fc6d6198b31f2e967c7f53e313837c721b363de94b630f0190",
+        "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ]
     },
@@ -105562,17 +105712,17 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
       "source_blocks_sha256": [
-        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
-        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
         "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ],
-      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
-      "text": "공유 3-D 앵커 편집기에서 기본 공간 TIFF를 엽니다.\n\n기존 2-D 이미지, 마스크 도구 및 YOLO 주석은 별도로 유지됩니다. 시간/채널/RGB TIFF는 깊이로 해석되지 않고 거부됩니다.\n\n:param path: 선택적 공간 TIFF 경로. 지정하지 않으면 파일 선택기를 엽니다.\n:returns: 기본 볼륨 대화 상자, 또는 취소/거부 시 None.",
+      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
+      "text": "z-스택 또는 볼륨을 3D 마스크 편집기에서 엽니다.\n\n마스크는 XY, XZ, YZ 단면에서 슬라이스별로 그리고 지우며, 그려진 슬라이스 사이를 보간하고, 3D 객체에 할당하며, 공유 앵커로 편집합니다. TIFF 스택, OME-TIFF, MRC 볼륨이 열리며, 시간/채널/RGB TIFF는 깊이로 해석되는 대신 거부됩니다. 기존 2D 이미지, 마스크 도구, YOLO 주석은 별도로 유지됩니다.\n\n:param path: 선택적 볼륨 경로. 없으면 파일 선택기를 엽니다.\n:returns: 기본 볼륨 대화 상자, 또는 취소/거부 시 None.",
       "translation_source_blocks_sha256": [
-        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-        "9a2cedf269b09b9d40b2e783dfdfc3cf243b7982330d4918b2734beab5056ff9",
-        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+        "dd8337393063df88b68ff4b8a82ee7b42999a0c8cd3149406613f7a647baf363",
+        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
         "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ]
     },
@@ -112460,8 +112610,8 @@
         "ed97db2de081b82fe5bfa71dfdc1dc8715531e6cf71681aca9035afbc1140ffa",
         "bd889371c666873661054ada8bb6417df2e2e6335b4eaf302f6a86a193438c42"
       ],
-      "source_sha256": "21e43c59c82bb5da5291e33a3ce28dad00f74ad29fd6ca1161d9a60cbde9d115",
-      "text": "Run Comparare - 동일한 프로젝트의 두 개의 라운드, 측면에서 측면.\n\n프로젝트를 선택하고, 두 개의 실행을 선택하고, 스크린은 다시 실행을 따르는 세 가지 질문에 대답합니다.\n\n1. **내가 변경한 것은 무엇입니까?** 설정을 diff, 같은 헤드 아래 그룹 설정 패널 그들에 의해, 움직이는 것을 보여, 그래서 두 개의 변경 구조 데이터 이름 아래 *Cellpose* 두 백 사이에서 잃어 버리지 않습니다. 2. **어떻게 나왔습니까?** 객체, 마이크로 플레이트 샘플 위치 및 마이크라 스코프 필드 시각 실험실 마이크와 전체. 12 % 덜 세포를 생성하는 처리 세션은 문제를 가지고, 이것은 그것이 먼저 볼 수있는 곳입니다. 3. **어떤 히트 옮겨?** 나타났다, 사라지고 등급을 변경.\n\n이 세 가지 모두 :mod:`spacr.run_compare`에서 온다, 그것은 헤드없는 : 이 파일은 실행을 픽업하고 테이블을 끌고 다른 아무것도 모른다. 처리 세션 목록은 아티파크트 레지스트리 (:mod:`spacr.artifacts`), 결코 파일 시스템 스캔에서 나오지 않는다 - 삭제 된 출력의 처리 시션은 여전히 그것의 설정을 기록하고, 그것을 떨어 뜨리면 누군가가가 숫자를 생산 한 유일한 복사본을 잃게 될 것입니다.\n\n**비교할 수없는 실행은 다르지 않습니다.** 다른 실험실 마이크로 플레이트의 두 실행이 완벽하게 잘 추적하고 회복 보고서와 정확하게 보이는 테이블을 생성합니다. :func:`spacr.run_compare.comparability` 블록을 올릴 때 테이브는 빈 상태로 남아 있으며 밴드는 왜 *블록을 초과하는* 버튼과 비교합니다. 경고 - 다른 spaCR 버전은 무엇보다 - 그 대신 테이프와 함께 표시되기 때문에 버전 변경은 자신의 계산 변화를 설명합니다.",
+      "source_sha256": "5d975d0f4e9ad3409dc61e471a263ee500c7d9581e1a169cceaa403c88df62ea",
+      "text": "Run Compare -- 같은 프로젝트의 두 실행을 나란히 비교합니다.\n\n프로젝트를 고르고 그 실행 두 개를 고르면, 창이 다시 실행한 뒤에 따라오는 세 가지 질문에 답합니다.\n\n1. **무엇을 바꿨는가?** 설정 차이로, 설정 패널이 묶는 것과 같은 제목 아래에 묶고 움직인 것만 보여 주므로 *Cellpose* 아래에서 바뀐 키 두 개가 이백 개 사이에 묻히지 않습니다. 2. **무엇이 나왔는가?** 플레이트별 및 전체의 객체, 웰, 시야. 세포가 12% 적게 나온 실행에는 문제가 있으며, 이곳에서 가장 먼저 눈에 띕니다. 3. **어떤 적중이 움직였는가?** 새로 나타난 것, 사라진 것, 순위가 바뀐 것. 구성은 안정적이지만 상위 열 개가 실행마다 재배열되는 적중 목록은 안정적인 결과가 아닙니다.\n\n세 가지 모두 헤드리스인 :mod:`spacr.run_compare`에서 오며, 이 파일은 실행을 고르고 표를 그리는 일만 하고 다른 것은 알지 못합니다. 실행 목록은 파일 시스템 스캔이 아니라 아티팩트 레지스트리(:mod:`spacr.artifacts`)에서 오는데, 출력이 삭제된 실행도 설정은 기록되어 있으며 드롭다운에서 빼 버리면 누군가 묻고 있는 수치를 만든 것의 유일한 사본이 사라지기 때문입니다.\n\n**비교할 수 없는 실행은 비교하지 않습니다.** 서로 다른 플레이트의 두 실행도 얼마든지 뺄셈이 되며, 회귀 보고서와 똑같아 보이는 표가 나옵니다. :func:`spacr.run_compare.comparability`가 차단 사유를 내면 표는 비어 있고 배너가 이유를 알려 주며, 차단을 무시하는 *Compare anyway* 버튼이 있습니다. 경고 -- 무엇보다 다른 spaCR 버전 -- 는 표를 대체하지 않고 표와 함께 표시되는데, 버전 변경만으로도 개수 변화가 설명되기 때문입니다.",
       "translation_source_blocks_sha256": [
         "ce7775715fff9d81d149724bf84d5f6b919eba0088109ee8e6e71d9f206600cd",
         "49dd605d2f7260bd9714a41e848ce5cc5718b2c16f8222dba8d270e3516d4178",
@@ -118801,10 +118951,11 @@
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
         "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ],
-      "source_sha256": "4708eaeace506fe3477e7d95f36392f3a937b708b00d2c7b75b410749501f5ab",
-      "text": "설치 ``sheet`` 상단 수준의 모든 창에서 대신 ``app``.\n\n왜, 숫자와 함께. `QApplication.setStyleSheet`는 프로세스가 소유하는 모든 위젯을 복제하고, 몇 개의 모듈을 열은 세션은 수천을 소유하고 그것은 볼 수 없습니다 -- `MainWindow`는 첫 번째 탐색에서 모듈 응용 프로그램 전망을 구축하고 그 후에 스택에 보관합니다.이 상자에서 측정, 오프 스크린, 네 모듈이 열리고, 9,045 라이브 위젯 중 6,111은 애플리케이션 전망에 아무도 보지 않습니다 :\n\n    app.setStyleSheet 2.836 ms 처음, ~7,500 ms 다음 각 상단 수준의 창 1.684 ms 먼저, ~1,900 ms 다음 눈에 띄는 스크린만 222 ms\n\n바닥은 여전히 낮습니다 - 222 ms는 눈에 띄는 스크린 자체 비용입니다 - 그리고 그것을 달성하는 것은 숨겨진 스크립트도 녹지 않는 것을 의미합니다, 이것은이보다 더 큰 변화입니다.\n\n:param app: ``QApplication`` 창이 잎을 착용하고, 잎 자체가 주차되어 창이 나중에 생성되면 그것을 찾을 수 있습니다. ``None``는 받아 들여지고 아무것도하지 않습니다, 그래서 응용 프로그램없이 실행하는 호출자는 먼저 확인할 필요가 없습니다.\n:param sheet: 전체 응용 프로그램 스타일리스트, :func:`stylesheet`로 그것을 구성합니다.\n:returns: 창의 숫자에 해당되는 글 1건\n\n페이지 밖에서 대기 중인 설정 범주의 본문은 부모가 없으므로 Qt 는 이를 최상위 위젯에 포함하지만, 이는 창이 아닙니다. 누가 보기 전에 페이지 아래로 돌아가며, 거기서부터 페이지의 시트를 입습니다. 여기서 시트를 적용하면 돌아간 순간의 시트 사본을 계속 지니게 되어 다음 테마 변경이 닿지 않습니다. :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden` 를 참조하십시오.",
+      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
+      "text": "모든 최상위 창에 ``sheet`` 를 설치하되 ``app`` 에는 설치하지 않습니다.\n\n왜인지, 수치와 함께. `QApplication.setStyleSheet` 는 프로세스가 가진 모든 위젯을 다시 다듬으며, 모듈 몇 개를 연 세션은 볼 수 없는 수천 개를 가집니다 -- `MainWindow` 는 첫 탐색에서 모듈 화면을 만들고 이후 스택에 유지합니다. 이 컴퓨터에서 offscreen으로 모듈 네 개를 연 채 측정한 결과, 살아 있는 위젯 9,045개 중 6,111개가 아무도 보지 않는 화면에 있습니다:\n\n    app.setStyleSheet            처음 2,836 ms, 이후 ~7,500 ms 모든 최상위 창       처음 1,684 ms, 이후 ~1,900 ms 보이는 화면만       222 ms\n\n같은 화면을 얻는 데 비용의 4분의 1. 하한은 더 낮습니다 -- 222 ms는 보이는 화면 하나만의 비용입니다 -- 거기에 이르려면 숨겨진 화면에도 시트를 적용하지 않아야 하며, 이는 이것보다 더 큰 변경입니다.\n\n:param app: 창이 시트를 가지는 ``QApplication`` 이며, 나중에 만들어진 창이 찾을 수 있도록 시트 자체가 보관되는 곳입니다. ``None`` 은 허용되며 아무 일도 하지 않으므로, 애플리케이션이 없는 호출자는 먼저 확인할 필요가 없습니다.\n:param sheet: :func:`stylesheet` 가 구성한 애플리케이션의 전체 스타일시트.\n:returns: 시트가 지정된 창의 수.\n\n:data:`SHEETED_WHEN_SHOWN` 으로 표시된 숨겨진 창은 다음 ``Show`` 로 미뤄지며, 거기서 :class:`_SheetsEveryWindowThatAppears` 가 그려지기 전에 시트를 적용합니다. 다음 열기를 위해 유지된 Preferences 창은 아무도 볼 수 없는 ~750개의 위젯입니다.\n\n페이지 밖에서 대기 중인 설정 범주의 본문은 부모가 없으므로 Qt 는 이를 최상위 위젯에 포함하지만, 이는 창이 아닙니다. 누가 보기 전에 페이지 아래로 돌아가며, 거기서부터 페이지의 시트를 입습니다. 여기서 시트를 적용하면 돌아간 순간의 시트 사본을 계속 지니게 되어 다음 테마 변경이 닿지 않습니다. :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden` 를 참조하십시오.",
       "translation_source_blocks_sha256": [
         "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
         "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
@@ -118813,6 +118964,7 @@
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
         "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ]
     },
@@ -194037,26 +194189,26 @@
         "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
         "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
         "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
         "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
         "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
         "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
-        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
         "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
         "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6"
       ],
-      "source_sha256": "b730aa423d768af8ae37c4e4fee96268251fb8c72c844d52f14ef1a4bf92a014",
-      "text": "``run_file``를 ``destination``로 다운로드하고 ``max_reads`` 후에 중지합니다.\n\n흐름이 도착했을 때 압축되고 연결이 떨어지면 손에 충분한 읽기가 있으므로 제한된 요청은 필요한 것을 전송합니다. ``max_reads``의 ``None``는 전체 파일을 캡처합니다.\n\n``.fastq.gz``로 다시 작성하십시오, 왜냐하면 ``src`` 설정 서류가 순서화하기 때문에 (\" .fastq.gz 폴더가 읽어집니다\"), 그래서 하위 세트와 완전한 다운로드는 모든 것과 동일한 형태입니다.\n\n:param run_file: 스트리밍할 아카이브 파일입니다. ``url`` 을 읽고 ``filename`` 으로 출력 파일 이름을 정합니다.\n:param destination: ``.fastq.gz`` 파일을 기록할 폴더이며, 없으면 생성됩니다.\n:param progress: ``(reads_so_far, compressed_bytes_so_far)``로 불린다\n:param should_stop: 조각 사이에 폴링; 진실한 대답은 다운로드를 포기하고 부분 파일을 제거합니다.\n\n``opener``이 없으면 다운로드 된 ``reads`` 예제 세트가 먼저 읽을 수 있습니다 : 적어도 ``max_reads`` 리더가있는이 파일을 보유하고있을 때, 그들은 ENA 대신 그것에서 가져옵니다, 그래서 제한된 요청은 오프라인으로 작동하고 동일한 리더를 제공합니다.\n:returns: 기록된 경로입니다.\n:raises ValueError: 긍정적이지 않은 ``max_reads``에 대 한.\n:raises ConnectionError: 흐름이 요청된 읽기 전에 멈추고 파일이 끝나기 전에, 떨어진 연결은 결코 완전한 것처럼 보이는 짧은 파일을 떠나지 않습니다.",
+      "source_sha256": "30d0f1c7c5221ee173b29d95edcb68516f539dd7a29dbfba3c9fe393d78a71f8",
+      "text": "``run_file``을 ``destination``으로 내려받고 ``max_reads``에서 멈춥니다.\n\n스트림은 도착하는 대로 압축이 풀리고 충분한 리드가 확보되는 즉시 연결이 끊기므로, 제한된 요청은 필요한 것만 전송합니다. ``max_reads``가 ``None``이면 파일 전체를 가져옵니다.\n\n``.fastq.gz``로 다시 씁니다. ``src`` 설정이 시퀀싱에 대해 그렇게 문서화했기 때문입니다(\"the folder of .fastq.gz reads\"). 그래서 일부와 전체 다운로드가 하류의 모든 것에 같은 형태가 됩니다.\n\n``opener``가 없으면 내려받은 ``reads`` 예제 세트를 먼저 읽습니다. 그 안에 이 파일이 ``max_reads`` 이상의 리드와 함께 있으면 ENA가 아니라 거기서 가져오므로, 제한된 요청이 오프라인에서도 동작하고 같은 리드를 줍니다. 파일 전체를 요청하거나 캐시보다 큰 요청은 이전처럼 ENA에서 스트리밍합니다.\n\n:param run_file: 스트리밍할 아카이브 파일입니다. ``url`` 을 읽고 ``filename`` 으로 출력 파일 이름을 정합니다.\n:param destination: ``.fastq.gz`` 파일을 기록할 폴더이며, 없으면 생성됩니다.\n:param progress: ``(reads_so_far, compressed_bytes_so_far)``로 호출됩니다.\n:param should_stop: 청크 사이에 확인됩니다. 참 값이 돌아오면 다운로드를 포기하고 부분 파일을 제거합니다.\n:returns: 기록된 경로입니다.\n:raises ValueError: 양이 아닌 ``max_reads``인 경우.\n:raises ConnectionError: 요청한 리드에 도달하기 전, 그리고 파일 끝 이전에 스트림이 멈추는 경우로, 끊어진 연결이 완전해 보이는 짧은 파일을 남기지 않게 합니다.",
       "translation_source_blocks_sha256": [
         "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
         "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
         "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
         "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
         "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
         "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
-        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
         "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
         "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6"

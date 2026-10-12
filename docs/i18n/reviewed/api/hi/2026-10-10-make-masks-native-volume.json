@@ -195,14 +195,18 @@
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#0",
       "source": "Open an explicitly declared grayscale spatial TIFF for native 3-D editing.",
       "source_sha256": "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-      "translation": "नेटिव 3-D संपादन के लिए स्पष्ट रूप से घोषित ग्रेस्केल स्थानिक TIFF खोलें।"
+      "translation": "नेटिव 3-D संपादन के लिए स्पष्ट रूप से घोषित ग्रेस्केल स्थानिक TIFF खोलें।",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Exactly three spatial axes are supported, in any order. Time, image data channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#1",
       "source": "Exactly three spatial axes are supported, in any order. Time, channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
       "source_sha256": "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
-      "translation": "किसी भी क्रम में ठीक तीन स्थानिक अक्ष समर्थित हैं। समय, चैनल, रंग और अनुमानित पृष्ठ अक्ष अस्वीकार किए जाते हैं। ``voxel_spacing`` मेटाडेटा भंडारण-अक्ष क्रम में पढ़ा जाता है। OME भौतिक आकार माइक्रोमीटर में बदले जाते हैं; ImageJ अंतराल और XY रिज़ॉल्यूशन बनाए रखे जाते हैं। भौतिक मेटाडेटा न होने का अर्थ पिक्सेल निर्देशांक है। लेबल अपना dtype और पहचान बनाए रखते हैं। सहेजा गया ज्यामिति साइडकार सटीक स्रोत फ़ाइल और मास्क पिक्सेल से बंधा होता है और पुराना होने पर अस्वीकार कर दिया जाता है।"
+      "translation": "किसी भी क्रम में ठीक तीन स्थानिक अक्ष समर्थित हैं। समय, चैनल, रंग और अनुमानित पृष्ठ अक्ष अस्वीकार किए जाते हैं। ``voxel_spacing`` मेटाडेटा भंडारण-अक्ष क्रम में पढ़ा जाता है। OME भौतिक आकार माइक्रोमीटर में बदले जाते हैं; ImageJ अंतराल और XY रिज़ॉल्यूशन बनाए रखे जाते हैं। भौतिक मेटाडेटा न होने का अर्थ पिक्सेल निर्देशांक है। लेबल अपना dtype और पहचान बनाए रखते हैं। सहेजा गया ज्यामिति साइडकार सटीक स्रोत फ़ाइल और मास्क पिक्सेल से बंधा होता है और पुराना होने पर अस्वीकार कर दिया जाता है।",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "source image directory.",
@@ -216,7 +220,9 @@
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#3",
       "source": "spatial TIFF image filename.",
       "source_sha256": "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
-      "translation": "स्थानिक TIFF छवि फ़ाइल नाम।"
+      "translation": "स्थानिक TIFF छवि फ़ाइल नाम।",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional existing sibling mask directory.",
@@ -265,21 +271,27 @@
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#0",
       "source": "Open a native spatial TIFF in the shared 3-D anchor editor.",
       "source_sha256": "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-      "translation": "साझा 3-D एंकर संपादक में नेटिव स्थानिक TIFF खोलें।"
+      "translation": "साझा 3-D एंकर संपादक में नेटिव स्थानिक TIFF खोलें।",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/image data channel/RGB TIFFs are refused rather than interpreted as depth.",
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#1",
       "source": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/channel/RGB TIFFs are refused rather than interpreted as depth.",
       "source_sha256": "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
-      "translation": "मौजूदा 2-D छवि, मास्क उपकरण और YOLO एनोटेशन अलग रहते हैं। समय/चैनल/RGB TIFF को गहराई के रूप में व्याख्यायित करने के बजाय अस्वीकार किया जाता है।"
+      "translation": "मौजूदा 2-D छवि, मास्क उपकरण और YOLO एनोटेशन अलग रहते हैं। समय/चैनल/RGB TIFF को गहराई के रूप में व्याख्यायित करने के बजाय अस्वीकार किया जाता है।",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional spatial TIFF path; otherwise opens a file picker.",
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#2",
       "source": "optional spatial TIFF path; otherwise opens a file picker.",
       "source_sha256": "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
-      "translation": "वैकल्पिक स्थानिक TIFF पथ; अन्यथा फ़ाइल चयनकर्ता खुलता है।"
+      "translation": "वैकल्पिक स्थानिक TIFF पथ; अन्यथा फ़ाइल चयनकर्ता खुलता है।",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "the native volume dialog, or None on cancellation/refusal.",

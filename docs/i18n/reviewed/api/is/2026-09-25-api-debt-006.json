@@ -2967,7 +2967,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.theme.apply_stylesheet_per_window#7",
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#8",
       "source": "A settings category's body that is waiting off the page is parentless, so Qt lists it among the top-level widgets, but it is not a window: it goes back under its page before anybody sees it and wears the page's sheet from there. Sheeting it here would leave it carrying a copy of the sheet of the moment when it went back, which the next theme change would not reach. See :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
       "source_sha256": "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b",
       "context": "A settings category's body that is waiting off the page is parentless, so Qt lists it among the top-level widgets, but it is not a window: it goes back under its page before anybody sees it and wears the page's sheet from there. Sheeting it here would leave it carrying a copy of the sheet of the moment when it went back, which the next theme change would not reach. See :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
@@ -4587,7 +4587,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.sra.fetch_reads#3",
+      "label": "spacr.sra.fetch_reads#4",
       "source": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
       "source_sha256": "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
       "context": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
@@ -4595,7 +4595,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.sra.fetch_reads#4",
+      "label": "spacr.sra.fetch_reads#5",
       "source": "folder the ``.fastq.gz`` file is written into; created if missing.",
       "source_sha256": "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
       "context": "folder the ``.fastq.gz`` file is written into; created if missing.",

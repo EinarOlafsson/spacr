@@ -1,0 +1,672 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Sonnet 5.5), no native-speaker signoff",
+  "note": "Round 6 follow-up: N692 3D mask drawing (the make_masks_demo FIB-SEM helpers, VolumeMaskSession plane/paint_plane/interpolate/assign_objects/section_count, load_volume_image_and_mask, MakeMasksScreen.open_volume) the Preferences open/close docstrings (spacr.qt.app, spacr.qt.i18n, spacr.qt.preferences, spacr.qt.theme; 6be4c1d70, 4c776c10d) and the Home re-split of the spacr.sra.fetch_reads, spacr.image_stitch and spacr.qt.screens.run_compare docstrings. Each record is the final text of an AI technical review (Claude Sonnet 5.5) against the English docstring block and its model context; the catalog draft was read for each block and review_basis says whether it was kept or the block was written from the English. Blocks whose identical source already had a reviewed record reuse that translation. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.image_stitch#0",
+      "source": "Stitch the tiles of one field into one image.",
+      "source_sha256": "9ed802f5148b6cd08e4c5c949e83db986f852ee7622419d1a0ae935124d346d2",
+      "context": "Stitch the microscope image fields of one microscope field of view into one image.",
+      "translation": "Unir os blocos de um campo em uma única imagem.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.image_stitch#1",
+      "source": "spaCR's filename convention -- ``plate_well_T####F###L##A##Z##C##`` -- has no tile slot, so a field split into four tiles produces four images with one canonical name and three of them would be overwritten. Three answers were possible: grow the convention a tile slot, give each tile its own field number, or put the field back together. spaCR stitches at import, with the option to turn it off: a stitched field is one image with one name, so nothing downstream has to handle tiles.",
+      "source_sha256": "1fb8b673a7f97304c8f301b19dae85233480f8e7e907d3bda184cd05ca9601e0",
+      "context": "spaCR's filename convention -- ``plate_well_T####F###L##A##Z##C##`` -- has no microscope image field slot, so a field split into four microscope image fields produces four images with one canonical name and three of them would be overwritten. Three answers were possible: grow the convention a microscope image field slot, give each microscope image field its own field number, or put the field back together. spaCR stitches at import, with the option to turn it off: a stitched field is one image with one name, so nothing downstream has to handle microscope image fields.",
+      "translation": "A convenção de nomes de arquivo do spaCR -- ``plate_well_T####F###L##A##Z##C##`` -- não tem espaço para o bloco; um campo dividido em quatro blocos produz, portanto, quatro imagens com um único nome canônico, e três delas seriam sobrescritas. Havia três respostas possíveis: acrescentar à convenção um espaço para o bloco, dar a cada bloco o seu próprio número de campo ou juntar o campo de volta. O spaCR une na importação, com a opção de desativar isso: um campo unido é uma imagem com um nome, de modo que nada a jusante precisa lidar com blocos.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.image_stitch#2",
+      "source": "A tile index is not a position. ``tile03`` says an image is the third of some number; it does not say where it goes, how the tiles are ordered, or how far they overlap. Every one of those has to come from evidence, and this module is arranged around where the evidence is:",
+      "source_sha256": "b11551a107a2ae867bfd4fabb9183d04b3ba5c96ec18cb2ecc399544100f4dab",
+      "context": "A microscope image field index is not a position. ``tile03`` says an image is the third of some number; it does not say where it goes, how the microscope image fields are ordered, or how far they overlap. Every one of those has to come from evidence, and this module is arranged around where the evidence is:",
+      "translation": "Um índice de bloco não é uma posição. ``tile03`` diz que uma imagem é a terceira de um certo número; não diz onde ela vai, como os blocos são ordenados nem o quanto se sobrepõem. Tudo isso precisa vir de evidências, e este módulo está organizado conforme onde essas evidências estão:",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.image_stitch#3",
+      "source": "1. The file's own stage coordinates, when it has them. An OME-TIFF records ``PositionX``/``PositionY`` in microns and the pixel size beside them, so the layout is read rather than inferred. 2. The pixels, otherwise. Adjacent tiles overlap, and the overlap is the same picture twice, so the right displacement is the one whose implied overlap correlates -- scored for every admissible displacement rather than picked from a phase-correlation peak, which a small overlap buries. This also settles the order -- row-major and serpentine put different tiles beside each other, so the arrangement that correlates is the arrangement the microscope used. 3. No evidence. Blank tiles, single-pixel overlaps and images with no shared content produce no correlation to speak of. The tiles are then butt-joined in a square-ish grid and the mosaic is marked ``assumed`` with its confidence, so the user is told the layout was not verified.",
+      "source_sha256": "e45c1f30d8eaf61e66cb6ee790b79df2fbeb8ce81bea2b860b756e2334a5ce20",
+      "context": "1. The file's own stage coordinates, when it has them. An OME-TIFF records ``PositionX``/``PositionY`` in microns and the pixel size beside them, so the layout is read rather than inferred. 2. The pixels, otherwise. Adjacent microscope image fields overlap, and the overlap is the same picture twice, so the right displacement is the one whose implied overlap correlates -- scored for every admissible displacement rather than picked from a phase-correlation peak, which a small overlap buries. This also settles the order -- row-major and serpentine put different microscope image fields beside each other, so the arrangement that correlates is the arrangement the microscope used. 3. No evidence. Blank microscope image fields, single-pixel overlaps and images with no shared content produce no correlation to speak of. The microscope image fields are then butt-joined in a square-ish grid and the stitched image grid is marked ``assumed`` with its confidence, so the user is told the layout was not verified.",
+      "translation": "1. As coordenadas de platina do próprio arquivo, quando ele as tem. Um OME-TIFF registra ``PositionX``/``PositionY`` em micrômetros e, ao lado, o tamanho do pixel, de modo que a disposição é lida em vez de inferida. 2. Caso contrário, os pixels. Blocos adjacentes se sobrepõem e a sobreposição é a mesma imagem duas vezes; o deslocamento correto é, portanto, aquele cuja sobreposição implícita se correlaciona -- avaliado para cada deslocamento admissível em vez de escolhido a partir de um pico de correlação de fase, que uma sobreposição pequena esconde. Isso também define a ordem -- por linhas e em serpentina colocam blocos diferentes lado a lado, então a disposição que se correlaciona é a que o microscópio usou. 3. Nenhuma evidência. Blocos em branco, sobreposições de um único pixel e imagens sem conteúdo em comum não produzem correlação digna de nota. Os blocos são então justapostos em uma grade quase quadrada e o mosaico é marcado como ``assumed`` com a sua confiança, para que o usuário saiba que a disposição não foi verificada.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.image_stitch#4",
+      "source": "A mosaic assembled at the wrong overlap is a field with a duplicated band through it, every measurement in that band counted twice, and nothing on screen saying so. The confidence is therefore returned with the result, and a caller can refuse a mosaic below a chosen confidence.",
+      "source_sha256": "05dd9fc0b45a7c6cf35c8e0d00229a1adfedec6a765f9298dd2f8ea9379618a5",
+      "context": "A stitched image grid assembled at the wrong overlap is a field with a duplicated band through it, every measurement in that band counted twice, and nothing on application view saying so. The confidence is therefore returned with the result, and a caller can refuse a stitched image grid below a chosen confidence.",
+      "translation": "Um mosaico montado com a sobreposição errada é um campo com uma faixa duplicada, com cada medida dessa faixa contada duas vezes e nada na tela dizendo isso. A confiança é, por isso, retornada com o resultado, e quem chama pode recusar um mosaico abaixo de uma confiança escolhida.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.download_fibsem_example#0",
+      "source": "Fetch the FIB-SEM test volume behind the shared progress dialog.",
+      "source_sha256": "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+      "context": "Fetch the FIB-SEM test volume behind the shared progress dialog.",
+      "translation": "Baixar o volume de teste FIB-SEM por trás da caixa de diálogo de progresso compartilhada.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.download_fibsem_example#1",
+      "source": "the widget the progress dialog belongs to.",
+      "source_sha256": "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+      "context": "the widget the progress dialog belongs to.",
+      "translation": "o widget ao qual a caixa de diálogo de progresso pertence.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.download_fibsem_example#2",
+      "source": "the folder the archive unpacks into.",
+      "source_sha256": "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+      "context": "the folder the archive unpacks into.",
+      "translation": "a pasta em que o arquivo compactado é descompactado.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.download_fibsem_example#3",
+      "source": "called on the GUI thread as ``on_done(result, error)``, as :func:`download_make_masks_example` calls it.",
+      "source_sha256": "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060",
+      "context": "called on the main GUI execution path as ``on_done(result, error)``, as :func:`download_make_masks_example` calls it.",
+      "translation": "chamado na thread da GUI como ``on_done(result, error)``, do mesmo modo que :func:`download_make_masks_example` o chama.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.fibsem_example_folder#0",
+      "source": "Where the FIB-SEM test volume is unpacked and cached.",
+      "source_sha256": "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+      "context": "Where the FIB-SEM test volume is unpacked and cached.",
+      "translation": "Onde o volume de teste FIB-SEM é descompactado e mantido em cache.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.fibsem_example_folder#1",
+      "source": "``~/.cache/spacr/example_data/make_masks_fibsem``, the folder :data:`spacr.example_archives.EXAMPLE_SETS` names for the ``fibsem`` set, so ``spacr-download fibsem`` and the menu share one cache.",
+      "source_sha256": "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+      "context": "``~/.cache/spacr/example_data/make_masks_fibsem``, the folder :data:`spacr.example_archives.EXAMPLE_SETS` names for the ``fibsem`` set, so ``spacr-download fibsem`` and the menu share one cache.",
+      "translation": "``~/.cache/spacr/example_data/make_masks_fibsem``, a pasta que :data:`spacr.example_archives.EXAMPLE_SETS` nomeia para o conjunto ``fibsem``, de modo que ``spacr-download fibsem`` e o menu compartilham um cache.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.fibsem_example_folder#2",
+      "source": "the folder. It is not created here.",
+      "source_sha256": "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8",
+      "context": "the folder. It is not created here.",
+      "translation": "a pasta. Ela não é criada aqui.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.load_the_fibsem_test_data#0",
+      "source": "Open the FIB-SEM test volume in the 3-D mask editor.",
+      "source_sha256": "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+      "context": "Open the FIB-SEM test volume in the 3-D mask editor.",
+      "translation": "Abrir o volume de teste FIB-SEM no editor de máscaras 3D.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.load_the_fibsem_test_data#1",
+      "source": "The same sequence as :func:`load_the_test_data`, downloading :data:`FIBSEM_EXAMPLE_REPO` into :func:`fibsem_example_folder` when it is not cached. Without masks the volume opens unsegmented, its drafts saved in ``masks/``. With masks, the published labels are copied once into ``corrected_masks/`` and open there for correction, so ``ground_truth_masks/`` is never overwritten.",
+      "source_sha256": "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+      "context": "The same sequence as :func:`load_the_test_data`, downloading :data:`FIBSEM_EXAMPLE_REPO` into :func:`fibsem_example_folder` when it is not cached. Without masks the volume opens unsegmented, its drafts saved in ``masks/``. With masks, the published labels are copied once into ``corrected_masks/`` and open there for correction, so ``ground_truth_masks/`` is never overwritten.",
+      "translation": "A mesma sequência de :func:`load_the_test_data`, baixando :data:`FIBSEM_EXAMPLE_REPO` para :func:`fibsem_example_folder` quando não está em cache. Sem máscaras, o volume abre sem segmentação, com seus rascunhos salvos em ``masks/``. Com máscaras, os rótulos publicados são copiados uma vez para ``corrected_masks/`` e abertos ali para correção, de modo que ``ground_truth_masks/`` nunca é sobrescrito.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.load_the_fibsem_test_data#2",
+      "source": "the Make Masks screen whose 3-D editor opens the volume.",
+      "source_sha256": "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+      "context": "the Make Masks screen whose 3-D editor opens the volume.",
+      "translation": "a janela Make Masks cujo editor 3D abre o volume.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.load_the_fibsem_test_data#3",
+      "source": "open the volume with its mitochondria labels loaded.",
+      "source_sha256": "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+      "context": "open the volume with its mitochondria labels loaded.",
+      "translation": "abrir o volume com seus rótulos de mitocôndrias carregados.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.load_the_fibsem_test_data#4",
+      "source": "replaces :func:`download_fibsem_example`, for tests.",
+      "source_sha256": "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+      "context": "replaces :func:`download_fibsem_example`, for tests.",
+      "translation": "substitui :func:`download_fibsem_example`, para testes.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.load_the_fibsem_test_data#5",
+      "source": "replaces :func:`fibsem_example_folder`, for tests.",
+      "source_sha256": "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+      "context": "replaces :func:`fibsem_example_folder`, for tests.",
+      "translation": "substitui :func:`fibsem_example_folder`, para testes.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.load_the_fibsem_test_data#6",
+      "source": "whether this call opened the volume.",
+      "source_sha256": "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3",
+      "context": "whether this call opened the volume.",
+      "translation": "se esta chamada abriu o volume.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.assign_objects#0",
+      "source": "Split every label into its 3-D connected objects.",
+      "source_sha256": "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+      "context": "Split every label into its 3-D connected objects.",
+      "translation": "Dividir cada rótulo em seus objetos 3D conexos.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.assign_objects#1",
+      "source": "The largest connected part of each label keeps its ID; every other part, touching it neither by face, edge nor corner, receives the next unused ID. Drawing many objects with one ID and then assigning them gives each its own ID.",
+      "source_sha256": "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+      "context": "The largest connected part of each label keeps its ID; every other part, touching it neither by face, edge nor corner, receives the next unused ID. Drawing many objects with one ID and then assigning them gives each its own ID.",
+      "translation": "A maior parte conexa de cada rótulo mantém o seu ID; qualquer outra parte, que não a toque nem por face, nem por aresta, nem por vértice, recebe o próximo ID não usado. Desenhar muitos objetos com um mesmo ID e depois atribuí-los dá a cada um o seu próprio ID.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.assign_objects#2",
+      "source": "``(changed voxels, objects after assigning)``.",
+      "source_sha256": "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb",
+      "context": "``(changed voxels, objects after assigning)``.",
+      "translation": "``(changed voxels, objects after assigning)``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.interpolate#0",
+      "source": "Fill the empty sections between drawn sections of one object.",
+      "source_sha256": "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+      "context": "Fill the empty sections between drawn sections of one object.",
+      "translation": "Preencher as seções vazias entre seções desenhadas de um objeto.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.interpolate#1",
+      "source": "Each gap between two sections that contain ``label`` is filled by blending their signed distance maps, measured in physical units, so the outline changes shape smoothly from one drawn section to the next. Only background voxels are filled.",
+      "source_sha256": "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+      "context": "Each gap between two sections that contain ``label`` is filled by blending their signed distance maps, measured in physical units, so the outline changes shape smoothly from one drawn section to the next. Only background voxels are filled.",
+      "translation": "Cada intervalo entre duas seções que contêm ``label`` é preenchido misturando seus mapas de distância com sinal, medidos em unidades físicas, de modo que o contorno mude de forma suavemente de uma seção desenhada para a seguinte. Somente voxels de fundo são preenchidos.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.interpolate#2",
+      "source": "the object to interpolate.",
+      "source_sha256": "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+      "context": "the object to interpolate.",
+      "translation": "o objeto a interpolar.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.interpolate#3",
+      "source": "the axis the sections are stacked along.",
+      "source_sha256": "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+      "context": "the axis the sections are stacked along.",
+      "translation": "o eixo ao longo do qual as seções são empilhadas.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.interpolate#4",
+      "source": "number of changed voxels.",
+      "source_sha256": "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+      "context": "number of changed voxels.",
+      "translation": "número de voxels alterados.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.paint_plane#0",
+      "source": "Draw or erase one object on one section as a single undo step.",
+      "source_sha256": "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+      "context": "Draw or erase one object on one section as a single undo step.",
+      "translation": "Desenhar ou apagar um objeto em uma seção como um único passo de desfazer.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.paint_plane#1",
+      "source": "Painting fills only background and the object's own voxels, so other objects are never overwritten. Erasing clears every label under the erased pixels. A label whose voxels change loses any saved anchor boundary, which no longer describes it.",
+      "source_sha256": "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+      "context": "Painting fills only background and the object's own voxels, so other objects are never overwritten. Erasing clears every label under the erased pixels. A label whose voxels change loses any saved anchor boundary, which no longer describes it.",
+      "translation": "Pintar preenche apenas o fundo e os voxels do próprio objeto, de modo que outros objetos nunca são sobrescritos. Apagar limpa todos os rótulos sob os pixels apagados. Um rótulo cujos voxels mudam perde qualquer limite de âncora salvo, que já não o descreve.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.paint_plane#2",
+      "source": "the axis held fixed, as for :meth:`plane`.",
+      "source_sha256": "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+      "context": "the axis held fixed, as for :meth:`plane`.",
+      "translation": "o eixo mantido fixo, como em :meth:`plane`.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.paint_plane#3",
+      "source": "the section's index along ``axis``.",
+      "source_sha256": "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+      "context": "the section's index along ``axis``.",
+      "translation": "o índice da seção ao longo de ``axis``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.paint_plane#4",
+      "source": "the object ID to draw.",
+      "source_sha256": "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+      "context": "the object ID to draw.",
+      "translation": "o ID de objeto a desenhar.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.paint_plane#5",
+      "source": "boolean pixels to assign to ``label``, shaped as the section.",
+      "source_sha256": "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+      "context": "boolean pixels to assign to ``label``, shaped as the section.",
+      "translation": "pixels booleanos a atribuir a ``label``, com a forma da seção.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.paint_plane#6",
+      "source": "boolean pixels to clear, shaped as the section.",
+      "source_sha256": "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+      "context": "boolean pixels to clear, shaped as the section.",
+      "translation": "pixels booleanos a limpar, com a forma da seção.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.paint_plane#7",
+      "source": "number of changed voxels.",
+      "source_sha256": "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+      "context": "number of changed voxels.",
+      "translation": "número de voxels alterados.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.plane#0",
+      "source": "Return one orthogonal section of the image and its labels.",
+      "source_sha256": "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+      "context": "Return one orthogonal section of the image and its labels.",
+      "translation": "Retornar uma seção ortogonal da imagem e de seus rótulos.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.plane#1",
+      "source": "the axis held fixed. ``Z`` gives the XY section (rows Y, columns X), ``Y`` the XZ section (rows Z, columns X) and ``X`` the YZ section (rows Z, columns Y).",
+      "source_sha256": "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+      "context": "the axis held fixed. ``Z`` gives the XY section (rows Y, columns X), ``Y`` the XZ section (rows Z, columns X) and ``X`` the YZ section (rows Z, columns Y).",
+      "translation": "o eixo mantido fixo. ``Z`` dá a seção XY (linhas Y, colunas X), ``Y`` a seção XZ (linhas Z, colunas X) e ``X`` a seção YZ (linhas Z, colunas Y).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.plane#2",
+      "source": "the section's index along ``axis``.",
+      "source_sha256": "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+      "context": "the section's index along ``axis``.",
+      "translation": "o índice da seção ao longo de ``axis``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.plane#3",
+      "source": "``(image, labels)``, copies of that section.",
+      "source_sha256": "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb",
+      "context": "``(image, labels)``, copies of that section.",
+      "translation": "``(image, labels)``, cópias dessa seção.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.section_count#0",
+      "source": "Number of sections along one spatial axis.",
+      "source_sha256": "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+      "context": "Number of sections along one spatial axis.",
+      "translation": "Número de seções ao longo de um eixo espacial.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.section_count#1",
+      "source": "``X``, ``Y`` or ``Z``.",
+      "source_sha256": "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+      "context": "``X``, ``Y`` or ``Z``.",
+      "translation": "``X``, ``Y`` ou ``Z``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.section_count#2",
+      "source": "the volume's length along that axis.",
+      "source_sha256": "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c",
+      "context": "the volume's length along that axis.",
+      "translation": "o comprimento do volume ao longo desse eixo.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#0",
+      "source": "Open a grayscale spatial volume for native 3-D editing.",
+      "source_sha256": "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+      "context": "Open a grayscale spatial volume for native 3-D editing.",
+      "translation": "Abrir um volume espacial em tons de cinza para edição 3D nativa.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#1",
+      "source": "TIFF volumes need exactly three spatial axes, in any order. A plain three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved; time, channel and colour axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``, ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres; they need the optional ``mrcfile`` package. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
+      "source_sha256": "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
+      "context": "TIFF volumes need exactly three spatial axes, in any order. A plain three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved; time, image data channel and colour axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``, ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres; they need the optional ``mrcfile`` package. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
+      "translation": "Volumes TIFF precisam de exatamente três eixos espaciais, em qualquer ordem. Uma simples pilha de páginas tridimensional (o eixo de página ``Q`` ou ``I`` do tifffile sobre ``YX``) é lida como seções Z, como pilhas Z e séries FIB-SEM são salvas; eixos de tempo, canal e cor são recusados. Os metadados ``voxel_spacing`` são lidos na ordem dos eixos de armazenamento. Tamanhos físicos OME são convertidos para micrômetros; o espaçamento do ImageJ e a resolução XY são mantidos. Volumes MRC (``.mrc``, ``.rec``, ``.map``) são lidos como ZYX com seu tamanho de voxel em nanômetros; precisam do pacote opcional ``mrcfile``. A ausência de metadados físicos significa coordenadas em pixels. Os rótulos mantêm o tipo de dado e a identidade. Um arquivo auxiliar de geometria salvo fica vinculado ao arquivo de origem exato e aos pixels da máscara e é recusado quando está desatualizado.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#3",
+      "source": "spatial TIFF or MRC volume filename.",
+      "source_sha256": "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
+      "context": "spatial TIFF or MRC volume filename.",
+      "translation": "nome de arquivo do volume espacial TIFF ou MRC.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#0",
+      "source": "Open a z-stack or volume in the 3-D mask editor.",
+      "source_sha256": "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+      "context": "Open a z-stack or volume in the 3-D mask editor.",
+      "translation": "Abrir uma pilha Z ou um volume no editor de máscaras 3D.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#1",
+      "source": "Masks are drawn and erased slice by slice on XY, XZ or YZ sections, interpolated between drawn slices, assigned to 3-D objects and edited with the shared anchors. TIFF stacks, OME-TIFF and MRC volumes open; time/channel/RGB TIFFs are refused rather than interpreted as depth. The existing 2-D image, mask tools and YOLO annotations stay separate.",
+      "source_sha256": "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+      "context": "Masks are drawn and erased slice by slice on XY, XZ or YZ sections, interpolated between drawn slices, assigned to 3-D objects and edited with the shared anchors. TIFF stacks, OME-TIFF and MRC volumes open; time/image data channel/RGB TIFFs are refused rather than interpreted as depth. The existing 2-D image, mask tools and YOLO annotations stay separate.",
+      "translation": "As máscaras são desenhadas e apagadas fatia por fatia em seções XY, XZ ou YZ, interpoladas entre fatias desenhadas, atribuídas a objetos 3D e editadas com as âncoras compartilhadas. Pilhas TIFF, OME-TIFF e volumes MRC abrem; TIFFs de tempo/canal/RGB são recusados em vez de interpretados como profundidade. A imagem 2D existente, as ferramentas de máscara e as anotações YOLO permanecem separadas.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#2",
+      "source": "optional volume path; otherwise opens a file picker.",
+      "source_sha256": "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
+      "context": "optional volume path; otherwise opens a file picker.",
+      "translation": "caminho opcional do volume; caso contrário, abre um seletor de arquivos.",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.qt.screens.run_compare#0",
+      "source": "Run Compare — two runs of the same project, side by side.",
+      "source_sha256": "ce7775715fff9d81d149724bf84d5f6b919eba0088109ee8e6e71d9f206600cd",
+      "context": "Run Compare — two runs of the same project, side by side.",
+      "translation": "Run Compare -- duas execuções do mesmo projeto, lado a lado.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.run_compare#1",
+      "source": "Pick a project, pick two of its runs, and the screen answers the three questions that follow a re-run:",
+      "source_sha256": "49dd605d2f7260bd9714a41e848ce5cc5718b2c16f8222dba8d270e3516d4178",
+      "context": "Pick a project, pick two of its runs, and the screen answers the three questions that follow a re-run:",
+      "translation": "Escolha um projeto, escolha duas de suas execuções, e a janela responde às três perguntas que se seguem a uma nova execução:",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.qt.screens.run_compare#2",
+      "source": "1. **What did I change?** The settings diff, grouped under the same headings the settings panel groups them by, showing only what moved, so two changed keys under *Cellpose* are not lost among two hundred. 2. **What came out?** Objects, wells and fields per plate and overall. A run that produced 12% fewer cells has a problem, and this is where it is visible first. 3. **Which hits moved?** Appeared, vanished, and changed rank. A hit list whose membership is stable but whose top ten reshuffles every run is not a stable result.",
+      "source_sha256": "74fb6cc8d45fb45f4eddee0f24d3112cb7057059283a291e71e0c2031978fc5b",
+      "context": "1. **What did I change?** The settings diff, grouped under the same headings the settings panel groups them by, showing only what moved, so two changed structured-data names under *Cellpose* are not lost among two hundred. 2. **What came out?** Objects, microplate sample positions and microscope fields of view per laboratory microplate and overall. A processing session that produced 12% fewer cells has a problem, and this is where it is visible first. 3. **Which hits moved?** Appeared, vanished, and changed rank. A hit list whose membership is stable but whose top ten reshuffles every processing session is not a stable result.",
+      "translation": "1. **O que eu mudei?** A diferença de configurações, agrupada sob os mesmos títulos pelos quais o painel de configurações as agrupa, mostrando só o que se moveu, de modo que duas chaves alteradas em *Cellpose* não se percam entre duzentas. 2. **O que saiu?** Objetos, poços e campos por placa e no total. Uma execução que produziu 12% menos células tem um problema, e é aqui que ele aparece primeiro. 3. **Quais acertos se moveram?** Surgidos, desaparecidos e com mudança de posição. Uma lista de acertos cuja composição é estável, mas cujos dez primeiros se reorganizam a cada execução, não é um resultado estável.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.run_compare#3",
+      "source": "All three come from :mod:`spacr.run_compare`, which is headless: this file picks the runs and draws the tables and knows nothing else. The run lists come from the artifact registry (:mod:`spacr.artifacts`), never from a filesystem scan — a run whose outputs were deleted still has its settings recorded, and dropping it from the dropdown would lose the only copy of what produced the numbers somebody is asking about.",
+      "source_sha256": "ed97db2de081b82fe5bfa71dfdc1dc8715531e6cf71681aca9035afbc1140ffa",
+      "context": "All three come from :mod:`spacr.run_compare`, which is headless: this file picks the runs and draws the tables and knows nothing else. The processing session lists come from the artifact registry (:mod:`spacr.artifacts`), never from a filesystem scan — a processing session whose outputs were deleted still has its settings recorded, and dropping it from the dropdown would lose the only copy of what produced the numbers somebody is asking about.",
+      "translation": "As três vêm de :mod:`spacr.run_compare`, que é headless: este arquivo escolhe as execuções, desenha as tabelas e não sabe mais nada. As listas de execuções vêm do registro de artefatos (:mod:`spacr.artifacts`), nunca de uma varredura do sistema de arquivos -- uma execução cujas saídas foram apagadas ainda tem suas configurações registradas, e removê-la da lista suspensa perderia a única cópia do que produziu os números sobre os quais alguém pergunta.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.run_compare#4",
+      "source": "**Incomparable runs are not diffed.** Two runs of different plates subtract perfectly well and produce a table that looks exactly like a regression report. When :func:`spacr.run_compare.comparability` raises a blocker the tables stay empty and the banner says why, with a *Compare anyway* button that overrides the blocker. Warnings — a different spaCR version above all — are shown with the tables rather than instead of them, because a version change explains a count change on its own.",
+      "source_sha256": "bd889371c666873661054ada8bb6417df2e2e6335b4eaf302f6a86a193438c42",
+      "context": "**Incomparable runs are not diffed.** Two runs of different laboratory microplates subtract perfectly well and produce a table that looks exactly like a regression report. When :func:`spacr.run_compare.comparability` raises a blocker the tables stay empty and the banner says why, with a *Compare anyway* button that overrides the blocker. Warnings — a different spaCR version above all — are shown with the tables rather than instead of them, because a version change explains a count change on its own.",
+      "translation": "**Execuções incomparáveis não são comparadas.** Duas execuções de placas diferentes se subtraem perfeitamente e produzem uma tabela que parece exatamente um relatório de regressão. Quando :func:`spacr.run_compare.comparability` levanta um bloqueio, as tabelas ficam vazias e o banner diz por quê, com um botão *Compare anyway* que ignora o bloqueio. Os avisos -- sobretudo uma versão diferente do spaCR -- são mostrados junto com as tabelas e não no lugar delas, porque uma mudança de versão explica sozinha uma mudança na contagem.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#0",
+      "source": "Download ``run_file`` into ``destination``, stopping after ``max_reads``.",
+      "source_sha256": "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
+      "context": "Download ``run_file`` into ``destination``, stopping after ``max_reads``.",
+      "translation": "Baixar ``run_file`` para ``destination``, parando após ``max_reads``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#1",
+      "source": "The stream is decompressed as it arrives and the connection is dropped the moment enough reads are in hand, so a limited request transfers only what it needs. ``max_reads`` of ``None`` fetches the whole file.",
+      "source_sha256": "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
+      "context": "The stream is decompressed as it arrives and the connection is dropped the moment enough reads are in hand, so a limited request transfers only what it needs. ``max_reads`` of ``None`` fetches the whole file.",
+      "translation": "O fluxo é descompactado à medida que chega e a conexão é encerrada assim que há leituras suficientes, de modo que uma solicitação limitada transfere apenas o que precisa. Com ``max_reads`` igual a ``None``, o arquivo inteiro é obtido.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#2",
+      "source": "Written back out as ``.fastq.gz`` because that is what the ``src`` setting documents for sequencing (\"the folder of .fastq.gz reads\"), so a subset and a full download are the same shape to everything downstream.",
+      "source_sha256": "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+      "context": "Written back out as ``.fastq.gz`` because that is what the ``src`` setting documents for sequencing (\"the folder of .fastq.gz reads\"), so a subset and a full download are the same shape to everything downstream.",
+      "translation": "Gravado novamente como ``.fastq.gz`` porque é isso que a configuração ``src`` documenta para sequenciamento (\"the folder of .fastq.gz reads\"), de modo que um subconjunto e um download completo têm a mesma forma para tudo o que vem a jusante.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#3",
+      "source": "Without an ``opener``, the downloaded ``reads`` example set is read first: when it holds this file with at least ``max_reads`` reads, they are taken from it rather than from ENA, so a limited request works offline and gives the same reads. A whole-file request, or one larger than the cache, streams from ENA as before.",
+      "source_sha256": "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
+      "context": "Without an ``opener``, the downloaded ``reads`` example set is read first: when it holds this file with at least ``max_reads`` reads, they are taken from it rather than from ENA, so a limited request works offline and gives the same reads. A whole-file request, or one larger than the cache, streams from ENA as before.",
+      "translation": "Sem ``opener``, o conjunto de exemplo ``reads`` baixado é lido primeiro: quando ele contém este arquivo com pelo menos ``max_reads`` leituras, elas são tiradas dele em vez do ENA, de modo que uma solicitação limitada funciona offline e dá as mesmas leituras. Uma solicitação do arquivo inteiro, ou maior que o cache, é transmitida do ENA como antes.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#6",
+      "source": "called with ``(reads_so_far, compressed_bytes_so_far)``.",
+      "source_sha256": "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
+      "context": "called with ``(reads_so_far, compressed_bytes_so_far)``.",
+      "translation": "chamado com ``(reads_so_far, compressed_bytes_so_far)``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#7",
+      "source": "polled between chunks; a truthy answer abandons the download and removes the partial file.",
+      "source_sha256": "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
+      "context": "polled between chunks; a truthy answer abandons the download and removes the partial file.",
+      "translation": "consultado entre os blocos; uma resposta verdadeira abandona o download e remove o arquivo parcial.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#8",
+      "source": "the path written.",
+      "source_sha256": "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+      "context": "the path written.",
+      "translation": "o caminho gravado.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#9",
+      "source": "for a non-positive ``max_reads``.",
+      "source_sha256": "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
+      "context": "for a non-positive ``max_reads``.",
+      "translation": "para um ``max_reads`` não positivo.",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#10",
+      "source": "when the stream stops before the reads asked for and before the end of the file, so a dropped connection never leaves a short file that looks complete.",
+      "source_sha256": "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6",
+      "context": "when the stream stops before the reads asked for and before the end of the file, so a dropped connection never leaves a short file that looks complete.",
+      "translation": "quando o fluxo para antes das leituras pedidas e antes do fim do arquivo, de modo que uma conexão interrompida nunca deixa um arquivo curto que pareça completo.",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#2",
+      "source": "The tab is found by object name rather than by index or caption. An index moves whenever a tab is added, and a caption is translated -- a Korean interface would have matched nothing. Every page sets its own ``PreferencesTab*`` name, and ``tools/build_help_search_index.py`` reads those same names out of this dialog's source, so the two ends of the hand-off are the same string by construction.",
+      "source_sha256": "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+      "context": "The tab is found by object name rather than by index or caption. An index moves whenever a tab is added, and a caption is translated -- a Korean interface would have matched nothing. Every page sets its own ``PreferencesTab*`` name, and ``tools/build_help_search_index.py`` reads those same names out of this dialog's source, so the two ends of the hand-off are the same string by construction.",
+      "translation": "A aba é encontrada pelo nome do objeto, não pelo índice nem pelo título. Um índice se desloca sempre que uma aba é adicionada, e um título é traduzido -- uma interface em coreano não teria encontrado nada. Cada página define seu próprio nome ``PreferencesTab*``, e ``tools/build_help_search_index.py`` lê esses mesmos nomes no código-fonte desta caixa de diálogo, de modo que as duas pontas da passagem são, por construção, a mesma cadeia de caracteres.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#3",
+      "source": "The dialog is usually built already (:func:`spacr.qt.preferences._warm_the_preferences`), and the window redraws after the close only when something it draws from changed: the build, the first show and the unconditional redraw each held the GUI thread for longer than a frame.",
+      "source_sha256": "64aa5e132fe7f224a52b5161705f8759f8d3177f7199c4e4d5cb7a1b1d383148",
+      "context": "The dialog is usually built already (:func:`spacr.qt.preferences._warm_the_preferences`), and the window redraws after the close only when something it draws from changed: the build, the first show and the unconditional redraw each held the main GUI execution path for longer than a frame.",
+      "translation": "A caixa de diálogo costuma já estar construída (:func:`spacr.qt.preferences._warm_the_preferences`), e a janela só é redesenhada após o fechamento quando algo do que ela desenha mudou: a construção, a primeira exibição e o redesenho incondicional retinham cada um a thread da GUI por mais de um quadro.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.stylesheet_roots#0",
+      "source": "The widgets that carry the application sheet, instead of me.",
+      "source_sha256": "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
+      "context": "The widgets that carry the application sheet, instead of me.",
+      "translation": "Os widgets que carregam a folha de estilo do aplicativo, no meu lugar.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.stylesheet_roots#1",
+      "source": "WHY NOT THE WINDOW. Setting a stylesheet on a window repolishes every descendant, and a session that has opened four modules owns 8,002 widgets of which 7,595 are inside module screens -- ONE of which is on screen. Measured on this box, four modules open, alternating dark and light:",
+      "source_sha256": "32ca1fbc116633fe8b91fc76a079e2015441dc9c163861adb06359ba4de97f0d",
+      "context": "Why not the window. Setting a stylesheet on a window repolishes every descendant, and a session that has opened four modules owns 8,002 widgets of which 7,595 are inside module application views -- ONE of which is on application view. Measured on this box, four modules open, alternating dark and light:",
+      "translation": "POR QUE NÃO A JANELA. Aplicar uma folha de estilo a uma janela repolimenta cada descendente, e uma sessão que abriu quatro módulos possui 8,002 widgets, dos quais 7,595 estão dentro de telas de módulo -- UMA das quais está à vista. Medido nesta máquina, com quatro módulos abertos, alternando escuro e claro:",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.stylesheet_roots#2",
+      "source": "the whole window            945 ms first, ~1,479 ms steady chrome + the visible page   300 ms first,   ~310 ms steady",
+      "source_sha256": "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
+      "context": "the whole window            945 ms first, ~1,479 ms steady chrome + the visible page   300 ms first,   ~310 ms steady",
+      "translation": "a janela inteira            945 ms na primeira vez, ~1,479 ms em regime estável o quadro + a página visível   300 ms na primeira vez,   ~310 ms em regime estável",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.stylesheet_roots#3",
+      "source": "WHAT IS IN THE LIST, and the shape is not the obvious one. The chrome is 407 widgets and only TWO of them are reachable from the central widget -- the dock, the sidebar and the status strip hang off the window itself. An implementation that walked the central widget would leave 405 unstyled and look almost right, which is why `tests/qt/test_every_widget_wears_the_current_theme.py` does exactly that on purpose and asserts it is caught.",
+      "source_sha256": "aeaef5c37cc830ff43bf7d91e35de1626403f23e63ca5415f16980d98de3bba9",
+      "context": "What is in the list, and the shape is not the obvious one. The chrome is 407 widgets and only TWO of them are reachable from the central widget -- the dock, the sidebar and the status strip hang off the window itself. An implementation that walked the central widget would leave 405 unstyled and look almost right, which is why `tests/qt/test_every_widget_wears_the_current_theme.py` does exactly that on purpose and asserts it is caught.",
+      "translation": "O QUE ENTRA NA LISTA, e o formato não é o óbvio. O quadro tem 407 widgets e apenas DOIS deles são alcançáveis a partir do widget central -- o dock, a barra lateral e a faixa de status pendem da própria janela. Uma implementação que percorresse o widget central deixaria 405 sem estilo e pareceria quase correta, e por isso `tests/qt/test_every_widget_wears_the_current_theme.py` faz exatamente isso de propósito e verifica que é detectado.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.stylesheet_roots#4",
+      "source": "So: every direct child of the window except the central widget, every direct child of the central widget except the stack, and the stack's CURRENT page. The pages that are not showing are marked instead, and sheeted on their own `showEvent` before they are painted.",
+      "source_sha256": "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+      "context": "So: every direct child of the window except the central widget, every direct child of the central widget except the stack, and the stack's CURRENT page. The pages that are not showing are marked instead, and sheeted on their own `showEvent` before they are painted.",
+      "translation": "Então: cada filho direto da janela exceto o widget central, cada filho direto do widget central exceto a pilha, e a página ATUAL da pilha. As páginas que não são exibidas são marcadas no lugar e recebem a folha em seu próprio `showEvent` antes de serem pintadas.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.stylesheet_roots#5",
+      "source": "A child that is a window of its own -- a dialog parented here, such as Preferences -- is not chrome: the sheet reaches it as a window, and a hidden one that asked to wait for its show (:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`) waits.",
+      "source_sha256": "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d",
+      "context": "A child that is a window of its own -- a dialog parented here, such as Preferences -- is not chrome: the sheet reaches it as a window, and a hidden one that asked to wait for its show (:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`) waits.",
+      "translation": "Um filho que é uma janela por si só -- uma caixa de diálogo com esta como pai, como Preferences -- não é quadro: a folha chega até ele como janela, e uma oculta que pediu para esperar pela exibição (:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`) espera.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.i18n.install_dialog_translation._DialogTranslationFilter.eventFilter#0",
+      "source": "Retranslate a dialog's tree as it is shown.",
+      "source_sha256": "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+      "context": "Retranslate a dialog's tree as it is shown.",
+      "translation": "Traduzir novamente a árvore de uma caixa de diálogo quando ela é exibida.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.i18n.install_dialog_translation._DialogTranslationFilter.eventFilter#1",
+      "source": "A dialog carrying :data:`TRANSLATE_ONCE_PER_LANGUAGE` is walked once per language rather than on every show: it is kept and shown again, its text does not change between shows, and the walk was the largest part of showing it again.",
+      "source_sha256": "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2",
+      "context": "A dialog carrying :data:`TRANSLATE_ONCE_PER_LANGUAGE` is walked once per language rather than on every show: it is kept and shown again, its text does not change between shows, and the walk was the largest part of showing it again.",
+      "translation": "Uma caixa de diálogo com :data:`TRANSLATE_ONCE_PER_LANGUAGE` é percorrida uma vez por idioma em vez de a cada exibição: ela é mantida e exibida de novo, seu texto não muda entre exibições, e o percurso era a maior parte de exibi-la novamente.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save#2",
+      "source": "A Save that closes hides the dialog before the application takes the new values: restyling a window that is about to vanish was the largest part of a Save.",
+      "source_sha256": "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e",
+      "context": "A Save that closes hides the dialog before the application takes the new values: restyling a window that is about to vanish was the largest part of a Save.",
+      "translation": "Um Salvar que fecha oculta a caixa de diálogo antes de o aplicativo assumir os novos valores: aplicar estilos a uma janela prestes a desaparecer era a maior parte de um Salvar.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible#2",
+      "source": "EVERY SHOW, NOT ONLY THE FIRST, walks only the window. A dialog kept for the next open (:func:`_take_the_warm_preferences`) is shown again, and the same filters walk it again; a page still waiting is given what it missed when its tab is chosen, as on the first open.",
+      "source_sha256": "be73e082bf417ffaea91b305ce47470418f04924193388f9c698c73c7feea218",
+      "context": "Every show, not only the first, walks only the window. A dialog kept for the next open (:func:`_take_the_warm_preferences`) is shown again, and the same filters walk it again; a page still waiting is given what it missed when its tab is chosen, as on the first open.",
+      "translation": "CADA EXIBIÇÃO, NÃO SÓ A PRIMEIRA, percorre apenas a janela. Uma caixa de diálogo mantida para a próxima abertura (:func:`_take_the_warm_preferences`) é exibida de novo e os mesmos filtros a percorrem outra vez; uma página que ainda espera recebe o que perdeu quando sua aba é escolhida, como na primeira abertura.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible#3",
+      "source": "Each show also notes the window's look (:func:`_window_signature`), so the close can tell whether the window has anything to catch up on.",
+      "source_sha256": "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
+      "context": "Each show also notes the window's look (:func:`_window_signature`), so the close can tell whether the window has anything to catch up on.",
+      "translation": "Cada exibição também anota a aparência da janela (:func:`_window_signature`), para que o fechamento possa saber se a janela tem algo a atualizar.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#0",
+      "source": "Install ``sheet`` on every top-level window instead of on ``app``.",
+      "source_sha256": "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
+      "context": "Install ``sheet`` on every top-level window instead of on ``app``.",
+      "translation": "Instalar ``sheet`` em cada janela de nível superior em vez de em ``app``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#1",
+      "source": "WHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every widget the process owns, and a session that has opened a few modules owns thousands it cannot see -- `MainWindow` builds a module screen on first navigation and keeps it in the stack afterwards. Measured on this box, offscreen, four modules open, 9,045 live widgets of which 6,111 are on screens nobody is looking at:",
+      "source_sha256": "56ff2c0606a7dd38a1b96fce3b253a279b71cb65746b88a2faf0531b46653765",
+      "context": "WHY, with the number. `QApplication.setStyleSheet` repolishes every widget the process owns, and a session that has opened a few modules owns thousands it cannot see -- `MainWindow` builds a module application view on first navigation and keeps it in the stack afterwards. Measured on this box, offscreen, four modules open, 9,045 live widgets of which 6,111 are on application views nobody is looking at:",
+      "translation": "POR QUÊ, COM O NÚMERO. `QApplication.setStyleSheet` repolimenta cada widget que o processo possui, e uma sessão que abriu alguns módulos possui milhares que não consegue ver -- `MainWindow` constrói uma tela de módulo na primeira navegação e depois a mantém na pilha. Medido nesta máquina, offscreen, com quatro módulos abertos, 9,045 widgets vivos dos quais 6,111 estão em telas que ninguém olha:",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#2",
+      "source": "app.setStyleSheet            2,836 ms first, ~7,500 ms thereafter every top-level window       1,684 ms first, ~1,900 ms thereafter the visible screen alone       222 ms",
+      "source_sha256": "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
+      "context": "app.setStyleSheet            2,836 ms first, ~7,500 ms thereafter every top-level window       1,684 ms first, ~1,900 ms thereafter the visible screen alone       222 ms",
+      "translation": "app.setStyleSheet            2,836 ms na primeira vez, ~7,500 ms depois cada janela de nível superior       1,684 ms na primeira vez, ~1,900 ms depois só a tela visível       222 ms",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#3",
+      "source": "A QUARTER OF THE COST FOR THE SAME PICTURE. The floor is lower still -- 222 ms is what the visible screen costs on its own -- and reaching it means not sheeting the hidden screens either, which is a bigger change than this one.",
+      "source_sha256": "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
+      "context": "A quarter of the cost for the same picture. The floor is lower still -- 222 ms is what the visible screen costs on its own -- and reaching it means not sheeting the hidden screens either, which is a bigger change than this one.",
+      "translation": "UM QUARTO DO CUSTO PELA MESMA IMAGEM. O piso é ainda mais baixo -- 222 ms é o que a tela visível custa sozinha -- e chegar a ele significa não aplicar a folha também às telas ocultas, que é uma mudança maior do que esta.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#4",
+      "source": "the ``QApplication`` whose windows wear the sheet, and where the sheet itself is parked so a window created later can find it. ``None`` is accepted and does nothing, so a caller running without an application does not have to check first.",
+      "source_sha256": "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
+      "context": "the ``QApplication`` whose windows wear the sheet, and where the sheet itself is parked so a window created later can find it. ``None`` is accepted and does nothing, so a caller running without an application does not have to check first.",
+      "translation": "a ``QApplication`` cujas janelas carregam a folha, e onde a própria folha é guardada para que uma janela criada depois possa encontrá-la. ``None`` é aceito e não faz nada, de modo que quem chama sem aplicativo não precisa verificar antes.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#5",
+      "source": "the complete application stylesheet, as :func:`stylesheet` composes it.",
+      "source_sha256": "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
+      "context": "the complete application stylesheet, as :func:`stylesheet` composes it.",
+      "translation": "a folha de estilo completa do aplicativo, como composta por :func:`stylesheet`.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#6",
+      "source": "the number of windows the sheet was put on.",
+      "source_sha256": "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+      "context": "the number of windows the sheet was put on.",
+      "translation": "o número de janelas em que a folha foi aplicada.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#7",
+      "source": "A hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next ``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before it paints: the Preferences window kept for the next open is ~750 widgets nobody can see.",
+      "source_sha256": "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
+      "context": "A hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next ``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before it paints: the Preferences window kept for the next open is ~750 widgets nobody can see.",
+      "translation": "Uma janela oculta marcada com :data:`SHEETED_WHEN_SHOWN` fica para o próximo ``Show``, onde :class:`_SheetsEveryWindowThatAppears` aplica a folha antes de ela ser pintada: a janela Preferences mantida para a próxima abertura são ~750 widgets que ninguém pode ver.",
+      "review_basis": "written from the English"
+    }
+  ]
+}

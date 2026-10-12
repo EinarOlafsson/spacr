@@ -195,14 +195,18 @@
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#0",
       "source": "Open an explicitly declared grayscale spatial TIFF for native 3-D editing.",
       "source_sha256": "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-      "translation": "기본 3-D 편집을 위해 명시적으로 선언된 회색조 공간 TIFF를 엽니다."
+      "translation": "기본 3-D 편집을 위해 명시적으로 선언된 회색조 공간 TIFF를 엽니다.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Exactly three spatial axes are supported, in any order. Time, image data channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#1",
       "source": "Exactly three spatial axes are supported, in any order. Time, channel, colour and inferred page axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
       "source_sha256": "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
-      "translation": "정확히 세 개의 공간 축이 순서에 관계없이 지원됩니다. 시간, 채널, 색상 및 추론된 페이지 축은 거부됩니다. ``voxel_spacing`` 메타데이터는 저장 축 순서로 읽습니다. OME 물리적 크기는 마이크로미터로 변환되며, ImageJ 간격과 XY 해상도는 유지됩니다. 물리적 메타데이터가 없으면 픽셀 좌표를 의미합니다. 레이블은 dtype과 식별을 유지합니다. 저장된 기하 구조 사이드카는 정확한 원본 파일과 마스크 픽셀에 결합되며, 오래된 경우 거부됩니다."
+      "translation": "정확히 세 개의 공간 축이 순서에 관계없이 지원됩니다. 시간, 채널, 색상 및 추론된 페이지 축은 거부됩니다. ``voxel_spacing`` 메타데이터는 저장 축 순서로 읽습니다. OME 물리적 크기는 마이크로미터로 변환되며, ImageJ 간격과 XY 해상도는 유지됩니다. 물리적 메타데이터가 없으면 픽셀 좌표를 의미합니다. 레이블은 dtype과 식별을 유지합니다. 저장된 기하 구조 사이드카는 정확한 원본 파일과 마스크 픽셀에 결합되며, 오래된 경우 거부됩니다.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "source image directory.",
@@ -216,7 +220,9 @@
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#3",
       "source": "spatial TIFF image filename.",
       "source_sha256": "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
-      "translation": "공간 TIFF 이미지 파일 이름."
+      "translation": "공간 TIFF 이미지 파일 이름.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional existing sibling mask directory.",
@@ -265,21 +271,27 @@
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#0",
       "source": "Open a native spatial TIFF in the shared 3-D anchor editor.",
       "source_sha256": "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-      "translation": "공유 3-D 앵커 편집기에서 기본 공간 TIFF를 엽니다."
+      "translation": "공유 3-D 앵커 편집기에서 기본 공간 TIFF를 엽니다.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/image data channel/RGB TIFFs are refused rather than interpreted as depth.",
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#1",
       "source": "The existing 2-D image, mask tools and YOLO annotations stay separate. Time/channel/RGB TIFFs are refused rather than interpreted as depth.",
       "source_sha256": "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
-      "translation": "기존 2-D 이미지, 마스크 도구 및 YOLO 주석은 별도로 유지됩니다. 시간/채널/RGB TIFF는 깊이로 해석되지 않고 거부됩니다."
+      "translation": "기존 2-D 이미지, 마스크 도구 및 YOLO 주석은 별도로 유지됩니다. 시간/채널/RGB TIFF는 깊이로 해석되지 않고 거부됩니다.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional spatial TIFF path; otherwise opens a file picker.",
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#2",
       "source": "optional spatial TIFF path; otherwise opens a file picker.",
       "source_sha256": "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
-      "translation": "선택적 공간 TIFF 경로. 지정하지 않으면 파일 선택기를 엽니다."
+      "translation": "선택적 공간 TIFF 경로. 지정하지 않으면 파일 선택기를 엽니다.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (N692 3D mask drawing, or the Home re-split of this docstring); kept verbatim as evidence, not loaded."
     },
     {
       "context": "the native volume dialog, or None on cancellation/refusal.",

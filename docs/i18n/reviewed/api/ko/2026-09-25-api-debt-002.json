@@ -2233,7 +2233,7 @@
       "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#3",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#4",
       "source": "the page's object name, e.g. ``\"PreferencesTabTheme\"``; ``\"\"`` opens the dialog as it opens from the menu.",
       "source_sha256": "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
       "context": "the page's object name, e.g. ``\"PreferencesTabTheme\"``; ``\"\"`` opens the dialog as it opens from the menu.",
@@ -2241,7 +2241,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#4",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#5",
       "source": "the row caption to mark; ``\"\"`` marks nothing.",
       "source_sha256": "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
       "context": "the row caption to mark; ``\"\"`` marks nothing.",
@@ -2249,7 +2249,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#5",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#6",
       "source": "True when the named tab was found and shown.",
       "source_sha256": "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7",
       "context": "True when the named tab was found and shown.",
@@ -2735,7 +2735,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.sra.fetch_reads#3",
+      "label": "spacr.sra.fetch_reads#4",
       "source": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
       "source_sha256": "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
       "context": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
@@ -2743,7 +2743,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.sra.fetch_reads#4",
+      "label": "spacr.sra.fetch_reads#5",
       "source": "folder the ``.fastq.gz`` file is written into; created if missing.",
       "source_sha256": "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
       "context": "folder the ``.fastq.gz`` file is written into; created if missing.",

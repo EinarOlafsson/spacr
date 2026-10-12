@@ -1624,7 +1624,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible#2",
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible#4",
       "source": "as for ``QWidget.setVisible``.",
       "source_sha256": "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c",
       "context": "as for ``QWidget.setVisible``.",

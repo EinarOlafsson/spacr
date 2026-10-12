@@ -37087,8 +37087,8 @@
         "e45c1f30d8eaf61e66cb6ee790b79df2fbeb8ce81bea2b860b756e2334a5ce20",
         "05dd9fc0b45a7c6cf35c8e0d00229a1adfedec6a765f9298dd2f8ea9379618a5"
       ],
-      "source_sha256": "1befeadd72d1bd21a749b0a702c3c7409b369f551dc4257babb4cda879b769de",
-      "text": "将一个显微镜视野的图像字段插入一个图像。\n\nspaCR的文件名条约 - ``plate_well_T####F###L##A##Z##C##`` - 没有微镜图像字段,所以一个字段分成四个微镜图片字段产生了四个图像,一个字母名称,其中三个将被翻译。 三个答案是可能的: 成长该条约一个微镜图像字幕,给每个微镜图像的字段自己的字段号码,或将字段重新聚集在一起。 spaCR 字段在进口,与选项打开它:一个字体字段是一个图像与一个名字,所以没有下流需要处理微镜形象字段。\n\n显微镜图像字段指数不是一个位置. ``tile03`` 说图像是某个数字的第三个; 它不说它去哪里,微观图像的字段是如何订购的,或者它们是多远的。\n\n1. 文件的自己的阶段坐标,当它有它们. 一个 OME-TIFF 记录 ``PositionX``/``PositionY`` 在微小和像素大小旁边,所以布局是阅读而不是结束. 2. 像素,否则. 附近微镜图像字段是超层,和超层是相同的图像两次,所以正确的分配是谁的 implicated超层相连 - 得分为每个可接受的分离,而不是从一个阶段-correlation峰,这是一个小超层字段。 白色显微镜图像字段,单像图表和没有共享内容的图像不会产生任何相互关系,以便谈论。 显微镜图像的字段随后在一个方形图像网中被插入,并以其信任标记为``assumed``,因此用户被告知布局未被验证。\n\n在错误的顶层上收集的粘贴图像网是一个通过它复制带的字段,该带中的每个测量都数了两次,并且应用程序视图上没有什么说。",
+      "source_sha256": "ad5fc26149b4b4fa21e9441fa2348bb42179fd5a38200dc2a69a1b60f0709954",
+      "text": "把一个视野的图块拼成一张图像。\n\nspaCR 的文件名约定 -- ``plate_well_T####F###L##A##Z##C##`` -- 没有图块位置，因此分成四个图块的视野会产生四张使用同一个规范名称的图像，其中三张会被覆盖。可能的办法有三种：给约定增加图块位置，给每个图块各自的视野编号，或把视野重新拼合。spaCR 在导入时拼合，并可选择关闭：拼合后的视野是一张只有一个名称的图像，因此下游无需处理图块。\n\n图块索引不是位置。``tile03`` 只说明一张图像是若干张中的第三张；它并没有说明图像应放在哪里、图块如何排序，或相互重叠多少。这一切都必须来自证据，本模块正是按证据所在之处来组织的：\n\n1. 文件自身的载物台坐标（如果有）。OME-TIFF 以微米记录 ``PositionX``/``PositionY``，并在旁边记录像素大小，因此布局是读出来的而不是推断的。 2. 否则使用像素。相邻图块会重叠，而重叠部分就是同一幅画面出现了两次，因此正确的位移是其隐含重叠相关的那一个 -- 对每个允许的位移打分，而不是从相位相关峰值中挑选，因为小的重叠会把峰值淹没。这也确定了顺序 -- 按行和蛇形排列会把不同的图块放在一起，所以相关的那种排列就是显微镜所用的排列。 3. 没有证据。空白图块、仅一个像素的重叠以及没有共同内容的图像不会产生值得一提的相关。这时图块以近似正方形的网格对接拼合，镶嵌图被标记为 ``assumed`` 并附上其置信度，让用户知道布局未经验证。\n\n以错误重叠拼成的镶嵌图是一个带有重复条带的视野，该条带中的每次测量都被计两次，而屏幕上没有任何提示。因此置信度会随结果一起返回，调用者可以拒绝置信度低于所选值的镶嵌图。",
       "translation_source_blocks_sha256": [
         "a03fe2a4c3c69bb3d6de90a9324c6751d73970a81396ea5665f6319d7a801c26",
         "5ed8ec00ed452476cf25d718e81b9b8bf46b8365f5c5605dd6d75b35069839f1",
@@ -71494,16 +71494,18 @@
         "7052761aa439828ec859b1dbbc9fc9bf9adef7aabc510652d2fe1e99f2f80d2c",
         "06314e72ef419c36898c6e57fc3a1373b90b5f7fb608f5e601abc64ae800eaeb",
         "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+        "64aa5e132fe7f224a52b5161705f8759f8d3177f7199c4e4d5cb7a1b1d383148",
         "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
         "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
       ],
-      "source_sha256": "200cb40fc00c995187b4a020e4a61e406f1af39e2bdb3edda9498cddfd6937c1",
-      "text": "打开偏好设置，定位到指定的选项卡，并标记指定的行。\n\n这是帮助搜索框对偏好设置结果所采用的路径：该对话框共有九个选项卡，如果一个结果打开对话框时停留在它碰巧起始的那个选项卡上，就只回答了问题的一半。\n\n字符串是由对象名称而不是指数或标签找到的。 一个指数随时添加一个字符,并翻译一个标签 - 一个韩语界面不会匹配任何东西. 每个页面设置自己的 ``PreferencesTab*`` 名称,而 ``tools/build_help_search_index.py`` 从这个对话的来源阅读相同的名称。\n\n:param tab: 页面的对象名称，例如 ``\"PreferencesTabTheme\"``；``\"\"`` 表示像从菜单打开时那样打开对话框。\n:param label: 要标记的行标题；``\"\"`` 表示不标记任何内容。\n:returns: 找到并显示了指定的选项卡时为 True。",
+      "source_sha256": "f6331e2b40bf31ddcb7813f3133b013a1c52da25df2afb796a94760309ba29d6",
+      "text": "打开偏好设置，定位到指定的选项卡，并标记指定的行。\n\n这是帮助搜索框对偏好设置结果所采用的路径：该对话框共有九个选项卡，如果一个结果打开对话框时停留在它碰巧起始的那个选项卡上，就只回答了问题的一半。\n\n通过对象名称而非索引或标题来查找选项卡。每增加一个选项卡，索引就会移动，而标题会被翻译 -- 韩语界面将什么也找不到。每个页面设置自己的 ``PreferencesTab*`` 名称，``tools/build_help_search_index.py`` 从此对话框的源代码中读取同样的名称，因此交接的两端在构造上就是同一个字符串。\n\n对话框通常已经构建好（:func:`spacr.qt.preferences._warm_the_preferences`），关闭后只有当窗口所绘制的内容发生变化时才会重新绘制窗口：构建、首次显示和无条件重绘各自都会让 GUI 线程占用超过一帧的时间。\n\n:param tab: 页面的对象名称，例如 ``\"PreferencesTabTheme\"``；``\"\"`` 表示像从菜单打开时那样打开对话框。\n:param label: 要标记的行标题；``\"\"`` 表示不标记任何内容。\n:returns: 找到并显示了指定的选项卡时为 True。",
       "translation_source_blocks_sha256": [
         "7052761aa439828ec859b1dbbc9fc9bf9adef7aabc510652d2fe1e99f2f80d2c",
         "06314e72ef419c36898c6e57fc3a1373b90b5f7fb608f5e601abc64ae800eaeb",
         "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+        "113d9ce153114158cda7366c0293a748de9c94447dac98c8ea253316c91d6bcf",
         "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
         "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
@@ -71537,16 +71539,18 @@
         "32ca1fbc116633fe8b91fc76a079e2015441dc9c163861adb06359ba4de97f0d",
         "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
         "aeaef5c37cc830ff43bf7d91e35de1626403f23e63ca5415f16980d98de3bba9",
-        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+        "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d"
       ],
-      "source_sha256": "2fb5c2026226033df3e4bf347f2b4453fd4e244c273483cdd855580a508d644f",
-      "text": "那些携带应用程序表的 widgets,而不是我。\n\n为什么不是窗口. 将一张风格表放在一个窗口上,每个后裔都会被打破,开启了四个模组的会议拥有 8,002 个 widgets,其中 7,595 个是模组应用程式的内部观点 - 其中一个是应用的观点。\n\n    整个窗口 945 ms 第一, ~1,479 ms 固定Chrome + 可见页面 300 ms 首先, ~310 ms 稳定\n\n什么是列表,形状不是一个显而易见的。Chrome是407 widgets,其中只有两个可以从中央 widget - 插槽,侧栏和状态条挂在窗口本身。 一个实施,走进中央 widgets将留下405不时尚和看起来几乎正确,这就是为什么 `tests/qt/test_every_widget_wears_the_current_theme.py` 做正确的目的,并声称它被抓住。\n\n因此:除了中央 widget 之外,窗口的每一个直接儿童,除了 stack 以外的每个直接儿童和 stack 的 CURRENT 页面,而不是显示的页面则被标记,并在绘画之前按自己的 `showEvent` 表格。",
+      "source_sha256": "58525ec9f307c0923b5d8f7a7783772252bc76137fc27de73158394d1451ded3",
+      "text": "代替我承载应用程序样式表的控件。\n\n为什么不是窗口。给窗口设置样式表会重新润色每一个后代，而打开了四个模块的会话拥有 8,002 个控件，其中 7,595 个位于模块界面内 -- 其中只有一个可见。在这台机器上测得，打开四个模块，在深色和浅色之间切换：\n\n    整个窗口            首次 945 ms，稳定时 ~1,479 ms 框架 + 可见页面   首次 300 ms，   稳定时 ~310 ms\n\n列表里有什么，其形状并不显而易见。框架有 407 个控件，其中只有两个可从中央控件到达 -- 停靠面板、侧边栏和状态条挂在窗口本身上。只遍历中央控件的实现会留下 405 个没有样式，看起来几乎正确，因此 `tests/qt/test_every_widget_wears_the_current_theme.py` 故意恰好这样做，并检查它会被发现。\n\n所以：除中央控件外窗口的每个直接子级，除堆栈外中央控件的每个直接子级，以及堆栈的当前页面。未显示的页面就地标记，并在绘制之前于自己的 `showEvent` 中获得样式表。\n\n本身就是窗口的子级 -- 以此为父级的对话框，如 Preferences -- 不属于框架：样式表以窗口的身份到达它，而要求等到显示时再处理的隐藏窗口（:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`）则会等待。",
       "translation_source_blocks_sha256": [
         "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
         "2c3be7cc5e05f5f4d56b22e736c551c5f62be6fdd0f4fb9b70134abe53882004",
         "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
         "58e6c2c05ea0d87fa6facbd19aedbfe938ec35d285f8037108d7b72e5e59bace",
-        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+        "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d"
       ]
     },
     "spacr.qt.app.MainWindow.toggle_app_drawer": {
@@ -80665,12 +80669,14 @@
     },
     "spacr.qt.i18n.install_dialog_translation._DialogTranslationFilter.eventFilter": {
       "source_blocks_sha256": [
-        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+        "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+        "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2"
       ],
-      "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
-      "text": "在对话框首次显示时重新翻译其控件树。",
+      "source_sha256": "e2a84a49ea0b2b9c926543e1509632512486db5b9198bec4702387e0aa72b003",
+      "text": "在对话框显示时重新翻译其树。\n\n带有 :data:`TRANSLATE_ONCE_PER_LANGUAGE` 的对话框每种语言只遍历一次，而不是每次显示都遍历：它被保留并再次显示，其文本在两次显示之间不变，而遍历曾是再次显示的大部分开销。",
       "translation_source_blocks_sha256": [
-        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+        "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+        "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2"
       ]
     },
     "spacr.qt.i18n.install_qt_translations": {
@@ -83963,6 +83969,22 @@
         "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3"
       ]
     },
+    "spacr.qt.make_masks_demo.download_fibsem_example": {
+      "source_blocks_sha256": [
+        "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
+      ],
+      "source_sha256": "2fb02c74dc99f539da849d577b03bffd5a68ec0f56279d2ba1afcf22e8565a07",
+      "text": "在共享的进度对话框之后下载 FIB-SEM 测试体积。\n\n:param parent: 进度对话框所属的部件。\n:param dest: 归档文件解包到的文件夹。\n:param on_done: 在 GUI 线程中以 ``on_done(result, error)`` 的形式调用，方式与 :func:`download_make_masks_example` 调用它相同。",
+      "translation_source_blocks_sha256": [
+        "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab"
+      ]
+    },
     "spacr.qt.make_masks_demo.download_make_masks_example": {
       "source_blocks_sha256": [
         "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
@@ -83987,12 +84009,26 @@
         "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
       ],
       "source_sha256": "f696650f77dacd0a277bdf0709f64a4db136b61b1e19312621e3dd7a61e1b0d4",
-      "text": "在共享进展对话背后的TEM测试数据。\n\n:param parent: 进度对话框所属的部件。\n:param dest: 归档文件解包到的文件夹。\n:param on_done: 在主 GUI 执行路径上称为 ``on_done(result, error)``,如 :func:`download_make_masks_example` 称之为。",
+      "text": "在共享进展对话背后的TEM测试数据。\n\n:param parent: 进度对话框所属的部件。\n:param dest: 归档文件解包到的文件夹。\n:param on_done: 在 GUI 线程中以 ``on_done(result, error)`` 的形式调用，方式与 :func:`download_make_masks_example` 调用它相同。",
       "translation_source_blocks_sha256": [
         "000fa4ade4b3928f84d602c2949a80d63ab96df51c84e6aa8023e6a815559eea",
         "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
         "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
         "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab"
+      ]
+    },
+    "spacr.qt.make_masks_demo.fibsem_example_folder": {
+      "source_blocks_sha256": [
+        "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+        "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
+      ],
+      "source_sha256": "704247536f44640c6b8368b9bfc8b870cd985aeaa484ee4d8a818d55cf9926ec",
+      "text": "FIB-SEM 测试体积解压并缓存的位置。\n\n``~/.cache/spacr/example_data/make_masks_fibsem``，即 :data:`spacr.example_archives.EXAMPLE_SETS` 为 ``fibsem`` 集合指定的文件夹，因此 ``spacr-download fibsem`` 和菜单共用同一个缓存。\n\n:returns: 该文件夹。此处不会创建它。",
+      "translation_source_blocks_sha256": [
+        "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+        "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
       ]
     },
     "spacr.qt.make_masks_demo.install_test_data_button": {
@@ -84035,6 +84071,28 @@
         "9eb145b856650b218ffd74cad6f85233ac32e8b2845b25a672155ac60b6a47a5",
         "01c48271aad649718107c1cbfe52467d06c19ec71cb0d64c8082cf08bd194f82",
         "7503e22ae286417c5260c5759bd2c28d081e473220f0ac080d4c28ae41797e2e"
+      ]
+    },
+    "spacr.qt.make_masks_demo.load_the_fibsem_test_data": {
+      "source_blocks_sha256": [
+        "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+        "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+        "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+        "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+        "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+        "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+        "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3"
+      ],
+      "source_sha256": "30adb54a8cce890291368b1fb461a062bd92b634e709832cd9a6bfc3cd6e65ad",
+      "text": "在 3D 掩码编辑器中打开 FIB-SEM 测试体积。\n\n与 :func:`load_the_test_data` 相同的流程，在未缓存时把 :data:`FIBSEM_EXAMPLE_REPO` 下载到 :func:`fibsem_example_folder`。没有掩码时，体积以未分割状态打开，其草稿保存在 ``masks/`` 中。有掩码时，已发布的标签会被复制一次到 ``corrected_masks/`` 并在那里打开以供校正，因此 ``ground_truth_masks/`` 永远不会被覆盖。\n\n:param screen: 其 3D 编辑器打开该体积的 Make Masks 窗口。\n:param with_masks: 打开体积并加载其线粒体标签。\n:param ask: 替代 :func:`download_fibsem_example`，用于测试。\n:param folder: 替代 :func:`fibsem_example_folder`，用于测试。\n:returns: 此次调用是否打开了该体积。",
+      "translation_source_blocks_sha256": [
+        "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+        "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+        "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+        "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+        "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+        "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+        "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3"
       ]
     },
     "spacr.qt.make_masks_demo.load_the_tem_test_data": {
@@ -84545,6 +84603,20 @@
         "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.assign_objects": {
+      "source_blocks_sha256": [
+        "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+        "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+        "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
+      ],
+      "source_sha256": "ce71d0fd888ccd0811f7372c95c0e5c8c62b3de9f63bf2c2fa72b32dde35e725",
+      "text": "把每个标签拆分为其 3D 连通对象。\n\n每个标签中最大的连通部分保留其 ID；任何其他部分，只要与它既不以面、也不以棱、也不以角相接，就会获得下一个未使用的 ID。先用一个 ID 绘制许多对象再进行分配，会让每个对象各有自己的 ID。\n\n:returns: ``(changed voxels, objects after assigning)``.",
+      "translation_source_blocks_sha256": [
+        "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+        "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+        "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
       "source_blocks_sha256": [
         "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
@@ -84559,6 +84631,24 @@
         "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
         "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
         "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.interpolate": {
+      "source_blocks_sha256": [
+        "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+        "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+        "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+        "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "88f82179e30f33c3c1292b0c9cd235c697f0d45e098005470a552c76286777ee",
+      "text": "填充一个对象已绘制截面之间的空截面。\n\n包含 ``label`` 的两个截面之间的每个间隔，都通过混合它们按物理单位测量的有符号距离图来填充，使轮廓从一个已绘制截面平滑地变形到下一个。只填充背景体素。\n\n:param label: 要插值的对象。\n:param axis: 截面堆叠所沿的轴。\n:returns: 已更改的体素数量。",
+      "translation_source_blocks_sha256": [
+        "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+        "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+        "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+        "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.limits": {
@@ -84581,6 +84671,46 @@
         "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.paint_plane": {
+      "source_blocks_sha256": [
+        "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+        "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+        "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+        "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "dd3723871b7310838597758924916904db250445454f1b57101ec9f943b98b6c",
+      "text": "在一个截面上绘制或擦除一个对象，作为单个撤销步骤。\n\n绘制只填充背景和该对象自己的体素，因此其他对象绝不会被覆盖。擦除会清除被擦除像素之下的每个标签。体素发生变化的标签会失去任何已保存的锚点边界，因为它们已不再描述该标签。\n\n:param axis: 保持固定的轴，与 :meth:`plane` 相同。\n:param index: 截面沿 ``axis`` 的索引。\n:param label: 要绘制的对象 ID。\n:param paint: 要分配给 ``label`` 的布尔像素，形状与截面相同。\n:param erase: 要清除的布尔像素，形状与截面相同。\n:returns: 已更改的体素数量。",
+      "translation_source_blocks_sha256": [
+        "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+        "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+        "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+        "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.plane": {
+      "source_blocks_sha256": [
+        "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+        "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb"
+      ],
+      "source_sha256": "4975c81d43ade92846ad3a9856c56a2526b759ef88435ad8ff397a00ce7f6a67",
+      "text": "返回图像及其标签的一个正交截面。\n\n:param axis: 保持固定的轴。``Z`` 给出 XY 截面（行 Y，列 X），``Y`` 给出 XZ 截面（行 Z，列 X），``X`` 给出 YZ 截面（行 Z，列 Y）。\n:param index: 截面沿 ``axis`` 的索引。\n:returns: ``(image, labels)``，该截面的副本。",
+      "translation_source_blocks_sha256": [
+        "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+        "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.redo": {
       "source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
@@ -84589,6 +84719,20 @@
       "text": "重新应用最近一次撤销的体素增量和几何。",
       "translation_source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.section_count": {
+      "source_blocks_sha256": [
+        "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+        "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+        "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c"
+      ],
+      "source_sha256": "05a30aa15f7eafd8a4d2de98202e8289ff1970bbb6da246c9c2c4783da252ad6",
+      "text": "沿一个空间轴的截面数。\n\n:param axis: ``X``、``Y`` 或 ``Z``。\n:returns: 体积沿该轴的长度。",
+      "translation_source_blocks_sha256": [
+        "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+        "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+        "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.undo": {
@@ -85283,20 +85427,20 @@
     },
     "spacr.qt.mask_engine.load_volume_image_and_mask": {
       "source_blocks_sha256": [
-        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
-        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ],
-      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
-      "text": "打开明确声明的灰度空间 TIFF，用于原生 3-D 编辑。\n\n支持恰好三个空间轴，顺序不限。时间、通道、颜色和推断出的页面轴将被拒绝。``voxel_spacing`` 元数据按存储轴顺序读取。OME 物理尺寸会转换为微米；ImageJ 间距和 XY 分辨率予以保留。缺少物理元数据时使用像素坐标。标签保留 dtype 和身份。已保存的几何附属文件与确切的源文件和掩膜像素绑定，过期时将被拒绝。\n\n:param folder: 源图像目录。\n:param filename: 空间 TIFF 图像文件名。\n:param masks_dir: 可选的现有同级掩膜目录。\n:returns: 持有标签和源元数据的 ``VolumeMaskSession``。",
+      "source_sha256": "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69",
+      "text": "打开灰度空间体积，用于原生 3D 编辑。\n\nTIFF 体积恰好需要三个空间轴，顺序不限。一个普通的三维页面堆栈（tifffile 的 ``Q`` 或 ``I`` 页面轴位于 ``YX`` 之上）按 Z 截面读取，这也是 z 堆栈和 FIB-SEM 系列的保存方式；时间、通道和颜色轴会被拒绝。``voxel_spacing`` 元数据按存储轴顺序读取。OME 物理尺寸会被转换为微米；ImageJ 间距和 XY 分辨率会被保留。MRC 体积（``.mrc``、``.rec``、``.map``）按 ZYX 读取，体素大小以纳米计；它们需要可选的 ``mrcfile`` 包。缺少物理元数据意味着使用像素坐标。标签保留数据类型和标识。保存的几何附属文件与确切的源文件和掩码像素绑定，过期时会被拒绝。\n\n:param folder: 源图像目录。\n:param filename: 空间 TIFF 或 MRC 体积的文件名。\n:param masks_dir: 可选的现有同级掩膜目录。\n:returns: 持有标签和源元数据的 ``VolumeMaskSession``。",
       "translation_source_blocks_sha256": [
-        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-        "a9ba5e8105b8b0a9e311ee0abf0d2d9cb5498e34d21fb1572af99de1ee6e25d0",
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "62824efb710452c5066519395b857a92e5d0ddf28faa782792f7db486ec99033",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
-        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ]
@@ -88668,13 +88812,15 @@
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save": {
       "source_blocks_sha256": [
         "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
-        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa"
+        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa",
+        "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e"
       ],
-      "source_sha256": "fb1112d0625fb1f7e2e2a5f37d1aca8a5ebfbb287a27def61a9058b9e5930fd1",
-      "text": "写入此对话框拥有的每个偏好设置，边缘优先。\n\n边缘优先，因为每张打开的卡片都会重新读取它：在主题处理之前完成，意味着只重绘一次而不是两次。",
+      "source_sha256": "a2a74efcc11ff40adc345b4b1614ac7de1f8d2f9819ddc33948d41877cc6d91e",
+      "text": "写入此对话框拥有的每个偏好设置，边缘优先。\n\n边缘优先，因为每张打开的卡片都会重新读取它：在主题处理之前完成，意味着只重绘一次而不是两次。\n\n关闭型的 Save 会在应用程序采用新值之前隐藏对话框：为即将消失的窗口设置样式曾是一次 Save 的大部分开销。",
       "translation_source_blocks_sha256": [
         "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
-        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a"
+        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a",
+        "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._select": {
@@ -89033,13 +89179,17 @@
       "source_blocks_sha256": [
         "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
         "56c9ac8b7e9786e63b36dece67b6dbbfc74c6a412eca6b53a467887c4317ad96",
+        "be73e082bf417ffaea91b305ce47470418f04924193388f9c698c73c7feea218",
+        "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ],
-      "source_sha256": "de1511916cb3ee37057da5b9c3bf44d12cbea358e75226a541815f9f7f6561ad",
-      "text": "在首次显示之前，把未显示的页面移走。\n\n在这里，而不是在第一次 ``Polish`` 时。窗口样式表、玻璃效果和调整大小过滤器都会响应来自应用程序的这个事件，而应用程序比窗口先收到它，调整大小过滤器在此过程中还会处理每个子控件。Qt 自身的显示就在这次调用中开始，因此在它们任何一个运行之前，页面就已经移走了。\n\n:param visible: 同 ``QWidget.setVisible``。",
+      "source_sha256": "0bee4ead6a964a72514382029d31e0df8c64a4d071528869508951aa18691f5b",
+      "text": "在首次显示之前，把未显示的页面移走。\n\n在这里，而不是在第一次 ``Polish`` 时。窗口样式表、玻璃效果和调整大小过滤器都会响应来自应用程序的这个事件，而应用程序比窗口先收到它，调整大小过滤器在此过程中还会处理每个子控件。Qt 自身的显示就在这次调用中开始，因此在它们任何一个运行之前，页面就已经移走了。\n\n每一次显示，而不仅仅是第一次，都只遍历窗口。为下一次打开而保留的对话框（:func:`_take_the_warm_preferences`）会再次显示，同样的过滤器再次遍历它；仍在等待的页面在其选项卡被选中时获得它错过的内容，与首次打开时一样。\n\n每次显示还会记录窗口的外观（:func:`_window_signature`），以便关闭时能知道窗口是否有需要补上的内容。\n\n:param visible: 同 ``QWidget.setVisible``。",
       "translation_source_blocks_sha256": [
         "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
         "f2df76b60fda60ff3ca25d33dfa0318c8e7501370e9c8e0dbb90c206a87f0fc6",
+        "c2812f19d670e0fc6d6198b31f2e967c7f53e313837c721b363de94b630f0190",
+        "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ]
     },
@@ -105563,17 +105713,17 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
       "source_blocks_sha256": [
-        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
-        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
         "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ],
-      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
-      "text": "在共享的 3-D 锚点编辑器中打开原生空间 TIFF。\n\n现有的 2-D 图像、掩膜工具和 YOLO 标注保持独立。时间/通道/RGB TIFF 将被拒绝，而不会被解释为深度。\n\n:param path: 可选的空间 TIFF 路径；否则打开文件选择器。\n:returns: 原生体积对话框；取消或拒绝时为 None。",
+      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
+      "text": "在 3D 掩码编辑器中打开 z 堆栈或体积。\n\n掩码在 XY、XZ 或 YZ 截面上逐切片绘制和擦除，在已绘制的切片之间插值，分配给 3D 对象，并用共享锚点进行编辑。TIFF 堆栈、OME-TIFF 和 MRC 体积可以打开；时间/通道/RGB 的 TIFF 会被拒绝，而不会被解释为深度。现有的 2D 图像、掩码工具和 YOLO 标注保持独立。\n\n:param path: 可选的体积路径；否则打开文件选择器。\n:returns: 原生体积对话框；取消或拒绝时为 None。",
       "translation_source_blocks_sha256": [
-        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-        "9a2cedf269b09b9d40b2e783dfdfc3cf243b7982330d4918b2734beab5056ff9",
-        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+        "dd8337393063df88b68ff4b8a82ee7b42999a0c8cd3149406613f7a647baf363",
+        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
         "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ]
     },
@@ -112461,8 +112611,8 @@
         "ed97db2de081b82fe5bfa71dfdc1dc8715531e6cf71681aca9035afbc1140ffa",
         "bd889371c666873661054ada8bb6417df2e2e6335b4eaf302f6a86a193438c42"
       ],
-      "source_sha256": "21e43c59c82bb5da5291e33a3ce28dad00f74ad29fd6ca1161d9a60cbde9d115",
-      "text": "运行比较 - 同一项目的两次跑步,侧面。\n\n选择一个项目,选择两个运行,筛选回答三个问题,随后重新运行:\n\n1。 **我改变了什么?** 设置 diff,在相同的标题下组成,设置面板组成它们,只显示移动了什么,所以在 *Cellpose* 下的两个改变结构数据名称不会失去两百。 二。 **什么结果?** 对象,微板样本位置和微镜视野,每个实验室微板和整体。 一次处理,产生12%较少的细胞,有一个问题,这就是它首先可见的地方。 3、 **哪个打击移动?** 出现,消失,并改变排名。 一个成功的名单,其会员资格是稳定的,但其顶部十个回归每个处理会议不是一个稳定的结果。\n\n所有三个都来自:mod:`spacr.run_compare`,它是无图形界面:这个文件点击运行和拖动表,并不知道别的东西. 处理会议列表来自Artifact注册表(:mod:`spacr.artifacts`),从未从一个文件系统扫描 - 一个处理会议,其输出被删除仍然有其设置记录,并将其从下载将失去唯一的副本的产生的数字有人正在询问。\n\n**不可比拟的跑步没有差异.** 不同实验室微板的两次跑步完美地下滑,并产生一个看起来像回归报告的表。 当 :func:`spacr.run_compare.comparability` 举起一个阻塞器时,表保持空白,并在标志上说明为什么,与 *相匹配无论如何* 按钮超越阻塞。 警告 - 最重要的是不同的 spaCR 版本 - 与图表显示而不是代替它们,因为一个版本的变化解释了自我计算的变化。",
+      "source_sha256": "5d975d0f4e9ad3409dc61e471a263ee500c7d9581e1a169cceaa403c88df62ea",
+      "text": "Run Compare -- 同一项目的两次运行，并排比较。\n\n选择一个项目，再选择它的两次运行，窗口就会回答重新运行之后的三个问题：\n\n1. **我改了什么？** 设置差异，按设置面板分组所用的同样标题分组，只显示发生变化的内容，这样 *Cellpose* 下改变的两个键就不会淹没在两百个键之中。 2. **产出了什么？** 每块板及总体的对象、孔和视野。产生的细胞少了 12% 的运行是有问题的，而这里是最先能看到问题的地方。 3. **哪些命中发生了移动？** 新出现的、消失的以及排名变化的。成员稳定、但前十名在每次运行中都重新洗牌的命中列表，不是稳定的结果。\n\n这三者都来自 :mod:`spacr.run_compare`，它是无头的：本文件只挑选运行并绘制表格，别的一概不知道。运行列表来自工件注册表（:mod:`spacr.artifacts`），绝不来自文件系统扫描 -- 输出已被删除的运行仍记录着它的设置，把它从下拉列表中去掉会丢失产生那些有人在询问的数字的唯一副本。\n\n**不可比较的运行不做差异比较。** 两块不同板的运行完全可以相减，并得到一张看起来恰如回归报告的表。当 :func:`spacr.run_compare.comparability` 提出阻止项时，表格保持为空，横幅会说明原因，并带有一个 *Compare anyway* 按钮来覆盖阻止项。警告 -- 尤其是不同的 spaCR 版本 -- 会与表格一同显示而不是取代表格，因为版本变化本身就能解释计数的变化。",
       "translation_source_blocks_sha256": [
         "ce7775715fff9d81d149724bf84d5f6b919eba0088109ee8e6e71d9f206600cd",
         "49dd605d2f7260bd9714a41e848ce5cc5718b2c16f8222dba8d270e3516d4178",
@@ -118802,10 +118952,11 @@
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
         "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ],
-      "source_sha256": "4708eaeace506fe3477e7d95f36392f3a937b708b00d2c7b75b410749501f5ab",
-      "text": "安装 ``sheet`` 在每个顶级窗口,而不是 ``app``。\n\n为什么,与数字. `QApplication.setStyleSheet` 重复所有过程的每个 widget,并且一个会议,开启了几个模块拥有成千上万它看不见 -- `MainWindow` 建立一个模块应用程式观点在第一次浏览,并保留它在尾巴后。\n\n    app.setStyleSheet 2.836 ms 首先, ~7,500 ms 随后每个顶级窗口 1.684 ms 第一, ~1,900 ms 然后只有可见筛选 222 ms\n\n地板仍然低 - 222 ms 是可见筛选本身的成本 - 到达它意味着不打破隐藏的筛选,这比这个更大的变化。\n\n:param app: ``QApplication``的窗口穿着表,在那里表本身是停车的,这样一个创建的窗户后来可以找到它。 ``None``是接受的,没有什么,所以一个呼叫器运行没有应用程序不需要先检查。\n:param sheet: 完整的应用程序表,如 :func:`stylesheet` 构成它。\n:returns: 窗口的数目被插入了。\n\n在页面之外等待的设置类别主体没有父对象，因此 Qt 会将其列为顶层控件，但它并不是窗口：它会在任何人看到之前回到其页面之下，并从那里沿用页面的样式表。如果在这里为它设置样式表，它就会携带一份回到页面时刻的样式表副本，而下一次主题更改将无法作用于它。参见 :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`。",
+      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
+      "text": "在每个顶层窗口上安装 ``sheet``，而不是在 ``app`` 上。\n\n为什么，附数字。`QApplication.setStyleSheet` 会重新润色进程拥有的每个控件，而打开了几个模块的会话拥有成千上万个看不见的控件 -- `MainWindow` 在首次导航时构建模块界面，之后将其保留在堆栈中。在这台机器上测得，offscreen，打开四个模块，9,045 个存活控件，其中 6,111 个位于无人查看的界面上：\n\n    app.setStyleSheet            首次 2,836 ms，之后 ~7,500 ms 每个顶层窗口       首次 1,684 ms，之后 ~1,900 ms 仅可见界面       222 ms\n\n同一画面只需四分之一的开销。下限还要低得多 -- 222 ms 是仅可见界面本身的开销 -- 而要达到它，意味着也不要把样式表应用到隐藏界面，这是比本次更大的改动。\n\n:param app: 其窗口承载样式表的 ``QApplication``，以及样式表本身的存放处，以便稍后创建的窗口能找到它。接受 ``None`` 且不做任何事，因此没有应用程序的调用方不必先检查。\n:param sheet: 应用程序的完整样式表，由 :func:`stylesheet` 组合而成。\n:returns: 已设置样式表的窗口数量。\n\n标有 :data:`SHEETED_WHEN_SHOWN` 的隐藏窗口留待其下一次 ``Show``，届时 :class:`_SheetsEveryWindowThatAppears` 在其绘制之前为它应用样式表：为下一次打开而保留的 Preferences 窗口有 ~750 个无人能看到的控件。\n\n在页面之外等待的设置类别主体没有父对象，因此 Qt 会将其列为顶层控件，但它并不是窗口：它会在任何人看到之前回到其页面之下，并从那里沿用页面的样式表。如果在这里为它设置样式表，它就会携带一份回到页面时刻的样式表副本，而下一次主题更改将无法作用于它。参见 :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`。",
       "translation_source_blocks_sha256": [
         "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
         "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
@@ -118814,6 +118965,7 @@
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
         "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ]
     },
@@ -194038,26 +194190,26 @@
         "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
         "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
         "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
         "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
         "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
         "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
-        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
         "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
         "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6"
       ],
-      "source_sha256": "b730aa423d768af8ae37c4e4fee96268251fb8c72c844d52f14ef1a4bf92a014",
-      "text": "下载 ``run_file`` 到 ``destination``,停止后 ``max_reads``。\n\n流量在到达时被压缩,连接在手中有足够的阅读时会消失,所以有限的请求只会传输所需的东西。 ``max_reads`` 的 ``None`` 包含整个文件。\n\n重写为 ``.fastq.gz`` 因为这就是 ``src`` 设置序列文件(“ .fastq.gz 文件夹阅读”),所以一个子组和一个完整的下载是相同的形状到一切下流。\n\n:param run_file: 要流式传输的归档文件；读取其 ``url``，并以其 ``filename`` 命名输出文件。\n:param destination: 写入 ``.fastq.gz`` 文件的文件夹；不存在时会自动创建。\n:param progress: 以 ``(reads_so_far, compressed_bytes_so_far)`` 命名。\n:param should_stop: 查询在碎片之间;一个真实的答案放弃下载并删除部分文件。\n\n没有 ``opener``,下载的 ``reads`` 示例集首先被阅读:当它持有至少 ``max_reads`` 阅读的此文件时,它们取出它而不是来自 ENA,因此有限的请求运行离线并提供相同的阅读。\n:returns: 写入的路径。\n:raises ValueError: 对于一个不积极的``max_reads``。\n:raises ConnectionError: 当流量停止之前,请求的阅读和文件结束之前,因此丢失的连接永远不会留下一个看起来完整的短文件。",
+      "source_sha256": "30d0f1c7c5221ee173b29d95edcb68516f539dd7a29dbfba3c9fe393d78a71f8",
+      "text": "把 ``run_file`` 下载到 ``destination``，在达到 ``max_reads`` 后停止。\n\n数据流在到达时即被解压，一旦拿到足够的读段就断开连接，因此受限请求只传输所需的部分。``max_reads`` 为 ``None`` 时会获取整个文件。\n\n重新写出为 ``.fastq.gz``，因为 ``src`` 设置就是这样为测序记录的（\"the folder of .fastq.gz reads\"），这样子集和完整下载对下游的一切都具有相同的形状。\n\n没有 ``opener`` 时，先读取已下载的 ``reads`` 示例集：当其中包含该文件且至少有 ``max_reads`` 个读段时，读段取自其中而不是 ENA，因此受限请求可以离线工作并给出相同的读段。对整个文件的请求，或大于缓存的请求，仍像以前一样从 ENA 流式获取。\n\n:param run_file: 要流式传输的归档文件；读取其 ``url``，并以其 ``filename`` 命名输出文件。\n:param destination: 写入 ``.fastq.gz`` 文件的文件夹；不存在时会自动创建。\n:param progress: 以 ``(reads_so_far, compressed_bytes_so_far)`` 调用。\n:param should_stop: 在数据块之间轮询；返回真值会放弃下载并删除部分文件。\n:returns: 写入的路径。\n:raises ValueError: 当 ``max_reads`` 不是正数时。\n:raises ConnectionError: 当数据流在请求的读段到达之前、且在文件结束之前停止时，这样中断的连接绝不会留下一个看起来完整的短文件。",
       "translation_source_blocks_sha256": [
         "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
         "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
         "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
         "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
         "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
         "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
-        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
         "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
         "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6"

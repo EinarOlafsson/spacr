@@ -37086,8 +37086,8 @@
         "e45c1f30d8eaf61e66cb6ee790b79df2fbeb8ce81bea2b860b756e2334a5ce20",
         "05dd9fc0b45a7c6cf35c8e0d00229a1adfedec6a765f9298dd2f8ea9379618a5"
       ],
-      "source_sha256": "1befeadd72d1bd21a749b0a702c3c7409b369f551dc4257babb4cda879b769de",
-      "text": "Costure os campos de imagem do microscópio de um campo de visão do microscópio em uma imagem.\n\nspaCR's nome do arquivo convention --  ``plate_well_T####F###L##A##Z##C##`` -- não tem slot de campo de imagem de microscópio, então um campo dividido em quatro campos de imagem do microscópio produz quatro imagens com um nome canônico e três delas seriam substituídas. Três respostas foram possíveis: crescer a convenção um slot de Campo de Imagem de Microscópio, dar a cada campo de Imagem do Microscópio seu próprio número de campo, ou colocar o campo de volta juntos. spaCR\n\nUm índice de campo de imagem de microscópio não é uma posição. ``tile03`` diz que uma imagem é a terceira de algum número; não diz para onde vai, como os campos de imagem do microscópio são ordenados ou até onde eles se sobrepõem. Cada um deles tem que vir de evidências, e este módulo é organizado em torno de onde a evidência está:\n\n1. As coordenadas de estágio do próprio arquivo, quando ele as tem. Um OME-TIFF registra  ``PositionX``/``PositionY`` em mícrons e o tamanho do pixel ao lado deles, então o layout é lido em vez de inferido. 2. Os pixels, caso contrário. Campos de imagem de microscópio adjacentes se sobrepõem, e a sobreposição é a mesma imagem duas vezes, de modo que o deslocamento correto é aquele cuja sobreposição implícita também se correlaciona - pontua para cada deslocamento admissível em vez que a fase escolhida. Campos de imagem de microscópio em branco, sobreposições de pixel único e imagens sem conteúdo compartilhado não produzem correlação. Os campos de imagem do microscópio são então unidos em uma grade quadrada e a grade de imagem costurada é marcada ``assumed`` com sua confiança, para que o usuário seja informado de que o layout não foi verificado.\n\nUma grade de imagem costurada montada na sobreposição errada é um campo com uma banda duplicada através dele, cada medição nessa banda contada duas vezes, e nada na visualização da aplicação dizendo isso. A confiança é, portanto, retornada com o resultado, e um chamador pode recusar uma grade de imagens costurada abaixo de uma confiança escolhida.",
+      "source_sha256": "ad5fc26149b4b4fa21e9441fa2348bb42179fd5a38200dc2a69a1b60f0709954",
+      "text": "Unir os blocos de um campo em uma única imagem.\n\nA convenção de nomes de arquivo do spaCR -- ``plate_well_T####F###L##A##Z##C##`` -- não tem espaço para o bloco; um campo dividido em quatro blocos produz, portanto, quatro imagens com um único nome canônico, e três delas seriam sobrescritas. Havia três respostas possíveis: acrescentar à convenção um espaço para o bloco, dar a cada bloco o seu próprio número de campo ou juntar o campo de volta. O spaCR une na importação, com a opção de desativar isso: um campo unido é uma imagem com um nome, de modo que nada a jusante precisa lidar com blocos.\n\nUm índice de bloco não é uma posição. ``tile03`` diz que uma imagem é a terceira de um certo número; não diz onde ela vai, como os blocos são ordenados nem o quanto se sobrepõem. Tudo isso precisa vir de evidências, e este módulo está organizado conforme onde essas evidências estão:\n\n1. As coordenadas de platina do próprio arquivo, quando ele as tem. Um OME-TIFF registra ``PositionX``/``PositionY`` em micrômetros e, ao lado, o tamanho do pixel, de modo que a disposição é lida em vez de inferida. 2. Caso contrário, os pixels. Blocos adjacentes se sobrepõem e a sobreposição é a mesma imagem duas vezes; o deslocamento correto é, portanto, aquele cuja sobreposição implícita se correlaciona -- avaliado para cada deslocamento admissível em vez de escolhido a partir de um pico de correlação de fase, que uma sobreposição pequena esconde. Isso também define a ordem -- por linhas e em serpentina colocam blocos diferentes lado a lado, então a disposição que se correlaciona é a que o microscópio usou. 3. Nenhuma evidência. Blocos em branco, sobreposições de um único pixel e imagens sem conteúdo em comum não produzem correlação digna de nota. Os blocos são então justapostos em uma grade quase quadrada e o mosaico é marcado como ``assumed`` com a sua confiança, para que o usuário saiba que a disposição não foi verificada.\n\nUm mosaico montado com a sobreposição errada é um campo com uma faixa duplicada, com cada medida dessa faixa contada duas vezes e nada na tela dizendo isso. A confiança é, por isso, retornada com o resultado, e quem chama pode recusar um mosaico abaixo de uma confiança escolhida.",
       "translation_source_blocks_sha256": [
         "a03fe2a4c3c69bb3d6de90a9324c6751d73970a81396ea5665f6319d7a801c26",
         "5ed8ec00ed452476cf25d718e81b9b8bf46b8365f5c5605dd6d75b35069839f1",
@@ -71493,16 +71493,18 @@
         "7052761aa439828ec859b1dbbc9fc9bf9adef7aabc510652d2fe1e99f2f80d2c",
         "06314e72ef419c36898c6e57fc3a1373b90b5f7fb608f5e601abc64ae800eaeb",
         "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+        "64aa5e132fe7f224a52b5161705f8759f8d3177f7199c4e4d5cb7a1b1d383148",
         "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
         "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
       ],
-      "source_sha256": "200cb40fc00c995187b4a020e4a61e406f1af39e2bdb3edda9498cddfd6937c1",
-      "text": "Abre Preferences em uma aba nomeada, com uma linha nomeada destacada.\n\nO caminho que o campo de busca da Ajuda segue para um resultado de preferência: a caixa de diálogo tem nove abas, e um resultado que a abrisse em qualquer aba em que ela por acaso começasse teria respondido só metade da pergunta.\n\nA guia é encontrada pelo nome do objeto, e não pelo índice ou legenda. Um índice se move sempre que uma guia é adicionada, e uma legenda é traduzida – uma interface coreana não teria correspondido a nada. Cada página define seu próprio nome ``PreferencesTab*``, e ``tools/build_help_search_index.py`` lê esses mesmos nomes da fonte dessa caixa de diálogo, então as duas extremidades da mão-fora são a mesma cadeia de caracteres por construção.\n\n:param tab: o nome de objeto da página, por exemplo ``\"PreferencesTabTheme\"``; ``\"\"`` abre a caixa de diálogo como ela abre pelo menu.\n:param label: a legenda da linha a destacar; ``\"\"`` não destaca nada.\n:returns: True quando a aba nomeada foi encontrada e mostrada.",
+      "source_sha256": "f6331e2b40bf31ddcb7813f3133b013a1c52da25df2afb796a94760309ba29d6",
+      "text": "Abre Preferences em uma aba nomeada, com uma linha nomeada destacada.\n\nO caminho que o campo de busca da Ajuda segue para um resultado de preferência: a caixa de diálogo tem nove abas, e um resultado que a abrisse em qualquer aba em que ela por acaso começasse teria respondido só metade da pergunta.\n\nA aba é encontrada pelo nome do objeto, não pelo índice nem pelo título. Um índice se desloca sempre que uma aba é adicionada, e um título é traduzido -- uma interface em coreano não teria encontrado nada. Cada página define seu próprio nome ``PreferencesTab*``, e ``tools/build_help_search_index.py`` lê esses mesmos nomes no código-fonte desta caixa de diálogo, de modo que as duas pontas da passagem são, por construção, a mesma cadeia de caracteres.\n\nA caixa de diálogo costuma já estar construída (:func:`spacr.qt.preferences._warm_the_preferences`), e a janela só é redesenhada após o fechamento quando algo do que ela desenha mudou: a construção, a primeira exibição e o redesenho incondicional retinham cada um a thread da GUI por mais de um quadro.\n\n:param tab: o nome de objeto da página, por exemplo ``\"PreferencesTabTheme\"``; ``\"\"`` abre a caixa de diálogo como ela abre pelo menu.\n:param label: a legenda da linha a destacar; ``\"\"`` não destaca nada.\n:returns: True quando a aba nomeada foi encontrada e mostrada.",
       "translation_source_blocks_sha256": [
         "7052761aa439828ec859b1dbbc9fc9bf9adef7aabc510652d2fe1e99f2f80d2c",
         "06314e72ef419c36898c6e57fc3a1373b90b5f7fb608f5e601abc64ae800eaeb",
         "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+        "113d9ce153114158cda7366c0293a748de9c94447dac98c8ea253316c91d6bcf",
         "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
         "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
@@ -71536,16 +71538,18 @@
         "32ca1fbc116633fe8b91fc76a079e2015441dc9c163861adb06359ba4de97f0d",
         "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
         "aeaef5c37cc830ff43bf7d91e35de1626403f23e63ca5415f16980d98de3bba9",
-        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+        "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d"
       ],
-      "source_sha256": "2fb5c2026226033df3e4bf347f2b4453fd4e244c273483cdd855580a508d644f",
-      "text": "Os widgets que carregam a folha de aplicação, em vez de mim.\n\nPor que não a janela. Definir uma folha de estilo em uma janela repoliza todos os descendentes, e uma sessão que abriu quatro módulos possui 8.002 widgets dos quais 7.595 estão dentro das visualizações de aplicativos do módulo - Um dos quais está na exibição do aplicativo. Medido nesta caixa, quatro módulos abrem, alternando escuro e leve:\n\n    toda a janela 945 ms primeiro, 1.479 ms cromado constante + a página visível 300 ms em primeiro lugar, 310 ms estável\n\nO que está na lista, e a forma não é o óbvio. O cromo é 407 widgets e apenas dois deles são acessíveis a partir do widget central -- o dock, a barra lateral e a faixa de status ficam pendurados na própria janela. Uma implementação que percorreu o widget central deixaria 405 sem estilo e ficaria quase certa, razão pela qual `tests/qt/test_every_widget_wears_the_current_theme.py` faz exatamente isso de propósito e afirma que é pego.\n\nAssim: todas as crianças diretas da janela, exceto o widget central, todas as filhas diretas do widget central exceto a pilha e a página CURRENTE da pilha. As páginas que não estão sendo exibidas são marcadas em vez disso e folheadas por conta própria `showEvent` antes de serem pintadas.",
+      "source_sha256": "58525ec9f307c0923b5d8f7a7783772252bc76137fc27de73158394d1451ded3",
+      "text": "Os widgets que carregam a folha de estilo do aplicativo, no meu lugar.\n\nPOR QUE NÃO A JANELA. Aplicar uma folha de estilo a uma janela repolimenta cada descendente, e uma sessão que abriu quatro módulos possui 8,002 widgets, dos quais 7,595 estão dentro de telas de módulo -- UMA das quais está à vista. Medido nesta máquina, com quatro módulos abertos, alternando escuro e claro:\n\n    a janela inteira            945 ms na primeira vez, ~1,479 ms em regime estável o quadro + a página visível   300 ms na primeira vez,   ~310 ms em regime estável\n\nO QUE ENTRA NA LISTA, e o formato não é o óbvio. O quadro tem 407 widgets e apenas DOIS deles são alcançáveis a partir do widget central -- o dock, a barra lateral e a faixa de status pendem da própria janela. Uma implementação que percorresse o widget central deixaria 405 sem estilo e pareceria quase correta, e por isso `tests/qt/test_every_widget_wears_the_current_theme.py` faz exatamente isso de propósito e verifica que é detectado.\n\nEntão: cada filho direto da janela exceto o widget central, cada filho direto do widget central exceto a pilha, e a página ATUAL da pilha. As páginas que não são exibidas são marcadas no lugar e recebem a folha em seu próprio `showEvent` antes de serem pintadas.\n\nUm filho que é uma janela por si só -- uma caixa de diálogo com esta como pai, como Preferences -- não é quadro: a folha chega até ele como janela, e uma oculta que pediu para esperar pela exibição (:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`) espera.",
       "translation_source_blocks_sha256": [
         "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
         "2c3be7cc5e05f5f4d56b22e736c551c5f62be6fdd0f4fb9b70134abe53882004",
         "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
         "58e6c2c05ea0d87fa6facbd19aedbfe938ec35d285f8037108d7b72e5e59bace",
-        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+        "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d"
       ]
     },
     "spacr.qt.app.MainWindow.toggle_app_drawer": {
@@ -80664,12 +80668,14 @@
     },
     "spacr.qt.i18n.install_dialog_translation._DialogTranslationFilter.eventFilter": {
       "source_blocks_sha256": [
-        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+        "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+        "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2"
       ],
-      "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
-      "text": "Retraduz a árvore de um diálogo na primeira vez que ele é exibido.",
+      "source_sha256": "e2a84a49ea0b2b9c926543e1509632512486db5b9198bec4702387e0aa72b003",
+      "text": "Traduzir novamente a árvore de uma caixa de diálogo quando ela é exibida.\n\nUma caixa de diálogo com :data:`TRANSLATE_ONCE_PER_LANGUAGE` é percorrida uma vez por idioma em vez de a cada exibição: ela é mantida e exibida de novo, seu texto não muda entre exibições, e o percurso era a maior parte de exibi-la novamente.",
       "translation_source_blocks_sha256": [
-        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+        "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+        "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2"
       ]
     },
     "spacr.qt.i18n.install_qt_translations": {
@@ -83962,6 +83968,22 @@
         "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3"
       ]
     },
+    "spacr.qt.make_masks_demo.download_fibsem_example": {
+      "source_blocks_sha256": [
+        "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
+      ],
+      "source_sha256": "2fb02c74dc99f539da849d577b03bffd5a68ec0f56279d2ba1afcf22e8565a07",
+      "text": "Baixar o volume de teste FIB-SEM por trás da caixa de diálogo de progresso compartilhada.\n\n:param parent: o widget ao qual a caixa de diálogo de progresso pertence.\n:param dest: a pasta em que o arquivo compactado é descompactado.\n:param on_done: chamado na thread da GUI como ``on_done(result, error)``, do mesmo modo que :func:`download_make_masks_example` o chama.",
+      "translation_source_blocks_sha256": [
+        "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab"
+      ]
+    },
     "spacr.qt.make_masks_demo.download_make_masks_example": {
       "source_blocks_sha256": [
         "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
@@ -83986,12 +84008,26 @@
         "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
       ],
       "source_sha256": "f696650f77dacd0a277bdf0709f64a4db136b61b1e19312621e3dd7a61e1b0d4",
-      "text": "Localize os dados do teste TEM por trás da caixa de diálogo de progresso compartilhado.\n\n:param parent: o widget ao qual a caixa de diálogo de progresso pertence.\n:param dest: a pasta em que o arquivo compactado é descompactado.\n:param on_done: chamado no caminho de execução principal GUI como  ``on_done(result, error)``, como ? :func:`download_make_masks_example` o chama.",
+      "text": "Localize os dados do teste TEM por trás da caixa de diálogo de progresso compartilhado.\n\n:param parent: o widget ao qual a caixa de diálogo de progresso pertence.\n:param dest: a pasta em que o arquivo compactado é descompactado.\n:param on_done: chamado na thread da GUI como ``on_done(result, error)``, do mesmo modo que :func:`download_make_masks_example` o chama.",
       "translation_source_blocks_sha256": [
         "000fa4ade4b3928f84d602c2949a80d63ab96df51c84e6aa8023e6a815559eea",
         "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
         "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
         "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab"
+      ]
+    },
+    "spacr.qt.make_masks_demo.fibsem_example_folder": {
+      "source_blocks_sha256": [
+        "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+        "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
+      ],
+      "source_sha256": "704247536f44640c6b8368b9bfc8b870cd985aeaa484ee4d8a818d55cf9926ec",
+      "text": "Onde o volume de teste FIB-SEM é descompactado e mantido em cache.\n\n``~/.cache/spacr/example_data/make_masks_fibsem``, a pasta que :data:`spacr.example_archives.EXAMPLE_SETS` nomeia para o conjunto ``fibsem``, de modo que ``spacr-download fibsem`` e o menu compartilham um cache.\n\n:returns: a pasta. Ela não é criada aqui.",
+      "translation_source_blocks_sha256": [
+        "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+        "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
       ]
     },
     "spacr.qt.make_masks_demo.install_test_data_button": {
@@ -84034,6 +84070,28 @@
         "9eb145b856650b218ffd74cad6f85233ac32e8b2845b25a672155ac60b6a47a5",
         "01c48271aad649718107c1cbfe52467d06c19ec71cb0d64c8082cf08bd194f82",
         "7503e22ae286417c5260c5759bd2c28d081e473220f0ac080d4c28ae41797e2e"
+      ]
+    },
+    "spacr.qt.make_masks_demo.load_the_fibsem_test_data": {
+      "source_blocks_sha256": [
+        "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+        "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+        "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+        "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+        "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+        "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+        "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3"
+      ],
+      "source_sha256": "30adb54a8cce890291368b1fb461a062bd92b634e709832cd9a6bfc3cd6e65ad",
+      "text": "Abrir o volume de teste FIB-SEM no editor de máscaras 3D.\n\nA mesma sequência de :func:`load_the_test_data`, baixando :data:`FIBSEM_EXAMPLE_REPO` para :func:`fibsem_example_folder` quando não está em cache. Sem máscaras, o volume abre sem segmentação, com seus rascunhos salvos em ``masks/``. Com máscaras, os rótulos publicados são copiados uma vez para ``corrected_masks/`` e abertos ali para correção, de modo que ``ground_truth_masks/`` nunca é sobrescrito.\n\n:param screen: a janela Make Masks cujo editor 3D abre o volume.\n:param with_masks: abrir o volume com seus rótulos de mitocôndrias carregados.\n:param ask: substitui :func:`download_fibsem_example`, para testes.\n:param folder: substitui :func:`fibsem_example_folder`, para testes.\n:returns: se esta chamada abriu o volume.",
+      "translation_source_blocks_sha256": [
+        "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+        "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+        "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+        "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+        "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+        "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+        "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3"
       ]
     },
     "spacr.qt.make_masks_demo.load_the_tem_test_data": {
@@ -84544,6 +84602,20 @@
         "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.assign_objects": {
+      "source_blocks_sha256": [
+        "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+        "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+        "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
+      ],
+      "source_sha256": "ce71d0fd888ccd0811f7372c95c0e5c8c62b3de9f63bf2c2fa72b32dde35e725",
+      "text": "Dividir cada rótulo em seus objetos 3D conexos.\n\nA maior parte conexa de cada rótulo mantém o seu ID; qualquer outra parte, que não a toque nem por face, nem por aresta, nem por vértice, recebe o próximo ID não usado. Desenhar muitos objetos com um mesmo ID e depois atribuí-los dá a cada um o seu próprio ID.\n\n:returns: ``(changed voxels, objects after assigning)``.",
+      "translation_source_blocks_sha256": [
+        "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+        "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+        "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
       "source_blocks_sha256": [
         "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
@@ -84558,6 +84630,24 @@
         "0e4d6ff015d810c3427685a2838aa980f2f14332e4916ac3253f3ece37584cbe",
         "cec86ec476117ae11cf996a0ffab1fb7fe8dbe75061d0bd54dd2b0efee8de3c7",
         "81ed3e6b7a1da35da72c792c0bf947c6fa2fbf10f3ffeeea8c957c102802db2f"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.interpolate": {
+      "source_blocks_sha256": [
+        "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+        "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+        "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+        "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "88f82179e30f33c3c1292b0c9cd235c697f0d45e098005470a552c76286777ee",
+      "text": "Preencher as seções vazias entre seções desenhadas de um objeto.\n\nCada intervalo entre duas seções que contêm ``label`` é preenchido misturando seus mapas de distância com sinal, medidos em unidades físicas, de modo que o contorno mude de forma suavemente de uma seção desenhada para a seguinte. Somente voxels de fundo são preenchidos.\n\n:param label: o objeto a interpolar.\n:param axis: o eixo ao longo do qual as seções são empilhadas.\n:returns: número de voxels alterados.",
+      "translation_source_blocks_sha256": [
+        "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+        "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+        "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+        "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.limits": {
@@ -84580,6 +84670,46 @@
         "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.paint_plane": {
+      "source_blocks_sha256": [
+        "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+        "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+        "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+        "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "dd3723871b7310838597758924916904db250445454f1b57101ec9f943b98b6c",
+      "text": "Desenhar ou apagar um objeto em uma seção como um único passo de desfazer.\n\nPintar preenche apenas o fundo e os voxels do próprio objeto, de modo que outros objetos nunca são sobrescritos. Apagar limpa todos os rótulos sob os pixels apagados. Um rótulo cujos voxels mudam perde qualquer limite de âncora salvo, que já não o descreve.\n\n:param axis: o eixo mantido fixo, como em :meth:`plane`.\n:param index: o índice da seção ao longo de ``axis``.\n:param label: o ID de objeto a desenhar.\n:param paint: pixels booleanos a atribuir a ``label``, com a forma da seção.\n:param erase: pixels booleanos a limpar, com a forma da seção.\n:returns: número de voxels alterados.",
+      "translation_source_blocks_sha256": [
+        "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+        "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+        "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+        "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.plane": {
+      "source_blocks_sha256": [
+        "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+        "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb"
+      ],
+      "source_sha256": "4975c81d43ade92846ad3a9856c56a2526b759ef88435ad8ff397a00ce7f6a67",
+      "text": "Retornar uma seção ortogonal da imagem e de seus rótulos.\n\n:param axis: o eixo mantido fixo. ``Z`` dá a seção XY (linhas Y, colunas X), ``Y`` a seção XZ (linhas Z, colunas X) e ``X`` a seção YZ (linhas Z, colunas Y).\n:param index: o índice da seção ao longo de ``axis``.\n:returns: ``(image, labels)``, cópias dessa seção.",
+      "translation_source_blocks_sha256": [
+        "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+        "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.redo": {
       "source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
@@ -84588,6 +84718,20 @@
       "text": "Reaplica o delta de voxels e a geometria desfeitos mais recentemente.",
       "translation_source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.section_count": {
+      "source_blocks_sha256": [
+        "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+        "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+        "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c"
+      ],
+      "source_sha256": "05a30aa15f7eafd8a4d2de98202e8289ff1970bbb6da246c9c2c4783da252ad6",
+      "text": "Número de seções ao longo de um eixo espacial.\n\n:param axis: ``X``, ``Y`` ou ``Z``.\n:returns: o comprimento do volume ao longo desse eixo.",
+      "translation_source_blocks_sha256": [
+        "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+        "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+        "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.undo": {
@@ -85282,20 +85426,20 @@
     },
     "spacr.qt.mask_engine.load_volume_image_and_mask": {
       "source_blocks_sha256": [
-        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
-        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ],
-      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
-      "text": "Abre um TIFF espacial em tons de cinza declarado explicitamente para edição 3-D nativa.\n\nSão suportados exatamente três eixos espaciais, em qualquer ordem. Eixos de tempo, canal, cor e de página inferidos são recusados. Os metadados ``voxel_spacing`` são lidos na ordem dos eixos de armazenamento. Os tamanhos físicos OME são convertidos para micrômetros; o espaçamento do ImageJ e a resolução XY são mantidos. A ausência de metadados físicos implica coordenadas em pixels. Os rótulos mantêm o dtype e a identidade. Um arquivo auxiliar de geometria salvo está vinculado ao arquivo de origem e aos pixels de máscara exatos e é recusado quando desatualizado.\n\n:param folder: diretório da imagem de origem.\n:param filename: nome do arquivo de imagem TIFF espacial.\n:param masks_dir: diretório de máscaras irmão existente opcional.\n:returns: uma ``VolumeMaskSession`` que detém os rótulos e os metadados de origem.",
+      "source_sha256": "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69",
+      "text": "Abrir um volume espacial em tons de cinza para edição 3D nativa.\n\nVolumes TIFF precisam de exatamente três eixos espaciais, em qualquer ordem. Uma simples pilha de páginas tridimensional (o eixo de página ``Q`` ou ``I`` do tifffile sobre ``YX``) é lida como seções Z, como pilhas Z e séries FIB-SEM são salvas; eixos de tempo, canal e cor são recusados. Os metadados ``voxel_spacing`` são lidos na ordem dos eixos de armazenamento. Tamanhos físicos OME são convertidos para micrômetros; o espaçamento do ImageJ e a resolução XY são mantidos. Volumes MRC (``.mrc``, ``.rec``, ``.map``) são lidos como ZYX com seu tamanho de voxel em nanômetros; precisam do pacote opcional ``mrcfile``. A ausência de metadados físicos significa coordenadas em pixels. Os rótulos mantêm o tipo de dado e a identidade. Um arquivo auxiliar de geometria salvo fica vinculado ao arquivo de origem exato e aos pixels da máscara e é recusado quando está desatualizado.\n\n:param folder: diretório da imagem de origem.\n:param filename: nome de arquivo do volume espacial TIFF ou MRC.\n:param masks_dir: diretório de máscaras irmão existente opcional.\n:returns: uma ``VolumeMaskSession`` que detém os rótulos e os metadados de origem.",
       "translation_source_blocks_sha256": [
-        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-        "a9ba5e8105b8b0a9e311ee0abf0d2d9cb5498e34d21fb1572af99de1ee6e25d0",
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "62824efb710452c5066519395b857a92e5d0ddf28faa782792f7db486ec99033",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
-        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ]
@@ -88667,13 +88811,15 @@
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save": {
       "source_blocks_sha256": [
         "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
-        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa"
+        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa",
+        "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e"
       ],
-      "source_sha256": "fb1112d0625fb1f7e2e2a5f37d1aca8a5ebfbb287a27def61a9058b9e5930fd1",
-      "text": "Grava todas as preferências deste diálogo, primeiro a borda.\n\nA BORDA VEM PRIMEIRO porque cada cartão aberto a relê: fazê-lo antes do trabalho de tema significa uma repintura em vez de duas.",
+      "source_sha256": "a2a74efcc11ff40adc345b4b1614ac7de1f8d2f9819ddc33948d41877cc6d91e",
+      "text": "Grava todas as preferências deste diálogo, primeiro a borda.\n\nA BORDA VEM PRIMEIRO porque cada cartão aberto a relê: fazê-lo antes do trabalho de tema significa uma repintura em vez de duas.\n\nUm Salvar que fecha oculta a caixa de diálogo antes de o aplicativo assumir os novos valores: aplicar estilos a uma janela prestes a desaparecer era a maior parte de um Salvar.",
       "translation_source_blocks_sha256": [
         "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
-        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a"
+        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a",
+        "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._select": {
@@ -89032,13 +89178,17 @@
       "source_blocks_sha256": [
         "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
         "56c9ac8b7e9786e63b36dece67b6dbbfc74c6a412eca6b53a467887c4317ad96",
+        "be73e082bf417ffaea91b305ce47470418f04924193388f9c698c73c7feea218",
+        "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ],
-      "source_sha256": "de1511916cb3ee37057da5b9c3bf44d12cbea358e75226a541815f9f7f6561ad",
-      "text": "Manda embora as páginas não vistas logo antes da primeira exibição.\n\nAQUI, E NÃO NO PRIMEIRO ``Polish``. A folha de estilo da janela, o vidro e o filtro de redimensionamento agem todos sobre esse evento a partir da aplicação, que o recebe antes da janela, e o filtro de redimensionamento poli cada filho ao fazê-lo. A exibição própria do Qt começa nesta chamada, então as páginas já se foram antes que qualquer um deles rode.\n\n:param visible: como em ``QWidget.setVisible``.",
+      "source_sha256": "0bee4ead6a964a72514382029d31e0df8c64a4d071528869508951aa18691f5b",
+      "text": "Manda embora as páginas não vistas logo antes da primeira exibição.\n\nAQUI, E NÃO NO PRIMEIRO ``Polish``. A folha de estilo da janela, o vidro e o filtro de redimensionamento agem todos sobre esse evento a partir da aplicação, que o recebe antes da janela, e o filtro de redimensionamento poli cada filho ao fazê-lo. A exibição própria do Qt começa nesta chamada, então as páginas já se foram antes que qualquer um deles rode.\n\nCADA EXIBIÇÃO, NÃO SÓ A PRIMEIRA, percorre apenas a janela. Uma caixa de diálogo mantida para a próxima abertura (:func:`_take_the_warm_preferences`) é exibida de novo e os mesmos filtros a percorrem outra vez; uma página que ainda espera recebe o que perdeu quando sua aba é escolhida, como na primeira abertura.\n\nCada exibição também anota a aparência da janela (:func:`_window_signature`), para que o fechamento possa saber se a janela tem algo a atualizar.\n\n:param visible: como em ``QWidget.setVisible``.",
       "translation_source_blocks_sha256": [
         "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
         "f2df76b60fda60ff3ca25d33dfa0318c8e7501370e9c8e0dbb90c206a87f0fc6",
+        "c2812f19d670e0fc6d6198b31f2e967c7f53e313837c721b363de94b630f0190",
+        "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ]
     },
@@ -105562,17 +105712,17 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
       "source_blocks_sha256": [
-        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
-        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
         "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ],
-      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
-      "text": "Abre um TIFF espacial nativo no editor de âncoras 3-D compartilhado.\n\nA imagem 2-D existente, as ferramentas de máscara e as anotações YOLO permanecem separadas. TIFFs de tempo/canal/RGB são recusados em vez de interpretados como profundidade.\n\n:param path: caminho opcional de um TIFF espacial; caso contrário, abre um seletor de arquivos.\n:returns: o diálogo de volume nativo, ou None em caso de cancelamento/recusa.",
+      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
+      "text": "Abrir uma pilha Z ou um volume no editor de máscaras 3D.\n\nAs máscaras são desenhadas e apagadas fatia por fatia em seções XY, XZ ou YZ, interpoladas entre fatias desenhadas, atribuídas a objetos 3D e editadas com as âncoras compartilhadas. Pilhas TIFF, OME-TIFF e volumes MRC abrem; TIFFs de tempo/canal/RGB são recusados em vez de interpretados como profundidade. A imagem 2D existente, as ferramentas de máscara e as anotações YOLO permanecem separadas.\n\n:param path: caminho opcional do volume; caso contrário, abre um seletor de arquivos.\n:returns: o diálogo de volume nativo, ou None em caso de cancelamento/recusa.",
       "translation_source_blocks_sha256": [
-        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-        "9a2cedf269b09b9d40b2e783dfdfc3cf243b7982330d4918b2734beab5056ff9",
-        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+        "dd8337393063df88b68ff4b8a82ee7b42999a0c8cd3149406613f7a647baf363",
+        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
         "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ]
     },
@@ -112460,8 +112610,8 @@
         "ed97db2de081b82fe5bfa71dfdc1dc8715531e6cf71681aca9035afbc1140ffa",
         "bd889371c666873661054ada8bb6417df2e2e6335b4eaf302f6a86a193438c42"
       ],
-      "source_sha256": "21e43c59c82bb5da5291e33a3ce28dad00f74ad29fd6ca1161d9a60cbde9d115",
-      "text": "Executar Comparação – duas execuções do mesmo projeto, lado a lado.\n\nEscolha um projeto, escolha duas de suas execuções e a triagem responde às três perguntas que seguem uma re-execução:\n\n1. **O que eu mudei?** As configurações diff, agrupadas sob os mesmos cabeçalhos pelo qual o painel de configurações as agrupa, mostrando apenas o que foi movido, então dois nomes de dados estruturados alterados sob *Cellpose* não são perdidos entre duzentos. 2. **O que saiu?** Objetos, posições de amostra de microplacas e campos de visão de microscópio por microplaca de laboratório e em geral. Uma sessão de processamento que produziu 12% menos células tem um problema, e é aqui que ele é visível primeiro. 3. **Quais hits foram movidos?** Apareceu, desapareceu e mudou de classificação. Uma lista de hits cuja associação é estável, mas cujas dez melhores remodelas cada sessão de processamento não é um resultado estável.\n\nTodos os três vêm de :mod:`spacr.run_compare`, Que não tem cabeça: este arquivo escolhe as execuções e desenha as tabelas e não sabe mais nada. As listas de sessão de processamento vêm do registro do artefato (:mod:`spacr.artifacts`), nunca de uma verificação do sistema de arquivos — uma sessão de processamento cujas saídas foram excluídas ainda tem suas configurações gravadas, e deixá-lo cair do dropdown perderia a única cópia do que produziu os números que alguém está perguntando.\n\n**Executas incomparáveis não são difed.** Duas execuções de microplacas de laboratório diferentes subtraim perfeitamente bem e produzem uma tabela que se parece exatamente com um relatório de regressão. Quando  :func:`spacr.run_compare.comparability` levanta um bloqueador, as tabelas permanecem vazias e o banner diz por que, com um botão  *Compare de qualquer maneira* que substitui o bloqueador. Avisos uma versão diferente  de spaCR explica tudo isso.",
+      "source_sha256": "5d975d0f4e9ad3409dc61e471a263ee500c7d9581e1a169cceaa403c88df62ea",
+      "text": "Run Compare -- duas execuções do mesmo projeto, lado a lado.\n\nEscolha um projeto, escolha duas de suas execuções, e a janela responde às três perguntas que se seguem a uma nova execução:\n\n1. **O que eu mudei?** A diferença de configurações, agrupada sob os mesmos títulos pelos quais o painel de configurações as agrupa, mostrando só o que se moveu, de modo que duas chaves alteradas em *Cellpose* não se percam entre duzentas. 2. **O que saiu?** Objetos, poços e campos por placa e no total. Uma execução que produziu 12% menos células tem um problema, e é aqui que ele aparece primeiro. 3. **Quais acertos se moveram?** Surgidos, desaparecidos e com mudança de posição. Uma lista de acertos cuja composição é estável, mas cujos dez primeiros se reorganizam a cada execução, não é um resultado estável.\n\nAs três vêm de :mod:`spacr.run_compare`, que é headless: este arquivo escolhe as execuções, desenha as tabelas e não sabe mais nada. As listas de execuções vêm do registro de artefatos (:mod:`spacr.artifacts`), nunca de uma varredura do sistema de arquivos -- uma execução cujas saídas foram apagadas ainda tem suas configurações registradas, e removê-la da lista suspensa perderia a única cópia do que produziu os números sobre os quais alguém pergunta.\n\n**Execuções incomparáveis não são comparadas.** Duas execuções de placas diferentes se subtraem perfeitamente e produzem uma tabela que parece exatamente um relatório de regressão. Quando :func:`spacr.run_compare.comparability` levanta um bloqueio, as tabelas ficam vazias e o banner diz por quê, com um botão *Compare anyway* que ignora o bloqueio. Os avisos -- sobretudo uma versão diferente do spaCR -- são mostrados junto com as tabelas e não no lugar delas, porque uma mudança de versão explica sozinha uma mudança na contagem.",
       "translation_source_blocks_sha256": [
         "ce7775715fff9d81d149724bf84d5f6b919eba0088109ee8e6e71d9f206600cd",
         "49dd605d2f7260bd9714a41e848ce5cc5718b2c16f8222dba8d270e3516d4178",
@@ -118801,10 +118951,11 @@
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
         "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ],
-      "source_sha256": "4708eaeace506fe3477e7d95f36392f3a937b708b00d2c7b75b410749501f5ab",
-      "text": "Instale ``sheet`` em todas as janelas de nível superior em vez de  ``app``.\n\nPORQU, com o número. `QApplication.setStyleSheet` repoliza cada widget que o processo possui, e uma sessão que abriu alguns módulos possui milhares que não pode ver --  `MainWindow` constrói uma visualização do aplicativo do módulo na primeira navegação e o mantém na pilha depois. Medido nesta caixa, offscreen, quatro módulos abertos, 9.045 widgets ao vivo dos quais 6.111 estão em visualizações de aplicativos ninguém está olhando:\n\n    app.setStyleSheet 2.836 ms primeiro, 7.500 ms depois de cada janela de nível superior 1.684 ms em primeiro lugar e 1.900 ms a partir de então a triagem visível sozinha 222 ms\n\nUm quarto do custo para a mesma imagem. O piso é ainda mais baixo - 222 ms é o que a triagem visível custa por conta própria - e alcançá-lo significa não cobrir as triagens ocultas, o que é uma mudança maior do que esta.\n\n:param app: o ``QApplication`` cujas janelas usam a folha, e onde a própria folha está estacionada para que uma janela criada mais tarde possa encontrá-la.  ``None`` é aceito e não faz nada, então um chamador executando sem um aplicativo não precisa verificar primeiro.\n:param sheet: a folha de estilo completa da aplicação, como :func:`stylesheet` a compõe.\n:returns: o número de janelas em que a folha foi colocada.\n\nO corpo de uma categoria de configurações que está aguardando fora da página não tem pai, então o Qt o lista entre os widgets de nível superior, mas ele não é uma janela: ele volta para baixo de sua página antes que alguém o veja e passa a usar a folha de estilos da página a partir daí. Aplicar uma folha a ele aqui o deixaria carregando uma cópia da folha do momento em que voltou, que a próxima mudança de tema não alcançaria. Veja :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
+      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
+      "text": "Instalar ``sheet`` em cada janela de nível superior em vez de em ``app``.\n\nPOR QUÊ, COM O NÚMERO. `QApplication.setStyleSheet` repolimenta cada widget que o processo possui, e uma sessão que abriu alguns módulos possui milhares que não consegue ver -- `MainWindow` constrói uma tela de módulo na primeira navegação e depois a mantém na pilha. Medido nesta máquina, offscreen, com quatro módulos abertos, 9,045 widgets vivos dos quais 6,111 estão em telas que ninguém olha:\n\n    app.setStyleSheet            2,836 ms na primeira vez, ~7,500 ms depois cada janela de nível superior       1,684 ms na primeira vez, ~1,900 ms depois só a tela visível       222 ms\n\nUM QUARTO DO CUSTO PELA MESMA IMAGEM. O piso é ainda mais baixo -- 222 ms é o que a tela visível custa sozinha -- e chegar a ele significa não aplicar a folha também às telas ocultas, que é uma mudança maior do que esta.\n\n:param app: a ``QApplication`` cujas janelas carregam a folha, e onde a própria folha é guardada para que uma janela criada depois possa encontrá-la. ``None`` é aceito e não faz nada, de modo que quem chama sem aplicativo não precisa verificar antes.\n:param sheet: a folha de estilo completa do aplicativo, como composta por :func:`stylesheet`.\n:returns: o número de janelas em que a folha foi aplicada.\n\nUma janela oculta marcada com :data:`SHEETED_WHEN_SHOWN` fica para o próximo ``Show``, onde :class:`_SheetsEveryWindowThatAppears` aplica a folha antes de ela ser pintada: a janela Preferences mantida para a próxima abertura são ~750 widgets que ninguém pode ver.\n\nO corpo de uma categoria de configurações que está aguardando fora da página não tem pai, então o Qt o lista entre os widgets de nível superior, mas ele não é uma janela: ele volta para baixo de sua página antes que alguém o veja e passa a usar a folha de estilos da página a partir daí. Aplicar uma folha a ele aqui o deixaria carregando uma cópia da folha do momento em que voltou, que a próxima mudança de tema não alcançaria. Veja :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
       "translation_source_blocks_sha256": [
         "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
         "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
@@ -118813,6 +118964,7 @@
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
         "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ]
     },
@@ -194037,26 +194189,26 @@
         "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
         "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
         "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
         "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
         "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
         "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
-        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
         "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
         "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6"
       ],
-      "source_sha256": "b730aa423d768af8ae37c4e4fee96268251fb8c72c844d52f14ef1a4bf92a014",
-      "text": "Baixe ``run_file`` em  ``destination``, parando depois de  ``max_reads``.\n\nO fluxo é descompactado à medida que chega e a conexão é descartada no momento em que leituras suficientes estão à mão, então uma solicitação limitada transfere apenas o que precisa. ``max_reads`` de  ``None`` busca o arquivo inteiro.\n\nEscrito de volta como ``.fastq.gz`` porque é isso que a configuração  ``src`` documentos para sequenciamento (\"a pasta de .fastq.gz lê\"), de modo que um subconjunto e um download completo são a mesma forma para tudo a jusante.\n\n:param run_file: o arquivo do repositório a transmitir; seu ``url`` é lido e seu ``filename`` dá nome à saída.\n:param destination: pasta na qual o arquivo ``.fastq.gz`` é gravado; criada se não existir.\n:param progress: chamado com ``(reads_so_far, compressed_bytes_so_far)``.\n:param should_stop: pesquisado entre pedaços; uma resposta verídica abandona o download e remove o arquivo parcial.\n\nSem um ``opener``, o conjunto de exemplos  ``reads`` baixado é lido primeiro: quando ele mantém esse arquivo com pelo menos  ``max_reads`` lê, eles são retirados dele em vez de ENA, então uma solicitação limitada funciona offline e dá as mesmas leituras. Uma solicitação de arquivo inteiro, ou uma maior que o cache, flui da ENA como antes.\n:returns: o caminho gravado.\n:raises ValueError: para um ``max_reads`` não positivo.\n:raises ConnectionError: quando o fluxo pára antes das leituras solicitadas e antes do final do arquivo, então uma conexão suspensa nunca deixa um arquivo curto que pareça completo.",
+      "source_sha256": "30d0f1c7c5221ee173b29d95edcb68516f539dd7a29dbfba3c9fe393d78a71f8",
+      "text": "Baixar ``run_file`` para ``destination``, parando após ``max_reads``.\n\nO fluxo é descompactado à medida que chega e a conexão é encerrada assim que há leituras suficientes, de modo que uma solicitação limitada transfere apenas o que precisa. Com ``max_reads`` igual a ``None``, o arquivo inteiro é obtido.\n\nGravado novamente como ``.fastq.gz`` porque é isso que a configuração ``src`` documenta para sequenciamento (\"the folder of .fastq.gz reads\"), de modo que um subconjunto e um download completo têm a mesma forma para tudo o que vem a jusante.\n\nSem ``opener``, o conjunto de exemplo ``reads`` baixado é lido primeiro: quando ele contém este arquivo com pelo menos ``max_reads`` leituras, elas são tiradas dele em vez do ENA, de modo que uma solicitação limitada funciona offline e dá as mesmas leituras. Uma solicitação do arquivo inteiro, ou maior que o cache, é transmitida do ENA como antes.\n\n:param run_file: o arquivo do repositório a transmitir; seu ``url`` é lido e seu ``filename`` dá nome à saída.\n:param destination: pasta na qual o arquivo ``.fastq.gz`` é gravado; criada se não existir.\n:param progress: chamado com ``(reads_so_far, compressed_bytes_so_far)``.\n:param should_stop: consultado entre os blocos; uma resposta verdadeira abandona o download e remove o arquivo parcial.\n:returns: o caminho gravado.\n:raises ValueError: para um ``max_reads`` não positivo.\n:raises ConnectionError: quando o fluxo para antes das leituras pedidas e antes do fim do arquivo, de modo que uma conexão interrompida nunca deixa um arquivo curto que pareça completo.",
       "translation_source_blocks_sha256": [
         "0648cc1e615b3f777e90240cb833da7cb06c56d376f5223717ce8c658cac9de5",
         "adb3733bd599c6f1a440b3d1b3ceb50deb4080771d640833124081d38c6e8460",
         "8537b2f073e502b36faa5c5b9927bae07d616aa79a280c30b471c63a8a5621a0",
+        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
         "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
         "095d93e54e445d9f58c351b93b9e6af9ad1ad5c6b295d2dbf23971bd7301a4c7",
         "41828705746ba55db57f9dd194f5844d16e9b6da10fa5248b88771f41c2de78d",
-        "1f68335209f7a4c054f529c08454482a8a5f1fa9702499899d1828f81d7665b1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
         "9e0dd78b59dad3575bd6c2b6af94a8ddf4519761c08df019e6b371369734a03b",
         "4e775146e4cb81b57c1074bc2a1c00056eceaaa2f1c8b625f10976d57e442bd6"
