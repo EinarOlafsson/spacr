@@ -145,7 +145,71 @@ for _language, _label in {'sv': 'Organism', 'de': 'Organismus', 'es': 'Organismo
 
 #: Labels of the README's generated model-zoo block, by language. English is
 #: the key; a language or label missing here is written in English.
-MODEL_ZOO_LABELS: dict[str, dict[str, str]] = {}
+MODEL_ZOO_LABELS: dict[str, dict[str, str]] = {
+    "de": {
+        'Default models · held-out scores': 'Standardmodelle · Hold-out-Scores',
+        'Older models': 'Ältere Modelle',
+        'Alternatives': 'Alternativen',
+        'Model': 'Modell',
+        'candidate': 'Kandidat',
+    },
+    "es": {
+        'Default models · held-out scores': 'Modelos predeterminados · puntuaciones en datos reservados',
+        'Older models': 'Modelos anteriores',
+        'Alternatives': 'Alternativas',
+        'Model': 'Modelo',
+        'candidate': 'candidato',
+    },
+    "fr": {
+        'Default models · held-out scores': 'Modèles par défaut · scores hors apprentissage',
+        'Older models': 'Modèles précédents',
+        'Alternatives': 'Alternatives',
+        'Model': 'Modèle',
+        'candidate': 'candidat',
+    },
+    "pt": {
+        'Default models · held-out scores': 'Modelos padrão · pontuações em dados reservados',
+        'Older models': 'Modelos anteriores',
+        'Alternatives': 'Alternativas',
+        'Model': 'Modelo',
+        'candidate': 'candidato',
+    },
+    "sv": {
+        'Default models · held-out scores': 'Standardmodeller · poäng på undanhållna data',
+        'Older models': 'Äldre modeller',
+        'Alternatives': 'Alternativ',
+        'Model': 'Modell',
+        'candidate': 'kandidat',
+    },
+    "is": {
+        'Default models · held-out scores': 'Sjálfgefin líkön · skor á ósnortnum gögnum',
+        'Older models': 'Eldri líkön',
+        'Alternatives': 'Valkostir',
+        'Model': 'Líkan',
+        'candidate': 'frambjóðandi',
+    },
+    "ko": {
+        'Default models · held-out scores': '기본 모델 · 홀드아웃 점수',
+        'Older models': '이전 모델',
+        'Alternatives': '대안',
+        'Model': '모델',
+        'candidate': '후보',
+    },
+    "hi": {
+        'Default models · held-out scores': 'डिफ़ॉल्ट मॉडल · होल्ड-आउट स्कोर',
+        'Older models': 'पुराने मॉडल',
+        'Alternatives': 'विकल्प',
+        'Model': 'मॉडल',
+        'candidate': 'उम्मीदवार',
+    },
+    "zh_CN": {
+        'Default models · held-out scores': '默认模型 · 留出集得分',
+        'Older models': '旧模型',
+        'Alternatives': '替代模型',
+        'Model': '模型',
+        'candidate': '候选',
+    },
+}
 
 
 def localize_model_zoo_label(label: str, language: str) -> str:
@@ -211,7 +275,8 @@ def localize_workflow_markup(text: str, language: str) -> str:
 
 
 #: The hardware legend's three entries, one label per colour, in each
-#: language. AI-reviewed (Claude, 2026-10-12), no native-speaker signoff.
+#: language. AI-reviewed (Claude, 2026-10-12, second pass), no native-speaker
+#: signoff.
 #:
 #: The legend is drawn as an image now, a coloured dot before each label, so
 #: it needs the three labels apart. The accepted one-line translations in
@@ -229,9 +294,10 @@ HARDWARE_LEGEND_LABELS = {
            "apenas suporte a CPU"),
     "hi": ("समर्थित (स्थिर)", "लागू (बीटा)", "केवल CPU समर्थन"),
     "ko": ("지원 (안정)", "구현됨 (베타)", "CPU만 지원"),
-    "is": ("stutt (stöðugt)", "útfært (beta)", "aðeins CPU-stuðningur"),
+    "is": ("með stuðningi (stöðugt)", "útfært (beta)",
+           "aðeins CPU-stuðningur"),
     "fr": ("pris en charge (stable)", "implémenté (bêta)",
-           "CPU uniquement"),
+           "uniquement sur CPU"),
 }
 
 

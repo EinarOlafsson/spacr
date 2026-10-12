@@ -671,7 +671,7 @@
    safespacr          # the least spaCR that can still change a setting
 
 .. image:: ../../readme_images/de/when-spacr-will-not-start-2.svg
-   :alt: spacr-doctor gibt eine Zeile pro Check aus, mit einem Befehl, der für jeden Fehler ausgeführt werden soll. Es wird auch berichtet, welcher spacr auf dem Pfad ist. safespacr liest jede Einstellung mit ihrem Standardwert und schaltet Hintergrund, Animationen, ausführliche Protokollierung und Vorabladen ab. Verwenden Sie es, wenn eine gespeicherte Einstellung den Start verhindert. Im abgesicherten Modus gespeicherte Einstellungen werden normal geschrieben und bleiben erhalten.
+   :alt: spacr-doctor gibt pro Prüfung eine Zeile aus, mit einem Befehl, der bei jedem Fehler auszuführen ist. Außerdem meldet es, welches spacr im Pfad liegt. safespacr liest jede Einstellung mit ihrem Standardwert und schaltet Hintergrund, Animationen, ausführliche Protokollierung und Vorabladen ab. Verwenden Sie es, wenn eine gespeicherte Einstellung den Start verhindert. Im abgesicherten Modus gespeicherte Einstellungen werden normal geschrieben und bleiben erhalten.
    :width: 100%
 
 .. image:: ../../readme_images/de/running-modules-headlessly.svg

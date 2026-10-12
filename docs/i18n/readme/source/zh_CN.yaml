@@ -302,7 +302,7 @@ blocks:
     spacr-doctor       # diagnose the installation and say how to fix it
     safespacr          # the least spaCR that can still change a setting
   lang: bash
-- p: '``spacr-doctor`` 打印一个行每检查,每个故障运行一个命令. 它还报告路径上是哪个 ``spacr``。'
+- p: '``spacr-doctor`` 每项检查输出一行，并为每个失败项给出一条可运行的命令。它还会报告路径上的是哪个 ``spacr``。'
 - p: '``safespacr`` 以默认值读取每项偏好设置，并关闭背景、动画、详细日志和预加载。当已保存的偏好设置导致程序无法启动时使用它。在安全模式下保存的偏好设置会正常写入并保留。'
 - h2: 无图形界面发运行模块
 - p: 没有 Qt,没有显示器 - 用于集群、服务器和CI。

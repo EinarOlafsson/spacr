@@ -671,7 +671,7 @@
    safespacr          # the least spaCR that can still change a setting
 
 .. image:: ../../readme_images/sv/when-spacr-will-not-start-2.svg
-   :alt: spacr-doctor skriver ut en rad per check, med ett kommando att köra för varje fel. Det rapporterar också vilken spacr som finns på sökvägen. safespacr läser varje inställning som dess standardvärde och stänger av bakgrunden, animationerna, utförlig loggning och förladdning. Använd det när en sparad inställning hindrar programmet från att starta. Inställningar som sparas i säkert läge skrivs som vanligt och finns kvar.
+   :alt: spacr-doctor skriver ut en rad per kontroll, med ett kommando att köra för varje fel. Det rapporterar också vilken spacr som finns på sökvägen. safespacr läser varje inställning som dess standardvärde och stänger av bakgrunden, animationerna, utförlig loggning och förladdning. Använd det när en sparad inställning hindrar programmet från att starta. Inställningar som sparas i säkert läge skrivs som vanligt och finns kvar.
    :width: 100%
 
 .. image:: ../../readme_images/sv/running-modules-headlessly.svg

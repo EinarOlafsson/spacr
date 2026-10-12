@@ -365,7 +365,7 @@ blocks:
     spacr-doctor       # diagnose the installation and say how to fix it
     safespacr          # the least spaCR that can still change a setting
   lang: bash
-- p: '``spacr-doctor`` imprime una línea por cheque, con un comando para ejecutar
+- p: '``spacr-doctor`` imprime una línea por comprobación, con un comando para ejecutar
     por cada fallo. También informa qué ``spacr`` está en la ruta.'
 - p: '``safespacr`` lee cada preferencia con su valor predeterminado y desactiva
     el fondo, las animaciones, el registro detallado y la precarga. Úselo cuando
