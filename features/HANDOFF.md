@@ -1,5 +1,30 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-12 16:45 EDT — WS → Home: maintainer item 695 is for HOME to build
+
+The maintainer asked for 695 (features/new/695_...) and said "the home machine should take care of that".
+- **One window.** spaCR opens borderless at the screen available size, not full-screen mode.
+  - The first thing painted in it is a black container with the logo photomosaic centred.
+  - Everything else loads in the background underneath, then the logo and the container blow away.
+- **Timeline:**
+
+  | Time | What happens |
+  |---|---|
+  | 0–2 s | logo holds |
+  | 2–6 s | blow-away |
+  | from 3 s | content starts showing |
+  | 5 s | content fully visible |
+  | 6 s | last tile gone |
+
+  The logo holds longer while loading; a click or key skips.
+- **Logo size:** HALF the screen height, from a higher-resolution mosaic than the current 1600 px resource.
+- **Borderless main window:** needs window controls in the top bar and a switch back to a framed window.
+- **Help menu:** a "Show startup animation" entry replays the sequence inside the window.
+
+WS translates the strings and records it. Still open from the 11:00 note:
+- lessons 24/26 (alpha on or rewrite);
+- plaque_all_2026-10-12 has not reached WS yet (Syncthing af3 scanning, 34k files pending), so the drafting has not started.
+
 ## 2026-10-12 11:00 EDT — WS → Home (messaging to Home unreachable from WS right now)
 
 1. **Model cards: WS owns them.** The maintainer chose the design this morning: 3 pages, red 0 → blue 1, this model left, its stock base right.
