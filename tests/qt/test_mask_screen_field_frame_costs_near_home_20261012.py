@@ -62,6 +62,18 @@ runs at load 12-19, so the ceiling comes down to 1.4. The screen's
 captions, buttons and section headers still cost more than Home's tiles:
 that is Qt laying out and drawing their text on every frame.
 
+Later on 2026-10-12 the compositing was switched off by default
+(:func:`spacr.qt.widgets.ambient._composite_cards_on`). On the
+workstation's GNOME capture host (2560x1440, a real display, interleaved,
+two runs per arm) it cost 8-10 painted fps: Home 48.2 and 49.8 fps with it
+against 56.9 and 57.9 without, Mask 41.1 and 42.7 against 52.3 and 51.4.
+The shading thread's picture playback and image draws hold the GIL while
+the GUI thread waits, which the offscreen CPU per frame measured here does
+not see. The ratio and the paint-hook tests below measure the composited
+path, so they turn it on (``SPACR_COMPOSITE_CARDS=1``); the hover help
+heard through the hub, the glyph icons and the cached fade chrome do not
+depend on it, and a further paint-hook test holds them with it off.
+
 Three assertions. The ratio is a ceiling against a regression, load-robust
 because both screens are measured interleaved in one process, so a busy
 machine slows both alike. The store reads and the filter calls are counts
@@ -128,7 +140,15 @@ def applied(qapp):
 
 
 @pytest.fixture
-def big_window(qtbot, applied):
+def switch(request, monkeypatch):
+    """Card compositing as the test asks (indirect ``"1"``), else off."""
+    flag = getattr(request, "param", "0")
+    monkeypatch.setenv("SPACR_COMPOSITE_CARDS", flag)
+    return flag == "1"
+
+
+@pytest.fixture
+def big_window(qtbot, switch, applied):
     from spacr.qt.app import MainWindow
 
     window = MainWindow()
@@ -173,6 +193,7 @@ def _composited(backdrop, qtbot) -> None:
     backdrop._timer.stop()
 
 
+@pytest.mark.parametrize("switch", ["1"], indirect=True)
 def test_a_mask_field_frame_costs_about_a_home_one(big_window, qtbot):
     window, backdrop = big_window
     backdrop._timer.stop()
@@ -212,6 +233,7 @@ def test_a_mask_field_frame_reads_no_preference_store(big_window, qtbot,
     assert reads == [], f"{len(reads) / 5:.1f} preference reads per field frame"
 
 
+@pytest.mark.parametrize("switch", ["1"], indirect=True)
 def test_no_paint_hook_is_asked_about_every_widget(big_window, qtbot):
     """The field and the fade hear their own widgets, not the whole frame.
 
@@ -259,5 +281,55 @@ def test_no_paint_hook_is_asked_about_every_widget(big_window, qtbot):
     lent = sum(1 for widget in fields if widget in _LENT)
     assert lent, "no field chrome is composited on Mask"
     assert asked["field_fade.py"] / frames <= len(fields) - lent, asked
+    assert asked["ambient.py"] / frames <= 5, asked
+    assert asked["hints"] == 0, asked
+
+
+def test_with_compositing_off_the_hover_help_still_skips_the_frame(
+        big_window, qtbot):
+    """Off (the default since 2026-10-12), nothing is lent, the field hears
+    no card event, and the screen's hover help still asks nothing about a
+    paint: only the fade's filter on each field runs, as before the card
+    composite.
+    """
+    import sys
+
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets import ambient
+    from spacr.qt.widgets.field_fade import _LENT, FIELD_TYPES
+
+    window, backdrop = big_window
+    assert backdrop._card_tints is None
+    assert not backdrop.findChildren(ambient._CardTints)
+    _show(window, "mask", qtbot)
+    backdrop._timer.start()
+    qtbot.wait(500)
+    backdrop._timer.stop()
+    backdrop.repaint()
+    asked = {"ambient.py": 0, "field_fade.py": 0, "hints": 0}
+    hints = AppScreen.eventFilter.__code__
+
+    def profile(frame, event, _arg):
+        if event == "call" and frame.f_code.co_name == "eventFilter":
+            name = frame.f_code.co_filename.replace("\\", "/").rsplit("/", 1)[-1]
+            if name in asked:
+                asked[name] += 1
+            if frame.f_code is hints:
+                asked["hints"] += 1
+
+    frames = 4
+    sys.setprofile(profile)
+    try:
+        for _frame in range(frames):
+            backdrop.repaint()
+    finally:
+        sys.setprofile(None)
+    fields = [widget for widget in window.findChildren(QWidget)
+              if isinstance(widget, FIELD_TYPES) and widget.isVisible()]
+    assert fields
+    assert not any(widget in _LENT for widget in fields)
+    assert asked["field_fade.py"] / frames <= len(fields), asked
     assert asked["ambient.py"] / frames <= 5, asked
     assert asked["hints"] == 0, asked

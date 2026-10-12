@@ -10,8 +10,9 @@ it again after every polish and restyle, and only while it is true: square
 corners and a backdrop picture without translucent pixels.
 
 Checked here: the claim and when it is withheld; on a small scene and on the
-real window, Home and Mask in dark, light and high contrast at pane opacity
-0, 50 and 100 %, window grabs and the flushed backing store are identical
+real window, Home and Mask in dark, light, glass and high contrast at pane
+opacity 0, 50 and 100 % (with card compositing off, the default since
+2026-10-12), window grabs and the flushed backing store are identical
 to the classic paint, also on the first frame after a show, a resize and a
 screen switch, with the backing store poisoned beforehand so that any pixel
 the field left unpainted shows. Home's tiles hand their hover to the page
@@ -276,7 +277,7 @@ def _window(qtbot):
     qtbot.waitUntil(lambda: window.window_backdrop() is not None,
                     timeout=20000)
     field = window.window_backdrop()
-    if not hasattr(field, "_card_tints"):
+    if not hasattr(field, "_timer"):
         pytest.skip("the window backdrop is not the field in this setup")
     return window, field
 
@@ -290,6 +291,9 @@ def _settle(window, field, key, qtbot):
         if type(child).__name__ == "_TourOverlay":
             child.hide()
     tints = field._card_tints
+    if tints is None:
+        qtbot.wait(300)
+        return
     for _attempt in range(60):
         qtbot.waitUntil(lambda: tints.active, timeout=20000)
         qtbot.wait(300)
@@ -297,9 +301,12 @@ def _settle(window, field, key, qtbot):
             break
 
 
-@pytest.mark.parametrize("theme", ["dark", "light", "high_contrast"])
+@pytest.mark.parametrize("theme", ["dark", "light", "glass", "high_contrast"])
 def test_home_and_mask_are_identical_to_the_classic_paint(themed, qtbot,
                                                           theme):
+    """With card compositing off, the default since 2026-10-12 (the
+    workstation's real display painted 8-10 fps fewer with it), and Glass
+    added: the claim holds on the classic card paint as it did composited."""
     themed(theme, 0.0)
     window, field = _window(qtbot)
     for opacity in (0.0, 0.5, 1.0):

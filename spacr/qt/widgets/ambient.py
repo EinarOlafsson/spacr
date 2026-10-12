@@ -206,6 +206,7 @@ from __future__ import annotations
 import logging
 from .. import _after
 import math
+import os
 import random
 import sys
 import threading
@@ -9430,8 +9431,46 @@ def _restore_card_backgrounds(cards: list, parts: list) -> None:
     del parts[:]
 
 
+#: The internal preference that turns card compositing on; see
+#: :func:`_composite_cards_on`.
+_COMPOSITE_CARDS_KEY = "prefs/composite_cards"
+
+#: The environment variable that overrides :data:`_COMPOSITE_CARDS_KEY`.
+_COMPOSITE_CARDS_ENV = "SPACR_COMPOSITE_CARDS"
+
+
+def _composite_cards_on() -> bool:
+    """Whether a new field composites its cards on the shading thread.
+
+    Off by default. On the workstation's GNOME capture host (2560x1440, a
+    real display, 2026-10-12) the composite cost 8-10 painted frames a
+    second: Home 48-50 fps with it against 57-58 without, Mask 41-43
+    against 51-52. The likely cause is the GIL: playing the plan's pictures
+    and drawing the frame on the shading thread do not release it, so the
+    GUI thread waits for them, which an offscreen CPU-per-frame measurement
+    does not show. Off, the field builds no plan and hears no card events,
+    and the cards, field chrome and switches paint themselves.
+
+    ``SPACR_COMPOSITE_CARDS=1`` turns it on and any other value off, for
+    experiments and captures; without it the internal preference
+    ``prefs/composite_cards`` decides. Read once, when a field is made.
+    """
+    flag = os.environ.get(_COMPOSITE_CARDS_ENV, "").strip()
+    if flag:
+        return flag == "1"
+    try:
+        from ..preferences import _as_bool, _settings
+
+        return _as_bool(_settings().value(_COMPOSITE_CARDS_KEY, False), False)
+    except Exception:
+        return False
+
+
 class _CardTints(QObject):
     """Moves the field's translucent card backgrounds off the GUI thread.
+
+    Made only while :func:`_composite_cards_on`; otherwise the field keeps
+    the classic paint and none of this runs.
 
     Qt paints every widget above the field on every field frame, and the
     rounded translucent card backgrounds are a per-pixel alpha blend over
@@ -9796,8 +9835,11 @@ class AmbientWidget(QWidget):
         #: ``_last_frame`` with the cards composited in, as
         #: :func:`_compose_cards` returns it, or ``None``.
         self._last_composed = None
-        #: The translucent card backgrounds the shading thread composites.
-        self._card_tints = _CardTints(self)
+        #: The translucent card backgrounds the shading thread composites,
+        #: or ``None`` while card compositing is off
+        #: (:func:`_composite_cards_on`).
+        self._card_tints = (_CardTints(self) if _composite_cards_on()
+                            else None)
         #: Paints that showed the previous frame again because the shading
         #: thread had not finished a new one. This counter *is* the
         #: "degrade rather than stutter" promise: it is what rises when the
@@ -10388,7 +10430,7 @@ class AmbientWidget(QWidget):
         self._background = _as_color(color, self._background)
         if explicit:
             self._background_explicit = True
-        self._card_tints.invalidate()
+        self._drop_card_plan()
         self._mutate_engine(
             lambda: self._engine.set_background(self._background))
 
@@ -10410,7 +10452,7 @@ class AmbientWidget(QWidget):
         self._backdrop = _as_pixmap(source)
         self._opaque_backdrop = _covers_opaquely(self._backdrop)
         self._claim_opaque_paint()
-        self._card_tints.invalidate()
+        self._drop_card_plan()
         self.update()
 
     def _claim_opaque_paint(self) -> None:
@@ -10615,7 +10657,13 @@ class AmbientWidget(QWidget):
             self._pending_dt = 0.0
         self._last_frame = None
         self._last_composed = None
-        self._card_tints.invalidate()
+        self._drop_card_plan()
+
+    def _drop_card_plan(self) -> None:
+        """Give the cards their own paint back, when they are composited."""
+        tints = self._card_tints
+        if tints is not None:
+            tints.invalidate()
 
     def _start_producer(self) -> None:
         """Put the shading on its own thread, if this engine has a frame to
@@ -11197,7 +11245,9 @@ class AmbientWidget(QWidget):
                     self._engine_lock.release()
         self._schedule_next_tick()
         producer = self._producer_box[0]
-        self._card_tints.tick(producer)
+        tints = self._card_tints
+        if tints is not None:
+            tints.tick(producer)
         if producer is not None and producer.tick_driven and producer.is_alive():
             fresh = producer.latest()
             if fresh is None or fresh is not self._last_frame:
@@ -11331,14 +11381,15 @@ class AmbientWidget(QWidget):
                 fresh = producer.latest() if whole else None
                 if fresh is not None and fresh is not self._last_frame:
                     self._last_frame = fresh
-                    composed = getattr(producer, "composed", None)
-                    self._last_composed = (
-                        composed if composed is not None
-                        and composed[2] is fresh else None)
+                    if tints is not None:
+                        composed = getattr(producer, "composed", None)
+                        self._last_composed = (
+                            composed if composed is not None
+                            and composed[2] is fresh else None)
                 else:
                     self.repeated_frames += 1
                 shown = self._last_composed
-                if (tints.active and shown is not None
+                if (tints is not None and tints.active and shown is not None
                         and shown[0] is tints.plan
                         and shown[0].origin == self.mapTo(self.window(),
                                                           QPoint(0, 0))):
@@ -11359,7 +11410,7 @@ class AmbientWidget(QWidget):
                     self._engine.paint(painter, width, height)
                 finally:
                     self._engine_lock.release()
-            if tints.active:
+            if tints is not None and tints.active:
                 _draw_cards(painter, tints.plan, 1)
         finally:
             painter.end()

@@ -28,6 +28,18 @@ from spacr.qt.widgets import ambient  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
+
+@pytest.fixture(autouse=True)
+def _cards_composited(monkeypatch):
+    """Card compositing on: these tests are about it.
+
+    Off by default since 2026-10-12 (``ambient._composite_cards_on``): on
+    the workstation's GNOME capture host (2560x1440, real display) it cost
+    8-10 painted fps, Home 48-50 against 57-58 and Mask 41-43 against
+    51-52. The machinery stays, behind ``SPACR_COMPOSITE_CARDS=1``.
+    """
+    monkeypatch.setenv("SPACR_COMPOSITE_CARDS", "1")
+
 SHEET = """
 QFrame#Card { background: rgba(20, 30, 40, 150);
               border: 1px solid rgba(200, 210, 220, 90);
