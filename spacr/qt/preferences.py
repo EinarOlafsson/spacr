@@ -770,20 +770,38 @@ def _one_store():
     dialog's Save. Inside this block the calling thread shares one store,
     written to disk once when the block ends. Other threads keep their own.
 
+    THE SETTERS' OWN ``sync`` CALLS WAIT FOR THE END TOO. Sixteen setters
+    flush at once so that other readers see the value, and inside one store
+    each flush rewrote the whole file again: 45 of them were 290 ms of a
+    Save. Every ``QSettings`` on the same file in this process already sees
+    an unwritten value, so only the disk waits, and only until the block
+    ends.
+
     :yields: the shared store.
     """
     global _settings
     shadowed = _settings
     store = shadowed()
     owner = threading.get_ident()
+    real_sync = None
+    try:
+        real_sync = store.sync
+        store.sync = lambda: None
+    except Exception:                                        # noqa: BLE001
+        real_sync = None
     _settings = lambda: (store if threading.get_ident() == owner
                          else shadowed())
     try:
         yield store
     finally:
         _settings = shadowed
+        if real_sync is not None:
+            try:
+                del store.sync
+            except Exception:                                # noqa: BLE001
+                pass
         try:
-            store.sync()
+            (real_sync or store.sync)()
         except Exception:
             LOG.debug("could not write the preferences", exc_info=True)
 
@@ -7959,6 +7977,9 @@ def _preferences_window_class():
         return _PREFERENCES_WINDOW_CLASS
     from PySide6.QtWidgets import QDialog, QWidget
 
+    from .i18n import TRANSLATE_ONCE_PER_LANGUAGE
+    from .theme import SHEETED_WHEN_SHOWN
+
     class _PreferencesWindow(QDialog):
         """The Preferences window, which styles one tab when it opens.
 
@@ -8002,6 +8023,11 @@ def _preferences_window_class():
             self._pages_wait_for_the_show = False
             self._window_only = 0
             self._pages_away = {}
+            self._window_signature_seen = None
+            self._draft_extras = None
+            self._reusable = True
+            self.setProperty(TRANSLATE_ONCE_PER_LANGUAGE, True)
+            self.setProperty(SHEETED_WHEN_SHOWN, True)
 
         def _show_only_the_open_page_at_first(self, tabs) -> None:
             """Have the first show style only the page of the current tab.
@@ -8027,18 +8053,33 @@ def _preferences_window_class():
             begins in this call, so the pages are gone before any of them
             runs.
 
+            EVERY SHOW, NOT ONLY THE FIRST, walks only the window. A dialog
+            kept for the next open (:func:`_take_the_warm_preferences`) is
+            shown again, and the same filters walk it again; a page still
+            waiting is given what it missed when its tab is chosen, as on
+            the first open.
+
+            Each show also notes the window's look
+            (:func:`_window_signature`), so the close can tell whether the
+            window has anything to catch up on.
+
             :param visible: as for ``QWidget.setVisible``.
             """
-            if not (visible and self._pages_wait_for_the_show):
+            if not visible:
                 super().setVisible(visible)
                 return
-            self._pages_wait_for_the_show = False
-            self._send_the_unseen_pages_away()
+            if self._pages_wait_for_the_show:
+                self._pages_wait_for_the_show = False
+                self._send_the_unseen_pages_away()
             self._window_only += 1
             try:
                 super().setVisible(visible)
             finally:
                 self._window_only -= 1
+            try:
+                self._window_signature_seen = _window_signature()
+            except Exception:                                # noqa: BLE001
+                self._window_signature_seen = None
 
         def findChild(self, *args, **kwargs):     # noqa: N802 - Qt naming
             """``QObject.findChild``, finding a control whose page is waiting.
@@ -8160,6 +8201,486 @@ def _what_a_page_missed_while_away(dialog, page) -> None:
         _glass_a_part_that_came_later(dialog, page)
     except Exception:                                        # noqa: BLE001
         LOG.debug("a Preferences page was not glassed", exc_info=True)
+
+
+#: How long after the window is shown the first Preferences is built.
+_PREFERENCES_WARM_AFTER_MS = 1500
+
+#: How long a warming step waits when the user is busy, and between steps.
+_PREFERENCES_WARM_RETRY_MS = 1000
+_PREFERENCES_WARM_GAP_MS = 250
+
+#: How long after Preferences closes before anything heavy is done for the
+#: next open, so that it does not land in the moment after the close.
+_PREFERENCES_AFTER_CLOSE_MS = 2000
+
+#: How often a kept Preferences checks that it still shows the store.
+_PREFERENCES_RECHECK_MS = 10000
+
+#: The store groups the Preferences dialog reads. A change anywhere else --
+#: a pane folded, a recent folder, a walkthrough seen -- leaves a kept dialog
+#: showing what a fresh one would. ``tests/qt/test_preferences_open_and_close_stay_smooth.py``
+#: records every key a build reads and fails when one falls outside these.
+_PREFERENCES_STORE_GROUPS = frozenset({
+    "ai", "figures", "montage", "notify", "plugins", "prefs", "privacy",
+    "rim", "runs", "sound", "spaceout", "storage", "updates",
+})
+
+#: Keys in those groups a kept dialog already shows as they are: the help
+#: strip's height is written by dragging the strip itself.
+_PREFERENCES_STORE_IGNORED = frozenset({_KEY_PREFERENCES_HELP_HEIGHT})
+
+
+def _window_signature() -> tuple:
+    """Everything the main window's ``refresh_theme`` redraws from.
+
+    THE CLOSE OF PREFERENCES WAS THE OTHER HALF OF THE HITCH. The window
+    rebuilt Home, re-inked every icon and walked its whole tree for the
+    language after every close, Cancel included, and once more after a
+    Save that had already done it -- 1.3-1.8 s of the GUI thread on a
+    loaded machine for a dialog that changed nothing. The rebuild is only
+    owed when one of these has changed.
+
+    Effective values rather than raw keys: Save writes every control, so a
+    fresh profile gains dozens of keys holding the defaults it already
+    showed, and none of them changes what the window looks like.
+
+    :returns: a comparable tuple.
+    """
+    from .theme import spaceout_enabled
+
+    return (
+        get_language(), get_theme_choice(), resolve_effective_theme(),
+        get_cell_variant(), backdrop_is_switched_off(),
+        get_font_scale(), get_gui_scale(), get_runtime_text_scale(),
+        get_interface_font_weight(),
+        get_show_alpha(), get_show_beta(), _get_show_alpha_features(),
+        _get_show_alpha_species(),
+        get_dock_mode(), get_dock_width(), get_pane_opacity(),
+        get_color_blind_mode(), get_field_fade_enabled(),
+        get_ambient_enabled(), get_ambient_animation(), get_ambient_palette(),
+        get_performance_level(), get_spacr_mode(),
+        get_setting_animations_enabled(), get_tooltips_enabled(),
+        spaceout_enabled(),
+    )
+
+
+def _the_window_needs_refreshing(dialog) -> bool:
+    """Whether the window has to redraw after ``dialog`` closed.
+
+    :param dialog: the Preferences dialog that just closed; anything that
+        is not one (a test's stand-in) always asks for the redraw.
+    :returns: ``False`` only when the window already shows what it would
+        redraw.
+    """
+    seen = getattr(dialog, "_window_signature_seen", None)
+    if seen is None:
+        return True
+    try:
+        return _window_signature() != seen
+    except Exception:                                        # noqa: BLE001
+        return True
+
+
+def _plain(value) -> str:
+    """A stored value as text that does not depend on how it was stored.
+
+    The store hands back ``"0.5"`` for a number read from disk and ``0.5``
+    for one written in this process; both are the same preference.
+    """
+    if isinstance(value, (list, tuple)):
+        return "[" + ",".join(_plain(item) for item in value) + "]"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (str, int, float)):
+        text = str(value).strip()
+        try:
+            return repr(float(text))
+        except ValueError:
+            return text.lower() if text.lower() in ("true", "false") else text
+    return repr(value)
+
+
+def _preferences_store_values() -> dict:
+    """The stored values a Preferences build reads, as plain text.
+
+    :returns: ``{key: text}`` for every key in
+        :data:`_PREFERENCES_STORE_GROUPS`.
+    """
+    store = _settings()
+    store = getattr(store, "_real", store)
+    return {key: _plain(store.value(key)) for key in store.allKeys()
+            if key.split("/", 1)[0] in _PREFERENCES_STORE_GROUPS
+            and key not in _PREFERENCES_STORE_IGNORED}
+
+
+def _preferences_world() -> tuple:
+    """What a Preferences build reads from outside the store.
+
+    :returns: a comparable tuple.
+    """
+    from .i18n import ENV_LANGUAGE, current_language
+    from .theme import spaceout_enabled
+
+    try:
+        from spacr.updater import _read_network_config
+
+        network = tuple(sorted(_read_network_config().items()))
+    except Exception:                                        # noqa: BLE001
+        network = None
+    try:
+        from . import ai
+
+        providers = tuple(p.name for p in ai.configured_providers())
+    except Exception:                                        # noqa: BLE001
+        providers = None
+    return (current_language(), os.environ.get(ENV_LANGUAGE, ""),
+            spaceout_enabled(), _SAFE_MODE, resolve_effective_theme(),
+            network, providers)
+
+
+def _preferences_draft(dialog) -> tuple:
+    """What every control of ``dialog`` holds, waiting pages included.
+
+    The test of whether a dialog shown before can be shown again: one the
+    user edited and cancelled holds the edits, which a fresh dialog would
+    not show. Scroll bars are not edits; the dialog is scrolled back to the
+    top before it is shown again.
+
+    :param dialog: a Preferences window.
+    :returns: a comparable tuple.
+    """
+    from PySide6.QtWidgets import (
+        QAbstractButton, QAbstractSlider, QAbstractSpinBox, QComboBox,
+        QDialog, QLineEdit, QPlainTextEdit, QScrollBar, QTextEdit, QWidget,
+    )
+
+    widgets = list(QDialog.findChildren(dialog, QWidget))
+    for page in list(getattr(dialog, "_pages_away", {}).values()):
+        widgets.extend(page.findChildren(QWidget))
+    held = []
+    for widget in widgets:
+        if isinstance(widget, QComboBox):
+            value = (widget.currentIndex(),
+                     widget.currentText() if widget.isEditable() else "")
+        elif isinstance(widget, QAbstractButton):
+            if not widget.isCheckable():
+                continue
+            value = widget.isChecked()
+        elif isinstance(widget, QScrollBar):
+            continue
+        elif isinstance(widget, QAbstractSlider):
+            value = widget.value()
+        elif isinstance(widget, (QAbstractSpinBox, QLineEdit)):
+            value = widget.text()
+        elif isinstance(widget, (QPlainTextEdit, QTextEdit)):
+            value = widget.toPlainText()
+        else:
+            continue
+        held.append((widget.objectName(), type(widget).__name__, value))
+    extras = getattr(dialog, "_draft_extras", None)
+    try:
+        extra = repr(extras()) if callable(extras) else ""
+    except Exception:                                        # noqa: BLE001
+        extra = None
+    return tuple(held), extra
+
+
+def _note_what_the_dialog_shows(dialog) -> None:
+    """Remember the store, the world and the controls ``dialog`` shows now.
+
+    :param dialog: a Preferences window that shows exactly what a fresh one
+        built now would.
+    """
+    dialog._spacr_shows = (_preferences_store_values(),
+                           _preferences_world(), _preferences_draft(dialog))
+
+
+def _still_shows_the_store(dialog, *, saved_by_it: bool = False) -> bool:
+    """Whether ``dialog`` still shows what a fresh Preferences would.
+
+    The controls are compared only when the dialog has just closed: nobody
+    can edit a hidden dialog, and walking ~750 widgets is the one part of
+    this check worth leaving off the open.
+
+    :param dialog: a Preferences window noted by
+        :func:`_note_what_the_dialog_shows`.
+    :param saved_by_it: ``dialog`` has just closed. Its controls are
+        compared, and keys it wrote that were not stored before are its own
+        controls' values, which it shows, so they do not make it stale; a
+        key that changed does.
+    :returns: whether it can be shown again as it is.
+    """
+    shown = getattr(dialog, "_spacr_shows", None)
+    if shown is None or not getattr(dialog, "_reusable", False):
+        return False
+    store, world, draft = shown
+    if getattr(dialog, "_apply_confirmation", None) is not None:
+        return False
+    if _preferences_world() != world:
+        return False
+    now = _preferences_store_values()
+    if not saved_by_it:
+        return now == store
+    if any(now.get(key) != value for key, value in store.items()):
+        return False
+    return _preferences_draft(dialog) == draft
+
+
+def _preferences_warmth(window):
+    """The kept Preferences state of ``window``, or ``None`` when not kept."""
+    return getattr(window, "_spacr_preferences_warmth", None)
+
+
+def _warm_the_preferences(window, delay_ms: int = _PREFERENCES_WARM_AFTER_MS):
+    """Build ``window``'s next Preferences while the user is not busy.
+
+    OPENING PREFERENCES WAS A BUILD, A FIRST SHOW AND A FIRST PAINT, ALL ON
+    THE GUI THREAD: 0.3-0.9 s for ~750 widgets on a loaded machine, and the
+    backdrop stood still for it. Here the dialog is built in one idle slice
+    and shown off screen in the next, so the menu only has to show a window
+    that is already polished, glassed and translated. The dialog is kept
+    after it closes and shown again for as long as it shows what a fresh one
+    would (:func:`_still_shows_the_store`); one that is out of date is
+    dropped and the next one built at the next idle moment.
+
+    Off in safe mode and under the startup benchmark, which times the build.
+
+    :param window: the main window Preferences belongs to.
+    :param delay_ms: how long to wait before the first slice.
+    :returns: the state, or ``None`` when warming is off.
+    """
+    if _SAFE_MODE or os.environ.get("SPACR_BENCHMARK_JSON", "").strip():
+        return None
+    from . import _after
+
+    state = _preferences_warmth(window)
+    if state is None:
+        state = {"dialog": None, "returned": None, "retired": [],
+                 "timer": None}
+        window._spacr_preferences_warmth = state
+    timer = state.get("timer")
+    try:
+        if timer is not None and timer.isActive():
+            timer.stop()
+            timer.deleteLater()
+    except RuntimeError:
+        pass
+    state["timer"] = _after(delay_ms, window,
+                            lambda: _warm_one_slice(window))
+    return state
+
+
+def _the_user_is_busy(window) -> bool:
+    """Whether a warming slice would get in the user's way now."""
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication.instance()
+    if app is None or not window.isVisible():
+        return True
+    if app.mouseButtons() != Qt.MouseButton.NoButton:
+        return True
+    if app.activePopupWidget() is not None:
+        return True
+    if app.activeModalWidget() is not None:
+        return True
+    return bool(getattr(window, "_opening_a_screen", False))
+
+
+def _warm_one_slice(window) -> None:
+    """Do the next piece of keeping ``window``'s Preferences ready.
+
+    One piece per slice, in this order: take back the dialog that just
+    closed, drop one that went out of date, build, show off screen, and
+    otherwise check now and then that the kept one is still current.
+    """
+    state = _preferences_warmth(window)
+    if state is None:
+        return
+    if _the_user_is_busy(window):
+        _warm_the_preferences(window, _PREFERENCES_WARM_RETRY_MS)
+        return
+    returned, state["returned"] = state["returned"], None
+    if returned is not None:
+        if (_widget_is_alive(returned) and state["dialog"] is None
+                and _still_shows_the_store(returned, saved_by_it=True)):
+            _note_what_the_dialog_shows(returned)
+            state["dialog"] = returned
+        elif _widget_is_alive(returned):
+            state["retired"].append(returned)
+        _warm_the_preferences(window, _PREFERENCES_AFTER_CLOSE_MS)
+        return
+    if state["retired"]:
+        retired = state["retired"].pop()
+        if _widget_is_alive(retired):
+            retired.deleteLater()
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    dialog = state["dialog"]
+    if dialog is not None and not _widget_is_alive(dialog):
+        dialog = state["dialog"] = None
+    if dialog is None:
+        try:
+            dialog = PreferencesDialog(window)
+            _note_what_the_dialog_shows(dialog)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not build Preferences ahead", exc_info=True)
+            return
+        dialog._spacr_shown_off_screen = False
+        state["dialog"] = dialog
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    if not getattr(dialog, "_spacr_shown_off_screen", True):
+        _show_off_screen(dialog)
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    if not _still_shows_the_store(dialog):
+        state["dialog"] = None
+        state["retired"].append(dialog)
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    if _the_application_sheet_is_behind():
+        apply_preferences_to_app()
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    if _sheet_the_kept_dialog(dialog):
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    _warm_the_preferences(window, _PREFERENCES_RECHECK_MS)
+
+
+def _the_application_sheet_is_behind() -> bool:
+    """Whether a widget's QSS was registered after the sheet was composed.
+
+    Building Preferences imports the widgets it is made of, and each
+    registers its block. The next :func:`apply_preferences_to_app` -- the
+    one in Save -- then recomposed and re-applied the sheet to every
+    window: 580-680 ms of the close, measured. Done here, it is done while
+    nobody is waiting.
+
+    :returns: ``True`` when the sheet in force predates a registration.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    from .theme import widget_qss_names
+
+    app = QApplication.instance()
+    signature = getattr(app, "_spacr_preferences_style_signature", None)
+    if app is None or not signature:
+        return False
+    return tuple(signature[-1]) != widget_qss_names()
+
+
+def _sheet_the_kept_dialog(dialog) -> bool:
+    """Give a kept, hidden Preferences the sheet in force, now.
+
+    A theme change leaves it for its next show
+    (:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`), which would be the open.
+
+    :returns: whether it was sheeted.
+    """
+    from .theme import _sheet_one_window
+
+    dialog._window_only += 1
+    try:
+        return bool(_sheet_one_window(dialog))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not sheet the kept Preferences", exc_info=True)
+        return False
+    finally:
+        dialog._window_only -= 1
+
+
+def _show_off_screen(dialog) -> None:
+    """Show ``dialog`` once where nobody sees it, then hide it.
+
+    The first show is what styles, glasses and translates a window, and it
+    was most of the open. Shown with ``WA_DontShowOnScreen`` it does all of
+    that without a window appearing.
+
+    :param dialog: a Preferences window that has not been shown.
+    """
+    dialog.setAttribute(Qt.WA_DontShowOnScreen, True)
+    try:
+        dialog.show()
+        dialog.hide()
+    finally:
+        dialog.setAttribute(Qt.WA_DontShowOnScreen, False)
+    dialog._spacr_shown_off_screen = True
+    _note_what_the_dialog_shows(dialog)
+
+
+def _take_the_warm_preferences(window):
+    """The kept Preferences of ``window``, when it shows the store as it is.
+
+    :param window: the main window.
+    :returns: the dialog, on its first tab and scrolled to the top, or
+        ``None`` when there is none to show and one has to be built.
+    """
+    state = _preferences_warmth(window)
+    if state is None:
+        return None
+    dialog, state["dialog"] = state["dialog"], None
+    if dialog is None or not _widget_is_alive(dialog):
+        return None
+    if not _still_shows_the_store(dialog):
+        state["retired"].append(dialog)
+        return None
+    _back_to_the_first_tab(dialog)
+    return dialog
+
+
+def _back_to_the_first_tab(dialog) -> None:
+    """Open a dialog shown before where a fresh one opens: tab one, the top."""
+    from PySide6.QtWidgets import QDialog, QScrollArea
+
+    tabs = getattr(dialog, "_page_tabs", None)
+    if tabs is not None and tabs.count():
+        tabs.setCurrentIndex(0)
+    for area in QDialog.findChildren(dialog, QScrollArea):
+        area.verticalScrollBar().setValue(0)
+        area.horizontalScrollBar().setValue(0)
+
+
+def _a_preferences_for(window):
+    """The Preferences dialog the menu opens for ``window``.
+
+    :param window: the main window.
+    :returns: the kept dialog when it is current, otherwise a new one.
+    """
+    dialog = _take_the_warm_preferences(window)
+    if dialog is not None:
+        return dialog
+    dialog = PreferencesDialog(window)
+    if (_preferences_warmth(window) is not None
+            and isinstance(dialog, _preferences_window_class())):
+        _note_what_the_dialog_shows(dialog)
+    return dialog
+
+
+def _put_the_preferences_away(window, dialog) -> None:
+    """Keep ``dialog`` for the next open, or let it go.
+
+    Nothing is decided here: the close is the moment the user is watching,
+    so the dialog is looked at in the next idle slice instead. A window that
+    does not keep its Preferences lets each one go, as it always should
+    have -- every closed dialog stayed parented to the window, and each
+    open added ~180 objects to every walk of the window after it.
+
+    :param window: the main window.
+    :param dialog: the dialog that just closed.
+    """
+    if not isinstance(dialog, _preferences_window_class()):
+        return
+    state = _preferences_warmth(window)
+    if state is None:
+        if _widget_is_alive(dialog):
+            dialog.deleteLater()
+        return
+    if state["returned"] is not None:
+        state["retired"].append(state["returned"])
+    state["returned"] = dialog
+    _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
 
 
 class PreferencesDialog:
@@ -10486,6 +11007,10 @@ class PreferencesDialog:
 
             THE RIM GOES FIRST because every open card rereads it: doing it before
             the theme work means one repaint rather than two.
+
+            A Save that closes hides the dialog before the application takes
+            the new values: restyling a window that is about to vanish was
+            the largest part of a Save.
             """
             _set_rim_length_fraction(rim_length_slider.value() / 100.0)
             dlg._storage_page.save()
@@ -10662,9 +11187,15 @@ class PreferencesDialog:
                     LOG.warning("could not save the notification settings "
                                 "(%s)", type(exc).__name__)
             _settings().sync()
-            apply_preferences_to_app()
-            _refresh_owner_window(parent)
-            if close:
+            if not close:
+                apply_preferences_to_app()
+                _refresh_owner_window(parent, dlg)
+                return
+            dlg.hide()
+            try:
+                apply_preferences_to_app()
+                _refresh_owner_window(parent, dlg)
+            finally:
                 dlg.accept()
 
         def _apply():
@@ -10730,7 +11261,7 @@ class PreferencesDialog:
                     restart_the_dive()
                     rebuild_the_spaceout_backdrops()
                 apply_preferences_to_app()
-                _refresh_owner_window(parent)
+                _refresh_owner_window(parent, dlg)
 
             try:
                 _in_one_store(lambda: _save(close=False, save_secrets=False))
@@ -10814,6 +11345,9 @@ class PreferencesDialog:
         explain_every_row(dlg)
         _everything_explains_itself_in_the_strip(dlg, hints)
         _reload_ambient_palettes(ambient_palette_combo.currentData())
+        dlg._draft_extras = lambda: (
+            tuple(custom_colors), custom_background[0], _chosen_debug[0],
+            style_panel.values(), dlg._storage_page._rows)
         dlg._show_only_the_open_page_at_first(tabs)
         return dlg
 
@@ -10855,7 +11389,7 @@ def _everything_explains_itself_in_the_strip(dialog, bar) -> int:
     return moved
 
 
-def _refresh_owner_window(parent) -> None:
+def _refresh_owner_window(parent, dialog=None) -> None:
     """Ask the window that opened Preferences to rebuild itself.
 
     A QIcon bakes its pixmap when it is built, so re-applying the
@@ -10868,6 +11402,15 @@ def _refresh_owner_window(parent) -> None:
 
     Never raises: a window that cannot rebuild is a cosmetic problem,
     not a reason to fail the Save.
+
+    With ``dialog``, only when something the window draws from has changed
+    since the dialog last looked (:func:`_window_signature`): a Save of a
+    logging level or a figure format has nothing to redraw, and the redraw
+    rebuilds Home.
+
+    :param parent: the dialog's parent.
+    :param dialog: the Preferences dialog asking, or ``None`` to redraw
+        regardless.
     """
     if parent is None:
         return
@@ -10876,10 +11419,25 @@ def _refresh_owner_window(parent) -> None:
     except Exception:
         return
     refresh = getattr(window, "refresh_theme", None)
-    if callable(refresh):
+    if not callable(refresh):
+        return
+    now = None
+    if dialog is not None:
         try:
-            refresh()
-        except Exception:
+            now = _window_signature()
+        except Exception:                                    # noqa: BLE001
+            now = None
+        seen = getattr(dialog, "_window_signature_seen", None)
+        if now is not None and seen == now:
+            return
+    try:
+        refresh()
+    except Exception:
+        pass
+    if dialog is not None:
+        try:
+            dialog._window_signature_seen = now
+        except Exception:                                    # noqa: BLE001
             pass
 
 

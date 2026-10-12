@@ -3694,6 +3694,11 @@ class _SheetsEveryWindowThatAppears(QObject):
         return False
 
 
+#: Marks a window that, while hidden, is sheeted at its next ``Show``
+#: rather than at every theme change; see :func:`apply_stylesheet_per_window`.
+SHEETED_WHEN_SHOWN = "spacrSheetedWhenShown"
+
+
 #: Marks a widget that is NOT a window but is sheeted as if it were: a
 #: module screen that a window has asked to carry its own copy, so the
 #: window's sheet does not have to reach through it.
@@ -4063,6 +4068,11 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
         :func:`stylesheet` composes it.
     :returns: the number of windows the sheet was put on.
 
+    A hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next
+    ``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before
+    it paints: the Preferences window kept for the next open is ~750
+    widgets nobody can see.
+
     A settings category's body that is waiting off the page is parentless,
     so Qt lists it among the top-level widgets, but it is not a window: it
     goes back under its page before anybody sees it and wears the page's
@@ -4091,6 +4101,8 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
     for window in list(app.topLevelWidgets()):
         if (_sheets_itself_before_it_shows(window)
                 and not window.isVisible()):
+            continue
+        if window.property(SHEETED_WHEN_SHOWN) and not window.isVisible():
             continue
         if getattr(window, "_spacr_detached_from", None) is not None:
             continue

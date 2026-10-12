@@ -4313,18 +4313,27 @@ class MainWindow(QMainWindow):
         reads those same names out of this dialog's source, so the two ends
         of the hand-off are the same string by construction.
 
+        The dialog is usually built already
+        (:func:`spacr.qt.preferences._warm_the_preferences`), and the window
+        redraws after the close only when something it draws from changed:
+        the build, the first show and the unconditional redraw each held the
+        GUI thread for longer than a frame.
+
         :param tab: the page's object name, e.g. ``"PreferencesTabTheme"``;
             ``""`` opens the dialog as it opens from the menu.
         :param label: the row caption to mark; ``""`` marks nothing.
         :returns: True when the named tab was found and shown.
         """
         try:
-            from .preferences import PreferencesDialog
+            from .preferences import (PreferencesDialog,  # noqa: F401
+                                      _a_preferences_for,
+                                      _put_the_preferences_away,
+                                      _the_window_needs_refreshing)
         except Exception as e:
             self.statusBar().showMessage(
                 f"Preferences unavailable: {e}", 5000)
             return False
-        dialog = PreferencesDialog(self)
+        dialog = _a_preferences_for(self)
         found = False
         if tab:
             try:
@@ -4333,8 +4342,12 @@ class MainWindow(QMainWindow):
                 found = show_tab(dialog, tab, label)
             except Exception:
                 LOG.exception("could not open Preferences on %r", tab)
+            if label:
+                dialog._reusable = False
         dialog.exec()
-        self.refresh_theme()
+        if _the_window_needs_refreshing(dialog):
+            self.refresh_theme()
+        _put_the_preferences_away(self, dialog)
         return found
 
     def refresh_theme(self) -> None:
@@ -6609,6 +6622,11 @@ class MainWindow(QMainWindow):
         stack's CURRENT page. The pages that are not showing are marked
         instead, and sheeted on their own `showEvent` before they are
         painted.
+
+        A child that is a window of its own -- a dialog parented here, such
+        as Preferences -- is not chrome: the sheet reaches it as a window,
+        and a hidden one that asked to wait for its show
+        (:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`) waits.
         """
         from PySide6.QtCore import Qt
 
@@ -6620,7 +6638,8 @@ class MainWindow(QMainWindow):
             return [self]
 
         roots = [kid for kid in self.findChildren(
-            QWidget, options=Qt.FindDirectChildrenOnly) if kid is not central]
+            QWidget, options=Qt.FindDirectChildrenOnly)
+            if kid is not central and not kid.isWindow()]
         roots.extend(kid for kid in central.findChildren(
             QWidget, options=Qt.FindDirectChildrenOnly) if kid is not stack)
 
@@ -7624,6 +7643,9 @@ def launch(argv: Optional[list[str]] = None) -> int:
     from .preferences import in_safe_mode
 
     if not in_safe_mode():
+        from .preferences import _warm_the_preferences
+
+        _warm_the_preferences(win)
         _start_the_font_cache_in_a_child()
         _start_settings_prewarm()
         from PySide6.QtCore import QTimer

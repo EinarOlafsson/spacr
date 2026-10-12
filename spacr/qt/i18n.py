@@ -4614,6 +4614,15 @@ def install_qt_translations(app, language: Optional[str] = None) -> bool:
         return False
 
 
+#: The dynamic property a kept dialog sets so that showing it again in the
+#: same language does not walk its tree again; see
+#: :func:`install_dialog_translation`.
+TRANSLATE_ONCE_PER_LANGUAGE = "spacrTranslateOncePerLanguage"
+
+#: The language such a dialog was last walked in.
+_TRANSLATED_FOR = "spacrTranslatedFor"
+
+
 def install_dialog_translation(app) -> None:
     """Translate transient Qt dialogs when they are shown.
 
@@ -4655,9 +4664,21 @@ def install_dialog_translation(app) -> None:
         """
 
         def eventFilter(self, watched, event):  # noqa: N802
-            """Retranslate a dialog's tree the first time it is shown."""
+            """Retranslate a dialog's tree as it is shown.
+
+            A dialog carrying :data:`TRANSLATE_ONCE_PER_LANGUAGE` is walked
+            once per language rather than on every show: it is kept and
+            shown again, its text does not change between shows, and the
+            walk was the largest part of showing it again.
+            """
             if event.type() == shown and isinstance(watched, QDialog):
+                once = bool(watched.property(TRANSLATE_ONCE_PER_LANGUAGE))
+                language = current_language() if once else None
+                if once and watched.property(_TRANSLATED_FOR) == language:
+                    return False
                 retranslate_widget_tree(watched)
+                if once:
+                    watched.setProperty(_TRANSLATED_FOR, language)
             return False
 
     event_filter = _DialogTranslationFilter(app)
@@ -4674,6 +4695,7 @@ __all__ = [
     "LANGUAGES",
     "LANGUAGE_BY_CODE",
     "Language",
+    "TRANSLATE_ONCE_PER_LANGUAGE",
     "TERM_CATALOGS",
     "VALID_LANGUAGE_CODES",
     "catalog_coverage",
