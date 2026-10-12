@@ -33,6 +33,16 @@
       "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
       "text": "A drag applies on release; a click or key applies at once."
     },
+    "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293": {
+      "source_blocks_sha256": [
+        "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
+        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
+        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+      ],
+      "source_sha256": "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293",
+      "text": "Which version a model family's row opens on.\n\nThe newest version that is not an alternative, so publishing an\nalternative never changes what a family's row hands out by default.\n\n:param pairs: ``(label, entry)`` pairs, newest first.\n:returns: an index into ``pairs``; 0 when every version is an\n    alternative or there are none."
+    },
     "742c1cfbb9cb41e686ff0f44ebedfd6b634d1cf47853f85e845b4842a822f103": {
       "source_blocks_sha256": [
         "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",

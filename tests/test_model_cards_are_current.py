@@ -68,3 +68,36 @@ def test_family_defaults_match_the_zoo_markers():
                 cards.marker_of(other) for other in cards.published_models()
                 if cards.family_and_version(cards.key_of(other))[0]
                 == cards.family_and_version(cards.key_of(entry))[0])
+
+
+def test_the_app_the_readme_and_the_cards_open_a_family_on_the_same_version():
+    """2026-10-12: the maintainer made toxoplasma_well_detector_v3 the
+    well-detector default in both the README and the app, and asked that the
+    app's default_version_index and the README/website rule agree."""
+    from types import SimpleNamespace
+
+    from spacr.model_zoo import default_version_index
+
+    cards = _cards()
+    for family in cards.families():
+        pairs = [(cards.key_of(e), SimpleNamespace(key=cards.key_of(e)))
+                 for e in family["versions"]]
+        assert family["versions"][default_version_index(pairs)] is family["default"]
+    defaults = {cards.key_of(e) for e in cards.default_records()}
+    assert "toxoplasma_well_detector_v3" in defaults
+    assert {"toxoplasma_pv_v4", "toxoplasma_plaque_v4", "live_cell_v1"} <= defaults
+
+
+def test_a_candidate_never_becomes_a_family_default():
+    from types import SimpleNamespace
+
+    from spacr import model_zoo
+
+    pairs = [("v9", SimpleNamespace(key="not_a_published_key_v9")),
+             ("v1", SimpleNamespace(key="not_a_published_key_v1"))]
+    original = model_zoo._CANDIDATE_MODEL_KEYS
+    model_zoo._CANDIDATE_MODEL_KEYS = frozenset({"not_a_published_key_v9"})
+    try:
+        assert model_zoo.default_version_index(pairs) == 1
+    finally:
+        model_zoo._CANDIDATE_MODEL_KEYS = original

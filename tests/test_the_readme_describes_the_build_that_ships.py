@@ -245,11 +245,12 @@ class TestTheLocalizedReadmes:
         )[2].partition(".. spacr-installer-links-end")[0]
         for name in (
             "InstallerWindows", "InstallerMacOS", "InstallerLinux",
-            "InstallerLegacy",
         ):
             definition = f".. |{name}| image::"
             assert text.count(definition) == 1
             assert definition in installer
+        # 2026-10-12: the "Earlier spaCR installers" button left the README.
+        assert ".. |InstallerLegacy| image::" not in text
         for name in (
             "DataBioStudies", "DataHuggingFace", "DataNCBI",
             "DataSpaCRPower", "DataBioRxiv",

@@ -59,14 +59,6 @@ README_ICONS = (
     ("Linux", "linux", "64-bit Linux"),
 )
 README_ICON_ORDER = ("Linux", "MacOS", "Windows")
-LEGACY_ICON = ("Legacy", "legacy", "Earlier spaCR installers")
-# GitHub renders this committed RST page directly, so the archive remains
-# reachable from the nightly README even while the public Sphinx site is only
-# deployed from main.
-INSTALLER_ARCHIVE_URL = (
-    "https://github.com/EinarOlafsson/spacr/blob/nightly/"
-    "docs/source/installers.rst"
-)
 
 #: Where the generated download archive is written. It is a page of the
 #: published Sphinx site (``docs/source`` -> ``docs/_build/html`` ->
@@ -510,7 +502,7 @@ def _readme_links(version: str, branch: str) -> str:
     # immutable GitHub release assets rather than mutable branch contents.
     del branch
     references = " ".join(
-        f"|Installer{key}|" for key in (*README_ICON_ORDER, LEGACY_ICON[0]))
+        f"|Installer{key}|" for key in README_ICON_ORDER)
     lines = [README_BEGIN, "", references, ""]
     for (key, platform, alt), (label, suffix) in zip(README_ICONS, PLATFORMS):
         name = f"spaCR-{version}-{suffix}"
@@ -521,14 +513,6 @@ def _readme_links(version: str, branch: str) -> str:
             f"   :alt: Download spaCR {version} for {alt or label}",
             f"   :target: {url}",
         ])
-    legacy_key, legacy_stem, legacy_alt = LEGACY_ICON
-    lines.extend([
-        f".. |Installer{legacy_key}| image:: "
-        f"{README_ICON_ROOT}/{legacy_stem}.png",
-        f"   :width: {README_ICON_WIDTH}",
-        f"   :alt: {legacy_alt}",
-        f"   :target: {INSTALLER_ARCHIVE_URL}",
-    ])
     lines.extend(["", README_END])
     return "\n".join(lines)
 

@@ -63,14 +63,14 @@ HARDWARE_END = ".. spacr-hardware-end"
 INSTALLER_BEGIN = ".. spacr-installer-links-begin"
 INSTALLER_END = ".. spacr-installer-links-end"
 INSTALLER_SUBSTITUTIONS = (
-    "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
+    "InstallerWindows", "InstallerMacOS", "InstallerLinux",
 )
 DATA_SUBSTITUTIONS = (
     "DataBioStudies", "DataHuggingFace", "DataNCBI", "DataSpaCRPower",
     "DataBioRxiv",
 )
 INSTALLER_ROW = (
-    "|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|"
+    "|InstallerLinux| |InstallerMacOS| |InstallerWindows|"
 )
 DATA_ROW = (
     "|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| "

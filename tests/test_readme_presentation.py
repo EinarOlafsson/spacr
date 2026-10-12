@@ -723,7 +723,9 @@ def test_installer_guide_is_distinct_from_the_version_archive():
         "Troubleshooting",
     ):
         assert heading in guide
-    assert ":target: docs/source/installers.rst" in readme
+    # 2026-10-12: the maintainer removed the README's "Earlier spaCR
+    # installers" button; the archive page stays in the documentation index.
+    assert ":target: docs/source/installers.rst" not in readme
     assert "   installer_guide" in index
     assert "   installers" in index
 

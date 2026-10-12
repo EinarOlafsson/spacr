@@ -101,13 +101,20 @@ def family_and_version(key: str) -> Tuple[str, int]:
 
 
 def marker_of(entry: Mapping[str, Any]) -> str:
-    """``alternative`` or ``candidate`` when the record marks itself so."""
-    if entry.get("alternative"):
+    """``alternative`` or ``candidate`` when the zoo marks the record so.
+
+    Read from :mod:`spacr.model_zoo`, whose ``default_version_index`` skips
+    the same two markers, so the cards, the README and the app's Model Zoo
+    open a family on the same version.
+    """
+    sys.path.insert(0, str(ROOT))
+    from spacr import model_zoo
+
+    key = key_of(entry)
+    if key in model_zoo.ALTERNATIVE_MODEL_KEYS:
         return "alternative"
-    display = str(entry.get("display_name") or "").lower()
-    for word in ("alternative", "candidate"):
-        if re.search(rf"\b{word}\b", display):
-            return word
+    if key in model_zoo._CANDIDATE_MODEL_KEYS:
+        return "candidate"
     return ""
 
 
@@ -127,7 +134,12 @@ def families(entries: Optional[Sequence[Mapping[str, Any]]] = None
     for stem, members in grouped.items():
         versions = sorted(members, key=lambda e: family_and_version(key_of(e))[1],
                           reverse=True)
-        default = next((e for e in versions if not marker_of(e)), versions[0])
+        from types import SimpleNamespace
+
+        from spacr.model_zoo import default_version_index
+
+        default = versions[default_version_index(
+            [(key_of(e), SimpleNamespace(key=key_of(e))) for e in versions])]
         status = {}
         for entry in versions:
             if entry is default:

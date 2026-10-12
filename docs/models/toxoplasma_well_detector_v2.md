@@ -2,9 +2,11 @@
 
 # Toxoplasma Plaque Well Detector v2
 
-`toxoplasma_well_detector_v2` · YOLO26n (ultralytics 8.4.155) · default in the `toxoplasma_well_detector` family
+`toxoplasma_well_detector_v2` · YOLO26n (ultralytics 8.4.155) · older version in the `toxoplasma_well_detector` family
 
-Other versions: [toxoplasma_well_detector_v3](toxoplasma_well_detector_v3.md) (candidate), [toxoplasma_well_detector_v1](toxoplasma_well_detector_v1.md).
+The family's default is [toxoplasma_well_detector_v3](toxoplasma_well_detector_v3.md).
+
+Other versions: [toxoplasma_well_detector_v3](toxoplasma_well_detector_v3.md), [toxoplasma_well_detector_v1](toxoplasma_well_detector_v1.md).
 
 ## Training data
 

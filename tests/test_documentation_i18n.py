@@ -4324,9 +4324,11 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     assert len(_readme_substitution_alt_text(
         canonical, README_BADGE_SUBSTITUTIONS,
     )) + int(bool(_readme_logo_alt_text(canonical))) == 20
+    # 3 since 2026-10-12, when the maintainer removed the "Earlier spaCR
+    # installers" button; the archive page is no longer linked from here.
     assert len(_readme_substitution_alt_text(
         canonical, README_INSTALLER_SUBSTITUTIONS,
-    )) == 4
+    )) == 3
     assert len(_readme_substitution_alt_text(
         canonical, README_RESOURCE_SUBSTITUTIONS,
     )) == 5

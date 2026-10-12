@@ -433,8 +433,8 @@ Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://hug
 
 SHA-256 ``744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f``.
 
-Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)
-------------------------------------------------------
+Toxoplasma Well Detector v3 (YOLO11 Gel Doc, default)
+-----------------------------------------------------
 
 **Architecture.** YOLO11n (fine-tuned from detector v3)
 
@@ -468,7 +468,7 @@ Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)
 
 Evaluation set: ``detector_v3_validation_figure_clean``; version ``20261007T205603``; 73 scored fields and 191 annotated objects.
 
-* Candidate, not promoted: clean incumbent-validation mAP50-95 regresses.
+* The default well detector since 2026-10-12, by the maintainer's choice. On the 73 clean incumbent-validation images its mAP50-95 is lower than the incumbent's; on the 3 Gel Doc validation plates it is higher.
 * Gel Doc plates selected best.pt, so their scores are validation rather than independent test.
 * Distinct from the YOLO26 checkpoint also historically called detector v4.
 * Locates wells, not plaques; one class plaque_well (0).
@@ -476,7 +476,7 @@ Evaluation set: ``detector_v3_validation_figure_clean``; version ``20261007T2056
 Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc>`_, as ``yolo_welldetect_v4_geldoc.pt``.
 
 .. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc/resolve/main/scorecard.png
-   :alt: Published scorecard for Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)
+   :alt: Published scorecard for Toxoplasma Well Detector v3 (YOLO11 Gel Doc, default)
    :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc/blob/main/scorecard.csv
 
 SHA-256 ``046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18``.

@@ -3665,63 +3665,54 @@ REVIEWED_README_ALT_TEXT = {
         "Windows 10/11: spaCR {version} herunterladen",
         "macOS 11+ (Intel und Apple Silicon): spaCR {version} herunterladen",
         "64-Bit-Linux: spaCR {version} herunterladen",
-        "Ältere spaCR-Installationsprogramme",
     ),
     "es": (
         "Flujo de trabajo y organización de resultados de spaCR",
         "Windows 10/11: descargar spaCR {version}",
         "macOS 11+ (Intel y Apple silicon): descargar spaCR {version}",
         "Linux de 64 bits: descargar spaCR {version}",
-        "Instaladores anteriores de spaCR",
     ),
     "fr": (
         "Flux de travail spaCR et organisation des sorties",
         "Windows 10/11 : télécharger spaCR {version}",
         "macOS 11+ (Intel et Apple Silicon) : télécharger spaCR {version}",
         "Linux 64 bits : télécharger spaCR {version}",
-        "Anciens programmes d’installation de spaCR",
     ),
     "hi": (
         "spaCR कार्यप्रवाह और आउटपुट संगठन",
         "Windows 10/11 के लिए spaCR {version} डाउनलोड करें",
         "macOS 11+ (Intel और Apple Silicon) के लिए spaCR {version} डाउनलोड करें",
         "64-बिट Linux के लिए spaCR {version} डाउनलोड करें",
-        "spaCR के पुराने इंस्टॉलर",
     ),
     "is": (
         "Verkflæði spaCR og skipulag úttaks",
         "Sækja spaCR {version} fyrir Windows 10/11",
         "Sækja spaCR {version} fyrir macOS 11+ (Intel og Apple Silicon)",
         "Sækja spaCR {version} fyrir 64-bita Linux",
-        "Eldri spaCR-uppsetningarforrit",
     ),
     "ko": (
         "spaCR 작업 흐름 및 출력 구성",
         "Windows 10/11용 spaCR {version} 다운로드",
         "macOS 11+ (Intel 및 Apple Silicon)용 spaCR {version} 다운로드",
         "64비트 Linux용 spaCR {version} 다운로드",
-        "이전 spaCR 설치 프로그램",
     ),
     "pt": (
         "Fluxo de trabalho e organização das saídas do spaCR",
         "Baixar o spaCR {version} para Windows 10/11",
         "Baixar o spaCR {version} para macOS 11+ (Intel e Apple Silicon)",
         "Baixar o spaCR {version} para Linux de 64 bits",
-        "Instaladores anteriores do spaCR",
     ),
     "sv": (
         "spaCR:s arbetsflöde och struktur för utdata",
         "Hämta spaCR {version} för Windows 10/11",
         "Hämta spaCR {version} för macOS 11+ (Intel och Apple Silicon)",
         "Hämta spaCR {version} för 64-bitars Linux",
-        "Äldre spaCR-installationsprogram",
     ),
     "zh_CN": (
         "spaCR 工作流程及输出结构",
         "下载适用于 Windows 10/11 的 spaCR {version}",
         "下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR {version}",
         "下载适用于 64 位 Linux 的 spaCR {version}",
-        "旧版 spaCR 安装程序",
     ),
 }
 
@@ -3815,7 +3806,7 @@ README_BADGE_SUBSTITUTIONS = (
     "Cite", "PyPI rank", "Website", "Coverage", "Docker",
 )
 README_INSTALLER_SUBSTITUTIONS = (
-    "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
+    "InstallerWindows", "InstallerMacOS", "InstallerLinux",
 )
 README_RESOURCE_SUBSTITUTIONS = (
     "DataBioStudies", "DataHuggingFace", "DataNCBI", "DataSpaCRPower",

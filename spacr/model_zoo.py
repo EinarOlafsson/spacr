@@ -1168,7 +1168,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                  'train_loss': 'box/class/DFL losses in epoch_history.csv',
                  'val_loss': 'box/class/DFL losses in epoch_history.csv',
                  'best_epoch': 'validation-selected best.pt; see training checkpoint metadata'},
-     'display_name': 'Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)',
+     'display_name': 'Toxoplasma Well Detector v3 (YOLO11 Gel Doc, default)',
      'architecture': 'YOLO11n (fine-tuned from detector v3)',
      'dataset': '452 reviewed training images; 124 validation images; physical plate and figure '
                 'groups; 150 epochs; YOLO11n v3 initialization',
@@ -1177,7 +1177,9 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'trained_on': '452 reviewed training images; 124 validation images; physical plate and figure '
                    'groups; 150 epochs; YOLO11n v3 initialization',
      'trained_by': 'einarolafsson',
-     'notes': ['Candidate, not promoted: clean incumbent-validation mAP50-95 regresses.',
+     'notes': ['The default well detector since 2026-10-12, by the maintainer\'s choice. On the 73 clean '
+               'incumbent-validation images its mAP50-95 is lower than the incumbent\'s; on the 3 Gel Doc '
+               'validation plates it is higher.',
                'Gel Doc plates selected best.pt, so their scores are validation rather than '
                'independent test.',
                'Distinct from the YOLO26 checkpoint also historically called detector v4.',
@@ -3348,18 +3350,33 @@ def is_alternative(entry: Any) -> bool:
     return str(getattr(entry, "key", "") or "") in ALTERNATIVE_MODEL_KEYS
 
 
+def _record_is_candidate(record: Mapping[str, Any]) -> bool:
+    """Whether a bundled record marks itself as an unpromoted candidate."""
+    if "candidate" in record:
+        return bool(record.get("candidate"))
+    return bool(re.search(r"\bcandidate\b",
+                          str(record.get("display_name") or "").lower()))
+
+
+_CANDIDATE_MODEL_KEYS: frozenset = frozenset(
+    str(record.get("key") or "") for record in BUNDLED_REMOTE_MODELS
+    if _record_is_candidate(record))
+
+
 def default_version_index(pairs: Sequence[Tuple[str, Any]]) -> int:
     """Which version a model family's row opens on.
 
-    The newest version that is not an alternative, so publishing an
-    alternative never changes what a family's row hands out by default.
+    The newest version that is neither an alternative nor a candidate, so
+    publishing either never changes what a family's row hands out by
+    default. The README and the website's model cards use the same rule.
 
     :param pairs: ``(label, entry)`` pairs, newest first.
     :returns: an index into ``pairs``; 0 when every version is an
-        alternative or there are none.
+        alternative or a candidate, or there are none.
     """
     for index, (_label, entry) in enumerate(pairs):
-        if not is_alternative(entry):
+        if not is_alternative(entry) and str(
+                getattr(entry, "key", "") or "") not in _CANDIDATE_MODEL_KEYS:
             return index
     return 0
 

@@ -31473,12 +31473,12 @@
     "spacr.model_zoo.default_version_index": {
       "source_blocks_sha256": [
         "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
-        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "ebb6d5ec08a09842718f8bbc718dc03a6513434cfda9bf45b9aabdfd4a196a88",
         "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
-        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+        "3fe71bdf2c3838540c829c4f44b27ee079ecf04f7d24e0d5be4fec0fb64c2e64"
       ],
-      "source_sha256": "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293",
-      "text": "Which version a model family's row opens on.\n\nThe newest version that is not an alternative, so publishing an\nalternative never changes what a family's row hands out by default.\n\n:param pairs: ``(label, entry)`` pairs, newest first.\n:returns: an index into ``pairs``; 0 when every version is an\n    alternative or there are none."
+      "source_sha256": "bbd58c52c7edc902e9f2717617390e9b1e9f4e51452d5bc6157f613767e37521",
+      "text": "Which version a model family's row opens on.\n\nThe newest version that is neither an alternative nor a candidate, so\npublishing either never changes what a family's row hands out by\ndefault. The README and the website's model cards use the same rule.\n\n:param pairs: ``(label, entry)`` pairs, newest first.\n:returns: an index into ``pairs``; 0 when every version is an\n    alternative or a candidate, or there are none."
     },
     "spacr.model_zoo.discover_local": {
       "source_blocks_sha256": [

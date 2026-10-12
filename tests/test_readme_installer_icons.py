@@ -159,7 +159,7 @@ def test_the_icons_are_committed_here_and_not_hotlinked():
     """Every image in the block is served from this repository."""
     block = _block()
     urls = re.findall(r"image:: (\S+)", block)
-    assert len(urls) == len(ALL_ICON_STEMS)
+    assert len(urls) == len(PLATFORM_ASSETS)
     prefix = "spacr/resources/icons/platforms/"
     for url in urls:
         assert url.startswith(prefix), f"{url} is hotlinked from elsewhere"
@@ -167,15 +167,20 @@ def test_the_icons_are_committed_here_and_not_hotlinked():
         assert committed.is_file(), f"{url} has no committed artwork"
 
 
-def test_legacy_is_the_fourth_link_and_opens_the_version_archive():
+def test_the_row_is_the_three_platform_downloads_only():
+    """Linux, macOS and Windows, and no fourth archive link.
+
+    2026-10-12: the maintainer removed the "Earlier spaCR installers" button
+    from the README. The archive page, docs/source/installers.rst, stays in
+    the documentation but is no longer linked from the README.
+    """
     html, _messages = _render_readme(README.read_text(encoding="utf-8"))
     links = _linked_images(html)
-    legacy = next(src for src in links if src.endswith("/legacy.png"))
-    assert links[legacy].endswith("docs/source/installers.rst")
+    assert not any(src.endswith("/legacy.png") for src in links)
+    assert "installers.rst" not in _block()
     row = re.search(r"(?m)^\|Installer.+\|$", _block()).group(0)
     assert row.split() == [
         "|InstallerLinux|", "|InstallerMacOS|", "|InstallerWindows|",
-        "|InstallerLegacy|",
     ]
 
 
@@ -361,7 +366,7 @@ def test_the_release_helper_still_bumps_the_icon_block(tmp_path, legacy_capital)
                           flags=re.IGNORECASE)
         assert expected in block, f"{expected} is not in the bumped block"
     assert "1.5.0" not in block, "a stale version survived the bump"
-    assert block.count("/platforms/") == 4, "the artwork links were rewritten"
+    assert block.count("/platforms/") == 3, "the artwork links were rewritten"
     assert updated[:start] == README.read_text(encoding="utf-8")[:start]
 
 
