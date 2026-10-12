@@ -274,7 +274,7 @@ class TestHandles:
         def refuse():
             raise RuntimeError("no theme")
 
-        monkeypatch.setattr(theme, "active_palette", refuse)
+        monkeypatch.setattr(theme, "_painting_palette", refuse)
         handle = split.handle(1)
         assert handle.grab().deviceIndependentSize().toSize() == handle.size()
 

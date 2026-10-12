@@ -25,7 +25,7 @@ from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import QWidget
 
-from ..theme import active_palette, make_transparent
+from ..theme import make_transparent, _painting_palette
 
 
 class HeightGrip(QWidget):
@@ -201,7 +201,7 @@ class HeightGrip(QWidget):
 
         :param event: the paint event; not read, the whole grip is redrawn.
         """
-        P = active_palette()
+        P = _painting_palette()
         painter = QPainter(self)
         lit = self._hovered or self.hasFocus() or self._from_y is not None
         colour = QColor('#168cff' if lit else P['border_soft'])

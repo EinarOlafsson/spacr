@@ -39,7 +39,7 @@ from types import MappingProxyType
 from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
-from PySide6.QtGui import QColor, QPalette
+from PySide6.QtGui import QColor, QGuiApplication, QPalette
 from PySide6.QtWidgets import QApplication
 
 from .night_themes import DATA_ART_THEMES, DATA_ART_THEME_KEYS, NIGHT_THEME_KEYS
@@ -874,7 +874,9 @@ def field_chrome(theme: str = "dark") -> Dict[str, object]:
     }
 
 
-_SPLASH_DIM_ALPHAS: dict = {}
+#: The splash roles, keyed by ``(ink, bg)``. :func:`palette_for` derives
+#: them on every call, and paint code calls it on every frame.
+_SPLASH_ROLES: dict = {}
 
 
 def _splash_roles(palette: dict) -> dict:
@@ -899,19 +901,19 @@ def _splash_roles(palette: dict) -> dict:
     """
     ink = str(palette.get("fg", "#ffffff"))
     bg = str(palette.get("bg", "#000000"))
-    dim = _SPLASH_DIM_ALPHAS.get((ink, bg))
-    if dim is None:
-        if len(_SPLASH_DIM_ALPHAS) >= 256:
-            _SPLASH_DIM_ALPHAS.clear()
-        dim = _SPLASH_DIM_ALPHAS[(ink, bg)] = splash_dim_alpha(
-            ink, bg, target=7.0)
-    return {
-        "splash_bg": bg,
-        "splash_ink": ink,
-        "splash_ink_dim": _composite(ink, bg, dim),
-        "splash_track": _composite(ink, bg, 45),
-        "splash_fill": _composite(ink, bg, 200),
-    }
+    roles = _SPLASH_ROLES.get((ink, bg))
+    if roles is None:
+        if len(_SPLASH_ROLES) >= 256:
+            _SPLASH_ROLES.clear()
+        dim = splash_dim_alpha(ink, bg, target=7.0)
+        roles = _SPLASH_ROLES[(ink, bg)] = {
+            "splash_bg": bg,
+            "splash_ink": ink,
+            "splash_ink_dim": _composite(ink, bg, dim),
+            "splash_track": _composite(ink, bg, 45),
+            "splash_fill": _composite(ink, bg, 200),
+        }
+    return dict(roles)
 
 
 def splash_dim_alpha(ink: str, bg: str, *, target: float = 3.0,
@@ -1902,6 +1904,51 @@ def active_palette() -> dict:
     except Exception:
         return palette_for("dark")
 
+
+
+#: ``[application palette key, theme name]`` for :func:`_painting_theme`.
+_PAINTING_THEME: list = [None, None]
+
+
+def _application_palette_key():
+    """The running application's palette ``cacheKey``, or ``None``."""
+    app = QGuiApplication.instance()
+    return app.palette().cacheKey() if app is not None else None
+
+
+def _forget_painting_theme() -> None:
+    """Drop the theme :func:`_painting_theme` resolved; preferences moved."""
+    _PAINTING_THEME[:] = [None, None]
+
+
+def _painting_theme() -> str:
+    """The effective theme, for code that runs on every paint event.
+
+    :func:`active_palette` reads the preference store each call, which is
+    right for a widget build and wrong for a paint hook that runs for every
+    field and switch on every frame of an animated backdrop. This answer is
+    kept until the application palette changes or
+    :func:`_forget_painting_theme` is called, both of which a theme change
+    does through :func:`spacr.qt.preferences.apply_preferences_to_app`.
+    Falls back to dark, uncached, if the preferences cannot be read.
+    """
+    key = _application_palette_key()
+    if _PAINTING_THEME[1] is None or _PAINTING_THEME[0] != key:
+        try:
+            from .preferences import resolve_effective_theme
+            name = resolve_effective_theme()
+        except Exception:
+            return "dark"
+        _PAINTING_THEME[:] = [key, name]
+    return _PAINTING_THEME[1]
+
+
+def _painting_palette() -> dict:
+    """:func:`active_palette` for a paint event; see :func:`_painting_theme`.
+
+    The palette itself is built fresh, so the spaceout drift still moves.
+    """
+    return palette_for(_painting_theme())
 
 
 def page_colour(theme: str = "dark") -> str:

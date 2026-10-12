@@ -5103,6 +5103,7 @@ class ResonanceEngine(_BufferedEngine):
 _PACKED_SCATTER = None
 _COLORED_SCATTER = None
 _COLORED_SCATTER_FAILED = False
+_COLOR_BLEND = None
 _PACKED_SCATTER_STARTED = False
 _PACKED_SCATTER_FAILED = False
 _PACKED_SCATTER_LOCK = threading.Lock()
@@ -5179,6 +5180,31 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
                 if ((dark and color > flat[destination])
                         or (not dark and color < flat[destination])):
                     flat[destination] = color
+
+
+def _blend_colored_words(output, base, blend):
+    """Mix ``blend`` of 255 of ``output`` into ``base`` per channel, in place.
+
+    The colour-wave crossfade, rounded exactly as its NumPy twin in
+    :meth:`_SpaceoutFieldEngine._point_material` rounds it. ``output`` is the
+    coloured frame with its rank bytes still in the alpha channel and
+    ``base`` the ordinary opaque frame, which becomes the result. A word
+    equal in both mixes to itself, so only the few words a grain touched are
+    written. Red and blue share one product in 16-bit lanes; every lane sum
+    stays below 65280, where ``(sum + 1 + (sum >> 8)) >> 8`` equals
+    ``sum // 255`` and no lane carries into the next.
+    """
+    keep = 255 - blend
+    for i in range(base.size):
+        colored = int(output[i]) | 0xff000000
+        previous = int(base[i])
+        if colored == previous:
+            continue
+        pair = (previous & 0xff00ff) * keep + (colored & 0xff00ff) * blend + 0x7f007f
+        pair = (pair + 0x10001 + (pair >> 8 & 0xff00ff)) >> 8 & 0xff00ff
+        green = (previous >> 8 & 255) * keep + (colored >> 8 & 255) * blend + 127
+        green = (green + 1 + (green >> 8)) >> 8
+        base[i] = 0xff000000 | pair | green << 8
 
 
 _SUBPIXEL_SCATTER = None
@@ -5283,6 +5309,7 @@ def _warm_packed_scatter():
     """
     global _PACKED_SCATTER, _PACKED_SCATTER_FAILED, _PACKED_SCATTER_STARTED
     global _COLORED_SCATTER, _COLORED_SCATTER_FAILED, _SUBPIXEL_SCATTER
+    global _COLOR_BLEND
     if not _AMBIENT_STARTUP_READY.is_set():
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER_STARTED = False
@@ -5310,6 +5337,14 @@ def _warm_packed_scatter():
             if getattr(subpixel, 'nopython_signatures', ()):
                 with _PACKED_SCATTER_LOCK:
                     _SUBPIXEL_SCATTER = subpixel
+        except Exception:
+            pass
+        try:
+            blender = njit(nogil=True, cache=False)(_blend_colored_words)
+            blender(flat, flat.copy(), 1)
+            if getattr(blender, 'nopython_signatures', ()):
+                with _PACKED_SCATTER_LOCK:
+                    _COLOR_BLEND = blender
         except Exception:
             pass
         try:
@@ -5361,6 +5396,18 @@ def _ready_colored_scatter():
     if _COLORED_SCATTER is None:
         _ready_packed_scatter()
     return _COLORED_SCATTER
+
+
+def _ready_color_blend():
+    """The compiled colour-wave crossfade once the shared warmup has built it.
+
+    Without it a colour wave mixes two whole 2560x1440 frames in NumPy
+    chunks, 6-9 plain frames of shading; compiled, it writes only the words
+    a grain touched, without the interpreter lock.
+    """
+    if _COLOR_BLEND is None:
+        _ready_colored_scatter()
+    return _COLOR_BLEND
 
 
 def _warp_satin_columns(source, target, shifts, tops, bottoms, padding):
@@ -7610,12 +7657,15 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             spread=True)
         return image
 
-    def _flicker_field_dots(self, image, x, y) -> None:
+    def _flicker_field_dots(self, image, x, y, opaque: bool = True) -> None:
         """Flash the selected percentage of visible point-theme dots white.
 
         Fractional expected counts are sampled rather than rounded up to one
         dot. Very low percentages therefore give rare flashes, even in a
         sparse field. Selection changes at four ticks per animation second.
+        ``opaque=False`` is for a frame whose alpha bytes still hold grain
+        ranks: each word a flash compares against is made opaque first, so
+        the flash lands exactly as it does after a whole-frame opaque pass.
         """
         np = _numpy()
         width, height = image.width(), image.height()
@@ -7643,7 +7693,10 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
                             (-1, 1, 0xff3d3d3d), (1, 1, 0xff3d3d3d)):
             nx, ny = px + dx, py + dy
             inside = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
-            np.maximum.at(flat, ny[inside] * width + nx[inside], np.uint32(ink))
+            index = ny[inside] * width + nx[inside]
+            if not opaque:
+                flat[index] |= np.uint32(0xff000000)
+            np.maximum.at(flat, index, np.uint32(ink))
 
 
 class _SpaceoutFieldEngine(_DataArtEngine):
@@ -7943,6 +7996,13 @@ class _SpaceoutFieldEngine(_DataArtEngine):
                     valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
                     selected = diagonal if dx and dy else axial
                     combine(output, ny[valid] * width + nx[valid], selected[indices[valid]])
+        mixer = _ready_color_blend() if blend < 255 else None
+        if mixer is not None:
+            self._flicker_field_dots(image, px, py, opaque=False)
+            ordinary = super()._point_material(width, height, x, y, light, spread)
+            mixer(output, np.frombuffer(ordinary.bits(), np.uint32,
+                                        count=width * height), blend)
+            return ordinary
         np.bitwise_or(output, np.uint32(0xff000000), out=output)
         self._flicker_field_dots(image, px, py)
         if blend < 255:
@@ -9070,6 +9130,20 @@ def _retire_producer(box: List[Optional[_FrameProducer]]) -> None:
         producer.stop()
 
 
+#: The application's events a field listens to: the pointer and its clicks.
+_APPLICATION_EVENTS = (QEvent.MouseMove, QEvent.MouseButtonPress,
+                       QEvent.MouseButtonRelease)
+
+#: The event types :meth:`AmbientWidget.eventFilter` acts on, from the
+#: application, the window it is in and its parent. Every widget above the
+#: field is sent a paint event on every frame, so anything else returns at
+#: once.
+_FILTERED_EVENTS = frozenset((
+    QEvent.MouseMove, QEvent.MouseButtonPress, QEvent.MouseButtonRelease,
+    QEvent.WindowDeactivate, QEvent.Resize, QEvent.WindowStateChange,
+    QEvent.Hide, QEvent.Show, QEvent.Move, QEvent.ScreenChangeInternal))
+
+
 class AmbientWidget(QWidget):
     """The live backdrop: paints an :class:`AmbientEngine` at a capped rate.
 
@@ -10039,7 +10113,16 @@ class AmbientWidget(QWidget):
         return max(0, round(width * ratio)), max(0, round(height * ratio))
 
     def _sync_interaction_filter(self) -> None:
-        """Observe unconsumed field input while its visible animation runs."""
+        """Observe unconsumed field input while its visible animation runs.
+
+        Behind the application's event hub, for the three mouse events it
+        acts on: as a filter of its own it was asked about every event in
+        the application, among them a paint event per widget on screen on
+        every field frame.
+        """
+        from ..gil_priority import (_stop_watching_application_events,
+                                    _watch_application_events)
+
         app = QApplication.instance()
         wanted = ((self._theme in _FIELD_THEMES
                    or (self._theme.startswith("data_art_")
@@ -10047,12 +10130,12 @@ class AmbientWidget(QWidget):
                   and self._should_run()
                   and self._timer.isActive())
         if wanted and self._interaction_app is None and app is not None:
-            app.installEventFilter(self)
+            _watch_application_events(app, self, _APPLICATION_EVENTS)
             self._interaction_app = weakref.ref(app)
         elif not wanted and self._interaction_app is not None:
             observed = self._interaction_app()
             if observed is not None:
-                observed.removeEventFilter(self)
+                _stop_watching_application_events(observed, self)
             self._interaction_app = None
             self._pending_art_impulses.clear()
             self._field_grab = None
@@ -10273,6 +10356,8 @@ class AmbientWidget(QWidget):
             the base-class call raise and then crash the process.
         """
         etype = event.type()
+        if etype not in _FILTERED_EVENTS:
+            return False
         ref = getattr(self, "_watched", None)
         watched = ref() if ref is not None else None
         grab = getattr(self, "_field_grab", None)

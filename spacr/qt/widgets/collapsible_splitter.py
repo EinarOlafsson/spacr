@@ -517,9 +517,9 @@ class _PaneHandle(QSplitterHandle):
     def paintEvent(self, _event) -> None:                    # noqa: N802
         """Draw the one-pixel line and, beside an EDGE pane, its arrow."""
         try:
-            from ..theme import active_palette
+            from ..theme import _painting_palette
 
-            palette = active_palette()
+            palette = _painting_palette()
         except Exception:                                    # noqa: BLE001
             palette = {}
         hovered = self.underMouse() or self._pressed_at is not None

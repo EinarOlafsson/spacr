@@ -5,7 +5,7 @@ from PySide6.QtCore import Property, QPropertyAnimation, QRect, QSize, Qt
 from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen
 from PySide6.QtWidgets import QCheckBox, QSizePolicy
 
-from ..theme import active_palette
+from ..theme import _painting_palette
 
 
 class Toggle(QCheckBox):
@@ -89,7 +89,7 @@ class Toggle(QCheckBox):
         """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        palette = active_palette()
+        palette = _painting_palette()
         checked = self.isChecked()
         on_color = palette.get("button_accent", palette["accent"])
         off_color = palette.get(
