@@ -5746,6 +5746,62 @@ class VolumeMaskSession:
             view[np.asarray(paint, dtype=bool) & ((view == 0) | (view == label))] = label
         return self._commit(output)
 
+    def replace_plane(self, axis, index, labels, keep=()):
+        """Write one edited section back as a single undo step.
+
+        This is how the two-dimensional Make Masks tools edit a volume: they
+        change a section, and the section is written back whole. An object
+        already on this section keeps its ID, and so does any ID in ``keep``
+        (the object being drawn). An ID new to this section that belongs to
+        another object elsewhere in the volume is given the next unused ID
+        instead, so a tool that numbered its own objects never joins them to
+        a distant 3-D object.
+
+        :param axis: the axis held fixed, as for :meth:`plane`.
+        :param index: the section's index along ``axis``.
+        :param labels: the edited section, shaped as :meth:`plane` returns it.
+        :param keep: object IDs that may enter the section unchanged.
+        :returns: number of changed voxels.
+        """
+        from .i18n import tr
+
+        output = self.mask.copy()
+        view = self._section(output, axis, index)
+        edited = np.asarray(labels)
+        if edited.shape != view.shape or edited.dtype.kind not in 'uib':
+            raise ValueError(tr('The drawn section does not match the volume section.'))
+        edited = edited.astype(np.int64)
+        if edited.min(initial=0) < 0 or edited.max(initial=0) > min(65535, np.iinfo(self.mask.dtype).max):
+            raise ValueError(tr('Choose a positive object ID that the mask can store.'))
+        allowed = set(map(int, np.unique(view))) | {int(value) for value in keep} | {0}
+        extra = sorted(set(map(int, np.unique(edited))) - allowed)
+        if extra:
+            occupied = set(map(int, np.flatnonzero(np.bincount(self.mask.ravel()))))
+            clashes = [value for value in extra if value in occupied]
+            occupied.update(extra)
+            maximum = min(65535, np.iinfo(self.mask.dtype).max)
+            candidate = 1
+            for value in clashes:
+                while candidate in occupied:
+                    candidate += 1
+                if candidate > maximum:
+                    raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+                edited[edited == value] = candidate
+                occupied.add(candidate)
+        view[...] = edited
+        return self._commit(output)
+
+    def delete_label(self, label):
+        """Remove one object from every section as a single undo step.
+
+        :param label: the object ID to remove.
+        :returns: number of changed voxels.
+        """
+        label = self._check_label(label)
+        output = self.mask.copy()
+        output[output == label] = 0
+        return self._commit(output)
+
     def interpolate(self, label, axis='Z'):
         """Fill the empty sections between drawn sections of one object.
 
@@ -5838,6 +5894,30 @@ _VOLUME_MRC_SUFFIXES = ('.mrc', '.rec', '.map')
 def _spatial_page_axes(axes):
     """Read a plain three-dimensional page stack's page axis as Z."""
     return 'ZYX' if axes in ('QYX', 'IYX') else axes
+
+
+def _is_volume_file(path):
+    """Whether ``path`` holds a 3-D spatial volume, read from its header only.
+
+    TIFFs with three spatial axes (plain page stacks count as Z) and MRC
+    files with more than one section are volumes; anything unreadable is not.
+    """
+    path = Path(path)
+    try:
+        if path.suffix.lower() in _VOLUME_MRC_SUFFIXES:
+            import mrcfile
+
+            with mrcfile.open(str(path), header_only=True, permissive=True) as handle:
+                return int(handle.header.nz) > 1
+        if path.suffix.lower() not in ('.tif', '.tiff'):
+            return False
+        import tifffile
+
+        with tifffile.TiffFile(path) as handle:
+            series = handle.series[0]
+            return len(series.shape) == 3 and sorted(_spatial_page_axes(series.axes)) == ['X', 'Y', 'Z']
+    except Exception:
+        return False
 
 
 def _read_tiff_volume(source):
