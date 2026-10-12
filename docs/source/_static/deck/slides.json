@@ -1,10 +1,10 @@
 {
  "count": 57,
- "source": "color.pptx",
+ "source": "spacr_overview.pptx",
  "title_line": {
   "x": 0.0525,
   "y": 0.8733333333333333,
-  "w": 0.3690944881889764,
+  "w": 0.75,
   "h": 0.05333333333333334,
   "size": 0.025925925925925925,
   "colour": "#8C98A5",
@@ -201,7 +201,7 @@
   {
    "image": "slides/slide_32.jpg",
    "thumb": "thumbs/slide_32.jpg",
-   "title": "Make Masks: edit labels and boxes",
+   "title": "Make Masks: fix masks by hand",
    "animations": []
   },
   {
@@ -228,7 +228,7 @@
   {
    "image": "slides/slide_34.jpg",
    "thumb": "thumbs/slide_34.jpg",
-   "title": "Make Masks: organize for Measure",
+   "title": "Make Masks: Features",
    "animations": []
   },
   {
