@@ -2,6 +2,8 @@
 
 # Toxoplasma from Cell Mask (cross-channel)
 
+![Score card of Toxoplasma from Cell Mask (cross-channel) (default): F1 at IoU 0.5 0.606 against 0.021 for stock cpsam_v2.](cards/toxoplasma_from_cellmask_v1.svg)
+
 `toxoplasma_from_cellmask_v1` · Cellpose-SAM (cpsam_v2) · default in the `toxoplasma_from_cellmask` family
 
 ## Training data

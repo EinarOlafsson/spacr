@@ -2,6 +2,8 @@
 
 # Toxoplasma Plaque v2 (round 5)
 
+![Score card of Toxoplasma Plaque v2 (round 5) (older version): F1 at IoU 0.5, literature 0.819.](cards/toxoplasma_plaque_v2.svg)
+
 `toxoplasma_plaque_v2` · Cellpose-SAM (cpsam_v2) · older version in the `toxoplasma_plaque` family
 
 The family's default is [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md).

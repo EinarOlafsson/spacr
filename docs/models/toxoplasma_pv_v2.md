@@ -2,6 +2,8 @@
 
 # Toxoplasma PV v2 (round 5)
 
+![Score card of Toxoplasma PV v2 (round 5) (older version).](cards/toxoplasma_pv_v2.svg)
+
 `toxoplasma_pv_v2` · Cellpose-SAM (cpsam_v2) · older version in the `toxoplasma_pv` family
 
 The family's default is [toxoplasma_pv_v4](toxoplasma_pv_v4.md).

@@ -2,6 +2,8 @@
 
 # Toxoplasma Plaque v3 (Gel Doc r5, alternative)
 
+![Score card of Toxoplasma Plaque v3 (Gel Doc r5) (alternative): F1 at IoU 0.5 0.642.](cards/toxoplasma_plaque_v3.svg)
+
 `toxoplasma_plaque_v3` · Cellpose-SAM (cpsam, Cellpose 4.0.9) · alternative in the `toxoplasma_plaque` family
 
 The family's default is [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md).

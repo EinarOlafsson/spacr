@@ -2,6 +2,8 @@
 
 # Cross-channel cell-from-hoechst
 
+![Score card of Cross-channel cell-from-hoechst (default): F1 at IoU 0.5 0.870 against 0.301 for stock cpsam_v2.](cards/cell_from_hoechst_v1.svg)
+
 `cell_from_hoechst_v1` · Cellpose-SAM (cpsam_v2) · default in the `cell_from_hoechst` family
 
 ## Training data

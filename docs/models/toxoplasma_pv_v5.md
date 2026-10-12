@@ -2,6 +2,8 @@
 
 # Toxoplasma PV v5 (round 8, alternative)
 
+![Score card of Toxoplasma PV v5 (round 8) (alternative): F1 at IoU 0.5 0.792 against 0.559 for stock cpsam_v2.](cards/toxoplasma_pv_v5.svg)
+
 `toxoplasma_pv_v5` · Cellpose-SAM (cpsam_v2, Cellpose 4.0.9) · alternative in the `toxoplasma_pv` family
 
 The family's default is [toxoplasma_pv_v4](toxoplasma_pv_v4.md).

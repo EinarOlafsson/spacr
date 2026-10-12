@@ -2,6 +2,8 @@
 
 # Toxoplasma Well Detector v3 (YOLO11 Gel Doc, default)
 
+![Score card of Toxoplasma Well Detector v3 (YOLO11 Gel Doc) (default): Box mAP at IoU 0.5 0.994.](cards/toxoplasma_well_detector_v3.svg)
+
 `toxoplasma_well_detector_v3` · YOLO11n (fine-tuned from detector v3) · default in the `toxoplasma_well_detector` family
 
 Other versions: [toxoplasma_well_detector_v2](toxoplasma_well_detector_v2.md), [toxoplasma_well_detector_v1](toxoplasma_well_detector_v1.md).
