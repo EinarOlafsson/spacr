@@ -5219,8 +5219,6 @@ def _scatter_subpixel_grains(flat, xs, ys, values, lookup, width, height, dark,
                     w = 0.0
                 weights[a * 4 + b] = w
                 total += w
-        if total <= 0.0:
-            continue
         scale = values[i] * 255.0 * 4.68 / total
         for a in range(4):
             ny = jy + a - 1
