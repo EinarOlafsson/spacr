@@ -1,24 +1,6 @@
 {
   "schema": 1,
   "sources": {
-    "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0": {
-      "source_blocks_sha256": [
-        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
-        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
-        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
-        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
-      ],
-      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
-      "text": "Open a z-stack or volume in the 3-D mask editor.\n\nMasks are drawn and erased slice by slice on XY, XZ or YZ sections,\ninterpolated between drawn slices, assigned to 3-D objects and edited\nwith the shared anchors. TIFF stacks, OME-TIFF and MRC volumes open;\ntime/channel/RGB TIFFs are refused rather than interpreted as depth.\nThe existing 2-D image, mask tools and YOLO annotations stay separate.\n\n:param path: optional volume path; otherwise opens a file picker.\n:returns: the native volume dialog, or None on cancellation/refusal."
-    },
-    "219811605a7a8578e78714185cd616585a8e9ec4cb3e86f07c19c31a6b8717c1": {
-      "source_blocks_sha256": [
-        "b30fdd4132f494c60cfd5ef1c87a4e27c480a1651c81bc269b134558dc63d7b1",
-        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
-      ],
-      "source_sha256": "219811605a7a8578e78714185cd616585a8e9ec4cb3e86f07c19c31a6b8717c1",
-      "text": "Draw the loading state.\n\n:param event: the Qt paint event."
-    },
     "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3": {
       "source_blocks_sha256": [
         "25990a1b6842b3d8f390a1527d2e0972bc8e668d6bc2738dfa11f03f05f95ea1",
@@ -27,13 +9,6 @@
       ],
       "source_sha256": "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3",
       "text": "Follow a live theme switch when nobody else is going to.\n\nA host that passed its own ``background`` owns that colour and is\nexpected to re-set it (that is what ``app_screen`` does, because it\nalso has to re-resolve the wallpaper). A host that did not gets this\nfor free instead of a stale dark rectangle on a white page.\n\n:param event: the change event; it goes to the base class first, and\n    only an ``ApplicationPaletteChange`` is acted on."
-    },
-    "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69": {
-      "source_blocks_sha256": [
-        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
-      ],
-      "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
-      "text": "A drag applies on release; a click or key applies at once."
     },
     "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8": {
       "source_blocks_sha256": [
@@ -45,19 +20,6 @@
       "source_sha256": "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8",
       "text": "Watch the widgets this filter is installed on.\n\n:param obj: the object the event is for.\n:param event: the event.\n:returns: True to stop the event going further."
     },
-    "69005d582b0bc65cab72695c80e6a368943aee0cc0b0bc66ecb6a7b8edc8257e": {
-      "source_blocks_sha256": [
-        "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
-        "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
-        "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
-        "79a32a90fbb1078f7a69a7402e50b25d76dfd4a31922faf40102561791b6fcb7",
-        "76c607b35e253840185db1a67af7dbca99a26207c67d0cd74e014109a565012b",
-        "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
-        "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
-      ],
-      "source_sha256": "69005d582b0bc65cab72695c80e6a368943aee0cc0b0bc66ecb6a7b8edc8257e",
-      "text": "Full-window cover shown until the pipeline modules are imported.\n\n:param total: how many steps will be reported. Zero or negative means\n    \"unknown\", and the phases stay dim rather than dividing by it.\n:param parent: the window this fills. It is sized to the parent and\n    resizes with it, rather than being a separate top-level -- a second\n    window would earn its own taskbar entry and could be dragged off the\n    thing it is supposed to be covering.\nBuild the splash that covers the window while it is being assembled.\n\nOpaque by construction: it covers a partly-built window, and any\ntransparency would show the thing it exists to hide.\n\n:param total: how many steps the progress bar counts to; ``0`` shows no\n    proportion.\n:param parent: the window to cover; its geometry is adopted."
-    },
     "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715": {
       "source_blocks_sha256": [
         "52522f631b6fe8619e1e06d811cb063b55678b47109553519a3defa06e393509",
@@ -65,33 +27,6 @@
       ],
       "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
       "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
-    },
-    "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293": {
-      "source_blocks_sha256": [
-        "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
-        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
-        "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
-        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
-      ],
-      "source_sha256": "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293",
-      "text": "Which version a model family's row opens on.\n\nThe newest version that is not an alternative, so publishing an\nalternative never changes what a family's row hands out by default.\n\n:param pairs: ``(label, entry)`` pairs, newest first.\n:returns: an index into ``pairs``; 0 when every version is an\n    alternative or there are none."
-    },
-    "742c1cfbb9cb41e686ff0f44ebedfd6b634d1cf47853f85e845b4842a822f103": {
-      "source_blocks_sha256": [
-        "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",
-        "afa4b72571ecdd2394451f4522970faed5a21aaf0a054b9fb4bf7e98321b30d0",
-        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53"
-      ],
-      "source_sha256": "742c1cfbb9cb41e686ff0f44ebedfd6b634d1cf47853f85e845b4842a822f103",
-      "text": "Which published lesson teaches a module, and the URL that opens it.\n\nThe lesson library at ``<docs>/tutorials/`` deep-links with ``#lesson=<id>``,\nso pointing a reader at the lesson for the module they are hovering is a\nlookup and a string. The lookup table is\n``spacr/resources/tutorial_index.json``, written by\n``tools/build_tutorial_index.py`` from the docs build's own lesson catalog --\nsee there for why it is not the catalog itself.\n\nNo network access and no heavy imports: this is read on the hover path, from Home and\nfrom the dock, so it caches the table on first use and answers ``\"\"`` for\nanything it cannot resolve. A module with no lesson gets no link, and no\nexception is raised in a hover handler."
-    },
-    "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9": {
-      "source_blocks_sha256": [
-        "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
-        "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
-      ],
-      "source_sha256": "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9",
-      "text": "Set the bar value, clamped to 0-100, and re-color at 75/90 %.\n\n:param pct: value in ``0.0``-``100.0``; out-of-range values clamp."
     },
     "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850": {
       "source_blocks_sha256": [
