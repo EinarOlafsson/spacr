@@ -6689,7 +6689,7 @@ UI = {
     'Organizing failed: {error}. Every move made before the failure is listed in the manifest.': 'A organização falhou: {error}. Cada movimentação feita antes da falha está listada no manifesto.',
     'Original filenames are added to {base}.': 'Os nomes dos arquivos originais são adicionados a {base}.',
     'Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. Unmatched original names remain blank.\nMapping: {path}': 'Nomes de arquivo originais: {matched:,} linhas correspondentes;  {unmatched:,} linhas incomparáveis. Nomes originais não correspondidos permanecem em branco. Mapeamento: ?{path}',
-    'Orthogonal': 'Orthogonal',
+    'Orthogonal': 'Ortogonal',
     'Otsu': 'Método de Otsu',
     'Otsu detect': 'Otsu detectar',
     'Out of 1,000 perturbed genes, how many do you expect to be hits?': 'De 1.000 genes perturbados, quantos você espera que sejam atingidos?',

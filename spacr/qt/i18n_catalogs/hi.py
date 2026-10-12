@@ -6689,7 +6689,7 @@ UI = {
     'Organizing failed: {error}. Every move made before the failure is listed in the manifest.': 'व्यवस्थित करना विफल: {error}। विफलता से पहले किया गया हर स्थानांतरण मैनिफ़ेस्ट में सूचीबद्ध है।',
     'Original filenames are added to {base}.': 'मूल फ़ाइल नाम {base} में जोड़ा जाता है।',
     'Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. Unmatched original names remain blank.\nMapping: {path}': 'मूल फ़ाइल नाम: {matched:,} संरेखित पंक्तियां; {unmatched:,} असंगत पंक्तियों. अनसंगत मूल नाम सफेद रहते हैं. मैपिंग: {path}',
-    'Orthogonal': 'Orthogonal',
+    'Orthogonal': 'ऑर्थोगोनल',
     'Otsu': 'Otsu विधि',
     'Otsu detect': 'ओसामा का पता लगाना',
     'Out of 1,000 perturbed genes, how many do you expect to be hits?': '1000 परेशान जीनों में से, आप कितने हिट की उम्मीद करते हैं?',

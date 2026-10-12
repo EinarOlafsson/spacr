@@ -6689,7 +6689,7 @@ UI = {
     'Organizing failed: {error}. Every move made before the failure is listed in the manifest.': 'Ordnandet misslyckades: {error}. Varje flytt som gjordes före felet finns i manifestet.',
     'Original filenames are added to {base}.': 'Ursprungliga filnamn läggs till {base}.',
     'Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. Unmatched original names remain blank.\nMapping: {path}': 'Ursprungliga filnamn: {matched:,} matchade rader; {unmatched:,} omatchade rader. Omatchade ursprungliga namn förblir tomma. Kartläggning: {path}',
-    'Orthogonal': 'Orthogonal',
+    'Orthogonal': 'Ortogonal',
     'Otsu': 'Otsus metod',
     'Otsu detect': 'Otsu detektera',
     'Out of 1,000 perturbed genes, how many do you expect to be hits?': 'Av 1000 störda gener, hur många förväntar du dig att bli hits?',

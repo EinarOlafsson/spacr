@@ -6689,7 +6689,7 @@ UI = {
     'Organizing failed: {error}. Every move made before the failure is listed in the manifest.': 'Röðun mistókst: {error}. Allir flutningar sem gerðir voru fyrir villuna eru skráðir í yfirlitsskrána.',
     'Original filenames are added to {base}.': 'Fyrstu filnafn er lagt til {base}.',
     'Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. Unmatched original names remain blank.\nMapping: {path}': 'Original filename: {matched:,} sameiginleg ránar; {unmatched:,} ekki sameiginlegt rán. Unmatched original names remain white. Mapping: {path}',
-    'Orthogonal': 'Orthogonal',
+    'Orthogonal': 'Hornrétt',
     'Otsu': 'Otsu-aðferð',
     'Otsu detect': 'Sjálf uppgötva',
     'Out of 1,000 perturbed genes, how many do you expect to be hits?': 'Af þúsund mismunandi genum, hversu margir ætlar þú að vera hit?',

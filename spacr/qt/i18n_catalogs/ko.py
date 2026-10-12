@@ -6689,7 +6689,7 @@ UI = {
     'Organizing failed: {error}. Every move made before the failure is listed in the manifest.': '정리 실패: {error}. 실패 전에 수행된 모든 이동은 매니페스트에 나열되어 있습니다.',
     'Original filenames are added to {base}.': '원본 파일 이름은 {base}에 추가됩니다.',
     'Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. Unmatched original names remain blank.\nMapping: {path}': '원본 이름: {matched:,} 일치하는 라인; {unmatched:,} 불일치한 라인. {path} 흰색으로 남아 있습니다.',
-    'Orthogonal': 'Orthogonal',
+    'Orthogonal': '직교',
     'Otsu': 'Otsu 방법',
     'Otsu detect': '오스쿠 탐지기',
     'Out of 1,000 perturbed genes, how many do you expect to be hits?': '1000 개의 혼란스러운 유전자 중, 얼마나 많은 히트를 기대합니까?',

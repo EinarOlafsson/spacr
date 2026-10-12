@@ -6690,7 +6690,7 @@ UI = {
     'Organizing failed: {error}. Every move made before the failure is listed in the manifest.': '整理失败：{error}。失败前完成的每次移动都已列在清单中。',
     'Original filenames are added to {base}.': '原始字符名被添加到 {base}。',
     'Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. Unmatched original names remain blank.\nMapping: {path}': '原名: {matched:,} 匹配行; {unmatched:,} 未匹配的行列 未匹配的原始名称仍然是白色的。 地图: {path}',
-    'Orthogonal': 'Orthogonal',
+    'Orthogonal': '正交',
     'Otsu': 'Otsu（大津法）',
     'Otsu detect': '奥斯卡检测',
     'Out of 1,000 perturbed genes, how many do you expect to be hits?': '在1000个混乱的基因中,你期望有多少人被击中?',
