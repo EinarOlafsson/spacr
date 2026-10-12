@@ -119,7 +119,7 @@ def test_installed_art_uses_smooth_idle_rate_but_preserves_explicit_caps(qtbot):
     widget = ambient.install_ambient(host, theme="blobs", seed=7)
     assert widget.fps() == 12
     widget.set_theme("data_art_point_atlas")
-    assert widget.fps() == 24
+    assert widget.fps() == 30
     widget._run_paced = True
     assert widget._rate() == ambient._RUN_FPS
     widget.set_fps(8)

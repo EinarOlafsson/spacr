@@ -14,7 +14,6 @@
 """
 from __future__ import annotations
 
-import math
 import time
 
 import numpy as np
@@ -261,3 +260,8 @@ def test_hover_moves_drive_gravity_on_other_interactive_art(qtbot):
     assert field.engine.pointer is not None
     field.set_gravity_radius(0)
     assert field._interaction_app is None
+
+
+def test_shipped_frame_rate_is_thirty():
+    assert ambient.DEFAULT_FPS == 30
+    assert ambient.MAX_FPS >= 30
