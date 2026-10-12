@@ -17,3 +17,4 @@ Read `features/HANDOFF.md`, section "CURRENT HANDOFF FOR CODEX AND OTHER AGENTS"
 13. Never touch livecell or cellposeTIME jobs; they belong to another session.
 14. `einarolafsson/models` on Hugging Face is a DATASET repo.
 15. Item state is in each item file's dated trailing notes and `features/00_INDEX.txt` (generated).
+16. Stay responsive: never run anything that can take over ~1 minute in the foreground (pytest, sphinx, builds, renders, training, sleep/until/wait loops). Use Bash `run_in_background: true` (you are notified when it ends) or hand it to a subagent; the main session must always be free to answer. A local hook blocks foreground pytest/sphinx/long sleeps; mark a known-short command with `# fg-ok`.
