@@ -9766,7 +9766,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.home.HomePage.active_jobs', 'How many journal-reading threads are still winding down.'),
     ('spacr.qt.widgets.home.HomePage.apply_release_news', 'Hand a fetched release list to the News panel.'),
     ('spacr.qt.widgets.home.HomePage.closeEvent', 'Stop Home-page background activity before closing.'),
-    ('spacr.qt.widgets.home.HomePage.eventFilter', 'Watch the widgets this filter is installed on.'),
+    ('spacr.qt.widgets.home.HomePage.eventFilter', "Show a tile's summary on Enter and release it on Leave."),
     ('spacr.qt.widgets.home.HomePage.legend', 'The colour-to-maturity key at the foot of the right column.'),
     ('spacr.qt.widgets.home.HomePage.news_panel', "The News panel. For tests and for the window's own wiring."),
     ('spacr.qt.widgets.home.HomePage.page_fill', 'The flat colour Home paints itself, or ``None``.'),

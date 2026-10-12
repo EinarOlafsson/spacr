@@ -19,20 +19,14 @@
       "source_sha256": "219811605a7a8578e78714185cd616585a8e9ec4cb3e86f07c19c31a6b8717c1",
       "text": "Draw the loading state.\n\n:param event: the Qt paint event."
     },
-    "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1": {
+    "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3": {
       "source_blocks_sha256": [
-        "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
-        "56ff2c0606a7dd38a1b96fce3b253a279b71cb65746b88a2faf0531b46653765",
-        "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
-        "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
-        "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
-        "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
-        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
-        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
-        "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
+        "25990a1b6842b3d8f390a1527d2e0972bc8e668d6bc2738dfa11f03f05f95ea1",
+        "9c9fe5073511237fcf62751d567545f9ac7e7706a47dff33f99ba15749a80d83",
+        "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882"
       ],
-      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
-      "text": "Install ``sheet`` on every top-level window instead of on ``app``.\n\nWHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every\nwidget the process owns, and a session that has opened a few modules\nowns thousands it cannot see -- `MainWindow` builds a module screen on\nfirst navigation and keeps it in the stack afterwards. Measured on this\nbox, offscreen, four modules open, 9,045 live widgets of which 6,111 are\non screens nobody is looking at:\n\n    app.setStyleSheet            2,836 ms first, ~7,500 ms thereafter\n    every top-level window       1,684 ms first, ~1,900 ms thereafter\n    the visible screen alone       222 ms\n\nA QUARTER OF THE COST FOR THE SAME PICTURE. The floor is lower still --\n222 ms is what the visible screen costs on its own -- and reaching it\nmeans not sheeting the hidden screens either, which is a bigger change\nthan this one.\n\n:param app: the ``QApplication`` whose windows wear the sheet, and where\n    the sheet itself is parked so a window created later can find it.\n    ``None`` is accepted and does nothing, so a caller running without\n    an application does not have to check first.\n:param sheet: the complete application stylesheet, as\n    :func:`stylesheet` composes it.\n:returns: the number of windows the sheet was put on.\n\nA hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next\n``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before\nit paints: the Preferences window kept for the next open is ~750\nwidgets nobody can see.\n\nA settings category's body that is waiting off the page is parentless,\nso Qt lists it among the top-level widgets, but it is not a window: it\ngoes back under its page before anybody sees it and wears the page's\nsheet from there. Sheeting it here would leave it carrying a copy of\nthe sheet of the moment when it went back, which the next theme change\nwould not reach. See\n:meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`."
+      "source_sha256": "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3",
+      "text": "Follow a live theme switch when nobody else is going to.\n\nA host that passed its own ``background`` owns that colour and is\nexpected to re-set it (that is what ``app_screen`` does, because it\nalso has to re-resolve the wallpaper). A host that did not gets this\nfor free instead of a stale dark rectangle on a white page.\n\n:param event: the change event; it goes to the base class first, and\n    only an ``ApplicationPaletteChange`` is acted on."
     },
     "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69": {
       "source_blocks_sha256": [
@@ -40,6 +34,16 @@
       ],
       "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
       "text": "A drag applies on release; a click or key applies at once."
+    },
+    "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8": {
+      "source_blocks_sha256": [
+        "1b4beaadd943ccea9a259c41141ff5d6c11aece455dc4f143cb72ed2369884ef",
+        "a1fe911c408cbfdcdcd75086730bc0c607e8bd0a2e0e98df11279694d83249c2",
+        "f3efd0f168c29395cb299b53657b248f21ba0932a39bbc67e2d3ba990723c524",
+        "35ae9a3e190eb544530b096d46b44a16bb33a1f0d404797927edf562febd6c43"
+      ],
+      "source_sha256": "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8",
+      "text": "Watch the widgets this filter is installed on.\n\n:param obj: the object the event is for.\n:param event: the event.\n:returns: True to stop the event going further."
     },
     "69005d582b0bc65cab72695c80e6a368943aee0cc0b0bc66ecb6a7b8edc8257e": {
       "source_blocks_sha256": [
@@ -80,15 +84,6 @@
       ],
       "source_sha256": "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9",
       "text": "Set the bar value, clamped to 0-100, and re-color at 75/90 %.\n\n:param pct: value in ``0.0``-``100.0``; out-of-range values clamp."
-    },
-    "e56b3cedfdb711bf944af76b476e5547b5e74f21f138b6b4fc4c2fc48d6bc7a7": {
-      "source_blocks_sha256": [
-        "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",
-        "34363b6666905926b49273d74aa63116c52dcd18ae3e215068713a135ad5d23e",
-        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2"
-      ],
-      "source_sha256": "e56b3cedfdb711bf944af76b476e5547b5e74f21f138b6b4fc4c2fc48d6bc7a7",
-      "text": "Re-apply language, theme and font scale to ``QApplication``.\n\nCalled at startup from :func:`spacr.qt.app.launch`, and again\nwhenever the user changes a preference (via :class:`PreferencesDialog`\n``accepted`` signal).\n\n:param app: optional QApplication. Falls back to\n    ``QApplication.instance()``."
     }
   }
 }

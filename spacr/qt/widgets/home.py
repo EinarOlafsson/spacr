@@ -43,9 +43,10 @@ import warnings
 from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
-from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QObject, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (
+    QApplication,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -1842,6 +1843,34 @@ def _scale_text_under(root: QWidget, ratio: float,
             widget.setStyleSheet(new)
 
 
+class _TileHintWatcher(QObject):
+    """Hands Home the Enter and Leave events of its tiles.
+
+    Home used to be an event filter on each of its 18 tiles, and Qt asks
+    every filter on a widget about every event it gets; over the window's
+    moving field every tile repaints on every frame, so that was a Python
+    call per tile per frame for a filter that acts on two event types. The
+    watcher hears those two through the application event hub
+    (:func:`spacr.qt.gil_priority._watch_application_events`), which is
+    asked about every event anyway, and passes Home only its tiles' events.
+    """
+
+    def __init__(self, page: QWidget):
+        """Watch the application on behalf of ``page``."""
+        from ..gil_priority import _watch_application_events
+
+        super().__init__(page)
+        _watch_application_events(QApplication.instance(), self,
+                                  frozenset((QEvent.Enter, QEvent.Leave)))
+
+    def eventFilter(self, watched, event) -> bool:
+        """Home's answer for its own tiles; never stops an event."""
+        page = self.parent()
+        if watched in page._tile_hints:
+            page.eventFilter(watched, event)
+        return False
+
+
 class HomePage(QWidget):
     """Home. ``tile_clicked(str key)`` fires when a tile is pressed.
 
@@ -2472,7 +2501,9 @@ class HomePage(QWidget):
         return self._wire_tile(tile, key, desc)
 
     def _wire_tile(self, tile, key: str, desc: str):
-        """Connect one tile so pressing it opens its module.
+        """Connect one tile so pressing it opens its module, and so its
+        Enter and Leave reach :meth:`eventFilter` (through
+        :class:`_TileHintWatcher`, so its paint events never reach Python).
 
         :param tile: the tile.
         :param key: the module it opens.
@@ -2484,7 +2515,8 @@ class HomePage(QWidget):
         tile.setProperty("moduleSummarySource", desc)
         tile.setProperty("moduleTooltipStyle", "tile")
         tile.setProperty("moduleStageSource", STAGE_LABEL.get(tile.stage, ""))
-        tile.installEventFilter(self)
+        if getattr(self, "_tile_watcher", None) is None:
+            self._tile_watcher = _TileHintWatcher(self)
         tile.clicked.connect(lambda _=False, k=key: self.tile_clicked.emit(k))
         return tile
 
@@ -2956,7 +2988,10 @@ class HomePage(QWidget):
         return True
 
     def eventFilter(self, obj, event):          # noqa: N802
-        """Watch the widgets this filter is installed on.
+        """Show a tile's summary on Enter and release it on Leave.
+
+        :class:`_TileHintWatcher` hands it the tiles' events; it is not
+        installed on any widget.
 
         :param obj: the object the event is for.
         :param event: the event.

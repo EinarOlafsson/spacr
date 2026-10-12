@@ -909,6 +909,21 @@ def _as_pixmap(value) -> Optional[QPixmap]:
     return None if pixmap.isNull() else pixmap
 
 
+def _covers_opaquely(pixmap: Optional[QPixmap]) -> bool:
+    """Whether a backdrop leaves nothing under it showing through.
+
+    ``None`` (the flat page colour) does, and so does a picture without an
+    alpha channel or with every pixel at full alpha. A picture with any
+    translucent pixel lets whatever is under the field show there.
+    """
+    if pixmap is None or not pixmap.hasAlphaChannel():
+        return True
+    alpha = pixmap.toImage().convertToFormat(QImage.Format_Alpha8)
+    full = QImage(alpha.size(), QImage.Format_Alpha8)
+    full.fill(QColor(0, 0, 0, 255))
+    return alpha == full
+
+
 def _mix(a: QColor, b: QColor, t: float) -> QColor:
     """Linear RGB mix, ``t=0`` -> ``a``, ``t=1`` -> ``b``."""
     t = max(0.0, min(1.0, float(t)))
@@ -9806,7 +9821,8 @@ class AmbientWidget(QWidget):
         self._backdrop: Optional[QPixmap] = _as_pixmap(backdrop)
 
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, True)
+        self._opaque_backdrop = _covers_opaquely(self._backdrop)
+        self._claim_opaque_paint()
         self.setFocusPolicy(Qt.NoFocus)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
@@ -10334,8 +10350,28 @@ class AmbientWidget(QWidget):
             flat fill.
         """
         self._backdrop = _as_pixmap(source)
+        self._opaque_backdrop = _covers_opaquely(self._backdrop)
+        self._claim_opaque_paint()
         self._card_tints.invalidate()
         self.update()
+
+    def _claim_opaque_paint(self) -> None:
+        """Tell Qt this widget paints every pixel of itself, when it does.
+
+        With ``WA_OpaquePaintEvent`` Qt leaves the field's area out of what
+        the window and the containers between fill before their children,
+        so a field frame no longer has the window fill its whole background
+        first (15-17 % of a frame on Home and Mask alike). The application
+        stylesheet's polish clears the attribute from any widget a rule
+        reaches, so it is claimed again after every polish and restyle.
+
+        Claimed only while it is true: square corners (rounded ones leave
+        the corners to what is underneath) and a backdrop with no
+        translucent pixel. Otherwise the window keeps filling under the
+        field, as it always did.
+        """
+        self.setAttribute(Qt.WA_OpaquePaintEvent,
+                          self._corner_radius == 0 and self._opaque_backdrop)
 
     def changeEvent(self, event) -> None:
         """Follow a live theme switch when nobody else is going to.
@@ -10345,11 +10381,16 @@ class AmbientWidget(QWidget):
         also has to re-resolve the wallpaper). A host that did not gets this
         for free instead of a stale dark rectangle on a white page.
 
+        A restyle claims opaque painting again (:meth:`_claim_opaque_paint`).
+
         :param event: the change event; it goes to the base class first, and
-            only an ``ApplicationPaletteChange`` is acted on.
+            only a ``StyleChange`` and an ``ApplicationPaletteChange`` are
+            acted on.
         """
         super().changeEvent(event)
-        if event.type() == QEvent.ApplicationPaletteChange \
+        if event.type() == QEvent.StyleChange:
+            self._claim_opaque_paint()
+        elif event.type() == QEvent.ApplicationPaletteChange \
                 and not self._background_explicit:
             self._apply_background(_preferred_background(), explicit=False)
 
@@ -10804,9 +10845,13 @@ class AmbientWidget(QWidget):
     def showEvent(self, event):
         """Start animating, and follow the window this widget belongs to.
 
+        It is polished by then, so opaque painting is claimed again
+        (:meth:`_claim_opaque_paint`).
+
         :param event: the Qt show event.
         """
         super().showEvent(event)
+        self._claim_opaque_paint()
         _animation_resource_policy()
         window = self.window()
         watched = self._watched() if self._watched is not None else None
