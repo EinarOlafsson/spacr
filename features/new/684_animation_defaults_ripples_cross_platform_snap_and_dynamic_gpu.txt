@@ -2,7 +2,7 @@
 ANIMATION DEFAULTS, CLICK RIPPLES, WINDOW SNAPPING AND DYNAMIC GPU USE
 ================================================================================
 
-Status:    in progress — code, Preferences, policy and bounded tests delivered 2026-10-10; native platform/GPU acceptance open
+Status:    COMPLETE 100% 2026-10-12 — accepted by the maintainer on the desktop (see the trailing note)
 Requested: 2026-10-09 — "make all of this into a new feature item for the next session to implement."
 Owner:     Next session; coordinate Home window/theme changes and workstation GPU work
 Related:   N666 snapping; N670 ripples; N679 GPU renderers; N663 performance
@@ -372,3 +372,6 @@ WORKSTATION MUST RE-RUN GPU PARITY (CUDA_VISIBLE_DEVICES unset):
     sparse 7.2 ms against about 1 ms in r2/r4; a GPU choice there costs
     about 1.6 ms per frame).
     Remaining: only the maintainer's native desktop checks in step 5.
+
+2026-10-12 — MAINTAINER ACCEPTANCE
+N684: maintainer desktop check 2026-10-12: "the window snap animation works great". ACCEPTED — Status: COMPLETE 100%.
