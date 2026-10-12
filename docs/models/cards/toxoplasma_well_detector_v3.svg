@@ -1,50 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="480" height="526" viewBox="0 0 480 526" role="img" aria-labelledby="t d">
-<title id="t">Toxoplasma Well Detector v3 (YOLO11 Gel Doc) score card</title>
-<desc id="d">Score card of Toxoplasma Well Detector v3 (YOLO11 Gel Doc) (default): Box mAP at IoU 0.5 0.994.</desc>
-<style>.bg{fill:#fcfcfb;stroke:#d9d8d3}.t1{fill:#0b0b0b}.t2{fill:#52514e}.t3{fill:#6b6a65}.ft{fill:#2a78d6}.va{fill:#86857f}.tr{fill:#efeeea}.ax{stroke:#d9d8d3}.pl{fill:none;stroke:#2a78d6}.pt{fill:#1c5cab}.po{fill:none;stroke:#86857f}.pu{fill:#52514e}@media (prefers-color-scheme: dark){.bg{fill:#1a1a19;stroke:#3a3936}.t1{fill:#f0efec}.t2{fill:#c3c2b7}.t3{fill:#a3a29a}.ft{fill:#3987e5}.va{fill:#7c7b75}.tr{fill:#262624}.ax{stroke:#3a3936}.pl{stroke:#3987e5}.pt{fill:#86b6ef}.po{stroke:#7c7b75}.pu{fill:#c3c2b7}}</style>
-<rect class="bg" x="0.5" y="0.5" width="479" height="525" rx="12" stroke-width="1"/>
-<text x="20.0" y="38.0" class="t1" font-size="17" font-weight="600" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Toxoplasma Well Detector v3 (YOLO11 Gel</text>
-<text x="20.0" y="60.0" class="t1" font-size="17" font-weight="600" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Doc)</text>
-<rect class="pl" x="401.8" y="24" width="58.2" height="20" rx="10"/>
-<text x="430.9" y="38.0" class="pt" font-size="12" font-weight="600" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">default</text>
-<text x="20.0" y="80.0" class="t3" font-size="12" font-weight="400" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">toxoplasma_well_detector_v3 · v3</text>
-<text x="20.0" y="98.0" class="t2" font-size="13" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Plaque-assay wells in plate photos and published figures</text>
-<text x="20.0" y="116.0" class="t2" font-size="13" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">(boxes)</text>
-<text x="20.0" y="134.0" class="t3" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">YOLO11n (fine-tuned from detector v3)</text>
-<text x="20.0" y="194.0" class="t1" font-size="44" font-weight="600" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.994</text>
-<text x="148.0" y="170.0" class="t2" font-size="13" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Box mAP at IoU 0.5</text>
-<text x="148.0" y="188.0" class="t3" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">No stock detector has this class;</text>
-<text x="148.0" y="204.0" class="t3" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">no baseline in the record.</text>
-<rect class="ft" x="20" y="221" width="10" height="10" rx="2"/>
-<text x="36.0" y="230.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">This model</text>
-<text x="20.0" y="255.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">mAP50</text>
-<rect class="tr" x="112" y="246" width="300" height="10" rx="2"/>
-<path class="ft" d="M112.0 246.0h295.2a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-295.2z"/>
-<text x="418.0" y="255.0" class="t1" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.994</text>
-<text x="20.0" y="281.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">mAP50-95</text>
-<rect class="tr" x="112" y="272" width="300" height="10" rx="2"/>
-<path class="ft" d="M112.0 272.0h262.3a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-262.3z"/>
-<text x="418.0" y="281.0" class="t1" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.884</text>
-<text x="20.0" y="307.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Precision</text>
-<rect class="tr" x="112" y="298" width="300" height="10" rx="2"/>
-<path class="ft" d="M112.0 298.0h287.9a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-287.9z"/>
-<text x="418.0" y="307.0" class="t1" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.970</text>
-<text x="20.0" y="333.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Recall</text>
-<rect class="tr" x="112" y="324" width="300" height="10" rx="2"/>
-<path class="ft" d="M112.0 324.0h296.4a3.0 3.0 0 0 1 3.0 3.0v4.0a3.0 3.0 0 0 1 -3.0 3.0h-296.4z"/>
-<text x="418.0" y="333.0" class="t1" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.998</text>
-<line class="ax" x1="112.0" y1="242" x2="112.0" y2="342" stroke-width="1" stroke-dasharray="2 3"/>
-<text x="112.0" y="354.0" class="t3" font-size="11" font-weight="400" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0</text>
-<line class="ax" x1="262.0" y1="242" x2="262.0" y2="342" stroke-width="1" stroke-dasharray="2 3"/>
-<text x="262.0" y="354.0" class="t3" font-size="11" font-weight="400" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">0.5</text>
-<line class="ax" x1="412.0" y1="242" x2="412.0" y2="342" stroke-width="1" stroke-dasharray="2 3"/>
-<text x="412.0" y="354.0" class="t3" font-size="11" font-weight="400" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">1</text>
-<text x="20.0" y="387.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Hold-out: 73 clean incumbent-validation images; 3 Gel Doc</text>
-<text x="20.0" y="404.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">validation plates separately</text>
-<text x="20.0" y="421.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">The default well detector since 2026-10-12, by the maintainer&#x27;s</text>
-<text x="20.0" y="438.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">choice. On the 73 clean incumbent-validation images its mAP50-95 is</text>
-<text x="20.0" y="455.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">lower than the incumbent&#x27;s; on the 3 Gel Doc validation plates it</text>
-<text x="20.0" y="472.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">is higher.</text>
-<text x="20.0" y="489.0" class="t1" font-size="12.5" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif" font-style="italic">No stock detector has a plaque-well class; the well found first</text>
-<text x="20.0" y="506.0" class="t1" font-size="12.5" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif" font-style="italic">makes plaque sizes comparable across scanners.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="268" viewBox="0 0 400 268" role="img" aria-labelledby="t d">
+<title id="t">Plaque wells v3 score card</title>
+<desc id="d">Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images.</desc>
+<style>.card{fill:#0b1c23;stroke:#33596a}.i1{fill:#ffffff}.i2{fill:#cfe0e6}.i3{fill:#a3bbc4}.m{fill:#20aa9e}.b{fill:#566a7e}.tr{fill:#132b34}.tag{fill:#2ec4b6;fill-opacity:.12;stroke:#2ec4b6;stroke-opacity:.6}.tagt{fill:#2ec4b6}.up{fill:#20aa9e;fill-opacity:.28}.dn{fill:#566a7e;fill-opacity:.45}.na{fill:none;stroke:#33596a}text{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif}</style>
+<defs><linearGradient id="gtoxoplasma_well_detector_v3" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#2ec4b6"/><stop offset="1" stop-color="#6cb6ff"/></linearGradient><clipPath id="ctoxoplasma_well_detector_v3"><rect x="8" y="8" width="384" height="252" rx="14"/></clipPath></defs>
+<rect class="card" x="8.5" y="8.5" width="383" height="251" rx="14" stroke-width="1"/>
+<rect x="8" y="8" width="384" height="3" fill="url(#gtoxoplasma_well_detector_v3)" clip-path="url(#ctoxoplasma_well_detector_v3)"/>
+<rect class="tag" x="338.1" y="32" width="31.9" height="21" rx="10.5"/>
+<text x="354.0" y="46.5" class="tagt" font-size="12" font-weight="600" text-anchor="middle">v3</text>
+<text x="30.0" y="48.0" class="i1" font-size="19" font-weight="600" text-anchor="start">Plaque wells</text>
+<text x="30.0" y="118.0" class="i1" font-size="54" font-weight="600" text-anchor="start">0.994</text>
+<text x="180.0" y="85.0" class="i3" font-size="13" font-weight="400" text-anchor="start">mAP50 · 73 held-out images</text>
+<rect class="na" x="180" y="96" width="143.4" height="24" rx="12"/>
+<text x="251.7" y="112.5" class="i3" font-size="13" font-weight="600" text-anchor="middle">no stock detector</text>
+<text x="30.0" y="160.5" class="i2" font-size="12.5" font-weight="400" text-anchor="start">mAP50</text>
+<rect class="tr" x="120" y="148" width="204" height="8" rx="3"/>
+<path class="m" d="M120.0 148.0h199.8a3 3 0 0 1 3 3v2.0a3 3 0 0 1 -3 3h-199.8z"/>
+<text x="370.0" y="160.5" class="i1" font-size="12.5" font-weight="600" text-anchor="end">0.994</text>
+<text x="30.0" y="185.5" class="i2" font-size="12.5" font-weight="400" text-anchor="start">mAP50-95</text>
+<rect class="tr" x="120" y="173" width="204" height="8" rx="3"/>
+<path class="m" d="M120.0 173.0h177.4a3 3 0 0 1 3 3v2.0a3 3 0 0 1 -3 3h-177.4z"/>
+<text x="370.0" y="185.5" class="i1" font-size="12.5" font-weight="600" text-anchor="end">0.884</text>
+<text x="30.0" y="210.5" class="i2" font-size="12.5" font-weight="400" text-anchor="start">Recall</text>
+<rect class="tr" x="120" y="198" width="204" height="8" rx="3"/>
+<path class="m" d="M120.0 198.0h200.6a3 3 0 0 1 3 3v2.0a3 3 0 0 1 -3 3h-200.6z"/>
+<text x="370.0" y="210.5" class="i1" font-size="12.5" font-weight="600" text-anchor="end">0.998</text>
+<rect class="m" x="30" y="231" width="10" height="10" rx="2"/>
+<text x="46.0" y="240.0" class="i3" font-size="12" font-weight="400" text-anchor="start">this model</text>
 </svg>

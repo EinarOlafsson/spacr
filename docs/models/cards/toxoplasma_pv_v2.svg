@@ -1,17 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="480" height="244" viewBox="0 0 480 244" role="img" aria-labelledby="t d">
-<title id="t">Toxoplasma PV v2 (round 5) score card</title>
-<desc id="d">Score card of Toxoplasma PV v2 (round 5) (older version).</desc>
-<style>.bg{fill:#fcfcfb;stroke:#d9d8d3}.t1{fill:#0b0b0b}.t2{fill:#52514e}.t3{fill:#6b6a65}.ft{fill:#2a78d6}.va{fill:#86857f}.tr{fill:#efeeea}.ax{stroke:#d9d8d3}.pl{fill:none;stroke:#2a78d6}.pt{fill:#1c5cab}.po{fill:none;stroke:#86857f}.pu{fill:#52514e}@media (prefers-color-scheme: dark){.bg{fill:#1a1a19;stroke:#3a3936}.t1{fill:#f0efec}.t2{fill:#c3c2b7}.t3{fill:#a3a29a}.ft{fill:#3987e5}.va{fill:#7c7b75}.tr{fill:#262624}.ax{stroke:#3a3936}.pl{stroke:#3987e5}.pt{fill:#86b6ef}.po{stroke:#7c7b75}.pu{fill:#c3c2b7}}</style>
-<rect class="bg" x="0.5" y="0.5" width="479" height="243" rx="12" stroke-width="1"/>
-<text x="20.0" y="38.0" class="t1" font-size="17" font-weight="600" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Toxoplasma PV v2 (round 5)</text>
-<rect class="po" x="362.2" y="24" width="97.8" height="20" rx="10"/>
-<text x="411.1" y="38.0" class="pu" font-size="12" font-weight="600" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">older version</text>
-<text x="20.0" y="58.0" class="t3" font-size="12" font-weight="400" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">toxoplasma_pv_v2 · v2</text>
-<text x="20.0" y="76.0" class="t2" font-size="13" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Toxoplasma parasitophorous vacuoles in fluorescence images</text>
-<text x="20.0" y="94.0" class="t3" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Cellpose-SAM (cpsam_v2)</text>
-<text x="20.0" y="132.0" class="t2" font-size="13" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Hold-out scores are on the model card.</text>
-<text x="20.0" y="173.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Hold-out: 619 pairs</text>
-<text x="20.0" y="190.0" class="t2" font-size="12" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif">Re-scored 2026-10-11 on fields it never saw: F1 0.713 (n = 258)</text>
-<text x="20.0" y="207.0" class="t1" font-size="12.5" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif" font-style="italic">Stock Cellpose-SAM misses or misdraws many vacuoles in infected</text>
-<text x="20.0" y="224.0" class="t1" font-size="12.5" font-weight="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, &#x27;Segoe UI&#x27;, &#x27;Noto Sans&#x27;, Helvetica, Arial, sans-serif" font-style="italic">host-cell monolayers.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="268" viewBox="0 0 400 268" role="img" aria-labelledby="t d">
+<title id="t">Parasite vacuoles v2 score card</title>
+<desc id="d">Score card of Parasite vacuoles v2 (toxoplasma_pv_v2, older version).</desc>
+<style>.card{fill:#0b1c23;stroke:#33596a}.i1{fill:#ffffff}.i2{fill:#cfe0e6}.i3{fill:#a3bbc4}.m{fill:#20aa9e}.b{fill:#566a7e}.tr{fill:#132b34}.tag{fill:#2ec4b6;fill-opacity:.12;stroke:#2ec4b6;stroke-opacity:.6}.tagt{fill:#2ec4b6}.up{fill:#20aa9e;fill-opacity:.28}.dn{fill:#566a7e;fill-opacity:.45}.na{fill:none;stroke:#33596a}text{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif}</style>
+<defs><linearGradient id="gtoxoplasma_pv_v2" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#2ec4b6"/><stop offset="1" stop-color="#6cb6ff"/></linearGradient><clipPath id="ctoxoplasma_pv_v2"><rect x="8" y="8" width="384" height="252" rx="14"/></clipPath></defs>
+<rect class="card" x="8.5" y="8.5" width="383" height="251" rx="14" stroke-width="1"/>
+<rect x="8" y="8" width="384" height="3" fill="url(#gtoxoplasma_pv_v2)" clip-path="url(#ctoxoplasma_pv_v2)"/>
+<rect class="tag" x="294.9" y="32" width="75.1" height="21" rx="10.5"/>
+<text x="332.5" y="46.5" class="tagt" font-size="12" font-weight="600" text-anchor="middle">v2 · older</text>
+<text x="30.0" y="48.0" class="i1" font-size="19" font-weight="600" text-anchor="start">Parasite vacuoles</text>
+<text x="30.0" y="118.0" class="i3" font-size="54" font-weight="600" text-anchor="start">—</text>
+<text x="180.0" y="106.0" class="i3" font-size="13" font-weight="400" text-anchor="start">Held-out score not recorded</text>
+<text x="30.0" y="160.0" class="i3" font-size="12.5" font-weight="400" text-anchor="start">—</text>
+<text x="30.0" y="185.0" class="i3" font-size="12.5" font-weight="400" text-anchor="start">—</text>
+<text x="30.0" y="210.0" class="i3" font-size="12.5" font-weight="400" text-anchor="start">—</text>
+<rect class="m" x="30" y="231" width="10" height="10" rx="2"/>
+<text x="46.0" y="240.0" class="i3" font-size="12" font-weight="400" text-anchor="start">this model</text>
 </svg>

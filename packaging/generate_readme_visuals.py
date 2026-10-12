@@ -59,7 +59,6 @@ WORKFLOW_END = ".. spacr-workflow-end"
 MODEL_ZOO_BEGIN = ".. spacr-model-zoo-begin"
 MODEL_ZOO_END = ".. spacr-model-zoo-end"
 SCORE_CARDS_PER_ROW = 2
-SCORE_CARD_WIDTH = 380
 HARDWARE_BEGIN = ".. spacr-hardware-begin"
 HARDWARE_END = ".. spacr-hardware-end"
 INSTALLER_BEGIN = ".. spacr-installer-links-begin"
@@ -904,15 +903,18 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
                             language: str = "en") -> str:
     """The README's model-zoo block: a grid of score cards, one per family.
 
-    Each cell is the default model's SVG score card
-    (``docs/models/cards/<key>.svg``, drawn by ``tools/build_score_cards.py``
-    through ``tools/build_model_cards.py``) linking its Markdown card, with
-    the key underneath as a text link. The image's alt text carries the
-    record's own ``versus_stock`` sentence, so the numbers are readable
-    without the picture. The other versions follow on one line each, older
-    models and alternatives, linking their cards. Every number comes from
-    the zoo record, so a re-score reaches the README by re-running this
-    generator.
+    A centred heading strip, then the default model of each family as its
+    SVG score card (``docs/models/cards/<key>.svg``, drawn by
+    ``tools/build_score_cards.py`` through ``tools/build_model_cards.py``),
+    two to a line. The block is an RST line block of image substitutions
+    joined by escaped spaces: no table, so GitHub draws no cell borders,
+    padding or row stripes, and every card is exactly half the column wide
+    with its gutter inside the SVG. Each card links its Markdown card; there
+    is no text under it. The image's alt text carries the record's own
+    ``versus_stock`` sentence, so the numbers are readable without the
+    picture. The other versions follow on one line each, older models and
+    alternatives, linking their cards. Every number comes from the zoo
+    record, so a re-score reaches the README by re-running this generator.
     """
     def label(text: str) -> str:
         return localize_model_zoo_label(text, language)
@@ -926,34 +928,31 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
     families = build_model_cards.families(published)
     defaults = [family["default"] for family in families]
     per_row = SCORE_CARDS_PER_ROW
-    lines = [
-        ".. list-table::",
-        f"   :widths: {' '.join(['50'] * per_row)}",
+    lines = ["| |zoo_heading|"]
+    substitutions = [
         "",
+        f".. |zoo_heading| image:: {prefix}{scores.HEADING_NAME}",
+        f"   :alt: {scores.HEADING_TEXT}",
+        "   :width: 100%",
     ]
-    substitutions = []
+    width = f"{100 // per_row}%"
     for start in range(0, len(defaults), per_row):
-        row = list(defaults[start:start + per_row])
-        for column in range(per_row):
-            bullet = "   * -" if column == 0 else "     -"
-            if column >= len(row):
-                lines.append(bullet)
-                continue
-            entry = row[column]
-            key = build_model_cards.key_of(entry)
-            name = f"zoo_card_{key}"
-            lines += [f"{bullet} |{name}|", "", f"       {link(entry)}"]
-            versus = str(entry.get("versus_stock") or "").strip().rstrip(".")
-            alt = scores.alt_text(entry, "default")
-            if versus:
-                alt += " " + build_model_cards._sentence(versus)
-            substitutions += [
-                "",
-                f".. |{name}| image:: {prefix}{scores.card_name(key)}",
-                f"   :alt: {alt}",
-                f"   :target: {prefix}{build_model_cards.card_file(key)}",
-                f"   :width: {SCORE_CARD_WIDTH}",
-            ]
+        row = [build_model_cards.key_of(entry)
+               for entry in defaults[start:start + per_row]]
+        lines.append("| " + "\\ ".join(f"|zoo_card_{key}|" for key in row))
+    for entry in defaults:
+        key = build_model_cards.key_of(entry)
+        versus = str(entry.get("versus_stock") or "").strip().rstrip(".")
+        alt = scores.alt_text(entry, "default")
+        if versus:
+            alt += " " + build_model_cards._sentence(versus)
+        substitutions += [
+            "",
+            f".. |zoo_card_{key}| image:: {prefix}{scores.card_name(key)}",
+            f"   :alt: {alt}",
+            f"   :target: {prefix}{build_model_cards.card_file(key)}",
+            f"   :width: {width}",
+        ]
     lines += substitutions
     others = build_model_cards.other_records(published)
     older = [entry for entry, status in others if status == "older"]

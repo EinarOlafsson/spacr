@@ -637,7 +637,9 @@ def test_the_readme_lists_the_default_model_of_each_family():
     Asked for on 2026-09-02, narrowed on 2026-10-12: the README shows only
     the default model of each family, as a grid of SVG score cards each
     linking its card in docs/models, with the older models and alternatives
-    on one line each. A re-score in
+    on one line each. Redesigned the same day: the grid is a line block of
+    identical half-width cards under a centred heading strip, and the card
+    image itself is the link, with no text link under it. A re-score in
     the zoo must make this test fail until the generator is re-run.
     """
     import importlib.util
@@ -660,9 +662,12 @@ def test_the_readme_lists_the_default_model_of_each_family():
     defaults = cards.default_records(published)
     assert defaults, "the catalogue published nothing"
     table = block.partition("\n\n" + "Older models")[0]
+    grid = block.strip().partition("\n\n")[0]
     for entry in defaults:
         key = cards.key_of(entry)
-        assert f"`{key} <docs/models/{key}.md>`__" in table, key
+        assert f"<docs/models/{key}.md>`__" not in table, (
+            f"{key} has a text link under its card; the card is the link")
+        assert f"|zoo_card_{key}|" in grid, key
         assert f"|zoo_card_{key}|" in table, key
         assert f"image:: docs/models/cards/{key}.svg" in table, key
         assert f":target: docs/models/{key}.md" in table, key

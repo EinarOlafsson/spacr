@@ -428,6 +428,9 @@ def render_card(entry: Mapping[str, Any], family: Mapping[str, Any]) -> str:
         head += f" · {architecture}"
     head += f" · {STATUS_WORDS[status]} in the `{family['stem']}` family"
     lines += [head, ""]
+    segments, why = scores.segments_and_why(entry)
+    if segments:
+        lines += [f"{segments}. {why}".strip(), ""]
     default = family["default"]
     if status != "default":
         lines += [f"The family's default is {_link(default)}.", ""]
@@ -522,10 +525,11 @@ def expected_files(entries=None) -> Dict[str, str]:
     """File name -> contents for everything this tool writes.
 
     Names are relative to ``docs/models``: the Markdown cards, their index
-    and the SVG score cards under ``cards/``.
+    and the SVG score cards and grid heading under ``cards/``.
     """
     scores = score_cards()
-    out = {INDEX_NAME: render_index(entries)}
+    out = {INDEX_NAME: render_index(entries),
+           scores.HEADING_NAME: scores.render_heading()}
     for family in families(entries):
         for entry in family["versions"]:
             key = key_of(entry)

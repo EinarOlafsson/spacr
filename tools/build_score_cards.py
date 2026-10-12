@@ -1,11 +1,19 @@
 """Draw one SVG score card per published spaCR model.
 
 A score card is the graphic at the top of each ``docs/models/<key>.md`` page
-and in the README's model zoo grid: the model's name and version, what it
-segments, its main hold-out score as a large number, bars for this model and
-its baseline (stock Cellpose-SAM, or the earlier detector where no stock model
-has the class) on the key metrics, the hold-out set and one line on why the
-model exists.
+and in the README's model zoo grid. Every card has the same size and the
+same internal grid, so a grid of cards lines up edge to edge:
+
+* a title slot: the family's short name, and the version as a small tag;
+* a headline slot: the main hold-out score as one large number, the metric
+  and hold-out size beside it, and a chip with the difference from the
+  baseline (stock Cellpose-SAM, or the earlier detector);
+* exactly ``ROWS`` bar rows: this model in spaCR teal, the baseline in a
+  cool slate under it; a row the record has no number for stays empty;
+* a legend.
+
+Nothing else is on the card face; the hold-out details, caveats and re-scores
+are on the Markdown page the card links to.
 
 Every number is read from the zoo record in ``spacr/model_zoo.py``
 (``BUNDLED_REMOTE_MODELS``): the structured ``metrics`` entries first, then
@@ -14,9 +22,8 @@ Nothing numeric is typed here, so a re-score published to the zoo reaches the
 cards when ``python tools/build_model_cards.py`` is run again; that tool
 writes the cards next to the Markdown pages.
 
-The SVG paints its own background and switches palette with
-``prefers-color-scheme``, so it reads on GitHub's light and dark themes and on
-PyPI, which shows it on white.
+The card is one dark spaCR teal surface in both GitHub themes, with a
+transparent margin that makes the gutters of the README grid.
 """
 from __future__ import annotations
 
@@ -25,14 +32,54 @@ from html import escape
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 CARD_SUBDIR = "cards"
-WIDTH = 480
-PAD = 20
+HEADING_NAME = f"{CARD_SUBDIR}/heading.svg"
+HEADING_TEXT = "Default models · held-out scores"
+
+#: Outer size of every card, its transparent margin and the card inside it.
+WIDTH = 400
+MARGIN_X = 8
+MARGIN_Y = 8
+CARD_W = WIDTH - 2 * MARGIN_X
+CARD_H = 252
+HEIGHT = CARD_H + 2 * MARGIN_Y
+HEADING_H = 52
+PAD = 22
+ROWS = 3
+ROW_PITCH = 25
 FONT = ("-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', "
         "Helvetica, Arial, sans-serif")
-MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
 
-#: What each family segments and why the trained model exists. Words only:
-#: every number on a card comes from the zoo record.
+#: spaCR's palette: the dark teal surface of the app's cell theme, the teal
+#: glow of the photomosaic logo, the blue accent of the space theme and a cool
+#: slate for the baseline. One set for both themes: the card paints its own
+#: dark surface.
+PALETTE = {
+    "card": "#0b1c23",
+    "edge": "#33596a",
+    "track": "#132b34",
+    "ink": "#ffffff",
+    "ink2": "#cfe0e6",
+    "ink3": "#a3bbc4",
+    "model": "#20aa9e",
+    "base": "#566a7e",
+    "glow": "#2ec4b6",
+    "blue": "#6cb6ff",
+}
+
+#: Short family names for the title slot, as the maintainer named them.
+FAMILY_TITLES: Dict[str, str] = {
+    "toxoplasma_pv": "Parasite vacuoles",
+    "toxoplasma_plaque": "Plaques",
+    "toxoplasma_well_detector": "Plaque wells",
+    "live_cell": "Live cells",
+    "toxoplasma_from_cellmask": "Vacuoles from cell mask",
+    "nuclei_from_cellmask": "Nuclei from cell mask",
+    "cell_from_hoechst": "Cells from Hoechst",
+    "toxoplasma_from_hoechst": "Vacuoles from Hoechst",
+}
+
+#: What each family segments and why the trained model exists. Words only,
+#: shown on the Markdown page under the card, never on the card face.
 FAMILY_TEXT: Dict[str, Tuple[str, str]] = {
     "toxoplasma_pv": (
         "Toxoplasma parasitophorous vacuoles in fluorescence images",
@@ -70,14 +117,20 @@ FAMILY_TEXT: Dict[str, Tuple[str, str]] = {
 
 STATUS_WORDS = {"default": "default", "alternative": "alternative",
                 "candidate": "candidate", "older": "older version"}
+TAG_WORDS = {"alternative": "alt", "candidate": "candidate",
+             "older": "older"}
 
 LABELS = {
     "f1": "F1", "precision": "Precision", "recall": "Recall", "aji": "AJI",
     "dice": "Dice", "mAP50": "mAP50", "mAP50_95": "mAP50-95",
 }
-SEGMENTER_ORDER = ("f1", "precision", "recall", "aji", "dice")
-DETECTOR_ORDER = ("mAP50", "mAP50_95", "precision", "recall")
-MAX_ROWS = 4
+#: Short row labels for an F1 measured on part of the hold-out set.
+SUBSET_LABELS = {
+    "all test fields": "All fields", "datasets stock never saw":
+    "New datasets", "in-domain": "In-domain",
+}
+SEGMENTER_ORDER = ("f1", "aji", "dice", "precision", "recall")
+DETECTOR_ORDER = ("mAP50", "mAP50_95", "recall", "precision")
 
 _NUM = r"(\d*\.\d+)"
 _TOKEN = re.compile(r"(?<![\w/-])(mAP50-95|mAP50|F1|AJI|Dice|P|R)\s+" + _NUM)
@@ -89,14 +142,13 @@ _TRIPLE = re.compile(
     + r" at IoU 0\.5 against stock ([\w.]+?)'s " + _NUM + "/" + _NUM + "/"
     + _NUM)
 _PR_NOTE = re.compile(r"precision " + _NUM + r" against recall " + _NUM)
+_MODALITY = re.compile(r"\b(brightfield|phase|DIC) " + _NUM
+                       + r" \(stock " + _NUM + r"\)")
 _STOCK_F1 = re.compile(
     r"\bstock ([\w.]+?)(?:'s)? " + _NUM
     + r"(?: there)?(?: with the ([\w -]+?) scorer)?\b")
-_SAME_FIELDS = re.compile(r"\(([a-z][\w]*_v\d+) " + _NUM + r"\)")
-_RESCORE = re.compile(
-    r"Re-scored (\d{4}-\d{2}-\d{2}).*?fields this model never saw, F1 "
-    + _NUM + r" at IoU 0\.5 on n = (\d+)")
-_HELD_OUT = re.compile(r"on (?:the )?([\d,]+ [\w-]+(?: [\w-]+)? fields)")
+_HELD_OUT = re.compile(r"([\d][\d,]*)\s+(?:[\w-]+\s+){0,3}?"
+                       r"(fields|wells|images|pairs)\b")
 
 
 def _key(entry: Mapping[str, Any]) -> str:
@@ -163,13 +215,40 @@ def _architecture_base(entry: Mapping[str, Any]) -> str:
     return match.group(1) if match else "Cellpose-SAM"
 
 
+def _row_label(name: str) -> str:
+    if name.startswith("f1, "):
+        rest = name[4:]
+        label = SUBSET_LABELS.get(rest, rest[:1].upper() + rest[1:])
+        return label if len(label) <= 13 else label[:12].rstrip() + "…"
+    return LABELS.get(name, name)
+
+
+def holdout_size(entry: Mapping[str, Any]) -> str:
+    """``"463 held-out fields"``, or ``""`` when the record has no count."""
+    metrics = entry.get("metrics") or {}
+    if not isinstance(metrics, Mapping):
+        metrics = {}
+    n_test = str(metrics.get("n_test") or "").strip()
+    unit = "images" if is_detector(entry) else "fields"
+    if re.fullmatch(r"[\d,]+", n_test):
+        return f"{int(n_test.replace(',', '')):,} held-out {unit}"
+    for text in (n_test, str(entry.get("versus_stock") or "")):
+        found = _HELD_OUT.search(text)
+        if found:
+            count = int(found.group(1).replace(",", ""))
+            return f"{count:,} held-out {found.group(2)}"
+    if isinstance(metrics.get("n_fields"), int):
+        return f"{metrics['n_fields']:,} held-out {unit}"
+    return ""
+
+
 def scores(entry: Mapping[str, Any]) -> Dict[str, Any]:
     """The card's numbers, all read from the zoo record.
 
-    :returns: ``rows`` (label, this model, baseline or None), ``baseline``
-        (the comparison's name), ``caveat``, ``holdout``, ``rescore`` and
-        ``same_fields`` lines, each empty when the record has none, and
-        ``context``, the record's first note when it has no baseline.
+    :returns: ``rows``, exactly ``ROWS`` tuples of (label, this model or None,
+        baseline or None), a row of ``None`` being one the record has no
+        number for; ``baseline``, the comparison's name; ``caveat``, a note
+        on how the baseline was scored; ``holdout``, the hold-out size.
     """
     metrics = entry.get("metrics") or {}
     if not isinstance(metrics, Mapping):
@@ -216,6 +295,12 @@ def scores(entry: Mapping[str, Any]) -> Dict[str, Any]:
     if pr_note:
         this.setdefault("precision", float(pr_note.group(1)))
         this.setdefault("recall", float(pr_note.group(2)))
+    subsets = [name for name in this if name.startswith("f1, ")]
+    if subsets:
+        for kind, mine, theirs in _MODALITY.findall(notes):
+            this.setdefault(f"f1, {kind}", float(mine))
+            base.setdefault(f"f1, {kind}", float(theirs))
+            subsets.append(f"f1, {kind}")
 
     if "f1" in this and "f1" not in base:
         stock = _STOCK_F1.search(versus)
@@ -230,57 +315,37 @@ def scores(entry: Mapping[str, Any]) -> Dict[str, Any]:
         stock = re.search(r"\bstock (cpsam[\w]*)", versus)
         baseline = f"Stock {stock.group(1) if stock else _architecture_base(entry)}"
 
-    order = DETECTOR_ORDER if is_detector(entry) else SEGMENTER_ORDER
-    names = [name for name in order if name in this]
-    names = [name for name in this if name.startswith("f1, ")] + names
-    rows = [(LABELS.get(name, name.replace("f1, ", "F1, ")), this[name],
-             base.get(name)) for name in names[:MAX_ROWS]]
-
-    holdout = ""
-    n_test = metrics.get("n_test")
-    found = _HELD_OUT.search(versus)
-    if isinstance(n_test, str) and re.fullmatch(r"[\d,]+", n_test.strip()):
-        holdout = found.group(1) if found else f"{n_test.strip()} fields"
-    elif isinstance(n_test, str) and n_test.strip():
-        holdout = n_test.strip()
-    elif isinstance(metrics.get("n_fields"), int):
-        holdout = f"{metrics['n_fields']} fields"
-    elif found:
-        holdout = found.group(1)
-    objects = str(metrics.get("test_objects") or "").strip()
-    if holdout and re.fullmatch(r"[\d,]+", objects):
-        holdout += f" · {int(objects.replace(',', '')):,} objects"
-
-    rescore = ""
-    found = _RESCORE.search(notes)
-    if found:
-        rescore = (f"Re-scored {found.group(1)} on fields it never saw: "
-                   f"F1 {float(found.group(2)):.3f} (n = {found.group(3)})")
-    same = _SAME_FIELDS.search(versus)
-    same_fields = (f"Same fields: {same.group(1)} "
-                   f"{float(same.group(2)):.3f}" if same else "")
-    context = ""
+    if is_detector(entry):
+        order = list(DETECTOR_ORDER)
+    elif subsets:
+        order = subsets + list(SEGMENTER_ORDER)
+    elif "aji" in this and "dice" in this:
+        order = ["f1", "aji", "dice"] + list(SEGMENTER_ORDER)
+    else:
+        order = ["f1", "precision", "recall"] + list(SEGMENTER_ORDER)
+    names: List[str] = []
+    for name in order:
+        if name in this and name not in names:
+            names.append(name)
+    rows: List[Tuple[str, Optional[float], Optional[float]]] = [
+        (_row_label(name), this[name], base.get(name))
+        for name in names[:ROWS]]
+    rows += [("", None, None)] * (ROWS - len(rows))
     if not base:
         baseline = ""
-        first = [str(note).strip() for note in entry.get("notes") or ()
-                 if str(note).strip()]
-        context = first[0] if first else ""
     return {"rows": rows, "baseline": baseline, "caveat": caveat,
-            "holdout": holdout, "rescore": rescore,
-            "same_fields": same_fields, "context": context}
+            "holdout": holdout_size(entry)}
 
 
 def headline(entry: Mapping[str, Any], card: Mapping[str, Any]
              ) -> Optional[Tuple[str, float, Optional[float]]]:
-    """The big number: the first row, labelled for the reader."""
-    if not card["rows"]:
-        return None
+    """The big number: the first row, as (metric, this model, baseline)."""
     label, mine, theirs = card["rows"][0]
-    if label == "F1" or label.startswith("F1,"):
-        label = label.replace("F1", "F1 at IoU 0.5", 1)
-    elif label == "mAP50":
-        label = "Box mAP at IoU 0.5"
-    return label, mine, theirs
+    if mine is None:
+        return None
+    if label in LABELS.values():
+        return label, mine, theirs
+    return "F1", mine, theirs
 
 
 def segments_and_why(entry: Mapping[str, Any]) -> Tuple[str, str]:
@@ -292,202 +357,207 @@ def segments_and_why(entry: Mapping[str, Any]) -> Tuple[str, str]:
 
 
 def title_of(entry: Mapping[str, Any]) -> str:
+    """The card's short title: the family's name without its version."""
+    stem = _stem(_key(entry))
+    if stem in FAMILY_TITLES:
+        return FAMILY_TITLES[stem]
     title = str(entry.get("display_name") or _key(entry))
-    title = re.sub(r",\s*(default|alternative|candidate)\)", ")", title)
-    title = re.sub(r"\s*\((default|alternative|candidate)\)", "", title)
-    return title.strip()
+    title = re.sub(r"\s*\(.*\)$", "", title)
+    return re.sub(r"\s+v\d+$", "", title).strip()
 
 
-def _wrap(text: str, size: float, width: float, lines: int) -> List[str]:
-    limit = max(10, int(width / (size * 0.54)))
-    words, out, line = text.split(), [], ""
-    for word in words:
-        if len(line) + len(word) + (1 if line else 0) <= limit:
-            line = f"{line} {word}".strip()
-        else:
-            out.append(line)
-            line = word
-    if line:
-        out.append(line)
-    if len(out) > lines:
-        out = out[:lines]
-        out[-1] = out[-1].rstrip(".,;") + " …"
-    return out
-
-
-def _bar(x: float, y: float, w: float, h: float, cls: str) -> str:
-    """A bar anchored at ``x`` with a rounded data end."""
-    w = max(w, 1.5)
-    r = min(3.0, h / 2, w / 2)
-    return (f'<path class="{cls}" d="M{x:.1f} {y:.1f}h{w - r:.1f}'
-            f'a{r} {r} 0 0 1 {r} {r}v{h - 2 * r:.1f}'
-            f'a{r} {r} 0 0 1 -{r} {r}h-{w - r:.1f}z"/>')
-
-
-STYLE = (
-    "<style>"
-    ".bg{fill:#fcfcfb;stroke:#d9d8d3}"
-    ".t1{fill:#0b0b0b}.t2{fill:#52514e}.t3{fill:#6b6a65}"
-    ".ft{fill:#2a78d6}.va{fill:#86857f}.tr{fill:#efeeea}"
-    ".ax{stroke:#d9d8d3}.pl{fill:none;stroke:#2a78d6}.pt{fill:#1c5cab}"
-    ".po{fill:none;stroke:#86857f}.pu{fill:#52514e}"
-    "@media (prefers-color-scheme: dark){"
-    ".bg{fill:#1a1a19;stroke:#3a3936}"
-    ".t1{fill:#f0efec}.t2{fill:#c3c2b7}.t3{fill:#a3a29a}"
-    ".ft{fill:#3987e5}.va{fill:#7c7b75}.tr{fill:#262624}"
-    ".ax{stroke:#3a3936}.pl{stroke:#3987e5}.pt{fill:#86b6ef}"
-    ".po{stroke:#7c7b75}.pu{fill:#c3c2b7}}"
-    "</style>")
+def baseline_name(card: Mapping[str, Any]) -> str:
+    """``"Stock cpsam_v2"`` -> ``"stock cpsam_v2"``; ``"v1 (earlier
+    version)"`` -> ``"v1"``."""
+    name = re.sub(r"^Stock ", "stock ", str(card.get("baseline") or ""))
+    return re.sub(r"\s*\(earlier version\)$", "", name)
 
 
 def alt_text(entry: Mapping[str, Any], status: str = "default") -> str:
     """One sentence a screen reader gets for the card image."""
     card = scores(entry)
     head = headline(entry, card)
-    text = f"Score card of {title_of(entry)} ({STATUS_WORDS.get(status, status)})"
+    key = _key(entry)
+    text = (f"Score card of {title_of(entry)} {_version(key)} ({key}, "
+            f"{STATUS_WORDS.get(status, status)})")
     if head:
         label, mine, theirs = head
         text += f": {label} {mine:.3f}"
+        if card["holdout"]:
+            text += f" on {card['holdout']}"
         if theirs is not None and card["baseline"]:
-            baseline = re.sub(r"^Stock ", "stock ", card["baseline"])
-            text += f" against {theirs:.3f} for {baseline}"
+            text += f" against {theirs:.3f} for {baseline_name(card)}"
     return text + "."
+
+
+def _width(text: str, size: float, weight: int = 400) -> float:
+    """Rough rendered width of ``text`` in the card's sans-serif."""
+    wide = sum(1 for c in text if c in "mwMW@%")
+    narrow = sum(1 for c in text if c in "il.,:;|!'·-()[] ")
+    factor = 0.58 if weight >= 600 else 0.55
+    return size * factor * (len(text) + 0.4 * wide - 0.45 * narrow)
+
+
+def _fit(text: str, size: float, width: float, weight: int = 400) -> str:
+    if _width(text, size, weight) <= width:
+        return text
+    while text and _width(text + "…", size, weight) > width:
+        text = text[:-1]
+    return text.rstrip() + "…"
+
+
+def _bar(x: float, y: float, w: float, h: float, cls: str) -> str:
+    """A bar anchored at ``x`` with a rounded data end."""
+    w = max(w, 2.0)
+    r = min(3.0, h / 2, w / 2)
+    return (f'<path class="{cls}" d="M{x:.1f} {y:.1f}h{w - r:.1f}'
+            f'a{r:g} {r:g} 0 0 1 {r:g} {r:g}v{h - 2 * r:.1f}'
+            f'a{r:g} {r:g} 0 0 1 -{r:g} {r:g}h-{w - r:.1f}z"/>')
+
+
+def _style() -> str:
+    p = PALETTE
+    return (
+        "<style>"
+        f".card{{fill:{p['card']};stroke:{p['edge']}}}"
+        f".i1{{fill:{p['ink']}}}.i2{{fill:{p['ink2']}}}.i3{{fill:{p['ink3']}}}"
+        f".m{{fill:{p['model']}}}.b{{fill:{p['base']}}}.tr{{fill:{p['track']}}}"
+        f".tag{{fill:{p['glow']};fill-opacity:.12;stroke:{p['glow']};"
+        f"stroke-opacity:.6}}.tagt{{fill:{p['glow']}}}"
+        f".up{{fill:{p['model']};fill-opacity:.28}}"
+        f".dn{{fill:{p['base']};fill-opacity:.45}}"
+        f".na{{fill:none;stroke:{p['edge']}}}"
+        "text{font-family:" + FONT + "}"
+        "</style>")
+
+
+def _frame(uid: str, x: float, y: float, w: float, h: float) -> List[str]:
+    """The dark card with a thin teal-to-blue glow along its top edge."""
+    p = PALETTE
+    return [
+        f'<defs><linearGradient id="g{uid}" x1="0" x2="1" y1="0" y2="0">'
+        f'<stop offset="0" stop-color="{p["glow"]}"/>'
+        f'<stop offset="1" stop-color="{p["blue"]}"/></linearGradient>'
+        f'<clipPath id="c{uid}"><rect x="{x}" y="{y}" width="{w}"'
+        f' height="{h}" rx="14"/></clipPath></defs>',
+        f'<rect class="card" x="{x + 0.5}" y="{y + 0.5}" width="{w - 1}"'
+        f' height="{h - 1}" rx="14" stroke-width="1"/>',
+        f'<rect x="{x}" y="{y}" width="{w}" height="3" fill="url(#g{uid})"'
+        f' clip-path="url(#c{uid})"/>',
+    ]
 
 
 def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
     """The score card of one zoo record as standalone SVG text."""
     key = _key(entry)
+    uid = re.sub(r"\W", "", key)
     card = scores(entry)
     head = headline(entry, card)
-    segments, why = segments_and_why(entry)
-    inner = WIDTH - 2 * PAD
-    parts: List[str] = []
+    x0, y0 = MARGIN_X, MARGIN_Y
+    left, right = x0 + PAD, x0 + CARD_W - PAD
+    parts: List[str] = _frame(uid, x0, y0, CARD_W, CARD_H)
 
-    def text(x, y, value, cls, size, weight=400, anchor="start",
-             family=FONT, italic=False):
-        style = ' font-style="italic"' if italic else ""
+    def text(x, y, value, cls, size, weight=400, anchor="start"):
         parts.append(
             f'<text x="{x:.1f}" y="{y:.1f}" class="{cls}" font-size="{size}"'
-            f' font-weight="{weight}" text-anchor="{anchor}"'
-            f' font-family="{escape(family)}"{style}>{escape(value)}</text>')
+            f' font-weight="{weight}" text-anchor="{anchor}">'
+            f'{escape(value)}</text>')
 
-    y = PAD + 18
-    status_word = STATUS_WORDS.get(status, status)
-    pill_w = 12 + len(status_word) * 6.6
-    title_lines = _wrap(title_of(entry), 17, inner - pill_w - 12, 2)
-    for i, line in enumerate(title_lines):
-        text(PAD, y + i * 22, line, "t1", 17, 600)
-    pill_cls, pill_text = (("pl", "pt") if status == "default"
-                           else ("po", "pu"))
-    parts.append(f'<rect class="{pill_cls}" x="{WIDTH - PAD - pill_w:.1f}"'
-                 f' y="{y - 14}" width="{pill_w:.1f}" height="20" rx="10"/>')
-    text(WIDTH - PAD - pill_w / 2, y, status_word, pill_text, 12, 600,
-         "middle")
-    y += 22 * (len(title_lines) - 1) + 20
-    arch = str(entry.get("architecture") or "").strip()
-    text(PAD, y, f"{key} · {_version(key)}", "t3", 12, family=MONO)
-    y += 18
-    for line in _wrap(segments, 13, inner, 2):
-        text(PAD, y, line, "t2", 13)
-        y += 18
-    if arch:
-        for line in _wrap(arch, 12, inner, 1):
-            text(PAD, y, line, "t3", 12)
-            y += 16
+    tag = _version(key)
+    if status in TAG_WORDS:
+        tag += f" · {TAG_WORDS[status]}"
+    tag_w = _width(tag, 12, 600) + 18
+    title_y = y0 + 40
+    parts.append(f'<rect class="tag" x="{right - tag_w:.1f}" y="{title_y - 16}"'
+                 f' width="{tag_w:.1f}" height="21" rx="10.5"/>')
+    text(right - tag_w / 2, title_y - 1.5, tag, "tagt", 12, 600, "middle")
+    text(left, title_y, _fit(title_of(entry), 19, right - left - tag_w - 12,
+                             600), "i1", 19, 600)
 
-    y += 14
+    number_y = y0 + 110
+    side = left + 150
     if head:
         label, mine, theirs = head
-        text(PAD, y + 30, f"{mine:.3f}", "t1", 44, 600)
-        text(PAD + 128, y + 6, label, "t2", 13)
+        text(left, number_y, f"{mine:.3f}", "i1", 54, 600)
+        caption = f"{label} · {card['holdout']}" if card["holdout"] else (
+            f"{label} at IoU 0.5")
+        text(side, number_y - 33, _fit(caption, 13, right - side), "i3", 13)
         if theirs is not None and card["baseline"]:
             delta = mine - theirs
-            text(PAD + 128, y + 24, f"{card['baseline']}: {theirs:.3f}", "t2",
-                 13)
-            text(PAD + 128, y + 42, f"Difference {delta:+.3f}", "t1", 13, 600)
-        elif is_detector(entry):
-            text(PAD + 128, y + 24, "No stock detector has this class;",
-                 "t3", 12)
-            text(PAD + 128, y + 40, "no baseline in the record.", "t3", 12)
+            sign = "+" if delta >= 0 else "−"
+            chip = f"{sign}{abs(delta):.3f} vs {baseline_name(card).split()[0]}"
+            cls = "up" if delta >= 0 else "dn"
         else:
-            text(PAD + 128, y + 24, "No stock baseline recorded", "t3", 12)
-            text(PAD + 128, y + 40, "for this hold-out set.", "t3", 12)
-        y += 60
+            chip = ("no stock detector" if is_detector(entry)
+                    else "no baseline recorded")
+            cls = "na"
+        chip_w = _width(chip, 13, 600) + 22
+        parts.append(f'<rect class="{cls}" x="{side}" y="{number_y - 22}"'
+                     f' width="{chip_w:.1f}" height="24" rx="12"/>')
+        text(side + chip_w / 2, number_y - 5.5, chip,
+             "i1" if cls != "na" else "i3", 13, 600, "middle")
     else:
-        text(PAD, y + 8, "Hold-out scores are on the model card.", "t2", 13)
-        y += 24
+        text(left, number_y, "—", "i3", 54, 600)
+        text(side, number_y - 12, "Held-out score not recorded", "i3", 13)
 
-    rows = card["rows"]
-    if rows:
-        y += 6
-        has_base = any(theirs is not None for _l, _m, theirs in rows)
-        parts.append(f'<rect class="ft" x="{PAD}" y="{y - 9}" width="10"'
-                     ' height="10" rx="2"/>')
-        text(PAD + 16, y, "This model", "t2", 12)
-        if has_base:
-            parts.append(f'<rect class="va" x="{PAD + 100}" y="{y - 9}"'
-                         ' width="10" height="10" rx="2"/>')
-            text(PAD + 116, y, card["baseline"], "t2", 12)
-        y += 14
-        label_w = 128 if any(len(l) > 12 for l, _m, _t in rows) else 92
-        x0 = PAD + label_w
-        track = inner - label_w - 48
-        top = y
-        for label, mine, theirs in rows:
-            row_h = 30 if theirs is not None else 18
-            label_lines = _wrap(label, 12, label_w - 8, 2)
-            for i, line in enumerate(label_lines):
-                text(PAD, y + 11 + i * 13, line, "t2", 12)
-            parts.append(f'<rect class="tr" x="{x0}" y="{y + 2}"'
-                         f' width="{track}" height="10" rx="2"/>')
-            parts.append(_bar(x0, y + 2, track * mine, 10, "ft"))
-            text(x0 + track + 6, y + 11, f"{mine:.3f}", "t1", 12)
-            if theirs is not None:
-                parts.append(f'<rect class="tr" x="{x0}" y="{y + 14}"'
-                             f' width="{track}" height="10" rx="2"/>')
-                parts.append(_bar(x0, y + 14, track * theirs, 10, "va"))
-                text(x0 + track + 6, y + 23, f"{theirs:.3f}", "t2", 12)
-            y += max(row_h, 13 * len(label_lines)) + 8
-        for tick in (0.0, 0.5, 1.0):
-            x = x0 + track * tick
-            parts.append(f'<line class="ax" x1="{x:.1f}" y1="{top - 2}"'
-                         f' x2="{x:.1f}" y2="{y - 6}" stroke-width="1"'
-                         ' stroke-dasharray="2 3"/>')
-            text(x, y + 6, f"{tick:g}", "t3", 11, anchor="middle")
-        y += 14
+    rows_y = y0 + 140
+    label_w = 90
+    track_x = left + label_w
+    track_w = right - track_x - 46
+    for index, (label, mine, theirs) in enumerate(card["rows"]):
+        y = rows_y + index * ROW_PITCH
+        if mine is None:
+            text(left, y + 12, "—", "i3", 12.5)
+            continue
+        text(left, y + 12.5, label, "i2", 12.5)
+        parts.append(f'<rect class="tr" x="{track_x}" y="{y}"'
+                     f' width="{track_w}" height="8" rx="3"/>')
+        parts.append(_bar(track_x, y, track_w * mine, 8, "m"))
+        if theirs is not None:
+            parts.append(f'<rect class="tr" x="{track_x}" y="{y + 10}"'
+                         f' width="{track_w}" height="6" rx="3"/>')
+            parts.append(_bar(track_x, y + 10, track_w * theirs, 6, "b"))
+        text(right, y + 12.5, f"{mine:.3f}", "i1", 12.5, 600, "end")
 
-    y += 8
-    lines: List[Tuple[str, str, bool]] = []
-    if card["holdout"]:
-        lines += [(line, "t2", False) for line in
-                  _wrap(f"Hold-out: {card['holdout']}", 12, inner, 2)]
-    for extra in (card["same_fields"], card["caveat"], card["rescore"]):
-        if extra:
-            lines += [(line, "t2", False) for line in _wrap(extra, 12, inner, 2)]
-    if card["context"]:
-        lines += [(line, "t2", False) for line in
-                  _wrap(card["context"][:1].upper() + card["context"][1:],
-                        12, inner, 4)]
-    if why:
-        lines += [(line, "t1", True) for line in _wrap(why, 12.5, inner, 2)]
-    for line, cls, italic in lines:
-        y += 17
-        text(PAD, y, line, cls, 12.5 if italic else 12, italic=italic)
-    height = int(y + PAD)
+    legend_y = y0 + CARD_H - 20
+    parts.append(f'<rect class="m" x="{left}" y="{legend_y - 9}" width="10"'
+                 ' height="10" rx="2"/>')
+    text(left + 16, legend_y, "this model", "i3", 12)
+    if card["baseline"] and any(theirs is not None
+                                for _l, _m, theirs in card["rows"]):
+        lx = left + 16 + _width("this model", 12) + 22
+        parts.append(f'<rect class="b" x="{lx:.1f}" y="{legend_y - 9}"'
+                     ' width="10" height="10" rx="2"/>')
+        text(lx + 16, legend_y, baseline_name(card), "i3", 12)
 
-    title = f"{title_of(entry)} score card"
+    title = f"{title_of(entry)} {_version(key)} score card"
     desc = alt_text(entry, status)
     body = "\n".join(parts)
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}"'
-        f' height="{height}" viewBox="0 0 {WIDTH} {height}" role="img"'
+        f' height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" role="img"'
         f' aria-labelledby="t d">\n'
         f'<title id="t">{escape(title)}</title>\n'
         f'<desc id="d">{escape(desc)}</desc>\n'
-        f'{STYLE}\n'
-        f'<rect class="bg" x="0.5" y="0.5" width="{WIDTH - 1}"'
-        f' height="{height - 1}" rx="12" stroke-width="1"/>\n'
-        f'{body}\n</svg>\n')
+        f'{_style()}\n{body}\n</svg>\n')
+
+
+def render_heading() -> str:
+    """The centred heading over the README grid, two cards wide."""
+    width = 2 * WIDTH
+    height = HEADING_H + 2 * MARGIN_Y
+    parts = _frame("heading", MARGIN_X, MARGIN_Y, width - 2 * MARGIN_X,
+                   HEADING_H)
+    parts.append(f'<text x="{width / 2:.1f}" y="{MARGIN_Y + 33}" class="i1"'
+                 f' font-size="19" font-weight="600" text-anchor="middle">'
+                 f'{escape(HEADING_TEXT)}</text>')
+    body = "\n".join(parts)
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}"'
+        f' height="{height}" viewBox="0 0 {width} {height}" role="img"'
+        f' aria-labelledby="t">\n'
+        f'<title id="t">{escape(HEADING_TEXT)}</title>\n'
+        f'{_style()}\n{body}\n</svg>\n')
 
 
 def card_name(key: str) -> str:

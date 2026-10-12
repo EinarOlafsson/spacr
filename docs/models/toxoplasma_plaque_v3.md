@@ -2,9 +2,11 @@
 
 # Toxoplasma Plaque v3 (Gel Doc r5, alternative)
 
-![Score card of Toxoplasma Plaque v3 (Gel Doc r5) (alternative): F1 at IoU 0.5 0.642.](cards/toxoplasma_plaque_v3.svg)
+![Score card of Plaques v3 (toxoplasma_plaque_v3, alternative): F1 0.642 on 18 held-out wells.](cards/toxoplasma_plaque_v3.svg)
 
 `toxoplasma_plaque_v3` · Cellpose-SAM (cpsam, Cellpose 4.0.9) · alternative in the `toxoplasma_plaque` family
+
+Toxoplasma plaques in crystal-violet plaque-assay wells. Stock Cellpose-SAM was never trained on plaques and finds few of them, fewest on Gel Doc scans.
 
 The family's default is [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md).
 

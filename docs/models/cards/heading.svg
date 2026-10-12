@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="68" viewBox="0 0 800 68" role="img" aria-labelledby="t">
+<title id="t">Default models · held-out scores</title>
+<style>.card{fill:#0b1c23;stroke:#33596a}.i1{fill:#ffffff}.i2{fill:#cfe0e6}.i3{fill:#a3bbc4}.m{fill:#20aa9e}.b{fill:#566a7e}.tr{fill:#132b34}.tag{fill:#2ec4b6;fill-opacity:.12;stroke:#2ec4b6;stroke-opacity:.6}.tagt{fill:#2ec4b6}.up{fill:#20aa9e;fill-opacity:.28}.dn{fill:#566a7e;fill-opacity:.45}.na{fill:none;stroke:#33596a}text{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif}</style>
+<defs><linearGradient id="gheading" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#2ec4b6"/><stop offset="1" stop-color="#6cb6ff"/></linearGradient><clipPath id="cheading"><rect x="8" y="8" width="784" height="52" rx="14"/></clipPath></defs>
+<rect class="card" x="8.5" y="8.5" width="783" height="51" rx="14" stroke-width="1"/>
+<rect x="8" y="8" width="784" height="3" fill="url(#gheading)" clip-path="url(#cheading)"/>
+<text x="400.0" y="41" class="i1" font-size="19" font-weight="600" text-anchor="middle">Default models · held-out scores</text>
+</svg>

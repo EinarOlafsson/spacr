@@ -2,9 +2,11 @@
 
 # Toxoplasma from Hoechst (cross-channel)
 
-![Score card of Toxoplasma from Hoechst (cross-channel) (default): F1 at IoU 0.5 0.569 against 0.002 for stock cpsam_v2.](cards/toxoplasma_from_hoechst_v1.svg)
+![Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2.](cards/toxoplasma_from_hoechst_v1.svg)
 
 `toxoplasma_from_hoechst_v1` · Cellpose-SAM (cpsam_v2) · default in the `toxoplasma_from_hoechst` family
+
+Toxoplasma vacuoles from a Hoechst (nuclear) stain alone. Frees the parasite channel: stock Cellpose-SAM cannot predict one object type from another stain.
 
 ## Training data
 

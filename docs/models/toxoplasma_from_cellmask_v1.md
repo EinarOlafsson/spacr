@@ -2,9 +2,11 @@
 
 # Toxoplasma from Cell Mask (cross-channel)
 
-![Score card of Toxoplasma from Cell Mask (cross-channel) (default): F1 at IoU 0.5 0.606 against 0.021 for stock cpsam_v2.](cards/toxoplasma_from_cellmask_v1.svg)
+![Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2.](cards/toxoplasma_from_cellmask_v1.svg)
 
 `toxoplasma_from_cellmask_v1` · Cellpose-SAM (cpsam_v2) · default in the `toxoplasma_from_cellmask` family
+
+Toxoplasma vacuoles from a whole-cell stain alone. Frees the parasite channel: stock Cellpose-SAM cannot predict one object type from another stain.
 
 ## Training data
 

@@ -2,9 +2,11 @@
 
 # Cross-channel nuclei-from-cellmask
 
-![Score card of Cross-channel nuclei-from-cellmask (default): F1 at IoU 0.5 0.888 against 0.201 for stock cpsam_v2.](cards/nuclei_from_cellmask_v1.svg)
+![Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2.](cards/nuclei_from_cellmask_v1.svg)
 
 `nuclei_from_cellmask_v1` · Cellpose-SAM (cpsam_v2) · default in the `nuclei_from_cellmask` family
+
+Nuclei from a whole-cell stain alone. Frees the DAPI or Hoechst channel for another marker; stock Cellpose-SAM segments the stain it is shown.
 
 ## Training data
 

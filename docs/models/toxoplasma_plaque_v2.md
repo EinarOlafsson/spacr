@@ -2,9 +2,11 @@
 
 # Toxoplasma Plaque v2 (round 5)
 
-![Score card of Toxoplasma Plaque v2 (round 5) (older version): F1 at IoU 0.5, literature 0.819.](cards/toxoplasma_plaque_v2.svg)
+![Score card of Plaques v2 (toxoplasma_plaque_v2, older version): F1 0.819 on 81 held-out fields.](cards/toxoplasma_plaque_v2.svg)
 
 `toxoplasma_plaque_v2` · Cellpose-SAM (cpsam_v2) · older version in the `toxoplasma_plaque` family
+
+Toxoplasma plaques in crystal-violet plaque-assay wells. Stock Cellpose-SAM was never trained on plaques and finds few of them, fewest on Gel Doc scans.
 
 The family's default is [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md).
 

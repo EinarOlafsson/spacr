@@ -4,7 +4,10 @@ The maintainer asked on 2026-10-12 for visual score cards: one graphic per
 model with its main hold-out score, bars against stock Cellpose-SAM (or the
 earlier detector) and the hold-out set. ``tools/build_score_cards.py`` draws
 them from ``BUNDLED_REMOTE_MODELS``; ``tools/build_model_cards.py`` writes
-them to ``docs/models/cards/<key>.svg``.
+them to ``docs/models/cards/<key>.svg``. Later that day the maintainer
+rejected the first cards for their brown surface and ragged grid: every card
+now has the same size, the same slots and the same number of bar rows, on
+spaCR's dark teal.
 """
 from __future__ import annotations
 
@@ -43,7 +46,59 @@ def test_every_published_model_has_a_current_score_card():
             assert root.tag == f"{SVG}svg"
             assert root.find(f"{SVG}title") is not None, key
             assert root.find(f"{SVG}desc") is not None, key
-            assert "prefers-color-scheme: dark" in text, key
+            assert scores.PALETTE["card"] in text, key
+
+
+def _rows_drawn(text):
+    """Bar rows in one card: a model bar, or an em dash for a row the
+    record has no number for."""
+    bars = len(re.findall(r'<path class="m"', text))
+    empty = len(re.findall(r'class="i3" font-size="12.5"[^>]*>\u2014<', text))
+    return bars + empty
+
+
+def test_every_card_has_the_same_size_and_the_same_rows():
+    cards = _cards()
+    scores = cards.score_cards()
+    sizes = set()
+    for entry in cards.published_models():
+        key = cards.key_of(entry)
+        text = (cards.CARD_DIR / scores.card_name(key)).read_text(
+            encoding="utf-8")
+        root = ET.fromstring(text)
+        sizes.add((root.get("width"), root.get("height"), root.get("viewBox")))
+        assert len(scores.scores(entry)["rows"]) == scores.ROWS, key
+        assert _rows_drawn(text) == scores.ROWS, key
+        card = re.search(r'<rect class="card" x="[^"]+" y="[^"]+"'
+                         r' width="([^"]+)" height="([^"]+)"', text)
+        assert card and card.groups() == (f"{scores.CARD_W - 1}",
+                                          f"{scores.CARD_H - 1}"), key
+    assert sizes == {(str(scores.WIDTH), str(scores.HEIGHT),
+                      f"0 0 {scores.WIDTH} {scores.HEIGHT}")}
+
+
+def test_the_card_face_is_spacr_teal_with_no_warm_grey():
+    cards = _cards()
+    scores = cards.score_cards()
+
+    def warm(colour):
+        r, _g, b = (int(colour[i:i + 2], 16) for i in (1, 3, 5))
+        return r > b
+
+    assert warm("#1a1a19") and warm("#fcfcfb"), "the rejected palette"
+
+    for entry in cards.published_models():
+        text = (cards.CARD_DIR / scores.card_name(cards.key_of(entry))
+                ).read_text(encoding="utf-8")
+        for colour in set(re.findall(r"#[0-9a-fA-F]{6}\b", text)):
+            assert not warm(colour), (cards.key_of(entry), colour)
+
+
+def test_the_grid_heading_is_current():
+    cards = _cards()
+    scores = cards.score_cards()
+    path = cards.CARD_DIR / scores.HEADING_NAME
+    assert path.read_text(encoding="utf-8") == scores.render_heading()
 
 
 def test_the_card_numbers_come_from_the_zoo_record():
@@ -61,7 +116,8 @@ def test_the_card_numbers_come_from_the_zoo_record():
     assert hoechst["rows"][0][0] == "F1" and hoechst["rows"][0][2] is not None
     for entry in cards.default_records():
         card = scores.scores(entry)
-        assert card["rows"], cards.key_of(entry)
+        assert all(mine is not None for _l, mine, _t in card["rows"]), (
+            cards.key_of(entry))
         head = scores.headline(entry, card)
         svg = scores.render_svg(entry)
         assert f">{head[1]:.3f}<" in svg, cards.key_of(entry)
@@ -93,3 +149,9 @@ def test_every_readme_embeds_the_default_score_cards():
             assert (readme.parent / image).resolve().is_file(), (
                 readme.name, image)
             assert re.search(rf"\|zoo_card_{key}\|", block), (readme.name, key)
+        grid = block.strip().partition("\n\n")[0]
+        assert grid.startswith("| |zoo_heading|"), readme.name
+        assert "`" not in grid, (readme.name, "a text link in the card grid")
+        heading = cards.score_cards().HEADING_NAME
+        assert f"image:: {prefix}{heading}" in block, readme.name
+        assert block.count(":width: 50%") == len(defaults), readme.name
