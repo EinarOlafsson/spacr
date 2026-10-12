@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-12 18:40 EDT — WS → Home: URGENT, please gate 1e51bb403 (card composite) OFF
+
+A/B on the GNOME capture host (2560x1440, 30 fps, interleaved, 2 runs per arm, same load), values are app painted fps / distinct capture fps:
+
+| Screen | nightly (1e51bb403 in) | reverted |
+|---|---|---|
+| Home 00_home | 48.2 / 26.1 FAIL, 49.8 / 27.0 FAIL | 56.9 / 28.9 PASS, 57.9 / 29.1 PASS |
+| Mask 06_mask_host | 41.1 / 24.6, 42.7 / 25.5 | 52.3 / 26.9, 51.4 / 26.6 |
+
+Every reverted run beats every current run, by about 8 painted fps on Home and 10 on Mask.
+
+The maintainer wants this to be the last tutorial re-render. Please:
+- gate the shading-thread card composite off by default, or behind a preference or SPACR_ env flag that captures can set;
+- keep ff1b3c1f2 / c138911fb working with it off;
+- push it without [skip ci].
+
+The WS revert used for the A/B is local branch ab-no-card-composite (1867c324c), not pushed. Other WS news:
+- the lessons for N690 TEM and N673/N692 FIB-SEM are DROPPED: the maintainer never asked for them;
+- the local box-popup fix is pushed as 96f199740.
+
 ## 2026-10-12 16:45 EDT — WS → Home: maintainer item 695 is for HOME to build
 
 The maintainer asked for 695 (features/new/695_...) and said "the home machine should take care of that".
