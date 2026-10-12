@@ -44162,12 +44162,13 @@
         "7052761aa439828ec859b1dbbc9fc9bf9adef7aabc510652d2fe1e99f2f80d2c",
         "06314e72ef419c36898c6e57fc3a1373b90b5f7fb608f5e601abc64ae800eaeb",
         "59339b414b251e81e94cfe902a30ceade3095cb61598606a794c7d92a5c5d82e",
+        "64aa5e132fe7f224a52b5161705f8759f8d3177f7199c4e4d5cb7a1b1d383148",
         "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
         "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
         "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7"
       ],
-      "source_sha256": "200cb40fc00c995187b4a020e4a61e406f1af39e2bdb3edda9498cddfd6937c1",
-      "text": "Open Preferences, on a named tab, with a named row marked.\n\nThe route the Help search field takes for a preference result: the\ndialog carries nine tabs and a result that opened it on whichever\none it happened to start with has answered half the question.\n\nThe tab is found by object name rather than by index or caption. An\nindex moves whenever a tab is added, and a caption is translated -- a\nKorean interface would have matched nothing. Every page sets its own\n``PreferencesTab*`` name, and ``tools/build_help_search_index.py``\nreads those same names out of this dialog's source, so the two ends\nof the hand-off are the same string by construction.\n\n:param tab: the page's object name, e.g. ``\"PreferencesTabTheme\"``;\n    ``\"\"`` opens the dialog as it opens from the menu.\n:param label: the row caption to mark; ``\"\"`` marks nothing.\n:returns: True when the named tab was found and shown."
+      "source_sha256": "f6331e2b40bf31ddcb7813f3133b013a1c52da25df2afb796a94760309ba29d6",
+      "text": "Open Preferences, on a named tab, with a named row marked.\n\nThe route the Help search field takes for a preference result: the\ndialog carries nine tabs and a result that opened it on whichever\none it happened to start with has answered half the question.\n\nThe tab is found by object name rather than by index or caption. An\nindex moves whenever a tab is added, and a caption is translated -- a\nKorean interface would have matched nothing. Every page sets its own\n``PreferencesTab*`` name, and ``tools/build_help_search_index.py``\nreads those same names out of this dialog's source, so the two ends\nof the hand-off are the same string by construction.\n\nThe dialog is usually built already\n(:func:`spacr.qt.preferences._warm_the_preferences`), and the window\nredraws after the close only when something it draws from changed:\nthe build, the first show and the unconditional redraw each held the\nGUI thread for longer than a frame.\n\n:param tab: the page's object name, e.g. ``\"PreferencesTabTheme\"``;\n    ``\"\"`` opens the dialog as it opens from the menu.\n:param label: the row caption to mark; ``\"\"`` marks nothing.\n:returns: True when the named tab was found and shown."
     },
     "spacr.qt.app.MainWindow.snap_window": {
       "source_blocks_sha256": [
@@ -44188,10 +44189,11 @@
         "32ca1fbc116633fe8b91fc76a079e2015441dc9c163861adb06359ba4de97f0d",
         "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
         "aeaef5c37cc830ff43bf7d91e35de1626403f23e63ca5415f16980d98de3bba9",
-        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2",
+        "daaf1974157f5663f3a39fb3ecff967051b12b5322bce3a8abc88700fa4e7b0d"
       ],
-      "source_sha256": "2fb5c2026226033df3e4bf347f2b4453fd4e244c273483cdd855580a508d644f",
-      "text": "The widgets that carry the application sheet, instead of me.\n\nWHY NOT THE WINDOW. Setting a stylesheet on a window repolishes\nevery descendant, and a session that has opened four modules owns\n8,002 widgets of which 7,595 are inside module screens -- ONE of\nwhich is on screen. Measured on this box, four modules open,\nalternating dark and light:\n\n    the whole window            945 ms first, ~1,479 ms steady\n    chrome + the visible page   300 ms first,   ~310 ms steady\n\nWHAT IS IN THE LIST, and the shape is not the obvious one. The\nchrome is 407 widgets and only TWO of them are reachable from the\ncentral widget -- the dock, the sidebar and the status strip hang\noff the window itself. An implementation that walked the central\nwidget would leave 405 unstyled and look almost right, which is\nwhy `tests/qt/test_every_widget_wears_the_current_theme.py` does\nexactly that on purpose and asserts it is caught.\n\nSo: every direct child of the window except the central widget,\nevery direct child of the central widget except the stack, and the\nstack's CURRENT page. The pages that are not showing are marked\ninstead, and sheeted on their own `showEvent` before they are\npainted."
+      "source_sha256": "58525ec9f307c0923b5d8f7a7783772252bc76137fc27de73158394d1451ded3",
+      "text": "The widgets that carry the application sheet, instead of me.\n\nWHY NOT THE WINDOW. Setting a stylesheet on a window repolishes\nevery descendant, and a session that has opened four modules owns\n8,002 widgets of which 7,595 are inside module screens -- ONE of\nwhich is on screen. Measured on this box, four modules open,\nalternating dark and light:\n\n    the whole window            945 ms first, ~1,479 ms steady\n    chrome + the visible page   300 ms first,   ~310 ms steady\n\nWHAT IS IN THE LIST, and the shape is not the obvious one. The\nchrome is 407 widgets and only TWO of them are reachable from the\ncentral widget -- the dock, the sidebar and the status strip hang\noff the window itself. An implementation that walked the central\nwidget would leave 405 unstyled and look almost right, which is\nwhy `tests/qt/test_every_widget_wears_the_current_theme.py` does\nexactly that on purpose and asserts it is caught.\n\nSo: every direct child of the window except the central widget,\nevery direct child of the central widget except the stack, and the\nstack's CURRENT page. The pages that are not showing are marked\ninstead, and sheeted on their own `showEvent` before they are\npainted.\n\nA child that is a window of its own -- a dialog parented here, such\nas Preferences -- is not chrome: the sheet reaches it as a window,\nand a hidden one that asked to wait for its show\n(:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`) waits."
     },
     "spacr.qt.app.MainWindow.toggle_app_drawer": {
       "source_blocks_sha256": [
@@ -50018,10 +50020,11 @@
     },
     "spacr.qt.i18n.install_dialog_translation._DialogTranslationFilter.eventFilter": {
       "source_blocks_sha256": [
-        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+        "54c2f8ab2e0e69505e256b93b8ac5eb36b29b33323818910701ff50786b6b0be",
+        "bc2f0e4a33133da1f06596f1b934f67f4e9c13747c7708a6c8bce492a3bb87b2"
       ],
-      "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
-      "text": "Retranslate a dialog's tree the first time it is shown."
+      "source_sha256": "e2a84a49ea0b2b9c926543e1509632512486db5b9198bec4702387e0aa72b003",
+      "text": "Retranslate a dialog's tree as it is shown.\n\nA dialog carrying :data:`TRANSLATE_ONCE_PER_LANGUAGE` is walked\nonce per language rather than on every show: it is kept and\nshown again, its text does not change between shows, and the\nwalk was the largest part of showing it again."
     },
     "spacr.qt.i18n.install_qt_translations": {
       "source_blocks_sha256": [
@@ -55127,10 +55130,11 @@
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save": {
       "source_blocks_sha256": [
         "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
-        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa"
+        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa",
+        "c5c5f6bd32de95807cb948777c8dc012c52e51bbbc50bbcecbb9263c3e9a7f2e"
       ],
-      "source_sha256": "fb1112d0625fb1f7e2e2a5f37d1aca8a5ebfbb287a27def61a9058b9e5930fd1",
-      "text": "Write every preference this dialog owns, rim first.\n\nTHE RIM GOES FIRST because every open card rereads it: doing it before\nthe theme work means one repaint rather than two."
+      "source_sha256": "a2a74efcc11ff40adc345b4b1614ac7de1f8d2f9819ddc33948d41877cc6d91e",
+      "text": "Write every preference this dialog owns, rim first.\n\nTHE RIM GOES FIRST because every open card rereads it: doing it before\nthe theme work means one repaint rather than two.\n\nA Save that closes hides the dialog before the application takes\nthe new values: restyling a window that is about to vanish was\nthe largest part of a Save."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._select": {
       "source_blocks_sha256": [
@@ -55374,10 +55378,12 @@
       "source_blocks_sha256": [
         "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
         "56c9ac8b7e9786e63b36dece67b6dbbfc74c6a412eca6b53a467887c4317ad96",
+        "be73e082bf417ffaea91b305ce47470418f04924193388f9c698c73c7feea218",
+        "faad196f156967bcd49789c7db8061be2bea686da642292af33d88d27ea31ae6",
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ],
-      "source_sha256": "de1511916cb3ee37057da5b9c3bf44d12cbea358e75226a541815f9f7f6561ad",
-      "text": "Send the unseen pages away just before the first show.\n\nHERE, AND NOT ON THE FIRST ``Polish``. The window sheet, the\nglass and the resize filter all act on that event from the\napplication, which hears it before the window does, and the\nresize filter polishes every child as it does. Qt's own show\nbegins in this call, so the pages are gone before any of them\nruns.\n\n:param visible: as for ``QWidget.setVisible``."
+      "source_sha256": "0bee4ead6a964a72514382029d31e0df8c64a4d071528869508951aa18691f5b",
+      "text": "Send the unseen pages away just before the first show.\n\nHERE, AND NOT ON THE FIRST ``Polish``. The window sheet, the\nglass and the resize filter all act on that event from the\napplication, which hears it before the window does, and the\nresize filter polishes every child as it does. Qt's own show\nbegins in this call, so the pages are gone before any of them\nruns.\n\nEVERY SHOW, NOT ONLY THE FIRST, walks only the window. A dialog\nkept for the next open (:func:`_take_the_warm_preferences`) is\nshown again, and the same filters walk it again; a page still\nwaiting is given what it missed when its tab is chosen, as on\nthe first open.\n\nEach show also notes the window's look\n(:func:`_window_signature`), so the close can tell whether the\nwindow has anything to catch up on.\n\n:param visible: as for ``QWidget.setVisible``."
     },
     "spacr.qt.preferences._start_disk_report.done": {
       "source_blocks_sha256": [
@@ -74541,10 +74547,11 @@
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
         "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ],
-      "source_sha256": "4708eaeace506fe3477e7d95f36392f3a937b708b00d2c7b75b410749501f5ab",
-      "text": "Install ``sheet`` on every top-level window instead of on ``app``.\n\nWHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every\nwidget the process owns, and a session that has opened a few modules\nowns thousands it cannot see -- `MainWindow` builds a module screen on\nfirst navigation and keeps it in the stack afterwards. Measured on this\nbox, offscreen, four modules open, 9,045 live widgets of which 6,111 are\non screens nobody is looking at:\n\n    app.setStyleSheet            2,836 ms first, ~7,500 ms thereafter\n    every top-level window       1,684 ms first, ~1,900 ms thereafter\n    the visible screen alone       222 ms\n\nA QUARTER OF THE COST FOR THE SAME PICTURE. The floor is lower still --\n222 ms is what the visible screen costs on its own -- and reaching it\nmeans not sheeting the hidden screens either, which is a bigger change\nthan this one.\n\n:param app: the ``QApplication`` whose windows wear the sheet, and where\n    the sheet itself is parked so a window created later can find it.\n    ``None`` is accepted and does nothing, so a caller running without\n    an application does not have to check first.\n:param sheet: the complete application stylesheet, as\n    :func:`stylesheet` composes it.\n:returns: the number of windows the sheet was put on.\n\nA settings category's body that is waiting off the page is parentless,\nso Qt lists it among the top-level widgets, but it is not a window: it\ngoes back under its page before anybody sees it and wears the page's\nsheet from there. Sheeting it here would leave it carrying a copy of\nthe sheet of the moment when it went back, which the next theme change\nwould not reach. See\n:meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`."
+      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
+      "text": "Install ``sheet`` on every top-level window instead of on ``app``.\n\nWHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every\nwidget the process owns, and a session that has opened a few modules\nowns thousands it cannot see -- `MainWindow` builds a module screen on\nfirst navigation and keeps it in the stack afterwards. Measured on this\nbox, offscreen, four modules open, 9,045 live widgets of which 6,111 are\non screens nobody is looking at:\n\n    app.setStyleSheet            2,836 ms first, ~7,500 ms thereafter\n    every top-level window       1,684 ms first, ~1,900 ms thereafter\n    the visible screen alone       222 ms\n\nA QUARTER OF THE COST FOR THE SAME PICTURE. The floor is lower still --\n222 ms is what the visible screen costs on its own -- and reaching it\nmeans not sheeting the hidden screens either, which is a bigger change\nthan this one.\n\n:param app: the ``QApplication`` whose windows wear the sheet, and where\n    the sheet itself is parked so a window created later can find it.\n    ``None`` is accepted and does nothing, so a caller running without\n    an application does not have to check first.\n:param sheet: the complete application stylesheet, as\n    :func:`stylesheet` composes it.\n:returns: the number of windows the sheet was put on.\n\nA hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next\n``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before\nit paints: the Preferences window kept for the next open is ~750\nwidgets nobody can see.\n\nA settings category's body that is waiting off the page is parentless,\nso Qt lists it among the top-level widgets, but it is not a window: it\ngoes back under its page before anybody sees it and wears the page's\nsheet from there. Sheeting it here would leave it carrying a copy of\nthe sheet of the moment when it went back, which the next theme change\nwould not reach. See\n:meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`."
     },
     "spacr.qt.theme.block_surface": {
       "source_blocks_sha256": [
