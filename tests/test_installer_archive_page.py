@@ -404,11 +404,18 @@ def test_every_archived_installer_is_retained_in_the_application_folder():
 def test_the_page_is_in_the_toctree_and_the_readme_points_at_it():
     """A page nothing links to is a page nobody reaches. The README's icons
     keep pointing at the latest; this is where someone goes for anything
-    else, so the README is where the pointer belongs."""
+    else.
+
+    2026-10-12: the maintainer removed the README's "Earlier spaCR
+    installers" button, so the pointer is one hop away now: the README links
+    the installer guide, and the guide links this archive."""
     index = (ROOT / "docs" / "source" / "index.rst").read_text(encoding="utf-8")
     assert re.search(r"^\s+installers$", index, re.MULTILINE)
     readme = README.read_text(encoding="utf-8")
-    assert ":target: docs/source/installers.rst" in readme
+    assert ":target: docs/source/installer_guide.rst" in readme
+    guide = (ROOT / "docs" / "source" / "installer_guide.rst").read_text(
+        encoding="utf-8")
+    assert ":doc:`installer archive <installers>`" in guide
 
 
 @pytest.mark.parametrize("script,pattern", [

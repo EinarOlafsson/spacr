@@ -83,9 +83,25 @@ def _read(path: Path) -> str:
 
 
 def _readme_block(generator) -> str:
+    """The README's grid, its band headings read back out of their images.
+
+    Each band's heading and note are one image since 2026-10-12
+    (tools/build_readme_images.py) whose alt text starts with the heading;
+    it is written back as an RST heading so both grids parse alike.
+    """
     text = _read(README)
     block = text.partition(generator.WORKFLOW_BEGIN)[2]
-    return block.partition(generator.WORKFLOW_END)[0]
+    block = block.partition(generator.WORKFLOW_END)[0]
+    underline = generator.SECTION_HEADING_CHAR
+
+    def heading(match):
+        title = match.group("title")
+        return f"{title}\n{underline * max(3, len(title))}\n"
+
+    return re.sub(
+        r"(?m)^\.\. image:: \S*/generated-workflow-\d+\.svg\n"
+        r"   :alt: (?P<title>[^\n]+?)\. [^\n]*\n(?:   :[^\n]*\n)*",
+        heading, block)
 
 
 def _bands(text: str, underline: str, prefix: str) -> "list[tuple[str, list]]":

@@ -32,6 +32,20 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def _words() -> str:
+    """The README's wording: its source, as RST prose.
+
+    The README itself is images and code blocks since 2026-10-12; what it
+    says is in packaging/readme_source.yaml, and
+    ``tools/build_readme_images.py`` renders that back to RST for checks
+    like these. tests/test_readme_is_built_from_images.py holds the images
+    to the source.
+    """
+    from tests.readme_source_words import readme_words
+
+    return readme_words()
+
+
 #: A tile counts as wrong when this many pixels of INK disagree. Zero is
 #: not the threshold and the reason is measured, not assumed -- see
 #: `_tile_ink_disagreement`.
@@ -117,13 +131,13 @@ def _assert_tile_is_what_the_generator_draws(committed, rendered, what: str):
 
 
 def test_readme_uses_an_explicit_supported_python_badge():
-    text = _read(README)
+    text = _words()
     assert "Python-3.9%E2%80%933.14" in text
     assert ":alt: Python 3.9 through 3.14" in text
 
 
 def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
-    text = _read(README)
+    text = _words()
     features = _read(FEATURES)
 
     # RENAMED on 2026-09-01. "What you can do" said nothing the six
@@ -268,7 +282,7 @@ def test_no_module_but_make_masks_has_a_section_of_its_own():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
 
-    text = _read(README)
+    text = _words()
     labels = {label for _key, label, _description, _section
               in generator._registry()}
     headings = set(re.findall(r"(?m)^([^\n]+)\n[-~^]{3,}$", text))
@@ -290,7 +304,7 @@ def test_no_module_but_make_masks_has_a_section_of_its_own():
 
 
 def test_readme_uses_branch_safe_documentation_links():
-    text = _read(README)
+    text = _words()
     for page in ("installer_guide", "python_api", "features"):
         assert f"einarolafsson.github.io/spacr/{page}.html" not in text
         assert f"docs/source/{page}.rst" in text
@@ -305,7 +319,7 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
 
-    text = _read(README)
+    text = _words()
     docs = _read(DOC_WORKFLOW)
     registry = generator._registry()
     urls = generator._api_urls()
@@ -388,7 +402,7 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
 
     assert "flow_chart_v3" not in text
     assert "The spaCR workflow" not in text
-    assert "Select a tile to open that\nmodule's API page" in text
+    assert "Select a tile to open that module's API page" in text
     assert "_generated/workflow_grid.rst" in _read(DOCS_INDEX)
     assert "../_generated/workflow_grid.rst" in _read(AUTOAPI_INDEX)
 
@@ -416,7 +430,7 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
 
-    text = _read(README)
+    text = _words()
     grid = generator._module_grid()
 
     # THE PIPELINE FIRST, then Home's order. The arrows used to say the
@@ -483,9 +497,12 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
             "headings must come from Home through _grid_sections")
     assert "spaCR modules\n-------------" in text
     underline = generator.SECTION_HEADING_CHAR
-    for section, _note, _tiles in generator._grid_sections():
+    for section, note, _tiles in generator._grid_sections():
         assert f"{section}\n{underline * len(section)}\n" in block, (
             f"the grid does not head its {section!r} band")
+        # Drawn as one image per band on the page itself, heading and
+        # Home's note together in its alt text.
+        assert f":alt: {section}. {note}" in _read(README), section
 
     # A line block fixes the row length and removes paragraph margins.
     # Middle alignment must also survive GitHub sanitization: baseline
@@ -650,13 +667,20 @@ def test_the_readme_lists_the_default_model_of_each_family():
     spec.loader.exec_module(generator)
     cards = generator.build_model_cards
 
-    text = _read(README)
+    text = _words()
     block = text.partition(generator.MODEL_ZOO_BEGIN)[2]
     block = block.partition(generator.MODEL_ZOO_END)[0]
     assert block.strip(), "the README has no model zoo block"
     assert block.strip() == generator._readme_model_zoo_block().strip(), (
         "the README's model zoo block is not what the catalogue produces; "
         "re-run packaging/generate_readme_visuals.py")
+    drawn = _read(README).partition(generator.MODEL_ZOO_BEGIN)[2]
+    drawn = drawn.partition(generator.MODEL_ZOO_END)[0]
+    assert drawn.strip() == generator._readme_model_zoo_markup(
+        render=False).strip(), (
+        "README.rst does not carry the model zoo block as images; re-run "
+        "packaging/generate_readme_visuals.py")
+    source = block
 
     published = generator._published_models()
     defaults = cards.default_records(published)
@@ -675,10 +699,12 @@ def test_the_readme_lists_the_default_model_of_each_family():
         assert versus[1:] in table, key
     for entry, _status in cards.other_records(published):
         key = cards.key_of(entry)
-        assert f"`{key} <docs/models/{key}.md>`__" in block, key
+        assert f"`{key} <docs/models/{key}.md>`__" in source, key
+        assert f":target: docs/models/{key}.md" in drawn, key
         assert f"cards/{key}.svg" not in table, (
             f"{key} is not a family default but has a score card in the grid")
-    assert "Older models: " in block
+    assert "Older models: " in source
+    assert ":alt: Older models." in drawn
 
     for key in ("toxoplasma_pv", "toxoplasma_plaque", "live_cell"):
         family = next(f for f in cards.families(published) if f["stem"] == key)
@@ -709,10 +735,11 @@ def test_every_readme_carries_the_same_model_zoo_block():
         text = readme.read_text(encoding="utf-8")
         block = text.partition(generator.MODEL_ZOO_BEGIN)[2]
         block = block.partition(generator.MODEL_ZOO_END)[0]
-        expected = generator._readme_model_zoo_block(
-            generator._card_prefix(readme), generator._readme_language(readme))
+        expected = generator._readme_model_zoo_markup(
+            generator._card_prefix(readme), generator._readme_language(readme),
+            render=False)
         assert block.strip() == expected.strip(), readme.name
-        for target in re.findall(r"<([^<>]+\.md)>`__", block):
+        for target in re.findall(r":target: (\S+\.md)", block):
             assert (readme.parent / target).resolve().is_file(), (
                 readme.name, target)
         images = re.findall(r"image:: (\S+\.svg)", block)
@@ -723,7 +750,7 @@ def test_every_readme_carries_the_same_model_zoo_block():
 
 
 def test_installer_guide_is_distinct_from_the_version_archive():
-    readme = _read(README)
+    readme = _words()
     guide = _read(INSTALLER_GUIDE)
     index = _read(DOCS_INDEX)
 
@@ -770,7 +797,7 @@ def test_installer_guide_gives_old_desktop_builds_the_pipless_escape():
 def test_reference_resources_are_linked_rounded_buttons():
     from PIL import Image
 
-    text = _read(README)
+    text = _words()
     for name in ("biostudies", "huggingface", "ncbi", "spacrpower", "biorxiv"):
         relative = f"spacr/resources/icons/databanks/{name}_button.png"
         assert relative in text
@@ -789,7 +816,7 @@ def test_reference_resources_are_linked_rounded_buttons():
 
 
 def test_readme_contains_only_user_facing_installation_copy():
-    text = _read(README)
+    text = _words()
     for creator_note in (
         "one-time reviewed onboarding",
         "one-time maintainer procedure",
@@ -802,7 +829,7 @@ def test_readme_contains_only_user_facing_installation_copy():
 
 
 def test_language_support_is_a_documented_output_safe_feature():
-    readme = _read(README)
+    readme = _words()
     guide = _read(LOCALIZATION)
     index = _read(DOCS_INDEX)
 
@@ -822,7 +849,7 @@ def test_language_support_is_a_documented_output_safe_feature():
 
 
 def test_setting_animations_are_wired_into_readme_and_docs():
-    readme = _read(README)
+    readme = _words()
     gallery = _read(SETTING_ANIMATIONS)
 
     assert "Animated setting guidance" in readme

@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.readme_source_words import readme_words
+
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.rst"
 DOCS_GRID = ROOT / "docs" / "source" / "_generated" / "workflow_grid.rst"
@@ -273,7 +275,7 @@ class TestTheProseMatchesTheScreens:
         """
         from spacr.qt.screens.make_masks import tool_row_entries
 
-        readme = README.read_text(encoding="utf-8")
+        readme = readme_words()
         assert re.search(
             r"`[^`<]+<docs/source/features\.rst>`_ for each tool", readme), (
             "the README no longer sends the reader to the feature guide for "

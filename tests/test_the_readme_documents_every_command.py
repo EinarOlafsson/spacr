@@ -19,6 +19,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.readme_source_words import readme_words
+
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.rst"
 SETUP = ROOT / "setup.py"
@@ -48,7 +50,7 @@ def test_the_readme_names_no_command_that_does_not_exist():
     This is the half that produces a user typing something and getting
     'command not found' -- the worst first impression a README can make.
     """
-    invented = sorted(commands_named_in(README.read_text(encoding="utf-8"))
+    invented = sorted(commands_named_in(readme_words())
                       - declared_commands())
     assert not invented, (
         f"the README tells users to run commands setup.py does not "
@@ -66,7 +68,13 @@ def test_the_readme_names_no_command_that_does_not_exist():
 #: A name goes here only with a REASON, because the default must stay
 #: "everything that ships is documented" -- an undocumented command is a
 #: feature nobody finds, and this list is the exception that proves it.
-UNDOCUMENTED_ON_PURPOSE = {"spaceout"}
+#:
+#: `spacr-qt` and `spacr-nightly` are aliases of `spacr` from before the
+#: rename; the README line naming them was removed on 2026-10-12 (16a9294c6)
+#: with the rest of the README trim, so they stay installed for old scripts
+#: but are no longer written about.
+HIDDEN_ON_PURPOSE = {"spaceout"}
+UNDOCUMENTED_ON_PURPOSE = HIDDEN_ON_PURPOSE | {"spacr-qt", "spacr-nightly"}
 
 
 def test_every_command_that_exists_is_in_the_readme():
@@ -76,7 +84,7 @@ def test_every_command_that_exists_is_in_the_readme():
     application as ``spacr``, and they are named so a reader who finds one
     in an old script can tell what it is.
     """
-    text = README.read_text(encoding="utf-8")
+    text = readme_words()
     undocumented = sorted(name for name in declared_commands()
                           if name not in text
                           and name not in UNDOCUMENTED_ON_PURPOSE)
@@ -96,7 +104,7 @@ def test_the_source_install_is_copy_pasteable(phrase):
     install section that paraphrases the clone command is one the reader
     has to translate before using.
     """
-    assert phrase in README.read_text(encoding="utf-8")
+    assert phrase in readme_words()
 
 
 def _rst_errors(path) -> list:
@@ -151,8 +159,8 @@ def test_the_hidden_entry_point_stays_hidden():
     Asserted so a future "every command should be documented" tidy-up
     argues with this line first, rather than quietly reintroducing it.
     """
-    text = README.read_text(encoding="utf-8")
-    for name in UNDOCUMENTED_ON_PURPOSE:
+    text = readme_words()
+    for name in HIDDEN_ON_PURPOSE:
         assert name not in text, (
             f"{name} is a hidden entry point and should not be advertised "
             "in the README")

@@ -33,6 +33,7 @@ from tools.readme_i18n import (  # noqa: E402
     localize_workflow_markup,
 )
 from tools import build_model_cards  # noqa: E402
+from tools import build_readme_images  # noqa: E402
 
 ICON_DIR = ROOT / "spacr" / "resources" / "icons"
 DATABANK_DIR = ICON_DIR / "databanks"
@@ -973,6 +974,21 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
     return "\n".join(lines)
 
 
+def _readme_model_zoo_markup(prefix: str = "docs/models/",
+                             language: str = "en", *,
+                             render: bool = True) -> str:
+    """The model-zoo block as the image README carries it.
+
+    :func:`_readme_model_zoo_block` with its text drawn as images by
+    ``tools/build_readme_images.py``: the "Older models" and "Alternatives"
+    lines become a caption and one linked button per model. ``render=False``
+    returns the markup without drawing, for checks.
+    """
+    return build_readme_images.convert_generated(
+        _readme_model_zoo_block(prefix, language), language, "model-zoo",
+        render=render)
+
+
 #: "Languages" written in each translated README's own language.
 #:
 #: A DELIBERATE MIRROR of ``LANGUAGE_PICKER_LABELS`` in
@@ -1137,7 +1153,8 @@ def _write_the_language_picker(path) -> bool:
     end += len(LANGUAGE_PICKER_END)
     match = re.fullmatch(r"README\.(?P<language>[^.]+)\.rst", path.name)
     code = match.group("language") if match else "en"
-    line = _language_picker_line(code)
+    line = build_readme_images.convert_generated(
+        _language_picker_line(code), code, "language-picker")
     block = (f"{LANGUAGE_PICKER_BEGIN}\n\n{line}\n\n"
              f"{LANGUAGE_PICKER_END}")
     updated = text[:start] + block + text[end:]
@@ -1160,7 +1177,7 @@ def _write_the_model_zoo_table(path) -> bool:
     if start < 0 or end < 0:
         return False
     end += len(MODEL_ZOO_END)
-    zoo = _readme_model_zoo_block(_card_prefix(path), _readme_language(path))
+    zoo = _readme_model_zoo_markup(_card_prefix(path), _readme_language(path))
     block = f"{MODEL_ZOO_BEGIN}\n\n{zoo}\n\n{MODEL_ZOO_END}"
     updated = text[:start] + block + text[end:]
     if updated != text:
@@ -1186,7 +1203,9 @@ def _write_the_hardware_table(path) -> bool:
     match = re.fullmatch(r"README\.(?P<language>[^.]+)\.rst", path.name)
     if match:
         markup = localize_hardware_markup(markup, match.group("language"))
-    block = f"{HARDWARE_BEGIN}\n\n{markup}\n{HARDWARE_END}"
+    markup = build_readme_images.convert_generated(
+        markup, _readme_language(path), "hardware")
+    block = f"{HARDWARE_BEGIN}\n\n{markup}\n\n{HARDWARE_END}"
     updated = text[:start] + block + text[end:]
     if updated != text:
         path.write_text(updated, encoding="utf-8")
@@ -1642,6 +1661,29 @@ def _workflow_markup_for_readme(path: Path, icon_prefix: str) -> str:
     return markup
 
 
+def _workflow_images_for_readme(path: Path, icon_prefix: str) -> str:
+    """The README's module grid with its band headings drawn as images."""
+    return build_readme_images.convert_generated(
+        _workflow_markup_for_readme(path, icon_prefix),
+        _readme_language(path), "workflow")
+
+
+def write_readme_blocks(path: Path) -> None:
+    """Rewrite every generated block of one README, without redrawing tiles.
+
+    ``tools/build_readme_images.py --refresh-generated`` calls this, so the
+    image README can pick up a new model or Home layout without the forty
+    tile PNGs being redrawn.
+    """
+    _normalize_linked_resource_blocks(path)
+    prefix = ("../../../spacr/resources/icons"
+              if path.parent.name == "readme" else "spacr/resources/icons")
+    _replace_workflow_block(path, _workflow_images_for_readme(path, prefix))
+    _write_the_hardware_table(path)
+    _write_the_model_zoo_table(path)
+    _write_the_language_picker(path)
+
+
 def _warn_if_the_layout_engine_differs() -> None:
     """Say so when this build will not reproduce the committed artwork.
 
@@ -1751,7 +1793,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             else "spacr/resources/icons"
         )
         _replace_workflow_block(
-            readme, _workflow_markup_for_readme(readme, prefix)
+            readme, _workflow_images_for_readme(readme, prefix)
         )
         print(readme.relative_to(ROOT))
     DOC_WORKFLOW.parent.mkdir(parents=True, exist_ok=True)

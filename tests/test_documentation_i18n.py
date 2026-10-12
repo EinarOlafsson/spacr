@@ -16,6 +16,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.readme_source_words import readme_words
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 #: 9,434 -> 9,596 on 2026-09-04. 368's public half: every public method in
@@ -2219,7 +2221,7 @@ def test_github_summary_has_reviewed_domain_translations():
     all_languages = {
         "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
     }
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     canonical_blocks, _layout = translatable_blocks(canonical)
     canonical_normalized = re.sub(r"\s+", " ", canonical)
     for source, reviewed in REVIEWED_README_BLOCKS.items():
@@ -2246,10 +2248,9 @@ def test_github_summary_has_reviewed_domain_translations():
                 # reviewed wording may be absorbed into a larger reviewed
                 # paragraph rather than appearing as a standalone value.
                 continue
-            localized = (
+            localized = readme_words(
                 ROOT / "docs" / "i18n" / "readme"
-                / f"README.{language}.rst"
-            ).read_text(encoding="utf-8")
+                / f"README.{language}.rst")
             contract_localized = localized.replace(
                 "<../TRANSLATION_MODELS.md>",
                 "<docs/i18n/TRANSLATION_MODELS.md>",
@@ -2307,7 +2308,7 @@ def test_post_merge_readme_gap_ledger_is_source_bound_and_truthful():
     records = payload["records"]
     assert len(records) == 16
     canonical, _layout = translatable_blocks(
-        (ROOT / "README.rst").read_text(encoding="utf-8")
+        readme_words()
     )
     all_languages = {
         "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
@@ -4302,8 +4303,7 @@ def test_localized_readmes_keep_the_badge_row_structurally_intact():
     # this test noticing: it was still comparing the nine against each
     # other. The row a reader sees is the English one, so that is what the
     # nine are held to.
-    expected = (ROOT / "README.rst").read_text(
-        encoding="utf-8").splitlines()[0]
+    expected = readme_words().splitlines()[0]
     # |Website| leads the row since N687 (2026-10-10); |Coverage| follows
     # |Test counts| since N688.
     assert expected.startswith("|Website|") and expected.endswith(
@@ -4324,7 +4324,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         _readme_substitution_alt_text,
     )
 
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     # 20 since the maintainer's 2026-10-11 badge clean-up removed |Source|,
     # |Release| (installers) and |Conda Downloads|.
     # 23 since 2026-10-10: |Docker| joined, after |Website| (N687) and
@@ -4366,9 +4366,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     assert not any("Plasmodium" in alt or "Candida" in alt for alt in canonical_alt)
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
-        text = (readme_root / f"README.{language}.rst").read_text(
-            encoding="utf-8"
-        )
+        text = readme_words(readme_root / f"README.{language}.rst")
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
         alt_text += [unescape(value) for value in re.findall(r'\balt="([^"]+)"', text)]
         workflow = text.partition(
@@ -4493,26 +4491,38 @@ def test_visual_regeneration_keeps_reviewed_organism_heading_and_note(language):
 
 @pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
 def test_visual_regeneration_preserves_complete_native_hardware_block(language, monkeypatch, tmp_path):
-    """Regeneration retains every accepted native byte outside changed workflow prose."""
+    """Regeneration is stable, and the drawn table keeps its native legend.
+
+    The hardware block is one image since 2026-10-12, drawn by
+    tools/build_readme_images.py; its alt text reads the table out with the
+    legend's three labels in the README's own language
+    (``readme_i18n.HARDWARE_LEGEND_LABELS``).
+    """
     import importlib.util
-    fixture = json.loads((ROOT / "tests/data/release_contracts"
-        / "readme_workflow_languages_2026_10_08.json").read_text())
-    expected = fixture["languages"][language]
-    native_block = expected["accepted_hardware_block"]
-    canonical = native_block.replace(expected["hardware_legend"], fixture["source_hardware_legend"])
+    from readme_i18n import HARDWARE_LEGEND_LABELS
+
     spec = importlib.util.spec_from_file_location(
         "readme_hardware_visuals", ROOT / "packaging/generate_readme_visuals.py")
     assert spec is not None and spec.loader is not None
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
-    monkeypatch.setattr(generator, "_hardware_table", lambda: canonical.strip("\n") + "\n")
+    monkeypatch.setattr(generator.build_readme_images, "IMAGE_DIR",
+                        tmp_path / "images")
     path = tmp_path / f"README.{language}.rst"
-    before = "Before\n.. spacr-hardware-begin\n" + native_block + ".. spacr-hardware-end\nAfter\n"
-    path.write_text(before)
+    path.write_text("Before\n\n.. spacr-hardware-begin\n\n"
+                    ".. spacr-hardware-end\n\nAfter\n", encoding="utf-8")
     assert generator._write_the_hardware_table(path)
-    assert path.read_text() == before
+    first = path.read_text(encoding="utf-8")
     assert generator._write_the_hardware_table(path)
-    assert path.read_text() == before
+    assert path.read_text(encoding="utf-8") == first
+    assert first.startswith("Before\n") and first.endswith("After\n")
+    for label in HARDWARE_LEGEND_LABELS[language]:
+        assert label in first, label
+    committed = (ROOT / "docs/i18n/readme" / f"README.{language}.rst").read_text(
+        encoding="utf-8")
+    block = first.partition(".. spacr-hardware-begin")[2].partition(
+        ".. spacr-hardware-end")[0]
+    assert block in committed
 
 
 def test_readme_builder_reuses_the_same_source_bound_visual_targets():
@@ -4525,14 +4535,17 @@ def test_readme_builder_reuses_the_same_source_bound_visual_targets():
         translated = builder._localize_workflow_alt_text(sample, language)
         assert expected["heading"] in translated
         assert expected["note"] in translated
-        assert expected["hardware_legend"] in translated
+        from readme_i18n import HARDWARE_LEGEND_LABELS
+
+        for label in HARDWARE_LEGEND_LABELS[language]:
+            assert label in translated, (language, label)
         assert builder.REVIEWED_README_BLOCKS[fixture["source_heading"]][language] == expected["heading"]
         assert builder.REVIEWED_README_BLOCKS[fixture["source_note"]][language] == expected["note"]
         assert builder.REVIEWED_README_BLOCKS[re.sub(r"\s+", " ", fixture["source_hardware_legend"])][language] == expected["hardware_legend"]
 
 
 def test_localized_readme_inline_markup_is_balanced_and_tight():
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
         text = path.read_text(encoding="utf-8")
         for marker in ("**", "``"):
@@ -4563,7 +4576,7 @@ def test_localized_readmes_preserve_module_names_and_technical_terms():
         "Cellpose", "SQLite", "FASTQ", "AnnData", "CUDA", "Hugging Face",
         "torchvision",
     }
-    canonical_readme = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical_readme = readme_words()
     protected_terms = {
         term for term in protected_vocabulary if term in canonical_readme
     }
@@ -4581,9 +4594,7 @@ def test_localized_readmes_preserve_module_names_and_technical_terms():
     }
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in known_context_errors:
-        text = (readme_root / f"README.{language}.rst").read_text(
-            encoding="utf-8"
-        )
+        text = readme_words(readme_root / f"README.{language}.rst")
         # Paired with the English bullets by position: since 2026-10-10 the
         # install routes are bold bullets too, and they are translated.
         bullet = r"(?m)^- \*\*([^*\n]+)\*\*"
@@ -4598,7 +4609,7 @@ def test_localized_readmes_preserve_module_names_and_technical_terms():
 
 
 def test_localized_readmes_preserve_urls_code_and_table_shape():
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     canonical_urls = sorted(re.findall(r"https?://[^\s>`]+", canonical))
     code_pattern = re.compile(
         r"(?m)^\.\. code-block:: [^\n]+\n\n((?: {3}[^\n]*(?:\n|$))+)",
@@ -4621,16 +4632,15 @@ def test_reviewed_readme_headings_match_the_canonical_source_and_locales():
         translatable_blocks,
     )
 
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     source_blocks, _ = translatable_blocks(canonical)
     assert "Animated setting guidance" in REVIEWED_README_HEADINGS
     assert "Animated settings guidance" not in REVIEWED_README_HEADINGS
     for source, localized_headings in REVIEWED_README_HEADINGS.items():
         assert source_blocks.count(source) == 1
         for language, heading in localized_headings.items():
-            localized = (
-                ROOT / "docs" / "i18n" / "readme" / f"README.{language}.rst"
-            ).read_text(encoding="utf-8")
+            localized = readme_words(
+                ROOT / "docs" / "i18n" / "readme" / f"README.{language}.rst")
             assert heading in localized, (source, language, heading)
 
 
@@ -4649,7 +4659,7 @@ def test_localized_readmes_have_as_many_sections_as_the_english_one():
     """
     from readme_i18n import _HEADING
 
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     expected = [m.group("title") for m in _HEADING.finditer(canonical)]
     for path in sorted((ROOT / "docs" / "i18n" / "readme").glob(
             "README.*.rst")):
@@ -4664,9 +4674,7 @@ def test_localized_readmes_have_as_many_sections_as_the_english_one():
 def test_localized_readmes_keep_reviewed_semantic_and_typographic_fixes():
     readme_root = ROOT / "docs" / "i18n" / "readme"
     readmes = {
-        language: (readme_root / f"README.{language}.rst").read_text(
-            encoding="utf-8"
-        )
+        language: readme_words(readme_root / f"README.{language}.rst")
         for language in ("de", "es", "hi", "ko", "pt", "sv", "zh_CN")
     }
 

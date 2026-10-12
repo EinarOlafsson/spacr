@@ -44,16 +44,25 @@ def table(generator):
     return generator._hardware_table()
 
 
-def test_the_readme_holds_what_the_generator_produces(table):
+def test_the_readme_holds_what_the_generator_produces(generator, table):
     """Regenerating changes nothing. If it does, somebody typed.
 
     This is the check that keeps the table honest with no effort: it
     fails the moment the resolver's answers change and the generator has
     not been re-run.
     """
-    assert table.strip() in README.read_text(encoding="utf-8"), (
+    readme = README.read_text(encoding="utf-8")
+    block = readme.partition(generator.HARDWARE_BEGIN)[2].partition(
+        generator.HARDWARE_END)[0]
+    drawn = generator.build_readme_images.convert_generated(
+        table, "en", "hardware", render=False)
+    assert block.strip() == drawn.strip(), (
         "README.rst disagrees with the generated hardware table; run "
         "python packaging/generate_readme_visuals.py")
+    # THE TABLE IS AN IMAGE since 2026-10-12, and its alt text is the table
+    # read out row by row, so every row is still in the README's words.
+    for line in re.findall(r"^   \* - (.+)$", table, re.M)[1:]:
+        assert f"{line}: " in block, line
 
 
 def test_the_generated_file_matches_too(table):

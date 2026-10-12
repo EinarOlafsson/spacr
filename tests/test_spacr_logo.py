@@ -8,6 +8,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageChops
 
+from tests.readme_source_words import readme_words
+
 
 ROOT = Path(__file__).resolve().parents[1]
 GENERATOR = ROOT / "packaging" / "generate_spacr_logo.py"
@@ -48,8 +50,11 @@ def test_readme_opens_with_the_info_deck_from_the_current_branch():
     assert ".. image:: docs/source/_static/deck/slides/slide_01.jpg" in text
     assert "logo_spacr_readme.png" not in text
     assert "   :width: 920" in text
-    assert "`← Back <docs/source/_static/deck/pages/57.md>`_" in text
-    assert "`Next → <docs/source/_static/deck/pages/02.md>`_" in text
+    words = readme_words()
+    assert "`← Back <docs/source/_static/deck/pages/57.md>`_" in words
+    assert "`Next → <docs/source/_static/deck/pages/02.md>`_" in words
+    assert ":target: docs/source/_static/deck/pages/57.md" in text
+    assert ":target: docs/source/_static/deck/pages/02.md" in text
     assert "raw.githubusercontent.com/EinarOlafsson/spacr/main" not in text
 
 

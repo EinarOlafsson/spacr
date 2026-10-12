@@ -145,7 +145,8 @@ def test_the_front_page_shows_one_language_link_not_ten():
     html, messages = _render(README.read_text(encoding="utf-8"))
     assert "system-message" not in html, messages
 
-    links = re.findall(r'<a class="reference external" href="([^"]+)">', html)
+    links = re.findall(r'<a class="reference external[^"]*" href="([^"]+)">',
+                       html)
     picker = [href for href in links if "i18n/readme/README" in href]
     assert picker == ["docs/i18n/readme/README.md"], (
         f"the front page should carry one language control, it has {picker}")
@@ -165,12 +166,18 @@ def test_every_readme_carries_the_generated_picker_for_its_own_language(
     generator = _generator()
     code = _code(path)
     line = generator._language_picker_line(code)
-    assert _block(path) == f"{BEGIN}\n\n{line}\n\n{END}", (
+    # Drawn as one linked button since 2026-10-12, by the same converter
+    # the generator runs (tools/build_readme_images.py).
+    drawn = generator.build_readme_images.convert_generated(
+        line, code, "language-picker", render=False)
+    assert _block(path) == f"{BEGIN}\n\n{drawn}\n\n{END}", (
         f"{path.name} is not what packaging/generate_readme_visuals.py writes; "
         "re-run it rather than editing the README")
     assert line.startswith(f"{generator.LANGUAGE_PICKER_LABELS[code]}:")
     target = "docs/i18n/readme/README.md" if code == "en" else "README.md"
     assert f"<{target}>`_" in line
+    assert f":target: {target}" in drawn
+    assert f":alt: {generator.LANGUAGE_PICKER_LABELS[code]}: " in drawn
     assert (path.parent / target).is_file()
 
 
@@ -263,16 +270,18 @@ def test_the_menu_labels_ai_review_without_native_speaker_signoff():
             assert "AI technical review (Codex), no native-speaker signoff" in row
 
 
-def test_the_page_and_the_readmes_are_regenerated_not_hand_written(tmp_path):
+def test_the_page_and_the_readmes_are_regenerated_not_hand_written(
+        tmp_path, monkeypatch):
     """Running the generator again must change nothing."""
     generator = _generator()
     assert PICKER_PAGE.read_text(encoding="utf-8") == \
         generator._language_picker_page()
     working = tmp_path / "README.sv.rst"
     source = (README_DIR / "README.sv.rst").read_text(encoding="utf-8")
-    stale = source.replace(
-        "Språk: `🌐 Svenska ▾ <README.md>`_", "Languages: stale")
+    stale = source.replace(":alt: Språk: Svenska", ":alt: Languages: stale")
     assert stale != source, "the Swedish picker line is not what this expects"
+    monkeypatch.setattr(generator.build_readme_images, "IMAGE_DIR",
+                        tmp_path / "images")
     working.write_text(stale, encoding="utf-8")
     assert generator._write_the_language_picker(working)
     assert working.read_text(encoding="utf-8") == source

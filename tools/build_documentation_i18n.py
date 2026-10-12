@@ -26,12 +26,13 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Callable, Iterable, Mapping
 
+import build_readme_images
 import nested_helper_docs
 
 from build_i18n_catalogs import (
     MODEL_ROOT_CANDIDATES,
     MODEL_ROOT_ENV,
-    NATIVE_LANGUAGE_NAMES,
+    NATIVE_LANGUAGE_NAMES,  # noqa: F401 -- re-exported for the catalog tests
     default_model_root,
     _COMPUTE_RUN_SOURCE,
     _COMPUTE_THREAD_SOURCE,
@@ -71,7 +72,6 @@ from build_i18n_catalogs import (
 from readme_i18n import (
     WORKFLOW_MODULE_ALT_TEMPLATES,
     localize_hardware_markup,
-    localize_internal_references,
     localize_workflow_markup,
 )
 
@@ -3641,7 +3641,9 @@ def _keep_citing_papers(readme: str, localized: str, previous: str | None) -> st
 
 
 REVIEWED_README_EVIDENCE_BLOCKS = _load_reviewed_readme_evidence()
-_CURRENT_README_TEXT = (ROOT / "README.rst").read_text(encoding="utf-8")
+# The README's wording lives in packaging/readme_source.yaml since the README
+# became images (2026-10-12); its RST rendering is what reviewers bound to.
+_CURRENT_README_TEXT = build_readme_images.source_rst("en")
 _CURRENT_README_PROSE = re.sub(r"\s+", " ", _CURRENT_README_TEXT)
 RETIRED_README_EVIDENCE_BLOCKS = {
     source: translations
@@ -6532,10 +6534,6 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
         r"\b[^:]*:)"
     )
     rst_link_pattern = re.compile(r"`[^`\n]+\s+<([^>\n]+)>`_")
-    readme_protected_pattern = re.compile(
-        r"``[^`]+``|" + _RST_ROLE_PATTERN + r"|"
-        r"https?://[^\s)>}\]]+"
-    )
 
     def protected_values(
         text: str, pattern: re.Pattern[str] = _PROTECT_RE,
@@ -6590,7 +6588,6 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
         ):
             failures.append(f"{label}: leaked protection token")
 
-    readme_source = README_SOURCE.read_text(encoding="utf-8")
     english_path = API_DIR / "en.json"
     try:
         english_payload = json.loads(english_path.read_text(encoding="utf-8"))
@@ -6868,70 +6865,24 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                 "translation-model control tokens "
                 f"({', '.join(model_artifact_errors[:5])})"
             )
+        # THE TRANSLATED README IS BUILT, NOT TRANSLATED, since 2026-10-12.
+        # tools/build_readme_images.py draws it from
+        # docs/i18n/readme/source/<lang>.yaml, block for block against the
+        # English source; the gate is that build's own structure and
+        # currency check, and the picker hop back to the language index.
         readme_path = README_DIR / f"README.{language}.rst"
         if not readme_path.is_file():
             failures.append(f"{language}: translated README is missing")
         else:
+            failures.extend(
+                f"{language}/README: {problem}" for problem in
+                build_readme_images.check_structure(language)
+                + build_readme_images.check([language]))
             readme = readme_path.read_text(encoding="utf-8")
-            if len(readme) < 10_000:
-                failures.append(f"{language}: translated README is too short")
-            contract_readme = readme.replace(
-                "<../../../README.rst>", "<README.rst>"
-            ).replace(
-                "<../TRANSLATION_MODELS.md>",
-                "<docs/i18n/TRANSLATION_MODELS.md>",
-            ).replace(
-                " image:: ../../../spacr/resources/",
-                " image:: spacr/resources/",
-            ).replace(
-                'src="../../../spacr/resources/',
-                'src="spacr/resources/',
-            ).replace(
-                "<../../source/", "<docs/source/",
-            ).replace(
-                ":target: ../../source/", ":target: docs/source/",
-            ).replace(
-                "<../REVIEW_SCOPE_", "<docs/i18n/REVIEW_SCOPE_",
-            )
-            contract_readme = re.sub(
-                r"<README\.([A-Za-z_]+)\.rst>",
-                r"<docs/i18n/readme/README.\1.rst>",
-                contract_readme,
-            )
-            # AND THE LANGUAGE INDEX, which the regex above cannot reach
-            # because it is Markdown rather than RST. 361 turned the picker
-            # into a dropdown pointing at that index, and the reverse
-            # rewrite was not told: every localized README then read as a
-            # link the English source does not have, which is what made
-            # "RST link targets changed" fire for all nine locales at once.
-            contract_readme = contract_readme.replace(
-                "<README.md>", "<docs/i18n/readme/README.md>"
-            )
-            syntax_contract(
-                readme_source,
-                contract_readme,
-                f"{language}/README",
-                readme_protected_pattern,
-            )
-            source_images = re.findall(r'<(?:a|img)\b[^>]*>', readme_source)
-            target_images = re.findall(r'<(?:a|img)\b[^>]*>', contract_readme)
-            if [re.sub(r'\s+alt="[^"]*"', '', tag) for tag in source_images] != [
-                re.sub(r'\s+alt="[^"]*"', '', tag) for tag in target_images
-            ]:
-                failures.append(f"{language}/README: HTML image/link attributes changed")
-            # THE WAY BACK TO ENGLISH, AS 361 LEFT IT. This gate used to
-            # require the localized README to name ../../../README.rst
-            # directly. 361 replaced the row of per-language links with a
-            # dropdown, so a localized README now names the language INDEX
-            # and the index names English -- the way back is two hops, not
-            # one, and the gate was checking for a link the design had
-            # deliberately removed. It checks the hop that exists, and that
-            # the index still completes it, because a picker that leads
-            # nowhere is the failure this was written to catch.
             index_path = README_DIR / "README.md"
             index = (index_path.read_text(encoding="utf-8")
                      if index_path.is_file() else "")
-            if "<README.md>" not in readme:
+            if ":target: README.md" not in readme:
                 failures.append(
                     f"{language}: the language picker link is broken")
             elif "../../../README.rst" not in index:
@@ -6987,14 +6938,22 @@ def main() -> int:
     parser.add_argument("--threads", type=int, default=8)
     args = parser.parse_args()
 
+    if args.rebuild_readme:
+        # Retired 2026-10-12 with the image README. The README's words are
+        # in packaging/readme_source.yaml and each translation's in
+        # docs/i18n/readme/source/<lang>.yaml, block for block;
+        # tools/build_readme_images.py draws and writes the READMEs.
+        print("--rebuild-readme is retired: translate "
+              "docs/i18n/readme/source/<lang>.yaml, then run "
+              "tools/build_readme_images.py", file=sys.stderr)
+        return 2
     docs = public_docstrings()
     if args.audit or args.audit_english:
         return audit(docs, () if args.audit_english else args.languages)
 
     if args.sources_only:
-        if not args.rebuild_readme:
-            _write_english_api_manifest(docs)
-            print(f"wrote English API manifest: symbols={len(docs)}")
+        _write_english_api_manifest(docs)
+        print(f"wrote English API manifest: symbols={len(docs)}")
         return 0
     if args.repair_api_blocks:
         # Keep the previous English manifest available until every locale has
@@ -7008,212 +6967,27 @@ def main() -> int:
         print(f"wrote English API manifest: symbols={len(docs)}")
         return audit(docs, args.languages)
 
-    readme = README_SOURCE.read_text(encoding="utf-8")
-    readme_links: list[tuple[str, str, str]] = []
-    for index, match in enumerate(re.finditer(
-        r"`([^`<>]+?)\s+<([^>]+)>`_", readme
-    )):
-        label, target = match.group(1), match.group(2)
-        # The language picker deliberately shows every language in its own
-        # spelling. All other prose labels (not their destinations) belong to
-        # the translated GitHub page.
-        if target == "README.rst" or target.startswith(
-            "docs/i18n/readme/README."
-        ):
-            continue
-        # Paper titles in the citing list are never machine translated.
-        citing = _citing_block_span(readme)
-        if citing and citing[0] <= match.start() < citing[1]:
-            continue
-        zoo = _model_zoo_block_span(readme)
-        if zoo and zoo[0] <= match.start() < zoo[1]:
-            continue
-        key = f"__readme_link_{index}__"
-        readme_links.append((key, label, target))
     for language in args.languages:
-        pending = {}
-        if not args.rebuild_readme:
-            reusable = {} if args.force else _reviewed_api_overlay(
-                docs, reusable_api_translations(docs, language), language,
-            )
-            pending = {
-                key: source for key, source in docs.items()
-                if key not in reusable
-            }
-            translated = dict(reusable)
-            if pending:
-                translated.update(
-                    _translate_api_documents(
-                        pending, language, args.model_root, args,
-                        reuse_history=not args.force,
-                    )
-                )
-            write_language(docs, language, translated)
-
-        readme_path = README_DIR / f"README.{language}.rst"
-        rebuild_readme = (
-            args.force or args.rebuild_readme or not readme_path.is_file()
+        reusable = {} if args.force else _reviewed_api_overlay(
+            docs, reusable_api_translations(docs, language), language,
         )
-        if rebuild_readme:
-            documents = {"__readme__": readme}
-            documents.update({key: label for key, label, _target in readme_links})
-            readme_translation = _translate_documents(
-                documents, language, args.model_root, args,
-            )
-            README_DIR.mkdir(parents=True, exist_ok=True)
-            localized_readme = readme_translation["__readme__"]
-            localized_readme = localized_readme.replace(
-                "Languages:", f"{LANGUAGE_PICKER_LABELS[language]}:", 1
-            )
-            # AND THE LANGUAGE'S OWN NAME BESIDE THE GLOBE, which is a
-            # separate substitution from the word "Languages" and was
-            # missing until 2026-09-02. The English source reads
-            # "Languages: (globe) English (caret)"; the label above was
-            # localized and the NAME was not, so every rebuild quietly put
-            # "English" in the picker of all nine translated READMEs -- a
-            # Hindi reader arriving at README.hi.rst was told they were
-            # reading English. The endonyms had been correct since
-            # 2026-08-11 and no rebuild had been run against them since.
-            #
-            # `NATIVE_LANGUAGE_NAMES` is the same table the installers use,
-            # imported rather than restated: a second copy is a second thing
-            # to keep in step, which is the fault the `LANGUAGE_PICKER_LABELS`
-            # mirror already documents a few lines up.
-            localized_readme = re.sub(
-                r"\U0001F310\s*[^\u25BE<`]*\u25BE",
-                f"\U0001F310 {NATIVE_LANGUAGE_NAMES[language]} \u25BE",
-                localized_readme, count=1,
-            )
-            localized_readme = _localize_readme_link_labels(
-                localized_readme,
-                language,
-                readme_links,
-                readme_translation,
-            )
-            localized_readme = localized_readme.replace(
-                "docs/i18n/readme/README.", "README."
-            ).replace(
-                "docs/i18n/TRANSLATION_MODELS.md", "../TRANSLATION_MODELS.md"
-            ).replace(
-                "<README.rst>", "<../../../README.rst>"
-            ).replace(
-                " image:: spacr/resources/",
-                " image:: ../../../spacr/resources/",
-            ).replace(
-                'src="spacr/resources/',
-                'src="../../../spacr/resources/',
-            ).replace(
-                " image:: docs/source/", " image:: ../../source/",
-            ).replace(
-                "<docs/source/", "<../../source/",
-            ).replace(
-                "<docs/models/", "<../../models/",
-            ).replace(
-                ":target: docs/source/", ":target: ../../source/",
-            ).replace(
-                "<docs/i18n/REVIEW_SCOPE_", "<../REVIEW_SCOPE_",
-            )
-            localized_readme = _localize_workflow_alt_text(
-                localized_readme, language,
-            )
-            # Image directives retain their raw options during translation.
-            # Apply source-bound alt text as well as the reviewed prose.
-            for source_alt, targets in REVIEWED_README_EVIDENCE_BLOCKS.items():
-                if language in targets:
-                    localized_readme = localized_readme.replace(
-                        f"   :alt: {source_alt}\n",
-                        f"   :alt: {targets[language]}\n",
-                    )
-            # AFTER the band headings are localized, not before: the
-            # workflow pass renames four of them, and a reference has to
-            # be aimed at the heading as it finally reads.
-            localized_readme = localize_internal_references(
-                readme, localized_readme,
-            )
-            for source_text, target_text in (
-                REVIEWED_README_LANGUAGE_OVERRIDES.get(language, {}).items()
-            ):
-                localized_readme = localized_readme.replace(
-                    source_text, target_text
+        pending = {
+            key: source for key, source in docs.items()
+            if key not in reusable
+        }
+        translated = dict(reusable)
+        if pending:
+            translated.update(
+                _translate_api_documents(
+                    pending, language, args.model_root, args,
+                    reuse_history=not args.force,
                 )
-            module_names = (
-                "Mask", "Measure", "Annotate", "Classify",
-                "Map Barcodes", "Regression",
             )
-            # Pair each bold bullet with the English bullet at the same
-            # position and restore only the module names. Relabelling the
-            # first six bullets of the page broke once the install section
-            # gained its own bold route list (2026-10-10): "Desktop
-            # application" became **Mask** and every module shifted down.
-            bullet = r"(?m)^- \*\*([^*\n]+)\*\*\s*"
-            source_labels = re.findall(bullet, readme)
-            if len(re.findall(bullet, localized_readme)) != len(source_labels):
-                raise ValueError(
-                    f"README.{language}.rst lost or gained a bold bullet")
-            source_label_iter = iter(source_labels)
-
-            def restore_module_name(match, labels=source_label_iter):
-                source_label = next(labels)
-                if source_label in module_names:
-                    return f"- **{source_label}** "
-                return match.group(0)
-
-            localized_readme = re.sub(
-                bullet, restore_module_name, localized_readme)
-            version_match = re.search(
-                r"Download spaCR ([^ ]+) for Windows", readme
-            )
-            if version_match:
-                canonical_badge_alt = [
-                    *_readme_substitution_alt_text(
-                        readme, README_BADGE_SUBSTITUTIONS,
-                    ),
-                    _readme_logo_alt_text(readme),
-                ]
-                for source_alt, target_alt in zip(
-                    canonical_badge_alt,
-                    REVIEWED_README_BADGE_ALT_TEXT[language],
-                ):
-                    localized_readme = localized_readme.replace(
-                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
-                    )
-                # Workflow tiles are localized above by marker-delimited
-                # generated markup, so additions to the Home registry cannot
-                # shift these named installer and resource definitions.
-                canonical_installer_alt = _readme_substitution_alt_text(
-                    readme, README_INSTALLER_SUBSTITUTIONS,
-                )
-                localized_alt = [
-                    value.format(version=version_match.group(1))
-                    for value in REVIEWED_README_ALT_TEXT[language][1:]
-                ]
-                for source_alt, target_alt in zip(
-                    canonical_installer_alt, localized_alt,
-                ):
-                    localized_readme = localized_readme.replace(
-                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
-                    )
-                for source_alt, target_alt in zip(
-                    _readme_substitution_alt_text(
-                        readme, README_RESOURCE_SUBSTITUTIONS,
-                    ),
-                    REVIEWED_README_RESOURCE_ALT_TEXT[language],
-                ):
-                    localized_readme = localized_readme.replace(
-                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
-                    )
-            localized_readme = _keep_citing_papers(
-                readme, localized_readme,
-                readme_path.read_text(encoding="utf-8")
-                if readme_path.is_file() else None,
-            )
-            readme_path.write_text(localized_readme + "\n", encoding="utf-8")
+        write_language(docs, language, translated)
         print(
             f"wrote {language}: API={len(docs)} "
-            f"translated={len(pending)} README={int(rebuild_readme)}"
+            f"translated={len(pending)}"
         )
-    if args.rebuild_readme:
-        return 0
     # Every locale needs the previous English to prove unchanged paragraphs.
     # Publish the new manifest only after all locale writes have succeeded.
     _write_english_api_manifest(docs)

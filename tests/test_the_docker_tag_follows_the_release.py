@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.readme_source_words import readme_words
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -41,7 +43,7 @@ def test_every_docker_page_names_the_setup_py_version():
 
 
 def test_the_readme_offers_docker_beside_the_installers_and_pip():
-    readme = (ROOT / "README.rst").read_text(encoding="utf-8")
+    readme = readme_words()
     assert "|Docker|" in readme.splitlines()[0]
     install = readme.index("Install spaCR\n~~~~")
     desktop = readme.index("Desktop application\n---", install)
@@ -64,8 +66,7 @@ def test_translated_prose_names_no_image_version():
         from build_documentation_i18n import translatable_blocks
     finally:
         sys.path.remove(str(from_tools))
-    blocks, _layout = translatable_blocks(
-        (ROOT / "README.rst").read_text(encoding="utf-8"))
+    blocks, _layout = translatable_blocks(readme_words())
     assert not [block for block in blocks
                 if re.search(r"spacr:\d", block)]
 

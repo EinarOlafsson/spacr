@@ -39,8 +39,11 @@ from setuptools import setup, find_packages
 def pypi_readme(source):
     """Preserve the GitHub README while resolving its repository-relative URLs.
 
-    PyPI serves package metadata without the repository's files. Use the
-    public nightly tree, which also carries images not yet promoted to main.
+    PyPI serves package metadata without the repository's files, so every
+    image and link points at the public ``main`` tree. ``main`` carries the
+    README's images: the image README's panels (docs/readme_images), the
+    model cards and the deck are promoted there with every README update,
+    and a released description should not move when ``nightly`` does.
     No network access or spaCR imports are needed during isolated builds.
     GitHub's aligned raw-HTML tile substitutions become ordinary RST image
     substitutions here because PyPI's renderer disables raw HTML.
@@ -48,8 +51,8 @@ def pypi_readme(source):
     def absolute(value, image=False):
         if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", value) or value.startswith(("//", "#")):
             return value
-        base = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/"
-                if image else "https://github.com/EinarOlafsson/spacr/blob/nightly/")
+        base = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/main/"
+                if image else "https://github.com/EinarOlafsson/spacr/blob/main/")
         return base + value.removeprefix("./")
 
     source = re.sub(

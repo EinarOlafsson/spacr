@@ -364,9 +364,19 @@ DOCKER_TAG_PATTERN = re.compile(
 
 
 def docker_tag_pages(root: Path) -> tuple[Path, ...]:
-    """Return every page that names a versioned :data:`DOCKER_IMAGE` tag."""
+    """Return every page that names a versioned :data:`DOCKER_IMAGE` tag.
+
+    The READMEs' sources come too: the README's Docker commands are code
+    blocks that ``tools/build_readme_images.py`` copies from
+    ``packaging/readme_source.yaml`` and ``docs/i18n/readme/source``, so a
+    tag moved in the README alone would be put back by the next build.
+    """
     readme = root / "README.rst"
+    sources = (root / "packaging" / "readme_source.yaml",
+               *(root / "docs" / "i18n" / "readme" / "source" / f"{code}.yaml"
+                 for code in LOCALIZED_README_CODES))
     return (readme, *_localized_readmes(readme, None),
+            *(path for path in sources if path.is_file()),
             *(root / page for page in DOCKER_TAG_PAGES))
 
 

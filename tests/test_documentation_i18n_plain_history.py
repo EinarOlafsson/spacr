@@ -296,7 +296,10 @@ def test_plain_api_build_force_bypasses_historical_paragraph_reuse(plain_build):
     assert not call["kwargs"].get("force", False)
     assert build.texts("pt") == {key: f"{PT_NEW}\n\n{PT_GENERATED_SHARED}"}
     assert build.head_reads == []
-    assert build.readme_calls == ["pt"]
+    # --force no longer translates the README: the translated READMEs are
+    # drawn from docs/i18n/readme/source/<lang>.yaml by
+    # tools/build_readme_images.py since 2026-10-12.
+    assert build.readme_calls == []
 
 
 @pytest.mark.parametrize("force", [False, True])

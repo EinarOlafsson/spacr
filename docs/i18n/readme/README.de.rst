@@ -3,57 +3,75 @@
 .. |Website| image:: https://img.shields.io/badge/Website-spaCR-0A7BBB
    :target: https://einarolafsson.github.io/projects/spacr/
    :alt: spaCR-Website
+
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API&logo=readthedocs&logoColor=white
    :target: https://einarolafsson.github.io/spacr/
    :alt: API-Dokumentation
+
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: Interaktive Tutorials
+
 .. |PyPI| image:: https://img.shields.io/pypi/v/spacr?label=PyPI&logo=pypi&logoColor=white
    :target: https://pypi.org/project/spacr/
    :alt: PyPI-Version
+
 .. |Python| image:: https://img.shields.io/badge/Python-3.9%E2%80%933.14-3776AB?logo=python&logoColor=white
    :target: https://pypi.org/project/spacr/
    :alt: Python 3.9 bis 3.14
+
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
    :alt: Codecov-Testabdeckung
+
 .. |Test counts| image:: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FEinarOlafsson%2Fspacr%2Fnightly%2Fdocs%2Fsource%2F_static%2Ftest-counts.json&cacheSeconds=300&logo=pytest&logoColor=white
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
    :alt: Testsuite
+
 .. |Qt| image:: https://img.shields.io/badge/GUI-Qt-41CD52?logo=qt&logoColor=white
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/index.html#module-spacr.qt
    :alt: Qt-Oberfläche
+
 .. |Issues| image:: https://img.shields.io/github/issues/EinarOlafsson/spacr?logo=github
    :target: https://github.com/EinarOlafsson/spacr/issues
    :alt: GitHub-Issues
+
 .. |License| image:: https://img.shields.io/badge/License-BSD--3-blue?logo=opensourceinitiative&logoColor=white
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
    :alt: BSD-3-Clause-Lizenz
+
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
    :alt: bioRxiv-Preprint
+
 .. |DOI| image:: https://img.shields.io/badge/DOI-blue?logo=zenodo&logoColor=white
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo-DOI
+
 .. |Conda| image:: https://img.shields.io/conda/vn/conda-forge/spacr?label=Conda&logo=anaconda&logoColor=white
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge-Version
+
 .. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge-Datum der letzten Veröffentlichung
+
 .. |Docker| image:: https://img.shields.io/badge/Docker-GHCR-2496ED?logo=docker&logoColor=white
    :target: https://github.com/EinarOlafsson/spacr/pkgs/container/spacr
    :alt: Docker-Images auf GHCR
+
 .. |PyPI Downloads| image:: https://img.shields.io/pepy/dt/spacr?label=downloads&logo=pypi&logoColor=white
    :target: https://pepy.tech/projects/spacr
    :alt: PyPI-Downloads
+
 .. |Platforms| image:: https://img.shields.io/badge/Linux%20OSX%20Win-lightgrey?logo=linux&logoColor=white
    :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
    :alt: Linux, macOS und Windows
+
 .. |Cite| image:: https://img.shields.io/badge/Cite-8A2BE2
    :target: https://github.com/EinarOlafsson/spacr/blob/main/CITATION.cff
    :alt: spaCR zitieren
+
 .. |PyPI rank| image:: https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsql-clickhouse.clickhouse.com%2F%3Fuser%3Ddemo%26param_package_name%3Dspacr%26param_days%3D30%26query%3DWITH%2B%2528%2BSELECT%2Bsum%2528count%2529%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bproject%2B%253D%2B%257Bpackage_name%253AString%257D%2BAND%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B%2529%2BAS%2Bdownloads%2BSELECT%2Bdownloads%2BAS%2Bpackage_downloads%252C%2BcountIf%2528n%2B%253E%253D%2Bdownloads%2529%2BAS%2Brank%252C%2Bcount%2528%2529%2BAS%2Btotal_packages%252C%2B100.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2BAS%2Bpercentile%252C%2Bif%2528%2Btotal_packages%2B%253D%2B0%2BOR%2Bdownloads%2B%253D%2B0%252C%2B%2527no%2Bdata%2527%252C%2Bconcat%2528%2B%2527top%2B%2527%252C%2BtoString%2528ceil%25281000.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2529%2B%252F%2B10%2529%252C%2B%2527%2525%2527%2B%2529%2B%2529%2BAS%2Bmessage%2BFROM%2B%2528%2BSELECT%2Bproject%252C%2Bsum%2528count%2529%2BAS%2Bn%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2BGROUP%2BBY%2Bproject%2B%2529%2BFORMAT%2BJSON&query=%24.data%5B0%5D.message&label=Rank&color=brightgreen&logo=pypi&logoColor=white&cacheSeconds=86400
    :target: https://clickpy.clickhouse.com/dashboard/spacr
    :alt: spaCR-Rang bei PyPI-Downloads der letzten 30 vollen Tage
@@ -63,33 +81,35 @@
    :width: 920
    :target: https://einarolafsson.github.io/spacr/_static/deck/
 
-`← Zurück <../../source/_static/deck/pages/57.md>`_   `Weiter → <../../source/_static/deck/pages/02.md>`_
+| |intro-1|\ |intro-2|
 
-spaCR
-=====
+.. |intro-1| image:: ../../readme_images/de/intro-1.svg
+   :alt: ← Zurück
+   :width: 49.5%
+   :target: ../../source/_static/deck/pages/57.md
+
+.. |intro-2| image:: ../../readme_images/de/intro-2.svg
+   :alt: Weiter →
+   :width: 49.5%
+   :target: ../../source/_static/deck/pages/02.md
 
 .. spacr-language-picker-begin
 
-Sprachen: `🌐 Deutsch ▾ <README.md>`_
+.. image:: ../../readme_images/de/generated-language-picker.svg
+   :alt: Sprachen: Deutsch
+   :width: 32.8%
+   :target: README.md
 
 .. spacr-language-picker-end
 
-**Räumliche Phänotypanalyse von CRISPR-Screens.**
+.. image:: ../../readme_images/de/spacr.svg
+   :alt: spaCR. Räumliche Phänotypanalyse von CRISPR-Screens. spaCR segmentiert und vermisst einzelne Zellen in Mikroskopiebildern, integriert Phänotypen einzelner Objekte mit sequenzierungsbasierten Guide-Häufigkeiten und schätzt, welche Gene mit phänotypischen Veränderungen assoziiert sind. Ausgehend von Plattenbildern und FASTQ-Reads erzeugt es Messungen pro Objekt, trainierte Klassifikatoren, Effektschätzungen pro Guide und Gen sowie eine Rangliste der Treffer. Die Segmentierungs-, Mess-, Anmerkungs- und Klassifizierungsmodule laufen auch ohne Sequenzierungsarm. Make Masks korrigiert Segmentierungsmasken und annotiert mit dem Werkzeug Box unabhängige Rechtecke mit Klassenlabels für den YOLO-Export. Die Rechtecke behalten ihre eigenen Labels und ihren Verlauf, ohne Quellbilder oder Masken zu ändern. Einzelheiten zu jedem Werkzeug stehen im Funktionsleitfaden. Bilder, Masken und Bildausschnitte sind Dateien auf der Festplatte. Messungen, Annotationen und Modellvorhersagen sind Tabellen in der SQLite-Datenbank measurements.db des Projekts. Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.
+   :width: 99.5%
+   :target: ../../source/features.rst
 
-spaCR segmentiert und vermisst einzelne Zellen in Mikroskopiebildern, integriert Phänotypen einzelner Objekte mit sequenzierungsbasierten Guide-Häufigkeiten und schätzt, welche Gene mit phänotypischen Veränderungen assoziiert sind. Ausgehend von Plattenbildern und FASTQ-Reads erzeugt es Messungen pro Objekt, trainierte Klassifikatoren, Effektschätzungen pro Guide und Gen sowie eine Rangliste der Treffer.
-
-Die Segmentierungs-, Mess-, Anmerkungs- und Klassifizierungsmodule laufen auch ohne Sequenzierungsarm.
-
-Make Masks korrigiert Segmentierungsmasken und annotiert mit dem Werkzeug **Box** unabhängige Rechtecke mit Klassenlabels für den YOLO-Export. Die Rechtecke behalten ihre eigenen Labels und ihren Verlauf, ohne Quellbilder oder Masken zu ändern.
-
-Einzelheiten zu jedem Werkzeug stehen im `Funktionsleitfaden <../../source/features.rst>`_.
-
-Bilder, Masken und Bildausschnitte sind Dateien auf der Festplatte. Messungen, Annotationen und Modellvorhersagen sind Tabellen in der SQLite-Datenbank ``measurements.db`` des Projekts.
-
-Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.
-
-spaCR ausprobieren
-~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/try-spacr.svg
+   :alt: spaCR ausprobieren.
+   :width: 99.5%
 
 .. code-block:: bash
 
@@ -98,72 +118,39 @@ spaCR ausprobieren
    python -m pip install spacr
    spacr
 
-Verwenden Sie **Testdaten laden…** in Import, Make Masks, Annotate oder einem Assay-Bildschirm, um Beispieldaten herunterzuladen. Im Terminal verwenden Sie ``spacr-download``.
+.. image:: ../../readme_images/de/try-spacr-2.svg
+   :alt: Verwenden Sie Testdaten laden… in Import, Make Masks, Annotate oder einem Assay-Bildschirm, um Beispieldaten herunterzuladen. Im Terminal verwenden Sie spacr-download.
+   :width: 99.5%
 
-Hardware-Unterstützung
-~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/hardware-support.svg
+   :alt: Hardware-Unterstützung.
+   :width: 99.5%
 
 .. spacr-hardware-begin
 
-.. list-table::
-   :header-rows: 1
-   :widths: 32 18 18 22
-
-   * - Hardware
-     - Cellpose 4
-     - Torch
-     - UMAP / clustering
-   * - NVIDIA (CUDA)
-     - 🟢 GPU
-     - 🟢 GPU
-     - 🟢 GPU
-   * - AMD on Linux (ROCm)
-     - 🟣 GPU
-     - 🟣 GPU
-     - 🔴 CPU
-   * - AMD in an Intel Mac (Metal)
-     - 🟣 GPU
-     - 🟣 GPU
-     - 🔴 CPU
-   * - Apple Silicon (Metal)
-     - 🟣 GPU
-     - 🟣 GPU
-     - 🔴 CPU
-   * - Intel Arc/Xe (XPU)
-     - 🟣 GPU
-     - 🟣 GPU
-     - 🔴 CPU
-   * - No GPU
-     - 🟢 CPU
-     - 🟢 CPU
-     - 🟢 CPU
-
-Nur unterstützte (stabile) Unterstützung implementierte (beta) Unterstützung CPU
+.. image:: ../../readme_images/de/generated-hardware-1.svg
+   :alt: NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. unterstützt (stabil) implementiert (Beta) nur CPU-Unterstützung.
+   :width: 99.5%
 
 .. spacr-hardware-end
 
-
-spaCR installieren
-~~~~~~~~~~~~~~~~~~
-
-Wählen Sie einen Installationsweg:
-
-- **Desktopanwendung**: ein Installationsprogramm für Linux, macOS oder Windows mit eigenem Python.
-- **pip**: ``python -m pip install spacr`` in einer Conda-Umgebung.
-- **conda-forge**: ``conda install conda-forge::spacr`` in einer Conda-Umgebung.
-- **Docker**: die Kommandozeilen-Pipelines in einem Linux-Container, mit dem CPU-Image oder dem Image für NVIDIA-GPUs:
+.. image:: ../../readme_images/de/install-spacr.svg
+   :alt: spaCR installieren. Wählen Sie einen Installationsweg: Desktopanwendung: ein Installationsprogramm für Linux, macOS oder Windows mit eigenem Python. pip: python -m pip install spacr in einer Conda-Umgebung. conda-forge: conda install conda-forge::spacr in einer Conda-Umgebung. Docker: die Kommandozeilen-Pipelines in einem Linux-Container, mit dem CPU-Image oder dem Image für NVIDIA-GPUs:
+   :width: 99.5%
 
 .. code-block:: bash
 
    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
 
-Die `Docker-Anleitung <../../source/installer_guide.rst#container-images>`_ beschreibt die GPU-Einrichtung, das Einbinden von Daten und die Pipeline-Befehle.
+.. image:: ../../readme_images/de/install-spacr-2.svg
+   :alt: Die Docker-Anleitung beschreibt die GPU-Einrichtung, das Einbinden von Daten und die Pipeline-Befehle.
+   :width: 99.5%
+   :target: ../../source/installer_guide.rst#container-images
 
-Desktopanwendung
--------------------
-
-Die Installateure bündeln ihre eigenen Python. Conda ist nicht erforderlich.
+.. image:: ../../readme_images/de/desktop-application.svg
+   :alt: Desktopanwendung. Die Installateure bündeln ihre eigenen Python. Conda ist nicht erforderlich.
+   :width: 99.5%
 
 .. spacr-installer-links-begin
 
@@ -184,21 +171,34 @@ Die Installateure bündeln ihre eigenen Python. Conda ist nicht erforderlich.
 
 .. spacr-installer-links-end
 
-Machen Sie die heruntergeladene Datei unter Linux ausführbar und führen Sie sie aus:
+.. image:: ../../readme_images/de/desktop-application-2.svg
+   :alt: Machen Sie die heruntergeladene Datei unter Linux ausführbar und führen Sie sie aus:
+   :width: 99.5%
 
 .. code-block:: bash
 
    chmod +x SpaCR-*-Linux-x86_64-Online.run
    ./SpaCR-*-Linux-x86_64-Online.run
 
-Öffnen Sie auf macOS das ``.pkg``. Die aktuelle Beta wird nicht beglaubigt; wenn Gatekeeper sie blockiert, wählen Sie **Systemeinstellungen → Datenschutz & Sicherheit → Öffnen Sie trotzdem**.
+.. image:: ../../readme_images/de/desktop-application-3.svg
+   :alt: Öffnen Sie auf macOS das .pkg. Die aktuelle Beta wird nicht beglaubigt; wenn Gatekeeper sie blockiert, wählen Sie Systemeinstellungen → Datenschutz & Sicherheit → Öffnen Sie trotzdem. Anweisungen zum Aktualisieren, Deinstallieren, Offlinebetrieb und zur Fehlerbehebung finden Sie in der Installationsanleitung. Die Systemanforderungen enthalten Empfehlungen für Arbeitsstationen und Server sowie Tabellen zur GPU-Kompatibilität.
+   :width: 99.5%
 
-Anweisungen zum Aktualisieren, Deinstallieren, Offlinebetrieb und zur Fehlerbehebung finden Sie in der `Installationsanleitung <../../source/installer_guide.rst>`_. Die `Systemanforderungen <../../source/system_requirements.rst>`_ enthalten Empfehlungen für Arbeitsstationen und Server sowie Tabellen zur GPU-Kompatibilität.
+| |desktop-application-3-link-1|\ |desktop-application-3-link-2|
 
-Installation über PyPI
-----------------------
+.. |desktop-application-3-link-1| image:: ../../readme_images/de/desktop-application-3-link-1.svg
+   :alt: Installationsanleitung
+   :width: 49.5%
+   :target: ../../source/installer_guide.rst
 
-Installieren Sie die PyPI-Veröffentlichung von spaCR mit pip in einer Conda-Umgebung. Python 3.12 bietet die größte Auswahl an optionalen wissenschaftlichen Paketen:
+.. |desktop-application-3-link-2| image:: ../../readme_images/de/desktop-application-3-link-2.svg
+   :alt: Systemanforderungen
+   :width: 49.5%
+   :target: ../../source/system_requirements.rst
+
+.. image:: ../../readme_images/de/pypi-installation.svg
+   :alt: Installation über PyPI. Installieren Sie die PyPI-Veröffentlichung von spaCR mit pip in einer Conda-Umgebung. Python 3.12 bietet die größte Auswahl an optionalen wissenschaftlichen Paketen:
+   :width: 99.5%
 
 .. code-block:: bash
 
@@ -208,21 +208,23 @@ Installieren Sie die PyPI-Veröffentlichung von spaCR mit pip in einer Conda-Umg
    python -m pip install spacr
    spacr
 
-spaCR unterstützt Python **3.9 through 3.14**, außer Python 3.14.1, das von torchvision ausgeschlossen wird. Linux wird für die anspruchsvollsten CUDA- und ROCm-Workflows empfohlen; macOS und Windows werden ebenfalls unterstützt und nutzen beide ihre GPUs — macOS über Metal, das Apple Silicon und die AMD-Karten in Intel Macs abdeckt, und Windows über CUDA oder DirectML.
-
-Die Standardinstallation enthält die Qt-Desktopoberfläche. Auf einem Server, Cluster oder CI-Runner können Sie die Befehlszeilen-Pipelines ausführen, ohne sie zu öffnen:
+.. image:: ../../readme_images/de/pypi-installation-2.svg
+   :alt: spaCR unterstützt Python 3.9 through 3.14, außer Python 3.14.1, das von torchvision ausgeschlossen wird. Linux wird für die anspruchsvollsten CUDA- und ROCm-Workflows empfohlen; macOS und Windows werden ebenfalls unterstützt und nutzen beide ihre GPUs — macOS über Metal, das Apple Silicon und die AMD-Karten in Intel Macs abdeckt, und Windows über CUDA oder DirectML. Die Standardinstallation enthält die Qt-Desktopoberfläche. Auf einem Server, Cluster oder CI-Runner können Sie die Befehlszeilen-Pipelines ausführen, ohne sie zu öffnen:
+   :width: 99.5%
 
 .. code-block:: bash
 
    python -m pip install spacr
    spacr-run --list
 
-Optional integrations are installed separately, for example ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` and ``spacr[czi,nd2,lif]``. See the `Installationsanleitung <../../source/installer_guide.rst>`_ for the complete extras and Python-version compatibility table.
+.. image:: ../../readme_images/de/pypi-installation-3.svg
+   :alt: Optional integrations are installed separately, for example spacr[zarr], spacr[omero], spacr[napari] and spacr[czi,nd2,lif]. See the Installationsanleitung for the complete extras and Python-version compatibility table.
+   :width: 99.5%
+   :target: ../../source/installer_guide.rst
 
-Installation mit conda-forge
-----------------------------
-
-Das offizielle conda-forge-Paket installiert spaCR und seine Desktop-Abhängigkeiten in der aktiven Umgebung:
+.. image:: ../../readme_images/de/conda-forge-installation.svg
+   :alt: Installation mit conda-forge. Das offizielle conda-forge-Paket installiert spaCR und seine Desktop-Abhängigkeiten in der aktiven Umgebung:
+   :width: 99.5%
 
 .. code-block:: bash
 
@@ -231,53 +233,67 @@ Das offizielle conda-forge-Paket installiert spaCR und seine Desktop-Abhängigke
    conda install conda-forge::spacr
    spacr
 
-Installation aus dem Quellcode
-------------------------------
+.. image:: ../../readme_images/de/install-from-source.svg
+   :alt: Installation aus dem Quellcode. Klonen Sie das Repository und installieren Sie es im editierbaren Modus. Ihre Arbeitskopie ist dann das installierte Paket, und Änderungen werden ohne Neuinstallation wirksam:
+   :width: 99.5%
 
-Klonen Sie das Repository und installieren Sie es im editierbaren Modus. Ihre Arbeitskopie *ist* dann das installierte Paket, und Änderungen werden ohne Neuinstallation wirksam::
+.. code-block:: bash
 
-    git clone https://github.com/EinarOlafsson/spacr.git
-    cd spacr
-    conda create -n spacr python=3.12 -y
-    conda activate spacr
-    pip install -e .
-    spacr
+   git clone https://github.com/EinarOlafsson/spacr.git
+   cd spacr
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   pip install -e .
+   spacr
 
-Dieser Befehl klont ``main``, den Standard-Branch mit der neuesten Version. Entwickelt wird auf ``nightly``; fügen Sie ``--branch nightly`` hinzu, um stattdessen diesen Branch zu klonen. Für eine bestimmte Version::
+.. image:: ../../readme_images/de/install-from-source-2.svg
+   :alt: Dieser Befehl klont main, den Standard-Branch mit der neuesten Version. Entwickelt wird auf nightly; fügen Sie --branch nightly hinzu, um stattdessen diesen Branch zu klonen. Für eine bestimmte Version:
+   :width: 99.5%
 
-    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
+.. code-block:: bash
 
-Um spätere Änderungen zu übernehmen, führen Sie im Klon aus::
+   git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 
-    git pull
-    pip install -e .
+.. image:: ../../readme_images/de/install-from-source-3.svg
+   :alt: Um spätere Änderungen zu übernehmen, führen Sie im Klon aus:
+   :width: 99.5%
 
-Installieren Sie neu, wenn sich Abhängigkeiten oder Einstiegspunkte ändern. Änderungen am Python-Code gelten direkt; ``spacr-doctor`` zeigt die aktive Installation an.
+.. code-block:: bash
 
-Installation aus dem Quellcode (schlank)
-----------------------------------------
+   git pull
+   pip install -e .
 
-Mitwirkende benötigen die Versionshistorie; um spaCR nur auszuführen, wählen Sie eine der folgenden Optionen. Messungen von ``nightly`` bei ``05302fd5c`` am 2026-10-07 mit ``packaging/measure_clone_forms.sh``::
+.. image:: ../../readme_images/de/install-from-source-4.svg
+   :alt: Installieren Sie neu, wenn sich Abhängigkeiten oder Einstiegspunkte ändern. Änderungen am Python-Code gelten direkt; spacr-doctor zeigt die aktive Installation an.
+   :width: 99.5%
 
-    # One commit instead of every version: 2048 MB downloaded, 140 s.
-    # No history, so no git log, no git blame and no git bisect.
-    # git pull still works, but stays shallow until git fetch --unshallow.
-    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
-    cd spacr && pip install -e .
+.. image:: ../../readme_images/de/install-from-source-light.svg
+   :alt: Installation aus dem Quellcode (schlank). Mitwirkende benötigen die Versionshistorie; um spaCR nur auszuführen, wählen Sie eine der folgenden Optionen. Messungen von nightly bei 05302fd5c am 2026-10-07 mit packaging/measure_clone_forms.sh:
+   :width: 99.5%
 
-    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-    # No history, docs, tests, tools, features or example data.
-    # --with-docs, --with-tests and --with-translations put those back;
-    # --dir, --branch, --no-install and --help do the obvious things.
-    # packaging/source_install_excludes.txt lists every skipped path.
-    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
-    sh install_spacr.sh --branch nightly
+.. code-block:: bash
 
-Der vollständige nightly-Klon lud 9.25 GiB herunter. ``--filter=blob:none`` zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 3416 MB (gemessen am 2026-10-08), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab.
+   # One commit instead of every version: 2048 MB downloaded, 140 s.
+   # No history, so no git log, no git blame and no git bisect.
+   # git pull still works, but stays shallow until git fetch --unshallow.
+   git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
+   cd spacr && pip install -e .
 
+   # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
+   # No history, docs, tests, tools, features or example data.
+   # --with-docs, --with-tests and --with-translations put those back;
+   # --dir, --branch, --no-install and --help do the obvious things.
+   # packaging/source_install_excludes.txt lists every skipped path.
+   curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
+   sh install_spacr.sh --branch nightly
 
-Befehle für die Kommandozeile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/install-from-source-light-2.svg
+   :alt: Der vollständige nightly-Klon lud 9.25 GiB herunter. --filter=blob:none zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 3416 MB (gemessen am 2026-10-08), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab.
+   :width: 99.5%
+
+.. image:: ../../readme_images/de/command-line-entry-points.svg
+   :alt: Befehle für die Kommandozeile.
+   :width: 99.5%
 
 .. code-block:: bash
 
@@ -294,55 +310,42 @@ Befehle für die Kommandozeile
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
 
-``spacr-run --list`` listet Module mit Befehlszeileneinstiegspunkten für die Ausführung ohne grafische Oberfläche auf. Reine GUI-Module für Annotation, Kuratierung, Vergleich und Exploration werden nicht aufgeführt.
+.. image:: ../../readme_images/de/command-line-entry-points-2.svg
+   :alt: spacr-run --list listet Module mit Befehlszeileneinstiegspunkten für die Ausführung ohne grafische Oberfläche auf. Reine GUI-Module für Annotation, Kuratierung, Vergleich und Exploration werden nicht aufgeführt.
+   :width: 99.5%
 
+.. image:: ../../readme_images/de/core-workflow.svg
+   :alt: Kern-Workflow. Der primäre Arbeitsablauf umfasst sechs Module: Mask segmentiert Zellen, Zellkerne, Pathogene und Organellen mit Cellpose. Measure schreibt Morphologie-, Intensitäts-, Textur-, räumliche und Kolokalisationsmerkmale sowie Objektausschnitte nach SQLite. Annotate beschriftet Objektausschnitte in einem tastaturgesteuerten Raster und unterstützt Active-Learning-Warteschlangen. Classify trainiert bild- oder messwertbasierte Modelle und speichert mit jedem Checkpoint die Leistung auf zurückgehaltenen Daten. Map Barcodes ordnet FASTQ-Reads Wells und gRNAs zu und liefert QC für Häufigkeit, Kollisionen und Abdeckung. Regression schätzt Guide-, Gen-, Bedingungs- und Kontrolleffekte mit Modellfamilien für kontinuierliche Werte, Anteile und Zähldaten.
+   :width: 99.5%
 
-Kern-Workflow
--------------
-
-Der primäre Arbeitsablauf umfasst sechs Module:
-
-- **Mask** segmentiert Zellen, Zellkerne, Pathogene und Organellen mit Cellpose.
-- **Measure** schreibt Morphologie-, Intensitäts-, Textur-, räumliche und Kolokalisationsmerkmale sowie Objektausschnitte nach SQLite.
-- **Annotate** beschriftet Objektausschnitte in einem tastaturgesteuerten Raster und unterstützt Active-Learning-Warteschlangen.
-- **Classify** trainiert bild- oder messwertbasierte Modelle und speichert mit jedem Checkpoint die Leistung auf zurückgehaltenen Daten.
-- **Map Barcodes** ordnet FASTQ-Reads Wells und gRNAs zu und liefert QC für Häufigkeit, Kollisionen und Abdeckung.
-- **Regression** schätzt Guide-, Gen-, Bedingungs- und Kontrolleffekte mit Modellfamilien für kontinuierliche Werte, Anteile und Zähldaten.
-
-spaCR-Module
--------------
+.. image:: ../../readme_images/de/spacr-modules.svg
+   :alt: spaCR-Module.
+   :width: 99.5%
 
 .. spacr-workflow-begin
 
-Kern
-^^^^
-
-Core sequence from microscopy images through segmentation, measurements,
-annotations, classification, barcode mapping and regression.
+.. image:: ../../readme_images/de/generated-workflow-1.svg
+   :alt: Kern. Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression.
+   :width: 99.5%
 
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
-Daten
-^^^^^
-
-Import images and tables into spaCR projects and execute reproducible
-multi-plate workflows.
+.. image:: ../../readme_images/de/generated-workflow-2.svg
+   :alt: Daten. Import images and tables into spaCR projects and execute reproducible multi-plate workflows.
+   :width: 99.5%
 
 | |Module_foreign|\ |Module_embeddings|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|
 | |Module_qc_dashboard|
 
-Werkzeuge
-^^^^^^^^^
-
-Point these at a project: edit masks by hand, stitch tiles, read an
-embedding, draw a gate, build a plot, check quality.
+.. image:: ../../readme_images/de/generated-workflow-3.svg
+   :alt: Werkzeuge. Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality.
+   :width: 99.5%
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
-Organismus
-^^^^^^^^^^
-
-Organismusspezifische Bildanalyse und quantitative Assay-Ergebnisse.
+.. image:: ../../readme_images/de/generated-workflow-4.svg
+   :alt: Organismus. Organismusspezifische Bildanalyse und quantitative Assay-Ergebnisse.
+   :width: 99.5%
 
 | |Module_toxoplasma|
 
@@ -424,34 +427,68 @@ Organismusspezifische Bildanalyse und quantitative Assay-Ergebnisse.
 
 .. spacr-workflow-end
 
-Alle Module mit einer Kachel auf der Startseite, in deren Reihenfolge: zuerst die sechs Pipeline-Module, dann die übrigen. Wählen Sie eine Kachel, um die API-Seite des Moduls zu öffnen.
+.. image:: ../../readme_images/de/spacr-modules-2.svg
+   :alt: Alle Module mit einer Kachel auf der Startseite, in deren Reihenfolge: zuerst die sechs Pipeline-Module, dann die übrigen. Wählen Sie eine Kachel, um die API-Seite des Moduls zu öffnen.
+   :width: 99.5%
 
-Sonstige Mittel
-~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/other-resources.svg
+   :alt: Sonstige Mittel.
+   :width: 99.5%
 
-- `Interaktive Tutorials <https://einarolafsson.github.io/spacr/tutorials/>`_ — geführte Arbeitsabläufe von der Installation bis zur Untersuchung von Treffern.
-- `Python API Schnellstart <../../source/python_api.rst>`_ — Pipelines aus Skripten, Notebooks oder einem Cluster ausführen und validieren.
-- `Funktionsleitfaden <../../source/features.rst>`_ — Fähigkeiten, Reife und optionale Integrationen.
-- `Kuratierte API Referenz <https://einarolafsson.github.io/spacr/api/index.html>`_ — unterstützte Eingabepunkte nach Aufgabe, wobei das komplette Modul eine Ebene tiefer verweist.
-- `Sprach- und Übersetzungshandbuch <../../source/localization.rst>`_ — Schnittstellensprachen, kontextbezogene Hilfe und Politik der wissenschaftlichen Ergebnisse.
+.. image:: ../../readme_images/de/other-resources-2-1.svg
+   :alt: Interaktive Tutorials — geführte Arbeitsabläufe von der Installation bis zur Untersuchung von Treffern.
+   :width: 99.5%
+   :target: https://einarolafsson.github.io/spacr/tutorials/
 
-Sprache und Übersetzung
-~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/other-resources-2-2.svg
+   :alt: Python API Schnellstart — Pipelines aus Skripten, Notebooks oder einem Cluster ausführen und validieren.
+   :width: 99.5%
+   :target: ../../source/python_api.rst
 
-Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <../../source/localization.rst#contextual-help>`_.
+.. image:: ../../readme_images/de/other-resources-2-3.svg
+   :alt: Funktionsleitfaden — Fähigkeiten, Reife und optionale Integrationen.
+   :width: 99.5%
+   :target: ../../source/features.rst
 
-Die neun nicht-englischen Kataloge werden von einem Muttersprachler maschinengefertigt und technisch überarbeitet, anstatt zu Ende zu lesen. Die `Überprüfungsspielraum <../REVIEW_SCOPE_2026-09-04.md>`_ Aufzeichnungen, welche Sprachen einen menschlichen Pass hatten und jeder Begriff auf Englisch durch Entscheidung übrig geblieben ist.
+.. image:: ../../readme_images/de/other-resources-2-4.svg
+   :alt: Kuratierte API Referenz — unterstützte Eingabepunkte nach Aufgabe, wobei das komplette Modul eine Ebene tiefer verweist.
+   :width: 99.5%
+   :target: https://einarolafsson.github.io/spacr/api/index.html
 
-Animierte Einstellungshilfe
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/other-resources-2-5.svg
+   :alt: Sprach- und Übersetzungshandbuch — Schnittstellensprachen, kontextbezogene Hilfe und Politik der wissenschaftlichen Ergebnisse.
+   :width: 99.5%
+   :target: ../../source/localization.rst
 
-Einstellungen mit einer visuellen Erklärung bieten in ihrem Tooltip die Schaltfläche **Animation**. Durchsuchen Sie die `Galerie der Einstellungsanimationen <https://einarolafsson.github.io/spacr/setting_animations.html>`_ oder das `Register der Einstellungsanimationen <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
+.. image:: ../../readme_images/de/language-translation.svg
+   :alt: Sprache und Übersetzung. Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter spaCR → Einstellungen → Sprache, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die Richtlinie zur Kontexthilfe.
+   :width: 99.5%
+   :target: ../../source/localization.rst#contextual-help
 
-Daten
-~~~~~
+.. image:: ../../readme_images/de/language-translation-2.svg
+   :alt: Die neun nicht-englischen Kataloge werden von einem Muttersprachler maschinengefertigt und technisch überarbeitet, anstatt zu Ende zu lesen. Die Überprüfungsspielraum Aufzeichnungen, welche Sprachen einen menschlichen Pass hatten und jeder Begriff auf Englisch durch Entscheidung übrig geblieben ist.
+   :width: 99.5%
+   :target: ../REVIEW_SCOPE_2026-09-04.md
 
-Referenzdatensätze
-~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/animated-setting-guidance.svg
+   :alt: Animierte Einstellungshilfe. Einstellungen mit einer visuellen Erklärung bieten in ihrem Tooltip die Schaltfläche Animation. Durchsuchen Sie die Galerie der Einstellungsanimationen oder das Register der Einstellungsanimationen.
+   :width: 99.5%
+
+| |animated-setting-guidance-link-1|\ |animated-setting-guidance-link-2|
+
+.. |animated-setting-guidance-link-1| image:: ../../readme_images/de/animated-setting-guidance-link-1.svg
+   :alt: Galerie der Einstellungsanimationen
+   :width: 49.5%
+   :target: https://einarolafsson.github.io/spacr/setting_animations.html
+
+.. |animated-setting-guidance-link-2| image:: ../../readme_images/de/animated-setting-guidance-link-2.svg
+   :alt: Register der Einstellungsanimationen
+   :width: 49.5%
+   :target: https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html
+
+.. image:: ../../readme_images/de/data.svg
+   :alt: Daten. Referenzdatensätze.
+   :width: 99.5%
 
 |DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
@@ -459,27 +496,30 @@ Referenzdatensätze
    :width: 72
    :alt: Mikroskopiedatensatz in BioStudies öffnen
    :target: https://doi.org/10.6019/S-BIAD2135
+
 .. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
    :width: 72
    :alt: Testdatensatz auf Hugging Face öffnen
    :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
+
 .. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
    :width: 72
    :alt: Sequenzierungsdatensatz bei NCBI öffnen
    :target: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935
+
 .. |DataSpaCRPower| image:: ../../../spacr/resources/icons/databanks/spacrpower_button.png
    :width: 72
    :alt: spaCRPower öffnen
    :target: https://github.com/maomlab/spaCRPower
+
 .. |DataBioRxiv| image:: ../../../spacr/resources/icons/databanks/biorxiv_button.png
    :width: 72
    :alt: bioRxiv-Preprint öffnen
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-Modellzoo
-~~~~~~~~~
-
-spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage ab. Öffnen Sie **Model Zoo** vom Home-Bildschirm, um sie zu durchsuchen und zu installieren, oder benennen Sie einen Schlüssel in einer Einstellungsdatei -- ``pathogen_model: toxoplasma_pv_v1`` -- und das Modell wird heruntergeladen und Checksummen-verifiziert, wenn es zum ersten Mal benötigt wird. Jeder veröffentlichte Eintrag trägt eine SHA-256; ein Eintrag ohne einen wird abgelehnt, anstatt installiert, weil ein verkürzter oder ersetzter Checkpoint nicht vom realen angezeigt werden kann.
+.. image:: ../../readme_images/de/model-zoo.svg
+   :alt: Modellzoo. spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage ab. Öffnen Sie Model Zoo vom Home-Bildschirm, um sie zu durchsuchen und zu installieren, oder benennen Sie einen Schlüssel in einer Einstellungsdatei -- pathogen_model: toxoplasma_pv_v1 -- und das Modell wird heruntergeladen und Checksummen-verifiziert, wenn es zum ersten Mal benötigt wird. Jeder veröffentlichte Eintrag trägt eine SHA-256; ein Eintrag ohne einen wird abgelehnt, anstatt installiert, weil ein verkürzter oder ersetzter Checkpoint nicht vom realen angezeigt werden kann.
+   :width: 99.5%
 
 .. spacr-model-zoo-begin
 
@@ -534,31 +574,86 @@ spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage 
    :target: ../../models/toxoplasma_from_hoechst_v1.md
    :width: 49.5%
 
-Older models: `toxoplasma_pv_v3 <../../models/toxoplasma_pv_v3.md>`__, `toxoplasma_pv_v2 <../../models/toxoplasma_pv_v2.md>`__, `toxoplasma_pv_v1 <../../models/toxoplasma_pv_v1.md>`__, `toxoplasma_plaque_v2 <../../models/toxoplasma_plaque_v2.md>`__, `toxoplasma_plaque_v1 <../../models/toxoplasma_plaque_v1.md>`__, `toxoplasma_well_detector_v2 <../../models/toxoplasma_well_detector_v2.md>`__, `toxoplasma_well_detector_v1 <../../models/toxoplasma_well_detector_v1.md>`__
+.. image:: ../../readme_images/de/generated-model-zoo-1.svg
+   :alt: Older models.
+   :width: 99.5%
 
-Alternatives: `toxoplasma_pv_v5 <../../models/toxoplasma_pv_v5.md>`__, `toxoplasma_plaque_v3 <../../models/toxoplasma_plaque_v3.md>`__
+| |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
+| |generated-model-zoo-1-link-4|\ |generated-model-zoo-1-link-5|\ |generated-model-zoo-1-link-6|
+| |generated-model-zoo-1-link-7|
+
+.. |generated-model-zoo-1-link-1| image:: ../../readme_images/de/generated-model-zoo-1-link-1.svg
+   :alt: toxoplasma_pv_v3
+   :width: 32.8%
+   :target: ../../models/toxoplasma_pv_v3.md
+
+.. |generated-model-zoo-1-link-2| image:: ../../readme_images/de/generated-model-zoo-1-link-2.svg
+   :alt: toxoplasma_pv_v2
+   :width: 32.8%
+   :target: ../../models/toxoplasma_pv_v2.md
+
+.. |generated-model-zoo-1-link-3| image:: ../../readme_images/de/generated-model-zoo-1-link-3.svg
+   :alt: toxoplasma_pv_v1
+   :width: 32.8%
+   :target: ../../models/toxoplasma_pv_v1.md
+
+.. |generated-model-zoo-1-link-4| image:: ../../readme_images/de/generated-model-zoo-1-link-4.svg
+   :alt: toxoplasma_plaque_v2
+   :width: 32.8%
+   :target: ../../models/toxoplasma_plaque_v2.md
+
+.. |generated-model-zoo-1-link-5| image:: ../../readme_images/de/generated-model-zoo-1-link-5.svg
+   :alt: toxoplasma_plaque_v1
+   :width: 32.8%
+   :target: ../../models/toxoplasma_plaque_v1.md
+
+.. |generated-model-zoo-1-link-6| image:: ../../readme_images/de/generated-model-zoo-1-link-6.svg
+   :alt: toxoplasma_well_detector_v2
+   :width: 32.8%
+   :target: ../../models/toxoplasma_well_detector_v2.md
+
+.. |generated-model-zoo-1-link-7| image:: ../../readme_images/de/generated-model-zoo-1-link-7.svg
+   :alt: toxoplasma_well_detector_v1
+   :width: 32.8%
+   :target: ../../models/toxoplasma_well_detector_v1.md
+
+.. image:: ../../readme_images/de/generated-model-zoo-2.svg
+   :alt: Alternatives.
+   :width: 99.5%
+
+| |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|
+
+.. |generated-model-zoo-2-link-1| image:: ../../readme_images/de/generated-model-zoo-2-link-1.svg
+   :alt: toxoplasma_pv_v5
+   :width: 32.8%
+   :target: ../../models/toxoplasma_pv_v5.md
+
+.. |generated-model-zoo-2-link-2| image:: ../../readme_images/de/generated-model-zoo-2-link-2.svg
+   :alt: toxoplasma_plaque_v3
+   :width: 32.8%
+   :target: ../../models/toxoplasma_plaque_v3.md
 
 .. spacr-model-zoo-end
 
+.. image:: ../../readme_images/de/diagnosing-performance.svg
+   :alt: Leistungsdiagnose. Erzeugen Sie einen Hardwarebericht und fügen Sie ihn einem leistungsbezogenen GitHub-Issue bei:
+   :width: 99.5%
 
-Leistungsdiagnose
-----------------------
+.. code-block:: bash
 
-Erzeugen Sie einen Hardwarebericht und fügen Sie ihn einem leistungsbezogenen GitHub-Issue bei::
+   python tools/spacr_hardware_report.py
 
-    python tools/spacr_hardware_report.py
+.. image:: ../../readme_images/de/diagnosing-performance-2.svg
+   :alt: Speichert auf ~/.spacr/reports und druckt den Pfad. --quick überspringt die längeren Benchmarks; --out PATH setzt den Speicherort. Liest keine Projektdaten. Misst die Dauer von Importen, numerischen Bibliotheksoperationen, Fensteraufbau und Animation und meldet x86_64-Emulation auf Apple Silicon sowie die BLAS-Implementierung von NumPy.
+   :width: 99.5%
 
-Speichert auf ``~/.spacr/reports`` und druckt den Pfad. ``--quick`` überspringt die längeren Benchmarks; ``--out PATH`` setzt den Speicherort.
+.. image:: ../../readme_images/de/command-line-reference.svg
+   :alt: Befehlszeilenreferenz. Jeder Befehl unten wird von pip install spacr installiert. Alle von ihnen akzeptieren --help.
+   :width: 99.5%
 
-Liest keine Projektdaten. Misst die Dauer von Importen, numerischen Bibliotheksoperationen, Fensteraufbau und Animation und meldet x86_64-Emulation auf Apple Silicon sowie die BLAS-Implementierung von NumPy.
-
-Befehlszeilenreferenz
-----------------------
-
-Jeder Befehl unten wird von ``pip install spacr`` installiert. Alle von ihnen akzeptieren ``--help``.
-
-Start der Anwendung
-~~~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/launching-the-application.svg
+   :alt: Start der Anwendung.
+   :width: 99.5%
 
 .. code-block:: bash
 
@@ -566,22 +661,22 @@ Start der Anwendung
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
 
-Wenn spaCR nicht startet
-~~~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/when-spacr-will-not-start.svg
+   :alt: Wenn spaCR nicht startet.
+   :width: 99.5%
 
 .. code-block:: bash
 
    spacr-doctor       # diagnose the installation and say how to fix it
    safespacr          # the least spaCR that can still change a setting
 
-``spacr-doctor`` gibt eine Zeile pro Check aus, mit einem Befehl, der für jeden Fehler ausgeführt werden soll. Es wird auch berichtet, welcher ``spacr`` auf dem Pfad ist.
+.. image:: ../../readme_images/de/when-spacr-will-not-start-2.svg
+   :alt: spacr-doctor gibt eine Zeile pro Check aus, mit einem Befehl, der für jeden Fehler ausgeführt werden soll. Es wird auch berichtet, welcher spacr auf dem Pfad ist. safespacr liest jede Einstellung mit ihrem Standardwert und schaltet Hintergrund, Animationen, ausführliche Protokollierung und Vorabladen ab. Verwenden Sie es, wenn eine gespeicherte Einstellung den Start verhindert. Im abgesicherten Modus gespeicherte Einstellungen werden normal geschrieben und bleiben erhalten.
+   :width: 99.5%
 
-``safespacr`` liest jede Einstellung mit ihrem Standardwert und schaltet Hintergrund, Animationen, ausführliche Protokollierung und Vorabladen ab. Verwenden Sie es, wenn eine gespeicherte Einstellung den Start verhindert. Im abgesicherten Modus gespeicherte Einstellungen werden normal geschrieben und bleiben erhalten.
-
-Laufende Module ohne grafische Oberfläche
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Kein Qt, kein Display — für Cluster, Server und CI.
+.. image:: ../../readme_images/de/running-modules-headlessly.svg
+   :alt: Laufende Module ohne grafische Oberfläche. Kein Qt, kein Display — für Cluster, Server und CI.
+   :width: 99.5%
 
 .. code-block:: bash
 
@@ -592,20 +687,22 @@ Kein Qt, kein Display — für Cluster, Server und CI.
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-``validate`` liest dieselben Einstellungen wie der Lauf und listet jedes Problem auf, etwa eine fehlende Einstellung oder einen nicht vorhandenen Pfad, jeweils mit einer Abhilfe.
+.. image:: ../../readme_images/de/running-modules-headlessly-2.svg
+   :alt: validate liest dieselben Einstellungen wie der Lauf und listet jedes Problem auf, etwa eine fehlende Einstellung oder einen nicht vorhandenen Pfad, jeweils mit einer Abhilfe.
+   :width: 99.5%
 
-Einen Lauf untersuchen
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Jeder Lauf wird mit seinen Einstellungen, Hash-Eingängen, Ausgängen, Warnungen, Versionen und Samen auf ``~/.spacr/runs`` tagebucht.
+.. image:: ../../readme_images/de/inspecting-a-run.svg
+   :alt: Einen Lauf untersuchen. Jeder Lauf wird mit seinen Einstellungen, Hash-Eingängen, Ausgängen, Warnungen, Versionen und Samen auf ~/.spacr/runs tagebucht.
+   :width: 99.5%
 
 .. code-block:: bash
 
    spacr-repro RUN_DIR        # replay a recorded run from its journal
    spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
 
-Prüfungsdaten und Installation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/auditing-data-and-installation.svg
+   :alt: Prüfungsdaten und Installation.
+   :width: 99.5%
 
 .. code-block:: bash
 
@@ -613,56 +710,83 @@ Prüfungsdaten und Installation
    spacr-leakage          # classifier train/test leakage audit
    spacr-plugins          # installed plugin registry and failure diagnostics
 
-Umgebung
-~~~~~~~~~~~
+.. image:: ../../readme_images/de/environment.svg
+   :alt: Umgebung.
+   :width: 99.5%
 
 .. code-block:: bash
 
    SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch
 
-Drehprotokolle werden auf ``~/.spacr/logs/spacr.log`` geschrieben. Fügen Sie diese Datei einem Fehlerbericht bei.
+.. image:: ../../readme_images/de/environment-2.svg
+   :alt: Drehprotokolle werden auf ~/.spacr/logs/spacr.log geschrieben. Fügen Sie diese Datei einem Fehlerbericht bei.
+   :width: 99.5%
 
+.. image:: ../../readme_images/de/contributing-and-support.svg
+   :alt: Beiträge und Support. Übermitteln Sie Fehlerberichte und klar abgegrenzte Funktionswünsche über GitHub Issues. Geben Sie bei einer Fehlermeldung die spaCR-Version, das Betriebssystem, die Python-Version, die Moduleinstellungen und den relevanten Protokollauszug an. spacr-doctor erfasst den Großteil dieser Angaben; fügen Sie bei Leistungsproblemen den Hardwarebericht bei.
+   :width: 99.5%
+   :target: https://github.com/EinarOlafsson/spacr/issues
 
-Beiträge und Support
-~~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/licensing.svg
+   :alt: Lizenz. spaCR is released under the BSD 3-Clause-Lizenz. Wenn spaCR zu veröffentlichten Arbeiten beigetragen hat, wird ein Zitat geschätzt und ist keine Bedingung der Lizenz — siehe spaCR zitieren unten.
+   :width: 99.5%
+   :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
 
-Übermitteln Sie Fehlerberichte und klar abgegrenzte Funktionswünsche über `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Geben Sie bei einer Fehlermeldung die spaCR-Version, das Betriebssystem, die Python-Version, die Moduleinstellungen und den relevanten Protokollauszug an. ``spacr-doctor`` erfasst den Großteil dieser Angaben; fügen Sie bei Leistungsproblemen den Hardwarebericht bei.
+.. image:: ../../readme_images/de/tutorials.svg
+   :alt: Tutorials. Die interaktive spaCR-Tutorialbibliothek führt durch die Installation und die Verwendung der Module. Verfügbare Vertonungen und Sprachen werden für jede Lektion angegeben.
+   :width: 99.5%
+   :target: https://einarolafsson.github.io/spacr/tutorials/
 
-Lizenz
-~~~~~~~~~
+.. image:: ../../readme_images/de/citing-spacr.svg
+   :alt: spaCR zitieren. Wenn spaCR zu Ihrer Forschung beiträgt, zitieren Sie: Olafsson EB, et al. Ein gepoolter Bild-basierter CRISPR Screening identifiziert EAF1 als einen T. gondii Modulator der ESCRT-Subversion.
+   :width: 99.5%
 
-spaCR is released under the `BSD 3-Clause-Lizenz <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+| |citing-spacr-2-1|\ |citing-spacr-2-2|
 
-Wenn spaCR zu veröffentlichten Arbeiten beigetragen hat, wird ein Zitat geschätzt und ist keine Bedingung der Lizenz — siehe `spaCR zitieren`_ unten.
+.. |citing-spacr-2-1| image:: ../../readme_images/de/citing-spacr-2-1.svg
+   :alt: Vordruck bioRxiv
+   :width: 49.5%
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-Tutorials
-~~~~~~~~~
+.. |citing-spacr-2-2| image:: ../../readme_images/de/citing-spacr-2-2.svg
+   :alt: Software-Archiv
+   :width: 49.5%
+   :target: https://doi.org/10.5281/zenodo.21343316
 
-Die `interaktive spaCR-Tutorialbibliothek <https://einarolafsson.github.io/spacr/tutorials/>`_ führt durch die Installation und die Verwendung der Module. Verfügbare Vertonungen und Sprachen werden für jede Lektion angegeben.
-
-spaCR zitieren
-~~~~~~~~~~~~~~
-
-Wenn spaCR zu Ihrer Forschung beiträgt, zitieren Sie:
-
-Olafsson EB, *et al.* Ein gepoolter Bild-basierter CRISPR Screening identifiziert EAF1 als einen *T. gondii* Modulator der ESCRT-Subversion.
-
-`Vordruck bioRxiv <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `Software-Archiv <https://doi.org/10.5281/zenodo.21343316>`_
-
-Sonstige Arbeiten unter Angabe von spaCR
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../readme_images/de/other-work-citing-spacr.svg
+   :alt: Sonstige Arbeiten unter Angabe von spaCR.
+   :width: 99.5%
 
 .. spacr-citing-papers-begin
 
-* `Metabolische Anpassungsfähigkeit und Nährstoffverschrottung in Toxoplasma gondii: Erkenntnisse aus ingestionsweg-defizienten Mutanten. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
-* `IRE1α fördert den Phagosomal-Calcium-Fluss zur Verbesserung der makrophagenfungiziden Aktivität. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
-* `Toxoplasma GRA8 greift das Wirts-ESCRT-Zubehörprotein ALG-2 auf und ist für die metabolische Integrität des Parasiten notwendig. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
-* `Hydrogen sulfide dynamically upregulates copper uptake and localization. <https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1>`_
-* `spaCR: Räumliche Phänotypanalyse von CRISPR-Cas9-Bildschirmen (Vordruckversion 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+.. image:: ../../readme_images/de/other-work-citing-spacr-2-1.svg
+   :alt: Metabolische Anpassungsfähigkeit und Nährstoffverschrottung in Toxoplasma gondii: Erkenntnisse aus ingestionsweg-defizienten Mutanten.
+   :width: 99.5%
+   :target: https://journals.asm.org/doi/full/10.1128/msphere.01011-24
+
+.. image:: ../../readme_images/de/other-work-citing-spacr-2-2.svg
+   :alt: IRE1α fördert den Phagosomal-Calcium-Fluss zur Verbesserung der makrophagenfungiziden Aktivität.
+   :width: 99.5%
+   :target: https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6
+
+.. image:: ../../readme_images/de/other-work-citing-spacr-2-3.svg
+   :alt: Toxoplasma GRA8 greift das Wirts-ESCRT-Zubehörprotein ALG-2 auf und ist für die metabolische Integrität des Parasiten notwendig.
+   :width: 99.5%
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract
+
+.. image:: ../../readme_images/de/other-work-citing-spacr-2-4.svg
+   :alt: Hydrogen sulfide dynamically upregulates copper uptake and localization.
+   :width: 99.5%
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1
+
+.. image:: ../../readme_images/de/other-work-citing-spacr-2-5.svg
+   :alt: spaCR: Räumliche Phänotypanalyse von CRISPR-Cas9-Bildschirmen (Vordruckversion 1).
+   :width: 99.5%
+   :target: https://www.researchsquare.com/article/rs-7368254/v1
 
 .. spacr-citing-papers-end
 
-Danksagung
-~~~~~~~~~~~~~~~
-
-spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der `Attribution der Übersetzungsmodelle <../TRANSLATION_MODELS.md>`_ aufgeführt.
+.. image:: ../../readme_images/de/acknowledgments.svg
+   :alt: Danksagung. spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der Attribution der Übersetzungsmodelle aufgeführt.
+   :width: 99.5%
+   :target: ../TRANSLATION_MODELS.md

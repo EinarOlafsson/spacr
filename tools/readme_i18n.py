@@ -210,11 +210,39 @@ def localize_workflow_markup(text: str, language: str) -> str:
     return localized
 
 
+#: The hardware legend's three entries, one label per colour, in each
+#: language. AI-reviewed (Claude, 2026-10-12), no native-speaker signoff.
+#:
+#: The legend is drawn as an image now, a coloured dot before each label, so
+#: it needs the three labels apart. The accepted one-line translations in
+#: ``HARDWARE_LEGEND_TARGETS`` had lost the dots and run the three entries
+#: together ("Soutien (stable) Soutien (bêta) CPU seulement"), which an image
+#: cannot split back into dot and label; they stay as the reviewed record.
+HARDWARE_LEGEND_LABELS = {
+    "sv": ("stöds (stabilt)", "implementerat (beta)", "endast CPU-stöd"),
+    "de": ("unterstützt (stabil)", "implementiert (Beta)",
+           "nur CPU-Unterstützung"),
+    "es": ("compatible (estable)", "implementado (beta)",
+           "solo compatible con CPU"),
+    "zh_CN": ("支持（稳定）", "已实现（beta）", "仅支持 CPU"),
+    "pt": ("suportado (estável)", "implementado (beta)",
+           "apenas suporte a CPU"),
+    "hi": ("समर्थित (स्थिर)", "लागू (बीटा)", "केवल CPU समर्थन"),
+    "ko": ("지원 (안정)", "구현됨 (베타)", "CPU만 지원"),
+    "is": ("stutt (stöðugt)", "útfært (beta)", "aðeins CPU-stuðningur"),
+    "fr": ("pris en charge (stable)", "implémenté (bêta)",
+           "CPU uniquement"),
+}
+
+
 def localize_hardware_markup(text: str, language: str) -> str:
-    """Retain the accepted native hardware legend during normal regeneration."""
+    """The hardware table's legend in ``language``, one label per colour."""
+    stable, beta, cpu = HARDWARE_LEGEND_LABELS[language]
+    legend = (f"\U0001F7E2 {stable} \u2003 \U0001F7E3 {beta} "
+              f"\u2003 \U0001F534 {cpu}")
     return re.sub(
         rf"(?m)^{re.escape(HARDWARE_LEGEND_SOURCE)}$",
-        lambda _match: HARDWARE_LEGEND_TARGETS[language],
+        lambda _match: legend,
         str(text),
     )
 
