@@ -175,6 +175,77 @@ _HELD_OUT = re.compile(r"([\d][\d,]*)\s+(?:[\w-]+\s+){0,3}?"
                        r"(fields|wells|images|pairs)\b")
 
 
+RESCORED_FIELDS = (("f1", "object_f1"), ("precision", "precision"),
+                   ("recall", "recall"), ("aji", "aji"), ("dice", "dice"))
+_OLD_HOLDOUT_FIELDS = ("pixel_iou", "mAP", "ap", "true_positives",
+                       "false_positives", "false_negatives", "stock_f1", "stock_aji",
+                       "stock_dice", "holdout", "holdout_version")
+
+
+def rescored(entry: Mapping[str, Any]) -> Dict[str, Any]:
+    """A copy of a zoo record with the re-scored numbers of its model card.
+
+    The 3-page model card (``spacr/resources/model_cards/<repo>.json``, built
+    from the ground-truth re-score of 2026-10-11) holds the pooled strict
+    hold-out scores of the model and of the stock model it was fine-tuned
+    from, on the same fields. Where a card exists, its Object F1 (IoU 0.5),
+    precision, recall, AJI and Dice replace the record's, with the hold-out
+    size and the ``versus_stock`` sentence; a record without a card is
+    returned unchanged.
+    """
+    import sys
+
+    root = str(Path(__file__).resolve().parent.parent)
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    from spacr import model_cards
+
+    out = dict(entry)
+    card = model_cards._cards().get(str(entry.get("key") or ""))
+    if not card:
+        return out
+    scores_ = card.get("scores") or {}
+    by_key = {row["key"]: row for row in scores_.get("rows") or ()}
+    metrics = {name: value for name, value in (entry.get("metrics") or {}).items()
+               if name not in _OLD_HOLDOUT_FIELDS
+               and name not in {field for field, _ in RESCORED_FIELDS}}
+    for field, card_key in RESCORED_FIELDS:
+        row = by_key.get(card_key)
+        if row is None or row.get("this") is None:
+            continue
+        mine, stock = float(row["this"]), row.get("stock")
+        metrics[field] = {
+            "finetuned": mine,
+            "vanilla": None if stock is None else float(stock),
+            "delta": None if stock is None else mine - float(stock)}
+    holdout = scores_.get("holdout") or {}
+    counts = scores_.get("counts") or {}
+    if counts.get("this"):
+        for name, field in (("true_positives", "tp"),
+                            ("false_positives", "fp"),
+                            ("false_negatives", "fn")):
+            if counts["this"].get(field) is not None:
+                metrics[name] = counts["this"][field]
+    metrics["n_test"] = f"{holdout.get('n_fields')} fields"
+    metrics["test_objects"] = f"{int(holdout.get('n_objects') or 0):,}"
+    metrics["n_fields"] = holdout.get("n_fields")
+    metrics["n_objects"] = holdout.get("n_objects")
+    metrics["holdout"] = "gt_rescore_20261011"
+    metrics["holdout_version"] = "strict hold-out, pooled"
+    out["metrics"] = metrics
+    f1, aji = by_key.get("object_f1") or {}, by_key.get("aji") or {}
+    stock_name = scores_.get("stock_model") or "stock"
+    if f1.get("this") is not None and f1.get("stock") is not None:
+        out["versus_stock"] = (
+            f"F1 {f1['this']:.3f} against stock {stock_name}'s "
+            f"{f1['stock']:.3f} on the {holdout.get('n_fields')} strict "
+            f"hold-out fields at IoU 0.5")
+        if aji.get("this") is not None and aji.get("stock") is not None:
+            out["versus_stock"] += (
+                f"; AJI {aji['this']:.3f} against {aji['stock']:.3f}")
+    return out
+
+
 def _key(entry: Mapping[str, Any]) -> str:
     return str(entry.get("key") or entry.get("name") or "")
 

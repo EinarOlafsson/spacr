@@ -10,12 +10,12 @@
    :width: 99.5%
 
 .. |zoo_card_toxoplasma_pv_v4| image:: docs/models/cards/toxoplasma_pv_v4.svg
-   :alt: Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.854 on 11 held-out wells against 0.765 for stock cpsam_v2. F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505.
+   :alt: Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2's 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040.
    :target: docs/models/toxoplasma_pv_v4.md
    :width: 49.5%
 
 .. |zoo_card_toxoplasma_plaque_v4| image:: docs/models/cards/toxoplasma_plaque_v4.svg
-   :alt: Score card of Plaques v4 (toxoplasma_plaque_v4, default): F1 0.815 on 263 held-out fields against 0.373 for stock cpsam_v2. F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer.
+   :alt: Score card of Plaques v4 (toxoplasma_plaque_v4, default): F1 0.765 on 329 held-out fields against 0.338 for stock cpsam_v2. F1 0.765 against stock cpsam_v2's 0.338 on the 329 strict hold-out fields at IoU 0.5; AJI 0.662 against 0.261.
    :target: docs/models/toxoplasma_plaque_v4.md
    :width: 49.5%
 

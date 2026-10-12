@@ -2,7 +2,7 @@
 
 # Toxoplasma Plaque v2 (round 5)
 
-![Score card of Plaques v2 (toxoplasma_plaque_v2, older version): F1 0.819 on 81 held-out fields.](cards/toxoplasma_plaque_v2.svg)
+![Score card of Plaques v2 (toxoplasma_plaque_v2, older version): F1 0.455 on 282 held-out fields against 0.189 for stock cpsam_v2.](cards/toxoplasma_plaque_v2.svg)
 
 `toxoplasma_plaque_v2` · Cellpose-SAM (cpsam_v2) · older version in the `toxoplasma_plaque` family
 
@@ -20,17 +20,25 @@ Toxoplasma plaque assays stained with crystal violet, from three microscopes and
 
 ## Hold-out performance
 
-Not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249).
+F1 0.455 against stock cpsam_v2's 0.189 on the 282 strict hold-out fields at IoU 0.5; AJI 0.514 against 0.181.
+
+| Metric | This model | Stock | Difference |
+| --- | --- | --- | --- |
+| F1 | 0.4548 | 0.1891 | 0.2657 |
+| Precision | 0.5004 | 0.2007 | 0.2997 |
+| Recall | 0.4169 | 0.1787 | 0.2381 |
+| AJI | 0.5145 | 0.1812 | 0.3332 |
+| Dice | 0.6961 | 0.3141 | 0.3820 |
+
+Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 282 scored fields and 8130 annotated objects.
 
 | Recorded | Value |
 | --- | --- |
 | Training set | 332 fields, 4 domains |
 | Training objects | 18532 |
-| Test set | 81 fields |
-| Test objects | 4294 |
+| Test set | 282 fields |
+| Test objects | 8,130 |
 | Cross-validation | no (grouped train/valid/test) |
-| F1 | 0.819 literature / 0.876 bigbean / 0.808 patrick / 0.415 malnio |
-| Stock F1 | not measured; scored against round 3 (0.820 literature) and round 4 (0.819) |
 | Training loss | 0.1822 |
 | Validation loss | 0.2069 |
 | Best epoch | 100 / 100 |
@@ -52,6 +60,8 @@ Not scored against stock; on 81 held-out fields it ties round 3 on literature (0
 - **Precision** is the share of objects the model reported that match a reference object; low precision means false detections. **Recall** is the share of reference objects the model found; low recall means missed objects.
 - **F1** is the harmonic mean of precision and recall, so it is high only when both are. Either alone can look near-perfect: a model that reports one obvious object has high precision, and one that reports every dark blob has high recall.
 - **IoU** (intersection over union) is the overlap between a predicted and a reference object divided by the area the two cover together. A score given at IoU 0.5 counts an object as found when that ratio reaches 0.5.
+- **AJI** (aggregated Jaccard index) adds up the overlap of every matched pair and divides it by their combined area plus the area of unmatched objects, so merged, split and missed objects all lower it.
+- **Dice** is twice the overlap divided by the predicted area plus the reference area.
 - **Stock** is the base model named under Architecture, run without fine-tuning on the same images. **Difference** is this model's score minus stock's.
 - A **hold-out** or **test** set is images kept out of training and used only for scoring. The re-score note says how many of its fields this model had not seen.
 

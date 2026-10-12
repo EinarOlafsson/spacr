@@ -12,13 +12,14 @@ import html
 import threading
 from typing import Any, Callable, Dict, List, Optional
 
-from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (QDialog, QFrame, QHBoxLayout, QLabel,
                                QPushButton, QSizePolicy, QStackedLayout,
                                QTextBrowser, QVBoxLayout)
 
 from ... import model_cards as cards
+from ..hidpi import scaled_for
 from ..i18n import tr
 from ..theme import RADIUS, SPACING, active_palette
 
@@ -46,13 +47,8 @@ class _PageLabel(QLabel):
         if self._source is None or self._source.isNull():
             self.clear()
             return
-        ratio = self.devicePixelRatioF()
-        target = QSize(max(1, int(self.width() * ratio)),
-                       max(1, int(self.height() * ratio)))
-        scaled = self._source.scaled(target, Qt.KeepAspectRatio,
-                                     Qt.SmoothTransformation)
-        scaled.setDevicePixelRatio(ratio)
-        self.setPixmap(scaled)
+        self.setPixmap(scaled_for(self._source, self,
+                                  max(1, self.width()), max(1, self.height())))
 
     def resizeEvent(self, event):  # noqa: N802
         super().resizeEvent(event)

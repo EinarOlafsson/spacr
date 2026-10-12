@@ -2,7 +2,7 @@
 
 # Toxoplasma PV v5 (round 8, alternative)
 
-![Score card of Parasite vacuoles v5 (toxoplasma_pv_v5, alternative): F1 0.792 on 50 held-out fields against 0.559 for stock cpsam_v2.](cards/toxoplasma_pv_v5.svg)
+![Score card of Parasite vacuoles v5 (toxoplasma_pv_v5, alternative): F1 0.733 on 481 held-out fields against 0.383 for stock cpsam_v2.](cards/toxoplasma_pv_v5.svg)
 
 `toxoplasma_pv_v5` · Cellpose-SAM (cpsam_v2, Cellpose 4.0.9) · alternative in the `toxoplasma_pv` family
 
@@ -20,22 +20,24 @@ Toxoplasma parasitophorous vacuoles from lab immunofluorescence and DsRed fields
 
 ## Hold-out performance
 
-F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5.
+F1 0.733 against stock cpsam_v2's 0.383 on the 481 strict hold-out fields at IoU 0.5; AJI 0.585 against 0.051.
 
 | Metric | This model | Stock | Difference |
 | --- | --- | --- | --- |
-| F1 | 0.7921 | 0.5586 | 0.2335 |
-| Precision | 0.7531 | 0.4635 | 0.2896 |
-| Recall | 0.8354 | 0.7028 | 0.1326 |
+| F1 | 0.7329 | 0.3831 | 0.3497 |
+| Precision | 0.6459 | 0.2749 | 0.3710 |
+| Recall | 0.8469 | 0.6322 | 0.2146 |
+| AJI | 0.5846 | 0.0509 | 0.5337 |
+| Dice | 0.8098 | 0.1119 | 0.6979 |
 
-Evaluation set `retrain_20261009_pv_test`, version `2026-10-09`; 50 scored fields and 3530 annotated objects.
+Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 481 scored fields and 16213 annotated objects.
 
 | Recorded | Value |
 | --- | --- |
 | Training set | 202 fields |
 | Training objects | 9,276 |
-| Test set | 50 fields (whole acquisitions/papers held out) |
-| Test objects | 3,530 |
+| Test set | 481 fields |
+| Test objects | 16,213 |
 | Cross-validation | no (grouped train/validation/test) |
 | Training loss | see training/epoch_history.json |
 | Validation loss | see training/epoch_history.json |
@@ -53,6 +55,8 @@ Evaluation set `retrain_20261009_pv_test`, version `2026-10-09`; 50 scored field
 - **Precision** is the share of objects the model reported that match a reference object; low precision means false detections. **Recall** is the share of reference objects the model found; low recall means missed objects.
 - **F1** is the harmonic mean of precision and recall, so it is high only when both are. Either alone can look near-perfect: a model that reports one obvious object has high precision, and one that reports every dark blob has high recall.
 - **IoU** (intersection over union) is the overlap between a predicted and a reference object divided by the area the two cover together. A score given at IoU 0.5 counts an object as found when that ratio reaches 0.5.
+- **AJI** (aggregated Jaccard index) adds up the overlap of every matched pair and divides it by their combined area plus the area of unmatched objects, so merged, split and missed objects all lower it.
+- **Dice** is twice the overlap divided by the predicted area plus the reference area.
 - **Stock** is the base model named under Architecture, run without fine-tuning on the same images. **Difference** is this model's score minus stock's.
 - A **hold-out** or **test** set is images kept out of training and used only for scoring. The re-score note says how many of its fields this model had not seen.
 

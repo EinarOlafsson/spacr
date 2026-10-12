@@ -725,7 +725,13 @@ def _published_models() -> "list[dict]":
     from spacr.model_zoo import BUNDLED_REMOTE_MODELS
     from spacr.settings import _is_alpha
 
-    return [entry for entry in BUNDLED_REMOTE_MODELS
+    import importlib.util
+
+    path = Path(__file__).resolve().parent.parent / "tools" / "build_score_cards.py"
+    spec = importlib.util.spec_from_file_location("spacr_score_cards_rescore", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return [module.rescored(entry) for entry in BUNDLED_REMOTE_MODELS
             if not _is_alpha("models",
                              str(entry.get("key") or entry.get("name") or ""))]
 

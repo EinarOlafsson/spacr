@@ -1540,6 +1540,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in model_card_arrivals} == model_card_arrivals
     assert not model_card_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **model_card_arrivals}
+    # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
+    dna_rain_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
+    assert len(dna_rain_arrivals) == 1
+    assert {key: docs[key] for key in dna_rain_arrivals} == dna_rain_arrivals
+    assert not dna_rain_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **dna_rain_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "

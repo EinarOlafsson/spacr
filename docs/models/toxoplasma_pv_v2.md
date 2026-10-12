@@ -2,7 +2,7 @@
 
 # Toxoplasma PV v2 (round 5)
 
-![Score card of Parasite vacuoles v2 (toxoplasma_pv_v2, older version).](cards/toxoplasma_pv_v2.svg)
+![Score card of Parasite vacuoles v2 (toxoplasma_pv_v2, older version): F1 0.713 on 258 held-out fields against 0.364 for stock cpsam_v2.](cards/toxoplasma_pv_v2.svg)
 
 `toxoplasma_pv_v2` · Cellpose-SAM (cpsam_v2) · older version in the `toxoplasma_pv` family
 
@@ -20,18 +20,24 @@ Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma
 
 ## Hold-out performance
 
-F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells.
+F1 0.713 against stock cpsam_v2's 0.364 on the 258 strict hold-out fields at IoU 0.5; AJI 0.451 against 0.049.
+
+| Metric | This model | Stock | Difference |
+| --- | --- | --- | --- |
+| F1 | 0.7130 | 0.3638 | 0.3492 |
+| Precision | 0.7658 | 0.2560 | 0.5098 |
+| Recall | 0.6670 | 0.6287 | 0.0383 |
+| AJI | 0.4507 | 0.0488 | 0.4019 |
+| Dice | 0.6782 | 0.1116 | 0.5666 |
+
+Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 258 scored fields and 5766 annotated objects.
 
 | Recorded | Value |
 | --- | --- |
 | Training set | 556 |
-| Test set | 619 pairs |
+| Test set | 258 fields |
+| Test objects | 5,766 |
 | Cross-validation | 5-fold |
-| F1 | 0.8170 ± 0.036 |
-| AJI | 0.7144 ± 0.107 |
-| Dice | 0.8024 ± 0.118 |
-| Stock F1 | 0.7130 |
-| Stock AJI | 0.4260 |
 | Training loss | 0.0476 |
 | Best epoch | 100 / 100 |
 

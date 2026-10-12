@@ -2506,7 +2506,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "144_regression_response_api_arrivals_2026-10-12.json",
                      "694_startup_splash_api_arrivals_2026-10-12.json",
                      "695_startup_sequence_api_arrivals_2026-10-12.json",
-                     "model_cards_api_arrivals_2026-10-12.json"):
+                     "model_cards_api_arrivals_2026-10-12.json",
+                     "dna_rain_change_event_api_arrival_2026-10-12.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
@@ -4028,6 +4029,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in model_card_additions} == model_card_additions
     assert not model_card_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **model_card_additions}
+    # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
+    dna_rain_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
+    assert len(dna_rain_additions) == 1
+    assert {key: docs[key] for key in dna_rain_additions} == dna_rain_additions
+    assert not dna_rain_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **dna_rain_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -4404,7 +4412,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "144_regression_response_api_arrivals_2026-10-12.json",
                      "694_startup_splash_api_arrivals_2026-10-12.json",
                      "695_startup_sequence_api_arrivals_2026-10-12.json",
-                     "model_cards_api_arrivals_2026-10-12.json"):
+                     "model_cards_api_arrivals_2026-10-12.json",
+                     "dna_rain_change_event_api_arrival_2026-10-12.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
@@ -4440,7 +4449,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "144_regression_response_api_arrivals_2026-10-12.json",
                      "694_startup_splash_api_arrivals_2026-10-12.json",
                      "695_startup_sequence_api_arrivals_2026-10-12.json",
-                     "model_cards_api_arrivals_2026-10-12.json"):
+                     "model_cards_api_arrivals_2026-10-12.json",
+                     "dna_rain_change_event_api_arrival_2026-10-12.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent

@@ -5,8 +5,10 @@ The cards live in ``docs/models/<key>.md`` with an index at
 ``docs/models/cards/<key>.svg``, drawn by ``tools/build_score_cards.py``.
 Every field and number on a card is read from ``BUNDLED_REMOTE_MODELS`` in
 ``spacr/model_zoo.py``, the same records the Model Zoo screen and the
-website's model cards are built from, so a re-score published to the zoo
-reaches the cards by re-running this tool.
+website's model cards are built from. The scores come from the model's
+3-page card data (``spacr/resources/model_cards``, the ground-truth re-score
+of 2026-10-11) where one exists, so a re-score reaches the cards by
+re-running this tool.
 
 A family is a zoo key without its ``_vN`` suffix. Its default is the newest
 version that is neither an alternative nor a candidate, the same rule the
@@ -99,7 +101,7 @@ def published_models() -> List[Dict[str, Any]]:
     from spacr.model_zoo import BUNDLED_REMOTE_MODELS
     from spacr.settings import _is_alpha
 
-    return [dict(entry) for entry in BUNDLED_REMOTE_MODELS
+    return [score_cards().rescored(entry) for entry in BUNDLED_REMOTE_MODELS
             if not _is_alpha("models",
                              str(entry.get("key") or entry.get("name") or ""))]
 
