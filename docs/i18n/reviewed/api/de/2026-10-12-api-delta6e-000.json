@@ -261,7 +261,7 @@
       "review_basis": "written from the English"
     },
     {
-      "label": "spacr.model_cards.page_html#1",
+      "label": "spacr.model_cards.page_html#3",
       "source": "the already translated column headings for the scores and facts tables.",
       "source_sha256": "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e",
       "context": "the already translated column headings for the scores and facts tables.",
@@ -1658,6 +1658,142 @@
       "source_sha256": "19a61d66c48b97c91d878118af8378d8454c389bd618a2e81b85b71494d0adc5",
       "context": "The bar is re-polished only when the reading crosses into another band. A polish re-resolves the application style sheet for the bar, and the usage poll calls this for every bar every two seconds, almost always with the colour unchanged.",
       "translation": "Der Balken wird nur neu poliert, wenn die Anzeige in ein anderes Band wechselt. Ein Polieren löst das Anwendungs-Stylesheet für den Balken neu auf, und die Nutzungsabfrage ruft dies alle zwei Sekunden für jeden Balken auf, fast immer mit unveränderter Farbe.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.about_lines#1",
+      "source": "the card data.",
+      "source_sha256": "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1",
+      "context": "the card data.",
+      "translation": "die Kartendaten.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.cache_dir#1",
+      "source": "``owner/repo``.",
+      "source_sha256": "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+      "context": "``owner/repo``.",
+      "translation": "``owner/repo``.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.model_cards.cached_pages#1",
+      "source": "``owner/repo``.",
+      "source_sha256": "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+      "context": "``owner/repo``.",
+      "translation": "``owner/repo``.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.model_cards.card_for_entry#2",
+      "source": "the model zoo entry.",
+      "source_sha256": "29ea311a0a8f6ea02d1046661a5d7c35dfa784f3161bbfefaa704c7896d3a4f0",
+      "context": "the model zoo entry.",
+      "translation": "der Eintrag des Model Zoo.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.clear_cache#1",
+      "source": "``owner/repo``.",
+      "source_sha256": "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+      "context": "``owner/repo``.",
+      "translation": "``owner/repo``.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.model_cards.fact_rows#1",
+      "source": "the card data.",
+      "source_sha256": "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1",
+      "context": "the card data.",
+      "translation": "die Kartendaten.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.model_link#1",
+      "source": "the card data.",
+      "source_sha256": "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1",
+      "context": "the card data.",
+      "translation": "die Kartendaten.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.page_html#1",
+      "source": "the card data.",
+      "source_sha256": "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1",
+      "context": "the card data.",
+      "translation": "die Kartendaten.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.page_html#2",
+      "source": "the page number, from 1.",
+      "source_sha256": "7727ccb07de1e000a1eba299eddfad3aee0404423d12a3994a475cb5d1017c42",
+      "context": "the page number, from 1.",
+      "translation": "die Seitenzahl, ab 1.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.page_url#1",
+      "source": "``owner/repo``.",
+      "source_sha256": "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+      "context": "``owner/repo``.",
+      "translation": "``owner/repo``.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.model_cards.page_url#2",
+      "source": "the page number, from 1.",
+      "source_sha256": "7727ccb07de1e000a1eba299eddfad3aee0404423d12a3994a475cb5d1017c42",
+      "context": "the page number, from 1.",
+      "translation": "die Seitenzahl, ab 1.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.repo_of_key#1",
+      "source": "a model zoo key.",
+      "source_sha256": "b8354ed3666eb345239a60ffa9c015e4848d52ec20da5b8ece0ec9ca2b01bf24",
+      "context": "a model zoo key.",
+      "translation": "ein Schlüssel des Model Zoo.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.repo_url#1",
+      "source": "``owner/repo``.",
+      "source_sha256": "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+      "context": "``owner/repo``.",
+      "translation": "``owner/repo``.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.model_cards.score_rows#1",
+      "source": "the card data.",
+      "source_sha256": "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1",
+      "context": "the card data.",
+      "translation": "die Kartendaten.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.go_to#1",
+      "source": "the page index, from 0.",
+      "source_sha256": "f482c7873de06da7b79dac2cb3685e6910bc9f882ff19db52a2a9c95d4487473",
+      "context": "the page index, from 0.",
+      "translation": "der Seitenindex, ab 0.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.keyPressEvent#1",
+      "source": "the Qt key event.",
+      "source_sha256": "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1",
+      "context": "the Qt key event.",
+      "translation": "das Qt-Tastenereignis.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.set_card#1",
+      "source": "the card data, or None to show nothing.",
+      "source_sha256": "2f296a0d042dcec27c901230ceddaac84ae6bb3f3671b1c849f6a34b5989fd07",
+      "context": "the card data, or None to show nothing.",
+      "translation": "die Kartendaten oder None, wenn nichts angezeigt werden soll.",
       "review_basis": "written from the English"
     }
   ]

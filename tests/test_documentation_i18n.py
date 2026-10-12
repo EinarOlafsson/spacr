@@ -3403,6 +3403,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in tutorial_arrivals} == tutorial_arrivals
     assert not tutorial_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **tutorial_arrivals}
+    # 2026-10-12: the model card viewer (WS) adds spacr.model_cards and spacr.qt.widgets.model_card_viewer; one named contract.
+    model_card_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "model_cards_api_arrivals_2026-10-12.json").read_text())
+    assert len(model_card_arrivals) == 27
+    assert {key: docs[key] for key in model_card_arrivals} == model_card_arrivals
+    assert not model_card_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **model_card_arrivals}
     assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                - volume_arrivals.keys() - zoo_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "

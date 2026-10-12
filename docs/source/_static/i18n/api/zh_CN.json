@@ -49367,44 +49367,52 @@
     },
     "spacr.model_cards.about_lines": {
       "source_blocks_sha256": [
-        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ],
-      "source_sha256": "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
-      "text": "第 3 页的朴素句子形式，不含空字段。",
+      "source_sha256": "7c9c6f235a6487590a9d2efd2ecc96006cf5d260e79795635033a5450c24d029",
+      "text": "第 3 页的朴素句子形式，不含空字段。\n\n:param card: 卡片数据。",
       "translation_source_blocks_sha256": [
-        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ]
     },
     "spacr.model_cards.cache_dir": {
       "source_blocks_sha256": [
-        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ],
-      "source_sha256": "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
-      "text": "``repo`` 的页面图像缓存在 spaCR 主目录下的位置。",
+      "source_sha256": "4ec4fc5dabc1e0b483ec9587b8cb95cb1cfcbff397b2bc5789a154ac3a2b9414",
+      "text": "``repo`` 的页面图像缓存在 spaCR 主目录下的位置。\n\n:param repo: ``owner/repo``.",
       "translation_source_blocks_sha256": [
-        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ]
     },
     "spacr.model_cards.cached_pages": {
       "source_blocks_sha256": [
-        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ],
-      "source_sha256": "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
-      "text": "每一页的缓存图像，未缓存处为 ``None``。",
+      "source_sha256": "e9a475bacb9b5982ddee4534922eaf4b4d124e903bf5525d6f10f105e5792590",
+      "text": "每一页的缓存图像，未缓存处为 ``None``。\n\n:param repo: ``owner/repo``.",
       "translation_source_blocks_sha256": [
-        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ]
     },
     "spacr.model_cards.card_for_entry": {
       "source_blocks_sha256": [
         "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
-        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87",
+        "29ea311a0a8f6ea02d1046661a5d7c35dfa784f3161bbfefaa704c7896d3a4f0"
       ],
-      "source_sha256": "4d5f9290e79d20daa927814dcbd90d676e709ad489f24a6da3fb00cd96c6185b",
-      "text": ":class:`~spacr.model_zoo.ModelEntry` 的卡片数据，或 ``None``。\n\n先按 zoo 键匹配，再按获取该条目的仓库匹配。",
+      "source_sha256": "3168d019b2668c25fc7d4055942123022b7ee8438adc03d13cc146467af13824",
+      "text": ":class:`~spacr.model_zoo.ModelEntry` 的卡片数据，或 ``None``。\n\n先按 zoo 键匹配，再按获取该条目的仓库匹配。\n\n:param entry: Model Zoo 条目。",
       "translation_source_blocks_sha256": [
         "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
-        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87",
+        "29ea311a0a8f6ea02d1046661a5d7c35dfa784f3161bbfefaa704c7896d3a4f0"
       ]
     },
     "spacr.model_cards.card_keys": {
@@ -49419,22 +49427,26 @@
     },
     "spacr.model_cards.clear_cache": {
       "source_blocks_sha256": [
-        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ],
-      "source_sha256": "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
-      "text": "删除 ``repo`` 的缓存图像。",
+      "source_sha256": "bc1b86bdcc1c45522d7f11f4885d8cf157913cbf53823fb8b11a5dc1af363c85",
+      "text": "删除 ``repo`` 的缓存图像。\n\n:param repo: ``owner/repo``.",
       "translation_source_blocks_sha256": [
-        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ]
     },
     "spacr.model_cards.fact_rows": {
       "source_blocks_sha256": [
-        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ],
-      "source_sha256": "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
-      "text": "作为 ``(fact, value)`` 对的第 2 页。",
+      "source_sha256": "4f136ba07fe333369c1142b5db842e07410a2e4bded00f5c1ab7ea8b7aad0206",
+      "text": "作为 ``(fact, value)`` 对的第 2 页。\n\n:param card: 卡片数据。",
       "translation_source_blocks_sha256": [
-        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ]
     },
     "spacr.model_cards.fetch_pages": {
@@ -49457,64 +49469,80 @@
     },
     "spacr.model_cards.model_link": {
       "source_blocks_sha256": [
-        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ],
-      "source_sha256": "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
-      "text": "卡片所描述模型的 Hugging Face URL。",
+      "source_sha256": "151843687c11623825bea96f7dee34f2d41d53a77e7b04653adc6127b5af3265",
+      "text": "卡片所描述模型的 Hugging Face URL。\n\n:param card: 卡片数据。",
       "translation_source_blocks_sha256": [
-        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ]
     },
     "spacr.model_cards.page_html": {
       "source_blocks_sha256": [
         "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1",
+        "7727ccb07de1e000a1eba299eddfad3aee0404423d12a3994a475cb5d1017c42",
         "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
       ],
-      "source_sha256": "9c42ea7e68c5e36d93f078d5c07fd6bed075feee45968945b6e3a5df9bcb24bc",
-      "text": "某一卡片页（从 1 计数）的文本后备，为一个小的 HTML 正文。\n\n:param headers: 评分表和事实表中已翻译的列标题。",
+      "source_sha256": "f5e3a18a78b9a99df49ee878f9aa185c45439988a0ea3877cb7a8a94c0a02e5e",
+      "text": "某一卡片页（从 1 计数）的文本后备，为一个小的 HTML 正文。\n\n:param card: 卡片数据。\n:param page: 页码，从 1 开始。\n:param headers: 评分表和事实表中已翻译的列标题。",
       "translation_source_blocks_sha256": [
         "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1",
+        "7727ccb07de1e000a1eba299eddfad3aee0404423d12a3994a475cb5d1017c42",
         "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
       ]
     },
     "spacr.model_cards.page_url": {
       "source_blocks_sha256": [
-        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "7727ccb07de1e000a1eba299eddfad3aee0404423d12a3994a475cb5d1017c42"
       ],
-      "source_sha256": "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
-      "text": "卡片页 ``page``（从 1 计数）的 Hugging Face URL，针对 ``repo``。",
+      "source_sha256": "478edf3729ef27789abbc881eeb76afc8e8b4dd8d2069faccfa0ab4cc5bef04c",
+      "text": "卡片页 ``page``（从 1 计数）的 Hugging Face URL，针对 ``repo``。\n\n:param repo: ``owner/repo``.\n:param page: 页码，从 1 开始。",
       "translation_source_blocks_sha256": [
-        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "7727ccb07de1e000a1eba299eddfad3aee0404423d12a3994a475cb5d1017c42"
       ]
     },
     "spacr.model_cards.repo_of_key": {
       "source_blocks_sha256": [
-        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
+        "b8354ed3666eb345239a60ffa9c015e4848d52ec20da5b8ece0ec9ca2b01bf24"
       ],
-      "source_sha256": "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
-      "text": "拥有卡片的 zoo 键的 ``owner/repo``，否则为 ``''``。",
+      "source_sha256": "e3c0a9135dc20f44ad75006544ff59d0f2814b3c7aa65d94abeba76a7cb69676",
+      "text": "拥有卡片的 zoo 键的 ``owner/repo``，否则为 ``''``。\n\n:param key: Model Zoo 键。",
       "translation_source_blocks_sha256": [
-        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
+        "b8354ed3666eb345239a60ffa9c015e4848d52ec20da5b8ece0ec9ca2b01bf24"
       ]
     },
     "spacr.model_cards.repo_url": {
       "source_blocks_sha256": [
-        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ],
-      "source_sha256": "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
-      "text": "模型仓库的 Hugging Face 页面。",
+      "source_sha256": "aab6d036d8cf70f242cbbd8447e7a580d9181484b575a29ad16eaaab75fe658c",
+      "text": "模型仓库的 Hugging Face 页面。\n\n:param repo: ``owner/repo``.",
       "translation_source_blocks_sha256": [
-        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f"
       ]
     },
     "spacr.model_cards.score_rows": {
       "source_blocks_sha256": [
-        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ],
-      "source_sha256": "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
-      "text": "作为 ``(metric, \"this (stock x)\")`` 对的第 1 页。",
+      "source_sha256": "212088bd8dafff16c5dfaee1fc7785579da794ab0861227ddf985fe6480cf83b",
+      "text": "作为 ``(metric, \"this (stock x)\")`` 对的第 1 页。\n\n:param card: 卡片数据。",
       "translation_source_blocks_sha256": [
-        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
+        "dc092a869ca86d1a2a7a0d7d525b633007fe22d3d1831846a47669bc639ea0f1"
       ]
     },
     "spacr.model_check": {
@@ -73957,7 +73985,7 @@
         "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
       ],
       "source_sha256": "0821ee629bae0c895968034b6fa01a50ef2fe1a024a4e6d451e3e376e9609f34",
-      "text": "通过结果移动,或者运行突出命令。\n\n:param event: Qt 关键事件。",
+      "text": "通过结果移动,或者运行突出命令。\n\n:param event: Qt 按键事件。",
       "translation_source_blocks_sha256": [
         "4f40191c3f00b9cd3460c41cb4e1e2a0fdb4d34edebf11e773c28d3e364525ee",
         "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
@@ -82597,7 +82625,7 @@
         "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
       ],
       "source_sha256": "607409665b438abf0a0242e64fec78453354b6afc3b08326b52817691b0fcfad",
-      "text": "在默认处理之前,向活跃工具提供密钥。\n\n:param event: Qt 关键事件。",
+      "text": "在默认处理之前,向活跃工具提供密钥。\n\n:param event: Qt 按键事件。",
       "translation_source_blocks_sha256": [
         "5a0b4f484aaf7ae5dab15d2e564f136e1e6fe9faededdfe0421a4dc8a25ae459",
         "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
@@ -115709,7 +115737,7 @@
         "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
       ],
       "source_sha256": "d008c4bd08288d5557e377b9a76c7e375bbec958fb5f84199868b46bc90c3caa",
-      "text": "放下任何钥匙。\n\n:param event: Qt 关键事件。",
+      "text": "放下任何钥匙。\n\n:param event: Qt 按键事件。",
       "translation_source_blocks_sha256": [
         "f1da6220967db46a1897d00dcaf48526829a733918be7a5a9aed1a83663d0f90",
         "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
@@ -135567,7 +135595,7 @@
         "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
       ],
       "source_sha256": "d34e258c270c68e0b82367c56d05c2c17fe6d7f2ec7d722992334febadf3d25f",
-      "text": "靠近逃跑。\n\n:param event: Qt 关键事件。",
+      "text": "靠近逃跑。\n\n:param event: Qt 按键事件。",
       "translation_source_blocks_sha256": [
         "3c2212ee805638d64bd0e3d03c2faaf60b75a26a05aa41ac09b6bf2f497ad62c",
         "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
@@ -159921,22 +159949,26 @@
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.go_to": {
       "source_blocks_sha256": [
-        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
+        "f482c7873de06da7b79dac2cb3685e6910bc9f882ff19db52a2a9c95d4487473"
       ],
-      "source_sha256": "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
-      "text": "显示页 ``page``（从零计数），限制在现有页内。",
+      "source_sha256": "14c49e952106b50b0127f7fd7098a540ae2aef69e539e46b10356145a289267a",
+      "text": "显示页 ``page``（从零计数），限制在现有页内。\n\n:param page: 页索引，从 0 开始。",
       "translation_source_blocks_sha256": [
-        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
+        "f482c7873de06da7b79dac2cb3685e6910bc9f882ff19db52a2a9c95d4487473"
       ]
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.keyPressEvent": {
       "source_blocks_sha256": [
-        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
+        "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
       ],
-      "source_sha256": "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
-      "text": "左右方向键翻页。",
+      "source_sha256": "64a71afbd82724781ba0e4398be94805c93b0b6ee940892540bf532c3f20c1ae",
+      "text": "左右方向键翻页。\n\n:param event: Qt 按键事件。",
       "translation_source_blocks_sha256": [
-        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
+        "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
       ]
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.next_page": {
@@ -159971,12 +160003,14 @@
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.set_card": {
       "source_blocks_sha256": [
-        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
+        "2f296a0d042dcec27c901230ceddaac84ae6bb3f3671b1c849f6a34b5989fd07"
       ],
-      "source_sha256": "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
-      "text": "从第 1 页起显示 ``card``，在未缓存时获取其图像。",
+      "source_sha256": "024ee182233f1bdc0ac0504af2b3c1c056e7cab01edbe93a53f8a8e2cafd7fba",
+      "text": "从第 1 页起显示 ``card``，在未缓存时获取其图像。\n\n:param card: 卡片数据；不显示任何内容时为 None。",
       "translation_source_blocks_sha256": [
-        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
+        "2f296a0d042dcec27c901230ceddaac84ae6bb3f3671b1c849f6a34b5989fd07"
       ]
     },
     "spacr.qt.widgets.model_card_viewer.ModelCardViewer.showing_image": {

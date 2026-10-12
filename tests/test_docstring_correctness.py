@@ -2505,7 +2505,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "693_export_settings_api_arrivals_2026-10-12.json",
                      "144_regression_response_api_arrivals_2026-10-12.json",
                      "694_startup_splash_api_arrivals_2026-10-12.json",
-                     "695_startup_sequence_api_arrivals_2026-10-12.json"):
+                     "695_startup_sequence_api_arrivals_2026-10-12.json",
+                     "model_cards_api_arrivals_2026-10-12.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
@@ -4020,6 +4021,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in tutorial_additions} == tutorial_additions
     assert not tutorial_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **tutorial_additions}
+    # 2026-10-12: the model card viewer (WS) adds spacr.model_cards and spacr.qt.widgets.model_card_viewer; one named contract.
+    model_card_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts" / "model_cards_api_arrivals_2026-10-12.json").read_text())
+    assert len(model_card_additions) == 27
+    assert {key: docs[key] for key in model_card_additions} == model_card_additions
+    assert not model_card_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **model_card_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -4395,7 +4403,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "693_export_settings_api_arrivals_2026-10-12.json",
                      "144_regression_response_api_arrivals_2026-10-12.json",
                      "694_startup_splash_api_arrivals_2026-10-12.json",
-                     "695_startup_sequence_api_arrivals_2026-10-12.json"):
+                     "695_startup_sequence_api_arrivals_2026-10-12.json",
+                     "model_cards_api_arrivals_2026-10-12.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
@@ -4430,7 +4439,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "693_export_settings_api_arrivals_2026-10-12.json",
                      "144_regression_response_api_arrivals_2026-10-12.json",
                      "694_startup_splash_api_arrivals_2026-10-12.json",
-                     "695_startup_sequence_api_arrivals_2026-10-12.json"):
+                     "695_startup_sequence_api_arrivals_2026-10-12.json",
+                     "model_cards_api_arrivals_2026-10-12.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
