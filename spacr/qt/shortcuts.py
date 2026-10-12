@@ -182,6 +182,22 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Make Masks screen"),
     ShortcutSpec("Ctrl+Shift+Z", "Redo",                   "Make Masks",
                  "the Make Masks screen"),
+    ShortcutSpec("PgUp",         "Previous 3D slice",      "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("PgDown",       "Next 3D slice",          "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Shift+E",      "True 3D: edit anchors",  "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Shift+S",      "True 3D: spin",          "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Shift+D",      "True 3D: draw",          "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Shift+X",      "True 3D: X plane, or X spin after Shift+S", "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Shift+Y",      "True 3D: Y plane, or Y spin after Shift+S", "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Shift+Z",      "True 3D: Z plane, or Z spin after Shift+S", "Make Masks",
+                 "the Make Masks screen"),
 
     ShortcutSpec("Q",            "Quarantine or restore this field",
                  "Field browser",
@@ -548,6 +564,9 @@ def _refresh_screen_hints(widget) -> None:
         "Left / Right arrows": ("Left", "Right"),
         "Ctrl+Z / Ctrl+Y": ("Ctrl+Z", "Ctrl+Y"),
         "B E W D V Z R": ("B", "E", "W", "D", "V", "Z", "R"),
+        "Page Up / Page Down": ("PgUp", "PgDown"),
+        "Shift+E / Shift+S / Shift+D": ("Shift+E", "Shift+S", "Shift+D"),
+        "Shift+X / Shift+Y / Shift+Z": ("Shift+X", "Shift+Y", "Shift+Z"),
     }
     for caption, defaults in groups.items():
         if caption in rows:

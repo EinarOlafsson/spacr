@@ -2,6 +2,10 @@
 
 No network and no GPU: volumes are synthetic, and the download is replaced by
 one that writes the unpacked set.
+
+2026-10-12: the separate 3D mask editor window is retired. A volume opens in
+the Make Masks view itself (tests/qt/test_673_make_masks_3d_in_container.py);
+the drawing, side-view, anchor and FIB-SEM tests below now drive that view.
 """
 from __future__ import annotations
 
@@ -13,12 +17,10 @@ import pytest
 import tifffile
 from PySide6.QtCore import QPoint, Qt
 from PySide6.QtWidgets import QApplication, QMessageBox
-from shiboken6 import isValid
 
 from spacr.qt import make_masks_demo as demo
 from spacr.qt import mask_engine as engine
-from spacr.qt.screens.make_masks import (MODE_BRUSH, MODE_ERASE,
-                                         MakeMasksScreen, _VolumeMaskEditor)
+from spacr.qt.screens.make_masks import MODE_BRUSH, MODE_ERASE, MakeMasksScreen
 from spacr.tiff_io import write_tiff
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -127,92 +129,95 @@ def test_assign_objects_splits_unconnected_parts_into_new_ids():
 
 
 @pytest.fixture
-def editor(qtbot, tmp_path, monkeypatch):
+def screen(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.Discard)
+    widget = MakeMasksScreen()
+    qtbot.addWidget(widget)
+    widget.resize(1300, 900)
+    widget.show()
+    yield widget
+    stage = widget._mask_stage
+    qtbot.waitUntil(lambda: stage._worker.idle() and stage._mesher.idle(), timeout=5000)
+    stage.dirty = False
+
+
+@pytest.fixture
+def editor(screen, tmp_path):
     image = np.random.default_rng(2).integers(0, 255, (10, 24, 24), dtype=np.uint8)
     tifffile.imwrite(tmp_path / "volume.tif", image)
-    session = engine.load_volume_image_and_mask(str(tmp_path), "volume.tif")
-    widget = _VolumeMaskEditor(session)
-    qtbot.addWidget(widget)
-    widget.resize(900, 700)
-    widget.show()
+    assert screen.open_volume(str(tmp_path / "volume.tif")) is screen._mask_stage
     for _ in range(4):
         QApplication.processEvents()
-    yield widget
-    if isValid(widget):
-        widget._dirty = False
-        widget.close()
+    return screen._mask_stage
 
 
-def _stroke(editor, qtbot, start, end):
-    canvas = editor._slice_view
+def _stroke(canvas, qtbot, start, end):
     qtbot.mousePress(canvas, Qt.LeftButton, pos=start)
     qtbot.mouseMove(canvas, end)
     qtbot.mouseRelease(canvas, Qt.LeftButton, pos=end)
     QApplication.processEvents()
 
 
-def test_the_editor_opens_on_slice_drawing_and_paints_with_the_mouse(editor, qtbot):
-    assert editor._tabs.currentIndex() == 0
-    assert editor._slice_view.mode == MODE_BRUSH
-    assert editor._slice.value() == 5
-    middle = editor._slice_view.rect().center()
-    _stroke(editor, qtbot, middle - QPoint(20, 0), middle + QPoint(20, 0))
-    drawn = editor._session.mask
+def test_the_volume_opens_on_its_middle_slice_and_paints_with_the_mouse(editor, screen, qtbot):
+    canvas = screen._canvas
+    assert editor.view == "default" and canvas.mode == MODE_BRUSH
+    assert editor._slider.value() == 5
+    middle = canvas.rect().center()
+    _stroke(canvas, qtbot, middle - QPoint(20, 0), middle + QPoint(20, 0))
+    drawn = editor.session.mask
     assert drawn[5].any() and not drawn[:5].any() and not drawn[6:].any()
     assert set(np.unique(drawn)) == {0, 1}
-    assert editor._selected_label == 1 and editor._dirty
+    assert editor._selected == 1 and editor.dirty
     assert editor._labels.currentData() == 1
-    editor._erase_button.click()
-    assert editor._slice_view.mode == MODE_ERASE
-    _stroke(editor, qtbot, middle - QPoint(40, 0), middle + QPoint(40, 0))
-    assert not editor._session.mask.any()
-    editor._history(False)
-    assert editor._session.mask[5].any()
+    screen._mode_buttons[MODE_ERASE].click()
+    assert canvas.mode == MODE_ERASE
+    _stroke(canvas, qtbot, middle - QPoint(40, 0), middle + QPoint(40, 0))
+    assert not editor.session.mask.any()
+    screen._on_undo()
+    assert editor.session.mask[5].any()
 
 
-def test_drawing_on_side_views_interpolating_and_assigning(editor, qtbot):
-    editor._plane.setCurrentIndex(1)
-    assert editor._section_axis() == "Y"
-    assert editor._slice_view.image.shape == (10, 24)
-    canvas = editor._slice_view
-    before = canvas.mask.copy()
-    canvas.mask[2:8, 3:6] = 255
-    canvas.stroke_finished.emit()
-    assert np.array_equal(editor._session.mask[2:8, editor._slice.value(), 3:6],
-                          np.ones((6, 3), dtype=np.uint16))
+def test_drawing_on_side_views_interpolating_and_assigning(editor, screen, qtbot):
+    editor.set_view("orthogonal")
+    y = editor._cursor[1]
+    pane = editor._xz
+    assert pane.image.shape == (10, 24)
+    before = pane.mask.copy()
+    pane.mask[2:8, 3:6] = 255
+    pane.stroke_finished.emit()
+    assert np.array_equal(editor.session.mask[2:8, y, 3:6], np.full((6, 3), 255, dtype=np.uint16))
     assert np.array_equal(before, np.zeros_like(before))
-    editor._plane.setCurrentIndex(0)
+    editor.set_view("default")
     editor._labels.setCurrentIndex(editor._labels.findData(0))
     for index in (1, 6):
-        editor._slice.setValue(index)
-        editor._slice_view.mask[15:20, 15:20] = 255
-        editor._slice_view.stroke_finished.emit()
-    assert editor._selected_label == 2
+        editor.set_slice(index)
+        screen._canvas.mask[15:20, 15:20] = editor.draw_label()
+        screen._canvas.stroke_finished.emit()
+    assert editor._selected == 1
     editor._interpolate_button.click()
-    assert all(np.count_nonzero(editor._session.mask[index] == 2) == 25 for index in range(1, 7))
-    assert "Interpolated" in editor._notice.text()
-    editor._session.paint_plane("Z", 9, 2, paint=_square((24, 24), slice(0, 2), slice(0, 2)))
+    assert all(np.count_nonzero(editor.session.mask[index] == 1) == 25 for index in range(1, 7))
+    assert "Interpolated" in screen._status_label.text()
+    editor.session.paint_plane("Z", 9, 1, paint=_square((24, 24), slice(0, 2), slice(0, 2)))
     editor._assign_button.click()
-    assert set(np.unique(editor._session.mask)) == {0, 1, 2, 3}
-    assert editor._save_mask()
-    path = Path(editor._session.mask_path)
+    assert set(np.unique(editor.session.mask)) == {0, 1, 2, 255}
+    assert editor.save()
+    path = Path(editor.session.mask_path)
     with tifffile.TiffFile(path) as handle:
         assert handle.series[0].shape == (10, 24, 24)
         assert handle.series[0].axes == "ZYX"
 
 
-def test_the_anchor_tab_still_edits_full_voxels(editor, qtbot):
+def test_true_3d_still_edits_full_voxels(editor, qtbot):
     from spacr.qt.widgets.gate_spec import BoxGate
 
-    editor._tabs.setCurrentIndex(1)
+    editor.set_view("true3d")
     editor._panel.canvas.gate_drawn.emit(
         BoxGate.from_limits("(unnamed)", ("X", "Y", "Z"), [(0, 2), (0, 2), (0, 2)]))
-    qtbot.waitUntil(lambda: not editor._busy, timeout=5000)
-    assert np.count_nonzero(editor._session.mask == 1) == 8
-    editor._tabs.setCurrentIndex(0)
-    editor._slice.setValue(0)
-    assert editor._slice_view.mask[0:2, 0:2].all()
+    qtbot.waitUntil(lambda: not editor.busy, timeout=5000)
+    assert np.count_nonzero(editor.session.mask == 1) == 8
+    editor.set_view("default")
+    editor.set_slice(0)
+    assert editor.canvas.mask[0:2, 0:2].all()
 
 
 @pytest.fixture
@@ -232,18 +237,6 @@ def fibsem_set(tmp_path_factory):
     return dest / tool.FOLDER
 
 
-@pytest.fixture
-def screen(qtbot, monkeypatch):
-    monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.Discard)
-    widget = MakeMasksScreen()
-    qtbot.addWidget(widget)
-    yield widget
-    dialog = widget._volume_dialog
-    if dialog is not None and isValid(dialog):
-        dialog._dirty = False
-        dialog.close()
-
-
 def test_the_menu_offers_the_volume_alone_and_with_masks(screen):
     actions = screen._test_data_actions
     assert actions["fibsem"].objectName() == "MakeMasksFibsemTestData"
@@ -255,20 +248,19 @@ def test_with_masks_opens_the_labels_for_correction_and_keeps_the_truth(screen, 
     truth = fibsem_set / "ground_truth_masks" / demo.FIBSEM_VOLUME
     published = truth.read_bytes()
     assert demo.load_the_fibsem_test_data(screen, with_masks=True, folder=fibsem_set)
-    dialog = screen._volume_dialog
-    assert isinstance(dialog, _VolumeMaskEditor)
-    assert dialog._session.mask.max() == 1
-    assert dialog._session.spacing == (15.0, 15.0, 15.0)
-    assert Path(dialog._session.mask_path).parent.name == "corrected_masks"
-    dialog._session.paint_plane("Z", 0, 1, paint=np.ones((16, 16), dtype=bool))
-    assert dialog._save_mask()
+    stage = screen._mask_stage
+    assert screen._view_tabs.widget(0) is stage and stage.view_picker.isVisible()
+    assert screen._canvas.image.shape == (16, 16)
+    assert stage.session.mask.max() == 1
+    assert stage.session.spacing == (15.0, 15.0, 15.0)
+    assert Path(stage.session.mask_path).parent.name == "corrected_masks"
+    stage.session.paint_plane("Z", 0, 1, paint=np.ones((16, 16), dtype=bool))
+    stage.dirty = True
+    assert stage.save()
     assert truth.read_bytes() == published
-    dialog._dirty = False
-    dialog.close()
     assert demo.load_the_fibsem_test_data(screen, folder=fibsem_set)
-    alone = screen._volume_dialog
-    assert not alone._session.mask.any()
-    assert Path(alone._session.mask_path).parent.name == "masks"
+    assert stage.session is not None and not stage.session.mask.any()
+    assert Path(stage.session.mask_path).parent.name == "masks"
 
 
 def test_a_missing_set_is_downloaded_then_opened(screen, fibsem_set, tmp_path):
@@ -287,8 +279,8 @@ def test_a_missing_set_is_downloaded_then_opened(screen, fibsem_set, tmp_path):
                                               folder=target)
     assert seen["dest"] == target
     assert screen._btn_test_data.isEnabled()
-    assert screen._volume_dialog is not None
-    assert screen._volume_dialog._session.mask.max() == 1
+    assert screen._mask_stage.session is not None
+    assert screen._mask_stage.session.mask.max() == 1
     assert (target / "corrected_masks" / demo.FIBSEM_VOLUME).exists()
 
 

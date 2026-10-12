@@ -1,37 +1,46 @@
-"""Native shared volume editing updates full mask voxels, not preview dots."""
-from dataclasses import replace
+"""Native shared volume editing updates full mask voxels, not preview dots.
+
+2026-10-12: the anchor editing that lived on the "3D anchors" tab of a
+separate window is now the True 3D view inside Make Masks itself; these
+tests drive that view through the screen.
+"""
 from types import SimpleNamespace
 
 import numpy as np
 import pytest
 from PySide6.QtCore import QEvent
 from PySide6.QtWidgets import QApplication, QMessageBox
-from shiboken6 import isValid
 
 from spacr.qt import mask_engine as engine
-from spacr.qt.screens.make_masks import MakeMasksScreen, _VolumeMaskEditor
+from spacr.qt.screens.make_masks import MakeMasksScreen
 from spacr.qt.widgets.gate_editor import _screen_points
 from spacr.qt.widgets.gate_spec import BoxGate, EditableVolumeGate
 from spacr.tiff_io import write_tiff
 
 
 @pytest.fixture
-def editor(qtbot, tmp_path, monkeypatch):
+def screen(qtbot, monkeypatch):
     monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.Discard)
+    widget = MakeMasksScreen()
+    qtbot.addWidget(widget)
+    widget.resize(1300, 900)
+    widget.show()
+    yield widget
+    stage = widget._mask_stage
+    qtbot.waitUntil(lambda: stage._worker.idle() and stage._mesher.idle(), timeout=5000)
+    stage.dirty = False
+
+
+@pytest.fixture
+def editor(screen, tmp_path):
     image = np.arange(8 ** 3, dtype=np.uint16).reshape(8, 8, 8)
     write_tiff(tmp_path / 'volume.tif', image, metadata={'axes': 'ZYX', 'voxel_spacing': [1., .5, .25], 'unit': 'um'})
-    session = engine.load_volume_image_and_mask(str(tmp_path), 'volume.tif')
-    widget = _VolumeMaskEditor(session)
-    qtbot.addWidget(widget)
-    widget.show()
-    widget._tabs.setCurrentWidget(widget._panel)
+    assert screen.open_volume(str(tmp_path / 'volume.tif')) is screen._mask_stage
+    stage = screen._mask_stage
+    stage.set_view('true3d')
     for _ in range(4):
         QApplication.processEvents()
-    yield widget
-    if isValid(widget):
-        widget._dirty = False
-        widget.close()
-    qtbot.waitUntil(widget._worker.idle, timeout=5000)
+    return stage
 
 
 def _box(name='1'):
@@ -40,9 +49,9 @@ def _box(name='1'):
 
 def _draw(editor, qtbot, gate=None):
     editor._panel.canvas.gate_drawn.emit(gate or _box('(unnamed)'))
-    qtbot.waitUntil(lambda: not editor._busy, timeout=5000)
-    assert editor._session.mask.any()
-    return editor._session.geometries[1]
+    qtbot.waitUntil(lambda: not editor.busy, timeout=5000)
+    assert editor.session.mask.any()
+    return editor.session.geometries[1]
 
 
 def _event(canvas, point, **extra):
@@ -56,51 +65,28 @@ def test_actual_native_view_draw_save_reopen_matches_independent_voxels(editor, 
     _draw(editor, qtbot)
     expected = np.zeros((8, 8, 8), dtype=np.uint16)
     expected[:4, :4, :4] = 1
-    assert np.array_equal(editor._session.mask, expected)
+    assert np.array_equal(editor.session.mask, expected)
     assert '64 voxels' in editor._count.text()
     assert editor._panel.tree_section.isHidden()
     assert editor._panel.canvas._mode == '3D'
-    assert editor._save_mask()
-    session = engine.load_volume_image_and_mask(str(__import__('pathlib').Path(editor._session.source_path).parent), 'volume.tif')
+    assert editor.save()
+    session = engine.load_volume_image_and_mask(str(__import__('pathlib').Path(editor.session.source_path).parent), 'volume.tif')
     assert np.array_equal(session.mask, expected)
-    assert session.geometries == editor._session.geometries
+    assert session.geometries == editor.session.geometries
     assert session.axes == 'ZYX' and session.spacing == (1., .5, .25)
 
 
-def test_long_volume_status_is_readable_without_moving_graph_or_actions(editor, qtbot):
-    editor._notice.setText('Ready.')
-    editor._count.setText('One object.')
-    QApplication.processEvents()
-    positions = (editor._panel.geometry(), editor._slice_view.geometry(),
-                 editor._save.geometry())
-    long_notice = 'A spatial volume error with complete physical coordinates. ' * 24
-    long_count = 'Exact voxel count and spacing for the selected object. ' * 24
-    editor._notice.setText(long_notice)
-    editor._count.setText(long_count)
-    QApplication.processEvents()
-    assert (editor._panel.geometry(), editor._slice_view.geometry(),
-            editor._save.geometry()) == positions
-    assert editor._notice.text() == long_notice
-    assert editor._count.text() == long_count
-    for status in (editor._notice, editor._count):
-        view = status._view
-        assert view.toPlainText() == status.text()
-        assert view.verticalScrollBar().maximum() > 0
-        view.verticalScrollBar().setValue(view.verticalScrollBar().maximum())
-        assert view.verticalScrollBar().value() == view.verticalScrollBar().maximum()
-    assert editor._preview_notice.isVisible()
-    assert 'Sampled' in editor._preview_notice.text()
-    assert 'full image' in editor._preview_notice.text()
+def test_the_preview_notice_stays_and_the_graph_notice_stays_hidden(editor, screen):
+    notice = editor.findChild(type(editor._count), 'VolumeMaskPreviewNotice')
+    assert notice.isVisible()
+    assert 'Sampled' in notice.text() and 'full image' in notice.text()
     assert editor._panel.canvas._notice.isHidden()
     editor._panel.canvas.render_now()
     QApplication.processEvents()
     assert editor._panel.canvas._notice.isHidden()
-    editor._notice.setText('Updated 32 voxels.')
+    screen._status_label.setText('Updated 32 voxels.')
     QApplication.processEvents()
-    assert editor._preview_notice.isVisible()
-    assert 'Sampled' in editor._preview_notice.text()
-    assert (editor._panel.geometry(), editor._slice_view.geometry(),
-            editor._save.geometry()) == positions
+    assert notice.isVisible()
 
 
 @pytest.mark.parametrize('axis', ['x', 'y', 'z'])
@@ -117,34 +103,34 @@ def test_rotated_anchor_drag_edits_real_physical_axis_and_mask_history(editor, q
     ax = canvas.axes_at(0, 0)
     start = _screen_points(ax, [point])[0]
     movement = canvas._pixels_per_unit(ax, point)[:, 'xyz'.index(axis)] * .8
-    old = editor._session.mask.copy()
+    old = editor.session.mask.copy()
     canvas._on_press(_event(canvas, start))
     canvas._on_motion(_event(canvas, start + movement))
     canvas._on_release(_event(canvas, start + movement))
-    qtbot.waitUntil(lambda: not editor._busy, timeout=5000)
-    edited = editor._session.geometries[1]
+    qtbot.waitUntil(lambda: not editor.busy, timeout=5000)
+    edited = editor.session.geometries[1]
     difference = np.asarray(edited.vertices) - gate.vertices
     assert np.allclose(difference[np.arange(len(difference)) != int(role.split(':')[1])], 0)
     assert difference[int(role.split(':')[1]), 'xyz'.index(axis)] == pytest.approx(.8)
-    new = editor._session.mask.copy()
+    new = editor.session.mask.copy()
     assert not np.array_equal(old, new)
-    editor._undo.click()
-    assert np.array_equal(editor._session.mask, old) and editor._session.geometries[1] == gate
-    editor._redo.click()
-    assert np.array_equal(editor._session.mask, new) and editor._session.geometries[1] == edited
+    editor._screen._btn_undo.click()
+    assert np.array_equal(editor.session.mask, old) and editor.session.geometries[1] == gate
+    editor._screen._btn_redo.click()
+    assert np.array_equal(editor.session.mask, new) and editor.session.geometries[1] == edited
 
 
 def test_density_visibility_only_affect_handles_and_multisurface_wheel_changes_voxels(editor, qtbot):
     gate = _draw(editor, qtbot)
     canvas = editor._panel.canvas
-    snapshot = editor._session.mask.copy()
-    before_history = len(editor._session._undo)
+    snapshot = editor.session.mask.copy()
+    before_history = len(editor.session._undo)
     for density in (1, 4, 2):
         editor._density.setValue(density)
         editor._anchors.setChecked(False)
-        assert np.array_equal(editor._session.mask, snapshot)
-        assert editor._session.geometries[1] == gate
-        assert len(editor._session._undo) == before_history
+        assert np.array_equal(editor.session.mask, snapshot)
+        assert editor.session.geometries[1] == gate
+        assert len(editor.session._undo) == before_history
         editor._anchors.setChecked(True)
     editor._anchors.setChecked(False)
     canvas._surface_gate = '1'
@@ -152,26 +138,26 @@ def test_density_visibility_only_affect_handles_and_multisurface_wheel_changes_v
     canvas._edit_axis = 'z'
     for _ in range(6):
         assert canvas._volume_scroll(_event(canvas, [200, 200], step=1, button='up'))
-        qtbot.waitUntil(lambda: not editor._busy, timeout=5000)
+        qtbot.waitUntil(lambda: not editor.busy, timeout=5000)
         assert canvas._surface_gate == '1' and canvas._selected_surfaces == {1, 5}
-    edited = editor._session.geometries[1]
+    edited = editor.session.geometries[1]
     selected = {i for face, group in zip(gate.faces, gate.surface_groups) if group in {1, 5} for i in face}
     expected = np.zeros((len(gate.vertices), 3))
     expected[list(selected), 2] = 4 * (1.025 ** 6 - 1)
     assert np.asarray(edited.vertices) - gate.vertices == pytest.approx(expected)
-    assert not np.array_equal(snapshot, editor._session.mask)
+    assert not np.array_equal(snapshot, editor.session.mask)
 
 
 def test_a_colliding_edited_volume_is_restored_and_other_label_is_unchanged(editor, qtbot):
     _draw(editor, qtbot)
-    editor._session.mask[6, 6, 6] = 17
-    original = editor._session.mask.copy()
-    geometry = editor._session.geometries[1]
+    editor.session.mask[6, 6, 6] = 17
+    original = editor.session.mask.copy()
+    geometry = editor.session.geometries[1]
     editor._panel.canvas.gate_edited.emit(EditableVolumeGate.from_gate(BoxGate.from_limits('1', ('X', 'Y', 'Z'), [(0, 2), (0, 4), (0, 8)])))
-    qtbot.waitUntil(lambda: not editor._busy, timeout=5000)
-    assert 'overlaps' in editor._notice.text()
-    assert np.array_equal(editor._session.mask, original)
-    assert editor._session.geometries[1] == geometry
+    qtbot.waitUntil(lambda: not editor.busy, timeout=5000)
+    assert 'overlaps' in editor._screen._status_label.text()
+    assert np.array_equal(editor.session.mask, original)
+    assert editor.session.geometries[1] == geometry
     assert editor._panel.gates.get('1') == geometry
 
 
@@ -183,36 +169,33 @@ def test_end_on_axis_refusal_preserves_voxels_geometry_and_history(editor, qtbot
     canvas._edit_axis = 'x'
     role, point = canvas._volume_handles(gate)[-1]
     start = _screen_points(canvas.axes_at(0, 0), [point])[0]
-    snapshot = editor._session.mask.copy()
-    history = len(editor._session._undo)
+    snapshot = editor.session.mask.copy()
+    history = len(editor.session._undo)
     canvas._on_press(_event(canvas, start))
     canvas._on_motion(_event(canvas, start + [30., 0.]))
     canvas._on_release(_event(canvas, start + [30., 0.]))
-    assert not editor._busy
-    assert np.array_equal(editor._session.mask, snapshot)
-    assert editor._session.geometries[1] == gate and len(editor._session._undo) == history
+    assert not editor.busy
+    assert np.array_equal(editor.session.mask, snapshot)
+    assert editor.session.geometries[1] == gate and len(editor.session._undo) == history
 
 
-def test_make_masks_opens_volume_without_replacing_2d_labels_or_boxes(qtbot, tmp_path):
+def test_make_masks_opens_a_volume_in_its_own_view_and_back_to_2d(qtbot, tmp_path):
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
-    image = np.arange(25, dtype=np.uint16).reshape(5, 5)
-    labels = np.zeros_like(image)
-    screen._canvas.set_image_and_mask(image, labels)
-    screen._canvas.boxes = [(3, 1., 1., 4., 4.)]
     volume = np.arange(60, dtype=np.uint16).reshape(3, 4, 5)
     write_tiff(tmp_path / 'volume.tif', volume, metadata={'axes': 'ZYX'})
-    dialog = screen.open_volume(str(tmp_path / 'volume.tif'))
-    assert dialog is not None
-    assert screen._canvas.image is image and screen._canvas.mask is labels
-    assert screen._canvas.boxes == [(3, 1., 1., 4., 4.)]
+    stage = screen.open_volume(str(tmp_path / 'volume.tif'))
+    assert stage is screen._mask_stage and stage.session.image.shape == (3, 4, 5)
+    assert screen._canvas.image.shape == (4, 5)
     assert screen._btn_volume.objectName() == 'OpenVolumeMask'
     assert 'draw 3D masks slice by slice' in screen._btn_volume.property('apiTooltipDescriptionSource')
     assert 'draw 3D masks slice by slice' in screen._btn_volume.property('_spacr_i18n_tooltip')
     assert screen._btn_volume.accessibleDescription()
-    dialog.close()
-    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
-    assert not isValid(dialog) and screen._volume_dialog is None
+    folder = tmp_path / 'fields'
+    folder.mkdir()
+    write_tiff(folder / 'field.tif', np.arange(25, dtype=np.uint16).reshape(5, 5))
+    assert screen._open_folder(str(folder))
+    assert stage.session is None and screen._canvas.image.shape == (5, 5)
 
 
 def test_volume_open_help_uses_footer_when_inside_an_action_scope(qtbot):
@@ -246,61 +229,62 @@ def test_real_rotated_rectangle_through_view_draws_full_native_volume(editor, qt
     canvas._on_press(_event(canvas, low))
     canvas._on_motion(_event(canvas, high))
     canvas._on_release(_event(canvas, high))
-    qtbot.waitUntil(lambda: not editor._busy, timeout=5000)
-    assert np.all(editor._session.mask == 1)
-    assert isinstance(editor._session.geometries[1], EditableVolumeGate)
+    qtbot.waitUntil(lambda: not editor.busy, timeout=5000)
+    assert np.all(editor.session.mask == 1)
+    assert isinstance(editor.session.geometries[1], EditableVolumeGate)
 
 
-def test_pending_edit_cancellation_destroys_dialog_without_late_gui_publication(editor, qtbot, monkeypatch):
+def test_pending_edit_cancellation_on_leaving_publishes_nothing_late(editor, qtbot, monkeypatch):
     import threading
     started, release = threading.Event(), threading.Event()
-    original = editor._session._paint_geometry
+    original = editor.session._paint_geometry
     def blocked(*args):
         started.set()
         assert release.wait(5)
         return original(*args)
-    monkeypatch.setattr(editor._session, '_paint_geometry', blocked)
+    monkeypatch.setattr(editor.session, '_paint_geometry', blocked)
     editor._panel.canvas.gate_drawn.emit(_box('(unnamed)'))
     qtbot.waitUntil(started.is_set, timeout=5000)
-    assert editor._busy and not editor._save.isEnabled()
-    session, worker = editor._session, editor._worker
-    assert editor.close()
-    editor.deleteLater()
-    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
-    assert not isValid(editor)
+    assert editor.busy and not editor._strip.isEnabled()
+    session, worker = editor.session, editor._worker
+    assert editor._screen._volume_leave_ok()
+    editor._screen._leave_volume()
     release.set()
     qtbot.waitUntil(worker.idle, timeout=5000)
+    QApplication.processEvents()
     assert not session.mask.any() and not session._undo and not session.geometries
+    assert editor.session is None
 
 
-def test_unsaved_close_cancel_preserves_native_dialog_and_geometry(editor, qtbot, monkeypatch):
+def test_unsaved_leave_cancel_keeps_the_volume_and_its_geometry(editor, qtbot, monkeypatch):
     _draw(editor, qtbot)
-    original = editor._session.mask.copy()
+    original = editor.session.mask.copy()
     monkeypatch.setattr(QMessageBox, 'question', lambda *args, **kwargs: QMessageBox.Cancel)
-    assert not editor.close()
-    assert isValid(editor) and not editor._closing
-    assert np.array_equal(editor._session.mask, original)
+    assert not editor._screen._volume_leave_ok()
+    assert editor.session is not None and editor.dirty
+    assert np.array_equal(editor.session.mask, original)
     monkeypatch.setattr(QMessageBox, 'question', lambda *args, **kwargs: QMessageBox.Discard)
 
 
 def test_saved_control_changes_reopen_without_changing_voxels(editor, qtbot):
     _draw(editor, qtbot)
-    original = editor._session.mask.copy()
+    original = editor.session.mask.copy()
     editor._density.setValue(4)
     editor._anchors.setChecked(False)
-    assert np.array_equal(editor._session.mask, original)
-    assert editor._save_mask()
-    session = engine.load_volume_image_and_mask(str(__import__('pathlib').Path(editor._session.source_path).parent), 'volume.tif')
-    reopened = _VolumeMaskEditor(session)
-    qtbot.addWidget(reopened)
-    assert reopened._density.value() == 4 and not reopened._anchors.isChecked()
-    assert np.array_equal(reopened._session.mask, original)
+    assert np.array_equal(editor.session.mask, original)
+    assert editor.save()
+    path = editor.session.source_path
+    screen = editor._screen
+    assert screen.open_volume(path) is editor
+    editor.set_view('true3d')
+    assert editor._density.value() == 4 and not editor._anchors.isChecked()
+    assert np.array_equal(editor.session.mask, original)
 
 
-def test_dirty_busy_close_requires_explicit_discard_and_cancel_preserves_completed_edit(editor, qtbot, monkeypatch):
+def test_dirty_busy_leave_requires_explicit_discard_and_cancel_preserves_completed_edit(editor, qtbot, monkeypatch):
     import threading
     gate = _draw(editor, qtbot)
-    session = editor._session
+    session = editor.session
     completed = session.mask.copy()
     geometry = dict(session.geometries)
     history = len(session._undo)
@@ -318,18 +302,19 @@ def test_dirty_busy_close_requires_explicit_discard_and_cancel_preserves_complet
         questions.append(args)
         return QMessageBox.Cancel
     monkeypatch.setattr(QMessageBox, 'question', refuse)
-    assert not editor.close()
+    screen = editor._screen
+    screen.show()
+    assert not screen.close()
     assert questions and questions[-1][3] == QMessageBox.Discard | QMessageBox.Cancel
-    assert isValid(editor) and editor._busy and not editor._closing and not editor._cancel.is_set()
+    assert editor.busy and not editor._cancel.is_set()
     assert np.array_equal(session.mask, completed) and session.geometries == geometry
     assert len(session._undo) == history
     monkeypatch.setattr(QMessageBox, 'question', lambda *args, **kwargs: QMessageBox.Discard)
     worker = editor._worker
-    assert editor.close()
-    editor.deleteLater()
+    assert screen.close()
     QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
-    assert not isValid(editor)
     release.set()
     qtbot.waitUntil(worker.idle, timeout=5000)
+    QApplication.processEvents()
     assert np.array_equal(session.mask, completed) and session.geometries == geometry
     assert len(session._undo) == history

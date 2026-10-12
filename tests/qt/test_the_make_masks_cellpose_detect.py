@@ -277,7 +277,9 @@ def test_the_two_intermediates_are_tabs_beside_the_mask(screen):
     assert isinstance(tabs, QTabWidget)
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
         "Mask", "Cell probability", "Flows"]
-    assert tabs.widget(0) is screen._canvas
+    # 2026-10-12 (N673): the Mask tab holds the canvas inside the volume stage.
+    assert tabs.widget(0) is screen._mask_stage
+    assert screen._mask_stage.isAncestorOf(screen._canvas)
     # Enabled, not greyed out: a disabled tab cannot be opened to read
     # the sentence that says why it is empty.
     assert tabs.isTabEnabled(1) and tabs.isTabEnabled(2)
