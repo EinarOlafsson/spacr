@@ -184,3 +184,20 @@ skips it."; "Borderless window"; "On: no title bar; spaCR opens filling the
 screen, and the menu bar moves the window while its marks minimise, maximise
 and close it. Off: the platform's own framed window. Remembered."; "Maximise,
 or restore the size before".
+
+2026-10-12 (follow-up, startup dialogs): no dialog opens over the logo. The
+launch path schedules four: the settings-drafts question (0 ms), the installer
+consent (250 ms) and, 500 ms after it closes, the first-run tour overlay, and
+What's new (1.5 s, also after its release-news worker returns). All now go
+through MainWindow._after_the_startup_sequence: while a cover that will blow
+away is up (loading, hold or blow-away) they are queued in the order asked and
+open, in that order, when the cover is gone, whether it ended or a click or key
+skipped it (blow_away's on_finished; the plain hide path releases at once).
+With the sequence off (Startup animation off, Reduce motion, SPACR_NO_SPLASH,
+offscreen, a skip already asked) nothing is queued and timing is unchanged.
+Consent: chose to DEFER the consent dialog and the work it applies (the
+consent-to-tour chain moves as one unit), not to end the sequence early; the
+launch path reads no consent choice before it is applied. Update notices
+(Help > Check for updates) are user-started only and not scheduled at launch;
+no tip-of-the-day or crash-recovery prompt exists beyond the drafts question.
+Tests: tests/qt/test_695_startup_dialogs_deferred.py.

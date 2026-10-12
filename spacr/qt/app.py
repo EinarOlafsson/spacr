@@ -2985,6 +2985,8 @@ class MainWindow(QMainWindow):
 
 
         from PySide6.QtCore import QTimer
+        self._startup_deferred = []
+        self._blowing_cover = None
         self._loading_screen = self._install_loading_screen()
         self._preloader = _PipelinePreloader(
             on_step=self._on_preload_step, on_done=self._on_preload_done)
@@ -3043,7 +3045,8 @@ class MainWindow(QMainWindow):
             self._tour_timer = QTimer(self)
             self._tour_timer.setSingleShot(True)
             self._tour_timer.timeout.connect(
-                lambda: maybe_show_tour(self))
+                lambda: self._after_the_startup_sequence(
+                    lambda: maybe_show_tour(self)))
             self._consent_timer = QTimer(self)
             self._consent_timer.setSingleShot(True)
 
@@ -3052,11 +3055,60 @@ class MainWindow(QMainWindow):
                 maybe_show_installer_consent(self)
                 self._tour_timer.start(500)
 
-            self._consent_timer.timeout.connect(_finish_installer_onboarding)
+            self._consent_timer.timeout.connect(
+                lambda: self._after_the_startup_sequence(
+                    _finish_installer_onboarding))
             if not in_safe_mode():
                 self._consent_timer.start(250)
         except Exception:
             pass
+
+    def _startup_sequence_running(self) -> bool:
+        """Whether the startup logo sequence still covers the window.
+
+        True while a cover that will blow its mosaic away is waiting for
+        loading to end, or is holding and blowing away. False when the
+        sequence is off (preference, Reduce motion, SPACR_NO_SPLASH, the
+        offscreen platform), skipped, or finished.
+        """
+        from shiboken6 import isValid
+
+        from .widgets.loading_screen import will_blow_away
+
+        cover = getattr(self, "_blowing_cover", None)
+        if cover is not None:
+            if isValid(cover) and cover._state != "done":
+                return True
+            self._blowing_cover = None
+        screen = getattr(self, "_loading_screen", None)
+        return screen is not None and isValid(screen) and will_blow_away(screen)
+
+    def _after_the_startup_sequence(self, action) -> None:
+        """Run ``action`` now, or when the startup sequence has ended.
+
+        Dialogs and popups scheduled at launch go through here so none opens
+        over the logo. Deferred actions run in the order they were handed in,
+        when the sequence finishes or a click or key skips it. With the
+        sequence off the action runs at once, at the time it always did.
+
+        :param action: a zero-argument callable that opens the dialog.
+        """
+        if self._startup_sequence_running():
+            self._startup_deferred.append(action)
+            return
+        action()
+
+    def _release_the_startup_dialogs(self) -> None:
+        """Open, in order, every dialog held back by the startup sequence."""
+        self._blowing_cover = None
+        held, self._startup_deferred = self._startup_deferred, []
+        for action in held:
+            if self._closing:
+                return
+            try:
+                action()
+            except Exception:                                # noqa: BLE001
+                LOG.exception("a held startup dialog failed")
 
     def _install_loading_screen(self):
         """Cover the window with a loading screen when a display is active.
@@ -3107,12 +3159,15 @@ class MainWindow(QMainWindow):
         from .widgets.loading_screen import will_blow_away
 
         try:
-            if will_blow_away(screen) and screen.blow_away():
+            if will_blow_away(screen) and screen.blow_away(
+                    self._release_the_startup_dialogs):
+                self._blowing_cover = screen
                 return
             screen.hide()
             screen.deleteLater()
         except RuntimeError:
             pass
+        self._release_the_startup_dialogs()
 
     def resizeEvent(self, event):
         """Keep the loading screen covering the whole window, and erase the
@@ -4736,14 +4791,18 @@ class MainWindow(QMainWindow):
         if not previous or self._closing:
             return
         if not get_refresh_news():
-            self._show_whats_new(previous)
+            self._after_the_startup_sequence(
+                lambda: self._show_whats_new(previous))
             return
         from spacr.updater import fetch_release_notes
 
         worker = _UpdateWorker("whats-new", fetch_release_notes, self)
         worker.succeeded.connect(
-            lambda releases: self._show_whats_new(previous, releases))
-        worker.failed.connect(lambda *_: self._show_whats_new(previous))
+            lambda releases: self._after_the_startup_sequence(
+                lambda: self._show_whats_new(previous, releases)))
+        worker.failed.connect(
+            lambda *_: self._after_the_startup_sequence(
+                lambda: self._show_whats_new(previous)))
         worker.finished.connect(worker.deleteLater)
         worker.start()
         self._whats_new_worker = worker
@@ -5783,7 +5842,7 @@ class MainWindow(QMainWindow):
         box.addButton(tr("Discard"), QMessageBox.ButtonRole.RejectRole)
         box.buttonClicked.connect(self._on_drafts_answered)
         self._drafts_box = box
-        box.open()
+        self._after_the_startup_sequence(box.open)
 
     def _on_drafts_answered(self, button) -> None:
         """Restore the drafts on Restore; forget them otherwise."""
