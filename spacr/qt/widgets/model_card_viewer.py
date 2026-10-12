@@ -209,6 +209,7 @@ class ModelCardViewer(QFrame):
 
     def _start_fetch(self, repo: str) -> None:
         def job():
+            """Fetch the card pages and emit the outcome, or the failure."""
             try:
                 result: Any = cards.fetch_pages(repo, self._fetch)
             except Exception as exc:  # noqa: BLE001 - any failure is offline

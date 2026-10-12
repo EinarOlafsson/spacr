@@ -171,6 +171,11 @@ def page_html(card: Dict[str, Any], page: int,
     e = html.escape
 
     def table(rows, head):
+        """One two-column HTML table with a heading row.
+
+        :param rows: ``(left, right)`` text pairs, one per body row.
+        :param head: the two column headings.
+        """
         body = "".join(f"<tr><td>{e(a)}</td><td>{e(b)}</td></tr>"
                        for a, b in rows)
         return (f"<table cellspacing='4'><tr><th align='left'>{e(head[0])}"
