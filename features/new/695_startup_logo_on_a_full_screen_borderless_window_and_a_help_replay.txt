@@ -3,7 +3,12 @@ STARTUP LOGO ON A FULL-SCREEN BORDERLESS WINDOW, A 2 + 4 S TIMELINE, AND A HELP 
 ================================================================================
 
 Status:    not started
-Requested: maintainer, 2026-10-12: "add as new item, there should be a help
+Requested: maintainer, 2026-10-12 (clarified the same day: "the spacr window
+           and the logo blow away window are the same window not seperate the
+           spacr log mosaic on a black background is the first thing loaded
+           into the windo then everything else loads in the background and the
+           logo and tlack container dissapear ... use a higher resolution
+           version and make the log tak half of the screen height"): "add as new item, there should be a help
            dropdown item to show the logo dissolve. when spacr starts don t
            start asfullscreen but start as a borderless window that takes up
            all of the screen and have the spacr icon in the middle for 2
@@ -12,7 +17,8 @@ Requested: maintainer, 2026-10-12: "add as new item, there should be a help
            to become visable and after 3 seconds the screen should be bully
            visable and after 4 seconds the logo tiles should have completely
            blown away."
-Owner:     Home (builds on 694); WS (translations, tutorial capture)
+Owner:     Home (build, maintainer: "the home machine should take care of
+           that"); WS (translations, tutorial capture)
 Related:   694 (photomosaic blow-away startup screen,
            spacr/qt/widgets/loading_screen.py BlowAway), N655 Reduce motion,
            Preferences > Animation > Startup animation.
@@ -39,40 +45,46 @@ whole screen, at a fixed and calm pace, and to be able to show it on demand
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-1. Splash surface. Show the start-up sequence on a frameless window
-   (Qt.FramelessWindowHint) sized to the available geometry of the screen the
-   app opens on, NOT in full-screen mode (no showFullScreen, no exclusive
-   full-screen; the task bar or dock may stay). The spaCR logo photomosaic
-   ("the spacr icon") sits in its centre.
+1. ONE window (maintainer clarification 2026-10-12): there is no separate
+   splash window. The spaCR main window opens borderless (frameless, sized to
+   the available geometry of its screen, NOT full-screen mode). The FIRST thing
+   painted in it is a black container with the spaCR logo photomosaic in the
+   centre. Everything else (screens, modules, preload) builds in the background
+   underneath that container; then the logo and the black container blow away,
+   revealing the window.
+   - Logo size: the mosaic is drawn at HALF the screen height (width follows
+     its aspect ratio), centred.
+   - Resolution: use a higher-resolution mosaic than the current 1600 px
+     resource (80 x 80 tiles of 20 px), so it stays sharp at half the screen
+     height on 1440p and 4K screens (e.g. rebuild with tools/build_splash_mosaic.py
+     from color_final_v1.png at the full 3280 px grid, or larger, and pick the
+     decode size from the device pixels needed). Keep the tile grid aligned.
 2. Fixed timeline, measured from the first painted frame of the logo:
    - 0.0 - 2.0 s: the logo holds still in the centre.
-   - 2.0 - 6.0 s: the blow-away runs for 4.0 s (stretch the 694 motion: wind
-     front, lift, flip, spin, fly, fade, from about 1.85 s to 4.0 s).
-   - 3.0 s (1 s into the blow-away): the spaCR window starts to become visible
-     under the tiles.
-   - 5.0 s (3 s into the blow-away): the spaCR window is fully visible
-     (its fade-in runs 3.0 -> 5.0 s; choose the easing, e.g. smoothstep).
-   - 6.0 s (4 s into the blow-away): the last tile has gone; the splash
-     window closes.
-   If loading is not finished at 2.0 s, keep the logo holding until it is,
-   then run the same 4 s sequence (the window must not appear half-built).
-   A click or a key still skips to the end.
+   - 2.0 - 6.0 s: the logo tiles and the black container blow away over 4.0 s
+     (stretch the 694 motion: wind front, lift, flip, spin, fly, fade).
+   - 3.0 s (1 s into the blow-away): the window content underneath starts to
+     become visible (the black container starts to fade).
+   - 5.0 s (3 s into the blow-away): the window content is fully visible (the
+     black container is gone; fade 3.0 -> 5.0 s, e.g. smoothstep).
+   - 6.0 s (4 s into the blow-away): the last logo tile has gone.
+   If the background loading is not finished at 2.0 s, keep the logo holding
+   until it is, then run the same 4 s sequence (the content must never appear
+   half-built). A click or a key still skips to the end.
 3. Help menu: add "Show startup animation" (wording to confirm) to the Help
-   dropdown. It replays the same 6 s sequence over the current window on a
-   borderless full-screen-size surface, then returns the user exactly where
+   dropdown. It replays the same 6 s sequence inside the main window (the
+   black container with the logo comes back over the content, then blows
+   away), then returns the user exactly where
    they were (focus, open dialogs untouched). It plays even when the
    Startup animation preference is off, but Reduce motion shows the logo
    still for 2 s and then a plain 1 s cross-fade instead (or ask the
    maintainer).
 4. Keep the existing switches: Preferences > Animation > Startup animation,
    Reduce motion, SPACR_NO_SPLASH=1 and offscreen disable the start-up run.
-5. Main window (maintainer decision 2026-10-12): after the splash, the spaCR
-   MAIN window also opens borderless and sized to the screen available
-   geometry (frameless, not full-screen mode). It needs its own way to move,
-   minimise, restore and close without a title bar (for example the existing
-   top bar gains window controls and is draggable), and a way back to a
-   normal framed window (a View or Preferences switch; remember the choice).
-   The logo in the centre is the 694 photomosaic (maintainer decision).
+5. The borderless main window needs its own way to move, minimise, restore
+   and close without a title bar (for example the existing top bar gains
+   window controls and is draggable), and a way back to a normal framed window
+   (a View or Preferences switch; remember the choice).
 6. Strings through tr(); new public docstrings into an API arrival contract.
    WS translates and registers them.
 
@@ -80,12 +92,12 @@ WHAT TO DO
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-- A test drives the timeline with a fake clock and asserts: the splash
-  window is frameless and its geometry equals the screen available geometry;
-  the window is not full-screen (windowState has no WindowFullScreen); the
-  main window is frameless at the screen available geometry after the splash; no tile
-  moves before 2.0 s; window opacity is 0 at 3.0 s, rises monotonically, is
-  1.0 at 5.0 s; no tile is drawn after 6.0 s and the splash window is closed.
+- A test drives the timeline with a fake clock and asserts: one top-level
+  window only; it is frameless at the screen available geometry and not
+  full-screen (windowState has no WindowFullScreen); the logo is drawn at
+  half the screen height, centred, from a resource sharp at that size; no
+  tile moves before 2.0 s; the black container opacity starts falling at
+  3.0 s, falls monotonically and is 0 at 5.0 s; no tile is drawn after 6.0 s.
 - A test for the Help action: it exists in the Help menu, replays the
   sequence, and leaves the main window state unchanged afterwards.
 - A real launch on WS, recorded on the GNOME capture host with SPACR_NO_SPLASH
