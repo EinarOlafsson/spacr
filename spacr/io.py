@@ -5868,11 +5868,10 @@ _copy_missclassified = _copy_misclassified
 def _read_db(db_loc, tables):
     """Read tables out of a measurements database as data frames.
 
-    A ``~`` path is expanded HERE, once, for every reader. A ``src``
-    beginning with ``~`` produced a literal ``~/...`` path that the schema
-    migration resolved against the WORKING DIRECTORY and then refused. It is
-    fixed here rather than in the migration, whose own docstring states
-    non-expansion as a deliberate contract.
+    A ``~`` path is expanded and a relative path is made absolute here, once,
+    for every reader, because a read-only SQLite connection is opened through
+    a file URI and a URI can only name an absolute path. A path that names no
+    file raises :class:`FileNotFoundError` with the absolute path it tried.
 
     :param db_loc: the database path.
     :param tables: the table names to read.
@@ -5890,7 +5889,13 @@ def _read_db(db_loc, tables):
 
     backend = _backend_of(db_loc)
     if backend != 'postgres' and isinstance(db_loc, (str, os.PathLike)):
-        db_loc = os.path.expanduser(os.path.expandvars(os.fspath(db_loc)))
+        db_loc = os.path.abspath(
+            os.path.expanduser(os.path.expandvars(os.fspath(db_loc))))
+        if backend == 'sqlite' and not os.path.isfile(db_loc):
+            raise FileNotFoundError(
+                f"Measurements database not found: {db_loc}. Set src to the "
+                "plate folder that holds measurements/measurements.db, or to "
+                "the database file itself, as a full path.")
     from .utils import correct_metadata
 
     def _quote_identifier(name):
