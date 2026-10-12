@@ -2,9 +2,11 @@
 
 # Live cell v1 (phase, brightfield, DIC)
 
-![Score card of Live cell v1 (phase, brightfield, DIC) (default): F1 at IoU 0.5, all test fields 0.694 against 0.738 for stock cpsam_v2.](cards/live_cell_v1.svg)
+![Score card of Live cells v1 (live_cell_v1, default): F1 0.694 on 2,199 held-out fields against 0.738 for stock cpsam_v2.](cards/live_cell_v1.svg)
 
 `live_cell_v1` · Cellpose-SAM (cpsam_v2) · default in the `live_cell` family
+
+Unstained cells in phase contrast, brightfield and DIC. Generalises to transmitted-light data stock was not trained on; stock still wins on LIVECell-style phase.
 
 ## Training data
 

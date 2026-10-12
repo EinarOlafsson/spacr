@@ -2,9 +2,11 @@
 
 # Toxoplasma PV v2 (round 5)
 
-![Score card of Toxoplasma PV v2 (round 5) (older version).](cards/toxoplasma_pv_v2.svg)
+![Score card of Parasite vacuoles v2 (toxoplasma_pv_v2, older version).](cards/toxoplasma_pv_v2.svg)
 
 `toxoplasma_pv_v2` · Cellpose-SAM (cpsam_v2) · older version in the `toxoplasma_pv` family
+
+Toxoplasma parasitophorous vacuoles in fluorescence images. Stock Cellpose-SAM misses or misdraws many vacuoles in infected host-cell monolayers.
 
 The family's default is [toxoplasma_pv_v4](toxoplasma_pv_v4.md).
 

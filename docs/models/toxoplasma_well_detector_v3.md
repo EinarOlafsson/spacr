@@ -2,9 +2,11 @@
 
 # Toxoplasma Well Detector v3 (YOLO11 Gel Doc, default)
 
-![Score card of Toxoplasma Well Detector v3 (YOLO11 Gel Doc) (default): Box mAP at IoU 0.5 0.994.](cards/toxoplasma_well_detector_v3.svg)
+![Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images.](cards/toxoplasma_well_detector_v3.svg)
 
 `toxoplasma_well_detector_v3` · YOLO11n (fine-tuned from detector v3) · default in the `toxoplasma_well_detector` family
+
+Plaque-assay wells in plate photos and published figures (boxes). No stock detector has a plaque-well class; the well found first makes plaque sizes comparable across scanners.
 
 Other versions: [toxoplasma_well_detector_v2](toxoplasma_well_detector_v2.md), [toxoplasma_well_detector_v1](toxoplasma_well_detector_v1.md).
 

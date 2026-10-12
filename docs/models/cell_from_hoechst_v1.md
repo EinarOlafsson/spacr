@@ -2,9 +2,11 @@
 
 # Cross-channel cell-from-hoechst
 
-![Score card of Cross-channel cell-from-hoechst (default): F1 at IoU 0.5 0.870 against 0.301 for stock cpsam_v2.](cards/cell_from_hoechst_v1.svg)
+![Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2.](cards/cell_from_hoechst_v1.svg)
 
 `cell_from_hoechst_v1` · Cellpose-SAM (cpsam_v2) · default in the `cell_from_hoechst` family
+
+Host-cell outlines from a Hoechst (nuclear) stain alone. No cell stain needed: the outline comes from the nuclear channel, which stock Cellpose-SAM cannot do.
 
 ## Training data
 
