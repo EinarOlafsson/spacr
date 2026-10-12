@@ -790,7 +790,7 @@ def test_install_lowers_it_behind_every_sibling(qtbot):
 
 
 def test_install_uses_the_idle_frame_budget(qtbot):
-    """The always-present production backdrop need not repaint at 24 fps."""
+    """The always-present production backdrop need not repaint at the full rate."""
     host = QWidget()
     qtbot.addWidget(host)
     widget = install_ambient(host, theme="blobs", palette="spacr", seed=1)

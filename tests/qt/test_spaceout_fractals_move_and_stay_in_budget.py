@@ -575,7 +575,7 @@ def test_a_fractal_frame_settles_inside_the_budget_it_asked_for(width, height,
 #: :data:`spacr.qt.widgets.ambient.DEFAULT_FPS`.
 #:
 #: Half, and the headroom is real: the worst corner measured — a 4K canvas
-#: at maximum resolution and maximum density — is 3.87 ms against a 20.8 ms
+#: at maximum resolution and maximum density — is 3.87 ms against a 16.7 ms
 #: allowance. It is also not the GUI thread's time: this pass runs on
 #: :class:`spacr.qt.widgets.ambient._FrameProducer`, and a pass that ran
 #: long would make the widget repeat a frame rather than block the

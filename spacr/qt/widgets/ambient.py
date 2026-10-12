@@ -646,17 +646,15 @@ def dressed(theme: str, palette: str) -> Tuple[str, str]:
     return theme, palette
 
 
-
-#: Frame-rate cap. Nothing here moves fast enough to need more, and this
-#: matches the DNA rain so the app has one animation cadence.
-DEFAULT_FPS = 24
+#: Frame-rate cap: 30, the rate the tutorial capture records the field at.
+DEFAULT_FPS = 30
 _RUN_FPS = 4
 MIN_FPS = 1
 MAX_FPS = 60
 
 #: The ordinary application installs a backdrop on every live screen.  Its
 #: motion is deliberately slow and diffuse, so spending the direct widget's
-#: full 24-frame budget while the application is otherwise idle only feeds
+#: full frame budget while the application is otherwise idle only feeds
 #: repaints that are visually redundant.  Keep ``AmbientWidget``'s public
 #: default unchanged for callers that explicitly construct one; the shared
 #: production installer uses this lower idle budget unless a caller asks for
