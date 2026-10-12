@@ -96,7 +96,7 @@ def test_one_edge_wave_reaches_both_ends_of_the_field_material():
 
     key = ("impulse_lens", 320, 180, wave.size, wave.density)
     x, y, _, fields = wave._material_cache[key]
-    ex, ey, distance = fields[boundary]
+    ex, ey, distance, _outside = fields[boundary]
     inside = (x >= 0) & (x <= 1) & (y >= 0) & (y <= 1)
     assert np.allclose(ey[inside], 0)
     assert np.allclose(ex[inside], x[inside])
@@ -117,17 +117,19 @@ def test_one_popup_wave_keeps_all_four_edges_and_nearest_segment_material():
     made.shade(320, 180)
     key = ("impulse_lens", 320, 180, made.size, made.density)
     x, y, _, fields = made._material_cache[key]
-    ex, ey, distance = fields[perimeter]
+    ex, ey, distance, outside = fields[perimeter]
     for target_x, target_y, expected_axis in ((0.5, 0.16, "y"),
                                                (0.5, 0.84, "y"),
                                                (0.16, 0.5, "x"),
                                                (0.84, 0.5, "x")):
         index = np.argmin((x - target_x) ** 2 + (y - target_y) ** 2)
         assert np.isfinite(distance.flat[index])
+        assert outside.flat[index] == 1.0
         if expected_axis == "x":
             assert abs(ey.flat[index]) < 0.02
         else:
             assert abs(ex.flat[index]) < 0.02
+    assert outside.flat[np.argmin((x - 0.5) ** 2 + (y - 0.5) ** 2)] == 0.0
     for _ in range(7):
         made._add_ripple(perimeter)
     assert len(made._popup_waves) == 6

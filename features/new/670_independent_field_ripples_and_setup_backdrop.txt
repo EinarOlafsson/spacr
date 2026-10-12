@@ -39,3 +39,29 @@ measurements in N684's 2026-10-10 ripple note). Category open/close sends a
 vertical column wave only; Preferences ripples only on open and on Apply,
 Cancel and Save. The workstation must re-run GPU parity (command in N684);
 Mesa llvmpipe pairs are exact. Native/user visual acceptance remains open.
+
+2026-10-12 — Maintainer test: a shape appeared in the middle of where a
+closed window had been, and Field ripples looked the same at 100 and 200 %.
+Cause 1: a closed dialog's wave starts on its four edges (popup close and
+Preferences Apply/Cancel/Save) and also ran inward; the waves from opposite
+edges met on the outline's centre lines as a shrinking box and collapsed on
+the old centre (offscreen 960x600, 0.4x0.4 outline: mean change in the
+centre 0.49/0.69/0.25 grey at 0.3/0.6/1.0 s, more than at the edges).
+An outline's wave now runs outward only (_outside_outline in
+spacr/qt/widgets/ambient.py); the centre change is 0 at every age, also for
+a real QDialog closed over the field. The backdrop's own window (an outline
+that is the whole canvas, e.g. move/resize) keeps its inward wave, faded out
+halfway to the centre; one window edge (snapping) is unchanged.
+Cause 2: section-fold rings clamped their gathering (min 0.94) and their
+glow saturated at 100 %, so 150 % and 200 % gave identical frames (29 ->
+32 px, glow 72.9 -> 73.3 %). Other waves were linear but tiny (1.5 px and
++/-7.7 % dot brightness at 100 %). Now: ripple amplitude 0.0095 at
+wavenumber 30 (slope 0.29, dots never cross even at 200 %), glow 0.15,
+brightness floor 0.25 instead of 0.48 so troughs scale; fold rings widen
+with sqrt(intensity) above 100 % and their glow scales without a clamp.
+Click ripple, 960x600: 100 % 2.9 px / 16.6 %, 200 % 5.8 px / 33.1 %;
+fold rings 29 -> 55 px. The slider value was already reaching the shading
+thread's engine (same object, set under the engine lock); a test now pins
+that. Tests: tests/qt/test_n670_close_ripples_and_intensity_20261012.py.
+The workstation should re-run GPU parity (N684 command). Native/user visual
+acceptance remains open.

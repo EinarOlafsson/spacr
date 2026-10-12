@@ -1023,11 +1023,41 @@ def _smoothstep(np, low, high, value):
     return t * t * (3.0 - 2.0 * t)
 
 
-RIPPLE_AMPLITUDE = 0.0045
-RIPPLE_WAVENUMBER = 44.0
+def _outside_outline(np, segments, x, y, distance, aspect):
+    """Weight an outline's wave so it never meets itself inside the outline.
+
+    Waves from opposite edges of a box meet on its centre lines and draw a
+    shrinking box there. A closed or moved window, popup or panel therefore
+    sends its wave outward only: weight 1 outside the box its segments
+    enclose, 0 inside. When the box is the whole canvas (the backdrop's own
+    window was moved or resized) there is no outside, so the wave goes
+    inward and fades out halfway to the nearest centre line. A single edge
+    encloses nothing and keeps both sides.
+
+    :param segments: axis-aligned ``(x0, y0, x1, y1)`` edges, normalised.
+    :param x: normalised lattice x.
+    :param y: normalised lattice y.
+    :param distance: aspect-corrected distance to the nearest segment.
+    :param aspect: ``(aspect_x, aspect_y)`` canvas scale to the shorter edge.
+    :returns: a float32 array shaped like ``x``.
+    """
+    xs = [value for part in segments for value in (part[0], part[2])]
+    ys = [value for part in segments for value in (part[1], part[3])]
+    left, right, top, bottom = min(xs), max(xs), min(ys), max(ys)
+    inside = (x > left) & (x < right) & (y > top) & (y < bottom)
+    if left <= 0.0 and top <= 0.0 and right >= 1.0 and bottom >= 1.0:
+        half = 0.5 * min((right - left) * aspect[0], (bottom - top) * aspect[1])
+        kept = 1.0 - _smoothstep(np, 0.25 * half, 0.5 * half, distance)
+        return np.where(inside, kept, 1.0).astype(np.float32)
+    return np.where(inside, 0.0, 1.0).astype(np.float32)
+
+
+RIPPLE_AMPLITUDE = 0.0095
+RIPPLE_WAVENUMBER = 30.0
 RIPPLE_SPEED = 0.26
 RIPPLE_PACKET_WIDTH = 0.10
-RIPPLE_GLOW = 0.07
+RIPPLE_GLOW = 0.15
+RIPPLE_FLOOR = 0.25
 RIPPLE_SOURCE_CALM = 0.10
 RIPPLE_EASE_IN_S = 0.30
 RIPPLE_LIFETIME_S = 5.0
@@ -1038,7 +1068,7 @@ FOLD_SPEED = 0.40
 FOLD_LIFETIME_S = 2.6
 FOLD_PACKET_WIDTH = 0.10
 FOLD_GATHER = 0.92
-FOLD_GLOW = 0.45
+FOLD_GLOW = 0.12
 
 
 
@@ -7603,14 +7633,18 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
                                        np.where(chosen, ey, old_ey))
                     squared, ex, ey = nearest
                     distance = np.sqrt(squared + 1e-6)
+                    outside = _outside_outline(np, origin, x, y, distance,
+                                               (aspect_x, aspect_y))
                 else:
                     ex = (x - origin[0]) * aspect_x
                     ey = (y - origin[1]) * aspect_y
                     distance = np.sqrt(ex * ex + ey * ey + 1e-6)
-                field = (ex / aspect_x, ey / aspect_y, distance)
+                    outside = 1.0
+                field = (ex / aspect_x, ey / aspect_y, distance, outside)
                 popup_fields[origin] = field
-            ex, ey, distance = field
+            ex, ey, distance, outside = field
             shift, glow = self._ripple_wave(distance, age)
+            shift, glow = shift * outside, glow * outside
             px += ex / distance * shift
             py += ey / distance * shift
             energy += glow
@@ -7636,21 +7670,24 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             ease = float(_smoothstep(np, 0.0, 0.12, age)
                          * (1.0 - _smoothstep(np, 0.45 * FOLD_LIFETIME_S,
                                               FOLD_LIFETIME_S, age)))
-            gain = self._ripple_intensity * ease / math.sqrt(1.0 + travelled / 1.2)
+            intensity = self._ripple_intensity
+            gain = intensity * ease / math.sqrt(1.0 + travelled / 1.2)
             front = distance - travelled
-            packet = (np.exp(-(front / FOLD_PACKET_WIDTH) ** 2)
+            reach = FOLD_PACKET_WIDTH * math.sqrt(max(1.0, intensity))
+            packet = (np.exp(-(front / reach) ** 2)
                       * _smoothstep(np, 0.0, 0.04, distance))
-            pull = min(0.94, FOLD_GATHER * gain) * front * packet
+            gather = FOLD_GATHER * gain / max(1.0, intensity)
+            pull = min(0.94, gather) * front * packet
             px -= ex / distance * pull / aspect_x
             py -= ey / distance * pull / aspect_y
-            energy += FOLD_GLOW * min(1.5, gain) * packet
+            energy += FOLD_GLOW * gain * packet
         if self._field_grab_offset != (0.0, 0.0):
             center_x, center_y = self._field_grab_center
             gx, gy = (x - center_x) * aspect_x, (y - center_y) * aspect_y
             reach = np.maximum(0.0, 1.0 - (gx * gx + gy * gy) / 0.34 ** 2) ** 3
             px += self._field_grab_offset[0] / aspect_x * reach
             py += self._field_grab_offset[1] / aspect_y * reach
-        brilliance = np.clip(0.57 + energy, 0.48, 1.0)
+        brilliance = np.clip(0.57 + energy, RIPPLE_FLOOR, 1.0)
         gain = max(1.0, self.effective_density())
         image = self._point_material(
             width, height, px * width, py * height, brilliance * gain,
