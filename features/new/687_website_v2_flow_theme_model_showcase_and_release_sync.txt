@@ -443,3 +443,39 @@ build 2026-10-11T15:28:26Z.
   The fallback added in 7df304e fixes it, and later runs pass.
 Verified live: 100/100 headless checks. Lighthouse at load 45: home 93,
 spaCR 83/84/84, Starplast 86; accessibility 100.
+
+
+2026-10-12 (round 9, Timepose) — site-src e39eb48 and a5cc008, deploy runs
+38276900859 and 38279765930, Pages commit 6fd2591, live build
+2026-10-12T16:52:24Z.
+- The password-gated live_cell project is now Timepose (the new name of
+  cellposeTIME, capitalised like Cellpose). Home card, nav link and lede
+  say Timepose; the card text is "Segmentation and tracking of cells in
+  time-lapse microscopy."
+- New gated page /projects/timepose/ (protected/timepose, same StatiCrypt
+  gate and password): what Timepose is, the Timepose-LM and Timepose-FL
+  variants, the aims as goals against Trackastra and Cellpose-SAM, and
+  status (manuscript in preparation for Cell Reports Methods). It has no
+  numbers. The figure is a three-panel SVG schematic (frames, temporal
+  flows, masks and tracks) that follows the light and dark themes. The
+  paper's figure drafts were not used because they show draft results.
+- The live_cell_v1 section and its table are gone from the gated page.
+  The model stays on the public spaCR Models tab.
+- /projects/live-cell/ is a public noindex redirect to /projects/timepose/.
+- Leak check: "Timepose" is on the public card, so it is not a sentinel
+  and the allow-list needs no entry. The hard sentinels cellposetime and
+  live_cell_v1 stay. Two words were reworded to pass: "divisions" came off
+  the public card, and "automatic" came off the gated page.
+- i18n: no new keys. The home page and the gated pages have no i18n
+  folder and are English-only, as Cellect is, and the nav names are not
+  keyed. check_i18n passes.
+- Build fix: PyPI no longer has a starplast project (404), and that failed
+  the 15:27 scheduled deploy. starplastMeta now keeps the deployed version
+  (from the live build.json) and the release date and Python range (from
+  the live page). The deploy workflow's hourly check still curls PyPI
+  starplast with -f, so scheduled checks will keep failing until the
+  Starplast lane moves the site to the new package name.
+Verified live: the home card and nav show Timepose; /projects/timepose/
+serves the StatiCrypt password form; the password decrypts the live copy
+into the Timepose page (4 sections, schematic present); the deployed tree
+has no live_cell, cellposeTIME or TimePose text.
