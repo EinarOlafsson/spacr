@@ -220,13 +220,14 @@ from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
                             QRect, QRectF, Qt, QTimer, Signal, Slot)
 from PySide6.QtGui import (QBrush, QColor, QCursor, QImage,
                            QLinearGradient, QPainter, QPainterPath, QPen,
-                           QPixmap, QPolygonF, QRadialGradient, QTransform)
+                           QPicture, QPixmap, QPolygonF, QRadialGradient,
+                           QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QAbstractSlider, QAbstractSpinBox, QApplication,
                                QComboBox, QFrame, QGraphicsView, QLabel,
                                QLineEdit, QMenu, QMenuBar, QPlainTextEdit,
-                               QSizePolicy, QSplitterHandle, QTabBar, QTextEdit,
-                               QWidget)
+                               QSizePolicy, QSplitterHandle, QStyle,
+                               QStyleOption, QTabBar, QTextEdit, QWidget)
 
 from ..theme import (advance_spaceout_drift, page_colour, palette_for,
                      relative_luminance, spaceout_enabled)
@@ -9039,6 +9040,12 @@ class _FrameProducer:
         self.tick_driven = False
         self.urgent = False
         self._thread: Optional[threading.Thread] = None
+        #: The card plan (:class:`_CardPlan`) each frame is composited
+        #: with, or ``None``. Set by the GUI thread; read once per frame.
+        self.cards: Optional[_CardPlan] = None
+        #: ``(plan, composited image, frame)`` for the newest published
+        #: frame, or ``None`` when it was published without cards.
+        self.composed = None
 
     def start(self) -> None:
         """Begin shading. A second call is a no-op."""
@@ -9075,10 +9082,15 @@ class _FrameProducer:
         the frame in flight."""
         self._interval = 1.0 / max(1, int(fps))
 
-    def publish(self, image: QImage) -> None:
-        """Make ``image`` the frame the next paint will use."""
+    def publish(self, image: QImage, composed=None) -> None:
+        """Make ``image`` the frame the next paint will use.
+
+        :param composed: the same frame with the card plan composited into
+            it, as :func:`_compose_cards` returns it, or ``None``.
+        """
         with self._frame_lock:
             self._frame = image
+            self.composed = composed
 
     def latest(self) -> Optional[QImage]:
         """The newest published frame, or ``None``. **Never blocks.**
@@ -9113,16 +9125,20 @@ class _FrameProducer:
                 started = time.monotonic()
                 urgent, self.urgent = self.urgent, False
                 width, height = self.size
-                image = None
+                image = composed = None
                 if width > 0 and height > 0:
                     with self._engine_lock:
                         if self._queued_input is not None:
                             self._queued_input._consume(self._engine)
                         image = self._engine.shade(width, height)
+                        plan = self.cards
+                        if image is not None and plan is not None:
+                            composed = _compose_cards(self._engine, image,
+                                                      plan)
                         if self.tick_driven and self._queued_input is not None:
                             self._queued_input._consume(self._engine)
                 if image is not None:
-                    self.publish(image)
+                    self.publish(image, composed)
                     self.frames_shaded += 1
                     if (woken and self.doorbell is not None
                             and (urgent or not self.tick_driven)):
@@ -9179,6 +9195,316 @@ _FILTERED_EVENTS = frozenset((
     QEvent.MouseMove, QEvent.MouseButtonPress, QEvent.MouseButtonRelease,
     QEvent.WindowDeactivate, QEvent.Resize, QEvent.WindowStateChange,
     QEvent.Hide, QEvent.Show, QEvent.Move, QEvent.ScreenChangeInternal))
+
+
+class _CardPlan(NamedTuple):
+    """The translucent card backgrounds the shading thread composites.
+
+    ``items`` holds ``(thread picture, GUI picture, x, y, clip)`` per card,
+    in paint order. Built on the GUI thread by :class:`_CardTints` from the
+    widgets' current geometry and style, and read-only after that, so the
+    shading thread can paint from it without touching a widget.
+    """
+
+    width: int
+    height: int
+    base: QImage
+    items: tuple
+
+
+#: Events that can move, resize, show, hide or restyle a composited card.
+_CARD_EVENTS = frozenset((
+    QEvent.Move, QEvent.Resize, QEvent.Show, QEvent.Hide, QEvent.StyleChange,
+    QEvent.PaletteChange, QEvent.DynamicPropertyChange, QEvent.EnabledChange,
+    QEvent.ZOrderChange, QEvent.ParentChange))
+
+#: The subset of :data:`_CARD_EVENTS` after which a background is redrawn.
+_CARD_RESTYLES = frozenset((
+    QEvent.StyleChange, QEvent.PaletteChange, QEvent.DynamicPropertyChange,
+    QEvent.EnabledChange))
+
+#: Ticks without a card event before the plan is rebuilt.
+_CARD_SETTLE_TICKS = 2
+
+#: Smallest visible area, in pixels, worth compositing.
+_CARD_MIN_AREA = 8192
+
+#: Edge of the probe a background is classified on.
+_CARD_PROBE = 64
+
+#: Widget states a composited background must not depend on.
+_CARD_STATES = (QStyle.State_MouseOver, QStyle.State_HasFocus,
+                QStyle.State_Active)
+
+
+def _card_background(card, device, width: int, height: int, flip=None):
+    """Paint ``card``'s stylesheet background onto ``device``.
+
+    The same primitive :class:`QWidget` draws before its paint event, with
+    the same option. Recorded into a ``QPicture`` and played back over the
+    page it gives exactly the pixels the widget paints there itself; an
+    image of it blended over the page does not, by one or two levels where
+    the border overlaps the fill.
+
+    :param flip: style state bits to invert, to ask whether the background
+        depends on them.
+    :returns: ``device``.
+    """
+    painter = QPainter(device)
+    try:
+        option = QStyleOption()
+        option.initFrom(card)
+        option.rect = QRect(0, 0, width, height)
+        if flip is not None:
+            option.state ^= flip
+        card.style().drawPrimitive(QStyle.PE_Widget, option, painter, card)
+    finally:
+        painter.end()
+    return device
+
+
+def _card_probe(card, width: int, height: int, flip=None) -> QImage:
+    """:func:`_card_background` on a transparent image, to classify it."""
+    image = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+    image.fill(0)
+    return _card_background(card, image, width, height, flip)
+
+
+def _own_picture(picture: QPicture) -> QPicture:
+    """A ``QPicture`` with its own data: two threads never play one."""
+    own = QPicture()
+    own.setData(picture.data())
+    return own
+
+
+def _draw_cards(painter: QPainter, plan: _CardPlan, which: int) -> None:
+    """Play every background in ``plan`` at its place, clipped as Qt would.
+
+    :param which: 0 for the shading thread's pictures, 1 for the GUI's.
+    """
+    for item in plan.items:
+        x, y, clip = item[2:]
+        painter.setClipRect(clip)
+        painter.translate(x, y)
+        item[which].play(painter)
+        painter.resetTransform()
+    painter.setClipping(False)
+
+
+def _compose_cards(engine, frame: QImage, plan: _CardPlan):
+    """The page, ``frame`` and the cards of ``plan``, as one opaque image.
+
+    **Any thread**: the plan holds images, not widgets. Called with the
+    engine lock held, because :meth:`_BufferedEngine.blit` reads the
+    engine's composition mode.
+
+    :returns: ``(plan, image, frame)``, which is what a paint checks
+        against the plan and frame it is showing.
+    """
+    image = plan.base.copy()
+    painter = QPainter(image)
+    try:
+        engine.blit(painter, frame, plan.width, plan.height)
+        _draw_cards(painter, plan, 0)
+    finally:
+        painter.end()
+    return plan, image, frame
+
+
+def _restore_card_backgrounds(cards: list) -> None:
+    """Let every card in ``cards`` paint its own background again."""
+    from shiboken6 import isValid
+
+    for card in cards:
+        if isValid(card):
+            card.setAttribute(Qt.WA_NoSystemBackground, False)
+    del cards[:]
+
+
+class _CardTints(QObject):
+    """Moves the field's translucent card backgrounds off the GUI thread.
+
+    Qt paints every widget above the field on every field frame, and the
+    rounded translucent card backgrounds are a per-pixel alpha blend over
+    the whole card: about 3.2 megapixels a frame on Mask Generation and 1.0
+    on Home, 5-6 ms of a loaded frame. Caching their shape does not help;
+    the blend is the cost.
+
+    So the backgrounds are recorded once into pictures, with their geometry,
+    clip and paint order, into a :class:`_CardPlan` that the shading
+    thread composites into each frame together with the page under the
+    field. Once a frame composited with the current plan is published the
+    cards stop painting their own backgrounds (``WA_NoSystemBackground``)
+    and the GUI thread draws one opaque image under the card contents.
+
+    Correctness is by invalidation. Any move, resize, show, hide or restyle
+    of a card, of a widget between it and the backdrop, or of the backdrop
+    puts the cards back to painting themselves *before* the next paint, and
+    the plan is rebuilt only after :data:`_CARD_SETTLE_TICKS` quiet ticks,
+    so a scroll, a fold or a theme change is painted classically until it
+    settles. Composited and classic frames are pixel-identical.
+
+    Only widgets whose background ignores hover, focus and window activation
+    are composited, and none under a widget that fills its background
+    opaquely. A backdrop with rounded corners or a device pixel ratio other
+    than one keeps the classic paint.
+    """
+
+    #: Off keeps the classic paint, for comparing the two.
+    enabled = True
+
+    def __init__(self, backdrop: QWidget):
+        """Watch the application for card events on behalf of ``backdrop``."""
+        super().__init__(backdrop)
+        self.plan: Optional[_CardPlan] = None
+        self.active = False
+        self._producer = None
+        self._quiet = 0
+        self._cards: list = []
+        self._watched = frozenset()
+        self._images: dict = {}
+        shown = self._shown = []
+        backdrop.destroyed.connect(
+            lambda *_: _restore_card_backgrounds(shown))
+        from ..gil_priority import _watch_application_events
+
+        _watch_application_events(QApplication.instance(), self, _CARD_EVENTS)
+
+    def eventFilter(self, watched, event) -> bool:
+        """Invalidate on any event that can change what a card looks like."""
+        kind = event.type()
+        if watched in self._watched or (
+                kind == QEvent.Show and self._may_hold_a_card(watched)):
+            if kind in _CARD_RESTYLES:
+                self._images.clear()
+            self.invalidate()
+        return False
+
+    def _may_hold_a_card(self, widget) -> bool:
+        """Whether a widget being shown could be or hold a new card."""
+        host = self.parent().parentWidget()
+        return bool(host is not None and widget.isWidgetType()
+                    and widget.testAttribute(Qt.WA_StyledBackground)
+                    and host.isAncestorOf(widget))
+
+    def invalidate(self) -> None:
+        """Back to classic painting now; rebuild once things settle."""
+        self._quiet = 0
+        self.plan = None
+        if self._producer is not None:
+            self._producer.cards = None
+        if self.active:
+            self.active = False
+            _restore_card_backgrounds(self._shown)
+            self.parent().update()
+
+    def tick(self, producer) -> None:
+        """Advance on a field tick: settle, rebuild, or switch over.
+
+        :param producer: the backdrop's shading thread, or ``None``.
+        """
+        backdrop = self.parent()
+        usable = bool(producer is not None and self.enabled
+                      and backdrop._corner_radius == 0
+                      and backdrop.devicePixelRatioF() == 1.0
+                      and backdrop.parentWidget() is not None)
+        if producer is not self._producer or not usable:
+            self.invalidate()
+            self._producer = producer
+        if not usable:
+            return
+        if self.plan is None:
+            self._quiet += 1
+            if self._quiet > _CARD_SETTLE_TICKS:
+                self._rebuild(backdrop, producer)
+            return
+        composed = producer.composed
+        if (not self.active and composed is not None
+                and composed[0] is self.plan):
+            for card in self._cards:
+                card.setAttribute(Qt.WA_NoSystemBackground, True)
+            self._shown[:] = self._cards
+            self.active = True
+            backdrop.update()
+
+    def _rebuild(self, backdrop: QWidget, producer) -> None:
+        """Plan the cards from the widgets as they are now."""
+        host = backdrop.parentWidget()
+        width, height = backdrop.width(), backdrop.height()
+        items, cards, images = [], [], {}
+        watched = {backdrop, host}
+        self._walk(host, backdrop, -backdrop.pos(), QRect(0, 0, width, height),
+                   (), (items, cards, watched, images))
+        base = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+        painter = QPainter(base)
+        try:
+            backdrop._paint_base(painter, base.rect())
+        finally:
+            painter.end()
+        self.plan = _CardPlan(width, height, base, tuple(items))
+        self._cards = cards
+        self._watched = frozenset(watched)
+        self._images = images
+        producer.cards = self.plan if items else None
+
+    def _walk(self, parent, backdrop, offset, clip, lineage, out) -> None:
+        """Collect the cards under ``parent`` in the order Qt paints them."""
+        items, cards, watched, images = out
+        for child in parent.children():
+            if (not child.isWidgetType() or child is backdrop
+                    or child.isWindow() or not child.isVisible()):
+                continue
+            rect = child.geometry().translated(offset)
+            visible = clip.intersected(rect)
+            if visible.width() * visible.height() < _CARD_MIN_AREA:
+                continue
+            image = self._background_of(child, rect.width(), rect.height(),
+                                        images)
+            if image is False:
+                continue
+            below = lineage + (child,)
+            if image is not None:
+                items.append((_own_picture(image), _own_picture(image),
+                              rect.x(), rect.y(), visible))
+                cards.append(child)
+                watched.update(below)
+            self._walk(child, backdrop, rect.topLeft(), visible, below, out)
+
+    def _background_of(self, widget, width: int, height: int, images):
+        """The background to composite for ``widget``.
+
+        :returns: its ``QPicture``; ``None`` when it paints no background;
+            ``False`` when it paints one that cannot be composited, which
+            also keeps everything inside it classic.
+        """
+        if (widget.autoFillBackground()
+                or widget.testAttribute(Qt.WA_OpaquePaintEvent)
+                or not widget.mask().isEmpty()):
+            return False
+        if (not widget.testAttribute(Qt.WA_StyledBackground)
+                or widget.testAttribute(Qt.WA_NoSystemBackground)):
+            return None
+        key = (width, height)
+        known = self._images.get(widget)
+        if known is None or known[0] != key:
+            known = (key, self._classify(widget, width, height))
+        images[widget] = known
+        return known[1]
+
+    @staticmethod
+    def _classify(widget, width: int, height: int):
+        """Render and classify ``widget``'s background; see
+        :meth:`_background_of` for the answers."""
+        size = (min(width, _CARD_PROBE), min(height, _CARD_PROBE))
+        probe = _card_probe(widget, *size)
+        blank = QImage(probe.size(), probe.format())
+        blank.fill(0)
+        if probe == blank:
+            return None
+        if any(_card_probe(widget, *size, flip) != probe
+               for flip in _CARD_STATES):
+            return False
+        return _card_background(widget, QPicture(), width, height)
 
 
 class AmbientWidget(QWidget):
@@ -9266,6 +9592,11 @@ class AmbientWidget(QWidget):
         #: The frame currently on screen. Held so a paint with nothing new
         #: to show can put it up again instead of waiting for one.
         self._last_frame: Optional[QImage] = None
+        #: ``_last_frame`` with the cards composited in, as
+        #: :func:`_compose_cards` returns it, or ``None``.
+        self._last_composed = None
+        #: The translucent card backgrounds the shading thread composites.
+        self._card_tints = _CardTints(self)
         #: Paints that showed the previous frame again because the shading
         #: thread had not finished a new one. This counter *is* the
         #: "degrade rather than stutter" promise: it is what rises when the
@@ -9490,6 +9821,7 @@ class AmbientWidget(QWidget):
         if isinstance(self._engine, DriftEngine) and self._timer.isActive():
             _retire_producer(self._producer_box)
             self._last_frame = None
+            self._last_composed = None
             self._start_producer()
             self.update()
 
@@ -9539,8 +9871,12 @@ class AmbientWidget(QWidget):
         width, height = producer.size
         fresh = self._engine.shade(width, height)
         if fresh is not None:
-            producer.publish(fresh)
+            plan = producer.cards
+            composed = (None if plan is None
+                        else _compose_cards(self._engine, fresh, plan))
+            producer.publish(fresh, composed)
             self._last_frame = fresh
+            self._last_composed = composed
 
     def _rebuild_engine(self) -> None:
         """Replace the engine, preserving the clock. The old one is dropped
@@ -9588,6 +9924,7 @@ class AmbientWidget(QWidget):
             self._legacy_input = _QueuedArtInput()
             self._pending_dt = 0.0
         self._last_frame = None
+        self._last_composed = None
         self._pending_art_impulses.clear()
         self._field_grab = None
         self._sync_interaction_filter()
@@ -9849,6 +10186,7 @@ class AmbientWidget(QWidget):
         self._background = _as_color(color, self._background)
         if explicit:
             self._background_explicit = True
+        self._card_tints.invalidate()
         self._mutate_engine(
             lambda: self._engine.set_background(self._background))
 
@@ -9868,6 +10206,7 @@ class AmbientWidget(QWidget):
             flat fill.
         """
         self._backdrop = _as_pixmap(source)
+        self._card_tints.invalidate()
         self.update()
 
     def changeEvent(self, event) -> None:
@@ -10048,6 +10387,8 @@ class AmbientWidget(QWidget):
             self._legacy_input = _QueuedArtInput()
             self._pending_dt = 0.0
         self._last_frame = None
+        self._last_composed = None
+        self._card_tints.invalidate()
 
     def _start_producer(self) -> None:
         """Put the shading on its own thread, if this engine has a frame to
@@ -10081,6 +10422,7 @@ class AmbientWidget(QWidget):
             if first is not None:
                 producer.publish(first)
         self._last_frame = None
+        self._last_composed = None
         producer.doorbell = self.__dict__.get("_doorbell")
         producer.tick_driven = (producer.doorbell is not None
                                 and self.__dict__.get("_art_input") is not None)
@@ -10624,6 +10966,7 @@ class AmbientWidget(QWidget):
                     self._engine_lock.release()
         self._schedule_next_tick()
         producer = self._producer_box[0]
+        self._card_tints.tick(producer)
         if producer is not None and producer.tick_driven and producer.is_alive():
             fresh = producer.latest()
             if fresh is None or fresh is not self._last_frame:
@@ -10748,21 +11091,33 @@ class AmbientWidget(QWidget):
                 path.addRoundedRect(QRectF(rect), self._corner_radius,
                                     self._corner_radius)
                 painter.setClipPath(path)
-            self._paint_base(painter, rect)
             width, height = rect.width(), rect.height()
-
             producer = self._producer_box[0]
+            tints = self._card_tints
+            if producer is not None:
+                producer.size = self._art_render_size(width, height)
+                whole = event.rect().contains(rect)
+                fresh = producer.latest() if whole else None
+                if fresh is not None and fresh is not self._last_frame:
+                    self._last_frame = fresh
+                    composed = getattr(producer, "composed", None)
+                    self._last_composed = (
+                        composed if composed is not None
+                        and composed[2] is fresh else None)
+                else:
+                    self.repeated_frames += 1
+                shown = self._last_composed
+                if (tints.active and shown is not None
+                        and shown[0] is tints.plan):
+                    painter.setCompositionMode(
+                        QPainter.CompositionMode_Source)
+                    painter.drawImage(0, 0, shown[1])
+                    return
+
+            self._paint_base(painter, rect)
             if producer is None:
                 self._engine.paint(painter, width, height)
                 return
-
-            producer.size = self._art_render_size(width, height)
-            whole = event.rect().contains(rect)
-            fresh = producer.latest() if whole else None
-            if fresh is not None and fresh is not self._last_frame:
-                self._last_frame = fresh
-            else:
-                self.repeated_frames += 1
             if self._last_frame is not None:
                 self._engine.blit(painter, self._last_frame, width, height)
             elif self._engine_lock.acquire(blocking=False):
@@ -10770,6 +11125,8 @@ class AmbientWidget(QWidget):
                     self._engine.paint(painter, width, height)
                 finally:
                     self._engine_lock.release()
+            if tints.active:
+                _draw_cards(painter, tints.plan, 1)
         finally:
             painter.end()
 

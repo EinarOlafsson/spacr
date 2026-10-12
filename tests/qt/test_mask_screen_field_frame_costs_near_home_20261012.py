@@ -28,6 +28,19 @@ no store reads. What still separates the two screens is Qt painting the
 stylesheet of the form itself: 3.6 megapixels of translucent rounded card
 backgrounds on Mask against 1.0 on Home, and more styled controls.
 
+Later on 2026-10-12 the card backgrounds moved off the GUI thread: the
+field's shading thread composites them, with the page, into each frame, and
+the cards paint transparent while that frame is on screen (see
+:class:`spacr.qt.widgets.ambient._CardTints`). Each screen is therefore
+measured once its cards are composited. Measured the same way, interleaved
+before/after in six runs at load 60-114 on the 32-thread machine (medians
+of the runs): Mask 19.2 ms before, 17.0 after; Home 16.1 before, 12.9
+after; the per-run ratio 0.93-1.70 before (median 1.50) and 1.29-1.60
+after (median 1.37); the GUI thread busy 39-50 % of the live loop before
+and 32-37 % after. Home has cards too and gains as much, so the ratio
+moves little; what is left between the screens is the form's other styled
+controls, and the ceiling stays where it was.
+
 Three assertions. The ratio is a ceiling against a regression, load-robust
 because both screens are measured interleaved in one process, so a busy
 machine slows both alike. The store reads and the filter calls are counts
@@ -121,14 +134,32 @@ def _show(window, key, qtbot) -> None:
     qtbot.wait(20)
 
 
+def _composited(backdrop, qtbot) -> None:
+    """Wait, with the field ticking, until the cards stay composited.
+
+    A screen still laying itself out moves its cards, which puts them back
+    to painting themselves until the layout settles.
+    """
+    tints = backdrop._card_tints
+    backdrop._timer.start()
+    for _attempt in range(40):
+        qtbot.waitUntil(lambda: tints.active, timeout=20000)
+        qtbot.wait(250)
+        if tints.active:
+            break
+    backdrop._timer.stop()
+
+
 def test_a_mask_field_frame_costs_about_a_home_one(big_window, qtbot):
     window, backdrop = big_window
     backdrop._timer.stop()
     home, mask = [], []
     for _round in range(ROUNDS):
         _show(window, "__home__", qtbot)
+        _composited(backdrop, qtbot)
         home.append(_frame_ms(backdrop))
         _show(window, "mask", qtbot)
+        _composited(backdrop, qtbot)
         mask.append(_frame_ms(backdrop))
     ratio = statistics.median(m / h for m, h in zip(mask, home))
     assert ratio <= MASK_OVER_HOME, (
