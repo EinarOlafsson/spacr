@@ -13382,7 +13382,14 @@ class MakeMasksScreen(QWidget):
                 record = engine.load_yolo_boxes(self._folder, filename, image.shape)
         except Exception as exc:
             self._box_load_error = exc
-            self._warn(tr("Cannot load box annotations"), str(exc))
+            unannotated_link = (
+                isinstance(exc, ValueError)
+                and os.path.islink(os.path.join(self._folder, filename))
+                and not os.path.lexists(os.path.join(
+                    self._folder, engine.YOLO_ANNOTATIONS_NAME))
+                and self._canvas.mode != MODE_BOX)
+            if not unannotated_link:
+                self._warn(tr("Cannot load box annotations"), str(exc))
             record = {'classes': ['object'], 'boxes': [], 'source_sha256': None}
         self._box_classes = list(record['classes'])
         self._canvas.box_classes = list(self._box_classes)
