@@ -292,13 +292,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "spatial_platform",
-      "source": "Which 10x platform wrote spatial_source: auto, xenium or visium_hd. auto reads it from the files present; set it only when a folder holds both layouts. Default auto.",
-      "source_sha256": "9c159dfe6a3c047591bd799f451b21a8bbaac0a025fbdf3a0f5f4290858a42da",
-      "translation": "Qué plataforma de 10x escribió spatial_source: auto, xenium o visium_hd. auto la deduce de los archivos presentes; indíquela solo cuando una carpeta contenga ambas estructuras. Valor predeterminado: auto."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "spatial_sample",
       "source": "The plate name of the fields, the first part of every file name and measurement key, so a second slide measured into the same database stays apart. Empty uses the source folder's name. Default empty.",
       "source_sha256": "34358d885b27abd7a5dc1aa276781a7372650e13b82e0c190fd0df4b9e430095",
@@ -548,6 +541,16 @@
       "source": "Up to {reads} reads from each file come from the cached copy, without the network.",
       "source_sha256": "e5e06c985e6cb01055795d0a45d593cbc0ea0436bcdc9cb0451896001984b940",
       "translation": "Hasta {reads} lecturas de cada archivo proceden de la copia en caché, sin usar la red."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_platform",
+      "source": "Which 10x platform wrote spatial_source: auto, xenium or visium_hd. auto reads it from the files present; set it only when a folder holds both layouts. Default auto.",
+      "source_sha256": "9c159dfe6a3c047591bd799f451b21a8bbaac0a025fbdf3a0f5f4290858a42da",
+      "translation": "Qué plataforma de 10x escribió spatial_source: auto, xenium o visium_hd. auto la deduce de los archivos presentes; indíquela solo cuando una carpeta contenga ambas estructuras. Valor predeterminado: auto.",
+      "retired": "2026-10-12: English source changed when the spatial_platform tooltip gained standard Visium (visium); superseded by the new tooltip, awaiting review."
     }
   ]
 }

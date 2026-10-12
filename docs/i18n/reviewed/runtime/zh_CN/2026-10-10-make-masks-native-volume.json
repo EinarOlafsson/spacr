@@ -44,13 +44,6 @@
       "translation": "请选择一个现有的正值对象标签。"
     },
     {
-      "key": "Choose an object and drag its anchors to edit the full mask.",
-      "source": "Choose an object and drag its anchors to edit the full mask.",
-      "source_sha256": "dda6bcc436ac1d5e4deb6b90cb767f20acc2e4e6d51e9f7986dc3785e8e647a1",
-      "table": "ui",
-      "translation": "请选择一个对象并拖动其锚点以编辑完整掩膜。"
-    },
-    {
       "key": "No unused object identifier fits this mask dtype.",
       "source": "No unused object identifier fits this mask dtype.",
       "source_sha256": "ab70a9028a85587d35950175f371fef5a4661e9c93ece5db984806fa03be6e4a",
@@ -91,13 +84,6 @@
       "source_sha256": "42c22a30eb64464500f33fbfbc59ad83b9b2ba41dd36e2e13c715d8684d5a2d0",
       "table": "ui",
       "translation": "打开 3D 空间图像"
-    },
-    {
-      "key": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
-      "source": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
-      "source_sha256": "aa29cc2ae54043c1c72cd4c86de7b5e67d17ed36a261ebe061d9c3742fb8d14a",
-      "table": "ui",
-      "translation": "在原生体积编辑器中打开空间 3D TIFF。使用共享锚点编辑精确的掩膜体素；当前 2D 图像和掩膜保持不变。"
     },
     {
       "key": "Redo the last volume edit.",
@@ -161,13 +147,6 @@
       "source_sha256": "ec59f4fdb1c001346267bc8f1714a77f89e0058b8fd13cb2d59ef70124aa92dc",
       "table": "ui",
       "translation": "显示或隐藏编辑锚点，不更改掩膜。"
-    },
-    {
-      "key": "Spatial TIFF (*.tif *.tiff)",
-      "source": "Spatial TIFF (*.tif *.tiff)",
-      "source_sha256": "fe1b324cc761ccce0f57e47a541f1dceab02f80348e7a1c857f28b85505d4231",
-      "table": "ui",
-      "translation": "空间 TIFF (*.tif *.tiff)"
     },
     {
       "key": "Subdivide every edge and surface into editing anchors. This never changes mask voxels.",
@@ -336,15 +315,42 @@
       "source_sha256": "c212b0e7a1997114593a578f7c56a7a783cac33ce42bf85328d846ff5370d9bd",
       "table": "ui",
       "translation": "体素间距必须包含三个有限的正距离值。"
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "Choose an object and drag its anchors to edit the full mask.",
+      "source": "Choose an object and drag its anchors to edit the full mask.",
+      "source_sha256": "dda6bcc436ac1d5e4deb6b90cb767f20acc2e4e6d51e9f7986dc3785e8e647a1",
+      "table": "ui",
+      "translation": "请选择一个对象并拖动其锚点以编辑完整掩膜。",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
+      "source": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
+      "source_sha256": "aa29cc2ae54043c1c72cd4c86de7b5e67d17ed36a261ebe061d9c3742fb8d14a",
+      "table": "ui",
+      "translation": "在原生体积编辑器中打开空间 3D TIFF。使用共享锚点编辑精确的掩膜体素；当前 2D 图像和掩膜保持不变。",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Spatial TIFF (*.tif *.tiff)",
+      "source": "Spatial TIFF (*.tif *.tiff)",
+      "source_sha256": "fe1b324cc761ccce0f57e47a541f1dceab02f80348e7a1c857f28b85505d4231",
+      "table": "ui",
+      "translation": "空间 TIFF (*.tif *.tiff)",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
     },
     {
       "key": "Z slice (index)",
       "source": "Z slice (index)",
       "source_sha256": "4165baeba826fd3e68d5bb8b920d034bffdb32bd6ae8a87e075b8ae0cff09785",
       "table": "ui",
-      "translation": "Z 切片（索引）"
+      "translation": "Z 切片（索引）",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
     }
-  ],
-  "review_scope": "AI technical review; no native-speaker signoff.",
-  "schema": 1
+  ]
 }

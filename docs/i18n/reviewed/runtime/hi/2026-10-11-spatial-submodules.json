@@ -292,13 +292,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "spatial_platform",
-      "source": "Which 10x platform wrote spatial_source: auto, xenium or visium_hd. auto reads it from the files present; set it only when a folder holds both layouts. Default auto.",
-      "source_sha256": "9c159dfe6a3c047591bd799f451b21a8bbaac0a025fbdf3a0f5f4290858a42da",
-      "translation": "किस 10x प्लेटफ़ॉर्म ने spatial_source लिखा: auto, xenium या visium_hd। auto इसे मौजूद फ़ाइलों से पढ़ता है; इसे केवल तब सेट करें जब किसी फ़ोल्डर में दोनों संरचनाएँ हों। डिफ़ॉल्ट auto।"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "spatial_sample",
       "source": "The plate name of the fields, the first part of every file name and measurement key, so a second slide measured into the same database stays apart. Empty uses the source folder's name. Default empty.",
       "source_sha256": "34358d885b27abd7a5dc1aa276781a7372650e13b82e0c190fd0df4b9e430095",
@@ -422,6 +415,16 @@
       "source": "This panel previews one image. For a whole slide, switch on Spatial in Mask Generation's actions row to segment it in tiles, then Spatial in this screen's actions row to count every transcript into those masks in one batch run.",
       "source_sha256": "05432044ddda9f24789052edf87b8ff27ab4e73a4096c7b34b1bd8f0b27d04a9",
       "translation": "यह पैनल एक छवि का पूर्वावलोकन दिखाता है। पूरी स्लाइड के लिए, उसे टाइलों में सेगमेंट करने हेतु मास्क निर्माण की क्रिया पंक्ति में स्थानिक चालू करें, फिर हर ट्रांसक्रिप्ट को एक ही बैच रन में उन मास्क में गिनने के लिए इस मॉड्यूल की क्रिया पंक्ति में स्थानिक चालू करें।"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_platform",
+      "source": "Which 10x platform wrote spatial_source: auto, xenium or visium_hd. auto reads it from the files present; set it only when a folder holds both layouts. Default auto.",
+      "source_sha256": "9c159dfe6a3c047591bd799f451b21a8bbaac0a025fbdf3a0f5f4290858a42da",
+      "translation": "किस 10x प्लेटफ़ॉर्म ने spatial_source लिखा: auto, xenium या visium_hd। auto इसे मौजूद फ़ाइलों से पढ़ता है; इसे केवल तब सेट करें जब किसी फ़ोल्डर में दोनों संरचनाएँ हों। डिफ़ॉल्ट auto।",
+      "retired": "2026-10-12: English source changed when the spatial_platform tooltip gained standard Visium (visium); superseded by the new tooltip, awaiting review."
     }
   ]
 }

@@ -292,13 +292,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "spatial_platform",
-      "source": "Which 10x platform wrote spatial_source: auto, xenium or visium_hd. auto reads it from the files present; set it only when a folder holds both layouts. Default auto.",
-      "source_sha256": "9c159dfe6a3c047591bd799f451b21a8bbaac0a025fbdf3a0f5f4290858a42da",
-      "translation": "spatial_source 를 기록한 10x 플랫폼입니다: auto, xenium 또는 visium_hd. auto는 존재하는 파일로 판단합니다. 한 폴더에 두 구조가 모두 있을 때만 설정하십시오. 기본값 auto."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "spatial_sample",
       "source": "The plate name of the fields, the first part of every file name and measurement key, so a second slide measured into the same database stays apart. Empty uses the source folder's name. Default empty.",
       "source_sha256": "34358d885b27abd7a5dc1aa276781a7372650e13b82e0c190fd0df4b9e430095",
@@ -548,6 +541,16 @@
       "source": "Up to {reads} reads from each file come from the cached copy, without the network.",
       "source_sha256": "e5e06c985e6cb01055795d0a45d593cbc0ea0436bcdc9cb0451896001984b940",
       "translation": "각 파일에서 최대 {reads} 개의 리드는 네트워크 없이 캐시된 사본에서 가져옵니다."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_platform",
+      "source": "Which 10x platform wrote spatial_source: auto, xenium or visium_hd. auto reads it from the files present; set it only when a folder holds both layouts. Default auto.",
+      "source_sha256": "9c159dfe6a3c047591bd799f451b21a8bbaac0a025fbdf3a0f5f4290858a42da",
+      "translation": "spatial_source 를 기록한 10x 플랫폼입니다: auto, xenium 또는 visium_hd. auto는 존재하는 파일로 판단합니다. 한 폴더에 두 구조가 모두 있을 때만 설정하십시오. 기본값 auto.",
+      "retired": "2026-10-12: English source changed when the spatial_platform tooltip gained standard Visium (visium); superseded by the new tooltip, awaiting review."
     }
   ]
 }

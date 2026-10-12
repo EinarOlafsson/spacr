@@ -44,13 +44,6 @@
       "translation": "Veldu fyrirliggjandi jákvætt hlutamerki."
     },
     {
-      "key": "Choose an object and drag its anchors to edit the full mask.",
-      "source": "Choose an object and drag its anchors to edit the full mask.",
-      "source_sha256": "dda6bcc436ac1d5e4deb6b90cb767f20acc2e4e6d51e9f7986dc3785e8e647a1",
-      "table": "ui",
-      "translation": "Veldu hlut og dragðu akkeri hans til að breyta allri grímunni."
-    },
-    {
       "key": "No unused object identifier fits this mask dtype.",
       "source": "No unused object identifier fits this mask dtype.",
       "source_sha256": "ab70a9028a85587d35950175f371fef5a4661e9c93ece5db984806fa03be6e4a",
@@ -91,13 +84,6 @@
       "source_sha256": "42c22a30eb64464500f33fbfbc59ad83b9b2ba41dd36e2e13c715d8684d5a2d0",
       "table": "ui",
       "translation": "Opna rúmlæga 3D-mynd"
-    },
-    {
-      "key": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
-      "source": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
-      "source_sha256": "aa29cc2ae54043c1c72cd4c86de7b5e67d17ed36a261ebe061d9c3742fb8d14a",
-      "table": "ui",
-      "translation": "Opnaðu rúmlæga 3D-TIFF-skrá í innbyggða rúmmálsritlinum. Breyttu nákvæmum grímuvoxlum með sameiginlegum akkerum; núverandi 2D-mynd og gríma haldast óbreyttar."
     },
     {
       "key": "Redo the last volume edit.",
@@ -161,13 +147,6 @@
       "source_sha256": "ec59f4fdb1c001346267bc8f1714a77f89e0058b8fd13cb2d59ef70124aa92dc",
       "table": "ui",
       "translation": "Sýna eða fela breytingaakkeri án þess að breyta grímunni."
-    },
-    {
-      "key": "Spatial TIFF (*.tif *.tiff)",
-      "source": "Spatial TIFF (*.tif *.tiff)",
-      "source_sha256": "fe1b324cc761ccce0f57e47a541f1dceab02f80348e7a1c857f28b85505d4231",
-      "table": "ui",
-      "translation": "Rúmlæg TIFF (*.tif *.tiff)"
     },
     {
       "key": "Subdivide every edge and surface into editing anchors. This never changes mask voxels.",
@@ -336,15 +315,42 @@
       "source_sha256": "c212b0e7a1997114593a578f7c56a7a783cac33ce42bf85328d846ff5370d9bd",
       "table": "ui",
       "translation": "Voxlabil verður að innihalda þrjár jákvæðar endanlegar fjarlægðir."
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "Choose an object and drag its anchors to edit the full mask.",
+      "source": "Choose an object and drag its anchors to edit the full mask.",
+      "source_sha256": "dda6bcc436ac1d5e4deb6b90cb767f20acc2e4e6d51e9f7986dc3785e8e647a1",
+      "table": "ui",
+      "translation": "Veldu hlut og dragðu akkeri hans til að breyta allri grímunni.",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
+      "source": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
+      "source_sha256": "aa29cc2ae54043c1c72cd4c86de7b5e67d17ed36a261ebe061d9c3742fb8d14a",
+      "table": "ui",
+      "translation": "Opnaðu rúmlæga 3D-TIFF-skrá í innbyggða rúmmálsritlinum. Breyttu nákvæmum grímuvoxlum með sameiginlegum akkerum; núverandi 2D-mynd og gríma haldast óbreyttar.",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Spatial TIFF (*.tif *.tiff)",
+      "source": "Spatial TIFF (*.tif *.tiff)",
+      "source_sha256": "fe1b324cc761ccce0f57e47a541f1dceab02f80348e7a1c857f28b85505d4231",
+      "table": "ui",
+      "translation": "Rúmlæg TIFF (*.tif *.tiff)",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
     },
     {
       "key": "Z slice (index)",
       "source": "Z slice (index)",
       "source_sha256": "4165baeba826fd3e68d5bb8b920d034bffdb32bd6ae8a87e075b8ae0cff09785",
       "table": "ui",
-      "translation": "Z-sneið (vísir)"
+      "translation": "Z-sneið (vísir)",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
     }
-  ],
-  "review_scope": "AI technical review; no native-speaker signoff.",
-  "schema": 1
+  ]
 }
