@@ -59,8 +59,19 @@ def test_the_species_pages_are_registered_under_their_own_switch():
     registry = {row[0]: row for row in app.APPS}
     for key in SPECIES:
         assert registry[key][3] == app.SECTION_ASSAYS
-        assert app.app_stage(key) == app.app_stage("toxoplasma")
+        assert app.app_stage(key) == app.STAGE_ALPHA
         assert isinstance(app.APP_FACTORIES[key], type(app.APP_FACTORIES["toxoplasma"]))
+
+
+def test_toxoplasma_shows_with_every_alpha_switch_off(prefs):
+    assert app.app_stage("toxoplasma") == app.STAGE_STABLE
+    prefs.set_show_alpha(False)
+    prefs._set_show_alpha_features(False)
+    prefs._set_show_alpha_species(False)
+    assert app.app_is_visible("toxoplasma")
+    assert "toxoplasma" in {row[0] for row in app.visible_apps()}
+    for key in SPECIES:
+        assert not app.app_is_visible(key)
 
 
 @pytest.mark.parametrize("key", SPECIES)

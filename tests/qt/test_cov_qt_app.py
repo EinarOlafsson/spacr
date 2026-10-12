@@ -339,7 +339,7 @@ EXPECTED_SECTIONS = {
 #: against each other rather than against a copy of the same dict.
 EXPECTED_STAGES = {
     "host_pathogen": "alpha",
-    "toxoplasma": "alpha", "plasmodium": "alpha", "candida": "alpha",
+    "plasmodium": "alpha", "candida": "alpha",
     "trypanosoma": "alpha", "leishmania": "alpha", "giardia": "alpha",
     "virus": "alpha", "mammalian": "alpha",
     # New module, so alpha: the two pipelines it dispatches to are trusted,
@@ -472,7 +472,8 @@ def test_every_app_carries_the_maturity_it_was_given():
     # since it was written; the column grew by three tiles, not by three
     # demotions.
     # 33 -> 38: the five 634 alpha organism pages (eb2201537).
-    assert counts == {"alpha": 38, "beta": 4, "stable": 6}
+    # 38 -> 37 alpha, 6 -> 7 stable: Toxoplasma is not an alpha species.
+    assert counts == {"alpha": 37, "beta": 4, "stable": 7}
 
 
 def test_no_section_is_used_that_was_never_declared():

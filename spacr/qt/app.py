@@ -1227,7 +1227,7 @@ for _row in _BUILTIN_APPS:
         register_app(
             *_row,
             factory=LazyScreenFactory("spacr.qt.screens.organism_screen", "OrganismScreen"),
-            stage=STAGE_ALPHA,
+            stage=None if _row[0] == "toxoplasma" else STAGE_ALPHA,
             cli_note="Open the organism page in the spaCR GUI; run its assays by their module keys.",
             api_module="qt/screens/organism_screen")
     else:
