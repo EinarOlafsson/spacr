@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-12",
+  "decision": "Maintainer decision 2026-10-12: spacr-tutorial opens the online tutorial library instead of rendering offscreen still-frame videos.",
+  "console_script": "spacr-tutorial=spacr.qt.tutorial.__main__:main",
+  "cli": {
+    "usage": "spacr-tutorial [-h] [--list] [--print-url] [lesson]",
+    "added_options": [
+      "lesson (optional: number, slug or screen name)",
+      "--list",
+      "--print-url"
+    ],
+    "removed_options": [
+      "app (required)",
+      "all",
+      "--out",
+      "--voice",
+      "--length-scale",
+      "-v/--verbose"
+    ],
+    "exit_codes": {
+      "0": "success",
+      "1": "no web browser could be opened",
+      "2": "unknown lesson name"
+    }
+  },
+  "added": {
+    "spacr.qt.tutorials.find_lesson": "The lesson ``name`` names, or the names closest to it.\n\n``name`` may be a lesson number (``7`` or ``07``), a lesson id\n(``07_mask``), the key of the screen a lesson covers (``measure``) or a\nslug (``plaque-assay``). Case, hyphens and spaces do not matter. When two\nlessons answer to one name, the earlier kind in that list wins, and among\nlessons of one kind the lowest-numbered.\n\n:param name: what the reader typed.\n:returns: ``(lesson, [])`` as :func:`lessons` gives it, or ``(None,\n    suggestions)`` when nothing matches: up to five slugs and screen\n    names, the closest spellings first, then those containing ``name``.",
+    "spacr.qt.tutorials.lesson_url": "The URL that opens one lesson of the library.\n\n:param lesson: the lesson id, such as ``07_mask``.\n:returns: the library URL with the ``#lesson=`` fragment it reads.",
+    "spacr.qt.tutorials.lessons": "Every lesson in the library, in lesson-number order.\n\nRead once from the bundled table and cached; an unreadable table gives\nan empty list, as the module lookups give ``\"\"``.\n\n:returns: one dict per lesson with ``number`` (int), ``lesson`` (its id,\n    such as ``07_mask``), ``slug``, ``title`` and ``app_key`` (the screen\n    it covers, ``\"\"`` for a lesson about no single screen)."
+  },
+  "removed": [
+    "spacr.qt.tutorial.AVAILABLE_TUTORIALS",
+    "spacr.qt.tutorial.Director",
+    "spacr.qt.tutorial.Narrator",
+    "spacr.qt.tutorial.Recorder",
+    "spacr.qt.tutorial.Step",
+    "spacr.qt.tutorial.engine",
+    "spacr.qt.tutorial.engine.CURSOR_MOVE_FRAMES",
+    "spacr.qt.tutorial.engine.DEFAULT_HOLD_MS",
+    "spacr.qt.tutorial.engine.DEFAULT_VOICE",
+    "spacr.qt.tutorial.engine.Director",
+    "spacr.qt.tutorial.engine.Director.render",
+    "spacr.qt.tutorial.engine.FRAME_RATE",
+    "spacr.qt.tutorial.engine.Narrator",
+    "spacr.qt.tutorial.engine.Narrator.synth",
+    "spacr.qt.tutorial.engine.Recorder",
+    "spacr.qt.tutorial.engine.Recorder.refresh_base",
+    "spacr.qt.tutorial.engine.Recorder.snap",
+    "spacr.qt.tutorial.engine.RenderResult",
+    "spacr.qt.tutorial.engine.SPOTLIGHT_OPACITY",
+    "spacr.qt.tutorial.engine.SPOTLIGHT_PADDING",
+    "spacr.qt.tutorial.engine.Step",
+    "spacr.qt.tutorial.engine.VIDEO_SIZE",
+    "spacr.qt.tutorial.engine.render_tutorial",
+    "spacr.qt.tutorial.render_tutorial",
+    "spacr.qt.tutorial.scripts",
+    "spacr.qt.tutorial.scripts.AVAILABLE_TUTORIALS",
+    "spacr.qt.tutorial.scripts.build_steps"
+  ],
+  "resources": {
+    "spacr/resources/tutorial_index.json": "schema 2 adds 'catalog': every lesson as number, lesson, slug, title, app_key"
+  }
+}

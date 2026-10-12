@@ -384,13 +384,6 @@
     },
     {
       "table": "ui",
-      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
-      "translation": "在 Mask 中，选择时间序列的图像文件夹。启用 Timelapse，然后配置时间元数据和跟踪设置。"
-    },
-    {
-      "table": "ui",
       "key": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
       "source": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
       "source_sha256": "7ed2bb7ea88c6fb425a176ad59d85cdbee427d2060ffcb6af3dcd952bf2ecb1e",
@@ -559,13 +552,6 @@
     },
     {
       "table": "ui",
-      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
-      "translation": "在 Annotate 中打开一个裁剪图项目。“加载测试数据”提供了示例。选择标注列并标记有代表性的对象。"
-    },
-    {
-      "table": "ui",
       "key": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
       "source": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
       "source_sha256": "0d906f1d1ba73882206ff7639f594549513c7be78bf3eed1b97dd65e7d02c044",
@@ -699,20 +685,6 @@
     },
     {
       "table": "ui",
-      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
-      "translation": "选择一个包含合并图像和掩膜的项目。“加载测试数据”提供了示例。测量前请检查图像通道和标签通道。"
-    },
-    {
-      "table": "ui",
-      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
-      "translation": "选择您的 FASTQ 文件和匹配的条形码参考。“加载测试数据”提供了示例。映射前请检查列、行和引导 RNA 参考。"
-    },
-    {
-      "table": "ui",
       "key": "Show newer releases than this build in Home's News panel",
       "source": "Show newer releases than this build in Home's News panel",
       "source_sha256": "42110f9ec3498b62bd3f4477d67f3c4adb06398147c6b6015748dfdf51eab127",
@@ -752,13 +724,6 @@
       "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
       "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
       "translation": "已安装 Starplast {installed}。PyPI 上有 {latest} 版本可用。打开前是否通过 pip 升级？"
-    },
-    {
-      "table": "ui",
-      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
-      "translation": "从一个图像项目开始。可在 Mask 中使用“加载测试数据”获取示例，或选择您的图像文件夹。运行前请检查通道分配。"
     },
     {
       "table": "ui",
@@ -1385,20 +1350,6 @@
     },
     {
       "table": "ui",
-      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
-      "translation": "在模块中使用“加载测试数据”加载其示例项目。主页的流程导览说明了从何处开始，以及各模块之间如何传递数据。"
-    },
-    {
-      "table": "ui",
-      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
-      "translation": "使用 Measure 导出对象裁剪图。选择包含合并图像和掩膜的项目，然后启用裁剪图保存并选择对象类型。"
-    },
-    {
-      "table": "ui",
       "key": "Vacuole {vacuole}; host {host}; parasites {count}.",
       "source": "Vacuole {vacuole}; host {host}; parasites {count}.",
       "source_sha256": "4d27a759351e8f38dff7c281aaf80d12e182c8a5a9e4ff4e1d5d1b935a5f1f37",
@@ -1551,6 +1502,62 @@
       "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
       "translation": "为此模板命名 — 起一个能说出口的名字，例如“Toxo PVM, 40×”：",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
+      "translation": "在 Mask 中，选择时间序列的图像文件夹。启用 Timelapse，然后配置时间元数据和跟踪设置。",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
+      "translation": "在 Annotate 中打开一个裁剪图项目。“加载测试数据”提供了示例。选择标注列并标记有代表性的对象。",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
+      "translation": "选择一个包含合并图像和掩膜的项目。“加载测试数据”提供了示例。测量前请检查图像通道和标签通道。",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
+      "translation": "选择您的 FASTQ 文件和匹配的条形码参考。“加载测试数据”提供了示例。映射前请检查列、行和引导 RNA 参考。",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
+      "translation": "从一个图像项目开始。可在 Mask 中使用“加载测试数据”获取示例，或选择您的图像文件夹。运行前请检查通道分配。",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
+      "translation": "在模块中使用“加载测试数据”加载其示例项目。主页的流程导览说明了从何处开始，以及各模块之间如何传递数据。",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
+      "translation": "使用 Measure 导出对象裁剪图。选择包含合并图像和掩膜的项目，然后启用裁剪图保存并选择对象类型。",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",

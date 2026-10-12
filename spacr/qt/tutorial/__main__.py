@@ -1,67 +1,92 @@
-"""CLI entry point for spacr-tutorial.
+"""``spacr-tutorial``: list the spaCR tutorial lessons and open them.
 
-Usage:
-    spacr-tutorial mask
-    spacr-tutorial all
-    spacr-tutorial home --out ~/tutorials --voice ~/.spacr/piper/foo.onnx
+Usage::
+
+    spacr-tutorial                 list every lesson, then open the library
+    spacr-tutorial mask            open one lesson: number, slug or screen
+    spacr-tutorial --list          list the lessons and open nothing
+    spacr-tutorial 7 --print-url   print the lesson's address instead
+
+The lessons are the online tutorial library the Help menu opens; the list
+is the lesson catalog the documentation and the in-app tutorial links read,
+bundled with spaCR (:func:`spacr.qt.tutorials.lessons`).
 """
 from __future__ import annotations
 
 import argparse
-import logging
 import sys
-from pathlib import Path
+import webbrowser
 
-from .engine import render_tutorial
-from .scripts import AVAILABLE_TUTORIALS
+from ..i18n import tr
+from ..tutorials import TUTORIALS_URL, find_lesson, lesson_url, lessons
+
+
+def _print_lessons(rows: list) -> None:
+    """Print ``rows`` as a table of number, title and the screen covered.
+
+    :param rows: lessons as :func:`spacr.qt.tutorials.lessons` gives them.
+    """
+    if not rows:
+        print(tr("The lesson list is not available in this installation."))
+        return
+    width = max(len(row["title"]) for row in rows)
+    print(f"{tr('No.'):>4}  {tr('Lesson'):<{width}}  {tr('Screen')}")
+    for row in rows:
+        print(f"{row['number']:>4}  {row['title']:<{width}}  "
+              f"{row['app_key'] or '-'}")
 
 
 def main(argv=None) -> int:
-    """Parse CLI args and render one or every tutorial video.
+    """List the tutorial lessons, or open one, in the default web browser.
 
     :param argv: optional argv list; defaults to ``sys.argv[1:]``.
-    :returns: process exit code (0 on success, 2 on an unknown app).
+    :returns: process exit code: 0 on success, 1 when no web browser could
+        be opened, 2 for a lesson name that matches no lesson.
     """
-    p = argparse.ArgumentParser(prog="spacr-tutorial",
-                                 description=__doc__.splitlines()[0])
-    p.add_argument("app",
-                    help="Which tutorial to render. One of: "
-                         + ", ".join(AVAILABLE_TUTORIALS) + ", or 'all'")
-    p.add_argument("--out", type=Path,
-                    default=Path.home() / "spacr-tutorials",
-                    help="Where to write the MP4 + SRT (default: "
-                         "~/spacr-tutorials)")
-    p.add_argument("--voice", type=Path,
-                    default=None,
-                    help="Path to a Piper .onnx voice model. Defaults "
-                         "to ~/.spacr/piper/en_US-lessac-medium.onnx.")
-    p.add_argument("--length-scale", type=float, default=1.0,
-                    help="Piper length scale. Lower = faster speech.")
-    p.add_argument("-v", "--verbose", action="store_true")
-    args = p.parse_args(argv)
+    parser = argparse.ArgumentParser(
+        prog="spacr-tutorial",
+        description=tr("List the spaCR tutorial lessons and open them in "
+                       "your web browser."))
+    parser.add_argument(
+        "lesson", nargs="?", default="",
+        help=tr("A lesson number, slug or screen name, such as 7, make_masks "
+                "or measure. Without one, the whole tutorial library opens."))
+    parser.add_argument(
+        "--list", action="store_true",
+        help=tr("Print the lessons and open nothing."))
+    parser.add_argument(
+        "--print-url", action="store_true",
+        help=tr("Print the web address instead of opening a browser."))
+    args = parser.parse_args(argv)
 
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(asctime)s %(name)s %(levelname)s: %(message)s",
-    )
+    rows, url = lessons(), TUTORIALS_URL
+    if args.lesson:
+        found, suggestions = find_lesson(args.lesson)
+        if found is None:
+            print(tr("No lesson matches '{name}'.", name=args.lesson),
+                  file=sys.stderr)
+            if suggestions:
+                print(tr("Did you mean: {names}?",
+                         names=", ".join(suggestions)), file=sys.stderr)
+            print(tr("Run 'spacr-tutorial --list' to see every lesson."),
+                  file=sys.stderr)
+            return 2
+        rows, url = [found], lesson_url(found["lesson"])
 
-    from ...figure_font import _open_sans_is_the_default
-
-    targets = AVAILABLE_TUTORIALS if args.app == "all" else [args.app]
-    with _open_sans_is_the_default():
-        for name in targets:
-            if name not in AVAILABLE_TUTORIALS:
-                print(f"unknown tutorial: {name}", file=sys.stderr)
-                return 2
-            print(f"rendering {name}…")
-            result = render_tutorial(
-                name, out_dir=args.out,
-                voice_model=args.voice,
-                length_scale=args.length_scale,
-            )
-            print(f"  → {result.mp4} ({result.duration_s:.1f}s, "
-                    f"{result.frames} frames)")
-            print(f"  → {result.srt}")
+    if args.print_url:
+        print(url)
+        return 0
+    _print_lessons(rows)
+    if args.list:
+        return 0
+    if not args.lesson:
+        print(tr("Open one lesson with 'spacr-tutorial <number, slug or "
+                 "screen>', for example 'spacr-tutorial mask'."))
+    if not webbrowser.open(url):
+        print(tr("No web browser could be opened. Open this address "
+                 "yourself: {url}", url=url), file=sys.stderr)
+        return 1
+    print(tr("Opened {url}", url=url))
     return 0
 
 

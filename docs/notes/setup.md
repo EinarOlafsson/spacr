@@ -845,7 +845,7 @@ Backwards-compatible feature spelling. VisPy is now core because the installed a
 'tutorial': [
 ```
 
-`spacr-tutorial` — renders narrated MP4 tutorials for every module. ffmpeg is required at runtime (system package) and a Piper voice model is fetched on first run.
+`spacr-tutorial` needs nothing from this extra: it prints the lesson list and opens the online tutorial library, or one lesson, in a web browser.
 
 ### lines 1159-1162
 

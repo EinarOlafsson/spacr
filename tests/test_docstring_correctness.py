@@ -2505,6 +2505,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "693_export_settings_api_arrivals_2026-10-12.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
+    # 2026-10-12: spacr-tutorial opens the online lessons; its contract
+    # registers the three spacr.qt.tutorials arrivals and the removed
+    # renderer, which was never in this inventory (*/qt/tutorial/* is ignored).
+    contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
     assert contract_arrivals & by_symbol.keys()
     callables = [item for item in callables if item.symbol not in contract_arrivals]
     by_symbol = {item.symbol: item for item in callables}
@@ -3986,6 +3992,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in export_additions} == export_additions
     assert not export_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **export_additions}
+    tutorial_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"]
+    assert len(tutorial_additions) == 3
+    assert {key: docs[key] for key in tutorial_additions} == tutorial_additions
+    assert not tutorial_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **tutorial_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -4361,6 +4374,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "693_export_settings_api_arrivals_2026-10-12.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
+    contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
     prior = prior - contract_callables
     assert len(prior - pipeline_callables) == 9675
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
@@ -4390,6 +4406,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "693_export_settings_api_arrivals_2026-10-12.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
+    arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
     arrival_callables &= rendered_documented_callables.keys()
     assert len(rendered_documented_callables.keys() - yolo_callables
                - volume_callables - arrival_callables) == 9998

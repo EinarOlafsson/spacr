@@ -11,10 +11,14 @@ No network access and no heavy imports: this is read on the hover path, from Hom
 from the dock, so it caches the table on first use and answers ``""`` for
 anything it cannot resolve. A module with no lesson gets no link, and no
 exception is raised in a hover handler.
+
+The same table carries the whole lesson list, which ``spacr-tutorial`` prints
+and resolves a lesson number, slug or screen name against; see
+:func:`lessons` and :func:`find_lesson`.
 """
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, List, Optional, Tuple
 
 #: The published library, and the fragment it reads a lesson id out of.
 #: Duplicated from :data:`spacr.qt.app.TUTORIALS_URL` rather than imported:
@@ -24,6 +28,9 @@ TUTORIALS_URL = "https://einarolafsson.github.io/spacr/tutorials/"
 
 #: ``{app_key: {"lesson": id, "title": title}}``, or None until first read.
 _INDEX: Optional[Dict[str, dict]] = None
+
+#: Every lesson in lesson-number order, or None until first read.
+_LESSONS: Optional[List[dict]] = None
 
 
 def _index() -> Dict[str, dict]:
@@ -76,7 +83,7 @@ def tutorial_url(app_key: str) -> str:
         ``tutorial_index.json``; None or empty gives no lesson.
     """
     lesson = lesson_for(app_key)
-    return f"{TUTORIALS_URL}#lesson={lesson}" if lesson else ""
+    return lesson_url(lesson) if lesson else ""
 
 
 def has_tutorial(app_key: str) -> bool:
@@ -86,3 +93,89 @@ def has_tutorial(app_key: str) -> bool:
         ``tutorial_index.json``; None or empty gives no lesson.
     """
     return bool(lesson_for(app_key))
+
+
+def lesson_url(lesson: str) -> str:
+    """The URL that opens one lesson of the library.
+
+    :param lesson: the lesson id, such as ``07_mask``.
+    :returns: the library URL with the ``#lesson=`` fragment it reads.
+    """
+    return f"{TUTORIALS_URL}#lesson={lesson}"
+
+
+def lessons() -> List[dict]:
+    """Every lesson in the library, in lesson-number order.
+
+    Read once from the bundled table and cached; an unreadable table gives
+    an empty list, as the module lookups give ``""``.
+
+    :returns: one dict per lesson with ``number`` (int), ``lesson`` (its id,
+        such as ``07_mask``), ``slug``, ``title`` and ``app_key`` (the screen
+        it covers, ``""`` for a lesson about no single screen).
+    """
+    global _LESSONS
+    if _LESSONS is None:
+        try:
+            import json
+            from importlib.resources import files
+
+            raw = (files("spacr.resources") / "tutorial_index.json")
+            rows = json.loads(raw.read_text(encoding="utf-8")).get("catalog")
+            _LESSONS = sorted(
+                ({"number": int(row.get("number") or 0),
+                  "lesson": str(row["lesson"]),
+                  "slug": str(row.get("slug") or ""),
+                  "title": str(row.get("title") or ""),
+                  "app_key": str(row.get("app_key") or "")}
+                 for row in rows or [] if isinstance(row, dict)
+                 and row.get("lesson")),
+                key=lambda row: row["number"])
+        except (ImportError, OSError, ValueError, TypeError, AttributeError):
+            _LESSONS = []
+    return list(_LESSONS)
+
+
+def _spelling(name: object) -> str:
+    """Spell ``name`` the way the lesson lookup compares names.
+
+    Lower case, ``_`` for each hyphen and space, and a number without its
+    leading zeros, so ``Make-Masks`` is ``make_masks`` and ``07`` is ``7``.
+
+    :param name: a typed name, or a catalog field.
+    """
+    text = str(name).strip().lower().replace("-", "_").replace(" ", "_")
+    return str(int(text)) if text.isdigit() else text
+
+
+def find_lesson(name: str) -> Tuple[Optional[dict], List[str]]:
+    """The lesson ``name`` names, or the names closest to it.
+
+    ``name`` may be a lesson number (``7`` or ``07``), a lesson id
+    (``07_mask``), the key of the screen a lesson covers (``measure``) or a
+    slug (``plaque-assay``). Case, hyphens and spaces do not matter. When two
+    lessons answer to one name, the earlier kind in that list wins, and among
+    lessons of one kind the lowest-numbered.
+
+    :param name: what the reader typed.
+    :returns: ``(lesson, [])`` as :func:`lessons` gives it, or ``(None,
+        suggestions)`` when nothing matches: up to five slugs and screen
+        names, the closest spellings first, then those containing ``name``.
+    """
+    import difflib
+
+    catalog = lessons()
+    names: Dict[str, dict] = {}
+    for field in ("number", "lesson", "app_key", "slug"):
+        for lesson in catalog:
+            key = _spelling(lesson[field])
+            if key:
+                names.setdefault(key, lesson)
+    wanted = _spelling(name)
+    if wanted in names:
+        return names[wanted], []
+    words = sorted({_spelling(lesson[field]) for lesson in catalog
+                    for field in ("slug", "app_key")} - {""})
+    close = difflib.get_close_matches(wanted, words, n=5, cutoff=0.6)
+    within = [word for word in words if wanted and wanted in word]
+    return None, list(dict.fromkeys(close + within))[:5]

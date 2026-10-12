@@ -8,8 +8,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QMainWindow, QMenu  # noqa: E402
-
 from tests.qt.test_arrayed_plan_validation_f585 import (  # noqa: E402,F401
     pilot_and_plan, planner)
 
@@ -76,19 +74,6 @@ def test_explicit_help_survives_a_preference_change(qtbot):
     finally:
         panel.hide = original
         panel._pinned = False
-
-
-def test_a_menu_that_is_on_no_menu_bar_aims_at_the_bar(qtbot, monkeypatch):
-    from spacr.qt.tutorial import scripts
-
-    window = QMainWindow()
-    qtbot.addWidget(window)
-    orphan = QMenu("Orphan")
-    monkeypatch.setattr(scripts, "_find_menu", lambda w, title: orphan)
-    monkeypatch.setattr(scripts, "_top_level_menu_containing",
-                        lambda w, menu: None)
-    bar, point = scripts._menu_target(window, "Orphan")
-    assert bar is window.menuBar() and point is None
 
 
 def test_an_older_plan_without_optional_counts_still_validates(planner,

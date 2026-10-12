@@ -405,13 +405,6 @@
     },
     {
       "table": "ui",
-      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
-      "translation": "Dans Masques, choisissez le dossier d’images de votre série temporelle. Activez Série temporelle, puis configurez les métadonnées temporelles et les paramètres de suivi."
-    },
-    {
-      "table": "ui",
       "key": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
       "source": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
       "source_sha256": "7ed2bb7ea88c6fb425a176ad59d85cdbee427d2060ffcb6af3dcd952bf2ecb1e",
@@ -580,13 +573,6 @@
     },
     {
       "table": "ui",
-      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
-      "translation": "Ouvrez un projet de vignettes dans Annotation. Charger les données de test fournit un exemple. Choisissez la colonne d’annotation et étiquetez des objets représentatifs."
-    },
-    {
-      "table": "ui",
       "key": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
       "source": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
       "source_sha256": "0d906f1d1ba73882206ff7639f594549513c7be78bf3eed1b97dd65e7d02c044",
@@ -727,20 +713,6 @@
     },
     {
       "table": "ui",
-      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
-      "translation": "Sélectionnez un projet avec des images et des masques fusionnés. Charger les données de test fournit un exemple. Vérifiez les canaux d’image et d’étiquettes avant de mesurer."
-    },
-    {
-      "table": "ui",
-      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
-      "translation": "Sélectionnez vos fichiers FASTQ et les références de codes-barres correspondantes. Charger les données de test fournit un exemple. Vérifiez les références de colonne, de ligne et de guide avant le mappage."
-    },
-    {
-      "table": "ui",
       "key": "Show newer releases than this build in Home's News panel",
       "source": "Show newer releases than this build in Home's News panel",
       "source_sha256": "42110f9ec3498b62bd3f4477d67f3c4adb06398147c6b6015748dfdf51eab127",
@@ -780,13 +752,6 @@
       "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
       "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
       "translation": "Starplast {installed} est installé. La version {latest} est disponible sur PyPI. Mettre à niveau via pip avant l’ouverture ?"
-    },
-    {
-      "table": "ui",
-      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
-      "translation": "Commencez par un projet d’images. Utilisez Charger les données de test dans Masques pour un exemple, ou sélectionnez votre dossier d’images. Vérifiez l’attribution des canaux avant l’exécution."
     },
     {
       "table": "ui",
@@ -1434,20 +1399,6 @@
     },
     {
       "table": "ui",
-      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
-      "translation": "Utilisez Charger les données de test dans un module pour charger son projet d’exemple. Les parcours guidés de l’Accueil expliquent par où commencer et comment les modules se transmettent les données."
-    },
-    {
-      "table": "ui",
-      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
-      "translation": "Utilisez Mesure pour exporter des vignettes d’objets. Sélectionnez le projet contenant les images et masques fusionnés, puis activez l’enregistrement des vignettes et choisissez le type d’objet."
-    },
-    {
-      "table": "ui",
       "key": "Vacuole {vacuole}; host {host}; parasites {count}.",
       "source": "Vacuole {vacuole}; host {host}; parasites {count}.",
       "source_sha256": "4d27a759351e8f38dff7c281aaf80d12e182c8a5a9e4ff4e1d5d1b935a5f1f37",
@@ -1635,6 +1586,62 @@
       "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
       "translation": "Nommez ce modèle — quelque chose que vous diriez à voix haute, comme “Toxo PVM, 40×” :",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
+      "translation": "Dans Masques, choisissez le dossier d’images de votre série temporelle. Activez Série temporelle, puis configurez les métadonnées temporelles et les paramètres de suivi.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
+      "translation": "Ouvrez un projet de vignettes dans Annotation. Charger les données de test fournit un exemple. Choisissez la colonne d’annotation et étiquetez des objets représentatifs.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
+      "translation": "Sélectionnez un projet avec des images et des masques fusionnés. Charger les données de test fournit un exemple. Vérifiez les canaux d’image et d’étiquettes avant de mesurer.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
+      "translation": "Sélectionnez vos fichiers FASTQ et les références de codes-barres correspondantes. Charger les données de test fournit un exemple. Vérifiez les références de colonne, de ligne et de guide avant le mappage.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
+      "translation": "Commencez par un projet d’images. Utilisez Charger les données de test dans Masques pour un exemple, ou sélectionnez votre dossier d’images. Vérifiez l’attribution des canaux avant l’exécution.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
+      "translation": "Utilisez Charger les données de test dans un module pour charger son projet d’exemple. Les parcours guidés de l’Accueil expliquent par où commencer et comment les modules se transmettent les données.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
+      "translation": "Utilisez Mesure pour exporter des vignettes d’objets. Sélectionnez le projet contenant les images et masques fusionnés, puis activez l’enregistrement des vignettes et choisissez le type d’objet.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",

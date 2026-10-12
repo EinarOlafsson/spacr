@@ -196,21 +196,6 @@ code = main([])
 from spacr.qt.safespacr import main
 code = main([])
 ''',
-    "spacr.qt.tutorial.__main__:main": r'''
-import types
-import spacr.qt.tutorial.__main__ as tutorial
-
-
-def _render(name, **_kwargs):
-    draw_a_plain_figure()
-    return types.SimpleNamespace(mp4="t.mp4", srt="t.srt", duration_s=0.0,
-                                 frames=0)
-
-
-tutorial.render_tutorial = _render
-code = tutorial.main([list(tutorial.AVAILABLE_TUTORIALS)[0],
-                      "--out", sys.argv[1]])
-''',
     # Not a console script, but the documented `python -m spacr`.
     "spacr.__main__:main": _STUB_LAUNCH + r'''
 from spacr.__main__ import main
@@ -222,13 +207,19 @@ code = main(["gui"])
 #: it does not register fonts with matplotlib.
 SAFE_MODE = "spacr.qt.safespacr:main"
 
+#: Console scripts in the Qt package that draw nothing, so have no Open Sans
+#: case. ``spacr-tutorial`` prints the lesson list and opens the online
+#: tutorial library in a web browser (maintainer decision, 2026-10-12).
+DRAWS_NOTHING = {"spacr.qt.tutorial.__main__:main"}
+
 
 def test_every_gui_console_script_is_asked():
     """A new GUI script added to setup.py is not silently outside the rule."""
     text = (REPO_ROOT / "setup.py").read_text(encoding="utf-8")
     targets = set(re.findall(r"'[\w-]+=(spacr\.qt[\w.]*:\w+)'", text))
     assert "spacr.qt:run" in targets, "the setup.py scan found no GUI script"
-    missing = sorted(targets - set(GUI_CASES))
+    missing = sorted(targets - set(GUI_CASES) - DRAWS_NOTHING)
+    assert DRAWS_NOTHING <= targets, "a script that draws nothing was removed"
     assert not missing, (
         f"GUI console scripts with no Open Sans case here: {missing}. Add "
         "each to GUI_CASES, expecting Open Sans unless it is safe mode")

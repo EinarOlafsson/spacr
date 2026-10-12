@@ -244,6 +244,14 @@ _RETIRED_BY_600B = {
 }
 
 
+
+#: 2026-10-12: the seven narration captions of the deleted spacr-tutorial
+#: still-frame renderer (spacr/qt/tutorial/scripts.py) left the inventory;
+#: their reviewed records moved to retired_records with this dated reason.
+TUTORIAL_RENDERER_RETIRED = (
+    "2026-10-12: English caption removed with the spacr-tutorial still-frame "
+    "renderer")
+
 def _requested_detection_retirements(language, filename):
     """Validate the preserved October 7 records against their exact originals."""
     from build_i18n_catalogs import reviewed_runtime_translations
@@ -277,7 +285,8 @@ def _requested_detection_retirements(language, filename):
     assert all(hashlib.sha256(row['source'].encode()).hexdigest()
                == row['source_sha256'] for row in retired)
     n678 = {row['source'] for row in current.get('retired_records', [])
-            if str(row.get('retired', '')).startswith('2026-10-11')}
+            if str(row.get('retired', '')).startswith(
+                ('2026-10-11', TUTORIAL_RENDERER_RETIRED))}
     assert current['records'] == [row for row in original if row not in retired
                                   and row['source'] not in later_sources | n678]
     assert all(any(item.get('date') == '2026-10-07' and item.get('record') == row
@@ -318,7 +327,8 @@ def _theme_cohort_retirements(language, filename):
     # this cohort's count.
     n678 = {row['source'] for row in json.loads((folder / filename).read_text())
             .get('retired_records', [])
-            if str(row.get('retired', '')).startswith('2026-10-11')}
+            if str(row.get('retired', '')).startswith(
+                ('2026-10-11', TUTORIAL_RENDERER_RETIRED))}
     assert current == [row for row in original if row not in retired
                        and row['source'] not in requested | n678]
     return {row["source"] for row in retired} | requested
@@ -660,7 +670,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # a fourth-pass record.
     # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
     # caption, so its record left 2026-09-25-runtime-debt-captions.json.
-    debt_sources = _runtime_debt_sources("sv", all_reviewed, 706)  # 707 -> 706 on 2026-10-11: one record retired by the N678 factual review; 708 -> 707 on 2026-10-04 (656/657): the settings-template file filter gained Settings CSV, its old record retired in place; 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597); 709 -> 708 on 2026-10-02 (item 43): a retired workflow phrase (603423d0a)
+    debt_sources = _runtime_debt_sources("sv", all_reviewed, 699)  # 706 -> 699 on 2026-10-12: the seven narration captions of the deleted spacr-tutorial renderer retired; 707 -> 706 on 2026-10-11: one record retired by the N678 factual review; 708 -> 707 on 2026-10-04 (656/657): the settings-template file filter gained Settings CSV, its old record retired in place; 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597); 709 -> 708 on 2026-10-02 (item 43): a retired workflow phrase (603423d0a)
     assert not debt_sources & (ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources)
     inherited_sources = _inherited_2026_09_28_sources("sv", all_reviewed)
     assert not inherited_sources & (debt_sources | ui_sources | download_sources | subsequent_sources)
@@ -944,7 +954,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # a fourth-pass record.
     # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
     # caption, so its record left 2026-09-25-runtime-debt-captions.json.
-    debt_sources = _runtime_debt_sources("fr", all_reviewed, 706)  # 707 -> 706 on 2026-10-11: one record retired by the N678 factual review; 708 -> 707 on 2026-10-04 (656/657): the settings-template file filter gained Settings CSV, its old record retired in place; 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597); 709 -> 708 on 2026-10-02 (item 43): a retired workflow phrase (603423d0a)
+    debt_sources = _runtime_debt_sources("fr", all_reviewed, 699)  # 706 -> 699 on 2026-10-12: the seven narration captions of the deleted spacr-tutorial renderer retired; 707 -> 706 on 2026-10-11: one record retired by the N678 factual review; 708 -> 707 on 2026-10-04 (656/657): the settings-template file filter gained Settings CSV, its old record retired in place; 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597); 709 -> 708 on 2026-10-02 (item 43): a retired workflow phrase (603423d0a)
     assert not debt_sources & (example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources)
     inherited_sources = _inherited_2026_09_28_sources("fr", all_reviewed)
     assert not inherited_sources & (debt_sources | refresh_sources | download_sources | subsequent_sources)

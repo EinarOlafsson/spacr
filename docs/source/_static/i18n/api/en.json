@@ -76019,10 +76019,21 @@
       "source_blocks_sha256": [
         "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",
         "afa4b72571ecdd2394451f4522970faed5a21aaf0a054b9fb4bf7e98321b30d0",
-        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53"
+        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53",
+        "194565fdca4014dac5e2b08531c895a6fe0c9540aa90ab723dcc1125e43ef905"
       ],
-      "source_sha256": "742c1cfbb9cb41e686ff0f44ebedfd6b634d1cf47853f85e845b4842a822f103",
-      "text": "Which published lesson teaches a module, and the URL that opens it.\n\nThe lesson library at ``<docs>/tutorials/`` deep-links with ``#lesson=<id>``,\nso pointing a reader at the lesson for the module they are hovering is a\nlookup and a string. The lookup table is\n``spacr/resources/tutorial_index.json``, written by\n``tools/build_tutorial_index.py`` from the docs build's own lesson catalog --\nsee there for why it is not the catalog itself.\n\nNo network access and no heavy imports: this is read on the hover path, from Home and\nfrom the dock, so it caches the table on first use and answers ``\"\"`` for\nanything it cannot resolve. A module with no lesson gets no link, and no\nexception is raised in a hover handler."
+      "source_sha256": "db5b3e1306984c5e645f06c9d853864556308e26f7d46f4127c84121400fad68",
+      "text": "Which published lesson teaches a module, and the URL that opens it.\n\nThe lesson library at ``<docs>/tutorials/`` deep-links with ``#lesson=<id>``,\nso pointing a reader at the lesson for the module they are hovering is a\nlookup and a string. The lookup table is\n``spacr/resources/tutorial_index.json``, written by\n``tools/build_tutorial_index.py`` from the docs build's own lesson catalog --\nsee there for why it is not the catalog itself.\n\nNo network access and no heavy imports: this is read on the hover path, from Home and\nfrom the dock, so it caches the table on first use and answers ``\"\"`` for\nanything it cannot resolve. A module with no lesson gets no link, and no\nexception is raised in a hover handler.\n\nThe same table carries the whole lesson list, which ``spacr-tutorial`` prints\nand resolves a lesson number, slug or screen name against; see\n:func:`lessons` and :func:`find_lesson`."
+    },
+    "spacr.qt.tutorials.find_lesson": {
+      "source_blocks_sha256": [
+        "3aa5efa51349bc09a7d8f05874ed10dd6c6047e8e53281d83239d889de4ba5a6",
+        "9c6376a0d5f62091a13ef86c9cb4862ef7711a7f76189036feaa2fdd756fe5f1",
+        "6fb7a889244185587ebcf0cacaa1156764a09f0f4b61920ee5a95fc8cfee65d3",
+        "a323095f1702386396c07c3af4f200502f78cef0f609bd8ea36117d1e9a698e6"
+      ],
+      "source_sha256": "03898a0209cb66574cc37cf12e7ed90c2cefffc344c246bab9895035f8cfe50c",
+      "text": "The lesson ``name`` names, or the names closest to it.\n\n``name`` may be a lesson number (``7`` or ``07``), a lesson id\n(``07_mask``), the key of the screen a lesson covers (``measure``) or a\nslug (``plaque-assay``). Case, hyphens and spaces do not matter. When two\nlessons answer to one name, the earlier kind in that list wins, and among\nlessons of one kind the lowest-numbered.\n\n:param name: what the reader typed.\n:returns: ``(lesson, [])`` as :func:`lessons` gives it, or ``(None,\n    suggestions)`` when nothing matches: up to five slugs and screen\n    names, the closest spellings first, then those containing ``name``."
     },
     "spacr.qt.tutorials.has_tutorial": {
       "source_blocks_sha256": [
@@ -76047,6 +76058,24 @@
       ],
       "source_sha256": "5f56b0187e5ff48fa5ff695829cb19d0e187830e9a5692027923935f81ec544f",
       "text": "The lesson's own title, for a tooltip. ``\"\"`` when there is none.\n\n:param app_key: the app key looked up in the bundled\n    ``tutorial_index.json``; None or empty gives no lesson."
+    },
+    "spacr.qt.tutorials.lesson_url": {
+      "source_blocks_sha256": [
+        "f7dde7fb07731c7d1bf5f8e8fee716d7b71f60ad5a7f66e812ecddde9bc2e301",
+        "d19fd9e9aae240c8f510197badc842745fa020ef3a7c6732b0b067574ae994ec",
+        "0967d3fec8f62e57a8269830ecf05474c72bc4e732b2f4e1f898599baeb87037"
+      ],
+      "source_sha256": "5257fd85954d841530ebb6455f69994eddc93b3e3161742fb00a71b275b9b50c",
+      "text": "The URL that opens one lesson of the library.\n\n:param lesson: the lesson id, such as ``07_mask``.\n:returns: the library URL with the ``#lesson=`` fragment it reads."
+    },
+    "spacr.qt.tutorials.lessons": {
+      "source_blocks_sha256": [
+        "8a731457e881988c7b735aea903e3ca7d859faa7cabd8f8c45d0ed059198cfc4",
+        "c570a7c59da920182fc47b5224edd8aaf18d226082354644b2e539f08c9dc087",
+        "e2d3eff8dc794d47f7cbe81eec4255d56caf6b726c16cd6f6eb088f63d897b95"
+      ],
+      "source_sha256": "808be786b3f63f8478b760240b4862631ef0ddd018fd39d09c43c14a1d98258d",
+      "text": "Every lesson in the library, in lesson-number order.\n\nRead once from the bundled table and cached; an unreadable table gives\nan empty list, as the module lookups give ``\"\"``.\n\n:returns: one dict per lesson with ``number`` (int), ``lesson`` (its id,\n    such as ``07_mask``), ``slug``, ``title`` and ``app_key`` (the screen\n    it covers, ``\"\"`` for a lesson about no single screen)."
     },
     "spacr.qt.tutorials.tutorial_url": {
       "source_blocks_sha256": [

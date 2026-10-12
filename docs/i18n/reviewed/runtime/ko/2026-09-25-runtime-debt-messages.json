@@ -804,13 +804,6 @@
     },
     {
       "table": "ui",
-      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
-      "translation": "마스크에서 시계열의 이미지 폴더를 선택하세요. 타임랩스를 켠 다음 시간 메타데이터와 추적 설정을 구성하세요."
-    },
-    {
-      "table": "ui",
       "key": "Inspect aligned image, label and point/ROI layers for the selected field.",
       "source": "Inspect aligned image, label and point/ROI layers for the selected field.",
       "source_sha256": "3093d844ab489bc1671e9f7e96b42f9159a5693512a489bd026fc3ec528a1e93",
@@ -1266,13 +1259,6 @@
     },
     {
       "table": "ui",
-      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
-      "translation": "어노테이션에서 크롭 프로젝트를 여세요. 테스트 데이터 불러오기로 예제를 받을 수 있습니다. 어노테이션 열을 선택하고 대표 객체에 레이블을 지정하세요."
-    },
-    {
-      "table": "ui",
       "key": "Open a folder before running Object detection.",
       "source": "Open a folder before running Object detection.",
       "source_sha256": "673eed3fa69ad4188b1df6fca076ad90e86dfa5b0b2b7b1687f6b69a121ff313",
@@ -1714,13 +1700,6 @@
     },
     {
       "table": "ui",
-      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
-      "translation": "병합된 이미지와 마스크가 있는 프로젝트를 선택하세요. 테스트 데이터 불러오기로 예제를 받을 수 있습니다. 측정하기 전에 이미지 채널과 레이블 채널을 확인하세요."
-    },
-    {
-      "table": "ui",
       "key": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
       "source": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
       "source_sha256": "c279a49ea9a53c428e8a4db0e4740f6bdfd25ea34fccbf92f32e0ec3603582d5",
@@ -1739,13 +1718,6 @@
       "source": "Select the saved compatible checkpoint in Mask.",
       "source_sha256": "e728ebc34eecea176cd1c0292a03c313fea3f405905ac93b531880cb8c41397e",
       "translation": "마스크에서 저장된 호환 체크포인트를 선택하세요."
-    },
-    {
-      "table": "ui",
-      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
-      "translation": "FASTQ 파일과 일치하는 바코드 참조를 선택하세요. 테스트 데이터 불러오기로 예제를 받을 수 있습니다. 매핑 전에 열, 행, 가이드 참조를 확인하세요."
     },
     {
       "table": "ui",
@@ -1858,13 +1830,6 @@
       "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
       "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
       "translation": "Starplast {installed}이(가) 설치되어 있습니다. PyPI에 버전 {latest}이(가) 있습니다. 열기 전에 pip으로 업그레이드할까요?"
-    },
-    {
-      "table": "ui",
-      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
-      "translation": "이미지 프로젝트로 시작하세요. 예제가 필요하면 마스크의 테스트 데이터 불러오기를 사용하거나 이미지 폴더를 선택하세요. 실행 전에 채널 할당을 확인하세요."
     },
     {
       "table": "ui",
@@ -2722,20 +2687,6 @@
     },
     {
       "table": "ui",
-      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
-      "translation": "모듈의 테스트 데이터 불러오기로 해당 예제 프로젝트를 불러오세요. 홈의 경로 둘러보기에서 어디서 시작하는지, 모듈 간에 데이터가 어떻게 전달되는지 설명합니다."
-    },
-    {
-      "table": "ui",
-      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
-      "translation": "측정을 사용해 객체 크롭을 내보내세요. 병합된 이미지와 마스크가 있는 프로젝트를 선택한 다음 크롭 저장을 켜고 객체 유형을 선택하세요."
-    },
-    {
-      "table": "ui",
       "key": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
@@ -3245,6 +3196,62 @@
       "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
       "translation": "이 템플릿의 이름을 정하세요 — 소리 내어 말할 만한 이름, 예: “Toxo PVM, 40×”:",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
+      "translation": "마스크에서 시계열의 이미지 폴더를 선택하세요. 타임랩스를 켠 다음 시간 메타데이터와 추적 설정을 구성하세요.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
+      "translation": "어노테이션에서 크롭 프로젝트를 여세요. 테스트 데이터 불러오기로 예제를 받을 수 있습니다. 어노테이션 열을 선택하고 대표 객체에 레이블을 지정하세요.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
+      "translation": "병합된 이미지와 마스크가 있는 프로젝트를 선택하세요. 테스트 데이터 불러오기로 예제를 받을 수 있습니다. 측정하기 전에 이미지 채널과 레이블 채널을 확인하세요.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
+      "translation": "FASTQ 파일과 일치하는 바코드 참조를 선택하세요. 테스트 데이터 불러오기로 예제를 받을 수 있습니다. 매핑 전에 열, 행, 가이드 참조를 확인하세요.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
+      "translation": "이미지 프로젝트로 시작하세요. 예제가 필요하면 마스크의 테스트 데이터 불러오기를 사용하거나 이미지 폴더를 선택하세요. 실행 전에 채널 할당을 확인하세요.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
+      "translation": "모듈의 테스트 데이터 불러오기로 해당 예제 프로젝트를 불러오세요. 홈의 경로 둘러보기에서 어디서 시작하는지, 모듈 간에 데이터가 어떻게 전달되는지 설명합니다.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
+      "translation": "측정을 사용해 객체 크롭을 내보내세요. 병합된 이미지와 마스크가 있는 프로젝트를 선택한 다음 크롭 저장을 켜고 객체 유형을 선택하세요.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

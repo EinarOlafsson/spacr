@@ -531,13 +531,6 @@
     },
     {
       "table": "ui",
-      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
-      "translation": "मास्क में अपनी समय-श्रृंखला का छवि फ़ोल्डर चुनें। टाइमलैप्स सक्षम करें, फिर समय मेटाडेटा और ट्रैकिंग सेटिंग्स कॉन्फ़िगर करें।"
-    },
-    {
-      "table": "ui",
       "key": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
       "source": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
       "source_sha256": "7ed2bb7ea88c6fb425a176ad59d85cdbee427d2060ffcb6af3dcd952bf2ecb1e",
@@ -748,13 +741,6 @@
     },
     {
       "table": "ui",
-      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
-      "translation": "एनोटेशन में एक क्रॉप प्रोजेक्ट खोलें। परीक्षण डेटा लोड करें एक उदाहरण देता है। एनोटेशन स्तंभ चुनें और प्रतिनिधि ऑब्जेक्ट लेबल करें।"
-    },
-    {
-      "table": "ui",
       "key": "Open a folder before running Object detection.",
       "source": "Open a folder before running Object detection.",
       "source_sha256": "673eed3fa69ad4188b1df6fca076ad90e86dfa5b0b2b7b1687f6b69a121ff313",
@@ -951,20 +937,6 @@
     },
     {
       "table": "ui",
-      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
-      "translation": "मर्ज की गई छवियों और मास्क वाला प्रोजेक्ट चुनें। परीक्षण डेटा लोड करें एक उदाहरण देता है। मापन से पहले छवि और लेबल चैनल जाँचें।"
-    },
-    {
-      "table": "ui",
-      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
-      "translation": "अपनी FASTQ फ़ाइलें और मेल खाते बारकोड संदर्भ चुनें। परीक्षण डेटा लोड करें एक उदाहरण देता है। मैपिंग से पहले स्तंभ, पंक्ति और गाइड संदर्भ जाँचें।"
-    },
-    {
-      "table": "ui",
       "key": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
       "source": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
       "source_sha256": "515fe65a3a49a4ba43933c24bfba273efd4b422fb374333959c6a959663f760a",
@@ -1032,13 +1004,6 @@
       "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
       "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
       "translation": "Starplast {installed} इंस्टॉल है। संस्करण {latest} PyPI पर उपलब्ध है। खोलने से पहले pip से अपग्रेड करें?"
-    },
-    {
-      "table": "ui",
-      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
-      "translation": "एक छवि प्रोजेक्ट से शुरू करें। उदाहरण के लिए मास्क में परीक्षण डेटा लोड करें का उपयोग करें, या अपना छवि फ़ोल्डर चुनें। चलाने से पहले चैनल निर्धारण जाँचें।"
     },
     {
       "table": "ui",
@@ -1665,20 +1630,6 @@
     },
     {
       "table": "ui",
-      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
-      "translation": "किसी मॉड्यूल का उदाहरण प्रोजेक्ट लोड करने के लिए उसके भीतर परीक्षण डेटा लोड करें का उपयोग करें। मुखपृष्ठ के पथ-मार्गदर्शन बताते हैं कि कहाँ से शुरू करें और मॉड्यूल एक-दूसरे को डेटा कैसे देते हैं।"
-    },
-    {
-      "table": "ui",
-      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
-      "translation": "ऑब्जेक्ट क्रॉप निर्यात करने के लिए मापन का उपयोग करें। मर्ज की गई छवियों और मास्क वाला प्रोजेक्ट चुनें, फिर क्रॉप सहेजना सक्षम करें और ऑब्जेक्ट प्रकार चुनें।"
-    },
-    {
-      "table": "ui",
       "key": "Vacuole {vacuole}; host {host}; parasites {count}.",
       "source": "Vacuole {vacuole}; host {host}; parasites {count}.",
       "source_sha256": "4d27a759351e8f38dff7c281aaf80d12e182c8a5a9e4ff4e1d5d1b935a5f1f37",
@@ -1998,6 +1949,62 @@
       "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
       "translation": "इस टेम्पलेट को नाम दें — कुछ ऐसा जो आप बोलकर कहें, जैसे “Toxo PVM, 40×”:",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
+      "translation": "मास्क में अपनी समय-श्रृंखला का छवि फ़ोल्डर चुनें। टाइमलैप्स सक्षम करें, फिर समय मेटाडेटा और ट्रैकिंग सेटिंग्स कॉन्फ़िगर करें।",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
+      "translation": "एनोटेशन में एक क्रॉप प्रोजेक्ट खोलें। परीक्षण डेटा लोड करें एक उदाहरण देता है। एनोटेशन स्तंभ चुनें और प्रतिनिधि ऑब्जेक्ट लेबल करें।",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
+      "translation": "मर्ज की गई छवियों और मास्क वाला प्रोजेक्ट चुनें। परीक्षण डेटा लोड करें एक उदाहरण देता है। मापन से पहले छवि और लेबल चैनल जाँचें।",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
+      "translation": "अपनी FASTQ फ़ाइलें और मेल खाते बारकोड संदर्भ चुनें। परीक्षण डेटा लोड करें एक उदाहरण देता है। मैपिंग से पहले स्तंभ, पंक्ति और गाइड संदर्भ जाँचें।",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
+      "translation": "एक छवि प्रोजेक्ट से शुरू करें। उदाहरण के लिए मास्क में परीक्षण डेटा लोड करें का उपयोग करें, या अपना छवि फ़ोल्डर चुनें। चलाने से पहले चैनल निर्धारण जाँचें।",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
+      "translation": "किसी मॉड्यूल का उदाहरण प्रोजेक्ट लोड करने के लिए उसके भीतर परीक्षण डेटा लोड करें का उपयोग करें। मुखपृष्ठ के पथ-मार्गदर्शन बताते हैं कि कहाँ से शुरू करें और मॉड्यूल एक-दूसरे को डेटा कैसे देते हैं।",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
+      "translation": "ऑब्जेक्ट क्रॉप निर्यात करने के लिए मापन का उपयोग करें। मर्ज की गई छवियों और मास्क वाला प्रोजेक्ट चुनें, फिर क्रॉप सहेजना सक्षम करें और ऑब्जेक्ट प्रकार चुनें।",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

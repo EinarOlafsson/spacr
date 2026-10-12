@@ -129,7 +129,6 @@ BUDGET = {
     "spacr/qt/widgets/fast_plots.py": 0,
     "spacr/qt/preferences.py": 0,
     "spacr/qt/screens/app_screen.py": 0,
-    "spacr/qt/tutorial/scripts.py": 0,
     "spacr/qt/widgets/gate_editor.py": 0,
     "spacr/settings.py": 0,
     "spacr/qt/app.py": 0,

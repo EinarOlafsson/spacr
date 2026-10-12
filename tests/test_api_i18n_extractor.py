@@ -1505,6 +1505,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in export_arrivals} == export_arrivals
     assert not export_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **export_arrivals}
+    tutorial_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"]
+    assert len(tutorial_arrivals) == 3
+    assert {key: docs[key] for key in tutorial_arrivals} == tutorial_arrivals
+    assert not tutorial_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **tutorial_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1615,7 +1622,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary(monke
 
     # THE DOT IS LOAD-BEARING. `spacr.qt.tutorial` is the ignored PACKAGE;
     # `spacr.qt.tutorials` is a different, rendered module beside it -- the
-    # four-function lookup a screen uses to find its lesson. A bare
+    # lookup a screen and spacr-tutorial use to find a lesson. A bare
     # startswith("spacr.qt.tutorial") catches the sibling by prefix and
     # reports a rendered public module as a boundary leak.
     assert not any(
@@ -1909,8 +1916,15 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary(monke
     with monkeypatch.context() as unfiltered:
         unfiltered.setattr(builder, '_is_rendered_autoapi_entry', lambda *args, **kwargs: True)
         raw = builder.public_docstrings()
+    # 2026-10-12: 224 -> 211. The spacr.qt.tutorial bucket fell from 16 to
+    # 3 (the package, its __main__ and main) when the still-frame renderer
+    # was deleted; spacr-tutorial now opens the online lessons.
     assert set(docs) <= set(raw)
-    assert len(set(raw) - set(docs)) == 224
+    assert len(set(raw) - set(docs)) == 211
+    assert sorted(key for key in set(raw) - set(docs)
+                  if key.startswith("spacr.qt.tutorial")) == [
+        "spacr.qt.tutorial", "spacr.qt.tutorial.__main__",
+        "spacr.qt.tutorial.__main__.main"]
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

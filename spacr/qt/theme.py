@@ -3664,7 +3664,7 @@ def _a_window_for_want_of_a_parent(widget) -> bool:
           `WA_WState_Created` clause. The home-screen version art renders
           exactly as before; this is the one that would have been
           expensive to get wrong.
-      `gate_editor`, `app_screen`, `setup_dialog`, `tutorial.engine`
+      `gate_editor`, `app_screen`, `setup_dialog`
           all grab a parented widget or a shown window, so the
           `parent() is None` clause excludes them.
 

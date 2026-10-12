@@ -3376,6 +3376,14 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in export_arrivals} == export_arrivals
     assert not export_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **export_arrivals}
+    # 2026-10-12: spacr-tutorial opens the online lessons; the three
+    # spacr.qt.tutorials arrivals are one named contract.
+    tutorial_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"]
+    assert len(tutorial_arrivals) == 3
+    assert {key: docs[key] for key in tutorial_arrivals} == tutorial_arrivals
+    assert not tutorial_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **tutorial_arrivals}
     assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                - volume_arrivals.keys() - zoo_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "

@@ -58,8 +58,8 @@ _OPEN_FRESH = [False]
 #: `docs/source/_extra/` verbatim into the site root (`html_extra_path`), so
 #: `docs/source/_extra/tutorials/index.html` publishes at `<root>/tutorials/`
 #: — plural. The Help menu pointed at the singular `/tutorial/` for its whole
-#: life, which is a 404: no page has ever been served from that path, and
-#: `spacr/qt/tutorial/` (the local MP4 renderer) is an unrelated module.
+#: life, which is a 404: no page has ever been served from that path.
+#: `spacr-tutorial` (`spacr/qt/tutorial/`) opens this same library.
 DOCS_BASE_URL = "https://einarolafsson.github.io/spacr"
 DOCS_URL = f"{DOCS_BASE_URL}/index.html"
 TUTORIALS_URL = f"{DOCS_BASE_URL}/tutorials/"

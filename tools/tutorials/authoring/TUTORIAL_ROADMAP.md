@@ -10,7 +10,8 @@ This file is the canonical production order for the tutorial series.
 - The local branch was four commits ahead of `origin/nightly` when this
   roadmap was reconciled.
 - Module authority: `spacr/qt/app.py`, especially the `APPS` registry.
-- Tutorial framework: `spacr/qt/tutorial/`.
+- Tutorial framework: `tools/tutorials/`; the published lesson catalog is
+  `docs/source/_extra/tutorials/lesson_catalog.js`.
 
 ## Series 1 — Installation and core analysis
 

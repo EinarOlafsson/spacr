@@ -1,27 +1,7 @@
-"""Scripted narrated tutorials for the spaCR Qt GUI.
+"""The ``spacr-tutorial`` command, which lists the tutorial lessons and opens them.
 
-Renders a self-contained MP4 (+ SRT sidecar) for each pipeline app.
-Uses Piper for narration and QWidget.grab() for frame capture so the
-recorder works on any display (real or Xvfb).
-
-Public entry points:
-    from spacr.qt.tutorial import render_tutorial
-    render_tutorial("mask", out_dir="/tmp/spacr-tutorials")
-
-Or via the CLI:
-    spacr-tutorial mask
-    spacr-tutorial all
+The lessons are the online tutorial library at
+:data:`spacr.qt.tutorials.TUTORIALS_URL`, the page the Help menu opens.
+``spacr-tutorial`` prints the lesson list and opens the library, or one
+lesson named by number, slug or screen. See :mod:`spacr.qt.tutorial.__main__`.
 """
-from __future__ import annotations
-
-from .engine import Director, Narrator, Recorder, Step, render_tutorial
-from .scripts import AVAILABLE_TUTORIALS
-
-__all__ = [
-    "AVAILABLE_TUTORIALS",
-    "Director",
-    "Narrator",
-    "Recorder",
-    "Step",
-    "render_tutorial",
-]
