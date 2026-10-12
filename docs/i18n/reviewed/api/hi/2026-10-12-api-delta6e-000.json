@@ -1021,7 +1021,7 @@
       "review_basis": "written from the English"
     },
     {
-      "label": "spacr.qt.widgets.loading_screen.BlowAway#10",
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#12",
       "source": "Draw every tile's launch and flight; see the class docstring.",
       "source_sha256": "379c7bb97f00aa031ac2c535729b6846158b3622f0c0c240fe0d12ced87053f7",
       "context": "Draw every tile's launch and flight; see the class docstring.",
@@ -1194,7 +1194,9 @@
       "source_sha256": "d50552237cc81b8dc8c5a374666f4da237036bc659a258964bf14929865dd7ea",
       "context": "Starts no sooner than 0.6 s after the cover first painted. The cover deletes itself when the last tile has gone.",
       "translation": "कवर के पहली बार बनने के 0.6 s बाद से पहले शुरू नहीं होता। अंतिम टाइल के चले जाने पर कवर स्वयं को हटा देता है।",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#2",
@@ -1210,10 +1212,12 @@
       "source_sha256": "7750ec9708425d1b5f32973d22ce6be9c59cf00b214fb745e3e37de65dae5ed8",
       "context": "play even where :func:`startup_animation_allowed` says no; for tests and previews.",
       "translation": "वहाँ भी चलाएँ जहाँ :func:`startup_animation_allowed` मना करता है; परीक्षणों और पूर्वावलोकनों के लिए।",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#4",
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#5",
       "source": "``True`` when the blow-away will play and the cover will take itself down; ``False`` when it will not -- no mosaic, the animation is off, or a click already asked to skip -- and the caller takes the cover down as before.",
       "source_sha256": "dd3d1f3709e1b67c4e617ff070b83694f8596fc1527fabeb1f7a93e3e2446995",
       "context": "``True`` when the blow-away will play and the cover will take itself down; ``False`` when it will not -- no stitched image grid, the animation is off, or a click already asked to skip -- and the caller takes the cover down as before.",
@@ -1426,7 +1430,9 @@
       "source_sha256": "8fad79e73e907936949c5551e2a6a086c629cd77a47f2db12b7edddb736003de",
       "context": "Whether a startup blow-away is waiting to start or under way.",
       "translation": "क्या स्टार्टअप उड़ाना शुरू होने की प्रतीक्षा में है या चल रहा है।",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.blow_away_running#1",
@@ -1434,7 +1440,9 @@
       "source_sha256": "e4291692ef3e4d863d92ffcb612fb7a31f0a62ec992d0ac52b42d27b5dafa18f",
       "context": "Idle-time warming asks this and waits, so its slices do not take frames from the animation in the two seconds it runs.",
       "translation": "निष्क्रिय-समय की वार्म-अप यह पूछती है और प्रतीक्षा करती है, ताकि उसके टुकड़े एनिमेशन के चलने के दो सेकंड में उससे फ़्रेम न छीनें।",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.blow_away_running#2",
@@ -1442,7 +1450,9 @@
       "source_sha256": "eb60638264717bb6c4ed04b0738e4703931cb4afec82e4631e37e9f6564bbd83",
       "context": "``True`` while any cover that still exists is playing; a cover deleted mid-way, with its window, no longer counts.",
       "translation": "``True`` जब तक कोई अब भी मौजूद कवर चल रहा है; बीच में अपनी विंडो के साथ हटाया गया कवर अब गिना नहीं जाता।",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.loading_screen.mosaic_splash_wanted#0",
