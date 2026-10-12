@@ -45,7 +45,10 @@ def card_keys() -> Tuple[str, ...]:
 
 
 def repo_of_key(key: Any) -> str:
-    """The ``owner/repo`` of a zoo key that has a card, else ``''``."""
+    """The ``owner/repo`` of a zoo key that has a card, else ``''``.
+
+    :param key: a model zoo key.
+    """
     card = _cards().get(str(key or ""))
     return str(card["repo_id"]) if card else ""
 
@@ -54,6 +57,8 @@ def card_for_entry(entry: Any) -> Optional[Dict[str, Any]]:
     """The card data of a :class:`~spacr.model_zoo.ModelEntry`, or ``None``.
 
     Matched on the zoo key, then on the repository the entry is fetched from.
+
+    :param entry: the model zoo entry.
     """
     card = _cards().get(str(getattr(entry, "key", "") or ""))
     if card is not None:
@@ -68,22 +73,35 @@ def card_for_entry(entry: Any) -> Optional[Dict[str, Any]]:
 
 
 def page_url(repo: str, page: int) -> str:
-    """The Hugging Face URL of card page ``page`` (1-based) of ``repo``."""
+    """The Hugging Face URL of card page ``page`` (1-based) of ``repo``.
+
+    :param repo: ``owner/repo``.
+    :param page: the page number, from 1.
+    """
     return f"https://huggingface.co/{repo}/resolve/main/cards/page{int(page)}.png"
 
 
 def repo_url(repo: str) -> str:
-    """The Hugging Face page of a model repository."""
+    """The Hugging Face page of a model repository.
+
+    :param repo: ``owner/repo``.
+    """
     return f"https://huggingface.co/{repo}"
 
 
 def cache_dir(repo: str) -> Path:
-    """Where the page images of ``repo`` are cached, under the spaCR home."""
+    """Where the page images of ``repo`` are cached, under the spaCR home.
+
+    :param repo: ``owner/repo``.
+    """
     return Path(_spacr_home()) / "model_cards" / repo.split("/")[-1]
 
 
 def cached_pages(repo: str) -> List[Optional[Path]]:
-    """The cached image of each page, ``None`` where it is not cached."""
+    """The cached image of each page, ``None`` where it is not cached.
+
+    :param repo: ``owner/repo``.
+    """
     folder = cache_dir(repo)
     return [folder / f"page{n}.png" if (folder / f"page{n}.png").is_file()
             else None for n in range(1, PAGE_COUNT + 1)]
@@ -124,7 +142,10 @@ def fetch_pages(repo: str,
 
 
 def clear_cache(repo: str) -> None:
-    """Remove the cached images of ``repo``."""
+    """Remove the cached images of ``repo``.
+
+    :param repo: ``owner/repo``.
+    """
     shutil.rmtree(cache_dir(repo), ignore_errors=True)
 
 
@@ -136,7 +157,10 @@ def _num(value: Any) -> str:
 
 
 def score_rows(card: Dict[str, Any]) -> List[Tuple[str, str]]:
-    """Page 1 as ``(metric, "this (stock x)")`` pairs."""
+    """Page 1 as ``(metric, "this (stock x)")`` pairs.
+
+    :param card: the card data.
+    """
     rows = (card.get("scores") or {}).get("rows") or []
     return [(str(r.get("label", r.get("key", ""))),
              f"{_num(r.get('this'))} ({_num(r.get('stock'))})")
@@ -144,13 +168,19 @@ def score_rows(card: Dict[str, Any]) -> List[Tuple[str, str]]:
 
 
 def fact_rows(card: Dict[str, Any]) -> List[Tuple[str, str]]:
-    """Page 2 as ``(fact, value)`` pairs."""
+    """Page 2 as ``(fact, value)`` pairs.
+
+    :param card: the card data.
+    """
     rows = (card.get("facts") or {}).get("rows") or []
     return [(str(r.get("label", "")), str(r.get("this", ""))) for r in rows]
 
 
 def about_lines(card: Dict[str, Any]) -> List[str]:
-    """Page 3 as plain sentences, without the empty fields."""
+    """Page 3 as plain sentences, without the empty fields.
+
+    :param card: the card data.
+    """
     about = card.get("about") or {}
     lines = [str(about.get(k)) for k in
              ("segments", "trained_on", "status", "load_line")
@@ -161,10 +191,12 @@ def about_lines(card: Dict[str, Any]) -> List[str]:
 
 
 def page_html(card: Dict[str, Any], page: int,
-              headers: Tuple[str, str, str, str] = ("Metric", "Value",
+              headers: Tuple[str, str, str, str] = ("Score", "Value",
                                                     "Fact", "Value")) -> str:
     """The text fallback of one card page (1-based) as a small HTML body.
 
+    :param card: the card data.
+    :param page: the page number, from 1.
     :param headers: the already translated column headings for the scores
         and facts tables.
     """
@@ -189,6 +221,9 @@ def page_html(card: Dict[str, Any], page: int,
 
 
 def model_link(card: Dict[str, Any]) -> str:
-    """The Hugging Face URL of the model the card describes."""
+    """The Hugging Face URL of the model the card describes.
+
+    :param card: the card data.
+    """
     links = (card.get("about") or {}).get("links") or {}
     return str(links.get("model") or repo_url(str(card.get("repo_id", ""))))

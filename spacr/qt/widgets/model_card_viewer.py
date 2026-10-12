@@ -163,7 +163,10 @@ class ModelCardViewer(QFrame):
         return self._status.text()
 
     def set_card(self, card: Optional[Dict[str, Any]]) -> None:
-        """Show ``card`` from page 1, fetching its images when not cached."""
+        """Show ``card`` from page 1, fetching its images when not cached.
+
+        :param card: the card data, or None to show nothing.
+        """
         self._card = card
         self._page = 0
         self._failed = False
@@ -181,7 +184,10 @@ class ModelCardViewer(QFrame):
         self._show_page()
 
     def go_to(self, page: int) -> None:
-        """Show page ``page`` (zero-based), clamped to the pages."""
+        """Show page ``page`` (zero-based), clamped to the pages.
+
+        :param page: the page index, from 0.
+        """
         page = max(0, min(cards.PAGE_COUNT - 1, int(page)))
         if page != self._page:
             self._page = page
@@ -197,7 +203,10 @@ class ModelCardViewer(QFrame):
         self.go_to(self._page - 1)
 
     def keyPressEvent(self, event):  # noqa: N802
-        """Left and Right turn the page."""
+        """Left and Right turn the page.
+
+        :param event: the Qt key event.
+        """
         if event.key() == Qt.Key_Right:
             self.next_page()
         elif event.key() == Qt.Key_Left:
@@ -276,7 +285,7 @@ class ModelCardViewer(QFrame):
             self._status.setText(
                 tr("The card images could not be downloaded. Showing the "
                    "card data stored with spaCR."))
-        headers = (tr("Metric"), tr("This model (stock base)"),
+        headers = (tr("Score"), tr("This model (stock base)"),
                    tr("Fact"), tr("Value"))
         palette = active_palette()
         self._text.setHtml(
