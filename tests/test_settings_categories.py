@@ -948,6 +948,18 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # real / not-real object classifier Make Masks applies after detection
     # and its threshold, under "Object filtration" beside object_filters.
     "real_object_classifier", "real_object_threshold",
+    # NEW SETTINGS, not a regrouping (F534, 1c822e519, declared here
+    # 2026-10-11): the Spatial Mask Generation and Spatial Map Barcodes
+    # engines' keys from spacr.ops_settings, under their own "Spatial ..."
+    # headings on the OPS window.
+    "spatial_source", "spatial_platform", "spatial_dst", "spatial_sample",
+    "spatial_level", "spatial_window", "spatial_window_unit",
+    "spatial_tile_size", "spatial_tile_overlap", "spatial_segmenter",
+    "spatial_stain", "spatial_cellpose_model", "spatial_diameter",
+    "spatial_cell_expansion_um", "spatial_gpu", "spatial_masks_dir",
+    "spatial_bin_um", "spatial_min_qv", "spatial_objects",
+    "spatial_pathogen_genes", "spatial_min_pathogen_transcripts",
+    "spatial_gene", "spatial_anndata",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

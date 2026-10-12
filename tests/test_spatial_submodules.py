@@ -19,6 +19,8 @@ import pytest
 
 from spacr import ops_engine as oe
 from spacr.tabular import database_tables, read_table
+from tests.cellpose_api_contract import assert_declares_installed_eval_signature
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 pytest.importorskip("pyarrow")
 
@@ -361,10 +363,20 @@ def test_cellpose_is_driven_through_the_ops_model(tmp_path, monkeypatch):
     calls = []
 
     class _Model:
-        def eval(self, image, **kwargs):
-            calls.append(kwargs)
-            return (_plant(image),)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
+            check_cellpose_eval_call(x, channel_axis)
+            calls.append({"batch_size": batch_size, "diameter": diameter,
+                          "channel_axis": channel_axis})
+            return _plant(x), [None], None
 
+    assert_declares_installed_eval_signature(_Model.eval)
     monkeypatch.setattr(oe, "_cellpose_model",
                         lambda settings, gpu: calls.append(
                             (settings, gpu)) or _Model())

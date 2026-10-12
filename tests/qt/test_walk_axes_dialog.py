@@ -104,7 +104,12 @@ class TestDialog:
         for enable, _s, _r in dialog._rows.values():
             enable.setChecked(False)
         dialog._update_cost()
-        assert "original two" in dialog._cost.text()
+        # 2026-10-11: d3cd49f12 (N678 factual UI strings) dropped "its
+        # original two" from this message; what it must still say is which
+        # two axes the Walk falls back to.
+        text = dialog._cost.text()
+        assert "No axes selected" in text
+        assert "n_neighbors" in text and "min_dist" in text
 
     def test_categorical_axes_get_a_list_not_a_free_text_field(
             self, panel, qtbot):

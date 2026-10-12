@@ -91,7 +91,12 @@ def test_vendor_recipe_reads_one_folder_given_as_a_list(tmp_path):
 
 def test_vendor_recipe_leaves_several_or_invalid_sources_alone(tmp_path):
     base = {'z_stack': True, 'z_segmentation_mode': None, 'z_axis': None}
-    two = {**base, 'src': [str(tmp_path), str(tmp_path)]}
+    # 2026-10-11: since 9ffa83cba (#138/#139) normalize_src_path drops a
+    # repeated path, so [tmp_path, tmp_path] is one source; two sources
+    # must be two different folders.
+    (tmp_path / 'a').mkdir()
+    (tmp_path / 'b').mkdir()
+    two = {**base, 'src': [str(tmp_path / 'a'), str(tmp_path / 'b')]}
     assert core._watch_vendor_recipe(two) == (two, {})
     for bad in (123, 4.5, {'folder': str(tmp_path)}):
         settings = {**base, 'src': bad}
