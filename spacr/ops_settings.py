@@ -336,9 +336,10 @@ SPATIAL_TOOLTIPS: Dict[str, str] = {
         "it). Mask generation segments its image; barcode mapping reads its "
         "transcripts or bins. Default None.",
     "spatial_platform":
-        "(str) - Which 10x platform wrote spatial_source: auto, xenium or "
-        "visium_hd. auto reads it from the files present; set it only when "
-        "a folder holds both layouts. Default auto.",
+        "(str) - Which 10x platform wrote spatial_source: auto, xenium, "
+        "visium_hd (Visium HD bins) or visium (standard spot-based Visium). "
+        "auto reads it from the files present; set it only when a folder "
+        "holds more than one layout. Default auto.",
     "spatial_dst":
         "(str or None) - Where the fields are written: merged/, stack/, "
         "masks/ and measurements/measurements.db with the spatial_fields "
