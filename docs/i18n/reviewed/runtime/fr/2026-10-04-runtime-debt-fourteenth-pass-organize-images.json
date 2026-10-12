@@ -164,13 +164,16 @@
       "source": "Counterfactual generator",
       "source_sha256": "a5d2f0189a49ece007c5ceac1de03810b27c91edffb54e02ce26aa8f1d96df19",
       "translation": "Générateur contrefactuel"
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "counterfactual_generator",
       "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
       "source_sha256": "cc931e77b92c7cc2d17e64ac36a4f5b0612eda3f8a927e238e4aabe6730841d0",
-      "translation": "Le modèle qui dessine les contrefactuels. 'autoencoder' est rapide et entraîné à inverser la décision du classifieur. 'diffusion' est seulement entraîné à dessiner des recadrages de chaque classe et redessine un recadrage partiellement bruité sous la classe cible ; inverser la décision n’est donc pas ce pour quoi il a été optimisé ; il est plus lent et nécessite un GPU, des milliers de recadrages et des centaines d’époques ; avec quelques centaines de recadrages, il ne modifie presque rien. Les poids de diffusion sont enregistrés sous counterfactual_diffusion.pt à côté des tables. Ignoré si counterfactuals n’est pas activé. Valeur par défaut : 'autoencoder'."
+      "translation": "Le modèle qui dessine les contrefactuels. 'autoencoder' est rapide et entraîné à inverser la décision du classifieur. 'diffusion' est seulement entraîné à dessiner des recadrages de chaque classe et redessine un recadrage partiellement bruité sous la classe cible ; inverser la décision n’est donc pas ce pour quoi il a été optimisé ; il est plus lent et nécessite un GPU, des milliers de recadrages et des centaines d’époques ; avec quelques centaines de recadrages, il ne modifie presque rien. Les poids de diffusion sont enregistrés sous counterfactual_diffusion.pt à côté des tables. Ignoré si counterfactuals n’est pas activé. Valeur par défaut : 'autoencoder'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

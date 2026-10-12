@@ -545,14 +545,18 @@
       "source": "Fit every level the run asked for, SEPARATELY, and return one per level.",
       "context": "Fit every level the run asked for, SEPARATELY, and return one per level.",
       "source_sha256": "bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699",
-      "translation": "Passa hvert stig sem keyrslan bað um, HVERT FYRIR SIG, og skila einni niðurstöðu fyrir hvert stig."
+      "translation": "Passa hvert stig sem keyrslan bað um, HVERT FYRIR SIG, og skila einni niðurstöðu fyrir hvert stig.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#1",
       "source": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "context": "This is the two-fit entry point, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "source_sha256": "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
-      "translation": "ÞETTA ER INNGANGSPUNKTUR TVEGGJA PASSANA. Hann er til vegna þess að alls ekki er hægt að passa eina hönnunina sem spaCR notaði áður. ``gene_fraction`` er SUM gRNA-hlutfalla gensins, þannig að"
+      "translation": "ÞETTA ER INNGANGSPUNKTUR TVEGGJA PASSANA. Hann er til vegna þess að alls ekki er hægt að passa eina hönnunina sem spaCR notaði áður. ``gene_fraction`` er SUM gRNA-hlutfalla gensins, þannig að",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#2",
@@ -566,21 +570,27 @@
       "source": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
       "context": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
       "source_sha256": "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
-      "translation": "setur blokk dálka og summur þeirra í eina hönnun. Á viðmiðunarskimuninni TSG101 mældust 1248 stikar við röð 862 -- 386-vítt EXACT núllrúm -- og kvaðratsumma leifa í passaninni sem statsmodels skilaði var bitafyrirbita eins og sú sem fæst með því að bæta sjöföldum núllvigri við hana. Sjá :data:`COLLINEAR_FORMULA_FRAGMENT`."
+      "translation": "setur blokk dálka og summur þeirra í eina hönnun. Á viðmiðunarskimuninni TSG101 mældust 1248 stikar við röð 862 -- 386-vítt EXACT núllrúm -- og kvaðratsumma leifa í passaninni sem statsmodels skilaði var bitafyrirbita eins og sú sem fæst með því að bæta sjöföldum núllvigri við hana. Sjá :data:`COLLINEAR_FORMULA_FRAGMENT`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#4",
       "source": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "context": "Two fits, two tables, two corrections. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "source_sha256": "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
-      "translation": "Tvær passanir, tvær töflur, TVÆR LEIÐRÉTTINGAR. Hver passan er eigin fjölprófunarfjölskylda og er leiðrétt innan hennar. Að sameina þær væri tvöfalt rangt: þær eru ekki óháðar -- sömu sýnisstöður örplatna eru notaðar og aðhvarfsbreyta gensins ER summa aðhvarfsbreyta leiðaranna -- og tvöföldun fjölskyldustærðar dregur úr tölfræðilegum styrk án verndar. :func:`perform_regression` beitir leiðréttingunni fyrir hvert stig og skrifar ``results_grna.csv`` og ``results_gene.csv``."
+      "translation": "Tvær passanir, tvær töflur, TVÆR LEIÐRÉTTINGAR. Hver passan er eigin fjölprófunarfjölskylda og er leiðrétt innan hennar. Að sameina þær væri tvöfalt rangt: þær eru ekki óháðar -- sömu sýnisstöður örplatna eru notaðar og aðhvarfsbreyta gensins ER summa aðhvarfsbreyta leiðaranna -- og tvöföldun fjölskyldustærðar dregur úr tölfræðilegum styrk án verndar. :func:`perform_regression` beitir leiðréttingunni fyrir hvert stig og skrifar ``results_grna.csv`` og ``results_gene.csv``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#5",
       "source": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
       "context": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
       "source_sha256": "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
-      "translation": "``regression_type='mixed'`` passar EINU SINNI og skilar einni færslu, ``'gene'``: líkanið inniheldur þegar bæði stigin, genið sem föst áhrif og leiðarann sem slembiáhrif falin innan gensins. Úttak þess fyrir leiðarann er BLUPs, þess vegna er ekki hægt að skipta því í tvær prófunarfjölskyldur."
+      "translation": "``regression_type='mixed'`` passar EINU SINNI og skilar einni færslu, ``'gene'``: líkanið inniheldur þegar bæði stigin, genið sem föst áhrif og leiðarann sem slembiáhrif falin innan gensins. Úttak þess fyrir leiðarann er BLUPs, þess vegna er ekki hægt að skipta því í tvær prófunarfjölskyldur.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#8",
@@ -596,7 +606,9 @@
       "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
       "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
       "translation": "mappa vinnslulotunnar. Þegar passanir eru fleiri en ein fara FIGURES hvers stigs í ``<dst>/<level>/`` svo þær geti ekki skrifað hver yfir aðra; töflurnar eru áfram í ``<dst>``, þar sem allir neytendur leita að þeim.",
-      "rebound_from": "spacr.ml.regression_levels#7"
+      "rebound_from": "spacr.ml.regression_levels#7",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#10",
@@ -641,7 +653,9 @@
       "source": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed wells; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
       "context": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed microplate sample positions; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
       "source_sha256": "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
-      "translation": "Þetta er ekki tilgáta. Skimunin sem þetta var skrifað fyrir hefur 824 leiðara á 587 greindum sýnisstöðum örplatna; birta passanin hafði 825 stika, röð 579 og átta frígráður leifa, og endurpassan endurgerði ekki eigin stuðla."
+      "translation": "Þetta er ekki tilgáta. Skimunin sem þetta var skrifað fyrir hefur 824 leiðara á 587 greindum sýnisstöðum örplatna; birta passanin hafði 825 stika, röð 579 og átta frígráður leifa, og endurpassan endurgerði ekki eigin stuðla.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.resolve_auto_inference#3",
@@ -670,7 +684,9 @@
       "source": "What a run's results folder is NAMED after.",
       "context": "What a processing session's results folder is NAMED after.",
       "source_sha256": "9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde",
-      "translation": "Það sem heiti niðurstöðumöppu vinnslulotu byggist á."
+      "translation": "Það sem heiti niðurstöðumöppu vinnslulotu byggist á.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.results_folder_kind#1",
@@ -684,7 +700,9 @@
       "source": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "context": "PUBLIC, and the only copy. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "source_sha256": "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8",
-      "translation": "OPINBERT, OG EINA AFRITIÐ. Próf sem leiddi þessa reglu aftur út varð úrelt þegar reglan breyttist og tilkynnti 39 CSV-skrár sem vantaði, þótt allar vinnsluloturnar sem skrifuðu þær væru í lagi. Þetta er bilunin sem `results_dir`-hjálparfallið í tests/test_cov_ml_perform_regression.py hafði þegar verið skrifað einu sinni til að koma í veg fyrir. Prófunarsafn sem bendir á ranga skrá er verra en þögult safn."
+      "translation": "OPINBERT, OG EINA AFRITIÐ. Próf sem leiddi þessa reglu aftur út varð úrelt þegar reglan breyttist og tilkynnti 39 CSV-skrár sem vantaði, þótt allar vinnsluloturnar sem skrifuðu þær væru í lagi. Þetta er bilunin sem `results_dir`-hjálparfallið í tests/test_cov_ml_perform_regression.py hafði þegar verið skrifað einu sinni til að koma í veg fyrir. Prófunarsafn sem bendir á ranga skrá er verra en þögult safn.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.screen_is_blockable#0",
@@ -815,14 +833,18 @@
       "source": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
       "context": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
       "source_sha256": "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
-      "translation": "Skiptir ``agg_type`` sjálfkrafa í None þegar skammtaaðhvarf er valið, þannig að ``alpha`` er túlkað sem skammtamark."
+      "translation": "Skiptir ``agg_type`` sjálfkrafa í None þegar skammtaaðhvarf er valið, þannig að ``alpha`` er túlkað sem skammtamark.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#2",
       "source": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.",
       "context": "Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a processing session that had started cleanly.",
       "source_sha256": "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
-      "translation": "Hér er fyllt inn hvert heiti skipulagðra gagna sem :func:`spacr.ml.perform_regression` les með ``settings[...]``. Sex vantaði. Báðir ræsarnir -- Qt-spjaldið með ``qt.screens.settings_model.resolve_default_settings`` og ``spacr-run regression`` með ``cli.module_defaults`` -- byggja lykla-/gildavörpunina úr þessu eina falli, svo ekki var hægt að ræsa aðhvarfið neins staðar: það stöðvaðist á ``KeyError: 'verbose'`` í ml.py:1409 eftir að báðar CSV-inntaksskrárnar höfðu verið lesnar og ``settings/regression.csv`` skrifuð, svo bilunin leit út eins og vinnslulota sem hefði hafist eðlilega."
+      "translation": "Hér er fyllt inn hvert heiti skipulagðra gagna sem :func:`spacr.ml.perform_regression` les með ``settings[...]``. Sex vantaði. Báðir ræsarnir -- Qt-spjaldið með ``qt.screens.settings_model.resolve_default_settings`` og ``spacr-run regression`` með ``cli.module_defaults`` -- byggja lykla-/gildavörpunina úr þessu eina falli, svo ekki var hægt að ræsa aðhvarfið neins staðar: það stöðvaðist á ``KeyError: 'verbose'`` í ml.py:1409 eftir að báðar CSV-inntaksskrárnar höfðu verið lesnar og ``settings/regression.csv`` skrifuð, svo bilunin leit út eins og vinnslulota sem hefði hafist eðlilega.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#3",

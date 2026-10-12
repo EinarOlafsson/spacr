@@ -1417,7 +1417,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**The Curve picker offers the asymmetric model and does not choose it.** Four-parameter is what Fit uses until someone says otherwise, and a five-parameter fit says in its own report whether the fifth parameter earned itself. A screen that picked the better-fitting model per group would hand back a plate whose EC50s came from two different models, compared as though they had not.",
       "source_sha256": "88ffdf0cc95f3d1795b6eaee4e9066d4afa3e4a45aaddeb64c23a5c2c638983f",
-      "translation": "**Curve चयनकर्ता असममित मॉडल प्रस्तुत करता है पर उसे चुनता नहीं।** जब तक कोई और न कहे, Fit चार-पैरामीटर का उपयोग करता है, और पाँच-पैरामीटर फ़िट अपनी रिपोर्ट में बताता है कि पाँचवाँ पैरामीटर उपयोगी सिद्ध हुआ या नहीं। जो पेज प्रति समूह बेहतर फ़िट होने वाला मॉडल चुनता, वह ऐसी प्लेट लौटाता जिसके EC50s दो अलग मॉडलों से आते, और उनकी तुलना ऐसे होती मानो ऐसा न हो।"
+      "translation": "**Curve चयनकर्ता असममित मॉडल प्रस्तुत करता है पर उसे चुनता नहीं।** जब तक कोई और न कहे, Fit चार-पैरामीटर का उपयोग करता है, और पाँच-पैरामीटर फ़िट अपनी रिपोर्ट में बताता है कि पाँचवाँ पैरामीटर उपयोगी सिद्ध हुआ या नहीं। जो पेज प्रति समूह बेहतर फ़िट होने वाला मॉडल चुनता, वह ऐसी प्लेट लौटाता जिसके EC50s दो अलग मॉडलों से आते, और उनकी तुलना ऐसे होती मानो ऐसा न हो।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the measurement table; its columns fill the concentration, response, group, laboratory microplate, control, host and second-dose pickers.",
@@ -1441,7 +1443,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**What it is for.** Giving every object a vector that no label went into. The measured panel says how big a cell is and how bright each stain was; an embedding says what the cell LOOKS like, in a few hundred numbers a pretrained backbone produces without being told what to look for. That is what makes it worth having beside the panel rather than instead of it -- a phenotype nobody thought to measure is in the vector, and is in no column.",
       "source_sha256": "feab472a4a0d56851e6f39e72585f4c4adfa529a7492a0d6a39dda6468fe9204",
-      "translation": "**यह किसलिए है।** हर ऑब्जेक्ट को ऐसा वेक्टर देना जिसमें कोई लेबल नहीं गया। मापा गया पैनल बताता है कि कोशिका कितनी बड़ी है और हर रंजक कितना चमकीला था; एम्बेडिंग बताती है कि कोशिका कैसी दिखती है, कुछ सौ संख्याओं में जिन्हें पूर्व-प्रशिक्षित बैकबोन यह बताए बिना बनाता है कि क्या देखना है। इसी से यह पैनल की जगह नहीं, उसके साथ रखने योग्य है -- जिस फ़ीनोटाइप को मापने का किसी ने नहीं सोचा वह वेक्टर में है, और किसी स्तंभ में नहीं।"
+      "translation": "**यह किसलिए है।** हर ऑब्जेक्ट को ऐसा वेक्टर देना जिसमें कोई लेबल नहीं गया। मापा गया पैनल बताता है कि कोशिका कितनी बड़ी है और हर रंजक कितना चमकीला था; एम्बेडिंग बताती है कि कोशिका कैसी दिखती है, कुछ सौ संख्याओं में जिन्हें पूर्व-प्रशिक्षित बैकबोन यह बताए बिना बनाता है कि क्या देखना है। इसी से यह पैनल की जगह नहीं, उसके साथ रखने योग्य है -- जिस फ़ीनोटाइप को मापने का किसी ने नहीं सोचा वह वेक्टर में है, और किसी स्तंभ में नहीं।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What it needs.** Extracted image regions, and a choice about the channels. The extracted image regions come from the row at the top of the application view, which is :mod:`spacr.crop_loader`: either a ``measurements.db``, narrowed to one object class, one laboratory microplate or any condition its extracted-image-region table supports, or a folder of extracted image region PNGs. Whichever it is, the pixels are read the way every other application view reads them -- :func:`spacr.crops.resolve_crop_source` decides between the extracted image regions already under ``data/`` and cutting them from ``merged/*.npy``, and says which it chose. Nothing has to be prepared first: a laboratory microplate that has been through Measure with extracted image region output on is ready.",
@@ -1467,7 +1471,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**What to do next.** Treat the columns as a feature source, not as a result. They are consumed exactly as the measured panel is -- a reduction to see whether the objects separate, a regression against the perturbation, a retrieval to find the objects most like one you picked. Which is also the warning the screen repeats under the table: a single dimension is not a phenotype, and the only honest way to read one of these numbers is through something that takes the whole vector.",
       "source_sha256": "27b053b768ec700ceb0403d50c8e6d31c2753cbd6f9aa1e812bdf94b4ff706e1",
-      "translation": "**आगे क्या करें।** स्तंभों को परिणाम के रूप में नहीं, फ़ीचर स्रोत के रूप में लें। उनका उपयोग ठीक मापे गए पैनल की तरह होता है -- यह देखने के लिए न्यूनीकरण कि ऑब्जेक्ट अलग होते हैं या नहीं, परिवर्तन के विरुद्ध रिग्रेशन, आपके चुने ऑब्जेक्ट से सबसे मिलते-जुलते ऑब्जेक्ट खोजने के लिए पुनर्प्राप्ति। यही वह चेतावनी भी है जो पेज तालिका के नीचे दोहराता है: एकल आयाम फ़ीनोटाइप नहीं है, और इनमें से किसी संख्या को पढ़ने का एकमात्र ईमानदार तरीका किसी ऐसी चीज़ से है जो पूरा वेक्टर लेती है।"
+      "translation": "**आगे क्या करें।** स्तंभों को परिणाम के रूप में नहीं, फ़ीचर स्रोत के रूप में लें। उनका उपयोग ठीक मापे गए पैनल की तरह होता है -- यह देखने के लिए न्यूनीकरण कि ऑब्जेक्ट अलग होते हैं या नहीं, परिवर्तन के विरुद्ध रिग्रेशन, आपके चुने ऑब्जेक्ट से सबसे मिलते-जुलते ऑब्जेक्ट खोजने के लिए पुनर्प्राप्ति। यही वह चेतावनी भी है जो पेज तालिका के नीचे दोहराता है: एकल आयाम फ़ीनोटाइप नहीं है, और इनमें से किसी संख्या को पढ़ने का एकमात्र ईमानदार तरीका किसी ऐसी चीज़ से है जो पूरा वेक्टर लेती है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The extracted image region loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a background execution unit, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
@@ -1475,7 +1481,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The crop loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a worker thread, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
       "source_sha256": "efa905cc9d85d0b55f405c6708fbb7b889cfca53a9a71fe22c8043374f250fcf",
-      "translation": "एन्कोडर नियंत्रणों के ऊपर का क्रॉप लोडर पेज का प्रवेश बिंदु है: :mod:`spacr.crop_loader` चयन की योजना बनाता है, यह पेज वर्कर थ्रेड पर उसके पेजों से गुज़रता है, और :meth:`set_crops` -- जो पहले केवल Python से पहुँचा जा सकता था -- वही है जिसे हर पूरा हुआ लोड कॉल करता है।"
+      "translation": "एन्कोडर नियंत्रणों के ऊपर का क्रॉप लोडर पेज का प्रवेश बिंदु है: :mod:`spacr.crop_loader` चयन की योजना बनाता है, यह पेज वर्कर थ्रेड पर उसके पेजों से गुज़रता है, और :meth:`set_crops` -- जो पहले केवल Python से पहुँचा जा सकता था -- वही है जिसे हर पूरा हुआ लोड कॉल करता है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``False`` runs the embedding and the extracted image region load inline, emitting the same signals in the same order, so a test drives the screen synchronously without the behaviour diverging.",
@@ -1507,7 +1515,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The stop flag is set FIRST. ``shutdown`` waits a bounded time and then parks a worker that outlasts it, so a load told to stop between pages finishes in one page instead of reading the rest of the plate into an array whose screen has gone.",
       "source_sha256": "940621b8ce4edb757e3bbc40852030570c090827c47dd1a8c8f0ab3ca20226db",
-      "translation": "रोक फ़्लैग पहले सेट होता है। ``shutdown`` एक सीमित समय तक प्रतीक्षा करता है और फिर उससे अधिक चलने वाले वर्कर को अलग रख देता है, इसलिए पेजों के बीच रोकने को कहा गया लोड एक पेज में समाप्त होता है, न कि बाकी प्लेट को ऐसे ऐरे में पढ़ता रहता है जिसका पेज जा चुका है।"
+      "translation": "रोक फ़्लैग पहले सेट होता है। ``shutdown`` एक सीमित समय तक प्रतीक्षा करता है और फिर उससे अधिक चलने वाले वर्कर को अलग रख देता है, इसलिए पेजों के बीच रोकने को कहा गया लोड एक पेज में समाप्त होता है, न कि बाकी प्लेट को ऐसे ऐरे में पढ़ता रहता है जिसका पेज जा चुका है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The :class:`spacr.crop_loader.CropQuery` the controls describe.",
@@ -1571,7 +1581,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO JOBS, NOT ONE, and the split is the point: planning is a count and a select, so it comes back in milliseconds and the screen can say what was matched -- or why nothing was -- before committing to read a single pixel. Only then does the second job start, and it reports after every page.",
       "source_sha256": "9a32c20722c0e0eac213e341635d0907d9d2eeb9902b22b90c428cb1dabe8931",
-      "translation": "दो काम, एक नहीं, और विभाजन ही मुख्य बात है: योजना बनाना एक गिनती और एक select है, इसलिए यह मिलीसेकंड में लौटता है और पेज एक भी पिक्सेल पढ़ने से पहले बता सकता है कि क्या मेल खाया -- या कुछ क्यों नहीं खाया। उसके बाद ही दूसरा काम शुरू होता है, और वह हर पेज के बाद रिपोर्ट करता है।"
+      "translation": "दो काम, एक नहीं, और विभाजन ही मुख्य बात है: योजना बनाना एक गिनती और एक select है, इसलिए यह मिलीसेकंड में लौटता है और पेज एक भी पिक्सेल पढ़ने से पहले बता सकता है कि क्या मेल खाया -- या कुछ क्यों नहीं खाया। उसके बाद ही दूसरा काम शुरू होता है, और वह हर पेज के बाद रिपोर्ट करता है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Stop a load between pages, keeping the pages already read.",
@@ -1899,7 +1911,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The SAME list Mask's ``metadata_type`` offers, read from :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can parse is a plate Import can parse and the two lists cannot drift. Folders come first because they are what Import did before it knew any convention; the vendor conventions follow in Mask's vendor order, each labelled with its vendor and marked when spaCR is guessing about it.",
       "source_sha256": "d73c9885b1f5c35f67498044a8d03246049409a1173b4aeea479044957075f30",
-      "translation": "वही सूची जो Mask का ``metadata_type`` प्रस्तुत करता है, :func:`spacr.regex_infer._metadata_convention_menu` से पढ़ी गई, ताकि जो प्लेट Mask पार्स कर सकता है वही Import पार्स कर सके और दोनों सूचियाँ अलग न हो सकें। फ़ोल्डर पहले आते हैं क्योंकि किसी परिपाटी को जानने से पहले Import यही करता था; विक्रेता परिपाटियाँ Mask के विक्रेता क्रम में आती हैं, हर एक अपने विक्रेता से लेबल की गई और तब चिह्नित जब spaCR उसके बारे में अनुमान लगा रहा हो।"
+      "translation": "वही सूची जो Mask का ``metadata_type`` प्रस्तुत करता है, :func:`spacr.regex_infer._metadata_convention_menu` से पढ़ी गई, ताकि जो प्लेट Mask पार्स कर सकता है वही Import पार्स कर सके और दोनों सूचियाँ अलग न हो सकें। फ़ोल्डर पहले आते हैं क्योंकि किसी परिपाटी को जानने से पहले Import यही करता था; विक्रेता परिपाटियाँ Mask के विक्रेता क्रम में आती हैं, हर एक अपने विक्रेता से लेबल की गई और तब चिह्नित जब spaCR उसके बारे में अनुमान लगा रहा हो।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the choices, ``NAMING_AUTO`` first.",
@@ -2197,7 +2211,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "return ``None`` for the panel and leave the card's body empty. The screen fills it with :func:`_fill_hyperparam_card` when the card is first shown, so a module whose search nobody opens does not build and polish its ~130 widgets at open.",
       "source_sha256": "2a689c51c0e247988eaf0b88c222d0589eef8ca2a4113a555b44a0a4de6f2a47",
-      "translation": "पैनल के लिए ``None`` लौटाएँ और कार्ड का मुख्य भाग खाली छोड़ें। कार्ड पहली बार दिखाए जाने पर पेज इसे :func:`_fill_hyperparam_card` से भरता है, ताकि जिस मॉड्यूल की खोज कोई नहीं खोलता वह खुलते समय अपने ~130 विजेट न बनाए और न पॉलिश करे।"
+      "translation": "पैनल के लिए ``None`` लौटाएँ और कार्ड का मुख्य भाग खाली छोड़ें। कार्ड पहली बार दिखाए जाने पर पेज इसे :func:`_fill_hyperparam_card` से भरता है, ताकि जिस मॉड्यूल की खोज कोई नहीं खोलता वह खुलते समय अपने ~130 विजेट न बनाए और न पॉलिश करे।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "parameter name to value.",
@@ -3268,7 +3284,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Three things stacked, and the order is the order the questions come in:",
       "source_sha256": "ff153ab88987be36b2d7ce5021d193f746d9ea93c35c5d913dbe25d74add3896",
-      "translation": "तीन चीज़ें एक के ऊपर एक, और क्रम वही है जिसमें प्रश्न आते हैं:"
+      "translation": "तीन चीज़ें एक के ऊपर एक, और क्रम वही है जिसमें प्रश्न आते हैं:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1. :class:`spacr.qt.widgets.measure_input_table.MeasureInputTable` -- which file is which image data channel, and which is which object. 2. The Measure module's OWN settings form, built from :class:`spacr.qt.screens.settings_model.SettingsWidgets`. Not a copy of it and not a chosen subset: the same widgets the Measure application view builds, from the same defaults, so a setting that exists there exists here and a setting that gains a control there gains one here without this file being edited. 3. Run, off the main GUI execution path, through :func:`spacr.measure.measure_from_field_table` -- which writes the folders the Mask module would have written and then calls ``measure_crop`` itself. The database and the folder tree are Measure's because Measure makes them.",
@@ -3284,7 +3302,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IT IS A ``QDialog``, AND THAT IS WHAT MAKES IT LOOK LIKE spaCR. It used to be a bare ``QWidget`` shown with the ``Qt.Window`` flag, which meant the operating system's own title bar, square corners, an opaque background and minimise/maximise/close buttons -- a window from a different program sitting in the middle of this one. :mod:`spacr.qt.widgets.glass` gives every dialog in the package the translucent card, the rounded corners and the travelling rim, and it recognises a dialog by its TYPE. So the dress is not applied here; being a dialog is.",
       "source_sha256": "c83ae4894af52aae3c2d2afff5cc829069039a6b65dd93b65d15152c96defa71",
-      "translation": "यह एक ``QDialog`` है, और यही इसे spaCR जैसा दिखाता है। पहले यह एक सादा ``QWidget`` था जिसे ``Qt.Window`` फ़्लैग के साथ दिखाया जाता था, जिसका अर्थ था ऑपरेटिंग सिस्टम की अपनी शीर्षक पट्टी, चौकोर कोने, अपारदर्शी पृष्ठभूमि और minimise/maximise/close बटन -- इस प्रोग्राम के बीच में बैठी किसी दूसरे प्रोग्राम की विंडो। :mod:`spacr.qt.widgets.glass` पैकेज के हर डायलॉग को पारभासी कार्ड, गोल कोने और चलती किनारी देता है, और डायलॉग को उसके प्रकार से पहचानता है। इसलिए सजावट यहाँ लागू नहीं की जाती; डायलॉग होना ही पर्याप्त है।"
+      "translation": "यह एक ``QDialog`` है, और यही इसे spaCR जैसा दिखाता है। पहले यह एक सादा ``QWidget`` था जिसे ``Qt.Window`` फ़्लैग के साथ दिखाया जाता था, जिसका अर्थ था ऑपरेटिंग सिस्टम की अपनी शीर्षक पट्टी, चौकोर कोने, अपारदर्शी पृष्ठभूमि और minimise/maximise/close बटन -- इस प्रोग्राम के बीच में बैठी किसी दूसरे प्रोग्राम की विंडो। :mod:`spacr.qt.widgets.glass` पैकेज के हर डायलॉग को पारभासी कार्ड, गोल कोने और चलती किनारी देता है, और डायलॉग को उसके प्रकार से पहचानता है। इसलिए सजावट यहाँ लागू नहीं की जाती; डायलॉग होना ही पर्याप्त है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Its actions are at the bottom right, in the order every spaCR dialog uses: the thing you came to do in the accent colour (Measure, ``PrimaryButton``), and the way out in red beside it (Close, ``DangerButton``). Escape is the other way out, and closes rather than hides -- see :meth:`reject`.",
@@ -3300,7 +3320,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE SETTINGS THE TABLE DECIDES ARE SHOWN AND DISABLED rather than hidden. ``cell_mask_dim`` is not a question once the table says which column holds the cell masks, but a user who has read the Measure documentation comes here looking for it, and a control that is missing reads as a feature that is missing. Shown, filled in, and not editable says the table already answered it. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` is the list, and it is derived from the plane order rather than written out again here.",
       "source_sha256": "5e3814c4025a3b17e8b89ca036e3cf49aba6a8e9396e0f98b227048ce87482d8",
-      "translation": "तालिका जो सेटिंग्स तय करती है वे छिपाई नहीं जातीं, बल्कि दिखाई और अक्षम की जाती हैं। जब तालिका बता देती है कि कौन-सा स्तंभ कोशिका मास्क रखता है तो ``cell_mask_dim`` प्रश्न नहीं रहता, पर Measure दस्तावेज़ पढ़ चुका उपयोगकर्ता इसे खोजते हुए यहाँ आता है, और अनुपस्थित नियंत्रण अनुपस्थित सुविधा जैसा लगता है। दिखाया गया, भरा हुआ और संपादन-योग्य न होना बताता है कि तालिका इसका उत्तर पहले ही दे चुकी है। :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` वह सूची है, और यह यहाँ दोबारा लिखे जाने के बजाय समतल क्रम से निकाली जाती है।"
+      "translation": "तालिका जो सेटिंग्स तय करती है वे छिपाई नहीं जातीं, बल्कि दिखाई और अक्षम की जाती हैं। जब तालिका बता देती है कि कौन-सा स्तंभ कोशिका मास्क रखता है तो ``cell_mask_dim`` प्रश्न नहीं रहता, पर Measure दस्तावेज़ पढ़ चुका उपयोगकर्ता इसे खोजते हुए यहाँ आता है, और अनुपस्थित नियंत्रण अनुपस्थित सुविधा जैसा लगता है। दिखाया गया, भरा हुआ और संपादन-योग्य न होना बताता है कि तालिका इसका उत्तर पहले ही दे चुकी है। :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` वह सूची है, और यह यहाँ दोबारा लिखे जाने के बजाय समतल क्रम से निकाली जाती है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Table, Measure's settings, and a processing session that goes through Measure.",
@@ -3388,7 +3410,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Qt ABORTS THE PROCESS if a running ``QThread`` is destroyed, and this window is closable while a measure run -- minutes of work -- is in flight. :func:`spacr.qt.job_runner.shutdown_all` covers the application quitting; it does not cover one window being closed.",
       "source_sha256": "066f94a545e8a5d4f0dad71984e3916d729a5017dab57df2239e57ae4ce7b7dd",
-      "translation": "यदि चल रहा ``QThread`` नष्ट हो जाए तो Qt प्रक्रिया को निरस्त कर देता है, और यह विंडो मापन रन -- मिनटों का काम -- चलते समय भी बंद की जा सकती है। :func:`spacr.qt.job_runner.shutdown_all` एप्लिकेशन के बंद होने को कवर करता है; यह किसी एक विंडो के बंद होने को कवर नहीं करता।"
+      "translation": "यदि चल रहा ``QThread`` नष्ट हो जाए तो Qt प्रक्रिया को निरस्त कर देता है, और यह विंडो मापन रन -- मिनटों का काम -- चलते समय भी बंद की जा सकती है। :func:`spacr.qt.job_runner.shutdown_all` एप्लिकेशन के बंद होने को कवर करता है; यह किसी एक विंडो के बंद होने को कवर नहीं करता।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the Qt close event.",
@@ -3412,7 +3436,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The same call the run makes, so what this returns is what would happen rather than a second opinion about it.",
       "source_sha256": "712188e34a5efaa50140f29a2986190b51cef69e2e20377e1da3211fb7db6cb1",
-      "translation": "वही कॉल जो रन करता है, इसलिए यह जो लौटाता है वही होगा, उसके बारे में कोई दूसरी राय नहीं।"
+      "translation": "वही कॉल जो रन करता है, इसलिए यह जो लौटाता है वही होगा, उसके बारे में कोई दूसरी राय नहीं।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the next run would write, as far as this window knows.",
@@ -3436,7 +3462,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE HOOK IS ``done`` AND NOT ``reject``, and not ``closeEvent`` alone. Escape reaches ``reject``, which hides the window WITHOUT a close event, and that would leave a measure run -- minutes of work, on a thread -- going behind a window nobody can see; a running ``QThread`` destroyed at exit aborts the process. Overriding ``reject`` to close instead looks like the fix and is a loop: ``QDialog.closeEvent`` itself calls ``reject``.",
       "source_sha256": "33a5fc7e3409b4e4f15a0b8d6c615c56c77d2569ed4bfe8060f6783f3e5e41c9",
-      "translation": "हुक ``done`` है, ``reject`` नहीं, और अकेला ``closeEvent`` भी नहीं। Escape ``reject`` तक पहुँचता है, जो विंडो को क्लोज़ इवेंट के बिना छिपाता है, और इससे मापन रन -- मिनटों का काम, एक थ्रेड पर -- ऐसी विंडो के पीछे चलता रहता जिसे कोई नहीं देख सकता; निकास पर नष्ट हुआ चल रहा ``QThread`` प्रक्रिया को निरस्त कर देता है। बंद करने के लिए ``reject`` को ओवरराइड करना समाधान लगता है पर एक लूप है: ``QDialog.closeEvent`` स्वयं ``reject`` को कॉल करता है।"
+      "translation": "हुक ``done`` है, ``reject`` नहीं, और अकेला ``closeEvent`` भी नहीं। Escape ``reject`` तक पहुँचता है, जो विंडो को क्लोज़ इवेंट के बिना छिपाता है, और इससे मापन रन -- मिनटों का काम, एक थ्रेड पर -- ऐसी विंडो के पीछे चलता रहता जिसे कोई नहीं देख सकता; निकास पर नष्ट हुआ चल रहा ``QThread`` प्रक्रिया को निरस्त कर देता है। बंद करने के लिए ``reject`` को ओवरराइड करना समाधान लगता है पर एक लूप है: ``QDialog.closeEvent`` स्वयं ``reject`` को कॉल करता है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Qt's dialog code, passed straight on.",
@@ -3540,7 +3568,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE FOLDER IS NOT READ HERE. This runs in the Make Masks button handler, on the GUI thread, and ``folder`` is a path the user chose -- on a microscope rig, the share the images live on. It used to ``isdir`` and ``listdir`` it and stat every entry before the window was even shown, so pressing FEATURES on a folder living on a sleeping automount froze the application with no traceback. The walk is :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table fills in a moment later.",
       "source_sha256": "0245540ddf0fa85b0368b85b0be0fd1f4df470512e2ea1cdef054850a1dfa2e1",
-      "translation": "फ़ोल्डर यहाँ नहीं पढ़ा जाता। यह Make Masks बटन हैंडलर में, GUI थ्रेड पर चलता है, और ``folder`` उपयोगकर्ता द्वारा चुना गया पथ है -- माइक्रोस्कोप रिग पर, वह साझा ड्राइव जहाँ छवियाँ हैं। पहले यह इस पर ``isdir`` और ``listdir`` चलाता था और विंडो दिखने से पहले ही हर प्रविष्टि का stat करता था, इसलिए सोए हुए automount पर स्थित फ़ोल्डर पर FEATURES दबाने से एप्लिकेशन बिना traceback के जम जाता था। भ्रमण :meth:`MeasureInputTable.add_dropped` का है, एक वर्कर पर, और तालिका एक पल बाद भरती है।"
+      "translation": "फ़ोल्डर यहाँ नहीं पढ़ा जाता। यह Make Masks बटन हैंडलर में, GUI थ्रेड पर चलता है, और ``folder`` उपयोगकर्ता द्वारा चुना गया पथ है -- माइक्रोस्कोप रिग पर, वह साझा ड्राइव जहाँ छवियाँ हैं। पहले यह इस पर ``isdir`` और ``listdir`` चलाता था और विंडो दिखने से पहले ही हर प्रविष्टि का stat करता था, इसलिए सोए हुए automount पर स्थित फ़ोल्डर पर FEATURES दबाने से एप्लिकेशन बिना traceback के जम जाता था। भ्रमण :meth:`MeasureInputTable.add_dropped` का है, एक वर्कर पर, और तालिका एक पल बाद भरती है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Write one value into whichever kind of control holds it.",
@@ -3556,7 +3586,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE TRAP THIS EXISTS FOR: only some of the settings controls carry a ``set_value`` method. ``cell_min_size`` is a plain ``QSpinBox``, and a writer that tests ``hasattr(widget, 'set_value')`` skips it -- silently, leaving the default 8000 in place. A run configured that way measures nothing and reports success, because every object was smaller than a minimum nobody chose.",
       "source_sha256": "838af7f7634f688891241ed5aa3b2db8f48a6f6f8ec4588a4098e3d940b24e15",
-      "translation": "जिस जाल के लिए यह मौजूद है: केवल कुछ सेटिंग्स नियंत्रणों में ``set_value`` मेथड होती है। ``cell_min_size`` एक सादा ``QSpinBox`` है, और ``hasattr(widget, 'set_value')`` जाँचने वाला लेखक इसे छोड़ देता है -- चुपचाप, डिफ़ॉल्ट 8000 को वहीं छोड़ते हुए। इस तरह कॉन्फ़िगर किया गया रन कुछ नहीं मापता और सफलता रिपोर्ट करता है, क्योंकि हर ऑब्जेक्ट उस न्यूनतम से छोटा था जिसे किसी ने नहीं चुना।"
+      "translation": "जिस जाल के लिए यह मौजूद है: केवल कुछ सेटिंग्स नियंत्रणों में ``set_value`` मेथड होती है। ``cell_min_size`` एक सादा ``QSpinBox`` है, और ``hasattr(widget, 'set_value')`` जाँचने वाला लेखक इसे छोड़ देता है -- चुपचाप, डिफ़ॉल्ट 8000 को वहीं छोड़ते हुए। इस तरह कॉन्फ़िगर किया गया रन कुछ नहीं मापता और सफलता रिपोर्ट करता है, क्योंकि हर ऑब्जेक्ट उस न्यूनतम से छोटा था जिसे किसी ने नहीं चुना।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The coercions are the ones :meth:`spacr.qt.screens.app_screen.AppScreen._apply_value` makes, kept in step with it by hand. They are not shared yet because that method is bound to an application view this window is not one of; if a third caller appears, move it rather than copying it again.",
@@ -3732,7 +3764,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The zoo used to show one row per checkpoint, so a model with three versions pushed two unrelated models off the screen. Grouping makes the row a MODEL and the version a choice within it.",
       "source_sha256": "60937aa50d32a4631226239f7dd53def42dee5504af026e672f1aac1e14e99dc",
-      "translation": "zoo पहले प्रति चेकपॉइंट एक पंक्ति दिखाता था, इसलिए तीन संस्करणों वाला मॉडल दो असंबंधित मॉडलों को दृश्य से बाहर धकेल देता था। समूहन से पंक्ति एक मॉडल बनती है और संस्करण उसके भीतर एक विकल्प।"
+      "translation": "zoo पहले प्रति चेकपॉइंट एक पंक्ति दिखाता था, इसलिए तीन संस्करणों वाला मॉडल दो असंबंधित मॉडलों को दृश्य से बाहर धकेल देता था। समूहन से पंक्ति एक मॉडल बनती है और संस्करण उसके भीतर एक विकल्प।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Explore organism guides and open the available image-analysis modules.",

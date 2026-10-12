@@ -248,7 +248,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Cellpose does its own device resolution and already knows about MPS -- ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it cannot do is guess, so it must be TOLD there is a GPU. Passing ``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit device is supplied. An explicit Cellpose device takes precedence.",
       "source_sha256": "afe087464bfad63c02c73d1ef7064c3c7a07c59dee6a07e681f52ce136361a82",
-      "translation": "Cellpose 自行进行设备解析，并且已经了解 MPS——在 Metal 机器上，``assign_device(gpu=True)`` 返回 ``mps``。它无法做到的是猜测，因此必须明确告诉它存在 GPU。在此传入 ``torch.cuda.is_available()`` 时，如果未提供显式设备，Mac 会被固定在 CPU 上。显式指定的 Cellpose 设备优先。"
+      "translation": "Cellpose 自行进行设备解析，并且已经了解 MPS——在 Metal 机器上，``assign_device(gpu=True)`` 返回 ``mps``。它无法做到的是猜测，因此必须明确告诉它存在 GPU。在此传入 ``torch.cuda.is_available()`` 时，如果未提供显式设备，Mac 会被固定在 CPU 上。显式指定的 Cellpose 设备优先。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Consistent device and weight precision for ``CellposeModel`` inference.",
@@ -280,7 +282,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default and Metal on torch 2.2 has no bfloat16, so the default is a ``TypeError: BFloat16 is not supported on MPS`` at construction. Measured on the reporting iMac; float32 weights work there and cost VRAM, which is the right trade for a card that otherwise sits idle. CPU inference also uses float32: bfloat16 support does not imply native arithmetic, and emulation can be substantially slower. This matches Make Masks; float32 arithmetic need not produce identical predictions to bfloat16.",
       "source_sha256": "01e3269686bf0c8c620ad49a202b0c33f9cbb40bc7d0c0c40db10cda2bdfc42d",
-      "translation": "``use_bfloat16`` —— cpsam 默认以 bfloat16 加载权重，而 torch 2.2 上的 Metal 不支持 bfloat16，因此默认行为会在构造时引发 ``TypeError: BFloat16 is not supported on MPS``。这是在报告问题的 iMac 上测得的；float32 权重在那里可以工作，但会占用 VRAM，对于一块原本闲置的显卡来说，这是正确的取舍。CPU 推理同样使用 float32：支持 bfloat16 并不意味着具备原生运算，而模拟运算可能明显更慢。这与 Make Masks 一致；float32 运算不一定产生与 bfloat16 完全相同的预测。"
+      "translation": "``use_bfloat16`` —— cpsam 默认以 bfloat16 加载权重，而 torch 2.2 上的 Metal 不支持 bfloat16，因此默认行为会在构造时引发 ``TypeError: BFloat16 is not supported on MPS``。这是在报告问题的 iMac 上测得的；float32 权重在那里可以工作，但会占用 VRAM，对于一块原本闲置的显卡来说，这是正确的取舍。CPU 推理同样使用 float32：支持 bfloat16 并不意味着具备原生运算，而模拟运算可能明显更慢。这与 Make Masks 一致；float32 运算不一定产生与 bfloat16 完全相同的预测。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "torch module whose availability metadata should be inspected.",
@@ -328,7 +332,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``{crop key: rejected class}`` -- suggestions the annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In a two-class column a rejection of class 1 is an example of class 2, and it is fitted as one; a crop that has since been labelled is left to its label, and in a column with any other classes the rejection cannot be turned into a label and is counted in the notes instead. A rejection is information, not silence: without this the model that proposed the wrong class would be fitted on exactly the same evidence next round and propose it again.",
       "source_sha256": "a1c2ae31255926042ea1c7995c687f0ca39c1662ca318fc07f82e46dc4ff5eb9",
-      "translation": "``{crop key: rejected class}`` —— 标注者明确拒绝的建议（:func:`spacr.suggest.rejected_suggestions`）。在二分类列中，对类别 1 的拒绝就是类别 2 的一个样本，并按此进行拟合；此后已被标记的裁剪图以其标签为准；在包含任何其他类别的列中，拒绝无法转换为标签，而是改为计入说明。拒绝是信息，而不是沉默：没有它，提出错误类别的模型会在下一轮基于完全相同的证据进行拟合，并再次提出该类别。"
+      "translation": "``{crop key: rejected class}`` —— 标注者明确拒绝的建议（:func:`spacr.suggest.rejected_suggestions`）。在二分类列中，对类别 1 的拒绝就是类别 2 的一个样本，并按此进行拟合；此后已被标记的裁剪图以其标签为准；在包含任何其他类别的列中，拒绝无法转换为标签，而是改为计入说明。拒绝是信息，而不是沉默：没有它，提出错误类别的模型会在下一轮基于完全相同的证据进行拟合，并再次提出该类别。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "global-frame row position, in pixels; ``origin_y`` is subtracted and the result rounded to the nearest integer.",
@@ -880,7 +886,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches the example sets -- Import, Mask, Measure, Annotate/Classify, Replication, Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. The OPS and Align & Stitch samples are fetched only when named (``spacr-download ops stitch``) or with ``all``. It does NOT fetch the published TSG101 screen, which is 33 GB. A command that spent 33 GB of somebody's quota because they typed its name with no arguments would be a bug however well documented, so the screen is opt-in, is asked for in pieces, and is confirmed before it starts. The pieces are :mod:`spacr.screen_data`'s, unchanged: four measurement databases of about 0.5 GB and four crop folders of about 8 GB, any subset of which can be named.",
       "source_sha256": "cbeaa646852275e319331195d9c56909734676f0283735c25d09e0d5d60defdb",
-      "translation": "在未被要求时它会做什么、不会做什么。不带参数时，它会获取各示例数据集——Import、Mask、Measure、Annotate/Classify、Replication、Recruitment 以及合成的 Invasion 数据集——总计约 1.8 GB。OPS 和 Align & Stitch 样本只有在被点名（``spacr-download ops stitch``）或使用 ``all`` 时才会获取。它不会获取已发表的 TSG101 筛选数据，其大小为 33 GB。一个命令如果仅因为用户不带参数输入了它的名称就耗掉某人 33 GB 的配额，无论文档写得多清楚都算是缺陷，因此筛选数据需要主动选择、分块请求，并在开始前确认。这些分块沿用 :mod:`spacr.screen_data` 的定义，未作更改：四个约 0.5 GB 的测量数据库和四个约 8 GB 的裁剪图文件夹，可以点名其中任意子集。"
+      "translation": "在未被要求时它会做什么、不会做什么。不带参数时，它会获取各示例数据集——Import、Mask、Measure、Annotate/Classify、Replication、Recruitment 以及合成的 Invasion 数据集——总计约 1.8 GB。OPS 和 Align & Stitch 样本只有在被点名（``spacr-download ops stitch``）或使用 ``all`` 时才会获取。它不会获取已发表的 TSG101 筛选数据，其大小为 33 GB。一个命令如果仅因为用户不带参数输入了它的名称就耗掉某人 33 GB 的配额，无论文档写得多清楚都算是缺陷，因此筛选数据需要主动选择、分块请求，并在开始前确认。这些分块沿用 :mod:`spacr.screen_data` 的定义，未作更改：四个约 0.5 GB 的测量数据库和四个约 8 GB 的裁剪图文件夹，可以点名其中任意子集。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The one plate folder the three plate example sets unpack into.",
@@ -1000,7 +1008,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**WHAT IT IS FOR.** Every screen that shows objects has had its own way of finding them, and the Embeddings screen had none at all -- :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` existed and nothing in ``spacr/`` called it, so the only route to a label-free vector was to open Python. This module is the missing half: it turns a question about a plate into a stack of pixels, and it does it in two steps so a GUI can stay answerable between them.",
       "source_sha256": "cea439e50c1bfbd8e82ed329bde7a6d73038961b4fdd36627239e6a5a37f1b18",
-      "translation": "**用途。** 每个显示对象的界面都有自己查找对象的方式，而 Embeddings 界面则完全没有——:meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` 虽然存在，但 ``spacr/`` 中没有任何代码调用它，所以获得无标记向量的唯一途径就是打开 Python。本模块就是缺失的那一半：它把关于一个板的问题转换为一叠像素，并分两步完成，以便 GUI 在两步之间保持响应。"
+      "translation": "**用途。** 每个显示对象的界面都有自己查找对象的方式，而 Embeddings 界面则完全没有——:meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` 虽然存在，但 ``spacr/`` 中没有任何代码调用它，所以获得无标记向量的唯一途径就是打开 Python。本模块就是缺失的那一半：它把关于一个板的问题转换为一叠像素，并分两步完成，以便 GUI 在两步之间保持响应。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**Planning is not loading, and that separation is the whole design.** :func:`plan_crops` asks the database or the folder *which objects match* and reads no pixels at all: a ``COUNT`` and a ``SELECT`` of identifiers, or one ``scandir``. It is milliseconds on a plate of sixty thousand extracted image regions, so a screen can execute it on a click and tell the user what they asked for before committing to reading any of it. :func:`load_crops` then reads the pixels in pages, reporting after each one. A caller that executes the second half on a background execution unit gets a progress number per page and a stop that takes effect within a page rather than at the end.",
@@ -1008,7 +1018,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**PLANNING IS NOT LOADING, and that separation is the whole design.** :func:`plan_crops` asks the database or the folder *which objects match* and reads no pixels at all: a ``COUNT`` and a ``SELECT`` of identifiers, or one ``scandir``. It is milliseconds on a plate of sixty thousand crops, so a screen can run it on a click and tell the user what they asked for before committing to reading any of it. :func:`load_crops` then reads the pixels in pages, reporting after each one. A caller that runs the second half on a worker thread gets a progress number per page and a stop that takes effect within a page rather than at the end.",
       "source_sha256": "a2b7234b8098f4c5c55bbda35e8d9803f520b4056638fcfc5dc39b98541f258e",
-      "translation": "**规划不等于加载，这种分离就是整个设计的核心。** :func:`plan_crops` 向数据库或文件夹询问*哪些对象匹配*，完全不读取任何像素：只是一次 ``COUNT`` 和一次对标识符的 ``SELECT``，或一次 ``scandir``。在一个有六万个裁剪图的板上只需几毫秒，因此界面可以在点击时运行它，在决定读取任何内容之前就告诉用户其请求的内容。随后，:func:`load_crops` 分页读取像素，并在每页之后报告进度。在工作线程上运行后半部分的调用方可以获得每页的进度数值，并且停止操作会在一页之内生效，而不是等到最后。"
+      "translation": "**规划不等于加载，这种分离就是整个设计的核心。** :func:`plan_crops` 向数据库或文件夹询问*哪些对象匹配*，完全不读取任何像素：只是一次 ``COUNT`` 和一次对标识符的 ``SELECT``，或一次 ``scandir``。在一个有六万个裁剪图的板上只需几毫秒，因此界面可以在点击时运行它，在决定读取任何内容之前就告诉用户其请求的内容。随后，:func:`load_crops` 分页读取像素，并在每页之后报告进度。在工作线程上运行后半部分的调用方可以获得每页的进度数值，并且停止操作会在一页之内生效，而不是等到最后。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What it needs.** Either a ``measurements.db`` -- where the extracted image regions are chosen by object class, by plate, or by a predicate over ``png_list`` -- or a folder of extracted image region PNGs. Nothing else: the pixels themselves come from :func:`spacr.crops.resolve_crop_source`, so this module inherits the existing answer to \"are there pre-generated extracted image regions here, or do we cut from ``merged/*.npy``\" rather than inventing a second one, and a legacy folder is corrected on load exactly as it is everywhere else.",
@@ -1016,7 +1028,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**WHAT IT NEEDS.** Either a ``measurements.db`` -- where the crops are chosen by object class, by plate, or by a predicate over ``png_list`` -- or a folder of crop PNGs. Nothing else: the pixels themselves come from :func:`spacr.crops.resolve_crop_source`, so this module inherits the existing answer to \"are there pre-generated crops here, or do we cut from ``merged/*.npy``\" rather than inventing a second one, and a legacy folder is corrected on load exactly as it is everywhere else.",
       "source_sha256": "0246ed020295fb5f7fa9294f43b79e139378001612699d3898a2907e813b6e68",
-      "translation": "**所需输入。** 要么是一个 ``measurements.db``——裁剪图按对象类别、按板或按对 ``png_list`` 的谓词进行选择——要么是一个裁剪图 PNGs 文件夹。除此之外别无所需：像素本身来自 :func:`spacr.crops.resolve_crop_source`，因此本模块沿用了对“这里是否有预先生成的裁剪图，还是要从 ``merged/*.npy`` 中切割”这一问题的现有答案，而不是再发明第二个答案，而且旧式文件夹在加载时的校正方式与其他所有地方完全相同。"
+      "translation": "**所需输入。** 要么是一个 ``measurements.db``——裁剪图按对象类别、按板或按对 ``png_list`` 的谓词进行选择——要么是一个裁剪图 PNGs 文件夹。除此之外别无所需：像素本身来自 :func:`spacr.crops.resolve_crop_source`，因此本模块沿用了对“这里是否有预先生成的裁剪图，还是要从 ``merged/*.npy`` 中切割”这一问题的现有答案，而不是再发明第二个答案，而且旧式文件夹在加载时的校正方式与其他所有地方完全相同。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What it produces.** One ``(objects, height, width, channels)`` uint8 array, which is the layout :func:`spacr.embeddings.embed_array` documents and :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus a JSON-serialisable ``record`` of what was actually read -- how many matched, how many were taken, the extracted image region shape, and how many extracted image regions had to be conformed to it.",
@@ -1024,7 +1038,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**WHAT IT PRODUCES.** One ``(objects, height, width, channels)`` uint8 array, which is the layout :func:`spacr.embeddings.embed_array` documents and :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus a JSON-serialisable ``record`` of what was actually read -- how many matched, how many were taken, the crop shape, and how many crops had to be conformed to it.",
       "source_sha256": "7cbd39f7b940b46852f5602d894db6eab98ffcde8412e68e8c6b9381c6baece2",
-      "translation": "**输出内容。** 一个 ``(objects, height, width, channels)`` uint8 数组，这正是 :func:`spacr.embeddings.embed_array` 所记录、:meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` 所要求的布局；另外还有一个可序列化为 JSON 的 ``record``，记录实际读取的内容——匹配了多少个、取用了多少个、裁剪图形状，以及有多少个裁剪图必须调整以符合该形状。"
+      "translation": "**输出内容。** 一个 ``(objects, height, width, channels)`` uint8 数组，这正是 :func:`spacr.embeddings.embed_array` 所记录、:meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` 所要求的布局；另外还有一个可序列化为 JSON 的 ``record``，记录实际读取的内容——匹配了多少个、取用了多少个、裁剪图形状，以及有多少个裁剪图必须调整以符合该形状。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What to do next.** Hand the array to the Embeddings screen, or straight to :func:`spacr.embeddings.embed_array`.",
@@ -1032,7 +1048,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**WHAT TO DO NEXT.** Hand the array to the Embeddings screen, or straight to :func:`spacr.embeddings.embed_array`.",
       "source_sha256": "b10cc334b1c8590ce9def8b83370b72555d59dac5c73c0dcedc5d80791d85485",
-      "translation": "**下一步。** 将该数组交给 Embeddings 界面，或直接交给 :func:`spacr.embeddings.embed_array`。"
+      "translation": "**下一步。** 将该数组交给 Embeddings 界面，或直接交给 :func:`spacr.embeddings.embed_array`。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**A cap is part of the answer, not a failure to load everything.** Sixty thousand extracted image regions of 96x96x3 is 1.6 GB before a backbone has seen one of them, and a screen that tries it dies on a machine that could have embedded the first two thousand happily. So :attr:`CropQuery.limit` is a real default and the plan says what it left behind -- \"the first 2,000 of 61,433\" -- rather than quietly returning a subset that looks like the whole plate.",
@@ -1040,7 +1058,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**A CAP IS PART OF THE ANSWER, NOT A FAILURE TO LOAD EVERYTHING.** Sixty thousand crops of 96x96x3 is 1.6 GB before a backbone has seen one of them, and a screen that tries it dies on a machine that could have embedded the first two thousand happily. So :attr:`CropQuery.limit` is a real default and the plan says what it left behind -- \"the first 2,000 of 61,433\" -- rather than quietly returning a subset that looks like the whole plate.",
       "source_sha256": "f5416d81e92af3e5782b6df0c779f69b6655ac044f706b098fd1086e379a768c",
-      "translation": "**上限是答案的一部分，而不是未能加载全部内容。** 六万个 96x96x3 的裁剪图在骨干网络看到其中任何一个之前就已占用 1.6 GB，尝试这样做的界面会在一台本可以顺利嵌入前两千个的机器上崩溃。因此 :attr:`CropQuery.limit` 是一个真实的默认值，规划会说明它遗留了什么——“前 2,000 个，共 61,433 个”——而不是悄悄返回一个看起来像整个板的子集。"
+      "translation": "**上限是答案的一部分，而不是未能加载全部内容。** 六万个 96x96x3 的裁剪图在骨干网络看到其中任何一个之前就已占用 1.6 GB，尝试这样做的界面会在一台本可以顺利嵌入前两千个的机器上崩溃。因此 :attr:`CropQuery.limit` 是一个真实的默认值，规划会说明它遗留了什么——“前 2,000 个，共 61,433 个”——而不是悄悄返回一个看起来像整个板的子集。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**And a cap is not the only thing that removes a row, so it is counted on its own.** The merged route drops every row it cannot cut, and reporting that as a cap is the same sentence read backwards: a complete answer dressed as a subset, telling the user to raise a limit that never bit. So :attr:`CropPlan.matched`, :attr:`CropPlan.selected` and :attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap between the first two and :attr:`CropPlan.dropped` the gap between the last two, and they reach the panel as separate clauses.",
@@ -1048,7 +1068,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**AND A CAP IS NOT THE ONLY THING THAT REMOVES A ROW, SO IT IS COUNTED ON ITS OWN.** The merged route drops every row it cannot cut, and reporting that as a cap is the same sentence read backwards: a complete answer dressed as a subset, telling the user to raise a limit that never bit. So :attr:`CropPlan.matched`, :attr:`CropPlan.selected` and :attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap between the first two and :attr:`CropPlan.dropped` the gap between the last two, and they reach the panel as separate clauses.",
       "source_sha256": "b03529a0c8a16d11a9d75ec30f7641740b14ab9c0f1ae1fa4c8e5d0cfe29ac51",
-      "translation": "**而且上限并不是唯一会移除行的因素，因此它会被单独计数。** 合并路径会丢弃每一个无法切割的行，而把这种情况报告为上限，就等于把同一句话倒过来读：把完整的答案伪装成子集，告诉用户去提高一个从未生效的限制。因此 :attr:`CropPlan.matched`、:attr:`CropPlan.selected` 和 :attr:`CropPlan.count` 是三个数值，:attr:`CropPlan.capped` 是前两者之间的差，:attr:`CropPlan.dropped` 是后两者之间的差，它们会以独立的分句呈现在面板上。"
+      "translation": "**而且上限并不是唯一会移除行的因素，因此它会被单独计数。** 合并路径会丢弃每一个无法切割的行，而把这种情况报告为上限，就等于把同一句话倒过来读：把完整的答案伪装成子集，告诉用户去提高一个从未生效的限制。因此 :attr:`CropPlan.matched`、:attr:`CropPlan.selected` 和 :attr:`CropPlan.count` 是三个数值，:attr:`CropPlan.capped` 是前两者之间的差，:attr:`CropPlan.dropped` 是后两者之间的差，它们会以独立的分句呈现在面板上。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**An empty result is a sentence, never an empty array.** A plan that matched nothing carries :attr:`CropPlan.empty_reason`, which names the table, the class, the plate and the predicate that were asked for AND what the database does hold, because \"no crops\" on its own sends a user to look for a broken install when they have asked for plate 9 of an eight-plate screen.",
@@ -1056,7 +1078,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**AN EMPTY RESULT IS A SENTENCE, NEVER AN EMPTY ARRAY.** A plan that matched nothing carries :attr:`CropPlan.empty_reason`, which names the table, the class, the plate and the predicate that were asked for AND what the database does hold, because \"no crops\" on its own sends a user to look for a broken install when they have asked for plate 9 of an eight-plate screen.",
       "source_sha256": "64d3e787e6c1589ed05899b1fa0efa9af0a8caa64964c6cb571bb56c36c90a3e",
-      "translation": "**空结果是一句说明，绝不是一个空数组。** 未匹配任何内容的规划会带有 :attr:`CropPlan.empty_reason`，它会列出所请求的表、类别、板和谓词，并同时说明数据库实际包含的内容，因为单独一句 \"no crops\" 会让用户去排查安装是否损坏，而实际上他们是在一个只有八个板的筛选中请求了第 9 个板。"
+      "translation": "**空结果是一句说明，绝不是一个空数组。** 未匹配任何内容的规划会带有 :attr:`CropPlan.empty_reason`，它会列出所请求的表、类别、板和谓词，并同时说明数据库实际包含的内容，因为单独一句 \"no crops\" 会让用户去排查安装是否损坏，而实际上他们是在一个只有八个板的筛选中请求了第 9 个板。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**The predicate is sql and the database is opened read-only.** ``where`` is a fragment of the user's own query language against their own file; refusing it would mean inventing a worse one. It is spliced into a ``WHERE`` clause, so the connection is opened with ``readonly=True`` -- SQLite's ``query_only``, which refuses every write at the engine -- and a predicate carrying a statement separator is rejected before it is sent.",
@@ -1064,7 +1088,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**THE PREDICATE IS SQL AND THE DATABASE IS OPENED READ-ONLY.** ``where`` is a fragment of the user's own query language against their own file; refusing it would mean inventing a worse one. It is spliced into a ``WHERE`` clause, so the connection is opened with ``readonly=True`` -- SQLite's ``query_only``, which refuses every write at the engine -- and a predicate carrying a statement separator is rejected before it is sent.",
       "source_sha256": "5344722e1829dc66e3e587f9e0d9dfd5f168597192263dd45a579f0b076fdd04",
-      "translation": "**谓词就是 SQL，数据库以只读方式打开。** ``where`` 是用户用自己的查询语言针对自己的文件编写的片段；拒绝它就意味着要发明一种更糟的语言。它会被拼接进 ``WHERE`` 子句，因此连接以 ``readonly=True`` 打开——即 SQLite 的 ``query_only``，它会在引擎层面拒绝所有写入——并且带有语句分隔符的谓词会在发送之前被拒绝。"
+      "translation": "**谓词就是 SQL，数据库以只读方式打开。** ``where`` 是用户用自己的查询语言针对自己的文件编写的片段；拒绝它就意味着要发明一种更糟的语言。它会被拼接进 ``WHERE`` 子句，因此连接以 ``readonly=True`` 打开——即 SQLite 的 ``query_only``，它会在引擎层面拒绝所有写入——并且带有语句分隔符的谓词会在发送之前被拒绝。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A set of extracted image regions that cannot be loaded, and why.",
@@ -1072,7 +1098,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A set of crops that cannot be loaded, and why.",
       "source_sha256": "7ab67d66deb5395cb67e537c55c3092a0363eaf24b3d1e7194e4a7d5cc0e3983",
-      "translation": "一组无法加载的裁剪图，以及原因。"
+      "translation": "一组无法加载的裁剪图，以及原因。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
@@ -1080,7 +1108,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
       "source_sha256": "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778",
-      "translation": "携带一句适合在状态栏中显示的说明：本模块中每一次抛出异常都会指明产生它的路径、类别或谓词，因为调用方是一个界面，而它解释失败的唯一方式就是复述这段文本。"
+      "translation": "携带一句适合在状态栏中显示的说明：本模块中每一次抛出异常都会指明产生它的路径、类别或谓词，因为调用方是一个界面，而它解释失败的唯一方式就是复述这段文本。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What a query matched, before any pixel was read.",
@@ -1144,7 +1174,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**THREE NUMBERS, NOT TWO, BECAUSE TWO THINGS REMOVE ROWS AND THEY ASK THE READER FOR DIFFERENT THINGS.** ``matched`` is what the query found, ``selected`` is what the limit left of it, and ``count`` is what survived the merged route's join -- which drops every row with no single object label (``'omulti'`` / ``'onone'``) or no merged array recorded. Only the first gap is a cap, and only a cap is repaired by raising 'At most'; telling a user to raise a limit that never bit hands them an action that returns the same rows and reprints the same sentence.",
       "source_sha256": "f622fbebcfd51538703ad24eedbb583f73fca0ab0d0343fe5113afe82137173b",
-      "translation": "**是三个数值而不是两个，因为有两种因素会移除行，而它们要求读者做的事情各不相同。** ``matched`` 是查询找到的内容，``selected`` 是限制之后剩下的内容，``count`` 是经过合并路径的连接后保留下来的内容——该连接会丢弃每一个没有单一对象标签（``'omulti'`` / ``'onone'``）或没有记录合并数组的行。只有第一个差值才是上限，也只有上限可以通过提高 'At most' 来解决；告诉用户去提高一个从未生效的限制，等于给他们一个返回相同行、再次打印相同说明的操作。"
+      "translation": "**是三个数值而不是两个，因为有两种因素会移除行，而它们要求读者做的事情各不相同。** ``matched`` 是查询找到的内容，``selected`` 是限制之后剩下的内容，``count`` 是经过合并路径的连接后保留下来的内容——该连接会丢弃每一个没有单一对象标签（``'omulti'`` / ``'onone'``）或没有记录合并数组的行。只有第一个差值才是上限，也只有上限可以通过提高 'At most' 来解决；告诉用户去提高一个从未生效的限制，等于给他们一个返回相同行、再次打印相同说明的操作。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Default ``selected`` to the rows, for a plan built without a join.",
@@ -1176,7 +1208,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- running backwards.",
       "source_sha256": "09b5e05963b68f89371a6eeea3bddf3fc36519172c78ac20650c24398acfb140",
-      "translation": "与 :attr:`selected` 比较，绝不与 :attr:`count` 比较：因连接而丢失行的合并路径加载会出现 ``matched > count``，而此时根本没有接近任何限制；把这种情况报告为上限，就等于把本模块自己的承诺——上限是答案的一部分——倒过来执行。"
+      "translation": "与 :attr:`selected` 比较，绝不与 :attr:`count` 比较：因连接而丢失行的合并路径加载会出现 ``matched > count``，而此时根本没有接近任何限制；把这种情况报告为上限，就等于把本模块自己的承诺——上限是答案的一部分——倒过来执行。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "How many extracted image regions this plan will load.",
@@ -1192,7 +1226,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One line a status bar can show the moment planning returns.",
       "source_sha256": "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
-      "translation": "规划返回时状态栏可以立即显示的一行文本。"
+      "translation": "规划返回时状态栏可以立即显示的一行文本。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Says what was taken out of what, so a capped load reads as a deliberate subset rather than as the whole laboratory microplate -- and names a dropped row as a dropped row, in its own clause, so the two never arrive as one number.",
@@ -1344,7 +1380,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Padding rather than resizing, and that is the whole of the decision: a stack has to be rectangular before a backbone sees it, and rescaling a crop changes the apparent size of the object in it, which is a phenotype. Zero-padding changes the background, which is not. It is also what :func:`spacr.crop_source.crop_at` already does to a box that runs off the edge of a field, so two crops of the same object arrive the same way whichever route cut them.",
       "source_sha256": "60186be9400f437b29441174605c238c3cd6ffb76e03f55629de9867f45dfe9d",
-      "translation": "采用填充而不是缩放，这就是全部的决定：一叠图像在交给骨干网络之前必须是矩形的，而缩放裁剪图会改变其中对象的表观大小，这本身就是一种表型。零填充只改变背景，而背景不是表型。这也正是 :func:`spacr.crop_source.crop_at` 对超出视野边缘的框所做的处理，因此无论由哪条路径切割，同一对象的两个裁剪图都会以相同的方式得到。"
+      "translation": "采用填充而不是缩放，这就是全部的决定：一叠图像在交给骨干网络之前必须是矩形的，而缩放裁剪图会改变其中对象的表观大小，这本身就是一种表型。零填充只改变背景，而背景不是表型。这也正是 :func:`spacr.crop_source.crop_at` 对超出视野边缘的框所做的处理，因此无论由哪条路径切割，同一对象的两个裁剪图都会以相同的方式得到。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the target first axis.",
@@ -1488,7 +1526,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Which object classes this database actually has crops for.",
       "source_sha256": "e7155a44166f94540889ed55468eada039382cd5d9d83e7e056e11970336e90c",
-      "translation": "此数据库实际拥有裁剪图的对象类别。"
+      "translation": "此数据库实际拥有裁剪图的对象类别。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A class is offered only when its id column is present AND holds at least one value, because a ``png_list`` written for cells carries an empty ``nucleus_id`` column on some schemas and offering it would put a choice in the panel that can only ever return nothing.",
@@ -1528,7 +1568,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Answer ``query`` without reading a pixel.",
       "source_sha256": "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
-      "translation": "在不读取任何像素的情况下回答 ``query``。"
+      "translation": "在不读取任何像素的情况下回答 ``query``。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what to select.",
@@ -1544,7 +1586,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before loading -- an empty plan is an answer, not a failure, and it carries the sentence explaining itself.",
       "source_sha256": "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
-      "translation": "一个 :class:`CropPlan`。加载前请检查 :attr:`CropPlan.is_empty`——空规划是一种答案而不是失败，它会携带解释自身的说明。"
+      "translation": "一个 :class:`CropPlan`。加载前请检查 :attr:`CropPlan.is_empty`——空规划是一种答案而不是失败，它会携带解释自身的说明。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an unknown source, or a path that is not there.",
@@ -1888,7 +1932,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A curation session is a queue with a memory, not one field.",
       "source_sha256": "574adf1c2af156173cdc04cfa14dcd78263b8e69cfa829dbd0e3a8c0d54e09e8",
-      "translation": "标注整理会话是一个带有记忆的队列，而不是单个视野。"
+      "translation": "标注整理会话是一个带有记忆的队列，而不是单个视野。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
@@ -1896,7 +1942,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
       "source_sha256": "f08654017bb002c7e1b24f54ab252e691fae9f380f64007960025997e3dbf7bb",
-      "translation": "Make Masks 是更好的编辑器，而仓库之外的定制工具是更好的工作流程，两者都无法兼得。本模块是工作流程的那一半，被移入 spaCR 内部：哪些视野正在等待、以什么顺序提供、在会话结束前提供多少个，以及对每个视野已经作出的决定。"
+      "translation": "Make Masks 是更好的编辑器，而仓库之外的定制工具是更好的工作流程，两者都无法兼得。本模块是工作流程的那一半，被移入 spaCR 内部：哪些视野正在等待、以什么顺序提供、在会话结束前提供多少个，以及对每个视野已经作出的决定。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The layout mismatch is the thing to settle first: silently assuming one layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected",
@@ -1904,7 +1952,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The layout mismatch is the thing to settle first: silently assuming one layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected",
       "source_sha256": "e3fe8dd55a40465988109da7de8da3cbecacb06fea7f81d0c28a2c562359e782",
-      "translation": "布局不匹配是首先要解决的问题：默认假定某一种布局，正是一个装满工作的文件夹被加载为空的原因。因此三种布局都会被接受，并检测当前面对的是哪一种"
+      "translation": "布局不匹配是首先要解决的问题：默认假定某一种布局，正是一个装满工作的文件夹被加载为空的原因。因此三种布局都会被接受，并检测当前面对的是哪一种",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Accepting all three is safer than picking a winner. An existing curation set opens unconverted, so nothing has to be moved before work can start -- and the EDITOR takes all three too, reading and saving each where it lies (:mod:`spacr.qt.mask_engine` says how).",
@@ -1912,7 +1962,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Accepting all three is safer than picking a winner. An existing curation set opens unconverted, so nothing has to be moved before work can start -- and the EDITOR takes all three too, reading and saving each where it lies (:mod:`spacr.qt.mask_engine` says how).",
       "source_sha256": "3ffb139150b72f77e1a1cafa84bfbc14b59887886714a32cf4fd4b164e6cc2f4",
-      "translation": "接受全部三种布局比挑选一个胜者更安全。现有的整理数据集无需转换即可打开，因此在开始工作之前无需移动任何内容——而且编辑器同样支持全部三种布局，在各自原本的位置读取和保存（:mod:`spacr.qt.mask_engine` 说明了具体方式）。"
+      "translation": "接受全部三种布局比挑选一个胜者更安全。现有的整理数据集无需转换即可打开，因此在开始工作之前无需移动任何内容——而且编辑器同样支持全部三种布局，在各自原本的位置读取和保存（:mod:`spacr.qt.mask_engine` 说明了具体方式）。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The record lives at ``<folder>/curate_status.csv``, inside the work list folder rather than beside it, so it syncs with the images and a session resumes on the other machine. A row about a stem that is not in this folder is kept on rewrite for exactly that reason: the curator may be resuming somewhere the rest of the set has not arrived yet, and dropping those rows would hand back work already done. A folder with no record of its own but with the external tool's ``<parent>/<name>_status.csv`` beside it resumes from that one and writes back to it (:func:`status_path`), so a set curated half in each tool keeps one record.",
@@ -1928,7 +1980,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the queue is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
       "source_sha256": "115cf3e21dd39328e311520f468ada15037517f4f69902310b9fe4d0adc92dee",
-      "translation": "整理者在第一个视野之前应当知道的事项——没有分数文件的 ``prob`` 或 ``easy`` 排序，或者包含分数文件未列出的视野；以及恢复记录是文件夹旁边外部工具的文件，之后每次保存都会写入该文件。这些信息会在构建队列时打印，并由编辑器随队列一起显示，因为悄悄变成另一种排序的排序方式，或悄悄保存到所打开文件夹之外的保存操作，正是本模块最为警惕的失败情况。"
+      "translation": "整理者在第一个视野之前应当知道的事项——没有分数文件的 ``prob`` 或 ``easy`` 排序，或者包含分数文件未列出的视野；以及恢复记录是文件夹旁边外部工具的文件，之后每次保存都会写入该文件。这些信息会在构建队列时打印，并由编辑器随队列一起显示，因为悄悄变成另一种排序的排序方式，或悄悄保存到所打开文件夹之外的保存操作，正是本模块最为警惕的失败情况。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``sorted by <order>``, naming the order that was asked",
@@ -1936,7 +1990,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``sorted by <order>``, naming the order that was asked",
       "source_sha256": "0bd1fb6521e921fda11849ace65b0be12cebe09756ff58d3dcd93915c68c8fff",
-      "translation": "``sorted by <order>``，同时列出所请求的排序方式"
+      "translation": "``sorted by <order>``，同时列出所请求的排序方式",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "for too whenever it is not the one that was used.",
@@ -1944,7 +2000,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "for too whenever it is not the one that was used.",
       "source_sha256": "bb4161cd1b22e754fc9625f6c5b76a85be681bb37f4c96536fc61226c692e5d7",
-      "translation": "（只要它不是实际使用的那一种）。"
+      "translation": "（只要它不是实际使用的那一种）。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "where this work list's resume record is read and written:",
@@ -1976,7 +2034,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Probabilities are read only for the orders that use them, so ``name`` and ``value`` read no scores file at all. For ``prob`` and ``easy`` the absence of scores is never silent: no scores file falls back to ``value`` and says so, naming both places it looked; a scores file that leaves some waiting fields unscored says how many; and where the scores came from is printed. Those warnings, and the one that says progress is being written back to the external tool's record beside the folder, are kept on the queue as :attr:`CurationQueue.notices` for the editor to show.",
       "source_sha256": "b0b8528a818d3986b5fab0bdc9cb878b44d0052fb24179a4ff6f8534e9203c93",
-      "translation": "只有使用概率的排序方式才会读取概率，因此 ``name`` 和 ``value`` 完全不读取分数文件。对于 ``prob`` 和 ``easy``，缺少分数绝不会被悄悄忽略：没有分数文件时回退到 ``value`` 并予以说明，同时列出查找过的两个位置；分数文件中有部分等待中的视野未打分时，会说明数量；并打印分数的来源。这些警告，以及说明进度正被写回文件夹旁边外部工具记录的警告，都会作为 :attr:`CurationQueue.notices` 保存在队列上，供编辑器显示。"
+      "translation": "只有使用概率的排序方式才会读取概率，因此 ``name`` 和 ``value`` 完全不读取分数文件。对于 ``prob`` 和 ``easy``，缺少分数绝不会被悄悄忽略：没有分数文件时回退到 ``value`` 并予以说明，同时列出查找过的两个位置；分数文件中有部分等待中的视野未打分时，会说明数量；并打印分数的来源。这些警告，以及说明进度正被写回文件夹旁边外部工具记录的警告，都会作为 :attr:`CurationQueue.notices` 保存在队列上，供编辑器显示。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the external curation tool keeps one of a work list's files.",
@@ -2016,7 +2076,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SO AN UNREADABLE CACHE IS RECOUNTED, NEVER RAISED. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
       "source_sha256": "5e7c3c18e4fd57b77cf6e15871d910e92d2bacb4d505f20aef6160123cb43765",
-      "translation": "因此，无法读取的缓存会被重新计数，绝不会抛出异常。写入过程中因崩溃而被截断的文件不是有效的 UTF-8，如果让这个错误传出，就会因为一项优化而导致整个会话崩溃——草稿保存在磁盘上，它们才是真实数据。"
+      "translation": "因此，无法读取的缓存会被重新计数，绝不会抛出异常。写入过程中因崩溃而被截断的文件不是有效的 UTF-8，如果让这个错误传出，就会因为一项优化而导致整个会话崩溃——草稿保存在磁盘上，它们才是真实数据。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Read the work list's scores file, when there is one.",
@@ -2032,7 +2094,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
       "source_sha256": "9d9b86d24499b2a7c6559417a1af6ae7966cfe69cd9932ac8f1c14bfe9f3b9d2",
-      "translation": "``{stem: probability}``；没有分数文件时为 ``{}``（参见 :func:`scores_path`）——这会使 ``prob`` 和 ``easy`` 明确地发出提示并回退。"
+      "translation": "``{stem: probability}``；没有分数文件时为 ``{}``（参见 :func:`scores_path`）——这会使 ``prob`` 和 ``easy`` 明确地发出提示并回退。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
@@ -2040,7 +2104,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
       "source_sha256": "e676006d686e08d3ef2f4ece65c95eac2152ea0a14bcbde2631a1da95dac3028",
-      "translation": "当 ``curate_scores.csv`` 存在，但没有文件名主干列或没有可识别的概率列时。存在却无法使用的分数文件是一个值得停下来处理的错误；缺少分数文件则是一种普通状态。"
+      "translation": "当 ``curate_scores.csv`` 存在，但没有文件名主干列或没有可识别的概率列时。存在却无法使用的分数文件是一个值得停下来处理的错误；缺少分数文件则是一种普通状态。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where this work list's probabilities are read from, if anywhere.",
@@ -2080,7 +2146,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``<folder>/curate_status.csv``, inside the queue folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every field already done or skipped as undone while the other tool went on reading the first.",
       "source_sha256": "b3dd21bf4e574c0b58ff302f7e0ac5fa07a53c23f66a0a7f8b17e08b35c3c45c",
-      "translation": "``<folder>/curate_status.csv``，位于队列文件夹内部，以便数据集在机器之间同步时随图像一起迁移——除非该文件夹中没有此文件，而外部整理工具的记录 ``<parent>/<name>_status.csv`` 位于其旁边并带有 ``stem`` 和 ``state`` 列。此时该记录就是唯一的记录，就地读取和写回：该工具整理过的数据集将进度保存在那里，而文件夹内部没有任何记录；如果另建第二个文件，所有已完成或已跳过的视野都会重新变为未完成，而另一个工具仍在继续读取第一个文件。"
+      "translation": "``<folder>/curate_status.csv``，位于队列文件夹内部，以便数据集在机器之间同步时随图像一起迁移——除非该文件夹中没有此文件，而外部整理工具的记录 ``<parent>/<name>_status.csv`` 位于其旁边并带有 ``stem`` 和 ``state`` 列。此时该记录就是唯一的记录，就地读取和写回：该工具整理过的数据集将进度保存在那里，而文件夹内部没有任何记录；如果另建第二个文件，所有已完成或已跳过的视野都会重新变为未完成，而另一个工具仍在继续读取第一个文件。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the path of the resume record, which need not exist yet.",
@@ -2296,7 +2364,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination gradients. The sigma is deliberately far larger than any plausible object so that flattening removes vignetting without eating the objects — the opposite trade-off (a tight rolling ball) shrinks what it is trying to measure. 2. **Reject noise.** Compare the structural amplitude of the flattened plane (p99 - p30) against the *pixel-level* noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise plane scores below 1; a plane with real objects scores in the tens. Below ``min_snr`` the field is discarded rather than thresholded, because Otsu will happily bisect pure noise and hand back a confident-looking number. 3. **Threshold and label.** Otsu, fill holes, label, drop components that touch the image border (truncated, so their size is a lie) and components that are absurd (equivalent diameter below ``min_object_diameter``, or area above ``max_object_fraction`` of the field). Sizes are equivalent diameters, ``2 * sqrt(area / pi)``. 4. **Drop specks, then take the median.** A textured or punctate stain (a mitochondrial cell stain, a parasite marker) thresholds into a few whole objects plus hundreds of 4-10 px specks, and a plain median counts every speck as an object: on spaCR's own test plate that put the cell at 8 px and the pathogen at 11 px against 175 px and 32 px in the curated masks, while the nucleus, whose stain is solid, came out right at 91 px. So the typical object is first located by the stained area it carries (the area-weighted median, which specks cannot move because they hold almost no area), everything narrower than :data:`SPECK_FRACTION` of it is dropped, and the characteristic size is the median of what remains. Small components that together hold :data:`SPECK_MAX_AREA_SHARE` of the stained area or more are a second population, not specks, and stay. 5. **Cross-check by distance transform.** Step 3 has one dominant failure mode: a confluent monolayer fuses into a single component, that component touches the border and is dropped, and the estimate is then computed from whatever debris survived — biased **low**, and silently. So the Euclidean distance transform of the (unfilled) foreground is computed as well, its local maxima are taken as one seed per object (two passes: a coarse pass sets the suppression radius for the refined pass), and a watershed on ``-EDT`` splits the fused foreground back into objects whose equivalent diameters are measured the same way.",
       "source_sha256": "3922ffced95795af2b296a59e836e087a33d7ff4e979aa40492f8c3acd907025",
-      "translation": "1. **展平。** 先用 1 px 高斯滤波去噪，然后减去一个经过强平滑的副本（sigma = max(32, min(H, W) / 4)）以去除照明梯度。sigma 被有意设置得远大于任何可能的对象，使展平能够去除暗角而不会吞掉对象——相反的取舍（紧密的滚球）会缩小它试图测量的对象。2. **剔除噪声。** 将展平后图层的结构幅度（p99 - p30）与*像素级*噪声尺度进行比较，后者在原始图层上以 ``1.4826 * MAD(img - gaussian(img, 1))`` 测量。纯噪声图层的得分低于 1；含有真实对象的图层得分为数十。低于 ``min_snr`` 时，该视野会被丢弃而不是进行阈值化，因为 Otsu 会欣然地把纯噪声一分为二，并返回一个看似可信的数值。3. **阈值化并标记。** 执行 Otsu 阈值化、填充孔洞、标记连通区域，丢弃接触图像边界的连通区域（它们被截断，因此其大小不可信）以及不合理的连通区域（等效直径低于 ``min_object_diameter``，或面积超过视野的 ``max_object_fraction``）。大小为等效直径，即 ``2 * sqrt(area / pi)``。4. **丢弃碎点，然后取中位数。** 带纹理或点状的染色（线粒体细胞染色、寄生虫标记物）在阈值化后会变成少数几个完整对象外加数百个 4-10 px 的碎点，而普通中位数会把每个碎点都算作一个对象：在 spaCR 自己的测试板上，这使细胞为 8 px、病原体为 11 px，而人工整理的掩膜中分别为 175 px 和 32 px；染色均匀的细胞核则得到正确的 91 px。因此，先根据典型对象所携带的染色面积来定位它（面积加权中位数，碎点几乎不占面积，因此无法影响它），丢弃所有窄于其 :data:`SPECK_FRACTION` 的对象，特征大小即为剩余对象的中位数。合计占染色面积 :data:`SPECK_MAX_AREA_SHARE` 或以上的小连通区域是第二个群体而不是碎点，会被保留。5. **用距离变换交叉验证。** 第 3 步有一种主要的失败模式：汇合的单层细胞融合成单个连通区域，该连通区域接触边界而被丢弃，于是估计值由残留下来的碎屑计算得出——结果**偏低**，而且毫无提示。因此还会计算（未填充的）前景的欧氏距离变换，将其局部极大值作为每个对象的一个种子点（分两遍：粗略的一遍为精细的一遍设定抑制半径），并在 ``-EDT`` 上执行分水岭，把融合的前景重新拆分为对象，其等效直径以相同方式测量。"
+      "translation": "1. **展平。** 先用 1 px 高斯滤波去噪，然后减去一个经过强平滑的副本（sigma = max(32, min(H, W) / 4)）以去除照明梯度。sigma 被有意设置得远大于任何可能的对象，使展平能够去除暗角而不会吞掉对象——相反的取舍（紧密的滚球）会缩小它试图测量的对象。2. **剔除噪声。** 将展平后图层的结构幅度（p99 - p30）与*像素级*噪声尺度进行比较，后者在原始图层上以 ``1.4826 * MAD(img - gaussian(img, 1))`` 测量。纯噪声图层的得分低于 1；含有真实对象的图层得分为数十。低于 ``min_snr`` 时，该视野会被丢弃而不是进行阈值化，因为 Otsu 会欣然地把纯噪声一分为二，并返回一个看似可信的数值。3. **阈值化并标记。** 执行 Otsu 阈值化、填充孔洞、标记连通区域，丢弃接触图像边界的连通区域（它们被截断，因此其大小不可信）以及不合理的连通区域（等效直径低于 ``min_object_diameter``，或面积超过视野的 ``max_object_fraction``）。大小为等效直径，即 ``2 * sqrt(area / pi)``。4. **丢弃碎点，然后取中位数。** 带纹理或点状的染色（线粒体细胞染色、寄生虫标记物）在阈值化后会变成少数几个完整对象外加数百个 4-10 px 的碎点，而普通中位数会把每个碎点都算作一个对象：在 spaCR 自己的测试板上，这使细胞为 8 px、病原体为 11 px，而人工整理的掩膜中分别为 175 px 和 32 px；染色均匀的细胞核则得到正确的 91 px。因此，先根据典型对象所携带的染色面积来定位它（面积加权中位数，碎点几乎不占面积，因此无法影响它），丢弃所有窄于其 :data:`SPECK_FRACTION` 的对象，特征大小即为剩余对象的中位数。合计占染色面积 :data:`SPECK_MAX_AREA_SHARE` 或以上的小连通区域是第二个群体而不是碎点，会被保留。5. **用距离变换交叉验证。** 第 3 步有一种主要的失败模式：汇合的单层细胞融合成单个连通区域，该连通区域接触边界而被丢弃，于是估计值由残留下来的碎屑计算得出——结果**偏低**，而且毫无提示。因此还会计算（未填充的）前景的欧氏距离变换，将其局部极大值作为每个对象的一个种子点（分两遍：粗略的一遍为精细的一遍设定抑制半径），并在 ``-EDT`` 上执行分水岭，把融合的前景重新拆分为对象，其等效直径以相同方式测量。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``.",
@@ -2344,7 +2414,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOT TO BE CONFUSED WITH :mod:`spacr.example_data`, which fetches the Regression example screen's count and score CSVs from a GitHub release. That is a different set of files, a different host and a different transport. This module is about the ``.tar`` archives of imaging data: the Mask demo plate, the Measure example, the Annotate/Classify example, the Replication and Recruitment assay examples, and -- through :mod:`spacr.screen_data` -- the pieces of the published TSG101 screen.",
       "source_sha256": "c63c5157f967c7436c28f206bc05887b311aae8c825d63eade4a306a2e8175a7",
-      "translation": "请勿与 :mod:`spacr.example_data` 混淆，后者从 GitHub 发布版本中获取 Regression 示例筛选的计数和分数 CSVs。那是另一组文件、另一个主机和另一种传输方式。本模块处理的是成像数据的 ``.tar`` 归档：Mask 演示板、Measure 示例、Annotate/Classify 示例、Replication 和 Recruitment 检测实验示例，以及——通过 :mod:`spacr.screen_data`——已发表的 TSG101 筛选的各个分块。"
+      "translation": "请勿与 :mod:`spacr.example_data` 混淆，后者从 GitHub 发布版本中获取 Regression 示例筛选的计数和分数 CSVs。那是另一组文件、另一个主机和另一种传输方式。本模块处理的是成像数据的 ``.tar`` 归档：Mask 演示板、Measure 示例、Annotate/Classify 示例、Replication 和 Recruitment 检测实验示例，以及——通过 :mod:`spacr.screen_data`——已发表的 TSG101 筛选的各个分块。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "whether ``spacr-download`` with no arguments fetches it. False for the OPS and Align & Stitch samples: together they are 0.6 GB of one screen's tiles, and adding them would push the default run past ``CONFIRM_ABOVE_BYTES``, so the command would start asking to confirm the thing it does with no arguments. They are fetched when named, and by ``all``.",
@@ -2352,7 +2424,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "whether ``spacr-download`` with no arguments fetches it. False for the OPS and Align & Stitch samples: together they are 0.6 GB of one screen's tiles, and adding them would push the default run past ``CONFIRM_ABOVE_BYTES``, so the command would start asking to confirm the thing it does with no arguments. They are fetched when named, and by ``all``.",
       "source_sha256": "6d660de5168ab0be2070170d92e0da6d30a070104efad979fbe7c301a7329f3c",
-      "translation": "不带参数的 ``spacr-download`` 是否会获取它。OPS 和 Align & Stitch 样本为 False：它们合计是一个筛选的 0.6 GB 图块，加入它们会使默认运行超过 ``CONFIRM_ABOVE_BYTES``，导致该命令在不带参数执行的默认操作中也开始要求确认。它们会在被点名时获取，也会通过 ``all`` 获取。"
+      "translation": "不带参数的 ``spacr-download`` 是否会获取它。OPS 和 Align & Stitch 样本为 False：它们合计是一个筛选的 0.6 GB 图块，加入它们会使默认运行超过 ``CONFIRM_ABOVE_BYTES``，导致该命令在不带参数执行的默认操作中也开始要求确认。它们会在被点名时获取，也会通过 ``all`` 获取。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the folder under the example-data root the set unpacks into. ``plate1`` -- the shared plate -- for the three sets that are stages of one plate; a folder of its own for a set that would collide with them.",
@@ -2418,7 +2492,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Downloading test data requires a network connection. What the user saw before was ``str(exc)``, which for the ordinary offline case is a nested urllib3 dump",
       "source_sha256": "c6fa2b5bb81c233c777438ebcf95e42867e4ece267ae6089b956c9b15361ab12",
-      "translation": "下载测试数据需要网络连接。用户以前看到的是 ``str(exc)``，在普通的离线情况下，这是一段嵌套的 urllib3 转储信息"
+      "translation": "下载测试数据需要网络连接。用户以前看到的是 ``str(exc)``，在普通的离线情况下，这是一段嵌套的 urllib3 转储信息",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the user's search word or phrase; converted to ``str``, stripped of surrounding whitespace and lower-cased before lookup.",
@@ -2650,7 +2726,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the filename convention their images AND masks are named by -- any of Mask's ``metadata_type`` values. ``None`` or ``'auto'`` reads plate / well / field from the folders, as before. See :func:`spacr.convert.scan`.",
       "source_sha256": "ab47a93fa1a0aece48bf4a97906eb579064561274a0281d5b4f11588dc70b9c8",
-      "translation": "其图像和掩膜所遵循的文件名约定——可以是 Mask 的任一 ``metadata_type`` 值。``None`` 或 ``'auto'`` 与以前一样从文件夹中读取板/孔/视野。参见 :func:`spacr.convert.scan`。"
+      "translation": "其图像和掩膜所遵循的文件名约定——可以是 Mask 的任一 ``metadata_type`` 值。``None`` 或 ``'auto'`` 与以前一样从文件夹中读取板/孔/视野。参见 :func:`spacr.convert.scan`。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the pattern for ``metadata_type='custom'``.",
@@ -3594,7 +3672,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IS PUBLISHED. :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside it, under ``import_example/``:",
       "source_sha256": "a8f41243265f4b5b51f5ad8a4a9db6fe74ab606a482cc9dfc5b7e5e0089a02f6",
-      "translation": "发布内容。:data:`IMPORT_EXAMPLE_REPO` 包含一个归档。在归档内的 ``import_example/`` 下："
+      "translation": "发布内容。:data:`IMPORT_EXAMPLE_REPO` 包含一个归档。在归档内的 ``import_example/`` 下：",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``variants/<key>/plate1/`` -- the SAME twelve image layers (microplate sample positions E01 and E02, microscope fields of view 9 and 10, three image data channels, cropped from the toxo_mito laboratory microplate) written once per variant: once per filename convention, once as Zeiss CZI, once as OME-TIFF and once as an ImageJ TIFF stack;",
@@ -3602,7 +3682,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``variants/<key>/plate1/`` -- the SAME twelve planes (wells E01 and E02, fields 9 and 10, three channels, cropped from the toxo_mito plate) written once per variant: once per filename convention, once as Zeiss CZI, once as OME-TIFF and once as an ImageJ TIFF stack;",
       "source_sha256": "9f1e7c21fd5148bca36bb89fed16fcf3e37fe70906d74c378c211ba55c6a621e",
-      "translation": "``variants/<key>/plate1/`` —— 同样的十二个图层（孔 E01 和 E02、视野 9 和 10、三个通道，从 toxo_mito 板裁剪而来），每个变体写出一次：每种文件名约定各一次，Zeiss CZI 一次，OME-TIFF 一次，ImageJ TIFF 堆栈一次；"
+      "translation": "``variants/<key>/plate1/`` —— 同样的十二个图层（孔 E01 和 E02、视野 9 和 10、三个通道，从 toxo_mito 板裁剪而来），每个变体写出一次：每种文件名约定各一次，Zeiss CZI 一次，OME-TIFF 一次，ImageJ TIFF 堆栈一次；",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``variants/<key>/masks/{cell,nucleus,pathogen}/`` -- the Mask run's label images for exactly those microscope fields of view, named the way that variant names images;",
@@ -3634,7 +3716,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``variants/nikon_nd2`` and ``variants/leica_lif`` -- PUBLIC SAMPLE FILES, because no open library writes ND2 or LIF. They are other people's images under CC BY 4.0, with no masks, and they go through the Format Converter;",
       "source_sha256": "6611f98d21980274185a656992ec9e8d30a0b96d8ceff712ae0bf2062b7a8cb1",
-      "translation": "``variants/nikon_nd2`` 和 ``variants/leica_lif`` —— 公共样本文件，因为没有任何开源库能写出 ND2 或 LIF。它们是他人按 CC BY 4.0 许可发布的图像，不带掩膜，需要经过 Format Converter 处理；"
+      "translation": "``variants/nikon_nd2`` 和 ``variants/leica_lif`` —— 公共样本文件，因为没有任何开源库能写出 ND2 或 LIF。它们是他人按 CC BY 4.0 许可发布的图像，不带掩膜，需要经过 Format Converter 处理；",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``manifest.csv`` -- one row per image file stating the microplate sample position, microscope field of view, image data channel, z and t it truly is. The LAST member of the archive, so a transfer that died part-way leaves no manifest and reads as absent.",
@@ -3642,7 +3726,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``manifest.csv`` -- one row per image file stating the well, field, channel, z and t it truly is. The LAST member of the archive, so a transfer that died part-way leaves no manifest and reads as absent.",
       "source_sha256": "f4bc017472f5e2c106f317270894415221f28e17db2c4c53f9d66836b1f03c73",
-      "translation": "``manifest.csv`` —— 每个图像文件一行，说明其真实对应的孔、视野、通道、z 和 t。它是归档的最后一个成员，因此中途中断的传输不会留下清单，会被视为不存在。"
+      "translation": "``manifest.csv`` —— 每个图像文件一行，说明其真实对应的孔、视野、通道、z 和 t。它是归档的最后一个成员，因此中途中断的传输不会留下清单，会被视为不存在。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The registry is here and not in the archive. :data:`IMPORT_VARIANTS` is what the Import screen offers before anything is downloaded, and what ``tools/build_import_example.py`` writes. One list for both is what keeps a button from naming a folder the archive does not have.",
@@ -3650,7 +3736,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE REGISTRY IS HERE AND NOT IN THE ARCHIVE. :data:`IMPORT_VARIANTS` is what the Import screen offers before anything is downloaded, and what ``tools/build_import_example.py`` writes. One list for both is what keeps a button from naming a folder the archive does not have.",
       "source_sha256": "f200e4f1a1322aaa087cf9c43ac96e647dbee47a97b4f2d167e95bb43f229df5",
-      "translation": "注册表在这里，而不在归档中。:data:`IMPORT_VARIANTS` 是 Import 界面在下载任何内容之前提供的选项，也是 ``tools/build_import_example.py`` 写出的内容。两者共用一个列表，才能避免按钮指向归档中不存在的文件夹。"
+      "translation": "注册表在这里，而不在归档中。:data:`IMPORT_VARIANTS` 是 Import 界面在下载任何内容之前提供的选项，也是 ``tools/build_import_example.py`` 写出的内容。两者共用一个列表，才能避免按钮指向归档中不存在的文件夹。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One way the same fields were written, and how Import reads it back.",
@@ -3810,7 +3898,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A half-unpacked set reads as absent, which is the answer that gets it downloaded again.",
       "source_sha256": "53aa5915d0a3b623a973f0c39bd2f7706ea02be2aaa5f554c061a6cf3b1b6560",
-      "translation": "仅当清单存在，且其为该变体列出的每个文件都在磁盘上时才为 ``True``。解压到一半的数据集被视为不存在，这样的答案会促使重新下载。"
+      "translation": "仅当清单存在，且其为该变体列出的每个文件都在磁盘上时才为 ``True``。解压到一半的数据集被视为不存在，这样的答案会促使重新下载。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every row of the set's ``manifest.csv``.",
@@ -3866,7 +3956,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A MEASURE RUN EMITS THE REPORT, so anyone who has measured a plate already has it. There is no button and no screen, and nothing has to be asked for -- which is the point, because the runs that most need these numbers are the ones that would never have thought to ask.",
       "source_sha256": "b38580f69db89f036c156f421195dc1ff3e986c5214f11863bca2986ff6ff45f",
-      "translation": "报告由 Measure 运行生成，因此任何测量过板的人都已经拥有它。没有按钮，也没有界面，无需任何请求——这正是其意义所在，因为最需要这些数值的运行，恰恰是那些从未想过要去请求的运行。"
+      "translation": "报告由 Measure 运行生成，因此任何测量过板的人都已经拥有它。没有按钮，也没有界面，无需任何请求——这正是其意义所在，因为最需要这些数值的运行，恰恰是那些从未想过要去请求的运行。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is written when there is nothing to say. A laboratory microplate with no cell table, or none of the columns the metrics need, gives an empty report, and an empty CSV beside a database is a file that invites somebody to wonder what went wrong. The answer is None instead.",
@@ -3874,7 +3966,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOTHING IS WRITTEN WHEN THERE IS NOTHING TO SAY. A plate with no cell table, or none of the columns the metrics need, gives an empty report, and an empty CSV beside a database is a file that invites somebody to wonder what went wrong. The answer is None instead.",
       "source_sha256": "693a9b900d1febe91eb3ec51adc7f2ee8f4e53a6a229c069668107b9b229f321",
-      "translation": "无可报告时不写出任何内容。没有细胞表或缺少指标所需任何列的板会得到空报告，而数据库旁边的空 CSV 是一个让人怀疑出了什么问题的文件。因此改为返回 None。"
+      "translation": "无可报告时不写出任何内容。没有细胞表或缺少指标所需任何列的板会得到空报告，而数据库旁边的空 CSV 是一个让人怀疑出了什么问题的文件。因此改为返回 None。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Written to a dot-name in the same folder and renamed over the target, so a reader never sees half a file.",
@@ -4372,7 +4466,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "which channel token owns which channel column, by position: ``channel_tokens[i]`` is the token that column ``i`` means. THE TABLE REMEMBERS THIS BECAUSE THE TABLE OUTLIVES THE DROP. The ranking that turns ``C1``/``C2`` into columns 0 and 1 is a property of a SET of tokens, and a user fills this table one field at a time, so without a memory the second drop would rank its own files from scratch and put ``C2`` in column 0 beside the first drop's ``C1``. Empty means no column means any particular token yet -- every cell was filled by browsing rather than by the regex.",
       "source_sha256": "d76f12e476201e1f72a80dc7d2809f3a23b6070801726d77dd0444005ed196d4",
-      "translation": "按位置记录哪个通道标记对应哪个通道列：``channel_tokens[i]`` 是第 ``i`` 列所代表的标记。表格记住这一点，是因为表格比单次拖放存在得更久。把 ``C1``/``C2`` 转换为第 0 列和第 1 列的排序，是一组标记整体的属性，而用户是一次一个视野地填写此表的，所以如果没有记忆，第二次拖放就会从头开始对自己的文件排序，把 ``C2`` 放在第 0 列，与第一次拖放的 ``C1`` 并列。为空表示目前还没有任何列对应特定的标记——每个单元格都是通过浏览而不是通过正则表达式填写的。"
+      "translation": "按位置记录哪个通道标记对应哪个通道列：``channel_tokens[i]`` 是第 ``i`` 列所代表的标记。表格记住这一点，是因为表格比单次拖放存在得更久。把 ``C1``/``C2`` 转换为第 0 列和第 1 列的排序，是一组标记整体的属性，而用户是一次一个视野地填写此表的，所以如果没有记忆，第二次拖放就会从头开始对自己的文件排序，把 ``C2`` 放在第 0 列，与第一次拖放的 ``C1`` 并列。为空表示目前还没有任何列对应特定的标记——每个单元格都是通过浏览而不是通过正则表达式填写的。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Whether the table is complete enough to measure.",
@@ -4452,7 +4548,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``(path, reason)`` for every file that did not. The window lists these, because a file that silently vanishes is the one failure a drag-and-drop table cannot afford.",
       "source_sha256": "2e7363f3b99e34404e5d4e2375645499c71c0045645a252fd7d738a584775873",
-      "translation": "每个未被放置的文件的 ``(path, reason)``。窗口会列出这些文件，因为文件悄无声息地消失，正是拖放表格承受不起的一种失败。"
+      "translation": "每个未被放置的文件的 ``(path, reason)``。窗口会列出这些文件，因为文件悄无声息地消失，正是拖放表格承受不起的一种失败。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Sort dropped files into rows and image data channel/mask columns with one regex.",
@@ -4612,7 +4710,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
       "source_sha256": "428e754495fa5896d6eaf5e8ac759b0b6524d4c2b76ba28a529aa81038f34523",
-      "translation": "这就是第 2 步要得出的数值，也是第 3 步的分支必须超越的数值。"
+      "translation": "这就是第 2 步要得出的数值，也是第 3 步的分支必须超越的数值。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "per-frame segmentation whose labels mean nothing across frames. Pass the ground-truth stack itself to measure linking given perfect segmentation, which is the upper bound the plan asks for beside the end-to-end number.",
@@ -4796,7 +4896,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Cellpose predicts, per pixel, a flow toward the centre of the object the pixel belongs to. Timeflows adds the same idea through TIME: per pixel of frame ``t``, where the centre of that object is in frame ``t+1``, and whether it has a successor at all (cells die, divide, leave the field). Linking objects between frames then reads the model instead of guessing from overlap, which is where the plain IoU stitcher fails: fast cells that move more than their own size between frames (the MuSC movies move 3-4 diameters per frame at p95).",
       "source_sha256": "a610f074616376ab28591ef363ce3a422d1566b711db7e17fde482a725bd94a8",
-      "translation": "Cellpose 逐像素预测一个指向该像素所属对象中心的流。Timeflows 将同样的思路扩展到“时间”维度：对帧 ``t`` 的每个像素，预测该对象在帧 ``t+1`` 中的中心位置，以及它是否有后继对象（细胞会死亡、分裂或离开视野）。这样，帧间对象链接就依据模型读取，而不是根据重叠进行猜测，而后者正是普通 IoU 拼接器失败之处：在帧间移动距离超过自身大小的快速细胞（MuSC 影像序列在 p95 时每帧移动 3-4 个直径）。"
+      "translation": "Cellpose 逐像素预测一个指向该像素所属对象中心的流。Timeflows 将同样的思路扩展到“时间”维度：对帧 ``t`` 的每个像素，预测该对象在帧 ``t+1`` 中的中心位置，以及它是否有后继对象（细胞会死亡、分裂或离开视野）。这样，帧间对象链接就依据模型读取，而不是根据重叠进行猜测，而后者正是普通 IoU 拼接器失败之处：在帧间移动距离超过自身大小的快速细胞（MuSC 影像序列在 p95 时每帧移动 3-4 个直径）。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What is here, all runnable on a CPU:",
@@ -4804,7 +4906,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IS HERE, ALL RUNNABLE ON A CPU:",
       "source_sha256": "4b8e3431af4a99445cb16d4ce4f2716c7f7848f4624c3f77e3ffe59152465c77",
-      "translation": "这里包含的内容，全部可以在 CPU 上运行："
+      "translation": "这里包含的内容，全部可以在 CPU 上运行：",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",

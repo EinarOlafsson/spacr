@@ -1286,7 +1286,9 @@
       "source_sha256": "70de4fdab4c0c095907cf71f3a1d36fb479569fe978bde92add2f2fc33c7c68f",
       "context": "A preference result in the Help search field has to land on the row the user asked for, and the dialog it lands in is built by seven thousand lines of procedure with no schema to address. So this module navigates the BUILT dialog, by the two handles the build leaves behind:",
       "translation": "Help 검색 필드의 환경설정 결과는 사용자가 요청한 행에 도달해야 하는데, 도달하는 대화 상자는 주소를 지정할 스키마 없이 칠천 줄의 절차적 코드로 만들어집니다. 따라서 이 모듈은 만들어진 대화 상자를, 빌드가 남기는 두 가지 단서로 탐색합니다:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#2",
@@ -1310,7 +1312,9 @@
       "source_sha256": "f6351560c13ac6cefc96cc9e7b81365d242b7c36a7f7b201d574ab2a69634f63",
       "context": "Matching the DISPLAYED caption against an English literal was the version before this one, and it worked in exactly one language.",
       "translation": "표시된 캡션을 영어 리터럴과 비교하던 이전 버전은 정확히 한 언어에서만 동작했습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#5",
@@ -1358,7 +1362,9 @@
       "source_sha256": "69922ffa16381a59b17379b6c6c28c173e0ffcd013853b89ef016c5937c3b23f",
       "context": "A static outline for a few seconds rather than anything that moves: a mark that pulses would owe an answer to the Animation preferences, and this one owes none and is not lost on a reader who turned motion off.",
       "translation": "움직이는 것이 아니라 몇 초 동안의 정적인 윤곽선입니다. 맥동하는 표시는 Animation 환경설정에 답해야 하지만, 이 표시는 그럴 필요가 없고 움직임을 끈 독자에게도 놓치지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation.reveal_row#2",
@@ -1518,7 +1524,9 @@
       "source_sha256": "cce03f00204f5a27234de27180c37476c02d9d9932fcdf581f0875500d0897c6",
       "context": "``\"module:function\"`` taking ``(host, card)`` and building the panel into the card, returning it. Given, a preview ATTACHED through this registry builds only its card at install -- ``builder`` is called with ``panel_later=True`` -- and the panel the first time the card is shown or the panel is asked for, so a hidden preview costs a module's open nothing.",
       "translation": "``\"module:function\"`` 이며, ``(host, card)`` 를 받아 카드 안에 패널을 만들어 반환합니다. 이 값이 주어지면, 이 레지스트리를 통해 붙은 미리 보기는 설치 시 카드만 만들고(``builder`` 가 ``panel_later=True`` 로 호출됨), 패널은 카드가 처음 표시되거나 패널을 요청받을 때 만들므로, 숨겨진 미리 보기는 모듈을 여는 데 비용을 들이지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preview_registry.install#2",
@@ -4374,7 +4382,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#1",
+      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#2",
       "source": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
       "source_sha256": "39389b4a6eacde9237afd0366ab10772af118d5f1494f20ba04b4354aa15eeff",
       "context": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
@@ -4549,7 +4557,9 @@
       "source_sha256": "1ab63210ebdec42427551e75b200a38afc556643e7db7f0768b10e0504d72581",
       "context": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "translation": "Plaque Assay 는 두 종류의 폴더를 읽으며, 예전에 빌려 쓰던 Mask 미리 보기는 어느 쪽에도 맞지 않았습니다:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview#2",
@@ -4597,7 +4607,9 @@
       "source_sha256": "70276fbbbba3d1530667cabb961d54da3ea2de7216072090f119e8782535ab7f",
       "context": "The box weight that means: pick one from the figure's size.",
       "translation": "그림 크기에서 두께를 고르라는 뜻의 상자 두께 값입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.IMAGE_TABS#0",
@@ -4629,7 +4641,9 @@
       "source_sha256": "1d4e81f8e58a6649ef207f6f6de28b66942d99656c1a1fa731c7855d7f8ed42b",
       "context": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "translation": "이를 바꾸면 이미 분할된 것을 다시 그리며, 아무것도 다시 실행하지 않습니다. 모든 너비는 반드시 이미지 픽셀 단위입니다. 윤곽선은 이미지 배열에서 키우고 상자는 표시 전에 픽스맵에 그리므로, 윤곽선이 늘 그랬듯이 보기를 확대/축소해도, 저장된 그림에서도 선이 그림에서 차지하는 비율이 유지됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.OverlayStyle#2",

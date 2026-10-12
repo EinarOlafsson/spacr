@@ -20,7 +20,9 @@
       "label": "spacr.qt.widgets.fast_plots.ControlSeparation.set_groups#2",
       "source": "``{'negative': identifiers, ...}``, one identifier per value of the SAME group, in the same order. Given them, every dot is clickable and selects the coefficient behind it.",
       "source_sha256": "ab5a5325957f3d4fa290c7a8751377533f0cf1ea6d0991cd10b5f17635892ef1",
-      "translation": "``{'negative': identifiers, ...}``, ein Bezeichner pro Wert der SAME-Gruppe, in derselben Reihenfolge. Wenn sie gegeben sind, ist jeder Punkt anklickbar und wählt den Koeffizienten dahinter aus."
+      "translation": "``{'negative': identifiers, ...}``, ein Bezeichner pro Wert der SAME-Gruppe, in derselben Reihenfolge. Wenn sie gegeben sind, ist jeder Punkt anklickbar und wählt den Koeffizienten dahinter aus.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the per-backend knobs are still set to what the old backend read. Handing ``alpha=0.3`` to OLS does not quietly do nothing: :func:`_reject_unused_settings` raises, by design, so a lasso -> ols re-fit dies at the entry point.",

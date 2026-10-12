@@ -880,7 +880,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The one call a pipeline makes before ``measure_crop``, and the one the Illumination button on the Measure masthead runs on its own -- the model and its QC figures in minutes, before committing hours to the measure run that will reuse them through ``illumination_model``.",
       "source_sha256": "6e3b695c86c1d9de9628acbe17c8d39d882bff6e9d569aee282f1f2520fcd332",
-      "translation": "워크플로가 ``measure_crop`` 전에 하는 단 한 번의 호출이며, Measure 상단 헤더의 Illumination 버튼이 단독으로 실행하는 호출입니다. 모델과 그 QC 그림을 몇 분 만에 얻은 뒤에야, ``illumination_model``을 통해 이를 재사용할 측정 실행에 몇 시간을 투입합니다."
+      "translation": "워크플로가 ``measure_crop`` 전에 하는 단 한 번의 호출이며, Measure 상단 헤더의 Illumination 버튼이 단독으로 실행하는 호출입니다. 모델과 그 QC 그림을 몇 분 만에 얻은 뒤에야, ``illumination_model``을 통해 이를 재사용할 측정 실행에 몇 시간을 투입합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a processing session that never mentions it is measured uncorrected. Being asked to execute with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a processing session button that does nothing, so a verbose call says which switch was not thrown.",
@@ -888,7 +890,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a run that never mentions it is measured uncorrected. Being asked to run with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a Run button that does nothing, so a verbose call says which switch was not thrown.",
       "source_sha256": "bcd39ee407d791269f359bc1cf6a233b2ed37abbe5e8e61052570482e881baa9",
-      "translation": "``settings['illumination_correction']``이 True가 아니면 아무것도 하지 않으며 None을 반환합니다. 그 값은 결코 기본 제공값이 아닙니다. 보정은 선택적으로 켜야 하므로, 이를 언급하지 않는 실행은 보정 없이 측정됩니다. 스위치가 꺼진 상태에서 실행을 요청받는 것은 조용히 넘어가기보다 알릴 가치가 있는 무동작입니다. 설정 양식에서 보면 아무 일도 하지 않는 Run 버튼과 똑같아 보이기 때문에, verbose 호출은 어떤 스위치가 켜지지 않았는지 알려 줍니다."
+      "translation": "``settings['illumination_correction']``이 True가 아니면 아무것도 하지 않으며 None을 반환합니다. 그 값은 결코 기본 제공값이 아닙니다. 보정은 선택적으로 켜야 하므로, 이를 언급하지 않는 실행은 보정 없이 측정됩니다. 스위치가 꺼진 상태에서 실행을 요청받는 것은 조용히 넘어가기보다 알릴 가치가 있는 무동작입니다. 설정 양식에서 보면 아무 일도 하지 않는 Run 버튼과 똑같아 보이기 때문에, verbose 호출은 어떤 스위치가 켜지지 않았는지 알려 줍니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, ``illumination_vendor_channel_map``, plus ``src`` and ``channels``.",
@@ -1000,7 +1004,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Types, tooltips and the module description are contributed; **categories deliberately are not**. ``spacr.settings.categories`` is one shared, ordered map that every settings panel walks, and its growth is guarded by an exact-equality test against a hand-kept list. A key contributed at *import* time is in that map only in a session that imported this module, so contributing categories would make that test's result depend on which files pytest was pointed at.",
       "source_sha256": "60b730773d424102a58c358009b24f464f50047cc57d4a3eaa24bd740608a551",
-      "translation": "형식, 도움말, 모듈 설명은 제공됩니다. **범주는 의도적으로 제공되지 않습니다**. ``spacr.settings.categories``는 모든 설정 패널이 순회하는 하나의 공유된 순서 있는 맵이며, 그 증가는 직접 관리하는 목록과의 정확한 일치 테스트로 감시됩니다. *가져오기* 시점에 제공된 키는 이 모듈을 가져온 세션에서만 그 맵에 있으므로, 범주를 제공하면 그 테스트의 결과가 pytest에 어떤 파일을 지정했는지에 따라 달라집니다."
+      "translation": "형식, 도움말, 모듈 설명은 제공됩니다. **범주는 의도적으로 제공되지 않습니다**. ``spacr.settings.categories``는 모든 설정 패널이 순회하는 하나의 공유된 순서 있는 맵이며, 그 증가는 직접 관리하는 목록과의 정확한 일치 테스트로 감시됩니다. *가져오기* 시점에 제공된 키는 이 모듈을 가져온 세션에서만 그 맵에 있으므로, 범주를 제공하면 그 테스트의 결과가 pytest에 어떤 파일을 지정했는지에 따라 달라집니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The illumination structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
@@ -1008,7 +1014,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The illumination keys ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the keys that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
       "source_sha256": "08f20d0c611135ba736b3864240429187a18b32becfa178faef6a9296a66bc99",
-      "translation": "조명 키는 분명히 하나의 제목 아래에 정리되어 있습니다. ``spacr.settings.categories``의 \"Illumination Correction\"이며, ``measure_crop``이 :func:`prepare_illumination_correction`을 직접 호출하고 이 키들이 바로 그 호출이 읽는 키이므로 Measure 패널은 이 키들을 모두 제공합니다. 위의 이유로 그 제목은 맵에 직접 작성됩니다. 이 모듈을 우연히 가져온 프로세스뿐만 아니라 Measure 설정을 그룹화하는 모든 프로세스에 존재해야 하기 때문입니다."
+      "translation": "조명 키는 분명히 하나의 제목 아래에 정리되어 있습니다. ``spacr.settings.categories``의 \"Illumination Correction\"이며, ``measure_crop``이 :func:`prepare_illumination_correction`을 직접 호출하고 이 키들이 바로 그 호출이 읽는 키이므로 Measure 패널은 이 키들을 모두 제공합니다. 위의 이유로 그 제목은 맵에 직접 작성됩니다. 이 모듈을 우연히 가져온 프로세스뿐만 아니라 Measure 설정을 그룹화하는 모든 프로세스에 존재해야 하기 때문입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "re-register over an existing registration.",
@@ -1628,7 +1636,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":func:`register` is **not** called at import — read its docstring for why, and for the one line plus four side-table entries that finish the wiring. The screen itself is complete: build it with :func:`make_graph_builder_screen`, hand it a frame, and everything below works.",
       "source_sha256": "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae",
-      "translation": ":func:`register`는 가져올 때 호출되지 **않습니다**. 그 이유와 연결을 마무리하는 한 줄 및 보조 테이블 항목 네 개에 대해서는 해당 독스트링을 읽으십시오. 화면 자체는 완성되어 있습니다. :func:`make_graph_builder_screen`으로 만들고 프레임을 넘겨주면 아래의 모든 기능이 작동합니다."
+      "translation": ":func:`register`는 가져올 때 호출되지 **않습니다**. 그 이유와 연결을 마무리하는 한 줄 및 보조 테이블 항목 네 개에 대해서는 해당 독스트링을 읽으십시오. 화면 자체는 완성되어 있습니다. :func:`make_graph_builder_screen`으로 만들고 프레임을 넘겨주면 아래의 모든 기능이 작동합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the drop zones and the canvas;",
@@ -1644,7 +1654,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data Filter, unchanged, because a filter that narrows *every* view is worth more than a private one that narrows this chart;",
       "source_sha256": "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
-      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — 변경되지 않은 Local Data Filter. *모든* 보기를 좁히는 필터가 이 차트만 좁히는 전용 필터보다 가치가 크기 때문입니다."
+      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — 변경되지 않은 Local Data Filter. *모든* 보기를 좁히는 필터가 이 차트만 좁히는 전용 필터보다 가치가 크기 때문입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells in the UMAP and on the plate map, and a lasso there highlights them here.",
@@ -1668,7 +1680,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The screen goes into the app registry through :func:`spacr.qt.app.register_app` rather than through a row in the table inside ``app.py``, and its styling goes through :func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen built in parallel with five others is a new file rather than a merge conflict in two thousand-line ones.",
       "source_sha256": "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
-      "translation": "이 화면은 :func:`spacr.qt.app.register_app`을 통해 앱 레지스트리에 들어가며 ``app.py`` 안 테이블의 행을 거치지 않고, 스타일은 :func:`spacr.qt.theme.register_widget_qss`를 통해 적용됩니다. 두 연결 지점이 존재하는 이유는 다른 다섯 개와 병행하여 만든 화면이 천 줄짜리 파일 두 개의 병합 충돌이 아니라 새 파일이 되도록 하기 위함입니다."
+      "translation": "이 화면은 :func:`spacr.qt.app.register_app`을 통해 앱 레지스트리에 들어가며 ``app.py`` 안 테이블의 행을 거치지 않고, 스타일은 :func:`spacr.qt.theme.register_widget_qss`를 통해 적용됩니다. 두 연결 지점이 존재하는 이유는 다른 다섯 개와 병행하여 만든 화면이 천 줄짜리 파일 두 개의 병합 충돌이 아니라 새 파일이 되도록 하기 위함입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Apply validated labels to the working table while preserving the source.",
@@ -2823,7 +2837,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IT OPENS ON THE TOP HITS. Decision 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". The regression's results table gives the hits (:func:`spacr.well_scope._top_hits`); without one, the guides of the montage's own groups are the selection. The population box then starts on \"gRNAs + other datapoints in selected wells\", the derived wells are shown under the controls, and \"gRNAs…\" / \"selected wells…\" change either. Nothing to select starts on \"All datapoints\", so a panel with no guides still draws what it drew before.",
       "source_sha256": "2198232806abac9cd778319cf0d5c723d1a6f8b5e0389091ed635e7ac3011a2b",
-      "translation": "상위 히트가 선택된 상태로 열립니다. 2026-09-25 결정: \"회귀 Compare 패널은 상위 히트(유의성이 가장 높은 가이드/유전자와 이를 가진 웰)가 미리 선택된 상태로 열린다(사용자가 변경할 수 있음)\". 히트는 회귀의 결과 표가 제공합니다(:func:`spacr.well_scope._top_hits`). 결과 표가 없으면 몽타주 자체 그룹의 가이드가 선택됩니다. 그러면 모집단 상자는 \"gRNAs + other datapoints in selected wells\" 로 시작하고, 도출된 웰이 컨트롤 아래에 표시되며, \"gRNAs…\" / \"selected wells…\" 로 둘 중 어느 것이든 바꿀 수 있습니다. 선택할 것이 없으면 \"All datapoints\" 로 시작하므로, 가이드가 없는 패널도 이전에 그리던 것을 그대로 그립니다."
+      "translation": "상위 히트가 선택된 상태로 열립니다. 2026-09-25 결정: \"회귀 Compare 패널은 상위 히트(유의성이 가장 높은 가이드/유전자와 이를 가진 웰)가 미리 선택된 상태로 열린다(사용자가 변경할 수 있음)\". 히트는 회귀의 결과 표가 제공합니다(:func:`spacr.well_scope._top_hits`). 결과 표가 없으면 몽타주 자체 그룹의 가이드가 선택됩니다. 그러면 모집단 상자는 \"gRNAs + other datapoints in selected wells\" 로 시작하고, 도출된 웰이 컨트롤 아래에 표시되며, \"gRNAs…\" / \"selected wells…\" 로 둘 중 어느 것이든 바꿀 수 있습니다. 선택할 것이 없으면 \"All datapoints\" 로 시작하므로, 가이드가 없는 패널도 이전에 그리던 것을 그대로 그립니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Shared table merging workflow for Graph Builder and Data-selection boundary Editor.",

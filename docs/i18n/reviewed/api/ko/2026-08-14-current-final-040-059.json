@@ -28,7 +28,9 @@
       "source_sha256": "2a17902227be8ed8baf403dcdea6906b8e5db09cb601e4a9d3e514dfa3ea8e46",
       "source": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus crop, whatever format\" or \"every TIFF, whatever object\".",
       "context": "Two independent tests, which is the whole point of splitting them: which object the extracted image region is of (a substring of its path, e.g. ``cell_png``) and what format it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
-      "translation": "두 가지 독립된 검사를 분리하는 것이 핵심입니다. 추출 이미지 영역이 어떤 객체인지(경로의 하위 문자열, 예: ``cell_png``)와 어떤 형식인지(확장자)를 각각 검사합니다. 하나의 설정으로는 \"형식과 관계없이 모든 핵 추출 이미지 영역\" 또는 \"객체와 관계없이 모든 TIFF 파일\"을 표현할 수 없습니다."
+      "translation": "두 가지 독립된 검사를 분리하는 것이 핵심입니다. 추출 이미지 영역이 어떤 객체인지(경로의 하위 문자열, 예: ``cell_png``)와 어떤 형식인지(확장자)를 각각 검사합니다. 하나의 설정으로는 \"형식과 관계없이 모든 핵 추출 이미지 영역\" 또는 \"객체와 관계없이 모든 TIFF 파일\"을 표현할 수 없습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.resume.field_identity#6",
@@ -65,7 +67,9 @@
       "source_sha256": "72952cf8742d7b7efc90a49d105ab62b3c7b4ff449ec1156fca63b00def41065",
       "source": "``{field name: (RegionOfInterest, ...)}``. The field name is the ``.npy`` stem the pipeline uses, e.g. ``plate1_A01_F001``; :data:`ANY_FIELD` (``'*'``) is the fallback for every field with no entry of its own. Several ROIs on one field are a UNION — drawing a second polygon adds to what is measured.",
       "context": "``{field name: (RegionOfInterest, ...)}``. The field name is the ``.npy`` stem the workflow uses, e.g. ``plate1_A01_F001``; :data:`ANY_FIELD` (``'*'``) is the fallback for every field with no entry of its own. Several ROIs on one field are a UNION — drawing a second polygon adds to what is measured.",
-      "translation": "``{field name: (RegionOfInterest, ...)}`` 형식입니다. 시야 이름은 워크플로가 사용하는 ``.npy`` 파일의 어간(예: ``plate1_A01_F001``)입니다. :data:`ANY_FIELD`(``'*'``)는 자체 항목이 없는 모든 시야의 대체값입니다. 한 시야의 여러 ROIs 는 합집합이며, 두 번째 다각형을 그리면 측정 영역에 추가됩니다."
+      "translation": "``{field name: (RegionOfInterest, ...)}`` 형식입니다. 시야 이름은 워크플로가 사용하는 ``.npy`` 파일의 어간(예: ``plate1_A01_F001``)입니다. :data:`ANY_FIELD`(``'*'``)는 자체 항목이 없는 모든 시야의 대체값입니다. 한 시야의 여러 ROIs 는 합집합이며, 두 번째 다각형을 그리면 측정 영역에 추가됩니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#26",
@@ -81,7 +85,9 @@
       "source_sha256": "663806a9fc48ed9378b61c2f7e7fed201fc98707c0283c774a4a19c4d33f3924",
       "source": "All three are deterministic — the same folder names always produce the same wells — and step 3 is only *reversible* because the map file records ``source_well`` next to ``well``. Which is the point: after conversion ``plate1_A01`` means nothing without the map, so :func:`plan` also reports every synthetic assignment by name.",
       "context": "All three are deterministic — the same folder names always produce the same microplate sample positions — and step 3 is only *reversible* because the map file records ``source_well`` next to ``well``. Which is the point: after conversion ``plate1_A01`` means nothing without the map, so :func:`plan` also reports every synthetic assignment by name.",
-      "translation": "세 방법은 모두 결정적이므로 같은 폴더 이름은 항상 같은 마이크로플레이트 시료 위치를 만듭니다. 3단계가 *되돌릴 수 있는* 이유는 매핑 파일이 ``source_well``을 ``well`` 옆에 기록하기 때문입니다. 변환 후 ``plate1_A01``은 매핑 없이는 의미가 없으므로 :func:`plan`도 모든 합성 할당을 이름으로 보고합니다."
+      "translation": "세 방법은 모두 결정적이므로 같은 폴더 이름은 항상 같은 마이크로플레이트 시료 위치를 만듭니다. 3단계가 *되돌릴 수 있는* 이유는 매핑 파일이 ``source_well``을 ``well`` 옆에 기록하기 때문입니다. 변환 후 ``plate1_A01``은 매핑 없이는 의미가 없으므로 :func:`plan`도 모든 합성 할당을 이름으로 보고합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sequencing.map_sequences_to_names#1",

@@ -58,7 +58,9 @@
       "source_sha256": "ae5ea440d84b44481b485c7d3230fe82f358f4c679cbc6aa0f04025bd64dea9d",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**Le diamètre.**  :mod:`spacr.diameter` mesure la taille caractéristique des objets sur une poignée de champs de l’utilisateur, sans charger Cellpose ni torch. ``diameter`` est le paramètre de Cellpose 4 le plus lourd de conséquences qu’expose spaCR — ``CellposeModel.eval(diameter=...)`` remet chaque image à l’échelle par ``30/diameter`` afin que les objets se retrouvent près de la taille à laquelle travaille ``cpsam`` — et c’est celui que les utilisateurs devinent.  Le panneau que construit ce module transforme la supposition en mesure, par type d’objet, et indique combien d’objets il a mesurés pour que l’on puisse mettre le chiffre en doute.  Il s’ouvre dans sa propre fenêtre contextuelle depuis le bouton *Mesurer les diamètres…* de la fenêtre contextuelle du zoo de modèles de la génération de masques, à côté du choix de modèle dont il est l’autre moitié, plutôt que sur l’écran principal.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#1",
@@ -66,7 +68,9 @@
       "source_sha256": "3d21b0ccd32c7abefdfede526b3a0dfa83dec855b2997e49dca774590e0335b8",
       "context": "Asked for by a user: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "Demandé par un utilisateur : \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" Ceci contient donc l’intégralité du :class:`DiameterPanel` -- le bouton de mesure, une ligne par type d’objet avec ses éléments probants et sa note, *Utiliser* par ligne et *Utiliser tous* --, et le panneau écrit toujours dans les paramètres de l’écran qui a ouvert le zoo.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_graph#3",
@@ -106,7 +110,9 @@
       "source_sha256": "98b235751b5e8db98eefc9c82854085342496c96353c59830a20c04da648e1f5",
       "context": "The panel is a process-wide singleton with two callers. A plain ``connect`` on every show accumulates receivers, so one press would eventually run the regression picker's install AND the Image UMAP's; a plain ``disconnect()`` warns when nothing is connected yet. Holding the current slot and replacing it does neither. A previous slot bound to a widget that has since been deleted is simply dropped.",
       "translation": "Le panneau est un singleton à l’échelle du processus avec deux appelants. Un simple ``connect`` à chaque affichage accumule les récepteurs, si bien qu’un clic finirait par lancer l’installation du sélecteur de régression ET celle d’Image UMAP ; un simple ``disconnect()`` avertit lorsque rien n’est encore connecté. Conserver le slot actuel et le remplacer ne fait ni l’un ni l’autre. Un slot précédent lié à un widget supprimé depuis est simplement abandonné.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
@@ -122,7 +128,9 @@
       "source_sha256": "bbad7853f2f4f796684fbb334f2c329a26250ede47403071d1a5bb2484beb7ef",
       "context": "Requested: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "La demande : \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". C’est l’unique façon dont une section dans une vue obtient un contrôle de repli, de sorte que toutes ont le même aspect et le même comportement : une flèche et un nom au-dessus du corps (le même :class:`~spacr.qt.widgets.foldable.Folder` qu’utilisent la console et System), un clic la replie, et une section repliée se réduit à son titre fixé en BAS de l’espace qui lui est donné (:func:`lock_folded_to_bottom`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#0",
@@ -196,7 +204,9 @@
       "source_sha256": "05b7bc0f000a440aa7247a6c49ec65332c1dd6c4f67ce197bd6ca60773cd72a8",
       "context": "Step 2 of the timeflows plan is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "L’étape 2 du plan timeflows est une valeur, pas une fonctionnalité. Avant qu’une troisième tête Cellpose soit écrite, entraînée et maintenue, il faut une référence : segmenter chaque image indépendamment, relier les images par chevauchement des masques, et évaluer le résultat par rapport à la vérité terrain avec les mesures sur lesquelles le domaine du suivi s’accorde déjà. Tout ce que produit le fork est alors meilleur que cela ou ne l’est pas, et le plan dit clairement que \"the plain stitcher is already good enough\" est une issue réellement possible, à accepter si elle se produit. Cette issue n’est visible que si cette valeur existe d’abord.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -204,7 +214,9 @@
       "source_sha256": "17c135e9bea67a789467a3aeb8c896fec475d00c0235e76683650a059a77c9f1",
       "context": "The timeflows plan rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "Le plan timeflows repose sur une affirmation concernant les données d’entraînement : un objet conserve la MÊME ÉTIQUETTE dans chaque image où il apparaît. Une tête de flux temporel est entraînée à pointer d’un pixel d’un objet dans l’image ``t`` vers le centre de cet objet dans l’image ``t+1``, et la seule chose qui indique quel objet de ``t+1`` est le même objet est l’étiquette. Si l’annotation recycle une étiquette après la mort ou le départ de son objet, le modèle est entraîné à pointer vers une cellule sans rapport, et aucun score ultérieur ne le détecte -- le contrôle sur les données réservées mélange les mêmes étiquettes erronées et s’accorde avec lui-même.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.ImportedCopyNotReleased#1",
@@ -212,7 +224,9 @@
       "source_sha256": "d692aaf2d93012e0d7066b42cac2900decdd389f9dda5d46d0915ce40ce0e7ea",
       "context": "``foreign.run_import`` copies the imported frame into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty, so a project built purely by import is readable by every spaCR tool. That copy is a convenience and it stops being one the moment spaCR measures the same field: :func:`_merge_and_save_to_database` *appends*, so its rows land beside theirs, in different columns, with nothing in the row marking the seam -- and every ``count_cell`` downstream becomes the sum of two populations.",
       "translation": "``foreign.run_import`` copie le frame importé dans la table canonique ``cell`` / ``nucleus`` / ``pathogen`` lorsque la destination est vide, de sorte qu’un projet construit uniquement par importation est lisible par chaque outil de spaCR. Cette copie est une commodité, et elle cesse de l’être dès que spaCR mesure le même champ de vision : :func:`_merge_and_save_to_database` *ajoute*, si bien que ses lignes se retrouvent à côté de celles de l’importation, dans des colonnes différentes, sans rien dans la ligne qui marque la jointure -- et chaque ``count_cell`` en aval devient la somme de deux populations.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

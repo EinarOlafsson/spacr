@@ -240,7 +240,9 @@
       "source_sha256": "246def0f041c1409feda629fdfd446c2485402f36d7075ac4382faa4a2d4747d",
       "context": "The commands are not here. Each tool's ``install_methods`` in :mod:`spacr.qt.ai.providers` are the rows its ``install_hint`` is built from, and :func:`plan_install` picks the first of those rows whose programs are on ``PATH``. The command the Install button runs and the command the application view shows are therefore one definition.",
       "translation": "LOS COMANDOS NO ESTÁN AQUÍ. Los ``install_methods`` de cada herramienta en :mod:`spacr.qt.ai.providers` son las filas a partir de las que se construye su ``install_hint``, y :func:`plan_install` elige la primera de esas filas cuyos programas están en ``PATH``. Por tanto, el comando que ejecuta el botón Install y el comando que muestra la pantalla son una única definición.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.cli_install#3",
@@ -1724,7 +1726,9 @@
       "source_sha256": "c836fe76e6e33d73dd33ddefe4073b45da80df259f86ec9a7e9f27693cefb428",
       "context": "The exception's class name is prefixed only when it says something. The console writes this text after \"[AI error] \", so for a :class:`~spacr.qt.ai.providers.ProviderFailed` -- whose whole message is written to be read there, down to the sign-in command to execute -- the prefix turned a sentence the user could act on into \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Every other exception keeps its class, which is often the only thing naming what went wrong: a bare ``[Errno 2] No such file or directory`` does not say it is a FileNotFoundError.",
       "translation": "EL NOMBRE DE LA CLASE DE LA EXCEPCIÓN SOLO SE ANTEPONE CUANDO DICE ALGO. La consola escribe este texto después de \"[AI error] \", así que, para un :class:`~spacr.qt.ai.providers.ProviderFailed` -- cuyo mensaje completo está escrito para leerse allí, incluido el comando de inicio de sesión que hay que ejecutar --, el prefijo convertía una frase sobre la que el usuario podía actuar en \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Todas las demás excepciones conservan su clase, que a menudo es lo único que nombra lo que salió mal: un ``[Errno 2] No such file or directory`` a secas no dice que sea un FileNotFoundError.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.worker.make_stream_thread#6",
@@ -2014,7 +2018,9 @@
       "source_sha256": "0c5897d28eb2fad004dd0d40a004debc1fa060de3ae2fe8980d1d9df73276c0a",
       "context": "Found by object name rather than by tab index or caption. An index moves whenever a tab is added, and a caption is translated -- a Korean interface would have matched nothing. Every page sets its own ``PreferencesTab*`` name, and ``tools/build_help_search_index.py`` reads those same names out of this dialog's source, so the two ends of the hand-off are the same string by construction.",
       "translation": "Se encuentra por NOMBRE DE OBJETO y no por índice de pestaña ni por título. Un índice cambia cada vez que se añade una pestaña, y un título se traduce -- una interfaz en coreano no habría coincidido con nada. Cada página establece su propio nombre ``PreferencesTab*``, y ``tools/build_help_search_index.py`` lee esos mismos nombres del código fuente de este diálogo, de modo que los dos extremos del traspaso son la misma cadena por construcción.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.app.MainWindow.show_preferences_on#3",
@@ -2200,7 +2206,9 @@
       "source_sha256": "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
       "context": "Its own folder per set. Both ship ``measurements/measurements.db``, as the Annotate example in the shared plate does, so each unpacks beside that plate (:func:`spacr.example_archives.example_set_folder`) rather than into it.",
       "translation": "UNA CARPETA PROPIA POR CONJUNTO. Ambos incluyen ``measurements/measurements.db``, como el ejemplo de Annotate de la placa compartida, así que cada uno se desempaqueta junto a esa placa (:func:`spacr.example_archives.example_set_folder`) y no dentro de ella.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples#4",
@@ -2208,7 +2216,9 @@
       "source_sha256": "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937",
       "context": "The same pattern as the other examples. One uncompressed ``.tar`` streamed to a ``.part`` file on a background execution unit behind the shared progress dialog, unpacked through the tar data filter, ``<dataset>`` in the settings replaced with where it landed, and cached: a second press uses the copy on disk.",
       "translation": "EL MISMO PATRÓN QUE LOS DEMÁS EJEMPLOS. Un único ``.tar`` sin comprimir se transmite a un archivo ``.part`` en un hilo de trabajo detrás del diálogo de progreso compartido, se desempaqueta con el filtro de datos de tar, ``<dataset>`` se sustituye en los ajustes por el lugar en que quedó, y se guarda en caché: una segunda pulsación usa la copia en disco.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples.download_assay_example#0",
@@ -2560,7 +2570,9 @@
       "source_sha256": "bdd745d49aedc5d013c4e19982b8076a695ecfe8fb44903eecb0a640766c464c",
       "context": "So the threshold algorithms here are names of a level and nothing else. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
       "translation": "Así que los algoritmos de umbral de aquí son NOMBRES DE UN NIVEL Y NADA MÁS. Cada uno es una línea en :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` o :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, y todo lo que rodea al nivel -- el suavizado, la corrección del umbral, el lado brillante u oscuro, el relleno de huecos, la división por watershed, la regla del borde, el área mínima -- es el código por el que ya pasaba Otsu. Elegir Li en lugar de Otsu cambia de dónde sale un número y nada más, que es exactamente lo que debe cambiar.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes#3",
@@ -2576,7 +2588,9 @@
       "source_sha256": "4288a6aafe7cfcc155385e59e3aaff0dc88c435d9f0fc20979690afd09b78dcb",
       "context": "What is not here, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested extracted image region. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
       "translation": "LO QUE NO ESTÁ AQUÍ, Y POR QUÉ. El umbral local por MEDIA y el local GAUSSIANO no se vuelven a ofrecer: son el modo Adaptive threshold, que ejecuta la rama ``adaptive`` del motor de orgánulos con un tamaño de bloque y un desplazamiento. Tampoco se vuelve a ofrecer el OTSU local: es el interruptor \"Local threshold (uneven illumination)\" del modo Otsu simple, que usa la detección de imagen completa. Los demás umbrales con nombre ignoran los ajustes guardados de Otsu local y de número de clases; solo Multi-Otsu usa el número de clases y la banda seleccionados en ambos ámbitos. Otsu simple conserva su preprocesamiento heredado de la lupa, mientras que los demás umbrales usan el motor de imagen completa sobre el recorte solicitado. Niblack usa ``T = m - k*s``; Sauvola usa ``T = m*(1 + k*(s/R - 1))``, donde ``m`` y ``s`` son la media local y la desviación estándar. El motor proporciona valores float32 sin reescalar su intervalo, así que el ``R`` predeterminado de Sauvola en scikit-image es 1. Estas fórmulas son diferentes, y cambiar la escala de intensidad puede cambiar el resultado de Sauvola.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#0",
@@ -2624,7 +2638,9 @@
       "source_sha256": "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
       "context": "the Gaussian blur before the maxima are found, in pixels. separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the microscope field of view is genuinely noisy, or the two blurs compound.",
       "translation": "el desenfoque gaussiano antes de buscar los máximos, en píxeles. INDEPENDIENTE DE LA ELIMINACIÓN DE RUIDO DE LA CADENA DE MEJORA DE IMAGEN, que ya se ha ejecutado cuando un detector ve la imagen: este existe porque el desenfoque que hace que un objeto tenga un solo centro suele ser mucho más fuerte que el desenfoque con el que alguien querría medir el BORDE del objeto, y la propagación mide el borde sobre la misma imagen desenfocada. Deje desactivada la eliminación de ruido de la cadena salvo que el campo tenga realmente mucho ruido, o los dos desenfoques se acumularán.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#4",
@@ -3032,7 +3048,9 @@
       "source_sha256": "70e64ca0b72f05175a26ba1386fa2282c6f6d73249836c192107aea0adf96ed5",
       "context": "The same chain reaches mask generation. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` structured-data name per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask workflows and the Mask Live preview apply to every selected segmentation image data channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate processing session's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-image data channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
       "translation": "LA MISMA CADENA LLEGA A LA GENERACIÓN DE MÁSCARAS. Los pasos de imagen -- todo lo anterior a ``detect`` -- los escribe :func:`chain_settings` como ajustes de Mask, una clave ``enhance_<field>`` por cada entrada de :data:`SETTINGS_FIELDS`, y los vuelve a leer :func:`spacr.psf_pipeline.prepare_chain`, que los flujos de trabajo V1 y V2 de Mask y la vista previa Mask Live aplican a cada canal de segmentación seleccionado después de la corrección de iluminación y antes de la normalización, en la etapa en la que ya se ejecutaba la PSF. La morfología y la separación actúan sobre las etiquetas de un detector y son propias de Make Masks; no modifican las etiquetas de Cellpose de una ejecución de placa. Los ajustes de Mask ``remove_background``, ``background`` y ``signal_to_noise`` son umbrales mínimos de intensidad por canal que aplica después la normalización, y :func:`spacr.object._preprocess_batch` es la bola rodante y el CLAHE propios de los lotes de orgánulos; ninguno de ellos se configura aquí.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.Chain#0",
@@ -3376,7 +3394,9 @@
       "source_sha256": "983d5f61da3db274bb7942b08147ae61e3879b0445ba6e0326394dad0c41fe46",
       "context": "Morphology and the split are both questions about which pixels are one object, so both are asked of the detection as a whole: the labels are read as a foreground, reshaped, and labelled again. The ids therefore change, which costs nothing here -- Make Masks renumbers every object it pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).",
       "translation": "La morfología y la separación son ambas preguntas sobre QUÉ PÍXELES SON UN SOLO OBJETO, así que ambas se plantean sobre la detección en su conjunto: las etiquetas se leen como primer plano, se remodelan y se vuelven a etiquetar. Por tanto, los id cambian, lo que aquí no cuesta nada -- Make Masks renumera cada objeto que pega en una máscara (:func:`spacr.qt.mask_engine._paste_region_objects`).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.finish#2",
@@ -3528,7 +3548,9 @@
       "source_sha256": "cf5074dc18cc71c759ccc7febf25004b7495367d607f58d33d959d1ff7c3fb18",
       "context": "Only the steps that ran, plus the order they ran in, so an entry says what was done rather than listing fourteen defaults around it; a chain with nothing on records nothing but the switch that was off. The order is written out because it is what makes the entry enough to reproduce the mask: the same steps in another order are another mask.",
       "translation": "SOLO LOS PASOS QUE SE EJECUTARON, más el orden en que se ejecutaron, para que una entrada diga lo que se hizo en lugar de enumerar catorce valores predeterminados a su alrededor; una cadena sin nada activado solo registra el interruptor que estaba desactivado. El orden se escribe porque es lo que hace que la entrada baste para reproducir la máscara: los mismos pasos en otro orden son otra máscara.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.provenance#2",
@@ -4306,7 +4328,9 @@
       "source_sha256": "900aa4f1c61ba978bc58bbb8974e49f399076110abeb57b0d9b64e2e98334146",
       "context": "The whole-GUI scale, applied live: one factor for every size spaCR sets (471).",
       "translation": "La escala de toda la GUI, aplicada en directo: un único factor para todos los tamaños que establece spaCR (471).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#1",
@@ -4314,7 +4338,9 @@
       "source_sha256": "9ab613242a15c75c9efb61bf7209c349195e6183113fe75db1d987169d8082b3",
       "context": "What it is. \"GUI scale\" in Preferences (10 % to 200 %, default 100 %) scales widget sizes, fixed sizes, margins, spacing, style-sheet sizes (fonts and paddings included), icons, splitter sizes and figure dpi -- and it does so while spaCR runs, with no restart.",
       "translation": "QUÉ ES. \"GUI scale\" en Preferences (del 10 % al 200 %, predeterminado 100 %) escala los tamaños de los widgets, los tamaños fijos, los márgenes, el espaciado, los tamaños de las hojas de estilo (incluidas fuentes y rellenos), los iconos, los tamaños de los divisores y los dpi de las figuras -- y lo hace mientras spaCR se ejecuta, sin reiniciar.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#10",
@@ -4322,7 +4348,9 @@
       "source_sha256": "369ad5c26f2b4f62d573919be1998e7e6cce2f3f94e067f038ee597f1c8a2dc5",
       "context": "What does not follow live. Sizes the scale cannot see because they do not pass through a setter: text and shapes a widget paints itself at fixed pixel coordinates, pixmaps a widget scales to a number it computed, ``setFont`` with an explicit size, ``move``/``setGeometry`` positions, header section sizes, a Python ``sizeHint`` override that returns a constant, the Fusion style's own metrics that the theme sheet does not restate, and pyqtgraph's axis text. Sizes computed from font metrics are already scaled once by the font and are scaled again by the setter -- the one way the layer can over-shrink. The main window's own size is left alone, so the gained room goes to the content.",
       "translation": "LO QUE NO SIGUE EN DIRECTO. Los tamaños que la escala no puede ver porque no pasan por un setter: texto y formas que un widget pinta por sí mismo en coordenadas de píxel fijas, pixmaps que un widget escala a un número que ha calculado, ``setFont`` con un tamaño explícito, posiciones de ``move``/``setGeometry``, tamaños de las secciones de encabezado, una sustitución de ``sizeHint`` en Python que devuelve una constante, las métricas propias del estilo Fusion que la hoja del tema no redefine, y el texto de los ejes de pyqtgraph. Los tamaños calculados a partir de métricas de fuente ya los escala una vez la fuente y el setter los vuelve a escalar -- la única forma en que la capa puede encoger de más. El tamaño de la propia ventana principal no se toca, así que el espacio ganado va al contenido.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#2",
@@ -4330,7 +4358,9 @@
       "source_sha256": "0d511c0418e05b0c00ad63ba750390f99f5936fa708fd2bc1335f47e3e6e10d7",
       "context": "HOW, without touching 1,420 call sites. Counted on nightly 2026-09-22 across the 328 modules under ``spacr/qt``: about 1,420 hard-coded geometry calls in 181 files (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) and 486 ``px`` literals in style-sheet text in 64 files. Routing each by hand is a change to every application view, and every size added later would have to remember it. Instead :func:`install_scaling_layer` -- called once from :func:`spacr.qt.app.launch` before the first widget exists -- replaces the setters themselves on the Qt classes (``QWidget``'s size setters and ``setStyleSheet``, the layouts' margin and spacing setters, every ``setIconSize``, ``QSplitter.setSizes``). Each replacement",
       "translation": "CÓMO, SIN TOCAR 1,420 PUNTOS DE LLAMADA. Contados en nightly el 2026-09-22 en los 328 módulos bajo ``spacr/qt``: unas 1,420 llamadas de geometría codificadas en 181 archivos (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) y 486 literales ``px`` en texto de hojas de estilo en 64 archivos. Enrutar cada una a mano supone cambiar todas las pantallas, y cada tamaño añadido después tendría que acordarse de ello. En su lugar, :func:`install_scaling_layer` -- llamado una vez desde :func:`spacr.qt.app.launch` antes de que exista el primer widget -- sustituye los propios setters en las clases de Qt (los setters de tamaño de ``QWidget`` y ``setStyleSheet``, los setters de margen y espaciado de los layouts, cada ``setIconSize``, ``QSplitter.setSizes``). Cada sustitución",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#3",
@@ -4362,7 +4392,9 @@
       "source_sha256": "d84fd2775db6aeb4df1d57fe95c34937090217ed98fdb4f6e311146ff2c1f2c4",
       "context": "A change of scale (:func:`set_gui_scale_live`) walks every live widget and layout, puts every remembered value back at the new scale, and asks the windows to lay out again. A widget built later is scaled as it is built. A splitter's panes keep the room they have on application view -- what shrinks is what is inside them -- and ``sizes()`` answers in 100 % units, so the sizes slice B persists survive a change of scale.",
       "translation": "Un cambio de escala (:func:`set_gui_scale_live`) recorre todos los widgets y layouts vivos, vuelve a aplicar cada valor recordado con la nueva escala y pide a las ventanas que se vuelvan a disponer. Un widget construido después se escala al construirse. Los paneles de un divisor conservan el espacio que tienen en pantalla -- lo que se encoge es su contenido -- y ``sizes()`` responde en unidades del 100 %, de modo que los tamaños que guarda la parte B sobreviven a un cambio de escala.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#7",
@@ -4370,7 +4402,9 @@
       "source_sha256": "287e0858d3fba78f1d04aa7e07f4ec1c4ea505daba323c8fa39878b2f4c7ba35",
       "context": "How it composes with font scale. Font scale stays where it is: it writes the font sizes into the theme's style sheet. That sheet goes through the ``setStyleSheet`` replacement like any other, so a font size ends up as base x font scale x GUI scale. 50 % GUI at 200 % font is half-size widgets with text the usual size on application view.",
       "translation": "CÓMO SE COMBINA CON LA ESCALA DE FUENTE. La escala de fuente se queda donde está: escribe los tamaños de fuente en la hoja de estilo del tema. Esa hoja pasa por la sustitución de ``setStyleSheet`` como cualquier otra, así que un tamaño de fuente acaba siendo base x escala de fuente x escala de la GUI. Una GUI al 50 % con la fuente al 200 % da widgets de la mitad de tamaño con texto del tamaño habitual en pantalla.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#8",
@@ -4378,7 +4412,9 @@
       "source_sha256": "798a0fa963dec6277795c908e1e884dd28bcf9391920062b7b414e0024db05d1",
       "context": "A user's own ``QT_SCALE_FACTOR`` is not touched and multiplies on the outside, as Qt always has.",
       "translation": "EL ``QT_SCALE_FACTOR`` PROPIO DEL USUARIO no se toca y se multiplica por fuera, como Qt ha hecho siempre.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#9",
@@ -4386,7 +4422,9 @@
       "source_sha256": "94fd01a0e5fdf4cd1e11dafd9821daa322aa5ff7629981afcd7e67eb53b54aee",
       "context": "Keep or revert. Every change of GUI scale or font scale applies at once and then asks \"Keep these settings?\" (:class:`KeepOrRevertDialog`), counting down 15 s; the countdown, Esc and closing the dialog all put the old values back. The dialog is exempt from the scale and sets its own text size, so it is readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) remains the backup.",
       "translation": "CONSERVAR O REVERTIR. Cada cambio de la escala de la GUI o de la escala de fuente se aplica de inmediato y luego pregunta \"Keep these settings?\" (:class:`KeepOrRevertDialog`), con una cuenta atrás de 15 s; la cuenta atrás, Esc y cerrar el diálogo restauran los valores anteriores. El diálogo está exento de la escala y establece su propio tamaño de texto, de modo que es legible tanto con la GUI al 10 % como con la fuente al 10 %. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) sigue siendo el recurso de reserva.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale.add_listener#0",
@@ -4802,7 +4840,9 @@
       "source_sha256": "83691142b03ecee2e2b46f9e6e684a603dec02860e3649182bfe6d29f05265ad",
       "context": "Everything in spaCR that is addressable by name, and how to rank it.",
       "translation": "Todo lo que en spaCR se puede localizar por nombre, y cómo clasificarlo.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#1",
@@ -4810,7 +4850,9 @@
       "source_sha256": "ed4d2f4fa51ab5cf5bfaa6175840c53f952cdfc43224c7312e105bace83a59ad",
       "context": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
       "translation": "El campo de búsqueda junto al menú Help es tan bueno como esto: un usuario que sabe cómo se LLAMA algo debería llegar a ello sin saber qué módulo lo contiene ni bajo qué encabezado plegado se archivó.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#2",
@@ -4818,7 +4860,9 @@
       "source_sha256": "1eda1db60f808fe0b5d175d31445e252db152fbf487029c67ff21d26b3dab3b0",
       "context": "The index is never a hand list. Every row here is derived from something that already decides the answer:",
       "translation": "EL ÍNDICE NUNCA ES UNA LISTA HECHA A MANO. Cada fila de aquí se deriva de algo que ya decide la respuesta:",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#3",

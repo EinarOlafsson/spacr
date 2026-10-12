@@ -324,7 +324,9 @@
       "source_sha256": "00e560bd83aeacfeaeac75702e507610c4f9219d532dc1ecd38bccfaa5c5e788",
       "context": "the residuals that were permuted.",
       "translation": "os resíduos que FORAM PERMUTADOS.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#10",
@@ -332,7 +334,9 @@
       "source_sha256": "9f149917ae6736dad86f2a8144ba2da03b23b41c4c789e694ac447004c6ec36d",
       "context": "A gradient across the laboratory microplate is what this shows and no other panel does. Residuals-vs-fitted shows spread and Q-Q shows shape; neither shows that row A sits above row P inside one laboratory microplate, which is exactly what makes the microplate sample positions in that laboratory microplate not swappable.",
       "translation": "UM GRADIENTE AO LONGO DA PLACA É O QUE ISTO MOSTRA E NENHUM OUTRO PAINEL MOSTRA. Resíduos-vs-ajustados mostra a dispersão e o Q-Q mostra a forma; nenhum dos dois mostra que a linha A fica acima da linha P dentro de uma placa, que é exatamente o que torna os poços dessa placa não intercambiáveis.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#2",
@@ -1144,7 +1148,9 @@
       "source_sha256": "0c3ad3552d6d5f86522bcb500ecb5ed91473f58914a3be8de7443a23b9fa9431",
       "context": "It lives in a :class:`DiameterDialog`, opened from the Model zoo popup, so the last measurement is kept on the application view it was made for and shown again the next time the popup opens: closing a window is not a reason to measure twice.",
       "translation": "Ele fica em um :class:`DiameterDialog`, aberto a partir do popup Model zoo, de modo que a última medição é mantida na tela para a qual foi feita e mostrada de novo na próxima vez que o popup abrir: fechar uma janela não é motivo para medir duas vezes.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_dialog#0",
@@ -1176,7 +1182,9 @@
       "source_sha256": "eef42107a5013005e126f8ea142ea70fa02274265a1cfe4d3b6d3bf356cbc3bd",
       "context": "the dialog, or None when the screen has no diameter setting or the popup could not be built. Never throws: a Model zoo that opens without this button's popup is better than one that does not open.",
       "translation": "o diálogo, ou None quando a tela não tem configuração de diâmetro ou o popup não pôde ser construído. Nunca levanta exceção: um Model zoo que abre sem o popup deste botão é melhor do que um que não abre.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_screen_of#0",
@@ -1602,7 +1610,9 @@
       "source_sha256": "46b9fefd90e27ab69e88f7019f6e19912340faff06a381decc3d81292e15f514",
       "context": "The width the column wears: the one the user dragged, else fitting.",
       "translation": "A largura que a coluna usa: a que o usuário arrastou, senão a ajustada.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.column_width#1",
@@ -2686,7 +2696,9 @@
       "source_sha256": "0be25596494e43d96924f2dd9e25e173e0d1ac6e391c66e539358f5ff8b1ff4a",
       "context": "Build the list, the editor area, the conscience and Upload.",
       "translation": "Constrói a lista, a área do editor, o texto de consciência e Upload.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.ContributeDialog#2",
@@ -3142,7 +3154,9 @@
       "source_sha256": "9bf0a721bee209ee7c2f38344206ff0aca4f9a67b2311f03504634967c799463",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work. In place, each adjusted mask's SHA-256 is recorded in :data:`ADJUSTED_CELLS_LEDGER` as it lands, and a mask whose bytes still match its record is left alone on the next run: adjusting an adjusted mask merges it again, so a repeat execution used to change the result every time. A cell mask segmented again no longer matches and is adjusted afresh.",
       "translation": "pasta separada opcional para as máscaras ajustadas. None preserva o comportamento histórico no local. Uma pasta separada mantém todas as máscaras de origem idênticas byte a byte, e todo campo selecionado é reconstruído a partir da sua origem a cada invocação, inclusive após trabalho interrompido. No local, o SHA-256 de cada máscara ajustada é registrado em :data:`ADJUSTED_CELLS_LEDGER` à medida que ela é gravada, e uma máscara cujos bytes ainda correspondem ao seu registro é deixada como está na próxima execução: ajustar uma máscara já ajustada a funde de novo, então uma reexecução costumava mudar o resultado toda vez. Uma máscara de células segmentada de novo não corresponde mais e é ajustada do zero.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

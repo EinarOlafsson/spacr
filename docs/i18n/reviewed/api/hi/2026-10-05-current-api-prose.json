@@ -44,7 +44,9 @@
       "source_sha256": "46272b536827ca96d4e2d1debd47dcb49d45a03df385441ade8e81dd76131a7d",
       "context": "Genuine base provenance is kept: external names are never turned into image identities just because they happen to be unique. One-to-one joins, once validated, still go through the same typed plan on their singleton groups, so explicit count and nunique overrides stay real. Data-selection boundary and filter identities use timeID, and the original time_id spelling is preserved too, so a chart that selects time_id stays reproducible.",
       "translation": "आधार डेटा का वास्तविक स्रोत सुरक्षित रहता है। बाहरी नाम केवल अद्वितीय होने के कारण छवि पहचान नहीं बनते। सत्यापित एक-से-एक जोड़ भी अपने एक-सदस्य समूहों के लिए उसी प्रकार-आधारित योजना से गुजरते हैं, इसलिए count और nunique के स्पष्ट चुनाव वास्तव में लागू होते हैं। डेटा चयन की सीमाओं और फ़िल्टर की पहचान timeID का उपयोग करती है; मूल वर्तनी time_id भी सुरक्षित रहती है, ताकि time_id चुनने वाला चार्ट पुनरुत्पादित हो सके।",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification.classify_drop#3",
@@ -124,7 +126,9 @@
       "source_sha256": "016cea402964e16150069ef03c1d065fdc3fd759b0333c6af70524e2ec09e799",
       "context": "The count resets rather than decrements. The question is \"is spaCR crashing right now\", not \"how many times has it ever crashed\", and a total that only ever grew would eventually disable the backdrop on a machine where it works. Every instance and project lock this window holds is released first.",
       "translation": "गिनती घटाई नहीं जाती, रीसेट होती है। प्रश्न यह है कि spaCR अभी क्रैश हो रहा है या नहीं, यह नहीं कि इतिहास में कितनी बार क्रैश हुआ। केवल बढ़ने वाला कुल अंततः उस मशीन पर भी पृष्ठभूमि बंद कर देगा जहाँ वह सही काम करती है। पहले इस विंडो के सभी इंस्टेंस और परियोजना लॉक छोड़े जाते हैं।",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.crash_recovery.note_that_a_launch_began#2",

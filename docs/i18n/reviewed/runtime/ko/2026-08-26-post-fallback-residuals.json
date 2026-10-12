@@ -144,13 +144,6 @@
     },
     {
       "table": "ui",
-      "key": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Pure uncertainty collapses onto one or two wells, so you end up labelling the same ambiguity a hundred times. 'none' turns that protection off.",
-      "source_sha256": "34c56b048b56eb2d3781f9f80f3bb546f4e3faeef074ccf93fcf468b2288b83c",
-      "source": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Pure uncertainty collapses onto one or two wells, so you end up labelling the same ambiguity a hundred times. 'none' turns that protection off.",
-      "translation": "가장 불확실한 crop을 순위대로 제공하는 대신 대기열을 여러 웰에 분산합니다. 불확실성만 사용하면 한두 개 웰에 집중되어 동일한 모호성을 반복해서 레이블링할 수 있습니다. 'none' 은 이 보호 기능을 비활성화합니다."
-    },
-    {
-      "table": "ui",
       "key": "Stop the queue at the first failure",
       "source_sha256": "0df9376fbc8156d452acf38338b32e84276d13df4b4a39e4c06f9cd2dcf63d41",
       "source": "Stop the queue at the first failure",
@@ -162,6 +155,16 @@
       "source_sha256": "a51dc627fa198511c47bd0fef31399262aef4c10214ded284a553cce38f59252",
       "source": "This run saved no workspace — it was run with 'Saved runs carry: Nothing', or before spaCR recorded one. Preferences ▸ Performance ▸ Saved runs carry.",
       "translation": "이 실행은 'Saved runs carry: Nothing' 으로 실행되었거나 spaCR 이 workspace를 기록하기 전에 수행되어 저장된 workspace가 없습니다. Preferences ▸ Performance ▸ Saved runs carry."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Pure uncertainty collapses onto one or two wells, so you end up labelling the same ambiguity a hundred times. 'none' turns that protection off.",
+      "source_sha256": "34c56b048b56eb2d3781f9f80f3bb546f4e3faeef074ccf93fcf468b2288b83c",
+      "source": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Pure uncertainty collapses onto one or two wells, so you end up labelling the same ambiguity a hundred times. 'none' turns that protection off.",
+      "translation": "가장 불확실한 crop을 순위대로 제공하는 대신 대기열을 여러 웰에 분산합니다. 불확실성만 사용하면 한두 개 웰에 집중되어 동일한 모호성을 반복해서 레이블링할 수 있습니다. 'none' 은 이 보호 기능을 비활성화합니다.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

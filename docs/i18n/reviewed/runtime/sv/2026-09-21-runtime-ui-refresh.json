@@ -37,13 +37,6 @@
       "translation": "<b>Rapportera fel som GitHub-ärenden</b><br><span style='color:gray;'>Rapporterna skickas till det offentliga spaCR-projektet på GitHub, med sökvägar, namn och autentiseringsuppgifter maskerade. Om felrapportering är inställd på always, som är standard, skickar en misslyckad körning rapporten automatiskt en gång per fel när GitHub är inloggat nedan. Med ask visas knappen \"File as issue\" under konsolen, och rapporten skickas först när du trycker på Skicka rapport i förhandsgranskningen. Ändra detta under Hjälp → Konfigurera spaCR igen….</span>"
     },
     {
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
-      "table": "ui",
-      "translation": "En 4PL är symmetrisk kring sin mittpunkt. Verklig asymmetri förekommer, och en 4PL absorberar den genom att förskjuta EC50. En 5PL anpassar asymmetrin med ytterligare en parameter, kräver ytterligare en koncentration och visar om den extra parametern är motiverad."
-    },
-    {
       "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e",
@@ -1856,6 +1849,14 @@
         "table": "ui",
         "translation": "Vad ett nytt objekt gör där masken redan innehåller ett objekt. Clip behåller bara de pixlar som saknar etikett, så inget befintligt objekt förlorar någon pixel. Skip utelämnar varje objekt som vidrör ett befintligt objekt. Replace låter det nya objektet ta alla pixlar som det täcker. Under Region under musen visar rutan resultatet av regeln: det som ett klick skulle lägga till visas heltäckande, och det som skulle tas bort visas genomskinligt."
       }
+    },
+    {
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "table": "ui",
+      "translation": "En 4PL är symmetrisk kring sin mittpunkt. Verklig asymmetri förekommer, och en 4PL absorberar den genom att förskjuta EC50. En 5PL anpassar asymmetrin med ytterligare en parameter, kräver ytterligare en koncentration och visar om den extra parametern är motiverad.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

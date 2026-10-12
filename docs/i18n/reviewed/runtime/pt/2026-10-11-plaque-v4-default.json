@@ -9,13 +9,16 @@
       "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
       "source_sha256": "db4b1199854cf7fe3d21b47ead4081c5404ba94506d127cc4d6a58b417f0f970",
       "translation": "'bundled' é o modelo histórico de placas de lise incluído no pacote. É mantido para que uma execução antiga possa ser reproduzida; ele perde cerca de um terço das placas em imagens da literatura. toxoplasma_plaque_v4 é o modelo atual."
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "plaque_model",
       "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, the default until 2026-10-11, which scores higher on the held-out fields and on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v4'.",
       "source_sha256": "fbf9791c36bf5ec3ee4de38ef7adfeb810d2dbc6ff922fa22a3ee6a02dd06d93",
-      "translation": "Ponto de controle Cellpose usado para segmentar placas: uma chave do catálogo de modelos baixa, no primeiro uso, um ponto de controle verificado por soma de verificação. 'toxoplasma_plaque_v4' é o modelo da rodada 6 baseado em cpsam_v2; 'toxoplasma_plaque_v3' é cpsam_plaque_r5_geldoc, o padrão até 2026-10-11, que pontua mais alto nos campos reservados e nos poços de Gel Doc; 'toxoplasma_plaque_v2' é um padrão anterior. Um caminho do sistema de arquivos seleciona um ponto de controle próprio. 'bundled' é o modelo histórico incluído no pacote, um ponto de controle Cellpose 3 que requer Cellpose 3. Alterá-lo pode mudar todas as contagens de placas; execuções registradas devem manter o valor escolhido. Padrão 'toxoplasma_plaque_v4'."
+      "translation": "Ponto de controle Cellpose usado para segmentar placas: uma chave do catálogo de modelos baixa, no primeiro uso, um ponto de controle verificado por soma de verificação. 'toxoplasma_plaque_v4' é o modelo da rodada 6 baseado em cpsam_v2; 'toxoplasma_plaque_v3' é cpsam_plaque_r5_geldoc, o padrão até 2026-10-11, que pontua mais alto nos campos reservados e nos poços de Gel Doc; 'toxoplasma_plaque_v2' é um padrão anterior. Um caminho do sistema de arquivos seleciona um ponto de controle próprio. 'bundled' é o modelo histórico incluído no pacote, um ponto de controle Cellpose 3 que requer Cellpose 3. Alterá-lo pode mudar todas as contagens de placas; execuções registradas devem manter o valor escolhido. Padrão 'toxoplasma_plaque_v4'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

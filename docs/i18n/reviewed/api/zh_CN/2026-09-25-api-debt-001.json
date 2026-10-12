@@ -66,7 +66,9 @@
       "source_sha256": "f6acd04f48d6d519144ecb96dd4d8888afc9f9a2c07588a2cf62a61dbe947901",
       "context": "The channel token is ranked, not read as a number, and that is the one decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is no reading of ``C1`` that is right for all three -- a literal read makes the first set start at channel 1 and leaves channel 0 empty for ever. So the DISTINCT channel tokens are sorted (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is therefore a property of the set of files, not of any one of them, which is why the window shows the assignment rather than describing the rule.",
       "translation": "通道标记按排序确定，而不是作为数字读取，这是此处唯一值得了解的决定。``C1``/``C2``/``C3``、``w1``/``w2`` 以及 ``0``/``1``/``2`` 都必须最终成为通道 0、1、2，而对 ``C1`` 不存在一种对这三种情况都正确的解读——按字面读取会使第一组从通道 1 开始，通道 0 则永远为空。因此，互不相同的通道标记会被排序（按其末尾数字进行数值排序），并按此顺序映射到 0、1、2……。因此，这种映射是整组文件的属性，而不是其中任何单个文件的属性，这也是窗口显示分配结果而不是描述规则的原因。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.assign_paths_by_regex#6",
@@ -74,7 +76,9 @@
       "source_sha256": "26d27a5481fafcdfabeb96a65e8fde3d5203722bc07143d8a0b5f91159d67902",
       "context": "The set is the table's, not the drop's. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second microscope field of view's ``C2`` in column 0 beside a first microscope field of view's ``C1``, and the only sign of it would be in the database.",
       "translation": "这组标记属于表格，而不属于单次拖放。``table`` 在 :attr:`FieldTable.channel_tokens` 中记住哪个标记对应哪一列，之后的拖放会根据它带来的标记与已有标记的并集进行排序。排在已放置标记之前的标记会重新编号各列，并移动已在这些列中的文件（:func:`_renumber_channels`），从而使每一行对通道 0 是什么保持一致。如果改为对每次拖放单独排序，就会把第二个视野的 ``C2`` 放在第 0 列，与第一个视野的 ``C1`` 并列，而唯一的迹象只会出现在数据库中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.assign_paths_by_regex#7",
@@ -106,7 +110,9 @@
       "source_sha256": "6ac99987542fe799ee5c1449ec346e4227ab90f0c47c64e634c5bf93ab1651a8",
       "context": "``(width, height)`` to resize every extracted image region to, or ``None`` to return each object's own bounding box. This is ``measure_crop``'s ``png_size``, resized the way the processing session resizes -- the same ``PIL.Image.resize`` call at its default resampling -- because this feeds the Measure preview, whose purpose is to show what a processing session will write. Without it the preview showed bounding boxes while the processing session wrote squares, and the extracted image region-size setting looked like it did nothing.",
       "translation": "将每个裁剪图缩放到的 ``(width, height)``，或 ``None`` 表示返回每个对象自身的边界框。这就是 ``measure_crop`` 的 ``png_size``，缩放方式与运行时完全相同——即以默认重采样方式进行同样的 ``PIL.Image.resize`` 调用——因为它为 Measure 预览提供数据，而预览的目的就是展示运行将写出的内容。没有它时，预览显示的是边界框，而运行写出的是正方形，裁剪图尺寸设置看起来毫无作用。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.field_table_destination#0",
@@ -122,7 +128,9 @@
       "source_sha256": "cbd15fed09cbe3ab02bb5efce0266b7836fc0d792e48d6ac3f8b64a8d6dd6584",
       "context": "One answer, so that the window and the processing session cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the processing session wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
       "translation": "只有一个答案，这样窗口和运行就不会对此产生分歧。``src`` 是 :data:`FIELD_TABLE_DECIDED_KEYS` 之一，因此 FEATURES 窗口会将其显示为已填写且禁用；在此函数出现之前，窗口只有在获得目标位置时才会推导它，而没有目标位置就打开的窗口会显示设置规格中的 ``path`` 占位符，同时运行却写到第一个通道文件旁边。一个标注着 \"the table decides this\" 却指向错误文件夹的禁用输入框比没有输入框更糟——那等于窗口在告诉用户其结果不在的地方。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.field_table_destination#2",
@@ -258,7 +266,9 @@
       "source_sha256": "70366df5ba0f3d39eed7dee6d1e3f6f955bc4752f9cc79a2d04358e0bb3f1b36",
       "context": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a workflow already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the microscope fields of view came from. The database, the extracted image regions and the folder tree are therefore the Measure module's, because they are made by it.",
       "translation": "进入本模块的另一条途径。:func:`measure_crop` 从流程已构建好的 ``merged/`` 文件夹开始；而此函数从用户通过拖放文件填写的表格开始，写出该文件夹，然后调用 :func:`measure_crop` 本身——不作任何修改，也不带任何说明视野来源的标志。因此，数据库、裁剪图和文件夹树都属于 Measure 模块，因为它们就是由该模块生成的。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.measure_from_field_table#2",
@@ -370,7 +380,9 @@
       "source_sha256": "9e2408d10fc55d9d3733ae711b7e57e09051ee0a9cfaa3170139ec21f81592e7",
       "context": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the image layer-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
       "translation": "这就是 FEATURES 按钮为 Measure 增加的全部内容：它把手工挑选的文件表格转换为 ``stack/``、``masks/`` 和 ``merged/``，与 :func:`spacr.core.preprocess_generate_masks` 留下的完全一致，连图层布局清单也一样，因此随后的运行就是一次普通的测量运行，而不是另一条必须与本路径保持同步的代码路径。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.write_field_table_project#2",
@@ -692,7 +704,9 @@
       "source_sha256": "d39c9c27d783d1465ee8471afbd90ca487c1a59c4f04ba350dade9fe77ac2ee1",
       "context": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
       "translation": "只有在用户主动请求时才会显示这些模型，因为未经审核的检查点与经过测量的检查点并列，会诱使读者对它们一视同仁。每一行都带有 :data:`COMMUNITY_WARNING`，而校验和来自上传者自己的提交记录——它只能证明文件自上传以来没有改变，而不能证明它有任何质量保证。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.community_entries#2",
@@ -780,7 +794,9 @@
       "source_sha256": "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84",
       "context": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
       "translation": "模型库中缺失的后端不会让任何人知道它的存在，因此每个后端都会被列出，其 ``source`` 说明它所处的状态——``installed``、``installable``、``installing`` 或 ``not installable here``——原因写在其第一条说明中，许可证显示在该行上。安装后端会在 ``~/.spacr/backends`` 下为其构建一个独立的环境，而不会改动 spaCR 自身的环境。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#0",
@@ -796,7 +812,9 @@
       "source_sha256": "3127ce8df40eaf57f7cd93dea6f22d66c9c47921b1a66a4b3c1af979325c79f5",
       "context": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
       "translation": "工具提示过去显示的是一段文字，比较两个模型的读者必须解析两段文字才能找到两个数字。模型卡片打印的同一张表格能让人一眼看出答案。当条目没有发布任何指标时会退回到文字说明，因为空表格比一句话更糟。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#2",
@@ -836,7 +854,9 @@
       "source_sha256": "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
       "context": "Decided from the row, never from a list of names kept somewhere else: a hand-written list goes stale the first time a model is added, and the failure it produces is a model that is in the catalogue and under no heading, which is a model nobody can see.",
       "translation": "根据行本身来决定，绝不根据保存在别处的名称列表来决定：手写的列表在第一次添加模型时就会过时，而它造成的故障是一个存在于目录中却不属于任何标题的模型，也就是一个没有人能看到的模型。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#2",
@@ -844,7 +864,9 @@
       "source_sha256": "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
       "context": "The order of the tests is the rule, and it matters in one place: a Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto, cyto2, cyto3, nuclei -- and the backend package that executes them.",
       "translation": "检查的顺序就是规则，而且只在一处起作用：发布在 bioimage.io 上的 Cellpose 3 检查点属于 bioimage.io 行，而不是 Cellpose 3 行。``cellpose3`` 指的是该后端自己的模型——cyto、cyto2、cyto3、nuclei——以及运行这些模型的后端软件包。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#4",
@@ -852,7 +874,9 @@
       "source_sha256": "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
       "context": "A row that matches nothing is filed under ``spaCR`` and said out loud. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "translation": "不匹配任何规则的行会归入 ``spaCR``，并会明确说明这一点。它是回退选项而不是第六个标题，因为放在错误标题下的模型只是令人烦恼，而不属于任何标题的模型则是一个缺陷，用户会将其体验为模型缺失。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#5",
@@ -884,7 +908,9 @@
       "source_sha256": "562dc59f42e75e2dff8502e60b00f58d17571d012575869480bb7350d7387348",
       "context": "These are not spaCR's files and carry no checksum of ours: Cellpose downloads and verifies them, and the name IS the path -- passing \"cpsam\" to Cellpose resolves it. They are listed so that the zoo answers \"what can I segment with\" rather than \"what has Einar trained\", which is the question a new user actually has.",
       "translation": "这些不是 spaCR 的文件，也不带有我们的校验和：由 Cellpose 下载并验证它们，而且名称就是路径——将 \"cpsam\" 传给 Cellpose 即可解析它。列出它们是为了让模型库回答“我可以用什么进行分割”，而不是 \"what has Einar trained\"，前者才是新用户真正关心的问题。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks#2",
@@ -942,7 +968,9 @@
       "source_sha256": "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
       "context": "Say what each object in a mask is, after any segmenter has made it.",
       "translation": "在任意分割器生成掩膜之后，说明掩膜中每个对象是什么。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#1",
@@ -958,7 +986,9 @@
       "source_sha256": "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
       "context": "Two ways in:",
       "translation": "两种入口：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#3",
@@ -982,7 +1012,9 @@
       "source_sha256": "3e8db2fd2102133bbd7a82b25d0ad21761b28ba87f9ecd857121080448ceb2fe",
       "context": "What a head is. A head is a trained machine-learning classification model: it is handed a batch of extracted image regions and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
       "translation": "什么是预测头。预测头是一个经过训练的分类器：它接收一批裁剪图，并为每个裁剪图返回一个类别和一个概率。它是一个协议而不是基类，因此包装 torch 模块或 scikit-learn 估计器的适配器都可以提供它。计划中有两种应用——每个纳虫泡中的寄生虫数，以及每个对象是什么——而 PV 应用实际上由三个预测头组成，分别基于 Hoechst、寄生虫染色和 CellMask 训练，因此无论板上有哪种染色都可以进行计数。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#6",
@@ -998,7 +1030,9 @@
       "source_sha256": "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021",
       "context": "Ids are never renumbered. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the extracted image regions and the tracks are all keyed on those ids.",
       "translation": "ID 永不重新编号。此处所有内容都以掩膜传入时的标签 ID 为键，它返回的每个掩膜也都保留这些 ID。`canonical_labels`（位于 `mask_engine` 中）说明了重新编号的代价：测量结果、裁剪图和轨迹都以这些 ID 为键。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead#0",
@@ -1070,7 +1104,9 @@
       "source_sha256": "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
       "context": "The bin is a display choice, not a trained one. The head predicts how many parasites it sees; this is only how that number is shown. That matters because the rule below can change -- or be replaced by a different one per report -- without retraining anything.",
       "translation": "区间是一种显示选择，而不是训练得出的。预测头预测它看到了多少个寄生虫；这里只是决定该数字如何显示。这一点很重要，因为下面的规则可以更改——或者在每份报告中换成不同的规则——而无需重新训练任何东西。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#2",
@@ -1078,7 +1114,9 @@
       "source_sha256": "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
       "context": "Ties go down, and 12 is the case: it is four from 8 and four from 16. A vacuole of 12 has finished eight and is partway to sixteen, so it is reported as the round it has completed rather than the one it has not.",
       "translation": "平局向下取，12 就是这种情况：它与 8 相差四，与 16 也相差四。含有 12 个寄生虫的纳虫泡已经完成了八个的阶段，正处于通往十六个的途中，因此按其已完成的轮次而不是尚未完成的轮次来报告。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#3",
@@ -1214,7 +1252,9 @@
       "source_sha256": "470e604f9fa4f8b89a7b91dfd2ff33c1acf9cc1c04ae61422ead20afeb2da480",
       "context": "What can be said about every object without a trained head at all.",
       "translation": "在完全没有经过训练的预测头的情况下，关于每个对象所能说明的信息。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.describe_objects#1",
@@ -1528,7 +1568,9 @@
       "source_sha256": "20af16caf73243d9a48e62b293cb71e241e38947830291ed1fe0e81315bd2019",
       "context": "Either folder may be a parent of both halves, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the laboratory microplate, rather than filing 1,281 phenotype microscope fields of view and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
       "translation": "两个文件夹都可以是同时包含两部分数据的父文件夹，每个设置仍然只读取自己的部分：``genotype_source`` 只索引带有循环编号的名称，``phenotype_source`` 只索引不带循环编号的名称，而当表型采集的名称带有循环编号时则回退到这些名称。因此，将两者都指向 ``20200202_6W-LaC024A`` 会正常运行该板，而不是把 1,281 个表型视野和 333 个测序视野当作一次采集来归档——参见 :func:`_index_tiles`。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_engine.run_ops#4",
@@ -1560,7 +1602,9 @@
       "source_sha256": "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d",
       "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
       "translation": "以孔坐标系像素表示的 ``(top, left, bottom, right)``，每个值都是包含在内的——``bottom`` 和 ``right`` 是掩膜所占据的最后一行和最后一列，因此其高度为 ``bottom - top + 1``。此文档字符串在 2026-09-19 之前一直写的是“不包含”，而代码始终是包含的（`_label_extents` 使用 ``np.maximum`` 进行归约），这使得任何据此测量范围的人在每个方向上都少算了一个像素。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#0",
@@ -1576,7 +1620,9 @@
       "source_sha256": "4cd68cc51de86b0c9948d73e2b8e80c62075f900c438b909d77b76f9299618a8",
       "context": "Why this is not the refusal message. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the processing session raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
       "translation": "为什么这不是拒绝消息。:func:`_unseen_report` 列出最大的分组以及补救方法，这正是只读一行信息的操作者所需要的。它也是孔 A1 的运行中唯一留下的信息：54 个分组被丢弃，而报告只保留了一个框和一个计数，因此这次运行引出的问题——这些是没有对应对象的 Cellpose 碎片，还是连接步骤漏掉了其完整观测的截断对象？——事后若不重新分割该孔就无法回答。这些记录是该答案中代价较低的那一半，趁观测数据还在内存中时写出。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#2",
@@ -1584,7 +1630,9 @@
       "source_sha256": "bbb4199502e49727481c56fde8862bdf97f1589a42ecb0da4d0ea01e666a974e",
       "context": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty microplate sample position frame around it is a fragment.",
       "translation": "另一半由 :func:`spacr.ops_engine.run_ops` 负责，它将每个框与确实已编号的对象进行比较：被拒绝的分组上方有已编号对象，说明是连接步骤漏掉了；周围是空白孔区域的，则是碎片。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#3",
@@ -1736,7 +1784,9 @@
       "source_sha256": "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
       "context": "What ``method`` suits, as one sentence a picker can show.",
       "translation": "``method`` 适用的情形，以选择器可以显示的一句话表示。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.organelle_types.method_guidance#1",
@@ -1824,7 +1874,9 @@
       "source_sha256": "6e641d90767dadf52e6614fbbb08ed6a48a4bb5181deefd65b442010fae0845a",
       "context": "A renamed structured-data name is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a structured-data name this panel offers. The new name wins when a blob carries both.",
       "translation": "被重命名的键会被迁移而不是丢弃：``img_size`` 在 2026-09-19 改名为 ``crop_size``，已保存的运行如果选择过尺寸，会保留该尺寸。重命名信息从 :func:`spacr.settings.surviving_setting_name` 读取，这也是设置文件所使用的解析器，并且只会迁移到此面板提供的键上。当数据块同时带有两个名称时，以新名称为准。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_graph.ModuleGraph.next_of#1",
@@ -1962,7 +2014,9 @@
       "source_sha256": "6f883373e7ab7f88c3f892f4710310874a3ff3e1d488925c142d145685d06641",
       "context": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit extracted image region that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every image data channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
       "translation": "图像按原样交给 Cellpose，无论是 RGB 还是灰度，由 Cellpose 进行归一化。它不会经过运行时的历史加载器（``_load_normalized_images_and_labels``，带 ``background=200``）：在 8-bit 裁剪图上，该加载器会把每个像素都饱和为 1.0——在 ``malnio__2.tif`` 上测得每个通道中都是 min = max = 1.0——因此运行没有找到任何蚀斑，而按原样读取图像的预览找到了 67 个。两者共用一个函数，才能避免它们再次出现分歧。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.volume_view.angles_from_axes#0",
@@ -2572,7 +2626,9 @@
       "source_sha256": "e3759b16af110478c707466e391ce24156752daacb5274420796b039ba32a84c",
       "context": "What is new here is the tie. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
       "translation": "“这里的新东西是绑定。”同一区域的两个视图只有在保持对齐时才值得并排放置：将视野与其增强版本进行比较的整理者寻找的是两者之间的差异，而两者指向位置的不同，恰恰是唯一不携带信息的差异。:meth:`ZoomableImageView.link_to` 使一组视图共享同一个缩放比例和同一个滚动位置，因此缩放或平移其中任何一个都会使所有视图一起移动。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#3",
@@ -3076,7 +3132,9 @@
       "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
       "context": "Why it is not verbose logging. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon independent execution path that is never the main GUI execution path, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
       "translation": "为什么它不是详细日志。详细日志只决定保留哪些日志记录，因此无法给出内存使用的记录。它过去安装的函数跟踪器会在每次调用和每次返回时触发，使启动开销增加到二十倍。通过跟踪器得到的记录描述的是被跟踪的程序而不是真实的程序，而后者恰恰没有人希望被这样测量。因此这里改用采样：每秒读取一次 psutil，在一个绝不是 GUI 线程的守护线程上进行，而运行本身不受其他干扰。采用三种状态而不是一个复选框，是因为有用的默认值不是 \"off\"——最有价值的资源数据来自那些没人预料会失败的运行。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.resume.completed_fields_in_merged#5",
@@ -3292,7 +3350,9 @@
       "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
       "context": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
       "translation": "``size outliers`` 等效直径落在 ``median ± seg_qc_outlier_mad * 1.4826 * MAD`` 之外的对象所占的比例。使用中位数和 MAD，而不是均值和标准差：五块碎屑就能让标准差膨胀到再也没有任何离群值，而这恰恰是本检查要捕捉的情况（``tests/test_seg_qc.py`` 对两者进行了对比）。*k* = 5 是刻意放宽的——真实的大小分布是对数正态分布，尾部比高斯分布更重，因此 3 sigma 会把一个完全正常的视野中百分之几的对象标记出来。当超过 ``seg_qc_outlier_fraction``（0.15）的对象落在范围之外时，该标记会被触发。重尾、混合群体和分割缺陷都可能触发它；该标记无法确定是哪一种情况。边缘对象被排除在所有大小统计之外，与 ``diameter._region_diameters`` 排除它们的方式完全相同，因为被截断对象的面积是不真实的。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#17",
@@ -3308,7 +3368,9 @@
       "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
       "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full laboratory microplate that is hours. A laboratory microplate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious microscope fields of view, but cannot establish their cause or validate biological interpretation.",
       "translation": "``measure_crop`` 是 spaCR 中开销最大的步骤：它打开每个掩膜，从每个通道中裁出每个对象，为每个对象计算数百个特征，并将它们写入 SQLite。对一整块板而言，这需要数小时。一块分割失败的板（某个通道失焦、直径偏差两倍、汇合的单层细胞融合成大片）会耗费完全相同的时间，然后产生一张不得不丢弃的测量表。仅凭掩膜就能明显看出这种失败；但没有人去看，因为去看就意味着手动打开上千个 ``.npy`` 文件。掩膜统计可以突出显示可疑的视野，但无法确定其原因，也无法验证生物学解释。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#3",
@@ -3316,7 +3378,9 @@
       "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
       "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
       "translation": "因此，本模块替你去看。它读取 :mod:`spacr.object` 刚刚写入的标签掩膜，用少量稳健统计量为每个视野评分，并打印一张记分卡，列出超出所配置阈值的视野。它不会改变任何内容：``seg_qc='report'``（默认值）会呈现这些标记，而不会静默丢弃视野。保留哪些视野由用户决定，而这需要的是证据，而不是过滤器。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#7",
@@ -3516,7 +3580,9 @@
       "source_sha256": "73b32b1b88871a05e6f65dceca7c47b0e515e1d6397be83b362bdfa8d3548878",
       "context": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
       "translation": ":func:`augment_pair`——对两帧和两幅标签图像完全相同地施加一次翻转/旋转；目标值在此“之后”才根据标签计算，因此翻转永远不会教给模型一个未发生的位移。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#6",
@@ -3660,7 +3726,9 @@
       "source_sha256": "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
       "context": "One random flip and quarter-turn, the SAME for every frame and label.",
       "translation": "一次随机翻转和四分之一旋转，对每一帧和每个标签都“完全相同”。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#1",
@@ -3668,7 +3736,9 @@
       "source_sha256": "72c524a16c366efc105bbc2780f41459ac7aa04040d18b548da436f40460692f",
       "context": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
       "translation": "如果翻转只应用于帧 ``t`` 而不应用于 ``t+1``，就会教给模型一个从未发生过的位移，这是得到一个训练得很漂亮却什么也跟踪不了的模型的最简单方式。目标值随后根据增强后的标签计算，因此向量会自动随之变换。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#2",
@@ -3756,7 +3826,9 @@
       "source_sha256": "1f10ba01831e4f22536d121b125c8043dae6e6f8095fa265d10667d8744beaf7",
       "context": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
       "translation": "大多数连续帧几乎是静止的，因此均匀抽取帧对会让预测头看到的大多是容易的帧对。每个帧对的位移与直径之比的中位数会落入在所见范围内等宽划分的 ``bins`` 个区间之一，帧对的权重是其所在区间大小的倒数。最初尝试过分位数区间，但当大多数帧对移动方式相近时它会失效，而这恰恰是本函数所针对的影像序列。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.pair_sampling_weights#2",
@@ -3836,7 +3908,9 @@
       "source_sha256": "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
       "context": "One ``size`` square, the SAME window of every frame and label.",
       "translation": "一个 ``size`` 大小的正方形，每一帧和每个标签都使用“完全相同”的窗口。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#1",
@@ -3844,7 +3918,9 @@
       "source_sha256": "f3d5a24c24018ec338fef77c90247e3c9b12c11d3505a4f6ffb56709bab8aee2",
       "context": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
       "translation": "以第一个标签图像中的一个随机对象为中心，并随机偏移至多四分之一窗口，使窗口中包含细胞而不是空背景。两帧共用同一窗口，可使每个位移保持真实。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#2",
@@ -3972,7 +4048,9 @@
       "source_sha256": "fe7ea9f5f4c731caa3bb7b12b7532dcc6800db6803021ac8cef455fca62150e8",
       "context": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
       "translation": "向量只在“确实存在”后继对象的地方进行监督（``vector_weight``）；后继标志则在对象内部各处进行监督（``object_weight``）。背景两者都不监督。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.time_targets#5",
@@ -4052,7 +4130,9 @@
       "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
       "context": "What it does not do",
       "translation": "它不做什么",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#11",
@@ -4060,7 +4140,9 @@
       "source_sha256": "c7eaca2a274240ea6b7e2bf7c197880c0651cd293f571c1b6ca0009f5c4aaef6",
       "context": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
       "translation": "它评判的是“标注”，而不是跟踪器。将预测的跟踪结果与参考标注进行对比评分由 :mod:`spacr.timeflows_baseline` 完成，这是同一方案的第 2 步。它不包含图形界面代码，也不会打开任何对话框。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -4118,7 +4200,9 @@
       "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
       "context": "Why a script and not a look",
       "translation": "为什么用脚本而不是目测",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#9",
@@ -4182,7 +4266,9 @@
       "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
       "context": "Answer step 1's four questions about one label stack, as a table.",
       "translation": "以表格形式回答关于单个标签堆栈的第 1 步四个问题。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.audit_label_consistency#1",
@@ -4270,7 +4356,9 @@
       "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
       "context": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
       "translation": "只测量“连续”帧。在间隔之后重新出现的标签在这里不贡献任何数据，因为它经过的距离不是逐帧位移，把它计入平均值会夸大本模块要报告的这个数值。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.displacement_table#2",
@@ -4478,7 +4566,9 @@
       "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
       "context": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
       "translation": "没有任何检查失败时为 ``0``，有检查失败时为 ``1``。这里的失败说明的是“标注”的问题，而不是本程序的问题：它表示数据不支持 timeflows 方案对其所作的假设。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#0",
@@ -4486,7 +4576,9 @@
       "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
       "context": "List every label that disappears and comes back, and judge each one.",
       "translation": "列出每个消失后又重新出现的标签，并逐一判定。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#1",
@@ -4568,7 +4660,9 @@
       "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
       "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
       "translation": "“绝对不要”在 GUI 线程上调用此函数。它会打开一个套接字。主页的新闻面板在页面显示之后，通过手动更新检查所使用的同一个 :class:`_UpdateWorker` 请求它。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.fetch_release_notes#2",
@@ -4648,7 +4742,9 @@
       "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
       "context": "Upgrade this interpreter, optionally to the exact version offered.",
       "translation": "升级当前解释器，可选择升级到所提供的确切版本。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.upgrade_command#1",
@@ -4706,7 +4802,9 @@
       "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
       "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
       "translation": "当掩膜文件夹不存在，或任何预期的图像堆栈文件名缺少完整掩膜时返回 ``True``。无关的掩膜不能替代缺失的视野，也不会迫使已完成的视野重新运行。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.lasso_reg#3",

@@ -1163,7 +1163,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#1",
+      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#2",
       "source": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
       "source_sha256": "39389b4a6eacde9237afd0366ab10772af118d5f1494f20ba04b4354aa15eeff",
       "context": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
@@ -1338,7 +1338,9 @@
       "source_sha256": "1ab63210ebdec42427551e75b200a38afc556643e7db7f0768b10e0504d72581",
       "context": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "translation": "Plaque Assay läser två sorters mappar, och Mask-förhandsvisningen som den tidigare lånade passade ingen av dem:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview#2",
@@ -1386,7 +1388,9 @@
       "source_sha256": "70276fbbbba3d1530667cabb961d54da3ea2de7216072090f119e8782535ab7f",
       "context": "The box weight that means: pick one from the figure's size.",
       "translation": "Rutvikten som betyder: välj en utifrån figurens storlek.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.IMAGE_TABS#0",
@@ -1418,7 +1422,9 @@
       "source_sha256": "1d4e81f8e58a6649ef207f6f6de28b66942d99656c1a1fa731c7855d7f8ed42b",
       "context": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "translation": "En ändring ritar om det som redan är segmenterat; ingenting körs igen. Varje bredd anges i BILDpixlar: konturerna växer på bildarrayen och rutorna målas in i pixmapen innan den visas, så att en linje behåller sin andel av bilden när vyn zoomas och i en sparad bild, så som konturerna alltid har gjort.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.OverlayStyle#2",
@@ -1900,7 +1906,9 @@
       "source_sha256": "781131914582d812dc5057d3b0f345d1488386f956032fe3126cd766b3e058e8",
       "context": "Non-modal, because what it answers is how the picture beside it looks.",
       "translation": "Icke-modal, eftersom det den besvarar är hur bilden bredvid ser ut.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.open_overlay_settings#2",
@@ -3700,7 +3708,9 @@
       "source_sha256": "8002df1aa881f4bf52016412cb593be5165d31e5b2ef26a2b3da7a100655ddf7",
       "context": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised: one bad template must not take the others off the menu.",
       "translation": "Läses från paketdata vid varje anrop; mappen innehåller en handfull små filer och läses bara när Experiment Design bygger sin meny. En fil som inte kan tolkas hoppas över i stället för att generera ett undantag: en dålig mall får inte ta bort de andra från menyn.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plate_layout.plate_templates#2",
@@ -4248,7 +4258,9 @@
       "source_sha256": "505294fbae7c9bda8a18a586e3e566ad0b9ce95ae9f03bdd48ced95d0c28935e",
       "context": "What it scales, LIVE, without a restart. Everything inside the preview that spaCR sized in pixels:",
       "translation": "VAD DEN SKALAR, DIREKT, UTAN OMSTART. Allt inuti förhandsvisningen som spaCR har storleksangett i pixlar:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#3",
@@ -4296,7 +4308,9 @@
       "source_sha256": "486ee91ca372d7c6eb3d76e29b516c8d246805b79f1b12d8d160abf65710d9fb",
       "context": "Each value's own base is remembered on the widget, so scaling is always from the size the code asked for and never compounds. A size the code sets again later becomes the new base. At 100 % nothing is touched at all -- no sheet, no size, no property -- so a preview at its default scale is the preview it was before this module existed.",
       "translation": "Varje värdes egen bas sparas på widgeten, så skalningen utgår alltid från den storlek som koden bad om och förstärks aldrig. En storlek som koden sätter igen senare blir den nya basen. Vid 100 % rörs ingenting alls -- ingen stilmall, ingen storlek, ingen egenskap -- så en förhandsvisning i sin standardskala är samma förhandsvisning som den var innan den här modulen fanns.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#9",

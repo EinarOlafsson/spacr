@@ -128,7 +128,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Plays whatever the stored switches say: the dialog enables Preview only while its own master switch is on, and the press is the ask.",
       "source_sha256": "f145cbeda408be3532c769734f41dbfa06a3ee942c1dfc61addd22094a4361bf",
-      "translation": "Spielt ab, was auch immer die gespeicherten Schalter sagen: Der Dialog aktiviert Preview nur, solange sein eigener Hauptschalter eingeschaltet ist, und das Drücken ist die Bitte."
+      "translation": "Spielt ab, was auch immer die gespeicherten Schalter sagen: Der Dialog aktiviert Preview nur, solange sein eigener Hauptschalter eingeschaltet ist, und das Drücken ist die Bitte.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the sound set chosen in the dialog.",
@@ -240,7 +242,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "a WAV of the user's own to play as the bed instead of the synthesized one. Empty means spaCR's own. It is also what the Resonance backdrop is driven by, because the backdrop follows WHATEVER IS PLAYING and there is only ever one thing.",
       "source_sha256": "67bef7c78099f3a95c81f27c54795b9c446ac630417b7dab8477b2a16051a155",
-      "translation": "eine eigene WAV-Datei des Benutzers, die statt des synthetisierten Teppichs abgespielt wird. Leer bedeutet den eigenen von spaCR. Sie ist auch das, was den Resonance-Hintergrund antreibt, denn der Hintergrund folgt DEM, WAS GERADE SPIELT, und es gibt immer nur eine Sache."
+      "translation": "eine eigene WAV-Datei des Benutzers, die statt des synthetisierten Teppichs abgespielt wird. Leer bedeutet den eigenen von spaCR. Sie ist auch das, was den Resonance-Hintergrund antreibt, denn der Hintergrund folgt DEM, WAS GERADE SPIELT, und es gibt immer nur eine Sache.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Whether ``event`` should make a sound now.",
@@ -1996,7 +2000,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Qt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most styles set to about 700 ms and which nothing in spaCR was choosing. Tooltips therefore arrived while the pointer was still travelling, and left the instant it moved off the widget -- too fast to read, and impossible to reach if the text ran long.",
       "source_sha256": "fd35fd0958c30a1060b1956ca0bdb828edf722ea42804a7e4c30d1db76bb1e84",
-      "translation": "Die eigene Antwort von Qt ist ein Stilhinweis, ``SH_ToolTip_WakeUpDelay``, den die meisten Stile auf etwa 700 ms setzen und den in spaCR niemand gewählt hat. Tooltips erschienen daher, während der Zeiger noch unterwegs war, und verschwanden in dem Moment, in dem er das Widget verließ -- zu schnell zum Lesen und unmöglich zu erreichen, wenn der Text lang war."
+      "translation": "Die eigene Antwort von Qt ist ein Stilhinweis, ``SH_ToolTip_WakeUpDelay``, den die meisten Stile auf etwa 700 ms setzen und den in spaCR niemand gewählt hat. Tooltips erschienen daher, während der Zeiger noch unterwegs war, und verschwanden in dem Moment, in dem er das Widget verließ -- zu schnell zum Lesen und unmöglich zu erreichen, wenn der Text lang war.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is sent again after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
@@ -2004,7 +2010,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is SENT AGAIN after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
       "source_sha256": "38a34a85d3d3beaefeaabfe003d3fa229831a51e83d66bc280edbd0549b6cd5d",
-      "translation": "Eine Tabelle, eine Kopfzeile oder eine Liste antwortet aus ``Qt::ToolTipRole`` innerhalb ihres eigenen ``event``, nicht aus einem ``toolTip()``, das ein Filter lesen kann. Wenn nichts in der Elternkette einen Tooltip hat, wird das Ereignis nach der Wartezeit ERNEUT GESENDET, wobei der Filter beiseitetritt, sodass diese trotzdem erscheinen -- und nach derselben Zwei-Sekunden-Regel erscheinen wie alles andere."
+      "translation": "Eine Tabelle, eine Kopfzeile oder eine Liste antwortet aus ``Qt::ToolTipRole`` innerhalb ihres eigenen ``event``, nicht aus einem ``toolTip()``, das ein Filter lesen kann. Wenn nichts in der Elternkette einen Tooltip hat, wird das Ereignis nach der Wartezeit ERNEUT GESENDET, wobei der Filter beiseitetritt, sodass diese trotzdem erscheinen -- und nach derselben Zwei-Sekunden-Regel erscheinen wie alles andere.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`tooltips_enabled` is the preference switch, on by default. Cleared, the ``ToolTip`` event is swallowed and no tooltip is shown anywhere.",
@@ -2020,7 +2028,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This module installs ONE event filter on ``QApplication`` and takes the decision away from the style:",
       "source_sha256": "ce5122ac263cc0d8e6acaf67d011e0961af57200bba92ec7f22f6ed4fb626ebd",
-      "translation": "Dieses Modul installiert EINEN Ereignisfilter auf ``QApplication`` und nimmt dem Stil die Entscheidung ab:"
+      "translation": "Dieses Modul installiert EINEN Ereignisfilter auf ``QApplication`` und nimmt dem Stil die Entscheidung ab:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;",
@@ -2078,7 +2088,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Qt PROPAGATES a tooltip event to the parent widget when the widget under the pointer has no tooltip of its own, which is how a card explains itself while the pointer is on the label written on it. The text is therefore resolved with :func:`tooltip_text_for`, up the parent chain, exactly as Qt would have.",
       "source_sha256": "a1b6fff96412015d46d9e7b16cbc02c56d2706325d23d8ee3649a546c5854cd5",
-      "translation": "Qt LEITET ein Tooltip-Ereignis an das übergeordnete Widget WEITER, wenn das Widget unter dem Zeiger keinen eigenen Tooltip hat; so erklärt sich eine Karte, während der Zeiger auf der Beschriftung auf ihr steht. Der Text wird daher mit :func:`tooltip_text_for` die Elternkette hinauf aufgelöst, genau wie Qt es getan hätte."
+      "translation": "Qt LEITET ein Tooltip-Ereignis an das übergeordnete Widget WEITER, wenn das Widget unter dem Zeiger keinen eigenen Tooltip hat; so erklärt sich eine Karte, während der Zeiger auf der Beschriftung auf ihr steht. Der Text wird daher mit :func:`tooltip_text_for` die Elternkette hinauf aufgelöst, genau wie Qt es getan hätte.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Forget the cached preference, and hide anything already up.",
@@ -2110,7 +2122,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "This is not a convenience: it is the behaviour being preserved. Qt PROPAGATES a tooltip event up the parent chain, so a label with no tooltip of its own inside a card that has one shows the card's. A filter that read ``widget.toolTip()`` alone and then swallowed the event would break every one of those -- a card explains itself until the pointer lands on the text written on it, and then it stops.",
       "source_sha256": "524b3473132577b2a7fb015cfc6aa9682495d87e808c5a19e4c80fa072af391b",
-      "translation": "Das ist keine Bequemlichkeit: Es ist das Verhalten, das erhalten wird. Qt LEITET ein Tooltip-Ereignis die Elternkette hinauf WEITER, sodass ein Label ohne eigenen Tooltip innerhalb einer Karte, die einen hat, den der Karte anzeigt. Ein Filter, der nur ``widget.toolTip()`` läse und das Ereignis dann verschluckte, würde jedes davon kaputt machen -- eine Karte erklärt sich, bis der Zeiger auf dem Text landet, der auf ihr steht, und dann hört sie auf."
+      "translation": "Das ist keine Bequemlichkeit: Es ist das Verhalten, das erhalten wird. Qt LEITET ein Tooltip-Ereignis die Elternkette hinauf WEITER, sodass ein Label ohne eigenen Tooltip innerhalb einer Karte, die einen hat, den der Karte anzeigt. Ein Filter, der nur ``widget.toolTip()`` läse und das Ereignis dann verschluckte, würde jedes davon kaputt machen -- eine Karte erklärt sich, bis der Zeiger auf dem Text landet, der auf ihr steht, und dann hört sie auf.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the hovered widget, or ``None``; its ``toolTip()`` is read, then each parent's up to and including its window (at most 64 levels).",
@@ -2158,7 +2172,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "When the \"Verbose logging\" preference is on, spaCR's Python loggers are dialled up to DEBUG and the log files keep those records. The active ConsolePanel shows only the levels switched on for the console on the Logging tab of Preferences. That puts a detailed trail on disk, which is what you want when triaging a bug report.",
       "source_sha256": "8d0988c45c798e6fc097f1b476a6a9cf0961757d909b657667272f2ed90a3be9",
-      "translation": "Wenn die Präferenz \"Verbose logging\" eingeschaltet ist, werden die Python-Logger von spaCR auf DEBUG hochgestellt, und die Logdateien behalten diese Einträge. Das aktive ConsolePanel zeigt nur die Stufen, die für die Konsole auf der Registerkarte Logging in Preferences eingeschaltet sind. Das legt eine ausführliche Spur auf der Festplatte ab, und genau das braucht man, wenn man einen Fehlerbericht sichtet."
+      "translation": "Wenn die Präferenz \"Verbose logging\" eingeschaltet ist, werden die Python-Logger von spaCR auf DEBUG hochgestellt, und die Logdateien behalten diese Einträge. Das aktive ConsolePanel zeigt nur die Stufen, die für die Konsole auf der Registerkarte Logging in Preferences eingeschaltet sind. Das legt eine ausführliche Spur auf der Festplatte ab, und genau das braucht man, wenn man einen Fehlerbericht sichtet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numeric logging levels the console should show; anything outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are lowered to the lowest level kept.",
@@ -3824,7 +3840,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on screen, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
       "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
-      "translation": ":class:`FocusCollapse` Die automatische Hälfte. Einige Widgets sind FOKUS-Widgets (eine Live-Vorschau, das Abbildungspanel): Solange eines davon in der Ansicht ist, klappen die ZIEL-Bereiche ein (Konsole, System, die Schaltflächen, die Einstellungsspalte), und wenn das letzte verschwindet, kommen sie zurück. Es kämpft nie gegen den Benutzer: Ein Ziel, das der Benutzer von Hand aufklappt, wird offen FIXIERT und in Ruhe gelassen, bis die SICHT endet. Siehe die Klasse dafür, was eine Sicht ist."
+      "translation": ":class:`FocusCollapse` Die automatische Hälfte. Einige Widgets sind FOKUS-Widgets (eine Live-Vorschau, das Abbildungspanel): Solange eines davon in der Ansicht ist, klappen die ZIEL-Bereiche ein (Konsole, System, die Schaltflächen, die Einstellungsspalte), und wenn das letzte verschwindet, kommen sie zurück. Es kämpft nie gegen den Benutzer: Ein Ziel, das der Benutzer von Hand aufklappt, wird offen FIXIERT und in Ruhe gelassen, bis die SICHT endet. Siehe die Klasse dafür, was eine Sicht ist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A splitter whose panes resize by dragging and collapse at the limit.",
@@ -4096,7 +4114,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A resize of the window is not a drag -- no handle is held -- so re-fitting here fights nobody.",
       "source_sha256": "84be84c7c86506dcd9deff0f7024ec00f8ee9428bcb7fc185487d5ca8791c5b7",
-      "translation": "Eine Größenänderung des Fensters ist kein Ziehen -- kein Griff wird gehalten --, daher kämpft ein erneutes Anpassen hier gegen niemanden."
+      "translation": "Eine Größenänderung des Fensters ist kein Ziehen -- kein Griff wird gehalten --, daher kämpft ein erneutes Anpassen hier gegen niemanden.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Collapse or open the pane ``name``.",
@@ -4170,7 +4190,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the TARGET panes (:meth:`target`) are collapsed, and when the last is hidden the targets this collapsed are opened again. A target that was already collapsed -- by the user, or remembered from last session -- is left exactly as it is, both ways.",
       "source_sha256": "f4a2f6d632b03ace56472deaa47950f33783c373e49345177648daa9dd33b2b1",
-      "translation": "FOKUS-Widgets werden beobachtet (:meth:`watch`); solange IRGENDEINES davon angezeigt wird, sind die ZIEL-Bereiche (:meth:`target`) eingeklappt, und wenn das letzte ausgeblendet wird, werden die Ziele, die dies eingeklappt hat, wieder geöffnet. Ein Ziel, das bereits eingeklappt war -- vom Benutzer oder aus der letzten Sitzung gespeichert --, bleibt in beide Richtungen genau so, wie es ist."
+      "translation": "FOKUS-Widgets werden beobachtet (:meth:`watch`); solange IRGENDEINES davon angezeigt wird, sind die ZIEL-Bereiche (:meth:`target`) eingeklappt, und wenn das letzte ausgeblendet wird, werden die Ziele, die dies eingeklappt hat, wieder geöffnet. Ein Ziel, das bereits eingeklappt war -- vom Benutzer oder aus der letzten Sitzung gespeichert --, bleibt in beide Richtungen genau so, wie es ist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Never fights the user. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
@@ -4178,7 +4200,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "NEVER FIGHTS THE USER. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
       "source_sha256": "d2f77e3c7ce4f96edd278a717f67d79143f6db40d7d566061c40a51cf6619bde",
-      "translation": "KÄMPFT NIE GEGEN DEN BENUTZER. Ein Ziel, das der Benutzer von Hand öffnet (durch Klicken auf seine Überschrift oder seinen Griff oder durch Aufziehen), ist FIXIERT: Nichts hier klappt es wieder ein, bis die Sicht endet. Ein Ziel, das der Benutzer von Hand einklappt, gehört ebenfalls ihm und wird nicht wieder geöffnet, wenn der Fokus verschwindet."
+      "translation": "KÄMPFT NIE GEGEN DEN BENUTZER. Ein Ziel, das der Benutzer von Hand öffnet (durch Klicken auf seine Überschrift oder seinen Griff oder durch Aufziehen), ist FIXIERT: Nichts hier klappt es wieder ein, bis die Sicht endet. Ein Ziel, das der Benutzer von Hand einklappt, gehört ebenfalls ihm und wird nicht wieder geöffnet, wenn der Fokus verschwindet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A view is one visit to one application view: it begins when the application view is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another application view (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the application view with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
@@ -4186,7 +4210,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A VIEW is one visit to one screen: it begins when the screen is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another screen (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the screen with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
       "source_sha256": "8ec9ecfa22f3d1b94eadb17b0dcc3f2df5a8db6b5d3465f5be7345c23c20e4ff",
-      "translation": "Eine SICHT ist ein Besuch einer Ansicht: Sie beginnt, wenn die Ansicht angezeigt wird (:meth:`begin_view`, aus ihrem ``showEvent``), und endet, wenn sie ausgeblendet wird, weil der Benutzer zu einer anderen Ansicht gewechselt ist (:meth:`end_view`, aus ihrem ``hideEvent``). Das Minimieren des Fensters beendet sie nicht -- der Besitzer reicht nur nicht spontane Ereignisse weiter. Fixierungen gelten für die Sicht: Kehrt man zur Ansicht zurück, während ihre Live-Vorschau noch offen ist, klappt die Umgebung wieder ein, und genau das würde ein neues Ankommen bei diesem Layout ergeben."
+      "translation": "Eine SICHT ist ein Besuch einer Ansicht: Sie beginnt, wenn die Ansicht angezeigt wird (:meth:`begin_view`, aus ihrem ``showEvent``), und endet, wenn sie ausgeblendet wird, weil der Benutzer zu einer anderen Ansicht gewechselt ist (:meth:`end_view`, aus ihrem ``hideEvent``). Das Minimieren des Fensters beendet sie nicht -- der Besitzer reicht nur nicht spontane Ereignisse weiter. Fixierungen gelten für die Sicht: Kehrt man zur Ansicht zurück, während ihre Live-Vorschau noch offen ist, klappt die Umgebung wieder ein, und genau das würde ein neues Ankommen bei diesem Layout ergeben.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Watch nothing and collapse nothing until told what to.",

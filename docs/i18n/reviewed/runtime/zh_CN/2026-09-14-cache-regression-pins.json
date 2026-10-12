@@ -114,13 +114,6 @@
       "translation": "如何显示的细胞被选择。 'rank' 得到了最高的分数,其数量由完成分数确定。 'attributed' 指定每个细胞一个引导 RNA的概率,并采取超越边界的。 'assigned' 将一个引导 RNA分配给孔中的每个细胞,因此每个引导 RNA都收到由其阅读所指定的单元素数量。 'multivariate' 使用所有测量,而不是单独的分数,并要求基因测量冲动效应网络。 默认 'rank'。"
     },
     {
-      "key": "count_grna_column",
-      "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
-      "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
-      "table": "setting_tooltips",
-      "translation": "列名称在包含引导 RNA识别器的 CSV 数字中。 以前的版本需要 'grna' 名称,并使用 'sgRNA' 或 'guide' 等替代品拒绝了文件。 将此值设置为由序列流程产生的列。 默认 'grna'。"
-    },
-    {
       "key": "guide_fractions_file",
       "source": "Sequencing-derived table with one fraction per well and guide. Duplicate well-guide rows are refused because they would reweight target evidence ambiguously. Default '' requires selection.",
       "source_sha256": "d63bddd19afc999a90d3c88b8a72ffa2bd4de39c298dccbd1feda818ffa3a452",
@@ -436,13 +429,6 @@
       "translation": "扫描图书馆的尺寸和折叠性:有多少基因被针对,有多少引导 RNA每人得到,以及有多少建造土壤在一个孔里。"
     },
     {
-      "key": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits TWICE — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
-      "source": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits TWICE — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
-      "source_sha256": "57890823b4e07244c7de00402b9e38dc214caabf9f3e35b98e1d14c6da501a12",
-      "table": "ui",
-      "translation": "每个选项卡都吸引了哪个类别的比例? 一个跑步设置为级别='both' TWICE 匹配 - 每位引导 RNA和每位基因 - 并将两者写在一个桌子上. 它们是两个多测试家庭,所以 q 值, Q Q 的通货膨胀数字和意义线在每个家庭中计算,而不是在夫妇中计算。 gene_fraction:gene[225160] 旁边的分裂:grna [225160_1],以及表中的一个层列,说明哪个是哪个。"
-    },
-    {
       "key": "Which rows reach the model, and what they are measured against. The plate identifier, the positive and negative control wells, any row filter — and every cutoff that drops data: minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. The controls set the scale the effect sizes are reported on; each cutoff silently shrinks the dataset, so check the diagnostics after changing one.",
       "source": "Which rows reach the model, and what they are measured against. The plate identifier, the positive and negative control wells, any row filter — and every cutoff that drops data: minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. The controls set the scale the effect sizes are reported on; each cutoff silently shrinks the dataset, so check the diagnostics after changing one.",
       "source_sha256": "c25ad0a557a0dbe851c9843511359fc2d4977fd46d562948d1b055e052b29f54",
@@ -590,5 +576,23 @@
       "translation": "→ 引导 RNA转换测试配置是无效的: guide_permutations={value}. 在进行分析之前输入至少 1 的整体。"
     }
   ],
-  "schema": 1
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "count_grna_column",
+      "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+      "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
+      "table": "setting_tooltips",
+      "translation": "列名称在包含引导 RNA识别器的 CSV 数字中。 以前的版本需要 'grna' 名称,并使用 'sgRNA' 或 'guide' 等替代品拒绝了文件。 将此值设置为由序列流程产生的列。 默认 'grna'。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "key": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits TWICE — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "source": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits TWICE — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "source_sha256": "57890823b4e07244c7de00402b9e38dc214caabf9f3e35b98e1d14c6da501a12",
+      "table": "ui",
+      "translation": "每个选项卡都吸引了哪个类别的比例? 一个跑步设置为级别='both' TWICE 匹配 - 每位引导 RNA和每位基因 - 并将两者写在一个桌子上. 它们是两个多测试家庭,所以 q 值, Q Q 的通货膨胀数字和意义线在每个家庭中计算,而不是在夫妇中计算。 gene_fraction:gene[225160] 旁边的分裂:grna [225160_1],以及表中的一个层列,说明哪个是哪个。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    }
+  ]
 }

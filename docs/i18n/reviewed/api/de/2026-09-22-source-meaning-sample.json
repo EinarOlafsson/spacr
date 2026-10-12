@@ -36,7 +36,9 @@
       "source": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
       "context": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
       "source_sha256": "f08654017bb002c7e1b24f54ab252e691fae9f380f64007960025997e3dbf7bb",
-      "translation": "Make Masks ist der bessere Editor; das eigens entwickelte Werkzeug außerhalb des Repositorys bietet den besseren Arbeitsablauf. Keines von beiden vereint beides. Dieses Modul integriert den Teil für den Arbeitsablauf in spaCR: welche Bildfelder noch ausstehen, in welcher Reihenfolge sie angeboten werden, wie viele bis zum Ende der Sitzung angeboten werden und was für jedes bereits entschieden wurde."
+      "translation": "Make Masks ist der bessere Editor; das eigens entwickelte Werkzeug außerhalb des Repositorys bietet den besseren Arbeitsablauf. Keines von beiden vereint beides. Dieses Modul integriert den Teil für den Arbeitsablauf in spaCR: welche Bildfelder noch ausstehen, in welcher Reihenfolge sie angeboten werden, wie viele bis zum Ende der Sitzung angeboten werden und was für jedes bereits entschieden wurde.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.volume_view#1",
@@ -73,7 +75,9 @@
       "source": "WHAT IT DOES NOT DO",
       "context": "What it does not do",
       "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
-      "translation": "WAS ES NICHT TUT"
+      "translation": "WAS ES NICHT TUT",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.app_screen.module_maturity#3",

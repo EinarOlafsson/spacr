@@ -4326,8 +4326,17 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
     # Item 684: +2 (snap_window, set_click_ripples).
     # Item 690: +10 rendered, the ten TEM callables of its arrival contract.
+    # 2026-10-11: F534, item 685 and N691 add only the rendered callables of
+    # their dated arrival contracts; removing them preserves the pin.
+    arrival_callables = set()
+    for contract in ("534_spatial_api_arrivals_2026-10-11.json",
+                     "685_model_zoo_api_arrivals_2026-10-11.json",
+                     "691_mitonet_api_arrivals_2026-10-11.json"):
+        arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text()))
+    arrival_callables &= rendered_documented_callables.keys()
     assert len(rendered_documented_callables.keys() - yolo_callables
-               - volume_callables) == 9998
+               - volume_callables - arrival_callables) == 9998
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

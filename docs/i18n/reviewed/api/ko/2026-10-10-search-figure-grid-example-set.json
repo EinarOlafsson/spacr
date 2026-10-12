@@ -69,7 +69,9 @@
       "label": "spacr.example_archives.example_set#2",
       "source": "naming the keys that do exist. A typo that returned ``None`` would download nothing and report success, which is the one outcome a download command must never produce.",
       "source_sha256": "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68",
-      "translation": "실제로 존재하는 키를 알려 줍니다. 오타로 ``None`` 을 반환하면 아무것도 내려받지 않고 성공을 보고하게 되는데, 이는 다운로드 명령이 절대 내서는 안 되는 유일한 결과입니다."
+      "translation": "실제로 존재하는 키를 알려 줍니다. 오타로 ``None`` 을 반환하면 아무것도 내려받지 않고 성공을 보고하게 되는데, 이는 다운로드 명령이 절대 내서는 안 되는 유일한 결과입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

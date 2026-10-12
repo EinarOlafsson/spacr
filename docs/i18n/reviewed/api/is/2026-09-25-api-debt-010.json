@@ -1312,7 +1312,9 @@
       "source_sha256": "8a06086a816664ab0d58f6078eb137ad4ff4bd282fec817c0072e42ddb67d232",
       "context": "number of rows actually drawn or, for a binned density, counted.",
       "translation": "fjöldi raða sem raunverulega voru teiknaðar eða, fyrir bilaðan þéttleika, taldar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_spec.brush_mask#10",
@@ -1600,7 +1602,9 @@
       "source_sha256": "3d175c2af7e05e23cdff1e637e4de088049f59552ca8d5a17d5bf78a1cdc6b4b",
       "context": "The notes are bundled, and the bundle is what draws. They come from ``spacr/resources/release_notes.json``, which ``tools/build_release_notes.py`` writes from the GitHub releases and which ``.github/workflows/release.yml`` refreshes on every release. This panel is on the first screen the application shows, so making its CONTENT depend on api.github.com would mean a dashboard that is empty offline, throttled behind a shared NAT, and slower to draw than the window it is in. The bundled file therefore remains the offline source of truth and the panel is complete before anything touches a socket.",
       "translation": "SKÝRINGARNAR FYLGJA MEÐ, og það sem fylgir er það sem teiknar. Þær koma úr ``spacr/resources/release_notes.json``, sem ``tools/build_release_notes.py`` skrifar út frá GitHub-útgáfunum og sem ``.github/workflows/release.yml`` endurnýjar við hverja útgáfu. Þetta spjald er á fyrstu skjámyndinni sem forritið sýnir, svo að gera INNIHALD þess háð api.github.com myndi þýða yfirlitssíðu sem er tóm án nettengingar, hægð á bak við sameiginlegt NAT, og hægari að teiknast en glugginn sem hún er í. Meðfylgjandi skráin er því áfram sannleiksuppsprettan án nettengingar og spjaldið er fullbúið áður en nokkuð snertir innstungu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel#2",
@@ -1608,7 +1612,9 @@
       "source_sha256": "7f6316bf6a3bfa3d12730c2cdfce5756db400447c7f2c6c8ad49492ca194ebcb",
       "context": "And then it catches up. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a background execution unit, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
       "translation": "OG SÍÐAN NÆR ÞAÐ SÉR Á STRIK. Pakki útgáfu getur ekki innihaldið eigin útgáfuskýringu -- skýringin er skrifuð þegar GitHub-útgáfan er birt, sem er eftir að sá pakki er á PyPI -- svo meðfylgjandi skrá er alltaf einni útgáfu á eftir útgáfunni sem ber hana, og það er það sem fór úrskeiðis: „ég er á 1.5.1.0 og fréttirnar ná aðeins að 1.5.0.7. fréttahlutinn ætti alltaf sjálfkrafa að endurspegla nýjustu útgáfufréttir spacr.“ Eftir að síðan er sýnd biður :attr:`refresh_requested` því gluggann að lesa opinbera útgáfulistann á vinnsluþræði, og :meth:`apply_releases` sameinar það sem kemur til baka framan við meðfylgjandi listann. Ekkert hér opnar innstungu: spjaldið spyr aðeins, og sókn sem mistekst, er takmörkuð, er gerð óvirk í Preferences, eða finnur einfaldlega ekkert nýrra skilur meðfylgjandi listann eftir nákvæmlega eins og hann var teiknaður.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel#5",
@@ -1616,7 +1622,9 @@
       "source_sha256": "7015b27e0f129bb087b0487648dee0cfe3c8219f8fbda58d67800b70444634a2",
       "context": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
       "translation": "Uppfærsluathugunin er áfram HNAPPUR. Að bjóða uppsetningu á einhverju er ákvörðun, svo hún er enn aðeins tekin þegar ýtt er á hann.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel.apply_releases#0",
@@ -1632,7 +1640,9 @@
       "source_sha256": "731c80f592c0abab2c78eb04e554ee7c07bb77da5184d9b92e35fe53674d6001",
       "context": "Silence is the contract. An empty list, a list of rubbish, or a list that says nothing the bundled file did not already say leaves the panel untouched and says nothing to the reader -- the failure of an unasked-for background fetch is not the reader's problem.",
       "translation": "Þögn er samningurinn. Tómur listi, listi af rusli, eða listi sem segir ekkert sem meðfylgjandi skráin sagði ekki þegar lætur spjaldið ósnert og segir lesandanum ekkert -- bilun í bakgrunnssókn sem enginn bað um er ekki vandamál lesandans.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel.apply_releases#2",
@@ -1728,7 +1738,9 @@
       "source_sha256": "da720010cd7251e2540c5b20989069b775dec7969b3ed845ece331c1eab32841",
       "context": "AFTER the page exists and on the event loop, not during construction: the single-shot timer means the emit lands on a later turn than this show, so Home's first paint is never waiting on it. Once per panel, because a page that is shown again -- a tab revisited, a font-scale rebuild -- is not news.",
       "translation": "EFTIR að síðan er til og Á ATBURÐALYKKJUNNI, ekki við smíði: einskotstímamælirinn þýðir að sendingin lendir í síðari umferð en þessi sýning, svo fyrsta teikning Home bíður aldrei eftir henni. Einu sinni fyrir hvert spjald, því síða sem er sýnd aftur -- flipi sem heimsóttur er aftur, endurbygging vegna leturkvarða -- er ekki frétt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel.showEvent#2",
@@ -2027,7 +2039,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#1",
+      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#2",
       "source": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
       "source_sha256": "39389b4a6eacde9237afd0366ab10772af118d5f1494f20ba04b4354aa15eeff",
       "context": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
@@ -2202,7 +2214,9 @@
       "source_sha256": "1ab63210ebdec42427551e75b200a38afc556643e7db7f0768b10e0504d72581",
       "context": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "translation": "Plaque Assay les tvenns konar möppur, og Mask-forsýnin sem hún fékk áður að láni passaði við hvoruga:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview#2",
@@ -2250,7 +2264,9 @@
       "source_sha256": "70276fbbbba3d1530667cabb961d54da3ea2de7216072090f119e8782535ab7f",
       "context": "The box weight that means: pick one from the figure's size.",
       "translation": "Kassaþykktin sem þýðir: veldu hana út frá stærð myndarinnar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.IMAGE_TABS#0",
@@ -2282,7 +2298,9 @@
       "source_sha256": "1d4e81f8e58a6649ef207f6f6de28b66942d99656c1a1fa731c7855d7f8ed42b",
       "context": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "translation": "Breyting á honum teiknar aftur það sem þegar er hlutað; ekkert er keyrt aftur. Hver breidd er í pixlum MYNDARINNAR: útlínurnar eru stækkaðar á myndfylkinu og kassarnir málaðir inn í pixmap-myndina áður en hún er sýnd, svo lína heldur hlutdeild sinni í myndinni þegar aðdrætti sýnarinnar er breytt og í vistaðri mynd, eins og útlínurnar gerðu alltaf.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.OverlayStyle#2",
@@ -2764,7 +2782,9 @@
       "source_sha256": "781131914582d812dc5057d3b0f345d1488386f956032fe3126cd766b3e058e8",
       "context": "Non-modal, because what it answers is how the picture beside it looks.",
       "translation": "Óháttbundinn, því það sem hann svarar er hvernig myndin við hlið hans lítur út.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.open_overlay_settings#2",
@@ -4564,7 +4584,9 @@
       "source_sha256": "8002df1aa881f4bf52016412cb593be5165d31e5b2ef26a2b3da7a100655ddf7",
       "context": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised: one bad template must not take the others off the menu.",
       "translation": "Lesið úr pakkagögnum við hvert kall; mappan geymir örfáar litlar skrár og er aðeins lesin þegar Experiment Design byggir valmynd sína. Skrá sem ekki er hægt að þátta er sleppt frekar en að villu sé kastað: eitt gallað sniðmát má ekki taka hin úr valmyndinni.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plate_layout.plate_templates#2",

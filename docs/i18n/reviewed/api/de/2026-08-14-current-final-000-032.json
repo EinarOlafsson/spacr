@@ -87,7 +87,9 @@
       "label": "spacr.errors#6",
       "source": ":class:`ConfigurationError` marks the failures that must *not* be survived. A wrong ``src`` path or a missing metadata column is not a per-item problem — continuing past it only produces garbage. :meth:`RunLedger.item` deliberately re-raises it.",
       "source_sha256": "d66cd0c96ecb70beb6db469ac5eb5f40b99a5ed9bf5fe1ab4690ebcb580f42ff",
-      "translation": ":class:`ConfigurationError` kennzeichnet Fehler, die *nicht* ignoriert werden dürfen. Ein falscher ``src``-Pfad oder eine fehlende Metadatenspalte ist kein Problem eines einzelnen Elements — eine Fortsetzung würde lediglich unbrauchbare Ergebnisse erzeugen. :meth:`RunLedger.item` löst den Fehler daher absichtlich erneut aus."
+      "translation": ":class:`ConfigurationError` kennzeichnet Fehler, die *nicht* ignoriert werden dürfen. Ein falscher ``src``-Pfad oder eine fehlende Metadatenspalte ist kein Problem eines einzelnen Elements — eine Fortsetzung würde lediglich unbrauchbare Ergebnisse erzeugen. :meth:`RunLedger.item` löst den Fehler daher absichtlich erneut aus.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Render the loud end-of-run block.",
@@ -108,7 +110,9 @@
       "label": "spacr.foreign.ImportResult.summary#0",
       "source": "The end-of-run block: what landed, and everything that did not.",
       "source_sha256": "63761be06eebc630e97a2e9a9b37d9ce1c0a796aaa0eebfb198db26b01cab849",
-      "translation": "Der Abschlussblock eines Laufs: was übernommen wurde und was nicht."
+      "translation": "Der Abschlussblock eines Laufs: was übernommen wurde und was nicht.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "figure list (currently only used for keep-alive purposes).",
@@ -164,7 +168,9 @@
       "label": "spacr.ome_zarr#15",
       "source": "**0.4 is implemented properly** — it is what essentially all real data is in, and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` key in ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks are decoded for the codec chains the standard library can do (``bytes``/``transpose``/``gzip``/``crc32c``). Anything else routes through the same :func:`require_codec` refusal as v2 does. ``.zgroup`` / ``.zarray`` / ``zarr.json`` and the ``zarr_format`` field are read rather than assumed, and an unsupported ``zarr_format`` is refused by number.",
       "source_sha256": "8b134af1da1fc9ccbfb5b6ccf0ad7bca447f96d27384c2cbb6f8f0d168cfd2fb",
-      "translation": "**0.4 ist vollständig implementiert** — in diesem Format liegen praktisch alle realen Daten vor, und es verwendet zarr-format 2. 0.5 (zarr-format 3, Metadaten unter dem Schlüssel ``ome`` in ``zarr.json``) wird *toleriert*: Seine Metadaten werden vollständig analysiert, und seine Chunks werden für die Codec-Ketten dekodiert, die die Standardbibliothek verarbeiten kann (``bytes``/``transpose``/``gzip``/``crc32c``). Alles andere durchläuft dieselbe Ablehnung durch :func:`require_codec` wie bei v2. ``.zgroup`` / ``.zarray`` / ``zarr.json`` und das Feld ``zarr_format`` werden gelesen statt vorausgesetzt; ein nicht unterstütztes ``zarr_format`` wird anhand seiner Nummer abgelehnt."
+      "translation": "**0.4 ist vollständig implementiert** — in diesem Format liegen praktisch alle realen Daten vor, und es verwendet zarr-format 2. 0.5 (zarr-format 3, Metadaten unter dem Schlüssel ``ome`` in ``zarr.json``) wird *toleriert*: Seine Metadaten werden vollständig analysiert, und seine Chunks werden für die Codec-Ketten dekodiert, die die Standardbibliothek verarbeiten kann (``bytes``/``transpose``/``gzip``/``crc32c``). Alles andere durchläuft dieselbe Ablehnung durch :func:`require_codec` wie bei v2. ``.zgroup`` / ``.zarray`` / ``zarr.json`` und das Feld ``zarr_format`` werden gelesen statt vorausgesetzt; ein nicht unterstütztes ``zarr_format`` wird anhand seiner Nummer abgelehnt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the `organelle_morphology` this maps to, or None when size decides -- see :attr:`size_split`.",
@@ -234,7 +240,9 @@
       "label": "spacr.qt.command_palette#9",
       "source": "Fuzzy match is a plain substring case-insensitive scan — good enough for the ~30 commands the palette will ever hold.",
       "source_sha256": "b29e3f1597423bee4271d197da73e23f34b39e2c1d2d035f1f5bad8eb8cae1f0",
-      "translation": "Fuzzy Match ist ein einfacher Teilzeichenketten-Scan, der Groß- und Kleinschreibung nicht berücksichtigt — gut genug für die ~30 Befehle, die die Palette jemals enthalten wird."
+      "translation": "Fuzzy Match ist ein einfacher Teilzeichenketten-Scan, der Groß- und Kleinschreibung nicht berücksichtigt — gut genug für die ~30 Befehle, die die Palette jemals enthalten wird.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

@@ -6,7 +6,9 @@
       "label": "spacr.model_zoo.source_of#3",
       "source": "A shared or community row is spaCR's when it is the very file a bundled record names (key and checksum) or when it is fetched from one of the maintainer's own repositories (:func:`is_spacr_owned`). Anything else uploaded by somebody else stays under ``spaCR community``.",
       "source_sha256": "ff993f6f9d9825d23ccc00fe30d2734d236edd119ddc87ae97fa48dc52aba69d",
-      "translation": "공유 행이나 커뮤니티 행은 번들 레코드가 지정하는 바로 그 파일(키와 체크섬)이거나 유지 관리자 소유 저장소 중 하나에서 가져온 경우(:func:`is_spacr_owned`) spaCR에 속합니다. 다른 사람이 올린 그 밖의 모든 것은 ``spaCR community`` 아래에 남습니다."
+      "translation": "공유 행이나 커뮤니티 행은 번들 레코드가 지정하는 바로 그 파일(키와 체크섬)이거나 유지 관리자 소유 저장소 중 하나에서 가져온 경우(:func:`is_spacr_owned`) spaCR에 속합니다. 다른 사람이 올린 그 밖의 모든 것은 ``spaCR community`` 아래에 남습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

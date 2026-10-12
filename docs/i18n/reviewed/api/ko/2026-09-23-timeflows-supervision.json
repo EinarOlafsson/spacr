@@ -61,14 +61,18 @@
       "label": "spacr.timeflows_model.track_masks_from_ctc#0",
       "source": "Full object masks labelled with their TRACK ids.",
       "source_sha256": "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
-      "translation": "TRACK 식별자로 라벨링된 전체 객체 마스크입니다."
+      "translation": "TRACK 식별자로 라벨링된 전체 객체 마스크입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
       "label": "spacr.timeflows_model.track_masks_from_ctc#1",
       "source": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
       "source_sha256": "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
-      "translation": "Cell Tracking Challenge는 추적 참조를 MARKERS로 제공합니다. 이는 각 세포 안의 작은 영역으로, 각 프레임에서 궤적 식별자로 라벨링됩니다. 전체 윤곽은 프레임별로 라벨링된 silver ``ST/SEG`` 마스크로 별도 제공됩니다. 일대일 할당만 유지합니다. 객체에는 정확히 하나의 마커 식별자가 있어야 하고, 해당 마커는 다른 분할 객체와 겹치면 안 됩니다. 마커가 없거나 병합 또는 분할된 할당은 추측하지 않고 제외합니다."
+      "translation": "Cell Tracking Challenge는 추적 참조를 MARKERS로 제공합니다. 이는 각 세포 안의 작은 영역으로, 각 프레임에서 궤적 식별자로 라벨링됩니다. 전체 윤곽은 프레임별로 라벨링된 silver ``ST/SEG`` 마스크로 별도 제공됩니다. 일대일 할당만 유지합니다. 객체에는 정확히 하나의 마커 식별자가 있어야 하고, 해당 마커는 다른 분할 객체와 겹치면 안 됩니다. 마커가 없거나 병합 또는 분할된 할당은 추측하지 않고 제외합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one frame's instance labels, any ids.",
@@ -110,7 +114,9 @@
       "label": "spacr.timeflows_model.train_timeflows#1",
       "source": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
       "source_sha256": "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
-      "translation": "두 단계로 학습합니다. 백본의 분할은 이미 학습되어 있으므로 새 헤드가 학습하는 동안 백본을 동결하고, 이후 낮은 학습률로 전체를 학습합니다. 각 쌍의 두 프레임에 동일한 데이터 증강을 적용한 뒤 목표값을 계산합니다."
+      "translation": "두 단계로 학습합니다. 백본의 분할은 이미 학습되어 있으므로 새 헤드가 학습하는 동안 백본을 동결하고, 이후 낮은 학습률로 전체를 학습합니다. 각 쌍의 두 프레임에 동일한 데이터 증강을 적용한 뒤 목표값을 계산합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A training extracted image region keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable extracted image regions are retried up to 32 times per step. Censoring prevents incorrect targets at extracted image region boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",

@@ -257,7 +257,9 @@
       "source_sha256": "08771361e72d3f2bfd40c047879bbfb263d6b2b1a1dc17edb4536214611cf87d",
       "context": "That is the whole point of the placeholder: the sweep panel is expensive and a user who never opens this screen never pays for it.",
       "translation": "这正是占位符的全部意义：扫描面板开销很大，从不打开此视图的用户永远不必为此付出代价。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.space#0",
@@ -321,7 +323,9 @@
       "source_sha256": "9c8cb6c8332077a881ac9cda988e0ad0f39b02282da60ea6db77df966026dad7",
       "context": "A view and not a filter: every column is still in the CSV. The order is settings, then what went in, then what came out -- a hit count means little without the size of the design it came from, and two trials differing only by a filtration cutoff can fit completely different data.",
       "translation": "这是视图而不是过滤器：每一列仍在 CSV 中。顺序是设置、输入内容、输出内容 -- 命中数如果不结合其所来自设计的规模就意义不大，而仅在过滤阈值上不同的两次试验可能拟合完全不同的数据。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._sweep_finished#0",

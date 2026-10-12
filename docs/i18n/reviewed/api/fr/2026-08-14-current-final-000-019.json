@@ -72,7 +72,9 @@
       "source_sha256": "713b8ed3bc9df1e3367418ea6c06bad0fb16c846d55d7903c2dd23c7f1b2a4b8",
       "source": "Greyed, never removed (INVARIANTS 6): a key absent from the dict makes the pipeline fall back to its own default, which can differ from the value the module needs and says nothing when it does.",
       "context": "Greyed, never removed (INVARIANTS 6): a structured-data name absent from the key-value mapping makes the workflow fall back to its own default, which can differ from the value the module needs and says nothing when it does.",
-      "translation": "Grisé, jamais supprimé (INVARIANTS 6) : si un nom de donnée structurée manque dans le mappage clé-valeur, le flux de travail revient à sa propre valeur par défaut, qui peut différer de celle requise par le module, sans aucun avertissement."
+      "translation": "Grisé, jamais supprimé (INVARIANTS 6) : si un nom de donnée structurée manque dans le mappage clé-valeur, le flux de travail revient à sa propre valeur par défaut, qui peut différer de celle requise par le module, sans aucun avertissement.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.crops.extract_crop#12",

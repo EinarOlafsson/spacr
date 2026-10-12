@@ -666,7 +666,9 @@
       "source_sha256": "98efadcb034381d0b96dc99c19dc1beaf6ab84106523d44991376ba18867a08f",
       "context": "The size is fixed per scale, not per row state. The old dock grew and shrank an icon on hover, which relayed out the whole column under the pointer; that is what :data:`ICON_PX` being one number stops. It still has to follow the interface scale, so the base is recorded on each row and re-derived from there -- see :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never recomputed from the size the row is already wearing.",
       "translation": "DIE GRÖSSE IST PRO SKALIERUNG FEST, NICHT PRO ZEILENZUSTAND. Das alte Dock vergrößerte und verkleinerte ein Symbol beim Hovern, was die ganze Spalte unter dem Zeiger neu anordnete; genau das verhindert :data:`ICON_PX` als eine einzige Zahl. Sie muss trotzdem der Oberflächenskalierung folgen, daher wird die Basis in jeder Zeile festgehalten und von dort neu abgeleitet -- siehe :func:`spacr.qt.preferences._set_scaled_icon_size` dazu, warum sie nie aus der Größe neu berechnet wird, die die Zeile bereits trägt.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.section_is_open#1",
@@ -706,7 +708,9 @@
       "source_sha256": "90ac9ad64db7ee715905d050dfc0dee1df43a9d80986831e7839a231167d43b6",
       "context": "It is nonetheless **not the default**, and that is a decision rather than an oversight. The fifth parameter trades off against the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten concentrations a plate actually carries it is weakly identified, and the profile interval it produces is correspondingly wider. The module therefore offers it, fits it **from the 4PL solution** so the asymmetric search starts at the symmetric answer, and reports an extra-sum-of-squares F test of the one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the asymmetry was worth what it cost.",
       "translation": "Es ist dennoch **nicht der Standard**, und das ist eine Entscheidung und kein Versehen. Der fünfte Parameter steht im Zielkonflikt mit der Hill-Steigung — viele Paare aus (Steigung, Asymmetrie) zeichnen nahezu dieselbe Kurve —, daher ist er bei den acht oder zehn Konzentrationen, die eine Platte tatsächlich trägt, schwach identifizierbar, und das Profilintervall, das er liefert, ist entsprechend breiter. Das Modul bietet ihn daher an, passt ihn **ausgehend von der 4PL-Lösung** an, sodass die asymmetrische Suche bei der symmetrischen Antwort beginnt, und meldet in :attr:`DoseResponseResult.asymmetry_p` einen F-Test der zusätzlichen Quadratsumme für den einen hinzugefügten Parameter, damit ein Leser sehen kann, ob die Asymmetrie ihren Preis wert war.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#27",
@@ -746,7 +750,9 @@
       "source_sha256": "c4538f3c829789f7d52787b8fbf30cda8d9431e6ef5d271aad5721bc2db7483d",
       "context": "the response **rises at the bottom dose** before falling — hormesis. The advice is emphatically not to drop those doses, because the rise is the finding.",
       "translation": "die Antwort **steigt bei der niedrigsten Dosis** an, bevor sie fällt — Hormesis. Der Rat ist ausdrücklich, diese Dosen nicht wegzulassen, denn der Anstieg ist der Befund.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#32",
@@ -762,7 +768,9 @@
       "source_sha256": "b58fe65189506a40db2a89a06934aadb3125e6cfd14a840ae2386e9a2012f3cc",
       "context": "The test runs on any series whose low-dose end departs from control against the trend, not only on the ones :func:`monotonicity` refuses — **a hump can carry a fifth of the response span and still sit inside** :data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50 displaced by the hump, and says nothing. Those fits now carry the finding in :attr:`DoseResponseResult.hormesis` and in their caveats.",
       "translation": "Der Test läuft bei jeder Reihe, deren Niedrigdosis-Ende entgegen dem Trend von der Kontrolle abweicht, nicht nur bei denen, die :func:`monotonicity` ablehnt — **ein Buckel kann ein Fünftel der Antwortspanne ausmachen und trotzdem innerhalb von** :data:`MAX_REVERSAL` liegen; in diesem Fall gelingt die heutige Anpassung, nennt eine durch den Buckel verschobene EC50 und sagt nichts. Solche Anpassungen tragen den Befund jetzt in :attr:`DoseResponseResult.hormesis` und in ihren Vorbehalten.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseResult#21",
@@ -898,7 +906,9 @@
       "source_sha256": "c649bbc62d764683b27f13d71653696bf3960e5cca9b7aaab962bd27526ec5b5",
       "context": ":data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The asymmetric model is a choice the user makes and never one the data makes for them: it is offered because real asymmetry exists and a 4PL absorbs it into a displaced EC50, and it is not the default because the fifth parameter is weakly identified on the eight or ten concentrations a plate actually carries. A fit that chose 5PL reports whether the extra parameter earned itself — see :attr:`DoseResponseResult.asymmetry_p`.",
       "translation": ":data:`MODEL_4PL` (Standard) oder :data:`MODEL_5PL`. Das asymmetrische Modell ist eine Wahl, die der Benutzer trifft, und nie eine, die die Daten für ihn treffen: Es wird angeboten, weil es echte Asymmetrie gibt und ein 4PL sie in eine verschobene EC50 aufnimmt, und es ist nicht der Standard, weil der fünfte Parameter bei den acht oder zehn Konzentrationen, die eine Platte tatsächlich trägt, schwach identifizierbar ist. Eine Anpassung, die 5PL gewählt hat, meldet, ob sich der zusätzliche Parameter gelohnt hat — siehe :attr:`DoseResponseResult.asymmetry_p`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseSpec#12",
@@ -1314,7 +1324,9 @@
       "source_sha256": "145fea693db0defae9669687af04ae2111e23e68b96cba9e159647d476d8f912",
       "context": "**That scale factor is the whole point of this function.** Written the way the 5PL usually is —",
       "translation": "**Dieser Skalierungsfaktor ist der ganze Sinn dieser Funktion.** So geschrieben, wie das 5PL üblicherweise geschrieben wird —",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#4",
@@ -1330,7 +1342,9 @@
       "source_sha256": "a1251e1e88117eae1047b7a8adb6043f0ff87bd5f0adebdd50c7ef89af9eae2a",
       "context": "every downstream rule in this module — the boundedness tests, the profile interval, the back-transformed reporting — keeps reading ``log10_ec50`` as the same quantity under both models, and none of them had to learn a second meaning.",
       "translation": "jede nachgelagerte Regel in diesem Modul — die Beschränktheitstests, das Profilintervall, die rücktransformierte Berichterstattung — liest ``log10_ec50`` unter beiden Modellen weiterhin als dieselbe Größe, und keine davon musste eine zweite Bedeutung lernen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#6",
@@ -1354,7 +1368,9 @@
       "source_sha256": "3bea01c7922161566a7b8ebb8719049a77e432da5951f8731ff0f0dd8bddad97",
       "context": "Is the low-dose end of this series stimulated, or is it noise?",
       "translation": "Ist das Niedrigdosis-Ende dieser Reihe stimuliert, oder ist es Rauschen?",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#1",
@@ -1426,7 +1442,9 @@
       "source_sha256": "a841346d577f13b160fc5ab59b6823582b375bbb6da64034f485b55428ffef2d",
       "context": "**The F test is two-sided and the hypothesis is one-sided**, since only a positive stimulation is hormesis. Criterion 1 does the one-sided part by inspection rather than by halving the p value, so the reported p is conservative by about a factor of two. Stated rather than corrected: a conservative p on a screen that already refuses this data is the right direction to be wrong in.",
       "translation": "**Der F-Test ist zweiseitig und die Hypothese einseitig**, da nur eine positive Stimulation Hormesis ist. Kriterium 1 erledigt den einseitigen Teil durch Prüfung statt durch Halbieren des p-Werts, daher ist das gemeldete p um etwa den Faktor zwei konservativ. Benannt statt korrigiert: Ein konservatives p bei einem Screening, das diese Daten ohnehin ablehnt, ist die richtige Richtung, in die man sich irren kann.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#6",
@@ -1490,7 +1508,9 @@
       "source_sha256": "c8d906546300bc92069194a3156ddef006697415a0fbb0be712d1eba248be3fc",
       "context": "Progress line. :class:`ProgressLine` is a slim progress bar whose numbers sit beside it, where nothing can cut them.",
       "translation": "FORTSCHRITTSZEILE. :class:`ProgressLine` ist ein schmaler Fortschrittsbalken, dessen Zahlen daneben stehen, wo nichts sie abschneiden kann.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#3",
@@ -1534,7 +1554,9 @@
       "source_sha256": "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
       "context": "the COUNT beside it (the step and the percentage, the numbers a person is watching) is a plain label that is never elided -- its horizontal size policy is ``Minimum``, so a layout cannot give it less than its text needs;",
       "translation": "der ZÄHLER daneben (der Schritt und der Prozentsatz, die Zahlen, auf die eine Person schaut) ist ein einfaches Label, das nie gekürzt wird -- seine horizontale Größenrichtlinie ist ``Minimum``, sodass ein Layout ihm nicht weniger geben kann, als sein Text braucht;",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#8",
@@ -1542,7 +1564,9 @@
       "source_sha256": "5858f3fd7791f06144afa0bd885ce4f346f87ff7126dc3da005546ccf9cd8415",
       "context": "an optional DETAIL line below carries the part that changes and can be long (a file name, a speed, a time left); that part elides, and :meth:`ProgressLine.displayed_text` reports what is really painted.",
       "translation": "eine optionale DETAILZEILE darunter trägt den Teil, der sich ändert und lang sein kann (ein Dateiname, eine Geschwindigkeit, eine Restzeit); dieser Teil wird gekürzt, und :meth:`ProgressLine.displayed_text` meldet, was tatsächlich gezeichnet wird.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#9",
@@ -1654,7 +1678,9 @@
       "source_sha256": "30a3f21a5ded561add182c72e49dfb304e12208e225885cf7dd56818b71522bc",
       "context": "What is really painted: the count, then the detail as elided.",
       "translation": "Was tatsächlich gezeichnet wird: der Zähler, dann das Detail in gekürzter Form.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding.ProgressLine.displayed_text#1",
@@ -2390,7 +2416,9 @@
       "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
       "context": "The event type is read first, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to execute for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
       "translation": "DER EREIGNISTYP WIRD ZUERST GELESEN, und die Lebendigkeitsprüfungen folgen danach. Dieser Filter sitzt auf der QApplication, daher liefen beide `_still_alive`-Aufrufe früher für jedes Ereignis im Prozess -- 94,431 davon beim Öffnen von Regression, und ein Profil zählte das Paar beim Öffnen von Mask mit 839,906 Aufrufen. Das Lesen des Typs eines Objekts, dessen C++-Hälfte verschwunden ist, löst eine Ausnahme aus, die das `except` unten bereits mit demselben `False` beantwortet, daher kostet die Reihenfolge nichts, und die Prüfungen laufen jetzt nur noch bei einem Kontextmenü.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#4",

@@ -179,21 +179,27 @@
       "source": "The inverse of :func:`role_setting`, and the reason a suffix rename can cost six lines instead of 3,522. Every role is a single word with no underscore, so partitioning on the FIRST one separates the role from the suffix without scanning the 702 organelle slots.",
       "source_sha256": "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
       "context": "The inverse of :func:`role_setting`, and the reason a suffix rename can cost six lines instead of 3,522. Every role is a single word with no underscore, so partitioning on the FIRST one separates the role from the suffix without scanning the 702 organelle slots.",
-      "translation": "Andhverfa :func:`role_setting`, og ástæðan fyrir því að endurnefning viðskeytis getur kostað sex línur í stað 3.522. Hvert hlutverk er eitt orð án undirstriks, svo skipting við FYRSTA undirstrikið skilur hlutverkið frá viðskeytinu án þess að fara yfir 702 hólfin fyrir frumulíffæri."
+      "translation": "Andhverfa :func:`role_setting`, og ástæðan fyrir því að endurnefning viðskeytis getur kostað sex línur í stað 3.522. Hvert hlutverk er eitt orð án undirstriks, svo skipting við FYRSTA undirstrikið skilur hlutverkið frá viðskeytinu án þess að fara yfir 702 hólfin fyrir frumulíffæri.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_roles.split_role_setting#2",
       "source": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
       "source_sha256": "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
       "context": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
-      "translation": "Þetta er EKKI sannprófun :func:`role_setting`: fallið tekur við hvaða hlutverki sem er í ``ALL_ROLES``, þar á meðal ``cytoplasm``, sem er reiknað út frá öðrum hlutum en ekki afmarkað með hlutagreiningu og skilgreinir enn ``cytoplasm_min_size``. Ef aðeins hlutverk fyrir afmarkaða hluti væru leyfð hér yrði því sleppt án viðvörunar."
+      "translation": "Þetta er EKKI sannprófun :func:`role_setting`: fallið tekur við hvaða hlutverki sem er í ``ALL_ROLES``, þar á meðal ``cytoplasm``, sem er reiknað út frá öðrum hlutum en ekki afmarkað með hlutagreiningu og skilgreinir enn ``cytoplasm_min_size``. Ef aðeins hlutverk fyrir afmarkaða hluti væru leyfð hér yrði því sleppt án viðvörunar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_roles.split_role_setting#3",
       "source": "A BARE KEY IS NOT A ROLE KEY, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A key with no underscore has no role, so it can never match a suffix rule.",
       "source_sha256": "7d8b3572497febdb5b96e3db2ff6d0786b934287e514da06a8a14da72d33e16b",
       "context": "A bare structured-data name is not a role structured-data name, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A structured-data name with no underscore has no role, so it can never match a suffix rule.",
-      "translation": "LYKILL ÁN HLUTVERKSFORSKEYTIS ER EKKI HLUTVERKSLYKILL, og það skiptir máli: ``FT``, ``CP_prob``, ``Signal_to_noise`` og ``flow_threshold`` eru allar gildar stillingar í sjálfstæðu undirforritunum til að keyra/prófa líkön. Lykill án undirstriks hefur ekkert hlutverk og getur því aldrei samsvarað reglu fyrir viðskeyti."
+      "translation": "LYKILL ÁN HLUTVERKSFORSKEYTIS ER EKKI HLUTVERKSLYKILL, og það skiptir máli: ``FT``, ``CP_prob``, ``Signal_to_noise`` og ``flow_threshold`` eru allar gildar stillingar í sjálfstæðu undirforritunum til að keyra/prófa líkön. Lykill án undirstriks hefur ekkert hlutverk og getur því aldrei samsvarað reglu fyrir viðskeyti.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_roles.split_role_setting#4",
@@ -280,28 +286,36 @@
       "source": "What ``key`` is called TODAY, following renames to the end.",
       "source_sha256": "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
       "context": "What ``key`` is called TODAY, following renames to the end.",
-      "translation": "Heitið sem ``key`` ber Í DAG, eftir að allri keðju endurnefninga hefur verið fylgt til enda."
+      "translation": "Heitið sem ``key`` ber Í DAG, eftir að allri keðju endurnefninga hefur verið fylgt til enda.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.surviving_setting_name#1",
       "source": "ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's message and the Qt panel's load.",
       "source_sha256": "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
       "context": "One resolver for all three consumers -- the run's fold, the doctor's message and the Qt panel's load.",
-      "translation": "EINN SAMEIGINLEGUR ÚRLAUSNARFERILL FYRIR ALLA ÞRJÁ NOTENDUR NIÐURSTÖÐUNNAR — yfirfærslu stillinga við keyrslu, skilaboð greiningartólsins doctor og hleðslu í Qt-spjaldið."
+      "translation": "EINN SAMEIGINLEGUR ÚRLAUSNARFERILL FYRIR ALLA ÞRJÁ NOTENDUR NIÐURSTÖÐUNNAR — yfirfærslu stillinga við keyrslu, skilaboð greiningartólsins doctor og hleðslu í Qt-spjaldið.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.surviving_setting_name#2",
       "source": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle key could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
       "source_sha256": "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
       "context": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle structured-data name could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
-      "translation": "Áður svöruðu þessir þrír aðilar spurningunni á mismunandi hátt. Keyrslan leitaði aðeins í endurnefningartöflunni, greiningartólið doctor aðeins í töflunni yfir aflagðar stillingar, og Qt-spjaldið var það eina sem þekkti viðskeytisregluna fyrir frumulíffæri. Sami sjálfvirkt myndaði lykill fyrir frumulíffæri gat því samtímis verið yfirfærður af spjaldinu, hunsaður í keyrslunni og ónefndur í skilaboðum doctor."
+      "translation": "Áður svöruðu þessir þrír aðilar spurningunni á mismunandi hátt. Keyrslan leitaði aðeins í endurnefningartöflunni, greiningartólið doctor aðeins í töflunni yfir aflagðar stillingar, og Qt-spjaldið var það eina sem þekkti viðskeytisregluna fyrir frumulíffæri. Sami sjálfvirkt myndaði lykill fyrir frumulíffæri gat því samtímis verið yfirfærður af spjaldinu, hunsaður í keyrslunni og ónefndur í skilaboðum doctor.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.surviving_setting_name#4",
       "source": "LIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old key is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` keys are live and must not be touched.",
       "source_sha256": "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
       "context": "Liveness is checked at the terminus only. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old structured-data name is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` structured-data names are live and must not be touched.",
-      "translation": "AÐEINS LOKAHEITI KEÐJUNNAR ER ATHUGAÐ TIL AÐ SJÁ HVORT ÞAÐ SÉ ENN Í GILDI. Athugun við hvert skref myndi hafna miðju gildrar keðju, því milliheiti er samkvæmt skilgreiningu ekki lengur í gildi. Ef gamla lykilnafnið SJÁLFT er enn í gildi er endurnefningu hafnað til að koma í veg fyrir að viðskeytisregla afnemi virka stillingu — sjö ``_size``-lyklar eru enn í gildi og má ekki breyta."
+      "translation": "AÐEINS LOKAHEITI KEÐJUNNAR ER ATHUGAÐ TIL AÐ SJÁ HVORT ÞAÐ SÉ ENN Í GILDI. Athugun við hvert skref myndi hafna miðju gildrar keðju, því milliheiti er samkvæmt skilgreiningu ekki lengur í gildi. Ef gamla lykilnafnið SJÁLFT er enn í gildi er endurnefningu hafnað til að koma í veg fyrir að viðskeytisregla afnemi virka stillingu — sjö ``_size``-lyklar eru enn í gildi og má ekki breyta.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.surviving_setting_name#6",

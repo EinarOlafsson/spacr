@@ -15,7 +15,9 @@
       "source_sha256": "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
       "context": "**A broken GUI dependency install.** PySide6 ships with the core package, but a missing or incomplete wheel can still make the ``spacr`` command fail on import. :mod:`spacr.qt` has a friendly path for that; :func:`check_qt_extra` reuses its logic so the two cannot drift.",
       "translation": "**GUI 의존성 설치 오류.** PySide6는 기본 패키지에 포함되지만 wheel이 없거나 불완전하면 ``spacr`` 명령의 가져오기가 여전히 실패할 수 있습니다. :mod:`spacr.qt`는 이를 이해하기 쉽게 진단하며, :func:`check_qt_extra`는 같은 로직을 재사용하여 두 진단이 서로 달라지지 않게 합니다.",
-      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.doctor.check_qt_extra#0",
@@ -23,7 +25,9 @@
       "source_sha256": "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
       "context": "The GUI dependencies import in this interpreter.",
       "translation": "GUI 의존성을 이 인터프리터에서 가져올 수 있습니다.",
-      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.doctor.check_qt_extra#1",

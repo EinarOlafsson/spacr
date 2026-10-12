@@ -247,7 +247,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Batched here rather than by the caller because the batch size belongs to the DEVICE, not to the channel policy: the per-channel policy calls this once per channel and each call must fit the same GPU.",
       "source_sha256": "58e01fe4a9324a0cfe4888d0bbe4c67b1593d97f32d6b8c85bc68fbc4a048049",
-      "translation": "在这里而不是由调用方分批，因为批大小取决于设备，而不是通道策略：逐通道策略会对每个通道调用一次，而每次调用都必须能放进同一块 GPU。"
+      "translation": "在这里而不是由调用方分批，因为批大小取决于设备，而不是通道策略：逐通道策略会对每个通道调用一次，而每次调用都必须能放进同一块 GPU。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(n, height, width, 3)`` float32 in [0, 1].",
@@ -473,7 +475,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "WRAPS rather than replaces, so the original behaviour is unchanged even if the offer fails -- an error message must still appear when the thing that would report it is broken.",
       "source_sha256": "f71fe71bdb29537b0e769b0a1f2ff6c28880ad88084c22d80a077f6d8386f0aa",
-      "translation": "是包装而不是替换，因此即使提议失败，原有行为也不变 -- 当负责报告的东西本身损坏时，错误消息仍必须出现。"
+      "translation": "是包装而不是替换，因此即使提议失败，原有行为也不变 -- 当负责报告的东西本身损坏时，错误消息仍必须出现。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Start the next missing half, or open the plate after the last.",
@@ -657,7 +661,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Whether a control is really there to be pressed.",
       "source_sha256": "e56b15bb5d6859666b2382a6a6491b09cdb3d4fb0a591060afe855b2bd200134",
-      "translation": "某个控件是否真的可供按下。"
+      "translation": "某个控件是否真的可供按下。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Enabled, visible AND non-empty. A widget with a zero size is laid out but not yet given room, and counting it as usable reports an application view ready before anything can be clicked. A deleted control answers False rather than throwing.",
@@ -713,7 +719,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Add the item AND record it, so the canvas can clear its own drawings.",
       "source_sha256": "4619fb4a9b5f927874b28b64148a8a67efbb546cf70c1f26d6181826a131f7a4",
-      "translation": "添加该项并同时记录它，以便画布能清除自己的绘图。"
+      "translation": "添加该项并同时记录它，以便画布能清除自己的绘图。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Set an axis label and remember it for the style round-trip.",
@@ -737,7 +745,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Tick labels for a split axis, in the ORIGINAL data's values.",
       "source_sha256": "9f4fb503687069c6149efa5a3860cc22100f25e1e1152f1cd8a13392d0c0fe53",
-      "translation": "分割轴的刻度标签，使用原始数据的值。"
+      "translation": "分割轴的刻度标签，使用原始数据的值。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The axis is drawn on a compressed coordinate, so labelling it with the drawn position would put numbers on it that the data never had.",
@@ -785,7 +795,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Cached because a scatter asks for a brush PER POINT: building them fresh allocates one QBrush per point per repaint, which is the whole cost of drawing a large scatter.",
       "source_sha256": "ae4649de125eaceba7620e9f4daec2972164f8c7574ca1b8df25dbdc2811f922",
-      "translation": "之所以缓存，是因为散点图会为每个点请求一个画刷：每次重新创建会在每次重绘时为每个点分配一个 QBrush，而这正是绘制大型散点图的全部开销。"
+      "translation": "之所以缓存，是因为散点图会为每个点请求一个画刷：每次重新创建会在每次重绘时为每个点分配一个 QBrush，而这正是绘制大型散点图的全部开销。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The label for one option: its friendly name, or \"automatic\" for None.",
@@ -809,7 +821,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "INJECTED so the menu can be exercised without a modal dialog, which is otherwise the only way to reach these entries in a test.",
       "source_sha256": "0bfcf0c7caa4c640ad34eac0412911e09b8d28bc084adcb82b8dc8e84beb5d33",
-      "translation": "采用注入方式，使菜单无需模态对话框即可测试，否则模态对话框是测试中到达这些条目的唯一途径。"
+      "translation": "采用注入方式，使菜单无需模态对话框即可测试，否则模态对话框是测试中到达这些条目的唯一途径。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Forget the saved default, so new figures use the built-in one.",

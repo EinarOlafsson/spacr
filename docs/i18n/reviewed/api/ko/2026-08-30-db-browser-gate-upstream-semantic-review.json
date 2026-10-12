@@ -545,14 +545,18 @@
       "source": "Fit every level the run asked for, SEPARATELY, and return one per level.",
       "context": "Fit every level the run asked for, SEPARATELY, and return one per level.",
       "source_sha256": "bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699",
-      "translation": "실행이 요청한 각 수준을 서로 독립적으로 적합하고 수준마다 결과 하나를 반환합니다."
+      "translation": "실행이 요청한 각 수준을 서로 독립적으로 적합하고 수준마다 결과 하나를 반환합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#1",
       "source": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "context": "This is the two-fit entry point, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "source_sha256": "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
-      "translation": "이 함수는 두 번의 적합을 수행하는 진입점입니다. spaCR 에서 사용하던 단일 설계는 전혀 적합할 수 없기 때문에 존재합니다. ``gene_fraction``은 SUM, 즉 해당 유전자의 gRNA 분율 합계이므로"
+      "translation": "이 함수는 두 번의 적합을 수행하는 진입점입니다. spaCR 에서 사용하던 단일 설계는 전혀 적합할 수 없기 때문에 존재합니다. ``gene_fraction``은 SUM, 즉 해당 유전자의 gRNA 분율 합계이므로",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#2",
@@ -566,21 +570,27 @@
       "source": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
       "context": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
       "source_sha256": "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
-      "translation": "열 블록과 그 열 자체의 합계를 한 설계에 넣습니다. 참조 TSG101 스크리닝에서 측정한 결과: 순위 862에서 매개변수 1248개 -- 386차원 EXACT 영공간 -- 였으며, statsmodels 에서 반환한 적합의 잔차제곱합은 영벡터를 일곱 배 더해 얻는 값과 비트 단위로 동일했습니다. :data:`COLLINEAR_FORMULA_FRAGMENT`를 참조하십시오."
+      "translation": "열 블록과 그 열 자체의 합계를 한 설계에 넣습니다. 참조 TSG101 스크리닝에서 측정한 결과: 순위 862에서 매개변수 1248개 -- 386차원 EXACT 영공간 -- 였으며, statsmodels 에서 반환한 적합의 잔차제곱합은 영벡터를 일곱 배 더해 얻는 값과 비트 단위로 동일했습니다. :data:`COLLINEAR_FORMULA_FRAGMENT`를 참조하십시오.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#4",
       "source": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "context": "Two fits, two tables, two corrections. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "source_sha256": "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
-      "translation": "두 번의 적합, 두 개의 테이블, 두 번의 보정. 각 적합은 자체적인 다중 검정 패밀리이며, 그 안에서 보정이 이루어진다. 이를 합치는 것은 두 번 잘못된 것이다: 독립적이지 않다 -- 동일한 마이크로플레이트 샘플 위치를 공유하며, 유전자 회귀자는 가이드 회귀자의 합이다 -- 패밀리 크기를 두 배로 늘리는 것은 보호 효과 없이 검정력을 잃게 된다. :func:`perform_regression`는 각 수준별로 보정을 적용하고 ``results_grna.csv`` 및 ``results_gene.csv``를 작성한다."
+      "translation": "두 번의 적합, 두 개의 테이블, 두 번의 보정. 각 적합은 자체적인 다중 검정 패밀리이며, 그 안에서 보정이 이루어진다. 이를 합치는 것은 두 번 잘못된 것이다: 독립적이지 않다 -- 동일한 마이크로플레이트 샘플 위치를 공유하며, 유전자 회귀자는 가이드 회귀자의 합이다 -- 패밀리 크기를 두 배로 늘리는 것은 보호 효과 없이 검정력을 잃게 된다. :func:`perform_regression`는 각 수준별로 보정을 적용하고 ``results_grna.csv`` 및 ``results_gene.csv``를 작성한다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#5",
       "source": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
       "context": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
       "source_sha256": "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
-      "translation": "``regression_type='mixed'``는 한 번 적합하고 하나의 항목을 반환한다, ``'gene'``: 그 모델 안에는 이미 두 수준이 모두 포함되어 있으며, 유전자는 고정 효과로, 가이드는 유전자에 중첩된 랜덤 효과로 포함된다. 그 가이드 출력은 BLUPs이므로 두 개의 검정 패밀리로 나눌 수 없다."
+      "translation": "``regression_type='mixed'``는 한 번 적합하고 하나의 항목을 반환한다, ``'gene'``: 그 모델 안에는 이미 두 수준이 모두 포함되어 있으며, 유전자는 고정 효과로, 가이드는 유전자에 중첩된 랜덤 효과로 포함된다. 그 가이드 출력은 BLUPs이므로 두 개의 검정 패밀리로 나눌 수 없다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#8",
@@ -596,7 +606,9 @@
       "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
       "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
       "translation": "처리 세션 폴더입니다. 적합이 둘 이상이면 각 수준의 FIGURES는 서로 덮어쓰지 않도록 ``<dst>/<level>/``에 저장되고, 테이블은 모든 소비자가 찾는 ``<dst>``에 남습니다.",
-      "rebound_from": "spacr.ml.regression_levels#7"
+      "rebound_from": "spacr.ml.regression_levels#7",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#10",
@@ -641,7 +653,9 @@
       "source": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed wells; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
       "context": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed microplate sample positions; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
       "source_sha256": "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
-      "translation": "이것은 가설이 아닙니다. 이것이 작성된 스크린에는 587개의 분석된 마이크로플레이트 샘플 위치에 824개의 가이드가 있었으며, 발표된 적합에는 825개의 매개변수, 계수(rank) 579, 잔차 자유도 8이 있었고, 다시 적합해도 자체 계수를 재현하지 못했습니다."
+      "translation": "이것은 가설이 아닙니다. 이것이 작성된 스크린에는 587개의 분석된 마이크로플레이트 샘플 위치에 824개의 가이드가 있었으며, 발표된 적합에는 825개의 매개변수, 계수(rank) 579, 잔차 자유도 8이 있었고, 다시 적합해도 자체 계수를 재현하지 못했습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.resolve_auto_inference#3",
@@ -670,7 +684,9 @@
       "source": "What a run's results folder is NAMED after.",
       "context": "What a processing session's results folder is NAMED after.",
       "source_sha256": "9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde",
-      "translation": "처리 세션의 결과 폴더 이름을 정하는 기준입니다."
+      "translation": "처리 세션의 결과 폴더 이름을 정하는 기준입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.results_folder_kind#1",
@@ -684,7 +700,9 @@
       "source": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "context": "PUBLIC, and the only copy. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "source_sha256": "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8",
-      "translation": "공개된 유일한 구현입니다. 이 규칙을 다시 유도한 테스트는 규칙이 바뀌자 오래된 상태가 되어, 파일을 기록한 모든 처리 세션이 정상인데도 CSVs 39개가 없다고 보고했습니다. 바로 이 실패를 한 번 막기 위해 `results_dir` 도우미가 tests/test_cov_ml_perform_regression.py 에 이미 작성되었습니다. 잘못된 파일을 가리키는 테스트 모음은 침묵하는 테스트 모음보다 더 나쁩니다."
+      "translation": "공개된 유일한 구현입니다. 이 규칙을 다시 유도한 테스트는 규칙이 바뀌자 오래된 상태가 되어, 파일을 기록한 모든 처리 세션이 정상인데도 CSVs 39개가 없다고 보고했습니다. 바로 이 실패를 한 번 막기 위해 `results_dir` 도우미가 tests/test_cov_ml_perform_regression.py 에 이미 작성되었습니다. 잘못된 파일을 가리키는 테스트 모음은 침묵하는 테스트 모음보다 더 나쁩니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.screen_is_blockable#0",
@@ -815,14 +833,18 @@
       "source": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
       "context": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
       "source_sha256": "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
-      "translation": "분위수 회귀를 선택하면 ``agg_type``을 자동으로 None 으로 바꾸므로 ``alpha``를 분위수로 해석합니다."
+      "translation": "분위수 회귀를 선택하면 ``agg_type``을 자동으로 None 으로 바꾸므로 ``alpha``를 분위수로 해석합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#2",
       "source": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.",
       "context": "Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a processing session that had started cleanly.",
       "source_sha256": "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
-      "translation": "여기서는 :func:`spacr.ml.perform_regression`가 ``settings[...]``로 읽는 모든 구조화된 데이터 이름을 채웁니다. 여섯 개가 누락되어 있었습니다. 두 디스패처 -- Qt 패널은 ``qt.screens.settings_model.resolve_default_settings``를 사용하고, ``spacr-run regression``은 ``cli.module_defaults``를 사용합니다 -- 모두 이 함수 하나로 키-값 매핑을 만들기 때문에 어느 진입점에서도 회귀를 시작할 수 없었습니다. ``KeyError: 'verbose'`` 때문에 ml.py:1409에서 중단되었습니다. 이때 두 입력 CSVs 는 이미 읽혔고 ``settings/regression.csv``도 기록되어, 정상적으로 시작된 처리 세션처럼 보였습니다."
+      "translation": "여기서는 :func:`spacr.ml.perform_regression`가 ``settings[...]``로 읽는 모든 구조화된 데이터 이름을 채웁니다. 여섯 개가 누락되어 있었습니다. 두 디스패처 -- Qt 패널은 ``qt.screens.settings_model.resolve_default_settings``를 사용하고, ``spacr-run regression``은 ``cli.module_defaults``를 사용합니다 -- 모두 이 함수 하나로 키-값 매핑을 만들기 때문에 어느 진입점에서도 회귀를 시작할 수 없었습니다. ``KeyError: 'verbose'`` 때문에 ml.py:1409에서 중단되었습니다. 이때 두 입력 CSVs 는 이미 읽혔고 ``settings/regression.csv``도 기록되어, 정상적으로 시작된 처리 세션처럼 보였습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#3",

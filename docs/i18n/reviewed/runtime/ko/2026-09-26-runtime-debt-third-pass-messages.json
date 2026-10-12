@@ -111,13 +111,6 @@
     },
     {
       "table": "ui",
-      "key": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
-      "source": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
-      "source_sha256": "2dcc3cac08ea898d9e7d4050969a1b7d9c15a54f134739e7e4cd102cfe3eef9e",
-      "translation": "모델을 직접 학습할 수 없다면 여기에 이미지와 마스크를 업로드하세요. 저희가 모델을 학습해 드립니다. 화면의 이미지와 그 마스크, 여기서 큐레이션한 모든 이미지, 또는 같은 이름의 마스크가 든 마스크 폴더와 이미지 폴더를 보내세요. 무엇을 보여 주는지(생물, 객체 유형, 염색) 적으면 Hugging Face의 전용 커뮤니티 데이터셋에 풀 리퀘스트로 들어가며, 관리자가 이를 검토한 뒤에야 모델 학습에 사용됩니다. {licence}에 따라 공유되므로 공유할 권리가 있는 이미지만 보내세요. 꼼꼼한 마스크가 좋은 모델을 만듭니다. 모든 객체를 경계에 딱 맞게 그리세요."
-    },
-    {
-      "table": "ui",
       "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
       "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
       "source_sha256": "77891ddcc4abedd6f302f9317ab6c44fd8994662a20c74d1da14e51b9ca31850",
@@ -334,6 +327,14 @@
       "source": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
       "source_sha256": "5e505544e69aab4e83bfb1f672a6c37fa4676dc3b3fc05e4be2d672244c2c02b",
       "translation": "감사합니다. 기여가 검토를 기다리고 있습니다: <a href=\"{url}\">{url}</a>"
+    },
+    {
+      "table": "ui",
+      "key": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge.",
+      "source_sha256": "2dcc3cac08ea898d9e7d4050969a1b7d9c15a54f134739e7e4cd102cfe3eef9e",
+      "translation": "모델을 직접 학습할 수 없다면 여기에 이미지와 마스크를 업로드하세요. 저희가 모델을 학습해 드립니다. 화면의 이미지와 그 마스크, 여기서 큐레이션한 모든 이미지, 또는 같은 이름의 마스크가 든 마스크 폴더와 이미지 폴더를 보내세요. 무엇을 보여 주는지(생물, 객체 유형, 염색) 적으면 Hugging Face의 전용 커뮤니티 데이터셋에 풀 리퀘스트로 들어가며, 관리자가 이를 검토한 뒤에야 모델 학습에 사용됩니다. {licence}에 따라 공유되므로 공유할 권리가 있는 이미지만 보내세요. 꼼꼼한 마스크가 좋은 모델을 만듭니다. 모든 객체를 경계에 딱 맞게 그리세요.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retired_note": "2026-09-30: item 598 (b40aa4349) moved the link out of this English string onto its own line; the source is now 'Thank you. Your contribution is waiting for review:' (2026-09-30-runtime-debt-tenth-pass-contribute.json). Kept verbatim as evidence, not loaded."

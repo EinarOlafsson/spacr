@@ -369,7 +369,9 @@
       "source_sha256": "c35dade78afa66c10d92b0612f04313dbbec9bc7fd8a75d30eb7113c4eb3b9fa",
       "context": "The two halves fail separately on purpose. A listing that fails means the file is not a database and there is nothing to offer; a READ that fails, on one table of a database whose other tables listed fine, must still leave the picker populated -- that is how the user reaches the table that does read. Inline, that fell out of the order the old code ran in; here it has to be said.",
       "translation": "Helmingarnir tveir bregðast hvor í sínu lagi af ásettu ráði. Listun sem bregst þýðir að skráin er ekki gagnagrunnur og ekkert er að bjóða; LESTUR sem bregst, á einni töflu gagnagrunns þar sem hinar töflurnar listuðust vel, verður samt að skilja valkostinn eftir fylltan -- þannig kemst notandinn að töflunni sem hægt er að lesa. Innbyggt leiddi það af röðinni sem gamli kóðinn keyrði í; hér þarf að segja það.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.model_compare.ModelCompareScreen._run_job._job#0",
@@ -577,7 +579,9 @@
       "source_sha256": "21db5f067e77a95e0a9400dba493e4645042bc27b151ddf56427fa3767970ae1",
       "context": "A whole number comes back as an int. The CSV cannot distinguish a count from a measurement, and reading everything as float renders \"on 12517.0 objects\" in a tooltip -- a count with a decimal point reads as a rounding, which it is not.",
       "translation": "HEILTALA KEMUR TIL BAKA SEM int. CSV-skráin getur ekki greint fjölda frá mælingu, og að lesa allt sem float sýnir \"on 12517.0 objects\" í ábendingu -- fjöldi með tugabroti lítur út eins og námundun, sem hann er ekki.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.scorecard.score_holdout.weighted#0",
@@ -625,7 +629,9 @@
       "source_sha256": "01ceb1428a1a8588a879b95906712a1d9dd7c06c54345727f9b0bdac5c987b1b",
       "context": "``index`` is the strictest candidate yielding ``achieved``. The plateau reaches down to just above the last candidate that yielded MORE than ``achieved``, found by a second bisection on the same monotone statistic.",
       "translation": "``index`` er strangasti frambjóðandinn sem gefur ``achieved``. Sléttan nær niður að rétt fyrir ofan síðasta frambjóðandann sem gaf MEIRA en ``achieved``, fundinn með annarri helmingunarleit á sömu einhalla tölfræði.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sequencing_qc.derive_threshold.stat#0",

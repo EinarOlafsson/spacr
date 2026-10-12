@@ -20,7 +20,9 @@
       "label": "spacr.guide_permutation.prepare_long_gene_data#0",
       "source": "Well-by-GENE fractions, the well table, and how many guides each gene has.",
       "source_sha256": "269cdc149cc2fa4e3da17c7cf9d57bcae65ba17f9148470b941d2a7a24405a1a",
-      "translation": "Frações de poço por gene, a tabela de poços e quantas guias cada gene possui."
+      "translation": "Frações de poço por gene, a tabela de poços e quantas guias cada gene possui.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The answer is the ceiling, clamped up to the floor: as solid a panel as the picture can afford, and never thinner than legibility allows. Every alpha in that window satisfies both constraints, so the choice within it is which one to spend the slack on, and it goes to the panel: the settings form sits on this surface, and preserving its grey category structure is more important than exposing additional wallpaper. Taking the floor instead would show *more* picture — Cell's floor is 0.05, a nearly transparent panel — at the cost of the form dissolving into the wallpaper.",
@@ -48,21 +50,27 @@
       "label": "spacr.qt.widgets.sweep_panel#2",
       "source": "IT RUNS OFF THE GUI THREAD, and the reason is today's crash rather than politeness: a regression built Qt widgets on its own worker and the process segfaulted somewhere else entirely. So the worker here touches NO widget and returns plain data, and the figure is rendered by matplotlib's Agg canvas which has no Qt object to own.",
       "source_sha256": "8578c3c9996db12e7ea48d42bafc119422204daf7dca222286afe3883952ebdc",
-      "translation": "Ele é executado FORA DO caminho de execução principal GUI, e o motivo é a falha de hoje, e não a educação: uma regressão construiu widgets Qt em seu próprio trabalhador e o processo falhou em algum outro lugar completamente. Portanto, o trabalhador aqui não toca em nenhum widget e retorna dados simples, e a figura é renderizada pela tela Agg de matplotlib, que não possui nenhum objeto Qt para possuir."
+      "translation": "Ele é executado FORA DO caminho de execução principal GUI, e o motivo é a falha de hoje, e não a educação: uma regressão construiu widgets Qt em seu próprio trabalhador e o processo falhou em algum outro lugar completamente. Portanto, o trabalhador aqui não toca em nenhum widget e retorna dados simples, e a figura é renderizada pela tela Agg de matplotlib, que não possui nenhum objeto Qt para possuir.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This lives here, and not in :mod:`spacr.multi_database` where it was written, because there must be **one** normaliser: ``utils.correct_metadata`` had the rule for frames, ``multi_database`` had it for scalars and for database reads, and the pair had to be pinned against each other by test precisely because they were two. Both now call this. :mod:`spacr.multi_database` re-exports the name, so no caller moved.",
       "label": "spacr.schema.canonical_plate_id#2",
       "source": "This lives here, and not in :mod:`spacr.multi_database` where it was written, because there must be **one** normaliser: ``utils.correct_metadata`` had the rule for frames, ``multi_database`` had it for scalars and for database reads, and the pair had to be pinned against each other by test precisely because they were two. Both now call this. :mod:`spacr.multi_database` re-exports the name, so no caller moved.",
       "source_sha256": "455d4be6ef9ac19f7979ce1a0936b8d350482dcb29f683fb1ad74991491a4be1",
-      "translation": "Isso está aqui, e não em :mod:`spacr.multi_database` onde foi escrito, porque deve haver **um** normalizador: ``utils.correct_metadata`` tinha a regra para quadros, ``multi_database`` tinha para escalares e para leituras de banco de dados, e o par teve que ser fixado um contra o outro por teste precisamente porque eram dois. Ambos agora chamam isso. :mod:`spacr.multi_database` reexporta o nome, para que nenhum chamador seja movido."
+      "translation": "Isso está aqui, e não em :mod:`spacr.multi_database` onde foi escrito, porque deve haver **um** normalizador: ``utils.correct_metadata`` tinha a regra para quadros, ``multi_database`` tinha para escalares e para leituras de banco de dados, e o par teve que ser fixado um contra o outro por teste precisamente porque eram dois. Ambos agora chamam isso. :mod:`spacr.multi_database` reexporta o nome, para que nenhum chamador seja movido.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1. :func:`resolve_metadata_collisions` -- collapse duplicate opinions *before* renaming, because renaming first is what produces two columns called ``rowID`` and a ``to_sql`` that refuses the table. 2. :func:`canonical_rename_plan` -- the surviving legacy spellings, plus the legacy *feature* spellings, renamed. 3. :func:`normalise_plate_columns` -- the ``pplate1`` value repair, on every column that carries a laboratory microplate.",
       "label": "spacr.schema.canonicalise_frame#2",
       "source": "1. :func:`resolve_metadata_collisions` -- collapse duplicate opinions *before* renaming, because renaming first is what produces two columns called ``rowID`` and a ``to_sql`` that refuses the table. 2. :func:`canonical_rename_plan` -- the surviving legacy spellings, plus the legacy *feature* spellings, renamed. 3. :func:`normalise_plate_columns` -- the ``pplate1`` value repair, on every column that carries a plate.",
       "source_sha256": "b218a7f84ed37ee20e443b7dcb01880a526bfa54729ca4479115971a582f5f89",
-      "translation": "1. :func:`resolve_metadata_collisions` - recolhe opiniões duplicadas *antes de* renomear, porque renomear primeiro é o que produz duas colunas chamadas ``rowID`` e uma ``to_sql`` que recusa a tabela. 2. :func:`canonical_rename_plan` - as grafias herdadas sobreviventes, mais as grafias herdadas *recurso*, renomeadas. 3. :func:`normalise_plate_columns` -- o valor ``pplate1`` reparado, em cada coluna que contém uma microplaca de laboratório."
+      "translation": "1. :func:`resolve_metadata_collisions` - recolhe opiniões duplicadas *antes de* renomear, porque renomear primeiro é o que produz duas colunas chamadas ``rowID`` e uma ``to_sql`` que recusa a tabela. 2. :func:`canonical_rename_plan` - as grafias herdadas sobreviventes, mais as grafias herdadas *recurso*, renomeadas. 3. :func:`normalise_plate_columns` -- o valor ``pplate1`` reparado, em cada coluna que contém uma microplaca de laboratório.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**one** column per metadata structured-data name, with the collision reported -- printed when the duplicates agreed, warned with a row count when they did not (:func:`spacr.schema.resolve_metadata_collisions`);",
@@ -76,7 +84,9 @@
       "label": "spacr.utils.correct_metadata#3",
       "source": "**one** column per key. A file carrying ``well`` and ``wellID`` has two opinions about which well a row came from; they are compared row by row as stripped strings (so ``1``, ``1.0`` and ``' 1 '`` agree and a dtype difference is not a disagreement), one is kept, and the rest are dropped. Agreement prints; disagreement warns and says how many rows differ.",
       "source_sha256": "b5f80ef0cd4de691ffb6acf8bd9f4348e8d54aff0383ca7e63e80f01c3d8c805",
-      "translation": "**uma** coluna por nome de dados estruturados. Um arquivo contendo ``well`` e ``wellID`` tem duas opiniões sobre de onde veio uma linha; eles são comparados linha por linha como cadeias de caracteres removidas (então ``1``, ``1.0`` e ``' 1 '`` concordam e uma diferença de dtype não é uma discordância), uma é mantida e as demais são descartadas. Impressões de acordo; discordância avisa e diz quantas linhas diferem."
+      "translation": "**uma** coluna por nome de dados estruturados. Um arquivo contendo ``well`` e ``wellID`` tem duas opiniões sobre de onde veio uma linha; eles são comparados linha por linha como cadeias de caracteres removidas (então ``1``, ``1.0`` e ``' 1 '`` concordam e uma diferença de dtype não é uma discordância), uma é mantida e as demais são descartadas. Impressões de acordo; discordância avisa e diz quantas linhas diferem.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

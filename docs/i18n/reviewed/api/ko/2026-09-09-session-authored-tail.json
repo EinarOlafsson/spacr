@@ -7,14 +7,18 @@
       "source_sha256": "36930f00b4f9aa860f59f06df689ef3e755399f78040ef3897369e0b05b476e2",
       "source": "DETECTED AND USABLE ARE REPORTED SEPARATELY. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
       "context": "Detected and usable are reported separately. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
-      "translation": "감지됨과 사용 가능함은 따로 보고된다. spaCR 가 결코 디스패치하지 않을 가속기를 알리는 설정 화면은 아무 말도 하지 않는 화면보다 나쁘다. 사용자가 CPU 속도를 자기 하드웨어 탓으로 돌리게 되기 때문이다. 이 구분이 여기 존재하는 이유는 전적으로 뉴럴 엔진에 있다. Apple Neural Engine, Intel AI Boost, Qualcomm Hexagon 은 모두 실재하는 실리콘이지만 이식 가능한 torch 장치가 없으므로, 발견된 것으로만 이름이 적히고 결코 선택되지는 않는다."
+      "translation": "감지됨과 사용 가능함은 따로 보고된다. spaCR 가 결코 디스패치하지 않을 가속기를 알리는 설정 화면은 아무 말도 하지 않는 화면보다 나쁘다. 사용자가 CPU 속도를 자기 하드웨어 탓으로 돌리게 되기 때문이다. 이 구분이 여기 존재하는 이유는 전적으로 뉴럴 엔진에 있다. Apple Neural Engine, Intel AI Boost, Qualcomm Hexagon 은 모두 실재하는 실리콘이지만 이식 가능한 torch 장치가 없으므로, 발견된 것으로만 이름이 적히고 결코 선택되지는 않는다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.accelerator.Accelerator#6",
       "source_sha256": "16b10a5f716e3dc5775c54550b941ff1ec21d6b028157374ba387f7b00e2d64b",
       "source": "spaCR will actually dispatch to it. Never true unless ``detected``; false for accelerators with no torch device.",
       "context": "spaCR will actually dispatch to it. Never true unless ``detected``; false for accelerators with no torch device.",
-      "translation": "spaCR 가 실제로 여기에 디스패치한다. ``detected`` 가 아니면 결코 참이 아니며, torch 장치가 없는 가속기에 대해서는 거짓이다."
+      "translation": "spaCR 가 실제로 여기에 디스패치한다. ``detected`` 가 아니면 결코 참이 아니며, torch 장치가 없는 가속기에 대해서는 거짓이다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.align#10",
@@ -42,7 +46,9 @@
       "source_sha256": "25cff0de10dddebadaf5a210144003569766e9862aa98ecf7e3b0218ac89769f",
       "source": "spaCR's filename convention -- ``plate_well_T####F###L##A##Z##C##`` -- has no tile slot, so a field split into four tiles produces four images with ONE canonical name and three of them would be overwritten. Three answers were possible: grow the convention a tile slot, give each tile its own field number, or put the field back together. spaCR stitches at import, with the option to turn it off, and that is the right answer: a stitched field IS one image with one name, so nothing downstream has to learn what a tile is.",
       "context": "spaCR's filename convention -- ``plate_well_T####F###L##A##Z##C##`` -- has no microscope image field slot, so a field split into four microscope image fields produces four images with ONE canonical name and three of them would be overwritten. Three answers were possible: grow the convention a microscope image field slot, give each microscope image field its own field number, or put the field back together. spaCR stitches at import, with the option to turn it off, and that is the right answer: a stitched field IS one image with one name, so nothing downstream has to learn what a microscope image field is.",
-      "translation": "spaCR 의 파일 이름 규칙 -- ``plate_well_T####F###L##A##Z##C##`` -- 에는 타일 자리가 없으므로, 네 조각으로 나뉜 시야는 정식 이름 하나를 공유하는 네 장의 이미지를 만들어 내고 그중 셋은 덮어써지게 된다. 가능한 답은 셋이었다. 규칙에 타일 자리를 추가하거나, 각 타일에 고유한 필드 번호를 주거나, 시야를 다시 하나로 합치는 것이다. spaCR 는 가져오기 단계에서 이어 붙이며 이를 끌 수 있는 선택지를 둔다. 그것이 옳은 답이다. 이어 붙인 시야는 이름이 하나인 이미지 하나이므로, 하위 단계의 무엇도 타일이 무엇인지 배울 필요가 없다."
+      "translation": "spaCR 의 파일 이름 규칙 -- ``plate_well_T####F###L##A##Z##C##`` -- 에는 타일 자리가 없으므로, 네 조각으로 나뉜 시야는 정식 이름 하나를 공유하는 네 장의 이미지를 만들어 내고 그중 셋은 덮어써지게 된다. 가능한 답은 셋이었다. 규칙에 타일 자리를 추가하거나, 각 타일에 고유한 필드 번호를 주거나, 시야를 다시 하나로 합치는 것이다. spaCR 는 가져오기 단계에서 이어 붙이며 이를 끌 수 있는 선택지를 둔다. 그것이 옳은 답이다. 이어 붙인 시야는 이름이 하나인 이미지 하나이므로, 하위 단계의 무엇도 타일이 무엇인지 배울 필요가 없다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure#9",
@@ -58,7 +64,9 @@
       "source_sha256": "e34a5752b1c521e5ac3237fa779b3f1f0d02e23dd1d0643c369f133a3a8a62aa",
       "source": "A large share of imaging labs never see a filesystem. Their images live in an OMERO server, they are addressed by *id*, and the only way anyone looks at a result is the right-hand panel in OMERO.web. spaCR, by contrast, is built around a flat folder of Yokogawa-named TIFFs. This module is the bridge, in both directions, and it is deliberately two directions rather than one: a one-way copy out of OMERO leaves the answers stranded in a folder nobody on the microscope side will ever open.",
       "context": "A large share of imaging labs never see a filesystem. Their images live in an OMERO server, they are addressed by *id*, and the only way anyone looks at a result is the right-hand panel in OMERO.web. spaCR, by contrast, is built around a flat folder of Yokogawa-named TIFFs. This module is the bridge, in both directions, and it is deliberately two directions rather than one: a one-way copy out of OMERO leaves the answers stranded in a folder nobody on the microscope side will ever open.",
-      "translation": "상당수의 이미징 실험실은 파일 시스템을 볼 일이 없다. 그들의 이미지는 OMERO 서버에 있고 *id* 로 지정되며, 결과를 들여다보는 유일한 방법은 OMERO.web 의 오른쪽 패널이다. 반면 spaCR 는 Yokogawa 이름 규칙을 따르는 TIFFs 가 평평하게 담긴 폴더를 전제로 만들어졌다. 이 모듈은 그 둘을 잇는 다리이며, 한 방향이 아니라 일부러 양방향이다. OMERO 밖으로 한 번 복사해 내기만 하면, 답은 현미경 쪽 사람이 결코 열어 보지 않을 폴더에 고립된다."
+      "translation": "상당수의 이미징 실험실은 파일 시스템을 볼 일이 없다. 그들의 이미지는 OMERO 서버에 있고 *id* 로 지정되며, 결과를 들여다보는 유일한 방법은 OMERO.web 의 오른쪽 패널이다. 반면 spaCR 는 Yokogawa 이름 규칙을 따르는 TIFFs 가 평평하게 담긴 폴더를 전제로 만들어졌다. 이 모듈은 그 둘을 잇는 다리이며, 한 방향이 아니라 일부러 양방향이다. OMERO 밖으로 한 번 복사해 내기만 하면, 답은 현미경 쪽 사람이 결코 열어 보지 않을 폴더에 고립된다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_sbs#9",
@@ -86,14 +94,18 @@
       "source_sha256": "a79b163d9e4318d469b9aaca2e21e2193c849ad9a65c46db8c3604758c144003",
       "source": "IT FILLS IN TWO STAGES, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of crops must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the GUI thread, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on screen — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.",
       "context": "It fills in two stages, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of extracted image regions must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the main GUI execution path, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on application view — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.",
-      "translation": "이것은 두 단계로 채워지며, 그 이유가 이 작업의 요점 전부다. 파일 목록은 계획에 저장되지 않는다. ``file_list`` 를 호출할 때마다 모든 후보 디렉터리에 대해 ``os.walk`` 가 도는데, 수백만 개의 크롭이 있는 프로젝트의 계획이 수백만 개의 문자열을 지고 다녀서는 안 되기 때문이다. 그것을 ``__init__`` 에서 하면 사용자의 프로젝트 전체를 재귀적으로 훑는 일이 메인 GUI 실행 경로에 놓이게 된다. 하필 창이 뜨기를 기다리는 바로 그 순간에 말이다. 그리고 잠들어 있는 공유 폴더에서는 마운트를 깨우느라 이십 초를 쓰는 것은 훑기 전체가 아니라 그 첫 번째 stat 이다. 그래서 대화 상자는 디스크가 전혀 필요 없는 절반(합계, 모든 후보, 유지되는 각 항목과 그 이유)으로 먼저 열리고 파일 목록은 그 뒤에 도착한다. 버려지는 것은 없다. 사용자는 무엇이 지워지기 전에 여전히 모든 경로를 읽으며, 그래서 확인은 목록이 화면에 나타날 때까지 -- 혹은 훑기가 실패하면 :meth:`_on_listing_failed` 가 목록 자리에 그 사실을 알릴 때까지 -- 비활성으로 붙들려 있다. 결코 일어나지 않는 단 한 가지는 그 확인란이 자리 표시자 위에서 활성화되는 일이다."
+      "translation": "이것은 두 단계로 채워지며, 그 이유가 이 작업의 요점 전부다. 파일 목록은 계획에 저장되지 않는다. ``file_list`` 를 호출할 때마다 모든 후보 디렉터리에 대해 ``os.walk`` 가 도는데, 수백만 개의 크롭이 있는 프로젝트의 계획이 수백만 개의 문자열을 지고 다녀서는 안 되기 때문이다. 그것을 ``__init__`` 에서 하면 사용자의 프로젝트 전체를 재귀적으로 훑는 일이 메인 GUI 실행 경로에 놓이게 된다. 하필 창이 뜨기를 기다리는 바로 그 순간에 말이다. 그리고 잠들어 있는 공유 폴더에서는 마운트를 깨우느라 이십 초를 쓰는 것은 훑기 전체가 아니라 그 첫 번째 stat 이다. 그래서 대화 상자는 디스크가 전혀 필요 없는 절반(합계, 모든 후보, 유지되는 각 항목과 그 이유)으로 먼저 열리고 파일 목록은 그 뒤에 도착한다. 버려지는 것은 없다. 사용자는 무엇이 지워지기 전에 여전히 모든 경로를 읽으며, 그래서 확인은 목록이 화면에 나타날 때까지 -- 혹은 훑기가 실패하면 :meth:`_on_listing_failed` 가 목록 자리에 그 사실을 알릴 때까지 -- 비활성으로 붙들려 있다. 결코 일어나지 않는 단 한 가지는 그 확인란이 자리 표시자 위에서 활성화되는 일이다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.foreign.object_label#1",
       "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
       "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
       "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
-      "translation": "사용자에게 글자는 보이지 않는다. 2026-09-02 에 그대로 요청된 바다. \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". 슬롯은 글자를 붙여 저장된다 -- ``organelle``, ``organelleb``, ``organellec`` -- 역할 이름이 그 역할이 소유한 모든 설정 이름의 접두사이고, ``organelle2`` 는 2 번으로 라벨된 객체와 부딪히지 않고서는 ``prcfo`` 키를 왕복할 수 없기 때문이다. 그것은 저장에 관한 결정이며 화면과는 아무 상관이 없다. 화면에서 슬롯은 숫자다. Organelle 1, Organelle 2."
+      "translation": "사용자에게 글자는 보이지 않는다. 2026-09-02 에 그대로 요청된 바다. \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". 슬롯은 글자를 붙여 저장된다 -- ``organelle``, ``organelleb``, ``organellec`` -- 역할 이름이 그 역할이 소유한 모든 설정 이름의 접두사이고, ``organelle2`` 는 2 번으로 라벨된 객체와 부딪히지 않고서는 ``prcfo`` 키를 왕복할 수 없기 때문이다. 그것은 저장에 관한 결정이며 화면과는 아무 상관이 없다. 화면에서 슬롯은 숫자다. Organelle 1, Organelle 2.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.settings_pack#0",
@@ -107,7 +119,9 @@
       "source_sha256": "ff9e4f7491664f58efd44f22af1dd4b734d0bd6b32009a998579ca3152aaff14",
       "source": "σ IS A MAD, NOT A STANDARD DEVIATION, and that is the point of the panel rather than a detail of it: a standard deviation is inflated by exactly the outliers a screen exists to find, so a cut measured from one is pulled outwards by the hits and then fails to call them. The median absolute deviation is not, and ×1.4826 makes it the consistent estimator for a normal -- the same statistic :func:`spacr.figures.panels.control_threshold` measures the effect-size cut from, so the dashed lines here and the lines on the volcano cannot disagree about where three sigmas is.",
       "context": "σ IS A MAD, not a standard deviation, and that is the point of the panel rather than a detail of it: a standard deviation is inflated by exactly the outliers a screen exists to find, so a cut measured from one is pulled outwards by the hits and then fails to call them. The median absolute deviation is not, and ×1.4826 makes it the consistent estimator for a normal -- the same statistic :func:`spacr.figures.panels.control_threshold` measures the effect-size cut from, so the dashed lines here and the lines on the volcano cannot disagree about where three sigmas is.",
-      "translation": "σ 는 표준편차가 아니라 MAD 이며, 그것은 이 패널의 세부 사항이 아니라 요점이다. 표준편차는 스크린이 찾아내려는 바로 그 이상치에 의해 부풀려지므로, 표준편차로 잰 컷오프는 히트에 이끌려 바깥으로 밀려나고 결국 그 히트를 잡아내지 못한다. 중앙값 절대 편차는 그렇지 않으며, ×1.4826 을 곱하면 정규분포에 대한 일치추정량이 된다. 이는 :func:`spacr.figures.panels.control_threshold` 가 효과 크기 컷오프를 재는 바로 그 통계량이므로, 여기의 점선과 볼케이노 위의 선이 3 시그마의 위치를 두고 어긋날 수 없다."
+      "translation": "σ 는 표준편차가 아니라 MAD 이며, 그것은 이 패널의 세부 사항이 아니라 요점이다. 표준편차는 스크린이 찾아내려는 바로 그 이상치에 의해 부풀려지므로, 표준편차로 잰 컷오프는 히트에 이끌려 바깥으로 밀려나고 결국 그 히트를 잡아내지 못한다. 중앙값 절대 편차는 그렇지 않으며, ×1.4826 을 곱하면 정규분포에 대한 일치추정량이 된다. 이는 :func:`spacr.figures.panels.control_threshold` 가 효과 크기 컷오프를 재는 바로 그 통계량이므로, 여기의 점선과 볼케이노 위의 선이 3 시그마의 위치를 두고 어긋날 수 없다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.gate_settings.GateSettingsDialog#2",
@@ -128,7 +142,9 @@
       "source_sha256": "aaea74280af6c08cb19bf5dfe5c748fd682ef0d3c3c80e38ccc7fcbb7d1238c5",
       "source": "BOTH runners -- the plate scan and the plane-count read. Qt aborts the process when a running QThread is destroyed, so a runner left out of here is a crash at teardown rather than a leak.",
       "context": "BOTH runners -- the plate scan and the image layer-count read. Qt aborts the process when an executing QThread is destroyed, so a runner left out of here is a crash at teardown rather than a leak.",
-      "translation": "두 실행기 모두 -- 플레이트 훑기와 층 수 읽기. 실행 중인 QThread 가 파괴되면 Qt 가 프로세스를 중단시키므로, 여기서 빠뜨린 실행기는 누수가 아니라 종료 시점의 크래시다."
+      "translation": "두 실행기 모두 -- 플레이트 훑기와 층 수 읽기. 실행 중인 QThread 가 파괴되면 Qt 가 프로세스를 중단시키므로, 여기서 빠뜨린 실행기는 누수가 아니라 종료 시점의 크래시다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.outlier_model.OutlierSpec.__post_init__#1",
@@ -149,7 +165,9 @@
       "source_sha256": "00160810a628f3c6f3f7f49b11df9f6b9a6f5e6b2261afe2fd12eda574e9980f",
       "source": "if the environment does not name a readable ROI file. Refusing loudly is the point — a worker that cannot load the ROI must not go on to measure every object in the field.",
       "context": "if the environment does not name a readable ROI file. Refusing loudly is the point — a worker that cannot load the ROI must not go on to measure every object in the microscope field of view.",
-      "translation": "환경이 읽을 수 있는 ROI 파일을 지정하지 않을 때. 소리 내어 거부하는 것이 요점이다 — ROI 를 불러오지 못한 작업자가 그대로 시야 안의 모든 객체를 측정해서는 안 된다."
+      "translation": "환경이 읽을 수 있는 ROI 파일을 지정하지 않을 때. 소리 내어 거부하는 것이 요점이다 — ROI 를 불러오지 못한 작업자가 그대로 시야 안의 모든 객체를 측정해서는 안 된다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.recent_runs#3",

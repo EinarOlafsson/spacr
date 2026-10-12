@@ -569,7 +569,9 @@
       "source_sha256": "1e021fa46c4f049c96d82956bb5b320537598c0bb15f464c019fda08c1404e6b",
       "context": "The stat is here, on the worker, because it is the part that blocks on a slow mount. A path that is not a file yet is not an error -- it is one somebody is halfway through typing -- so it answers with nothing to offer rather than throwing, which would put a refusal in the status line for every keystroke.",
       "translation": "LE STAT EST ICI, sur le worker, parce que c'est la partie qui bloque sur un montage lent. Un chemin qui n'est pas encore un fichier n'est pas une erreur -- quelqu'un est en train de le taper -- donc il répond sans rien proposer au lieu de lever une erreur, ce qui mettrait un refus dans la ligne d'état à chaque frappe.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work#0",
@@ -841,7 +843,9 @@
       "source_sha256": "543562b5678b4fa41698c59cd657c105d1e211e83a85f2353cbcf60e4ada51f5",
       "context": "The flag is cleared FIRST so a draw that schedules another does not lose it.",
       "translation": "L'indicateur est effacé EN PREMIER pour qu'un dessin qui en programme un autre ne le perde pas.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.cancel_pending_draw#0",
@@ -857,7 +861,9 @@
       "source_sha256": "b3a541d2b27562bdaf6c8a9556f596f0989d3bd5e4fd80cf7d74045e20a3f581",
       "context": "Ask for a redraw on the OWNED timer rather than a static one.",
       "translation": "Demande un redessin sur le minuteur POSSÉDÉ plutôt que sur un minuteur statique.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.draw_idle#1",

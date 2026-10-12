@@ -191,7 +191,9 @@
       "source_sha256": "2a17902227be8ed8baf403dcdea6906b8e5db09cb601e4a9d3e514dfa3ea8e46",
       "source": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus crop, whatever format\" or \"every TIFF, whatever object\".",
       "context": "Two independent tests, which is the whole point of splitting them: which object the extracted image region is of (a substring of its path, e.g. ``cell_png``) and what format it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
-      "translation": "Två oberoende tester, vilket är hela poängen med att dela upp dem: VILKET OBJEKT den extraherade bildregionen tillhör (en delsträng av dess sökväg, till exempel ``cell_png``) och VILKET FORMAT den är i (dess filändelse). En inställning skulle aldrig kunna uttrycka \"varje kärna extraherade bildregion, oavsett format\" eller \"var TIFF, vilket objekt\"."
+      "translation": "Två oberoende tester, vilket är hela poängen med att dela upp dem: VILKET OBJEKT den extraherade bildregionen tillhör (en delsträng av dess sökväg, till exempel ``cell_png``) och VILKET FORMAT den är i (dess filändelse). En inställning skulle aldrig kunna uttrycka \"varje kärna extraherade bildregion, oavsett format\" eller \"var TIFF, vilket objekt\".",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.crops.CropSpec#10",
@@ -300,7 +302,9 @@
       "source_sha256": "0c6fb20198b9d6d20613482ae144cfad0e31954ee55622c77238d2800220427f",
       "source": "**Selecting on the test split leaks.** :func:`cv_search` scores every trial on cross-validation folds, never on test, and refuses to run if a caller hands it folds that touch the held-out test indices. It defaults to *grouped* folds (``group_by='well'``) and reuses :func:`spacr.io.make_cv_folds` — crops from one well share focus, illumination and seeding density, so an ungrouped search picks the model that memorised wells and reports a beautiful, meaningless score.",
       "context": "**Selecting on the test split leaks.** :func:`cv_search` scores every trial on cross-validation folds, never on test, and refuses to execute if a caller hands it folds that touch the held-out test indices. It defaults to *grouped* folds (``group_by='well'``) and reuses :func:`spacr.io.make_cv_folds` — extracted image regions from one microplate sample position share focus, illumination and seeding density, so an ungrouped search picks the model that memorised microplate sample positions and reports a beautiful, meaningless score.",
-      "translation": "**Välja på testuppdelningen läcker.** :func:`cv_search` poängsätter varje försök på korsvalideringsvikningar, aldrig på test, och vägrar att utföra om anroparen ger den vikningar som rör de hållna ut testindex. Det är standard till *grupperade* vikningar (``group_by='well'``) och återanvänder :func:`spacr.io.make_cv_folds` - extraherade bildregioner från en mikroplatta provposition delar fokus, belysning och sådddensitet, så en ogrupperad sökning plockar modellen som memorerade mikroplatta prov positioner och rapporterar en vacker, en meningslös poäng."
+      "translation": "**Välja på testuppdelningen läcker.** :func:`cv_search` poängsätter varje försök på korsvalideringsvikningar, aldrig på test, och vägrar att utföra om anroparen ger den vikningar som rör de hållna ut testindex. Det är standard till *grupperade* vikningar (``group_by='well'``) och återanvänder :func:`spacr.io.make_cv_folds` - extraherade bildregioner från en mikroplatta provposition delar fokus, belysning och sådddensitet, så en ogrupperad sökning plockar modellen som memorerade mikroplatta prov positioner och rapporterar en vacker, en meningslös poäng.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.generate_loaders#11",

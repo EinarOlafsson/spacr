@@ -18,7 +18,9 @@
       "source_sha256": "f69d6eeda42c8039b6728af03880c5b17750c07b25b247d216f04adb6f500667",
       "context": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
       "translation": "新的设置，其中未启用的 PSF 参数已被移除，并带有一个已捕获的实际内容签名。旧式测量的原始签名为 None。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.prepare_measurement_psf#0",
@@ -114,7 +116,9 @@
       "source_sha256": "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
       "context": "The enhancement chain travels the same route. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` structured-data names and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a processing session is byte for byte what it was before the chain existed.",
       "translation": "增强链走的是同一条路径。Make Masks 的增强链（:mod:`spacr.qt.detect_chain`）会作为 ``enhance_*`` 键写入设置文件，并在这里由 :func:`prepare_chain` 读回，同时将 ``psf_*`` 设置并入为增强链的 PSF 阶段，因此一次板运行会严格按照整理者调好的步骤、以增强链自身的顺序执行：背景、PSF、去噪、对比度、锐化。会话在 PSF 原本运行的阶段——照明校正之后、归一化之前——对每个所选通道应用它，其来源信息写入同一个 ``psf/segmentation_application.json`` 记录中，因此增强链发生变化时，继续运行会像卷积核变化时一样被拒绝。当增强链中没有任何步骤启用时，运行结果与增强链出现之前逐字节相同。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#0",
@@ -472,7 +476,9 @@
       "source_sha256": "246def0f041c1409feda629fdfd446c2485402f36d7075ac4382faa4a2d4747d",
       "context": "The commands are not here. Each tool's ``install_methods`` in :mod:`spacr.qt.ai.providers` are the rows its ``install_hint`` is built from, and :func:`plan_install` picks the first of those rows whose programs are on ``PATH``. The command the Install button runs and the command the application view shows are therefore one definition.",
       "translation": "命令不在这里。每个工具的 ``install_methods``（位于 :mod:`spacr.qt.ai.providers` 中）是构建其 ``install_hint`` 的各行，而 :func:`plan_install` 会选取其中第一个所需程序都在 ``PATH`` 上的行。因此，Install 按钮运行的命令与界面显示的命令是同一个定义。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.cli_install#3",
@@ -2020,7 +2026,9 @@
       "source_sha256": "c836fe76e6e33d73dd33ddefe4073b45da80df259f86ec9a7e9f27693cefb428",
       "context": "The exception's class name is prefixed only when it says something. The console writes this text after \"[AI error] \", so for a :class:`~spacr.qt.ai.providers.ProviderFailed` -- whose whole message is written to be read there, down to the sign-in command to execute -- the prefix turned a sentence the user could act on into \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Every other exception keeps its class, which is often the only thing naming what went wrong: a bare ``[Errno 2] No such file or directory`` does not say it is a FileNotFoundError.",
       "translation": "只有当异常的类名能提供信息时才会加上前缀。控制台会把这段文本写在 \"[AI error] \" 之后，因此对于 :class:`~spacr.qt.ai.providers.ProviderFailed`——它的整条消息本来就是为在那里阅读而写的，连要运行的登录命令都包括在内——加上前缀会把一句用户可以据此采取行动的话变成 \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\"。其他所有异常都保留其类名，因为类名往往是唯一说明出了什么问题的信息：单独的 ``[Errno 2] No such file or directory`` 并不能说明这是一个 FileNotFoundError。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.worker.make_stream_thread#6",
@@ -2310,7 +2318,9 @@
       "source_sha256": "0c5897d28eb2fad004dd0d40a004debc1fa060de3ae2fe8980d1d9df73276c0a",
       "context": "Found by object name rather than by tab index or caption. An index moves whenever a tab is added, and a caption is translated -- a Korean interface would have matched nothing. Every page sets its own ``PreferencesTab*`` name, and ``tools/build_help_search_index.py`` reads those same names out of this dialog's source, so the two ends of the hand-off are the same string by construction.",
       "translation": "按对象名称而不是按选项卡索引或标题查找。每当添加选项卡时索引就会变化，而标题会被翻译——韩语界面就会什么也匹配不到。每个页面都设置了自己的 ``PreferencesTab*`` 名称，而 ``tools/build_help_search_index.py`` 会从此对话框的源代码中读出这些名称，因此交接的两端在构造上就是同一个字符串。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.app.MainWindow.show_preferences_on#3",
@@ -2496,7 +2506,9 @@
       "source_sha256": "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
       "context": "Its own folder per set. Both ship ``measurements/measurements.db``, as the Annotate example in the shared plate does, so each unpacks beside that plate (:func:`spacr.example_archives.example_set_folder`) rather than into it.",
       "translation": "每个数据集都有自己的文件夹。两者都附带 ``measurements/measurements.db``，与共享板中的 Annotate 示例一样，因此每个都解压到该板的旁边（:func:`spacr.example_archives.example_set_folder`），而不是解压到板中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples#4",
@@ -2504,7 +2516,9 @@
       "source_sha256": "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937",
       "context": "The same pattern as the other examples. One uncompressed ``.tar`` streamed to a ``.part`` file on a background execution unit behind the shared progress dialog, unpacked through the tar data filter, ``<dataset>`` in the settings replaced with where it landed, and cached: a second press uses the copy on disk.",
       "translation": "与其他示例采用相同的模式。一个未压缩的 ``.tar`` 在工作线程上以流式方式写入 ``.part`` 文件，前台显示共享的进度对话框，然后通过 tar 数据过滤器解压，设置中的 ``<dataset>`` 会被替换为其实际存放位置，并进行缓存：第二次按下按钮时会使用磁盘上的副本。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples.download_assay_example#0",
@@ -3360,7 +3374,9 @@
       "source_sha256": "21b573e04a2ccab52e860d982f3e7fedabde66ee7b9553c9a1bd9573ca8d6c91",
       "context": "RECORDED, so first-run guidance does not greet a returning user as a new one. While an installer is running the user is asked first (:meth:`_may_close`): keeping it running leaves the application view open, and stopping it closes the application view as before.",
       "translation": "“已记录”，因此首次运行引导不会把回访用户当作新用户来欢迎。当安装程序正在运行时，会先询问用户（:meth:`_may_close`）：选择继续运行会让界面保持打开，选择停止则像以前一样关闭界面。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.mouseMoveEvent#1",

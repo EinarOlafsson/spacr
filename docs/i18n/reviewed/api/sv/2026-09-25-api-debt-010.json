@@ -1402,7 +1402,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on screen, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
       "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
-      "translation": ":class:`FocusCollapse` Den automatiska halvan. Vissa widgetar är FOKUSwidgetar (en realtidsförhandsvisning, figurpanelen): medan någon av dem visas på skärmen fälls MÅLpanelerna ihop (konsolen, System, knapparna, inställningskolumnen), och när den sista försvinner kommer de tillbaka. Den strider aldrig mot användaren: ett mål som användaren fäller ut för hand LÅSES öppet och lämnas ifred tills VYN tar slut. Se klassen för vad en vy är."
+      "translation": ":class:`FocusCollapse` Den automatiska halvan. Vissa widgetar är FOKUSwidgetar (en realtidsförhandsvisning, figurpanelen): medan någon av dem visas på skärmen fälls MÅLpanelerna ihop (konsolen, System, knapparna, inställningskolumnen), och när den sista försvinner kommer de tillbaka. Den strider aldrig mot användaren: ett mål som användaren fäller ut för hand LÅSES öppet och lämnas ifred tills VYN tar slut. Se klassen för vad en vy är.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",
@@ -1794,7 +1796,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A resize of the window is not a drag -- no handle is held -- so re-fitting here fights nobody.",
       "source_sha256": "84be84c7c86506dcd9deff0f7024ec00f8ee9428bcb7fc185487d5ca8791c5b7",
-      "translation": "En storleksändring av fönstret är ingen dragning -- inget handtag hålls -- så att anpassa om här strider inte mot någon."
+      "translation": "En storleksändring av fönstret är ingen dragning -- inget handtag hålls -- så att anpassa om här strider inte mot någon.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the resize event.",
@@ -1892,7 +1896,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the TARGET panes (:meth:`target`) are collapsed, and when the last is hidden the targets this collapsed are opened again. A target that was already collapsed -- by the user, or remembered from last session -- is left exactly as it is, both ways.",
       "source_sha256": "f4a2f6d632b03ace56472deaa47950f33783c373e49345177648daa9dd33b2b1",
-      "translation": "FOKUSwidgetar bevakas (:meth:`watch`); medan NÅGON av dem visas fälls MÅLpanelerna (:meth:`target`) ihop, och när den sista döljs öppnas de mål som detta fällde ihop igen. Ett mål som redan var hopfällt -- av användaren, eller ihågkommet från förra sessionen -- lämnas exakt som det är, åt båda hållen."
+      "translation": "FOKUSwidgetar bevakas (:meth:`watch`); medan NÅGON av dem visas fälls MÅLpanelerna (:meth:`target`) ihop, och när den sista döljs öppnas de mål som detta fällde ihop igen. Ett mål som redan var hopfällt -- av användaren, eller ihågkommet från förra sessionen -- lämnas exakt som det är, åt båda hållen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Never fights the user. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
@@ -1900,7 +1906,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NEVER FIGHTS THE USER. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
       "source_sha256": "d2f77e3c7ce4f96edd278a717f67d79143f6db40d7d566061c40a51cf6619bde",
-      "translation": "STRIDER ALDRIG MOT ANVÄNDAREN. Ett mål som användaren öppnar för hand (genom att klicka på dess rubrik eller dess handtag, eller dra upp det) LÅSES: ingenting här fäller ihop det igen förrän vyn tar slut. Ett mål som användaren fäller ihop för hand är också användarens, och öppnas inte igen när fokus försvinner."
+      "translation": "STRIDER ALDRIG MOT ANVÄNDAREN. Ett mål som användaren öppnar för hand (genom att klicka på dess rubrik eller dess handtag, eller dra upp det) LÅSES: ingenting här fäller ihop det igen förrän vyn tar slut. Ett mål som användaren fäller ihop för hand är också användarens, och öppnas inte igen när fokus försvinner.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A view is one visit to one application view: it begins when the application view is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another application view (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the application view with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
@@ -1908,7 +1916,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A VIEW is one visit to one screen: it begins when the screen is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another screen (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the screen with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
       "source_sha256": "8ec9ecfa22f3d1b94eadb17b0dcc3f2df5a8db6b5d3465f5be7345c23c20e4ff",
-      "translation": "En VY är ett besök i en programvy: den börjar när programvyn visas (:meth:`begin_view`, från dess ``showEvent``) och slutar när den döljs för att användaren gick till en annan programvy (:meth:`end_view`, från dess ``hideEvent``). Att minimera fönstret avslutar den inte -- ägaren skickar bara icke-spontana händelser. Låsningar varar under vyn: att återvända till programvyn med dess realtidsförhandsvisning fortfarande öppen fäller ihop omgivningen igen, vilket är vad en ny ankomst till den layouten skulle få."
+      "translation": "En VY är ett besök i en programvy: den börjar när programvyn visas (:meth:`begin_view`, från dess ``showEvent``) och slutar när den döljs för att användaren gick till en annan programvy (:meth:`end_view`, från dess ``hideEvent``). Att minimera fönstret avslutar den inte -- ägaren skickar bara icke-spontana händelser. Låsningar varar under vyn: att återvända till programvyn med dess realtidsförhandsvisning fortfarande öppen fäller ihop omgivningen igen, vilket är vad en ny ankomst till den layouten skulle få.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "owner, normally the screen.",
@@ -1940,7 +1950,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The user left the screen: their pins for this view are spent.",
       "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
-      "translation": "Användaren lämnade programvyn: låsningarna för den här vyn är förbrukade."
+      "translation": "Användaren lämnade programvyn: låsningarna för den här vyn är förbrukade.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A focus widget was shown or hidden.",
@@ -2392,7 +2404,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE EVENT TYPE IS READ FIRST, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to run for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
       "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
-      "translation": "HÄNDELSETYPEN LÄSES FÖRST, och livskontrollerna följer efter. Det här filtret sitter på QApplication, så båda anropen av `_still_alive` kördes tidigare för varje händelse i processen -- 94,431 av dem under en enda öppning av Regression, och en profilering räknade paret till 839,906 anrop vid en enda öppning av Mask. Att läsa typen hos ett objekt vars C++-halva har försvunnit genererar ett undantag, vilket `except` nedan redan besvarar med samma `False`, så ordningen kostar ingenting och kontrollerna körs nu bara för en snabbmeny."
+      "translation": "HÄNDELSETYPEN LÄSES FÖRST, och livskontrollerna följer efter. Det här filtret sitter på QApplication, så båda anropen av `_still_alive` kördes tidigare för varje händelse i processen -- 94,431 av dem under en enda öppning av Regression, och en profilering räknade paret till 839,906 anrop vid en enda öppning av Mask. Att läsa typen hos ett objekt vars C++-halva har försvunnit genererar ett undantag, vilket `except` nedan redan besvarar med samma `False`, så ordningen kostar ingenting och kontrollerna körs nu bara för en snabbmeny.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True to stop the event going further.",

@@ -28,7 +28,9 @@
       "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
       "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
       "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
-      "translation": "Tanto Eliminar como Cancelar pasan por aquí y ninguno de los dos envía un evento de cierre — ``QDialog.done`` oculta el widget —, de modo que aquí, y no en ``closeEvent``, es donde debe vivir el desmontaje de un diálogo modal. Qt aborta el proceso de inmediato si un ``QThread`` en ejecución se destruye junto con su propietario, y el recorrido puede seguir en curso cuando la usuaria o el usuario cancela."
+      "translation": "Tanto Eliminar como Cancelar pasan por aquí y ninguno de los dos envía un evento de cierre — ``QDialog.done`` oculta el widget —, de modo que aquí, y no en ``closeEvent``, es donde debe vivir el desmontaje de un diálogo modal. Qt aborta el proceso de inmediato si un ``QThread`` en ejecución se destruye junto con su propietario, y el recorrido puede seguir en curso cuando la usuaria o el usuario cancela.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.image_import.ImageImportScreen.set_tiles_as_fields#1",
@@ -42,7 +44,9 @@
       "source_sha256": "f9b84851fc164eaeb2d91d44e75aabedfd097d2f9ccae56845eab2e8c5b90aa2",
       "source": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own keys, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
       "context": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own structured-data names, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
-      "translation": "El resto se CONSERVA, no se descarta: :meth:`settings` lo devuelve sin cambios junto a los nombres de datos estructurados de la propia tabla, de modo que este widget puede editar un rincón de un archivo de ajustes sin retener el archivo entero."
+      "translation": "El resto se CONSERVA, no se descarta: :meth:`settings` lo devuelve sin cambios junto a los nombres de datos estructurados de la propia tabla, de modo que este widget puede editar un rincón de un archivo de ajustes sin retener el archivo entero.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.section.Section#5",

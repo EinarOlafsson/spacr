@@ -247,7 +247,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Batched here rather than by the caller because the batch size belongs to the DEVICE, not to the channel policy: the per-channel policy calls this once per channel and each call must fit the same GPU.",
       "source_sha256": "58e01fe4a9324a0cfe4888d0bbe4c67b1593d97f32d6b8c85bc68fbc4a048049",
-      "translation": "Hier statt beim Aufrufer in Batches, weil die Batch-Größe zum GERÄT gehört, nicht zur Kanalstrategie: Die Strategie pro Kanal ruft dies einmal pro Kanal auf, und jeder Aufruf muss auf dieselbe GPU passen."
+      "translation": "Hier statt beim Aufrufer in Batches, weil die Batch-Größe zum GERÄT gehört, nicht zur Kanalstrategie: Die Strategie pro Kanal ruft dies einmal pro Kanal auf, und jeder Aufruf muss auf dieselbe GPU passen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(n, height, width, 3)`` float32 in [0, 1].",
@@ -471,7 +473,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "WRAPS rather than replaces, so the original behaviour is unchanged even if the offer fails -- an error message must still appear when the thing that would report it is broken.",
       "source_sha256": "f71fe71bdb29537b0e769b0a1f2ff6c28880ad88084c22d80a077f6d8386f0aa",
-      "translation": "UMHÜLLT statt zu ersetzen, sodass das ursprüngliche Verhalten unverändert bleibt, auch wenn das Angebot scheitert -- eine Fehlermeldung muss weiterhin erscheinen, wenn das, was sie melden würde, defekt ist."
+      "translation": "UMHÜLLT statt zu ersetzen, sodass das ursprüngliche Verhalten unverändert bleibt, auch wenn das Angebot scheitert -- eine Fehlermeldung muss weiterhin erscheinen, wenn das, was sie melden würde, defekt ist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Start the next missing half, or open the plate after the last.",
@@ -655,7 +659,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Whether a control is really there to be pressed.",
       "source_sha256": "e56b15bb5d6859666b2382a6a6491b09cdb3d4fb0a591060afe855b2bd200134",
-      "translation": "Ob ein Bedienelement wirklich zum Drücken da ist."
+      "translation": "Ob ein Bedienelement wirklich zum Drücken da ist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Enabled, visible AND non-empty. A widget with a zero size is laid out but not yet given room, and counting it as usable reports an application view ready before anything can be clicked. A deleted control answers False rather than throwing.",
@@ -711,7 +717,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Add the item AND record it, so the canvas can clear its own drawings.",
       "source_sha256": "4619fb4a9b5f927874b28b64148a8a67efbb546cf70c1f26d6181826a131f7a4",
-      "translation": "Fügt das Element hinzu UND hält es fest, damit die Zeichenfläche ihre eigenen Zeichnungen löschen kann."
+      "translation": "Fügt das Element hinzu UND hält es fest, damit die Zeichenfläche ihre eigenen Zeichnungen löschen kann.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Set an axis label and remember it for the style round-trip.",
@@ -735,7 +743,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Tick labels for a split axis, in the ORIGINAL data's values.",
       "source_sha256": "9f4fb503687069c6149efa5a3860cc22100f25e1e1152f1cd8a13392d0c0fe53",
-      "translation": "Teilstrichbeschriftungen für eine geteilte Achse, in den Werten der URSPRÜNGLICHEN Daten."
+      "translation": "Teilstrichbeschriftungen für eine geteilte Achse, in den Werten der URSPRÜNGLICHEN Daten.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The axis is drawn on a compressed coordinate, so labelling it with the drawn position would put numbers on it that the data never had.",
@@ -783,7 +793,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Cached because a scatter asks for a brush PER POINT: building them fresh allocates one QBrush per point per repaint, which is the whole cost of drawing a large scatter.",
       "source_sha256": "ae4649de125eaceba7620e9f4daec2972164f8c7574ca1b8df25dbdc2811f922",
-      "translation": "Zwischengespeichert, weil ein Streudiagramm PRO PUNKT nach einem Pinsel fragt: Sie jedes Mal neu zu bauen legt pro Punkt und Neuzeichnen einen QBrush an, und das sind die gesamten Kosten, ein großes Streudiagramm zu zeichnen."
+      "translation": "Zwischengespeichert, weil ein Streudiagramm PRO PUNKT nach einem Pinsel fragt: Sie jedes Mal neu zu bauen legt pro Punkt und Neuzeichnen einen QBrush an, und das sind die gesamten Kosten, ein großes Streudiagramm zu zeichnen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The label for one option: its friendly name, or \"automatic\" for None.",
@@ -807,7 +819,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "INJECTED so the menu can be exercised without a modal dialog, which is otherwise the only way to reach these entries in a test.",
       "source_sha256": "0bfcf0c7caa4c640ad34eac0412911e09b8d28bc084adcb82b8dc8e84beb5d33",
-      "translation": "EINGESETZT, damit das Menü ohne modalen Dialog geprüft werden kann, der sonst der einzige Weg ist, diese Einträge in einem Test zu erreichen."
+      "translation": "EINGESETZT, damit das Menü ohne modalen Dialog geprüft werden kann, der sonst der einzige Weg ist, diese Einträge in einem Test zu erreichen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Forget the saved default, so new figures use the built-in one.",

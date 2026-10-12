@@ -233,7 +233,9 @@
       "source_sha256": "3341b6a4ec6ede14b76b4d38be73114629b078b7efacac611d754ff63d4e2acf",
       "context": "Deferred because the list comes from umap, and importing it at build time would pay for it on every screen that never opens this combo.",
       "translation": "Uppskjutet eftersom listan kommer från umap, och att importera den när skärmen byggs skulle kosta på varje vy som aldrig öppnar den här kombinationsrutan.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.image_import.ImageImportScreen.run_import._job#0",

@@ -512,7 +512,9 @@
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.end_view#0",
       "source": "The user left the screen: their pins for this view are spent.",
       "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
-      "translation": "Beim Verlassen der Ansicht ihre benutzerspezifischen Fixierungen verwerfen."
+      "translation": "Beim Verlassen der Ansicht ihre benutzerspezifischen Fixierungen verwerfen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Whether any focus widget is shown.",

@@ -20,7 +20,9 @@
       "label": "spacr.qt.screens.agreement#1",
       "source": "The Annotate app writes one ``INTEGER`` column per pass into ``png_list``. Two people labelling the same crops therefore leave two columns side by side, and the only question that matters before either set is used as ground truth is: *do they agree, and where don't they?*",
       "source_sha256": "0018d72fb1aea1a213642e301c5711871998c86c227555b57ea0e2116ce16df6",
-      "translation": "Forritið Annotate skrifar eina ``INTEGER`` dálk á hverja umferð í ``png_list``. Því skilja tveir einstaklingar sem merkja sömu útdrættu myndasvæðin eftir tvo dálka hlið við hlið, og eina spurningin sem skiptir máli áður en annað settið er notað sem raunverulegur sannleikur er: *eru þeir sammála, og hvar gera þau það ekki?*"
+      "translation": "Forritið Annotate skrifar eina ``INTEGER`` dálk á hverja umferð í ``png_list``. Því skilja tveir einstaklingar sem merkja sömu útdrættu myndasvæðin eftir tvo dálka hlið við hlið, og eina spurningin sem skiptir máli áður en annað settið er notað sem raunverulegur sannleikur er: *eru þeir sammála, og hvar gera þau það ekki?*",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Annotate grid paints raw colours rather than being QSS-styled, so it resolves this itself -- see :func:`tile_palette`, which does the same for the tile chrome.",
@@ -34,7 +36,9 @@
       "label": "spacr.qt.screens.classifier_evaluation#5",
       "source": "And before either: where did the errors come from. A cell broken down per well and per plate answers the question that makes re-labelling worth doing at all — 43 errors from 20 wells is the model's problem, 43 errors from one well is the bench's.",
       "source_sha256": "1b3ba02312a2bd2d9c95a849ddc1ca54018734b751f47c109e6c350801abad90",
-      "translation": "Og áður en annað: hvaðan komu villurnar. Fruma sem brotnar niður eftir sýnisstöðu á örplötu og eftir örplötu á rannsóknarstofu svarar spurningunni sem gerir endurnefningu þess virði yfirhöfuð — 43 villur frá 20 sýnisstöðum á örplötu eru vandamál líkansins, 43 villur frá einum sýnisstað á örplötu eru vandamál við borðið."
+      "translation": "Og áður en annað: hvaðan komu villurnar. Fruma sem brotnar niður eftir sýnisstöðu á örplötu og eftir örplötu á rannsóknarstofu svarar spurningunni sem gerir endurnefningu þess virði yfirhöfuð — 43 villur frá 20 sýnisstöðum á örplötu eru vandamál líkansins, 43 villur frá einum sýnisstað á örplötu eru vandamál við borðið.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a measurement row; :meth:`spec_for` says which microscope fields of view it has to carry. What comes back is the *pre-write* array -- the merged file's dtype (``uint16`` on a normal run) and as many image data channels as the spec selects -- not 8-bit RGB. Use :meth:`get` for something a viewer or a machine-learning classification model can take.",
@@ -64,7 +68,9 @@
       "label": "spacr.qt.screens.outliers#7",
       "source": "The **Objects** tab is the per-object flags; the **Wells** tab is the across-well pass. They are separate tabs rather than one merged view because they answer different questions and routinely disagree: a well shifted as a whole flags almost none of its individual objects and is nevertheless the loudest point among wells. The engine's ``report()`` is shown verbatim in the third tab, caveats included — the share flagged is not interpretable without the sentence saying whether a symmetric fence on skewed data produced it.",
       "source_sha256": "2f47dd4e281264ebdb55c04c5df7fa74fc6149740a68fadc9cb48d91cb50e93e",
-      "translation": "Flipa **Objects** sýnir fánana fyrir hvert hlut; flipa **Microplate sample positions** sýnir flæði yfir öll holin. Þær eru aðskildar flipar í stað þess að vera sameinaður útsýni því þær svara mismunandi spurningum og eru gjarnan ósammála: hola sem hvolfað er sem heild flaggar næstum engum einstaklingshlutum sínum en er engu að síður háværasti punkturinn meðal sýninga á microplate-stökum hlutum. Vélin ``report()`` er sýnd orðrétt á þriðja flipanum, með fyrirvara — hver hluti flaggaður er túlkunarlaus án setningar sem segir hvort samhverfur girðing á skakkaðri gögn hafi framkallað það."
+      "translation": "Flipa **Objects** sýnir fánana fyrir hvert hlut; flipa **Microplate sample positions** sýnir flæði yfir öll holin. Þær eru aðskildar flipar í stað þess að vera sameinaður útsýni því þær svara mismunandi spurningum og eru gjarnan ósammála: hola sem hvolfað er sem heild flaggar næstum engum einstaklingshlutum sínum en er engu að síður háværasti punkturinn meðal sýninga á microplate-stökum hlutum. Vélin ``report()`` er sýnd orðrétt á þriðja flipanum, með fyrirvara — hver hluti flaggaður er túlkunarlaus án setningar sem segir hvort samhverfur girðing á skakkaðri gögn hafi framkallað það.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**The fit runs off the main GUI execution path** through :class:`spacr.qt.job_runner.JobRunner`, like every other read and compute in the Qt layer. A profile-likelihood interval on a 96-compound laboratory microplate is seconds, not milliseconds, and ``threaded=False`` runs the identical code inline so a test drives the same path the shipped application view does.",
@@ -94,7 +100,9 @@
       "label": "spacr.io.TarImageDataset#1",
       "source": "A tar written by :func:`generate_dataset` from on-demand crops carries a ``.spacr_crop_format.json`` member -- the same marker :mod:`spacr.crops` writes into a crop folder, travelling with the bytes it describes. It is **not** an image, so it is excluded from the sample list and surfaced as :attr:`crop_format` instead; an archive without one reports None, which is every tar written before this existed.",
       "source_sha256": "7b3f2b93286eb1f83145b218281b83228a7c5243431cb2a377647033d23262c3",
-      "translation": "Tar-skrá skrifuð af :func:`generate_dataset` úr eftirspurnardregnum myndasvæðum ber með sér ``.spacr_crop_format.json`` meðlim -- sami merki :mod:`spacr.crops` skrifar inn í möppu fyrir dregin myndasvæði, ferðast með byte-um sem hún lýsir. Hún er **ekki** mynd, svo hún er undanskilin úr sýnisskránni og birt sem :attr:`crop_format` í staðinn; skjalasafn án hennar skráir None, sem er hver tar-skrá sem skrifuð var áður en þetta til var."
+      "translation": "Tar-skrá skrifuð af :func:`generate_dataset` úr eftirspurnardregnum myndasvæðum ber með sér ``.spacr_crop_format.json`` meðlim -- sami merki :mod:`spacr.crops` skrifar inn í möppu fyrir dregin myndasvæði, ferðast með byte-um sem hún lýsir. Hún er **ekki** mynd, svo hún er undanskilin úr sýnisskránni og birt sem :attr:`crop_format` í staðinn; skjalasafn án hennar skráir None, sem er hver tar-skrá sem skrifuð var áður en þetta til var.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "'spots'      punctate (vesicles, lipid droplets) 'network'    filamentous (mitochondria, ER tubules) 'irregular'  solid blobby (Golgi, lysosomes) 'ring'       hollow (endosomes, autophagosomes)",
@@ -147,7 +155,9 @@
       "label": "spacr.qt.screens.dose_response.register#3",
       "source": "``SECTION_DESIGN``, which is not the obvious answer and is the right one. Design is \"everything that happens before the microscope: power, sample size, plate layout, controls and replicates\", and it already holds Power / Design. A dose–response series is the *other* pre-experiment calculation a screening lab runs: nobody fits an EC50 to admire it, they fit it to pick the concentration the actual screen will use, exactly as they run a power calculation to pick n. The output of this screen is an input to the next experiment, which is what the section means.",
       "source_sha256": "487e6bd7ca8645d18573adb546d64467976d0033b1216b910de3e8e797700b89",
-      "translation": "``SECTION_DESIGN``, sem er ekki augljós svar en er rétt svar. Hönnun er „allt sem gerist áður en smásjáran kemur: tölfræðileg uppgötvunarviðkvæmni, sýnisstærð, uppsetning á rannsóknarstofulínum, stjórn- og endurtekningarsýni“, og hún inniheldur þegar tölfræðilega uppgötvunarviðkvæmni / hönnun. Skammt–svar röð er *önnur* for-tilraun útreikningur sem skimunarstofan keyrir: enginn passar EC50 til að dáast að henni, þeir passa hana til að velja styrkinn sem raunverulega skimunin mun nota, nákvæmlega eins og þeir framkvæma tölfræðilega uppgötvunarviðkvæmnisútreikning til að velja n. Úttak þessarar skimunar er inntak í næstu tilraun, sem er það sem kaflinn á við."
+      "translation": "``SECTION_DESIGN``, sem er ekki augljós svar en er rétt svar. Hönnun er „allt sem gerist áður en smásjáran kemur: tölfræðileg uppgötvunarviðkvæmni, sýnisstærð, uppsetning á rannsóknarstofulínum, stjórn- og endurtekningarsýni“, og hún inniheldur þegar tölfræðilega uppgötvunarviðkvæmni / hönnun. Skammt–svar röð er *önnur* for-tilraun útreikningur sem skimunarstofan keyrir: enginn passar EC50 til að dáast að henni, þeir passa hana til að velja styrkinn sem raunverulega skimunin mun nota, nákvæmlega eins og þeir framkvæma tölfræðilega uppgötvunarviðkvæmnisútreikning til að velja n. Úttak þessarar skimunar er inntak í næstu tilraun, sem er það sem kaflinn á við.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every viewer spaCR has ever shipped draws one thing. The live preview draws an image with outlines burnt into it; the timelapse preview draws a frame with tracks burnt into it; Make Masks draws an image with a brush burnt into it. \"Burnt in\" is the problem: the mask is not a *thing* you can hide, fade, recolour or put underneath something else — it is pixels that were already RGB by the time the widget saw them.",
@@ -155,7 +165,9 @@
       "notes": "",
       "source": "Every viewer spaCR has ever shipped draws one thing. The live preview draws an image with outlines burnt into it; the timelapse preview draws a frame with tracks burnt into it; Make Masks draws an image with a brush burnt into it. \"Burnt in\" is the problem: the mask is not a *thing* you can hide, fade, recolour or put underneath something else — it is pixels that were already RGB by the time the widget saw them.",
       "source_sha256": "2c39a0941cd5d5db5b2f2a7133207290655a25f5157204babd4d0cfb255a967d",
-      "translation": "Allur áhorfandi spaCR hefur nokkurn tíma sent teiknar eitt hlut. Rauntíma forskoðunin teiknar mynd með útlínum brenndum inn í hana; tímaröðaforskoðunin teiknar ramma með sporum brenndum inn í hana; Make Masks teiknar mynd með burstabaug brenndum inn í hana. \"Burnt in\" er vandamálið: gríman er ekki *hlutur* sem þú getur falið, dofnað, endurlitað eða lagt undir eitthvað annað — hún er pixlar sem voru þegar RGB þegar viðmótið sá þau."
+      "translation": "Allur áhorfandi spaCR hefur nokkurn tíma sent teiknar eitt hlut. Rauntíma forskoðunin teiknar mynd með útlínum brenndum inn í hana; tímaröðaforskoðunin teiknar ramma með sporum brenndum inn í hana; Make Masks teiknar mynd með burstabaug brenndum inn í hana. \"Burnt in\" er vandamálið: gríman er ekki *hlutur* sem þú getur falið, dofnað, endurlitað eða lagt undir eitthvað annað — hún er pixlar sem voru þegar RGB þegar viðmótið sá þau.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**Memoised per frame object.** The classification runs ``Series.nunique()`` over every column, which on a 200 000-row x 48-column measurement table costs 230 ms. Loading one table used to pay that *four* times inside a single ``set_frame`` — this function, plus :func:`spacr.qt.widgets.graph_spec.column_kinds`, plus ``GraphSpec.kinds_for``, plus ``plottable_columns``, each re-deriving the same answer from the same object — 0.9 s of the ~1.9 s the main GUI execution path spent delivering a freshly loaded frame.",

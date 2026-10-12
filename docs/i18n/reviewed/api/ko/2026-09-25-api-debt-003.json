@@ -114,7 +114,9 @@
       "source_sha256": "bdd745d49aedc5d013c4e19982b8076a695ecfe8fb44903eecb0a640766c464c",
       "context": "So the threshold algorithms here are names of a level and nothing else. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
       "translation": "따라서 여기의 임계값 알고리즘은 수준 값의 이름일 뿐 그 이상이 아닙니다. 각각은 :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` 또는 :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS` 의 한 줄이며, 수준 값을 둘러싼 모든 것(평활화, 임계값 보정, 밝은 쪽 또는 어두운 쪽, 구멍 채우기, watershed 분할, 경계 규칙, 최소 면적)은 Otsu 가 이미 거치던 코드입니다. Otsu 대신 Li 를 선택하면 숫자 하나의 출처만 바뀌고 다른 것은 바뀌지 않으며, 이것이 바로 바뀌어야 할 전부입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes#3",
@@ -130,7 +132,9 @@
       "source_sha256": "4288a6aafe7cfcc155385e59e3aaff0dc88c435d9f0fc20979690afd09b78dcb",
       "context": "What is not here, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested extracted image region. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
       "translation": "여기에 없는 것과 그 이유. 국소 MEAN 및 국소 GAUSSIAN 임계값은 다시 제공하지 않습니다. 이들은 블록 크기와 오프셋으로 소기관 엔진의 ``adaptive`` 분기를 실행하는 Adaptive threshold 모드입니다. 국소 OTSU 도 다시 제공하지 않습니다. 이는 단순 Otsu 모드의 \"Local threshold (uneven illumination)\" 스위치로, 이미지 전체 검출에 사용됩니다. 다른 이름의 임계값은 저장된 Local Otsu 및 클래스 수 설정을 무시하며, Multi-Otsu 만 두 범위 모두에서 선택된 클래스 수와 구간을 사용합니다. 단순 Otsu 는 기존의 확대경 전처리를 유지하고, 다른 임계값은 요청된 잘라 낸 영역에 이미지 전체 엔진을 사용합니다. Niblack 은 ``T = m - k*s`` 를, Sauvola 는 ``T = m*(1 + k*(s/R - 1))`` 를 사용하며, 여기서 ``m`` 과 ``s`` 는 국소 평균과 표준 편차입니다. 엔진은 범위를 재조정하지 않은 float32 값을 제공하므로 scikit-image 의 기본 Sauvola ``R`` 은 1 입니다. 두 공식은 서로 다르며, 강도 척도를 바꾸면 Sauvola 의 결과가 바뀔 수 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#0",
@@ -178,7 +182,9 @@
       "source_sha256": "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
       "context": "the Gaussian blur before the maxima are found, in pixels. separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the microscope field of view is genuinely noisy, or the two blurs compound.",
       "translation": "최댓값을 찾기 전에 적용하는 가우시안 흐림(픽셀 단위)입니다. 이미지 향상 체인의 잡음 제거와는 별개이며, 체인의 잡음 제거는 검출기가 이미지를 보기 전에 이미 실행되었습니다. 이 값이 따로 있는 이유는 객체 하나에 중심 하나가 생기게 하는 흐림이 보통 객체의 가장자리를 측정할 때 원하는 흐림보다 훨씬 강한데, 전파는 같은 흐린 이미지에서 가장자리를 측정하기 때문입니다. 현미경 시야에 실제로 잡음이 많지 않다면 체인의 잡음 제거는 꺼 두십시오. 그렇지 않으면 두 흐림이 누적됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#4",
@@ -602,7 +608,9 @@
       "source_sha256": "70e64ca0b72f05175a26ba1386fa2282c6f6d73249836c192107aea0adf96ed5",
       "context": "The same chain reaches mask generation. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` structured-data name per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask workflows and the Mask Live preview apply to every selected segmentation image data channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate processing session's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-image data channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
       "translation": "같은 체인이 마스크 생성에도 적용됩니다. 이미지 단계(``detect`` 이전의 모든 것)는 :func:`chain_settings` 가 Mask 설정으로 기록하며(``enhance_<field>`` 키가 :data:`SETTINGS_FIELDS` 항목마다 하나), :func:`spacr.psf_pipeline.prepare_chain` 이 이를 다시 읽습니다. V1 및 V2 Mask 워크플로와 Mask Live 미리 보기는 이 체인을 선택된 모든 분할 채널에, 조명 보정 후 정규화 전, 즉 PSF 가 이미 실행되던 단계에서 적용합니다. 형태학 연산과 분할은 검출기의 레이블에 작용하는 Make Masks 자체의 기능이며, 마이크로플레이트 처리 세션의 Cellpose 레이블은 이들에 의해 변형되지 않습니다. Mask 설정 ``remove_background``, ``background``, ``signal_to_noise`` 는 이후 정규화에서 적용되는 채널별 강도 하한이며, :func:`spacr.object._preprocess_batch` 는 소기관 배치 자체의 rolling ball 과 CLAHE 입니다. 둘 다 여기서 구성하지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.Chain#0",
@@ -946,7 +954,9 @@
       "source_sha256": "983d5f61da3db274bb7942b08147ae61e3879b0445ba6e0326394dad0c41fe46",
       "context": "Morphology and the split are both questions about which pixels are one object, so both are asked of the detection as a whole: the labels are read as a foreground, reshaped, and labelled again. The ids therefore change, which costs nothing here -- Make Masks renumbers every object it pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).",
       "translation": "형태학 연산과 분할은 둘 다 어떤 픽셀들이 하나의 객체인가에 대한 질문이므로, 둘 다 검출 결과 전체에 대해 묻습니다. 레이블을 전경으로 읽고, 모양을 바꾼 뒤, 다시 레이블을 붙입니다. 따라서 ID 가 바뀌지만 여기서는 아무 비용도 없습니다. Make Masks 는 마스크에 붙여 넣는 모든 객체의 번호를 다시 매기기 때문입니다(:func:`spacr.qt.mask_engine._paste_region_objects`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.finish#2",
@@ -1098,7 +1108,9 @@
       "source_sha256": "cf5074dc18cc71c759ccc7febf25004b7495367d607f58d33d959d1ff7c3fb18",
       "context": "Only the steps that ran, plus the order they ran in, so an entry says what was done rather than listing fourteen defaults around it; a chain with nothing on records nothing but the switch that was off. The order is written out because it is what makes the entry enough to reproduce the mask: the same steps in another order are another mask.",
       "translation": "실행된 단계와 그 실행 순서만 기록하므로, 항목은 기본값 열네 개를 나열하는 대신 실제로 한 일을 알려 줍니다. 켜진 것이 없는 체인은 꺼져 있던 스위치 외에는 아무것도 기록하지 않습니다. 순서를 기록하는 이유는 항목만으로 마스크를 재현할 수 있게 하는 것이 순서이기 때문입니다. 같은 단계라도 순서가 다르면 다른 마스크입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.provenance#2",
@@ -1876,7 +1888,9 @@
       "source_sha256": "900aa4f1c61ba978bc58bbb8974e49f399076110abeb57b0d9b64e2e98334146",
       "context": "The whole-GUI scale, applied live: one factor for every size spaCR sets (471).",
       "translation": "GUI 전체 배율이며 실시간으로 적용됩니다. spaCR 이 설정하는 모든 크기에 하나의 계수를 적용합니다(471).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#1",
@@ -1884,7 +1898,9 @@
       "source_sha256": "9ab613242a15c75c9efb61bf7209c349195e6183113fe75db1d987169d8082b3",
       "context": "What it is. \"GUI scale\" in Preferences (10 % to 200 %, default 100 %) scales widget sizes, fixed sizes, margins, spacing, style-sheet sizes (fonts and paddings included), icons, splitter sizes and figure dpi -- and it does so while spaCR runs, with no restart.",
       "translation": "개요. Preferences 의 \"GUI scale\" (10 % 에서 200 %, 기본값 100 %)은 위젯 크기, 고정 크기, 여백, 간격, 스타일 시트 크기(글꼴과 패딩 포함), 아이콘, 분할기 크기, 그림 dpi 를 조정하며, spaCR 이 실행되는 동안 재시작 없이 적용됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#10",
@@ -1892,7 +1908,9 @@
       "source_sha256": "369ad5c26f2b4f62d573919be1998e7e6cce2f3f94e067f038ee597f1c8a2dc5",
       "context": "What does not follow live. Sizes the scale cannot see because they do not pass through a setter: text and shapes a widget paints itself at fixed pixel coordinates, pixmaps a widget scales to a number it computed, ``setFont`` with an explicit size, ``move``/``setGeometry`` positions, header section sizes, a Python ``sizeHint`` override that returns a constant, the Fusion style's own metrics that the theme sheet does not restate, and pyqtgraph's axis text. Sizes computed from font metrics are already scaled once by the font and are scaled again by the setter -- the one way the layer can over-shrink. The main window's own size is left alone, so the gained room goes to the content.",
       "translation": "실시간으로 따라가지 않는 것. 설정 함수를 거치지 않아 배율이 볼 수 없는 크기입니다. 위젯이 고정 픽셀 좌표에 직접 그리는 텍스트와 도형, 위젯이 계산한 숫자로 크기를 조정하는 픽스맵, 명시적 크기를 가진 ``setFont``, ``move``/``setGeometry`` 위치, 헤더 섹션 크기, 상수를 반환하는 Python ``sizeHint`` 재정의, 테마 시트가 다시 지정하지 않는 Fusion 스타일 자체의 메트릭, pyqtgraph 의 축 텍스트가 해당합니다. 글꼴 메트릭에서 계산한 크기는 이미 글꼴에 의해 한 번 조정된 뒤 설정 함수에서 다시 조정되며, 이것이 이 레이어가 과도하게 축소할 수 있는 유일한 경우입니다. 메인 창 자체의 크기는 그대로 두므로 늘어난 공간은 내용에 돌아갑니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#2",
@@ -1900,7 +1918,9 @@
       "source_sha256": "0d511c0418e05b0c00ad63ba750390f99f5936fa708fd2bc1335f47e3e6e10d7",
       "context": "HOW, without touching 1,420 call sites. Counted on nightly 2026-09-22 across the 328 modules under ``spacr/qt``: about 1,420 hard-coded geometry calls in 181 files (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) and 486 ``px`` literals in style-sheet text in 64 files. Routing each by hand is a change to every application view, and every size added later would have to remember it. Instead :func:`install_scaling_layer` -- called once from :func:`spacr.qt.app.launch` before the first widget exists -- replaces the setters themselves on the Qt classes (``QWidget``'s size setters and ``setStyleSheet``, the layouts' margin and spacing setters, every ``setIconSize``, ``QSplitter.setSizes``). Each replacement",
       "translation": "1,420 개의 호출 지점을 건드리지 않는 방법. nightly 2026-09-22 기준으로 ``spacr/qt`` 아래 328 개 모듈에서 센 결과, 181 개 파일에 약 1,420 개의 하드코딩된 기하 호출(``setContentsMargins`` 470 개, ``setSpacing`` 489 개, ``setMinimumWidth/Height`` 179 개, ``setMaximumWidth/Height`` 67 개, ``setFixed*`` 74 개, ``setMinimumSize`` 30 개, ``QSize`` 56 개, ``resize`` 64 개, ``setIconSize`` 6 개)이 있고, 64 개 파일의 스타일 시트 텍스트에 ``px`` 리터럴 486 개가 있습니다. 이를 하나씩 직접 바꾸면 모든 화면을 수정해야 하고, 나중에 추가되는 모든 크기도 이를 기억해야 합니다. 대신 :func:`install_scaling_layer` 는 첫 위젯이 생기기 전에 :func:`spacr.qt.app.launch` 에서 한 번 호출되어, Qt 클래스의 설정 함수 자체(``QWidget`` 의 크기 설정 함수와 ``setStyleSheet``, 레이아웃의 여백 및 간격 설정 함수, 모든 ``setIconSize``, ``QSplitter.setSizes``)를 교체합니다. 각 교체 함수는",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#3",
@@ -1932,7 +1952,9 @@
       "source_sha256": "d84fd2775db6aeb4df1d57fe95c34937090217ed98fdb4f6e311146ff2c1f2c4",
       "context": "A change of scale (:func:`set_gui_scale_live`) walks every live widget and layout, puts every remembered value back at the new scale, and asks the windows to lay out again. A widget built later is scaled as it is built. A splitter's panes keep the room they have on application view -- what shrinks is what is inside them -- and ``sizes()`` answers in 100 % units, so the sizes slice B persists survive a change of scale.",
       "translation": "배율 변경(:func:`set_gui_scale_live`)은 살아 있는 모든 위젯과 레이아웃을 순회하여 기억된 모든 값을 새 배율로 다시 적용하고, 창에 다시 레이아웃을 요청합니다. 나중에 만들어지는 위젯은 만들어질 때 배율이 적용됩니다. 분할기의 창은 화면에서 차지하는 공간을 유지하며(줄어드는 것은 그 안의 내용), ``sizes()`` 는 100 % 단위로 답하므로 slice B 가 저장하는 크기는 배율이 바뀌어도 유지됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#7",
@@ -1940,7 +1962,9 @@
       "source_sha256": "287e0858d3fba78f1d04aa7e07f4ec1c4ea505daba323c8fa39878b2f4c7ba35",
       "context": "How it composes with font scale. Font scale stays where it is: it writes the font sizes into the theme's style sheet. That sheet goes through the ``setStyleSheet`` replacement like any other, so a font size ends up as base x font scale x GUI scale. 50 % GUI at 200 % font is half-size widgets with text the usual size on application view.",
       "translation": "글꼴 배율과의 결합 방식. 글꼴 배율은 그대로이며, 테마의 스타일 시트에 글꼴 크기를 기록합니다. 그 시트도 다른 시트와 마찬가지로 ``setStyleSheet`` 교체 함수를 거치므로, 글꼴 크기는 기본 크기 x 글꼴 배율 x GUI 배율이 됩니다. GUI 50 %, 글꼴 200 % 이면 위젯은 절반 크기이고 텍스트는 화면에서 평소 크기입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#8",
@@ -1948,7 +1972,9 @@
       "source_sha256": "798a0fa963dec6277795c908e1e884dd28bcf9391920062b7b414e0024db05d1",
       "context": "A user's own ``QT_SCALE_FACTOR`` is not touched and multiplies on the outside, as Qt always has.",
       "translation": "사용자 자신의 ``QT_SCALE_FACTOR`` 는 건드리지 않으며, Qt 가 항상 그래 왔듯이 바깥에서 곱해집니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#9",
@@ -1956,7 +1982,9 @@
       "source_sha256": "94fd01a0e5fdf4cd1e11dafd9821daa322aa5ff7629981afcd7e67eb53b54aee",
       "context": "Keep or revert. Every change of GUI scale or font scale applies at once and then asks \"Keep these settings?\" (:class:`KeepOrRevertDialog`), counting down 15 s; the countdown, Esc and closing the dialog all put the old values back. The dialog is exempt from the scale and sets its own text size, so it is readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) remains the backup.",
       "translation": "유지 또는 되돌리기. GUI 배율이나 글꼴 배율의 모든 변경은 즉시 적용된 뒤 \"Keep these settings?\" (:class:`KeepOrRevertDialog`)를 묻고 15 s 카운트다운을 시작합니다. 카운트다운 종료, Esc, 대화 상자 닫기는 모두 이전 값을 복원합니다. 이 대화 상자는 배율의 영향을 받지 않고 자체 텍스트 크기를 설정하므로, GUI 10 % 와 글꼴 10 % 에서도 읽을 수 있습니다. ``Ctrl+Alt+0`` (:func:`reset_every_scale`)은 여전히 비상 수단입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale.add_listener#0",
@@ -2388,7 +2416,9 @@
       "source_sha256": "83691142b03ecee2e2b46f9e6e684a603dec02860e3649182bfe6d29f05265ad",
       "context": "Everything in spaCR that is addressable by name, and how to rank it.",
       "translation": "spaCR 에서 이름으로 찾을 수 있는 모든 것과 그 순위를 매기는 방법입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#1",
@@ -2396,7 +2426,9 @@
       "source_sha256": "ed4d2f4fa51ab5cf5bfaa6175840c53f952cdfc43224c7312e105bace83a59ad",
       "context": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
       "translation": "Help 메뉴 옆의 검색 필드의 품질은 이것에 달려 있습니다. 어떤 것의 이름을 아는 사용자는 어느 모듈이 그것을 소유하는지, 어느 접힌 제목 아래에 분류되어 있는지 몰라도 그것에 도달할 수 있어야 합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#10",
@@ -2404,7 +2436,9 @@
       "source_sha256": "c1752a04b729ad11dc31364bb0613cf40639a5e6d949525823263e09bd6a3aee",
       "context": "Adding a kind is registering a provider, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
       "translation": "종류를 추가하는 것은 스위치를 편집하는 것이 아니라 제공자를 등록하는 것입니다. 제공자는 ``() -> Iterable[HelpEntry]`` 이며, :func:`register_provider` 가 제공자를 추가하고 :func:`build_index` 는 각 제공자를 자체 보호 장치 뒤에서 호출하므로, 예외를 발생시키는 제공자는 자기 행만 잃고 다른 것에는 영향을 주지 않습니다. 결과를 열었을 때 무엇을 하는지도 :mod:`spacr.qt.help_search` 에서 같은 방식으로 등록합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#11",
@@ -2412,7 +2446,9 @@
       "source_sha256": "3adc1919bf67507e81691ffe20f6780b575a65e36a075720f40e6e64005d5349",
       "context": "Importing this costs nothing; building the index costs a second. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the main GUI execution path -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
       "translation": "이 모듈을 가져오는 데는 비용이 없고, 색인을 만드는 데는 일 초 정도가 걸립니다. 모든 레지스트리는 그것을 읽는 제공자 안에서 가져오므로, 모듈 자체는 Qt 도 ``spacr.settings`` 도 가져오지 않습니다. 이 트리에서 색인 생성은 1.1 s 와 13,000 행으로 측정되었으며, 이는 GUI 실행 경로에서 하기에는 너무 큽니다. :mod:`spacr.qt.help_search` 는 :func:`build_index` 를 작업자에서 실행하며, 이 모듈은 디스플레이 없이도 테스트할 수 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#2",
@@ -2420,7 +2456,9 @@
       "source_sha256": "1eda1db60f808fe0b5d175d31445e252db152fbf487029c67ff21d26b3dab3b0",
       "context": "The index is never a hand list. Every row here is derived from something that already decides the answer:",
       "translation": "색인은 절대 직접 작성한 목록이 아닙니다. 여기의 모든 행은 이미 답을 결정하는 무언가로부터 도출됩니다:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#3",
@@ -2476,7 +2514,9 @@
       "source_sha256": "9493a94b5d36037593b5216649265a1ad8e8d941e5b266d2bf0b6277cc792afe",
       "context": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
       "translation": "그러면 찾을 수 없는 설정은 누군가 행 추가를 기억했는지의 문제가 아니라 생성기에 관한 사실이 되며, 이것이 이 지침의 논지 전체입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#0",
@@ -2500,7 +2540,9 @@
       "source_sha256": "160936f13dc63126e120ac6bad4bf5ba6bde38eb9a0fb49f861d05cf0a65a08e",
       "context": "Why a template and not the finished string. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
       "translation": "완성된 문자열이 아니라 템플릿인 이유. ``subtitle`` 과 ``description`` 은 검색이 일치 대상으로 삼는 값이므로 영어로 유지됩니다. 질의와 검색 대상은 같은 언어여야 하며, 색인은 세션마다 한 번 만들어지지만 인터페이스 언어는 그 후에 바뀔 수 있습니다. 사용자가 읽는 내용은 행을 그리는 시점에 :func:`rendered_subtitle` 과 :func:`rendered_description` 이 :func:`spacr.qt.i18n.tr` 을 전달받아 템플릿으로부터 렌더링합니다. 따라서 언어 변경은 다음 키 입력에 반영되고, 이 모듈은 여전히 Qt 도 카탈로그도 가져오지 않습니다. \"API reference\" 는 만 개에 이르는 행의 부제목이며, 여기에 완성된 영어 문자열을 두면 영어로 작업하지 않는 모든 독자에게 결과 목록 전체가 영어가 됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#2",
@@ -2524,7 +2566,9 @@
       "source_sha256": "4bae203d75769918522607f1371e020bca05f06dffe38cdb8c560ee592c04996",
       "context": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
       "translation": "사용자가 생각하는 언어로 된 기능 설명입니다. 일치 대상이므로 \"touching\" 으로 ``merge_edge_pathogen_cells`` 를 찾을 수 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#5",
@@ -2604,7 +2648,9 @@
       "source_sha256": "fb3f090d3ee2e389bffa1631460f0be3ceaa182631408114661f315b0e7b9707",
       "context": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
       "translation": "각 제공자는 따로 보호됩니다. API 매니페스트를 읽을 수 없어서 설정까지 잃는 검색 필드는 조용히 더 적은 종류를 제공하는 검색 필드보다 나쁩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.build_index#2",
@@ -2748,7 +2794,9 @@
       "source_sha256": "ee33e0b61c5fe51f360b6e103db4362a0adbeaaff6bf149857d040bdd69c5cdb",
       "context": "Terms are ANDed, the same rule the per-module settings search uses: typing a second word must narrow, because otherwise typing more is a way of getting more results, which is the opposite of what typing means.",
       "translation": "용어는 AND 로 결합되며, 모듈별 설정 검색과 같은 규칙입니다. 두 번째 단어를 입력하면 범위가 좁아져야 합니다. 그렇지 않으면 더 입력할수록 결과가 늘어나며, 이는 입력의 의미와 정반대입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.score#2",
@@ -2836,7 +2884,9 @@
       "source_sha256": "917a074f3dd7eb984c35c457a05c4a12a81140c0fc0130ac87a3011098d84fd1",
       "context": "One row per module: a setting in four modules is four rows, each naming its module and the category it sits under, rather than one row that then asks which. The user already knows which module they meant; a row that asks is a second click for information the list could have shown.",
       "translation": "모듈마다 한 행. 네 모듈에 있는 설정은 네 행이 되며, 각 행은 모듈과 그 설정이 속한 범주를 명시합니다. 한 행을 만든 뒤 어느 모듈인지 다시 묻지 않습니다. 사용자는 어느 모듈을 뜻했는지 이미 알고 있으며, 다시 묻는 행은 목록이 보여 줄 수 있었던 정보를 위해 한 번 더 클릭하게 만듭니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#2",
@@ -2844,7 +2894,9 @@
       "source_sha256": "2ab02ab5546359c5694a4040595795136c576571fc67d51f9b4ce0b0f0006a0c",
       "context": "The API half of a setting is not emitted here. ``SETTING_CONSUMERS`` names every addressable function that reads a structured-data name, and :func:`api_entries` folds that into the API row for each of those functions -- one row per symbol, saying which settings it reads. Emitting them from both providers listed ``spacr.io.preprocess_img_data`` once for itself and once for every setting it reads, which was eleven identical rows in one result list.",
       "translation": "설정의 API 부분은 여기서 생성하지 않습니다. ``SETTING_CONSUMERS`` 는 키를 읽는 이름으로 찾을 수 있는 모든 함수를 명시하며, :func:`api_entries` 가 이를 그 함수들 각각의 API 행에 합칩니다. 기호마다 한 행이며, 그 행이 읽는 설정을 명시합니다. 두 제공자 모두에서 생성하던 때에는 ``spacr.io.preprocess_img_data`` 가 자기 자신으로 한 번, 읽는 설정마다 한 번씩 나열되어 한 결과 목록에 똑같은 행이 열한 개 있었습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#3",
@@ -2868,7 +2920,9 @@
       "source_sha256": "2ed1190297dac95630e8a03a2c1b34769f2a49d333a10d9b083bd8e9e191161c",
       "context": ":mod:`spacr.qt.help_index` decides WHAT is addressable by name; this module is where a user types a name and where the answer takes them. The two halves are apart because only this one needs a display.",
       "translation": ":mod:`spacr.qt.help_index` 는 무엇을 이름으로 찾을 수 있는지를 결정하고, 이 모듈은 사용자가 이름을 입력하고 답이 사용자를 데려가는 곳입니다. 디스플레이가 필요한 것은 이쪽뿐이므로 두 부분을 분리했습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#2",
@@ -2876,7 +2930,9 @@
       "source_sha256": "9b06bc94e966f1588d6bb3afc4ac0f73c71437496df2efe0ac02e0e0ec01cd21",
       "context": "What a result does is registered, not switched on. :func:`register_opener` binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind up. A new kind of thing therefore needs a provider in the index module and an opener here, and no existing function changes -- which is the instruction's \"and so on\" clause taken literally.",
       "translation": "결과의 동작은 스위치로 분기하지 않고 등록합니다. :func:`register_opener` 는 종류를 ``(window, entry) -> str`` 에 연결하고, :func:`open_entry` 는 종류를 조회합니다. 따라서 새로운 종류를 추가하려면 색인 모듈에 제공자를, 여기에 열기 함수를 추가하면 되며 기존 함수는 바뀌지 않습니다. 이것은 지침의 \"and so on\" 조항을 문자 그대로 따른 것입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#3",
@@ -2900,7 +2956,9 @@
       "source_sha256": "0412bad52eae8ac06d27b65ce47178901c4916d917fa67a6f3120324fa094fa1",
       "context": "``setting`` Opens the module and then :func:`reveal_setting`: every category collapsed except the one holding the setting, the row scrolled to and marked. NOT by filtering the panel -- the per-module strip already has a filter and it leaves the other categories hidden, so a user who wanted to look around next has to work out what happened to the form.",
       "translation": "``setting`` 모듈을 연 뒤 :func:`reveal_setting` 을 실행합니다. 설정이 들어 있는 범주를 제외한 모든 범주를 접고, 해당 행으로 스크롤하여 표시합니다. 패널을 필터링하는 방식이 아닙니다. 모듈별 띠에는 이미 필터가 있는데, 필터는 다른 범주를 숨긴 채로 두므로 다음에 둘러보려는 사용자는 양식에 무슨 일이 생겼는지 알아내야 하기 때문입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#6",
@@ -2916,7 +2974,9 @@
       "source_sha256": "4eda68fd6cc8ade496fa248319928c0e591678a08a07e0106484048f63f74e65",
       "context": "``api`` Opens the published page when it is reachable, and otherwise shows the docstring that is on this machine and says the page is not reachable. A search result is believed, so a result that opens a 404 is worse than no result at all.",
       "translation": "``api`` 게시된 페이지에 접근할 수 있으면 그 페이지를 열고, 그렇지 않으면 이 컴퓨터에 있는 docstring 을 보여 주며 페이지에 접근할 수 없다고 알립니다. 사용자는 검색 결과를 믿으므로, 404 를 여는 결과는 결과가 없는 것보다 나쁩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#8",
@@ -2924,7 +2984,9 @@
       "source_sha256": "e9885c01c2cfd5de99ec32fb6330b680f3e824759cb7e79172a16ef2b3e504b6",
       "context": "Nothing this module does on the main GUI execution path blocks it. The index costs about a second to build, so it is built on a worker the first time the field is typed in (:class:`_IndexLoader`), and the field says so until it lands. Whether the documentation site answers is a network question, so it is asked on a worker too (:class:`_DocsReach`) and only ever when the user has opened an API result -- spaCR does not reach the network because somebody typed.",
       "translation": "이 모듈은 GUI 실행 경로에서 아무것도 차단하지 않습니다. 색인을 만드는 데 약 일 초가 걸리므로, 필드에 처음 입력할 때 작업자에서 만들며(:class:`_IndexLoader`), 완료될 때까지 필드가 그 사실을 표시합니다. 문서 사이트가 응답하는지는 네트워크 문제이므로 역시 작업자에서 확인하며(:class:`_DocsReach`), 사용자가 API 결과를 열었을 때만 확인합니다. 누군가 입력했다는 이유만으로 spaCR 이 네트워크에 접근하지는 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#9",
@@ -2932,7 +2994,9 @@
       "source_sha256": "efafb19e7ac93635222d2320b091ae7d8524b5208d71838143a70b95ccdb4261",
       "context": "Opening a result never discards settings. ``MainWindow._on_nav_selected`` keeps every application view it has built in ``self._screens`` and switches the stack to it, so a half-filled Mask form is still half-filled when the user comes back from Measure. That was true before this microscope field of view existed and it is now pinned by ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a future rebuild-on-navigate cannot quietly take it away.",
       "translation": "결과를 열어도 설정은 절대 버려지지 않습니다. ``MainWindow._on_nav_selected`` 는 만든 모든 화면을 ``self._screens`` 에 보관하고 스택을 그 화면으로 전환하므로, 절반만 채운 Mask 양식은 사용자가 Measure 에서 돌아와도 절반 채워진 상태 그대로입니다. 이는 이 필드가 생기기 전부터 사실이었으며, 이제 ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` 로 고정되어 있어 이후에 탐색할 때마다 다시 만드는 방식이 도입되어도 이를 조용히 없앨 수 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.ApiEntryDialog#0",
@@ -3124,7 +3188,9 @@
       "source_sha256": "a41dde4f85bdc2ad98703622e35a68acb345f497ce5bd4c8b2164616a1c7e3a3",
       "context": "The seam tests drive: typing is the user's action, and waiting 140 ms for a timer in every assertion would make the suite slower and no more honest about what the field does.",
       "translation": "테스트가 사용하는 접합부입니다. 입력은 사용자의 동작이며, 모든 검증에서 타이머를 140 ms 씩 기다리면 테스트 모음이 느려질 뿐 필드의 동작에 대해 더 정직해지지도 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.HelpSearchField.type_and_search#2",
@@ -3164,7 +3230,9 @@
       "source_sha256": "9d2f1646ec608d1df65993717f61432e1bd129f33a71faef030a7c0937316896",
       "context": "Which prefix is the module is answered from the disk rather than assumed: ``spacr.qt.screens.mask`` is a module and ``spacr.layers.ShapesLayer.mask`` is an attribute two levels inside one, and only the file layout knows which of the dots is the last one in the path.",
       "translation": "어느 접두사가 모듈인지는 가정하지 않고 디스크에서 확인합니다. ``spacr.qt.screens.mask`` 는 모듈이고 ``spacr.layers.ShapesLayer.mask`` 는 모듈 안 두 단계 아래의 속성이며, 점 중 어느 것이 경로의 마지막인지는 파일 배치만이 압니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.api_url#3",
@@ -3252,7 +3320,9 @@
       "source_sha256": "fae337d102853e9f49e575c630681a3e0679440efcd741087ee227cc96bf0351",
       "context": "In the menu row, not the corner. The field was first installed in the menu bar's top-right corner widget, which put it beside the minimise, full application view and close marks at the far right of the window, away from the menus. It belongs directly to the right of Help, so it is placed in the menu row itself: the bar lays its actions out left to right, and Help is the last menu, so the field follows Help and moves with it when the menus are re-translated or re-ordered.",
       "translation": "모서리가 아니라 메뉴 행에 둡니다. 필드는 처음에 메뉴 막대의 오른쪽 위 모서리 위젯에 설치되었는데, 그러면 창 맨 오른쪽의 최소화, 전체 화면, 닫기 표시 옆에 놓여 메뉴에서 멀어졌습니다. 필드는 Help 바로 오른쪽에 있어야 하므로 메뉴 행 자체에 배치됩니다. 막대는 동작을 왼쪽에서 오른쪽으로 배치하고 Help 가 마지막 메뉴이므로, 필드는 Help 뒤에 오며 메뉴가 다시 번역되거나 순서가 바뀌어도 함께 움직입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.install#2",
@@ -4228,7 +4298,9 @@
       "source_sha256": "21b573e04a2ccab52e860d982f3e7fedabde66ee7b9553c9a1bd9573ca8d6c91",
       "context": "RECORDED, so first-run guidance does not greet a returning user as a new one. While an installer is running the user is asked first (:meth:`_may_close`): keeping it running leaves the application view open, and stopping it closes the application view as before.",
       "translation": "반드시 기록되므로, 첫 실행 안내가 돌아온 사용자를 새 사용자처럼 맞이하지 않습니다. 설치 프로그램이 실행 중이면 먼저 사용자에게 묻습니다(:meth:`_may_close`). 계속 실행하면 화면이 열린 채로 남고, 중지하면 이전처럼 화면이 닫힙니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.mouseMoveEvent#1",
@@ -4644,7 +4716,9 @@
       "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
       "context": "Upgrade this interpreter, optionally to the exact version offered.",
       "translation": "이 인터프리터를 업그레이드하며, 선택적으로 제공된 정확한 버전으로 업그레이드합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.upgrade_command#1",
@@ -4702,7 +4776,9 @@
       "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
       "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
       "translation": "마스크 폴더가 없거나 예상되는 스택 파일 이름 중 하나라도 완전한 마스크가 없으면 ``True`` 입니다. 관련 없는 마스크는 누락된 현미경 시야를 대신할 수 없으며, 완전한 현미경 시야를 다시 실행하게 만들지도 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.lasso_reg#3",

@@ -872,7 +872,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The one call a pipeline makes before ``measure_crop``, and the one the Illumination button on the Measure masthead runs on its own -- the model and its QC figures in minutes, before committing hours to the measure run that will reuse them through ``illumination_model``.",
       "source_sha256": "6e3b695c86c1d9de9628acbe17c8d39d882bff6e9d569aee282f1f2520fcd332",
-      "translation": "Der eine Aufruf, den eine Pipeline vor ``measure_crop`` macht, und den die Schaltfläche Illumination im Measure-Kopfbereich eigenständig ausführt -- das Modell und seine QC-Abbildungen in Minuten, bevor man Stunden in den Messlauf investiert, der sie über ``illumination_model`` wiederverwendet."
+      "translation": "Der eine Aufruf, den eine Pipeline vor ``measure_crop`` macht, und den die Schaltfläche Illumination im Measure-Kopfbereich eigenständig ausführt -- das Modell und seine QC-Abbildungen in Minuten, bevor man Stunden in den Messlauf investiert, der sie über ``illumination_model`` wiederverwendet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a processing session that never mentions it is measured uncorrected. Being asked to execute with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a processing session button that does nothing, so a verbose call says which switch was not thrown.",
@@ -880,7 +882,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a run that never mentions it is measured uncorrected. Being asked to run with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a Run button that does nothing, so a verbose call says which switch was not thrown.",
       "source_sha256": "bcd39ee407d791269f359bc1cf6a233b2ed37abbe5e8e61052570482e881baa9",
-      "translation": "Sie tut überhaupt nichts -- und gibt None zurück --, sofern ``settings['illumination_correction']`` nicht True ist, was NICHT der ausgelieferte Standard ist: Die Korrektur ist opt-in, sodass ein Lauf, der sie nie erwähnt, unkorrigiert gemessen wird. Mit ausgeschaltetem Schalter zur Ausführung aufgefordert zu werden, ist ein No-op, über das man informiert werden sollte statt eines stillen, denn in einem Einstellungsformular sieht es genau aus wie eine Run-Schaltfläche, die nichts tut; deshalb sagt ein ausführlicher Aufruf, welcher Schalter nicht umgelegt wurde."
+      "translation": "Sie tut überhaupt nichts -- und gibt None zurück --, sofern ``settings['illumination_correction']`` nicht True ist, was NICHT der ausgelieferte Standard ist: Die Korrektur ist opt-in, sodass ein Lauf, der sie nie erwähnt, unkorrigiert gemessen wird. Mit ausgeschaltetem Schalter zur Ausführung aufgefordert zu werden, ist ein No-op, über das man informiert werden sollte statt eines stillen, denn in einem Einstellungsformular sieht es genau aus wie eine Run-Schaltfläche, die nichts tut; deshalb sagt ein ausführlicher Aufruf, welcher Schalter nicht umgelegt wurde.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, ``illumination_vendor_channel_map``, plus ``src`` and ``channels``.",
@@ -992,7 +996,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Types, tooltips and the module description are contributed; **categories deliberately are not**. ``spacr.settings.categories`` is one shared, ordered map that every settings panel walks, and its growth is guarded by an exact-equality test against a hand-kept list. A key contributed at *import* time is in that map only in a session that imported this module, so contributing categories would make that test's result depend on which files pytest was pointed at.",
       "source_sha256": "60b730773d424102a58c358009b24f464f50047cc57d4a3eaa24bd740608a551",
-      "translation": "Typen, Tooltips und die Modulbeschreibung werden beigesteuert; **Kategorien bewusst nicht**. ``spacr.settings.categories`` ist eine einzige gemeinsame, geordnete Zuordnung, die jedes Einstellungspanel durchläuft, und ihr Wachstum wird durch einen Test auf exakte Gleichheit gegen eine von Hand gepflegte Liste überwacht. Ein Schlüssel, der beim *Import* beigesteuert wird, steht nur in einer Sitzung in dieser Zuordnung, die dieses Modul importiert hat; das Beisteuern von Kategorien würde das Ergebnis dieses Tests also davon abhängig machen, auf welche Dateien pytest gerichtet wurde."
+      "translation": "Typen, Tooltips und die Modulbeschreibung werden beigesteuert; **Kategorien bewusst nicht**. ``spacr.settings.categories`` ist eine einzige gemeinsame, geordnete Zuordnung, die jedes Einstellungspanel durchläuft, und ihr Wachstum wird durch einen Test auf exakte Gleichheit gegen eine von Hand gepflegte Liste überwacht. Ein Schlüssel, der beim *Import* beigesteuert wird, steht nur in einer Sitzung in dieser Zuordnung, die dieses Modul importiert hat; das Beisteuern von Kategorien würde das Ergebnis dieses Tests also davon abhängig machen, auf welche Dateien pytest gerichtet wurde.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The illumination structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
@@ -1000,7 +1006,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The illumination keys ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the keys that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
       "source_sha256": "08f20d0c611135ba736b3864240429187a18b32becfa178faef6a9296a66bc99",
-      "translation": "Die Beleuchtungsschlüssel SIND unter einer Überschrift abgelegt -- \"Illumination Correction\" in ``spacr.settings.categories`` --, und das Measure-Panel bietet jeden von ihnen an, weil ``measure_crop`` selbst :func:`prepare_illumination_correction` aufruft und dies die Schlüssel sind, die dieser Aufruf liest. Die Überschrift wird aus dem oben genannten Grund von Hand in diese Zuordnung geschrieben: Sie muss für jeden Prozess existieren, der die Measure-Einstellungen gruppiert, nicht nur für einen, der zufällig dieses Modul importiert hat."
+      "translation": "Die Beleuchtungsschlüssel SIND unter einer Überschrift abgelegt -- \"Illumination Correction\" in ``spacr.settings.categories`` --, und das Measure-Panel bietet jeden von ihnen an, weil ``measure_crop`` selbst :func:`prepare_illumination_correction` aufruft und dies die Schlüssel sind, die dieser Aufruf liest. Die Überschrift wird aus dem oben genannten Grund von Hand in diese Zuordnung geschrieben: Sie muss für jeden Prozess existieren, der die Measure-Einstellungen gruppiert, nicht nur für einen, der zufällig dieses Modul importiert hat.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "re-register over an existing registration.",
@@ -1628,7 +1636,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":func:`register` is **not** called at import — read its docstring for why, and for the one line plus four side-table entries that finish the wiring. The screen itself is complete: build it with :func:`make_graph_builder_screen`, hand it a frame, and everything below works.",
       "source_sha256": "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae",
-      "translation": ":func:`register` wird beim Import **nicht** aufgerufen — lesen Sie seinen Docstring, um zu erfahren, warum, und für die eine Zeile plus vier Einträge in Nebentabellen, die die Verdrahtung abschließen. Die Ansicht selbst ist vollständig: Mit :func:`make_graph_builder_screen` bauen, einen Frame übergeben, und alles Folgende funktioniert."
+      "translation": ":func:`register` wird beim Import **nicht** aufgerufen — lesen Sie seinen Docstring, um zu erfahren, warum, und für die eine Zeile plus vier Einträge in Nebentabellen, die die Verdrahtung abschließen. Die Ansicht selbst ist vollständig: Mit :func:`make_graph_builder_screen` bauen, einen Frame übergeben, und alles Folgende funktioniert.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the drop zones and the canvas;",
@@ -1644,7 +1654,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data Filter, unchanged, because a filter that narrows *every* view is worth more than a private one that narrows this chart;",
       "source_sha256": "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
-      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — der lokale Datenfilter, unverändert, weil ein Filter, der *jede* Ansicht eingrenzt, mehr wert ist als ein privater, der nur dieses Diagramm eingrenzt;"
+      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — der lokale Datenfilter, unverändert, weil ein Filter, der *jede* Ansicht eingrenzt, mehr wert ist als ein privater, der nur dieses Diagramm eingrenzt;",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells in the UMAP and on the plate map, and a lasso there highlights them here.",
@@ -1668,7 +1680,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The screen goes into the app registry through :func:`spacr.qt.app.register_app` rather than through a row in the table inside ``app.py``, and its styling goes through :func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen built in parallel with five others is a new file rather than a merge conflict in two thousand-line ones.",
       "source_sha256": "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
-      "translation": "Die Ansicht gelangt über :func:`spacr.qt.app.register_app` in das App-Register statt über eine Zeile in der Tabelle in ``app.py``, und ihr Styling läuft über :func:`spacr.qt.theme.register_widget_qss`. Beide Nahtstellen existieren, damit eine parallel zu fünf anderen gebaute Ansicht eine neue Datei ist statt eines Merge-Konflikts in zwei Dateien mit Tausenden von Zeilen."
+      "translation": "Die Ansicht gelangt über :func:`spacr.qt.app.register_app` in das App-Register statt über eine Zeile in der Tabelle in ``app.py``, und ihr Styling läuft über :func:`spacr.qt.theme.register_widget_qss`. Beide Nahtstellen existieren, damit eine parallel zu fünf anderen gebaute Ansicht eine neue Datei ist statt eines Merge-Konflikts in zwei Dateien mit Tausenden von Zeilen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Apply validated labels to the working table while preserving the source.",
@@ -2823,7 +2837,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IT OPENS ON THE TOP HITS. Decision 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". The regression's results table gives the hits (:func:`spacr.well_scope._top_hits`); without one, the guides of the montage's own groups are the selection. The population box then starts on \"gRNAs + other datapoints in selected wells\", the derived wells are shown under the controls, and \"gRNAs…\" / \"selected wells…\" change either. Nothing to select starts on \"All datapoints\", so a panel with no guides still draws what it drew before.",
       "source_sha256": "2198232806abac9cd778319cf0d5c723d1a6f8b5e0389091ed635e7ac3011a2b",
-      "translation": "ÖFFNET MIT DEN TOP-TREFFERN. Entscheidung 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". Die Ergebnistabelle der Regression liefert die Treffer (:func:`spacr.well_scope._top_hits`); ohne sie sind die Guides der eigenen Gruppen der Montage die Auswahl. Das Populationsfeld beginnt dann bei \"gRNAs + other datapoints in selected wells\", die abgeleiteten Wells werden unter den Steuerelementen angezeigt, und \"gRNAs…\" / \"selected wells…\" ändern das eine oder das andere. Ohne Auswahl beginnt es bei \"All datapoints\", sodass ein Panel ohne Guides weiterhin zeichnet, was es vorher gezeichnet hat."
+      "translation": "ÖFFNET MIT DEN TOP-TREFFERN. Entscheidung 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". Die Ergebnistabelle der Regression liefert die Treffer (:func:`spacr.well_scope._top_hits`); ohne sie sind die Guides der eigenen Gruppen der Montage die Auswahl. Das Populationsfeld beginnt dann bei \"gRNAs + other datapoints in selected wells\", die abgeleiteten Wells werden unter den Steuerelementen angezeigt, und \"gRNAs…\" / \"selected wells…\" ändern das eine oder das andere. Ohne Auswahl beginnt es bei \"All datapoints\", sodass ein Panel ohne Guides weiterhin zeichnet, was es vorher gezeichnet hat.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Shared table merging workflow for Graph Builder and Data-selection boundary Editor.",

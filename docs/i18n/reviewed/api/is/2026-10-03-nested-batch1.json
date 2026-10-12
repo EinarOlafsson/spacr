@@ -385,7 +385,9 @@
       "source_sha256": "a1b53c091ffca9692af902f98bc8b69045bbe8a5447b9e16a35d12337c284fb2",
       "context": "A retry run has no watermark to advance -- the folder is already format 2 apart from the named leftovers -- so it rewrites the finished marker with a shorter ``unconverted`` list instead.",
       "translation": "Endurkeyrsla hefur ekkert vatnsborðsmerki til að færa fram -- mappan er þegar á sniði 2 fyrir utan nafngreindu afgangana -- svo hún endurskrifar í staðinn lokamerkið með styttri ``unconverted``-lista.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.crops.migrate_crop_folder._todo#0",
@@ -404,7 +406,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.curation_queue.order_items.easy_key#0",
+      "label": "spacr.curation_queue.order_items.easy_key#1",
       "source": "one field.",
       "source_sha256": "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
       "context": "one field.",
@@ -412,7 +414,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.curation_queue.order_items.easy_key#1",
+      "label": "spacr.curation_queue.order_items.easy_key#2",
       "source": "its ``easy`` sort key, populated drafts first.",
       "source_sha256": "91a61af4b01fa9e2705da488437d064fa53b668fca37534e31b4305c320b9027",
       "context": "its ``easy`` sort key, populated drafts first.",
@@ -785,7 +787,9 @@
       "source_sha256": "c4e83c9ea6fcfd27d4f4a3c274db0ca8a7eaf98255eee25714e173743276f2c0",
       "context": "The error is held-out and the selection is not. Whether a penalty predicts well is a question about unseen microplate sample positions; whether it selects anything is a question about the fit the caller will get, which is fitted on every well. Reading selection off the folds instead picked a penalty at which four fifths of the microplate sample positions kept a gene and all of them together kept none -- measured on the tsg101 screening experiment, where it chose 0.000183 and the full fit was empty.",
       "translation": "VILLAN ER MÆLD Á FRÁTEKNUM GÖGNUM EN VALIÐ EKKI. Hvort refsing spáir vel er spurning um óséða brunna; hvort hún velur yfirleitt eitthvað er spurning um ÞÁ AÐLÖGUN SEM KALLARINN FÆR, sem er aðlöguð á hverjum brunni. Að lesa valið af fellingunum í staðinn valdi refsingu þar sem fjórir fimmtu brunnanna héldu geni og allir saman héldu engu -- mælt á tsg101-skimuninni, þar sem hún valdi 0.000183 og fulla aðlögunin var tóm.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.illumination._lenient_profile_json._value#0",
@@ -1345,7 +1349,9 @@
       "source_sha256": "11b716bd27348d42ec9f8797f2b9d72d6ce2706c3e1d296823fa8ea3ed1e4034",
       "context": "Whatever JSON can hold, and a string for everything else.",
       "translation": "Það sem JSON getur geymt, og strengur fyrir allt annað.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.regression_qc.condition_number._ratio#0",
@@ -1697,7 +1703,9 @@
       "source_sha256": "5ce367b860a85b651d5d8b81c991aff07f9371ee827d5836db12627f63fdcde3",
       "context": "Refuse a missing or unset path, saying what it was needed FOR.",
       "translation": "Hafnar slóð sem vantar eða er óstillt og segir TIL HVERS hennar var þörf.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.validate._check_required_paths._require_file#1",

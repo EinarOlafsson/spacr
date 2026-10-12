@@ -1182,13 +1182,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination_correction",
-      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
-      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
-      "translation": "Estime l’éclairage inégal du microscope à partir des champs eux-mêmes et le divise des pixels à chaque étape activée. Désactivé par défaut. Activé, une même cellule a le même aspect et donne les mêmes mesures quelle que soit sa position dans le champ de vision, ce qui élimine le biais dépendant de la position à l’origine des effets de bord de plaque. Valeur par défaut : False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "surrogate_model",
       "source": "Estimator family used to reproduce CV decisions: Random Forest, histogram gradient boosting, or optional XGBoost. Missing XGBoost is refused rather than silently substituted. Default random_forest.",
       "source_sha256": "c020262b3e8021902d293a076300ab5bcd0ecfc5ec111ce3a488a90d76810458",
@@ -1592,13 +1585,6 @@
       "source": "Fraction, from 0 to 1, of the smaller label's perimeter that two touching pathogen objects must share before they are merged. The default of 0 disables perimeter-based merging. Values near 0.1 merge most touching objects, whereas values from 0.5 to 0.8 merge only objects with a long shared boundary. Use this setting to join vacuoles that Cellpose divided into multiple labels.",
       "source_sha256": "98401699283b8e04e9617c5650ca4ac27a0338ebbd2e063b63b5a8dbe2aad330",
       "translation": "Fraction, de 0 à 1, du périmètre de la plus petite étiquette que deux objets pathogènes qui se touchent doivent partager avant d’être fusionnés. La valeur par défaut 0 désactive la fusion par périmètre. Des valeurs proches de 0.1 fusionnent la plupart des objets qui se touchent, tandis que des valeurs de 0.5 à 0.8 ne fusionnent que les objets ayant une longue frontière commune. Utilisez ce paramètre pour réunir des vacuoles que Cellpose a divisées en plusieurs étiquettes."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "threshold_sensitivity",
-      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
-      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
-      "translation": "Proportion dont le seuil est déplacé vers le haut et vers le bas pour produire l’encadrement invasion_efficiency_low_threshold et _high_threshold, qui montre quelle part du résultat d’un puits tient au seuil plutôt qu’à la biologie. L’élargir élargit l’encadrement et rend le signalement d’inflation plus prompt. Valeur par défaut : 0.25."
     },
     {
       "table": "setting_tooltips",
@@ -2064,20 +2050,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination",
-      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
-      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
-      "translation": "Correction de l’éclairage / du champ plat. Estime une fois l’éclairage inégal du microscope à partir des champs d’une plaque et le divise des pixels à chaque étape activée, de sorte qu’une même cellule a le même aspect et donne les mêmes mesures quelle que soit sa position dans le champ de vision."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "file_type",
-      "source": "Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
-      "source_sha256": "698fa1e66e8e034744ce753f537985a2a2a76921adb781c60f5a82d186986022",
-      "translation": "FORMAT d’image des vignettes pré-générées, sous forme d’extension de fichier : 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' ou 'npy'. C’est un filtre de format et rien d’autre - déterminer DE QUEL OBJET provient une vignette est le rôle de path_string ; la paire peut ainsi exprimer « toutes les vignettes de noyaux, quel que soit le format » et « tous les TIFF, quel que soit l’objet », ce qu’un paramètre combiné ne pourrait jamais faire. Une ancienne valeur de la forme '<object>_png' est toujours acceptée et lue comme son extension, pour qu’un ancien fichier de paramètres continue de fonctionner. Vide accepte tout format. Valeur par défaut : 'cell_png', lu comme 'png'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "inputs",
       "source": "Image and external label-mask files or folders to import. The preview groups them by source and proposes whether each group is an intensity image, an object mask, or ignored. Default [].",
       "source_sha256": "bd4f3d7ab7c7b446fa5e306ed9d2dff0231ad5e8489281b37d22b4e0e20cb91f",
@@ -2425,13 +2397,6 @@
       "source": "Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False.",
       "source_sha256": "c2e1af61dff5c37b33bca47a6b683b34697aa2f67b6d82e3f4c14a8e85bcb831",
       "translation": "Laisse Cellpose remettre chaque image à l’échelle par 30/diameter avant la segmentation, afin que les objets arrivent à la taille attendue par le modèle. Ne le désactivez que si le diamètre est déjà correct pour le modèle. Valeur par défaut : False."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "ops_gpu",
-      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
-      "source_sha256": "332c0cde4a752a86de0702b170f368844aa7adf4eed513abc706b89a9f14271e",
-      "translation": "Permet à cette exécution d’utiliser la carte graphique lorsque spaCR en trouve une utilisable : les FFT du recalage des tuiles et les contours Cellpose ont tous deux un chemin GPU, et tous deux se rabattent d’eux-mêmes sur le CPU si la carte refuse. DÉSACTIVEZ-le lorsque la carte est occupée par une autre tâche -- un GPU partagé est le cas courant, et un manque de mémoire en plein milieu d’une plaque coûte plus que le temps gagné grâce au GPU. Valeur par défaut : True."
     },
     {
       "table": "setting_tooltips",
@@ -2813,13 +2778,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "lasso_selection_threshold",
-      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
-      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
-      "translation": "Fréquence de sélection bootstrap minimale, entre 0 et 1, pour qu’un coefficient lasso ou elastic-net soit retenu comme hit. 0.6 signifie que le gRNA a gardé un coefficient non nul dans au moins trois cinquièmes des rééchantillonnages. Augmentez-la pour une liste plus courte et plus difficile à contester ; l’abaisser sous environ 0.5 admet des termes que la pénalité écarte aussi souvent qu’elle les garde. Valeur par défaut : 0.6. Lu par regression_type 'elasticnet', 'group_lasso', 'lasso'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cells_per_well",
       "source": "Minimum cells a well must contribute to survive recruitment analysis; wells below it, and every cell in them, are dropped before the by-well plots and CSVs are produced. Raise it to suppress noisy, sparsely populated wells at the cost of losing those wells. Default 0, which keeps every well.",
       "source_sha256": "88055d03a32213f34ca46291a142b7d16dddc4689d5b7a3ab47f6689297a316b",
@@ -2971,20 +2929,6 @@
       "source": "Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
       "source_sha256": "77cf66911bed70b5d009006312bd6888bbec98dcdbb1ccd07a4d8dc7dd6b5bb9",
       "translation": "Nom de la colonne de score_data modélisée comme réponse, p. ex. 'pred'/'predictions' de l’étape de scoring ML ou une caractéristique mesurée comme 'pathogen_nucleus_shortest_distance'. Elle est agrégée par puits selon agg_type puis éventuellement transformée. L’exécution s’interrompt si la colonne est absente du CSV de scores. Valeur par défaut : 'pred'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "count_grna_column",
-      "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
-      "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
-      "translation": "Nom de la colonne du CSV de comptages contenant l’identifiant du guide. Les versions antérieures exigeaient le nom 'grna' et refusaient les fichiers utilisant d’autres noms comme 'sgRNA' ou 'guide'. Indiquez la colonne produite par le pipeline de séquençage. Valeur par défaut : 'grna'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "count_value_column",
-      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
-      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
-      "translation": "Nom de la colonne du CSV de comptages contenant le nombre de lectures d’un guide dans un puits ; elle devient la fraction par puits sur laquelle porte le balayage de fraction_threshold. Ce nom était jusqu’ici codé en dur à 'count', de sorte qu’un fichier l’appelant 'reads' ou 'n' échouait avec un message ne citant que les colonnes attendues par spaCR. Valeur par défaut : 'count'."
     },
     {
       "table": "setting_tooltips",
@@ -3160,13 +3104,6 @@
       "source": "Number of inner grouped folds used inside every outer CV fold. 0 (default) keeps the faster ordinary grouped CV; 2 or more trains one inner model per fold, uses inner validation for early stopping/model selection, ensembles those models, and evaluates only once on the untouched outer fold. Runtime is approximately outer_folds x inner_folds training runs, but the outer score is not reused for tuning. API: spacr.classifier_evaluation.nested_group_folds.",
       "source_sha256": "1e4e2a81604f7793ea2ceea3135446352bd3ad524e38ab69aa95453bf11de492",
       "translation": "Nombre de plis groupés internes utilisés dans chaque pli CV externe. 0 (par défaut) conserve la validation croisée groupée ordinaire, plus rapide ; 2 ou plus entraîne un modèle interne par pli, utilise la validation interne pour l’arrêt précoce et la sélection de modèle, combine ces modèles en ensemble et n’évalue qu’une seule fois sur le pli externe intact. Le temps d’exécution correspond à environ outer_folds x inner_folds entraînements, mais le score externe n’est pas réutilisé pour le réglage. API : spacr.classifier_evaluation.nested_group_folds."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cross_validation_folds",
-      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
-      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
-      "translation": "Nombre de partitions k-fold utilisées pour entraîner le classificateur d’images au lieu d’une seule mise de côté val_split. 0 (la valeur par défaut) ou 1 utilise une seule partition aléatoire ; 2 ou plus entraîne un modèle distinct par pli, évalue chaque modèle sur son pli mis de côté et indique la moyenne, l’écart type entre plis et l’étendue. Ces statistiques quantifient la sensibilité au partitionnement des données. Le temps d’exécution est à peu près proportionnel à k. Distinct de 'cross_validation', qui contrôle le pipeline de régression."
     },
     {
       "table": "setting_tooltips",
@@ -3569,13 +3506,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "group_lasso_lambda",
-      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
-      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
-      "translation": "Poids de pénalité du group lasso, qui réduit ensemble tous les guides d’un même gène plutôt qu’un par un, de sorte qu’un gène entre dans le modèle ou en sort en bloc plutôt que grâce à son guide le plus chanceux. Des valeurs plus grandes conservent moins de gènes ; 0 laisse l’ajustement sans pénalité et une valeur négative est refusée. Indiquez auto pour le choisir par validation croisée. Valeur par défaut : auto. Lu par regression_type 'group_lasso'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "infection_xgb_min_cells_per_class",
       "source": "Per well, how many intensity-extreme examples each class must reach before that well's training data are balanced by subsampling to the smaller class; wells that have both classes but fewer examples contribute all of theirs, unbalanced. Wells with only one class are skipped entirely. No well is ever excluded for being small, so raising it leaves more wells unbalanced and the training set more skewed - lower it towards 1 to force balancing in every usable well. Default 10.",
       "source_sha256": "7faab303881689b626892f01779b000ff6d3fc4a48c045b538450d4ff85368bc",
@@ -3671,13 +3601,6 @@
       "source": "Pixel offsets used to build each object's grey-level co-occurrence matrix; every entry adds one homogeneity_distance_<d> feature per channel. Small offsets capture fine-grained texture, large ones capture coarse structure, and offsets larger than the object itself carry no signal. More entries means more features and slower measurement. Default [8, 16, 32].",
       "source_sha256": "6fd9a61848bed586026b239e1a3e068937314369cee0a865f69d72ff9674fe50",
       "translation": "Décalages en pixels utilisés pour construire la matrice de cooccurrence des niveaux de gris de chaque objet ; chaque entrée ajoute une caractéristique homogeneity_distance_<d> par canal. De petits décalages captent la texture fine, de grands la structure grossière, et des décalages plus grands que l’objet lui-même n’apportent aucun signal. Plus d’entrées signifient plus de caractéristiques et une mesure plus lente. Valeur par défaut : [8, 16, 32]."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "resnet_features",
-      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
-      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
-      "translation": "Espace réservé pour intégrer les vignettes brutes avec des caractéristiques ResNet au lieu de la table des caractéristiques mesurées. La branche dans generate_image_umap est un simple pass vide : l’activer saute entièrement l’étape d’embedding, puis l’exécution échoue sur une variable 'embedding' non définie. Laissez-le à False. Valeur par défaut : False."
     },
     {
       "table": "setting_tooltips",
@@ -3923,13 +3846,6 @@
       "source": "PyTables compression library used when writing annotated_reads.h5, passed to pandas HDFStore as complib: 'zlib', 'lzo', 'bzip2' or 'blosc'. 'blosc' is far faster at similar file size, 'bzip2' is smallest but slowest. Ignored entirely when save_h5 is False. Default 'zlib'.",
       "source_sha256": "cf6a7f1590943fff70307e3accca31b3ef06bcf10271d43545ca07a833694162",
       "translation": "Bibliothèque de compression PyTables utilisée pour écrire annotated_reads.h5, transmise à HDFStore de pandas comme complib : 'zlib', 'lzo', 'bzip2' ou 'blosc'. 'blosc' est bien plus rapide pour une taille de fichier similaire, 'bzip2' est le plus compact mais le plus lent. Entièrement ignoré lorsque save_h5 est False. Valeur par défaut : 'zlib'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "optimizer_type",
-      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
-      "source_sha256": "f4d3a737f9eb6e8480107790f12a3cf1ba3e2689b6ee286ecfbb4afd4795e41a",
-      "translation": "Optimiseur PyTorch utilisé par deep_spacr.train_model : 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' ou 'asgd'. AdamW est le choix par défaut robuste pour l’affinage ; SGD peut mieux généraliser mais demande généralement plus d’époques. amsgrad ne s’applique qu’à Adam/AdamW. API : spacr.deep_spacr.train_model(optimizer_type=...). Valeur par défaut : 'adamw'."
     },
     {
       "table": "setting_tooltips",
@@ -4423,13 +4339,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cross_validation",
-      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
-      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
-      "translation": "Évalue le classificateur par validation croisée stratifiée à 5 plis au lieu d’une seule séparation train/test, de sorte que chaque objet de contrôle reçoit une prédiction hors pli et qu’un seuil de probabilité optimal est choisi par pli. Donne une estimation de l’exactitude bien plus stable sur de petits ensembles de contrôles, pour environ 5x le temps d’entraînement. Valeur par défaut : True."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "frame_interval_s",
       "source": "Seconds between consecutive timepoints, obtained from the acquisition metadata. It converts frame indices into physical time in the tracks table and displacement per frame into speed. It does not affect object linking, so an incorrect value rescales reported velocities without changing track identities. None uses the motility module's seconds_per_frame setting. Default None.",
       "source_sha256": "b567b44210fd3edc4e206dadb52e26dc2a51643dddb48619fe609c8c50f9c6f3",
@@ -4833,13 +4742,6 @@
       "source": "Start from randomly initialised weights instead of fine-tuning the pretrained model. Keep this disabled unless the training set contains enough images to fit a model without pretrained weights; fine-tuning may require tens of images, whereas training from scratch commonly requires thousands. Default False.",
       "source_sha256": "2c05cadf408ef6fbf44f5cd5b02f47398e011297e4bac29a3362c2c3d167325d",
       "translation": "Démarre à partir de poids initialisés aléatoirement au lieu d’affiner le modèle pré-entraîné. Gardez-le désactivé sauf si l’ensemble d’entraînement contient assez d’images pour ajuster un modèle sans poids pré-entraînés ; l’affinage peut demander quelques dizaines d’images, alors qu’un entraînement à partir de zéro en demande couramment des milliers. Valeur par défaut : False."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "init_weights",
-      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
-      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
-      "translation": "Démarre l’architecture de base à partir de poids pré-entraînés sur ImageNet au lieu d’une initialisation aléatoire ; la tête de classificateur spaCR ajoutée par-dessus est initialisée aléatoirement dans les deux cas. Laissez-le activé - l’apprentissage par transfert converge en bien moins d’époques sur les petits ensembles annotés typiques ici. Ne le désactivez que pour entraîner à partir de zéro sur un très grand jeu de données, ou pour mesurer l’apport du pré-entraînement. Valeur par défaut : True."
     },
     {
       "table": "setting_tooltips",
@@ -5270,13 +5172,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "mixed_control_wells",
-      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
-      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
-      "translation": "Puits contenant un mélange connu des contrôles positif et négatif, p. ex. ['c3']. Retirés de la régression comme les deux autres. Ils fournissent une validation solide, car les identités par cellule sont inconnues alors que les proportions globales sont connues par séquençage, ce qui permet d’évaluer les méthodes d’annotation sur de vraies cellules plutôt que sur des cellules simulées. Valeur par défaut : None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cell_plate_metadata",
       "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
       "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
@@ -5400,13 +5295,6 @@
       "source": "Whether to generate masks for the segmented objects. If True, masks will be generated for the nucleus, cell, and pathogen.",
       "source_sha256": "df1546fc22935ad9d30f1c3bf4549814377a45de9c86aec2195dbbf249821af3",
       "translation": "Indique s’il faut générer des masques pour les objets segmentés. Si True, des masques sont générés pour le noyau, la cellule et le pathogène."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "classifier_family",
-      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
-      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
-      "translation": "Classificateur exécuté par le module Classify fusionné : 'cv' entraîne un modèle Torch sur les vignettes d’objets, 'ml' ajuste un modèle à gradient boosting sur les caractéristiques mesurées. Les paramètres utilisés par l’autre famille sont grisés, pas masqués - ils conservent leurs valeurs. C’est le seul écran Classify ; les deux qu’il a remplacés ont été supprimés le 2026-08-23, et leurs points d’entrée (spacr.deep_spacr.deep_spacr et spacr.ml.generate_ml_scores) sont ceux vers lesquels il délègue sans modification. Valeur par défaut : 'cv'."
     },
     {
       "table": "setting_tooltips",
@@ -5724,6 +5612,134 @@
       "source": "Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
       "source_sha256": "c078df80a8cee843b971f73018f1a6559614cf90edef09f721667c966909c509",
       "translation": "Échelle de réponse à ajuster lorsque transform est lui-même une fonction de lien ('log' ou 'logit') et que la famille GLM choisie automatiquement a aussi un lien non identité. 'untransformed' ajuste la réponse mesurée et laisse le lien de la famille la transformer ; utilisez-le pour une proportion qui a été inutilement transformée au préalable. 'transformed' conserve la réponse transformée et ajuste un modèle gaussien à lien identité. 'warn' reproduit l’ancien comportement de double transformation et affiche un avertissement. Ce paramètre est sans effet pour les autres transformations ou types de régression. Valeur par défaut : 'untransformed'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_correction",
+      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
+      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
+      "translation": "Estime l’éclairage inégal du microscope à partir des champs eux-mêmes et le divise des pixels à chaque étape activée. Désactivé par défaut. Activé, une même cellule a le même aspect et donne les mêmes mesures quelle que soit sa position dans le champ de vision, ce qui élimine le biais dépendant de la position à l’origine des effets de bord de plaque. Valeur par défaut : False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "threshold_sensitivity",
+      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
+      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
+      "translation": "Proportion dont le seuil est déplacé vers le haut et vers le bas pour produire l’encadrement invasion_efficiency_low_threshold et _high_threshold, qui montre quelle part du résultat d’un puits tient au seuil plutôt qu’à la biologie. L’élargir élargit l’encadrement et rend le signalement d’inflation plus prompt. Valeur par défaut : 0.25.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination",
+      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
+      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
+      "translation": "Correction de l’éclairage / du champ plat. Estime une fois l’éclairage inégal du microscope à partir des champs d’une plaque et le divise des pixels à chaque étape activée, de sorte qu’une même cellule a le même aspect et donne les mêmes mesures quelle que soit sa position dans le champ de vision.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "file_type",
+      "source": "Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
+      "source_sha256": "698fa1e66e8e034744ce753f537985a2a2a76921adb781c60f5a82d186986022",
+      "translation": "FORMAT d’image des vignettes pré-générées, sous forme d’extension de fichier : 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' ou 'npy'. C’est un filtre de format et rien d’autre - déterminer DE QUEL OBJET provient une vignette est le rôle de path_string ; la paire peut ainsi exprimer « toutes les vignettes de noyaux, quel que soit le format » et « tous les TIFF, quel que soit l’objet », ce qu’un paramètre combiné ne pourrait jamais faire. Une ancienne valeur de la forme '<object>_png' est toujours acceptée et lue comme son extension, pour qu’un ancien fichier de paramètres continue de fonctionner. Vide accepte tout format. Valeur par défaut : 'cell_png', lu comme 'png'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_gpu",
+      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
+      "source_sha256": "332c0cde4a752a86de0702b170f368844aa7adf4eed513abc706b89a9f14271e",
+      "translation": "Permet à cette exécution d’utiliser la carte graphique lorsque spaCR en trouve une utilisable : les FFT du recalage des tuiles et les contours Cellpose ont tous deux un chemin GPU, et tous deux se rabattent d’eux-mêmes sur le CPU si la carte refuse. DÉSACTIVEZ-le lorsque la carte est occupée par une autre tâche -- un GPU partagé est le cas courant, et un manque de mémoire en plein milieu d’une plaque coûte plus que le temps gagné grâce au GPU. Valeur par défaut : True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "lasso_selection_threshold",
+      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
+      "translation": "Fréquence de sélection bootstrap minimale, entre 0 et 1, pour qu’un coefficient lasso ou elastic-net soit retenu comme hit. 0.6 signifie que le gRNA a gardé un coefficient non nul dans au moins trois cinquièmes des rééchantillonnages. Augmentez-la pour une liste plus courte et plus difficile à contester ; l’abaisser sous environ 0.5 admet des termes que la pénalité écarte aussi souvent qu’elle les garde. Valeur par défaut : 0.6. Lu par regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_grna_column",
+      "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+      "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
+      "translation": "Nom de la colonne du CSV de comptages contenant l’identifiant du guide. Les versions antérieures exigeaient le nom 'grna' et refusaient les fichiers utilisant d’autres noms comme 'sgRNA' ou 'guide'. Indiquez la colonne produite par le pipeline de séquençage. Valeur par défaut : 'grna'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_value_column",
+      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
+      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
+      "translation": "Nom de la colonne du CSV de comptages contenant le nombre de lectures d’un guide dans un puits ; elle devient la fraction par puits sur laquelle porte le balayage de fraction_threshold. Ce nom était jusqu’ici codé en dur à 'count', de sorte qu’un fichier l’appelant 'reads' ou 'n' échouait avec un message ne citant que les colonnes attendues par spaCR. Valeur par défaut : 'count'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation_folds",
+      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
+      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
+      "translation": "Nombre de partitions k-fold utilisées pour entraîner le classificateur d’images au lieu d’une seule mise de côté val_split. 0 (la valeur par défaut) ou 1 utilise une seule partition aléatoire ; 2 ou plus entraîne un modèle distinct par pli, évalue chaque modèle sur son pli mis de côté et indique la moyenne, l’écart type entre plis et l’étendue. Ces statistiques quantifient la sensibilité au partitionnement des données. Le temps d’exécution est à peu près proportionnel à k. Distinct de 'cross_validation', qui contrôle le pipeline de régression.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "group_lasso_lambda",
+      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
+      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
+      "translation": "Poids de pénalité du group lasso, qui réduit ensemble tous les guides d’un même gène plutôt qu’un par un, de sorte qu’un gène entre dans le modèle ou en sort en bloc plutôt que grâce à son guide le plus chanceux. Des valeurs plus grandes conservent moins de gènes ; 0 laisse l’ajustement sans pénalité et une valeur négative est refusée. Indiquez auto pour le choisir par validation croisée. Valeur par défaut : auto. Lu par regression_type 'group_lasso'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "resnet_features",
+      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
+      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
+      "translation": "Espace réservé pour intégrer les vignettes brutes avec des caractéristiques ResNet au lieu de la table des caractéristiques mesurées. La branche dans generate_image_umap est un simple pass vide : l’activer saute entièrement l’étape d’embedding, puis l’exécution échoue sur une variable 'embedding' non définie. Laissez-le à False. Valeur par défaut : False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "optimizer_type",
+      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+      "source_sha256": "f4d3a737f9eb6e8480107790f12a3cf1ba3e2689b6ee286ecfbb4afd4795e41a",
+      "translation": "Optimiseur PyTorch utilisé par deep_spacr.train_model : 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' ou 'asgd'. AdamW est le choix par défaut robuste pour l’affinage ; SGD peut mieux généraliser mais demande généralement plus d’époques. amsgrad ne s’applique qu’à Adam/AdamW. API : spacr.deep_spacr.train_model(optimizer_type=...). Valeur par défaut : 'adamw'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation",
+      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
+      "translation": "Évalue le classificateur par validation croisée stratifiée à 5 plis au lieu d’une seule séparation train/test, de sorte que chaque objet de contrôle reçoit une prédiction hors pli et qu’un seuil de probabilité optimal est choisi par pli. Donne une estimation de l’exactitude bien plus stable sur de petits ensembles de contrôles, pour environ 5x le temps d’entraînement. Valeur par défaut : True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "init_weights",
+      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
+      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
+      "translation": "Démarre l’architecture de base à partir de poids pré-entraînés sur ImageNet au lieu d’une initialisation aléatoire ; la tête de classificateur spaCR ajoutée par-dessus est initialisée aléatoirement dans les deux cas. Laissez-le activé - l’apprentissage par transfert converge en bien moins d’époques sur les petits ensembles annotés typiques ici. Ne le désactivez que pour entraîner à partir de zéro sur un très grand jeu de données, ou pour mesurer l’apport du pré-entraînement. Valeur par défaut : True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mixed_control_wells",
+      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
+      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
+      "translation": "Puits contenant un mélange connu des contrôles positif et négatif, p. ex. ['c3']. Retirés de la régression comme les deux autres. Ils fournissent une validation solide, car les identités par cellule sont inconnues alors que les proportions globales sont connues par séquençage, ce qui permet d’évaluer les méthodes d’annotation sur de vraies cellules plutôt que sur des cellules simulées. Valeur par défaut : None.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "classifier_family",
+      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
+      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
+      "translation": "Classificateur exécuté par le module Classify fusionné : 'cv' entraîne un modèle Torch sur les vignettes d’objets, 'ml' ajuste un modèle à gradient boosting sur les caractéristiques mesurées. Les paramètres utilisés par l’autre famille sont grisés, pas masqués - ils conservent leurs valeurs. C’est le seul écran Classify ; les deux qu’il a remplacés ont été supprimés le 2026-08-23, et leurs points d’entrée (spacr.deep_spacr.deep_spacr et spacr.ml.generate_ml_scores) sont ceux vers lesquels il délègue sans modification. Valeur par défaut : 'cv'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load."

@@ -552,14 +552,18 @@
       "source_sha256": "bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699",
       "source": "Fit every level the run asked for, SEPARATELY, and return one per level.",
       "context": "Fit every level the run asked for, SEPARATELY, and return one per level.",
-      "translation": "分别拟合运行所请求的每个层级，并为每个层级返回一项。"
+      "translation": "分别拟合运行所请求的每个层级，并为每个层级返回一项。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#1",
       "source_sha256": "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
       "source": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "context": "This is the two-fit entry point, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
-      "translation": "这是双拟合入口点；其存在是因为 spaCR 过去试图拟合的单一设计根本无法拟合。``gene_fraction`` 是该基因各 gRNA 比例的 SUM，因此"
+      "translation": "这是双拟合入口点；其存在是因为 spaCR 过去试图拟合的单一设计根本无法拟合。``gene_fraction`` 是该基因各 gRNA 比例的 SUM，因此",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#2",
@@ -573,21 +577,27 @@
       "source_sha256": "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
       "source": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
       "context": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
-      "translation": "会把一组列及其各自的和放进同一个设计矩阵。在参考 TSG101 筛选中测得：1248 个参数、秩 862 -- 一个 386 维的 EXACT 零空间 --；statsmodels 返回的拟合，其残差平方和与给它加上七倍零向量后所得结果逐位完全相同。参见 :data:`COLLINEAR_FORMULA_FRAGMENT`。"
+      "translation": "会把一组列及其各自的和放进同一个设计矩阵。在参考 TSG101 筛选中测得：1248 个参数、秩 862 -- 一个 386 维的 EXACT 零空间 --；statsmodels 返回的拟合，其残差平方和与给它加上七倍零向量后所得结果逐位完全相同。参见 :data:`COLLINEAR_FORMULA_FRAGMENT`。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#4",
       "source_sha256": "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
       "source": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "context": "Two fits, two tables, two corrections. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
-      "translation": "两次拟合、两张表、两次校正。每次拟合各自构成一个多重检验族，并在族内校正。把它们合并会错上加错：二者并不独立 -- 使用相同孔位，而且基因回归量就是引导回归量之和 --；此外，族大小翻倍只会损失检验效能，却不增加保护。:func:`perform_regression` 按层级应用校正并写入 ``results_grna.csv`` 和 ``results_gene.csv``。"
+      "translation": "两次拟合、两张表、两次校正。每次拟合各自构成一个多重检验族，并在族内校正。把它们合并会错上加错：二者并不独立 -- 使用相同孔位，而且基因回归量就是引导回归量之和 --；此外，族大小翻倍只会损失检验效能，却不增加保护。:func:`perform_regression` 按层级应用校正并写入 ``results_grna.csv`` 和 ``results_gene.csv``。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#5",
       "source_sha256": "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
       "source": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
       "context": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
-      "translation": "``regression_type='mixed'`` 只拟合一次，并返回一个条目 ``'gene'``：该模型已同时包含两个层级，基因是固定效应，引导是嵌套在基因内的随机效应。其引导输出是 BLUPs，因此不能拆成两个检验族。"
+      "translation": "``regression_type='mixed'`` 只拟合一次，并返回一个条目 ``'gene'``：该模型已同时包含两个层级，基因是固定效应，引导是嵌套在基因内的随机效应。其引导输出是 BLUPs，因此不能拆成两个检验族。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#8",
@@ -603,7 +613,9 @@
       "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
       "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
       "translation": "运行文件夹。若拟合多于一次，每个层级的图形写入 ``<dst>/<level>/`` 以免相互覆盖；表仍保存在 ``<dst>``，所有使用者都在那里查找。",
-      "rebound_from": "spacr.ml.regression_levels#7"
+      "rebound_from": "spacr.ml.regression_levels#7",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#10",
@@ -648,7 +660,9 @@
       "source_sha256": "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
       "source": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed wells; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
       "context": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed microplate sample positions; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
-      "translation": "这不是假设情形。编写此代码所针对的筛选有 824 个引导序列 和 587 个已分析孔位；已发表拟合有 825 个参数、秩 579 和 8 个残差自由度，而重新拟合无法重现其自身系数。"
+      "translation": "这不是假设情形。编写此代码所针对的筛选有 824 个引导序列 和 587 个已分析孔位；已发表拟合有 825 个参数、秩 579 和 8 个残差自由度，而重新拟合无法重现其自身系数。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.resolve_auto_inference#3",
@@ -677,7 +691,9 @@
       "source_sha256": "9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde",
       "source": "What a run's results folder is NAMED after.",
       "context": "What a processing session's results folder is NAMED after.",
-      "translation": "运行结果文件夹的命名依据。"
+      "translation": "运行结果文件夹的命名依据。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.results_folder_kind#1",
@@ -691,7 +707,9 @@
       "source_sha256": "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8",
       "source": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "context": "PUBLIC, and the only copy. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
-      "translation": "公开且仅此一份。某项测试重新推导了此规则；规则变化后，该测试变得陈旧，报告缺少 39 个 CSV，尽管所有写出它们的运行都正常。这正是 tests/test_cov_ml_perform_regression.py 中的 `results_dir` 辅助函数早已用于防止的失败。指向错误文件的测试套件比沉默的测试套件更糟。"
+      "translation": "公开且仅此一份。某项测试重新推导了此规则；规则变化后，该测试变得陈旧，报告缺少 39 个 CSV，尽管所有写出它们的运行都正常。这正是 tests/test_cov_ml_perform_regression.py 中的 `results_dir` 辅助函数早已用于防止的失败。指向错误文件的测试套件比沉默的测试套件更糟。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.screen_is_blockable#0",
@@ -822,14 +840,18 @@
       "source_sha256": "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
       "source": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
       "context": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
-      "translation": "选择分位数回归时自动将 ``agg_type`` 切换为 None，使 ``alpha`` 被视为分位数。"
+      "translation": "选择分位数回归时自动将 ``agg_type`` 切换为 None，使 ``alpha`` 被视为分位数。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#2",
       "source_sha256": "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
       "source": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.",
       "context": "Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a processing session that had started cleanly.",
-      "translation": "这里会填充 :func:`spacr.ml.perform_regression` 通过 ``settings[...]`` 读取的每个键。此前有六个键未填充；两个调度入口（Qt 面板通过 ``qt.screens.settings_model.resolve_default_settings``，``spacr-run regression`` 通过 ``cli.module_defaults``）都从此函数构建字典，因此过去无法从任何入口启动回归：程序在 ml.py:1409 因 ``KeyError: 'verbose'`` 终止；此时两个输入 CSV 已读取，``settings/regression.csv`` 已写入，使该失败看起来像一次正常启动的运行。"
+      "translation": "这里会填充 :func:`spacr.ml.perform_regression` 通过 ``settings[...]`` 读取的每个键。此前有六个键未填充；两个调度入口（Qt 面板通过 ``qt.screens.settings_model.resolve_default_settings``，``spacr-run regression`` 通过 ``cli.module_defaults``）都从此函数构建字典，因此过去无法从任何入口启动回归：程序在 ml.py:1409 因 ``KeyError: 'verbose'`` 终止；此时两个输入 CSV 已读取，``settings/regression.csv`` 已写入，使该失败看起来像一次正常启动的运行。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#3",

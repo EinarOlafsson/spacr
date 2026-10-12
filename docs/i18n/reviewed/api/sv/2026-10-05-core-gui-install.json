@@ -15,7 +15,9 @@
       "source_sha256": "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
       "context": "**A broken GUI dependency install.** PySide6 ships with the core package, but a missing or incomplete wheel can still make the ``spacr`` command fail on import. :mod:`spacr.qt` has a friendly path for that; :func:`check_qt_extra` reuses its logic so the two cannot drift.",
       "translation": "**En trasig installation av GUI-beroenden.** PySide6 ingår i grundpaketet, men en saknad eller ofullständig wheel kan fortfarande få kommandot ``spacr`` att misslyckas vid import. :mod:`spacr.qt` hanterar detta med ett begripligt felmeddelande; :func:`check_qt_extra` återanvänder samma logik så att de inte kan skilja sig åt.",
-      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.doctor.check_qt_extra#0",
@@ -23,7 +25,9 @@
       "source_sha256": "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
       "context": "The GUI dependencies import in this interpreter.",
       "translation": "GUI-beroendena kan importeras i denna tolk.",
-      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.doctor.check_qt_extra#1",

@@ -712,7 +712,9 @@
       "source_sha256": "c0e1314bfb7b71ce15b026328020d1b228e2d98f300b7a05268605042a2de2d9",
       "context": "Why it once read nothing at all. This module was written as the safe successor to a reader that merged blind, and then could not replace it, because three things it did not do are three things the published pack needs:",
       "translation": "HVERS VEGNA ÞAÐ LAS EINU SINNI ALLS EKKERT. Þessi eining var skrifuð sem öruggur arftaki lesara sem sameinaði í blindni, og gat síðan ekki komið í stað hans, því þrennt sem hún gerði ekki er þrennt sem birti pakkinn þarf:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.settings_pack.read_pack#2",
@@ -800,7 +802,9 @@
       "source_sha256": "caf5f1a0a3722398eeb6e30b294f71f6e51e63f49d05e2650f2bbd3d8cced7cc",
       "context": "What a help-search result needs, and it is deliberately NOT the search filter. Typing the structured-data name into the box above would hide every other setting as well, so a user who arrived from the Help search and then wanted to look at the neighbouring rows would first have to work out what had happened to the form. Revealing instead leaves the module whole and only decides which heading is open.",
       "translation": "ÞAÐ SEM NIÐURSTAÐA ÚR HJÁLPARLEIT ÞARF, og það er viljandi EKKI leitarsían. Að slá lykilinn inn í reitinn hér að ofan myndi líka fela hverja aðra stillingu, svo notandi sem kom úr Help-leitinni og vildi síðan skoða nærliggjandi raðir þyrfti fyrst að finna út hvað hefði orðið um formið. Birting lætur í staðinn eininguna vera heila og ákveður aðeins hvaða fyrirsögn er opin.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#2",
@@ -816,7 +820,9 @@
       "source_sha256": "b1f48766f0fbd038206a6566ba41e8d82d9249b242a80e86819145697f07ad1e",
       "context": "The disclosure level is changed only if it has to be, and the change is never remembered. Switching to All settings unconditionally would work, and it would also rewrite this module's remembered Essentials/All choice every time anybody arrived here -- a setting the user chose, changed as a side effect of looking something up. So the filter is cleared first and the level is raised only when the row is still not on the form afterwards, which is exactly the case where Essentials is what is hiding it; and the raise goes through :meth:`_show_all_without_remembering`, so the form shows the row while the store still holds the level the user picked. Most settings are not essentials, so a lookup that persisted the raise would move almost every module out of Essentials for good.",
       "translation": "BIRTINGARSTIGINU ER AÐEINS BREYTT EF ÞAÐ ÞARF, OG BREYTINGIN ER ALDREI MUNUÐ. Að skipta skilyrðislaust yfir í All settings myndi virka, og það myndi líka endurskrifa munað Essentials/All-val þessarar einingar í hvert sinn sem einhver kæmi hingað -- stilling sem notandinn valdi, breytt sem aukaverkun þess að fletta einhverju upp. Sían er því hreinsuð fyrst og stigið aðeins hækkað þegar röðin er enn ekki á forminu á eftir, sem er einmitt tilvikið þar sem Essentials er það sem felur hana; og hækkunin fer í gegnum :meth:`_show_all_without_remembering`, svo formið sýnir röðina á meðan geymslan heldur enn stiginu sem notandinn valdi. Flestar stillingar eru ekki nauðsynlegar, svo uppfletting sem vistaði hækkunina myndi færa nánast hverja einingu út úr Essentials til frambúðar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#5",
@@ -1080,7 +1086,9 @@
       "source_sha256": "5894e2c5a68f3a935e9201e73e95722d2ad7b83a30292ff844e37a77fcd99aae",
       "context": "**Qt Multimedia is touched only on the main GUI execution path.** :class:`_SoundPlayer` owns ``QMediaDevices`` and every ``QSoundEffect`` and lives where the application's event loop does; the dedicated ``QThread`` keeps the part that is genuinely slow, which is synthesizing a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing from Qt Multimedia). Connecting to the sound server is slow -- 354 ms measured on a PipeWire workstation -- so it is paid ONCE, on an idle timer after sound is switched on (:meth:`SoundEngine._warm`), and logged rather than felt. Playing an already loaded sound is ``play()``, which returns at once: 0.007-0.014 ms on the main GUI execution path against the real stack.",
       "translation": "**Qt Multimedia er aðeins snert á GUI-þræðinum.** :class:`_SoundPlayer` á ``QMediaDevices`` og hvert ``QSoundEffect`` og býr þar sem atburðalykkja forritsins er; sérstaki ``QThread`` heldur þeim hluta sem er raunverulega hægur, sem er gerving hljóðasafns (:class:`_SoundRenderer`, numpy og skrifun skráa, ekkert úr Qt Multimedia). Tenging við hljóðþjóninn er hæg -- 354 ms mælt á PipeWire-vinnustöð -- svo hún er greidd EINU SINNI, á aðgerðaleysistímamæli eftir að kveikt er á hljóði (:meth:`SoundEngine._warm`), og skráð í annál frekar en að hennar verði vart. Spilun hljóðs sem þegar er hlaðið er ``play()``, sem skilar strax: 0.007-0.014 ms á GUI-þræðinum á móti raunverulega staflanum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound#5",
@@ -1088,7 +1096,9 @@
       "source_sha256": "f4f938216c7727a2323e65b18b1d3f5e9e756a30d023062d76691118c5993865",
       "context": "This rule is written in a crash. Building the effects on the audio independent execution path instead does move the connection off the main GUI execution path -- but Qt Multimedia's device handling belongs to the independent execution path that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong independent execution path. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
       "translation": "Þessi regla er skrifuð í hruni. Að byggja áhrifin á hljóðþræðinum í staðinn færir vissulega tenginguna af GUI-þræðinum -- en tækjameðhöndlun Qt Multimedia tilheyrir þræðinum sem á atburðalykkjuna, svo með FFmpeg-bakendanum virkjar hún innstunguvakta frá röngum þræði. Að opna Preferences aftur með kveikt á hljóði veldur þá minnisvilluhruni, eða frystir viðmótið með tómum Preferences-ramma þar til það er þvingað til að hætta.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound#6",
@@ -1112,7 +1122,9 @@
       "source_sha256": "7e0e303e178008d3c7df5826ca96692e5f005d021f6af384f96c38ec399729b7",
       "context": "Application-wide filter that hears presses and hovers on controls.",
       "translation": "Sía fyrir allt forritið sem heyrir ýtingar og bendilsyfirstöður á stýringum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound.InputSoundFilter#1",
@@ -1328,7 +1340,9 @@
       "source_sha256": "f145cbeda408be3532c769734f41dbfa06a3ee942c1dfc61addd22094a4361bf",
       "context": "Plays whatever the stored switches say: the dialog enables Preview only while its own master switch is on, and the press is the ask.",
       "translation": "Spilar hvað sem vistuðu rofarnir segja: glugginn virkjar Preview aðeins á meðan eigin aðalrofi hans er virkur, og ýtingin er beiðnin.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound.SoundEngine.preview#2",
@@ -1488,7 +1502,9 @@
       "source_sha256": "67bef7c78099f3a95c81f27c54795b9c446ac630417b7dab8477b2a16051a155",
       "context": "a WAV of the user's own to play as the bed instead of the synthesized one. Empty means spaCR's own. It is also what the Resonance backdrop is driven by, because the backdrop follows whatever is playing and there is only ever one thing.",
       "translation": "eigin WAV-skrá notandans til að spila sem undirlag í stað þess gervða. Tómt þýðir eigið undirlag spaCR. Það er líka það sem knýr Resonance-bakgrunninn, því bakgrunnurinn fylgir ÞVÍ SEM ER AÐ SPILAST og það er aldrei nema eitt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound.SoundSettings.gain#0",
@@ -3556,7 +3572,9 @@
       "source_sha256": "fd35fd0958c30a1060b1956ca0bdb828edf722ea42804a7e4c30d1db76bb1e84",
       "context": "Qt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most styles set to about 700 ms and which nothing in spaCR was choosing. Tooltips therefore arrived while the pointer was still travelling, and left the instant it moved off the widget -- too fast to read, and impossible to reach if the text ran long.",
       "translation": "Eigið svar Qt er stílvísbending, ``SH_ToolTip_WakeUpDelay``, sem flestir stílar stilla á um 700 ms og sem ekkert í spaCR var að velja. Verkfæraábendingar birtust því á meðan bendillinn var enn á ferð, og fóru um leið og hann færðist af græjunni -- of hratt til að lesa, og ómögulegt að ná til ef textinn var langur.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.tooltip_policy#10",
@@ -3564,7 +3582,9 @@
       "source_sha256": "38a34a85d3d3beaefeaabfe003d3fa229831a51e83d66bc280edbd0549b6cd5d",
       "context": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is sent again after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
       "translation": "Tafla, haus eða listi svarar út frá ``Qt::ToolTipRole`` innan eigin ``event``, ekki út frá ``toolTip()`` sem nokkur sía getur lesið. Þegar ekkert í foreldrakeðjunni hefur verkfæraábendingu er atburðurinn SENDUR AFTUR eftir biðina, þar sem sían stígur til hliðar, svo þær birtast samt -- og birtast samkvæmt sömu tveggja sekúndna reglu og allt annað.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.tooltip_policy#11",
@@ -3580,7 +3600,9 @@
       "source_sha256": "ce5122ac263cc0d8e6acaf67d011e0961af57200bba92ec7f22f6ed4fb626ebd",
       "context": "This module installs ONE event filter on ``QApplication`` and takes the decision away from the style:",
       "translation": "Þessi eining setur upp EINA atburðasíu á ``QApplication`` og tekur ákvörðunina frá stílnum:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.tooltip_policy#3",
@@ -3638,7 +3660,9 @@
       "source_sha256": "a1b6fff96412015d46d9e7b16cbc02c56d2706325d23d8ee3649a546c5854cd5",
       "context": "Qt PROPAGATES a tooltip event to the parent widget when the widget under the pointer has no tooltip of its own, which is how a card explains itself while the pointer is on the label written on it. The text is therefore resolved with :func:`tooltip_text_for`, up the parent chain, exactly as Qt would have.",
       "translation": "Qt SENDIR verkfæraábendingaratburð ÁFRAM til foreldragræjunnar þegar græjan undir bendlinum hefur enga eigin verkfæraábendingu, og þannig útskýrir spjald sig á meðan bendillinn er á merkinu sem skrifað er á það. Textinn er því leystur með :func:`tooltip_text_for`, upp foreldrakeðjuna, nákvæmlega eins og Qt hefði gert.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.tooltip_policy.install_tooltip_policy#0",
@@ -3694,7 +3718,9 @@
       "source_sha256": "524b3473132577b2a7fb015cfc6aa9682495d87e808c5a19e4c80fa072af391b",
       "context": "This is not a convenience: it is the behaviour being preserved. Qt PROPAGATES a tooltip event up the parent chain, so a label with no tooltip of its own inside a card that has one shows the card's. A filter that read ``widget.toolTip()`` alone and then swallowed the event would break every one of those -- a card explains itself until the pointer lands on the text written on it, and then it stops.",
       "translation": "Þetta er ekki þægindaatriði: það er hegðunin sem verið er að varðveita. Qt SENDIR verkfæraábendingaratburð ÁFRAM upp foreldrakeðjuna, svo merki án eigin verkfæraábendingar inni í spjaldi sem hefur eina sýnir ábendingu spjaldsins. Sía sem læsi aðeins ``widget.toolTip()`` og gleypti síðan atburðinn myndi brjóta hvert og eitt slíkt tilvik -- spjald útskýrir sig þar til bendillinn lendir á textanum sem skrifaður er á það, og þá hættir það.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.tooltip_policy.tooltip_text_for#2",
@@ -4182,7 +4208,9 @@
       "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
       "context": "Why it is not verbose logging. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon independent execution path that is never the main GUI execution path, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
       "translation": "HVERS VEGNA ÞETTA ER EKKI ÍTARLEG ANNÁLSSKRÁNING. Ítarleg annálsskráning ræður aðeins hvaða annálsfærslum er haldið, svo hún hefur ekkert yfirlit yfir minni að gefa. Fallarakningin sem hún setti einu sinni upp virkjaðist við hvert kall og hver skil, og hún kostaði tuttugufaldan ræsingartímann. Yfirlit sem er tekið í gegnum rakningu myndi lýsa rakta forritinu frekar en því raunverulega, sem er einmitt forritið sem enginn vill láta mæla. Svo þetta tekur sýni í staðinn: einn psutil-lestur á sekúndu, á bakgrunnsþræði sem er aldrei GUI-þráðurinn, í keyrslu sem er að öðru leyti óröskuð. Þrjár stöður frekar en gátreitur, því gagnlega sjálfgefna gildið er ekki \"off\" -- verðmætustu auðlindagögnin koma úr keyrslum sem enginn bjóst við að myndu mistakast.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.resume.completed_fields_in_merged#5",
@@ -4398,7 +4426,9 @@
       "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
       "context": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
       "translation": "``size outliers`` Hlutfall hluta þar sem jafngilt þvermál fellur utan ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Miðgildi og MAD, ekki meðaltal og staðalfrávik: fimm ruslbútar blása staðalfrávik upp þar til ekkert er lengur útlagi, sem er einmitt tilvikið sem þessi athugun er til að grípa (``tests/test_seg_qc.py`` ber hvort tveggja saman). *k* = 5 er viljandi rúmt — raunverulegar stærðardreifingar eru lognormlegar og með þyngri hala en Gauss-dreifing, svo 3 sigma flaggar nokkur prósent af fullkomlega góðu sjónsviði. Flaggið virkjast þegar meira en ``seg_qc_outlier_fraction`` (0.15) af hlutum eru þarna úti. Þungir halar, blandaðir hópar og hlutunargallar geta allir virkjað það; flaggið segir ekki til um hvað er á ferðinni. Jaðarhlutir eru undanskildir allri stærðartölfræði, nákvæmlega eins og ``diameter._region_diameters`` undanskilur þá, því flatarmál stýfðs hlutar er lygi.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#17",
@@ -4414,7 +4444,9 @@
       "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
       "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full laboratory microplate that is hours. A laboratory microplate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious microscope fields of view, but cannot establish their cause or validate biological interpretation.",
       "translation": "``measure_crop`` er dýra skrefið í spaCR: það opnar hverja grímu, sker hvern hlut út úr hverri rás, reiknar hundruð eiginleika fyrir hvern hlut og skrifar þá í SQLite. Á heilli plötu tekur það klukkustundir. Plata þar sem hlutunin hrundi — rás úr fókus, þvermál tvöfalt rangt, samvaxið einlag sem rann saman í fleka — kostar nákvæmlega sömu klukkustundir og skilar síðan mælingatöflu sem þarf að henda. Bilunin er augljós út frá grímunum einum; enginn lítur á þær, því að líta á þær þýðir að opna þúsund ``.npy`` skrár í höndunum. Tölfræði grímna getur bent á grunsamleg sjónsvið, en getur ekki staðfest orsök þeirra eða sannreynt líffræðilega túlkun.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#3",
@@ -4422,7 +4454,9 @@
       "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
       "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
       "translation": "Svo þessi eining lítur á þær. Hún les merkjagrímurnar sem :mod:`spacr.object` var að skrifa, skorar hvert sjónsvið á móti handfylli af traustum tölfræðistærðum, og prentar einkunnaspjald sem nefnir sjónsvið sem fara yfir stillta þröskulda. Hún breytir engu: ``seg_qc='report'`` (sjálfgefið) dregur flöggin fram, það fleygir ekki sjónsviðum í hljóði. Að ákveða hvaða sjónsviðum á að halda er ákvörðun notandans og hún þarf sönnunargögnin, ekki síu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#7",

@@ -69,7 +69,9 @@
       "label": "spacr.example_archives.example_set#2",
       "source": "naming the keys that do exist. A typo that returned ``None`` would download nothing and report success, which is the one outcome a download command must never produce.",
       "source_sha256": "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68",
-      "translation": "并列出实际存在的键。如果拼写错误时返回 ``None``，就会什么都不下载却报告成功，而这正是下载命令绝不能产生的结果。"
+      "translation": "并列出实际存在的键。如果拼写错误时返回 ``None``，就会什么都不下载却报告成功，而这正是下载命令绝不能产生的结果。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

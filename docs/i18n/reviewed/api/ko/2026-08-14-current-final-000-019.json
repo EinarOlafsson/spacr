@@ -98,7 +98,9 @@
       "source_sha256": "2d8102582e496bdd3c32c22e777e5d0b917c88746523b953b29a83eeeb045691",
       "source": "configurations when ``mode='random'``; maximum complete 2-by-2 rounds when adaptive UMAP is enabled.",
       "context": "configurations when ``mode='random'``; maximum complete 2-by-2 rounds when adaptive UMAP is enabled.",
-      "translation": "``mode='random'``일 때의 구성 수이며, 적응형 UMAP 기능이 활성화되면 완료할 수 있는 최대 2대2 라운드 수입니다."
+      "translation": "``mode='random'``일 때의 구성 수이며, 적응형 UMAP 기능이 활성화되면 완료할 수 있는 최대 2대2 라운드 수입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.convert.SourceImage#6",

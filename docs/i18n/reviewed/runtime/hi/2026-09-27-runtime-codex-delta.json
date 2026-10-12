@@ -1116,13 +1116,6 @@
       "translation": "TIFF, जिसका नाम W0097F0009T0001Z000C1.tif जैसा है। नामकरण: cq1। आयात पटल में चित्र, कोशिका / नाभिक / रोगजनक मास्क और मापन तालिका भरता है, फिर पूर्वावलोकन करता है।\n\nCQ1, 24 कॉलमों के आधार पर वेल का सूचकांक लिखता है: W0097 का अर्थ E01 है।"
     },
     {
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
-      "table": "ui",
-      "translation": "4PL अपने मध्यबिंदु के चारों ओर सममित होता है। वास्तविक असममिति होती है, और 4PL उसे खिसके हुए EC50 में समाहित कर लेता है; 5PL एक अतिरिक्त पैरामीटर से उसे फ़िट करता है, एक अतिरिक्त सांद्रता माँगता है और बताता है कि उस पैरामीटर का जोड़ना उचित था या नहीं।"
-    },
-    {
       "key": "The scales the filter looks for, in pixels, separated by commas; each should be about the half-width of a filament. Add a larger value for thick bundles and keep the small ones for fine tubules. Runtime grows with the list.",
       "source": "The scales the filter looks for, in pixels, separated by commas; each should be about the half-width of a filament. Add a larger value for thick bundles and keep the small ones for fine tubules. Runtime grows with the list.",
       "source_sha256": "31e20632fba33f8380f0e1307c255e4abb932fcffd6e417b093c9478fbf38ade",
@@ -1180,6 +1173,14 @@
       "table": "ui",
       "translation": "'bundled' पहले से पैक किया गया ऐतिहासिक प्लाक मॉडल है। पुराने रन दोहराने के लिए इसे रखा गया है; साहित्य के चित्रों पर यह लगभग एक-तिहाई प्लाक चूकता है। toxoplasma_plaque_v2 वर्तमान मॉडल है।",
       "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
+    },
+    {
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "table": "ui",
+      "translation": "4PL अपने मध्यबिंदु के चारों ओर सममित होता है। वास्तविक असममिति होती है, और 4PL उसे खिसके हुए EC50 में समाहित कर लेता है; 5PL एक अतिरिक्त पैरामीटर से उसे फ़िट करता है, एक अतिरिक्त सांद्रता माँगता है और बताता है कि उस पैरामीटर का जोड़ना उचित था या नहीं।",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",

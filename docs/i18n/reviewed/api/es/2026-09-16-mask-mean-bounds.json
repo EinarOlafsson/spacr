@@ -58,7 +58,9 @@
       "source": "A BARE KEY IS NOT A ROLE KEY, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A key with no underscore has no role, so it can never match a suffix rule.",
       "source_sha256": "7d8b3572497febdb5b96e3db2ff6d0786b934287e514da06a8a14da72d33e16b",
       "context": "A bare structured-data name is not a role structured-data name, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A structured-data name with no underscore has no role, so it can never match a suffix rule.",
-      "translation": "UNA CLAVE SIN PREFIJO DE ROL NO ES UNA CLAVE DE ROL, y esto importa: ``FT``, ``CP_prob``, ``Signal_to_noise`` y ``flow_threshold`` son ajustes VIGENTES por derecho propio en los submódulos independientes de aplicación/prueba de modelos. Una clave sin guion bajo no tiene rol, por lo que nunca puede coincidir con una regla de sufijo."
+      "translation": "UNA CLAVE SIN PREFIJO DE ROL NO ES UNA CLAVE DE ROL, y esto importa: ``FT``, ``CP_prob``, ``Signal_to_noise`` y ``flow_threshold`` son ajustes VIGENTES por derecho propio en los submódulos independientes de aplicación/prueba de modelos. Una clave sin guion bajo no tiene rol, por lo que nunca puede coincidir con una regla de sufijo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_v2.stream_masks_from_stack#0",
@@ -107,14 +109,18 @@
       "source": "ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's message and the Qt panel's load.",
       "source_sha256": "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
       "context": "One resolver for all three consumers -- the run's fold, the doctor's message and the Qt panel's load.",
-      "translation": "UN ÚNICO RESOLUTOR PARA LOS TRES CONSUMIDORES -- la normalización de ajustes de la ejecución, el mensaje de diagnóstico y la carga del panel Qt."
+      "translation": "UN ÚNICO RESOLUTOR PARA LOS TRES CONSUMIDORES -- la normalización de ajustes de la ejecución, el mensaje de diagnóstico y la carga del panel Qt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.surviving_setting_name#2",
       "source": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle key could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
       "source_sha256": "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
       "context": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle structured-data name could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
-      "translation": "Antes respondían a esta pregunta de tres formas distintas. La ejecución consultaba únicamente la tabla de cambios de nombre, la herramienta de diagnóstico solo la tabla de ajustes retirados, y el panel Qt era el único que conocía la regla de sufijos de orgánulos. Por tanto, una clave de orgánulo generada podía ser migrada por el panel, ignorada por la ejecución y no mencionada por la herramienta de diagnóstico, todo a la vez."
+      "translation": "Antes respondían a esta pregunta de tres formas distintas. La ejecución consultaba únicamente la tabla de cambios de nombre, la herramienta de diagnóstico solo la tabla de ajustes retirados, y el panel Qt era el único que conocía la regla de sufijos de orgánulos. Por tanto, una clave de orgánulo generada podía ser migrada por el panel, ignorada por la ejecución y no mencionada por la herramienta de diagnóstico, todo a la vez.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.surviving_setting_name#3",
@@ -128,7 +134,9 @@
       "source": "LIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old key is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` keys are live and must not be touched.",
       "source_sha256": "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
       "context": "Liveness is checked at the terminus only. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old structured-data name is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` structured-data names are live and must not be touched.",
-      "translation": "LA VIGENCIA SOLO SE COMPRUEBA AL FINAL DE LA CADENA. Comprobar cada paso rechazaría el tramo intermedio de una cadena válida, porque un nombre intermedio ya no está vigente por definición. Rechazar la migración cuando la propia clave antigua SIGUE vigente impide que una regla de sufijo retire un ajuste que funciona -- siete claves ``_size`` están vigentes y no deben modificarse."
+      "translation": "LA VIGENCIA SOLO SE COMPRUEBA AL FINAL DE LA CADENA. Comprobar cada paso rechazaría el tramo intermedio de una cadena válida, porque un nombre intermedio ya no está vigente por definición. Rechazar la migración cuando la propia clave antigua SIGUE vigente impide que una regla de sufijo retire un ajuste que funciona -- siete claves ``_size`` están vigentes y no deben modificarse.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.merge_split_objects#0",

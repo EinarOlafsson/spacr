@@ -322,14 +322,18 @@
       "source": "Walk a dropped folder ONCE and return the folder-metadata report.",
       "context": "Walk a dropped folder ONCE and return the folder-metadata report.",
       "source_sha256": "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
-      "translation": "Parcourt UNE SEULE FOIS un dossier déposé par glisser-déposer et renvoie son rapport de métadonnées."
+      "translation": "Parcourt UNE SEULE FOIS un dossier déposé par glisser-déposer et renvoie son rapport de métadonnées.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#1",
       "source": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the GUI thread, all inside the drop event.",
       "context": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the main GUI execution path, all inside the drop event.",
       "source_sha256": "4a56cc6bd6969abbbaf898c13485dc2a1ca192ae1cf62ebdef06ce201804dddb",
-      "translation": "Exécutable sans risque dans un worker : données simples en entrée et en sortie, aucun objet Qt. L’intérêt est précisément de ne parcourir l’arbre qu’une seule fois. Cette fonction a remplacé trois parcours du même arbre — ``detect_folder_metadata`` en effectuait un, ``plan_folder_extraction`` un deuxième et rappelait ``detect_folder_metadata`` pour un troisième — tous effectués sur le chemin d’exécution GUI principal et dans l’événement de dépôt."
+      "translation": "Exécutable sans risque dans un worker : données simples en entrée et en sortie, aucun objet Qt. L’intérêt est précisément de ne parcourir l’arbre qu’une seule fois. Cette fonction a remplacé trois parcours du même arbre — ``detect_folder_metadata`` en effectuait un, ``plan_folder_extraction`` un deuxième et rappelait ``detect_folder_metadata`` pour un troisième — tous effectués sur le chemin d’exécution GUI principal et dans l’événement de dépôt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#2",

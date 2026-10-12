@@ -13,7 +13,9 @@
       "label": "spacr.gene_measurement_sweep.sweep#7",
       "source": "guides or genes to leave out, by name. Matched at BOTH levels -- a screen swept at gene level names genes and one at guide level names guides, and a user typing a gene id should not have to know which they are looking at.",
       "source_sha256": "2d9b1f80c77abb398b471e95654eaf4045547d86f112e3f32a5d41a298ca19fc",
-      "translation": "按名称指定要排除的向导或基因。会在两个层级上匹配：基因层级的界面使用基因名称，向导层级的界面使用向导名称；输入基因 ID 的用户无需先判断当前查看的是哪个层级。"
+      "translation": "按名称指定要排除的向导或基因。会在两个层级上匹配：基因层级的界面使用基因名称，向导层级的界面使用向导名称；输入基因 ID 的用户无需先判断当前查看的是哪个层级。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "results : pandas.DataFrame Permutation results containing ``outcome``, ``minimum_wells_threshold``, ``standardized_marginal_effect``, ``adjusted_p_value``, ``significant``, ``multiple_testing_method``, and ``alpha``. A ``guide`` column is also required when ``label_guides`` is provided. outcome : str Outcome to select from ``results``. minimum_wells : int Guide-support threshold to select from ``results``. save_path : str or pathlib.Path Destination path. The final suffix may change to match the selected output format. label_guides : mapping of str to str, optional Guide IDs mapped to annotation labels. title : str, optional Figure title. By default, describe the outcome and support threshold. effect_threshold : float, optional Positive half-width of the effect-size cut. Draw vertical lines at both signs; non-finite, non-positive, and ``None`` values draw no cut. effect_threshold_label : str, optional Legend text for the effect-size cut. By default, display its value. fmt : str, optional Explicit figure format. By default, use a recognized ``save_path`` suffix or the configured preference. dpi : int, optional Explicit output resolution. By default, use the configured preference.",

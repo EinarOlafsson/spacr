@@ -148,7 +148,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Every object is one feature, ROI or annotation, carrying its object type (``cell``, ``nucleus`` ...), its object id and its class; the class defaults to the object type. Each object is traced on its own, so objects that touch stay separate. Outlines follow PIXEL EDGES, not pixel centres: a pixel ``(row, col)`` is the square from ``x = col`` to ``col + 1`` and ``y = row`` to ``row + 1``, the convention QuPath and ImageJ both use. A pixel is inside a polygon when its centre is, so a traced outline rasterised back gives the object exactly: no tolerance, holes and several-part objects included. A hole is an interior ring (GeoJSON), a path of a composite ROI (ImageJ) or, since a COCO polygon cannot have one, an RLE segmentation (COCO).",
       "source_sha256": "1a10a6cfc0bca08290c5bbb9ef49a39236eb6354c64886fcdbbbf50c90f3b9f5",
-      "translation": "각 객체는 하나의 피처, ROI 또는 주석이며 객체 유형(``cell``, ``nucleus`` ...), 객체 ID, 클래스를 가집니다. 클래스의 기본값은 객체 유형입니다. 각 객체는 따로 추적되므로 맞닿은 객체도 분리된 채로 남습니다. 윤곽선은 픽셀 중심이 아니라 픽셀 가장자리를 따릅니다. 픽셀 ``(row, col)`` 은 ``x = col`` 부터 ``col + 1`` 까지, ``y = row`` 부터 ``row + 1`` 까지의 정사각형이며, QuPath 와 ImageJ 가 모두 쓰는 규칙입니다. 픽셀은 중심이 다각형 안에 있을 때 다각형 안에 있는 것으로 보므로, 추적한 윤곽선을 다시 래스터화하면 객체가 정확히 복원됩니다. 허용 오차가 없으며 구멍과 여러 부분으로 된 객체도 포함됩니다. 구멍은 내부 링(GeoJSON), 복합 ROI 의 경로(ImageJ), 또는 COCO 다각형은 구멍을 가질 수 없으므로 RLE 분할(COCO)로 표현됩니다."
+      "translation": "각 객체는 하나의 피처, ROI 또는 주석이며 객체 유형(``cell``, ``nucleus`` ...), 객체 ID, 클래스를 가집니다. 클래스의 기본값은 객체 유형입니다. 각 객체는 따로 추적되므로 맞닿은 객체도 분리된 채로 남습니다. 윤곽선은 픽셀 중심이 아니라 픽셀 가장자리를 따릅니다. 픽셀 ``(row, col)`` 은 ``x = col`` 부터 ``col + 1`` 까지, ``y = row`` 부터 ``row + 1`` 까지의 정사각형이며, QuPath 와 ImageJ 가 모두 쓰는 규칙입니다. 픽셀은 중심이 다각형 안에 있을 때 다각형 안에 있는 것으로 보므로, 추적한 윤곽선을 다시 래스터화하면 객체가 정확히 복원됩니다. 허용 오차가 없으며 구멍과 여러 부분으로 된 객체도 포함됩니다. 구멍은 내부 링(GeoJSON), 복합 ROI 의 경로(ImageJ), 또는 COCO 다각형은 구멍을 가질 수 없으므로 RLE 분할(COCO)로 표현됩니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The file names of the images a COCO dataset annotates.",
@@ -748,7 +750,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``src`` (str or list) — one or more ``…/merged`` folders. A cloud address Make Masks has analysed is measured from the local folder Make Masks staged it in; a cloud folder of merged stacks is mirrored under ``cloud_cache`` first. ``cloud_results`` copies the measurements folder back to cloud storage.",
       "source_sha256": "3d8ecd508f60dfc16456a0d2770f5aad0960c6270c9aaa78ddce6744c1fe756d",
-      "translation": "``src``(str 또는 목록) — 하나 이상의 ``…/merged`` 폴더입니다. Make Masks 가 분석한 클라우드 주소는 Make Masks 가 준비해 둔 로컬 폴더에서 측정하고, 병합된 스택이 든 클라우드 폴더는 먼저 ``cloud_cache`` 아래로 미러링합니다. ``cloud_results`` 는 측정 폴더를 클라우드 저장소로 다시 복사합니다."
+      "translation": "``src``(str 또는 목록) — 하나 이상의 ``…/merged`` 폴더입니다. Make Masks 가 분석한 클라우드 주소는 Make Masks 가 준비해 둔 로컬 폴더에서 측정하고, 병합된 스택이 든 클라우드 폴더는 먼저 ``cloud_cache`` 아래로 미러링합니다. ``cloud_results`` 는 측정 폴더를 클라우드 저장소로 다시 복사합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes (item 525). So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest, items 551-553), each in its own backend's worker.",
@@ -1126,7 +1130,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE DESIGN is \"thin bar + label\":",
       "source_sha256": "a146840b95b410f516856ba329e4b0ba47893311da38d4657babf5a99018c63e",
-      "translation": "설계는 \"얇은 막대 + 레이블\" 입니다:"
+      "translation": "설계는 \"얇은 막대 + 레이블\" 입니다:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding structured-data name (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks``; every later run of the same workflow on the same ``src`` is checked against it by :func:`check_analysis_lock`, and the verdict is written into that processing session's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
@@ -1284,7 +1290,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Shuffle ``items`` under coded names and keep the key away from them.",
       "source_sha256": "51b5579da70f94f9af625e544b505de7a7897a3b5bc7abc01449b410cf3c5e2c",
-      "translation": "``items`` 를 코드화된 이름으로 섞고 키는 그것들과 떨어진 곳에 둡니다."
+      "translation": "``items`` 를 코드화된 이름으로 섞고 키는 그것들과 떨어진 곳에 둡니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Blind scoring: the person scoring sees each item only by its code (``B0001``, ``B0002`` and so on, numbered in the shuffled order) and in that order, so neither a name nor its neighbours say which laboratory microplate, microplate sample position or condition it came from. The key that maps codes back to items is written to ``~/.spacr/blinding/<key id>.json``, outside the data folder, and every later event on it (unblinding, closing) is appended to ``<key id>.log.jsonl`` with who did it and when.",
@@ -1486,7 +1494,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Raised when a screen cannot be scored, with the reason and the way out.",
       "source_sha256": "dce0f94f092c229370cdfd56072e9dce9cfc62edd9ade822ed8d3f33e1adf1a4",
-      "translation": "스크리닝에 점수를 매길 수 없을 때 이유와 해결 방법과 함께 발생합니다."
+      "translation": "스크리닝에 점수를 매길 수 없을 때 이유와 해결 방법과 함께 발생합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Tukey's median polish of one plate: ``x = overall + row + column + residual``.",
@@ -2278,7 +2288,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "leave out every crop whose suggestion the annotator REJECTED (a negative ``<column>_verdict``), so a rejected crop is not suggested again in a later round. It still trains as an example of the other class (:func:`rejected_suggestions`); it is only not proposed.",
       "source_sha256": "92015d4f07cdd8be43559121fb3c0766b79fd3a125b996550c973f5e145b8f1f",
-      "translation": "주석자가 제안을 거부한(음수 ``<column>_verdict``) 모든 크롭을 제외하므로, 거부된 크롭은 이후 라운드에서 다시 제안되지 않습니다. 이 크롭은 여전히 다른 클래스의 예로 학습에 쓰이며(:func:`rejected_suggestions`), 단지 제안되지 않을 뿐입니다."
+      "translation": "주석자가 제안을 거부한(음수 ``<column>_verdict``) 모든 크롭을 제외하므로, 거부된 크롭은 이후 라운드에서 다시 제안되지 않습니다. 이 크롭은 여전히 다른 클래스의 예로 학습에 쓰이며(:func:`rejected_suggestions`), 단지 제안되지 않을 뿐입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "path to the file. ``~`` and ``$VARS`` are expanded. A cloud address (``s3://``, ``gs://``, ``az://``, ``https://``) is read from a cached local copy.",

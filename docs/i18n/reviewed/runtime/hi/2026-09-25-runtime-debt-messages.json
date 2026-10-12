@@ -636,13 +636,6 @@
     },
     {
       "table": "ui",
-      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
-      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
-      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
-      "translation": "इस टेम्पलेट को नाम दें — कुछ ऐसा जो आप बोलकर कहें, जैसे “Toxo PVM, 40×”:"
-    },
-    {
-      "table": "ui",
       "key": "Nikon ND2 (public sample), named like A01/WellA01_ChannelBF_Seq0001.nd2. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes ND2, so this is a public sample file by Maxime Woringer, CC BY 4.0: one brightfield plane, renamed the way NIS-Elements JOBS names a well-plate acquisition. It has no masks, so it goes through the Format Converter.",
       "source": "Nikon ND2 (public sample), named like A01/WellA01_ChannelBF_Seq0001.nd2. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes ND2, so this is a public sample file by Maxime Woringer, CC BY 4.0: one brightfield plane, renamed the way NIS-Elements JOBS names a well-plate acquisition. It has no masks, so it goes through the Format Converter.",
       "source_sha256": "d3fd70e009fd1196bf8807e28b5a7b052460b663476a23cdcc5c19a9675146c1",
@@ -1997,6 +1990,14 @@
         "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
         "translation": "पहचान विधि के अंतर्गत चुनी गई CPU विधि पूरी छवि पर चलाएँ और जो वह पाए उसे लेबल करें, ऊपर दिए न्यूनतम क्षेत्रफल का पालन करते हुए। विधि जो कुछ पढ़ती है वह इसी श्रेणी का है: स्तर का एल्गोरिदम, सुधार, स्मूदिंग, कौन-सी ओर ऑब्जेक्ट है, छिद्र भरना, छूते हुए जोड़े को अलग करना और फ़्रेम से कटे भाग हटाना। Cellpose या कोई बैकएंड चुने होने पर यह बटन Otsu पर लौट जाता है, क्योंकि उनका अपना ऑब्जेक्ट पहचान बटन है।"
       }
+    },
+    {
+      "table": "ui",
+      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
+      "translation": "इस टेम्पलेट को नाम दें — कुछ ऐसा जो आप बोलकर कहें, जैसे “Toxo PVM, 40×”:",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

@@ -217,14 +217,18 @@
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#0",
       "source": "Walk a dropped folder ONCE and return the folder-metadata report.",
       "source_sha256": "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
-      "translation": "Percorre uma pasta recebida por arrastar e soltar uma única vez e retorna o relatório de metadados da pasta."
+      "translation": "Percorre uma pasta recebida por arrastar e soltar uma única vez e retorna o relatório de metadados da pasta.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the main GUI execution path, all inside the drop event.",
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#1",
       "source": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the GUI thread, all inside the drop event.",
       "source_sha256": "4a56cc6bd6969abbbaf898c13485dc2a1ca192ae1cf62ebdef06ce201804dddb",
-      "translation": "Seguro para execução em uma thread de trabalho: entram dados simples, saem dados simples e não há Qt. O objetivo é efetuar um único percurso. Isto substituiu três percursos da mesma árvore — ``detect_folder_metadata`` fez um, ``plan_folder_extraction`` fez outro e chamou novamente ``detect_folder_metadata`` para um terceiro —, todos na via principal de execução da GUI e dentro do evento de arrastar e soltar."
+      "translation": "Seguro para execução em uma thread de trabalho: entram dados simples, saem dados simples e não há Qt. O objetivo é efetuar um único percurso. Isto substituiu três percursos da mesma árvore — ``detect_folder_metadata`` fez um, ``plan_folder_extraction`` fez outro e chamou novamente ``detect_folder_metadata`` para um terceiro —, todos na via principal de execução da GUI e dentro do evento de arrastar e soltar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The probe consumes 30 entries from *the generator later consumed by the planner*. An unrecognized folder therefore costs only 30 files rather than a complete traversal.",

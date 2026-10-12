@@ -32,13 +32,6 @@
     },
     {
       "table": "ui",
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "translation": "4PL은 중점을 기준으로 대칭입니다. 실제로 비대칭이 있으면 4PL은 EC50을 이동시켜 이를 반영합니다. 5PL은 매개변수 하나를 추가하여 비대칭을 적합하고, 농도 조건도 하나 더 필요하며, 추가한 매개변수가 그만큼의 가치가 있었는지 보여 줍니다.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5"
-    },
-    {
-      "table": "ui",
       "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "translation": "spaCR의 배경 음악 대신 재생할 사용자 WAV 파일입니다. 비워 두면 spaCR의 자체 음악을 사용합니다. 업로드하거나 복사하지 않고 원래 위치에서 파일을 읽으며, Resonance 배경도 이 음악에 맞춰 움직입니다.",
@@ -146,6 +139,16 @@
         "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "translation": "4PL은 중점을 기준으로 대칭입니다. 실제로 비대칭이 있으면 4PL은 EC50을 이동시켜 이를 반영합니다. 5PL은 매개변수 하나를 추가하여 비대칭을 적합하고, 농도 조건도 하나 더 필요하며, 추가한 매개변수가 그만큼의 가치가 있었는지 보여 줍니다.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

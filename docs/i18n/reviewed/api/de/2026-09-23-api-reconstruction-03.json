@@ -97,7 +97,9 @@
       "label": "spacr.timeflows_baseline#10",
       "source": "HOW A TRACKING IS REPRESENTED",
       "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
-      "translation": "DARSTELLUNG EINER OBJEKTVERFOLGUNG"
+      "translation": "DARSTELLUNG EINER OBJEKTVERFOLGUNG",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Persist the chosen sound set.",

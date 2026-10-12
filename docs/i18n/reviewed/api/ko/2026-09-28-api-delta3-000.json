@@ -16,7 +16,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The case this module exists for: masks were drawn in Make Masks on a folder holding two kinds of image at once -- nucleus-stain images with nucleus masks and cell-stain images with cell masks, say -- and those have to become one multi-channel field per position, in the layout spaCR's Mask/Measure pipeline reads.",
       "source_sha256": "1434b3d91d4e9a6b2d0a0b02c5dd84aad621be24cdc3bc9f182b24d1a49a3db3",
-      "translation": "이 모듈이 필요한 경우는 이렇습니다. Make Masks 에서 두 종류의 이미지가 한꺼번에 든 폴더에 마스크를 그렸고(예를 들어 핵 마스크가 있는 핵 염색 이미지와 세포 마스크가 있는 세포 염색 이미지), 이것을 spaCR 의 Mask/Measure 파이프라인이 읽는 구조대로 위치마다 하나의 다채널 시야로 만들어야 합니다."
+      "translation": "이 모듈이 필요한 경우는 이렇습니다. Make Masks 에서 두 종류의 이미지가 한꺼번에 든 폴더에 마스크를 그렸고(예를 들어 핵 마스크가 있는 핵 염색 이미지와 세포 마스크가 있는 세포 염색 이미지), 이것을 spaCR 의 Mask/Measure 파이프라인이 읽는 구조대로 위치마다 하나의 다채널 시야로 만들어야 합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It happens in three separate steps, and nothing is moved until the last:",
@@ -458,7 +460,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "MOVE the images and masks as planned, then merge.",
       "source_sha256": "146c0eae586d5ec99dd028c688bb6398ef7b1740aa9a69d1981a9d40eab49308",
-      "translation": "계획대로 이미지와 마스크를 옮긴 뒤 병합합니다."
+      "translation": "계획대로 이미지와 마스크를 옮긴 뒤 병합합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it happens, so a run that stops half-way still says which file went where. Nothing is overwritten: every target is checked to be free before the first move.",
@@ -731,7 +735,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the channel -- or, when the user assigned channels, the tokens that only follow the channel are set aside -- and the rest must identify a set that holds exactly one image per channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first, and :func:`spacr.regex_infer.propose` last. Of the candidates that pass, the one with the FEWEST channels wins: any name can be read as a channel of its own in a single set, which passes and means nothing.",
       "source_sha256": "6c67fca6f45364075dbfb42ff14a0728aebb8069fa4632f9eb9ff9815c3a7366",
-      "translation": "이름은 토큰으로 나뉩니다(``_ - . space`` 에서 나누고, 그게 안 되면 숫자와 문자 덩어리로 나눔). 값이 바뀌는 토큰을 찾고, 그중 하나를 채널로 시도합니다. 사용자가 채널을 지정한 경우에는 채널 뒤에만 오는 토큰을 따로 둡니다. 나머지는 채널마다 이미지가 정확히 하나인 세트를 식별해야 합니다. 각 후보는 반환하기 전에 :func:`check_sets` 로 검사합니다. spaCR 자체의 Yokogawa 패턴을 먼저 시도하고 :func:`spacr.regex_infer.propose` 를 마지막에 시도합니다. 통과한 후보 중 채널이 가장 적은 것이 선택됩니다. 어떤 이름이든 단일 세트 안의 독립 채널로 읽을 수 있고, 그러면 통과는 하지만 아무 의미가 없기 때문입니다."
+      "translation": "이름은 토큰으로 나뉩니다(``_ - . space`` 에서 나누고, 그게 안 되면 숫자와 문자 덩어리로 나눔). 값이 바뀌는 토큰을 찾고, 그중 하나를 채널로 시도합니다. 사용자가 채널을 지정한 경우에는 채널 뒤에만 오는 토큰을 따로 둡니다. 나머지는 채널마다 이미지가 정확히 하나인 세트를 식별해야 합니다. 각 후보는 반환하기 전에 :func:`check_sets` 로 검사합니다. spaCR 자체의 Yokogawa 패턴을 먼저 시도하고 :func:`spacr.regex_infer.propose` 를 마지막에 시도합니다. 통과한 후보 중 채널이 가장 적은 것이 선택됩니다. 어떤 이름이든 단일 세트 안의 독립 채널로 읽을 수 있고, 그러면 통과는 하지만 아무 의미가 없기 때문입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image file names.",
@@ -755,7 +761,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the first regex that passes, or None.",
       "source_sha256": "af5fd94f3da97b7b7cfee3269c527b158678ed30469ae914d25b422bee4ee791",
-      "translation": "처음 통과한 정규식, 또는 None 입니다."
+      "translation": "처음 통과한 정규식, 또는 None 입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return the image file names directly in ``folder``, naturally sorted.",
@@ -1511,7 +1519,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SELF-SUPERVISED DENOISING COMES BEFORE THE CHAIN. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics, in its own environment, on a sample of the run's own raw fields -- no clean images are needed -- or read from ``n2v_model``. Each field's selected channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
       "source_sha256": "053a6f3ea879abe3f0597364d142db70df217b383995dcc2b937bb41187efb63",
-      "translation": "자기 지도 노이즈 제거는 체인보다 먼저 옵니다. ``n2v_denoise`` 가 켜져 있으면 CAREamics 가 자체 환경에서, 이번 처리 자체의 원시 시야 표본으로 분할 채널마다 Noise2Void(N2V2) 모델을 학습시키거나(깨끗한 이미지는 필요 없음) ``n2v_model`` 에서 읽어 옵니다. 각 시야의 선택된 채널은 조명 보정 후, PSF 와 체인 전에 노이즈를 제거하는데, 이때는 노이즈가 아직 픽셀마다 독립적이며 이것이 Noise2Void 의 가정입니다. 체크포인트의 해시와 학습 기록은 같은 출처 기록에 합쳐집니다."
+      "translation": "자기 지도 노이즈 제거는 체인보다 먼저 옵니다. ``n2v_denoise`` 가 켜져 있으면 CAREamics 가 자체 환경에서, 이번 처리 자체의 원시 시야 표본으로 분할 채널마다 Noise2Void(N2V2) 모델을 학습시키거나(깨끗한 이미지는 필요 없음) ``n2v_model`` 에서 읽어 옵니다. 각 시야의 선택된 채널은 조명 보정 후, PSF 와 체인 전에 노이즈를 제거하는데, 이때는 노이즈가 아직 픽셀마다 독립적이며 이것이 Noise2Void 의 가정입니다. 체크포인트의 해시와 학습 기록은 같은 출처 기록에 합쳐집니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the processing session's ``psf_*``, ``enhance_*``, ``unmix`` and ``n2v_denoise`` settings.",
@@ -1943,7 +1953,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement rather than tidiness: the CSV picker and the SQL column list have to be able to import this to get canonical names, and they cannot pay for a torch import to do it.",
       "source_sha256": "310ef96d74acab287944d13d7e99c17e93a8c87d2d0a4aea8f2d1e883224ab58",
-      "translation": "``pandas``, ``sqlite3``, :mod:`spacr.schema` 입니다. 대체 측정 저장소는 DuckDB, Parquet, PostgreSQL 저장소를 열 때만 ``duckdb`` 나 ``psycopg`` 를 가져옵니다. 모듈 범위에는 그 밖의 것이 없습니다. ``spacr.utils`` 도, matplotlib 도, torch 도 없습니다. 이는 깔끔함의 문제가 아니라 요구 사항입니다. CSV 선택기와 SQL 열 목록은 표준 이름을 얻기 위해 이 모듈을 가져올 수 있어야 하며, 그 때문에 torch 를 가져오는 비용을 치를 수는 없습니다."
+      "translation": "``pandas``, ``sqlite3``, :mod:`spacr.schema` 입니다. 대체 측정 저장소는 DuckDB, Parquet, PostgreSQL 저장소를 열 때만 ``duckdb`` 나 ``psycopg`` 를 가져옵니다. 모듈 범위에는 그 밖의 것이 없습니다. ``spacr.utils`` 도, matplotlib 도, torch 도 없습니다. 이는 깔끔함의 문제가 아니라 요구 사항입니다. CSV 선택기와 SQL 열 목록은 표준 이름을 얻기 위해 이 모듈을 가져올 수 있어야 하며, 그 때문에 torch 를 가져오는 비용을 치를 수는 없습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "path to the database, or any store :func:`read_database` reads. ``~`` and ``$VARS`` are expanded.",

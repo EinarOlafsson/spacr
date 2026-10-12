@@ -548,7 +548,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "number of rows actually drawn or, for a binned density, counted.",
       "source_sha256": "8a06086a816664ab0d58f6078eb137ad4ff4bd282fec817c0072e42ddb67d232",
-      "translation": "Anzahl der tatsächlich gezeichneten oder, bei einer klassierten Dichte, gezählten Zeilen."
+      "translation": "Anzahl der tatsächlich gezeichneten oder, bei einer klassierten Dichte, gezählten Zeilen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "vertical end of the rectangle.",
@@ -836,7 +838,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE NOTES ARE BUNDLED, and the bundle is what draws. They come from ``spacr/resources/release_notes.json``, which ``tools/build_release_notes.py`` writes from the GitHub releases and which ``.github/workflows/release.yml`` refreshes on every release. This panel is on the first screen the application shows, so making its CONTENT depend on api.github.com would mean a dashboard that is empty offline, throttled behind a shared NAT, and slower to draw than the window it is in. The bundled file therefore remains the offline source of truth and the panel is complete before anything touches a socket.",
       "source_sha256": "3d175c2af7e05e23cdff1e637e4de088049f59552ca8d5a17d5bf78a1cdc6b4b",
-      "translation": "DIE NOTES SIND MITGELIEFERT, und das mitgelieferte Paket ist das, was gezeichnet wird. Sie stammen aus ``spacr/resources/release_notes.json``, das ``tools/build_release_notes.py`` aus den GitHub-Releases schreibt und das ``.github/workflows/release.yml`` bei jedem Release aktualisiert. Dieses Panel liegt auf der ersten Ansicht, die die Anwendung zeigt, sodass es, wenn sein INHALT von api.github.com abhinge, ein Dashboard wäre, das offline leer ist, hinter einem gemeinsam genutzten NAT gedrosselt wird und langsamer gezeichnet wird als das Fenster, in dem es liegt. Die mitgelieferte Datei bleibt daher die maßgebliche Offline-Quelle, und das Panel ist vollständig, bevor irgendetwas einen Socket berührt."
+      "translation": "DIE NOTES SIND MITGELIEFERT, und das mitgelieferte Paket ist das, was gezeichnet wird. Sie stammen aus ``spacr/resources/release_notes.json``, das ``tools/build_release_notes.py`` aus den GitHub-Releases schreibt und das ``.github/workflows/release.yml`` bei jedem Release aktualisiert. Dieses Panel liegt auf der ersten Ansicht, die die Anwendung zeigt, sodass es, wenn sein INHALT von api.github.com abhinge, ein Dashboard wäre, das offline leer ist, hinter einem gemeinsam genutzten NAT gedrosselt wird und langsamer gezeichnet wird als das Fenster, in dem es liegt. Die mitgelieferte Datei bleibt daher die maßgebliche Offline-Quelle, und das Panel ist vollständig, bevor irgendetwas einen Socket berührt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "And then it catches up. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a background execution unit, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
@@ -844,7 +848,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "AND THEN IT CATCHES UP. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a worker thread, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
       "source_sha256": "7f6316bf6a3bfa3d12730c2cdfce5756db400447c7f2c6c8ad49492ca194ebcb",
-      "translation": "UND DANN HOLT ES AUF. Das Wheel eines Releases kann seine eigene Release Note nicht enthalten -- die Note wird geschrieben, wenn das GitHub-Release veröffentlicht wird, und das ist, nachdem dieses Wheel auf PyPI ist --, daher liegt eine mitgelieferte Datei immer ein Release hinter dem Build, der sie trägt, und genau das ging schief: \"ich bin auf 1.5.1.0 und die News reichen nur bis 1.5.0.7. der News-Bereich sollte immer automatisch die neuesten Release-News von spacr zeigen.\" Daher bittet :attr:`refresh_requested` das Fenster, nachdem die Seite angezeigt wurde, die öffentliche Release-Liste in einem Worker-Thread zu lesen, und :meth:`apply_releases` führt, was auch immer zurückkommt, vor der mitgelieferten Liste zusammen. Nichts hier öffnet einen Socket: Das Panel fragt nur, und ein Abruf, der fehlschlägt, durch ein Ratenlimit gebremst wird, in Preferences ausgeschaltet ist oder einfach nichts Neueres findet, lässt die mitgelieferte Liste genau so, wie sie gezeichnet wurde."
+      "translation": "UND DANN HOLT ES AUF. Das Wheel eines Releases kann seine eigene Release Note nicht enthalten -- die Note wird geschrieben, wenn das GitHub-Release veröffentlicht wird, und das ist, nachdem dieses Wheel auf PyPI ist --, daher liegt eine mitgelieferte Datei immer ein Release hinter dem Build, der sie trägt, und genau das ging schief: \"ich bin auf 1.5.1.0 und die News reichen nur bis 1.5.0.7. der News-Bereich sollte immer automatisch die neuesten Release-News von spacr zeigen.\" Daher bittet :attr:`refresh_requested` das Fenster, nachdem die Seite angezeigt wurde, die öffentliche Release-Liste in einem Worker-Thread zu lesen, und :meth:`apply_releases` führt, was auch immer zurückkommt, vor der mitgelieferten Liste zusammen. Nichts hier öffnet einen Socket: Das Panel fragt nur, und ein Abruf, der fehlschlägt, durch ein Ratenlimit gebremst wird, in Preferences ausgeschaltet ist oder einfach nichts Neueres findet, lässt die mitgelieferte Liste genau so, wie sie gezeichnet wurde.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
@@ -852,7 +858,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
       "source_sha256": "7015b27e0f129bb087b0487648dee0cfe3c8219f8fbda58d67800b70444634a2",
-      "translation": "Die Update-Prüfung bleibt eine SCHALTFLÄCHE. Anzubieten, etwas zu installieren, ist eine Entscheidung, daher wird sie weiterhin nur beim Drücken getroffen."
+      "translation": "Die Update-Prüfung bleibt eine SCHALTFLÄCHE. Anzubieten, etwas zu installieren, ist eine Entscheidung, daher wird sie weiterhin nur beim Drücken getroffen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Merge a fetched release list into the list on application view.",
@@ -868,7 +876,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Silence is the contract. An empty list, a list of rubbish, or a list that says nothing the bundled file did not already say leaves the panel untouched and says nothing to the reader -- the failure of an unasked-for background fetch is not the reader's problem.",
       "source_sha256": "731c80f592c0abab2c78eb04e554ee7c07bb77da5184d9b92e35fe53674d6001",
-      "translation": "Schweigen ist der Vertrag. Eine leere Liste, eine Liste voller Unsinn oder eine Liste, die nichts sagt, was die mitgelieferte Datei nicht bereits sagte, lässt das Panel unberührt und sagt dem Leser nichts -- das Scheitern eines ungefragten Hintergrundabrufs ist nicht das Problem des Lesers."
+      "translation": "Schweigen ist der Vertrag. Eine leere Liste, eine Liste voller Unsinn oder eine Liste, die nichts sagt, was die mitgelieferte Datei nicht bereits sagte, lässt das Panel unberührt und sagt dem Leser nichts -- das Scheitern eines ungefragten Hintergrundabrufs ist nicht das Problem des Lesers.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "release records from :func:`spacr.updater.fetch_release_notes`, or anything at all.",
@@ -964,7 +974,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "AFTER the page exists and ON THE EVENT LOOP, not during construction: the single-shot timer means the emit lands on a later turn than this show, so Home's first paint is never waiting on it. Once per panel, because a page that is shown again -- a tab revisited, a font-scale rebuild -- is not news.",
       "source_sha256": "da720010cd7251e2540c5b20989069b775dec7969b3ed845ece331c1eab32841",
-      "translation": "NACHDEM die Seite existiert und IN DER EREIGNISSCHLEIFE, nicht während des Aufbaus: Der Single-Shot-Timer bewirkt, dass das Aussenden in einem späteren Durchlauf als diese Anzeige landet, sodass das erste Zeichnen von Home nie darauf wartet. Einmal pro Panel, denn eine Seite, die erneut angezeigt wird -- eine wieder besuchte Registerkarte, ein Neuaufbau wegen der Schriftskalierung --, ist keine Neuigkeit."
+      "translation": "NACHDEM die Seite existiert und IN DER EREIGNISSCHLEIFE, nicht während des Aufbaus: Der Single-Shot-Timer bewirkt, dass das Aussenden in einem späteren Durchlauf als diese Anzeige landet, sodass das erste Zeichnen von Home nie darauf wartet. Einmal pro Panel, denn eine Seite, die erneut angezeigt wird -- eine wieder besuchte Registerkarte, ein Neuaufbau wegen der Schriftskalierung --, ist keine Neuigkeit.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the Qt show event.",
@@ -1349,7 +1361,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The screen calls this when either setting changes. The folder's file names are read off the GUI thread, and nothing is decoded.",
       "source_sha256": "ba35ba6afb40c27af59767dfe437c665f3c50ef78d7c29d0e1a9a3715c269301",
-      "translation": "Die Tabelle wird gruppiert, wenn ein Ordner geladen wird, mit dem ``metadata_type`` und ``custom_regex``, die das Mask-Formular in diesem Moment enthielt. Zuerst zu laden und danach die Benennung zu wählen ließ jede Datei unter einer einzigen Spalte, bis etwas anderes den Ordner neu lud. Die Ansicht ruft dies auf, wenn sich eine der beiden Einstellungen ändert. Die Dateinamen des Ordners werden außerhalb des GUI-Threads gelesen, und nichts wird dekodiert."
+      "translation": "Die Tabelle wird gruppiert, wenn ein Ordner geladen wird, mit dem ``metadata_type`` und ``custom_regex``, die das Mask-Formular in diesem Moment enthielt. Zuerst zu laden und danach die Benennung zu wählen ließ jede Datei unter einer einzigen Spalte, bis etwas anderes den Ordner neu lud. Die Ansicht ruft dies auf, wenn sich eine der beiden Einstellungen ändert. Die Dateinamen des Ordners werden außerhalb des GUI-Threads gelesen, und nichts wird dekodiert.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``True`` when a regrouping was started, ``False`` when no image is loaded.",
@@ -1431,7 +1445,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
       "source_sha256": "e5e5585868edd9f7f7c680740e5b2da9572a78e09072f7e669d1564f93caf35c",
-      "translation": "Wie viele Masken dieser Sitzung das Vergleichspanel übereinanderlegen kann: die letzten acht, wobei die älteste zuerst verworfen wird. Jede ist ein Label-Array in voller Größe, und ein Panel, das jeden Lauf eines Nachmittags behielte, würde sie alle im Speicher halten, für ein Popup, das bequem acht auflistet."
+      "translation": "Wie viele Masken dieser Sitzung das Vergleichspanel übereinanderlegen kann: die letzten acht, wobei die älteste zuerst verworfen wird. Jede ist ein Label-Array in voller Größe, und ein Panel, das jeden Lauf eines Nachmittags behielte, würde sie alle im Speicher halten, für ein Popup, das bequem acht auflistet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Direct image files are returned unchanged. Directory traversal stops as soon as the first sorted match is found instead of materialising and sorting every image in a potentially enormous plate. Files whose names start with a dot are skipped: ``._<name>.tif``, the sidecar macOS writes on exFAT and network volumes, sorts before every image and holds none.",
@@ -1593,7 +1609,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "TWO HALVES. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its field, and draws the answer.",
       "source_sha256": "5e6a4bd9dede1be7f833f2b0c7dc1b3ecff48da39d4ec0c8de4e080d9463c093",
-      "translation": "ZWEI HÄLFTEN. :func:`composite` ist die Arithmetik, auf einfachen Arrays, sodass das Bild, das ein Benutzer sieht, Pixel für Pixel gegen eine Handrechnung geprüft werden kann. :class:`MaskComparisonDialog` ist das Popup, das auswählt, was hineinkommt. Keines von beiden weiß vom Maskenmodul; die Live-Vorschau übergibt die Masken ihrer Sitzung und ihr Sichtfeld und zeichnet die Antwort."
+      "translation": "ZWEI HÄLFTEN. :func:`composite` ist die Arithmetik, auf einfachen Arrays, sodass das Bild, das ein Benutzer sieht, Pixel für Pixel gegen eine Handrechnung geprüft werden kann. :class:`MaskComparisonDialog` ist das Popup, das auswählt, was hineinkommt. Keines von beiden weiß vom Maskenmodul; die Live-Vorschau übergibt die Masken ihrer Sitzung und ihr Sichtfeld und zeichnet die Antwort.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The arithmetic is \"OVER\", layer by layer, from the bottom. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
@@ -1601,7 +1619,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE ARITHMETIC IS \"OVER\", LAYER BY LAYER, FROM THE BOTTOM. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
       "source_sha256": "c3a684d93217b9a8bdc51ea11f6020da2c46a2d803e8dcec666dc35769ab475f",
-      "translation": "DIE ARITHMETIK IST \"OVER\", EBENE FÜR EBENE, VON UNTEN. Die Zeichenfläche beginnt schwarz. Jede angehakte Ebene, die unterste zuerst, wird mit ihrer Deckkraft ``a`` aufgelegt: wo sie deckt, ``out = out * (1 - a) + colour * a``; wo nicht, bleibt ``out`` unverändert. Ein Bild deckt jedes Pixel; eine Maske deckt nur ihre Objekte, sodass der Hintergrund einer Maske nie abdunkelt, was darunter liegt. Das Ergebnis wird auf die nächste ganze Graustufe gerundet."
+      "translation": "DIE ARITHMETIK IST \"OVER\", EBENE FÜR EBENE, VON UNTEN. Die Zeichenfläche beginnt schwarz. Jede angehakte Ebene, die unterste zuerst, wird mit ihrer Deckkraft ``a`` aufgelegt: wo sie deckt, ``out = out * (1 - a) + colour * a``; wo nicht, bleibt ``out`` unverändert. Ein Bild deckt jedes Pixel; eine Maske deckt nur ihre Objekte, sodass der Hintergrund einer Maske nie abdunkelt, was darunter liegt. Das Ergebnis wird auf die nächste ganze Graustufe gerundet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The stacking order reads like a layer list. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
@@ -1609,7 +1629,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE STACKING ORDER READS LIKE A LAYER LIST. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
       "source_sha256": "c70b490aeb3a412244c1ea00715da87239a8b9fc3e90abcf63c19fff5e865406",
-      "translation": "DIE STAPELREIHENFOLGE LIEST SICH WIE EINE EBENENLISTE. Das Popup listet das oberste Element des Stapels zuerst auf, wie es jedes Zeichenprogramm tut, und :meth:`chosen` gibt die Ebenen von unten zuerst zurück, in der Reihenfolge, in der :func:`composite` sie auflegt."
+      "translation": "DIE STAPELREIHENFOLGE LIEST SICH WIE EINE EBENENLISTE. Das Popup listet das oberste Element des Stapels zuerst auf, wie es jedes Zeichenprogramm tut, und :meth:`chosen` gibt die Ebenen von unten zuerst zurück, in der Reihenfolge, in der :func:`composite` sie auflegt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One thing the comparison can draw.",
@@ -1681,7 +1703,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the choices, TOP OF THE STACK FIRST.",
       "source_sha256": "84d7c1979b96259903c3090f1a56ccb8062c45a0cc21bb64f4d53145370eb578",
-      "translation": "die Auswahlmöglichkeiten, OBERSTES ELEMENT DES STAPELS ZUERST."
+      "translation": "die Auswahlmöglichkeiten, OBERSTES ELEMENT DES STAPELS ZUERST.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Build one row per layer, and OK and Cancel.",
@@ -1697,7 +1721,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The ticked layers, BOTTOM FIRST, ready for :func:`composite`.",
       "source_sha256": "5a6caa36ebf3359ca3bf711437e6c710c380e1a87ddbc470b01822ebd38fcf11",
-      "translation": "Die angehakten Ebenen, UNTERSTE ZUERST, bereit für :func:`composite`."
+      "translation": "Die angehakten Ebenen, UNTERSTE ZUERST, bereit für :func:`composite`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every layer as the popup has it now, top of the stack first.",
@@ -1865,7 +1891,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the thread that paints.",
       "source_sha256": "8f2724a512a342fc22df05aa565306f1d1de890f3e5b131a1a2243c38384f6d0",
-      "translation": "VON :meth:`add_paths` ABGETRENNT, und die Abtrennung ist die Lösung für eine eingefrorene Anwendung. Alles hier ist eine Liste von Zeichenketten; das ``isdir`` und ``listdir``, die einen abgelegten Ordner in Dateien verwandeln, laufen im eigenen Worker dieses Widgets (:func:`files_under`), denn eine Ablage ist ein vom Benutzer gewählter Pfad, und an einem Mikroskop-Arbeitsplatz ist das die Freigabe, auf der die Bilder liegen -- ein einziges stat unter einem schlafenden ``autofs``-Mount wurde mit über zwanzig Sekunden gemessen, in dem Thread, der zeichnet."
+      "translation": "VON :meth:`add_paths` ABGETRENNT, und die Abtrennung ist die Lösung für eine eingefrorene Anwendung. Alles hier ist eine Liste von Zeichenketten; das ``isdir`` und ``listdir``, die einen abgelegten Ordner in Dateien verwandeln, laufen im eigenen Worker dieses Widgets (:func:`files_under`), denn eine Ablage ist ein vom Benutzer gewählter Pfad, und an einem Mikroskop-Arbeitsplatz ist das die Freigabe, auf der die Bilder liegen -- ein einziges stat unter einem schlafenden ``autofs``-Mount wurde mit über zwanzig Sekunden gemessen, in dem Thread, der zeichnet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is added by the time this returns, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
@@ -1873,7 +1901,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
       "source_sha256": "8e2d6707e93529a83427142114012cdaad3857344b99280d82aa07e43e507622",
-      "translation": "BIS DIES ZURÜCKKEHRT, IST NOCH NICHTS HINZUGEFÜGT, und genau darum geht es. Lesen Sie die Tabelle aus :attr:`table_changed`, nicht aus der Zeile danach."
+      "translation": "BIS DIES ZURÜCKKEHRT, IST NOCH NICHTS HINZUGEFÜGT, und genau darum geht es. Lesen Sie die Tabelle aus :attr:`table_changed`, nicht aus der Zeile danach.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "files and folders from a drop or a file dialog.",
@@ -2065,7 +2095,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "NOT FOR THE GUI THREAD. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it runs this on a worker. Looked up through the module global so a test can replace it and see which thread it ran on.",
       "source_sha256": "f36bfc3c1a31cb756f70b118386083e32bffffcc67e99586f5b44c22d22d446c",
-      "translation": "NICHT FÜR DEN GUI-THREAD. Jeder Pfad hier ist einer, den der Benutzer gewählt hat, was an einem Mikroskop-Arbeitsplatz eine Netzwerkfreigabe bedeutet, und das ``isdir`` ist das, was den Automount aufweckt. :meth:`MeasureInputTable.add_dropped` ist der einzige Aufrufer und führt dies in einem Worker aus. Über die globale Variable des Moduls nachgeschlagen, damit ein Test sie ersetzen und sehen kann, in welchem Thread sie lief."
+      "translation": "NICHT FÜR DEN GUI-THREAD. Jeder Pfad hier ist einer, den der Benutzer gewählt hat, was an einem Mikroskop-Arbeitsplatz eine Netzwerkfreigabe bedeutet, und das ``isdir`` ist das, was den Automount aufweckt. :meth:`MeasureInputTable.add_dropped` ist der einzige Aufrufer und führt dies in einem Worker aus. Über die globale Variable des Moduls nachgeschlagen, damit ein Test sie ersetzen und sehen kann, in welchem Thread sie lief.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the files, folders expanded, in a stable order.",
@@ -2457,7 +2489,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "ONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
       "source_sha256": "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
-      "translation": "EIN HELFER, NICHT EINE KOPIE PRO ANSICHT. Die Entscheidung zwischen Cache und Download, der Beschäftigt-Zustand der Schaltfläche und die Fehlermeldung sind für Plate Viewer, Tabulate, Graph Builder und die übrigen dieselben; was sich unterscheidet, ist nur, welches Feld gefüllt wird und welche Methode es öffnet. Daher übergibt eine Ansicht genau diesen einen Unterschied als Callback und sonst nichts."
+      "translation": "EIN HELFER, NICHT EINE KOPIE PRO ANSICHT. Die Entscheidung zwischen Cache und Download, der Beschäftigt-Zustand der Schaltfläche und die Fehlermeldung sind für Plate Viewer, Tabulate, Graph Builder und die übrigen dieselben; was sich unterscheidet, ist nur, welches Feld gefüllt wird und welche Methode es öffnet. Daher übergibt eine Ansicht genau diesen einen Unterschied als Callback und sonst nichts.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
@@ -2595,7 +2629,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHY THERE IS NO BUILT-IN TOKEN. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is running it:",
       "source_sha256": "3fcf1fe5fc1b5a20cf881519601a6df4fef33f1c1dc6848c4f3aa27a2bcef782",
-      "translation": "WARUM ES KEIN EINGEBAUTES TOKEN GIBT. Uploads von jedem Benutzerrechner auf ein einziges Konto würden bedeuten, ein Schreib-Token in spaCR mitzuliefern. Ein Schreib-Token ist keine Upload-Erlaubnis: Es kann auch jedes Modell in diesem Konto umschreiben und LÖSCHEN, und jeder, der spaCR installiert, kann es aus dem Paket auslesen. Daher verwendet der Upload das Token desjenigen, der ihn ausführt:"
+      "translation": "WARUM ES KEIN EINGEBAUTES TOKEN GIBT. Uploads von jedem Benutzerrechner auf ein einziges Konto würden bedeuten, ein Schreib-Token in spaCR mitzuliefern. Ein Schreib-Token ist keine Upload-Erlaubnis: Es kann auch jedes Modell in diesem Konto umschreiben und LÖSCHEN, und jeder, der spaCR installiert, kann es aus dem Paket auslesen. Daher verwendet der Upload das Token desjenigen, der ihn ausführt:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "`huggingface-cli login`, or the HF_TOKEN / HUGGING_FACE_HUB_TOKEN environment variable.",
@@ -2667,7 +2703,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
       "source_sha256": "c6b2cf6a10e46a573620dceb53eec1de371272ec70e28e0259f8e34fa6cb3e3d",
-      "translation": "Spricht die Gradio-HTTP-API direkt mit urllib statt über gradio_client, weil dieses Paket keine Abhängigkeit von spaCR ist: Als es fehlte, löste dies eine Ausnahme aus, der Aufrufer fiel auf das eigene Token des Hochladenden zurück, und das Modell landete dort, wo niemand danach suchte. Ein Veröffentlichungsweg, der von einem optionalen Import abhängt, ist ein Veröffentlichungsweg, der stillschweigend etwas anderes tut."
+      "translation": "Spricht die Gradio-HTTP-API direkt mit urllib statt über gradio_client, weil dieses Paket keine Abhängigkeit von spaCR ist: Als es fehlte, löste dies eine Ausnahme aus, der Aufrufer fiel auf das eigene Token des Hochladenden zurück, und das Modell landete dort, wo niemand danach suchte. Ein Veröffentlichungsweg, der von einem optionalen Import abhängt, ist ein Veröffentlichungsweg, der stillschweigend etwas anderes tut.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "local checkpoint file to upload.",
@@ -2763,7 +2801,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
       "source_sha256": "58f783a0077a53a51ae8f43d35e568f976afb733f999a896a04912d169bb1f6b",
-      "translation": "Leer ist überall erlaubt: Eine Karte, die \"not recorded\" sagt, ist ehrlich, und ein Formular, das sich weigerte, ohne Zahl abzusenden, würde mit einer erfundenen beantwortet. Baut das Formular zum Teilen von ``filename`` auf."
+      "translation": "Leer ist überall erlaubt: Eine Karte, die \"not recorded\" sagt, ist ehrlich, und ein Formular, das sich weigerte, ohne Zahl abzusenden, würde mit einer erfundenen beantwortet. Baut das Formular zum Teilen von ``filename`` auf.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the checkpoint being shared, named in the title.",
@@ -2779,7 +2819,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHY THE LIST HAS FIVE HEADINGS RATHER THAN A BOOLEAN. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on screen and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
       "source_sha256": "d5b17f1a551ef779a9f1a70b2e95749a1f4b916ca08e53003ee7ef9bdeee404f",
-      "translation": "WARUM DIE LISTE FÜNF ÜBERSCHRIFTEN HAT STATT EINES BOOLESCHEN SCHALTERS. Früher war es eine einzige Liste mit \"show unvetted community uploads\" daneben -- ein Steuerelement, das genau einen der fünf Ursprünge des Katalogs wegklappen konnte. Mit zehn hier trainierten Modellen, vier Standard-Backbones von Cellpose-SAM, der Sammlung von bioimage.io, den eigenen vier des Cellpose 3-Backends und einem geteilten Katalog hatte ein Benutzer, der die zehn wollte und nicht den Rest, keine Möglichkeit, das zu sagen. :class:`SourceStrip` sind die fünf Ursprünge als fünf anklickbare Namen, jeder blau, wenn seine Zeilen angezeigt werden, und gedämpft, wenn sie weggeklappt sind, zwischen den Öffnungen gespeichert. Die Warnung, die der boolesche Schalter trug, ist unverändert und erscheint weiterhin vor der ersten ungeprüften Zeile -- siehe :meth:`ModelZooPicker._may_show_source`."
+      "translation": "WARUM DIE LISTE FÜNF ÜBERSCHRIFTEN HAT STATT EINES BOOLESCHEN SCHALTERS. Früher war es eine einzige Liste mit \"show unvetted community uploads\" daneben -- ein Steuerelement, das genau einen der fünf Ursprünge des Katalogs wegklappen konnte. Mit zehn hier trainierten Modellen, vier Standard-Backbones von Cellpose-SAM, der Sammlung von bioimage.io, den eigenen vier des Cellpose 3-Backends und einem geteilten Katalog hatte ein Benutzer, der die zehn wollte und nicht den Rest, keine Möglichkeit, das zu sagen. :class:`SourceStrip` sind die fünf Ursprünge als fünf anklickbare Namen, jeder blau, wenn seine Zeilen angezeigt werden, und gedämpft, wenn sie weggeklappt sind, zwischen den Öffnungen gespeichert. Die Warnung, die der boolesche Schalter trug, ist unverändert und erscheint weiterhin vor der ersten ungeprüften Zeile -- siehe :meth:`ModelZooPicker._may_show_source`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Install, or uninstall, one segmentation backend, with progress and Cancel.",
@@ -2795,7 +2837,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
       "source_sha256": "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
-      "translation": "WAS ES ÄNDERT, WIRD GESAGT, BEVOR ES GEÄNDERT WIRD. Ein Backend wird in eine eigene Umgebung unter ``~/.spacr/backends`` installiert; die eigene Umgebung von spaCR wird nie angefasst, sodass nichts hier verhindern kann, dass spaCR startet. Der Dialog sagt, wohin es geht, was es herunterlädt, wie groß es ist und unter welcher Lizenz, bevor Install gedrückt wird."
+      "translation": "WAS ES ÄNDERT, WIRD GESAGT, BEVOR ES GEÄNDERT WIRD. Ein Backend wird in eine eigene Umgebung unter ``~/.spacr/backends`` installiert; die eigene Umgebung von spaCR wird nie angefasst, sodass nichts hier verhindern kann, dass spaCR startet. Der Dialog sagt, wohin es geht, was es herunterlädt, wie groß es ist und unter welcher Lizenz, bevor Install gedrückt wird.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The application view behind it can follow it. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it executes and a console can say why it failed after the dialog has gone.",
@@ -2803,7 +2847,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it runs and a console can say why it failed after the dialog has gone.",
       "source_sha256": "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
-      "translation": "DIE ANSICHT DAHINTER KANN IHR FOLGEN. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` und :attr:`job_cancelled` teilen dem Widget, das den Dialog geöffnet hat, mit, was die Installation gerade tut, sodass eine Schaltfläche \"installing\" anzeigen kann, solange sie läuft, und eine Konsole sagen kann, warum sie fehlgeschlagen ist, nachdem der Dialog verschwunden ist."
+      "translation": "DIE ANSICHT DAHINTER KANN IHR FOLGEN. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` und :attr:`job_cancelled` teilen dem Widget, das den Dialog geöffnet hat, mit, was die Installation gerade tut, sodass eine Schaltfläche \"installing\" anzeigen kann, solange sie läuft, und eine Konsole sagen kann, warum sie fehlgeschlagen ist, nachdem der Dialog verschwunden ist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It belongs to the window, not the widget that asked (item 521). A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
@@ -2821,7 +2867,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE BAR SITS ON THE BUTTONS. The progress line is the last thing above the buttons and the status keeps four lines' room while a job runs, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
       "source_sha256": "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688",
-      "translation": "DER BALKEN SITZT AUF DEN SCHALTFLÄCHEN. Die Fortschrittszeile ist das Letzte über den Schaltflächen, und der Status behält Platz für vier Zeilen, solange ein Job läuft, sodass sich der Balken nicht bewegt, wenn die Statuszeile wächst und schrumpft. Beschreibt das Backend und wartet auf die Schaltfläche."
+      "translation": "DER BALKEN SITZT AUF DEN SCHALTFLÄCHEN. Die Fortschrittszeile ist das Letzte über den Schaltflächen, und der Status behält Platz für vier Zeilen, solange ein Job läuft, sodass sich der Balken nicht bewegt, wenn die Statuszeile wächst und schrumpft. Beschreibt das Backend und wartet auf die Schaltfläche.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The window keeps responding. The install -- a venv, then pip, often for minutes -- executes on a background execution unit; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
@@ -2829,7 +2877,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for minutes -- runs on a worker thread; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
       "source_sha256": "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
-      "translation": "DAS FENSTER REAGIERT WEITER. Die Installation -- ein venv, dann pip, oft minutenlang -- läuft in einem Worker-Thread; der Dialog zeigt, bei welchem Schritt sie ist, und die letzte Zeile von pip, und Cancel stoppt pip und alles, was es gestartet hat, und entfernt die halb aufgebaute Umgebung. Ein Fehler zeigt die eigene Ausgabe des fehlgeschlagenen Befehls, wortgetreu."
+      "translation": "DAS FENSTER REAGIERT WEITER. Die Installation -- ein venv, dann pip, oft minutenlang -- läuft in einem Worker-Thread; der Dialog zeigt, bei welchem Schritt sie ist, und die letzte Zeile von pip, und Cancel stoppt pip und alles, was es gestartet hat, und entfernt die halb aufgebaute Umgebung. Ein Fehler zeigt die eigene Ausgabe des fehlgeschlagenen Befehls, wortgetreu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the widget that opened it; the dialog's parent is its window.",
@@ -3023,7 +3073,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "source_sha256": "8c0f3505870bd1f5d06e07e1ffb5df5ce1fe0c21289944392bb6fb05135776bb",
-      "translation": "Die Worte sind die des ausgemusterten Kontrollkästchens selbst, unverändert. Falsch war das Steuerelement, das sie trug, nicht der Satz. Er wird ausgesprochen statt nur beschriftet, weil der Unterschied zwischen einem geprüften und einem ungeprüften Modell in einer Tabelle nicht sichtbar ist."
+      "translation": "Die Worte sind die des ausgemusterten Kontrollkästchens selbst, unverändert. Falsch war das Steuerelement, das sie trug, nicht der Satz. Er wird ausgesprochen statt nur beschriftet, weil der Unterschied zwischen einem geprüften und einem ungeprüften Modell in einer Tabelle nicht sichtbar ist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True when the user said to show them.",
@@ -3079,7 +3131,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "AN IMAGE THE DETECTOR FINDS NOTHING IN IS COPIED INTO THE SPLIT FOLDER WHOLE, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no crop and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
       "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
-      "translation": "EIN BILD, IN DEM DER DETEKTOR NICHTS FINDET, WIRD UNGETEILT IN DEN SPLIT-ORDNER KOPIERT, ohne Geometrie, sodass es trotzdem analysiert wird und einfach keinen Maßstab hat. Eine Warnung, die \"passed through whole\" meldet und dann das Bild überspringt, reicht nichts durch: Wenn einige Bilder in einem Ordner geteilt wurden und andere nicht, würden die anderen keinen Bildausschnitt und keine Zeile beitragen, und nichts würde angeben, dass sie existiert hatten. Der Alles-oder-nichts-Fall -- in dem die Funktion auf ``src`` zurückfällt -- ist der einzige, der sich so verhalten würde, wie die Meldung versprach."
+      "translation": "EIN BILD, IN DEM DER DETEKTOR NICHTS FINDET, WIRD UNGETEILT IN DEN SPLIT-ORDNER KOPIERT, ohne Geometrie, sodass es trotzdem analysiert wird und einfach keinen Maßstab hat. Eine Warnung, die \"passed through whole\" meldet und dann das Bild überspringt, reicht nichts durch: Wenn einige Bilder in einem Ordner geteilt wurden und andere nicht, würden die anderen keinen Bildausschnitt und keine Zeile beitragen, und nichts würde angeben, dass sie existiert hatten. Der Alles-oder-nichts-Fall -- in dem die Funktion auf ``src`` zurückfällt -- ist der einzige, der sich so verhalten würde, wie die Meldung versprach.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
@@ -3241,7 +3295,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Only crops the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the crop twice.",
       "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
-      "translation": "Es werden nur Bildausschnitte zurückgegeben, die der Annotator seitdem NICHT gelabelt hat: Ein nach einer Ablehnung vergebenes Label ist die stärkere Aussage und ist das, was die Anpassung aus der Spalte selbst liest, daher würde die zusätzliche Übergabe der Ablehnung den Bildausschnitt doppelt zählen."
+      "translation": "Es werden nur Bildausschnitte zurückgegeben, die der Annotator seitdem NICHT gelabelt hat: Ein nach einer Ablehnung vergebenes Label ist die stärkere Aussage und ist das, was die Anpassung aus der Spalte selbst liest, daher würde die zusätzliche Übergabe der Ablehnung den Bildausschnitt doppelt zählen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{png_path: rejected class}``; empty when nothing was rejected or the verdict column does not exist.",
@@ -3257,7 +3313,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the crops then wear the same mark as ones confirmed one at a time, and the count the screen shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
       "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
-      "translation": "Ein Massen-BEHALTEN ist eine Bestätigung jedes Vorschlags, den es behält, daher wird es ebenfalls in der Urteilsspalte aufgezeichnet (sofern die Spalte existiert): Die Bildausschnitte tragen dann dieselbe Markierung wie einzeln bestätigte, und die Anzahl, die die Ansicht anzeigt, stimmt mit dem Geschehenen überein. Ein Massen-VERWERFEN ist kein Urteil -- \"ich möchte diese nicht prüfen\" ist nicht \"these are wrong\" --, daher zeichnet es nichts auf."
+      "translation": "Ein Massen-BEHALTEN ist eine Bestätigung jedes Vorschlags, den es behält, daher wird es ebenfalls in der Urteilsspalte aufgezeichnet (sofern die Spalte existiert): Die Bildausschnitte tragen dann dieselbe Markierung wie einzeln bestätigte, und die Anzahl, die die Ansicht anzeigt, stimmt mit dem Geschehenen überein. Ein Massen-VERWERFEN ist kein Urteil -- \"ich möchte diese nicht prüfen\" ist nicht \"these are wrong\" --, daher zeichnet es nichts auf.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The column beside ``annotation_column`` that records judgements.",
@@ -3289,7 +3347,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
       "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
-      "translation": "Der einfache Stitcher, den der Timeflows-Fork schlagen muss, und der Score, der das belegt."
+      "translation": "Der einfache Stitcher, den der Timeflows-Fork schlagen muss, und der Score, der das belegt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
@@ -3297,7 +3357,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where THE LABEL IS THE TRACK ID, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
       "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
-      "translation": "Die Konvention der Cell Tracking Challenge, weil die Metriken von ihr stammen: ein Label-Stack, in dem DAS LABEL DIE TRACK-ID IST, sodass ein Objekt sein Label so lange behält, wie es dasselbe Objekt ist, plus eine optionale Abstammung, die jedes Label seinem Eltern-Label zuordnet. Eine Teilung sind daher zwei neue Labels, deren Elternobjekt das alte ist; ein Tracker, der keine Teilungen ausdrücken kann, übergibt keine Abstammung und zahlt für die beiden fehlenden Elternkanten; das ist der ehrliche Preis eines einfachen Stitchers."
+      "translation": "Die Konvention der Cell Tracking Challenge, weil die Metriken von ihr stammen: ein Label-Stack, in dem DAS LABEL DIE TRACK-ID IST, sodass ein Objekt sein Label so lange behält, wie es dasselbe Objekt ist, plus eine optionale Abstammung, die jedes Label seinem Eltern-Label zuordnet. Eine Teilung sind daher zwei neue Labels, deren Elternobjekt das alte ist; ein Tracker, der keine Teilungen ausdrücken kann, übergibt keine Abstammung und zahlt für die beiden fehlenden Elternkanten; das ist der ehrliche Preis eines einfachen Stitchers.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Why it does not call ``spacr.timelapse``",
@@ -3305,7 +3367,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHY IT DOES NOT CALL ``spacr.timelapse``",
       "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
-      "translation": "WARUM ES ``spacr.timelapse`` NICHT AUFRUFT"
+      "translation": "WARUM ES ``spacr.timelapse`` NICHT AUFRUFT",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`spacr.timelapse.link_by_iou` does the same linking and is the one the workflow uses. It is not imported here for two reasons. Importing ``spacr.timelapse`` pulls in matplotlib, OpenCV and the tracking backends, which is a heavy import for a scoring module that has to run inside a training loop, and its overlap arithmetic is a Python double loop over pairs of boolean masks -- fine for the frames a run produces, far too slow for scoring a held out set every epoch. The arithmetic here is a single cross-tabulation per frame pair. Where the two are meant to agree -- which pairs of labels are matched at a given threshold -- the tests say so.",
@@ -3363,7 +3427,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHY THE OPERATION COUNTS ARE PUBLIC",
       "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
-      "translation": "WARUM DIE OPERATIONSZÄHLUNGEN ÖFFENTLICH SIND"
+      "translation": "WARUM DIE OPERATIONSZÄHLUNGEN ÖFFENTLICH SIND",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "DET and TRA are one number each and both are dominated by the vertex terms: a false negative costs ten and a redundant edge costs one, so a tracker can lose half its links and still score well if its segmentation is good. The counts of false negatives, false positives, splits, and added, deleted and changed edges say which half of the problem the number came from. The plan needs exactly that distinction later -- the gap between linking given perfect segmentation and end-to-end linking is what decides whether to work on the head or on the backbone -- so the counts are part of the output rather than an internal.",
@@ -3611,7 +3677,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
       "source_sha256": "428e754495fa5896d6eaf5e8ac759b0b6524d4c2b76ba28a529aa81038f34523",
-      "translation": "Dies ist die Zahl, für deren Erzeugung Schritt 2 existiert, und die Zahl, die der Fork aus Schritt 3 schlagen muss."
+      "translation": "Dies ist die Zahl, für deren Erzeugung Schritt 2 existiert, und die Zahl, die der Fork aus Schritt 3 schlagen muss.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "per-frame segmentation whose labels mean nothing across frames. Pass the ground-truth stack itself to measure linking given perfect segmentation, which is the upper bound the plan asks for beside the end-to-end number.",
@@ -3787,7 +3855,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Cellpose predicts, per pixel, a flow toward the centre of the object the pixel belongs to. Timeflows adds the same idea through TIME: per pixel of frame ``t``, where the centre of that object is in frame ``t+1``, and whether it has a successor at all (cells die, divide, leave the field). Linking objects between frames then reads the model instead of guessing from overlap, which is where the plain IoU stitcher fails: fast cells that move more than their own size between frames (the MuSC movies move 3-4 diameters per frame at p95).",
       "source_sha256": "a610f074616376ab28591ef363ce3a422d1566b711db7e17fde482a725bd94a8",
-      "translation": "Cellpose sagt pro Pixel einen Fluss zum Zentrum des Objekts voraus, zu dem das Pixel gehört. Timeflows überträgt dieselbe Idee auf die ZEIT: pro Pixel von Frame ``t``, wo sich das Zentrum dieses Objekts in Frame ``t+1`` befindet und ob es überhaupt einen Nachfolger hat (Zellen sterben, teilen sich, verlassen das Sichtfeld). Das Verknüpfen von Objekten zwischen Frames liest dann das Modell, statt aus der Überlappung zu raten, und genau dort scheitert der einfache IoU-Stitcher: bei schnellen Zellen, die sich zwischen Frames um mehr als ihre eigene Größe bewegen (in den MuSC-Filmen bewegen sie sich beim p95 um 3-4 Durchmesser pro Frame)."
+      "translation": "Cellpose sagt pro Pixel einen Fluss zum Zentrum des Objekts voraus, zu dem das Pixel gehört. Timeflows überträgt dieselbe Idee auf die ZEIT: pro Pixel von Frame ``t``, wo sich das Zentrum dieses Objekts in Frame ``t+1`` befindet und ob es überhaupt einen Nachfolger hat (Zellen sterben, teilen sich, verlassen das Sichtfeld). Das Verknüpfen von Objekten zwischen Frames liest dann das Modell, statt aus der Überlappung zu raten, und genau dort scheitert der einfache IoU-Stitcher: bei schnellen Zellen, die sich zwischen Frames um mehr als ihre eigene Größe bewegen (in den MuSC-Filmen bewegen sie sich beim p95 um 3-4 Durchmesser pro Frame).",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing here starts a GPU training processing session; that is a separate, queued job.",
@@ -3803,7 +3873,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHAT IS HERE, ALL RUNNABLE ON A CPU:",
       "source_sha256": "4b8e3431af4a99445cb16d4ce4f2716c7f7848f4624c3f77e3ffe59152465c77",
-      "translation": "WAS HIER ENTHALTEN IST, ALLES AUF EINER CPU LAUFFÄHIG:"
+      "translation": "WAS HIER ENTHALTEN IST, ALLES AUF EINER CPU LAUFFÄHIG:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`track_masks_from_ctc` -- full masks carrying track ids, from a Cell Tracking Challenge movie's silver segmentation relabelled by its tracking markers (the TRA ground truth marks cells with small markers only).",
@@ -3827,7 +3899,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
       "source_sha256": "73b32b1b88871a05e6f65dceca7c47b0e515e1d6397be83b362bdfa8d3548878",
-      "translation": ":func:`augment_pair` -- eine Spiegelung/Drehung, die identisch auf beide Frames und beide Labelbilder angewendet wird; die Ziele werden DANACH aus den Labels berechnet, sodass eine Spiegelung niemals eine Verschiebung beibringen kann, die nicht stattgefunden hat."
+      "translation": ":func:`augment_pair` -- eine Spiegelung/Drehung, die identisch auf beide Frames und beide Labelbilder angewendet wird; die Ziele werden DANACH aus den Labels berechnet, sodass eine Spiegelung niemals eine Verschiebung beibringen kann, die nicht stattgefunden hat.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`pair_sampling_weights` -- pairs drawn across the displacement distribution rather than uniformly over mostly still frames.",
@@ -3939,7 +4013,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "One random flip and quarter-turn, the SAME for every frame and label.",
       "source_sha256": "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
-      "translation": "Eine zufällige Spiegelung und Vierteldrehung, DIESELBE für jeden Frame und jedes Label."
+      "translation": "Eine zufällige Spiegelung und Vierteldrehung, DIESELBE für jeden Frame und jedes Label.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
@@ -3947,7 +4023,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
       "source_sha256": "72c524a16c366efc105bbc2780f41459ac7aa04040d18b548da436f40460692f",
-      "translation": "Eine Spiegelung, die auf Frame ``t`` und nicht auf ``t+1`` angewendet wird, bringt eine Verschiebung bei, die nie stattgefunden hat; das ist der einfachste Weg zu einem Modell, das wunderbar trainiert und nichts trackt. Die Ziele werden anschließend aus den augmentierten Labels berechnet, sodass die Vektoren automatisch folgen."
+      "translation": "Eine Spiegelung, die auf Frame ``t`` und nicht auf ``t+1`` angewendet wird, bringt eine Verschiebung bei, die nie stattgefunden hat; das ist der einfachste Weg zu einem Modell, das wunderbar trainiert und nichts trackt. Die Ziele werden anschließend aus den augmentierten Labels berechnet, sodass die Vektoren automatisch folgen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the images, ``(H, W)`` or ``(H, W, C)``.",
@@ -3995,7 +4073,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
       "source_sha256": "1f10ba01831e4f22536d121b125c8043dae6e6f8095fa265d10667d8744beaf7",
-      "translation": "Die meisten aufeinanderfolgenden Frames sind nahezu unbewegt, daher zeigt ein gleichmäßiges Ziehen von Paaren dem Kopf überwiegend einfache Paare. Die mediane Verschiebung pro Durchmesser jedes Paares fällt in einen von ``bins`` gleich breiten Bins über den beobachteten Bereich, und das Gewicht eines Paares ist der Kehrwert der Größe seines Bins. Quantil-Bins wurden zuerst ausprobiert und fallen in sich zusammen, wenn sich die meisten Paare gleich bewegen, und genau für einen solchen Film existiert dies."
+      "translation": "Die meisten aufeinanderfolgenden Frames sind nahezu unbewegt, daher zeigt ein gleichmäßiges Ziehen von Paaren dem Kopf überwiegend einfache Paare. Die mediane Verschiebung pro Durchmesser jedes Paares fällt in einen von ``bins`` gleich breiten Bins über den beobachteten Bereich, und das Gewicht eines Paares ist der Kehrwert der Größe seines Bins. Quantil-Bins wurden zuerst ausprobiert und fallen in sich zusammen, wenn sich die meisten Paare gleich bewegen, und genau für einen solchen Film existiert dies.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(T, H, W)`` track-labelled frames.",
@@ -4035,7 +4115,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "One ``size`` square, the SAME window of every frame and label.",
       "source_sha256": "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
-      "translation": "Ein ``size``-Quadrat, DASSELBE Fenster jedes Frames und Labels."
+      "translation": "Ein ``size``-Quadrat, DASSELBE Fenster jedes Frames und Labels.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
@@ -4043,7 +4125,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
       "source_sha256": "f3d5a24c24018ec338fef77c90247e3c9b12c11d3505a4f6ffb56709bab8aee2",
-      "translation": "Auf ein zufälliges Objekt des ersten Labelbildes zentriert und um bis zu ein Viertelfenster verschoben, sodass Fenster Zellen statt leeren Hintergrund enthalten. Ein Fenster, das beide Frames teilen, lässt jede Verschiebung unverfälscht."
+      "translation": "Auf ein zufälliges Objekt des ersten Labelbildes zentriert und um bis zu ein Viertelfenster verschoben, sodass Fenster Zellen statt leeren Hintergrund enthalten. Ein Fenster, das beide Frames teilen, lässt jede Verschiebung unverfälscht.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Shuffle frame ``t+1``'s labels and ask whether the model finds them.",
@@ -4099,7 +4183,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
       "source_sha256": "fe7ea9f5f4c731caa3bb7b12b7532dcc6800db6803021ac8cef455fca62150e8",
-      "translation": "Der Vektor wird nur dort überwacht, wo es einen Nachfolger GIBT (``vector_weight``); das Nachfolger-Flag überall innerhalb eines Objekts (``object_weight``). Der Hintergrund wird von keinem von beiden überwacht."
+      "translation": "Der Vektor wird nur dort überwacht, wo es einen Nachfolger GIBT (``vector_weight``); das Nachfolger-Flag überall innerhalb eines Objekts (``object_weight``). Der Hintergrund wird von keinem von beiden überwacht.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "frame ``t+1``'s labels, the same ids.",
@@ -4147,7 +4233,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
       "source_sha256": "c7eaca2a274240ea6b7e2bf7c197880c0651cd293f571c1b6ca0009f5c4aaef6",
-      "translation": "Es beurteilt die ANNOTATION, nicht einen Tracker. Ein vorhergesagtes Tracking gegen eine Ground Truth zu bewerten, ist Aufgabe von :mod:`spacr.timeflows_baseline`, also Schritt 2 desselben Plans. Es enthält keinen grafischen Code und öffnet keine Dialoge."
+      "translation": "Es beurteilt die ANNOTATION, nicht einen Tracker. Ein vorhergesagtes Tracking gegen eine Ground Truth zu bewerten, ist Aufgabe von :mod:`spacr.timeflows_baseline`, also Schritt 2 desselben Plans. Es enthält keinen grafischen Code und öffnet keine Dialoge.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
@@ -4253,7 +4341,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Answer step 1's four questions about one label stack, as a table.",
       "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
-      "translation": "Beantwortet die vier Fragen aus Schritt 1 zu einem Label-Stack, als Tabelle."
+      "translation": "Beantwortet die vier Fragen aus Schritt 1 zu einem Label-Stack, als Tabelle.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "label stack, ``(T, Y, X)`` or a sequence of 2-D frames.",
@@ -4333,7 +4423,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
       "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
-      "translation": "Es werden nur AUFEINANDERFOLGENDE Frames gemessen. Ein Label, das nach einer Lücke wieder auftaucht, trägt hier nichts bei, weil die zurückgelegte Strecke keine Verschiebung pro Frame ist und ihr Einrechnen in den Mittelwert genau die Zahl aufblähen würde, für deren Meldung dieses Modul existiert."
+      "translation": "Es werden nur AUFEINANDERFOLGENDE Frames gemessen. Ein Label, das nach einer Lücke wieder auftaucht, trägt hier nichts bei, weil die zurückgelegte Strecke keine Verschiebung pro Frame ist und ihr Einrechnen in den Mittelwert genau die Zahl aufblähen würde, für deren Meldung dieses Modul existiert.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the table :func:`label_frames` returns.",
@@ -4525,7 +4617,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
       "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
-      "translation": "``0``, wenn keine Prüfung fehlgeschlagen ist, ``1``, wenn eine fehlgeschlagen ist. Ein Fehlschlag ist hier eine Aussage über die ANNOTATION, nicht über dieses Programm: Er bedeutet, dass die Daten nicht stützen, was der Timeflows-Plan über sie annimmt."
+      "translation": "``0``, wenn keine Prüfung fehlgeschlagen ist, ``1``, wenn eine fehlgeschlagen ist. Ein Fehlschlag ist hier eine Aussage über die ANNOTATION, nicht über dieses Programm: Er bedeutet, dass die Daten nicht stützen, was der Timeflows-Plan über sie annimmt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "List every label that disappears and comes back, and judge each one.",
@@ -4533,7 +4627,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "List every label that disappears and comes back, and judge each one.",
       "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
-      "translation": "Listet jedes Label auf, das verschwindet und wiederkommt, und beurteilt jedes einzelne."
+      "translation": "Listet jedes Label auf, das verschwindet und wiederkommt, und beurteilt jedes einzelne.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
@@ -4615,7 +4711,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
       "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
-      "translation": "NIEMALS IM GUI-THREAD AUFRUFEN. Es öffnet einen Socket. Das News-Panel von Home fordert es über denselben :class:`_UpdateWorker` an, auf dem die manuelle Update-Prüfung läuft, nachdem die Seite angezeigt wurde."
+      "translation": "NIEMALS IM GUI-THREAD AUFRUFEN. Es öffnet einen Socket. Das News-Panel von Home fordert es über denselben :class:`_UpdateWorker` an, auf dem die manuelle Update-Prüfung läuft, nachdem die Seite angezeigt wurde.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
@@ -4695,7 +4793,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Upgrade this interpreter, optionally to the exact version offered.",
       "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
-      "translation": "Aktualisiert diesen Interpreter, optional auf genau die angebotene Version."
+      "translation": "Aktualisiert diesen Interpreter, optional auf genau die angebotene Version.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "allow prerelease packages.",
@@ -4745,7 +4845,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing field and do not force complete fields to run again.",
       "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
-      "translation": "``True``, wenn der Maskenordner fehlt oder einem erwarteten Stack-Dateinamen eine vollständige Maske fehlt. Fremde Masken können ein fehlendes Sichtfeld nicht ersetzen und erzwingen nicht, dass vollständige Sichtfelder erneut verarbeitet werden."
+      "translation": "``True``, wenn der Maskenordner fehlt oder einem erwarteten Stack-Dateinamen eine vollständige Maske fehlt. Fremde Masken können ein fehlendes Sichtfeld nicht ersetzen und erzwingen nicht, dass vollständige Sichtfelder erneut verarbeitet werden.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a microscope field of view. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which image layer is which, and a ``test/merged`` without it is read as a legacy folder, against the default image layer order.",

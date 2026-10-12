@@ -13,7 +13,9 @@
       "label": "spacr.qt.widgets.measurements_example#3",
       "source": "THE DOWNLOAD IS THE EXISTING ONE. The archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "source_sha256": "8d7703dde8e227af9a9a7d4e87678c61cf0752cbe88b2a175264d85b2a38b2d2",
-      "translation": "NIÐURHALIÐ ER ÞAÐ SEM ÞEGAR ER TIL. Safnskráin, vinnsluþráðurinn og framvinduglugginn eru :func:`spacr.qt.hf_download.download_annotate_example`, sama kall og hnappur Classify notar, og plata sem einhver þeirra hefur þegar afþjappað er endurnýtt án þess að snerta netið."
+      "translation": "NIÐURHALIÐ ER ÞAÐ SEM ÞEGAR ER TIL. Safnskráin, vinnsluþráðurinn og framvinduglugginn eru :func:`spacr.qt.hf_download.download_annotate_example`, sama kall og hnappur Classify notar, og plata sem einhver þeirra hefur þegar afþjappað er endurnýtt án þess að snerta netið.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Three public sets have buttons of their own, fetched through the example-set registry (:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose`` (LINCS Cell Painting, ``einarolafsson/spacr-example-dose``) for Dose-Response, Prediction Profiler, Run Compare, Run History and Training Runs, ``control_chart`` (CPJUMP1, ``einarolafsson/spacr-example-control-chart``) for Control Chart, and ``hit`` (a cut of the TSG101 screening experiment, ``einarolafsson/spacr-example-hit``) for Investigate Hit.",

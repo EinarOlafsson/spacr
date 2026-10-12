@@ -369,7 +369,9 @@
       "source_sha256": "c35dade78afa66c10d92b0612f04313dbbec9bc7fd8a75d30eb7113c4eb3b9fa",
       "context": "The two halves fail separately on purpose. A listing that fails means the file is not a database and there is nothing to offer; a READ that fails, on one table of a database whose other tables listed fine, must still leave the picker populated -- that is how the user reaches the table that does read. Inline, that fell out of the order the old code ran in; here it has to be said.",
       "translation": "Les deux moitiés échouent séparément à dessein. Un listage qui échoue signifie que le fichier n'est pas une base de données et qu'il n'y a rien à proposer ; une LECTURE qui échoue, sur une table d'une base dont les autres tables se sont bien listées, doit tout de même laisser le sélecteur rempli -- c'est ainsi que l'utilisateur atteint la table qui se lit. En ligne, cela découlait de l'ordre d'exécution de l'ancien code ; ici, il faut le dire.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.model_compare.ModelCompareScreen._run_job._job#0",
@@ -577,7 +579,9 @@
       "source_sha256": "21db5f067e77a95e0a9400dba493e4645042bc27b151ddf56427fa3767970ae1",
       "context": "A whole number comes back as an int. The CSV cannot distinguish a count from a measurement, and reading everything as float renders \"on 12517.0 objects\" in a tooltip -- a count with a decimal point reads as a rounding, which it is not.",
       "translation": "UN NOMBRE ENTIER EST RENVOYÉ EN int. Le CSV ne peut pas distinguer un comptage d'une mesure, et tout lire en float affiche \"on 12517.0 objects\" dans une infobulle -- un comptage avec une virgule décimale se lit comme un arrondi, ce qu'il n'est pas.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.scorecard.score_holdout.weighted#0",
@@ -625,7 +629,9 @@
       "source_sha256": "01ceb1428a1a8588a879b95906712a1d9dd7c06c54345727f9b0bdac5c987b1b",
       "context": "``index`` is the strictest candidate yielding ``achieved``. The plateau reaches down to just above the last candidate that yielded MORE than ``achieved``, found by a second bisection on the same monotone statistic.",
       "translation": "``index`` est le candidat le plus strict qui donne ``achieved``. Le plateau descend jusqu'au-dessus du dernier candidat ayant donné PLUS que ``achieved``, trouvé par une seconde bissection sur la même statistique monotone.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sequencing_qc.derive_threshold.stat#0",

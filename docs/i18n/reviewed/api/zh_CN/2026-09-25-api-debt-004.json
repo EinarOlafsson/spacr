@@ -34,7 +34,9 @@
       "source_sha256": "3fcf1fe5fc1b5a20cf881519601a6df4fef33f1c1dc6848c4f3aa27a2bcef782",
       "context": "Why there is no built-in token. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is executing it:",
       "translation": "“为什么没有内置令牌。”要让每个用户的机器都能上传到同一个账户，就意味着要在 spaCR 中附带一个写入令牌。写入令牌并不只是上传许可：它还可以重写并“删除”该账户中的每个模型，而任何安装了 spaCR 的人都能从软件包中读出它。因此，上传使用的是运行上传者本人的令牌：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share#2",
@@ -114,7 +116,9 @@
       "source_sha256": "c6b2cf6a10e46a573620dceb53eec1de371272ec70e28e0259f8e34fa6cb3e3d",
       "context": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
       "translation": "使用 urllib 直接调用 Gradio HTTP API，而不是通过 gradio_client，因为该软件包不是 spaCR 的依赖项：以前在它缺失时这里会抛出异常，调用方退而使用上传者自己的令牌，于是模型被发布到了没人会去找的地方。依赖可选导入的发布路径，就是会悄悄做别的事情的发布路径。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share.central_upload#2",
@@ -242,7 +246,9 @@
       "source_sha256": "58f783a0077a53a51ae8f43d35e568f976afb733f999a896a04912d169bb1f6b",
       "context": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
       "translation": "所有地方都允许留空：写着 \"not recorded\" 的卡片是诚实的，而不填数字就拒绝提交的表单只会换来一个编造的数字。为共享 ``filename`` 构建表单。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#2",
@@ -282,7 +288,9 @@
       "source_sha256": "d5b17f1a551ef779a9f1a70b2e95749a1f4b916ca08e53003ee7ef9bdeee404f",
       "context": "Why the list has five headings rather than a boolean. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on application view and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
       "translation": "“为什么列表有五个标题而不是一个布尔开关。”它以前是一个列表，旁边有 \"show unvetted community uploads\"——一个只能折叠目录五个来源中恰好一个的控件。这里训练了十个模型，有四个现成的 Cellpose-SAM 主干网络、bioimage.io 的集合、Cellpose 3 后端自己的四个模型以及一个共享目录，想要那十个模型而不要其余内容的用户无从表达。:class:`SourceStrip` 把五个来源显示为五个可点击的名称，其行显示在界面上时为蓝色，被折叠时为灰暗色，并在多次打开之间保持记忆。布尔开关所承载的警告保持不变，仍会在第一个未经审核的行出现之前弹出——参见 :meth:`ModelZooPicker._may_show_source`。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#0",
@@ -298,7 +306,9 @@
       "source_sha256": "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
       "context": "What it changes, said before it changes it. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
       "translation": "“在更改之前说明它会更改什么。”后端安装在 ``~/.spacr/backends`` 下其自己的环境中；spaCR 自身的环境绝不会被改动，因此这里的任何操作都不会导致 spaCR 无法启动。在按下 Install 之前，对话框会说明安装位置、要下载的内容、大小以及许可协议。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#10",
@@ -306,7 +316,9 @@
       "source_sha256": "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
       "context": "The application view behind it can follow it. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it executes and a console can say why it failed after the dialog has gone.",
       "translation": "“其背后的界面可以跟踪它。”:attr:`job_started`、:attr:`job_progressed`、:attr:`job_failed` 和 :attr:`job_cancelled` 会告知打开该对话框的控件安装正在做什么，因此按钮可以在运行期间显示 \"installing\"，而控制台可以在对话框关闭后说明失败原因。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
@@ -324,7 +336,9 @@
       "source_sha256": "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688",
       "context": "The bar sits on the buttons. The progress line is the last thing above the buttons and the status keeps four lines' room while a job executes, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
       "translation": "“进度条紧贴按钮。”进度行是按钮上方的最后一项，作业运行期间状态区保留四行的空间，因此进度条不会随状态行的增减而移动。描述该后端并等待按钮被按下。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#2",
@@ -332,7 +346,9 @@
       "source_sha256": "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
       "context": "The window keeps responding. The install -- a venv, then pip, often for minutes -- executes on a background execution unit; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
       "translation": "“窗口保持响应。”安装过程（先创建 venv，然后运行 pip，通常需要几分钟）在工作线程上运行；对话框会显示当前所处的步骤以及 pip 的最新输出行，Cancel 会停止 pip 及其启动的所有进程，并删除构建了一半的环境。失败时会原样显示失败命令自身的输出。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#3",
@@ -622,7 +638,9 @@
       "source_sha256": "8c0f3505870bd1f5d06e07e1ffb5df5ce1fe0c21289944392bb6fb05135776bb",
       "context": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "translation": "措辞与已停用的复选框完全相同，未作更改。有问题的是承载这些文字的控件，而不是这句话本身。之所以用对话说明而不只是作为标签，是因为已审核模型与未审核模型之间的区别在表格中是看不出来的。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#2",
@@ -1776,7 +1794,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#1",
+      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#2",
       "source": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
       "source_sha256": "39389b4a6eacde9237afd0366ab10772af118d5f1494f20ba04b4354aa15eeff",
       "context": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
@@ -1951,7 +1969,9 @@
       "source_sha256": "1ab63210ebdec42427551e75b200a38afc556643e7db7f0768b10e0504d72581",
       "context": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "translation": "Plaque Assay 读取两类文件夹，而它过去借用的 Mask 预览两者都不适用：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview#2",
@@ -1999,7 +2019,9 @@
       "source_sha256": "70276fbbbba3d1530667cabb961d54da3ea2de7216072090f119e8782535ab7f",
       "context": "The box weight that means: pick one from the figure's size.",
       "translation": "表示“根据图的尺寸自动选择”的框线宽值。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.IMAGE_TABS#0",
@@ -2031,7 +2053,9 @@
       "source_sha256": "1d4e81f8e58a6649ef207f6f6de28b66942d99656c1a1fa731c7855d7f8ed42b",
       "context": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "translation": "更改它会重绘已分割的内容；不会重新运行任何处理。所有宽度都以“图像”像素为单位：轮廓在图像数组上扩展，框在显示前绘制到 pixmap 中，因此无论视图如何缩放，以及在保存的图像中，线条都保持其在图像中所占的比例，正如轮廓一贯的表现。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.OverlayStyle#2",
@@ -2513,7 +2537,9 @@
       "source_sha256": "781131914582d812dc5057d3b0f345d1488386f956032fe3126cd766b3e058e8",
       "context": "Non-modal, because what it answers is how the picture beside it looks.",
       "translation": "非模态，因为它所调整的是旁边图像的外观。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.open_overlay_settings#2",
@@ -4313,7 +4339,9 @@
       "source_sha256": "8002df1aa881f4bf52016412cb593be5165d31e5b2ef26a2b3da7a100655ddf7",
       "context": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised: one bad template must not take the others off the menu.",
       "translation": "每次调用都从包数据中读取；该文件夹只包含少量小文件，并且只在 Experiment Design 构建其菜单时读取。无法解析的文件会被跳过而不是抛出异常：一个有问题的模板不能让其他模板从菜单中消失。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plate_layout.plate_templates#2",

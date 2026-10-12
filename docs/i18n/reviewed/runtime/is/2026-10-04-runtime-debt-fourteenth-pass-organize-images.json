@@ -164,13 +164,16 @@
       "source": "Counterfactual generator",
       "source_sha256": "a5d2f0189a49ece007c5ceac1de03810b27c91edffb54e02ce26aa8f1d96df19",
       "translation": "Gagnstaðreyndamyndgjafi"
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "counterfactual_generator",
       "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
       "source_sha256": "cc931e77b92c7cc2d17e64ac36a4f5b0612eda3f8a927e238e4aabe6730841d0",
-      "translation": "Líkanið sem teiknar gagnstaðreyndu dæmin. 'autoencoder' er hraðvirkt og þjálfað til að snúa niðurstöðu flokkarans. 'diffusion' er aðeins þjálfað til að teikna myndútsnið af hverjum flokki og teiknar að hluta suðað útsnið upp á nýtt undir markflokknum, svo viðsnúningur er ekki það sem það var bestað fyrir; það er hægara og þarf GPU, þúsundir myndútsniða og hundruð umferða; með nokkur hundruð útsnið breytir það varla neinu. Diffusion-vogtölurnar eru vistaðar sem counterfactual_diffusion.pt við hlið taflnanna. Hunsað nema kveikt sé á counterfactuals. Sjálfgefið 'autoencoder'."
+      "translation": "Líkanið sem teiknar gagnstaðreyndu dæmin. 'autoencoder' er hraðvirkt og þjálfað til að snúa niðurstöðu flokkarans. 'diffusion' er aðeins þjálfað til að teikna myndútsnið af hverjum flokki og teiknar að hluta suðað útsnið upp á nýtt undir markflokknum, svo viðsnúningur er ekki það sem það var bestað fyrir; það er hægara og þarf GPU, þúsundir myndútsniða og hundruð umferða; með nokkur hundruð útsnið breytir það varla neinu. Diffusion-vogtölurnar eru vistaðar sem counterfactual_diffusion.pt við hlið taflnanna. Hunsað nema kveikt sé á counterfactuals. Sjálfgefið 'autoencoder'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

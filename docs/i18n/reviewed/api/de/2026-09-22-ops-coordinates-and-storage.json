@@ -69,7 +69,9 @@
       "label": "spacr.ops_engine.run_ops#2",
       "source": "EITHER FOLDER MAY BE A PARENT OF BOTH HALVES, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the plate, rather than filing 1,281 phenotype fields and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
       "source_sha256": "20af16caf73243d9a48e62b293cb71e241e38947830291ed1fe0e81315bd2019",
-      "translation": "Beide Ordner dürfen übergeordnete Ordner beider Aufnahmeteile sein; jede Einstellung liest dennoch ihren eigenen Teil: ``genotype_source`` indexiert nur Namen mit einer Zyklusangabe und ``phenotype_source`` nur Namen ohne eine solche Angabe. Enthält die Phänotypaufnahme Zyklusangaben, werden ersatzweise diese Namen verwendet. Wenn beide auf ``20200202_6W-LaC024A`` zeigen, wird daher die Platte verarbeitet, statt 1.281 Phänotypfelder und 333 Sequenzierungsfelder als eine einzige Aufnahme zu behandeln; siehe :func:`_index_tiles`."
+      "translation": "Beide Ordner dürfen übergeordnete Ordner beider Aufnahmeteile sein; jede Einstellung liest dennoch ihren eigenen Teil: ``genotype_source`` indexiert nur Namen mit einer Zyklusangabe und ``phenotype_source`` nur Namen ohne eine solche Angabe. Enthält die Phänotypaufnahme Zyklusangaben, werden ersatzweise diese Namen verwendet. Wenn beide auf ``20200202_6W-LaC024A`` zeigen, wird daher die Platte verarbeitet, statt 1.281 Phänotypfelder und 333 Sequenzierungsfelder als eine einzige Aufnahme zu behandeln; siehe :func:`_index_tiles`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "which microplate sample positions to run; every microplate sample position found when None.",
@@ -125,7 +127,9 @@
       "label": "spacr.ops_objects.PlateObject#2",
       "source": "the well-wide number. Unique across the whole well, which is the entire reason this type exists -- per-window numbering gives two windows an object #1 apiece.",
       "source_sha256": "a5eba814db15a79482b0220b9e374d0673825f6c925d6b5834fea1486e36a499",
-      "translation": "die im gesamten Well eindeutige Nummer. Dafür existiert dieser Typ: Bei einer Nummerierung pro Fenster hätten zwei Fenster jeweils ein Objekt #1."
+      "translation": "die im gesamten Well eindeutige Nummer. Dafür existiert dieser Typ: Bei einer Nummerierung pro Fenster hätten zwei Fenster jeweils ein Objekt #1.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "column of the centroid, in well-frame pixels.",
@@ -146,7 +150,9 @@
       "label": "spacr.ops_objects.PlateObject#5",
       "source": "pixel count of the mask that was kept, which is the UNCLIPPED observation wherever one exists.",
       "source_sha256": "cd87e7ead28e1ec5f093c3e677e5bea79aebd18f9df37b8d3aaa5abccfdd438d",
-      "translation": "Pixelzahl der beibehaltenen Maske. Sofern vorhanden, wird die vollständige, nicht abgeschnittene Beobachtung verwendet."
+      "translation": "Pixelzahl der beibehaltenen Maske. Sofern vorhanden, wird die vollständige, nicht abgeschnittene Beobachtung verwendet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them inclusive, as :class:`WindowObject` carries them.",
@@ -174,7 +180,9 @@
       "label": "spacr.ops_objects.WindowObject#0",
       "source": "One segmented object as ONE window saw it, in well-frame coordinates.",
       "source_sha256": "bbe5869f53461fac1f339f4906b81de90bd037d62c2e4a5a9730a390de9ef160",
-      "translation": "Ein segmentiertes Objekt, wie es ein einzelnes Fenster erfasst hat, in Koordinaten des Wells."
+      "translation": "Ein segmentiertes Objekt, wie es ein einzelnes Fenster erfasst hat, in Koordinaten des Wells.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the window it was segmented in, so a disagreement can be traced back to the pixels that produced it.",
@@ -195,14 +203,18 @@
       "label": "spacr.ops_objects.WindowObject#3",
       "source": "whether its mask touches a window edge that is not also a canvas edge -- meaning this window did NOT see all of it. A clipped observation is never preferred and never emitted alone.",
       "source_sha256": "c531bfa81c783863267ad946371637abfadaa556ba897e1cd80300f122da56a7",
-      "translation": "ob seine Maske eine Fenstergrenze berührt, die nicht zugleich eine Grenze der Gesamtbildfläche ist. Dieses Fenster hat das Objekt dann nicht vollständig erfasst. Eine abgeschnittene Beobachtung wird niemals bevorzugt und niemals allein ausgegeben."
+      "translation": "ob seine Maske eine Fenstergrenze berührt, die nicht zugleich eine Grenze der Gesamtbildfläche ist. Dieses Fenster hat das Objekt dann nicht vollständig erfasst. Eine abgeschnittene Beobachtung wird niemals bevorzugt und niemals allein ausgegeben.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "row of the object's centroid, in WELL-frame pixels -- not window-frame. Matching across a seam compares centroids from two different windows, so they have to be in a frame both agree on.",
       "label": "spacr.ops_objects.WindowObject#4",
       "source": "row of the object's centroid, in WELL-frame pixels -- not window-frame. Matching across a seam compares centroids from two different windows, so they have to be in a frame both agree on.",
       "source_sha256": "6810b4ba6f97eda44eb8a5bbbbde5f3a1408c99cca3a44836516e98dcb1382f8",
-      "translation": "Zeile des Objektschwerpunkts, in Pixeln des Well-Koordinatensystems, nicht des Fensterkoordinatensystems. Beim Abgleich über eine Fenstergrenze werden Schwerpunkte aus zwei verschiedenen Fenstern verglichen; beide müssen daher im selben Koordinatensystem liegen."
+      "translation": "Zeile des Objektschwerpunkts, in Pixeln des Well-Koordinatensystems, nicht des Fensterkoordinatensystems. Beim Abgleich über eine Fenstergrenze werden Schwerpunkte aus zwei verschiedenen Fenstern verglichen; beide müssen daher im selben Koordinatensystem liegen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "column of the same centroid, same frame.",
@@ -223,7 +235,9 @@
       "label": "spacr.ops_objects.WindowObject#7",
       "source": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
       "source_sha256": "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d",
-      "translation": "``(top, left, bottom, right)`` in Pixeln des Well-Koordinatensystems, alle Grenzen einschließlich. ``bottom`` und ``right`` sind die letzte von der Maske belegte Zeile und Spalte; ihre Höhe beträgt also ``bottom - top + 1``. Dieser Docstring bezeichnete die Grenzen bis zum 2026-09-19 als ausschließend, obwohl der Code sie stets einschloss (`_label_extents` reduziert mit ``np.maximum``). Wer anhand dieser Beschreibung eine Ausdehnung berechnete, erhielt daher in jeder Richtung ein Pixel zu wenig."
+      "translation": "``(top, left, bottom, right)`` in Pixeln des Well-Koordinatensystems, alle Grenzen einschließlich. ``bottom`` und ``right`` sind die letzte von der Maske belegte Zeile und Spalte; ihre Höhe beträgt also ``bottom - top + 1``. Dieser Docstring bezeichnete die Grenzen bis zum 2026-09-19 als ausschließend, obwohl der Code sie stets einschloss (`_label_extents` reduziert mit ``np.maximum``). Wer anhand dieser Beschreibung eine Ausdehnung berechnete, erhielt daher in jeder Richtung ein Pixel zu wenig.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One record per group no window saw whole, for a run report.",
@@ -237,14 +251,18 @@
       "label": "spacr.ops_objects.unseen_records#1",
       "source": "WHY THIS IS NOT THE REFUSAL MESSAGE. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the run raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
       "source_sha256": "4cd68cc51de86b0c9948d73e2b8e80c62075f900c438b909d77b76f9299618a8",
-      "translation": "Der Unterschied zur Ablehnungsmeldung: :func:`_unseen_report` nennt die größte Gruppe und die Abhilfe, also die Information, die eine Bedienperson in einer Zeile benötigt. Nur diese Information blieb auch vom Lauf für Well A1 erhalten: 54 Gruppen wurden verworfen, und der Bericht bewahrte nur einen Begrenzungsrahmen und eine Anzahl. Die dadurch aufgeworfene Frage, ob es sich um Cellpose-Fragmente ohne Gegenstück oder um abgeschnittene Beobachtungen handelte, deren vollständige Beobachtung bei der Zusammenführung übersehen wurde, ließ sich nachträglich nur durch erneute Segmentierung des Wells beantworten. Diese Datensätze liefern den mit geringem Aufwand verfügbaren Teil der Antwort, solange die Beobachtungen noch im Arbeitsspeicher liegen."
+      "translation": "Der Unterschied zur Ablehnungsmeldung: :func:`_unseen_report` nennt die größte Gruppe und die Abhilfe, also die Information, die eine Bedienperson in einer Zeile benötigt. Nur diese Information blieb auch vom Lauf für Well A1 erhalten: 54 Gruppen wurden verworfen, und der Bericht bewahrte nur einen Begrenzungsrahmen und eine Anzahl. Die dadurch aufgeworfene Frage, ob es sich um Cellpose-Fragmente ohne Gegenstück oder um abgeschnittene Beobachtungen handelte, deren vollständige Beobachtung bei der Zusammenführung übersehen wurde, ließ sich nachträglich nur durch erneute Segmentierung des Wells beantworten. Diese Datensätze liefern den mit geringem Aufwand verfügbaren Teil der Antwort, solange die Beobachtungen noch im Arbeitsspeicher liegen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty microplate sample position frame around it is a fragment.",
       "label": "spacr.ops_objects.unseen_records#2",
       "source": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty well frame around it is a fragment.",
       "source_sha256": "bbb4199502e49727481c56fde8862bdf97f1589a42ecb0da4d0ea01e666a974e",
-      "translation": "Den anderen Teil liefert :func:`spacr.ops_engine.run_ops`: Jeder Begrenzungsrahmen wird mit den tatsächlich nummerierten Objekten verglichen. Liegt über einer abgelehnten Gruppe ein nummeriertes Objekt, wurde die Zusammenführung verpasst. Liegt sie dagegen in einem ansonsten leeren Bereich des Well-Koordinatensystems, handelt es sich um ein Fragment."
+      "translation": "Den anderen Teil liefert :func:`spacr.ops_engine.run_ops`: Jeder Begrenzungsrahmen wird mit den tatsächlich nummerierten Objekten verglichen. Liegt über einer abgelehnten Gruppe ein nummeriertes Objekt, wurde die Zusammenführung verpasst. Liegt sie dagegen in einem ansonsten leeren Bereich des Well-Koordinatensystems, handelt es sich um ein Fragment.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "from :func:`sew` -- every group, not only the refused ones; the ones with a complete observation are skipped here.",
@@ -328,7 +346,9 @@
       "label": "spacr.ops_store#0",
       "source": "Where an OPS run's tables live, and the gate that says the objects exist.",
       "source_sha256": "7159a2ef5f9d165342a4a18f2090a3ddf2babcc495c186f4f9c2dafc862fd94d",
-      "translation": "Speicherort der Tabellen eines OPS-Laufs und Prüfung, ob die Objekte vorliegen."
+      "translation": "Speicherort der Tabellen eines OPS-Laufs und Prüfung, ob die Objekte vorliegen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The storage contract has two halves. In ``measurements.db``, which is authoritative: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_reads`` and ``ops_barcodes``. Beside it, as a cache: parquet copies of ``ops_reads`` and ``ops_barcodes``, written in the same step with their row counts asserted equal, so the sidecar cannot drift from the authority unnoticed.",
@@ -342,14 +362,18 @@
       "label": "spacr.ops_store#2",
       "source": "SQLITE IS THE AUTHORITY AND PARQUET IS A CACHE, which is a decision and not a detail. The two can disagree, so one of them has to be right by definition -- otherwise a reader that picked the faster one would sometimes be reading yesterday's numbers with no way to tell. :func:`write_table` writes both in one call and asserts the counts match before either is visible as complete; :func:`read_table` prefers the cache and falls back without complaining, because a missing cache is a performance question and not a correctness one.",
       "source_sha256": "1a9c5980a3d2e0b791d2fa3b2b569641c59dddfd10e28870ecef1230938994a4",
-      "translation": "SQLITE ist maßgeblich, PARQUET dient als Cache. Das ist eine bewusste Festlegung: Da die beiden voneinander abweichen können, muss eine Quelle per Definition maßgeblich sein. Andernfalls könnte eine lesende Funktion, die die schnellere Quelle wählt, unbemerkt die Werte vom Vortag lesen. :func:`write_table` schreibt beide mit einem Aufruf und prüft die übereinstimmenden Zeilenzahlen, bevor eine von ihnen als vollständig sichtbar wird. :func:`read_table` bevorzugt den Cache und greift bei Bedarf ohne Fehlermeldung auf die Datenbank zurück. Ein fehlender Cache betrifft die Geschwindigkeit, nicht die Korrektheit."
+      "translation": "SQLITE ist maßgeblich, PARQUET dient als Cache. Das ist eine bewusste Festlegung: Da die beiden voneinander abweichen können, muss eine Quelle per Definition maßgeblich sein. Andernfalls könnte eine lesende Funktion, die die schnellere Quelle wählt, unbemerkt die Werte vom Vortag lesen. :func:`write_table` schreibt beide mit einem Aufruf und prüft die übereinstimmenden Zeilenzahlen, bevor eine von ihnen als vollständig sichtbar wird. :func:`read_table` bevorzugt den Cache und greift bei Bedarf ohne Fehlermeldung auf die Datenbank zurück. Ein fehlender Cache betrifft die Geschwindigkeit, nicht die Korrektheit.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Readiness is a data-selection boundary, not a step. No sequencing or phenotype channel is read until ``ops_objects`` is on disk and its row count checked. :func:`objects_ready` is that sentence, and it returns a REASON when the answer is no -- a data-selection boundary that only says \"not yet\" makes the operator guess which half failed.",
       "label": "spacr.ops_store#3",
       "source": "READINESS IS A GATE, NOT A STEP. No sequencing or phenotype channel is read until ``ops_objects`` is on disk and its row count checked. :func:`objects_ready` is that sentence, and it returns a REASON when the answer is no -- a gate that only says \"not yet\" makes the operator guess which half failed.",
       "source_sha256": "1c711f9c4ef2faf02bf75fde86dea76d0154e1adb77e71de2d6d114800e65abd",
-      "translation": "Die Bereitschaftsprüfung ist eine Voraussetzung für die Verarbeitung: Kein Sequenzierungs- oder Phänotypkanal wird gelesen, bevor ``ops_objects`` auf der Festplatte liegt und die Zeilenzahl geprüft wurde. :func:`objects_ready` setzt diese Regel um und gibt bei einem negativen Ergebnis einen Grund zurück. Die bloße Angabe \"not yet\" (noch nicht) würde die Bedienperson darüber im Unklaren lassen, welcher der beiden Teile fehlt."
+      "translation": "Die Bereitschaftsprüfung ist eine Voraussetzung für die Verarbeitung: Kein Sequenzierungs- oder Phänotypkanal wird gelesen, bevor ``ops_objects`` auf der Festplatte liegt und die Zeilenzahl geprüft wurde. :func:`objects_ready` setzt diese Regel um und gibt bei einem negativen Ergebnis einen Grund zurück. Die bloße Angabe \"not yet\" (noch nicht) würde die Bedienperson darüber im Unklaren lassen, welcher der beiden Teile fehlt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Other measurement tables use the same object ids, so later steps need no special case. The numbering is deterministic for that reason: those ids join tables written at different times.",
@@ -384,7 +408,9 @@
       "label": "spacr.picture_settings.drop_retired#3",
       "source": "A RENAMED key is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a key this panel offers. The new name wins when a blob carries both.",
       "source_sha256": "6e641d90767dadf52e6614fbbb08ed6a48a4bb5181deefd65b442010fae0845a",
-      "translation": "Ein umbenannter Schlüssel wird verschoben statt entfernt: ``img_size`` wurde am 2026-09-19 zu ``crop_size``. Ein gespeicherter Lauf behält seine gewählte Größe. Die Umbenennung wird über :func:`spacr.settings.surviving_setting_name` ermittelt, den auch die Einstellungsdateien verwenden. Sie erfolgt nur zu einem Schlüssel, den dieses Panel anbietet. Sind beide Namen gespeichert, hat der neue Vorrang."
+      "translation": "Ein umbenannter Schlüssel wird verschoben statt entfernt: ``img_size`` wurde am 2026-09-19 zu ``crop_size``. Ein gespeicherter Lauf behält seine gewählte Größe. Die Umbenennung wird über :func:`spacr.settings.surviving_setting_name` ermittelt, den auch die Einstellungsdateien verwenden. Sie erfolgt nur zu einem Schlüssel, den dieses Panel anbietet. Sind beide Namen gespeichert, hat der neue Vorrang.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "review": {

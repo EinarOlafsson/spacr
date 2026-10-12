@@ -27,7 +27,9 @@
       "label": "spacr.qt.widgets.provider_marks#5",
       "source": "GITHUB IS THE EXCEPTION, and deliberately. GitHub publishes the Octocat's path data for use as a link mark, so that one is the real thing rather than a circle with ears -- still a path, still recoloured per theme, still nothing added to the wheel.",
       "source_sha256": "ecb6e0e48b5eba3fd475114a91086f477d97de7359a421100b0d838e3e8eca0e",
-      "translation": "GITHUB 是例外，而且是有意为之。GitHub 公开了 Octocat 的路径数据，供用作链接标记，所以这一个是真正的标志，而不是一个带耳朵的圆 -- 它仍然是路径，仍然按主题重新着色，也仍然没有往安装包里加任何东西。"
+      "translation": "GITHUB 是例外，而且是有意为之。GitHub 公开了 Octocat 的路径数据，供用作链接标记，所以这一个是真正的标志，而不是一个带耳朵的圆 -- 它仍然是路径，仍然按主题重新着色，也仍然没有往安装包里加任何东西。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the paths written, in the order html, pdf.",

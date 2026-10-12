@@ -58,7 +58,9 @@
       "source_sha256": "ae5ea440d84b44481b485c7d3230fe82f358f4c679cbc6aa0f04025bd64dea9d",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**直径。**  :mod:`spacr.diameter` 根据用户自己的少量视野测量对象的特征大小，无需加载 Cellpose 或 torch。``diameter`` 是 spaCR 公开的 Cellpose 4 设置中影响最大的一项——``CellposeModel.eval(diameter=...)`` 会按 ``30/diameter`` 缩放每张图像，使对象接近 ``cpsam`` 的工作尺寸——而它恰恰是用户靠猜的那一项。  本模块构建的面板把猜测变成按对象类型进行的测量，并显示测量了多少个对象，以便对该数值提出质疑。  它从 Mask generation 的 Model zoo 弹出窗口中的 *Measure diameters…* 按钮打开，位于自己的弹出窗口中，紧挨着与它互为另一半的模型选择，而不是放在主界面上。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#1",
@@ -66,7 +68,9 @@
       "source_sha256": "3d21b0ccd32c7abefdfede526b3a0dfa83dec855b2997e49dca774590e0335b8",
       "context": "Asked for by a user: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "应一位用户的要求：\"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" 因此它容纳整个 :class:`DiameterPanel`——测量按钮、每种对象类型一行（附其依据和说明）、每行的 *Use* 以及 *Use all*——并且面板仍会写入打开 zoo 的那个界面的设置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_graph#3",
@@ -106,7 +110,9 @@
       "source_sha256": "98b235751b5e8db98eefc9c82854085342496c96353c59830a20c04da648e1f5",
       "context": "The panel is a process-wide singleton with two callers. A plain ``connect`` on every show accumulates receivers, so one press would eventually run the regression picker's install AND the Image UMAP's; a plain ``disconnect()`` warns when nothing is connected yet. Holding the current slot and replacing it does neither. A previous slot bound to a widget that has since been deleted is simply dropped.",
       "translation": "该面板是整个进程共用的单例，有两个调用方。每次显示时都直接 ``connect`` 会不断累积接收者，因此一次点击最终会同时运行回归选择器的安装和 Image UMAP 的安装；直接 ``disconnect()`` 则会在尚未连接任何内容时发出警告。保存当前槽并替换它，两种问题都不会出现。先前绑定到已被删除控件的槽会被直接丢弃。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
@@ -122,7 +128,9 @@
       "source_sha256": "bbad7853f2f4f796684fbb334f2c329a26250ede47403071d1a5bb2484beb7ef",
       "context": "Requested: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "原始需求：“图形或实时预览容器内的任何区块也都应该可以折叠……每个 GUI 元素，无论是图形还是表格”。这是界面内的区块获得折叠控件的唯一方式，因此它们的外观和行为都一致：主体上方有一个箭头和名称（与控制台和 System 使用的相同 :class:`~spacr.qt.widgets.foldable.Folder`），点击即可折叠，折叠后的区块只剩被固定在所分配空间“底部”的标题（:func:`lock_folded_to_bottom`）。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#0",
@@ -196,7 +204,9 @@
       "source_sha256": "05b7bc0f000a440aa7247a6c49ec65332c1dd6c4f67ce197bd6ca60773cd72a8",
       "context": "Step 2 of the timeflows plan is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "timeflows 方案的第 2 步是一个数值，而不是一项功能。在编写、训练和维护第三个 Cellpose 预测头之前，必须先有一个基线：独立分割每一帧，按掩膜重叠链接各帧，并用跟踪研究界已经公认的度量将结果与参考标注对比评分。无论该分支得出什么，要么比这个更好，要么不是；方案明确指出，“普通拼接器已经足够好”是一个真实可能的结果，如果发生就应当接受。只有先有这个数值，这一结果才能显现出来。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -204,7 +214,9 @@
       "source_sha256": "17c135e9bea67a789467a3aeb8c896fec475d00c0235e76683650a059a77c9f1",
       "context": "The timeflows plan rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "timeflows 方案依赖于关于训练数据的一个前提：一个对象在其出现的每一帧中都保持“相同的标签”。时间流预测头被训练为从帧 ``t`` 中某个对象的像素指向该对象在帧 ``t+1`` 中的中心，而唯一能说明 ``t+1`` 中哪个对象是同一对象的就是标签。如果标注在某个对象死亡或离开后回收了它的标签，模型就会被训练为指向一个无关的细胞，而且之后的任何评分都发现不了——留出检验会打乱同样错误的标签，并与自身保持一致。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.ImportedCopyNotReleased#1",
@@ -212,7 +224,9 @@
       "source_sha256": "d692aaf2d93012e0d7066b42cac2900decdd389f9dda5d46d0915ce40ce0e7ea",
       "context": "``foreign.run_import`` copies the imported frame into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty, so a project built purely by import is readable by every spaCR tool. That copy is a convenience and it stops being one the moment spaCR measures the same field: :func:`_merge_and_save_to_database` *appends*, so its rows land beside theirs, in different columns, with nothing in the row marking the seam -- and every ``count_cell`` downstream becomes the sum of two populations.",
       "translation": "``foreign.run_import`` 在目标为空时，会把导入的数据帧复制到规范的 ``cell`` / ``nucleus`` / ``pathogen`` 表中，这样仅通过导入构建的项目也能被每个 spaCR 工具读取。这个副本只是为了方便，一旦 spaCR 测量同一视野，它就不再方便：:func:`_merge_and_save_to_database` 采用*追加*方式，因此它的行会落在导入行的旁边，位于不同的列中，行内没有任何标记表明接缝——下游的每个 ``count_cell`` 都会变成两个群体之和。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

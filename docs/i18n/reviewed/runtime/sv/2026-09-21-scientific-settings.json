@@ -165,13 +165,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "ops_library",
-      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
-      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
-      "translation": "En CSV med guide-streckkoder, där kolumnen heter prefix, barcode eller sequence. Om filen anges matchas även varje kärnas avkodade streckkod mot närmaste guide. Körningen rapporterar hur många punkter som matchar biblioteket exakt, det mått som visar om avkodningen överhuvudtaget fungerade. Tomt värde avkodar fortfarande streckkoder men kan inte bedöma dem mot biblioteket. Standard None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "ops_raster_overlap",
       "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
       "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab",
@@ -183,13 +176,6 @@
       "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
       "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320",
       "translation": "Hur mycket ljusare än omgivningen en punkt måste vara för att räknas som en avläsning. Ett lägre värde hittar fler avläsningar och mer skräp, vilket syns som en lägre andel biblioteksmatchningar snarare än ett felmeddelande. Ett högre värde förlorar verkliga avläsningar och lämnar kärnor med för få avläsningar för en omröstning. Standard 315, värdet som referenskörningen använde för denna platta."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "ops_store_reads",
-      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
-      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
-      "translation": "Skriv varje avläsning bakom streckkoderna till tabellen ops_reads: en rad per avläsning och cykel, med vald bas, dess marginal och de fyra intensiteter som låg till grund för valet. Detta gör att en misstänkt streckkod kan spåras tillbaka till sina pixlar. Funktionen är AV som standard eftersom tabellen blir stor: en hel brunn på referensplattan ger omkring trettio miljoner rader. Aktivera den därför för en eller två brunnar snarare än för en hel platta. Standard False."
     },
     {
       "table": "setting_tooltips",
@@ -260,6 +246,24 @@
       "source": "Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None.",
       "source_sha256": "17054c5d930e7a7d9bd171989d2afd07262ab9ae882fc59aa180dc1f37b9e8c7",
       "translation": "Två gränser [min, max] för koefficientaxeln (x) i det Toxoplasma-vulkandiagram som regressionsflödet skapar när annotation_source är den medföljande Toxoplasma-annoteringen. Minska intervallet för att förstora träffar nära noll; öka det för att behålla gener med stora effekter i diagrammet. None använder [-0.5, 0.5], inte automatisk skalning. Standard None."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
+      "translation": "En CSV med guide-streckkoder, där kolumnen heter prefix, barcode eller sequence. Om filen anges matchas även varje kärnas avkodade streckkod mot närmaste guide. Körningen rapporterar hur många punkter som matchar biblioteket exakt, det mått som visar om avkodningen överhuvudtaget fungerade. Tomt värde avkodar fortfarande streckkoder men kan inte bedöma dem mot biblioteket. Standard None.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
+      "translation": "Skriv varje avläsning bakom streckkoderna till tabellen ops_reads: en rad per avläsning och cykel, med vald bas, dess marginal och de fyra intensiteter som låg till grund för valet. Detta gör att en misstänkt streckkod kan spåras tillbaka till sina pixlar. Funktionen är AV som standard eftersom tabellen blir stor: en hel brunn på referensplattan ger omkring trettio miljoner rader. Aktivera den därför för en eller två brunnar snarare än för en hel platta. Standard False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

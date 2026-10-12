@@ -7,7 +7,9 @@
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
       "translation": "wie viele nicht annotierte Bildausschnitte zufällig gezogen und als die Klasse ABWESEND angepasst werden, wenn nur eine Klasse annotiert wurde. ``None`` (Vorgabe) verweigert das stattdessen, wie bisher.",
-      "rebound_from": "spacr.active_learning.retrain_round#26"
+      "rebound_from": "spacr.active_learning.retrain_round#26",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "morphology-feature columns used by the cross-fitted machine-learning classification model.",
@@ -113,7 +115,9 @@
       "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog.done#1",
       "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
       "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
-      "translation": "Sowohl Löschen als auch Abbrechen laufen hier durch, und KEINES von beiden sendet ein Close-Ereignis — ``QDialog.done`` blendet das Widget aus —, weshalb hier und nicht in ``closeEvent`` der Abbau eines modalen Dialogs zu stehen hat. Qt bricht den Prozess sofort ab, wenn ein laufender ``QThread`` mit seinem Besitzer zerstört wird, und der Durchlauf kann noch unterwegs sein, wenn abgebrochen wird."
+      "translation": "Sowohl Löschen als auch Abbrechen laufen hier durch, und KEINES von beiden sendet ein Close-Ereignis — ``QDialog.done`` blendet das Widget aus —, weshalb hier und nicht in ``closeEvent`` der Abbau eines modalen Dialogs zu stehen hat. Qt bricht den Prozess sofort ab, wenn ein laufender ``QThread`` mit seinem Besitzer zerstört wird, und der Durchlauf kann noch unterwegs sein, wenn abgebrochen wird.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "NONE RATHER THAN throwing: Qt probes past the end to discover where a layout stops, so an exception here is a crash during ordinary layout.",
@@ -136,14 +140,18 @@
       "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel#5",
       "source": "Two job runners, and the separation is load-bearing twice: the pending work on the main one is what reports \"a plate is still being scanned\", and a plane-count read is not a plate scan; and the second is marked not user-visible so the Home run banner does not announce a read the user never started.",
       "source_sha256": "ad798692c75a931f7d9712a54c9059b4c60de253e1296721a2c1868083db9fb1",
-      "translation": "Zwei Auftragsausführer, und die Trennung trägt in zweierlei Hinsicht: Die ausstehende Arbeit im ersten ist das, was \"a plate is still being scanned\" meldet, und das Auslesen der Ebenenanzahl ist kein Plattendurchlauf; und der zweite ist als nicht sichtbar markiert, damit das Laufbanner auf Home kein Auslesen ankündigt, das nie gestartet wurde."
+      "translation": "Zwei Auftragsausführer, und die Trennung trägt in zweierlei Hinsicht: Die ausstehende Arbeit im ersten ist das, was \"a plate is still being scanned\" meldet, und das Auslesen der Ebenenanzahl ist kein Plattendurchlauf; und der zweite ist als nicht sichtbar markiert, damit das Laufbanner auf Home kein Auslesen ankündigt, das nie gestartet wurde.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own structured-data names, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
       "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings#1",
       "source": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own keys, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
       "source_sha256": "f9b84851fc164eaeb2d91d44e75aabedfd097d2f9ccae56845eab2e8c5b90aa2",
-      "translation": "Der Rest wird BEHALTEN, nicht verworfen: :meth:`settings` gibt ihn unverändert neben den eigenen Schlüsseln der Tabelle zurück, sodass dieses Widget eine Ecke einer Einstellungsdatei bearbeiten kann, ohne die ganze Datei festzuhalten."
+      "translation": "Der Rest wird BEHALTEN, nicht verworfen: :meth:`settings` gibt ihn unverändert neben den eigenen Schlüsseln der Tabelle zurück, sodass dieses Widget eine Ecke einer Einstellungsdatei bearbeiten kann, ohne die ganze Datei festzuhalten.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Laboratory microplate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",

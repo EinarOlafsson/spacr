@@ -266,7 +266,9 @@
       "source_sha256": "3fcf1fe5fc1b5a20cf881519601a6df4fef33f1c1dc6848c4f3aa27a2bcef782",
       "context": "Why there is no built-in token. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is executing it:",
       "translation": "POR QUÉ NO HAY UN TOKEN INTEGRADO. Subir a una cuenta desde la máquina de cada usuario supondría distribuir un token de escritura dentro de spaCR. Un token de escritura no es un permiso de subida: también puede reescribir y ELIMINAR todos los modelos de esa cuenta, y cualquiera que instale spaCR puede extraerlo del paquete. Así que la subida usa el token de quien la ejecuta:",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share#2",
@@ -338,7 +340,9 @@
       "source_sha256": "c6b2cf6a10e46a573620dceb53eec1de371272ec70e28e0259f8e34fa6cb3e3d",
       "context": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
       "translation": "Habla directamente con la API HTTP de Gradio mediante urllib en lugar de mediante gradio_client, porque ese paquete no es una dependencia de spaCR: cuando faltaba, esto lanzaba una excepción, el llamador recurría al token propio de quien subía, y el modelo acababa en un sitio donde nadie lo buscaba. Una vía de publicación que depende de una importación opcional es una vía de publicación que en silencio hace otra cosa.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share.central_upload#2",
@@ -434,7 +438,9 @@
       "source_sha256": "58f783a0077a53a51ae8f43d35e568f976afb733f999a896a04912d169bb1f6b",
       "context": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
       "translation": "Se admite dejar cualquier campo en blanco: una tarjeta que dice \"not recorded\" es honesta, y un formulario que se negara a enviarse sin un número recibiría uno inventado. Construye el formulario para compartir ``filename``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#2",
@@ -458,7 +464,9 @@
       "source_sha256": "d5b17f1a551ef779a9f1a70b2e95749a1f4b916ca08e53003ee7ef9bdeee404f",
       "context": "Why the list has five headings rather than a boolean. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on application view and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
       "translation": "POR QUÉ LA LISTA TIENE CINCO ENCABEZADOS EN LUGAR DE UN BOOLEANO. Antes era una sola lista con \"show unvetted community uploads\" al lado -- un control que podía plegar exactamente uno de los cinco orígenes del catálogo. Con diez modelos entrenados aquí, cuatro redes base estándar de Cellpose-SAM, la colección de bioimage.io, los cuatro propios del motor Cellpose 3 y un catálogo compartido, un usuario que quisiera los diez y no el resto no tenía forma de decirlo. :class:`SourceStrip` son los cinco orígenes como cinco nombres en los que se puede hacer clic, cada uno en azul cuando sus filas están en pantalla y atenuado cuando están plegadas, recordados entre aperturas. La advertencia que llevaba el booleano no ha cambiado y sigue llegando antes que la primera fila sin revisar -- véase :meth:`ModelZooPicker._may_show_source`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#0",
@@ -474,7 +482,9 @@
       "source_sha256": "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
       "context": "What it changes, said before it changes it. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
       "translation": "LO QUE CAMBIA SE DICE ANTES DE CAMBIARLO. Un motor se instala en un entorno propio dentro de ``~/.spacr/backends``; el entorno propio de spaCR nunca se toca, así que nada de aquí puede impedir que spaCR arranque. El diálogo dice adónde va, qué descarga, cuánto ocupa y con qué licencia antes de pulsar Install.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#10",
@@ -482,7 +492,9 @@
       "source_sha256": "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
       "context": "The application view behind it can follow it. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it executes and a console can say why it failed after the dialog has gone.",
       "translation": "LA PANTALLA QUE HAY DETRÁS PUEDE SEGUIRLO. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` y :attr:`job_cancelled` indican al widget que abrió el diálogo qué está haciendo la instalación, de modo que un botón puede decir \"installing\" mientras se ejecuta y una consola puede decir por qué falló después de cerrarse el diálogo.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
@@ -500,7 +512,9 @@
       "source_sha256": "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688",
       "context": "The bar sits on the buttons. The progress line is the last thing above the buttons and the status keeps four lines' room while a job executes, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
       "translation": "LA BARRA ESTÁ SOBRE LOS BOTONES. La línea de progreso es lo último que hay encima de los botones y el estado reserva espacio para cuatro líneas mientras se ejecuta un trabajo, de modo que la barra no se mueve cuando la línea de estado crece o se reduce. Describe el motor y espera al botón.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#2",
@@ -508,7 +522,9 @@
       "source_sha256": "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
       "context": "The window keeps responding. The install -- a venv, then pip, often for minutes -- executes on a background execution unit; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
       "translation": "LA VENTANA SIGUE RESPONDIENDO. La instalación -- un venv y luego pip, a menudo durante minutos -- se ejecuta en un hilo de trabajo; el diálogo muestra en qué paso está y la última línea de pip, y Cancel detiene pip y todo lo que haya iniciado y elimina el entorno a medio construir. Un fallo muestra literalmente la salida propia de la orden que falló.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#3",
@@ -742,7 +758,9 @@
       "source_sha256": "8c0f3505870bd1f5d06e07e1ffb5df5ce1fe0c21289944392bb6fb05135776bb",
       "context": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "translation": "Las palabras son las mismas de la casilla retirada, sin cambios. Lo que estaba mal era el control que las llevaba, no la frase. Se dice en lugar de solo etiquetarse porque la diferencia entre un modelo revisado y uno sin revisar no se ve en una tabla.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#2",

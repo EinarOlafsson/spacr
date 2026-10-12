@@ -1189,13 +1189,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination_correction",
-      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
-      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
-      "translation": "Estima a iluminação desigual do microscópio a partir dos próprios campos e a divide dos pixels em cada etapa habilitada. Desativado por padrão. Ativado, a mesma célula tem a mesma aparência e a mesma medição onde quer que esteja no campo de visão, o que remove o viés dependente da posição por trás dos efeitos de borda da placa. Padrão False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "surrogate_model",
       "source": "Estimator family used to reproduce CV decisions: Random Forest, histogram gradient boosting, or optional XGBoost. Missing XGBoost is refused rather than silently substituted. Default random_forest.",
       "source_sha256": "c020262b3e8021902d293a076300ab5bcd0ecfc5ec111ce3a488a90d76810458",
@@ -1599,13 +1592,6 @@
       "source": "Fraction, from 0 to 1, of the smaller label's perimeter that two touching pathogen objects must share before they are merged. The default of 0 disables perimeter-based merging. Values near 0.1 merge most touching objects, whereas values from 0.5 to 0.8 merge only objects with a long shared boundary. Use this setting to join vacuoles that Cellpose divided into multiple labels.",
       "source_sha256": "98401699283b8e04e9617c5650ca4ac27a0338ebbd2e063b63b5a8dbe2aad330",
       "translation": "Fração, de 0 a 1, do perímetro do rótulo menor que dois objetos de patógeno que se tocam devem compartilhar antes de serem fundidos. O padrão 0 desativa a fusão por perímetro. Valores perto de 0.1 fundem a maioria dos objetos que se tocam, enquanto valores de 0.5 a 0.8 fundem apenas objetos com uma borda compartilhada longa. Use esta configuração para unir vacúolos que o Cellpose dividiu em vários rótulos."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "threshold_sensitivity",
-      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
-      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
-      "translation": "Quantidade fracionária pela qual o limiar é deslocado para cima e para baixo para produzir o intervalo invasion_efficiency_low_threshold e _high_threshold, que mostra quanto da resposta de um poço vem do limiar e não da biologia. Ampliá-la amplia o intervalo e torna o sinalizador de inflação mais sensível. Padrão 0.25."
     },
     {
       "table": "setting_tooltips",
@@ -2071,20 +2057,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination",
-      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
-      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
-      "translation": "Correção de iluminação / flat-field. Estima uma vez a iluminação desigual do microscópio a partir dos campos de uma placa e a divide dos pixels em cada etapa habilitada, para que a mesma célula tenha a mesma aparência e a mesma medição onde quer que estivesse no campo de visão."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "file_type",
-      "source": "Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
-      "source_sha256": "698fa1e66e8e034744ce753f537985a2a2a76921adb781c60f5a82d186986022",
-      "translation": "FORMATO de imagem dos recortes pré-gerados, como extensão de arquivo: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' ou 'npy'. É um filtro de formato e nada mais - de QUAL OBJETO é um recorte é função de path_string, então o par pode expressar 'todos os recortes de núcleo, em qualquer formato' e 'todos os TIFF, de qualquer objeto', o que uma única configuração combinada nunca conseguiria. Um valor legado da forma '<object>_png' ainda é aceito e lido como sua extensão, então um arquivo de configurações antigo continua funcionando. Em branco aceita qualquer formato. Padrão 'cell_png', que é lido como 'png'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "inputs",
       "source": "Image and external label-mask files or folders to import. The preview groups them by source and proposes whether each group is an intensity image, an object mask, or ignored. Default [].",
       "source_sha256": "bd4f3d7ab7c7b446fa5e306ed9d2dff0231ad5e8489281b37d22b4e0e20cb91f",
@@ -2432,13 +2404,6 @@
       "source": "Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False.",
       "source_sha256": "c2e1af61dff5c37b33bca47a6b683b34697aa2f67b6d82e3f4c14a8e85bcb831",
       "translation": "Deixe Cellpose redimensionar cada imagem por 30/diâmetro antes da segmentação, para que os objetos cheguem ao tamanho que o modelo espera. Desligue somente quando o diâmetro já estiver correto para o modelo. Padrão False."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "ops_gpu",
-      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
-      "source_sha256": "332c0cde4a752a86de0702b170f368844aa7adf4eed513abc706b89a9f14271e",
-      "translation": "Permite que esta execução use a placa de vídeo quando o spaCR encontrar uma utilizável: as FFTs do registro dos tiles e os contornos do Cellpose têm caminho de GPU, e ambos voltam para a CPU por conta própria se a placa recusar. DESATIVE quando a placa estiver ocupada com outro trabalho -- uma GPU compartilhada é o caso comum, e uma falta de memória no meio de uma placa custa mais do que o tempo que a GPU economiza. Padrão True."
     },
     {
       "table": "setting_tooltips",
@@ -2806,13 +2771,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "lasso_selection_threshold",
-      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
-      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
-      "translation": "Frequência mínima de seleção no bootstrap, entre 0 e 1, para que um coeficiente de lasso ou de elastic-net seja considerado um hit. 0.6 significa que o gRNA manteve um coeficiente diferente de zero em pelo menos três quintos das reamostragens. Aumente-a para uma lista mais curta e mais difícil de contestar; reduzi-la abaixo de cerca de 0.5 admite termos que a penalidade descarta tantas vezes quanto mantém. Padrão 0.6. Lido por regression_type 'elasticnet', 'group_lasso', 'lasso'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cells_per_well",
       "source": "Minimum cells a well must contribute to survive recruitment analysis; wells below it, and every cell in them, are dropped before the by-well plots and CSVs are produced. Raise it to suppress noisy, sparsely populated wells at the cost of losing those wells. Default 0, which keeps every well.",
       "source_sha256": "88055d03a32213f34ca46291a142b7d16dddc4689d5b7a3ab47f6689297a316b",
@@ -2964,20 +2922,6 @@
       "source": "Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
       "source_sha256": "77cf66911bed70b5d009006312bd6888bbec98dcdbb1ccd07a4d8dc7dd6b5bb9",
       "translation": "Nome da coluna de score_data modelada como resposta, por exemplo 'pred'/'predictions' da etapa de pontuação por ML ou uma característica medida como 'pathogen_nucleus_shortest_distance'. É agregada por poço segundo agg_type e depois, opcionalmente, transformada. A execução é abortada se a coluna não existir no CSV de pontuações. Padrão 'pred'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "count_grna_column",
-      "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
-      "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
-      "translation": "Nome da coluna do CSV de contagens que contém o identificador do guia. Versões anteriores exigiam o nome 'grna' e rejeitavam arquivos que usavam alternativas como 'sgRNA' ou 'guide'. Defina este valor como a coluna produzida pelo pipeline de sequenciamento. Padrão 'grna'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "count_value_column",
-      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
-      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
-      "translation": "Nome da coluna do CSV de contagens que contém a contagem de leituras de um guia em um poço; ela se torna a fração por poço sobre a qual a varredura de fraction_threshold trabalha. Até agora estava fixada como 'count', então um arquivo que a chamasse de 'reads' ou 'n' falhava com uma mensagem que citava apenas as colunas que o spaCR esperava. Padrão 'count'."
     },
     {
       "table": "setting_tooltips",
@@ -3153,13 +3097,6 @@
       "source": "Number of inner grouped folds used inside every outer CV fold. 0 (default) keeps the faster ordinary grouped CV; 2 or more trains one inner model per fold, uses inner validation for early stopping/model selection, ensembles those models, and evaluates only once on the untouched outer fold. Runtime is approximately outer_folds x inner_folds training runs, but the outer score is not reused for tuning. API: spacr.classifier_evaluation.nested_group_folds.",
       "source_sha256": "1e4e2a81604f7793ea2ceea3135446352bd3ad524e38ab69aa95453bf11de492",
       "translation": "Número de partições internas agrupadas usadas dentro de cada partição externa da CV. 0 (padrão) mantém a CV agrupada comum, mais rápida; 2 ou mais treina um modelo interno por partição, usa a validação interna para parada antecipada/seleção de modelo, combina esses modelos em ensemble e avalia apenas uma vez na partição externa intocada. O tempo de execução é de aproximadamente outer_folds x inner_folds treinamentos, mas a pontuação externa não é reutilizada para o ajuste. API: spacr.classifier_evaluation.nested_group_folds."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cross_validation_folds",
-      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
-      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
-      "translation": "Número de partições k-fold usadas para treinar o classificador de visão em vez de uma única reserva val_split. 0 (o padrão) ou 1 usa uma divisão aleatória; 2 ou mais treina um modelo separado por partição, avalia cada modelo na partição reservada e informa a média, o desvio padrão entre partições e o intervalo. Essas estatísticas quantificam a sensibilidade à partição dos dados. O tempo de execução é aproximadamente proporcional a k. Diferente de 'cross_validation', que controla o pipeline de regressão."
     },
     {
       "table": "setting_tooltips",
@@ -3569,13 +3506,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "group_lasso_lambda",
-      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
-      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
-      "translation": "Peso da penalidade do group lasso, que encolhe todos os guias de um gene juntos em vez de um de cada vez, para que um gene entre ou saia do modelo como uma unidade e não pelo seu guia mais sortudo. Valores maiores mantêm menos genes; 0 deixa o ajuste sem penalidade e valores negativos são recusados. Defina auto para escolhê-lo por validação cruzada. Padrão auto. Lido por regression_type 'group_lasso'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "infection_xgb_min_cells_per_class",
       "source": "Per well, how many intensity-extreme examples each class must reach before that well's training data are balanced by subsampling to the smaller class; wells that have both classes but fewer examples contribute all of theirs, unbalanced. Wells with only one class are skipped entirely. No well is ever excluded for being small, so raising it leaves more wells unbalanced and the training set more skewed - lower it towards 1 to force balancing in every usable well. Default 10.",
       "source_sha256": "7faab303881689b626892f01779b000ff6d3fc4a48c045b538450d4ff85368bc",
@@ -3671,13 +3601,6 @@
       "source": "Pixel offsets used to build each object's grey-level co-occurrence matrix; every entry adds one homogeneity_distance_<d> feature per channel. Small offsets capture fine-grained texture, large ones capture coarse structure, and offsets larger than the object itself carry no signal. More entries means more features and slower measurement. Default [8, 16, 32].",
       "source_sha256": "6fd9a61848bed586026b239e1a3e068937314369cee0a865f69d72ff9674fe50",
       "translation": "Os deslocamentos de pixels usados para construir a matriz de co-ocorrência de nível cinza de cada objeto; cada entrada adiciona um recurso homogeneity_distance_<d> por canal. Pequenos deslocamentos capturam texturas de granulação fina, grandes capturam estrutura grossa e deslocamentos maiores que o próprio objeto não carregam sinal. Mais entradas significam mais recursos e medição mais lenta. Padrão [8, 16, 32]."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "resnet_features",
-      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
-      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
-      "translation": "Marcador reservado para incorporar recortes brutos com características do ResNet em vez da tabela de características medidas. O ramo em generate_image_umap é um pass vazio, então ativá-lo pula totalmente a etapa de embedding e a execução falha em seguida em uma variável 'embedding' não vinculada. Deixe False. Padrão False."
     },
     {
       "table": "setting_tooltips",
@@ -3916,13 +3839,6 @@
       "source": "PyTables compression library used when writing annotated_reads.h5, passed to pandas HDFStore as complib: 'zlib', 'lzo', 'bzip2' or 'blosc'. 'blosc' is far faster at similar file size, 'bzip2' is smallest but slowest. Ignored entirely when save_h5 is False. Default 'zlib'.",
       "source_sha256": "cf6a7f1590943fff70307e3accca31b3ef06bcf10271d43545ca07a833694162",
       "translation": "Biblioteca de compressão do PyTables usada ao gravar annotated_reads.h5, passada ao HDFStore do pandas como complib: 'zlib', 'lzo', 'bzip2' ou 'blosc'. 'blosc' é muito mais rápido com tamanho de arquivo semelhante; 'bzip2' gera o menor arquivo, mas é o mais lento. Totalmente ignorado quando save_h5 é False. Padrão 'zlib'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "optimizer_type",
-      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
-      "source_sha256": "f4d3a737f9eb6e8480107790f12a3cf1ba3e2689b6ee286ecfbb4afd4795e41a",
-      "translation": "Otimizador do PyTorch usado por deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' ou 'asgd'. AdamW é o padrão robusto para ajuste fino; SGD pode generalizar melhor, mas geralmente precisa de mais épocas. amsgrad se aplica apenas a Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Padrão 'adamw'."
     },
     {
       "table": "setting_tooltips",
@@ -4416,13 +4332,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cross_validation",
-      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
-      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
-      "translation": "Pontua o classificador com validação cruzada estratificada de 5 partições em vez de uma única divisão treino/teste, para que todo objeto de controle receba uma predição out-of-fold e um limiar de probabilidade ideal seja escolhido por partição. Dá uma estimativa de acurácia muito mais estável em conjuntos de controle pequenos, com cerca de 5x o tempo de treinamento. Padrão True."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "frame_interval_s",
       "source": "Seconds between consecutive timepoints, obtained from the acquisition metadata. It converts frame indices into physical time in the tracks table and displacement per frame into speed. It does not affect object linking, so an incorrect value rescales reported velocities without changing track identities. None uses the motility module's seconds_per_frame setting. Default None.",
       "source_sha256": "b567b44210fd3edc4e206dadb52e26dc2a51643dddb48619fe609c8c50f9c6f3",
@@ -4826,13 +4735,6 @@
       "source": "Start from randomly initialised weights instead of fine-tuning the pretrained model. Keep this disabled unless the training set contains enough images to fit a model without pretrained weights; fine-tuning may require tens of images, whereas training from scratch commonly requires thousands. Default False.",
       "source_sha256": "2c05cadf408ef6fbf44f5cd5b02f47398e011297e4bac29a3362c2c3d167325d",
       "translation": "Começa com pesos inicializados aleatoriamente em vez de fazer ajuste fino do modelo pré-treinado. Mantenha desativado, a menos que o conjunto de treinamento contenha imagens suficientes para ajustar um modelo sem pesos pré-treinados; o ajuste fino pode exigir dezenas de imagens, enquanto o treinamento do zero costuma exigir milhares. Padrão False."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "init_weights",
-      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
-      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
-      "translation": "Inicia o backbone com pesos pré-treinados no ImageNet em vez de inicialização aleatória; a cabeça de classificação do spaCR acoplada por cima é inicializada aleatoriamente em qualquer caso. Deixe ativado - o aprendizado por transferência converge em muito menos épocas nos pequenos conjuntos anotados típicos aqui. Desative apenas para treinar do zero em um conjunto de dados muito grande ou para medir quanto o pré-treinamento contribui. Padrão True."
     },
     {
       "table": "setting_tooltips",
@@ -5263,13 +5165,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "mixed_control_wells",
-      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
-      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
-      "translation": "Poços com uma mistura conhecida dos controles positivo e negativo, por exemplo ['c3']. Removidos da regressão como os outros dois. Eles fornecem uma validação forte porque as identidades por célula são desconhecidas, enquanto as proporções agregadas são conhecidas pelo sequenciamento, permitindo pontuar métodos de anotação em células reais e não simuladas. Padrão None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cell_plate_metadata",
       "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
       "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
@@ -5389,13 +5284,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "classifier_family",
-      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
-      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
-      "translation": "Qual classificador o módulo Classify mesclado executa: 'cv' treina um modelo Torch em recortes de objetos, 'ml' ajusta um modelo de gradient boosting em características medidas. As configurações usadas pela outra família ficam desabilitadas, não ocultas - mantêm seus valores. Esta é a única tela Classify; as duas que ela substituiu foram removidas em 2026-08-23, e seus pontos de entrada (spacr.deep_spacr.deep_spacr e spacr.ml.generate_ml_scores) são o que ela chama sem alterações. Padrão 'cv'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "train_channels",
       "source": "Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
       "source_sha256": "6b4dd190ee09cb6657c690c02f589ed3b730eaf47241ead5a8390b28a5e0c8d0",
@@ -5463,13 +5351,6 @@
       "source": "Which side of 'threshold' to keep when prefiltering objects for annotation: 'higher' keeps rows whose measurement is >= the threshold, 'lower' keeps rows <= it. Give one value, or one per entry in 'measurement' (a single string is broadcast to the whole list). Default 'higher'.",
       "source_sha256": "2abda47c777beb5cf8d9c93c9c67cf2778c99a98f41674e2362964e8720bc74a",
       "translation": "Qual lado de 'threshold' manter ao pré-filtrar objetos para anotação: 'higher' mantém as linhas cuja medição é >= o limiar, 'lower' mantém as linhas <= ele. Informe um valor, ou um por entrada de 'measurement' (uma única cadeia de caracteres é aplicada à lista inteira). Padrão 'higher'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "png_channel_mapping",
-      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
-      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
-      "translation": "Qual canal de origem vai em cada cor do PNG salvo, por exemplo {'r': 2, 'g': 1, 'b': 0}: o canal 2 é vermelho, o 1 é verde, o 0 é azul. Diz explicitamente o que png_dims apenas implicava. Canais não indicados ficam ausentes dos recortes (as medições não são afetadas); uma cor deixada em branco é um plano vazio. Indicar o mesmo canal para as três grava um PNG em escala de cinza. Padrão {'r': 2, 'g': 1, 'b': 0}, que, para uma pilha padrão 405/488/555, coloca a marcação nuclear em azul."
     },
     {
       "table": "setting_tooltips",
@@ -5717,6 +5598,142 @@
       "source": "Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
       "source_sha256": "c078df80a8cee843b971f73018f1a6559614cf90edef09f721667c966909c509",
       "translation": "Escala da resposta a ajustar quando transform é ela própria uma função de ligação ('log' ou 'logit') e a família GLM selecionada automaticamente também tem uma ligação não identidade. 'untransformed' ajusta a resposta medida e deixa a ligação da família transformá-la; use para uma proporção que foi transformada sem necessidade. 'transformed' mantém a resposta transformada e ajusta um modelo gaussiano com ligação identidade. 'warn' reproduz o comportamento legado de dupla transformação e imprime um aviso. Esta configuração não tem efeito para outras transformações ou tipos de regressão. Padrão 'untransformed'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_correction",
+      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
+      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
+      "translation": "Estima a iluminação desigual do microscópio a partir dos próprios campos e a divide dos pixels em cada etapa habilitada. Desativado por padrão. Ativado, a mesma célula tem a mesma aparência e a mesma medição onde quer que esteja no campo de visão, o que remove o viés dependente da posição por trás dos efeitos de borda da placa. Padrão False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "threshold_sensitivity",
+      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
+      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
+      "translation": "Quantidade fracionária pela qual o limiar é deslocado para cima e para baixo para produzir o intervalo invasion_efficiency_low_threshold e _high_threshold, que mostra quanto da resposta de um poço vem do limiar e não da biologia. Ampliá-la amplia o intervalo e torna o sinalizador de inflação mais sensível. Padrão 0.25.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination",
+      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
+      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
+      "translation": "Correção de iluminação / flat-field. Estima uma vez a iluminação desigual do microscópio a partir dos campos de uma placa e a divide dos pixels em cada etapa habilitada, para que a mesma célula tenha a mesma aparência e a mesma medição onde quer que estivesse no campo de visão.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "file_type",
+      "source": "Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
+      "source_sha256": "698fa1e66e8e034744ce753f537985a2a2a76921adb781c60f5a82d186986022",
+      "translation": "FORMATO de imagem dos recortes pré-gerados, como extensão de arquivo: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' ou 'npy'. É um filtro de formato e nada mais - de QUAL OBJETO é um recorte é função de path_string, então o par pode expressar 'todos os recortes de núcleo, em qualquer formato' e 'todos os TIFF, de qualquer objeto', o que uma única configuração combinada nunca conseguiria. Um valor legado da forma '<object>_png' ainda é aceito e lido como sua extensão, então um arquivo de configurações antigo continua funcionando. Em branco aceita qualquer formato. Padrão 'cell_png', que é lido como 'png'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_gpu",
+      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
+      "source_sha256": "332c0cde4a752a86de0702b170f368844aa7adf4eed513abc706b89a9f14271e",
+      "translation": "Permite que esta execução use a placa de vídeo quando o spaCR encontrar uma utilizável: as FFTs do registro dos tiles e os contornos do Cellpose têm caminho de GPU, e ambos voltam para a CPU por conta própria se a placa recusar. DESATIVE quando a placa estiver ocupada com outro trabalho -- uma GPU compartilhada é o caso comum, e uma falta de memória no meio de uma placa custa mais do que o tempo que a GPU economiza. Padrão True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "lasso_selection_threshold",
+      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
+      "translation": "Frequência mínima de seleção no bootstrap, entre 0 e 1, para que um coeficiente de lasso ou de elastic-net seja considerado um hit. 0.6 significa que o gRNA manteve um coeficiente diferente de zero em pelo menos três quintos das reamostragens. Aumente-a para uma lista mais curta e mais difícil de contestar; reduzi-la abaixo de cerca de 0.5 admite termos que a penalidade descarta tantas vezes quanto mantém. Padrão 0.6. Lido por regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_grna_column",
+      "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+      "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
+      "translation": "Nome da coluna do CSV de contagens que contém o identificador do guia. Versões anteriores exigiam o nome 'grna' e rejeitavam arquivos que usavam alternativas como 'sgRNA' ou 'guide'. Defina este valor como a coluna produzida pelo pipeline de sequenciamento. Padrão 'grna'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_value_column",
+      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
+      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
+      "translation": "Nome da coluna do CSV de contagens que contém a contagem de leituras de um guia em um poço; ela se torna a fração por poço sobre a qual a varredura de fraction_threshold trabalha. Até agora estava fixada como 'count', então um arquivo que a chamasse de 'reads' ou 'n' falhava com uma mensagem que citava apenas as colunas que o spaCR esperava. Padrão 'count'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation_folds",
+      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
+      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
+      "translation": "Número de partições k-fold usadas para treinar o classificador de visão em vez de uma única reserva val_split. 0 (o padrão) ou 1 usa uma divisão aleatória; 2 ou mais treina um modelo separado por partição, avalia cada modelo na partição reservada e informa a média, o desvio padrão entre partições e o intervalo. Essas estatísticas quantificam a sensibilidade à partição dos dados. O tempo de execução é aproximadamente proporcional a k. Diferente de 'cross_validation', que controla o pipeline de regressão.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "group_lasso_lambda",
+      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
+      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
+      "translation": "Peso da penalidade do group lasso, que encolhe todos os guias de um gene juntos em vez de um de cada vez, para que um gene entre ou saia do modelo como uma unidade e não pelo seu guia mais sortudo. Valores maiores mantêm menos genes; 0 deixa o ajuste sem penalidade e valores negativos são recusados. Defina auto para escolhê-lo por validação cruzada. Padrão auto. Lido por regression_type 'group_lasso'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "resnet_features",
+      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
+      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
+      "translation": "Marcador reservado para incorporar recortes brutos com características do ResNet em vez da tabela de características medidas. O ramo em generate_image_umap é um pass vazio, então ativá-lo pula totalmente a etapa de embedding e a execução falha em seguida em uma variável 'embedding' não vinculada. Deixe False. Padrão False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "optimizer_type",
+      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+      "source_sha256": "f4d3a737f9eb6e8480107790f12a3cf1ba3e2689b6ee286ecfbb4afd4795e41a",
+      "translation": "Otimizador do PyTorch usado por deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' ou 'asgd'. AdamW é o padrão robusto para ajuste fino; SGD pode generalizar melhor, mas geralmente precisa de mais épocas. amsgrad se aplica apenas a Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Padrão 'adamw'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation",
+      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
+      "translation": "Pontua o classificador com validação cruzada estratificada de 5 partições em vez de uma única divisão treino/teste, para que todo objeto de controle receba uma predição out-of-fold e um limiar de probabilidade ideal seja escolhido por partição. Dá uma estimativa de acurácia muito mais estável em conjuntos de controle pequenos, com cerca de 5x o tempo de treinamento. Padrão True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "init_weights",
+      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
+      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
+      "translation": "Inicia o backbone com pesos pré-treinados no ImageNet em vez de inicialização aleatória; a cabeça de classificação do spaCR acoplada por cima é inicializada aleatoriamente em qualquer caso. Deixe ativado - o aprendizado por transferência converge em muito menos épocas nos pequenos conjuntos anotados típicos aqui. Desative apenas para treinar do zero em um conjunto de dados muito grande ou para medir quanto o pré-treinamento contribui. Padrão True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mixed_control_wells",
+      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
+      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
+      "translation": "Poços com uma mistura conhecida dos controles positivo e negativo, por exemplo ['c3']. Removidos da regressão como os outros dois. Eles fornecem uma validação forte porque as identidades por célula são desconhecidas, enquanto as proporções agregadas são conhecidas pelo sequenciamento, permitindo pontuar métodos de anotação em células reais e não simuladas. Padrão None.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "classifier_family",
+      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
+      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
+      "translation": "Qual classificador o módulo Classify mesclado executa: 'cv' treina um modelo Torch em recortes de objetos, 'ml' ajusta um modelo de gradient boosting em características medidas. As configurações usadas pela outra família ficam desabilitadas, não ocultas - mantêm seus valores. Esta é a única tela Classify; as duas que ela substituiu foram removidas em 2026-08-23, e seus pontos de entrada (spacr.deep_spacr.deep_spacr e spacr.ml.generate_ml_scores) são o que ela chama sem alterações. Padrão 'cv'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_channel_mapping",
+      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
+      "translation": "Qual canal de origem vai em cada cor do PNG salvo, por exemplo {'r': 2, 'g': 1, 'b': 0}: o canal 2 é vermelho, o 1 é verde, o 0 é azul. Diz explicitamente o que png_dims apenas implicava. Canais não indicados ficam ausentes dos recortes (as medições não são afetadas); uma cor deixada em branco é um plano vazio. Indicar o mesmo canal para as três grava um PNG em escala de cinza. Padrão {'r': 2, 'g': 1, 'b': 0}, que, para uma pilha padrão 405/488/555, coloca a marcação nuclear em azul.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load."

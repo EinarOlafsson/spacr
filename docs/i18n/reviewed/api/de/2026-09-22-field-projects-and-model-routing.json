@@ -13,7 +13,9 @@
       "label": "spacr.measure.field_table_destination#1",
       "source": "ONE ANSWER, so that the window and the run cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the run wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
       "source_sha256": "cbd15fed09cbe3ab02bb5efce0266b7836fc0d792e48d6ac3f8b64a8d6dd6584",
-      "translation": "Eine gemeinsame Antwort verhindert, dass Fenster und Verarbeitung unterschiedliche Ziele bestimmen. ``src`` gehört zu :data:`FIELD_TABLE_DECIDED_KEYS`; deshalb zeigt das FEATURES-Fenster diesen Wert ausgefüllt und nicht bearbeitbar an. Zuvor leitete das Fenster ihn nur ab, wenn ein Ziel übergeben worden war. Ohne Ziel zeigte es den Platzhalter ``path`` aus der Einstellungsspezifikation, während die Verarbeitung neben die erste Kanaldatei schrieb. Ein deaktiviertes Feld mit der Beschriftung \"the table decides this\", das den falschen Ordner nennt, ist schlechter als gar kein Feld: Es zeigt den Nutzern einen Ort, an dem ihre Ergebnisse nicht liegen."
+      "translation": "Eine gemeinsame Antwort verhindert, dass Fenster und Verarbeitung unterschiedliche Ziele bestimmen. ``src`` gehört zu :data:`FIELD_TABLE_DECIDED_KEYS`; deshalb zeigt das FEATURES-Fenster diesen Wert ausgefüllt und nicht bearbeitbar an. Zuvor leitete das Fenster ihn nur ab, wenn ein Ziel übergeben worden war. Ohne Ziel zeigte es den Platzhalter ``path`` aus der Einstellungsspezifikation, während die Verarbeitung neben die erste Kanaldatei schrieb. Ein deaktiviertes Feld mit der Beschriftung \"the table decides this\", das den falschen Ordner nennt, ist schlechter als gar kein Feld: Es zeigt den Nutzern einen Ort, an dem ihre Ergebnisse nicht liegen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the :class:`FieldTable` the run would measure.",
@@ -125,7 +127,9 @@
       "label": "spacr.measure.write_field_table_project#1",
       "source": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the plane-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
       "source_sha256": "9e2408d10fc55d9d3733ae711b7e57e09051ee0a9cfaa3170139ec21f81592e7",
-      "translation": "Darin besteht die Ergänzung von Measure durch die FEATURES-Schaltfläche: Sie überführt eine Tabelle einzeln ausgewählter Dateien in ``stack/``, ``masks/`` und ``merged/``, einschließlich des Manifests zur Ebenenanordnung, genau wie :func:`spacr.core.preprocess_generate_masks`. Die anschließende Messung nutzt damit den gewöhnlichen Ablauf und keinen zweiten Codepfad, der separat synchron gehalten werden müsste."
+      "translation": "Darin besteht die Ergänzung von Measure durch die FEATURES-Schaltfläche: Sie überführt eine Tabelle einzeln ausgewählter Dateien in ``stack/``, ``masks/`` und ``merged/``, einschließlich des Manifests zur Ebenenanordnung, genau wie :func:`spacr.core.preprocess_generate_masks`. Die anschließende Messung nutzt damit den gewöhnlichen Ablauf und keinen zweiten Codepfad, der separat synchron gehalten werden müsste.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a :class:`FieldTable` whose :meth:`FieldTable.problems` is empty.",
@@ -208,7 +212,9 @@
       "label": "spacr.model_zoo.community_entries#1",
       "source": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
       "source_sha256": "d39c9c27d783d1465ee8471afbd90ca487c1a59c4f04ba350dade9fe77ac2ee1",
-      "translation": "Sie erscheinen nur auf ausdrücklichen Wunsch, weil ein ungeprüfter Checkpoint neben einem vermessenen Modell leicht als gleichwertig missverstanden wird. Jeder Eintrag trägt :data:`COMMUNITY_WARNING`. Die Prüfsumme stammt aus dem Einreichungsdatensatz der hochladenden Person. Sie belegt nur, dass die Datei seit dem Hochladen unverändert ist, und nicht ihre Qualität."
+      "translation": "Sie erscheinen nur auf ausdrücklichen Wunsch, weil ein ungeprüfter Checkpoint neben einem vermessenen Modell leicht als gleichwertig missverstanden wird. Jeder Eintrag trägt :data:`COMMUNITY_WARNING`. Die Prüfsumme stammt aus dem Einreichungsdatensatz der hochladenden Person. Sie belegt nur, dass die Datei seit dem Hochladen unverändert ist, und nicht ihre Qualität.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Cache-first for the same reason as the bioimage.io listing: catalogue() must not reach the network.",
@@ -278,7 +284,9 @@
       "label": "spacr.model_zoo.installable_backend_entries#1",
       "source": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
       "source_sha256": "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84",
-      "translation": "Ein im Modellkatalog fehlendes Backend wäre nicht auffindbar. Deshalb werden alle aufgelistet, und ``source`` nennt den Zustand: ``installed``, ``installable``, ``installing`` oder ``not installable here``. Die Begründung steht im ersten Hinweis, die Lizenz direkt beim Eintrag. Die Installation erstellt eine eigene Umgebung unter ``~/.spacr/backends`` und lässt die Umgebung von spaCR unverändert."
+      "translation": "Ein im Modellkatalog fehlendes Backend wäre nicht auffindbar. Deshalb werden alle aufgelistet, und ``source`` nennt den Zustand: ``installed``, ``installable``, ``installing`` oder ``not installable here``. Die Begründung steht im ersten Hinweis, die Lizenz direkt beim Eintrag. Die Installation erstellt eine eigene Umgebung unter ``~/.spacr/backends`` und lässt die Umgebung von spaCR unverändert.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The model's scorecard as an HTML table, for a tooltip.",
@@ -292,7 +300,9 @@
       "label": "spacr.model_zoo.scorecard_html#1",
       "source": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
       "source_sha256": "3127ce8df40eaf57f7cd93dea6f22d66c9c47921b1a66a4b3c1af979325c79f5",
-      "translation": "Früher zeigte der Tooltip einen Textabsatz. Beim Vergleich zweier Modelle mussten die Leser deshalb zwei Absätze nach den gesuchten Zahlen durchsuchen. Die Tabelle der Modellkarte macht sie unmittelbar vergleichbar. Veröffentlicht ein Eintrag keine Kennzahlen, wird stattdessen wieder der Text verwendet: Eine leere Tabelle wäre weniger hilfreich."
+      "translation": "Früher zeigte der Tooltip einen Textabsatz. Beim Vergleich zweier Modelle mussten die Leser deshalb zwei Absätze nach den gesuchten Zahlen durchsuchen. Die Tabelle der Modellkarte macht sie unmittelbar vergleichbar. Veröffentlicht ein Eintrag keine Kennzahlen, wird stattdessen wieder der Text verwendet: Eine leere Tabelle wäre weniger hilfreich.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
@@ -327,21 +337,27 @@
       "label": "spacr.model_zoo.source_of#1",
       "source": "Decided FROM THE ROW, never from a list of names kept somewhere else: a hand-written list goes stale the first time a model is added, and the failure it produces is a model that is in the catalogue and under no heading, which is a model nobody can see.",
       "source_sha256": "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
-      "translation": "Die Zuordnung wird aus dem Eintrag selbst abgeleitet und nicht aus einer separat gepflegten Namensliste. Eine solche Liste wäre schon beim nächsten hinzugefügten Modell veraltet. Das Modell stünde dann zwar im Katalog, aber unter keiner Überschrift und wäre deshalb unsichtbar."
+      "translation": "Die Zuordnung wird aus dem Eintrag selbst abgeleitet und nicht aus einer separat gepflegten Namensliste. Eine solche Liste wäre schon beim nächsten hinzugefügten Modell veraltet. Das Modell stünde dann zwar im Katalog, aber unter keiner Überschrift und wäre deshalb unsichtbar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The order of the tests is the rule, and it matters in one place: a Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto, cyto2, cyto3, nuclei -- and the backend package that executes them.",
       "label": "spacr.model_zoo.source_of#2",
       "source": "The order of the tests is the rule, and it matters in one place: a Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto, cyto2, cyto3, nuclei -- and the backend package that runs them.",
       "source_sha256": "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
-      "translation": "Die Reihenfolge der Prüfungen bestimmt die Zuordnung. Das ist besonders bei einem auf bioimage.io veröffentlichten Checkpoint für Cellpose 3 wichtig: Er gehört zur Gruppe bioimage.io. ``cellpose3`` bezeichnet die eigenen Modelle von Cellpose 3 -- cyto, cyto2, cyto3, nuclei -- sowie das Backend-Paket, das sie ausführt."
+      "translation": "Die Reihenfolge der Prüfungen bestimmt die Zuordnung. Das ist besonders bei einem auf bioimage.io veröffentlichten Checkpoint für Cellpose 3 wichtig: Er gehört zur Gruppe bioimage.io. ``cellpose3`` bezeichnet die eigenen Modelle von Cellpose 3 -- cyto, cyto2, cyto3, nuclei -- sowie das Backend-Paket, das sie ausführt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A row that matches nothing is filed under ``spaCR`` and said out loud. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "label": "spacr.model_zoo.source_of#4",
       "source": "A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "source_sha256": "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
-      "translation": "Passt ein Eintrag zu keiner Gruppe, wird er mit einer ausdrücklichen Meldung unter ``spaCR`` eingeordnet. Eine falsch zugeordnete Zeile ist lästig; eine gar nicht zugeordnete Zeile erscheint den Nutzern dagegen als fehlendes Modell. Deshalb wird diese Ersatzzuordnung verwendet und keine sechste Gruppe angelegt."
+      "translation": "Passt ein Eintrag zu keiner Gruppe, wird er mit einer ausdrücklichen Meldung unter ``spaCR`` eingeordnet. Eine falsch zugeordnete Zeile ist lästig; eine gar nicht zugeordnete Zeile erscheint den Nutzern dagegen als fehlendes Modell. Deshalb wird diese Ersatzzuordnung verwendet und keine sechste Gruppe angelegt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
@@ -369,7 +385,9 @@
       "label": "spacr.model_zoo.stock_cellpose_entries#1",
       "source": "These are not spaCR's files and carry no checksum of ours: Cellpose downloads and verifies them, and the name IS the path -- passing \"cpsam\" to Cellpose resolves it. They are listed so that the zoo answers \"what can I segment with\" rather than \"what has Einar trained\", which is the question a new user actually has.",
       "source_sha256": "562dc59f42e75e2dff8502e60b00f58d17571d012575869480bb7350d7387348",
-      "translation": "Diese Dateien stammen nicht von spaCR und besitzen keine dort bereitgestellte Prüfsumme. Cellpose lädt und prüft sie selbst. Der Modellname dient zugleich als Pfad: Die Übergabe von \"cpsam\" genügt Cellpose zur Auflösung. Die Liste beantwortet damit die Frage \"what can I segment with\", also womit segmentiert werden kann, statt nur \"what has Einar trained\", also welche Modelle Einar trainiert hat. Für neue Nutzer ist die erste Frage entscheidend."
+      "translation": "Diese Dateien stammen nicht von spaCR und besitzen keine dort bereitgestellte Prüfsumme. Cellpose lädt und prüft sie selbst. Der Modellname dient zugleich als Pfad: Die Übergabe von \"cpsam\" genügt Cellpose zur Auflösung. Die Liste beantwortet damit die Frage \"what can I segment with\", also womit segmentiert werden kann, statt nur \"what has Einar trained\", also welche Modelle Einar trainiert hat. Für neue Nutzer ist die erste Frage entscheidend.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "review": {

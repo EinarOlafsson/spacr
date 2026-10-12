@@ -1084,13 +1084,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination_correction",
-      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
-      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
-      "translation": "시야 자체로부터 현미경의 불균일한 조명을 추정하고, 활성화된 모든 단계에서 픽셀을 그것으로 나눕니다. 기본적으로 꺼져 있습니다. 켜면 같은 세포는 시야의 어디에 있든 같게 보이고 같게 측정되며, 이것이 플레이트 가장자리 효과 뒤에 있는 위치 의존적 편향을 제거합니다. 기본값 False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "surrogate_model",
       "source": "Estimator family used to reproduce CV decisions: Random Forest, histogram gradient boosting, or optional XGBoost. Missing XGBoost is refused rather than silently substituted. Default random_forest.",
       "source_sha256": "c020262b3e8021902d293a076300ab5bcd0ecfc5ec111ce3a488a90d76810458",
@@ -1487,13 +1480,6 @@
       "source": "Fraction, from 0 to 1, of the smaller label's perimeter that two touching pathogen objects must share before they are merged. The default of 0 disables perimeter-based merging. Values near 0.1 merge most touching objects, whereas values from 0.5 to 0.8 merge only objects with a long shared boundary. Use this setting to join vacuoles that Cellpose divided into multiple labels.",
       "source_sha256": "98401699283b8e04e9617c5650ca4ac27a0338ebbd2e063b63b5a8dbe2aad330",
       "translation": "맞닿은 두 병원체 객체가 병합되기 전에 공유해야 하는, 더 작은 레이블 둘레의 비율(0에서 1)입니다. 기본값 0은 둘레 기반 병합을 비활성화합니다. 0.1 근처의 값은 맞닿은 객체 대부분을 병합하고, 0.5에서 0.8 사이의 값은 공유 경계가 긴 객체만 병합합니다. Cellpose가 여러 레이블로 나눈 액포를 합칠 때 이 설정을 사용하십시오."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "threshold_sensitivity",
-      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
-      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
-      "translation": "invasion_efficiency_low_threshold 및 _high_threshold 범위를 만들기 위해 임계값을 위아래로 움직이는 비율입니다. 이 범위는 웰의 결과 중 얼마만큼이 생물학이 아닌 임계값에 의한 것인지 보여 줍니다. 넓히면 범위가 넓어지고 부풀림 표시가 더 쉽게 켜집니다. 기본값 0.25."
     },
     {
       "table": "setting_tooltips",
@@ -1896,13 +1882,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination",
-      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
-      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
-      "translation": "조명 / 평탄 필드 보정입니다. 플레이트의 시야들로부터 현미경의 불균일한 조명을 한 번 추정하고 활성화된 모든 단계에서 픽셀을 그것으로 나누므로, 같은 세포는 시야의 어디에 있었든 같게 보이고 같게 측정됩니다."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "inputs",
       "source": "Image and external label-mask files or folders to import. The preview groups them by source and proposes whether each group is an intensity image, an object mask, or ignored. Default [].",
       "source_sha256": "bd4f3d7ab7c7b446fa5e306ed9d2dff0231ad5e8489281b37d22b4e0e20cb91f",
@@ -2225,13 +2204,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "ops_gpu",
-      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
-      "source_sha256": "332c0cde4a752a86de0702b170f368844aa7adf4eed513abc706b89a9f14271e",
-      "translation": "spaCR이 사용 가능한 그래픽 카드를 찾으면 이 실행에서 사용합니다. 타일 정합의 FFTs와 Cellpose 윤곽선 모두 GPU 경로가 있으며, 카드가 거부하면 둘 다 스스로 CPU로 대체됩니다. 카드가 다른 작업으로 바쁠 때는 끄십시오 -- 공유 GPU가 흔한 경우이며, 플레이트 도중 메모리 부족이 발생하면 GPU가 절약하는 시간보다 손실이 큽니다. 기본값 True."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "y_lims",
       "source": "Limits of the -log10(p) axis of the Toxoplasma volcano plot. None auto-scales to the data; [low, high] fixes the axis so several plates can be compared at the same scale; [[low1, high1], [low2, high2]] draws a broken axis with the gap between the two ranges removed, which keeps a handful of extremely significant genes on the plot without flattening everything else. Any other shape raises ValueError. Default None.",
       "source_sha256": "5faab073a01d736dc313f8213176f76294ab33af88d96ccddc3f2076df1be5d6",
@@ -2519,13 +2491,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "lasso_selection_threshold",
-      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
-      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
-      "translation": "lasso 또는 elastic-net 계수가 히트로 판정되기 위한 최소 부트스트랩 선택 빈도(0과 1 사이)입니다. 0.6은 gRNA가 재샘플의 최소 5분의 3에서 0이 아닌 계수를 유지했다는 뜻입니다. 더 짧고 반박하기 어려운 목록을 원하면 높이십시오. 약 0.5 미만으로 낮추면 페널티가 유지하는 만큼 자주 제거하는 항까지 허용됩니다. 기본값 0.6. regression_type 'elasticnet', 'group_lasso', 'lasso'에서 읽습니다."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cells_per_well",
       "source": "Minimum cells a well must contribute to survive recruitment analysis; wells below it, and every cell in them, are dropped before the by-well plots and CSVs are produced. Raise it to suppress noisy, sparsely populated wells at the cost of losing those wells. Default 0, which keeps every well.",
       "source_sha256": "88055d03a32213f34ca46291a142b7d16dddc4689d5b7a3ab47f6689297a316b",
@@ -2642,13 +2607,6 @@
       "source": "Name of a column in the joined measurement table (e.g. 'cond', 'columnID', 'plateID') used to color embedding points instead of the cluster labels. Set it to see how a known grouping such as condition or plate column falls across the map; leave it None to color by the clustering result. Setting it also disables remove_cluster_noise, plot_outlines and smooth_lines. Default None.",
       "source_sha256": "4085fb8f1ccbf86564d3f1efd551f6c34e3d98ba530195697e4941bace13e4f9",
       "translation": "클러스터 레이블 대신 임베딩 점의 색을 정하는 데 사용하는 결합된 측정 테이블의 열 이름입니다(예: 'cond', 'columnID', 'plateID'). 조건이나 플레이트 열 같은 알려진 그룹이 맵에 어떻게 분포하는지 보려면 설정하고, 클러스터링 결과로 색을 칠하려면 None으로 두십시오. 설정하면 remove_cluster_noise, plot_outlines 및 smooth_lines도 비활성화됩니다. 기본값 None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "count_value_column",
-      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
-      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
-      "translation": "한 웰에서 한 가이드의 리드 수를 담은 카운트 CSV의 열 이름으로, fraction_threshold 스윕이 사용하는 웰별 분율이 됩니다. 지금까지는 'count'로 고정되어 있어서, 이를 'reads'나 'n'으로 부르는 파일은 spaCR이 기대한 열만 언급하는 메시지와 함께 실패했습니다. 기본값 'count'."
     },
     {
       "table": "setting_tooltips",
@@ -2803,13 +2761,6 @@
       "source": "Number of inner grouped folds used inside every outer CV fold. 0 (default) keeps the faster ordinary grouped CV; 2 or more trains one inner model per fold, uses inner validation for early stopping/model selection, ensembles those models, and evaluates only once on the untouched outer fold. Runtime is approximately outer_folds x inner_folds training runs, but the outer score is not reused for tuning. API: spacr.classifier_evaluation.nested_group_folds.",
       "source_sha256": "1e4e2a81604f7793ea2ceea3135446352bd3ad524e38ab69aa95453bf11de492",
       "translation": "각 외부 CV 폴드 안에서 사용하는 내부 그룹 폴드 수입니다. 0(기본값)은 더 빠른 일반 그룹 CV를 유지합니다. 2 이상이면 폴드마다 내부 모델을 하나씩 학습하고, 내부 검증을 조기 종료/모델 선택에 사용하며, 그 모델들을 앙상블하고, 손대지 않은 외부 폴드에서 한 번만 평가합니다. 실행 시간은 대략 outer_folds x inner_folds 회 학습이지만, 외부 점수는 조정에 재사용되지 않습니다. API: spacr.classifier_evaluation.nested_group_folds."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cross_validation_folds",
-      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
-      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
-      "translation": "단일 val_split 보류 대신 비전 분류기 학습에 사용하는 k-폴드 분할 수입니다. 0(기본값) 또는 1은 하나의 무작위 분할을 사용합니다. 2 이상이면 폴드마다 별도의 모델을 학습하고, 각 모델을 해당 보류 폴드에서 평가하며, 평균, 폴드 간 표준편차 및 범위를 보고합니다. 이 통계는 데이터 분할에 대한 민감도를 정량화합니다. 실행 시간은 대략 k에 비례합니다. 회귀 파이프라인을 제어하는 'cross_validation'과는 별개입니다."
     },
     {
       "table": "setting_tooltips",
@@ -3177,13 +3128,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "group_lasso_lambda",
-      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
-      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
-      "translation": "group lasso의 페널티 가중치입니다. 한 유전자의 가이드를 하나씩이 아니라 모두 함께 축소하므로, 유전자가 가장 운 좋은 가이드에 의해서가 아니라 하나의 단위로 모델에 들어가거나 빠집니다. 값이 클수록 남는 유전자가 적고, 0이면 페널티 없이 적합하며, 음수는 거부됩니다. 교차 검증으로 선택하려면 auto로 설정하십시오. 기본값 auto. regression_type 'group_lasso'에서 읽습니다."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "infection_xgb_min_cells_per_class",
       "source": "Per well, how many intensity-extreme examples each class must reach before that well's training data are balanced by subsampling to the smaller class; wells that have both classes but fewer examples contribute all of theirs, unbalanced. Wells with only one class are skipped entirely. No well is ever excluded for being small, so raising it leaves more wells unbalanced and the training set more skewed - lower it towards 1 to force balancing in every usable well. Default 10.",
       "source_sha256": "7faab303881689b626892f01779b000ff6d3fc4a48c045b538450d4ff85368bc",
@@ -3272,13 +3216,6 @@
       "source": "Pixel offsets used to build each object's grey-level co-occurrence matrix; every entry adds one homogeneity_distance_<d> feature per channel. Small offsets capture fine-grained texture, large ones capture coarse structure, and offsets larger than the object itself carry no signal. More entries means more features and slower measurement. Default [8, 16, 32].",
       "source_sha256": "6fd9a61848bed586026b239e1a3e068937314369cee0a865f69d72ff9674fe50",
       "translation": "각 객체의 회색조 동시발생 행렬을 만드는 데 사용하는 픽셀 오프셋입니다. 각 항목은 채널마다 homogeneity_distance_<d> 특징을 하나씩 추가합니다. 작은 오프셋은 세밀한 질감을, 큰 오프셋은 거친 구조를 포착하며, 객체 자체보다 큰 오프셋에는 신호가 없습니다. 항목이 많을수록 특징이 늘고 측정이 느려집니다. 기본값 [8, 16, 32]."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "resnet_features",
-      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
-      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
-      "translation": "측정된 특징 테이블 대신 ResNet 특징으로 원시 크롭을 임베딩하기 위한 자리표시자입니다. generate_image_umap의 해당 분기가 비어 있는 pass이므로, 활성화하면 임베딩 단계를 완전히 건너뛰고 이후 바인딩되지 않은 'embedding' 변수 때문에 실행이 실패합니다. False로 두십시오. 기본값 False."
     },
     {
       "table": "setting_tooltips",
@@ -3912,13 +3849,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cross_validation",
-      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
-      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
-      "translation": "단일 학습/테스트 분할 대신 5-폴드 층화 교차 검증으로 분류기를 평가하여, 모든 대조군 객체가 폴드 외 예측을 받고 폴드마다 최적 확률 임계값이 선택되게 합니다. 작은 대조군 세트에서 훨씬 안정적인 정확도 추정을 주며, 학습 시간은 약 5x입니다. 기본값 True."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "frame_interval_s",
       "source": "Seconds between consecutive timepoints, obtained from the acquisition metadata. It converts frame indices into physical time in the tracks table and displacement per frame into speed. It does not affect object linking, so an incorrect value rescales reported velocities without changing track identities. None uses the motility module's seconds_per_frame setting. Default None.",
       "source_sha256": "b567b44210fd3edc4e206dadb52e26dc2a51643dddb48619fe609c8c50f9c6f3",
@@ -4297,13 +4227,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "init_weights",
-      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
-      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
-      "translation": "무작위 초기화 대신 ImageNet 사전 학습 가중치로 백본을 시작합니다. 위에 붙는 spaCR 분류기 헤드는 어느 경우든 무작위로 초기화됩니다. 켜 두십시오 - 이 분야에서 흔한 작은 어노테이션 세트에서는 전이 학습이 훨씬 적은 에포크로 수렴합니다. 매우 큰 데이터 세트로 처음부터 학습하거나 사전 학습의 기여도를 측정할 때만 끄십시오. 기본값 True."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "evaluation_fail_on_leakage",
       "source": "Stop Classify (CV) before fitting a fold when the same object, augmentation family, or protected cv_group_by identity appears in both train and validation. False records the problem and continues, which is useful only for diagnosing a legacy dataset because its performance estimate remains invalid. Default True. API: spacr.classifier_evaluation.audit_split_leakage.",
       "source_sha256": "b207e4fb0f2b741f70e63df0bed4a7c0a70a48193fd45616af15d6958afc22e2",
@@ -4675,13 +4598,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "mixed_control_wells",
-      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
-      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
-      "translation": "양성 및 음성 대조군의 알려진 혼합물을 담은 웰입니다(예: ['c3']). 다른 두 가지처럼 회귀에서 제거됩니다. 세포별 정체는 알 수 없지만 전체 비율은 시퀀싱으로 알려져 있으므로, 시뮬레이션이 아닌 실제 세포에서 어노테이션 방법의 점수를 매길 수 있는 강력한 검증을 제공합니다. 기본값 None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "grna_statistic",
       "source": "What the permutation test measures between a gRNA's well fractions and the well phenotype. 'pearson' is a partial correlation, which is linear and is moved by an extreme well in proportion to how extreme it is. 'rank' is the same quantity computed on the ranked phenotype, so it responds to order rather than magnitude and no single well can move it far. Both cost one matrix product, so the choice does not change how long the test takes. Default 'pearson'.",
       "source_sha256": "c450130d0384dac63c1b7bbede86a2a1420eb845363a038420b7c50ddd0831e8",
@@ -4759,13 +4675,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "classifier_family",
-      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
-      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
-      "translation": "병합된 Classify 모듈이 실행할 분류기입니다. 'cv'는 객체 크롭으로 Torch 모델을 학습하고, 'ml'은 측정된 특징으로 그래디언트 부스팅 모델을 적합합니다. 다른 계열이 사용하는 설정은 숨겨지지 않고 회색으로 표시되며 값이 유지됩니다. 이것이 유일한 Classify 화면이며, 이것이 대체한 두 화면은 2026-08-23에 제거되었고, 그 진입점(spacr.deep_spacr.deep_spacr 및 spacr.ml.generate_ml_scores)으로 변경 없이 전달됩니다. 기본값 'cv'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "train_channels",
       "source": "Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
       "source_sha256": "6b4dd190ee09cb6657c690c02f589ed3b730eaf47241ead5a8390b28a5e0c8d0",
@@ -4812,13 +4721,6 @@
       "source": "Which side of 'threshold' to keep when prefiltering objects for annotation: 'higher' keeps rows whose measurement is >= the threshold, 'lower' keeps rows <= it. Give one value, or one per entry in 'measurement' (a single string is broadcast to the whole list). Default 'higher'.",
       "source_sha256": "2abda47c777beb5cf8d9c93c9c67cf2778c99a98f41674e2362964e8720bc74a",
       "translation": "어노테이션용으로 객체를 사전 필터링할 때 'threshold'의 어느 쪽을 유지할지 정합니다. 'higher'는 측정값이 임계값 >=인 행을, 'lower'는 <=인 행을 유지합니다. 값 하나를 주거나 'measurement'의 항목마다 하나씩 주십시오(단일 문자열은 목록 전체에 적용됨). 기본값 'higher'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "png_channel_mapping",
-      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
-      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
-      "translation": "저장되는 PNG의 각 색상에 들어갈 원본 채널로, 예를 들어 {'r': 2, 'g': 1, 'b': 0}이면 채널 2가 빨강, 1이 초록, 0이 파랑입니다. png_dims가 암시만 하던 것을 명시적으로 지정합니다. 지정하지 않은 채널은 크롭에 포함되지 않으며(측정값에는 영향 없음), 비워 둔 색상은 빈 평면이 됩니다. 세 색상 모두에 같은 채널을 지정하면 회색조 PNG가 기록됩니다. 기본값 {'r': 2, 'g': 1, 'b': 0}이며, 표준 405/488/555 스택에서는 핵 염색이 파랑에 놓입니다."
     },
     {
       "table": "setting_tooltips",
@@ -5059,6 +4961,118 @@
       "source": "Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
       "source_sha256": "c078df80a8cee843b971f73018f1a6559614cf90edef09f721667c966909c509",
       "translation": "transform 자체가 링크('log' 또는 'logit')이고 자동 선택된 GLM 계열도 항등이 아닌 링크를 가질 때 적합할 반응 스케일입니다. 'untransformed'는 측정된 반응을 적합하고 계열 링크가 이를 변환하게 하므로, 불필요하게 먼저 변환된 비율에 사용하십시오. 'transformed'는 변환된 반응을 유지하고 가우시안 항등 링크 모델을 적합합니다. 'warn'은 레거시 이중 변환 동작을 재현하고 경고를 출력합니다. 다른 변환이나 회귀 유형에서는 효과가 없습니다. 기본값 'untransformed'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_correction",
+      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
+      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
+      "translation": "시야 자체로부터 현미경의 불균일한 조명을 추정하고, 활성화된 모든 단계에서 픽셀을 그것으로 나눕니다. 기본적으로 꺼져 있습니다. 켜면 같은 세포는 시야의 어디에 있든 같게 보이고 같게 측정되며, 이것이 플레이트 가장자리 효과 뒤에 있는 위치 의존적 편향을 제거합니다. 기본값 False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "threshold_sensitivity",
+      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
+      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
+      "translation": "invasion_efficiency_low_threshold 및 _high_threshold 범위를 만들기 위해 임계값을 위아래로 움직이는 비율입니다. 이 범위는 웰의 결과 중 얼마만큼이 생물학이 아닌 임계값에 의한 것인지 보여 줍니다. 넓히면 범위가 넓어지고 부풀림 표시가 더 쉽게 켜집니다. 기본값 0.25.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination",
+      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
+      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
+      "translation": "조명 / 평탄 필드 보정입니다. 플레이트의 시야들로부터 현미경의 불균일한 조명을 한 번 추정하고 활성화된 모든 단계에서 픽셀을 그것으로 나누므로, 같은 세포는 시야의 어디에 있었든 같게 보이고 같게 측정됩니다.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_gpu",
+      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
+      "source_sha256": "332c0cde4a752a86de0702b170f368844aa7adf4eed513abc706b89a9f14271e",
+      "translation": "spaCR이 사용 가능한 그래픽 카드를 찾으면 이 실행에서 사용합니다. 타일 정합의 FFTs와 Cellpose 윤곽선 모두 GPU 경로가 있으며, 카드가 거부하면 둘 다 스스로 CPU로 대체됩니다. 카드가 다른 작업으로 바쁠 때는 끄십시오 -- 공유 GPU가 흔한 경우이며, 플레이트 도중 메모리 부족이 발생하면 GPU가 절약하는 시간보다 손실이 큽니다. 기본값 True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "lasso_selection_threshold",
+      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
+      "translation": "lasso 또는 elastic-net 계수가 히트로 판정되기 위한 최소 부트스트랩 선택 빈도(0과 1 사이)입니다. 0.6은 gRNA가 재샘플의 최소 5분의 3에서 0이 아닌 계수를 유지했다는 뜻입니다. 더 짧고 반박하기 어려운 목록을 원하면 높이십시오. 약 0.5 미만으로 낮추면 페널티가 유지하는 만큼 자주 제거하는 항까지 허용됩니다. 기본값 0.6. regression_type 'elasticnet', 'group_lasso', 'lasso'에서 읽습니다.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_value_column",
+      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
+      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
+      "translation": "한 웰에서 한 가이드의 리드 수를 담은 카운트 CSV의 열 이름으로, fraction_threshold 스윕이 사용하는 웰별 분율이 됩니다. 지금까지는 'count'로 고정되어 있어서, 이를 'reads'나 'n'으로 부르는 파일은 spaCR이 기대한 열만 언급하는 메시지와 함께 실패했습니다. 기본값 'count'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation_folds",
+      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
+      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
+      "translation": "단일 val_split 보류 대신 비전 분류기 학습에 사용하는 k-폴드 분할 수입니다. 0(기본값) 또는 1은 하나의 무작위 분할을 사용합니다. 2 이상이면 폴드마다 별도의 모델을 학습하고, 각 모델을 해당 보류 폴드에서 평가하며, 평균, 폴드 간 표준편차 및 범위를 보고합니다. 이 통계는 데이터 분할에 대한 민감도를 정량화합니다. 실행 시간은 대략 k에 비례합니다. 회귀 파이프라인을 제어하는 'cross_validation'과는 별개입니다.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "group_lasso_lambda",
+      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
+      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
+      "translation": "group lasso의 페널티 가중치입니다. 한 유전자의 가이드를 하나씩이 아니라 모두 함께 축소하므로, 유전자가 가장 운 좋은 가이드에 의해서가 아니라 하나의 단위로 모델에 들어가거나 빠집니다. 값이 클수록 남는 유전자가 적고, 0이면 페널티 없이 적합하며, 음수는 거부됩니다. 교차 검증으로 선택하려면 auto로 설정하십시오. 기본값 auto. regression_type 'group_lasso'에서 읽습니다.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "resnet_features",
+      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
+      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
+      "translation": "측정된 특징 테이블 대신 ResNet 특징으로 원시 크롭을 임베딩하기 위한 자리표시자입니다. generate_image_umap의 해당 분기가 비어 있는 pass이므로, 활성화하면 임베딩 단계를 완전히 건너뛰고 이후 바인딩되지 않은 'embedding' 변수 때문에 실행이 실패합니다. False로 두십시오. 기본값 False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation",
+      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
+      "translation": "단일 학습/테스트 분할 대신 5-폴드 층화 교차 검증으로 분류기를 평가하여, 모든 대조군 객체가 폴드 외 예측을 받고 폴드마다 최적 확률 임계값이 선택되게 합니다. 작은 대조군 세트에서 훨씬 안정적인 정확도 추정을 주며, 학습 시간은 약 5x입니다. 기본값 True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "init_weights",
+      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
+      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
+      "translation": "무작위 초기화 대신 ImageNet 사전 학습 가중치로 백본을 시작합니다. 위에 붙는 spaCR 분류기 헤드는 어느 경우든 무작위로 초기화됩니다. 켜 두십시오 - 이 분야에서 흔한 작은 어노테이션 세트에서는 전이 학습이 훨씬 적은 에포크로 수렴합니다. 매우 큰 데이터 세트로 처음부터 학습하거나 사전 학습의 기여도를 측정할 때만 끄십시오. 기본값 True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mixed_control_wells",
+      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
+      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
+      "translation": "양성 및 음성 대조군의 알려진 혼합물을 담은 웰입니다(예: ['c3']). 다른 두 가지처럼 회귀에서 제거됩니다. 세포별 정체는 알 수 없지만 전체 비율은 시퀀싱으로 알려져 있으므로, 시뮬레이션이 아닌 실제 세포에서 어노테이션 방법의 점수를 매길 수 있는 강력한 검증을 제공합니다. 기본값 None.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "classifier_family",
+      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
+      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
+      "translation": "병합된 Classify 모듈이 실행할 분류기입니다. 'cv'는 객체 크롭으로 Torch 모델을 학습하고, 'ml'은 측정된 특징으로 그래디언트 부스팅 모델을 적합합니다. 다른 계열이 사용하는 설정은 숨겨지지 않고 회색으로 표시되며 값이 유지됩니다. 이것이 유일한 Classify 화면이며, 이것이 대체한 두 화면은 2026-08-23에 제거되었고, 그 진입점(spacr.deep_spacr.deep_spacr 및 spacr.ml.generate_ml_scores)으로 변경 없이 전달됩니다. 기본값 'cv'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_channel_mapping",
+      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
+      "translation": "저장되는 PNG의 각 색상에 들어갈 원본 채널로, 예를 들어 {'r': 2, 'g': 1, 'b': 0}이면 채널 2가 빨강, 1이 초록, 0이 파랑입니다. png_dims가 암시만 하던 것을 명시적으로 지정합니다. 지정하지 않은 채널은 크롭에 포함되지 않으며(측정값에는 영향 없음), 비워 둔 색상은 빈 평면이 됩니다. 세 색상 모두에 같은 채널을 지정하면 회색조 PNG가 기록됩니다. 기본값 {'r': 2, 'g': 1, 'b': 0}이며, 표준 405/488/555 스택에서는 핵 염색이 파랑에 놓입니다.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load."

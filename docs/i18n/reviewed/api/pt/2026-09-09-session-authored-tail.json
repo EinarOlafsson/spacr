@@ -8,7 +8,9 @@
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "translation": "quantos recortes de imagem não anotados sortear ao acaso e ajustar como a classe AUSENTE quando apenas uma classe foi anotada. ``None`` (padrão) recusa-se a fazê-lo, como antes.",
-      "rebound_from": "spacr.active_learning.retrain_round#26"
+      "rebound_from": "spacr.active_learning.retrain_round#26",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.hit_attribution.HitInvestigationResult#2",
@@ -22,7 +24,9 @@
       "source_sha256": "293c854f9afac54239392cfcbd5cd266cd929eabb313f53b0844019c6fdbb79d",
       "source": "**clip, and count.** A gain above 1 at the edge of the field can push a near-full-scale pixel past the top of a uint16. Clipping is the only option that keeps the dtype the hook contract requires, but silently clipping real signal is a lie about the data, so every pixel that was *below* full scale before the correction and lands *at* full scale after it is counted and reported. Pixels that were already saturated are not counted: they were destroyed by the microscope, not by this class.",
       "context": "**clip, and count.** A gain above 1 at the edge of the microscope field of view can push a near-full-scale pixel past the top of a uint16. Clipping is the only option that keeps the dtype the hook contract requires, but silently clipping real signal is a lie about the data, so every pixel that was *below* full scale before the correction and lands *at* full scale after it is counted and reported. Pixels that were already saturated are not counted: they were destroyed by the microscope, not by this class.",
-      "translation": "**recortar e contar.** Um ganho superior a 1 na extremidade do campo de visão do microscópio pode empurrar um pixel quase no máximo da escala para além do topo de um uint16. Recortar é a única opção que preserva o dtype exigido pelo contrato do gancho, mas recortar sinal real em silêncio é uma mentira sobre os dados, pelo que cada pixel que estava *abaixo* do máximo da escala antes da correção e fica *no* máximo depois dela é contado e comunicado. Os pixels que já estavam saturados não são contados: foram destruídos pelo microscópio, não por esta classe."
+      "translation": "**recortar e contar.** Um ganho superior a 1 na extremidade do campo de visão do microscópio pode empurrar um pixel quase no máximo da escala para além do topo de um uint16. Recortar é a única opção que preserva o dtype exigido pelo contrato do gancho, mas recortar sinal real em silêncio é uma mentira sobre os dados, pelo que cada pixel que estava *abaixo* do máximo da escala antes da correção e fica *no* máximo depois dela é contado e comunicado. Os pixels que já estavam saturados não são contados: foram destruídos pelo microscópio, não por esta classe.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.macro.Recording#3",
@@ -57,7 +61,9 @@
       "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
       "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
       "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
-      "translation": "Tanto Eliminar como Cancelar passam por aqui e NENHUM dos dois envia um evento de fecho — ``QDialog.done`` esconde o widget —, pelo que é aqui, e não em ``closeEvent``, que tem de residir o desmantelamento de um diálogo modal. O Qt aborta o processo de imediato se um ``QThread`` em execução for destruído com o seu proprietário, e o percurso pode ainda estar a decorrer quando a pessoa cancela."
+      "translation": "Tanto Eliminar como Cancelar passam por aqui e NENHUM dos dois envia um evento de fecho — ``QDialog.done`` esconde o widget —, pelo que é aqui, e não em ``closeEvent``, que tem de residir o desmantelamento de um diálogo modal. O Qt aborta o processo de imediato se um ``QThread`` em execução for destruído com o seu proprietário, e o percurso pode ainda estar a decorrer quando a pessoa cancela.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.image_import.ImageImportScreen.set_tiles_as_fields#1",
@@ -92,7 +98,9 @@
       "source_sha256": "f9b84851fc164eaeb2d91d44e75aabedfd097d2f9ccae56845eab2e8c5b90aa2",
       "source": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own keys, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
       "context": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own structured-data names, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
-      "translation": "O resto é MANTIDO, não descartado: :meth:`settings` devolve-o sem alterações ao lado dos nomes de dados estruturados da própria tabela, de modo que este widget pode editar um canto de um ficheiro de definições sem reter o ficheiro inteiro."
+      "translation": "O resto é MANTIDO, não descartado: :meth:`settings` devolve-o sem alterações ao lado dos nomes de dados estruturados da própria tabela, de modo que este widget pode editar um canto de um ficheiro de definições sem reter o ficheiro inteiro.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.schema.ObjectID#5",

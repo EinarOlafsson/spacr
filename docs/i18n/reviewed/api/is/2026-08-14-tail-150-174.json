@@ -41,7 +41,9 @@
       "label": "spacr.chaining.stale_inputs#1",
       "source": "Running on a stale input produces a stale result, so this is the warning that saves the twenty minutes rather than explaining them afterwards. Settings are deliberately *not* compared here: this module's settings say nothing about whether the previous module's output is current.",
       "source_sha256": "9454ee0815a756cccf6f08e4559195e22d61b4b4e1cfc3316247c8e0151a56fb",
-      "translation": "Að keyra á úreltum inntaki gefur úrelt niðurstöðu, svo þetta er viðvörunin sem sparar tuttugu mínútur frekar en að útskýra þær í eftirgang. Stillingar eru vísvitandi *ekki* bornar saman hér: Stillingar þessa módúls segja ekki neitt um hvort niðurstaða fyrri módúlsins sé nýleg."
+      "translation": "Að keyra á úreltum inntaki gefur úrelt niðurstöðu, svo þetta er viðvörunin sem sparar tuttugu mínútur frekar en að útskýra þær í eftirgang. Stillingar eru vísvitandi *ekki* bornar saman hér: Stillingar þessa módúls segja ekki neitt um hvort niðurstaða fyrri módúlsins sé nýleg.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The PNG is produced by whoever ran the trial, on the background execution unit that ran it. This method only loads and places it -- a search that rendered its figures here would render them on the main GUI execution path.",
@@ -76,7 +78,9 @@
       "label": "spacr.deep_spacr.merge_predictions_into_db#1",
       "source": "Thin wrapper over :func:`spacr.predictions.merge_cv_predictions`, which is the one merge path Classify (CV) and Classify (ML) share. It used to be implemented here, keyed on ``basename(png_path)``, and collapsed repeated basenames with a plain ``dict`` assignment -- so a run over two source folders whose plates were both called ``plate1`` scored one plate with the other one's predictions and said nothing. The replacement keys on ``prcfo``, refuses a key that arrives with two different values instead of letting the last one win, counts every row it could not place, and runs in one transaction. See :mod:`spacr.predictions`.",
       "source_sha256": "9cd91296e97b24457b544d60e5be47d6f368f06ba7451b6cee13dc4138249265",
-      "translation": "Þunnar umbúðir yfir :func:`spacr.predictions.merge_cv_predictions`, sem er sameiginlega samþættingarleiðin sem Classify (CV) og Classify (ML) deila. Það var áður útfært hér, skráð með ``basename(png_path)``, og samlagaði endurtekna grunnnafn með einfaldri ``dict`` úthlutun -- þannig að vinnslufundi yfir tveimur upprunalegum möppum þar sem rannsóknarstofa örplötur voru báðar kallaðar ``plate1`` gaf eina rannsóknarstofa örplötu með spár annarrar og sagði ekkert. Fyllingareiningin er skráð með ``prcfo``, hafnar nafn-grein sem kemur með tvær mismunandi gildi í staðinn fyrir að láta síðasta vinna, telur hverja röð sem hún gat ekki sett og keyrir í einni viðskiptaleysi. Sjá :mod:`spacr.predictions`."
+      "translation": "Þunnar umbúðir yfir :func:`spacr.predictions.merge_cv_predictions`, sem er sameiginlega samþættingarleiðin sem Classify (CV) og Classify (ML) deila. Það var áður útfært hér, skráð með ``basename(png_path)``, og samlagaði endurtekna grunnnafn með einfaldri ``dict`` úthlutun -- þannig að vinnslufundi yfir tveimur upprunalegum möppum þar sem rannsóknarstofa örplötur voru báðar kallaðar ``plate1`` gaf eina rannsóknarstofa örplötu með spár annarrar og sagði ekkert. Fyllingareiningin er skráð með ``prcfo``, hafnar nafn-grein sem kemur með tvær mismunandi gildi í staðinn fyrir að láta síðasta vinna, telur hverja röð sem hún gat ekki sett og keyrir í einni viðskiptaleysi. Sjá :mod:`spacr.predictions`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The array is opened with ``mmap_mode='r'``: cutting one object reads the object's mask image layer once (cached) and then only the extracted image region window, never the whole microscope field of view. A 2048x2048x5 uint16 microscope field of view is 40 MB; materialising it per object would make an on-demand grid slower than the PNG folder it replaces.",
@@ -104,7 +108,9 @@
       "label": "spacr.errors.ConfigurationError#1",
       "source": "A missing ``src`` folder, an unparseable regex, a metadata column that does not exist. These are *not* per-item failures: continuing past one produces garbage for every item, so :meth:`RunLedger.item` re-raises this instead of recording it.",
       "source_sha256": "2ad5b6457f90379afc75a1214c35e7065388d78031542714674152ef9dc8f9cf",
-      "translation": "Vantar ``src`` möppu, óleysanlegt reglulegt tjáning, gagnamál dálkur sem er ekki til. Þetta eru *ekki* mistök á hverja einingu: að halda áfram eftir eitt framkallar rusl fyrir hverja einingu, svo :meth:`RunLedger.item` kastar þessari sömu undantekningu aftur í stað þess að skrá hana."
+      "translation": "Vantar ``src`` möppu, óleysanlegt reglulegt tjáning, gagnamál dálkur sem er ekki til. Þetta eru *ekki* mistök á hverja einingu: að halda áfram eftir eitt framkallar rusl fyrir hverja einingu, svo :meth:`RunLedger.item` kastar þessari sömu undantekningu aftur í stað þess að skrá hana.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Called by the Annotate application view every time it flushes a batch. The round a label came from is what makes early-round bias auditable: the first round's labels are drawn from whatever ordering existed before any model had seen this application view, and if 80 % of a class's labels carry round 0 then the \"active learning\" was mostly not active.",

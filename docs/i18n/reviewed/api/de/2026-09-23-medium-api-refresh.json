@@ -57,7 +57,9 @@
       "source": "``(path, reason)`` for every file that did not. The window lists these, because a file that silently vanishes is the one failure a drag-and-drop table cannot afford.",
       "source_sha256": "2e7363f3b99e34404e5d4e2375645499c71c0045645a252fd7d738a584775873",
       "context": "``(path, reason)`` for every file that did not. The window lists these, because a file that silently vanishes is the one failure a drag-and-drop table cannot afford.",
-      "translation": "``(path, reason)`` für jede nicht zugeordnete Datei. Das Fenster zeigt diese Einträge an, damit beim Ablegen in der Tabelle keine Datei unbemerkt verschwindet."
+      "translation": "``(path, reason)`` für jede nicht zugeordnete Datei. Das Fenster zeigt diese Einträge an, damit beim Ablegen in der Tabelle keine Datei unbemerkt verschwindet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead#0",
@@ -157,7 +159,9 @@
       "source": "What ``method`` suits, as one sentence a picker can show.",
       "source_sha256": "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
       "context": "What ``method`` suits, as one sentence a picker can show.",
-      "translation": "Beschreibt in einem Satz für ein Auswahlfeld, wofür ``method`` geeignet ist."
+      "translation": "Beschreibt in einem Satz für ein Auswahlfeld, wofür ``method`` geeignet ist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.organelle_types.method_guidance#1",

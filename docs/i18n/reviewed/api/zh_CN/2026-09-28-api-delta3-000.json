@@ -16,7 +16,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The case this module exists for: masks were drawn in Make Masks on a folder holding two kinds of image at once -- nucleus-stain images with nucleus masks and cell-stain images with cell masks, say -- and those have to become one multi-channel field per position, in the layout spaCR's Mask/Measure pipeline reads.",
       "source_sha256": "1434b3d91d4e9a6b2d0a0b02c5dd84aad621be24cdc3bc9f182b24d1a49a3db3",
-      "translation": "本模块针对的情形是：在 Make Masks 中对一个同时包含两类图像的文件夹绘制了掩膜——例如核染色图像配核掩膜、细胞染色图像配细胞掩膜——而这些需要变成每个位置一个多通道视野，采用 spaCR 的 Mask/Measure 流程所读取的结构。"
+      "translation": "本模块针对的情形是：在 Make Masks 中对一个同时包含两类图像的文件夹绘制了掩膜——例如核染色图像配核掩膜、细胞染色图像配细胞掩膜——而这些需要变成每个位置一个多通道视野，采用 spaCR 的 Mask/Measure 流程所读取的结构。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It happens in three separate steps, and nothing is moved until the last:",
@@ -458,7 +460,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "MOVE the images and masks as planned, then merge.",
       "source_sha256": "146c0eae586d5ec99dd028c688bb6398ef7b1740aa9a69d1981a9d40eab49308",
-      "translation": "按计划移动图像和掩膜，然后合并。"
+      "translation": "按计划移动图像和掩膜，然后合并。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it happens, so a run that stops half-way still says which file went where. Nothing is overwritten: every target is checked to be free before the first move.",
@@ -731,7 +735,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the channel -- or, when the user assigned channels, the tokens that only follow the channel are set aside -- and the rest must identify a set that holds exactly one image per channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first, and :func:`spacr.regex_infer.propose` last. Of the candidates that pass, the one with the FEWEST channels wins: any name can be read as a channel of its own in a single set, which passes and means nothing.",
       "source_sha256": "6c67fca6f45364075dbfb42ff14a0728aebb8069fa4632f9eb9ff9815c3a7366",
-      "translation": "名称被切分为片段（在 ``_ - . space`` 处切分，不行则切为数字串和字母串）；找出变化的片段；尝试把其中一个作为通道——或者在用户已分配通道时，把只跟在通道后面的片段放到一边——其余片段必须能标识一个每个通道恰好一张图像的组。每个候选在返回前都用 :func:`check_sets` 检查。先尝试 spaCR 自己的 Yokogawa 模式，最后尝试 :func:`spacr.regex_infer.propose`。在通过的候选中，通道最少的获胜：任何名称都可以被读成单个组中的独立通道，这样能通过检查却毫无意义。"
+      "translation": "名称被切分为片段（在 ``_ - . space`` 处切分，不行则切为数字串和字母串）；找出变化的片段；尝试把其中一个作为通道——或者在用户已分配通道时，把只跟在通道后面的片段放到一边——其余片段必须能标识一个每个通道恰好一张图像的组。每个候选在返回前都用 :func:`check_sets` 检查。先尝试 spaCR 自己的 Yokogawa 模式，最后尝试 :func:`spacr.regex_infer.propose`。在通过的候选中，通道最少的获胜：任何名称都可以被读成单个组中的独立通道，这样能通过检查却毫无意义。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image file names.",
@@ -755,7 +761,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the first regex that passes, or None.",
       "source_sha256": "af5fd94f3da97b7b7cfee3269c527b158678ed30469ae914d25b422bee4ee791",
-      "translation": "第一个通过的正则表达式，或 None。"
+      "translation": "第一个通过的正则表达式，或 None。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return the image file names directly in ``folder``, naturally sorted.",
@@ -1511,7 +1519,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SELF-SUPERVISED DENOISING COMES BEFORE THE CHAIN. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics, in its own environment, on a sample of the run's own raw fields -- no clean images are needed -- or read from ``n2v_model``. Each field's selected channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
       "source_sha256": "053a6f3ea879abe3f0597364d142db70df217b383995dcc2b937bb41187efb63",
-      "translation": "自监督去噪位于处理链之前。开启 ``n2v_denoise`` 时，CAREamics 会在其自己的环境中，用本次处理自身原始视野的一个样本为每个分割通道训练一个 Noise2Void（N2V2）模型——无需干净图像——或从 ``n2v_model`` 读取。每个视野的选定通道在光照校正之后、PSF 和处理链之前去噪，此时噪声在像素之间仍然相互独立，这正是 Noise2Void 的前提。检查点的哈希和训练记录会并入同一份溯源记录。"
+      "translation": "自监督去噪位于处理链之前。开启 ``n2v_denoise`` 时，CAREamics 会在其自己的环境中，用本次处理自身原始视野的一个样本为每个分割通道训练一个 Noise2Void（N2V2）模型——无需干净图像——或从 ``n2v_model`` 读取。每个视野的选定通道在光照校正之后、PSF 和处理链之前去噪，此时噪声在像素之间仍然相互独立，这正是 Noise2Void 的前提。检查点的哈希和训练记录会并入同一份溯源记录。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the processing session's ``psf_*``, ``enhance_*``, ``unmix`` and ``n2v_denoise`` settings.",
@@ -1943,7 +1953,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement rather than tidiness: the CSV picker and the SQL column list have to be able to import this to get canonical names, and they cannot pay for a torch import to do it.",
       "source_sha256": "310ef96d74acab287944d13d7e99c17e93a8c87d2d0a4aea8f2d1e883224ab58",
-      "translation": "``pandas``、``sqlite3`` 和 :mod:`spacr.schema`。其他测量存储只在打开 DuckDB、Parquet 或 PostgreSQL 存储时才导入 ``duckdb`` 或 ``psycopg``。模块作用域中没有其他内容——没有 ``spacr.utils``，没有 matplotlib，也没有 torch。这是硬性要求而非整洁问题：CSV 选择器和 SQL 列列表必须能导入本模块以获得规范名称，而它们承担不起为此导入 torch 的开销。"
+      "translation": "``pandas``、``sqlite3`` 和 :mod:`spacr.schema`。其他测量存储只在打开 DuckDB、Parquet 或 PostgreSQL 存储时才导入 ``duckdb`` 或 ``psycopg``。模块作用域中没有其他内容——没有 ``spacr.utils``，没有 matplotlib，也没有 torch。这是硬性要求而非整洁问题：CSV 选择器和 SQL 列列表必须能导入本模块以获得规范名称，而它们承担不起为此导入 torch 的开销。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "path to the database, or any store :func:`read_database` reads. ``~`` and ``$VARS`` are expanded.",

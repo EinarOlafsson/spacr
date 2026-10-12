@@ -678,7 +678,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY IT ONCE READ NOTHING AT ALL. This module was written as the safe successor to a reader that merged blind, and then could not replace it, because three things it did not do are three things the published pack needs:",
       "source_sha256": "c0e1314bfb7b71ce15b026328020d1b228e2d98f300b7a05268605042a2de2d9",
-      "translation": "VARFÖR DEN EN GÅNG INTE LÄSTE NÅGONTING ALLS. Den här modulen skrevs som den säkra efterföljaren till en läsare som slog samman i blindo, och kunde sedan inte ersätta den, eftersom tre saker som den inte gjorde är tre saker som det publicerade paketet behöver:"
+      "translation": "VARFÖR DEN EN GÅNG INTE LÄSTE NÅGONTING ALLS. Den här modulen skrevs som den säkra efterföljaren till en läsare som slog samman i blindo, och kunde sedan inte ersätta den, eftersom tre saker som den inte gjorde är tre saker som det publicerade paketet behöver:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "app key whose pack file is looked for, first as ``<app_key>_settings.csv`` and then under the published names in ``PACK_FILES``.",
@@ -766,7 +768,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the search filter. Typing the key into the box above would hide every other setting as well, so a user who arrived from the Help search and then wanted to look at the neighbouring rows would first have to work out what had happened to the form. Revealing instead leaves the module whole and only decides which heading is open.",
       "source_sha256": "caf5f1a0a3722398eeb6e30b294f71f6e51e63f49d05e2650f2bbd3d8cced7cc",
-      "translation": "VAD ETT RESULTAT FRÅN HJÄLPSÖKNINGEN BEHÖVER, och det är avsiktligt INTE sökfiltret. Att skriva nyckeln i rutan ovanför skulle också dölja alla andra inställningar, så att en användare som kom från Help-sökningen och sedan ville titta på de närliggande raderna först skulle behöva lista ut vad som hade hänt med formuläret. Att visa fram i stället lämnar modulen hel och avgör bara vilken rubrik som är öppen."
+      "translation": "VAD ETT RESULTAT FRÅN HJÄLPSÖKNINGEN BEHÖVER, och det är avsiktligt INTE sökfiltret. Att skriva nyckeln i rutan ovanför skulle också dölja alla andra inställningar, så att en användare som kom från Help-sökningen och sedan ville titta på de närliggande raderna först skulle behöva lista ut vad som hade hänt med formuläret. Att visa fram i stället lämnar modulen hel och avgör bara vilken rubrik som är öppen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is rebuilt and no value is read or written: the row was already on the form, and this shows its section and scrolls to it -- or, for a category not built yet (indexed with no field), the screen builds it first, as opening it would. That is what makes arriving here from a search safe for a half-typed value -- the same property the filter has, for the same reason.",
@@ -782,7 +786,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE IS NEVER REMEMBERED. Switching to All settings unconditionally would work, and it would also rewrite this module's remembered Essentials/All choice every time anybody arrived here -- a setting the user chose, changed as a side effect of looking something up. So the filter is cleared first and the level is raised only when the row is still not on the form afterwards, which is exactly the case where Essentials is what is hiding it; and the raise goes through :meth:`_show_all_without_remembering`, so the form shows the row while the store still holds the level the user picked. Most settings are not essentials, so a lookup that persisted the raise would move almost every module out of Essentials for good.",
       "source_sha256": "b1f48766f0fbd038206a6566ba41e8d82d9249b242a80e86819145697f07ad1e",
-      "translation": "DETALJNIVÅN ÄNDRAS BARA OM DEN MÅSTE, OCH ÄNDRINGEN KOMS ALDRIG IHÅG. Att ovillkorligen växla till All settings skulle fungera, och det skulle också skriva om den här modulens ihågkomna val mellan Essentials och All varje gång någon kom hit -- en inställning som användaren valde, ändrad som en bieffekt av att slå upp något. Därför rensas filtret först och nivån höjs bara när raden fortfarande inte finns i formuläret efteråt, vilket är exakt det fall där det är Essentials som döljer den; och höjningen går via :meth:`_show_all_without_remembering`, så att formuläret visar raden medan lagringen fortfarande behåller den nivå som användaren valde. De flesta inställningar är inte väsentliga, så en uppslagning som sparade höjningen skulle flytta nästan varje modul ut ur Essentials för gott."
+      "translation": "DETALJNIVÅN ÄNDRAS BARA OM DEN MÅSTE, OCH ÄNDRINGEN KOMS ALDRIG IHÅG. Att ovillkorligen växla till All settings skulle fungera, och det skulle också skriva om den här modulens ihågkomna val mellan Essentials och All varje gång någon kom hit -- en inställning som användaren valde, ändrad som en bieffekt av att slå upp något. Därför rensas filtret först och nivån höjs bara när raden fortfarande inte finns i formuläret efteråt, vilket är exakt det fall där det är Essentials som döljer den; och höjningen går via :meth:`_show_all_without_remembering`, så att formuläret visar raden medan lagringen fortfarande behåller den nivå som användaren valde. De flesta inställningar är inte väsentliga, så en uppslagning som sparade höjningen skulle flytta nästan varje modul ut ur Essentials för gott.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True when the module renders ``key`` and it was revealed.",
@@ -1046,7 +1052,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**Qt Multimedia is touched only on the GUI thread.** :class:`_SoundPlayer` owns ``QMediaDevices`` and every ``QSoundEffect`` and lives where the application's event loop does; the dedicated ``QThread`` keeps the part that is genuinely slow, which is synthesizing a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing from Qt Multimedia). Connecting to the sound server is slow -- 354 ms measured on a PipeWire workstation -- so it is paid ONCE, on an idle timer after sound is switched on (:meth:`SoundEngine._warm`), and logged rather than felt. Playing an already loaded sound is ``play()``, which returns at once: 0.007-0.014 ms on the GUI thread against the real stack.",
       "source_sha256": "5894e2c5a68f3a935e9201e73e95722d2ad7b83a30292ff844e37a77fcd99aae",
-      "translation": "**Qt Multimedia rörs bara i GUI-tråden.** :class:`_SoundPlayer` äger ``QMediaDevices`` och varje ``QSoundEffect`` och lever där programmets händelseloop gör; den dedikerade ``QThread`` behåller den del som verkligen är långsam, vilket är att syntetisera en ljuduppsättning (:class:`_SoundRenderer`, numpy och filskrivningar, ingenting från Qt Multimedia). Att ansluta till ljudservern är långsamt -- 354 ms uppmätt på en PipeWire-arbetsstation -- så det betalas EN GÅNG, på en tomgångstimer efter att ljudet har slagits på (:meth:`SoundEngine._warm`), och loggas i stället för att märkas. Att spela ett redan inläst ljud är ``play()``, som returnerar direkt: 0.007-0.014 ms i GUI-tråden mot den verkliga stacken."
+      "translation": "**Qt Multimedia rörs bara i GUI-tråden.** :class:`_SoundPlayer` äger ``QMediaDevices`` och varje ``QSoundEffect`` och lever där programmets händelseloop gör; den dedikerade ``QThread`` behåller den del som verkligen är långsam, vilket är att syntetisera en ljuduppsättning (:class:`_SoundRenderer`, numpy och filskrivningar, ingenting från Qt Multimedia). Att ansluta till ljudservern är långsamt -- 354 ms uppmätt på en PipeWire-arbetsstation -- så det betalas EN GÅNG, på en tomgångstimer efter att ljudet har slagits på (:meth:`SoundEngine._warm`), och loggas i stället för att märkas. Att spela ett redan inläst ljud är ``play()``, som returnerar direkt: 0.007-0.014 ms i GUI-tråden mot den verkliga stacken.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This rule is written in a crash. Building the effects on the audio independent execution path instead does move the connection off the main GUI execution path -- but Qt Multimedia's device handling belongs to the independent execution path that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong independent execution path. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
@@ -1054,7 +1062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This rule is written in a crash. Building the effects on the audio thread instead does move the connection off the GUI thread -- but Qt Multimedia's device handling belongs to the thread that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong thread. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
       "source_sha256": "f4f938216c7727a2323e65b18b1d3f5e9e756a30d023062d76691118c5993865",
-      "translation": "Den här regeln är skriven i en krasch. Att bygga effekterna i ljudtråden i stället flyttar visserligen anslutningen bort från GUI-tråden -- men Qt Multimedias enhetshantering hör till den tråd som äger händelseloopen, så med FFmpeg-backenden aktiverar den socketnotifierare från fel tråd. Att öppna Preferences igen med ljudet påslaget ger då ett segmenteringsfel, eller låser gränssnittet med en tom Preferences-ram tills det tvångsavslutas."
+      "translation": "Den här regeln är skriven i en krasch. Att bygga effekterna i ljudtråden i stället flyttar visserligen anslutningen bort från GUI-tråden -- men Qt Multimedias enhetshantering hör till den tråd som äger händelseloopen, så med FFmpeg-backenden aktiverar den socketnotifierare från fel tråd. Att öppna Preferences igen med ljudet påslaget ger då ett segmenteringsfel, eller låser gränssnittet med en tom Preferences-ram tills det tvångsavslutas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**A missing sound stack is silence.** No device, no server, no Qt Multimedia, a file that will not load: each ends in a debug log line and no sound. Nothing here raises into a caller and nothing opens a dialog.",
@@ -1078,7 +1088,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Application-wide filter that hears presses and hovers on controls.",
       "source_sha256": "7e0e303e178008d3c7df5826ca96692e5f005d021f6af384f96c38ec399729b7",
-      "translation": "Filter för hela programmet som hör tryck och hovringar på kontroller."
+      "translation": "Filter för hela programmet som hör tryck och hovringar på kontroller.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Installed only while a click or hover sound is wanted (see :meth:`SoundEngine.apply`). The body is two liveness checks and at most four comparisons for an event it does not want.",
@@ -1294,7 +1306,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Plays whatever the stored switches say: the dialog enables Preview only while its own master switch is on, and the press is the ask.",
       "source_sha256": "f145cbeda408be3532c769734f41dbfa06a3ee942c1dfc61addd22094a4361bf",
-      "translation": "Spelar vad de lagrade brytarna än säger: dialogen aktiverar Preview bara medan dess egen huvudbrytare är på, och trycket är begäran."
+      "translation": "Spelar vad de lagrade brytarna än säger: dialogen aktiverar Preview bara medan dess egen huvudbrytare är på, och trycket är begäran.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "any event, the music bed included.",
@@ -1454,7 +1468,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "a WAV of the user's own to play as the bed instead of the synthesized one. Empty means spaCR's own. It is also what the Resonance backdrop is driven by, because the backdrop follows WHATEVER IS PLAYING and there is only ever one thing.",
       "source_sha256": "67bef7c78099f3a95c81f27c54795b9c446ac630417b7dab8477b2a16051a155",
-      "translation": "en egen WAV-fil att spela som bädd i stället för den syntetiserade. Tomt betyder spaCR:s egen. Det är också vad Resonance-bakgrunden drivs av, eftersom bakgrunden följer DET SOM SPELAS och det bara finns en sådan sak åt gången."
+      "translation": "en egen WAV-fil att spela som bädd i stället för den syntetiserade. Tomt betyder spaCR:s egen. Det är också vad Resonance-bakgrunden drivs av, eftersom bakgrunden följer DET SOM SPELAS och det bara finns en sådan sak åt gången.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The linear gain the volume slider stands for.",
@@ -3530,7 +3546,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Qt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most styles set to about 700 ms and which nothing in spaCR was choosing. Tooltips therefore arrived while the pointer was still travelling, and left the instant it moved off the widget -- too fast to read, and impossible to reach if the text ran long.",
       "source_sha256": "fd35fd0958c30a1060b1956ca0bdb828edf722ea42804a7e4c30d1db76bb1e84",
-      "translation": "Qt:s eget svar är ett stiltips, ``SH_ToolTip_WakeUpDelay``, som de flesta stilar sätter till ungefär 700 ms och som ingenting i spaCR valde. Verktygstips dök därför upp medan pekaren fortfarande var på väg, och försvann i samma ögonblick som den lämnade widgeten -- för snabbt för att läsas, och omöjliga att nå om texten var lång."
+      "translation": "Qt:s eget svar är ett stiltips, ``SH_ToolTip_WakeUpDelay``, som de flesta stilar sätter till ungefär 700 ms och som ingenting i spaCR valde. Verktygstips dök därför upp medan pekaren fortfarande var på väg, och försvann i samma ögonblick som den lämnade widgeten -- för snabbt för att läsas, och omöjliga att nå om texten var lång.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is sent again after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
@@ -3538,7 +3556,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is SENT AGAIN after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
       "source_sha256": "38a34a85d3d3beaefeaabfe003d3fa229831a51e83d66bc280edbd0549b6cd5d",
-      "translation": "En tabell, en rubrik eller en lista svarar från ``Qt::ToolTipRole`` inuti sin egen ``event``, inte från en ``toolTip()`` som något filter kan läsa. När ingenting i föräldrakedjan har ett verktygstips SKICKAS händelsen IGEN efter väntetiden, med filtret åt sidan, så att de ändå visas -- och visas enligt samma tvåsekundersregel som allt annat."
+      "translation": "En tabell, en rubrik eller en lista svarar från ``Qt::ToolTipRole`` inuti sin egen ``event``, inte från en ``toolTip()`` som något filter kan läsa. När ingenting i föräldrakedjan har ett verktygstips SKICKAS händelsen IGEN efter väntetiden, med filtret åt sidan, så att de ändå visas -- och visas enligt samma tvåsekundersregel som allt annat.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`tooltips_enabled` is the preference switch, on by default. Cleared, the ``ToolTip`` event is swallowed and no tooltip is shown anywhere.",
@@ -3554,7 +3574,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This module installs ONE event filter on ``QApplication`` and takes the decision away from the style:",
       "source_sha256": "ce5122ac263cc0d8e6acaf67d011e0961af57200bba92ec7f22f6ed4fb626ebd",
-      "translation": "Den här modulen installerar ETT händelsefilter på ``QApplication`` och tar beslutet från stilen:"
+      "translation": "Den här modulen installerar ETT händelsefilter på ``QApplication`` och tar beslutet från stilen:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;",
@@ -3612,7 +3634,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Qt PROPAGATES a tooltip event to the parent widget when the widget under the pointer has no tooltip of its own, which is how a card explains itself while the pointer is on the label written on it. The text is therefore resolved with :func:`tooltip_text_for`, up the parent chain, exactly as Qt would have.",
       "source_sha256": "a1b6fff96412015d46d9e7b16cbc02c56d2706325d23d8ee3649a546c5854cd5",
-      "translation": "Qt SPRIDER en verktygstipshändelse till den överordnade widgeten när widgeten under pekaren inte har något eget verktygstips, vilket är hur ett kort förklarar sig självt medan pekaren är på etiketten som står på det. Texten löses därför upp med :func:`tooltip_text_for`, uppåt i föräldrakedjan, exakt som Qt skulle ha gjort."
+      "translation": "Qt SPRIDER en verktygstipshändelse till den överordnade widgeten när widgeten under pekaren inte har något eget verktygstips, vilket är hur ett kort förklarar sig självt medan pekaren är på etiketten som står på det. Texten löses därför upp med :func:`tooltip_text_for`, uppåt i föräldrakedjan, exakt som Qt skulle ha gjort.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Install the application-wide tooltip filter. Idempotent.",
@@ -3668,7 +3692,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This is not a convenience: it is the behaviour being preserved. Qt PROPAGATES a tooltip event up the parent chain, so a label with no tooltip of its own inside a card that has one shows the card's. A filter that read ``widget.toolTip()`` alone and then swallowed the event would break every one of those -- a card explains itself until the pointer lands on the text written on it, and then it stops.",
       "source_sha256": "524b3473132577b2a7fb015cfc6aa9682495d87e808c5a19e4c80fa072af391b",
-      "translation": "Detta är ingen bekvämlighet: det är det beteende som bevaras. Qt SPRIDER en verktygstipshändelse uppåt i föräldrakedjan, så att en etikett utan eget verktygstips inuti ett kort som har ett visar kortets. Ett filter som bara läste ``widget.toolTip()`` och sedan svalde händelsen skulle bryta varenda en av dem -- ett kort förklarar sig självt tills pekaren landar på texten som står på det, och sedan slutar det."
+      "translation": "Detta är ingen bekvämlighet: det är det beteende som bevaras. Qt SPRIDER en verktygstipshändelse uppåt i föräldrakedjan, så att en etikett utan eget verktygstips inuti ett kort som har ett visar kortets. Ett filter som bara läste ``widget.toolTip()`` och sedan svalde händelsen skulle bryta varenda en av dem -- ett kort förklarar sig självt tills pekaren landar på texten som står på det, och sedan slutar det.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the hovered widget, or ``None``; its ``toolTip()`` is read, then each parent's up to and including its window (at most 64 levels).",
@@ -3724,7 +3750,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "When the \"Verbose logging\" preference is on, spaCR's Python loggers are dialled up to DEBUG and the log files keep those records. The active ConsolePanel shows only the levels switched on for the console on the Logging tab of Preferences. That puts a detailed trail on disk, which is what you want when triaging a bug report.",
       "source_sha256": "8d0988c45c798e6fc097f1b476a6a9cf0961757d909b657667272f2ed90a3be9",
-      "translation": "När inställningen \"Verbose logging\" är på skruvas spaCR:s Python-loggrar upp till DEBUG och loggfilerna behåller de posterna. Den aktiva ConsolePanel visar bara de nivåer som slagits på för konsolen på fliken Logging i Preferences. Det lägger ett detaljerat spår på disken, vilket är vad man vill ha när man sorterar en felrapport."
+      "translation": "När inställningen \"Verbose logging\" är på skruvas spaCR:s Python-loggrar upp till DEBUG och loggfilerna behåller de posterna. Den aktiva ConsolePanel visar bara de nivåer som slagits på för konsolen på fliken Logging i Preferences. Det lägger ett detaljerat spår på disken, vilket är vad man vill ha när man sorterar en felrapport.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numeric logging levels the console should show; anything outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are lowered to the lowest level kept.",
@@ -4124,7 +4152,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "PROGRESS LINE. :class:`ProgressLine` is a slim progress bar whose numbers sit beside it, where nothing can cut them.",
       "source_sha256": "c8d906546300bc92069194a3156ddef006697415a0fbb0be712d1eba248be3fc",
-      "translation": "FÖRLOPPSRAD. :class:`ProgressLine` är ett smalt förloppsfält vars siffror sitter bredvid det, där ingenting kan klippa av dem."
+      "translation": "FÖRLOPPSRAD. :class:`ProgressLine` är ett smalt förloppsfält vars siffror sitter bredvid det, där ingenting kan klippa av dem.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. The maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".",
@@ -4168,7 +4198,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the COUNT beside it (the step and the percentage, the numbers a person is watching) is a plain label that is never elided -- its horizontal size policy is ``Minimum``, so a layout cannot give it less than its text needs;",
       "source_sha256": "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
-      "translation": "ANTALET bredvid det (steget och procentsatsen, de siffror som en person följer) är en vanlig etikett som aldrig förkortas -- dess horisontella storlekspolicy är ``Minimum``, så en layout kan inte ge den mindre än vad dess text behöver;"
+      "translation": "ANTALET bredvid det (steget och procentsatsen, de siffror som en person följer) är en vanlig etikett som aldrig förkortas -- dess horisontella storlekspolicy är ``Minimum``, så en layout kan inte ge den mindre än vad dess text behöver;",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an optional DETAIL line below carries the part that changes and can be long (a file name, a speed, a time left); that part elides, and :meth:`ProgressLine.displayed_text` reports what is really painted.",
@@ -4176,7 +4208,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "an optional DETAIL line below carries the part that changes and can be long (a file name, a speed, a time left); that part elides, and :meth:`ProgressLine.displayed_text` reports what is really painted.",
       "source_sha256": "5858f3fd7791f06144afa0bd885ce4f346f87ff7126dc3da005546ccf9cd8415",
-      "translation": "en valfri DETALJRAD under bär den del som ändras och kan vara lång (ett filnamn, en hastighet, återstående tid); den delen förkortas, och :meth:`ProgressLine.displayed_text` rapporterar vad som faktiskt målas."
+      "translation": "en valfri DETALJRAD under bär den del som ändras och kan vara lång (ett filnamn, en hastighet, återstående tid); den delen förkortas, och :meth:`ProgressLine.displayed_text` rapporterar vad som faktiskt målas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "No size here is computed from font metrics and then handed to a size setter, so the GUI-scale layer (:mod:`spacr.qt.gui_scale`) scales each size once: the label follows the scaled font, the spacing follows the scaled layout.",
@@ -4288,7 +4322,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What is really painted: the count, then the detail as elided.",
       "source_sha256": "30a3f21a5ded561add182c72e49dfb304e12208e225885cf7dd56818b71522bc",
-      "translation": "Det som faktiskt målas: antalet, sedan detaljen så som den förkortats."
+      "translation": "Det som faktiskt målas: antalet, sedan detaljen så som den förkortats.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Hidden parts are left out, so a test compares against the screen.",

@@ -569,7 +569,9 @@
       "source_sha256": "1e021fa46c4f049c96d82956bb5b320537598c0bb15f464c019fda08c1404e6b",
       "context": "The stat is here, on the worker, because it is the part that blocks on a slow mount. A path that is not a file yet is not an error -- it is one somebody is halfway through typing -- so it answers with nothing to offer rather than throwing, which would put a refusal in the status line for every keystroke.",
       "translation": "STAT कॉल यहीं है, worker पर, क्योंकि यही वह हिस्सा है जो धीमे माउंट पर अटकता है। जो पथ अभी फ़ाइल नहीं है वह त्रुटि नहीं है -- कोई उसे आधा टाइप कर रहा है -- इसलिए यह त्रुटि उठाने के बजाय कुछ भी न देने का उत्तर देता है, क्योंकि त्रुटि हर कीस्ट्रोक पर स्थिति पंक्ति में एक अस्वीकृति डाल देती।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work#0",
@@ -845,7 +847,9 @@
       "source_sha256": "543562b5678b4fa41698c59cd657c105d1e211e83a85f2353cbcf60e4ada51f5",
       "context": "The flag is cleared FIRST so a draw that schedules another does not lose it.",
       "translation": "फ़्लैग पहले साफ़ किया जाता है ताकि एक और ड्रॉ निर्धारित करने वाला ड्रॉ उसे न खोए।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.cancel_pending_draw#0",
@@ -861,7 +865,9 @@
       "source_sha256": "b3a541d2b27562bdaf6c8a9556f596f0989d3bd5e4fd80cf7d74045e20a3f581",
       "context": "Ask for a redraw on the OWNED timer rather than a static one.",
       "translation": "स्थिर टाइमर के बजाय कैनवास के अपने टाइमर पर पुनः-ड्रॉ माँगता है।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.draw_idle#1",

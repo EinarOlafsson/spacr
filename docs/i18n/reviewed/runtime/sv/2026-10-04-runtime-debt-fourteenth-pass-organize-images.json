@@ -164,13 +164,16 @@
       "source": "Counterfactual generator",
       "source_sha256": "a5d2f0189a49ece007c5ceac1de03810b27c91edffb54e02ce26aa8f1d96df19",
       "translation": "Kontrafaktisk generator"
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "counterfactual_generator",
       "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
       "source_sha256": "cc931e77b92c7cc2d17e64ac36a4f5b0612eda3f8a927e238e4aabe6730841d0",
-      "translation": "Modellen som ritar de kontrafaktiska exemplen. 'autoencoder' är snabb och tränad att vända klassificerarens beslut. 'diffusion' är tränad endast att rita bildutsnitt av varje klass och ritar om ett delvis brusat bildutsnitt under målklassen, så ett vänt beslut är inget den optimerats för; den är långsammare och kräver en GPU, tusentals bildutsnitt och hundratals epoker; med några hundra bildutsnitt redigerar den knappt alls. Diffusionsvikterna sparas som counterfactual_diffusion.pt bredvid tabellerna. Ignoreras om inte counterfactuals är på. Standard 'autoencoder'."
+      "translation": "Modellen som ritar de kontrafaktiska exemplen. 'autoencoder' är snabb och tränad att vända klassificerarens beslut. 'diffusion' är tränad endast att rita bildutsnitt av varje klass och ritar om ett delvis brusat bildutsnitt under målklassen, så ett vänt beslut är inget den optimerats för; den är långsammare och kräver en GPU, tusentals bildutsnitt och hundratals epoker; med några hundra bildutsnitt redigerar den knappt alls. Diffusionsvikterna sparas som counterfactual_diffusion.pt bredvid tabellerna. Ignoreras om inte counterfactuals är på. Standard 'autoencoder'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

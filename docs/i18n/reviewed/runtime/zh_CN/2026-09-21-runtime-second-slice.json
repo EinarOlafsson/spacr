@@ -32,13 +32,6 @@
     },
     {
       "table": "ui",
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "translation": "4PL 曲线关于中点对称。真实数据可能存在不对称性，4PL 会通过偏移 EC50 来吸收这种差异；5PL 则增加一个参数来拟合不对称性，需要多一个浓度点，并评估增加该参数是否有必要。",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5"
-    },
-    {
-      "table": "ui",
       "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "translation": "选择您自己的 WAV 文件作为背景音乐，替代 spaCR 的音乐。留空则使用 spaCR 自带音乐。文件不会被上传或复制，而是从原位置读取；Resonance 背景也会随该音乐变化。",
@@ -291,6 +284,14 @@
         "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "translation": "4PL 曲线关于中点对称。真实数据可能存在不对称性，4PL 会通过偏移 EC50 来吸收这种差异；5PL 则增加一个参数来拟合不对称性，需要多一个浓度点，并评估增加该参数是否有必要。",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

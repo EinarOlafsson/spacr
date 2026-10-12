@@ -218,7 +218,9 @@
       "source_sha256": "83691142b03ecee2e2b46f9e6e684a603dec02860e3649182bfe6d29f05265ad",
       "context": "Everything in spaCR that is addressable by name, and how to rank it.",
       "translation": "Allt í spaCR sem hægt er að vísa til með nafni, og hvernig á að raða því.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#1",
@@ -226,7 +228,9 @@
       "source_sha256": "ed4d2f4fa51ab5cf5bfaa6175840c53f952cdfc43224c7312e105bace83a59ad",
       "context": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
       "translation": "Leitarreiturinn við hlið Help-valmyndarinnar er aðeins jafngóður og þetta: notandi sem veit hvað eitthvað HEITIR ætti að ná til þess án þess að vita hvaða eining á það eða undir hvaða samfelldu fyrirsögn það var skráð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#10",
@@ -234,7 +238,9 @@
       "source_sha256": "c1752a04b729ad11dc31364bb0613cf40639a5e6d949525823263e09bd6a3aee",
       "context": "Adding a kind is registering a provider, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
       "translation": "AÐ BÆTA VIÐ TEGUND ER AÐ SKRÁ VEITU, ekki að breyta rofa. Veita er ``() -> Iterable[HelpEntry]``; :func:`register_provider` bætir einni við og :func:`build_index` kallar á hverja þeirra á bak við eigin vörn, svo veita sem kastar villu kostar sínar eigin raðir og ekkert annað. Það sem niðurstaða GERIR þegar hún er opnuð er skráð á sama hátt, í :mod:`spacr.qt.help_search`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#11",
@@ -242,7 +248,9 @@
       "source_sha256": "3adc1919bf67507e81691ffe20f6780b575a65e36a075720f40e6e64005d5349",
       "context": "Importing this costs nothing; building the index costs a second. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the main GUI execution path -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
       "translation": "AÐ FLYTJA ÞETTA INN KOSTAR EKKERT; AÐ BYGGJA VÍSINN KOSTAR SEKÚNDU. Hver skrá er flutt inn innan veitunnar sem les hana, svo einingin sjálf dregur hvorki inn Qt né ``spacr.settings``. Bygging hans mældist 1.1 s og 13,000 raðir á þessu tré, sem er allt of mikið fyrir GUI-þráðinn -- :mod:`spacr.qt.help_search` keyrir :func:`build_index` á vinnsluþræði og þessi eining er áfram prófanleg án skjás.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#2",
@@ -250,7 +258,9 @@
       "source_sha256": "1eda1db60f808fe0b5d175d31445e252db152fbf487029c67ff21d26b3dab3b0",
       "context": "The index is never a hand list. Every row here is derived from something that already decides the answer:",
       "translation": "VÍSIRINN ER ALDREI HANDSKRIFAÐUR LISTI. Hver röð hér er leidd af einhverju sem þegar ákveður svarið:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#3",
@@ -306,7 +316,9 @@
       "source_sha256": "9493a94b5d36037593b5216649265a1ad8e8d941e5b266d2bf0b6277cc792afe",
       "context": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
       "translation": "Stilling sem ekki finnst er þá staðreynd um myndunarforrit frekar en um það hvort einhver mundi eftir að bæta við röð, sem er öll röksemd fyrirmælanna.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#0",
@@ -330,7 +342,9 @@
       "source_sha256": "160936f13dc63126e120ac6bad4bf5ba6bde38eb9a0fb49f861d05cf0a65a08e",
       "context": "Why a template and not the finished string. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
       "translation": "HVERS VEGNA SNIÐMÁT EN EKKI FULLBÚINN STRENGUR. ``subtitle`` og ``description`` eru það sem leitin BER SAMAN VIÐ, svo þau haldast á ensku: fyrirspurnin og það sem leitað er í þurfa að vera á einu tungumáli, og vísirinn er byggður einu sinni í hverri lotu á meðan tungumál viðmótsins getur breyst eftir það. Það sem notandinn LES er myndað úr sniðmátinu á því augnabliki sem röð er teiknuð, af :func:`rendered_subtitle` og :func:`rendered_description` með :func:`spacr.qt.i18n.tr` sent inn -- svo breyting á tungumáli tekur gildi við næsta áslátt og þessi eining flytur samt hvorki inn Qt né þýðingaskrá. \"API reference\" er undirtitill tíu þúsund raðanna; fullbúinn enskur strengur hér er alenskur niðurstöðulisti fyrir hvern lesanda sem vinnur ekki á ensku.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#2",
@@ -354,7 +368,9 @@
       "source_sha256": "4bae203d75769918522607f1371e020bca05f06dffe38cdb8c560ee592c04996",
       "context": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
       "translation": "hvað hann gerir, á því máli sem notandinn hugsar á. Leitað er í þessu, og það er það sem lætur \"touching\" finna ``merge_edge_pathogen_cells``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#5",
@@ -434,7 +450,9 @@
       "source_sha256": "fb3f090d3ee2e389bffa1631460f0be3ceaa182631408114661f315b0e7b9707",
       "context": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
       "translation": "Hver veita er varin sér: leitarreitur sem missir stillingar sínar af því að ekki var hægt að lesa API-yfirlitið er verri en reitur sem býður hljóðlaust færri tegundir.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.build_index#2",
@@ -578,7 +596,9 @@
       "source_sha256": "ee33e0b61c5fe51f360b6e103db4362a0adbeaaff6bf149857d040bdd69c5cdb",
       "context": "Terms are ANDed, the same rule the per-module settings search uses: typing a second word must narrow, because otherwise typing more is a way of getting more results, which is the opposite of what typing means.",
       "translation": "Leitarorð eru tengd með OG, sama regla og stillingaleitin í hverri einingu notar: annað orð sem slegið er inn verður að þrengja, því annars væri það að slá inn meira leið til að fá fleiri niðurstöður, sem er andstæða þess sem innsláttur merkir.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.score#2",
@@ -666,7 +686,9 @@
       "source_sha256": "917a074f3dd7eb984c35c457a05c4a12a81140c0fc0130ac87a3011098d84fd1",
       "context": "One row per module: a setting in four modules is four rows, each naming its module and the category it sits under, rather than one row that then asks which. The user already knows which module they meant; a row that asks is a second click for information the list could have shown.",
       "translation": "EIN RÖÐ FYRIR HVERJA EININGU: stilling í fjórum einingum eru fjórar raðir, sem hver nefnir einingu sína og flokkinn sem hún er undir, frekar en ein röð sem spyr síðan hverja. Notandinn veit nú þegar hvaða einingu hann átti við; röð sem spyr er annar smellur fyrir upplýsingar sem listinn hefði getað sýnt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#2",
@@ -674,7 +696,9 @@
       "source_sha256": "2ab02ab5546359c5694a4040595795136c576571fc67d51f9b4ce0b0f0006a0c",
       "context": "The API half of a setting is not emitted here. ``SETTING_CONSUMERS`` names every addressable function that reads a structured-data name, and :func:`api_entries` folds that into the API row for each of those functions -- one row per symbol, saying which settings it reads. Emitting them from both providers listed ``spacr.io.preprocess_img_data`` once for itself and once for every setting it reads, which was eleven identical rows in one result list.",
       "translation": "API-HELMINGUR STILLINGAR ER EKKI SENDUR ÚT HÉR. ``SETTING_CONSUMERS`` nefnir hvert fall sem hægt er að vísa til og les lykil, og :func:`api_entries` fellir það inn í API-röð hvers þeirra falla -- ein röð fyrir hvert tákn, sem segir hvaða stillingar það les. Að senda þær út frá báðum veitum taldi ``spacr.io.preprocess_img_data`` upp einu sinni fyrir sjálft sig og einu sinni fyrir hverja stillingu sem það les, sem voru ellefu eins raðir í einum niðurstöðulista.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#3",
@@ -698,7 +722,9 @@
       "source_sha256": "2ed1190297dac95630e8a03a2c1b34769f2a49d333a10d9b083bd8e9e191161c",
       "context": ":mod:`spacr.qt.help_index` decides WHAT is addressable by name; this module is where a user types a name and where the answer takes them. The two halves are apart because only this one needs a display.",
       "translation": ":mod:`spacr.qt.help_index` ákveður HVAÐ er hægt að vísa til með nafni; þessi eining er þar sem notandi slær inn nafn og þangað sem svarið fer með hann. Helmingarnir tveir eru aðskildir því aðeins þessi þarf skjá.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#2",
@@ -706,7 +732,9 @@
       "source_sha256": "9b06bc94e966f1588d6bb3afc4ac0f73c71437496df2efe0ac02e0e0ec01cd21",
       "context": "What a result does is registered, not switched on. :func:`register_opener` binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind up. A new kind of thing therefore needs a provider in the index module and an opener here, and no existing function changes -- which is the instruction's \"and so on\" clause taken literally.",
       "translation": "ÞAÐ SEM NIÐURSTAÐA GERIR ER SKRÁÐ, EKKI VALIÐ MEÐ ROFA. :func:`register_opener` bindur tegund við ``(window, entry) -> str``; :func:`open_entry` flettir tegundinni upp. Ný tegund hlutar þarf því veitu í vísiseiningunni og opnara hér, og ekkert fyrirliggjandi fall breytist -- sem er \"and so on\" klausa fyrirmælanna tekin bókstaflega.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#3",
@@ -730,7 +758,9 @@
       "source_sha256": "0412bad52eae8ac06d27b65ce47178901c4916d917fa67a6f3120324fa094fa1",
       "context": "``setting`` Opens the module and then :func:`reveal_setting`: every category collapsed except the one holding the setting, the row scrolled to and marked. NOT by filtering the panel -- the per-module strip already has a filter and it leaves the other categories hidden, so a user who wanted to look around next has to work out what happened to the form.",
       "translation": "``setting`` Opnar eininguna og síðan :func:`reveal_setting`: hver flokkur samanbrotinn nema sá sem geymir stillinguna, flett að röðinni og hún merkt. EKKI með því að sía spjaldið -- ræman í hverri einingu hefur þegar síu og hún skilur hina flokkana eftir falda, svo notandi sem vildi skoða sig um á eftir þarf að finna út hvað varð um formið.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#6",
@@ -746,7 +776,9 @@
       "source_sha256": "4eda68fd6cc8ade496fa248319928c0e591678a08a07e0106484048f63f74e65",
       "context": "``api`` Opens the published page when it is reachable, and otherwise shows the docstring that is on this machine and says the page is not reachable. A search result is believed, so a result that opens a 404 is worse than no result at all.",
       "translation": "``api`` Opnar birtu síðuna ÞEGAR HÆGT ER AÐ NÁ Í HANA, og sýnir annars lýsinguna úr kóðanum sem er á þessari vél og segir að ekki sé hægt að ná í síðuna. Leitarniðurstöðu er treyst, svo niðurstaða sem opnar 404 er verri en engin niðurstaða.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#8",
@@ -754,7 +786,9 @@
       "source_sha256": "e9885c01c2cfd5de99ec32fb6330b680f3e824759cb7e79172a16ef2b3e504b6",
       "context": "Nothing this module does on the main GUI execution path blocks it. The index costs about a second to build, so it is built on a worker the first time the field is typed in (:class:`_IndexLoader`), and the field says so until it lands. Whether the documentation site answers is a network question, so it is asked on a worker too (:class:`_DocsReach`) and only ever when the user has opened an API result -- spaCR does not reach the network because somebody typed.",
       "translation": "EKKERT SEM ÞESSI EINING GERIR Á GUI-ÞRÆÐINUM BLOKKAR HANN. Vísirinn kostar um sekúndu að byggja, svo hann er byggður á vinnsluþræði í fyrsta sinn sem slegið er inn í reitinn (:class:`_IndexLoader`), og reiturinn segir frá því þar til hann er tilbúinn. Hvort skjölunarvefurinn svarar er netspurning, svo hún er líka spurð á vinnsluþræði (:class:`_DocsReach`) og aðeins þegar notandinn hefur opnað API-niðurstöðu -- spaCR fer ekki á netið af því að einhver sló inn texta.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#9",
@@ -762,7 +796,9 @@
       "source_sha256": "efafb19e7ac93635222d2320b091ae7d8524b5208d71838143a70b95ccdb4261",
       "context": "Opening a result never discards settings. ``MainWindow._on_nav_selected`` keeps every application view it has built in ``self._screens`` and switches the stack to it, so a half-filled Mask form is still half-filled when the user comes back from Measure. That was true before this microscope field of view existed and it is now pinned by ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a future rebuild-on-navigate cannot quietly take it away.",
       "translation": "AÐ OPNA NIÐURSTÖÐU HENDIR ALDREI STILLINGUM. ``MainWindow._on_nav_selected`` heldur hverri skjámynd sem hann hefur byggt í ``self._screens`` og skiptir staflanum yfir á hana, svo hálfútfyllt Mask-form er enn hálfútfyllt þegar notandinn kemur til baka frá Measure. Það var satt áður en þessi reitur var til og er nú fest með ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` svo að framtíðar endurbygging við flakk geti ekki hljóðlaust tekið það burt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.ApiEntryDialog#0",
@@ -954,7 +990,9 @@
       "source_sha256": "a41dde4f85bdc2ad98703622e35a68acb345f497ce5bd4c8b2164616a1c7e3a3",
       "context": "The seam tests drive: typing is the user's action, and waiting 140 ms for a timer in every assertion would make the suite slower and no more honest about what the field does.",
       "translation": "Saumurinn sem próf knýja: innsláttur er aðgerð notandans, og að bíða 140 ms eftir tímamæli í hverri fullyrðingu gerði prófasafnið hægara og ekkert heiðarlegra um hvað reiturinn gerir.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.HelpSearchField.type_and_search#2",
@@ -994,7 +1032,9 @@
       "source_sha256": "9d2f1646ec608d1df65993717f61432e1bd129f33a71faef030a7c0937316896",
       "context": "Which prefix is the module is answered from the disk rather than assumed: ``spacr.qt.screens.mask`` is a module and ``spacr.layers.ShapesLayer.mask`` is an attribute two levels inside one, and only the file layout knows which of the dots is the last one in the path.",
       "translation": "HVAÐA FORSKEYTI ER EININGIN er svarað út frá diskinum frekar en gengið út frá því: ``spacr.qt.screens.mask`` er eining og ``spacr.layers.ShapesLayer.mask`` er eigind tveimur stigum innan einnar, og aðeins skráaskipanin veit hver punktanna er sá síðasti í slóðinni.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.api_url#3",
@@ -1082,7 +1122,9 @@
       "source_sha256": "fae337d102853e9f49e575c630681a3e0679440efcd741087ee227cc96bf0351",
       "context": "In the menu row, not the corner. The field was first installed in the menu bar's top-right corner widget, which put it beside the minimise, full application view and close marks at the far right of the window, away from the menus. It belongs directly to the right of Help, so it is placed in the menu row itself: the bar lays its actions out left to right, and Help is the last menu, so the field follows Help and moves with it when the menus are re-translated or re-ordered.",
       "translation": "Í VALMYNDARÖÐINNI, EKKI Í HORNINU. Reiturinn var fyrst settur upp í græju efra hægra horns valmyndastikunnar, sem setti hann við hlið lágmörkunar-, fullskjás- og lokunarmerkjanna lengst til hægri í glugganum, fjarri valmyndunum. Hann á heima beint hægra megin við Help, svo hann er settur í valmyndaröðina sjálfa: stikan raðar aðgerðum sínum frá vinstri til hægri, og Help er síðasta valmyndin, svo reiturinn fylgir Help og færist með henni þegar valmyndirnar eru þýddar aftur eða endurraðað.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.install#2",
@@ -1874,7 +1916,9 @@
       "source_sha256": "b846fe72a4a034340614131b7b02a3277d1f499d748a4e097d51f12b3284109d",
       "context": "Import's \"Load test data…\": every vendor format and naming, one press away.",
       "translation": "\"Load test data…\" í Import: hvert snið framleiðenda og hver nafnavenja, einum smelli frá.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#1",
@@ -1890,7 +1934,9 @@
       "source_sha256": "7a7f32df124f51efefc2db2199d62485e7299a0fa2072c3ec9b811a4a840d2ef",
       "context": "What the button does. It opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
       "translation": "HVAÐ HNAPPURINN GERIR. Hann opnar :class:`ImportTestDataChooser`, einn hnapp fyrir hvert afbrigði í :data:`spacr.import_examples.IMPORT_VARIANTS`, hvert lýst þegar bendillinn er yfir. Valið afbrigði er sótt -- allt safnið er eitt skjalasafn, svo fyrsti smellur sækir öll afbrigði og hver síðari smellur opnar úr skyndiminninu -- og síðan:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#3",
@@ -1914,7 +1960,9 @@
       "source_sha256": "9b3f1d5cfa5375ecbdcc0d1bd9d032e5f5edd74afc26b42c98fddf68650ab816",
       "context": "Same machinery as every other example set: :class:`_TarExampleWorker` streams the archive on a background execution unit behind the shared progress dialog and unpacks it through the tar data filter.",
       "translation": "SAMI VÉLBÚNAÐUR OG Í HVERJU ÖÐRU DÆMASAFNI: :class:`_TarExampleWorker` streymir skjalasafninu á vinnsluþræði á bak við sameiginlega framvindugluggann og afþjappar það í gegnum gagnasíu tar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo.ImportTestDataChooser#0",

@@ -164,13 +164,16 @@
       "source": "Counterfactual generator",
       "source_sha256": "a5d2f0189a49ece007c5ceac1de03810b27c91edffb54e02ce26aa8f1d96df19",
       "translation": "반사실적 생성기"
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "counterfactual_generator",
       "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
       "source_sha256": "cc931e77b92c7cc2d17e64ac36a4f5b0612eda3f8a927e238e4aabe6730841d0",
-      "translation": "반사실적 예시를 그리는 모델입니다. 'autoencoder' 모델은 빠르며 분류기의 판정을 뒤집도록 학습됩니다. 'diffusion' 모델은 각 클래스의 크롭을 그리도록만 학습되며, 부분적으로 노이즈가 추가된 크롭을 목표 클래스 조건으로 다시 그립니다. 따라서 판정 뒤집기는 이 모델의 최적화 목표가 아닙니다. 더 느리고 GPU 장치, 수천 개의 크롭, 수백 에포크가 필요하며, 크롭이 수백 개뿐이면 거의 편집하지 않습니다. 확산 가중치는 테이블 옆에 counterfactual_diffusion.pt 파일로 저장됩니다. counterfactuals 설정이 켜져 있을 때만 적용됩니다. 기본값 'autoencoder'."
+      "translation": "반사실적 예시를 그리는 모델입니다. 'autoencoder' 모델은 빠르며 분류기의 판정을 뒤집도록 학습됩니다. 'diffusion' 모델은 각 클래스의 크롭을 그리도록만 학습되며, 부분적으로 노이즈가 추가된 크롭을 목표 클래스 조건으로 다시 그립니다. 따라서 판정 뒤집기는 이 모델의 최적화 목표가 아닙니다. 더 느리고 GPU 장치, 수천 개의 크롭, 수백 에포크가 필요하며, 크롭이 수백 개뿐이면 거의 편집하지 않습니다. 확산 가중치는 테이블 옆에 counterfactual_diffusion.pt 파일로 저장됩니다. counterfactuals 설정이 켜져 있을 때만 적용됩니다. 기본값 'autoencoder'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

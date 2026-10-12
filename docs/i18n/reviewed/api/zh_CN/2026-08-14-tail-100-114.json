@@ -7,7 +7,9 @@
       "source_sha256": "b915cab41558df9ed726647078401b8c68b2764f416730addcb55ba1e311b78f",
       "source": "``empty / near-empty fields`` Zero objects is a failure. Fewer than ``seg_qc_min_objects`` (10) is a warning and suppresses the per-field robust statistics, because below ten objects a MAD is one object's opinion — the same threshold at which diameter.py collapses its confidence two levels. If the *plate* median is also below that floor (a low-MOI pathogen channel, say), empty fields are demoted to a warning: that is a property of the assay, not of the field.",
       "context": "``empty / near-empty fields`` Zero objects is a failure. Fewer than ``seg_qc_min_objects`` (10) is a warning and suppresses the per-microscope field of view robust statistics, because below ten objects a MAD is one object's opinion — the same threshold at which diameter.py collapses its confidence two levels. If the *laboratory microplate* median is also below that floor (a low-MOI pathogen channel, say), empty microscope fields of view are demoted to a warning: that is a property of the assay, not of the microscope field of view.",
-      "translation": "``empty / near-empty fields``：对象数为零表示失败。对象少于 ``seg_qc_min_objects``（10）时给出警告，并禁止逐显微镜视野的稳健统计，因为对象不足十个时，MAD 只代表单个对象的意见——diameter.py 也会在同一阈值把置信度降低两级。若*微孔板*中位数也低于该下限（例如低 MOI 病原体通道），则空显微镜视野会降级为警告：这是实验本身的属性，而不是单个视野的问题。"
+      "translation": "``empty / near-empty fields``：对象数为零表示失败。对象少于 ``seg_qc_min_objects``（10）时给出警告，并禁止逐显微镜视野的稳健统计，因为对象不足十个时，MAD 只代表单个对象的意见——diameter.py 也会在同一阈值把置信度降低两级。若*微孔板*中位数也低于该下限（例如低 MOI 病原体通道），则空显微镜视野会降级为警告：这是实验本身的属性，而不是单个视野的问题。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.run_segmentation_qc#7",
@@ -21,7 +23,9 @@
       "source_sha256": "2a7159b00163362a5d6c2afe625c591f077e2ea0465b1b76ff0c2afca2f6464c",
       "source": "the library as designed — names from the gRNA reference. Supplying it is what turns \"we saw 4,900 guides\" into \"2% of the library was never seen\", which is the number that says whether the screen has the coverage it was powered for.",
       "context": "the library as designed — names from the gRNA reference. Supplying it is what turns \"we saw 4,900 guides\" into \"2% of the library was never seen\", which is the number that says whether the screening experiment has the coverage it was powered for.",
-      "translation": "按设计定义的文库——名称来自 gRNA 参考。提供它后，“观察到 4,900 条向导”才能转换为“文库中有 2% 从未被观察到”；后一数值说明筛选实验是否达到了功效设计所需的覆盖度。"
+      "translation": "按设计定义的文库——名称来自 gRNA 参考。提供它后，“观察到 4,900 条向导”才能转换为“文库中有 2% 从未被观察到”；后一数值说明筛选实验是否达到了功效设计所需的覆盖度。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_timelapse_settings#1",
@@ -35,7 +39,9 @@
       "source_sha256": "48cd7e0f755a71eedd238c9718c91f39b93091e5b52d644514c954065603b181",
       "source": "Read that asymmetry carefully, because the whole design follows from it. \"Inside\" is defined by an absence, and absence is the unreliable direction. Poor antibody penetration, a focal plane off the parasite's equator, photobleaching, a low-expressing parasite — every one of them removes outside signal from a parasite that is genuinely outside, and every one of them therefore *inflates* invasion efficiency. Nothing plausible pushes the error the other way. The threshold on the outside channel is the single number the assay rests on, so it is derived from the data, reported per field in ``fields``, cross-checked against a control-derived cut when one exists, and bracketed by a sensitivity pair that says how much of the answer is the threshold.",
       "context": "Read that asymmetry carefully, because the whole design follows from it. \"Inside\" is defined by an absence, and absence is the unreliable direction. Poor antibody penetration, a focal image layer off the parasite's equator, photobleaching, a low-expressing parasite — every one of them removes outside signal from a parasite that is genuinely outside, and every one of them therefore *inflates* invasion efficiency. Nothing plausible pushes the error the other way. The threshold on the outside image data channel is the single number the assay rests on, so it is derived from the data, reported per microscope field of view in ``fields``, cross-checked against a control-derived cut when one exists, and bracketed by a sensitivity pair that says how much of the answer is the threshold.",
-      "translation": "请仔细理解这种不对称性，因为整个设计都由此而来。\"Inside\" 由信号缺失来定义，而缺失是最不可靠的方向。抗体渗透不足、焦平面偏离寄生虫赤道、光漂白、低表达寄生虫——每一种情况都会从真正位于外部的寄生虫上去除外部信号，因此都会*夸大*侵袭效率。没有合理误差会把结果推向相反方向。整个实验依赖外部图像数据通道上的一个阈值，因此该阈值由数据推导，按显微镜视野记录在 ``fields`` 中；若有来自对照的截断值，则与之交叉检查；同时还用一对敏感性结果界定范围，以说明答案中有多少取决于该阈值。"
+      "translation": "请仔细理解这种不对称性，因为整个设计都由此而来。\"Inside\" 由信号缺失来定义，而缺失是最不可靠的方向。抗体渗透不足、焦平面偏离寄生虫赤道、光漂白、低表达寄生虫——每一种情况都会从真正位于外部的寄生虫上去除外部信号，因此都会*夸大*侵袭效率。没有合理误差会把结果推向相反方向。整个实验依赖外部图像数据通道上的一个阈值，因此该阈值由数据推导，按显微镜视野记录在 ``fields`` 中；若有来自对照的截断值，则与之交叉检查；同时还用一对敏感性结果界定范围，以说明答案中有多少取决于该阈值。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.tiff_io.write_tiff#1",
@@ -70,7 +76,9 @@
       "source_sha256": "fe01a191e2f509c6dca5ca2a5be5dbc74d62be33a3b71bd0c11d723f897298b7",
       "source": "THE TRAP THIS EXISTS TO CLOSE. Several callers computed the position as ``sorted({nucleus, cell, pathogen, organelle})`` instead, which agrees with role order only when the roles happen to be in ascending channel order. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1`` the stack is ``[2, 0, 1]`` -- raw channel 1 sits at position 2 -- while the sorted reading says position 1, which holds the CELL image. Cellpose then segments organelles on the cell plane, silently, and every count and intensity downstream is measured from the wrong masks.",
       "context": "The trap this exists to close. Several callers computed the position as ``sorted({nucleus, cell, pathogen, organelle})`` instead, which agrees with role order only when the roles happen to be in ascending image data channel order. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1`` the stack is ``[2, 0, 1]`` -- raw image data channel 1 sits at position 2 -- while the sorted reading says position 1, which holds the CELL image. Cellpose then segments organelles on the cell image layer, silently, and every count and intensity downstream is measured from the wrong masks.",
-      "translation": "本函数用于堵住一个陷阱。多个调用方曾改用 ``sorted({nucleus, cell, pathogen, organelle})`` 计算位置；只有当各角色恰好按图像数据通道升序排列时，该结果才与角色顺序一致。对于 ``nucleus_channel=2, cell_channel=0, organelle_channel=1``，堆栈为 ``[2, 0, 1]``——原始图像数据通道 1 位于位置 2——而排序后的读法却给出位置 1，那里保存的是细胞图像。Cellpose 随后会静默地在细胞图像层上分割细胞器，所有下游计数和强度也都会从错误掩模测量。"
+      "translation": "本函数用于堵住一个陷阱。多个调用方曾改用 ``sorted({nucleus, cell, pathogen, organelle})`` 计算位置；只有当各角色恰好按图像数据通道升序排列时，该结果才与角色顺序一致。对于 ``nucleus_channel=2, cell_channel=0, organelle_channel=1``，堆栈为 ``[2, 0, 1]``——原始图像数据通道 1 位于位置 2——而排序后的读法却给出位置 1，那里保存的是细胞图像。Cellpose 随后会静默地在细胞图像层上分割细胞器，所有下游计数和强度也都会从错误掩模测量。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.load_image#2",

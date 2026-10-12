@@ -9,13 +9,16 @@
       "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
       "source_sha256": "db4b1199854cf7fe3d21b47ead4081c5404ba94506d127cc4d6a58b417f0f970",
       "translation": "'bundled' er sögulega pakkaða skellulíkanið. Því er haldið svo hægt sé að endurgera gamla keyrslu; það missir af um þriðjungi skellnanna á myndum úr greinum. toxoplasma_plaque_v4 er núverandi líkan."
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "plaque_model",
       "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, the default until 2026-10-11, which scores higher on the held-out fields and on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v4'.",
       "source_sha256": "fbf9791c36bf5ec3ee4de38ef7adfeb810d2dbc6ff922fa22a3ee6a02dd06d93",
-      "translation": "Vistað Cellpose-líkan til hlutaskiptingar á skellum: lykill í líkanasafni sækir líkan við fyrstu notkun og sannreynir gátsummu þess. 'toxoplasma_plaque_v4' er cpsam_v2-líkan 6. umferðar; 'toxoplasma_plaque_v3' er cpsam_plaque_r5_geldoc, sjálfgefið til 2026-10-11, sem skorar hærra á fráteknum sviðum og á Gel Doc-brunnum; 'toxoplasma_plaque_v2' er eldra sjálfgefið líkan. Skráarslóð velur eigið vistað líkan. 'bundled' er eldra líkanið sem fylgdi pakkanum, vistað Cellpose 3-líkan sem þarf Cellpose 3. Breyting getur breytt öllum skellutalningum, svo skráðar keyrslur ættu að varðveita valda gildið. Sjálfgefið 'toxoplasma_plaque_v4'."
+      "translation": "Vistað Cellpose-líkan til hlutaskiptingar á skellum: lykill í líkanasafni sækir líkan við fyrstu notkun og sannreynir gátsummu þess. 'toxoplasma_plaque_v4' er cpsam_v2-líkan 6. umferðar; 'toxoplasma_plaque_v3' er cpsam_plaque_r5_geldoc, sjálfgefið til 2026-10-11, sem skorar hærra á fráteknum sviðum og á Gel Doc-brunnum; 'toxoplasma_plaque_v2' er eldra sjálfgefið líkan. Skráarslóð velur eigið vistað líkan. 'bundled' er eldra líkanið sem fylgdi pakkanum, vistað Cellpose 3-líkan sem þarf Cellpose 3. Breyting getur breytt öllum skellutalningum, svo skráðar keyrslur ættu að varðveita valda gildið. Sjálfgefið 'toxoplasma_plaque_v4'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

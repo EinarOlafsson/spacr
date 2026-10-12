@@ -81,7 +81,9 @@
       "source_sha256": "f05c6fda7888e848639dc31c1b975dc2a512d37858c400ad2ae253fa3f564284",
       "context": "This body is the reason the module exists: it executes on a worker, where an `autofs` mount taking twenty seconds to wake costs nobody a frozen window. `OSError` is an answer of \"no\", not a failure -- a path that cannot be stat-ed is a path the user cannot use either.",
       "translation": "Þessi meginhluti er ástæða þess að einingin er til: hann keyrir í vinnuþræði, þar sem `autofs`-tenging sem tekur tuttugu sekúndur að vakna frystir ekki glugga neins. `OSError` er svarið \"no\" (nei), ekki villa -- slóð sem ekki er hægt að keyra stat á er líka slóð sem notandinn getur ekki notað.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.regex_detect.tabulate_records._row#0",
@@ -137,7 +139,9 @@
       "source_sha256": "fdfb8393c4bb63e015a1537aaec7d60e52e87fa62e1adfbd0a7f0c8b81835d31",
       "context": "The cache comparison comes with it rather than staying behind: the structured-data name it compares IS the walk of the disk, so leaving the comparison on the main GUI execution path would leave the walk there too.",
       "translation": "Samanburðurinn við skyndiminnið fylgir með í stað þess að verða eftir: lykillinn sem hann ber saman ER yfirferðin um diskinn, svo ef samanburðurinn yrði eftir í GUI-þræðinum yrði yfirferðin það líka.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.queue.QueueScreen.wire_add_current._on_click#0",
@@ -465,7 +469,9 @@
       "source_sha256": "eae7e57ce3beb335f61f3f318b07ecb87a9d83830e04616ca56ff92093c755c3",
       "context": "Project points into the frame, in PIXEL coordinates.",
       "translation": "Varpar punktum inn í rammann, í PIXEL-hnitum.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.umap_search_viewer.axis_frame.projected#1",

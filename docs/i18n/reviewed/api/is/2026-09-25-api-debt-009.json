@@ -34,7 +34,9 @@
       "source_sha256": "c4538f3c829789f7d52787b8fbf30cda8d9431e6ef5d271aad5721bc2db7483d",
       "context": "the response **rises at the bottom dose** before falling — hormesis. The advice is emphatically not to drop those doses, because the rise is the finding.",
       "translation": "svörunin **rís við lægsta skammtinn** áður en hún fellur — hormesis. Ráðið er eindregið að sleppa þeim skömmtum ekki, því hækkunin er niðurstaðan.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#32",
@@ -50,7 +52,9 @@
       "source_sha256": "b58fe65189506a40db2a89a06934aadb3125e6cfd14a840ae2386e9a2012f3cc",
       "context": "The test runs on any series whose low-dose end departs from control against the trend, not only on the ones :func:`monotonicity` refuses — **a hump can carry a fifth of the response span and still sit inside** :data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50 displaced by the hump, and says nothing. Those fits now carry the finding in :attr:`DoseResponseResult.hormesis` and in their caveats.",
       "translation": "Prófið keyrir á hverja röð þar sem lágskammtaendinn víkur frá viðmiðinu gegn leitninni, ekki aðeins á þær sem :func:`monotonicity` hafnar — **kúfur getur borið fimmtung svörunarspannarinnar og samt setið innan** :data:`MAX_REVERSAL`, og þá tekst aðlögun dagsins, gefur upp EC50 sem kúfurinn hefur fært til, og segir ekkert. Slíkar aðlaganir bera nú niðurstöðuna í :attr:`DoseResponseResult.hormesis` og í fyrirvörum sínum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseResult#21",
@@ -202,7 +206,9 @@
       "source_sha256": "c649bbc62d764683b27f13d71653696bf3960e5cca9b7aaab962bd27526ec5b5",
       "context": ":data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The asymmetric model is a choice the user makes and never one the data makes for them: it is offered because real asymmetry exists and a 4PL absorbs it into a displaced EC50, and it is not the default because the fifth parameter is weakly identified on the eight or ten concentrations a plate actually carries. A fit that chose 5PL reports whether the extra parameter earned itself — see :attr:`DoseResponseResult.asymmetry_p`.",
       "translation": ":data:`MODEL_4PL` (sjálfgefið) eða :data:`MODEL_5PL`. Ósamhverfa líkanið er val sem notandinn tekur og aldrei val sem gögnin taka fyrir hann: það er boðið því raunveruleg ósamhverfa er til og 4PL tekur hana upp í tilfærðu EC50, og það er ekki sjálfgefið því fimmta færibreytan er illa ákvarðanleg á þeim átta eða tíu styrkjum sem plata ber í raun. Aðlögun sem valdi 5PL tilkynnir hvort aukafæribreytan borgaði fyrir sig — sjá :attr:`DoseResponseResult.asymmetry_p`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseSpec#12",
@@ -658,7 +664,9 @@
       "source_sha256": "145fea693db0defae9669687af04ae2111e23e68b96cba9e159647d476d8f912",
       "context": "**That scale factor is the whole point of this function.** Written the way the 5PL usually is —",
       "translation": "**Sá kvarðastuðull er allur tilgangur þessa falls.** Skrifað eins og 5PL er venjulega skrifað —",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#3",
@@ -682,7 +690,9 @@
       "source_sha256": "a1251e1e88117eae1047b7a8adb6043f0ff87bd5f0adebdd50c7ef89af9eae2a",
       "context": "every downstream rule in this module — the boundedness tests, the profile interval, the back-transformed reporting — keeps reading ``log10_ec50`` as the same quantity under both models, and none of them had to learn a second meaning.",
       "translation": "hver regla síðar í þessari einingu — afmörkunarprófin, prófílbilið, tilkynning eftir bakvörpun — les áfram ``log10_ec50`` sem sömu stærð undir báðum líkönum, og engin þeirra þurfti að læra aðra merkingu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#6",
@@ -722,7 +732,9 @@
       "source_sha256": "3bea01c7922161566a7b8ebb8719049a77e432da5951f8731ff0f0dd8bddad97",
       "context": "Is the low-dose end of this series stimulated, or is it noise?",
       "translation": "Er lágskammtaendi þessarar raðar örvaður, eða er það suð?",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#1",
@@ -794,7 +806,9 @@
       "source_sha256": "a841346d577f13b160fc5ab59b6823582b375bbb6da64034f485b55428ffef2d",
       "context": "**The F test is two-sided and the hypothesis is one-sided**, since only a positive stimulation is hormesis. Criterion 1 does the one-sided part by inspection rather than by halving the p value, so the reported p is conservative by about a factor of two. Stated rather than corrected: a conservative p on a screen that already refuses this data is the right direction to be wrong in.",
       "translation": "**F-prófið er tvíhliða og tilgátan einhliða**, því aðeins jákvæð örvun er hormesis. Skilyrði 1 sér um einhliða hlutann með athugun frekar en með því að helminga p-gildið, svo tilkynnta p-gildið er íhaldssamt um það bil um stuðulinn tvo. Tilgreint frekar en leiðrétt: íhaldssamt p í skimun sem hafnar þegar þessum gögnum er rétta áttin til að hafa rangt fyrir sér í.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#6",
@@ -866,7 +880,9 @@
       "source_sha256": "c8d906546300bc92069194a3156ddef006697415a0fbb0be712d1eba248be3fc",
       "context": "Progress line. :class:`ProgressLine` is a slim progress bar whose numbers sit beside it, where nothing can cut them.",
       "translation": "FRAMVINDULÍNA. :class:`ProgressLine` er grönn framvindustika þar sem tölurnar sitja við hliðina, þar sem ekkert getur skorið þær.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#3",
@@ -910,7 +926,9 @@
       "source_sha256": "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
       "context": "the COUNT beside it (the step and the percentage, the numbers a person is watching) is a plain label that is never elided -- its horizontal size policy is ``Minimum``, so a layout cannot give it less than its text needs;",
       "translation": "FJÖLDINN við hliðina (skrefið og prósentan, tölurnar sem manneskja fylgist með) er venjulegt merki sem er aldrei stytt -- lárétt stærðarstefna þess er ``Minimum``, svo uppsetning getur ekki gefið því minna en texti þess þarf;",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#8",
@@ -918,7 +936,9 @@
       "source_sha256": "5858f3fd7791f06144afa0bd885ce4f346f87ff7126dc3da005546ccf9cd8415",
       "context": "an optional DETAIL line below carries the part that changes and can be long (a file name, a speed, a time left); that part elides, and :meth:`ProgressLine.displayed_text` reports what is really painted.",
       "translation": "valfrjáls SMÁATRIÐALÍNA fyrir neðan ber þann hluta sem breytist og getur verið langur (skráarheiti, hraði, tími eftir); sá hluti er styttur með úrfellingu, og :meth:`ProgressLine.displayed_text` tilkynnir hvað raunverulega er teiknað.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#9",
@@ -1030,7 +1050,9 @@
       "source_sha256": "30a3f21a5ded561add182c72e49dfb304e12208e225885cf7dd56818b71522bc",
       "context": "What is really painted: the count, then the detail as elided.",
       "translation": "Það sem raunverulega er teiknað: fjöldinn, síðan smáatriðin eins og þau eru stytt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding.ProgressLine.displayed_text#1",
@@ -1774,7 +1796,9 @@
       "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
       "context": "The event type is read first, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to execute for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
       "translation": "GERÐ ATBURÐARINS ER LESIN FYRST, og lífsathuganirnar fylgja á eftir. Þessi sía er á QApplication, svo bæði `_still_alive` köllin keyrðu áður fyrir hvern atburð í ferlinu -- 94,431 þeirra við eina opnun Regression, og prófíll taldi parið 839,906 köll við eina opnun Mask. Að lesa gerð hlutar þar sem C++-helmingurinn er horfinn kastar villu, sem `except` hér að neðan svarar þegar með sama `False`, svo röðin kostar ekkert og athuganirnar keyra nú aðeins fyrir samhengisvalmynd.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#4",
@@ -3765,7 +3789,9 @@
       "source_sha256": "8c0f3505870bd1f5d06e07e1ffb5df5ce1fe0c21289944392bb6fb05135776bb",
       "context": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "translation": "Orðin eru eigin orð gátreitsins sem var tekinn úr notkun, óbreytt. Það var stýringin sem bar þau sem var röng; setningin var það ekki. Þetta er sagt frekar en aðeins merkt því munurinn á yfirförnu líkani og óyfirförnu sést ekki í töflu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#2",
@@ -4774,7 +4800,9 @@
       "source_sha256": "e3759b16af110478c707466e391ce24156752daacb5274420796b039ba32a84c",
       "context": "What is new here is the tie. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
       "translation": "ÞAÐ SEM ER NÝTT HÉR ER BINDINGIN. Tvær sýnir af sama svæði eru aðeins þess virði að setja hlið við hlið ef þær haldast samstilltar: umsjónarmaður sem ber sjónsvið saman við bætta útgáfu þess leitar að mun á þeim, og munur á því hvert þær tvær vísa er eini munurinn sem er ekki upplýsingar. :meth:`ZoomableImageView.link_to` lætur hóp sýna deila einum aðdrætti og einni flettistöðu, svo aðdráttur eða hliðrun á einhverri þeirra færir þær allar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#3",

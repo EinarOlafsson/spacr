@@ -1204,7 +1204,9 @@
       "source_sha256": "38f7b8d8fa3e0e692bcbc56a74593de36868a0662d0f786e3c9e301fa33a7814",
       "context": "The destination changed, not the gesture. A greyed row installs itself when it is chosen. It used to execute ``pip install \"spacr[<backend>]\"`` against the environment spaCR is executing in; each backend now gets an isolated environment, so the install goes through the Model Zoo's own dialog instead: off the main GUI execution path, with progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's own environment is never changed.",
       "translation": "गंतव्य बदला, इशारा नहीं। धूसर पंक्ति चुने जाने पर स्वयं को इंस्टॉल करती है। पहले यह spaCR जिस एनवायरनमेंट में चल रहा है उसके विरुद्ध ``pip install \"spacr[<backend>]\"`` चलाती थी; अब हर बैकएंड को एक पृथक एनवायरनमेंट मिलता है, इसलिए इंस्टॉल इसके बजाय Model Zoo के अपने डायलॉग से होता है: GUI थ्रेड से बाहर, प्रगति और Cancel के साथ, ``~/.spacr/backends/<name>`` में, और spaCR का अपना एनवायरनमेंट कभी नहीं बदलता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#2",
@@ -1798,7 +1800,9 @@
       "source_sha256": "80634c939fda60cc8ead24e8c2c975eba56823da9be0122ba3450b8f6ab3934f",
       "context": "Test data for OPS and for Align & Stitch, one button away in each.",
       "translation": "OPS और Align & Stitch के लिए परीक्षण डेटा, हर एक में एक बटन दूर।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#1",
@@ -1814,7 +1818,9 @@
       "source_sha256": "e63dd35277cf175b680fde5212d3ffc2d52211a7b158bf2b7d6938870d694dac",
       "context": "Two samples of one published screen. Both are cut from laboratory microplate ``20200202_6W-LaC024A``, microplate sample position A1, of Funk et al. 2022 (BioImage Archive S-BIAD394), unmodified:",
       "translation": "एक प्रकाशित स्क्रीनिंग के दो नमूने। दोनों Funk et al. 2022 (BioImage Archive S-BIAD394) की प्लेट ``20200202_6W-LaC024A``, वेल A1 से काटे गए हैं, बिना संशोधन के:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#3",
@@ -1838,7 +1844,9 @@
       "source_sha256": "e4e99262add6368878a0209aa268ebe08f254686a7e0b2196a9092a5cbefacff",
       "context": "Why the ops sample is the well's last two sites. The engine takes a well's microscope field of view count as its highest site number plus one and fits the round well to that count, so a sample has to include the last site to keep the measured 333-microscope field of view layout; see :func:`spacr.ops_engine.run_ops`. And it carries no phenotype images, because the phenotype phase aligns anchors spread over the whole well, which a two-microscope field of view sample cannot supply.",
       "translation": "OPS नमूना वेल की अंतिम दो साइट क्यों है। इंजन किसी वेल की फ़ील्ड संख्या को उसकी सबसे ऊँची साइट संख्या धन एक मानता है और गोल वेल को उसी संख्या पर फ़िट करता है, इसलिए मापा गया 333-फ़ील्ड लेआउट बनाए रखने के लिए नमूने में अंतिम साइट शामिल होनी चाहिए; :func:`spacr.ops_engine.run_ops` देखें। और इसमें कोई फ़ीनोटाइप छवि नहीं है, क्योंकि फ़ीनोटाइप चरण पूरे वेल में फैले एंकर संरेखित करता है, जो दो-फ़ील्ड का नमूना नहीं दे सकता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#6",
@@ -1846,7 +1854,9 @@
       "source_sha256": "cd641607642cb1f90def1fc67f167d3abb1a3018f08138c0e56e84effdc87a19",
       "context": "The same pattern as every other example set. One uncompressed ``.tar`` per repository, streamed behind the shared progress dialog and unpacked through the tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a folder of its own beside the shared example plate (:func:`example_folder`). A cached copy is used without a request.",
       "translation": "हर अन्य उदाहरण सेट वाला ही पैटर्न। प्रति रिपॉज़िटरी एक असंपीड़ित ``.tar``, जिसे साझा प्रगति डायलॉग के पीछे स्ट्रीम किया जाता है और :class:`spacr.qt.hf_download._TarExampleWorker` द्वारा tar डेटा फ़िल्टर से अनपैक किया जाता है, साझा उदाहरण प्लेट के बगल में उसके अपने फ़ोल्डर में (:func:`example_folder`)। कैश की गई प्रति बिना अनुरोध के उपयोग होती है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#7",
@@ -1854,7 +1864,9 @@
       "source_sha256": "99b835de8e84af9254722809fb93dca52f5a74ff83d46031d4d68d3beeded25b",
       "context": "WHAT \"FILLS THE SETTINGS\" means here. The OPS panel gets its source, output folder, library and plate name; Align & Stitch gets its microscope image field folder, the block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or Plan -- is then the next action.",
       "translation": "यहाँ \"FILLS THE SETTINGS\" का क्या अर्थ है। OPS पैनल को उसका स्रोत, आउटपुट फ़ोल्डर, लाइब्रेरी और प्लेट नाम मिलता है; Align & Stitch को उसका टाइल फ़ोल्डर, ब्लॉक का 3 x 3 ग्रिड, उसका क्रम, उसका ओवरलैप और लिखने की जगह मिलती है। फिर अगली क्रिया Run -- या Plan -- है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.example_folder#0",
@@ -1918,7 +1930,9 @@
       "source_sha256": "653f71a874206fdd57502212dc20f15d8e898fe283e907faab6e98cb3102f71a",
       "context": "True only when the manifest exists and every file it lists is there. A half-unpacked sample reads as absent, which is the answer that gets it downloaded again.",
       "translation": "True केवल तब, जब मैनिफ़ेस्ट मौजूद हो और उसमें सूचीबद्ध हर फ़ाइल वहाँ हो। आधा अनपैक नमूना अनुपस्थित के रूप में पढ़ा जाता है, और यही उत्तर उसे फिर से डाउनलोड करवाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.listed_files#0",
@@ -3946,7 +3960,9 @@
       "source_sha256": "70de4fdab4c0c095907cf71f3a1d36fb479569fe978bde92add2f2fc33c7c68f",
       "context": "A preference result in the Help search field has to land on the row the user asked for, and the dialog it lands in is built by seven thousand lines of procedure with no schema to address. So this module navigates the BUILT dialog, by the two handles the build leaves behind:",
       "translation": "Help खोज फ़ील्ड में प्राथमिकता परिणाम को उसी पंक्ति पर पहुँचना होता है जो उपयोगकर्ता ने माँगी, और जिस डायलॉग में वह पहुँचता है वह सात हज़ार पंक्तियों की प्रक्रिया से बनता है जिसमें पता देने के लिए कोई स्कीमा नहीं। इसलिए यह मॉड्यूल बने हुए डायलॉग में नेविगेट करता है, उन दो हैंडलों से जो निर्माण पीछे छोड़ता है:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#2",
@@ -3970,7 +3986,9 @@
       "source_sha256": "f6351560c13ac6cefc96cc9e7b81365d242b7c36a7f7b201d574ab2a69634f63",
       "context": "Matching the DISPLAYED caption against an English literal was the version before this one, and it worked in exactly one language.",
       "translation": "प्रदर्शित कैप्शन को अंग्रेज़ी लिटरल से मिलाना इससे पहले वाला संस्करण था, और वह ठीक एक भाषा में काम करता था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#5",
@@ -4018,7 +4036,9 @@
       "source_sha256": "69922ffa16381a59b17379b6c6c28c173e0ffcd013853b89ef016c5937c3b23f",
       "context": "A static outline for a few seconds rather than anything that moves: a mark that pulses would owe an answer to the Animation preferences, and this one owes none and is not lost on a reader who turned motion off.",
       "translation": "कुछ सेकंड के लिए स्थिर रूपरेखा, कुछ हिलने वाला नहीं: धड़कने वाला चिह्न Animation प्राथमिकताओं के प्रति उत्तरदायी होता, और यह किसी के प्रति नहीं है और गति बंद करने वाले पाठक से भी नहीं छूटता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation.reveal_row#2",
@@ -4178,7 +4198,9 @@
       "source_sha256": "cce03f00204f5a27234de27180c37476c02d9d9932fcdf581f0875500d0897c6",
       "context": "``\"module:function\"`` taking ``(host, card)`` and building the panel into the card, returning it. Given, a preview ATTACHED through this registry builds only its card at install -- ``builder`` is called with ``panel_later=True`` -- and the panel the first time the card is shown or the panel is asked for, so a hidden preview costs a module's open nothing.",
       "translation": "``\"module:function\"`` जो ``(host, card)`` लेकर पैनल को कार्ड में बनाता है और उसे लौटाता है। दिए जाने पर, इस रजिस्ट्री से जोड़ा गया पूर्वावलोकन इंस्टॉल के समय केवल अपना कार्ड बनाता है -- ``builder`` को ``panel_later=True`` के साथ कॉल किया जाता है -- और पैनल तब बनता है जब कार्ड पहली बार दिखाया जाता है या पैनल माँगा जाता है, इसलिए छिपा पूर्वावलोकन मॉड्यूल खोलने पर कोई कीमत नहीं लेता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preview_registry.install#2",

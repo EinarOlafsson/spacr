@@ -48,7 +48,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
       "source_sha256": "fb3f090d3ee2e389bffa1631460f0be3ceaa182631408114661f315b0e7b9707",
-      "translation": "每个提供者都有各自的保护：因为无法读取 API 清单而丢失设置的搜索框，比悄悄地少提供几种类型的搜索框更糟。"
+      "translation": "每个提供者都有各自的保护：因为无法读取 API 清单而丢失设置的搜索框，比悄悄地少提供几种类型的搜索框更糟。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "providers to run; all of them when ``None``.",
@@ -192,7 +194,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Terms are ANDed, the same rule the per-module settings search uses: typing a second word must narrow, because otherwise typing more is a way of getting more results, which is the opposite of what typing means.",
       "source_sha256": "ee33e0b61c5fe51f360b6e103db4362a0adbeaaff6bf149857d040bdd69c5cdb",
-      "translation": "各词项之间是“与”的关系，与逐模块设置搜索使用的规则相同：输入第二个词必须缩小范围，否则多输入内容反而会得到更多结果，这与输入的本意恰恰相反。"
+      "translation": "各词项之间是“与”的关系，与逐模块设置搜索使用的规则相同：输入第二个词必须缩小范围，否则多输入内容反而会得到更多结果，这与输入的本意恰恰相反。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the candidate.",
@@ -280,7 +284,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "ONE ROW PER MODULE: a setting in four modules is four rows, each naming its module and the category it sits under, rather than one row that then asks which. The user already knows which module they meant; a row that asks is a second click for information the list could have shown.",
       "source_sha256": "917a074f3dd7eb984c35c457a05c4a12a81140c0fc0130ac87a3011098d84fd1",
-      "translation": "每个模块一行：出现在四个模块中的设置就是四行，每行都注明其模块及其所属的类别，而不是只有一行然后再询问是哪一个。用户已经知道自己指的是哪个模块；再询问的一行，意味着要为列表本可以直接显示的信息多点一次。"
+      "translation": "每个模块一行：出现在四个模块中的设置就是四行，每行都注明其模块及其所属的类别，而不是只有一行然后再询问是哪一个。用户已经知道自己指的是哪个模块；再询问的一行，意味着要为列表本可以直接显示的信息多点一次。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The API half of a setting is not emitted here. ``SETTING_CONSUMERS`` names every addressable function that reads a structured-data name, and :func:`api_entries` folds that into the API row for each of those functions -- one row per symbol, saying which settings it reads. Emitting them from both providers listed ``spacr.io.preprocess_img_data`` once for itself and once for every setting it reads, which was eleven identical rows in one result list.",
@@ -288,7 +294,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE API HALF OF A SETTING IS NOT EMITTED HERE. ``SETTING_CONSUMERS`` names every addressable function that reads a key, and :func:`api_entries` folds that into the API row for each of those functions -- one row per symbol, saying which settings it reads. Emitting them from both providers listed ``spacr.io.preprocess_img_data`` once for itself and once for every setting it reads, which was eleven identical rows in one result list.",
       "source_sha256": "2ab02ab5546359c5694a4040595795136c576571fc67d51f9b4ce0b0f0006a0c",
-      "translation": "设置的 API 部分不在这里生成。``SETTING_CONSUMERS`` 列出了每个读取某个键的可定位函数，而 :func:`api_entries` 会把这些信息合并到每个这类函数的 API 行中——每个符号一行，说明它读取哪些设置。如果两个提供者都生成这些行，``spacr.io.preprocess_img_data`` 就会为其自身列出一次，又为它读取的每个设置各列出一次，结果在一个结果列表中出现了十一行完全相同的内容。"
+      "translation": "设置的 API 部分不在这里生成。``SETTING_CONSUMERS`` 列出了每个读取某个键的可定位函数，而 :func:`api_entries` 会把这些信息合并到每个这类函数的 API 行中——每个符号一行，说明它读取哪些设置。如果两个提供者都生成这些行，``spacr.io.preprocess_img_data`` 就会为其自身列出一次，又为它读取的每个设置各列出一次，结果在一个结果列表中出现了十一行完全相同的内容。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``kind=\"setting\"`` entries carrying ``{\"app\", \"key\", \"category\"}``.",
@@ -312,7 +320,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":mod:`spacr.qt.help_index` decides WHAT is addressable by name; this module is where a user types a name and where the answer takes them. The two halves are apart because only this one needs a display.",
       "source_sha256": "2ed1190297dac95630e8a03a2c1b34769f2a49d333a10d9b083bd8e9e191161c",
-      "translation": ":mod:`spacr.qt.help_index` 决定哪些内容可以按名称定位；本模块则是用户输入名称的地方，也是答案将用户带去的地方。两者分开，是因为只有本模块需要显示器。"
+      "translation": ":mod:`spacr.qt.help_index` 决定哪些内容可以按名称定位；本模块则是用户输入名称的地方，也是答案将用户带去的地方。两者分开，是因为只有本模块需要显示器。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What a result does is registered, not switched on. :func:`register_opener` binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind up. A new kind of thing therefore needs a provider in the index module and an opener here, and no existing function changes -- which is the instruction's \"and so on\" clause taken literally.",
@@ -320,7 +330,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT A RESULT DOES IS REGISTERED, NOT SWITCHED ON. :func:`register_opener` binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind up. A new kind of thing therefore needs a provider in the index module and an opener here, and no existing function changes -- which is the instruction's \"and so on\" clause taken literally.",
       "source_sha256": "9b06bc94e966f1588d6bb3afc4ac0f73c71437496df2efe0ac02e0e0ec01cd21",
-      "translation": "结果执行的操作是注册的，而不是通过分支语句切换的。:func:`register_opener` 将一种类型绑定到 ``(window, entry) -> str``；:func:`open_entry` 查找该类型。因此，一种新类型的内容只需要在索引模块中添加一个提供者，并在这里添加一个打开器，而现有的函数都无需改动——这正是对该原则中 \"and so on\" 条款的字面贯彻。"
+      "translation": "结果执行的操作是注册的，而不是通过分支语句切换的。:func:`register_opener` 将一种类型绑定到 ``(window, entry) -> str``；:func:`open_entry` 查找该类型。因此，一种新类型的内容只需要在索引模块中添加一个提供者，并在这里添加一个打开器，而现有的函数都无需改动——这正是对该原则中 \"and so on\" 条款的字面贯彻。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The four that ship:",
@@ -344,7 +356,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``setting`` Opens the module and then :func:`reveal_setting`: every category collapsed except the one holding the setting, the row scrolled to and marked. NOT by filtering the panel -- the per-module strip already has a filter and it leaves the other categories hidden, so a user who wanted to look around next has to work out what happened to the form.",
       "source_sha256": "0412bad52eae8ac06d27b65ce47178901c4916d917fa67a6f3120324fa094fa1",
-      "translation": "``setting`` —— 打开模块，然后调用 :func:`reveal_setting`：除包含该设置的类别外，其他所有类别都会折叠，并滚动到该行并加以标记。并不是通过过滤面板实现的——逐模块的工具条已经有一个过滤器，它会让其他类别保持隐藏，于是之后想四处浏览的用户就得去弄清表单发生了什么。"
+      "translation": "``setting`` —— 打开模块，然后调用 :func:`reveal_setting`：除包含该设置的类别外，其他所有类别都会折叠，并滚动到该行并加以标记。并不是通过过滤面板实现的——逐模块的工具条已经有一个过滤器，它会让其他类别保持隐藏，于是之后想四处浏览的用户就得去弄清表单发生了什么。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``preference`` Opens Preferences on the tab that holds the row and marks the row.",
@@ -360,7 +374,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``api`` Opens the published page WHEN IT IS REACHABLE, and otherwise shows the docstring that is on this machine and says the page is not reachable. A search result is believed, so a result that opens a 404 is worse than no result at all.",
       "source_sha256": "4eda68fd6cc8ade496fa248319928c0e591678a08a07e0106484048f63f74e65",
-      "translation": "``api`` —— 在已发布的页面可以访问时打开该页面，否则显示本机上的文档字符串，并说明该页面无法访问。搜索结果会被用户信任，因此打开 404 页面的结果比没有结果更糟。"
+      "translation": "``api`` —— 在已发布的页面可以访问时打开该页面，否则显示本机上的文档字符串，并说明该页面无法访问。搜索结果会被用户信任，因此打开 404 页面的结果比没有结果更糟。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing this module does on the main GUI execution path blocks it. The index costs about a second to build, so it is built on a worker the first time the field is typed in (:class:`_IndexLoader`), and the field says so until it lands. Whether the documentation site answers is a network question, so it is asked on a worker too (:class:`_DocsReach`) and only ever when the user has opened an API result -- spaCR does not reach the network because somebody typed.",
@@ -368,7 +384,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOTHING THIS MODULE DOES ON THE GUI THREAD BLOCKS IT. The index costs about a second to build, so it is built on a worker the first time the field is typed in (:class:`_IndexLoader`), and the field says so until it lands. Whether the documentation site answers is a network question, so it is asked on a worker too (:class:`_DocsReach`) and only ever when the user has opened an API result -- spaCR does not reach the network because somebody typed.",
       "source_sha256": "e9885c01c2cfd5de99ec32fb6330b680f3e824759cb7e79172a16ef2b3e504b6",
-      "translation": "本模块在 GUI 线程上所做的任何事情都不会阻塞它。构建索引大约需要一秒钟，因此它会在首次向搜索框输入时在工作线程上构建（:class:`_IndexLoader`），在构建完成之前，搜索框会显示相应提示。文档网站是否有响应是一个网络问题，因此同样在工作线程上询问（:class:`_DocsReach`），而且只会在用户打开 API 结果时才询问——spaCR 不会因为有人输入了内容就访问网络。"
+      "translation": "本模块在 GUI 线程上所做的任何事情都不会阻塞它。构建索引大约需要一秒钟，因此它会在首次向搜索框输入时在工作线程上构建（:class:`_IndexLoader`），在构建完成之前，搜索框会显示相应提示。文档网站是否有响应是一个网络问题，因此同样在工作线程上询问（:class:`_DocsReach`），而且只会在用户打开 API 结果时才询问——spaCR 不会因为有人输入了内容就访问网络。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Opening a result never discards settings. ``MainWindow._on_nav_selected`` keeps every application view it has built in ``self._screens`` and switches the stack to it, so a half-filled Mask form is still half-filled when the user comes back from Measure. That was true before this microscope field of view existed and it is now pinned by ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a future rebuild-on-navigate cannot quietly take it away.",
@@ -376,7 +394,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "OPENING A RESULT NEVER DISCARDS SETTINGS. ``MainWindow._on_nav_selected`` keeps every screen it has built in ``self._screens`` and switches the stack to it, so a half-filled Mask form is still half-filled when the user comes back from Measure. That was true before this field existed and it is now pinned by ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a future rebuild-on-navigate cannot quietly take it away.",
       "source_sha256": "efafb19e7ac93635222d2320b091ae7d8524b5208d71838143a70b95ccdb4261",
-      "translation": "打开结果绝不会丢弃设置。``MainWindow._on_nav_selected`` 会把它构建过的每个界面都保存在 ``self._screens`` 中，并将堆栈切换到该界面，因此当用户从 Measure 返回时，填了一半的 Mask 表单仍然保持填了一半的状态。在这个搜索框出现之前情况就是如此，现在又由 ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` 固定下来，以免将来某次改为导航时重建界面的改动悄悄地破坏它。"
+      "translation": "打开结果绝不会丢弃设置。``MainWindow._on_nav_selected`` 会把它构建过的每个界面都保存在 ``self._screens`` 中，并将堆栈切换到该界面，因此当用户从 Measure 返回时，填了一半的 Mask 表单仍然保持填了一半的状态。在这个搜索框出现之前情况就是如此，现在又由 ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` 固定下来，以免将来某次改为导航时重建界面的改动悄悄地破坏它。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A symbol's local docstring, shown when its web page cannot be reached.",
@@ -568,7 +588,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The seam tests drive: typing is the user's action, and waiting 140 ms for a timer in every assertion would make the suite slower and no more honest about what the field does.",
       "source_sha256": "a41dde4f85bdc2ad98703622e35a68acb345f497ce5bd4c8b2164616a1c7e3a3",
-      "translation": "测试所驱动的接口：输入是用户的操作，而在每个断言中都等待 140 ms 的定时器，只会让测试套件更慢，并不会更真实地反映输入框的行为。"
+      "translation": "测试所驱动的接口：输入是用户的操作，而在每个断言中都等待 140 ms 的定时器，只会让测试套件更慢，并不会更真实地反映输入框的行为。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what the user typed.",
@@ -608,7 +630,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHICH PREFIX IS THE MODULE is answered from the disk rather than assumed: ``spacr.qt.screens.mask`` is a module and ``spacr.layers.ShapesLayer.mask`` is an attribute two levels inside one, and only the file layout knows which of the dots is the last one in the path.",
       "source_sha256": "9d2f1646ec608d1df65993717f61432e1bd129f33a71faef030a7c0937316896",
-      "translation": "哪个前缀是模块，这是根据磁盘而不是假设来回答的：``spacr.qt.screens.mask`` 是一个模块，而 ``spacr.layers.ShapesLayer.mask`` 是某个模块内部两层的属性，只有文件布局才知道哪个点号是路径中的最后一个。"
+      "translation": "哪个前缀是模块，这是根据磁盘而不是假设来回答的：``spacr.qt.screens.mask`` 是一个模块，而 ``spacr.layers.ShapesLayer.mask`` 是某个模块内部两层的属性，只有文件布局才知道哪个点号是路径中的最后一个。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a dotted symbol name.",
@@ -696,7 +720,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IN THE MENU ROW, NOT THE CORNER. The field was first installed in the menu bar's top-right corner widget, which put it beside the minimise, full screen and close marks at the far right of the window, away from the menus. It belongs directly to the right of Help, so it is placed in the menu row itself: the bar lays its actions out left to right, and Help is the last menu, so the field follows Help and moves with it when the menus are re-translated or re-ordered.",
       "source_sha256": "fae337d102853e9f49e575c630681a3e0679440efcd741087ee227cc96bf0351",
-      "translation": "放在菜单行中，而不是角落里。搜索框最初安装在菜单栏右上角的角落控件中，这使它位于窗口最右侧的最小化、全屏和关闭标记旁边，远离各个菜单。它应当紧挨在帮助菜单的右侧，因此被放在菜单行本身中：菜单栏从左到右排列其动作，而帮助是最后一个菜单，因此搜索框跟在帮助之后，并在菜单被重新翻译或重新排序时随之移动。"
+      "translation": "放在菜单行中，而不是角落里。搜索框最初安装在菜单栏右上角的角落控件中，这使它位于窗口最右侧的最小化、全屏和关闭标记旁边，远离各个菜单。它应当紧挨在帮助菜单的右侧，因此被放在菜单行本身中：菜单栏从左到右排列其动作，而帮助是最后一个菜单，因此搜索框跟在帮助之后，并在菜单被重新翻译或重新排序时随之移动。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Idempotent: a second call hands back the field the first one installed.",
@@ -1488,7 +1514,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Import's \"Load test data…\": every vendor format and naming, one press away.",
       "source_sha256": "b846fe72a4a034340614131b7b02a3277d1f499d748a4e097d51f12b3284109d",
-      "translation": "Import 的 \"Load test data…\"：每种厂商格式和命名方式，一键即可获得。"
+      "translation": "Import 的 \"Load test data…\"：每种厂商格式和命名方式，一键即可获得。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A press of \"Test Zeiss CZI import\" downloads Zeiss CZI files named by ZEN's split-microscope image fields convention, fills the Import screen with their paths on disk and previews them, so the user can import them and see each file land on the microplate sample position, field and channel it came from. Every other format and filename convention in :data:`spacr.import_examples.IMPORT_VARIANTS` works the same way.",
@@ -1504,7 +1532,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT THE BUTTON DOES. It opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
       "source_sha256": "7a7f32df124f51efefc2db2199d62485e7299a0fa2072c3ec9b811a4a840d2ef",
-      "translation": "按钮的作用。它会打开 :class:`ImportTestDataChooser`，其中 :data:`spacr.import_examples.IMPORT_VARIANTS` 的每个变体对应一个按钮，鼠标悬停时显示说明。所选变体会被获取——整个数据集是一个归档，因此第一次按下时会下载所有变体，之后每次按下都从缓存中打开——然后："
+      "translation": "按钮的作用。它会打开 :class:`ImportTestDataChooser`，其中 :data:`spacr.import_examples.IMPORT_VARIANTS` 的每个变体对应一个按钮，鼠标悬停时显示说明。所选变体会被获取——整个数据集是一个归档，因此第一次按下时会下载所有变体，之后每次按下都从缓存中打开——然后：",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an ``import`` variant fills the Import application view itself: the image folder, the three mask folders, the measurement table, the naming convention and, for Custom, its pattern. A fresh destination is chosen, so a second demo never lands in the first one's project, and Preview is pressed. Nothing is written until the user presses Import.",
@@ -1528,7 +1558,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SAME MACHINERY AS EVERY OTHER EXAMPLE SET: :class:`_TarExampleWorker` streams the archive on a worker thread behind the shared progress dialog and unpacks it through the tar data filter.",
       "source_sha256": "9b3f1d5cfa5375ecbdcc0d1bd9d032e5f5edd74afc26b42c98fddf68650ab816",
-      "translation": "与其他所有示例数据集使用相同的机制：:class:`_TarExampleWorker` 在工作线程上以流式方式传输归档，前台显示共享的进度对话框，并通过 tar 数据过滤器进行解压。"
+      "translation": "与其他所有示例数据集使用相同的机制：:class:`_TarExampleWorker` 在工作线程上以流式方式传输归档，前台显示共享的进度对话框，并通过 tar 数据过滤器进行解压。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every Import test variant, described on hover, in a grid.",
@@ -2636,7 +2668,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "number of rows actually drawn or, for a binned density, counted.",
       "source_sha256": "8a06086a816664ab0d58f6078eb137ad4ff4bd282fec817c0072e42ddb67d232",
-      "translation": "实际绘制的行数，对于分箱密度则为计数的行数。"
+      "translation": "实际绘制的行数，对于分箱密度则为计数的行数。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "vertical end of the rectangle.",
@@ -2924,7 +2958,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE NOTES ARE BUNDLED, and the bundle is what draws. They come from ``spacr/resources/release_notes.json``, which ``tools/build_release_notes.py`` writes from the GitHub releases and which ``.github/workflows/release.yml`` refreshes on every release. This panel is on the first screen the application shows, so making its CONTENT depend on api.github.com would mean a dashboard that is empty offline, throttled behind a shared NAT, and slower to draw than the window it is in. The bundled file therefore remains the offline source of truth and the panel is complete before anything touches a socket.",
       "source_sha256": "3d175c2af7e05e23cdff1e637e4de088049f59552ca8d5a17d5bf78a1cdc6b4b",
-      "translation": "“发布说明是内置的”，界面绘制的正是这份内置内容。它们来自 ``spacr/resources/release_notes.json``，该文件由 ``tools/build_release_notes.py`` 根据 GitHub 发布版本写出，并由 ``.github/workflows/release.yml`` 在每次发布时刷新。此面板位于应用程序显示的第一个界面上，因此如果让其“内容”依赖 api.github.com，就意味着这个仪表板在离线时为空、在共享 NAT 后面会被限流，并且绘制得比其所在窗口还慢。因此，内置文件仍然是离线状态下的权威来源，面板在任何操作接触套接字之前就已完整。"
+      "translation": "“发布说明是内置的”，界面绘制的正是这份内置内容。它们来自 ``spacr/resources/release_notes.json``，该文件由 ``tools/build_release_notes.py`` 根据 GitHub 发布版本写出，并由 ``.github/workflows/release.yml`` 在每次发布时刷新。此面板位于应用程序显示的第一个界面上，因此如果让其“内容”依赖 api.github.com，就意味着这个仪表板在离线时为空、在共享 NAT 后面会被限流，并且绘制得比其所在窗口还慢。因此，内置文件仍然是离线状态下的权威来源，面板在任何操作接触套接字之前就已完整。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "And then it catches up. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a background execution unit, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
@@ -2932,7 +2968,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "AND THEN IT CATCHES UP. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a worker thread, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
       "source_sha256": "7f6316bf6a3bfa3d12730c2cdfce5756db400447c7f2c6c8ad49492ca194ebcb",
-      "translation": "“然后它会追上最新进度。”一个发布版本的 wheel 不可能包含其自身的发布说明——说明是在 GitHub 发布版本发布时写的，而那时该 wheel 已经在 PyPI 上了——因此内置文件总是比携带它的构建落后一个版本，问题正出在这里：“我用的是 1.5.1.0，新闻却只到 1.5.0.7。新闻栏目应当始终自动反映最新的 spacr 发布新闻。”因此，在页面显示之后，:attr:`refresh_requested` 会请求窗口在工作线程上读取公开的发布列表，:meth:`apply_releases` 会把返回的任何内容合并到内置列表之前。这里不会打开任何套接字：面板只是发出请求，而获取失败、被限流、在“首选项”中被关闭，或者只是没有找到更新的内容时，内置列表都会保持绘制时的原样。"
+      "translation": "“然后它会追上最新进度。”一个发布版本的 wheel 不可能包含其自身的发布说明——说明是在 GitHub 发布版本发布时写的，而那时该 wheel 已经在 PyPI 上了——因此内置文件总是比携带它的构建落后一个版本，问题正出在这里：“我用的是 1.5.1.0，新闻却只到 1.5.0.7。新闻栏目应当始终自动反映最新的 spacr 发布新闻。”因此，在页面显示之后，:attr:`refresh_requested` 会请求窗口在工作线程上读取公开的发布列表，:meth:`apply_releases` 会把返回的任何内容合并到内置列表之前。这里不会打开任何套接字：面板只是发出请求，而获取失败、被限流、在“首选项”中被关闭，或者只是没有找到更新的内容时，内置列表都会保持绘制时的原样。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
@@ -2940,7 +2978,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
       "source_sha256": "7015b27e0f129bb087b0487648dee0cfe3c8219f8fbda58d67800b70444634a2",
-      "translation": "更新检查仍然是一个“按钮”。提议安装某些东西是一种决定，因此仍然只在按下按钮时才做出。"
+      "translation": "更新检查仍然是一个“按钮”。提议安装某些东西是一种决定，因此仍然只在按下按钮时才做出。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Merge a fetched release list into the list on application view.",
@@ -2956,7 +2996,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Silence is the contract. An empty list, a list of rubbish, or a list that says nothing the bundled file did not already say leaves the panel untouched and says nothing to the reader -- the failure of an unasked-for background fetch is not the reader's problem.",
       "source_sha256": "731c80f592c0abab2c78eb04e554ee7c07bb77da5184d9b92e35fe53674d6001",
-      "translation": "“保持沉默”是约定。空列表、一堆无效内容，或者没有说出任何内置文件尚未说过内容的列表，都不会改变面板，也不会向读者提示任何信息——一次未经请求的后台获取失败，不是读者需要操心的问题。"
+      "translation": "“保持沉默”是约定。空列表、一堆无效内容，或者没有说出任何内置文件尚未说过内容的列表，都不会改变面板，也不会向读者提示任何信息——一次未经请求的后台获取失败，不是读者需要操心的问题。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "release records from :func:`spacr.updater.fetch_release_notes`, or anything at all.",
@@ -3052,7 +3094,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "AFTER the page exists and ON THE EVENT LOOP, not during construction: the single-shot timer means the emit lands on a later turn than this show, so Home's first paint is never waiting on it. Once per panel, because a page that is shown again -- a tab revisited, a font-scale rebuild -- is not news.",
       "source_sha256": "da720010cd7251e2540c5b20989069b775dec7969b3ed845ece331c1eab32841",
-      "translation": "在页面已存在“之后”并且“在事件循环中”进行，而不是在构造期间：单次计时器意味着信号会在比这次显示更晚的轮次中发出，因此 Home 的首次绘制绝不会等待它。每个面板只请求一次，因为再次显示的页面（重新访问的选项卡、因字体缩放而重建的页面）并不算新消息。"
+      "translation": "在页面已存在“之后”并且“在事件循环中”进行，而不是在构造期间：单次计时器意味着信号会在比这次显示更晚的轮次中发出，因此 Home 的首次绘制绝不会等待它。每个面板只请求一次，因为再次显示的页面（重新访问的选项卡、因字体缩放而重建的页面）并不算新消息。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the Qt show event.",
@@ -3437,7 +3481,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The screen calls this when either setting changes. The folder's file names are read off the GUI thread, and nothing is decoded.",
       "source_sha256": "ba35ba6afb40c27af59767dfe437c665f3c50ef78d7c29d0e1a9a3715c269301",
-      "translation": "表格在加载文件夹时进行分组，使用的是 Mask 表单当时保存的 ``metadata_type`` 和 ``custom_regex``。先加载、后选择命名方式，会使所有文件都归在同一列下，直到有其他操作重新加载该文件夹。当这两个设置中任一项发生变化时，界面会调用此方法。文件夹中的文件名在 GUI 线程之外读取，并且不解码任何内容。"
+      "translation": "表格在加载文件夹时进行分组，使用的是 Mask 表单当时保存的 ``metadata_type`` 和 ``custom_regex``。先加载、后选择命名方式，会使所有文件都归在同一列下，直到有其他操作重新加载该文件夹。当这两个设置中任一项发生变化时，界面会调用此方法。文件夹中的文件名在 GUI 线程之外读取，并且不解码任何内容。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``True`` when a regrouping was started, ``False`` when no image is loaded.",
@@ -3519,7 +3565,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
       "source_sha256": "e5e5585868edd9f7f7c680740e5b2da9572a78e09072f7e669d1564f93caf35c",
-      "translation": "对比面板可以叠加显示的本次会话掩膜数量：最近的八个，最早的先被丢弃。每个都是全尺寸的标签数组，如果面板保留一个下午的每一次运行，就会把它们全部保存在内存中，而弹出窗口只适合列出八个。"
+      "translation": "对比面板可以叠加显示的本次会话掩膜数量：最近的八个，最早的先被丢弃。每个都是全尺寸的标签数组，如果面板保留一个下午的每一次运行，就会把它们全部保存在内存中，而弹出窗口只适合列出八个。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Direct image files are returned unchanged. Directory traversal stops as soon as the first sorted match is found instead of materialising and sorting every image in a potentially enormous plate. Files whose names start with a dot are skipped: ``._<name>.tif``, the sidecar macOS writes on exFAT and network volumes, sorts before every image and holds none.",
@@ -3681,7 +3729,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO HALVES. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its field, and draws the answer.",
       "source_sha256": "5e6a4bd9dede1be7f833f2b0c7dc1b3ecff48da39d4ec0c8de4e080d9463c093",
-      "translation": "“分为两部分。”:func:`composite` 负责在普通数组上进行计算，因此用户看到的图像可以与手工计算逐像素核对。:class:`MaskComparisonDialog` 是选择其中包含哪些内容的弹出窗口。两者都不了解 Mask 模块；实时预览传入其会话的掩膜和视野，并绘制结果。"
+      "translation": "“分为两部分。”:func:`composite` 负责在普通数组上进行计算，因此用户看到的图像可以与手工计算逐像素核对。:class:`MaskComparisonDialog` 是选择其中包含哪些内容的弹出窗口。两者都不了解 Mask 模块；实时预览传入其会话的掩膜和视野，并绘制结果。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The arithmetic is \"OVER\", layer by layer, from the bottom. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
@@ -3689,7 +3739,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE ARITHMETIC IS \"OVER\", LAYER BY LAYER, FROM THE BOTTOM. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
       "source_sha256": "c3a684d93217b9a8bdc51ea11f6020da2c46a2d803e8dcec666dc35769ab475f",
-      "translation": "“计算方式是 \"OVER\"，自底向上逐层进行。”画布初始为黑色。每个已勾选的图层从底部开始，以其不透明度 ``a`` 叠加：在其覆盖处，``out = out * (1 - a) + colour * a``；在未覆盖处，``out`` 保持不变。图像覆盖每个像素；掩膜只覆盖其对象，因此掩膜的背景绝不会使其下方的内容变暗。结果四舍五入到最接近的整数灰度级。"
+      "translation": "“计算方式是 \"OVER\"，自底向上逐层进行。”画布初始为黑色。每个已勾选的图层从底部开始，以其不透明度 ``a`` 叠加：在其覆盖处，``out = out * (1 - a) + colour * a``；在未覆盖处，``out`` 保持不变。图像覆盖每个像素；掩膜只覆盖其对象，因此掩膜的背景绝不会使其下方的内容变暗。结果四舍五入到最接近的整数灰度级。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The stacking order reads like a layer list. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
@@ -3697,7 +3749,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE STACKING ORDER READS LIKE A LAYER LIST. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
       "source_sha256": "c70b490aeb3a412244c1ea00715da87239a8b9fc3e90abcf63c19fff5e865406",
-      "translation": "“叠放顺序与图层列表的读法一致。”弹出窗口按堆栈顶部在前列出，与所有绘图程序的做法相同，而 :meth:`chosen` 按底部在前返回图层，这正是 :func:`composite` 叠加它们的顺序。"
+      "translation": "“叠放顺序与图层列表的读法一致。”弹出窗口按堆栈顶部在前列出，与所有绘图程序的做法相同，而 :meth:`chosen` 按底部在前返回图层，这正是 :func:`composite` 叠加它们的顺序。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One thing the comparison can draw.",
@@ -3769,7 +3823,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the choices, TOP OF THE STACK FIRST.",
       "source_sha256": "84d7c1979b96259903c3090f1a56ccb8062c45a0cc21bb64f4d53145370eb578",
-      "translation": "可选项，“堆栈顶部在前”。"
+      "translation": "可选项，“堆栈顶部在前”。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "parent widget; ownership only.",
@@ -3793,7 +3849,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ticked layers, BOTTOM FIRST, ready for :func:`composite`.",
       "source_sha256": "5a6caa36ebf3359ca3bf711437e6c710c380e1a87ddbc470b01822ebd38fcf11",
-      "translation": "已勾选的图层，“底部在前”，可直接用于 :func:`composite`。"
+      "translation": "已勾选的图层，“底部在前”，可直接用于 :func:`composite`。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every layer as the popup has it now, top of the stack first.",
@@ -3961,7 +4019,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the thread that paints.",
       "source_sha256": "8f2724a512a342fc22df05aa565306f1d1de890f3e5b131a1a2243c38384f6d0",
-      "translation": "“从 :meth:`add_paths` 中拆分出来”，而这次拆分正是解决应用程序卡死的办法。这里的一切都是字符串列表；把拖放的文件夹展开为文件的 ``isdir`` 和 ``listdir`` 在此控件自己的工作线程上运行（:func:`files_under`），因为拖放的是用户选择的路径，而在显微镜工作站上，那就是存放图像的网络共享——在一个处于休眠状态的 ``autofs`` 挂载下，一次 stat 调用在负责绘制的线程上被测得超过二十秒。"
+      "translation": "“从 :meth:`add_paths` 中拆分出来”，而这次拆分正是解决应用程序卡死的办法。这里的一切都是字符串列表；把拖放的文件夹展开为文件的 ``isdir`` 和 ``listdir`` 在此控件自己的工作线程上运行（:func:`files_under`），因为拖放的是用户选择的路径，而在显微镜工作站上，那就是存放图像的网络共享——在一个处于休眠状态的 ``autofs`` 挂载下，一次 stat 调用在负责绘制的线程上被测得超过二十秒。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is added by the time this returns, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
@@ -3969,7 +4029,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
       "source_sha256": "8e2d6707e93529a83427142114012cdaad3857344b99280d82aa07e43e507622",
-      "translation": "“此函数返回时尚未添加任何内容”，这正是其目的。请从 :attr:`table_changed` 读取表格，而不要在调用之后的下一行读取。"
+      "translation": "“此函数返回时尚未添加任何内容”，这正是其目的。请从 :attr:`table_changed` 读取表格，而不要在调用之后的下一行读取。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "files and folders from a drop or a file dialog.",
@@ -4273,7 +4335,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOT FOR THE GUI THREAD. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it runs this on a worker. Looked up through the module global so a test can replace it and see which thread it ran on.",
       "source_sha256": "f36bfc3c1a31cb756f70b118386083e32bffffcc67e99586f5b44c22d22d446c",
-      "translation": "“不能在 GUI 线程上使用。”这里的每个路径都是用户选择的，在显微镜工作站上这意味着网络共享，而 ``isdir`` 正是唤醒自动挂载的操作。:meth:`MeasureInputTable.add_dropped` 是唯一的调用方，它在工作线程上运行此函数。通过模块全局变量查找，以便测试可以替换它并查看它在哪个线程上运行。"
+      "translation": "“不能在 GUI 线程上使用。”这里的每个路径都是用户选择的，在显微镜工作站上这意味着网络共享，而 ``isdir`` 正是唤醒自动挂载的操作。:meth:`MeasureInputTable.add_dropped` 是唯一的调用方，它在工作线程上运行此函数。通过模块全局变量查找，以便测试可以替换它并查看它在哪个线程上运行。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what was dropped or chosen.",
@@ -4681,7 +4745,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "ONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
       "source_sha256": "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
-      "translation": "“一个辅助函数，而不是每个界面各一份副本。”使用缓存还是下载的判断、按钮的忙碌状态以及失败消息，对于 Plate Viewer、Tabulate、Graph Builder 等都是一样的；不同的只是填写哪个输入框，以及用哪个方法打开它。因此，界面只需以回调形式传入这一处差异，别无其他。"
+      "translation": "“一个辅助函数，而不是每个界面各一份副本。”使用缓存还是下载的判断、按钮的忙碌状态以及失败消息，对于 Plate Viewer、Tabulate、Graph Builder 等都是一样的；不同的只是填写哪个输入框，以及用哪个方法打开它。因此，界面只需以回调形式传入这一处差异，别无其他。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",

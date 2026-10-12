@@ -44,7 +44,9 @@
       "source_sha256": "46272b536827ca96d4e2d1debd47dcb49d45a03df385441ade8e81dd76131a7d",
       "context": "Genuine base provenance is kept: external names are never turned into image identities just because they happen to be unique. One-to-one joins, once validated, still go through the same typed plan on their singleton groups, so explicit count and nunique overrides stay real. Data-selection boundary and filter identities use timeID, and the original time_id spelling is preserved too, so a chart that selects time_id stays reproducible.",
       "translation": "Se conserva la procedencia real de los datos base: los nombres externos nunca se convierten en identidades de imagen simplemente por ser únicos. Las uniones uno a uno, una vez validadas, siguen el mismo plan tipado para sus grupos de un solo elemento, por lo que las elecciones explícitas de count y nunique siguen siendo efectivas. Las identidades de las regiones de selección de datos y los filtros usan timeID; también se conserva la escritura original time_id, para que un gráfico que seleccione time_id siga siendo reproducible.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification.classify_drop#3",
@@ -124,7 +126,9 @@
       "source_sha256": "016cea402964e16150069ef03c1d065fdc3fd759b0333c6af70524e2ec09e799",
       "context": "The count resets rather than decrements. The question is \"is spaCR crashing right now\", not \"how many times has it ever crashed\", and a total that only ever grew would eventually disable the backdrop on a machine where it works. Every instance and project lock this window holds is released first.",
       "translation": "EL CONTADOR SE REINICIA EN VEZ DE DECREMENTARSE. La pregunta es si spaCR está fallando ahora, no cuántas veces ha fallado a lo largo de su historia; un total que solo creciera acabaría desactivando el fondo en una máquina donde funciona. Primero se liberan todos los bloqueos de instancia y proyecto que mantiene esta ventana.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.crash_recovery.note_that_a_launch_began#2",

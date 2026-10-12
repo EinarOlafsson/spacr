@@ -1684,7 +1684,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "AI 콘솔은 각 제공업체의 <b>코딩 에이전트 CLI</b>와 채팅 구독(Claude.ai Pro, ChatGPT Plus/Pro/Team, Google 계정)을 통해 통신합니다.<br><br>사용할 제공업체별로 CLI를 설치한 다음 <em>한 번</em> 로그인하세요. 아래 명령을 터미널에 복사하세요.",
         "Gervigreindarstjórnborðið hefur samskipti við <b>CLI-forritunaraðstoð hvers veitanda</b> og notar spjalláskriftina þína (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-reikning).<br><br>Settu upp CLI fyrir hvern veitanda sem þú vilt nota og skráðu þig svo inn <em>einu sinni</em>. Afritaðu skipanirnar hér fyrir neðan í skjáhermi.",
         "La console IA communique avec la <b>CLI de l’agent de programmation du fournisseur</b> et utilise votre abonnement de chat (Claude.ai Pro, ChatGPT Plus/Pro/Team, compte Google).<br><br>Pour chaque fournisseur souhaité, installez la CLI puis connectez-vous <em>une seule fois</em>. Copiez les commandes ci-dessous dans un terminal."),
-    "Once a CLI is installed <em>and</em> you're logged in, hit <b>Refresh</b> below and it will appear in the provider dropdown.": _row(
+    "Once a CLI is installed <em>and</em> you're logged in, press <b>Refresh</b> below and it will appear in the provider dropdown.": _row(
         "När ett CLI är installerat <em>och</em> du är inloggad klickar du på <b>Uppdatera</b> nedan, så visas det i leverantörslistan.",
         "Sobald eine CLI installiert ist <em>und</em> Sie angemeldet sind, klicken Sie unten auf <b>Aktualisieren</b>; sie erscheint dann in der Anbieterliste.",
         "Cuando la CLI esté instalada <em>y</em> haya iniciado sesión, pulse <b>Actualizar</b> y aparecerá en la lista de proveedores.",
@@ -1694,16 +1694,16 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "CLI를 설치하고 <em>로그인한</em> 다음 아래의 <b>새로 고침</b>을 누르면 제공업체 목록에 표시됩니다.",
         "Þegar CLI er uppsett <em>og</em> þú ert innskráð/ur skaltu smella á <b>Endurnýja</b> hér fyrir neðan; það birtist þá í veitalistanum.",
         "Une fois la CLI installée <em>et</em> la connexion effectuée, cliquez sur <b>Actualiser</b> ci-dessous ; elle apparaîtra dans la liste des fournisseurs."),
-    "<b>Response speed</b><br><span style='color:gray;'>Same three levels for every provider. Faster = snappier + cheaper; Deep = more thorough reasoning.</span>": _row(
-        "<b>Svarshastighet</b><br><span style='color:gray;'>Samma tre nivåer för alla leverantörer. Snabbare = rappare + billigare; Djup = grundligare resonemang.</span>",
-        "<b>Antwortgeschwindigkeit</b><br><span style='color:gray;'>Dieselben drei Stufen für jeden Anbieter. Schneller = zügiger + günstiger; Tief = gründlichere Schlussfolgerungen.</span>",
-        "<b>Velocidad de respuesta</b><br><span style='color:gray;'>Los mismos tres niveles para todos los proveedores. Más rápida = más ágil + económica; Profunda = razonamiento más exhaustivo.</span>",
-        "<b>响应速度</b><br><span style='color:gray;'>所有提供商均使用相同的三个级别。更快 = 响应更迅速且成本更低；深入 = 推理更周密。</span>",
-        "<b>Velocidade da resposta</b><br><span style='color:gray;'>Os mesmos três níveis para todos os provedores. Mais rápida = mais ágil + econômica; Profunda = raciocínio mais completo.</span>",
-        "<b>उत्तर की गति</b><br><span style='color:gray;'>हर प्रदाता के लिए वही तीन स्तर। तेज़ = झटपट + सस्ता; गहरा = अधिक संपूर्ण तर्क।</span>",
-        "<b>응답 속도</b><br><span style='color:gray;'>모든 제공업체에 동일한 세 단계를 적용합니다. 빠름 = 민첩하고 저렴함; 심층 = 더 철저한 추론.</span>",
-        "<b>Svarhraði</b><br><span style='color:gray;'>Sömu þrjú stig fyrir alla veitendur. Hraðara = snöggvara + ódýrara; Djúpt = ítarlegri röksemdafærsla.</span>",
-        "<b>Vitesse de réponse</b><br><span style='color:gray;'>Les trois mêmes niveaux pour chaque fournisseur. Plus rapide = plus réactif + moins cher ; Approfondi = raisonnement plus complet.</span>"),
+    "<b>Response speed</b><br><span style='color:gray;'>Same three levels for every provider. Each level selects one of the provider's models: Fast the smallest and quickest, Deep the largest.</span>": _row(
+        "<b>Svarshastighet</b><br><span style='color:gray;'>Samma tre nivåer för alla leverantörer. Varje nivå väljer en av leverantörens modeller: Snabb den minsta och snabbaste, Djup den största.</span>",
+        "<b>Antwortgeschwindigkeit</b><br><span style='color:gray;'>Dieselben drei Stufen für jeden Anbieter. Jede Stufe wählt eines der Modelle des Anbieters: Schnell das kleinste und schnellste, Tief das größte.</span>",
+        "<b>Velocidad de respuesta</b><br><span style='color:gray;'>Los mismos tres niveles para todos los proveedores. Cada nivel selecciona uno de los modelos del proveedor: Rápida, el más pequeño y rápido; Profunda, el más grande.</span>",
+        "<b>响应速度</b><br><span style='color:gray;'>所有提供商均使用相同的三个级别。每个级别选择该提供商的一个模型：快速为最小、最快的模型，深入为最大的模型。</span>",
+        "<b>Velocidade da resposta</b><br><span style='color:gray;'>Os mesmos três níveis para todos os provedores. Cada nível seleciona um dos modelos do provedor: Rápida, o menor e mais rápido; Profunda, o maior.</span>",
+        "<b>उत्तर की गति</b><br><span style='color:gray;'>हर प्रदाता के लिए वही तीन स्तर। हर स्तर प्रदाता का एक मॉडल चुनता है: तेज़ सबसे छोटा और सबसे तेज़, गहरा सबसे बड़ा।</span>",
+        "<b>응답 속도</b><br><span style='color:gray;'>모든 제공업체에 동일한 세 단계를 적용합니다. 각 단계는 제공업체의 모델 하나를 선택합니다. 빠름은 가장 작고 빠른 모델, 심층은 가장 큰 모델입니다.</span>",
+        "<b>Svarhraði</b><br><span style='color:gray;'>Sömu þrjú stig fyrir alla veitendur. Hvert stig velur eitt af líkönum veitandans: Hratt það minnsta og fljótasta, Djúpt það stærsta.</span>",
+        "<b>Vitesse de réponse</b><br><span style='color:gray;'>Les trois mêmes niveaux pour chaque fournisseur. Chaque niveau sélectionne l’un des modèles du fournisseur : Rapide le plus petit et le plus rapide, Approfondi le plus grand.</span>"),
     "Fast — snappy replies, smallest model": _row(
         "Snabb — rappa svar, minsta modellen",
         "Schnell – zügige Antworten, kleinstes Modell",
@@ -1892,7 +1892,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "AI 콘솔은 제공업체의 코딩 에이전트 CLI인 `claude`, `codex` 또는 `gemini`를 통해 채팅 구독을 사용합니다. 하나를 설치하고 로그인하세요. 제공업체 열기 ▸ 명령을 복사하여 터미널에 붙여넣으세요.",
         "Gervigreindarstjórnborðið notar spjalláskriftina þína í gegnum CLI-forritunaraðstoð veitenda: `claude`, `codex` eða `gemini`. Settu eitt þeirra upp og skráðu þig inn. Opnaðu Veitendur ▸ Afritaðu skipanirnar og límdu í skjáhermi.",
         "La console IA utilise votre abonnement de chat via les CLI d’agents de programmation des fournisseurs : `claude`, `codex` ou `gemini`. Installez-en une et connectez-vous. Ouvrez Fournisseurs ▸ Copiez les commandes et collez-les dans un terminal."),
-    "A response is already streaming — hit Cancel to interrupt.": _row(
+    "A response is already streaming — press Cancel to interrupt.": _row(
         "Ett svar strömmas redan — klicka på Avbryt för att avbryta.",
         "Eine Antwort wird bereits gestreamt – klicken Sie zum Unterbrechen auf Abbrechen.",
         "Ya se está recibiendo una respuesta — pulse Cancelar para interrumpirla.",

@@ -58,7 +58,9 @@
       "source_sha256": "ae5ea440d84b44481b485c7d3230fe82f358f4c679cbc6aa0f04025bd64dea9d",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**Diametern.**  :mod:`spacr.diameter` mäter karakteristisk objektstorlek från en handfull av användarens egna synfält, utan att läsa in Cellpose eller torch. ``diameter`` är den enskilt mest avgörande Cellpose 4-inställning som spaCR exponerar — ``CellposeModel.eval(diameter=...)`` skalar om varje bild med ``30/diameter`` så att objekten hamnar nära den storlek som ``cpsam`` arbetar vid — och det är den som användarna gissar på.  Panelen som denna modul bygger gör gissningen till en mätning, per objekttyp, och visar hur många objekt den mätte så att talet kan ifrågasättas.  Den öppnas i ett eget popupfönster från knappen *Measure diameters…* i Model zoo-popupfönstret för Mask generation, bredvid modellvalet som den utgör den andra halvan av, i stället för i huvudvyn.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#1",
@@ -66,7 +68,9 @@
       "source_sha256": "3d21b0ccd32c7abefdfede526b3a0dfa83dec855b2997e49dca774590e0335b8",
       "context": "Asked for by a user: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "Önskat av en användare: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" Så detta rymmer hela :class:`DiameterPanel` -- mätknappen, en rad per objekttyp med dess underlag och anteckning, *Use* per rad och *Use all* -- och panelen skriver fortfarande in i inställningarna för den vy som öppnade zoo-fönstret.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_graph#3",
@@ -106,7 +110,9 @@
       "source_sha256": "98b235751b5e8db98eefc9c82854085342496c96353c59830a20c04da648e1f5",
       "context": "The panel is a process-wide singleton with two callers. A plain ``connect`` on every show accumulates receivers, so one press would eventually run the regression picker's install AND the Image UMAP's; a plain ``disconnect()`` warns when nothing is connected yet. Holding the current slot and replacing it does neither. A previous slot bound to a widget that has since been deleted is simply dropped.",
       "translation": "Panelen är en processövergripande singleton med två anropare. En vanlig ``connect`` vid varje visning ackumulerar mottagare, så ett tryck skulle till slut köra både regressionsväljarens installation OCH Image UMAP:s; en vanlig ``disconnect()`` varnar när inget ännu är anslutet. Att hålla den aktuella sloten och ersätta den gör ingetdera. En tidigare slot som är bunden till en widget som sedan har raderats släpps helt enkelt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
@@ -122,7 +128,9 @@
       "source_sha256": "bbad7853f2f4f796684fbb334f2c329a26250ede47403071d1a5bb2484beb7ef",
       "context": "Requested: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "Önskemålet: \"alla avsnitt i figur- eller realtidsförhandsvisningsbehållarna ska också gå att fälla ihop ... varje GUI-element, vare sig det är en figur eller en tabell\". Detta är det enda sättet som ett avsnitt i en programvy får en hopfällningskontroll, så att alla ser ut och beter sig likadant: en pil och ett namn ovanför innehållet (samma :class:`~spacr.qt.widgets.foldable.Folder` som konsolen och System använder), ett klick fäller ihop det, och ett hopfällt avsnitt är sin rubrik låst mot BOTTEN av det utrymme det får (:func:`lock_folded_to_bottom`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#0",
@@ -196,7 +204,9 @@
       "source_sha256": "05b7bc0f000a440aa7247a6c49ec65332c1dd6c4f67ce197bd6ca60773cd72a8",
       "context": "Step 2 of the timeflows plan is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "Steg 2 i timeflows-planen är ett tal, inte en funktion. Innan ett tredje Cellpose-huvud skrivs, tränas och underhålls måste det finnas en baslinje: segmentera varje bildruta oberoende, länka bildrutorna via maskernas överlapp och poängsätt resultatet mot referensen med de mått som spårningsområdet redan är överens om. Det som förgreningen producerar är då antingen bättre än detta eller inte, och planen säger klart att \"den enkla sammanfogaren är redan tillräckligt bra\" är ett verkligt möjligt utfall som ska accepteras om det inträffar. Det utfallet syns bara om det här talet finns först.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -204,7 +214,9 @@
       "source_sha256": "17c135e9bea67a789467a3aeb8c896fec475d00c0235e76683650a059a77c9f1",
       "context": "The timeflows plan rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "Timeflows-planen vilar på ett påstående om träningsdata: ett objekt behåller SAMMA ETIKETT i varje bildruta där det förekommer. Ett tidsflödeshuvud tränas att peka från en pixel i ett objekt i bildruta ``t`` mot samma objekts centrum i bildruta ``t+1``, och det enda som anger vilket objekt i ``t+1`` som är samma objekt är etiketten. Om annoteringen återanvänder en etikett efter att dess objekt dör eller försvinner, tränas modellen att peka mot en orelaterad cell, och ingen senare poäng fångar det -- den undanhållna kontrollen blandar om samma felaktiga etiketter och håller med sig själv.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.ImportedCopyNotReleased#1",
@@ -212,7 +224,9 @@
       "source_sha256": "d692aaf2d93012e0d7066b42cac2900decdd389f9dda5d46d0915ce40ce0e7ea",
       "context": "``foreign.run_import`` copies the imported frame into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty, so a project built purely by import is readable by every spaCR tool. That copy is a convenience and it stops being one the moment spaCR measures the same field: :func:`_merge_and_save_to_database` *appends*, so its rows land beside theirs, in different columns, with nothing in the row marking the seam -- and every ``count_cell`` downstream becomes the sum of two populations.",
       "translation": "``foreign.run_import`` kopierar den importerade ramen till den kanoniska tabellen ``cell`` / ``nucleus`` / ``pathogen`` när destinationen är tom, så att ett projekt som byggts enbart genom import kan läsas av varje spaCR-verktyg. Den kopian är en bekvämlighet, och den slutar vara det i samma ögonblick som spaCR mäter samma synfält: :func:`_merge_and_save_to_database` *lägger till*, så dess rader hamnar bredvid deras, i andra kolumner, utan något i raden som markerar skarven -- och varje ``count_cell`` längre fram blir summan av två populationer.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

@@ -10,7 +10,9 @@
       "source_sha256": "9e2408d10fc55d9d3733ae711b7e57e09051ee0a9cfaa3170139ec21f81592e7",
       "context": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the image layer-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
       "translation": "Isto é tudo o que o botão FEATURES acrescenta ao Measure: transforma uma tabela de arquivos escolhidos a dedo em ``stack/``, ``masks/`` e ``merged/`` exatamente como :func:`spacr.core.preprocess_generate_masks` os teria deixado, até o manifesto de layout de planos, para que a execução seguinte seja uma execução COMUM do Measure, e não um segundo caminho de código que precisaria ser mantido em sincronia com este.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.write_field_table_project#2",
@@ -332,7 +334,9 @@
       "source_sha256": "d39c9c27d783d1465ee8471afbd90ca487c1a59c4f04ba350dade9fe77ac2ee1",
       "context": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
       "translation": "Estes só são mostrados quando o usuário os pede, porque um checkpoint não revisado ao lado de um medido convida o leitor a tratá-los da mesma forma. Cada linha traz :data:`COMMUNITY_WARNING`, e o checksum vem do próprio registro de envio de quem enviou -- ele prova que o arquivo não mudou desde o envio, NÃO que seja bom.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.community_entries#2",
@@ -420,7 +424,9 @@
       "source_sha256": "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84",
       "context": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
       "translation": "Um backend ausente do zoo não ensina a ninguém que ele existe, então cada um é listado, e seu ``source`` diz em que situação está -- ``installed``, ``installable``, ``installing`` ou ``not installable here`` --, com o motivo como primeira nota e a licença na linha. Instalar um deles cria para ele um ambiente próprio em ``~/.spacr/backends`` e não mexe no ambiente do próprio spaCR.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#0",
@@ -436,7 +442,9 @@
       "source_sha256": "3127ce8df40eaf57f7cd93dea6f22d66c9c47921b1a66a4b3c1af979325c79f5",
       "context": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
       "translation": "Um parágrafo de prosa era o que uma dica de ferramenta costumava mostrar, e um leitor comparando dois modelos tinha de analisar dois parágrafos para achar dois números. A mesma tabela que o model card imprime responde isso num relance. Recorre à prosa quando uma entrada não publica métricas, porque uma tabela vazia é pior do que uma frase.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#2",
@@ -476,7 +484,9 @@
       "source_sha256": "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
       "context": "Decided from the row, never from a list of names kept somewhere else: a hand-written list goes stale the first time a model is added, and the failure it produces is a model that is in the catalogue and under no heading, which is a model nobody can see.",
       "translation": "Decidido A PARTIR DA LINHA, nunca a partir de uma lista de nomes mantida em outro lugar: uma lista escrita à mão fica desatualizada na primeira vez que um modelo é adicionado, e a falha que ela produz é um modelo que está no catálogo e sob nenhum título, ou seja, um modelo que ninguém consegue ver.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#2",
@@ -484,7 +494,9 @@
       "source_sha256": "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
       "context": "The order of the tests is the rule, and it matters in one place: a Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto, cyto2, cyto3, nuclei -- and the backend package that executes them.",
       "translation": "A ordem dos testes é a regra, e ela importa em um ponto: um checkpoint do Cellpose 3 publicado no bioimage.io é uma linha do bioimage.io, não do Cellpose 3. ``cellpose3`` significa os modelos PRÓPRIOS do backend -- cyto, cyto2, cyto3, nuclei -- e o pacote do backend que os executa.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#4",
@@ -492,7 +504,9 @@
       "source_sha256": "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
       "context": "A row that matches nothing is filed under ``spaCR`` and said out loud. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "translation": "Uma linha que não corresponde a nada é arquivada sob ``spaCR`` E ISSO É DITO EM VOZ ALTA. É o fallback, e não um sexto título, porque um modelo sob o título errado é um incômodo, e um modelo sob nenhum título é um bug que o usuário percebe como um modelo ausente.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#5",
@@ -524,7 +538,9 @@
       "source_sha256": "562dc59f42e75e2dff8502e60b00f58d17571d012575869480bb7350d7387348",
       "context": "These are not spaCR's files and carry no checksum of ours: Cellpose downloads and verifies them, and the name IS the path -- passing \"cpsam\" to Cellpose resolves it. They are listed so that the zoo answers \"what can I segment with\" rather than \"what has Einar trained\", which is the question a new user actually has.",
       "translation": "Estes não são arquivos do spaCR e não carregam nenhum checksum nosso: o Cellpose os baixa e verifica, e o nome É o caminho -- passar \"cpsam\" ao Cellpose o resolve. Eles são listados para que o zoo responda \"com o que posso segmentar\" em vez de \"what has Einar trained\", que é a pergunta que um usuário novo realmente tem.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks#2",
@@ -582,7 +598,9 @@
       "source_sha256": "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
       "context": "Say what each object in a mask is, after any segmenter has made it.",
       "translation": "Diz o que é cada objeto de uma máscara, depois que algum segmentador a produziu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#1",
@@ -598,7 +616,9 @@
       "source_sha256": "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
       "context": "Two ways in:",
       "translation": "DUAS PORTAS DE ENTRADA:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#3",
@@ -622,7 +642,9 @@
       "source_sha256": "3e8db2fd2102133bbd7a82b25d0ad21761b28ba87f9ecd857121080448ceb2fe",
       "context": "What a head is. A head is a trained machine-learning classification model: it is handed a batch of extracted image regions and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
       "translation": "O QUE É UMA CABEÇA. Uma cabeça é um classificador treinado: recebe um lote de recortes e retorna uma classe e uma probabilidade para cada um. É um protocolo, e não uma classe base, para que um adaptador em torno de um módulo torch ou de um estimador scikit-learn possa fornecê-la. Duas aplicações estão planejadas -- parasitas por vacúolo, e o que é cada objeto --, e a de PV são, na prática, três cabeças, treinadas separadamente em Hoechst, na marcação do parasita e em CellMask, para que uma placa seja contada a partir da marcação que tiver.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#6",
@@ -638,7 +660,9 @@
       "source_sha256": "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021",
       "context": "Ids are never renumbered. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the extracted image regions and the tracks are all keyed on those ids.",
       "translation": "IDS NUNCA SÃO RENUMERADOS. Tudo aqui é indexado pelos ids de rótulo com que a máscara chegou, e toda máscara que isto retorna os mantém. `canonical_labels` em `mask_engine` diz quanto custa renumerar: as medições, os recortes e as trilhas são todos indexados por esses ids.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead#0",
@@ -710,7 +734,9 @@
       "source_sha256": "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
       "context": "The bin is a display choice, not a trained one. The head predicts how many parasites it sees; this is only how that number is shown. That matters because the rule below can change -- or be replaced by a different one per report -- without retraining anything.",
       "translation": "A FAIXA É UMA ESCOLHA DE EXIBIÇÃO, NÃO ALGO TREINADO. A cabeça prevê quantos parasitas vê; isto é apenas como esse número é mostrado. Isso importa porque a regra abaixo pode mudar -- ou ser substituída por outra em cada relatório -- sem retreinar nada.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#2",
@@ -718,7 +744,9 @@
       "source_sha256": "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
       "context": "Ties go down, and 12 is the case: it is four from 8 and four from 16. A vacuole of 12 has finished eight and is partway to sixteen, so it is reported as the round it has completed rather than the one it has not.",
       "translation": "EMPATES VÃO PARA BAIXO, e 12 é o caso: está a quatro de 8 e a quatro de 16. Um vacúolo de 12 completou oito e está a caminho de dezesseis, então é informado como a rodada que completou, e não como a que ainda não completou.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#3",
@@ -846,7 +874,9 @@
       "source_sha256": "470e604f9fa4f8b89a7b91dfd2ff33c1acf9cc1c04ae61422ead20afeb2da480",
       "context": "What can be said about every object without a trained head at all.",
       "translation": "O que se pode dizer sobre cada objeto sem cabeça treinada alguma.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.describe_objects#1",
@@ -1160,7 +1190,9 @@
       "source_sha256": "20af16caf73243d9a48e62b293cb71e241e38947830291ed1fe0e81315bd2019",
       "context": "Either folder may be a parent of both halves, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the laboratory microplate, rather than filing 1,281 phenotype microscope fields of view and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
       "translation": "QUALQUER UMA DAS PASTAS PODE SER PAI DAS DUAS METADES, e cada configuração continua lendo a sua: ``genotype_source`` indexa apenas nomes que trazem um ciclo e ``phenotype_source`` apenas nomes que não trazem, recorrendo aos nomes com ciclo para uma aquisição de fenótipo que os tenha. Apontar as duas para ``20200202_6W-LaC024A`` executa, portanto, a placa, em vez de arquivar 1,281 campos de fenótipo e 333 de sequenciamento como uma única aquisição -- veja :func:`_index_tiles`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_engine.run_ops#4",
@@ -1192,7 +1224,9 @@
       "source_sha256": "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d",
       "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
       "translation": "``(top, left, bottom, right)`` em pixels do referencial do poço, todos INCLUSIVOS -- ``bottom`` e ``right`` são a última linha e a última coluna que a máscara ocupa, então sua altura é ``bottom - top + 1``. Esta docstring dizia exclusivo até 2026-09-19, e o código sempre foi inclusivo (`_label_extents` reduz com ``np.maximum``), o que custava um pixel em cada direção a quem medisse uma extensão a partir dele.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#0",
@@ -1208,7 +1242,9 @@
       "source_sha256": "4cd68cc51de86b0c9948d73e2b8e80c62075f900c438b909d77b76f9299618a8",
       "context": "Why this is not the refusal message. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the processing session raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
       "translation": "POR QUE ESTA NÃO É A MENSAGEM DE RECUSA. :func:`_unseen_report` nomeia o MAIOR grupo e a solução, que é o que um operador lendo uma linha precisa. É também tudo o que sobreviveu da execução do poço A1: 54 grupos foram descartados e o relatório guardou uma caixa e uma contagem, então a pergunta que a execução levantou -- são fragmentos do Cellpose sem correspondente, ou recortes cuja observação completa a junção perdeu? -- não pôde ser respondida depois sem segmentar o poço de novo. Estes registros são a metade barata dessa resposta, gravada enquanto as observações ainda estão na memória.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#2",
@@ -1216,7 +1252,9 @@
       "source_sha256": "bbb4199502e49727481c56fde8862bdf97f1589a42ecb0da4d0ea01e666a974e",
       "context": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty microplate sample position frame around it is a fragment.",
       "translation": "A outra metade cabe a :func:`spacr.ops_engine.run_ops`, que compara cada caixa com os objetos que FORAM numerados: uma recusa com um objeto numerado sobre ela é uma junção que falhou, e uma cercada por referencial vazio do poço é um fragmento.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#3",
@@ -1368,7 +1406,9 @@
       "source_sha256": "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
       "context": "What ``method`` suits, as one sentence a picker can show.",
       "translation": "Para o que ``method`` serve, como uma frase que um seletor pode mostrar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.organelle_types.method_guidance#1",
@@ -1456,7 +1496,9 @@
       "source_sha256": "6e641d90767dadf52e6614fbbb08ed6a48a4bb5181deefd65b442010fae0845a",
       "context": "A renamed structured-data name is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a structured-data name this panel offers. The new name wins when a blob carries both.",
       "translation": "Uma chave RENOMEADA é movida em vez de descartada: ``img_size`` virou ``crop_size`` em 2026-09-19, e uma execução salva que escolheu um tamanho o mantém. A renomeação é lida de :func:`spacr.settings.surviving_setting_name`, o resolvedor que os arquivos de configurações usam, e aplicada apenas a uma chave que este painel oferece. O nome novo vence quando um blob traz os dois.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_graph.ModuleGraph.next_of#1",
@@ -1594,7 +1636,9 @@
       "source_sha256": "6f883373e7ab7f88c3f892f4710310874a3ff3e1d488925c142d145685d06641",
       "context": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit extracted image region that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every image data channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
       "translation": "A imagem vai para o Cellpose tal como está, RGB ou cinza, e o Cellpose a normaliza. Ela NÃO passa pelo carregador histórico da execução (``_load_normalized_images_and_labels`` com ``background=200``): em um recorte de 8 bits, esse carregador saturava todos os pixels em 1.0 -- medido em ``malnio__2.tif``, mín = máx = 1.0 em todos os canais --, então a execução não encontrava placas de lise, enquanto a pré-visualização, lendo a imagem tal como está, encontrava 67. Uma única função para os dois é o que impede que voltem a divergir.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.segment_plaque_image#2",
@@ -1787,7 +1831,9 @@
       "source_sha256": "b9e152549e74720d4aa677824a2577c685566897e6d622017e007846f2e53ad0",
       "context": "The condition is the hard part, and it is read two independent ways, always both, because two readings that agree are evidence and one is a guess:",
       "translation": "A CONDIÇÃO É A PARTE DIFÍCIL, e ela é lida de duas maneiras independentes, sempre as duas, porque duas leituras que concordam são evidência e uma só é um palpite:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#3",
@@ -1819,7 +1865,9 @@
       "source_sha256": "e93230681245cc4f813ccd82421b2051861e805bb8420aeaf5985b34b3d56512",
       "context": "SIZES. A plaque area in pixels depends on the paper's printing, so every plaque also carries its area relative to the median plaque in the same panel, and an area in mm^2 only when there is a ruler: a scale bar read in or under the image (its length from the label beside it, or from the legend's \"scale bar, 1 mm\"), or a whole microplate sample position of a laboratory microplate format the settings or the legend state. A stated magnification is recorded but is never a ruler, because a printed figure has been rescaled since the picture was taken. Rows with no ruler say their sizes are in pixels.",
       "translation": "TAMANHOS. A área de uma placa de lise em pixels depende da impressão do artigo, então cada placa de lise também traz sua área relativa à placa de lise mediana do mesmo painel, e uma área em mm^2 apenas quando há uma régua: uma barra de escala lida na imagem ou abaixo dela (seu comprimento vindo do rótulo ao lado, ou do \"scale bar, 1 mm\" da legenda), ou um poço inteiro de um formato de placa informado pelas configurações ou pela legenda. Uma magnificação declarada é registrada, mas nunca serve de régua, porque uma figura impressa foi reescalada depois que a foto foi tirada. Linhas sem régua informam que seus tamanhos estão em pixels.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#7",
@@ -1827,7 +1875,9 @@
       "source_sha256": "d3f1d637c2b1c018abf771c7f9310736fc1171e3eeb4127ac902360c9712c6c4",
       "context": "DUPLICATES. A figure is identified by its paper (the DOI when there is one) and its image hash. The same image seen again -- the same bytes, or the same pixels in another file format, under another name or another paper, such as a preprint and its published version -- is measured once and recorded in the ``duplicates`` table against the copy that was measured. A paper already measured from one source (Europe PMC) is not measured again from another (its PDF). An image that merely LOOKS the same (a near-identical perceptual hash, as a re-encoded or resized copy would have) is recorded as a possible duplicate and still measured, because on figures that is a resemblance, not a proof.",
       "translation": "DUPLICATAS. Uma figura é identificada pelo seu artigo (o DOI, quando existe) e pelo hash da imagem. A mesma imagem vista de novo -- os mesmos bytes, ou os mesmos pixels em outro formato de arquivo, com outro nome ou em outro artigo, como um preprint e sua versão publicada -- é medida uma vez e registrada na tabela ``duplicates`` em relação à cópia que foi medida. Um artigo já medido a partir de uma fonte (Europe PMC) não é medido de novo a partir de outra (seu PDF). Uma imagem que apenas PARECE a mesma (um hash perceptual quase idêntico, como teria uma cópia recodificada ou redimensionada) é registrada como possível duplicata e ainda assim medida, porque, em figuras, isso é uma semelhança, não uma prova.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#8",
@@ -1835,7 +1885,9 @@
       "source_sha256": "50a1e664ffd77bee0330eeaf2f96f65df2a7cc880a567ee003de372746390f1c",
       "context": "TEXT. A PDF's own text layer is used for legends and labels before any OCR; OCR is asked only when the text layer has nothing near the plaque images, which is what a figure pasted into the PDF as one picture looks like.",
       "translation": "TEXTO. A própria camada de texto de um PDF é usada para legendas e rótulos antes de qualquer OCR; o OCR só é acionado quando a camada de texto não tem nada perto das imagens de placas de lise, que é o aspecto de uma figura colada no PDF como uma única imagem.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#9",
@@ -2557,7 +2609,9 @@
       "source_sha256": "e36b7770a70a4c93fd4236fa9502c357b54bae1c48de358417a163b8508022c6",
       "context": "Ask at the terminal for a legend nobody could fetch.",
       "translation": "Pede no terminal uma legenda que ninguém conseguiu obter.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.console_legend_prompt#1",
@@ -2653,7 +2707,9 @@
       "source_sha256": "89bca07c87b373de37b4f7f41175f0a7ac98d01f74e21453d1cf2a4bfe68197a",
       "context": "The images come from the ``supplementaryFiles`` bundle, which carries the main figures as well as the supplements; one file per figure survives, the largest, because journals also ship thumbnails and a detector shown a thumbnail has not been asked the question. Legends come from the full-text XML.",
       "translation": "As imagens vêm do pacote ``supplementaryFiles``, que traz as figuras principais além dos suplementos; sobrevive um arquivo por figura, o maior, porque as revistas também enviam miniaturas, e um detector a quem se mostra uma miniatura não recebeu a pergunta de verdade. As legendas vêm do XML do texto completo.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_figures#2",
@@ -2949,7 +3005,9 @@
       "source_sha256": "b76a7b49e3f4a48f3459c5998d43d05deb181232c09f5f74eaff887c652f4b36",
       "context": "Nothing here stops to ask. Legends come from ``legends`` (default ``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``, the paper from ``<src>/paper.json``, and a person's edits and approvals from ``annotations`` (default ``<src>/figure_annotations.csv``), which the Figure preview writes. With ``confirm_each`` on, only approved images are measured and the rest are counted as waiting. A figure measured again replaces its earlier rows; the same image under a second name is measured once and recorded as a duplicate -- the copy with a legend is the one measured, since figures with legends are taken first.",
       "translation": "Nada aqui para e pergunta. As legendas vêm de ``legends`` (padrão ``<src>/legends.csv``), a camada de texto de um PDF de ``<src>/text_layer.json``, o artigo de ``<src>/paper.json``, e as edições e aprovações de uma pessoa de ``annotations`` (padrão ``<src>/figure_annotations.csv``), que a pré-visualização Figure grava. Com ``confirm_each`` ativado, apenas as imagens aprovadas são medidas e as demais são contadas como em espera. Uma figura medida de novo substitui suas linhas anteriores; a mesma imagem com um segundo nome é medida uma vez e registrada como duplicata -- a cópia com legenda é a que é medida, já que as figuras com legenda são processadas primeiro.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_figure_folder#10",
@@ -3231,7 +3289,9 @@
       "source_sha256": "570d557c65923a1ff3a0ccf73c81d3b169d0e46efb9d68f03fd6b1982537000b",
       "context": "Say what kind of reference a user typed.",
       "translation": "Diz que tipo de referência um usuário digitou.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.parse_reference#1",
@@ -3335,7 +3395,9 @@
       "source_sha256": "9de13c605de361ef665e570b8194ef7a1de462fdd5c813f1c8ba5cd6c9799fc9",
       "context": ":func:`spacr.plaque.detect_wells`, answered by the reader's environment.",
       "translation": ":func:`spacr.plaque.detect_wells`, respondida pelo ambiente do leitor.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_detect#1",
@@ -3647,7 +3709,9 @@
       "source_sha256": "a67cb99a1183a4e5b6944053731c0d7444eddfa69fe15d9c05ad4369b96fba04",
       "context": "**panel** -- a panel letter above and to the left of the grid's top-left corner, within one image size of it. Further than that is another panel's letter, and no letter is better than the wrong one.",
       "translation": "**painel** -- uma letra de painel acima e à esquerda do canto superior esquerdo da grade, a no máximo um tamanho de imagem dele. Mais longe que isso é a letra de outro painel, e nenhuma letra é melhor que a letra errada.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_near#6",
@@ -4055,7 +4119,9 @@
       "source_sha256": "138767e16e686607015814fc68d8d96c8320f38b21c5af9b1d61033108a1a3f8",
       "context": "deconvolution iterations, integer 1..200, default20.",
       "translation": "iterações de deconvolução, inteiro em 1..200, padrão 20.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#6",
@@ -4647,7 +4713,9 @@
       "source_sha256": "216ac8e6db5a6819d1fb3a669f68f303e06d4a147dcbaea99a7073137a5bf5e8",
       "context": "Compare active PSF behavior rather than dormant form parameters.",
       "translation": "Compara o comportamento PSF ativo, e não parâmetros de formulário inativos.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_resume_settings#1",
@@ -4671,7 +4739,9 @@
       "source_sha256": "f69d6eeda42c8039b6728af03880c5b17750c07b25b247d216f04adb6f500667",
       "context": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
       "translation": "configurações novas, com os ajustes de PSF inativos removidos e uma assinatura de material capturada. Medições legadas têm a assinatura original None.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.prepare_measurement_psf#0",
@@ -4767,7 +4837,9 @@
       "source_sha256": "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
       "context": "The enhancement chain travels the same route. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` structured-data names and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a processing session is byte for byte what it was before the chain existed.",
       "translation": "A CADEIA DE REALCE SEGUE O MESMO CAMINHO. A cadeia do Make Masks (:mod:`spacr.qt.detect_chain`) é gravada em um arquivo de configurações como as chaves ``enhance_*`` e lida de volta aqui por :func:`prepare_chain`, com as configurações ``psf_*`` incorporadas como a etapa PSF da cadeia, para que a execução de uma placa aplique exatamente as etapas que um curador ajustou, na própria ordem da cadeia: fundo, PSF, redução de ruído, contraste, nitidez. A sessão a aplica em cada canal selecionado, na etapa em que a PSF já era executada -- após a correção de iluminação e antes da normalização --, e sua proveniência vai para o mesmo registro ``psf/segmentation_application.json``, de modo que uma cadeia alterada é recusada na retomada, assim como um kernel alterado. Sem nenhuma etapa da cadeia ativada, uma execução é, byte a byte, o que era antes de a cadeia existir.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#0",

@@ -443,13 +443,6 @@
       "translation": "चित्र के पीछे का पृष्ठ। पारदर्शी विकल्प चित्र जिस पर रखा जाता है वही दिखाता है, जो आम तौर पर स्लाइड के लिए चाहिए।"
     },
     {
-      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
-      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
-      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
-      "table": "ui",
-      "translation": "वह प्रतिशतक जिसे काले पर मैप किया जाता है। अधिक पृष्ठभूमि दबाने के लिए इसे बढ़ाएँ; 0 सबसे धुंधले पिक्सेल को भी बनाए रखता है।"
-    },
-    {
       "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
       "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
       "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
@@ -590,5 +583,15 @@
       "translation": "y स्तंभ का −log₁₀"
     }
   ],
-  "schema": 1
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "वह प्रतिशतक जिसे काले पर मैप किया जाता है। अधिक पृष्ठभूमि दबाने के लिए इसे बढ़ाएँ; 0 सबसे धुंधले पिक्सेल को भी बनाए रखता है।",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    }
+  ]
 }

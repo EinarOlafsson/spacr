@@ -7,7 +7,9 @@
       "source_sha256": "bb3520824cfd6f39fe2eea4766dfdff5e63d1cf08a53d63103db4d4eb904edd8",
       "source": "**Nothing is re-fitted.** The screen reads a coefficient table a regression run already wrote and wraps it in :class:`spacr.profiler.FittedLinear`, which is *reading* the fit. A profiler that re-fits is showing a second model under the first one's name, and on a penalised backend with ``alpha='auto'`` it is not even the same model. A caller that has a live fitted object can hand it straight to :meth:`ProfilerScreen.set_model` and skip the file entirely.",
       "context": "**Nothing is re-fitted.** The screen reads a coefficient table a regression processing session already wrote and wraps it in :class:`spacr.profiler.FittedLinear`, which is *reading* the fit. A profiler that re-fits is showing a second model under the first one's name, and on a penalised backend with ``alpha='auto'`` it is not even the same model. A caller that has a live fitted object can hand it straight to :meth:`ProfilerScreen.set_model` and skip the file entirely.",
-      "translation": "**Ekkert er endurbætt.** Skjárinn les fylkisfallatafla sem afturhvarfsvinnslufundur hefur þegar skrifað og umvefur hana í :class:`spacr.profiler.FittedLinear`, sem er *að lesa* aðlöðunina. Greinandi sem endurstillingar sýnir annað líkan undir nafni fyrsta líkansins, og á refsaðri bakenda með ``alpha='auto'`` er það ekki einu sinni sama líkan. Kallari sem hefur lifandi aðlagaðar hlut getur afhent það beint til :meth:`ProfilerScreen.set_model` og sleppt skránni alveg."
+      "translation": "**Ekkert er endurbætt.** Skjárinn les fylkisfallatafla sem afturhvarfsvinnslufundur hefur þegar skrifað og umvefur hana í :class:`spacr.profiler.FittedLinear`, sem er *að lesa* aðlöðunina. Greinandi sem endurstillingar sýnir annað líkan undir nafni fyrsta líkansins, og á refsaðri bakenda með ``alpha='auto'`` er það ekki einu sinni sama líkan. Kallari sem hefur lifandi aðlagaðar hlut getur afhent það beint til :meth:`ProfilerScreen.set_model` og sleppt skránni alveg.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.find_uv#1",
@@ -21,7 +23,9 @@
       "source_sha256": "ae1cf8c1ef48f73d03d9b068cbea3cd4885169365f1893c1240d843e33280116",
       "source": "The continuous score wells are RANKED by, which is not always ``fitted``: a hinge/SVM's ``fitted`` is the hard 0/1 label, and an ROC computed on hard labels has exactly two operating points and understates the model. ``build_context`` sets this to ``decision_function(X)`` for a classifier and to ``fitted`` for everything else, oriented so that LARGER means MORE LIKELY POSITIVE for both.",
       "context": "The continuous score microplate sample positions are RANKED by, which is not always ``fitted``: a hinge/SVM's ``fitted`` is the hard 0/1 label, and an ROC computed on hard labels has exactly two operating points and understates the model. ``build_context`` sets this to ``decision_function(X)`` for a machine-learning classification model and to ``fitted`` for everything else, oriented so that LARGER means more likely positive for both.",
-      "translation": "Stöðugar stigagreiningar sýnaplötustöður eru RANKAÐAR eftir, sem er ekki alltaf ``fitted``: samband/hinge-SVM ``fitted`` er harða 0/1 merkið, og ROC reiknað með hörðum merkjum hefur nákvæmlega tvo rekspunkta og vanmetur líkanið. ``build_context`` stillir þetta á ``decision_function(X)`` fyrir vélarnáms flokkunarlíkan og á ``fitted`` fyrir allt annað, staðsett þannig að STÆRRI þýðir MEIRA LÍKLEGUR JÁKVÆÐUR fyrir báða."
+      "translation": "Stöðugar stigagreiningar sýnaplötustöður eru RANKAÐAR eftir, sem er ekki alltaf ``fitted``: samband/hinge-SVM ``fitted`` er harða 0/1 merkið, og ROC reiknað með hörðum merkjum hefur nákvæmlega tvo rekspunkta og vanmetur líkanið. ``build_context`` stillir þetta á ``decision_function(X)`` fyrir vélarnáms flokkunarlíkan og á ``fitted`` fyrir allt annað, staðsett þannig að STÆRRI þýðir MEIRA LÍKLEGUR JÁKVÆÐUR fyrir báða.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plot.plot_image_mask_overlay#7",
@@ -35,7 +39,9 @@
       "source_sha256": "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
       "source": "**Model-aware options.** Every model shows the full segmentation set. Cellpose-SAM does *not* ignore ``flow_threshold``, ``cellprob`` or ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that killed that belief.",
       "context": "**Model-aware options.** Every model shows the full segmentation set. Cellpose-SAM does *not* ignore ``flow_threshold``, ``cellprob`` or ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that killed that belief.",
-      "translation": "**Valkostir sem vita af líkönum.** Hvert líkan sýnir allan aðskilnaðarsafninn. Cellpose-SAM hunsar *ekki* ``flow_threshold``, ``cellprob`` eða ``diameter`` — sjá :data:`DIAMETER_TOOLTIP` fyrir mælinguna sem drap þá trú."
+      "translation": "**Valkostir sem vita af líkönum.** Hvert líkan sýnir allan aðskilnaðarsafninn. Cellpose-SAM hunsar *ekki* ``flow_threshold``, ``cellprob`` eða ``diameter`` — sjá :data:`DIAMETER_TOOLTIP` fyrir mælinguna sem drap þá trú.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.job_runner.JobRunner#0",
@@ -49,7 +55,9 @@
       "source_sha256": "1f27d53c353cc8075536e924fb6258e65380205e51aa623ce6f54ed50b0ee386",
       "source": "Fewer files than ``test_nr`` is not an error. test_mode is the setting a user reaches for on a SMALL plate, and ``random.sample`` raised ``ValueError: Sample larger than population or is negative`` on exactly that case -- so the one folder you most want to smoke-test first was the one folder test_mode refused to run on.",
       "context": "Fewer files than ``test_nr`` is not an error. test_mode is the setting a user reaches for on a SMALL plate, and ``random.sample`` raised ``ValueError: Sample larger than population or is negative`` on exactly that case -- so the one folder you most want to smoke-test first was the one folder test_mode refused to execute on.",
-      "translation": "Færri skrár en ``test_nr`` er ekki villa. test_mode er stillingin sem notandi velur á LITLU diskinum, og ``random.sample`` vakti ``ValueError: Sample larger than population or is negative`` á einmitt því tilviki -- svo eini möppan sem þú vildir mest prófa fyrst var einmitt sú möppa sem test_mode neitaði að keyra á."
+      "translation": "Færri skrár en ``test_nr`` er ekki villa. test_mode er stillingin sem notandi velur á LITLU diskinum, og ``random.sample`` vakti ``ValueError: Sample larger than population or is negative`` á einmitt því tilviki -- svo eini möppan sem þú vildir mest prófa fyrst var einmitt sú möppa sem test_mode neitaði að keyra á.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.batch.Problem#1",
@@ -70,14 +78,18 @@
       "source_sha256": "5f176ea81ee615430f3dd8f2640b17afe533e2fa86d81c8fbb10e2fb25ac9228",
       "source": "**One run id, on every log line and every output.** A run used to be untraceable. The log said a field failed; the registry said an artifact existed; nothing connected them, so \"show me everything from the run that produced this file\" had no answer. :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per-run JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, which is the whole point.",
       "context": "**One processing-session id, on every log line and every output.** A processing session used to be untraceable. The log said a field failed; the registry said an artifact existed; nothing connected them, so \"show me everything from the processing session that produced this file\" had no answer. :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per processing session JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, which is the whole point.",
-      "translation": "**Eitt auðkenni vinnslufundar, á hverri skráar línu og hverju úttaki.** Vinnslufundur var áður ómögulegt að rekja. Dagbókin sagði að reitur mistókst; skráningin sagði að listi væri til; ekkert tengdi þau, svo „sýndu mér allt frá vinnslufundinum sem framleiddi þessa skrá“ hafði ekkert svar. :func:`run_context` býr til eitt auðkenni, stimplar það á hvert :class:`logging.LogRecord` sem er búið til hvert sem er í ferlinu, skrifar JSONL dagbók fyrir hvern vinnslufund sem :func:`read_run_log` les aftur, og afhendir *sama* auðkennið til :func:`spacr.artifacts.register_run_outputs`. Ská línu og úttak er því hægt að tengja á ``run_id``, sem er allt punkturinn."
+      "translation": "**Eitt auðkenni vinnslufundar, á hverri skráar línu og hverju úttaki.** Vinnslufundur var áður ómögulegt að rekja. Dagbókin sagði að reitur mistókst; skráningin sagði að listi væri til; ekkert tengdi þau, svo „sýndu mér allt frá vinnslufundinum sem framleiddi þessa skrá“ hafði ekkert svar. :func:`run_context` býr til eitt auðkenni, stimplar það á hvert :class:`logging.LogRecord` sem er búið til hvert sem er í ferlinu, skrifar JSONL dagbók fyrir hvern vinnslufund sem :func:`read_run_log` les aftur, og afhendir *sama* auðkennið til :func:`spacr.artifacts.register_run_outputs`. Ská línu og úttak er því hægt að tengja á ``run_id``, sem er allt punkturinn.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.motility_preview#3",
       "source_sha256": "1b411ad01ce9412110203c6f31091c76e7feedd759b92eecc4c202f2a0d06916",
       "source": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. A preview that printed \"velocity 4.2\" while the user was thinking in µm/s would be worse than printing nothing, so the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of quietly borrowing the 1.78 px/µm default.",
       "context": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. A preview that printed \"velocity 4.2\" while the user was thinking in µm/s would be worse than printing nothing, so the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of quietly borrowing the 1.78 px/µm default.",
-      "translation": "**Einingar.** Greiningin breytir pixlum á ramma í eðlisfræðilegar einingar með ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` og aðeins þegar *bæði* eru þekkt; annars skilar hún ``px/frame``. Forskoðun sem prentaði \"velocity 4.2\" á meðan notandinn hugsaði í µm/s væri verri en að prenta ekkert, svo stillingarsvið byrja **óstillt**, hver hraði ber sína einingu, og meðan stillingin er óþekkt segir spjaldið það í orðum í stað þess að lána þögull 1,78 px/µm sjálfgefnu."
+      "translation": "**Einingar.** Greiningin breytir pixlum á ramma í eðlisfræðilegar einingar með ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` og aðeins þegar *bæði* eru þekkt; annars skilar hún ``px/frame``. Forskoðun sem prentaði \"velocity 4.2\" á meðan notandinn hugsaði í µm/s væri verri en að prenta ekkert, svo stillingarsvið byrja **óstillt**, hver hraði ber sína einingu, og meðan stillingin er óþekkt segir spjaldið það í orðum í stað þess að lána þögull 1,78 px/µm sjálfgefnu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_v2.StackFile#1",
@@ -112,14 +124,18 @@
       "source_sha256": "75bb960f7999252e94edd643a2a5b524d22e68ba5119e4a4fbd527d1c9cabc8f",
       "source": ":class:`HTile` Horizontal card — icon on the LEFT, name on top, one-line description underneath. Minimalist look inspired by iOS Settings and the VS Code command palette. This is what the startup screen uses by default.",
       "context": ":class:`HTile` Horizontal card — icon on the LEFT, name on top, one-line description underneath. Minimalist look inspired by iOS Settings and the VS Code command palette. This is what the startup application view uses by default.",
-      "translation": ":class:`HTile` Lárétt spil — tákn til vinstri, nafn efst, einlínulýsing undir. Lágmarksútlit innblásið af iOS Stillingum og VS Code skipanapallettu. Þetta er það sem startforritsskoðunin notar sjálfgefið."
+      "translation": ":class:`HTile` Lárétt spil — tákn til vinstri, nafn efst, einlínulýsing undir. Lágmarksútlit innblásið af iOS Stillingum og VS Code skipanapallettu. Þetta er það sem startforritsskoðunin notar sjálfgefið.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.tabulate.register#3",
       "source_sha256": "5667dc9f318afc8e775e1972c8102b6232488c459ec9d962535b75cb1d40e13f",
       "source": "**Not called at import**, for the reason ``app.py``'s ``_SELF_REGISTERING_APPS`` table documents: a registration made anywhere else is one that some importer's snapshot of ``APPS`` predates. Turning this screen on is **one row** in that table",
       "context": "**Not called at import**, for the reason ``app.py``'s ``_SELF_REGISTERING_APPS`` table documents: a registration made anywhere else is one that some importer's snapshot of ``APPS`` predates. Turning this screen on is **one row** in that table",
-      "translation": "**Ekki kallað við innflutning**, af ástæðu ``app.py``'s ``_SELF_REGISTERING_APPS`` tafla skráir: skráning gerð annars staðar er sú sem einhver innflytjanda augnabliksmynd af ``APPS`` er frá áður. Að virkja þessa skjámynd er **einn röð** í þeirri töflu"
+      "translation": "**Ekki kallað við innflutning**, af ástæðu ``app.py``'s ``_SELF_REGISTERING_APPS`` tafla skráir: skráning gerð annars staðar er sú sem einhver innflytjanda augnabliksmynd af ``APPS`` er frá áður. Að virkja þessa skjámynd er **einn röð** í þeirri töflu",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.linked_selection.LinkedSelection.unregister_object_opener#2",

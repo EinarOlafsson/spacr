@@ -552,14 +552,18 @@
       "source": "Fit every level the run asked for, SEPARATELY, and return one per level.",
       "context": "Fit every level the run asked for, SEPARATELY, and return one per level.",
       "source_sha256": "bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699",
-      "translation": "Ajusta por SEPARADO cada nivel solicitado por la ejecución y devuelve un resultado por nivel."
+      "translation": "Ajusta por SEPARADO cada nivel solicitado por la ejecución y devuelve un resultado por nivel.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#1",
       "source": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "context": "This is the two-fit entry point, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "source_sha256": "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
-      "translation": "ESTE ES EL PUNTO DE ENTRADA PARA DOS AJUSTES, y existe porque el diseño único que spaCR solía ajustar no se puede ajustar en absoluto. ``gene_fraction`` es la SUMA (SUM) de las fracciones de gRNA del gen, por lo que"
+      "translation": "ESTE ES EL PUNTO DE ENTRADA PARA DOS AJUSTES, y existe porque el diseño único que spaCR solía ajustar no se puede ajustar en absoluto. ``gene_fraction`` es la SUMA (SUM) de las fracciones de gRNA del gen, por lo que",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#2",
@@ -573,21 +577,27 @@
       "source": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
       "context": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
       "source_sha256": "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
-      "translation": "coloca en un mismo diseño un bloque de columnas y sus propias sumas. Medido en el cribado TSG101 de referencia: 1248 parámetros con rango 862 -- un espacio nulo EXACTO de 386 dimensiones --; el ajuste devuelto por statsmodels tenía una suma de cuadrados residual idéntica bit a bit a la obtenida al sumarle siete veces un vector nulo. Véase :data:`COLLINEAR_FORMULA_FRAGMENT`."
+      "translation": "coloca en un mismo diseño un bloque de columnas y sus propias sumas. Medido en el cribado TSG101 de referencia: 1248 parámetros con rango 862 -- un espacio nulo EXACTO de 386 dimensiones --; el ajuste devuelto por statsmodels tenía una suma de cuadrados residual idéntica bit a bit a la obtenida al sumarle siete veces un vector nulo. Véase :data:`COLLINEAR_FORMULA_FRAGMENT`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#4",
       "source": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "context": "Two fits, two tables, two corrections. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "source_sha256": "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
-      "translation": "Dos ajustes, dos tablas, DOS CORRECCIONES. Cada ajuste constituye su propia familia de pruebas múltiples y se corrige dentro de ella. Agruparlos sería incorrecto por dos motivos: no son independientes -- los mismos pocillos, y el regresor del gen ES la suma de los regresores de las guías --, y duplicar el tamaño de la familia reduce la potencia estadística sin aportar protección. :func:`perform_regression` aplica la corrección por nivel y escribe ``results_grna.csv`` y ``results_gene.csv``."
+      "translation": "Dos ajustes, dos tablas, DOS CORRECCIONES. Cada ajuste constituye su propia familia de pruebas múltiples y se corrige dentro de ella. Agruparlos sería incorrecto por dos motivos: no son independientes -- los mismos pocillos, y el regresor del gen ES la suma de los regresores de las guías --, y duplicar el tamaño de la familia reduce la potencia estadística sin aportar protección. :func:`perform_regression` aplica la corrección por nivel y escribe ``results_grna.csv`` y ``results_gene.csv``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#5",
       "source": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
       "context": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
       "source_sha256": "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
-      "translation": "``regression_type='mixed'`` se ajusta UNA VEZ y devuelve una entrada, ``'gene'``: ese modelo ya contiene ambos niveles, el gen como efecto fijo y la guía como efecto aleatorio anidado en el gen. Su salida para las guías son BLUPs, por lo que no puede dividirse en dos familias de pruebas."
+      "translation": "``regression_type='mixed'`` se ajusta UNA VEZ y devuelve una entrada, ``'gene'``: ese modelo ya contiene ambos niveles, el gen como efecto fijo y la guía como efecto aleatorio anidado en el gen. Su salida para las guías son BLUPs, por lo que no puede dividirse en dos familias de pruebas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#8",
@@ -603,7 +613,9 @@
       "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
       "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
       "translation": "la carpeta de la ejecución. Cuando hay más de un ajuste, las FIGURAS de cada nivel se escriben en ``<dst>/<level>/`` para que no puedan sobrescribirse entre sí; las tablas permanecen en ``<dst>``, donde todos los consumidores las buscan.",
-      "rebound_from": "spacr.ml.regression_levels#7"
+      "rebound_from": "spacr.ml.regression_levels#7",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#10",
@@ -648,7 +660,9 @@
       "source": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed wells; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
       "context": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed microplate sample positions; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
       "source_sha256": "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
-      "translation": "Esto no es hipotético. El cribado para el que se escribió esto tiene 824 guías en 587 pocillos analizados; el ajuste publicado tenía 825 parámetros, rango 579 y 8 grados de libertad residuales, y al volver a ajustarlo no reprodujo sus propios coeficientes."
+      "translation": "Esto no es hipotético. El cribado para el que se escribió esto tiene 824 guías en 587 pocillos analizados; el ajuste publicado tenía 825 parámetros, rango 579 y 8 grados de libertad residuales, y al volver a ajustarlo no reprodujo sus propios coeficientes.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.resolve_auto_inference#3",
@@ -677,7 +691,9 @@
       "source": "What a run's results folder is NAMED after.",
       "context": "What a processing session's results folder is NAMED after.",
       "source_sha256": "9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde",
-      "translation": "El criterio con el que se NOMBRA la carpeta de resultados de una ejecución."
+      "translation": "El criterio con el que se NOMBRA la carpeta de resultados de una ejecución.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.results_folder_kind#1",
@@ -691,7 +707,9 @@
       "source": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "context": "PUBLIC, and the only copy. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "source_sha256": "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8",
-      "translation": "PÚBLICA Y LA ÚNICA COPIA. Una prueba que volvió a deducir esta regla quedó obsoleta cuando la regla cambió y notificó 39 CSV ausentes, aunque todas las ejecuciones que los escribieron habían funcionado correctamente. Ese es precisamente el fallo que el auxiliar `results_dir` de tests/test_cov_ml_perform_regression.py ya se había creado para evitar. Una suite que apunta al archivo equivocado es peor que una silenciosa."
+      "translation": "PÚBLICA Y LA ÚNICA COPIA. Una prueba que volvió a deducir esta regla quedó obsoleta cuando la regla cambió y notificó 39 CSV ausentes, aunque todas las ejecuciones que los escribieron habían funcionado correctamente. Ese es precisamente el fallo que el auxiliar `results_dir` de tests/test_cov_ml_perform_regression.py ya se había creado para evitar. Una suite que apunta al archivo equivocado es peor que una silenciosa.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.screen_is_blockable#0",
@@ -822,14 +840,18 @@
       "source": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
       "context": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
       "source_sha256": "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
-      "translation": "Cambia ``agg_type`` automáticamente a None cuando se selecciona la regresión cuantílica, de modo que ``alpha`` se trata como el cuantil."
+      "translation": "Cambia ``agg_type`` automáticamente a None cuando se selecciona la regresión cuantílica, de modo que ``alpha`` se trata como el cuantil.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#2",
       "source": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.",
       "context": "Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a processing session that had started cleanly.",
       "source_sha256": "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
-      "translation": "Aquí se rellena cada clave que :func:`spacr.ml.perform_regression` lee mediante ``settings[...]``. Faltaban seis y, como ambos despachadores -- el panel de Qt mediante ``qt.screens.settings_model.resolve_default_settings`` y ``spacr-run regression`` mediante ``cli.module_defaults`` -- construyen el diccionario a partir de esta función, la regresión no podía iniciarse desde ningún punto de entrada: terminaba con ``KeyError: 'verbose'`` en ml.py:1409 después de leer ambos CSV de entrada y escribir ``settings/regression.csv``, por lo que el fallo parecía una ejecución que se había iniciado correctamente."
+      "translation": "Aquí se rellena cada clave que :func:`spacr.ml.perform_regression` lee mediante ``settings[...]``. Faltaban seis y, como ambos despachadores -- el panel de Qt mediante ``qt.screens.settings_model.resolve_default_settings`` y ``spacr-run regression`` mediante ``cli.module_defaults`` -- construyen el diccionario a partir de esta función, la regresión no podía iniciarse desde ningún punto de entrada: terminaba con ``KeyError: 'verbose'`` en ml.py:1409 después de leer ambos CSV de entrada y escribir ``settings/regression.csv``, por lo que el fallo parecía una ejecución que se había iniciado correctamente.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#3",

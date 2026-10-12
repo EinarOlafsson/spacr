@@ -394,7 +394,9 @@
       "source_sha256": "98efadcb034381d0b96dc99c19dc1beaf6ab84106523d44991376ba18867a08f",
       "context": "The size is fixed per scale, not per row state. The old dock grew and shrank an icon on hover, which relayed out the whole column under the pointer; that is what :data:`ICON_PX` being one number stops. It still has to follow the interface scale, so the base is recorded on each row and re-derived from there -- see :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never recomputed from the size the row is already wearing.",
       "translation": "STÆRÐIN ER FÖST FYRIR HVERN KVARÐA, EKKI FYRIR ÁSTAND RAÐAR. Gamla stikan stækkaði og minnkaði tákn við bendilsyfirstöðu, sem raðaði öllum dálkinum undir bendlinum upp aftur; það er það sem :data:`ICON_PX` sem ein tala kemur í veg fyrir. Hún þarf samt að fylgja kvarða viðmótsins, svo grunnurinn er skráður á hverja röð og leiddur út aftur þaðan -- sjá :func:`spacr.qt.preferences._set_scaled_icon_size` um hvers vegna hann er aldrei endurreiknaður út frá stærðinni sem röðin ber þegar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.section_is_open#1",
@@ -434,7 +436,9 @@
       "source_sha256": "90ac9ad64db7ee715905d050dfc0dee1df43a9d80986831e7839a231167d43b6",
       "context": "It is nonetheless **not the default**, and that is a decision rather than an oversight. The fifth parameter trades off against the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten concentrations a plate actually carries it is weakly identified, and the profile interval it produces is correspondingly wider. The module therefore offers it, fits it **from the 4PL solution** so the asymmetric search starts at the symmetric answer, and reports an extra-sum-of-squares F test of the one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the asymmetry was worth what it cost.",
       "translation": "Það er engu að síður **ekki sjálfgefið**, og það er ákvörðun frekar en yfirsjón. Fimmta færibreytan vegur á móti Hill-hallanum — mörg (halli, ósamhverfa) pör teikna nánast sama ferilinn — svo á þeim átta eða tíu styrkjum sem plata ber í raun er hún illa ákvarðanleg, og prófílbilið sem hún gefur er að sama skapi breiðara. Einingin býður hana því, aðlagar hana **út frá 4PL-lausninni** svo ósamhverfa leitin byrjar við samhverfa svarið, og tilkynnir F-próf fyrir aukna kvaðratsummu á þessari einu viðbættu færibreytu í :attr:`DoseResponseResult.asymmetry_p` svo lesandi geti séð hvort ósamhverfan var þess virði sem hún kostaði.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#27",
@@ -734,7 +738,9 @@
       "source_sha256": "505294fbae7c9bda8a18a586e3e566ad0b9ce95ae9f03bdd48ced95d0c28935e",
       "context": "What it scales, LIVE, without a restart. Everything inside the preview that spaCR sized in pixels:",
       "translation": "ÞAÐ SEM HANN KVARÐAR, LIFANDI, ÁN ENDURRÆSINGAR. Allt innan forsýnarinnar sem spaCR stærðarsetti í pixlum:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#3",
@@ -782,7 +788,9 @@
       "source_sha256": "486ee91ca372d7c6eb3d76e29b516c8d246805b79f1b12d8d160abf65710d9fb",
       "context": "Each value's own base is remembered on the widget, so scaling is always from the size the code asked for and never compounds. A size the code sets again later becomes the new base. At 100 % nothing is touched at all -- no sheet, no size, no property -- so a preview at its default scale is the preview it was before this module existed.",
       "translation": "Eigin grunnur hvers gildis er munaður á græjunni, svo kvörðun er alltaf frá stærðinni sem kóðinn bað um og safnast aldrei upp. Stærð sem kóðinn stillir aftur síðar verður nýr grunnur. Við 100 % er ekki snert við neinu -- engu stílblaði, engri stærð, engri eigind -- svo forsýn í sjálfgefnum kvarða er sú forsýn sem hún var áður en þessi eining var til.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#9",
@@ -2040,7 +2048,9 @@
       "source_sha256": "23edbf6a4e9531d947e2b1cefbfc35acf7368c6a86644d2f947c00c7c63dd07b",
       "context": "One widget, two owners. A segmentation preview has four things worth looking at: the image with the outlines on it, the label masks alone, the flow microscope field of view the masks were pooled from, and the cell probability the flow was thresholded at. Mask generation's live preview showed three of them through a dropdown; the plaque preview showed its own four through tabs, drawn by its own code. This module is the one place both can draw them from, so that a change to how a cell probability is coloured reaches both previews at once.",
       "translation": "EIN GRÆJA, TVEIR EIGENDUR. Forsýn hlutunar hefur fjóra hluti sem vert er að skoða: myndina með útlínunum á, merkjagrímurnar einar, flæðisviðið sem grímunum var safnað úr, og frumulíkurnar sem flæðið var þröskuldað við. Lifandi forsýn grímugerðar sýndi þrjá þeirra í gegnum fellilista; plaque-forsýnin sýndi sína fjóra í gegnum flipa, teiknaða með eigin kóða. Þessi eining er eini staðurinn sem báðar geta teiknað þá frá, svo breyting á því hvernig frumulíkur eru litaðar nær til beggja forsýna í einu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#2",
@@ -2048,7 +2058,9 @@
       "source_sha256": "73126bf99b9a4ee19e74a0ccb04e35f7d2ed4efd87428e521b30fa5b7001d496",
       "context": "The widget knows arrays, not modules. It is handed an image, label masks, flow pictures and cell probability maps -- each either one array or one per object -- and draws whichever of :data:`VIEWS` is chosen. Nothing in here names the Mask module, Cellpose settings or a plaque.",
       "translation": "GRÆJAN ÞEKKIR FYLKI, EKKI EININGAR. Hún fær mynd, merkjagrímur, flæðimyndir og frumulíkindakort -- hvert annaðhvort eitt fylki eða eitt fyrir hvern hlut -- og teiknar hverja þá af :data:`VIEWS` sem er valin. Ekkert hér inni nefnir Mask-eininguna, Cellpose-stillingar eða plaque.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#3",
@@ -2056,7 +2068,9 @@
       "source_sha256": "9e1ba76a10b44b4b3b23b6204855d096d06de5a02a8bc6675fb1b0ce997ddbf7",
       "context": "What an owner can change. The default renderers draw a plain overlay, categorical masks, the flows as Cellpose hands them and the probability on the magma scale. An owner with its own idea of an outline -- the live preview's colour choice and thickness -- registers a renderer for that view with :meth:`SegmentationViews.set_renderer` and keeps the other three. A renderer answers with a picture, with a sentence to show in the picture's place, or with ``None`` for the widget's own \"nothing yet\" sentence.",
       "translation": "ÞAÐ SEM EIGANDI GETUR BREYTT. Sjálfgefnu teiknararnir teikna einfalt yfirlag, flokkaðar grímur, flæðin eins og Cellpose afhendir þau og líkurnar á magma-kvarðanum. Eigandi með eigin hugmynd um útlínu -- litaval og þykkt lifandi forsýnarinnar -- skráir teiknara fyrir þá sýn með :meth:`SegmentationViews.set_renderer` og heldur hinum þremur. Teiknari svarar með mynd, með setningu til að sýna í stað myndarinnar, eða með ``None`` fyrir eigin \"nothing yet\" setningu græjunnar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#4",
@@ -2064,7 +2078,9 @@
       "source_sha256": "1307cb97112239c8e143a983363574d13fd6013433056103ee0de9fd2d47a3ab",
       "context": "The canvas is pluggable. An owner that already has a canvas with a ruler and a hover line on it (the live preview's ``_ZoomView``) hands it in; otherwise a :class:`PictureCanvas` is built, which fits, zooms, pans and saves on a right click like every other picture in the program.",
       "translation": "STRIGANUM MÁ SKIPTA ÚT. Eigandi sem hefur þegar striga með reglustiku og sveimlínu á (``_ZoomView`` lifandi forsýnarinnar) afhendir hann; annars er :class:`PictureCanvas` byggður, sem aðlagast, dregur að, hliðrast og vistar við hægri smell eins og hver önnur mynd í forritinu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views.CELLPROB_COLORMAP#0",
@@ -2792,7 +2808,9 @@
       "source_sha256": "21b573e04a2ccab52e860d982f3e7fedabde66ee7b9553c9a1bd9573ca8d6c91",
       "context": "RECORDED, so first-run guidance does not greet a returning user as a new one. While an installer is running the user is asked first (:meth:`_may_close`): keeping it running leaves the application view open, and stopping it closes the application view as before.",
       "translation": "SKRÁÐ, svo leiðsögn fyrstu keyrslu heilsar ekki notanda sem snýr aftur eins og nýjum. Á meðan uppsetningarforrit keyrir er notandinn spurður fyrst (:meth:`_may_close`): ef það er látið keyra áfram helst skjámyndin opin, og ef það er stöðvað lokast skjámyndin eins og áður.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.mouseMoveEvent#1",

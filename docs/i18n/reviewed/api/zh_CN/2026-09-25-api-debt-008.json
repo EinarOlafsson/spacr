@@ -2901,7 +2901,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "When the \"Verbose logging\" preference is on, spaCR's Python loggers are dialled up to DEBUG and the log files keep those records. The active ConsolePanel shows only the levels switched on for the console on the Logging tab of Preferences. That puts a detailed trail on disk, which is what you want when triaging a bug report.",
       "source_sha256": "8d0988c45c798e6fc097f1b476a6a9cf0961757d909b657667272f2ed90a3be9",
-      "translation": "当 \"Verbose logging\" 首选项开启时，spaCR 的 Python 日志记录器会被调到 DEBUG 级别，日志文件会保留这些记录。当前活动的 ConsolePanel 只显示在“首选项”的 Logging 选项卡中为控制台开启的级别。这样磁盘上就会留下详细的记录，这正是分析缺陷报告时所需要的。"
+      "translation": "当 \"Verbose logging\" 首选项开启时，spaCR 的 Python 日志记录器会被调到 DEBUG 级别，日志文件会保留这些记录。当前活动的 ConsolePanel 只显示在“首选项”的 Logging 选项卡中为控制台开启的级别。这样磁盘上就会留下详细的记录，这正是分析缺陷报告时所需要的。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numeric logging levels the console should show; anything outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are lowered to the lowest level kept.",
@@ -4477,7 +4479,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE EVENT TYPE IS READ FIRST, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to run for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
       "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
-      "translation": "“先读取事件类型”，然后才进行存活检查。此过滤器安装在 QApplication 上，因此以前两次 `_still_alive` 调用会针对进程中的每个事件运行——在一次打开 Regression 时就有 94,431 次，而一次性能分析在一次打开 Mask 时统计到这两个调用共 839,906 次。读取 C++ 部分已被销毁的对象的类型会抛出异常，而下方的 `except` 已经用同样的 `False` 处理了这种情况，因此调整顺序没有任何代价，现在只有上下文菜单才会运行这些检查。"
+      "translation": "“先读取事件类型”，然后才进行存活检查。此过滤器安装在 QApplication 上，因此以前两次 `_still_alive` 调用会针对进程中的每个事件运行——在一次打开 Regression 时就有 94,431 次，而一次性能分析在一次打开 Mask 时统计到这两个调用共 839,906 次。读取 C++ 部分已被销毁的对象的类型会抛出异常，而下方的 `except` 已经用同样的 `False` 处理了这种情况，因此调整顺序没有任何代价，现在只有上下文菜单才会运行这些检查。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True to stop the event going further.",

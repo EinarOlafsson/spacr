@@ -26,7 +26,9 @@
       "source_sha256": "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
       "context": "The enhancement chain travels the same route. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` structured-data names and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a processing session is byte for byte what it was before the chain existed.",
       "translation": "향상 체인도 같은 경로를 거칩니다. Make Masks 의 체인(:mod:`spacr.qt.detect_chain`)은 설정 파일에 ``enhance_*`` 키로 기록되고 여기서 :func:`prepare_chain` 이 다시 읽으며, ``psf_*`` 설정은 체인의 PSF 단계로 합쳐집니다. 따라서 마이크로플레이트 처리 세션 하나는 큐레이터가 조정한 단계를 체인 자체의 순서, 즉 배경, PSF, 잡음 제거, 대비, 선명화 순서로 정확히 적용합니다. 세션은 선택된 채널마다, PSF 가 이미 실행되던 단계(조명 보정 후, 정규화 전)에서 이를 적용하며, 출처 정보는 같은 ``psf/segmentation_application.json`` 기록에 들어가므로 체인이 바뀌면 커널이 바뀐 경우와 마찬가지로 재개가 거부됩니다. 켜진 체인 단계가 없으면 처리 세션은 체인이 생기기 전과 바이트 단위로 동일합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#0",
@@ -384,7 +386,9 @@
       "source_sha256": "246def0f041c1409feda629fdfd446c2485402f36d7075ac4382faa4a2d4747d",
       "context": "The commands are not here. Each tool's ``install_methods`` in :mod:`spacr.qt.ai.providers` are the rows its ``install_hint`` is built from, and :func:`plan_install` picks the first of those rows whose programs are on ``PATH``. The command the Install button runs and the command the application view shows are therefore one definition.",
       "translation": "명령은 여기에 없습니다. 각 도구의 ``install_methods`` (:mod:`spacr.qt.ai.providers` 에 있음)가 ``install_hint`` 를 만드는 행이며, :func:`plan_install` 은 그 행 중 프로그램이 ``PATH`` 에 있는 첫 번째 행을 고릅니다. 따라서 Install 버튼이 실행하는 명령과 화면이 보여 주는 명령은 하나의 정의입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.cli_install#3",
@@ -1932,7 +1936,9 @@
       "source_sha256": "c836fe76e6e33d73dd33ddefe4073b45da80df259f86ec9a7e9f27693cefb428",
       "context": "The exception's class name is prefixed only when it says something. The console writes this text after \"[AI error] \", so for a :class:`~spacr.qt.ai.providers.ProviderFailed` -- whose whole message is written to be read there, down to the sign-in command to execute -- the prefix turned a sentence the user could act on into \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Every other exception keeps its class, which is often the only thing naming what went wrong: a bare ``[Errno 2] No such file or directory`` does not say it is a FileNotFoundError.",
       "translation": "예외의 클래스 이름은 무언가를 알려 줄 때만 앞에 붙입니다. 콘솔은 이 텍스트를 \"[AI error] \" 뒤에 쓰므로, :class:`~spacr.qt.ai.providers.ProviderFailed` (전체 메시지가 실행할 로그인 명령까지 포함하여 그 자리에서 읽히도록 작성됨)의 경우 접두사가 사용자가 조치할 수 있는 문장을 \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\" 로 바꾸어 버렸습니다. 다른 모든 예외는 클래스를 유지합니다. 클래스 이름이 무엇이 잘못되었는지 알려 주는 유일한 정보인 경우가 많기 때문입니다. ``[Errno 2] No such file or directory`` 만으로는 그것이 FileNotFoundError 라는 것을 알 수 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.worker.make_stream_thread#6",
@@ -2222,7 +2228,9 @@
       "source_sha256": "0c5897d28eb2fad004dd0d40a004debc1fa060de3ae2fe8980d1d9df73276c0a",
       "context": "Found by object name rather than by tab index or caption. An index moves whenever a tab is added, and a caption is translated -- a Korean interface would have matched nothing. Every page sets its own ``PreferencesTab*`` name, and ``tools/build_help_search_index.py`` reads those same names out of this dialog's source, so the two ends of the hand-off are the same string by construction.",
       "translation": "탭 인덱스나 캡션이 아니라 객체 이름으로 찾습니다. 인덱스는 탭이 추가될 때마다 바뀌고 캡션은 번역되므로, 한국어 인터페이스에서는 아무것도 일치하지 않았을 것입니다. 모든 페이지는 자체 ``PreferencesTab*`` 이름을 설정하고, ``tools/build_help_search_index.py`` 는 이 대화 상자의 소스에서 같은 이름을 읽으므로, 전달의 양쪽 끝은 구조상 같은 문자열입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.app.MainWindow.show_preferences_on#3",
@@ -2408,7 +2416,9 @@
       "source_sha256": "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
       "context": "Its own folder per set. Both ship ``measurements/measurements.db``, as the Annotate example in the shared plate does, so each unpacks beside that plate (:func:`spacr.example_archives.example_set_folder`) rather than into it.",
       "translation": "세트마다 자체 폴더를 사용합니다. 둘 다 공유 마이크로플레이트의 Annotate 예제처럼 ``measurements/measurements.db`` 를 포함하므로, 각각 그 마이크로플레이트 안이 아니라 옆에 압축 해제됩니다(:func:`spacr.example_archives.example_set_folder`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples#4",
@@ -2416,7 +2426,9 @@
       "source_sha256": "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937",
       "context": "The same pattern as the other examples. One uncompressed ``.tar`` streamed to a ``.part`` file on a background execution unit behind the shared progress dialog, unpacked through the tar data filter, ``<dataset>`` in the settings replaced with where it landed, and cached: a second press uses the copy on disk.",
       "translation": "다른 예제와 같은 방식입니다. 압축되지 않은 ``.tar`` 하나를 공유 진행률 대화 상자 뒤의 작업자 실행 경로에서 ``.part`` 파일로 스트리밍하고, tar 데이터 필터를 거쳐 압축 해제하며, 설정의 ``<dataset>`` 을 압축 해제된 위치로 바꾸고, 캐시합니다. 두 번째로 누르면 디스크의 사본을 사용합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples.download_assay_example#0",
@@ -2904,7 +2916,9 @@
       "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
       "context": "An image the detector finds nothing in is copied into the split folder whole, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no extracted image region and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
       "translation": "검출기가 아무것도 찾지 못한 이미지는 기하 정보 없이 나눈 이미지 폴더에 통째로 복사되므로, 여전히 분석되며 단지 자가 없을 뿐입니다. \"passed through whole\" 이라고 경고한 뒤 이미지를 건너뛰면 아무것도 통과시키지 않은 것입니다. 폴더의 일부 이미지는 나뉘고 나머지는 나뉘지 않았을 때, 나머지는 추출된 이미지 영역도 행도 기여하지 못하고 그것들이 존재했다는 사실을 알려 주는 것도 없게 됩니다. 전부 아니면 전무인 경우 -- 함수가 ``src`` 로 되돌아가는 경우 -- 만이 메시지가 약속한 대로 동작합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.train_cellpose#0",
@@ -3066,7 +3080,9 @@
       "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
       "context": "Only extracted image regions the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the extracted image region twice.",
       "translation": "어노테이션 작업자가 그 이후로 아직 레이블을 지정하지 않은 추출된 이미지 영역만 반환합니다. 거부 이후에 지정한 레이블이 더 강한 진술이며 적합이 열 자체에서 읽는 것이므로, 거부까지 함께 넘기면 그 추출된 이미지 영역을 두 번 세게 됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.rejected_suggestions#5",
@@ -3082,7 +3098,9 @@
       "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
       "context": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the extracted image regions then wear the same mark as ones confirmed one at a time, and the count the application view shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
       "translation": "일괄 KEEP 은 유지하는 모든 제안에 대한 확인이므로 판정 열에도 기록됩니다(열이 있는 경우). 그러면 추출된 이미지 영역은 하나씩 확인한 것과 같은 표시를 갖게 되고, 화면에 표시되는 개수도 실제로 일어난 일과 일치합니다. 일괄 THROW 는 판정이 아닙니다 -- \"이것들을 검토하고 싶지 않다\"는 \"these are wrong\" 과 다릅니다 -- 따라서 아무것도 기록하지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.verdict_column#0",
@@ -3114,7 +3132,9 @@
       "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
       "context": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
       "translation": "timeflows 포크가 넘어서야 할 단순 스티처와, 그것을 판정하는 점수입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#1",
@@ -3122,7 +3142,9 @@
       "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
       "context": "What it is for",
       "translation": "용도",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#10",
@@ -3130,7 +3152,9 @@
       "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
       "context": "How a tracking is represented",
       "translation": "추적을 표현하는 방식",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#11",
@@ -3138,7 +3162,9 @@
       "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
       "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
       "translation": "지표가 Cell Tracking Challenge 의 것이므로 그 규칙을 따릅니다. 반드시 레이블이 곧 트랙 ID 인 레이블 스택으로, 객체는 같은 객체인 동안 레이블을 유지하며, 여기에 각 레이블을 부모 레이블에 매핑하는 선택적 계보가 더해집니다. 따라서 분열은 부모가 이전 레이블인 두 개의 새 레이블입니다. 분열을 표현할 수 없는 추적기는 계보를 전달하지 않고 누락된 부모 간선 두 개의 비용을 치르는데, 이것이 단순 스티처의 정직한 대가입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#12",
@@ -3146,7 +3172,9 @@
       "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
       "context": "Why it does not call ``spacr.timelapse``",
       "translation": "``spacr.timelapse`` 를 호출하지 않는 이유",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#13",
@@ -3172,7 +3200,9 @@
       "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
       "context": "What is in here",
       "translation": "포함된 내용",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#4",
@@ -3212,7 +3242,9 @@
       "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
       "context": "Why the operation counts are public",
       "translation": "연산 개수를 공개하는 이유",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#9",
@@ -3508,7 +3540,9 @@
       "source_sha256": "428e754495fa5896d6eaf5e8ac759b0b6524d4c2b76ba28a529aa81038f34523",
       "context": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
       "translation": "이것이 2단계가 산출하려고 존재하는 수치이며, 3단계의 포크가 넘어서야 할 수치입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.score_stitcher#3",
@@ -3692,7 +3726,9 @@
       "source_sha256": "a610f074616376ab28591ef363ce3a422d1566b711db7e17fde482a725bd94a8",
       "context": "Cellpose predicts, per pixel, a flow toward the centre of the object the pixel belongs to. Timeflows adds the same idea through TIME: per pixel of frame ``t``, where the centre of that object is in frame ``t+1``, and whether it has a successor at all (cells die, divide, leave the microscope field of view). Linking objects between frames then reads the model instead of guessing from overlap, which is where the plain IoU stitcher fails: fast cells that move more than their own size between frames (the MuSC movies move 3-4 diameters per frame at p95).",
       "translation": "Cellpose 는 픽셀마다 그 픽셀이 속한 객체의 중심을 향하는 흐름을 예측합니다. Timeflows 는 같은 아이디어를 시간 축으로 확장합니다. 프레임 ``t`` 의 각 픽셀에 대해 그 객체의 중심이 프레임 ``t+1`` 에서 어디에 있는지, 그리고 후속 객체가 아예 있는지(세포는 죽거나, 분열하거나, 현미경 시야를 벗어남)를 예측합니다. 그러면 프레임 간 객체 연결은 겹침으로 추측하는 대신 모델을 읽게 되는데, 단순 IoU 스티처가 실패하는 곳이 바로 여기, 즉 프레임 사이에 자기 크기보다 많이 이동하는 빠른 세포입니다(MuSC 동영상은 p95 에서 프레임당 3-4 지름만큼 이동).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#10",
@@ -3708,7 +3744,9 @@
       "source_sha256": "4b8e3431af4a99445cb16d4ce4f2716c7f7848f4624c3f77e3ffe59152465c77",
       "context": "What is here, all runnable on a CPU:",
       "translation": "여기에 있는 것들이며, 모두 CPU 에서 실행할 수 있습니다:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#3",
@@ -3732,7 +3770,9 @@
       "source_sha256": "73b32b1b88871a05e6f65dceca7c47b0e515e1d6397be83b362bdfa8d3548878",
       "context": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
       "translation": ":func:`augment_pair` -- 두 프레임과 두 레이블 이미지에 동일하게 적용하는 뒤집기/회전 하나입니다. 대상은 반드시 그 이후에 레이블에서 계산되므로, 뒤집기가 일어나지 않은 변위를 학습시키는 일은 결코 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#6",
@@ -3876,7 +3916,9 @@
       "source_sha256": "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
       "context": "One random flip and quarter-turn, the SAME for every frame and label.",
       "translation": "무작위 뒤집기 하나와 사분의 일 회전 하나이며, 모든 프레임과 레이블에 반드시 동일하게 적용됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#1",
@@ -3884,7 +3926,9 @@
       "source_sha256": "72c524a16c366efc105bbc2780f41459ac7aa04040d18b548da436f40460692f",
       "context": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
       "translation": "프레임 ``t`` 에는 적용하고 ``t+1`` 에는 적용하지 않은 뒤집기는 실제로 일어나지 않은 변위를 학습시키며, 이는 학습은 훌륭하게 되지만 아무것도 추적하지 못하는 모델을 얻는 가장 쉬운 방법입니다. 대상은 이후 증강된 레이블에서 계산되므로 벡터는 자동으로 따라옵니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#2",
@@ -3972,7 +4016,9 @@
       "source_sha256": "1f10ba01831e4f22536d121b125c8043dae6e6f8095fa265d10667d8744beaf7",
       "context": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
       "translation": "대부분의 연속 프레임은 거의 정지 상태이므로, 쌍을 균일하게 추출하면 헤드는 대부분 쉬운 쌍만 보게 됩니다. 각 쌍의 지름 대비 변위 중앙값은 관측된 범위를 같은 너비로 나눈 ``bins`` 개 구간 중 하나에 속하며, 쌍의 가중치는 해당 구간 크기의 역수입니다. 처음에는 분위수 구간을 시도했지만 대부분의 쌍이 비슷하게 움직이면 무너지는데, 바로 그런 동영상을 위해 이 함수가 존재합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.pair_sampling_weights#2",
@@ -4052,7 +4098,9 @@
       "source_sha256": "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
       "context": "One ``size`` square, the SAME window of every frame and label.",
       "translation": "한 변이 ``size`` 인 정사각형 하나이며, 모든 프레임과 레이블에서 반드시 같은 창입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#1",
@@ -4060,7 +4108,9 @@
       "source_sha256": "f3d5a24c24018ec338fef77c90247e3c9b12c11d3505a4f6ffb56709bab8aee2",
       "context": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
       "translation": "첫 번째 레이블 이미지의 무작위 객체를 중심으로 하되 최대 창의 사분의 일만큼 흔들어, 창에 빈 배경이 아니라 세포가 담기게 합니다. 두 프레임이 공유하는 창은 모든 변위를 정확하게 유지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#2",
@@ -4188,7 +4238,9 @@
       "source_sha256": "fe7ea9f5f4c731caa3bb7b12b7532dcc6800db6803021ac8cef455fca62150e8",
       "context": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
       "translation": "벡터는 후속 객체가 실제로 있는 곳(``vector_weight``)에서만 지도 학습되고, 후속 객체 플래그는 객체 내부 전체(``object_weight``)에서 지도 학습됩니다. 배경은 어느 쪽으로도 지도 학습되지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.time_targets#5",
@@ -4268,7 +4320,9 @@
       "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
       "context": "What it does not do",
       "translation": "하지 않는 일",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#11",
@@ -4276,7 +4330,9 @@
       "source_sha256": "c7eaca2a274240ea6b7e2bf7c197880c0651cd293f571c1b6ca0009f5c4aaef6",
       "context": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
       "translation": "이 모듈은 추적기가 아니라 어노테이션을 판정합니다. 예측된 추적을 정답 데이터와 비교해 점수를 매기는 것은 :mod:`spacr.timeflows_baseline` 이며, 이는 같은 계획의 2단계입니다. 그래픽 코드를 포함하지 않으며 대화 상자를 열지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -4334,7 +4390,9 @@
       "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
       "context": "Why a script and not a look",
       "translation": "왜 눈으로 보지 않고 스크립트를 쓰는가",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#9",
@@ -4398,7 +4456,9 @@
       "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
       "context": "Answer step 1's four questions about one label stack, as a table.",
       "translation": "레이블 스택 하나에 대해 1단계의 네 가지 질문에 답하고 표로 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.audit_label_consistency#1",
@@ -4486,7 +4546,9 @@
       "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
       "context": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
       "translation": "연속된 프레임만 측정합니다. 공백 뒤에 다시 나타나는 레이블은 여기에 아무것도 기여하지 않습니다. 그 레이블이 이동한 거리는 프레임당 변위가 아니며, 이를 평균에 포함하면 이 모듈이 보고하려고 존재하는 수치가 부풀려지기 때문입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.displacement_table#2",
@@ -4694,7 +4756,9 @@
       "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
       "context": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
       "translation": "실패한 검사가 없으면 ``0``, 하나라도 실패하면 ``1`` 입니다. 여기서의 실패는 이 프로그램이 아니라 바로 어노테이션에 대한 진술입니다. 즉 데이터가 timeflows 계획이 그 데이터에 대해 가정하는 내용을 뒷받침하지 않는다는 뜻입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#0",
@@ -4702,7 +4766,9 @@
       "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
       "context": "List every label that disappears and comes back, and judge each one.",
       "translation": "사라졌다가 다시 나타나는 모든 레이블을 나열하고 각각을 판정합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#1",
@@ -4784,7 +4850,9 @@
       "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
       "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
       "translation": "절대로 GUI 실행 경로에서 이 함수를 호출하지 마십시오. 소켓을 엽니다. Home 의 News 패널은 페이지가 표시된 뒤, 수동 업데이트 확인이 실행되는 것과 같은 :class:`_UpdateWorker` 를 통해 이를 요청합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.fetch_release_notes#2",

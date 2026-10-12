@@ -195,7 +195,9 @@
       "source_sha256": "b9e152549e74720d4aa677824a2577c685566897e6d622017e007846f2e53ad0",
       "context": "The condition is the hard part, and it is read two independent ways, always both, because two readings that agree are evidence and one is a guess:",
       "translation": "条件是最难的部分，因此会以两种相互独立的方式读取，而且总是同时使用两种方式，因为两个一致的读取结果是证据，而单一读取只是猜测：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#3",
@@ -227,7 +229,9 @@
       "source_sha256": "e93230681245cc4f813ccd82421b2051861e805bb8420aeaf5985b34b3d56512",
       "context": "SIZES. A plaque area in pixels depends on the paper's printing, so every plaque also carries its area relative to the median plaque in the same panel, and an area in mm^2 only when there is a ruler: a scale bar read in or under the image (its length from the label beside it, or from the legend's \"scale bar, 1 mm\"), or a whole microplate sample position of a laboratory microplate format the settings or the legend state. A stated magnification is recorded but is never a ruler, because a printed figure has been rescaled since the picture was taken. Rows with no ruler say their sizes are in pixels.",
       "translation": "大小。以像素表示的蚀斑面积取决于论文的印刷方式，因此每个蚀斑还会带有其相对于同一分图中蚀斑中位数的面积；只有在存在标尺时才会给出以 mm^2 表示的面积：在图像中或其下方读取到的比例尺（其长度来自旁边的标签，或来自图注中的 \"scale bar, 1 mm\"），或者设置或图注中说明了板规格的完整孔。标明的放大倍数会被记录，但绝不会作为标尺，因为印刷出来的图在拍摄之后已经被重新缩放过。没有标尺的行会注明其大小以像素为单位。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#7",
@@ -235,7 +239,9 @@
       "source_sha256": "d3f1d637c2b1c018abf771c7f9310736fc1171e3eeb4127ac902360c9712c6c4",
       "context": "DUPLICATES. A figure is identified by its paper (the DOI when there is one) and its image hash. The same image seen again -- the same bytes, or the same pixels in another file format, under another name or another paper, such as a preprint and its published version -- is measured once and recorded in the ``duplicates`` table against the copy that was measured. A paper already measured from one source (Europe PMC) is not measured again from another (its PDF). An image that merely LOOKS the same (a near-identical perceptual hash, as a re-encoded or resized copy would have) is recorded as a possible duplicate and still measured, because on figures that is a resemblance, not a proof.",
       "translation": "重复项。一幅图由其所属论文（有 DOI 时使用 DOI）及其图像哈希值来标识。再次出现的同一图像——字节相同，或以另一种文件格式、另一个名称或在另一篇论文中出现的相同像素，例如预印本及其正式发表版本——只会测量一次，并在 ``duplicates`` 表中记录为对已测量副本的重复。已经从一个来源（Europe PMC）测量过的论文，不会再从另一个来源（其 PDF）重新测量。仅仅是看起来相同的图像（感知哈希几乎相同，就像重新编码或缩放后的副本那样）会被记录为可能的重复项，但仍会被测量，因为对于图而言，这只是相似，而不是证明。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#8",
@@ -243,7 +249,9 @@
       "source_sha256": "50a1e664ffd77bee0330eeaf2f96f65df2a7cc880a567ee003de372746390f1c",
       "context": "TEXT. A PDF's own text layer is used for legends and labels before any OCR; OCR is asked only when the text layer has nothing near the plaque images, which is what a figure pasted into the PDF as one picture looks like.",
       "translation": "文字。在进行任何 OCR 之前，会先使用 PDF 自身的文字层来读取图注和标签；只有当文字层在蚀斑图像附近没有任何内容时才会请求 OCR，这正是整幅图作为一张图片粘贴进 PDF 时的情形。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#9",
@@ -965,7 +973,9 @@
       "source_sha256": "e36b7770a70a4c93fd4236fa9502c357b54bae1c48de358417a163b8508022c6",
       "context": "Ask at the terminal for a legend nobody could fetch.",
       "translation": "在终端中请求用户提供无法自动获取的图注。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.console_legend_prompt#1",
@@ -1061,7 +1071,9 @@
       "source_sha256": "89bca07c87b373de37b4f7f41175f0a7ac98d01f74e21453d1cf2a4bfe68197a",
       "context": "The images come from the ``supplementaryFiles`` bundle, which carries the main figures as well as the supplements; one file per figure survives, the largest, because journals also ship thumbnails and a detector shown a thumbnail has not been asked the question. Legends come from the full-text XML.",
       "translation": "图像来自 ``supplementaryFiles`` 包，其中既包含主图也包含补充材料；每幅图只保留一个文件，即最大的那个，因为期刊还会附带缩略图，而把缩略图交给检测器就等于没有真正提出问题。图注来自全文 XML。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_figures#2",
@@ -1381,7 +1393,9 @@
       "source_sha256": "b76a7b49e3f4a48f3459c5998d43d05deb181232c09f5f74eaff887c652f4b36",
       "context": "Nothing here stops to ask. Legends come from ``legends`` (default ``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``, the paper from ``<src>/paper.json``, and a person's edits and approvals from ``annotations`` (default ``<src>/figure_annotations.csv``), which the Figure preview writes. With ``confirm_each`` on, only approved images are measured and the rest are counted as waiting. A figure measured again replaces its earlier rows; the same image under a second name is measured once and recorded as a duplicate -- the copy with a legend is the one measured, since figures with legends are taken first.",
       "translation": "这里不会停下来询问任何事情。图注来自 ``legends``（默认为 ``<src>/legends.csv``），PDF 的文字层来自 ``<src>/text_layer.json``，论文信息来自 ``<src>/paper.json``，人工的编辑和批准来自 ``annotations``（默认为 ``<src>/figure_annotations.csv``），后者由 Figure 预览写出。启用 ``confirm_each`` 时，只测量已批准的图像，其余图像计为等待中。再次测量的图会替换其先前的行；以第二个名称出现的同一图像只测量一次，并记录为重复项——被测量的是带有图注的那个副本，因为带有图注的图会被优先处理。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_figure_folder#10",
@@ -1679,7 +1693,9 @@
       "source_sha256": "570d557c65923a1ff3a0ccf73c81d3b169d0e46efb9d68f03fd6b1982537000b",
       "context": "Say what kind of reference a user typed.",
       "translation": "说明用户输入的引用属于哪种类型。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.parse_reference#1",
@@ -1783,7 +1799,9 @@
       "source_sha256": "9de13c605de361ef665e570b8194ef7a1de462fdd5c813f1c8ba5cd6c9799fc9",
       "context": ":func:`spacr.plaque.detect_wells`, answered by the reader's environment.",
       "translation": ":func:`spacr.plaque.detect_wells`，由读取器的环境执行。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_detect#1",
@@ -2103,7 +2121,9 @@
       "source_sha256": "a67cb99a1183a4e5b6944053731c0d7444eddfa69fe15d9c05ad4369b96fba04",
       "context": "**panel** -- a panel letter above and to the left of the grid's top-left corner, within one image size of it. Further than that is another panel's letter, and no letter is better than the wrong one.",
       "translation": "**分图** —— 位于网格左上角上方和左侧、距离在一个图像尺寸以内的分图字母。更远的字母属于另一个分图，没有字母总比错误的字母好。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_near#6",
@@ -2511,7 +2531,9 @@
       "source_sha256": "138767e16e686607015814fc68d8d96c8320f38b21c5af9b1d61033108a1a3f8",
       "context": "deconvolution iterations, integer 1..200, default20.",
       "translation": "反卷积迭代次数，为 1..200 之间的整数，默认 20。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#6",
@@ -3103,7 +3125,9 @@
       "source_sha256": "216ac8e6db5a6819d1fb3a669f68f303e06d4a147dcbaea99a7073137a5bf5e8",
       "context": "Compare active PSF behavior rather than dormant form parameters.",
       "translation": "比较实际生效的 PSF 行为，而不是未启用的表单参数。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_resume_settings#1",
@@ -4089,7 +4113,9 @@
       "source_sha256": "23edbf6a4e9531d947e2b1cefbfc35acf7368c6a86644d2f947c00c7c63dd07b",
       "context": "One widget, two owners. A segmentation preview has four things worth looking at: the image with the outlines on it, the label masks alone, the flow microscope field of view the masks were pooled from, and the cell probability the flow was thresholded at. Mask generation's live preview showed three of them through a dropdown; the plaque preview showed its own four through tabs, drawn by its own code. This module is the one place both can draw them from, so that a change to how a cell probability is coloured reaches both previews at once.",
       "translation": "“一个控件，两个使用方。”分割预览有四样值得查看的内容：叠加了轮廓的图像、单独的标签掩膜、汇集出这些掩膜的流场，以及对流场进行阈值处理所依据的细胞概率。掩膜生成的实时预览通过下拉列表显示其中三种；蚀斑预览则通过选项卡显示自己的四种，并由其自身代码绘制。本模块是两者都能从中绘制这些内容的唯一位置，因此对细胞概率着色方式的修改会同时作用于两个预览。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#2",
@@ -4097,7 +4123,9 @@
       "source_sha256": "73126bf99b9a4ee19e74a0ccb04e35f7d2ed4efd87428e521b30fa5b7001d496",
       "context": "The widget knows arrays, not modules. It is handed an image, label masks, flow pictures and cell probability maps -- each either one array or one per object -- and draws whichever of :data:`VIEWS` is chosen. Nothing in here names the Mask module, Cellpose settings or a plaque.",
       "translation": "“控件只认识数组，不认识模块。”它接收一幅图像、标签掩膜、流场图像和细胞概率图（每种都可以是单个数组或每个对象一个），并绘制 :data:`VIEWS` 中所选的那一种。这里没有任何内容提及 Mask 模块、Cellpose 设置或蚀斑。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#3",
@@ -4105,7 +4133,9 @@
       "source_sha256": "9e1ba76a10b44b4b3b23b6204855d096d06de5a02a8bc6675fb1b0ce997ddbf7",
       "context": "What an owner can change. The default renderers draw a plain overlay, categorical masks, the flows as Cellpose hands them and the probability on the magma scale. An owner with its own idea of an outline -- the live preview's colour choice and thickness -- registers a renderer for that view with :meth:`SegmentationViews.set_renderer` and keeps the other three. A renderer answers with a picture, with a sentence to show in the picture's place, or with ``None`` for the widget's own \"nothing yet\" sentence.",
       "translation": "“使用方可以更改的内容。”默认渲染器绘制普通叠加图、分类掩膜、Cellpose 返回的原样流场，以及 magma 色阶上的概率。对轮廓有自己想法的使用方（例如实时预览的颜色选择和粗细）可以用 :meth:`SegmentationViews.set_renderer` 为该视图注册一个渲染器，并保留另外三个。渲染器返回一幅图像、一句在图像位置显示的文字，或者 ``None``，表示使用控件自己的 \"nothing yet\" 提示语。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#4",
@@ -4113,7 +4143,9 @@
       "source_sha256": "1307cb97112239c8e143a983363574d13fd6013433056103ee0de9fd2d47a3ab",
       "context": "The canvas is pluggable. An owner that already has a canvas with a ruler and a hover line on it (the live preview's ``_ZoomView``) hands it in; otherwise a :class:`PictureCanvas` is built, which fits, zooms, pans and saves on a right click like every other picture in the program.",
       "translation": "“画布是可插拔的。”已经拥有带标尺和悬停线画布的使用方（实时预览的 ``_ZoomView``）会把它传入；否则会构建一个 :class:`PictureCanvas`，它与程序中其他所有图像一样，支持适配、缩放、平移，以及右键保存。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views.CELLPROB_COLORMAP#0",
@@ -4361,7 +4393,9 @@
       "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
       "context": "An image the detector finds nothing in is copied into the split folder whole, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no extracted image region and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
       "translation": "“检测器未发现任何内容的图像会被完整复制到拆分文件夹中”，不带任何几何信息，因此它仍会被分析，只是没有标尺。一条写着 \"passed through whole\" 却随后跳过该图像的警告实际上什么也没有传递：当文件夹中一些图像被拆分而另一些没有时，另一些图像不会贡献任何裁剪图，也不会产生任何行，而且没有任何信息表明它们曾经存在。全有或全无的情况（即函数退而使用 ``src`` 时）是唯一会按消息所承诺的方式运行的情况。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.train_cellpose#0",
@@ -4523,7 +4557,9 @@
       "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
       "context": "Only extracted image regions the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the extracted image region twice.",
       "translation": "只返回标注者此后“尚未”重新标注的裁剪图：拒绝之后做出的标注是更有力的表述，也是拟合从该列本身读取的内容，因此再把拒绝一并传递过去会使该裁剪图被计算两次。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.rejected_suggestions#5",
@@ -4539,7 +4575,9 @@
       "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
       "context": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the extracted image regions then wear the same mark as ones confirmed one at a time, and the count the application view shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
       "translation": "批量“保留”是对其保留的每条建议的确认，因此它也会记录在判定列中（当该列存在时）：这些裁剪图随后会带有与逐一确认的裁剪图相同的标记，界面显示的计数也与实际发生的情况一致。批量“丢弃”不是一次判定——“我不想审阅这些”并不等于 \"these are wrong\"——因此它不记录任何内容。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.verdict_column#0",
@@ -4571,7 +4609,9 @@
       "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
       "context": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
       "translation": "timeflows 分支必须超越的普通拼接器，以及证明这一点的评分。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#1",
@@ -4579,7 +4619,9 @@
       "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
       "context": "What it is for",
       "translation": "用途",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#10",
@@ -4587,7 +4629,9 @@
       "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
       "context": "How a tracking is represented",
       "translation": "跟踪结果的表示方式",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#11",
@@ -4595,7 +4639,9 @@
       "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
       "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
       "translation": "采用 Cell Tracking Challenge 的约定，因为这些度量就是它定义的：一个标签堆栈，其中“标签就是轨迹 ID”，因此只要对象仍是同一对象，它就保持其标签；另外还有一个可选的谱系映射，将每个标签映射到其父标签。因此，一次分裂就是两个父标签为旧标签的新标签；无法表达分裂的跟踪器不传入谱系，并为缺失的两条父边付出代价，这正是普通拼接器应付的真实代价。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#12",
@@ -4603,7 +4649,9 @@
       "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
       "context": "Why it does not call ``spacr.timelapse``",
       "translation": "为什么它不调用 ``spacr.timelapse``",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#13",
@@ -4629,7 +4677,9 @@
       "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
       "context": "What is in here",
       "translation": "本模块包含的内容",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#4",
@@ -4669,7 +4719,9 @@
       "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
       "context": "Why the operation counts are public",
       "translation": "为什么公开操作计数",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#9",

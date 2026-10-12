@@ -20,14 +20,18 @@
       "label": "spacr.schema.screen_id#1",
       "source": "Free-form text, like the plate id, because it is the name a user gave an experiment. It is **not** prefixed and **not** parsed back apart: the whole point of :data:`SCREEN_KEY` is that it is a dimension you block on, facet by and colour with as it stands.",
       "source_sha256": "6eec9e99214021448d283e517364a11f18d8c9a5db1616423e52cef9dffd71ac",
-      "translation": "Texte de forme libre, comme l'identifiant de la microplaque du laboratoire, car il s'agit du nom qu'un utilisateur a donné à une expérience. Il n'est **pas** préfixé et **pas** analysé à nouveau : tout l'intérêt de :data:`SCREEN_KEY` est qu'il s'agit d'une dimension sur laquelle vous bloquez, facette et couleur telle qu'elle est."
+      "translation": "Texte de forme libre, comme l'identifiant de la microplaque du laboratoire, car il s'agit du nom qu'un utilisateur a donné à une expérience. Il n'est **pas** préfixé et **pas** analysé à nouveau : tout l'intérêt de :data:`SCREEN_KEY` est qu'il s'agit d'une dimension sur laquelle vous bloquez, facette et couleur telle qu'elle est.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Absence is the case that matters. ``None``, ``''`` and whitespace all mean \"this project has one application view\", and they become :data:`DEFAULT_SCREEN` rather than throwing — every project that exists today has no application view anywhere in its settings, and demanding one would stop all of them from opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate is a broken structured-data name, but an empty application view is an ordinary single-application view run.",
       "label": "spacr.schema.screen_id#2",
       "source": "Absence is the case that matters. ``None``, ``''`` and whitespace all mean \"this project has one screen\", and they become :data:`DEFAULT_SCREEN` rather than raising — every project that exists today has no screen anywhere in its settings, and demanding one would stop all of them from opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate is a broken key, but an empty screen is an ordinary single-screen run.",
       "source_sha256": "324253a999dc9071a30d6d287487bb190cf808823e7c45526eb8ccdd9bcf8760",
-      "translation": "L'absence est le cas qui compte. ``None``, ``''`` et les espaces signifient tous \"ce projet a une vue d'application\", et ils deviennent :data:`DEFAULT_SCREEN` plutôt que de lancer - chaque projet qui existe aujourd'hui n'a aucune vue d'application dans ses paramètres, et en exiger une les empêcherait tous de s'ouvrir. Contrastez :func:`_check_plate`, qui *fait* : une plaque vide est un nom de données structurées cassé, mais une vue d'application vide est une exécution ordinaire d'une vue d'application unique."
+      "translation": "L'absence est le cas qui compte. ``None``, ``''`` et les espaces signifient tous \"ce projet a une vue d'application\", et ils deviennent :data:`DEFAULT_SCREEN` plutôt que de lancer - chaque projet qui existe aujourd'hui n'a aucune vue d'application dans ses paramètres, et en exiger une les empêcherait tous de s'ouvrir. Contrastez :func:`_check_plate`, qui *fait* : une plaque vide est un nom de données structurées cassé, mais une vue d'application vide est une exécution ordinaire d'une vue d'application unique.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

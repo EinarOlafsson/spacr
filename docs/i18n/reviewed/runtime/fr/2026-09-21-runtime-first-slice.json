@@ -165,13 +165,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "ops_library",
-      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
-      "translation": "Fichier CSV de codes-barres de guides, dont la colonne correspondante porte le nom prefix, barcode ou sequence. S'il est fourni, le code-barres déterminé pour chaque noyau est aussi associé au guide le plus proche, et le traitement indique combien de points correspondent exactement à la bibliothèque : ce nombre permet de savoir si le décodage a fonctionné. Si ce champ est vide, les codes-barres sont tout de même déterminés, mais leur correspondance ne peut pas être évaluée. Valeur par défaut : None.",
-      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "ops_raster_overlap",
       "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
       "translation": "Chevauchement, en pixels, entre les tuiles de séquençage voisines sur la grille d'acquisition du microscope. Il s'agit d'un réglage de l'acquisition elle-même, pas d'un paramètre à ajuster librement : il indique à l'assemblage où chercher une tuile voisine. Une valeur trop éloignée de la réalité fait perdre des raccords et laisse des champs non positionnés. Valeur par défaut : 213, mesurée sur les tuiles de 1 480 pixels de la plaque de référence.",
@@ -183,13 +176,6 @@
       "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
       "translation": "Écart de luminosité minimal entre un point et son environnement pour qu'il soit compté comme une lecture. Un seuil plus bas détecte davantage de lectures et de débris, ce qui se traduit par une baisse du taux de correspondance à la bibliothèque plutôt que par une erreur. Un seuil plus élevé élimine des lectures réelles et laisse trop peu de lectures par noyau pour établir un consensus. Valeur par défaut : 315, utilisée pour l'exécution de référence de cette plaque.",
       "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "ops_store_reads",
-      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
-      "translation": "Enregistrer toutes les lectures à l'origine des codes-barres dans la table ops_reads : une ligne par lecture et par cycle, avec la base déterminée, sa marge et les quatre intensités utilisées. Cela permet de remonter d'un code-barres suspect jusqu'à ses pixels. Cette option est désactivée par défaut en raison du volume de données — environ trente millions de lignes pour un puits complet de la plaque de référence. Activez-la donc pour un ou deux puits plutôt que pour une plaque entière. Valeur par défaut : False.",
-      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a"
     },
     {
       "table": "setting_tooltips",
@@ -295,13 +281,6 @@
       "source": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
       "translation": "<b>Signaler les erreurs sous forme de tickets GitHub</b><br><span style='color:gray;'>Les rapports sont envoyés au dépôt public spaCR sur GitHub ; les chemins, noms et identifiants d'accès sont masqués. Avec le signalement réglé sur always, valeur par défaut, une exécution en échec envoie automatiquement son rapport une seule fois par erreur si la connexion à GitHub est établie ci-dessous. Avec ask, un bouton \"File as issue\" (Signaler comme ticket) apparaît sous la console, et le rapport n'est envoyé que lorsque vous appuyez sur Envoyer le rapport dans son aperçu. Modifiez ce réglage dans Aide → Reconfigurer spaCR….</span>",
       "source_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d"
-    },
-    {
-      "table": "ui",
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "translation": "Une courbe 4PL est symétrique autour de son point médian. Une asymétrie réelle existe et une 4PL l'absorbe en décalant l'EC50 ; une 5PL la modélise avec un paramètre supplémentaire, exige une concentration de plus et indique si ce paramètre est justifié.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5"
     },
     {
       "table": "ui",
@@ -557,6 +536,30 @@
         "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "translation": "Fichier CSV de codes-barres de guides, dont la colonne correspondante porte le nom prefix, barcode ou sequence. S'il est fourni, le code-barres déterminé pour chaque noyau est aussi associé au guide le plus proche, et le traitement indique combien de points correspondent exactement à la bibliothèque : ce nombre permet de savoir si le décodage a fonctionné. Si ce champ est vide, les codes-barres sont tout de même déterminés, mais leur correspondance ne peut pas être évaluée. Valeur par défaut : None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "translation": "Enregistrer toutes les lectures à l'origine des codes-barres dans la table ops_reads : une ligne par lecture et par cycle, avec la base déterminée, sa marge et les quatre intensités utilisées. Cela permet de remonter d'un code-barres suspect jusqu'à ses pixels. Cette option est désactivée par défaut en raison du volume de données — environ trente millions de lignes pour un puits complet de la plaque de référence. Activez-la donc pour un ou deux puits plutôt que pour une plaque entière. Valeur par défaut : False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "translation": "Une courbe 4PL est symétrique autour de son point médian. Une asymétrie réelle existe et une 4PL l'absorbe en décalant l'EC50 ; une 5PL la modélise avec un paramètre supplémentaire, exige une concentration de plus et indique si ce paramètre est justifié.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

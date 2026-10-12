@@ -6,7 +6,9 @@
       "label": "spacr.example_archives.example_plate_folder#0",
       "source": "The ONE folder every example dataset unpacks into.",
       "source_sha256": "9646738cee9945bfd32ff9693fac0538cac036fff04ecee571ffa02c21c3b86d",
-      "translation": "Der gemeinsame Ordner, in den alle Beispieldatensätze entpackt werden."
+      "translation": "Der gemeinsame Ordner, in den alle Beispieldatensätze entpackt werden.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``~/.cache/spacr/example_data/plate1`` -- a real spaCR plate directory, holding whichever of ``merged/``, ``data/``, ``measurements/`` and ``settings/`` have been downloaded.",
@@ -20,7 +22,9 @@
       "label": "spacr.example_archives.example_plate_folder#2",
       "source": "ONE FOLDER BECAUSE THE SETS ARE USED TOGETHER. `data/` is the crops and `measurements/measurements.db` is what indexes them; downloading them into separate trees meant the two halves of one plate could not be opened at once, and the user had to know which download had put what where. Each archive's members are relative to this folder, so the three unpack into it side by side and compose into a plate that Measure, Annotate and Classify can all be pointed at.",
       "source_sha256": "f313b64a4f16fa3e1f45c9e0e51f1a4b8d9b4224c6d484525256774b4cd5d22c",
-      "translation": "Ein gemeinsamer Ordner ist nötig, weil die Datensätze zusammen verwendet werden. `data/` enthält die Bildausschnitte; `measurements/measurements.db` verzeichnet sie. Beim Herunterladen in getrennte Verzeichnisbäume ließen sich die beiden Teile derselben Mikrotiterplatte nicht gemeinsam öffnen, und die Nutzer mussten wissen, welcher Download welche Dateien wohin geschrieben hatte. Die Einträge jedes Archivs sind relativ zu diesem Ordner angegeben. So werden die drei Archive nebeneinander darin entpackt und ergeben eine Platte, die Measure, Annotate und Classify gemeinsam verwenden können."
+      "translation": "Ein gemeinsamer Ordner ist nötig, weil die Datensätze zusammen verwendet werden. `data/` enthält die Bildausschnitte; `measurements/measurements.db` verzeichnet sie. Beim Herunterladen in getrennte Verzeichnisbäume ließen sich die beiden Teile derselben Mikrotiterplatte nicht gemeinsam öffnen, und die Nutzer mussten wissen, welcher Download welche Dateien wohin geschrieben hatte. Die Einträge jedes Archivs sind relativ zu diesem Ordner angegeben. So werden die drei Archive nebeneinander darin entpackt und ergeben eine Platte, die Measure, Annotate und Classify gemeinsam verwenden können.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The assay examples are not stages of this laboratory microplate and each has a folder of its own beside it; see :func:`example_set_folder`.",
@@ -50,7 +54,9 @@
       "label": "spacr.example_archives.example_set#2",
       "source": "naming the keys that do exist. A typo that returned ``None`` would download nothing and report success, which is the one outcome a download command must never produce.",
       "source_sha256": "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68",
-      "translation": "mit den tatsächlich verfügbaren Schlüsseln. Würde ein Tippfehler lediglich ``None`` zurückgeben, würde nichts heruntergeladen und trotzdem Erfolg gemeldet. Genau das darf ein Download-Befehl niemals tun."
+      "translation": "mit den tatsächlich verfügbaren Schlüsseln. Würde ein Tippfehler lediglich ``None`` zurückgeben, würde nichts heruntergeladen und trotzdem Erfolg gemeldet. Genau das darf ein Download-Befehl niemals tun.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the set called ``key`` unpacks: its folder beside the plate.",
@@ -218,7 +224,9 @@
       "label": "spacr.import_examples.is_present#3",
       "source": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A half-unpacked set reads as absent, which is the answer that gets it downloaded again.",
       "source_sha256": "53aa5915d0a3b623a973f0c39bd2f7706ea02be2aaa5f554c061a6cf3b1b6560",
-      "translation": "``True`` nur dann, wenn das Manifest vorhanden ist und jede darin für die betreffende Variante beziehungsweise die betreffenden Varianten aufgeführte Datei auf dem Datenträger liegt. Ein nur teilweise entpackter Datensatz gilt als fehlend und wird deshalb erneut heruntergeladen."
+      "translation": "``True`` nur dann, wenn das Manifest vorhanden ist und jede darin für die betreffende Variante beziehungsweise die betreffenden Varianten aufgeführte Datei auf dem Datenträger liegt. Ein nur teilweise entpackter Datensatz gilt als fehlend und wird deshalb erneut heruntergeladen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every row of the set's ``manifest.csv``.",
@@ -421,7 +429,9 @@
       "label": "spacr.measure.FieldTable#6",
       "source": "which channel token owns which channel column, by position: ``channel_tokens[i]`` is the token that column ``i`` means. THE TABLE REMEMBERS THIS BECAUSE THE TABLE OUTLIVES THE DROP. The ranking that turns ``C1``/``C2`` into columns 0 and 1 is a property of a SET of tokens, and a user fills this table one field at a time, so without a memory the second drop would rank its own files from scratch and put ``C2`` in column 0 beside the first drop's ``C1``. Empty means no column means any particular token yet -- every cell was filled by browsing rather than by the regex.",
       "source_sha256": "d76f12e476201e1f72a80dc7d2809f3a23b6070801726d77dd0444005ed196d4",
-      "translation": "die Zuordnung der Kanal-Namenstoken zu den Kanalspalten nach Position: ``channel_tokens[i]`` ist das Token, für das die Spalte ``i`` steht. Die Tabelle merkt sich diese Zuordnung über einzelne Ablegevorgänge hinaus. Die Zuordnung von ``C1``/``C2`` zu den Spalten 0 und 1 ergibt sich aus einer Menge von Token, während die Tabelle Bildfeld für Bildfeld gefüllt wird. Ohne gespeicherte Zuordnung würde der zweite Ablegevorgang seine Dateien neu einordnen und ``C2`` in Spalte 0 neben ``C1`` aus dem ersten Vorgang setzen. Eine leere Zuordnung bedeutet, dass noch keine Spalte einem bestimmten Token entspricht: Alle Zellen wurden über die Dateiauswahl und nicht über den regulären Ausdruck gefüllt."
+      "translation": "die Zuordnung der Kanal-Namenstoken zu den Kanalspalten nach Position: ``channel_tokens[i]`` ist das Token, für das die Spalte ``i`` steht. Die Tabelle merkt sich diese Zuordnung über einzelne Ablegevorgänge hinaus. Die Zuordnung von ``C1``/``C2`` zu den Spalten 0 und 1 ergibt sich aus einer Menge von Token, während die Tabelle Bildfeld für Bildfeld gefüllt wird. Ohne gespeicherte Zuordnung würde der zweite Ablegevorgang seine Dateien neu einordnen und ``C2`` in Spalte 0 neben ``C1`` aus dem ersten Vorgang setzen. Eine leere Zuordnung bedeutet, dass noch keine Spalte einem bestimmten Token entspricht: Alle Zellen wurden über die Dateiauswahl und nicht über den regulären Ausdruck gefüllt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Whether the table is complete enough to measure.",

@@ -55,13 +55,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_cycle_labels",
-      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
-      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
-      "translation": "xgboost와 torch 방법이 학습하는 Annotate 라벨이 담긴 png_list 열입니다. G1, S, G2, M에 대해 1~4 또는 단계 이름을 씁니다. 라벨은 세포를 통해 핵과 연결됩니다. 비워 두면 게이트의 확실한 판정으로 학습하는데, 이는 학습 방법에 게이트가 이미 말하는 것을 가르칠 뿐입니다. 더 가르치려면 전기와 후기 핵을 어노테이션하세요. 기본값은 비어 있음."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cell_cycle_method",
       "source": "How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
       "source_sha256": "cc9645da4e6a8379362200ef6bd0caf53a0a153688df35474d7b437b234de187",
@@ -241,6 +234,16 @@
       "source": "Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
       "source_sha256": "146bdc2d95eeec0de57e7b983923816b003936584578a24d2ebc0439d6bf55f5",
       "translation": "질감 상처 소스가 국소 변동을 측정하는 정사각형 창의 한 변 길이(픽셀)입니다. 영상 해상도에서 세포 하나의 직경 정도로 잡으세요. 작을수록 상처 가장자리를 더 가깝게 따르지만 단층의 매끈한 부분에 구멍이 생길 수 있고, 클수록 좁은 틈을 메웁니다. 이후 프레임에서 유지할 가장 작은 틈도 정합니다. 기본값 15."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
+      "translation": "xgboost와 torch 방법이 학습하는 Annotate 라벨이 담긴 png_list 열입니다. G1, S, G2, M에 대해 1~4 또는 단계 이름을 씁니다. 라벨은 세포를 통해 핵과 연결됩니다. 비워 두면 게이트의 확실한 판정으로 학습하는데, 이는 학습 방법에 게이트가 이미 말하는 것을 가르칠 뿐입니다. 더 가르치려면 전기와 후기 핵을 어노테이션하세요. 기본값은 비어 있음.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

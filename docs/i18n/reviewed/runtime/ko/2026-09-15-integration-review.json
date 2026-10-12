@@ -520,13 +520,6 @@
       "translation": "그림 뒤의 페이지입니다. 투명을 고르면 그림이 놓인 바탕이 그대로 비치며, 슬라이드에는 보통 이것이 적합합니다."
     },
     {
-      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
-      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
-      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
-      "table": "ui",
-      "translation": "검은색에 대응시키는 백분위수입니다. 배경을 더 많이 눌러 없애려면 높이십시오. 0 이면 가장 어두운 픽셀도 유지됩니다."
-    },
-    {
       "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
       "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
       "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
@@ -723,5 +716,15 @@
       "translation": "y 열의 −log₁₀"
     }
   ],
-  "schema": 1
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "검은색에 대응시키는 백분위수입니다. 배경을 더 많이 눌러 없애려면 높이십시오. 0 이면 가장 어두운 픽셀도 유지됩니다.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    }
+  ]
 }

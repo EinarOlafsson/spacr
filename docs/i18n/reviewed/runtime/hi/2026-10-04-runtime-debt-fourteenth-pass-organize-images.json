@@ -164,13 +164,16 @@
       "source": "Counterfactual generator",
       "source_sha256": "a5d2f0189a49ece007c5ceac1de03810b27c91edffb54e02ce26aa8f1d96df19",
       "translation": "प्रतितथ्यात्मक जनरेटर"
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "counterfactual_generator",
       "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
       "source_sha256": "cc931e77b92c7cc2d17e64ac36a4f5b0612eda3f8a927e238e4aabe6730841d0",
-      "translation": "वह मॉडल जो प्रतितथ्यात्मक उदाहरण बनाता है। 'autoencoder' तेज़ है और क्लासिफ़ायर का निर्णय पलटने के लिए प्रशिक्षित है। 'diffusion' केवल हर वर्ग की छवि-कतरनें बनाने के लिए प्रशिक्षित है और आंशिक रूप से शोरयुक्त कतरन को लक्ष्य वर्ग के अंतर्गत फिर से बनाता है, इसलिए निर्णय पलटना वह लक्ष्य नहीं है जिसके लिए इसे अनुकूलित किया गया; यह धीमा है और इसे GPU, हज़ारों कतरनों और सैकड़ों epochs की आवश्यकता होती है; कुछ सौ कतरनों के साथ यह मुश्किल से कुछ बदलता है। डिफ़्यूज़न भार तालिकाओं के बगल में counterfactual_diffusion.pt के रूप में सहेजे जाते हैं। counterfactuals चालू होने पर ही लागू। डिफ़ॉल्ट 'autoencoder'।"
+      "translation": "वह मॉडल जो प्रतितथ्यात्मक उदाहरण बनाता है। 'autoencoder' तेज़ है और क्लासिफ़ायर का निर्णय पलटने के लिए प्रशिक्षित है। 'diffusion' केवल हर वर्ग की छवि-कतरनें बनाने के लिए प्रशिक्षित है और आंशिक रूप से शोरयुक्त कतरन को लक्ष्य वर्ग के अंतर्गत फिर से बनाता है, इसलिए निर्णय पलटना वह लक्ष्य नहीं है जिसके लिए इसे अनुकूलित किया गया; यह धीमा है और इसे GPU, हज़ारों कतरनों और सैकड़ों epochs की आवश्यकता होती है; कुछ सौ कतरनों के साथ यह मुश्किल से कुछ बदलता है। डिफ़्यूज़न भार तालिकाओं के बगल में counterfactual_diffusion.pt के रूप में सहेजे जाते हैं। counterfactuals चालू होने पर ही लागू। डिफ़ॉल्ट 'autoencoder'।",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

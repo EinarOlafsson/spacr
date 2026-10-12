@@ -43,7 +43,9 @@
       "source_sha256": "46272b536827ca96d4e2d1debd47dcb49d45a03df385441ade8e81dd76131a7d",
       "context": "Genuine base provenance is kept: external names are never turned into image identities just because they happen to be unique. One-to-one joins, once validated, still go through the same typed plan on their singleton groups, so explicit count and nunique overrides stay real. Data-selection boundary and filter identities use timeID, and the original time_id spelling is preserved too, so a chart that selects time_id stays reproducible.",
       "translation": "La provenance réelle des données de base est conservée : les noms externes ne deviennent jamais des identités d’image simplement parce qu’ils sont uniques. Une fois validées, les jointures un-à-un suivent toujours le même plan typé pour leurs groupes à un seul élément ; les choix explicites de count et nunique restent donc effectifs. Les identités des limites de sélection de données et des filtres utilisent timeID, et l’orthographe initiale time_id est également conservée pour qu’un graphique sélectionnant time_id reste reproductible.",
-      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification.classify_drop#3",
@@ -123,7 +125,9 @@
       "source_sha256": "016cea402964e16150069ef03c1d065fdc3fd759b0333c6af70524e2ec09e799",
       "context": "The count resets rather than decrements. The question is \"is spaCR crashing right now\", not \"how many times has it ever crashed\", and a total that only ever grew would eventually disable the backdrop on a machine where it works. Every instance and project lock this window holds is released first.",
       "translation": "LE COMPTEUR EST RÉINITIALISÉ PLUTÔT QUE DÉCRÉMENTÉ. La question est de savoir si spaCR plante actuellement, et non combien de fois il a planté depuis toujours ; un total qui ne ferait qu’augmenter finirait par désactiver l’arrière-plan sur une machine où il fonctionne. Chaque verrou d’instance et de projet détenu par cette fenêtre est d’abord libéré.",
-      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.crash_recovery.note_that_a_launch_began#2",

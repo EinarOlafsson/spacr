@@ -2565,7 +2565,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "number of rows actually drawn or, for a binned density, counted.",
       "source_sha256": "8a06086a816664ab0d58f6078eb137ad4ff4bd282fec817c0072e42ddb67d232",
-      "translation": "número de linhas efetivamente desenhadas ou, para uma densidade em bins, contadas."
+      "translation": "número de linhas efetivamente desenhadas ou, para uma densidade em bins, contadas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "vertical end of the rectangle.",
@@ -2853,7 +2855,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE NOTES ARE BUNDLED, and the bundle is what draws. They come from ``spacr/resources/release_notes.json``, which ``tools/build_release_notes.py`` writes from the GitHub releases and which ``.github/workflows/release.yml`` refreshes on every release. This panel is on the first screen the application shows, so making its CONTENT depend on api.github.com would mean a dashboard that is empty offline, throttled behind a shared NAT, and slower to draw than the window it is in. The bundled file therefore remains the offline source of truth and the panel is complete before anything touches a socket.",
       "source_sha256": "3d175c2af7e05e23cdff1e637e4de088049f59552ca8d5a17d5bf78a1cdc6b4b",
-      "translation": "AS NOTAS VÊM EMPACOTADAS, e é o pacote que desenha. Elas vêm de ``spacr/resources/release_notes.json``, que ``tools/build_release_notes.py`` grava a partir das releases do GitHub e que ``.github/workflows/release.yml`` atualiza a cada release. Este painel está na primeira tela que a aplicação mostra, então fazer seu CONTEÚDO depender de api.github.com significaria um painel vazio sem conexão, limitado atrás de um NAT compartilhado e mais lento para desenhar do que a janela em que está. Por isso o arquivo empacotado continua sendo a fonte de verdade sem conexão, e o painel está completo antes que qualquer coisa toque em um socket."
+      "translation": "AS NOTAS VÊM EMPACOTADAS, e é o pacote que desenha. Elas vêm de ``spacr/resources/release_notes.json``, que ``tools/build_release_notes.py`` grava a partir das releases do GitHub e que ``.github/workflows/release.yml`` atualiza a cada release. Este painel está na primeira tela que a aplicação mostra, então fazer seu CONTEÚDO depender de api.github.com significaria um painel vazio sem conexão, limitado atrás de um NAT compartilhado e mais lento para desenhar do que a janela em que está. Por isso o arquivo empacotado continua sendo a fonte de verdade sem conexão, e o painel está completo antes que qualquer coisa toque em um socket.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "And then it catches up. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a background execution unit, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
@@ -2861,7 +2865,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "AND THEN IT CATCHES UP. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a worker thread, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
       "source_sha256": "7f6316bf6a3bfa3d12730c2cdfce5756db400447c7f2c6c8ad49492ca194ebcb",
-      "translation": "E DEPOIS ELE SE ATUALIZA. O wheel de uma release não pode conter sua própria nota de release -- a nota é escrita quando a release do GitHub é publicada, o que acontece depois que esse wheel está no PyPI --, então um arquivo empacotado está sempre uma release atrás do build que o carrega, e foi isso que deu errado: \"estou na 1.5.1.0 e as novidades só vão até a 1.5.0.7. a seção de novidades deveria sempre refletir automaticamente as notícias da release mais recente do spacr.\" Então, depois que a página é mostrada, :attr:`refresh_requested` pede à janela que leia a lista pública de releases em uma thread de worker, e :meth:`apply_releases` mescla o que quer que volte na frente da lista empacotada. Nada aqui abre um socket: o painel apenas pede, e uma busca que falha, sofre limite de taxa, está desligada em Preferences ou simplesmente não encontra nada mais novo deixa a lista empacotada exatamente como foi desenhada."
+      "translation": "E DEPOIS ELE SE ATUALIZA. O wheel de uma release não pode conter sua própria nota de release -- a nota é escrita quando a release do GitHub é publicada, o que acontece depois que esse wheel está no PyPI --, então um arquivo empacotado está sempre uma release atrás do build que o carrega, e foi isso que deu errado: \"estou na 1.5.1.0 e as novidades só vão até a 1.5.0.7. a seção de novidades deveria sempre refletir automaticamente as notícias da release mais recente do spacr.\" Então, depois que a página é mostrada, :attr:`refresh_requested` pede à janela que leia a lista pública de releases em uma thread de worker, e :meth:`apply_releases` mescla o que quer que volte na frente da lista empacotada. Nada aqui abre um socket: o painel apenas pede, e uma busca que falha, sofre limite de taxa, está desligada em Preferences ou simplesmente não encontra nada mais novo deixa a lista empacotada exatamente como foi desenhada.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
@@ -2869,7 +2875,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
       "source_sha256": "7015b27e0f129bb087b0487648dee0cfe3c8219f8fbda58d67800b70444634a2",
-      "translation": "A verificação de atualização continua sendo um BOTÃO. Oferecer a instalação de algo é uma decisão, então ela continua sendo tomada somente quando o botão é pressionado."
+      "translation": "A verificação de atualização continua sendo um BOTÃO. Oferecer a instalação de algo é uma decisão, então ela continua sendo tomada somente quando o botão é pressionado.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Merge a fetched release list into the list on application view.",
@@ -2885,7 +2893,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Silence is the contract. An empty list, a list of rubbish, or a list that says nothing the bundled file did not already say leaves the panel untouched and says nothing to the reader -- the failure of an unasked-for background fetch is not the reader's problem.",
       "source_sha256": "731c80f592c0abab2c78eb04e554ee7c07bb77da5184d9b92e35fe53674d6001",
-      "translation": "O silêncio é o contrato. Uma lista vazia, uma lista de lixo ou uma lista que não diz nada que o arquivo empacotado já não dissesse deixa o painel intocado e não diz nada ao leitor -- a falha de uma busca em segundo plano que ninguém pediu não é problema do leitor."
+      "translation": "O silêncio é o contrato. Uma lista vazia, uma lista de lixo ou uma lista que não diz nada que o arquivo empacotado já não dissesse deixa o painel intocado e não diz nada ao leitor -- a falha de uma busca em segundo plano que ninguém pediu não é problema do leitor.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "release records from :func:`spacr.updater.fetch_release_notes`, or anything at all.",
@@ -2981,7 +2991,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "AFTER the page exists and ON THE EVENT LOOP, not during construction: the single-shot timer means the emit lands on a later turn than this show, so Home's first paint is never waiting on it. Once per panel, because a page that is shown again -- a tab revisited, a font-scale rebuild -- is not news.",
       "source_sha256": "da720010cd7251e2540c5b20989069b775dec7969b3ed845ece331c1eab32841",
-      "translation": "DEPOIS que a página existe e NO LAÇO DE EVENTOS, não durante a construção: o temporizador de disparo único faz a emissão cair em uma volta posterior a esta exibição, então a primeira pintura de Home nunca espera por ela. Uma vez por painel, porque uma página que é mostrada de novo -- uma aba revisitada, uma reconstrução por escala de fonte -- não é novidade."
+      "translation": "DEPOIS que a página existe e NO LAÇO DE EVENTOS, não durante a construção: o temporizador de disparo único faz a emissão cair em uma volta posterior a esta exibição, então a primeira pintura de Home nunca espera por ela. Uma vez por painel, porque uma página que é mostrada de novo -- uma aba revisitada, uma reconstrução por escala de fonte -- não é novidade.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the Qt show event.",
@@ -3366,7 +3378,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The screen calls this when either setting changes. The folder's file names are read off the GUI thread, and nothing is decoded.",
       "source_sha256": "ba35ba6afb40c27af59767dfe437c665f3c50ef78d7c29d0e1a9a3715c269301",
-      "translation": "A tabela é agrupada quando uma pasta é carregada, com o ``metadata_type`` e o ``custom_regex`` que o formulário de Mask continha naquele momento. Carregar primeiro e escolher a nomenclatura depois deixava todos os arquivos em uma única coluna até que outra coisa recarregasse a pasta. A tela chama isto quando qualquer uma das duas configurações muda. Os nomes de arquivo da pasta são lidos fora da thread da GUI, e nada é decodificado."
+      "translation": "A tabela é agrupada quando uma pasta é carregada, com o ``metadata_type`` e o ``custom_regex`` que o formulário de Mask continha naquele momento. Carregar primeiro e escolher a nomenclatura depois deixava todos os arquivos em uma única coluna até que outra coisa recarregasse a pasta. A tela chama isto quando qualquer uma das duas configurações muda. Os nomes de arquivo da pasta são lidos fora da thread da GUI, e nada é decodificado.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``True`` when a regrouping was started, ``False`` when no image is loaded.",
@@ -3448,7 +3462,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
       "source_sha256": "e5e5585868edd9f7f7c680740e5b2da9572a78e09072f7e669d1564f93caf35c",
-      "translation": "Quantas máscaras desta sessão o painel de comparação consegue sobrepor: as oito últimas, descartando primeiro a mais antiga. Cada uma é um array de rótulos em tamanho real, e um painel que guardasse todas as execuções de uma tarde manteria todas na memória para uma janela que lista oito confortavelmente."
+      "translation": "Quantas máscaras desta sessão o painel de comparação consegue sobrepor: as oito últimas, descartando primeiro a mais antiga. Cada uma é um array de rótulos em tamanho real, e um painel que guardasse todas as execuções de uma tarde manteria todas na memória para uma janela que lista oito confortavelmente.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Direct image files are returned unchanged. Directory traversal stops as soon as the first sorted match is found instead of materialising and sorting every image in a potentially enormous plate. Files whose names start with a dot are skipped: ``._<name>.tif``, the sidecar macOS writes on exFAT and network volumes, sorts before every image and holds none.",
@@ -3610,7 +3626,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO HALVES. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its field, and draws the answer.",
       "source_sha256": "5e6a4bd9dede1be7f833f2b0c7dc1b3ecff48da39d4ec0c8de4e080d9463c093",
-      "translation": "DUAS METADES. :func:`composite` é a aritmética, sobre arrays simples, para que a imagem que o usuário vê possa ser conferida pixel a pixel com um cálculo à mão. :class:`MaskComparisonDialog` é a janela que escolhe o que entra nela. Nenhuma das duas conhece o módulo Mask; a pré-visualização ao vivo entrega as máscaras e o campo da sua sessão e desenha a resposta."
+      "translation": "DUAS METADES. :func:`composite` é a aritmética, sobre arrays simples, para que a imagem que o usuário vê possa ser conferida pixel a pixel com um cálculo à mão. :class:`MaskComparisonDialog` é a janela que escolhe o que entra nela. Nenhuma das duas conhece o módulo Mask; a pré-visualização ao vivo entrega as máscaras e o campo da sua sessão e desenha a resposta.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The arithmetic is \"OVER\", layer by layer, from the bottom. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
@@ -3618,7 +3636,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE ARITHMETIC IS \"OVER\", LAYER BY LAYER, FROM THE BOTTOM. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
       "source_sha256": "c3a684d93217b9a8bdc51ea11f6020da2c46a2d803e8dcec666dc35769ab475f",
-      "translation": "A ARITMÉTICA É \"OVER\", CAMADA POR CAMADA, A PARTIR DE BAIXO. A área de desenho começa preta. Cada camada marcada, a de baixo primeiro, é aplicada com sua opacidade ``a``: onde ela cobre, ``out = out * (1 - a) + colour * a``; onde não cobre, ``out`` fica como está. Uma imagem cobre todos os pixels; uma máscara cobre apenas seus objetos, então o fundo de uma máscara nunca escurece o que está embaixo dela. O resultado é arredondado para o nível de cinza inteiro mais próximo."
+      "translation": "A ARITMÉTICA É \"OVER\", CAMADA POR CAMADA, A PARTIR DE BAIXO. A área de desenho começa preta. Cada camada marcada, a de baixo primeiro, é aplicada com sua opacidade ``a``: onde ela cobre, ``out = out * (1 - a) + colour * a``; onde não cobre, ``out`` fica como está. Uma imagem cobre todos os pixels; uma máscara cobre apenas seus objetos, então o fundo de uma máscara nunca escurece o que está embaixo dela. O resultado é arredondado para o nível de cinza inteiro mais próximo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The stacking order reads like a layer list. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
@@ -3626,7 +3646,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE STACKING ORDER READS LIKE A LAYER LIST. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
       "source_sha256": "c70b490aeb3a412244c1ea00715da87239a8b9fc3e90abcf63c19fff5e865406",
-      "translation": "A ORDEM DE EMPILHAMENTO SE LÊ COMO UMA LISTA DE CAMADAS. A janela lista primeiro o topo da pilha, como todo programa de desenho faz, e :meth:`chosen` devolve as camadas começando pela de baixo, a ordem em que :func:`composite` as aplica."
+      "translation": "A ORDEM DE EMPILHAMENTO SE LÊ COMO UMA LISTA DE CAMADAS. A janela lista primeiro o topo da pilha, como todo programa de desenho faz, e :meth:`chosen` devolve as camadas começando pela de baixo, a ordem em que :func:`composite` as aplica.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One thing the comparison can draw.",
@@ -3698,7 +3720,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the choices, TOP OF THE STACK FIRST.",
       "source_sha256": "84d7c1979b96259903c3090f1a56ccb8062c45a0cc21bb64f4d53145370eb578",
-      "translation": "as opções, COM O TOPO DA PILHA PRIMEIRO."
+      "translation": "as opções, COM O TOPO DA PILHA PRIMEIRO.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Build one row per layer, and OK and Cancel.",
@@ -3714,7 +3738,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ticked layers, BOTTOM FIRST, ready for :func:`composite`.",
       "source_sha256": "5a6caa36ebf3359ca3bf711437e6c710c380e1a87ddbc470b01822ebd38fcf11",
-      "translation": "As camadas marcadas, COMEÇANDO PELA DE BAIXO, prontas para :func:`composite`."
+      "translation": "As camadas marcadas, COMEÇANDO PELA DE BAIXO, prontas para :func:`composite`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every layer as the popup has it now, top of the stack first.",
@@ -3882,7 +3908,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the thread that paints.",
       "source_sha256": "8f2724a512a342fc22df05aa565306f1d1de890f3e5b131a1a2243c38384f6d0",
-      "translation": "SEPARADO DE :meth:`add_paths`, e a separação é a correção para um aplicativo congelado. Tudo aqui é uma lista de cadeias de caracteres; o ``isdir`` e o ``listdir`` que transformam uma pasta solta em arquivos rodam no próprio worker deste widget (:func:`files_under`), porque uma soltura é um caminho que o usuário escolheu, e em um equipamento de microscopia esse é o compartilhamento em que as imagens estão -- um único stat em uma montagem ``autofs`` adormecida foi medido em mais de vinte segundos, na thread que pinta a interface."
+      "translation": "SEPARADO DE :meth:`add_paths`, e a separação é a correção para um aplicativo congelado. Tudo aqui é uma lista de cadeias de caracteres; o ``isdir`` e o ``listdir`` que transformam uma pasta solta em arquivos rodam no próprio worker deste widget (:func:`files_under`), porque uma soltura é um caminho que o usuário escolheu, e em um equipamento de microscopia esse é o compartilhamento em que as imagens estão -- um único stat em uma montagem ``autofs`` adormecida foi medido em mais de vinte segundos, na thread que pinta a interface.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is added by the time this returns, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
@@ -3890,7 +3918,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
       "source_sha256": "8e2d6707e93529a83427142114012cdaad3857344b99280d82aa07e43e507622",
-      "translation": "NADA FOI ADICIONADO QUANDO ESTA FUNÇÃO RETORNA, e esse é o objetivo. Leia a tabela a partir de :attr:`table_changed`, não da linha seguinte a esta."
+      "translation": "NADA FOI ADICIONADO QUANDO ESTA FUNÇÃO RETORNA, e esse é o objetivo. Leia a tabela a partir de :attr:`table_changed`, não da linha seguinte a esta.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "files and folders from a drop or a file dialog.",
@@ -4450,7 +4480,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "RECORDED, so first-run guidance does not greet a returning user as a new one. While an installer is running the user is asked first (:meth:`_may_close`): keeping it running leaves the screen open, and stopping it closes the screen as before.",
       "source_sha256": "21b573e04a2ccab52e860d982f3e7fedabde66ee7b9553c9a1bd9573ca8d6c91",
-      "translation": "REGISTRADO, para que a orientação da primeira execução não receba um usuário que volta como se fosse novo. Enquanto um instalador está em execução, o usuário é consultado primeiro (:meth:`_may_close`): mantê-lo em execução deixa a tela aberta, e interrompê-lo fecha a tela como antes."
+      "translation": "REGISTRADO, para que a orientação da primeira execução não receba um usuário que volta como se fosse novo. Enquanto um instalador está em execução, o usuário é consultado primeiro (:meth:`_may_close`): mantê-lo em execução deixa a tela aberta, e interrompê-lo fecha a tela como antes.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the mouse move event; its position, mapped into the card, is what the rim flows towards. It is then passed on to the base class.",

@@ -16,7 +16,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The case this module exists for: masks were drawn in Make Masks on a folder holding two kinds of image at once -- nucleus-stain images with nucleus masks and cell-stain images with cell masks, say -- and those have to become one multi-channel field per position, in the layout spaCR's Mask/Measure pipeline reads.",
       "source_sha256": "1434b3d91d4e9a6b2d0a0b02c5dd84aad621be24cdc3bc9f182b24d1a49a3db3",
-      "translation": "Der Fall, für den es dieses Modul gibt: Masken wurden in Make Masks auf einem Ordner gezeichnet, der zwei Arten von Bildern zugleich enthält -- etwa Bilder mit Kernfärbung und Kernmasken und Bilder mit Zellfärbung und Zellmasken --, und daraus muss ein mehrkanaliges Sichtfeld pro Position werden, in der Struktur, die die Mask/Measure-Pipeline von spaCR liest."
+      "translation": "Der Fall, für den es dieses Modul gibt: Masken wurden in Make Masks auf einem Ordner gezeichnet, der zwei Arten von Bildern zugleich enthält -- etwa Bilder mit Kernfärbung und Kernmasken und Bilder mit Zellfärbung und Zellmasken --, und daraus muss ein mehrkanaliges Sichtfeld pro Position werden, in der Struktur, die die Mask/Measure-Pipeline von spaCR liest.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It happens in three separate steps, and nothing is moved until the last:",
@@ -458,7 +460,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "MOVE the images and masks as planned, then merge.",
       "source_sha256": "146c0eae586d5ec99dd028c688bb6398ef7b1740aa9a69d1981a9d40eab49308",
-      "translation": "VERSCHIEBT die Bilder und Masken wie geplant und führt dann zusammen."
+      "translation": "VERSCHIEBT die Bilder und Masken wie geplant und führt dann zusammen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it happens, so a run that stops half-way still says which file went where. Nothing is overwritten: every target is checked to be free before the first move.",
@@ -731,7 +735,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the channel -- or, when the user assigned channels, the tokens that only follow the channel are set aside -- and the rest must identify a set that holds exactly one image per channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first, and :func:`spacr.regex_infer.propose` last. Of the candidates that pass, the one with the FEWEST channels wins: any name can be read as a channel of its own in a single set, which passes and means nothing.",
       "source_sha256": "6c67fca6f45364075dbfb42ff14a0728aebb8069fa4632f9eb9ff9815c3a7366",
-      "translation": "Namen werden in Token zerlegt (an ``_ - . space`` und, falls das nicht geht, in Ziffern- und Buchstabenfolgen); die veränderlichen Token werden ermittelt; eines wird als Kanal versucht -- oder, wenn der Benutzer Kanäle zugewiesen hat, werden die Token, die nur dem Kanal folgen, beiseitegelegt --, und der Rest muss einen Satz identifizieren, der genau ein Bild pro Kanal enthält. Jeder Kandidat wird mit :func:`check_sets` geprüft, bevor er zurückgegeben wird. Das eigene Yokogawa-Muster von spaCR wird zuerst versucht und :func:`spacr.regex_infer.propose` zuletzt. Von den bestandenen Kandidaten gewinnt der mit den WENIGSTEN Kanälen: Jeder Name lässt sich als eigener Kanal in einem einzigen Satz lesen, was besteht und nichts bedeutet."
+      "translation": "Namen werden in Token zerlegt (an ``_ - . space`` und, falls das nicht geht, in Ziffern- und Buchstabenfolgen); die veränderlichen Token werden ermittelt; eines wird als Kanal versucht -- oder, wenn der Benutzer Kanäle zugewiesen hat, werden die Token, die nur dem Kanal folgen, beiseitegelegt --, und der Rest muss einen Satz identifizieren, der genau ein Bild pro Kanal enthält. Jeder Kandidat wird mit :func:`check_sets` geprüft, bevor er zurückgegeben wird. Das eigene Yokogawa-Muster von spaCR wird zuerst versucht und :func:`spacr.regex_infer.propose` zuletzt. Von den bestandenen Kandidaten gewinnt der mit den WENIGSTEN Kanälen: Jeder Name lässt sich als eigener Kanal in einem einzigen Satz lesen, was besteht und nichts bedeutet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image file names.",
@@ -755,7 +761,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the first regex that passes, or None.",
       "source_sha256": "af5fd94f3da97b7b7cfee3269c527b158678ed30469ae914d25b422bee4ee791",
-      "translation": "der erste bestandene reguläre Ausdruck oder None."
+      "translation": "der erste bestandene reguläre Ausdruck oder None.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return the image file names directly in ``folder``, naturally sorted.",
@@ -1511,7 +1519,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SELF-SUPERVISED DENOISING COMES BEFORE THE CHAIN. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics, in its own environment, on a sample of the run's own raw fields -- no clean images are needed -- or read from ``n2v_model``. Each field's selected channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
       "source_sha256": "053a6f3ea879abe3f0597364d142db70df217b383995dcc2b937bb41187efb63",
-      "translation": "SELBSTÜBERWACHTES ENTRAUSCHEN KOMMT VOR DER KETTE. Bei eingeschaltetem ``n2v_denoise`` wird pro Segmentierungskanal ein Noise2Void-Modell (N2V2) von CAREamics in einer eigenen Umgebung auf einer Stichprobe der eigenen Rohsichtfelder des Verarbeitungslaufs trainiert -- saubere Bilder sind nicht nötig -- oder aus ``n2v_model`` gelesen. Die ausgewählten Kanäle jedes Sichtfelds werden nach der Beleuchtungskorrektur und vor der PSF und der Kette entrauscht, solange das Rauschen noch von Pixel zu Pixel unabhängig ist, wie Noise2Void es voraussetzt. Die Hashes der Checkpoints und der Trainingseintrag gehen in denselben Provenienzeintrag ein."
+      "translation": "SELBSTÜBERWACHTES ENTRAUSCHEN KOMMT VOR DER KETTE. Bei eingeschaltetem ``n2v_denoise`` wird pro Segmentierungskanal ein Noise2Void-Modell (N2V2) von CAREamics in einer eigenen Umgebung auf einer Stichprobe der eigenen Rohsichtfelder des Verarbeitungslaufs trainiert -- saubere Bilder sind nicht nötig -- oder aus ``n2v_model`` gelesen. Die ausgewählten Kanäle jedes Sichtfelds werden nach der Beleuchtungskorrektur und vor der PSF und der Kette entrauscht, solange das Rauschen noch von Pixel zu Pixel unabhängig ist, wie Noise2Void es voraussetzt. Die Hashes der Checkpoints und der Trainingseintrag gehen in denselben Provenienzeintrag ein.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the processing session's ``psf_*``, ``enhance_*``, ``unmix`` and ``n2v_denoise`` settings.",
@@ -1943,7 +1953,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement rather than tidiness: the CSV picker and the SQL column list have to be able to import this to get canonical names, and they cannot pay for a torch import to do it.",
       "source_sha256": "310ef96d74acab287944d13d7e99c17e93a8c87d2d0a4aea8f2d1e883224ab58",
-      "translation": "``pandas``, ``sqlite3`` und :mod:`spacr.schema`. Die alternativen Messdatenspeicher importieren ``duckdb`` oder ``psycopg`` erst, wenn ein DuckDB-, Parquet- oder PostgreSQL-Speicher geöffnet wird. Sonst nichts auf Modulebene -- kein ``spacr.utils``, kein matplotlib, kein torch. Das ist eine Anforderung, keine Ordnungsliebe: Die CSV-Auswahl und die SQL-Spaltenliste müssen dies importieren können, um kanonische Namen zu erhalten, und können sich dafür keinen torch-Import leisten."
+      "translation": "``pandas``, ``sqlite3`` und :mod:`spacr.schema`. Die alternativen Messdatenspeicher importieren ``duckdb`` oder ``psycopg`` erst, wenn ein DuckDB-, Parquet- oder PostgreSQL-Speicher geöffnet wird. Sonst nichts auf Modulebene -- kein ``spacr.utils``, kein matplotlib, kein torch. Das ist eine Anforderung, keine Ordnungsliebe: Die CSV-Auswahl und die SQL-Spaltenliste müssen dies importieren können, um kanonische Namen zu erhalten, und können sich dafür keinen torch-Import leisten.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "path to the database, or any store :func:`read_database` reads. ``~`` and ``$VARS`` are expanded.",

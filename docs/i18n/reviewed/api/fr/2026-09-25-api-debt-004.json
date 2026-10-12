@@ -1204,7 +1204,9 @@
       "source_sha256": "38f7b8d8fa3e0e692bcbc56a74593de36868a0662d0f786e3c9e301fa33a7814",
       "context": "The destination changed, not the gesture. A greyed row installs itself when it is chosen. It used to execute ``pip install \"spacr[<backend>]\"`` against the environment spaCR is executing in; each backend now gets an isolated environment, so the install goes through the Model Zoo's own dialog instead: off the main GUI execution path, with progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's own environment is never changed.",
       "translation": "LA DESTINATION A CHANGÉ, PAS LE GESTE. Une ligne grisée s’installe lorsqu’elle est choisie. Elle exécutait auparavant ``pip install \"spacr[<backend>]\"`` dans l’environnement où s’exécute spaCR ; chaque backend reçoit désormais un environnement isolé, si bien que l’installation passe plutôt par la boîte de dialogue propre au Model Zoo : hors du fil d’exécution de la GUI, avec progression et bouton Cancel, dans ``~/.spacr/backends/<name>``, et l’environnement propre de spaCR n’est jamais modifié.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#2",
@@ -1798,7 +1800,9 @@
       "source_sha256": "80634c939fda60cc8ead24e8c2c975eba56823da9be0122ba3450b8f6ab3934f",
       "context": "Test data for OPS and for Align & Stitch, one button away in each.",
       "translation": "Données de test pour OPS et pour Align & Stitch, à un clic dans chacun.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#1",
@@ -1814,7 +1818,9 @@
       "source_sha256": "e63dd35277cf175b680fde5212d3ffc2d52211a7b158bf2b7d6938870d694dac",
       "context": "Two samples of one published screen. Both are cut from laboratory microplate ``20200202_6W-LaC024A``, microplate sample position A1, of Funk et al. 2022 (BioImage Archive S-BIAD394), unmodified:",
       "translation": "DEUX ÉCHANTILLONS D’UN MÊME CRIBLAGE PUBLIÉ. Tous deux sont découpés dans la plaque ``20200202_6W-LaC024A``, puits A1, de Funk et al. 2022 (BioImage Archive S-BIAD394), sans modification :",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#3",
@@ -1838,7 +1844,9 @@
       "source_sha256": "e4e99262add6368878a0209aa268ebe08f254686a7e0b2196a9092a5cbefacff",
       "context": "Why the ops sample is the well's last two sites. The engine takes a well's microscope field of view count as its highest site number plus one and fits the round well to that count, so a sample has to include the last site to keep the measured 333-microscope field of view layout; see :func:`spacr.ops_engine.run_ops`. And it carries no phenotype images, because the phenotype phase aligns anchors spread over the whole well, which a two-microscope field of view sample cannot supply.",
       "translation": "POURQUOI L’ÉCHANTILLON OPS CORRESPOND AUX DEUX DERNIERS SITES DU PUITS. Le moteur prend comme nombre de champs d’un puits son numéro de site le plus élevé plus un et ajuste le puits rond à ce nombre ; un échantillon doit donc inclure le dernier site pour conserver la disposition mesurée à 333 champs ; voir :func:`spacr.ops_engine.run_ops`. Et il ne contient pas d’images de phénotype, car la phase phénotype aligne des points d’ancrage répartis sur tout le puits, ce qu’un échantillon de deux champs ne peut pas fournir.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#6",
@@ -1846,7 +1854,9 @@
       "source_sha256": "cd641607642cb1f90def1fc67f167d3abb1a3018f08138c0e56e84effdc87a19",
       "context": "The same pattern as every other example set. One uncompressed ``.tar`` per repository, streamed behind the shared progress dialog and unpacked through the tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a folder of its own beside the shared example plate (:func:`example_folder`). A cached copy is used without a request.",
       "translation": "LE MÊME SCHÉMA QUE TOUS LES AUTRES JEUX D’EXEMPLES. Un ``.tar`` non compressé par dépôt, transféré en flux derrière la boîte de dialogue de progression partagée et décompressé via le filtre de données tar par :class:`spacr.qt.hf_download._TarExampleWorker`, dans un dossier propre situé à côté de la plaque d’exemple partagée (:func:`example_folder`). Une copie en cache est utilisée sans requête.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#7",
@@ -1854,7 +1864,9 @@
       "source_sha256": "99b835de8e84af9254722809fb93dca52f5a74ff83d46031d4d68d3beeded25b",
       "context": "WHAT \"FILLS THE SETTINGS\" means here. The OPS panel gets its source, output folder, library and plate name; Align & Stitch gets its microscope image field folder, the block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or Plan -- is then the next action.",
       "translation": "CE QUE SIGNIFIE ICI \"FILLS THE SETTINGS\". Le panneau OPS reçoit sa source, son dossier de sortie, sa bibliothèque et son nom de plaque ; Align & Stitch reçoit son dossier de tuiles, la grille 3 x 3 du bloc, son ordre, son chevauchement et un emplacement d’écriture. Run -- ou Plan -- est alors l’action suivante.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.example_folder#0",
@@ -1918,7 +1930,9 @@
       "source_sha256": "653f71a874206fdd57502212dc20f15d8e898fe283e907faab6e98cb3102f71a",
       "context": "True only when the manifest exists and every file it lists is there. A half-unpacked sample reads as absent, which is the answer that gets it downloaded again.",
       "translation": "True uniquement lorsque le manifeste existe et que chaque fichier qu’il liste est présent. Un échantillon à moitié décompressé se lit comme manquant ; c’est cette réponse qui le fait télécharger de nouveau.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.listed_files#0",
@@ -3946,7 +3960,9 @@
       "source_sha256": "70de4fdab4c0c095907cf71f3a1d36fb479569fe978bde92add2f2fc33c7c68f",
       "context": "A preference result in the Help search field has to land on the row the user asked for, and the dialog it lands in is built by seven thousand lines of procedure with no schema to address. So this module navigates the BUILT dialog, by the two handles the build leaves behind:",
       "translation": "Un résultat de préférence dans le champ de recherche de l’Aide doit arriver sur la ligne demandée par l’utilisateur, et la boîte de dialogue où il arrive est construite par sept mille lignes de code procédural, sans schéma permettant de l’adresser. Ce module navigue donc dans la boîte de dialogue CONSTRUITE, grâce aux deux repères que la construction laisse derrière elle :",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#2",
@@ -3970,7 +3986,9 @@
       "source_sha256": "f6351560c13ac6cefc96cc9e7b81365d242b7c36a7f7b201d574ab2a69634f63",
       "context": "Matching the DISPLAYED caption against an English literal was the version before this one, and it worked in exactly one language.",
       "translation": "Comparer la légende AFFICHÉE à un littéral anglais était la version précédant celle-ci, et elle ne fonctionnait que dans une seule langue.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#5",
@@ -4018,7 +4036,9 @@
       "source_sha256": "69922ffa16381a59b17379b6c6c28c173e0ffcd013853b89ef016c5937c3b23f",
       "context": "A static outline for a few seconds rather than anything that moves: a mark that pulses would owe an answer to the Animation preferences, and this one owes none and is not lost on a reader who turned motion off.",
       "translation": "Un contour STATIQUE pendant quelques secondes plutôt que quoi que ce soit qui bouge : une marque qui pulse devrait se conformer aux préférences Animation, alors que celle-ci n’y est pas tenue et n’échappe pas à un lecteur qui a désactivé les animations.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation.reveal_row#2",
@@ -4178,7 +4198,9 @@
       "source_sha256": "cce03f00204f5a27234de27180c37476c02d9d9932fcdf581f0875500d0897c6",
       "context": "``\"module:function\"`` taking ``(host, card)`` and building the panel into the card, returning it. Given, a preview ATTACHED through this registry builds only its card at install -- ``builder`` is called with ``panel_later=True`` -- and the panel the first time the card is shown or the panel is asked for, so a hidden preview costs a module's open nothing.",
       "translation": "``\"module:function\"`` qui prend ``(host, card)``, construit le panneau dans la carte et le renvoie. Lorsqu’il est fourni, un aperçu ATTACHÉ via ce registre ne construit que sa carte à l’installation -- ``builder`` est appelé avec ``panel_later=True`` -- et construit le panneau la première fois que la carte est affichée ou que le panneau est demandé, de sorte qu’un aperçu masqué ne coûte rien à l’ouverture d’un module.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preview_registry.install#2",

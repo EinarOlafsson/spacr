@@ -108,7 +108,9 @@
       "source_sha256": "570d557c65923a1ff3a0ccf73c81d3b169d0e46efb9d68f03fd6b1982537000b",
       "context": "Say what kind of reference a user typed.",
       "translation": "Säg vilken sorts referens en användare skrev.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.parse_reference#1",
@@ -212,7 +214,9 @@
       "source_sha256": "9de13c605de361ef665e570b8194ef7a1de462fdd5c813f1c8ba5cd6c9799fc9",
       "context": ":func:`spacr.plaque.detect_wells`, answered by the reader's environment.",
       "translation": ":func:`spacr.plaque.detect_wells`, besvarad av läsarens miljö.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_detect#1",
@@ -532,7 +536,9 @@
       "source_sha256": "a67cb99a1183a4e5b6944053731c0d7444eddfa69fe15d9c05ad4369b96fba04",
       "context": "**panel** -- a panel letter above and to the left of the grid's top-left corner, within one image size of it. Further than that is another panel's letter, and no letter is better than the wrong one.",
       "translation": "**panel** -- en panelbokstav ovanför och till vänster om rutnätets övre vänstra hörn, inom en bildstorlek från det. Längre bort än så är det en annan panels bokstav, och ingen bokstav är bättre än fel bokstav.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_near#6",
@@ -940,7 +946,9 @@
       "source_sha256": "138767e16e686607015814fc68d8d96c8320f38b21c5af9b1d61033108a1a3f8",
       "context": "deconvolution iterations, integer 1..200, default20.",
       "translation": "avfaltningsiterationer, heltal 1..200, standard 20.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#6",
@@ -1532,7 +1540,9 @@
       "source_sha256": "216ac8e6db5a6819d1fb3a669f68f303e06d4a147dcbaea99a7073137a5bf5e8",
       "context": "Compare active PSF behavior rather than dormant form parameters.",
       "translation": "Jämför aktivt PSF-beteende i stället för vilande formulärparametrar.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_resume_settings#1",
@@ -1556,7 +1566,9 @@
       "source_sha256": "f69d6eeda42c8039b6728af03880c5b17750c07b25b247d216f04adb6f500667",
       "context": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
       "translation": "nya inställningar där inaktiva PSF-reglage har tagits bort och en enda infångad materialsignatur. Äldre mätningar har ursprungssignaturen None.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.prepare_measurement_psf#0",
@@ -1652,7 +1664,9 @@
       "source_sha256": "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
       "context": "The enhancement chain travels the same route. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` structured-data names and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a processing session is byte for byte what it was before the chain existed.",
       "translation": "FÖRBÄTTRINGSKEDJAN FÄRDAS SAMMA VÄG. Make Masks kedja (:mod:`spacr.qt.detect_chain`) skrivs in i en inställningsfil som nycklarna ``enhance_*`` och läses tillbaka här av :func:`prepare_chain`, med ``psf_*``-inställningarna invikta som kedjans PSF-steg, så att en körning av en platta tillämpar exakt de steg som en kurator finjusterade, i kedjans egen ordning: bakgrund, PSF, brusreducering, kontrast, skärpa. Sessionen tillämpar den per vald kanal i det steg där PSF:en redan kördes -- efter belysningskorrigering och före normalisering -- och dess proveniens går in i samma ``psf/segmentation_application.json``-post, så att en ändrad kedja vägras vid återupptagning på samma sätt som en ändrad kärna. Utan något kedjesteg påslaget är en körning byte för byte vad den var innan kedjan fanns.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#0",
@@ -2010,7 +2024,9 @@
       "source_sha256": "246def0f041c1409feda629fdfd446c2485402f36d7075ac4382faa4a2d4747d",
       "context": "The commands are not here. Each tool's ``install_methods`` in :mod:`spacr.qt.ai.providers` are the rows its ``install_hint`` is built from, and :func:`plan_install` picks the first of those rows whose programs are on ``PATH``. The command the Install button runs and the command the application view shows are therefore one definition.",
       "translation": "KOMMANDONA FINNS INTE HÄR. Varje verktygs ``install_methods`` i :mod:`spacr.qt.ai.providers` är de rader som dess ``install_hint`` byggs från, och :func:`plan_install` väljer den första av de raderna vars program finns på ``PATH``. Kommandot som knappen Install kör och kommandot som programvyn visar är därför en och samma definition.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.cli_install#3",
@@ -3558,7 +3574,9 @@
       "source_sha256": "c836fe76e6e33d73dd33ddefe4073b45da80df259f86ec9a7e9f27693cefb428",
       "context": "The exception's class name is prefixed only when it says something. The console writes this text after \"[AI error] \", so for a :class:`~spacr.qt.ai.providers.ProviderFailed` -- whose whole message is written to be read there, down to the sign-in command to execute -- the prefix turned a sentence the user could act on into \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Every other exception keeps its class, which is often the only thing naming what went wrong: a bare ``[Errno 2] No such file or directory`` does not say it is a FileNotFoundError.",
       "translation": "UNDANTAGETS KLASSNAMN LÄGGS TILL SOM PREFIX ENDAST NÄR DET SÄGER NÅGOT. Konsolen skriver den här texten efter \"[AI error] \", så för en :class:`~spacr.qt.ai.providers.ProviderFailed` -- vars hela meddelande är skrivet för att läsas där, ända ned till inloggningskommandot som ska köras -- förvandlade prefixet en mening som användaren kunde agera på till \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Alla andra undantag behåller sin klass, som ofta är det enda som anger vad som gick fel: ett ensamt ``[Errno 2] No such file or directory`` säger inte att det är ett FileNotFoundError.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.worker.make_stream_thread#6",
@@ -3848,7 +3866,9 @@
       "source_sha256": "0c5897d28eb2fad004dd0d40a004debc1fa060de3ae2fe8980d1d9df73276c0a",
       "context": "Found by object name rather than by tab index or caption. An index moves whenever a tab is added, and a caption is translated -- a Korean interface would have matched nothing. Every page sets its own ``PreferencesTab*`` name, and ``tools/build_help_search_index.py`` reads those same names out of this dialog's source, so the two ends of the hand-off are the same string by construction.",
       "translation": "Hittas via OBJEKTNAMN i stället för via flikindex eller rubrik. Ett index flyttas varje gång en flik läggs till, och en rubrik översätts -- ett koreanskt gränssnitt skulle inte ha matchat något. Varje sida anger sitt eget ``PreferencesTab*``-namn, och ``tools/build_help_search_index.py`` läser samma namn ur den här dialogens källkod, så överlämningens två ändar är samma sträng genom konstruktionen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.app.MainWindow.show_preferences_on#3",
@@ -4034,7 +4054,9 @@
       "source_sha256": "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
       "context": "Its own folder per set. Both ship ``measurements/measurements.db``, as the Annotate example in the shared plate does, so each unpacks beside that plate (:func:`spacr.example_archives.example_set_folder`) rather than into it.",
       "translation": "EN EGEN MAPP PER UPPSÄTTNING. Båda levereras med ``measurements/measurements.db``, precis som Annotate-exemplet i den delade plattan, så var och en packas upp bredvid den plattan (:func:`spacr.example_archives.example_set_folder`) i stället för i den.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples#4",
@@ -4042,7 +4064,9 @@
       "source_sha256": "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937",
       "context": "The same pattern as the other examples. One uncompressed ``.tar`` streamed to a ``.part`` file on a background execution unit behind the shared progress dialog, unpacked through the tar data filter, ``<dataset>`` in the settings replaced with where it landed, and cached: a second press uses the copy on disk.",
       "translation": "SAMMA MÖNSTER SOM DE ANDRA EXEMPLEN. En okomprimerad ``.tar`` strömmas till en ``.part``-fil i en arbetstråd bakom den delade förloppsdialogen, packas upp genom tar-datafiltret, ``<dataset>`` i inställningarna ersätts med platsen där den hamnade, och cachas: ett andra tryck använder kopian på disken.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples.download_assay_example#0",
@@ -4394,7 +4418,9 @@
       "source_sha256": "bdd745d49aedc5d013c4e19982b8076a695ecfe8fb44903eecb0a640766c464c",
       "context": "So the threshold algorithms here are names of a level and nothing else. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
       "translation": "Tröskelalgoritmerna här är alltså NAMN PÅ EN NIVÅ OCH INGET ANNAT. Var och en är en rad i :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` eller :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, och allt runt nivån -- utjämningen, tröskelkorrigeringen, den ljusa eller mörka sidan, hålfyllnaden, watershed-uppdelningen, kantregeln, minsta arean -- är den kod som Otsu redan gick igenom. Att välja Li i stället för Otsu ändrar varifrån ett enda tal kommer och inget annat, vilket är precis vad det ska ändra.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes#3",
@@ -4410,7 +4436,9 @@
       "source_sha256": "4288a6aafe7cfcc155385e59e3aaff0dc88c435d9f0fc20979690afd09b78dcb",
       "context": "What is not here, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested extracted image region. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
       "translation": "VAD SOM INTE FINNS HÄR, OCH VARFÖR. Lokal MEDELVÄRDES- och lokal GAUSS-tröskling erbjuds inte en gång till: de är läget Adaptiv tröskel, som kör organellmotorns gren ``adaptive`` med en blockstorlek och en förskjutning. Lokal OTSU erbjuds inte heller en gång till: det är reglaget \"Lokalt tröskelvärde (ojämn belysning)\" i enkelt Otsu-läge, som används av helbildsdetektering. Andra namngivna tröskelvärden ignorerar sparade inställningar för lokal Otsu och antal klasser; endast Multi-Otsu använder det valda antalet klasser och bandet i båda omfången. Enkel Otsu behåller sin äldre förbehandling för förstoringsglaset, medan de andra tröskelvärdena använder helbildsmotorn på det begärda utsnittet. Niblack använder ``T = m - k*s``; Sauvola använder ``T = m*(1 + k*(s/R - 1))``, där ``m`` och ``s`` är det lokala medelvärdet och standardavvikelsen. Motorn levererar float32-värden utan att skala om deras intervall, så standardvärdet för Sauvolas ``R`` i scikit-image är 1. Formlerna är olika, och att ändra intensitetsskalan kan ändra Sauvolas resultat.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#0",
@@ -4458,7 +4486,9 @@
       "source_sha256": "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
       "context": "the Gaussian blur before the maxima are found, in pixels. separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the microscope field of view is genuinely noisy, or the two blurs compound.",
       "translation": "Gaussisk oskärpa innan maxima hittas, i pixlar. SKILD FRÅN BRUSREDUCERINGEN I BILDFÖRBÄTTRINGSKEDJAN, som redan har körts när en detektor ser bilden: den här finns eftersom den oskärpa som ger ett objekt ett enda centrum oftast är mycket starkare än den oskärpa som någon vill mäta objektets KANT genom, och propageringen mäter kanten på samma utjämnade bild. Låt kedjans brusreducering vara avslagen om inte fältet verkligen är brusigt, annars förstärker de två oskärpestegen varandra.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#4",

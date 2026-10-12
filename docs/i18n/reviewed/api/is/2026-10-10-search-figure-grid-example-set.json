@@ -62,7 +62,9 @@
       "label": "spacr.example_archives.example_set#2",
       "source": "naming the keys that do exist. A typo that returned ``None`` would download nothing and report success, which is the one outcome a download command must never produce.",
       "source_sha256": "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68",
-      "translation": "sem nefnir lyklana sem eru til. Innsláttarvilla sem skilaði ``None`` myndi ekki sækja neitt en tilkynna árangur, og það er eina niðurstaðan sem niðurhalsskipun má aldrei skila."
+      "translation": "sem nefnir lyklana sem eru til. Innsláttarvilla sem skilaði ``None`` myndi ekki sækja neitt en tilkynna árangur, og það er eina niðurstaðan sem niðurhalsskipun má aldrei skila.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

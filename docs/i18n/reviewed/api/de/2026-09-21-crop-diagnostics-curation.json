@@ -13,7 +13,9 @@
       "label": "spacr.cli_download.example_folder#1",
       "source": "ONE FOLDER because the sets compose: the Measure example's ``merged/``, the Annotate example's ``data/`` and ``measurements/``, and the Mask demo's raw images are three stages of the same plate, and spaCR expects to be pointed at a plate.",
       "source_sha256": "2ee608361f34fa7f411e4290549e82102afcb58dc187ef5a6f6a9852e6ecf240",
-      "translation": "Ein gemeinsamer Ordner, weil die Datensätze zusammengehören: ``merged/`` aus dem Measure-Beispiel, ``data/`` und ``measurements/`` aus dem Annotate-Beispiel sowie die Rohbilder der Mask-Demonstration entsprechen drei Verarbeitungsstufen derselben Mikrotiterplatte. spaCR erwartet den Pfad zu einem Plattenordner."
+      "translation": "Ein gemeinsamer Ordner, weil die Datensätze zusammengehören: ``merged/`` aus dem Measure-Beispiel, ``data/`` und ``measurements/`` aus dem Annotate-Beispiel sowie die Rohbilder der Mask-Demonstration entsprechen drei Verarbeitungsstufen derselben Mikrotiterplatte. spaCR erwartet den Pfad zu einem Plattenordner.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The assay sets are not stages of that laboratory microplate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
@@ -104,7 +106,9 @@
       "label": "spacr.curation_queue.CurationQueue#2",
       "source": "the fields to offer THIS session — unreviewed, ordered, and cut to ``limit``.",
       "source_sha256": "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
-      "translation": "die in dieser Sitzung angebotenen Bildfelder: noch nicht geprüft, sortiert und auf ``limit`` begrenzt."
+      "translation": "die in dieser Sitzung angebotenen Bildfelder: noch nicht geprüft, sortiert und auf ``limit`` begrenzt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "every status row read, including rows about stems that are not in this folder.",
@@ -125,7 +129,9 @@
       "label": "spacr.curation_queue.CurationQueue#5",
       "source": "the ordering actually used, which differs from ``order`` when ``prob`` or ``easy`` fell back to ``value`` for want of probabilities.",
       "source_sha256": "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
-      "translation": "die tatsächlich verwendete Sortierung. Sie unterscheidet sich von ``order``, wenn ``prob`` oder ``easy`` wegen fehlender Wahrscheinlichkeiten auf ``value`` zurückgefallen ist."
+      "translation": "die tatsächlich verwendete Sortierung. Sie unterscheidet sich von ``order``, wenn ``prob`` oder ``easy`` wegen fehlender Wahrscheinlichkeiten auf ``value`` zurückgefallen ist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the cap that was applied, or ``None``.",
@@ -139,28 +145,36 @@
       "label": "spacr.curation_queue.CurationQueue#7",
       "source": "counts over the WHOLE folder, not over this session.",
       "source_sha256": "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce",
-      "translation": "Anzahlen für den gesamten Ordner, nicht nur für diese Sitzung."
+      "translation": "Anzahlen für den gesamten Ordner, nicht nur für diese Sitzung.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the work list is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
       "label": "spacr.curation_queue.CurationQueue#8",
       "source": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the queue is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
       "source_sha256": "115cf3e21dd39328e311520f468ada15037517f4f69902310b9fe4d0adc92dee",
-      "translation": "Hinweise, die vor dem ersten Bildfeld bekannt sein müssen: eine Sortierung mit ``prob`` oder ``easy`` ohne Bewertungsdatei oder mit Bildfeldern, die in dieser Datei fehlen; außerdem ein Datensatz zum Fortsetzen der Arbeit, der aus der Datei des externen Werkzeugs neben dem Ordner stammt und bei jedem Speichern in diese Datei zurückgeschrieben wird. Die Hinweise werden beim Erstellen der Arbeitsliste ausgegeben und im Editor zusammen mit ihr angezeigt. Dieses Modul soll insbesondere verhindern, dass sich die Sortierung unbemerkt ändert oder Daten unbemerkt außerhalb des geöffneten Ordners gespeichert werden."
+      "translation": "Hinweise, die vor dem ersten Bildfeld bekannt sein müssen: eine Sortierung mit ``prob`` oder ``easy`` ohne Bewertungsdatei oder mit Bildfeldern, die in dieser Datei fehlen; außerdem ein Datensatz zum Fortsetzen der Arbeit, der aus der Datei des externen Werkzeugs neben dem Ordner stammt und bei jedem Speichern in diese Datei zurückgeschrieben wird. Die Hinweise werden beim Erstellen der Arbeitsliste ausgegeben und im Editor zusammen mit ihr angezeigt. Dieses Modul soll insbesondere verhindern, dass sich die Sortierung unbemerkt ändert oder Daten unbemerkt außerhalb des geöffneten Ordners gespeichert werden.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``sorted by <order>``, naming the order that was asked",
       "label": "spacr.curation_queue.CurationQueue.order_phrase#0",
       "source": "``sorted by <order>``, naming the order that was asked",
       "source_sha256": "0bd1fb6521e921fda11849ace65b0be12cebe09756ff58d3dcd93915c68c8fff",
-      "translation": "``sorted by <order>``; nennt zusätzlich auch die angeforderte"
+      "translation": "``sorted by <order>``; nennt zusätzlich auch die angeforderte",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "for too whenever it is not the one that was used.",
       "label": "spacr.curation_queue.CurationQueue.order_phrase#1",
       "source": "for too whenever it is not the one that was used.",
       "source_sha256": "bb4161cd1b22e754fc9625f6c5b76a85be681bb37f4c96536fc61226c692e5d7",
-      "translation": "Sortierung, falls diese von der tatsächlich verwendeten abweicht."
+      "translation": "Sortierung, falls diese von der tatsächlich verwendeten abweicht.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "where this work list's resume record is read and written:",

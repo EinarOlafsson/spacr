@@ -27,13 +27,6 @@
     },
     {
       "table": "ui",
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
-      "translation": "4PL er samhverft um miðpunkt sinn. Raunveruleg ósamhverfa er til, og 4PL tekur hana upp í tilfært EC50; 5PL mátar hana með einum stika í viðbót, þarf einum styrk fleiri og segir til um hvort sá stiki hafi átt rétt á sér."
-    },
-    {
-      "table": "ui",
       "key": "A DOI, PMID or PMC id is fetched from Europe PMC with its figure legends; a PDF is read page by page. The figures go into a new folder, with their legends in legends.csv, and the preview switches to it.",
       "source": "A DOI, PMID or PMC id is fetched from Europe PMC with its figure legends; a PDF is read page by page. The figures go into a new folder, with their legends in legends.csv, and the preview switches to it.",
       "source_sha256": "8b35f0dcfec09c9bcdcf099b0a734c48750291dd9ca2fbe89723a061a84f82b1",
@@ -1249,13 +1242,6 @@
       "source": "Montage loading cancelled; the current disk operation may finish.",
       "source_sha256": "191df9b0b8c069e590ee37a70f7e36a55021e7f2062a69b80cec73b1dc1d241c",
       "translation": "Hætt við hleðslu myndasamstæðu; núverandi diskaðgerð gæti lokið."
-    },
-    {
-      "table": "ui",
-      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
-      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
-      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
-      "translation": "Nefndu þetta sniðmát — eitthvað sem þú myndir segja upphátt, eins og „Toxo PVM, 40×“:"
     },
     {
       "table": "ui",
@@ -3405,6 +3391,22 @@
       "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
       "translation": "'bundled' er sögulega pakkaða skellulíkanið. Því er haldið svo hægt sé að endurgera gamla keyrslu; það missir af um þriðjungi skellnanna á myndum úr greinum. toxoplasma_plaque_v2 er núverandi líkan.",
       "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "translation": "4PL er samhverft um miðpunkt sinn. Raunveruleg ósamhverfa er til, og 4PL tekur hana upp í tilfært EC50; 5PL mátar hana með einum stika í viðbót, þarf einum styrk fleiri og segir til um hvort sá stiki hafi átt rétt á sér.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
+      "translation": "Nefndu þetta sniðmát — eitthvað sem þú myndir segja upphátt, eins og „Toxo PVM, 40×“:",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

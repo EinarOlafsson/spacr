@@ -303,13 +303,6 @@
       "translation": "Träfflistan kunde inte byggas."
     },
     {
-      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
-      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
-      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
-      "table": "ui",
-      "translation": "Percentilen som mappas till svart. Höj den för att trycka ner mer bakgrund; 0 behåller den mörkaste pixeln."
-    },
-    {
       "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
       "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
       "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
@@ -373,5 +366,15 @@
       "translation": "tolkas — läs in en tabell för att se värdena"
     }
   ],
-  "schema": 1
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "Percentilen som mappas till svart. Höj den för att trycka ner mer bakgrund; 0 behåller den mörkaste pixeln.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    }
+  ]
 }

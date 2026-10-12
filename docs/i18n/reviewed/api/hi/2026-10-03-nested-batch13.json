@@ -305,7 +305,9 @@
       "source_sha256": "1d9bc885794d2e6c214f367936648ed948582dc391e06c1bbae0fb93f7ab8582",
       "context": "A radar is a polygon, not an axis. This was the last figure on the explanation path that could not move to the screen's renderer, on the grounds that pyqtgraph has no polar view -- which is true and was never the obstacle: each label takes an angle, each value a radius, and `FastPlot.add_radar` draws its own rings because a radar read against a square grid is unreadable.",
       "translation": "रडार एक बहुभुज है, अक्ष नहीं। यह व्याख्या पथ पर वह अंतिम चित्र था जो व्यू के रेंडरर पर नहीं जा सका, इस आधार पर कि pyqtgraph में कोई ध्रुवीय दृश्य नहीं है -- जो सच है और कभी बाधा नहीं थी: हर लेबल एक कोण लेता है, हर मान एक त्रिज्या, और `FastPlot.add_radar` अपने स्वयं के वलय बनाता है क्योंकि वर्गाकार ग्रिड पर पढ़ा गया रडार अपठनीय होता है।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.interpret_vision_model.extract_compartment_channel#0",
@@ -505,7 +507,9 @@
       "source_sha256": "1eac4042fb1665282ff310067040008a5af2e5699752ff46af88ec134558e981",
       "context": "A per-well positive count is not comparable between microplate sample positions of different size: ``process_scores`` sums the response for the count models, so a well of 2000 cells contributes roughly four times the count of a well of 500 at the identical underlying rate. Modelling that count without ``offset(log(Ntotal))`` asks the covariates to explain well size, and any covariate correlated with it comes back as a hit. Measured on a 400-well simulation with a nuisance covariate that drives well size and nothing else, and a true rate coefficient of +1.5: without the offset the nuisance term came back at +1.88 with p = 0, ahead of the real effect; with it, +0.002 with p = 0.90.",
       "translation": "प्रति वेल सकारात्मक गणना अलग-अलग आकार के वेल के बीच तुलनीय नहीं है: ``process_scores`` गणना मॉडलों के लिए प्रतिक्रिया का योग करता है, इसलिए समान अंतर्निहित दर पर 2000 कोशिकाओं वाला वेल 500 वाले वेल की गणना का लगभग चार गुना योगदान देता है। ``offset(log(Ntotal))`` के बिना उस गणना को मॉडल करना सहचरों से वेल का आकार समझाने को कहता है, और उससे सहसंबद्ध कोई भी सहचर हिट के रूप में लौटता है। 400-वेल सिमुलेशन पर मापा गया, जिसमें एक व्यवधान सहचर केवल वेल का आकार तय करता है और वास्तविक दर गुणांक +1.5 है: ऑफ़सेट के बिना व्यवधान पद +1.88 पर p = 0 के साथ लौटा, वास्तविक प्रभाव से आगे; ऑफ़सेट के साथ +0.002 पर p = 0.90 के साथ।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_model._poisson_offset#2",
@@ -553,7 +557,9 @@
       "source_sha256": "6100cc8b456c4bccc17620109c5de698c6c3e27dc5745e2afe328cb606c82a90",
       "context": "OLS on a design whose COVARIATES carry a spline basis.",
       "translation": "ऐसे डिज़ाइन पर OLS जिसके सहचर एक स्प्लाइन आधार रखते हैं।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_model._spline#1",
@@ -569,7 +575,9 @@
       "source_sha256": "35489119ccfdac9bb3184ba340849d2cb8089596ad95fee1d9c079137516b538",
       "context": "A column is treated as a covariate when it is CONTINUOUS and is not a guide or gene term -- an indicator has nothing to bend through, and expanding one would spend degrees of freedom on nothing.",
       "translation": "किसी कॉलम को सहचर तब माना जाता है जब वह सतत हो और गाइड या जीन पद न हो -- किसी संकेतक के पास झुकने के लिए कुछ नहीं होता, और उसे विस्तारित करना स्वतंत्रता की कोटियों को व्यर्थ खर्च करेगा।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_model._wls#0",
@@ -1305,7 +1313,9 @@
       "source_sha256": "e5adbd7985b4b46b53e7ad06a5320ef81e2af36577869faa96f732566e86fb73",
       "context": "ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY ARE THE DATA, so these series keep distinct hues -- but they come from the published palette in a fixed order rather than from seaborn's 100-colour 'deep' ramp reordered by an index list. A hundred hues is a hundred series nobody can tell apart, and the eighth one was a pastel that vanished on the dark ground.",
       "translation": "प्रति मापे गए कॉलम एक रेखा ऐसा मामला है जहाँ श्रेणियाँ वास्तव में डेटा हैं, इसलिए ये श्रृंखलाएँ अलग-अलग रंगत रखती हैं -- लेकिन वे सूचकांक सूची से पुनर्व्यवस्थित seaborn के 100-रंग 'deep' रैंप से नहीं, बल्कि प्रकाशित पैलेट से एक निश्चित क्रम में आती हैं। सौ रंगतें सौ श्रृंखलाएँ हैं जिन्हें कोई अलग नहीं कर सकता, और आठवीं एक हल्की रंगत थी जो गहरी पृष्ठभूमि पर गायब हो जाती थी।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.compare_reads_to_scores.plot_line._set_theme#2",
@@ -1337,7 +1347,9 @@
       "source_sha256": "74fff9209302d96063429ae40f1bc67d49ad6268a96d707b344c5986527bb42f",
       "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each row's own value. Default ``1``.",
       "translation": "एक प्लेट संख्या, कॉलम नाम नहीं। ``None`` के अलावा कोई भी मान हर ``plateID`` को ``plate<plate>`` में फिर से लिखता है; ``None`` हर पंक्ति का अपना मान रखता है। डिफ़ॉल्ट ``1``।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#3",
@@ -1409,7 +1421,9 @@
       "source_sha256": "5997077c927a06c80a2d635cce5f083a17ab8e38bd1a78537730c3e914cdd2ab",
       "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each CSV's own value. Default ``1``.",
       "translation": "एक प्लेट संख्या, कॉलम नाम नहीं। ``None`` के अलावा कोई भी मान हर ``plateID`` को ``plate<plate>`` में फिर से लिखता है; ``None`` हर CSV का अपना मान रखता है। डिफ़ॉल्ट ``1``।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#5",
@@ -1449,7 +1463,9 @@
       "source_sha256": "2b9c7e863129c83349669cbbbe155d2d88719d4c8e77066a1d4c2e644905986e",
       "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every row's ``plateID`` to ``plate<plate>``, discarding the laboratory microplate the CSV itself recorded; ``None`` keeps the CSV's own value and raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.",
       "translation": "एक प्लेट संख्या, कॉलम नाम नहीं। ``None`` के अलावा कोई भी मान हर पंक्ति के ``plateID`` को ``plate<plate>`` में फिर से लिखता है, और CSV द्वारा स्वयं दर्ज की गई प्लेट को त्याग देता है; ``None`` CSV का अपना मान रखता है और ``KeyError`` उठाता है यदि उसमें ``plateID`` कॉलम न हो। डिफ़ॉल्ट ``1``।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.generate_score_heatmap.group_cv_score#3",

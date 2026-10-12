@@ -33,7 +33,9 @@
       "source_sha256": "b5386b459acd0f3840d901eb11f0edcb0d47b6bbc37b70dcfb3f017aa1ce5815",
       "context": "Substring and not regex (`regex=False`): the terms come from a user naming laboratory microplates or microplate sample positions, and a stray `(` or `+` in one of them would otherwise raise out of pandas rather than simply matching nothing. Any term matching is enough -- several terms are alternatives, which is what a user listing them means.",
       "translation": "TEILZEICHENKETTE UND KEIN REGEX (`regex=False`): Die Begriffe stammen von einem Benutzer, der Platten oder Wells benennt, und ein verirrtes `(` oder `+` darin würde sonst aus pandas heraus einen Fehler auslösen, statt einfach auf nichts zu passen. Ein passender Begriff genügt -- mehrere Begriffe sind Alternativen, und genau das meint ein Benutzer, der sie aufzählt.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io._dataset_crop_refs._filter#2",
@@ -75,7 +77,9 @@
       "source_sha256": "01f5e1c68fbad680f3ef487d5a810275d66a853645fd6e017ddd8489df18e552",
       "context": "EITHER the caller named an image data channel dimension for it OR the folder is on disk: a processing session that segmented an object always has the folder, and a processing session being re-read from settings may name the object before the folder is written. Requiring both would drop a mask stack that is sitting right there.",
       "translation": "ENTWEDER hat der Aufrufer eine Kanaldimension dafür genannt ODER der Ordner liegt auf der Festplatte: Ein Lauf, der ein Objekt segmentiert hat, hat immer den Ordner, und ein Lauf, der aus den Einstellungen neu gelesen wird, kann das Objekt nennen, bevor der Ordner geschrieben ist. Beides zu verlangen würde einen Maskenstapel verwerfen, der direkt daliegt.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io._load_and_concatenate_arrays.add_mask_folder#2",
@@ -99,7 +103,9 @@
       "source_sha256": "7818f055ff5bdf3d83a9c2533351a59b683ec0b9d5f3d87c8e55dbb8f9dfb5f2",
       "context": "A font size in POINTS for a fraction of the frame's short side.",
       "translation": "Eine Schriftgröße in PUNKT für einen Bruchteil der kurzen Seite des Frames.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io._mask_movie_frame_geometry._points#1",
@@ -107,7 +113,9 @@
       "source_sha256": "f1d9be0016e453724469a80246267301da980cd1e3a6f549947616183c2528a1",
       "context": "Matplotlib sizes text in points and this geometry is in pixels, so the conversion has to use the dpi the writer will actually use -- computing it against a default dpi puts the labels at the wrong size in the file while looking right on application view. Floored at 5 pt, below which a label is ink rather than text.",
       "translation": "Matplotlib bemisst Text in Punkt, und diese Geometrie ist in Pixeln, daher muss die Umrechnung die dpi verwenden, die der Writer tatsächlich verwendet -- sie gegen eine Standard-dpi zu berechnen setzt die Beschriftungen in der Datei in falscher Größe, während sie in der Anzeige richtig aussehen. Untergrenze 5 pt, darunter ist eine Beschriftung Tinte statt Text.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io._read_and_merge_data._merge_grouped#0",
@@ -123,7 +131,9 @@
       "source_sha256": "9ea78d5e5fcd580314a032216e910cad2c23524f026da3c21a86042318df5a16",
       "context": "The join type now comes from the registry. It used to be inner unconditionally -- pandas' default, since no ``how=`` was passed -- and this docstring said the choice was \"deliberately left alone\" because the decision had not been made. It has since: `object_roles. join_how` records it and `_read_and_join_tables` already reads it, so the two readers of the same tables were disagreeing about which objects exist.",
       "translation": "DER JOIN-TYP KOMMT JETZT AUS DER REGISTRY. Früher war er bedingungslos inner -- der Standard von pandas, da kein ``how=`` übergeben wurde --, und dieser Docstring sagte, die Wahl sei \"deliberately left alone\", weil die Entscheidung noch nicht getroffen war. Inzwischen ist sie es: `object_roles. join_how` hält sie fest und `_read_and_join_tables` liest sie bereits, sodass sich die beiden Leser derselben Tabellen uneinig waren, welche Objekte existieren.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io._read_and_merge_data._merge_grouped#2",
@@ -139,7 +149,9 @@
       "source_sha256": "13e102d3a1239ef7b11d63eaee50fffb837e68ce3f555ab4033b243de681b1a4",
       "context": "Inner for pathogen was the consequential one: it silently conditioned every result on infection, deleting the control population from the denominator without a word.",
       "translation": "Inner für pathogen war der folgenreiche Fall: Es konditionierte jedes Ergebnis stillschweigend auf Infektion und löschte die Kontrollpopulation wortlos aus dem Nenner.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io._read_and_merge_data._merge_grouped#4",
@@ -155,7 +167,9 @@
       "source_sha256": "c7066a542cf67d226f800124e43cbffc2aee204e003305b631cf029c1dbf4082",
       "context": "What is NOT defensible is doing it in silence, which is what this used to do. The discontinuity is brutal: on a 100-cell plate where NO extracted image region carries a usable object id, png_list drops out before the join and all 100 cells survive; where exactly ONE does, the merge keeps that one and deletes the other 99. Nothing printed either way, and every shipped caller passes verbose=False.",
       "translation": "NICHT vertretbar ist, es stillschweigend zu tun, und genau das tat dies früher. Die Unstetigkeit ist brutal: Auf einer Platte mit 100 Zellen, auf der KEIN Ausschnitt eine verwendbare Objekt-ID trägt, fällt png_list vor dem Join heraus und alle 100 Zellen bleiben erhalten; wo es genau EINER tut, behält die Zusammenführung diese eine und löscht die anderen 99. In keinem Fall wurde etwas ausgegeben, und jeder ausgelieferte Aufrufer übergibt verbose=False.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io._read_and_merge_data._merge_grouped#6",
@@ -251,7 +265,9 @@
       "source_sha256": "6e9f0af09ca53d43eeef787339e5d113702685ac0fe026b7fb44ead074d8ba7f",
       "context": "The microplate sample position ids come from :func:`spacr.convert.well_sequence`, which builds them out of :data:`spacr.schema.PLATE_FORMATS` — one definition instead of the three copies of ``\"ABCDEFGHIJKLMNOP\"`` and ``range(1, 25)`` this module used to carry.",
       "translation": "Die Well-IDs stammen aus :func:`spacr.convert.well_sequence`, das sie aus :data:`spacr.schema.PLATE_FORMATS` aufbaut — eine Definition statt der drei Kopien von ``\"ABCDEFGHIJKLMNOP\"`` und ``range(1, 25)``, die dieses Modul früher mitführte.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.convert_to_yokogawa._get_next_well#2",
@@ -275,7 +291,9 @@
       "source_sha256": "3f44bf1bde2b744eae1a3cde98259fcd8fad7dee60cd667cb8ed9fe1302138da",
       "context": "Plain lists rather than `itertuples`, for two measured reasons: the joined UMAP frame carries a couple of hundred columns, so building a namedtuple per row of it costs more than reading the extracted image regions does, and itertuples silently RENAMES any column whose name is not a valid identifier -- which is how a lookup starts missing a column that is plainly there.",
       "translation": "EINFACHE LISTEN STATT `itertuples`, aus zwei gemessenen Gründen: Der verbundene UMAP-Frame trägt ein paar hundert Spalten, sodass das Erzeugen eines namedtuple pro Zeile mehr kostet als das Lesen der Ausschnitte, und itertuples BENENNT jede Spalte stillschweigend UM, deren Name kein gültiger Bezeichner ist -- so beginnt eine Abfrage, eine Spalte zu verfehlen, die offensichtlich da ist.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.crop_refs_for_rows._col#2",
@@ -291,7 +309,9 @@
       "source_sha256": "23cdb918ae613e647efc0713ceda9ea9c3e1d8a4eb3930c1ac4fbd9eb63e1ce1",
       "context": "Whether a cell carries no answer.",
       "translation": "Ob eine Zelle keine Antwort trägt.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.crop_refs_for_rows._missing#1",
@@ -299,7 +319,9 @@
       "source_sha256": "c2d8a73a5de873899710789bf40e6aafd3833d3a7113e79ee27bc4bb70839643",
       "context": "NaN as well as None, because a column read out of pandas holds NaN where a row had nothing and `None is not float('nan')`. Testing only for None lets a NaN through as if it were a value, and it then reaches a path name or an object label.",
       "translation": "NaN EBENSO WIE None, weil eine aus pandas gelesene Spalte NaN enthält, wo eine Zeile nichts hatte, und `None is not float('nan')`. Nur auf None zu prüfen lässt NaN durch, als wäre es ein Wert, und es erreicht dann einen Pfadnamen oder ein Objektlabel.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.generate_training_dataset._annotation_classes_from_columns#0",
@@ -339,7 +361,9 @@
       "source_sha256": "1b0682835a1aa330b5a67378d582deaf545fb2031c1a4d700cfe5975e42cc8e1",
       "context": "A machine-learning classification model trained on 9,000 negatives and 300 positives learns to say \"negative\", so balancing is the ordinary case rather than an exotic one -- but it throws away data, which is why it is a setting and not a default of this function.",
       "translation": "EIN KLASSIFIKATOR, DER AUF 9,000 Negativen und 300 Positiven trainiert wird, lernt \"negative\" zu sagen, daher ist das Ausbalancieren der Normalfall und kein exotischer -- aber es WIRFT DATEN WEG, und deshalb ist es eine Einstellung und kein Standard dieser Funktion.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.generate_training_dataset._balance_lists#2",
@@ -395,7 +419,9 @@
       "source_sha256": "8210f74dec038e5ebf9f7bd606deb115988025311f5c7bdff49c3f95a359e955",
       "context": "A training set is never written over one that is already there. The folder is the record of what a model was trained on, so reusing the name would leave a model whose training data cannot be reconstructed.",
       "translation": "EIN TRAININGSSATZ WIRD NIE ÜBER EINEN BEREITS VORHANDENEN GESCHRIEBEN. Der Ordner ist die Aufzeichnung dessen, worauf ein Modell trainiert wurde, sodass eine Wiederverwendung des Namens ein Modell hinterließe, dessen Trainingsdaten sich nicht rekonstruieren lassen.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.generate_training_dataset._ensure_unique_dir#2",
@@ -427,7 +453,9 @@
       "source_sha256": "77692a64c8e0b2524f78aa8b3e6913d951aea46c1cd2a91b4cf593ee84e34644",
       "context": "The rule itself lives in `spacr.portable_paths` and is shared with the montage, which needs exactly this and used to get none of it -- the rule was a nested local here, reachable only from this generator, so a screen that had moved computer showed the montage 60,816 dead paths while this function resolved every one.",
       "translation": "DIE REGEL SELBST LIEGT IN `spacr.portable_paths` und wird mit der Montage geteilt, die genau das braucht und früher nichts davon bekam -- die Regel war hier eine verschachtelte lokale Funktion, nur von diesem Generator aus erreichbar, sodass ein Screen, der auf einen anderen Computer umgezogen war, der Montage 60,816 tote Pfade zeigte, während diese Funktion jeden einzelnen auflöste.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.generate_training_dataset._fix_path_under_src#2",
@@ -435,7 +463,9 @@
       "source_sha256": "2c52baa7e20ac55c19e540991f68e33adafc7e53c1c1e787fe4c5e56f7b8d206",
       "context": "The `/data/` rebuild is now only applied when it lands on a file that EXISTS. Rewriting to somewhere equally absent is strictly worse than leaving the recorded path alone: the copy below then fails naming a folder the user never chose.",
       "translation": "Der Neuaufbau über `/data/` wird jetzt nur angewendet, wenn er auf einer Datei landet, die EXISTIERT. Auf einen ebenso fehlenden Ort umzuschreiben ist strikt schlechter, als den aufgezeichneten Pfad unangetastet zu lassen: Die Kopie unten scheitert dann mit einem Ordner, den der Benutzer nie gewählt hat.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.generate_training_dataset._load_png_table#0",
@@ -451,7 +481,9 @@
       "source_sha256": "025cb547ac57cdb5648d7013fe63e7e9f79a7774d4084dac8114c392c81f6fa3",
       "context": "`png_list` ALONE, deliberately: joining it against the measurement tables would drop every object those tables do not also carry, and a training set is allowed to be a subset of what was measured.",
       "translation": "`png_list` ALLEIN, mit Absicht: Sie mit den Messtabellen zu verbinden würde jedes Objekt verwerfen, das diese Tabellen nicht ebenfalls führen, und ein Trainingssatz darf eine Teilmenge des Gemessenen sein.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.generate_training_dataset._load_png_table#2",
@@ -459,7 +491,9 @@
       "source_sha256": "781e764e801d44924f80e04d759da37664730ef334e0ccf8f8e4cd6068d8f657",
       "context": "NO `png_list` means no PNG folder was ever written, which is not the same as no data. The objects are still in the measurement table with the same well metadata the class rules select on, so that is read instead -- otherwise a project holding everything it needs reports \"0 classes\".",
       "translation": "KEINE `png_list` BEDEUTET, DASS NIE EIN PNG-ORDNER GESCHRIEBEN WURDE, und das ist nicht dasselbe wie keine Daten. Die Objekte stehen weiterhin in der Messtabelle mit denselben Well-Metadaten, nach denen die Klassenregeln auswählen, also wird stattdessen diese gelesen -- sonst meldet ein Projekt, das alles Nötige enthält, \"0 classes\".",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.generate_training_dataset._load_png_table#3",
@@ -635,7 +669,9 @@
       "source_sha256": "937a3c4919b5eeafd3e66e3f9b6cfdc5bfba3acf63fdd72371f76fb7bb98d693",
       "context": "NumPy dtype the image layer is cast to before writing. This cast is the whole of the \"bit depth is preserved\" promise — pass the dtype ``load_image`` reported for the source rather than a convenient default, or 16-bit data is silently rewritten.",
       "translation": "NumPy-dtype, in den die Ebene vor dem Schreiben umgewandelt wird. Diese Umwandlung ist das ganze Versprechen \"bit depth is preserved\" — übergeben Sie den dtype, den ``load_image`` für die Quelle gemeldet hat, statt eines bequemen Standards, sonst werden 16-Bit-Daten stillschweigend umgeschrieben.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.process_non_tif_non_2D_images.save_grayscale_images#5",
@@ -715,7 +751,9 @@
       "source_sha256": "b4f84b2bb7515e3c78a701072fe64665e69149c400a8e17b7521c6b50a109050",
       "context": "One function per COLUMN rather than per figure because the caller asks for accuracy, loss and the rest by name, and every one of them is the same plot of the same two frames.",
       "translation": "Eine Funktion pro SPALTE statt pro Abbildung, weil der Aufrufer Genauigkeit, Verlust und den Rest beim Namen anfordert, und jede davon ist derselbe Plot derselben zwei Frames.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.read_plot_model_stats._plot_and_save#2",
@@ -779,7 +817,9 @@
       "source_sha256": "09eae3e35c64e7415bcb5bbf28fa45e94b946d024b8c7c9d33342eae3ff0ec9c",
       "context": "Normalised through `schema`, which is the same rule the file names themselves were written by -- matching the raw text instead would make a selection depend on which of three spellings the user typed. Anything schema cannot read is lower-cased and passed through, so a token from a convention it has not met still selects itself.",
       "translation": "NORMALISIERT ÜBER `schema`, dieselbe Regel, nach der die Dateinamen selbst geschrieben wurden -- stattdessen den Rohtext abzugleichen würde eine Auswahl davon abhängig machen, welche von drei Schreibweisen der Benutzer eingetippt hat. Alles, was schema nicht lesen kann, wird kleingeschrieben und durchgereicht, sodass ein Token aus einer Konvention, die es noch nicht kennt, trotzdem sich selbst auswählt.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel._join_on_destroy._join#0",

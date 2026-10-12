@@ -33,13 +33,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "timelapse_lineage_bud_guard",
-      "source": "Accept an inferred division only when the mother shows daughter buds in the 8 frames before it: inside her mask, the 95th percentile over the median of the channel the objects were segmented on (an inner membrane complex marker such as IMC1) must reach timelapse_lineage_bud_threshold. Very precise, but divisions with faint buds are lost. It needs the images, so it applies when masks are generated and not in Measure. Ignored unless timelapse_lineage. Default False.",
-      "source_sha256": "ca53e3bfc55e62c0fcf4318d444241da7af5fa3d75a6ca3fb20cf562e43f1de5",
-      "translation": "仅当母细胞在分裂前 8 帧内显示子芽时才接受推断的分裂：在其掩膜内，第 95 百分位数与中位数之比（基于分割对象所用的通道，例如 IMC1 等内膜复合体标记物）必须达到 timelapse_lineage_bud_threshold。精度很高，但子芽信号较弱的分裂会被遗漏。此项需要图像，因此在生成掩膜时应用，不在测量模块中应用。除非开启 timelapse_lineage，否则忽略。默认值 False。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "timelapse_lineage_bud_threshold",
       "source": "Lowest daughter-bud signal for timelapse_lineage_bud_guard: the 95th percentile over the median of the segmentation channel inside the mother. On a Toxoplasma EGFP-IMC1 movie, 2.6 kept 10 of 18 real divisions and no false ones; lower it to keep divisions with fainter buds. Blank uses 2.6. Ignored unless timelapse_lineage_bud_guard. Default 2.6.",
       "source_sha256": "1b941bbcc381b4392f9772f3140aca58a88516f909cce81460ff7bcc76a3c5b2",
@@ -163,6 +156,16 @@
       "source": "µm",
       "source_sha256": "3b1ec39664627ace73cc50b1ca00dd16aa8873fa04489e7b08ea599c2dcaeff5",
       "translation": "µm"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_bud_guard",
+      "source": "Accept an inferred division only when the mother shows daughter buds in the 8 frames before it: inside her mask, the 95th percentile over the median of the channel the objects were segmented on (an inner membrane complex marker such as IMC1) must reach timelapse_lineage_bud_threshold. Very precise, but divisions with faint buds are lost. It needs the images, so it applies when masks are generated and not in Measure. Ignored unless timelapse_lineage. Default False.",
+      "source_sha256": "ca53e3bfc55e62c0fcf4318d444241da7af5fa3d75a6ca3fb20cf562e43f1de5",
+      "translation": "仅当母细胞在分裂前 8 帧内显示子芽时才接受推断的分裂：在其掩膜内，第 95 百分位数与中位数之比（基于分割对象所用的通道，例如 IMC1 等内膜复合体标记物）必须达到 timelapse_lineage_bud_threshold。精度很高，但子芽信号较弱的分裂会被遗漏。此项需要图像，因此在生成掩膜时应用，不在测量模块中应用。除非开启 timelapse_lineage，否则忽略。默认值 False。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

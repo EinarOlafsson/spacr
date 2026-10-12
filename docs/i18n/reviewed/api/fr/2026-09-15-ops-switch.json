@@ -97,7 +97,9 @@
       "label": "spacr.ops_cycles.align_field#5",
       "source": "let the phase correlations run on the card.",
       "source_sha256": "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
-      "translation": "fait exécuter les corrélations de phase sur la carte graphique."
+      "translation": "fait exécuter les corrélations de phase sur la carte graphique.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the aligned field.",
@@ -206,7 +208,9 @@
       "label": "spacr.ops_layout.WellLayout#5",
       "source": "half a tile's side, in grid units. A site is kept when its whole tile lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this field existed.",
       "source_sha256": "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
-      "translation": "la moitié du côté d'une tuile, en unités de grille. Un site est conservé lorsque sa tuile entière se trouve dans le cercle : à ``(dx, dy)`` du centre, lorsque ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zéro conserve tout site dont le centre est à l'intérieur, ce qui est la règle que suivait toute disposition avant l'existence de ce champ."
+      "translation": "la moitié du côté d'une tuile, en unités de grille. Un site est conservé lorsque sa tuile entière se trouve dans le cercle : à ``(dx, dy)`` du centre, lorsque ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zéro conserve tout site dont le centre est à l'intérieur, ce qui est la règle que suivait toute disposition avant l'existence de ce champ.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The microscope image field has to fit, not its centre. The centre rule holds the 333-microscope field of view sequencing well and cannot produce the column heights the 1,281-microscope field of view phenotype well was measured at, for any radius. With the footprint term both come out as measured, and every column is centred on the same row.",
@@ -241,7 +245,9 @@
       "label": "spacr.ops_layout.round_well_layout#6",
       "source": "when no circle holds exactly that many fields, which is the honest answer -- a count that no round well produces means the acquisition is not one, and guessing the nearest would place every tile slightly wrong. Also when ``half_tile`` is negative or not a number.",
       "source_sha256": "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
-      "translation": "lorsqu'aucun cercle ne contient exactement ce nombre de champs, ce qui est la réponse honnête -- un nombre qu'aucun puits rond ne produit signifie que l'acquisition n'en est pas un, et deviner le plus proche placerait chaque tuile légèrement de travers. Aussi lorsque ``half_tile`` est négatif ou n'est pas un nombre."
+      "translation": "lorsqu'aucun cercle ne contient exactement ce nombre de champs, ce qui est la réponse honnête -- un nombre qu'aucun puits rond ne produit signifie que l'acquisition n'en est pas un, et deviner le plus proche placerait chaque tuile légèrement de travers. Aussi lorsque ``half_tile`` est négatif ou n'est pas un nombre.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "For one half microscope image field, the count fixes the fields. The number of fields inside the circle only grows with the radius, so every radius that holds exactly ``site_count`` holds the same ones. The radius the layout carries is one of those, not a measurement.",
@@ -255,7 +261,9 @@
       "label": "spacr.ops_objects#7",
       "source": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT: an object larger than the overlap, which every window clips. :func:`number` refuses those rather than emitting a fragment, because a fragment looks exactly like a small nucleus and would be counted as one for the rest of the run.",
       "source_sha256": "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
-      "translation": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT (reste donc une défaillance qui ne doit pas passer sous silence) : un objet plus grand que le recouvrement, que chaque fenêtre coupe. :func:`number` refuse ces objets plutôt que d'émettre un fragment, car un fragment ressemble exactement à un petit noyau et serait compté comme tel pendant tout le reste de l'exécution."
+      "translation": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT (reste donc une défaillance qui ne doit pas passer sous silence) : un objet plus grand que le recouvrement, que chaque fenêtre coupe. :func:`number` refuse ces objets plutôt que d'émettre un fragment, car un fragment ressemble exactement à un petit noyau et serait compté comme tel pendant tout le reste de l'exécution.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "refuse a group with no complete observation. Turned off, such a group is dropped rather than numbered -- nothing with a truncated area is emitted -- and how many were dropped is logged as a warning.",
@@ -290,7 +298,9 @@
       "label": "spacr.ops_phenotype.phenotype_centres#0",
       "source": "Where every phenotype field's centre lies, from a few measured ones.",
       "source_sha256": "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
-      "translation": "Où se trouve le centre de chaque champ de phénotype, à partir de quelques centres mesurés."
+      "translation": "Où se trouve le centre de chaque champ de phénotype, à partir de quelques centres mesurés.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many microscope fields of view it holds.",
@@ -395,7 +405,9 @@
       "label": "spacr.ops_sample.barcode_rows#1",
       "source": "Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which already normalises each cycle's channels and reports quality as the MINIMUM over cycles -- \"a barcode is only as trustworthy as its worst base\". Repeating that here would be a second decoder to keep in step.",
       "source_sha256": "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
-      "translation": "Délègue l'appel lui-même à :func:`spacr.ops_sbs.call_reads`, qui normalise déjà les canaux de chaque cycle et rapporte la qualité comme le MINIMUM (minimum) sur les cycles -- \"un code-barres n'est fiable que dans la mesure de sa pire base\". Le répéter ici ferait un second décodeur à maintenir en phase."
+      "translation": "Délègue l'appel lui-même à :func:`spacr.ops_sbs.call_reads`, qui normalise déjà les canaux de chaque cycle et rapporte la qualité comme le MINIMUM (minimum) sur les cycles -- \"un code-barres n'est fiable que dans la mesure de sa pire base\". Le répéter ici ferait un second décodeur à maintenir en phase.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Optical pooled screening reads the guide barcode out of the images. Each sequencing cycle stains four image data channels, one per base, and a spot's base in that cycle is whichever image data channel is brightest -- once the image data channels have been put on a common scale. Read one base per cycle at the same spot and the cycles spell the barcode.",

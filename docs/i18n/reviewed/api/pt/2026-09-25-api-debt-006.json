@@ -72,7 +72,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the search filter. Typing the key into the box above would hide every other setting as well, so a user who arrived from the Help search and then wanted to look at the neighbouring rows would first have to work out what had happened to the form. Revealing instead leaves the module whole and only decides which heading is open.",
       "source_sha256": "caf5f1a0a3722398eeb6e30b294f71f6e51e63f49d05e2650f2bbd3d8cced7cc",
-      "translation": "O QUE UM RESULTADO DA BUSCA DA AJUDA PRECISA, e deliberadamente NÃO é o filtro de busca. Digitar a chave na caixa acima também ocultaria todas as outras configurações, de modo que um usuário que chegou pela busca da Help e depois quisesse olhar as linhas vizinhas teria primeiro de descobrir o que aconteceu com o formulário. Revelar, em vez disso, deixa o módulo inteiro e só decide qual título fica aberto."
+      "translation": "O QUE UM RESULTADO DA BUSCA DA AJUDA PRECISA, e deliberadamente NÃO é o filtro de busca. Digitar a chave na caixa acima também ocultaria todas as outras configurações, de modo que um usuário que chegou pela busca da Help e depois quisesse olhar as linhas vizinhas teria primeiro de descobrir o que aconteceu com o formulário. Revelar, em vez disso, deixa o módulo inteiro e só decide qual título fica aberto.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is rebuilt and no value is read or written: the row was already on the form, and this shows its section and scrolls to it -- or, for a category not built yet (indexed with no field), the screen builds it first, as opening it would. That is what makes arriving here from a search safe for a half-typed value -- the same property the filter has, for the same reason.",
@@ -88,7 +90,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE IS NEVER REMEMBERED. Switching to All settings unconditionally would work, and it would also rewrite this module's remembered Essentials/All choice every time anybody arrived here -- a setting the user chose, changed as a side effect of looking something up. So the filter is cleared first and the level is raised only when the row is still not on the form afterwards, which is exactly the case where Essentials is what is hiding it; and the raise goes through :meth:`_show_all_without_remembering`, so the form shows the row while the store still holds the level the user picked. Most settings are not essentials, so a lookup that persisted the raise would move almost every module out of Essentials for good.",
       "source_sha256": "b1f48766f0fbd038206a6566ba41e8d82d9249b242a80e86819145697f07ad1e",
-      "translation": "O NÍVEL DE EXIBIÇÃO SÓ É ALTERADO SE PRECISAR SER, E A ALTERAÇÃO NUNCA É LEMBRADA. Mudar para All settings incondicionalmente funcionaria, e também reescreveria a escolha Essentials/All lembrada deste módulo toda vez que alguém chegasse aqui -- uma configuração que o usuário escolheu, alterada como efeito colateral de procurar algo. Então o filtro é limpo primeiro e o nível só é elevado quando a linha ainda não está no formulário depois disso, que é exatamente o caso em que é Essentials que a está ocultando; e a elevação passa por :meth:`_show_all_without_remembering`, de modo que o formulário mostra a linha enquanto o armazenamento ainda guarda o nível que o usuário escolheu. A maioria das configurações não é essencial, então uma consulta que persistisse a elevação tiraria quase todos os módulos de Essentials para sempre."
+      "translation": "O NÍVEL DE EXIBIÇÃO SÓ É ALTERADO SE PRECISAR SER, E A ALTERAÇÃO NUNCA É LEMBRADA. Mudar para All settings incondicionalmente funcionaria, e também reescreveria a escolha Essentials/All lembrada deste módulo toda vez que alguém chegasse aqui -- uma configuração que o usuário escolheu, alterada como efeito colateral de procurar algo. Então o filtro é limpo primeiro e o nível só é elevado quando a linha ainda não está no formulário depois disso, que é exatamente o caso em que é Essentials que a está ocultando; e a elevação passa por :meth:`_show_all_without_remembering`, de modo que o formulário mostra a linha enquanto o armazenamento ainda guarda o nível que o usuário escolheu. A maioria das configurações não é essencial, então uma consulta que persistisse a elevação tiraria quase todos os módulos de Essentials para sempre.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True when the module renders ``key`` and it was revealed.",
@@ -352,7 +356,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**Qt Multimedia is touched only on the GUI thread.** :class:`_SoundPlayer` owns ``QMediaDevices`` and every ``QSoundEffect`` and lives where the application's event loop does; the dedicated ``QThread`` keeps the part that is genuinely slow, which is synthesizing a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing from Qt Multimedia). Connecting to the sound server is slow -- 354 ms measured on a PipeWire workstation -- so it is paid ONCE, on an idle timer after sound is switched on (:meth:`SoundEngine._warm`), and logged rather than felt. Playing an already loaded sound is ``play()``, which returns at once: 0.007-0.014 ms on the GUI thread against the real stack.",
       "source_sha256": "5894e2c5a68f3a935e9201e73e95722d2ad7b83a30292ff844e37a77fcd99aae",
-      "translation": "**O Qt Multimedia só é tocado na thread da GUI.** :class:`_SoundPlayer` é dono de ``QMediaDevices`` e de todo ``QSoundEffect`` e vive onde vive o laço de eventos da aplicação; o ``QThread`` dedicado fica com a parte realmente lenta, que é sintetizar um conjunto de sons (:class:`_SoundRenderer`, numpy e gravações de arquivos, nada do Qt Multimedia). Conectar ao servidor de som é lento -- 354 ms medidos em uma estação de trabalho com PipeWire --, então esse custo é pago UMA VEZ, em um temporizador ocioso depois que o som é ligado (:meth:`SoundEngine._warm`), e registrado no log em vez de sentido. Tocar um som já carregado é ``play()``, que retorna imediatamente: 0.007-0.014 ms na thread da GUI contra a pilha real."
+      "translation": "**O Qt Multimedia só é tocado na thread da GUI.** :class:`_SoundPlayer` é dono de ``QMediaDevices`` e de todo ``QSoundEffect`` e vive onde vive o laço de eventos da aplicação; o ``QThread`` dedicado fica com a parte realmente lenta, que é sintetizar um conjunto de sons (:class:`_SoundRenderer`, numpy e gravações de arquivos, nada do Qt Multimedia). Conectar ao servidor de som é lento -- 354 ms medidos em uma estação de trabalho com PipeWire --, então esse custo é pago UMA VEZ, em um temporizador ocioso depois que o som é ligado (:meth:`SoundEngine._warm`), e registrado no log em vez de sentido. Tocar um som já carregado é ``play()``, que retorna imediatamente: 0.007-0.014 ms na thread da GUI contra a pilha real.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This rule is written in a crash. Building the effects on the audio independent execution path instead does move the connection off the main GUI execution path -- but Qt Multimedia's device handling belongs to the independent execution path that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong independent execution path. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
@@ -360,7 +366,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This rule is written in a crash. Building the effects on the audio thread instead does move the connection off the GUI thread -- but Qt Multimedia's device handling belongs to the thread that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong thread. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
       "source_sha256": "f4f938216c7727a2323e65b18b1d3f5e9e756a30d023062d76691118c5993865",
-      "translation": "Esta regra foi escrita a partir de um crash. Construir os efeitos na thread de áudio de fato tira a conexão da thread da GUI -- mas o tratamento de dispositivos do Qt Multimedia pertence à thread dona do laço de eventos, então, com o backend FFmpeg, ele ativa notificadores de socket a partir da thread errada. Reabrir Preferences com o som ligado então causa um segfault, ou trava a interface com um quadro de Preferences vazio até que ela seja encerrada à força."
+      "translation": "Esta regra foi escrita a partir de um crash. Construir os efeitos na thread de áudio de fato tira a conexão da thread da GUI -- mas o tratamento de dispositivos do Qt Multimedia pertence à thread dona do laço de eventos, então, com o backend FFmpeg, ele ativa notificadores de socket a partir da thread errada. Reabrir Preferences com o som ligado então causa um segfault, ou trava a interface com um quadro de Preferences vazio até que ela seja encerrada à força.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**A missing sound stack is silence.** No device, no server, no Qt Multimedia, a file that will not load: each ends in a debug log line and no sound. Nothing here raises into a caller and nothing opens a dialog.",
@@ -384,7 +392,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Application-wide filter that hears presses and hovers on controls.",
       "source_sha256": "7e0e303e178008d3c7df5826ca96692e5f005d021f6af384f96c38ec399729b7",
-      "translation": "Filtro de toda a aplicação que escuta cliques e passagens do mouse sobre controles."
+      "translation": "Filtro de toda a aplicação que escuta cliques e passagens do mouse sobre controles.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Installed only while a click or hover sound is wanted (see :meth:`SoundEngine.apply`). The body is two liveness checks and at most four comparisons for an event it does not want.",
@@ -584,7 +594,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Plays whatever the stored switches say: the dialog enables Preview only while its own master switch is on, and the press is the ask.",
       "source_sha256": "f145cbeda408be3532c769734f41dbfa06a3ee942c1dfc61addd22094a4361bf",
-      "translation": "Toca o que quer que os interruptores armazenados digam: o diálogo só ativa Preview enquanto seu próprio interruptor geral está ligado, e o clique é o pedido."
+      "translation": "Toca o que quer que os interruptores armazenados digam: o diálogo só ativa Preview enquanto seu próprio interruptor geral está ligado, e o clique é o pedido.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "any event, the music bed included.",
@@ -744,7 +756,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "a WAV of the user's own to play as the bed instead of the synthesized one. Empty means spaCR's own. It is also what the Resonance backdrop is driven by, because the backdrop follows WHATEVER IS PLAYING and there is only ever one thing.",
       "source_sha256": "67bef7c78099f3a95c81f27c54795b9c446ac630417b7dab8477b2a16051a155",
-      "translation": "um WAV do próprio usuário para tocar como trilha de fundo em vez da sintetizada. Vazio significa a do próprio spaCR. É também o que alimenta o fundo animado Resonance, porque o fundo segue O QUE ESTIVER TOCANDO e nunca há mais de uma coisa."
+      "translation": "um WAV do próprio usuário para tocar como trilha de fundo em vez da sintetizada. Vazio significa a do próprio spaCR. É também o que alimenta o fundo animado Resonance, porque o fundo segue O QUE ESTIVER TOCANDO e nunca há mais de uma coisa.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The linear gain the volume slider stands for.",
@@ -2820,7 +2834,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Qt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most styles set to about 700 ms and which nothing in spaCR was choosing. Tooltips therefore arrived while the pointer was still travelling, and left the instant it moved off the widget -- too fast to read, and impossible to reach if the text ran long.",
       "source_sha256": "fd35fd0958c30a1060b1956ca0bdb828edf722ea42804a7e4c30d1db76bb1e84",
-      "translation": "A resposta do próprio Qt é uma dica de estilo, ``SH_ToolTip_WakeUpDelay``, que a maioria dos estilos define em cerca de 700 ms e que nada no spaCR estava escolhendo. Por isso os tooltips chegavam enquanto o ponteiro ainda estava em movimento, e sumiam no instante em que ele saía do widget -- rápido demais para ler, e impossível de alcançar se o texto fosse longo."
+      "translation": "A resposta do próprio Qt é uma dica de estilo, ``SH_ToolTip_WakeUpDelay``, que a maioria dos estilos define em cerca de 700 ms e que nada no spaCR estava escolhendo. Por isso os tooltips chegavam enquanto o ponteiro ainda estava em movimento, e sumiam no instante em que ele saía do widget -- rápido demais para ler, e impossível de alcançar se o texto fosse longo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is sent again after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
@@ -2828,7 +2844,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is SENT AGAIN after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
       "source_sha256": "38a34a85d3d3beaefeaabfe003d3fa229831a51e83d66bc280edbd0549b6cd5d",
-      "translation": "Uma tabela, um cabeçalho ou uma lista responde a partir de ``Qt::ToolTipRole`` dentro de seu próprio ``event``, e não a partir de um ``toolTip()`` que algum filtro possa ler. Quando nada na cadeia de pais tem tooltip, o evento é ENVIADO DE NOVO depois da espera, com o filtro se afastando, para que esses tooltips ainda apareçam -- e apareçam pela mesma regra de dois segundos que todo o resto."
+      "translation": "Uma tabela, um cabeçalho ou uma lista responde a partir de ``Qt::ToolTipRole`` dentro de seu próprio ``event``, e não a partir de um ``toolTip()`` que algum filtro possa ler. Quando nada na cadeia de pais tem tooltip, o evento é ENVIADO DE NOVO depois da espera, com o filtro se afastando, para que esses tooltips ainda apareçam -- e apareçam pela mesma regra de dois segundos que todo o resto.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`tooltips_enabled` is the preference switch, on by default. Cleared, the ``ToolTip`` event is swallowed and no tooltip is shown anywhere.",
@@ -2844,7 +2862,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This module installs ONE event filter on ``QApplication`` and takes the decision away from the style:",
       "source_sha256": "ce5122ac263cc0d8e6acaf67d011e0961af57200bba92ec7f22f6ed4fb626ebd",
-      "translation": "Este módulo instala UM filtro de eventos em ``QApplication`` e tira a decisão do estilo:"
+      "translation": "Este módulo instala UM filtro de eventos em ``QApplication`` e tira a decisão do estilo:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;",
@@ -2902,7 +2922,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Qt PROPAGATES a tooltip event to the parent widget when the widget under the pointer has no tooltip of its own, which is how a card explains itself while the pointer is on the label written on it. The text is therefore resolved with :func:`tooltip_text_for`, up the parent chain, exactly as Qt would have.",
       "source_sha256": "a1b6fff96412015d46d9e7b16cbc02c56d2706325d23d8ee3649a546c5854cd5",
-      "translation": "O Qt PROPAGA um evento de tooltip para o widget pai quando o widget sob o ponteiro não tem tooltip próprio, e é assim que um cartão se explica enquanto o ponteiro está sobre o rótulo escrito nele. Por isso o texto é resolvido com :func:`tooltip_text_for`, subindo pela cadeia de pais, exatamente como o Qt teria feito."
+      "translation": "O Qt PROPAGA um evento de tooltip para o widget pai quando o widget sob o ponteiro não tem tooltip próprio, e é assim que um cartão se explica enquanto o ponteiro está sobre o rótulo escrito nele. Por isso o texto é resolvido com :func:`tooltip_text_for`, subindo pela cadeia de pais, exatamente como o Qt teria feito.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Install the application-wide tooltip filter. Idempotent.",
@@ -2958,7 +2980,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This is not a convenience: it is the behaviour being preserved. Qt PROPAGATES a tooltip event up the parent chain, so a label with no tooltip of its own inside a card that has one shows the card's. A filter that read ``widget.toolTip()`` alone and then swallowed the event would break every one of those -- a card explains itself until the pointer lands on the text written on it, and then it stops.",
       "source_sha256": "524b3473132577b2a7fb015cfc6aa9682495d87e808c5a19e4c80fa072af391b",
-      "translation": "Isto não é uma conveniência: é o comportamento sendo preservado. O Qt PROPAGA um evento de tooltip pela cadeia de pais, então um rótulo sem tooltip próprio dentro de um cartão que tem um mostra o do cartão. Um filtro que lesse apenas ``widget.toolTip()`` e depois engolisse o evento quebraria todos esses casos -- um cartão se explica até que o ponteiro pouse sobre o texto escrito nele, e então para."
+      "translation": "Isto não é uma conveniência: é o comportamento sendo preservado. O Qt PROPAGA um evento de tooltip pela cadeia de pais, então um rótulo sem tooltip próprio dentro de um cartão que tem um mostra o do cartão. Um filtro que lesse apenas ``widget.toolTip()`` e depois engolisse o evento quebraria todos esses casos -- um cartão se explica até que o ponteiro pouse sobre o texto escrito nele, e então para.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the hovered widget, or ``None``; its ``toolTip()`` is read, then each parent's up to and including its window (at most 64 levels).",
@@ -3014,7 +3038,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "When the \"Verbose logging\" preference is on, spaCR's Python loggers are dialled up to DEBUG and the log files keep those records. The active ConsolePanel shows only the levels switched on for the console on the Logging tab of Preferences. That puts a detailed trail on disk, which is what you want when triaging a bug report.",
       "source_sha256": "8d0988c45c798e6fc097f1b476a6a9cf0961757d909b657667272f2ed90a3be9",
-      "translation": "Quando a preferência \"Verbose logging\" está ligada, os loggers Python do spaCR são ajustados para DEBUG e os arquivos de log mantêm esses registros. O ConsolePanel ativo mostra apenas os níveis ligados para o console na aba Logging de Preferences. Isso deixa um rastro detalhado em disco, que é o que se quer ao investigar um relatório de bug."
+      "translation": "Quando a preferência \"Verbose logging\" está ligada, os loggers Python do spaCR são ajustados para DEBUG e os arquivos de log mantêm esses registros. O ConsolePanel ativo mostra apenas os níveis ligados para o console na aba Logging de Preferences. Isso deixa um rastro detalhado em disco, que é o que se quer ao investigar um relatório de bug.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numeric logging levels the console should show; anything outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are lowered to the lowest level kept.",
@@ -4784,7 +4810,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on screen, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
       "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
-      "translation": ":class:`FocusCollapse` A metade automática. Alguns widgets são widgets de FOCO (uma pré-visualização ao vivo, o painel de figuras): enquanto qualquer um deles está na tela, os painéis ALVO se recolhem (console, System, os botões, a coluna de configurações), e quando o último sai, eles voltam. Ele nunca briga com o usuário: um alvo que o usuário expande à mão fica FIXADO aberto e é deixado em paz até que a VISUALIZAÇÃO termine. Veja a classe para saber o que é uma visualização."
+      "translation": ":class:`FocusCollapse` A metade automática. Alguns widgets são widgets de FOCO (uma pré-visualização ao vivo, o painel de figuras): enquanto qualquer um deles está na tela, os painéis ALVO se recolhem (console, System, os botões, a coluna de configurações), e quando o último sai, eles voltam. Ele nunca briga com o usuário: um alvo que o usuário expande à mão fica FIXADO aberto e é deixado em paz até que a VISUALIZAÇÃO termine. Veja a classe para saber o que é uma visualização.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",

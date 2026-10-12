@@ -369,7 +369,9 @@
       "source_sha256": "c35dade78afa66c10d92b0612f04313dbbec9bc7fd8a75d30eb7113c4eb3b9fa",
       "context": "The two halves fail separately on purpose. A listing that fails means the file is not a database and there is nothing to offer; a READ that fails, on one table of a database whose other tables listed fine, must still leave the picker populated -- that is how the user reaches the table that does read. Inline, that fell out of the order the old code ran in; here it has to be said.",
       "translation": "두 부분은 의도적으로 따로 실패합니다. 나열이 실패하면 파일이 데이터베이스가 아니며 제공할 것이 없다는 뜻입니다. 반면 다른 표들은 잘 나열된 데이터베이스의 한 표에서 읽기가 실패하면 선택기는 여전히 채워져 있어야 합니다. 그래야 사용자가 실제로 읽히는 표에 도달할 수 있습니다. 인라인일 때는 예전 코드의 실행 순서에서 저절로 그렇게 되었지만, 여기서는 명시해야 합니다.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.model_compare.ModelCompareScreen._run_job._job#0",
@@ -577,7 +579,9 @@
       "source_sha256": "21db5f067e77a95e0a9400dba493e4645042bc27b151ddf56427fa3767970ae1",
       "context": "A whole number comes back as an int. The CSV cannot distinguish a count from a measurement, and reading everything as float renders \"on 12517.0 objects\" in a tooltip -- a count with a decimal point reads as a rounding, which it is not.",
       "translation": "정수는 int로 반환됩니다. CSV는 개수와 측정값을 구별할 수 없으며, 모두 float로 읽으면 툴팁에 \"on 12517.0 objects\"가 표시됩니다. 소수점이 있는 개수는 반올림처럼 읽히지만 실제로는 그렇지 않습니다.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.scorecard.score_holdout.weighted#0",
@@ -625,7 +629,9 @@
       "source_sha256": "01ceb1428a1a8588a879b95906712a1d9dd7c06c54345727f9b0bdac5c987b1b",
       "context": "``index`` is the strictest candidate yielding ``achieved``. The plateau reaches down to just above the last candidate that yielded MORE than ``achieved``, found by a second bisection on the same monotone statistic.",
       "translation": "``index``는 ``achieved``를 내는 가장 엄격한 후보입니다. 고원은 ``achieved``보다 많은 값을 낸 마지막 후보 바로 위까지 내려가며, 이 후보는 같은 단조 통계량에 대한 두 번째 이분 탐색으로 찾습니다.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sequencing_qc.derive_threshold.stat#0",

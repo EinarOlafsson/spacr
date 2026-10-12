@@ -6,7 +6,9 @@
       "label": "spacr.qt.widgets.loading_screen#2",
       "source": "Those imports have to run on the MAIN thread -- doing them on a worker races Qt's own GPU initialisation and segfaults, which is recorded above :class:`spacr.qt.app._PipelinePreloader`. So the event loop *will* be blocked for seconds. The only question is whether the user is looking at a window that appears interactive while it happens.",
       "source_sha256": "fb0ae0ecdd78fdf0ba9734ce9c0e879ed3feac2620c56d2f4803ff52c9f1e24a",
-      "translation": "इन imports को मुख्य execution path पर चलना ही चाहिए—worker पर चलाने से Qt के अपने GPU initialization के साथ race होकर segfault होता है, जैसा :class:`spacr.qt.app._PipelinePreloader` के ऊपर दर्ज है। इसलिए event का loop कुछ seconds के लिए *block होगा*। प्रश्न केवल यह है कि उस समय उपयोगकर्ता ऐसी window देख रहा है या नहीं जो interactive लगती है।"
+      "translation": "इन imports को मुख्य execution path पर चलना ही चाहिए—worker पर चलाने से Qt के अपने GPU initialization के साथ race होकर segfault होता है, जैसा :class:`spacr.qt.app._PipelinePreloader` के ऊपर दर्ज है। इसलिए event का loop कुछ seconds के लिए *block होगा*। प्रश्न केवल यह है कि उस समय उपयोगकर्ता ऐसी window देख रहा है या नहीं जो interactive लगती है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A live view like the other three, and since the shared contract (:class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`) it wears their vocabulary: the same **Run preview** button, the same **Cancel** beside it, and a sentence on the status line whenever it cannot preview. It used to be alone in every one of those columns — its button said \"Refresh crops\", nothing could be cancelled, and a press with no array loaded did nothing and said nothing.",
@@ -20,7 +22,9 @@
       "label": "spacr.qt.widgets.pca_view.PCAPanel#2",
       "source": "run the decomposition on a worker thread. **Defaults to False**, and the default is the interesting part -- see :meth:`recompute`. ``PCAScreen`` passes its own ``threaded`` through, so the application gets the threaded panel and a panel built directly keeps returning its result from the call.",
       "source_sha256": "cdc099da5a12a18812c705aa60dd9b7d820092c285092e1137f42cc31dfa251b",
-      "translation": "decomposition worker execution path पर चलाना है या नहीं। **डिफ़ॉल्ट False है**; कारण के लिए :meth:`recompute` देखें। ``PCAScreen`` अपना ``threaded`` value आगे भेजता है। इसलिए application threaded panel उपयोग करता है, जबकि सीधे बनाया panel call से synchronously result लौटाता है।"
+      "translation": "decomposition worker execution path पर चलाना है या नहीं। **डिफ़ॉल्ट False है**; कारण के लिए :meth:`recompute` देखें। ``PCAScreen`` अपना ``threaded`` value आगे भेजता है। इसलिए application threaded panel उपयोग करता है, जबकि सीधे बनाया panel call से synchronously result लौटाता है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":class:`DesignSpec` — the experiment as a screener describes it (genes, guides, microplate sample positions, laboratory microplates, effect size, prevalence, depth), plus the real-screening experiment values for everything the screener does not want to name.",
@@ -48,7 +52,9 @@
       "label": "spacr.resume.ResumeRefused#1",
       "source": "Raised when the fields already on disk were produced under settings that differ materially from the current ones. This is a :class:`~spacr.errors.ConfigurationError` on purpose: it is a setup mistake, not a per-field failure, and continuing past it would append apples to oranges in a single table with nothing to mark the seam.",
       "source_sha256": "9d2f023fa725788f4fd9d61f32cbd4c5da8959c9c85f03e0eb6beb34aedfa33a",
-      "translation": "यह exception तब उपयोग होता है जब disk पर मौजूद दृश्य-क्षेत्र ऐसी settings से बने हों जो वर्तमान settings से महत्वपूर्ण रूप से अलग हैं। यह जानबूझकर :class:`~spacr.errors.ConfigurationError` है: यह setup mistake है, per-field failure नहीं; इसे पार करके जारी रखने पर एक ही table में असंगत data जुड़ जाएगा और सीमा चिन्हित करने के लिए कुछ नहीं होगा।"
+      "translation": "यह exception तब उपयोग होता है जब disk पर मौजूद दृश्य-क्षेत्र ऐसी settings से बने हों जो वर्तमान settings से महत्वपूर्ण रूप से अलग हैं। यह जानबूझकर :class:`~spacr.errors.ConfigurationError` है: यह setup mistake है, per-field failure नहीं; इसे पार करके जारी रखने पर एक ही table में असंगत data जुड़ जाएगा और सीमा चिन्हित करने के लिए कुछ नहीं होगा।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Powers the Home-application view insights dashboard: ``total_runs`` (all manifests seen), ``mask_runs`` / ``measure_runs`` / ``classify_runs`` (per-app tallies), and ``models_recorded`` (distinct model hashes ever recorded, across runs of every app — not only mask runs). Returns zeros when no journal exists yet.",

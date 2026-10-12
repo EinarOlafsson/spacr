@@ -105,7 +105,9 @@
       "label": "spacr.qt.screens.embeddings#1",
       "source": "A SCREEN, NOT A SCRIPT. The upstream Cell-DINO, OpenPhenom and SubCell models expose Python interfaces. This screen also accepts an explicitly mapped, digest-verified local official Cell-DINO checkpoint.",
       "source_sha256": "86683c03831d2716325ffbd47fd72776568cdfa410d85311d5c17dfe44d296c7",
-      "translation": "एक स्क्रीन, स्क्रिप्ट नहीं। मूल Cell-DINO, OpenPhenom और SubCell मॉडल Python इंटरफ़ेस देते हैं। यह स्क्रीन स्पष्ट चैनल मैपिंग और सत्यापित डाइजेस्ट वाला स्थानीय आधिकारिक Cell-DINO चेकपॉइंट भी स्वीकार करती है।"
+      "translation": "एक स्क्रीन, स्क्रिप्ट नहीं। मूल Cell-DINO, OpenPhenom और SubCell मॉडल Python इंटरफ़ेस देते हैं। यह स्क्रीन स्पष्ट चैनल मैपिंग और सत्यापित डाइजेस्ट वाला स्थानीय आधिकारिक Cell-DINO चेकपॉइंट भी स्वीकार करती है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What it produces.** One row per object and one column per dimension, named ``emb_c<channel>_<dimension>`` under the per-channel policy and ``emb_<dimension>`` under projection, with the model-zoo entry that made them -- backbone, policy and the checksum of the weights on this machine. Two processing sessions' dimension 17 are the same number and not the same thing unless all three match, which is why the entry is part of the result rather than a log line. The preview shows the first few dimensions of the first fifty objects. The alpha Save for Similar extracted image regions action stores the complete matrix in the database that supplied the loaded objects, so Annotate can search those vectors. Folder and programmatically supplied extracted image regions have no database object identity and cannot use this action.",

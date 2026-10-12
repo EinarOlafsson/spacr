@@ -66,7 +66,9 @@
       "source_sha256": "70e64ca0b72f05175a26ba1386fa2282c6f6d73249836c192107aea0adf96ed5",
       "context": "The same chain reaches mask generation. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` structured-data name per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask workflows and the Mask Live preview apply to every selected segmentation image data channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate processing session's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-image data channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
       "translation": "SAMMA KEDJA NÅR MASKGENERERINGEN. Bildstegen -- allt före ``detect`` -- skrivs som Mask-inställningar av :func:`chain_settings`, en ``enhance_<field>``-nyckel per post i :data:`SETTINGS_FIELDS`, och läses tillbaka av :func:`spacr.psf_pipeline.prepare_chain`, som pipelinerna Mask V1 och V2 och förhandsvisningen Mask Live tillämpar på varje vald segmenteringskanal efter belysningskorrigering och före normalisering, i det steg där PSF redan kördes. Morfologi och uppdelning verkar på en detektors etiketter och hör till Make Masks; en plattkörnings Cellpose-etiketter omformas inte av dem. Mask-inställningarna ``remove_background``, ``background`` och ``signal_to_noise`` är intensitetsgolv per kanal som normaliseringen tillämpar efteråt, och :func:`spacr.object._preprocess_batch` är organellbatchernas egen rolling ball och CLAHE; ingen av dem konfigureras här.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.Chain#0",
@@ -434,7 +436,9 @@
       "source_sha256": "fb3f090d3ee2e389bffa1631460f0be3ceaa182631408114661f315b0e7b9707",
       "context": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
       "translation": "Varje leverantör skyddas för sig: ett sökfält som förlorar sina inställningar för att API-manifestet inte kunde läsas är sämre än ett som i tysthet erbjuder färre sorter.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.build_index#2",
@@ -578,7 +582,9 @@
       "source_sha256": "ee33e0b61c5fe51f360b6e103db4362a0adbeaaff6bf149857d040bdd69c5cdb",
       "context": "Terms are ANDed, the same rule the per-module settings search uses: typing a second word must narrow, because otherwise typing more is a way of getting more results, which is the opposite of what typing means.",
       "translation": "Termerna kombineras med AND, samma regel som sökningen i inställningar per modul använder: att skriva ett andra ord måste snäva in, eftersom det annars blir ett sätt att få fler resultat att skriva mer, vilket är motsatsen till vad skrivande betyder.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.score#2",
@@ -666,7 +672,9 @@
       "source_sha256": "917a074f3dd7eb984c35c457a05c4a12a81140c0fc0130ac87a3011098d84fd1",
       "context": "One row per module: a setting in four modules is four rows, each naming its module and the category it sits under, rather than one row that then asks which. The user already knows which module they meant; a row that asks is a second click for information the list could have shown.",
       "translation": "EN RAD PER MODUL: en inställning i fyra moduler blir fyra rader, som var och en namnger sin modul och den kategori den ligger under, i stället för en rad som sedan frågar vilken. Användaren vet redan vilken modul som avsågs; en rad som frågar är ett andra klick för information som listan kunde ha visat.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#2",
@@ -674,7 +682,9 @@
       "source_sha256": "2ab02ab5546359c5694a4040595795136c576571fc67d51f9b4ce0b0f0006a0c",
       "context": "The API half of a setting is not emitted here. ``SETTING_CONSUMERS`` names every addressable function that reads a structured-data name, and :func:`api_entries` folds that into the API row for each of those functions -- one row per symbol, saying which settings it reads. Emitting them from both providers listed ``spacr.io.preprocess_img_data`` once for itself and once for every setting it reads, which was eleven identical rows in one result list.",
       "translation": "API-HALVAN AV EN INSTÄLLNING GENERERAS INTE HÄR. ``SETTING_CONSUMERS`` namnger varje adresserbar funktion som läser en nyckel, och :func:`api_entries` viker in det i API-raden för var och en av de funktionerna -- en rad per symbol, som anger vilka inställningar den läser. Att generera dem från båda leverantörerna listade ``spacr.io.preprocess_img_data`` en gång för sig själv och en gång för varje inställning den läser, vilket blev elva identiska rader i en och samma resultatlista.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#3",
@@ -698,7 +708,9 @@
       "source_sha256": "2ed1190297dac95630e8a03a2c1b34769f2a49d333a10d9b083bd8e9e191161c",
       "context": ":mod:`spacr.qt.help_index` decides WHAT is addressable by name; this module is where a user types a name and where the answer takes them. The two halves are apart because only this one needs a display.",
       "translation": ":mod:`spacr.qt.help_index` avgör VAD som är adresserbart via namn; den här modulen är där en användare skriver ett namn och dit svaret tar dem. De två halvorna hålls isär eftersom bara den här behöver en skärm.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#2",
@@ -706,7 +718,9 @@
       "source_sha256": "9b06bc94e966f1588d6bb3afc4ac0f73c71437496df2efe0ac02e0e0ec01cd21",
       "context": "What a result does is registered, not switched on. :func:`register_opener` binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind up. A new kind of thing therefore needs a provider in the index module and an opener here, and no existing function changes -- which is the instruction's \"and so on\" clause taken literally.",
       "translation": "VAD ETT RESULTAT GÖR REGISTRERAS, DET SLÅS INTE PÅ MED EN SWITCH. :func:`register_opener` binder en sort till ``(window, entry) -> str``; :func:`open_entry` slår upp sorten. En ny sorts sak behöver därför en leverantör i indexmodulen och en öppnare här, och ingen befintlig funktion ändras -- vilket är instruktionens \"and so on\"-sats tagen bokstavligt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#3",
@@ -730,7 +744,9 @@
       "source_sha256": "0412bad52eae8ac06d27b65ce47178901c4916d917fa67a6f3120324fa094fa1",
       "context": "``setting`` Opens the module and then :func:`reveal_setting`: every category collapsed except the one holding the setting, the row scrolled to and marked. NOT by filtering the panel -- the per-module strip already has a filter and it leaves the other categories hidden, so a user who wanted to look around next has to work out what happened to the form.",
       "translation": "``setting`` Öppnar modulen och sedan :func:`reveal_setting`: varje kategori hopfälld utom den som innehåller inställningen, raden rullad fram till och markerad. INTE genom att filtrera panelen -- remsan per modul har redan ett filter och den lämnar de andra kategorierna dolda, så att en användare som ville titta sig omkring därefter måste lista ut vad som hände med formuläret.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#6",
@@ -746,7 +762,9 @@
       "source_sha256": "4eda68fd6cc8ade496fa248319928c0e591678a08a07e0106484048f63f74e65",
       "context": "``api`` Opens the published page when it is reachable, and otherwise shows the docstring that is on this machine and says the page is not reachable. A search result is believed, so a result that opens a 404 is worse than no result at all.",
       "translation": "``api`` Öppnar den publicerade sidan NÄR DEN GÅR ATT NÅ, och visar annars den docstring som finns på den här maskinen och säger att sidan inte går att nå. Ett sökresultat blir trott, så ett resultat som öppnar en 404 är sämre än inget resultat alls.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#8",
@@ -754,7 +772,9 @@
       "source_sha256": "e9885c01c2cfd5de99ec32fb6330b680f3e824759cb7e79172a16ef2b3e504b6",
       "context": "Nothing this module does on the main GUI execution path blocks it. The index costs about a second to build, so it is built on a worker the first time the field is typed in (:class:`_IndexLoader`), and the field says so until it lands. Whether the documentation site answers is a network question, so it is asked on a worker too (:class:`_DocsReach`) and only ever when the user has opened an API result -- spaCR does not reach the network because somebody typed.",
       "translation": "INGET SOM DEN HÄR MODULEN GÖR I GUI-TRÅDEN BLOCKERAR DEN. Indexet tar ungefär en sekund att bygga, så det byggs i en arbetstråd första gången något skrivs i fältet (:class:`_IndexLoader`), och fältet säger det tills det är klart. Om dokumentationswebbplatsen svarar är en nätverksfråga, så den ställs också i en arbetstråd (:class:`_DocsReach`) och bara när användaren har öppnat ett API-resultat -- spaCR går inte ut på nätverket för att någon skrev något.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#9",
@@ -762,7 +782,9 @@
       "source_sha256": "efafb19e7ac93635222d2320b091ae7d8524b5208d71838143a70b95ccdb4261",
       "context": "Opening a result never discards settings. ``MainWindow._on_nav_selected`` keeps every application view it has built in ``self._screens`` and switches the stack to it, so a half-filled Mask form is still half-filled when the user comes back from Measure. That was true before this microscope field of view existed and it is now pinned by ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a future rebuild-on-navigate cannot quietly take it away.",
       "translation": "ATT ÖPPNA ETT RESULTAT KASTAR ALDRIG INSTÄLLNINGAR. ``MainWindow._on_nav_selected`` behåller varje programvy som den har byggt i ``self._screens`` och växlar stapeln till den, så att ett halvifyllt Mask-formulär fortfarande är halvifyllt när användaren kommer tillbaka från Measure. Det var sant innan det här fältet fanns och det låses nu av ``tests/qt/test_the_help_search_field_lands_where_it_says.py``, så att en framtida ombyggnad vid navigering inte i tysthet kan ta bort det.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.ApiEntryDialog#0",
@@ -954,7 +976,9 @@
       "source_sha256": "a41dde4f85bdc2ad98703622e35a68acb345f497ce5bd4c8b2164616a1c7e3a3",
       "context": "The seam tests drive: typing is the user's action, and waiting 140 ms for a timer in every assertion would make the suite slower and no more honest about what the field does.",
       "translation": "Sömmen som testerna driver: skrivandet är användarens handling, och att vänta 140 ms på en timer i varje assertion skulle göra sviten långsammare utan att bli ärligare om vad fältet gör.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.HelpSearchField.type_and_search#2",
@@ -994,7 +1018,9 @@
       "source_sha256": "9d2f1646ec608d1df65993717f61432e1bd129f33a71faef030a7c0937316896",
       "context": "Which prefix is the module is answered from the disk rather than assumed: ``spacr.qt.screens.mask`` is a module and ``spacr.layers.ShapesLayer.mask`` is an attribute two levels inside one, and only the file layout knows which of the dots is the last one in the path.",
       "translation": "VILKET PREFIX SOM ÄR MODULEN besvaras utifrån disken i stället för att antas: ``spacr.qt.screens.mask`` är en modul och ``spacr.layers.ShapesLayer.mask`` är ett attribut två nivåer in i en modul, och bara fillayouten vet vilken av punkterna som är den sista i sökvägen.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.api_url#3",
@@ -1082,7 +1108,9 @@
       "source_sha256": "fae337d102853e9f49e575c630681a3e0679440efcd741087ee227cc96bf0351",
       "context": "In the menu row, not the corner. The field was first installed in the menu bar's top-right corner widget, which put it beside the minimise, full application view and close marks at the far right of the window, away from the menus. It belongs directly to the right of Help, so it is placed in the menu row itself: the bar lays its actions out left to right, and Help is the last menu, so the field follows Help and moves with it when the menus are re-translated or re-ordered.",
       "translation": "I MENYRADEN, INTE I HÖRNET. Fältet installerades först i menyradens hörnwidget uppe till höger, vilket placerade det bredvid knapparna för minimera, helskärm och stäng längst ut till höger i fönstret, långt från menyerna. Det hör hemma direkt till höger om Help, så det placeras i själva menyraden: raden lägger ut sina åtgärder från vänster till höger, och Help är den sista menyn, så fältet följer efter Help och flyttar med när menyerna översätts om eller ordnas om.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.install#2",
@@ -1874,7 +1902,9 @@
       "source_sha256": "b846fe72a4a034340614131b7b02a3277d1f499d748a4e097d51f12b3284109d",
       "context": "Import's \"Load test data…\": every vendor format and naming, one press away.",
       "translation": "Imports \"Load test data…\": alla leverantörsformat och namngivningar, ett knapptryck bort.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#1",
@@ -1890,7 +1920,9 @@
       "source_sha256": "7a7f32df124f51efefc2db2199d62485e7299a0fa2072c3ec9b811a4a840d2ef",
       "context": "What the button does. It opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
       "translation": "VAD KNAPPEN GÖR. Den öppnar :class:`ImportTestDataChooser`, en knapp per variant i :data:`spacr.import_examples.IMPORT_VARIANTS`, var och en beskriven när muspekaren hålls över den. Den valda hämtas -- hela uppsättningen är ett arkiv, så det första trycket laddar ned alla varianter och varje senare tryck öppnar från cachen -- och därefter:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#3",
@@ -1914,7 +1946,9 @@
       "source_sha256": "9b3f1d5cfa5375ecbdcc0d1bd9d032e5f5edd74afc26b42c98fddf68650ab816",
       "context": "Same machinery as every other example set: :class:`_TarExampleWorker` streams the archive on a background execution unit behind the shared progress dialog and unpacks it through the tar data filter.",
       "translation": "SAMMA MASKINERI SOM ALLA ANDRA EXEMPELUPPSÄTTNINGAR: :class:`_TarExampleWorker` strömmar arkivet i en arbetstråd bakom den delade förloppsdialogen och packar upp det genom tar-datafiltret.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo.ImportTestDataChooser#0",
@@ -4174,7 +4208,9 @@
       "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
       "context": "Answer step 1's four questions about one label stack, as a table.",
       "translation": "Besvara steg 1:s fyra frågor om en etikettstack, som en tabell.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.audit_label_consistency#1",
@@ -4262,7 +4298,9 @@
       "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
       "context": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
       "translation": "Endast PÅ VARANDRA FÖLJANDE bildrutor mäts. En etikett som dyker upp igen efter ett uppehåll bidrar inte med något här, eftersom avståndet den tillryggalade inte är en förskjutning per bildruta och att ta med den i medelvärdet skulle blåsa upp det tal som den här modulen finns till för att rapportera.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.displacement_table#2",
@@ -4470,7 +4508,9 @@
       "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
       "context": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
       "translation": "``0`` när ingen kontroll misslyckades, ``1`` när någon gjorde det. Ett misslyckande här är ett påstående om ANNOTERINGEN, inte om det här programmet: det betyder att data inte stöder det som timeflows-planen antar om dem.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#0",
@@ -4478,7 +4518,9 @@
       "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
       "context": "List every label that disappears and comes back, and judge each one.",
       "translation": "Lista varje etikett som försvinner och kommer tillbaka, och bedöm var och en.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#1",
@@ -4560,7 +4602,9 @@
       "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
       "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
       "translation": "ANROPA ALDRIG DETTA I GUI-TRÅDEN. Den öppnar en socket. Panelen Nyheter på Hem begär den via samma :class:`_UpdateWorker` som den manuella uppdateringskontrollen körs på, efter att sidan har visats.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.fetch_release_notes#2",
@@ -4640,7 +4684,9 @@
       "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
       "context": "Upgrade this interpreter, optionally to the exact version offered.",
       "translation": "Uppgradera den här tolken, valfritt till exakt den erbjudna versionen.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.upgrade_command#1",
@@ -4698,7 +4744,9 @@
       "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
       "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
       "translation": "``True`` när maskmappen saknas eller något förväntat stackfilnamn saknar en komplett mask. Orelaterade masker kan inte ersätta ett saknat fält och tvingar inte kompletta fält att köras igen.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.lasso_reg#3",

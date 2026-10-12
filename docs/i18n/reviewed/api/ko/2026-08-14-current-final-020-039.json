@@ -14,7 +14,9 @@
       "source_sha256": "2e92975c52f9827f058304f35f69b04bda63ba871f2a47c23a7f09aaea2108da",
       "source": "``rescale`` was DEPRECATED-AND-IGNORED in Cellpose 4.0, so spaCR passing ``False`` cost nothing and nobody noticed the type was wrong. Cellpose 4.2 reads it again",
       "context": "``rescale`` was DEPRECATED-AND-IGNORED in Cellpose 4.0, so spaCR passing ``False`` cost nothing and nobody noticed the type was wrong. Cellpose 4.2 reads it again",
-      "translation": "Cellpose 4.0에서는 ``rescale``을 더 이상 사용하지 않고 무시했으므로 spaCR 이 ``False``를 전달해도 비용이 없었고 아무도 유형 오류를 알아차리지 못했습니다. Cellpose 4.2는 이를 다시 읽습니다."
+      "translation": "Cellpose 4.0에서는 ``rescale``을 더 이상 사용하지 않고 무시했으므로 spaCR 이 ``False``를 전달해도 비용이 없었고 아무도 유형 오류를 알아차리지 못했습니다. Cellpose 4.2는 이를 다시 읽습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.verbose_logger.log_button_press#1",
@@ -56,14 +58,18 @@
       "source_sha256": "4b5c4c8132e0bc132147e7bfa1e66e66ee9f57aa476ee77f3d902cec47d693ab",
       "source": ":func:`install_window_hooks` the two reach-me-from-where-I-am routes: a **Help ▸ Feature Dictionary…** action, and a **\"What is this?\"** item on the context menu of any results table in the app.",
       "context": ":func:`install_window_hooks` the two reach-me-from-where-I-am routes: a **Help ▸ Feature key-value mapping…** action, and a **\"What is this?\"** item on the context menu of any results table in the app.",
-      "translation": ":func:`install_window_hooks`는 현재 위치에서 접근할 수 있는 두 경로를 설치합니다. **Help ▸ Feature Dictionary…** 작업과, 애플리케이션 결과 테이블의 컨텍스트 메뉴에 있는 **\"What is this?\"** 항목입니다."
+      "translation": ":func:`install_window_hooks`는 현재 위치에서 접근할 수 있는 두 경로를 설치합니다. **Help ▸ Feature Dictionary…** 작업과, 애플리케이션 결과 테이블의 컨텍스트 메뉴에 있는 **\"What is this?\"** 항목입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.schema.split_object_id#2",
       "source_sha256": "196f35ae836c8f470735f483fd9dcd03bfa0fb94ac1b629fd2ce85114ba3270c",
       "source": "A type of ``None`` means *not stated*, which is what ``'o'`` has always meant and is exactly what every key written before object types existed carries. It is not \"unknown and therefore probably a cell\".",
       "context": "A type of ``None`` means *not stated*, which is what ``'o'`` has always meant and is exactly what every key written before object types existed carries. It is not \"unknown and therefore probably a cell\".",
-      "translation": "``None`` 유형은 *명시되지 않음*을 뜻합니다. 이는 ``'o'``가 항상 의미해 온 바이며 객체 유형이 생기기 전에 기록된 모든 키가 가진 값입니다. \"unknown and therefore probably a cell\"이라는 뜻이 아닙니다."
+      "translation": "``None`` 유형은 *명시되지 않음*을 뜻합니다. 이는 ``'o'``가 항상 의미해 온 바이며 객체 유형이 생기기 전에 기록된 모든 키가 가진 값입니다. \"unknown and therefore probably a cell\"이라는 뜻이 아닙니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.annotate_engine#1",
@@ -137,7 +143,9 @@
       "source_sha256": "1306dc209266d73c328e421ccfaa95ad5da66702c30e1f3bcc9894132425cefe",
       "source": "This module answers the question up front. It takes the same long-format per-object frame the rest of spaCR passes around (a ``prc`` identifier plus feature columns), collapses it to one value per well, and then asks three separate questions of the resulting grid:",
       "context": "This module answers the question up front. It takes the same long-format per-object frame the rest of spaCR passes around (a ``prc`` identifier plus feature columns), collapses it to one value per microplate sample position, and then asks three separate questions of the resulting grid:",
-      "translation": "이 모듈은 질문에 먼저 답합니다. 나머지 spaCR 이 전달하는 동일한 긴 형식의 객체별 프레임(``prc`` 식별자와 특징 열)을 받아 마이크로플레이트 시료 위치당 하나의 값으로 축약한 뒤, 결과 그리드에 세 가지 질문을 각각 적용합니다."
+      "translation": "이 모듈은 질문에 먼저 답합니다. 나머지 spaCR 이 전달하는 동일한 긴 형식의 객체별 프레임(``prc`` 식별자와 특징 열)을 받아 마이크로플레이트 시료 위치당 하나의 값으로 축약한 뒤, 결과 그리드에 세 가지 질문을 각각 적용합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

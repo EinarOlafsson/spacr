@@ -163,13 +163,6 @@
       "translation": "Abstand in Pixeln, den ein Read außerhalb einer Kerngrenze liegen darf, um noch diesem Kern zugeordnet zu werden. Auf der Referenzplatte erfassten 10 Pixel 98 % der detektierten Spots und 3 Pixel 67 %. Die größere Entfernung ordnete 28 % mehr Objekten einen Barcode zu, bei etwas höherer Reinheit, weil die Reads um den Rand statt im Inneren liegen. Ein zu großer Wert ordnet Reads einem Nachbarkern zu. Standard 10."
     },
     {
-      "key": "ops_library",
-      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
-      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
-      "table": "setting_tooltips",
-      "translation": "CSV mit Guide-Barcodes in einer Spalte namens prefix, barcode oder sequence. Wenn angegeben, wird der bestimmte Barcode jedes Kerns zusätzlich mit dem ähnlichsten Guide abgeglichen. Der Lauf meldet, wie viele Spots exakt zur Bibliothek passen -- die zentrale Kennzahl dafür, ob die Dekodierung überhaupt funktioniert hat. Ohne Datei werden weiterhin Barcodes bestimmt, aber nicht bewertet. Standard None."
-    },
-    {
       "key": "ops_raster_overlap",
       "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
       "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab",
@@ -182,13 +175,6 @@
       "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320",
       "table": "setting_tooltips",
       "translation": "Gibt an, wie viel heller ein Spot als seine Umgebung sein muss, um als Read zu zählen. Ein niedrigerer Wert findet mehr Reads und mehr Störsignale; dies zeigt sich durch eine sinkende Übereinstimmung mit der Bibliothek, nicht durch eine Fehlermeldung. Ein höherer Wert verliert echte Reads und lässt zu wenige für eine Mehrheitsentscheidung je Kern übrig. Standard 315, der Wert des Referenzlaufs für diese Platte."
-    },
-    {
-      "key": "ops_store_reads",
-      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
-      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
-      "table": "setting_tooltips",
-      "translation": "Schreibt alle Reads hinter den Barcodes in die Tabelle ops_reads: eine Zeile je Read und Zyklus mit der bestimmten Base, ihrem Abstand zur nächstbesten Entscheidung und den vier zugrunde liegenden Intensitäten. So lässt sich ein fraglicher Barcode bis zu seinen Pixeln zurückverfolgen. Standardmäßig OFF, weil die Tabelle groß ist -- ein vollständiges Well der Referenzplatte umfasst etwa dreißig Millionen Zeilen. Daher für ein oder zwei Wells statt für eine ganze Platte aktivieren. Standard False."
     },
     {
       "key": "ops_window_overlap",
@@ -294,13 +280,6 @@
       "source_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d",
       "table": "ui",
       "translation": "<b>Fehler als GitHub-Issues melden</b><br><span style='color:gray;'>Berichte gehen an das öffentliche spaCR-Repository auf GitHub; Pfade, Namen und Zugangsdaten werden unkenntlich gemacht. Bei always (Standard) erstellt ein fehlgeschlagener Lauf seinen Bericht automatisch einmal pro Fehler, sofern unten eine Anmeldung bei GitHub besteht. Bei ask erscheint unter der Konsole die Schaltfläche \"File as issue\". Der Bericht wird erst gesendet, wenn Sie in der Vorschau auf Bericht senden klicken. Ändern unter Hilfe → spaCR erneut einrichten….</span>"
-    },
-    {
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
-      "table": "ui",
-      "translation": "Ein 4PL-Modell ist um seinen Mittelpunkt symmetrisch. Reale Asymmetrie wird beim 4PL durch einen verschobenen EC50 aufgefangen. Das 5PL-Modell passt sie mit einem zusätzlichen Parameter an, benötigt eine weitere Konzentration und zeigt, ob dieser Parameter gerechtfertigt ist."
     },
     {
       "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
@@ -2115,6 +2094,30 @@
         "table": "ui",
         "translation": "Verhalten eines neuen Objekts an Stellen, an denen die Maske bereits ein Objekt enthält. Clip übernimmt nur seine unmarkierten Pixel, sodass vorhandene Objekte keine Pixel verlieren. Skip lässt jedes Objekt aus, das ein vorhandenes berührt. Replace lässt das neue Objekt alle von ihm bedeckten Pixel übernehmen. Unter Bereich unter dem Mauszeiger zeigt die Vorschau das Ergebnis dieser Regel: Was ein Klick hinzufügen würde, erscheint deckend; was er entfernen würde, erscheint transparent."
       }
+    },
+    {
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
+      "table": "setting_tooltips",
+      "translation": "CSV mit Guide-Barcodes in einer Spalte namens prefix, barcode oder sequence. Wenn angegeben, wird der bestimmte Barcode jedes Kerns zusätzlich mit dem ähnlichsten Guide abgeglichen. Der Lauf meldet, wie viele Spots exakt zur Bibliothek passen -- die zentrale Kennzahl dafür, ob die Dekodierung überhaupt funktioniert hat. Ohne Datei werden weiterhin Barcodes bestimmt, aber nicht bewertet. Standard None.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
+      "table": "setting_tooltips",
+      "translation": "Schreibt alle Reads hinter den Barcodes in die Tabelle ops_reads: eine Zeile je Read und Zyklus mit der bestimmten Base, ihrem Abstand zur nächstbesten Entscheidung und den vier zugrunde liegenden Intensitäten. So lässt sich ein fraglicher Barcode bis zu seinen Pixeln zurückverfolgen. Standardmäßig OFF, weil die Tabelle groß ist -- ein vollständiges Well der Referenzplatte umfasst etwa dreißig Millionen Zeilen. Daher für ein oder zwei Wells statt für eine ganze Platte aktivieren. Standard False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "table": "ui",
+      "translation": "Ein 4PL-Modell ist um seinen Mittelpunkt symmetrisch. Reale Asymmetrie wird beim 4PL durch einen verschobenen EC50 aufgefangen. Das 5PL-Modell passt sie mit einem zusätzlichen Parameter an, benötigt eine weitere Konzentration und zeigt, ob dieser Parameter gerechtfertigt ist.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

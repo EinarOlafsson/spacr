@@ -13,7 +13,9 @@
       "label": "spacr.qt.widgets.preview_contract.preview_cellpose_model#1",
       "source": "``model_type=`` is accepted-and-IGNORED by Cellpose 4 — it logs \"not used in v4.0.1+\" and drops it, leaving ``pretrained_model`` at its ``cpsam`` default. Passing the user's choice there therefore segmented with ``cpsam`` whatever they picked, including a checkpoint they had just trained in spaCR's own Train Cellpose module. :func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline uses: it maps the legacy pre-SAM names onto ``cpsam`` and says so once, and returns a path unchanged when the name is a fine-tuned checkpoint.",
       "source_sha256": "446b5aa0fbd912e4ec551b941aef286efb7fc8a686cac01cb92e696cce7a0e01",
-      "translation": "Cellpose 4는 ``model_type=``을 받아들이지만 값을 무시합니다. \"not used in v4.0.1+\"를 기록하고 값을 버리므로 ``pretrained_model``은 기본값인 ``cpsam``으로 유지됩니다. 따라서 사용자의 선택을 이 인수로 전달하면 무엇을 선택했든 ``cpsam``으로 분할했으며, spaCR의 Train Cellpose 모듈에서 방금 학습한 체크포인트를 선택한 경우도 마찬가지였습니다. 워크플로는 :func:`spacr.utils._resolve_cellpose_pretrained`를 사용합니다. 이 함수는 SAM 이전의 기존 모델 이름을 ``cpsam``에 대응시키고 한 번 알립니다. 이름이 미세 조정된 체크포인트를 가리키면 경로를 변경하지 않고 반환합니다."
+      "translation": "Cellpose 4는 ``model_type=``을 받아들이지만 값을 무시합니다. \"not used in v4.0.1+\"를 기록하고 값을 버리므로 ``pretrained_model``은 기본값인 ``cpsam``으로 유지됩니다. 따라서 사용자의 선택을 이 인수로 전달하면 무엇을 선택했든 ``cpsam``으로 분할했으며, spaCR의 Train Cellpose 모듈에서 방금 학습한 체크포인트를 선택한 경우도 마찬가지였습니다. 워크플로는 :func:`spacr.utils._resolve_cellpose_pretrained`를 사용합니다. 이 함수는 SAM 이전의 기존 모델 이름을 ``cpsam``에 대응시키고 한 번 알립니다. 이름이 미세 조정된 체크포인트를 가리키면 경로를 변경하지 않고 반환합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Cellpose and torch are imported inside the call, so importing a preview module cold — as the test suite does — needs no CUDA-capable stack.",

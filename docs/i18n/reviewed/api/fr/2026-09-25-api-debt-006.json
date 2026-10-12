@@ -106,7 +106,9 @@
       "source_sha256": "c0e1314bfb7b71ce15b026328020d1b228e2d98f300b7a05268605042a2de2d9",
       "context": "Why it once read nothing at all. This module was written as the safe successor to a reader that merged blind, and then could not replace it, because three things it did not do are three things the published pack needs:",
       "translation": "POURQUOI IL NE LISAIT AUTREFOIS RIEN DU TOUT. Ce module a été écrit comme le successeur sûr d’un lecteur qui fusionnait à l’aveugle, puis n’a pas pu le remplacer, parce que trois choses qu’il ne faisait pas sont trois choses dont le pack publié a besoin :",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.settings_pack.read_pack#2",
@@ -194,7 +196,9 @@
       "source_sha256": "caf5f1a0a3722398eeb6e30b294f71f6e51e63f49d05e2650f2bbd3d8cced7cc",
       "context": "What a help-search result needs, and it is deliberately NOT the search filter. Typing the structured-data name into the box above would hide every other setting as well, so a user who arrived from the Help search and then wanted to look at the neighbouring rows would first have to work out what had happened to the form. Revealing instead leaves the module whole and only decides which heading is open.",
       "translation": "CE DONT A BESOIN UN RÉSULTAT DE RECHERCHE D’AIDE, et ce n’est délibérément PAS le filtre de recherche. Saisir la clé dans la zone ci-dessus masquerait aussi tous les autres réglages, si bien qu’un utilisateur arrivé depuis la recherche de l’aide et qui voudrait ensuite regarder les lignes voisines devrait d’abord comprendre ce qui est arrivé au formulaire. Révéler laisse au contraire le module entier et décide seulement quel titre est ouvert.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#2",
@@ -210,7 +214,9 @@
       "source_sha256": "b1f48766f0fbd038206a6566ba41e8d82d9249b242a80e86819145697f07ad1e",
       "context": "The disclosure level is changed only if it has to be, and the change is never remembered. Switching to All settings unconditionally would work, and it would also rewrite this module's remembered Essentials/All choice every time anybody arrived here -- a setting the user chose, changed as a side effect of looking something up. So the filter is cleared first and the level is raised only when the row is still not on the form afterwards, which is exactly the case where Essentials is what is hiding it; and the raise goes through :meth:`_show_all_without_remembering`, so the form shows the row while the store still holds the level the user picked. Most settings are not essentials, so a lookup that persisted the raise would move almost every module out of Essentials for good.",
       "translation": "LE NIVEAU D’AFFICHAGE N’EST MODIFIÉ QUE S’IL LE FAUT, ET LE CHANGEMENT N’EST JAMAIS MÉMORISÉ. Passer inconditionnellement à All settings fonctionnerait, mais réécrirait aussi le choix Essentials/All mémorisé pour ce module à chaque fois que quelqu’un arrive ici -- un réglage choisi par l’utilisateur, modifié en effet de bord d’une simple recherche. Le filtre est donc effacé d’abord et le niveau n’est relevé que si la ligne n’est toujours pas sur le formulaire ensuite, ce qui est exactement le cas où c’est Essentials qui la masque ; et ce relèvement passe par :meth:`_show_all_without_remembering`, de sorte que le formulaire affiche la ligne tandis que le stockage conserve le niveau choisi par l’utilisateur. La plupart des réglages ne sont pas essentiels, si bien qu’une recherche qui mémoriserait ce relèvement ferait sortir presque tous les modules d’Essentials pour de bon.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#5",
@@ -474,7 +480,9 @@
       "source_sha256": "5894e2c5a68f3a935e9201e73e95722d2ad7b83a30292ff844e37a77fcd99aae",
       "context": "**Qt Multimedia is touched only on the main GUI execution path.** :class:`_SoundPlayer` owns ``QMediaDevices`` and every ``QSoundEffect`` and lives where the application's event loop does; the dedicated ``QThread`` keeps the part that is genuinely slow, which is synthesizing a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing from Qt Multimedia). Connecting to the sound server is slow -- 354 ms measured on a PipeWire workstation -- so it is paid ONCE, on an idle timer after sound is switched on (:meth:`SoundEngine._warm`), and logged rather than felt. Playing an already loaded sound is ``play()``, which returns at once: 0.007-0.014 ms on the main GUI execution path against the real stack.",
       "translation": "**Qt Multimedia n’est manipulé que sur le fil d’exécution de la GUI.** :class:`_SoundPlayer` possède ``QMediaDevices`` et chaque ``QSoundEffect`` et vit là où se trouve la boucle d’événements de l’application ; le ``QThread`` dédié garde la partie réellement lente, à savoir la synthèse d’un jeu de sons (:class:`_SoundRenderer`, numpy et écritures de fichiers, rien de Qt Multimedia). La connexion au serveur de son est lente -- 354 ms mesurées sur une station de travail PipeWire -- elle n’est donc payée qu’UNE FOIS, sur un minuteur d’inactivité après l’activation du son (:meth:`SoundEngine._warm`), et journalisée plutôt que ressentie. Jouer un son déjà chargé revient à ``play()``, qui retourne immédiatement : 0.007-0.014 ms sur le fil d’exécution de la GUI avec la pile réelle.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound#5",
@@ -482,7 +490,9 @@
       "source_sha256": "f4f938216c7727a2323e65b18b1d3f5e9e756a30d023062d76691118c5993865",
       "context": "This rule is written in a crash. Building the effects on the audio independent execution path instead does move the connection off the main GUI execution path -- but Qt Multimedia's device handling belongs to the independent execution path that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong independent execution path. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
       "translation": "Cette règle est écrite avec un plantage. Construire les effets sur le fil d’exécution audio déplace bien la connexion hors du fil d’exécution de la GUI -- mais la gestion des périphériques de Qt Multimedia appartient au fil d’exécution qui possède la boucle d’événements, si bien qu’avec le backend FFmpeg elle active des notificateurs de socket depuis le mauvais fil d’exécution. Rouvrir ensuite les Préférences avec le son activé provoque une erreur de segmentation, ou bloque l’interface avec un cadre de Préférences vide jusqu’à un arrêt forcé.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound#6",
@@ -506,7 +516,9 @@
       "source_sha256": "7e0e303e178008d3c7df5826ca96692e5f005d021f6af384f96c38ec399729b7",
       "context": "Application-wide filter that hears presses and hovers on controls.",
       "translation": "Filtre à l’échelle de l’application qui perçoit les appuis et les survols sur les contrôles.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound.InputSoundFilter#1",
@@ -722,7 +734,9 @@
       "source_sha256": "f145cbeda408be3532c769734f41dbfa06a3ee942c1dfc61addd22094a4361bf",
       "context": "Plays whatever the stored switches say: the dialog enables Preview only while its own master switch is on, and the press is the ask.",
       "translation": "Joue ce que disent les interrupteurs enregistrés : la boîte de dialogue n’active Preview que tant que son propre interrupteur général est activé, et l’appui vaut demande.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound.SoundEngine.preview#2",
@@ -882,7 +896,9 @@
       "source_sha256": "67bef7c78099f3a95c81f27c54795b9c446ac630417b7dab8477b2a16051a155",
       "context": "a WAV of the user's own to play as the bed instead of the synthesized one. Empty means spaCR's own. It is also what the Resonance backdrop is driven by, because the backdrop follows whatever is playing and there is only ever one thing.",
       "translation": "un WAV propre à l’utilisateur à jouer comme fond musical à la place du fond synthétisé. Vide signifie celui de spaCR. C’est aussi ce qui anime l’arrière-plan Resonance, car l’arrière-plan suit CE QUI EST EN TRAIN DE JOUER et il n’y a jamais qu’une seule chose.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.sound.SoundSettings.gain#0",
@@ -2846,7 +2862,9 @@
       "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
       "context": "Only extracted image regions the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the extracted image region twice.",
       "translation": "Seules les vignettes que l’annotateur n’a PAS étiquetées depuis sont renvoyées : une étiquette posée après un rejet est l’affirmation la plus forte et c’est ce que l’ajustement lit dans la colonne elle-même, de sorte que transmettre aussi le rejet compterait la vignette deux fois.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.rejected_suggestions#5",
@@ -2862,7 +2880,9 @@
       "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
       "context": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the extracted image regions then wear the same mark as ones confirmed one at a time, and the count the application view shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
       "translation": "Un KEEP groupé est une confirmation de chaque suggestion qu’il conserve ; il est donc aussi enregistré dans la colonne de verdict (lorsque la colonne existe) : les vignettes portent alors la même marque que celles confirmées une par une, et le compte qu’affiche la vue correspond à ce qui s’est passé. Un THROW groupé n’est pas un jugement -- \"I do not want to review these\" n’est pas \"these are wrong\" -- il n’enregistre donc rien.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.verdict_column#0",
@@ -2894,7 +2914,9 @@
       "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
       "context": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
       "translation": "L’assembleur simple que le fork timeflows doit battre, et le score qui le montre.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#1",
@@ -2902,7 +2924,9 @@
       "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
       "context": "What it is for",
       "translation": "À QUOI IL SERT",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#10",
@@ -2910,7 +2934,9 @@
       "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
       "context": "How a tracking is represented",
       "translation": "COMMENT UN SUIVI EST REPRÉSENTÉ",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#11",
@@ -2918,7 +2944,9 @@
       "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
       "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
       "translation": "La convention du Cell Tracking Challenge, puisque les métriques sont les siennes : une pile d’étiquettes où L’ÉTIQUETTE EST L’IDENTIFIANT DE PISTE, de sorte qu’un objet conserve son étiquette tant qu’il reste le même objet, plus un lignage facultatif associant chaque étiquette à son étiquette parente. Une division correspond donc à deux nouvelles étiquettes dont le parent est l’ancienne ; un outil de suivi qui ne peut pas exprimer les divisions ne transmet aucun lignage et paie pour les deux arêtes parentes manquantes, ce qui est le prix honnête d’un assembleur simple.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#12",
@@ -2926,7 +2954,9 @@
       "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
       "context": "Why it does not call ``spacr.timelapse``",
       "translation": "POURQUOI IL N’APPELLE PAS ``spacr.timelapse``",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#13",
@@ -2952,7 +2982,9 @@
       "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
       "context": "What is in here",
       "translation": "CE QUI SE TROUVE ICI",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#4",
@@ -2992,7 +3024,9 @@
       "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
       "context": "Why the operation counts are public",
       "translation": "POURQUOI LES COMPTES D’OPÉRATIONS SONT PUBLICS",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#9",
@@ -3288,7 +3322,9 @@
       "source_sha256": "428e754495fa5896d6eaf5e8ac759b0b6524d4c2b76ba28a529aa81038f34523",
       "context": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
       "translation": "C’est la valeur que l’étape 2 a pour raison d’être de produire, et celle que le fork de l’étape 3 doit battre.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.score_stitcher#3",
@@ -3472,7 +3508,9 @@
       "source_sha256": "a610f074616376ab28591ef363ce3a422d1566b711db7e17fde482a725bd94a8",
       "context": "Cellpose predicts, per pixel, a flow toward the centre of the object the pixel belongs to. Timeflows adds the same idea through TIME: per pixel of frame ``t``, where the centre of that object is in frame ``t+1``, and whether it has a successor at all (cells die, divide, leave the microscope field of view). Linking objects between frames then reads the model instead of guessing from overlap, which is where the plain IoU stitcher fails: fast cells that move more than their own size between frames (the MuSC movies move 3-4 diameters per frame at p95).",
       "translation": "Cellpose prédit, pour chaque pixel, un flux vers le centre de l’objet auquel le pixel appartient. Timeflows étend la même idée dans le TEMPS : pour chaque pixel de l’image ``t``, où se trouve le centre de cet objet dans l’image ``t+1``, et s’il a seulement un successeur (les cellules meurent, se divisent, quittent le champ). La liaison des objets entre images lit alors le modèle au lieu de deviner à partir du chevauchement, là où l’assembleur IoU simple échoue : des cellules rapides qui se déplacent de plus que leur propre taille entre deux images (les films MuSC se déplacent de 3-4 diamètres par image au p95).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#10",
@@ -3488,7 +3526,9 @@
       "source_sha256": "4b8e3431af4a99445cb16d4ce4f2716c7f7848f4624c3f77e3ffe59152465c77",
       "context": "What is here, all runnable on a CPU:",
       "translation": "CE QUI SE TROUVE ICI, TOUT EXÉCUTABLE SUR UN CPU :",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#3",
@@ -3512,7 +3552,9 @@
       "source_sha256": "73b32b1b88871a05e6f65dceca7c47b0e515e1d6397be83b362bdfa8d3548878",
       "context": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
       "translation": ":func:`augment_pair` -- un retournement/une rotation appliqué de manière identique aux deux images et aux deux images d’étiquettes ; les cibles sont calculées APRÈS, à partir des étiquettes, de sorte qu’un retournement ne peut jamais enseigner un déplacement qui n’a pas eu lieu.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#6",
@@ -3656,7 +3698,9 @@
       "source_sha256": "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
       "context": "One random flip and quarter-turn, the SAME for every frame and label.",
       "translation": "Un retournement et un quart de tour aléatoires, les MÊMES pour chaque image et chaque étiquette.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#1",
@@ -3664,7 +3708,9 @@
       "source_sha256": "72c524a16c366efc105bbc2780f41459ac7aa04040d18b548da436f40460692f",
       "context": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
       "translation": "Un retournement appliqué à l’image ``t`` et pas à ``t+1`` enseigne un déplacement qui n’a jamais eu lieu, ce qui est le moyen le plus simple d’obtenir un modèle qui s’entraîne à merveille et ne suit rien. Les cibles sont calculées ensuite à partir des étiquettes augmentées, de sorte que les vecteurs suivent automatiquement.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#2",
@@ -3752,7 +3798,9 @@
       "source_sha256": "1f10ba01831e4f22536d121b125c8043dae6e6f8095fa265d10667d8744beaf7",
       "context": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
       "translation": "La plupart des images consécutives sont presque immobiles, de sorte qu’un tirage uniforme des paires montre surtout des paires faciles à la tête. Le déplacement médian rapporté au diamètre de chaque paire tombe dans l’un des ``bins`` intervalles de largeur égale couvrant la plage observée, et le poids d’une paire est l’inverse de l’effectif de son intervalle. Des intervalles par quantiles ont d’abord été essayés ; ils s’effondrent lorsque la plupart des paires se déplacent de la même façon, ce qui est précisément le film pour lequel cette fonction existe.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.pair_sampling_weights#2",
@@ -3832,7 +3880,9 @@
       "source_sha256": "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
       "context": "One ``size`` square, the SAME window of every frame and label.",
       "translation": "Un carré de ``size``, la MÊME fenêtre pour chaque image et chaque étiquette.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#1",
@@ -3840,7 +3890,9 @@
       "source_sha256": "f3d5a24c24018ec338fef77c90247e3c9b12c11d3505a4f6ffb56709bab8aee2",
       "context": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
       "translation": "Centrée sur un objet aléatoire de la première image d’étiquettes, décalée aléatoirement d’au plus un quart de fenêtre, afin que les fenêtres contiennent des cellules plutôt qu’un fond vide. Une fenêtre commune aux deux images préserve chaque déplacement.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#2",
@@ -3968,7 +4020,9 @@
       "source_sha256": "fe7ea9f5f4c731caa3bb7b12b7532dcc6800db6803021ac8cef455fca62150e8",
       "context": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
       "translation": "Le vecteur n’est supervisé que là où il EXISTE un successeur (``vector_weight``) ; l’indicateur de successeur l’est partout à l’intérieur d’un objet (``object_weight``). Le fond n’est supervisé par aucun des deux.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.time_targets#5",
@@ -4048,7 +4102,9 @@
       "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
       "context": "What it does not do",
       "translation": "CE QU’IL NE FAIT PAS",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#11",
@@ -4056,7 +4112,9 @@
       "source_sha256": "c7eaca2a274240ea6b7e2bf7c197880c0651cd293f571c1b6ca0009f5c4aaef6",
       "context": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
       "translation": "Il juge l’ANNOTATION, pas un outil de suivi. L’évaluation d’un suivi prédit par rapport à une vérité terrain relève de :mod:`spacr.timeflows_baseline`, qui constitue l’étape 2 du même plan. Il ne contient aucun code graphique et n’ouvre aucune boîte de dialogue.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -4114,7 +4172,9 @@
       "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
       "context": "Why a script and not a look",
       "translation": "POURQUOI UN SCRIPT ET PAS UN COUP D’ŒIL",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#9",
@@ -4178,7 +4238,9 @@
       "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
       "context": "Answer step 1's four questions about one label stack, as a table.",
       "translation": "Répond aux quatre questions de l’étape 1 sur une pile d’étiquettes, sous forme de table.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.audit_label_consistency#1",
@@ -4266,7 +4328,9 @@
       "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
       "context": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
       "translation": "Seules les images CONSÉCUTIVES sont mesurées. Une étiquette qui réapparaît après une interruption n’apporte rien ici, car la distance qu’elle a parcourue n’est pas un déplacement par image, et l’inclure dans la moyenne gonflerait la valeur que ce module a pour raison d’être de rapporter.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.displacement_table#2",
@@ -4474,7 +4538,9 @@
       "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
       "context": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
       "translation": "``0`` lorsqu’aucun contrôle n’a échoué, ``1`` dans le cas contraire. Un échec ici est un constat sur l’ANNOTATION, pas sur ce programme : il signifie que les données ne justifient pas ce que le plan timeflows suppose à leur sujet.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#0",
@@ -4482,7 +4548,9 @@
       "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
       "context": "List every label that disappears and comes back, and judge each one.",
       "translation": "Liste chaque étiquette qui disparaît puis revient, et juge chacune.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#1",
@@ -4564,7 +4632,9 @@
       "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
       "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
       "translation": "NE JAMAIS APPELER CECI DEPUIS LE THREAD DE LA GUI. Elle ouvre un socket. Le panneau News de Home la demande via le même :class:`_UpdateWorker` que celui sur lequel s’exécute la vérification manuelle des mises à jour, une fois la page affichée.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.fetch_release_notes#2",
@@ -4644,7 +4714,9 @@
       "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
       "context": "Upgrade this interpreter, optionally to the exact version offered.",
       "translation": "Met à niveau cet interpréteur, éventuellement vers la version exacte proposée.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.upgrade_command#1",
@@ -4702,7 +4774,9 @@
       "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
       "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
       "translation": "``True`` lorsque le dossier de masques est absent ou qu’un nom de fichier de pile attendu n’a pas de masque complet. Des masques sans rapport ne peuvent pas remplacer un champ manquant et n’obligent pas les champs complets à être traités de nouveau.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.lasso_reg#3",

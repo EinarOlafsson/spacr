@@ -497,7 +497,9 @@
       "label": "spacr.timeflows_qc#8",
       "source": "WHY A SCRIPT AND NOT A LOOK",
       "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
-      "translation": "WARUM EIN SKRIPT STATT EINER SICHTPRÜFUNG"
+      "translation": "WARUM EIN SKRIPT STATT EINER SICHTPRÜFUNG",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``\"mean\"`` or ``\"stride\"``.",

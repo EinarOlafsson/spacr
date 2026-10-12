@@ -8,7 +8,9 @@
       "source": "WHAT A HEAD IS. A head is a trained classifier: it is handed a batch of crops and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
       "context": "What a head is. A head is a trained machine-learning classification model: it is handed a batch of extracted image regions and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
       "translation": "WAS EIN KLASSIFIKATIONSKOPF IST. Ein Klassifikationskopf ist ein trainierter Klassifikator: Er erhält einen Stapel Bildausschnitte und gibt für jeden eine Klasse und eine Wahrscheinlichkeit zurück. Er ist als Protokoll statt als Basisklasse definiert; deshalb kann ein Adapter um ein torch-Modul oder einen scikit-learn-Schätzer diese Schnittstelle anbieten. Geplant sind zwei Anwendungen: Parasiten pro Vakuole und die Bestimmung der Objektart. Die PV-Anwendung verwendet in der Praxis drei getrennt mit Hoechst, der Parasitenfärbung und CellMask trainierte Klassifikationsköpfe, damit eine Platte anhand ihrer verfügbaren Färbung ausgezählt werden kann.",
-      "source_sha256": "3e8db2fd2102133bbd7a82b25d0ad21761b28ba87f9ecd857121080448ceb2fe"
+      "source_sha256": "3e8db2fd2102133bbd7a82b25d0ad21761b28ba87f9ecd857121080448ceb2fe",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#6",

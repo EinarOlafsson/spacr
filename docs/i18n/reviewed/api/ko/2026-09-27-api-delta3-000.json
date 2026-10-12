@@ -170,7 +170,9 @@
       "source_sha256": "f222dfd579604639ea1be03958180542182f5d8d6067ae15c7456f53c881b158",
       "context": "Spectral unmixing comes first. With ``unmix`` on, a bleed-through matrix is estimated from the single-stain control microplate sample positions ``unmix_controls`` names and every raw microscope field of view is unmixed across all its image data channels before illumination correction, the PSF and the chain; the matrix joins the same record. Measure estimates its own over the measured image data channels and unmixes each microscope field of view before its preprocessing hooks, recording the matrix in the saved processing-session settings and ``measurements/bleed_through.json``.",
       "translation": "분광 분리가 가장 먼저 수행됩니다. ``unmix``가 켜져 있으면 ``unmix_controls``가 지정한 단일 염색 대조 웰에서 채널 누출 행렬을 추정하고, 조명 보정, PSF 및 처리 체인 전에 각 원시 시야의 모든 채널을 분리합니다. 이 행렬은 같은 기록에 포함됩니다. 측정은 측정 대상 채널에 대한 자체 행렬을 추정하고 전처리 훅 전에 각 시야를 분리하며, 저장된 실행 설정과 ``measurements/bleed_through.json``에 행렬을 기록합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.processing_requested#2",

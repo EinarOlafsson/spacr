@@ -6,7 +6,9 @@
       "label": "spacr.gpu_reduce#3",
       "source": "and nothing else changes. The CPU path stays the default, stays tested, and stays the answer whenever cuML is absent, the interpreter is wrong, there is no CUDA device, or the caller asks for determinism.",
       "source_sha256": "8898197dd6e850575d3350c3945e5c39298eaad357210e247a591d75c3cb3c26",
-      "translation": "et rien d’autre ne change. Le chemin CPU reste celui par défaut, reste testé et reste la réponse lorsque cuML manque, que l’interpréteur est incorrect, qu’aucun périphérique CUDA n’est disponible ou que l’appelant exige un résultat déterministe."
+      "translation": "et rien d’autre ne change. Le chemin CPU reste celui par défaut, reste testé et reste la réponse lorsque cuML manque, que l’interpréteur est incorrect, qu’aucun périphérique CUDA n’est disponible ou que l’appelant exige un résultat déterministe.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Only structured-data names in the internal ``allowed_attributes`` set are honored; ``None`` values are ignored. Handles cross-cutting side effects (rebuilding the grid when ``image_size`` changes, restarting the writer thread when ``db_path`` changes, resetting pagination when ``src`` changes).",
@@ -124,7 +126,9 @@
       "label": "spacr.qt.annotate_engine.label_to_hex#2",
       "source": "THE COLOURS DEPEND ON THE THEME, because contrast does. The original palette was tuned against a dark tile and measured 3.5-12.0 against #1e1e1e -- all comfortable. Against a light tile (#f5f5f5) the SAME colours measure 1.28-4.34, with five of the first six below the 3.0 readability floor:",
       "source_sha256": "abbc52b1a4ed6bcd15a5bba378875409c02774a0574807b3d9a6d515c7e66db2",
-      "translation": "LES COULEURS DÉPENDENT DU THÈME, car le contraste en dépend. La palette d’origine a été réglée sur une tuile sombre et mesurait 3.5-12.0 sur #1e1e1e -- toutes les valeurs étaient confortables. Sur une tuile claire (#f5f5f5), les MÊMES couleurs mesurent 1.28-4.34 et cinq des six premières sont sous le seuil de lisibilité de 3.0 :"
+      "translation": "LES COULEURS DÉPENDENT DU THÈME, car le contraste en dépend. La palette d’origine a été réglée sur une tuile sombre et mesurait 3.5-12.0 sur #1e1e1e -- toutes les valeurs étaient confortables. Sur une tuile claire (#f5f5f5), les MÊMES couleurs mesurent 1.28-4.34 et cinq des six premières sont sous le seuil de lisibilité de 3.0 :",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Resolved through :attr:`MainWindow.DEMO_TARGETS` (demo structured-data name → target app) rather than a second table, so a demo that is re-pointed at a different app moves its hint with it. The first match wins: two demos land on ``measure`` (measurement-and-image-region-extraction) and the one named after the app is the one it lists first.",

@@ -41,7 +41,9 @@
       "source_sha256": "57fd25665dd161be0d63a2db877677088ef3c765acadb64af13e68bb8abb4344",
       "context": "Bind recovery to actual directory inodes, not mutable app names alone.",
       "translation": "पुनर्प्राप्ति को केवल बदलने योग्य ऐप नामों से नहीं, बल्कि वास्तविक निर्देशिका inode से बाँधता है।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.install_cleanup._macos_recover_user_bundle.identity#1",
@@ -161,7 +163,9 @@
       "source_sha256": "18a69af12aa8e371021a6c950926b108b1a66da26b61684db7d052b42dfb5692",
       "context": "the widget that owns the empty space, and the QObject parent. NOT the window and not the scroll area: putting the contents in a scroll area moved the empty space to this holder, which is the whole point of the class.",
       "translation": "वह विजेट जिसके पास खाली स्थान है, और QObject पैरेंट। विंडो नहीं और स्क्रॉल क्षेत्र भी नहीं: सामग्री को स्क्रॉल क्षेत्र में रखने से खाली स्थान इस धारक पर चला गया, और यही इस क्लास का पूरा उद्देश्य है।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dialogs._drag_class._DragTheWindowByTheForm.eventFilter#0",
@@ -209,7 +213,9 @@
       "source_sha256": "b060baca2b50abe479014fa82687ab2b1540be82393407c8637aae6b2ce912bd",
       "context": "The test is here as well as inside because this method is what Qt calls for every event in the application, and a Python call that returns False is not free at 94,431 of them per module open. The detacher makes the same test for anyone calling it directly.",
       "translation": "जाँच यहाँ भी है और भीतर भी, क्योंकि Qt एप्लिकेशन की हर घटना के लिए यही मेथड कॉल करता है, और प्रति मॉड्यूल खुलने पर 94,431 बार होने वाली False लौटाने वाली Python कॉल मुफ़्त नहीं है। अलगावक उसे सीधे कॉल करने वाले किसी के लिए भी यही जाँच करता है।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen._start_task._work#0",
@@ -233,7 +239,9 @@
       "source_sha256": "272a015b7b0f6995dee8dbf69e0279ad2043617687f7501839be991539adaee2",
       "context": "Keeping the SELECTION is the point: a list that jumps to the top after a cancel loses the row the user was working with.",
       "translation": "चयन बनाए रखना ही मुद्दा है: रद्द करने के बाद ऊपर कूद जाने वाली सूची वह पंक्ति खो देती है जिस पर उपयोगकर्ता काम कर रहा था।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.refresh._done#0",
@@ -409,7 +417,9 @@
       "source_sha256": "80dd839b940339cbf6dfc055ff80aeda4c545068edc8a7ca77d62511f1051da8",
       "context": "A spin box clamps what it cannot hold, silently. The flow threshold runs -1 to 3 here while Mask ships 100 -- \"accept everything Cellpose proposes\" -- so seeding wrote 3, and propagating then handed 3 back as if the user had chosen it. The value that did not fit is remembered so propagation can return it untouched; see :meth:`_unclamped`.",
       "translation": "स्पिन बॉक्स जो नहीं रख सकता उसे चुपचाप सीमित कर देता है। यहाँ प्रवाह सीमा -1 से 3 तक है जबकि Mask 100 के साथ आता है -- \"accept everything Cellpose proposes\" -- इसलिए प्रारंभिक भराई ने 3 लिखा, और फिर प्रसार ने 3 ऐसे लौटा दिया मानो उपयोगकर्ता ने उसे चुना हो। जो मान नहीं समाया उसे याद रखा जाता है ताकि प्रसार उसे अछूता लौटा सके; देखें :meth:`_unclamped`।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.live_preview._apply_size_filter._num#0",
@@ -489,7 +499,9 @@
       "source_sha256": "7a0fc7dcaa57c39e4f0305f6db0c89f6224463cbdfc101f4d55bbb5dc24b28f8",
       "context": "Read the preview. background execution unit; touches no widget.",
       "translation": "पूर्वावलोकन पढ़ता है। वर्कर थ्रेड; किसी विजेट को नहीं छूता।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.show_aggregation_rules.preview#1",
@@ -513,7 +525,9 @@
       "source_sha256": "c64026a67feded613ce93a159a397fd24a7772a80d105878d2c508da51c1561f",
       "context": "Report the current stage, if anyone is listening.",
       "translation": "यदि कोई सुन रहा हो तो वर्तमान चरण की रिपोर्ट करता है।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_scan_panel.merge_across_databases._stop#0",
@@ -529,7 +543,9 @@
       "source_sha256": "3a31e8400eae846831bab4e8464e4f4b411cf1b1dccd855f85d0e0d047784baa",
       "context": "Checked BETWEEN stages rather than only at the start: a merge across databases runs for minutes, and a cancel that is only noticed at the end is not a cancel.",
       "translation": "केवल शुरुआत में नहीं बल्कि चरणों के बीच जाँचा जाता है: डेटाबेसों में विलय मिनटों चलता है, और जो रद्दीकरण अंत में ही दिखे वह रद्दीकरण नहीं है।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.regression_summary._assumptions_section.add#0",
@@ -593,7 +609,9 @@
       "source_sha256": "355d23a3e064979b67d838e7a030cd2a4d45f3698141a711aeb496762d407507",
       "context": "Send, and keep what happened.",
       "translation": "भेजता है, और जो हुआ उसे रखता है।",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal._iter_files.excluded#0",

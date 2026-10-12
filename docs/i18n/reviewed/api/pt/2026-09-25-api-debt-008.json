@@ -60,7 +60,9 @@
       "source_sha256": "f4a2f6d632b03ace56472deaa47950f33783c373e49345177648daa9dd33b2b1",
       "context": "FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the TARGET panes (:meth:`target`) are collapsed, and when the last is hidden the targets this collapsed are opened again. A target that was already collapsed -- by the user, or remembered from last session -- is left exactly as it is, both ways.",
       "translation": "Os widgets de FOCO são observados (:meth:`watch`); enquanto QUALQUER um deles estiver visível, os painéis ALVO (:meth:`target`) ficam recolhidos, e quando o último é ocultado, os alvos que isto recolheu são abertos de novo. Um alvo que já estava recolhido -- pelo usuário, ou lembrado da última sessão -- é deixado exatamente como está, nos dois sentidos.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#3",
@@ -68,7 +70,9 @@
       "source_sha256": "d2f77e3c7ce4f96edd278a717f67d79143f6db40d7d566061c40a51cf6619bde",
       "context": "Never fights the user. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
       "translation": "NUNCA BRIGA COM O USUÁRIO. Um alvo que o usuário abre à mão (clicando em seu título ou em sua alça, ou arrastando-o para abrir) fica FIXADO: nada aqui o recolhe de novo até que a visualização termine. Um alvo que o usuário recolhe à mão também é dele, e não é reaberto quando o foco sai.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#4",
@@ -76,7 +80,9 @@
       "source_sha256": "8ec9ecfa22f3d1b94eadb17b0dcc3f2df5a8db6b5d3465f5be7345c23c20e4ff",
       "context": "A view is one visit to one application view: it begins when the application view is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another application view (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the application view with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
       "translation": "Uma VISUALIZAÇÃO é uma visita a uma tela: começa quando a tela é mostrada (:meth:`begin_view`, a partir de seu ``showEvent``) e termina quando ela é ocultada porque o usuário foi para outra tela (:meth:`end_view`, a partir de seu ``hideEvent``). Minimizar a janela não a termina -- o proprietário repassa apenas eventos não espontâneos. As fixações duram a visualização: voltar à tela com sua pré-visualização ao vivo ainda aberta recolhe o entorno de novo, que é o que uma nova chegada a esse layout receberia.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#5",
@@ -108,7 +114,9 @@
       "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
       "context": "The user left the screen: their pins for this view are spent.",
       "translation": "O usuário saiu da tela: as fixações dele para esta visualização se esgotaram.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.eventFilter#0",
@@ -1538,7 +1546,9 @@
       "source_sha256": "98efadcb034381d0b96dc99c19dc1beaf6ab84106523d44991376ba18867a08f",
       "context": "The size is fixed per scale, not per row state. The old dock grew and shrank an icon on hover, which relayed out the whole column under the pointer; that is what :data:`ICON_PX` being one number stops. It still has to follow the interface scale, so the base is recorded on each row and re-derived from there -- see :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never recomputed from the size the row is already wearing.",
       "translation": "O TAMANHO É FIXO POR ESCALA, NÃO POR ESTADO DA LINHA. O dock antigo aumentava e diminuía um ícone ao passar o mouse, o que redispunha a coluna inteira sob o ponteiro; é isso que :data:`ICON_PX` ser um único número impede. Ele ainda precisa seguir a escala da interface, então a base é registrada em cada linha e derivada de novo a partir dali -- veja :func:`spacr.qt.preferences._set_scaled_icon_size` para saber por que ela nunca é recalculada a partir do tamanho que a linha já está usando.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.section_is_open#1",
@@ -1578,7 +1588,9 @@
       "source_sha256": "90ac9ad64db7ee715905d050dfc0dee1df43a9d80986831e7839a231167d43b6",
       "context": "It is nonetheless **not the default**, and that is a decision rather than an oversight. The fifth parameter trades off against the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten concentrations a plate actually carries it is weakly identified, and the profile interval it produces is correspondingly wider. The module therefore offers it, fits it **from the 4PL solution** so the asymmetric search starts at the symmetric answer, and reports an extra-sum-of-squares F test of the one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the asymmetry was worth what it cost.",
       "translation": "Ainda assim ela **não é o padrão**, e isso é uma decisão, não um descuido. O quinto parâmetro se compensa com a inclinação de Hill — muitos pares (inclinação, assimetria) desenham quase a mesma curva —, então, com as oito ou dez concentrações que uma placa realmente contém, ele é fracamente identificável, e o intervalo de perfil que produz é correspondentemente mais largo. Por isso o módulo a oferece, a ajusta **a partir da solução 4PL**, para que a busca assimétrica comece na resposta simétrica, e informa um teste F de soma de quadrados extra do único parâmetro adicionado em :attr:`DoseResponseResult.asymmetry_p`, para que o leitor possa ver se a assimetria valeu o que custou.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#27",
@@ -1618,7 +1630,9 @@
       "source_sha256": "c4538f3c829789f7d52787b8fbf30cda8d9431e6ef5d271aad5721bc2db7483d",
       "context": "the response **rises at the bottom dose** before falling — hormesis. The advice is emphatically not to drop those doses, because the rise is the finding.",
       "translation": "a resposta **sobe na dose mais baixa** antes de cair — hormese. O conselho é enfaticamente não descartar essas doses, porque a subida é o achado.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#32",
@@ -1634,7 +1648,9 @@
       "source_sha256": "b58fe65189506a40db2a89a06934aadb3125e6cfd14a840ae2386e9a2012f3cc",
       "context": "The test runs on any series whose low-dose end departs from control against the trend, not only on the ones :func:`monotonicity` refuses — **a hump can carry a fifth of the response span and still sit inside** :data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50 displaced by the hump, and says nothing. Those fits now carry the finding in :attr:`DoseResponseResult.hormesis` and in their caveats.",
       "translation": "O teste roda em qualquer série cuja extremidade de dose baixa se afasta do controle contra a tendência, e não apenas nas que :func:`monotonicity` recusa — **uma corcova pode ocupar um quinto da amplitude da resposta e ainda ficar dentro de** :data:`MAX_REVERSAL`, caso em que o ajuste atual é bem-sucedido, cita uma EC50 deslocada pela corcova e não diz nada. Esses ajustes agora trazem o achado em :attr:`DoseResponseResult.hormesis` e em suas ressalvas.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseResult#21",
@@ -1786,7 +1802,9 @@
       "source_sha256": "c649bbc62d764683b27f13d71653696bf3960e5cca9b7aaab962bd27526ec5b5",
       "context": ":data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The asymmetric model is a choice the user makes and never one the data makes for them: it is offered because real asymmetry exists and a 4PL absorbs it into a displaced EC50, and it is not the default because the fifth parameter is weakly identified on the eight or ten concentrations a plate actually carries. A fit that chose 5PL reports whether the extra parameter earned itself — see :attr:`DoseResponseResult.asymmetry_p`.",
       "translation": ":data:`MODEL_4PL` (padrão) ou :data:`MODEL_5PL`. O modelo assimétrico é uma escolha que o usuário faz, e nunca uma que os dados fazem por ele: é oferecido porque a assimetria real existe e uma 4PL a absorve em uma EC50 deslocada, e não é o padrão porque o quinto parâmetro é fracamente identificável com as oito ou dez concentrações que uma placa realmente contém. Um ajuste que escolheu 5PL informa se o parâmetro extra se justificou — veja :attr:`DoseResponseResult.asymmetry_p`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseSpec#12",
@@ -2242,7 +2260,9 @@
       "source_sha256": "145fea693db0defae9669687af04ae2111e23e68b96cba9e159647d476d8f912",
       "context": "**That scale factor is the whole point of this function.** Written the way the 5PL usually is —",
       "translation": "**Esse fator de escala é todo o propósito desta função.** Escrita da forma como a 5PL costuma ser escrita —",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#3",
@@ -2266,7 +2286,9 @@
       "source_sha256": "a1251e1e88117eae1047b7a8adb6043f0ff87bd5f0adebdd50c7ef89af9eae2a",
       "context": "every downstream rule in this module — the boundedness tests, the profile interval, the back-transformed reporting — keeps reading ``log10_ec50`` as the same quantity under both models, and none of them had to learn a second meaning.",
       "translation": "todas as regras seguintes deste módulo — os testes de limitação, o intervalo de perfil, o relato com transformação inversa — continuam lendo ``log10_ec50`` como a mesma grandeza nos dois modelos, e nenhuma delas precisou aprender um segundo significado.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#6",
@@ -2306,7 +2328,9 @@
       "source_sha256": "3bea01c7922161566a7b8ebb8719049a77e432da5951f8731ff0f0dd8bddad97",
       "context": "Is the low-dose end of this series stimulated, or is it noise?",
       "translation": "A extremidade de dose baixa desta série é estimulada, ou é ruído?",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#1",
@@ -2378,7 +2402,9 @@
       "source_sha256": "a841346d577f13b160fc5ab59b6823582b375bbb6da64034f485b55428ffef2d",
       "context": "**The F test is two-sided and the hypothesis is one-sided**, since only a positive stimulation is hormesis. Criterion 1 does the one-sided part by inspection rather than by halving the p value, so the reported p is conservative by about a factor of two. Stated rather than corrected: a conservative p on a screen that already refuses this data is the right direction to be wrong in.",
       "translation": "**O teste F é bilateral e a hipótese é unilateral**, já que só uma estimulação positiva é hormese. O critério 1 faz a parte unilateral por inspeção, em vez de dividir o valor p ao meio, então o p informado é conservador por um fator de cerca de dois. Declarado em vez de corrigido: um p conservador em uma triagem que já recusa esses dados é a direção certa para errar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#6",
@@ -2450,7 +2476,9 @@
       "source_sha256": "c8d906546300bc92069194a3156ddef006697415a0fbb0be712d1eba248be3fc",
       "context": "Progress line. :class:`ProgressLine` is a slim progress bar whose numbers sit beside it, where nothing can cut them.",
       "translation": "LINHA DE PROGRESSO. :class:`ProgressLine` é uma barra de progresso fina cujos números ficam ao lado dela, onde nada pode cortá-los.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#3",
@@ -2494,7 +2522,9 @@
       "source_sha256": "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
       "context": "the COUNT beside it (the step and the percentage, the numbers a person is watching) is a plain label that is never elided -- its horizontal size policy is ``Minimum``, so a layout cannot give it less than its text needs;",
       "translation": "a CONTAGEM ao lado dela (a etapa e a porcentagem, os números que uma pessoa está acompanhando) é um rótulo simples que nunca é abreviado -- sua política de tamanho horizontal é ``Minimum``, então um layout não pode lhe dar menos do que o texto precisa;",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#8",
@@ -2502,7 +2532,9 @@
       "source_sha256": "5858f3fd7791f06144afa0bd885ce4f346f87ff7126dc3da005546ccf9cd8415",
       "context": "an optional DETAIL line below carries the part that changes and can be long (a file name, a speed, a time left); that part elides, and :meth:`ProgressLine.displayed_text` reports what is really painted.",
       "translation": "uma linha de DETALHE opcional abaixo traz a parte que muda e pode ser longa (um nome de arquivo, uma velocidade, um tempo restante); essa parte é abreviada, e :meth:`ProgressLine.displayed_text` informa o que é realmente pintado.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#9",
@@ -2614,7 +2646,9 @@
       "source_sha256": "30a3f21a5ded561add182c72e49dfb304e12208e225885cf7dd56818b71522bc",
       "context": "What is really painted: the count, then the detail as elided.",
       "translation": "O que é realmente pintado: a contagem e depois o detalhe como abreviado.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding.ProgressLine.displayed_text#1",
@@ -3358,7 +3392,9 @@
       "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
       "context": "The event type is read first, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to execute for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
       "translation": "O TIPO DO EVENTO É LIDO PRIMEIRO, e as verificações de vitalidade vêm depois. Este filtro está no QApplication, então as duas chamadas `_still_alive` rodavam para cada evento do processo -- 94,431 deles durante uma abertura do Regression, e um perfil contou o par em 839,906 chamadas em uma abertura do Mask. Ler o tipo de um objeto cuja metade em C++ já se foi levanta uma exceção, que o `except` abaixo já responde com o mesmo `False`, então a ordem não custa nada e as verificações agora só rodam para um menu de contexto.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#4",
@@ -4483,7 +4519,9 @@
       "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
       "context": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
       "translation": "``0`` quando nenhuma verificação falhou, ``1`` quando alguma falhou. Uma falha aqui é uma afirmação sobre a ANOTAÇÃO, não sobre este programa: significa que os dados não sustentam o que o plano do timeflows pressupõe sobre eles.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#0",
@@ -4491,7 +4529,9 @@
       "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
       "context": "List every label that disappears and comes back, and judge each one.",
       "translation": "Lista cada rótulo que desaparece e depois volta, e avalia cada um.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.recycled_labels#1",
@@ -4573,7 +4613,9 @@
       "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
       "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
       "translation": "NUNCA CHAME ISTO NA THREAD DA GUI. Esta função abre um socket. O painel de Notícias da tela Início a solicita pelo mesmo :class:`_UpdateWorker` em que a verificação manual de atualizações é executada, depois que a página já foi exibida.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.fetch_release_notes#2",
@@ -4653,7 +4695,9 @@
       "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
       "context": "Upgrade this interpreter, optionally to the exact version offered.",
       "translation": "Atualiza este interpretador, opcionalmente para a versão exata oferecida.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.upgrade_command#1",
@@ -4711,7 +4755,9 @@
       "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
       "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
       "translation": "``True`` quando a pasta de máscaras não existe ou quando algum nome de arquivo de pilha esperado não tem uma máscara completa. Máscaras não relacionadas não podem substituir um campo ausente e não obrigam campos completos a serem processados de novo.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.lasso_reg#3",

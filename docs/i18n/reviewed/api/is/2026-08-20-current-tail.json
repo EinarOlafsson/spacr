@@ -34,7 +34,9 @@
       "label": "spacr.columns.headers#2",
       "source": "a dict in the order given. A path that does not exist or cannot be parsed is ABSENT from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",
       "source_sha256": "33aa3b37dc8945d16cb30f8c08e0b09ff36e39854650ecb74a9b866551bf12e2",
-      "translation": "lykilgilda kortlagning í þeirri röð sem gefin er upp. Slóð sem er ekki til eða ekki er hægt að flokka er FJARVAR í niðurstöðunni frekar en varpað á tóman lista -- sjá reglu 2. Notaðu :func:`missing` til að spyrja hverjir þetta voru."
+      "translation": "lykilgilda kortlagning í þeirri röð sem gefin er upp. Slóð sem er ekki til eða ekki er hægt að flokka er FJARVAR í niðurstöðunni frekar en varpað á tóman lista -- sjá reglu 2. Notaðu :func:`missing` til að spyrja hverjir þetta voru.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A sink that raises does not lose the file, for the same reason as in :func:`publish`: the file is already on disk and the announcement is best-effort, so a GUI that has gone away must not take the processing session's output with it.",
@@ -69,7 +71,9 @@
       "label": "spacr.figures.fast_render.build_fast_plot#1",
       "source": "THE COLUMNS ARE RESOLVED BY :mod:`spacr.figures.panels`, not here. A second opinion about which column is the effect and which rows are hypotheses is precisely the disagreement this module exists to end, and ``effect_column`` / ``p_column`` / ``q_column`` / ``tested`` are the generated side's single statement of it.",
       "source_sha256": "fc9e5beab0b44dc2d3f30a428b407397940ca6ae32ddd1865cffd159dbf917e6",
-      "translation": "Dálkarnir eru leystir með :mod:`spacr.figures.panels`, ekki hér. Önnur skoðun um hvaða dálkur er áhrifin og hvaða línur eru tilgátur er einmitt ágreiningurinn sem þessi eining er til að enda, og ``effect_column`` / ``p_column`` / ``q_column`` / ``tested`` eru ein setning hliðarinnar sem myndast um hana."
+      "translation": "Dálkarnir eru leystir með :mod:`spacr.figures.panels`, ekki hér. Önnur skoðun um hvaða dálkur er áhrifin og hvaða línur eru tilgátur er einmitt ágreiningurinn sem þessi eining er til að enda, og ``effect_column`` / ``p_column`` / ``q_column`` / ``tested`` eru ein setning hliðarinnar sem myndast um hana.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Each panel function draws into a supplied Matplotlib axes and returns a :class:`Panel` record containing its caption, input requirements, and plotted data. The shared registry lets reports and the desktop interface discover the same available panels without duplicating plotting rules.",
@@ -92,14 +96,18 @@
       "label": "spacr.figures.stats#4",
       "source": "**THE ASSUMPTION TESTS ARE THEMSELVES TESTS.** On n = 3 Levene has almost no power, so \"p = 0.7, variances are equal\" actually means \"we could not tell\". Reading that as licence to use Student's t is how a screen reports a difference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module records the check as UNINFORMATIVE and selects Welch's t-test or Mann-Whitney, which costs a little power when the assumption did hold and protects the result when it did not. That asymmetry is the whole argument: one direction loses a bit of sensitivity, the other publishes a false positive.",
       "source_sha256": "be34d9a0abfc720c38d38de067bf97be4545c50e421874aa9381c8c9b6e1c6bd",
-      "translation": "**Forsendaprófin ERU SJÁLF PRÓF.** Á n = 3 hefur Levene nánast ekkert vald, þannig að \"p = 0,7, frávik eru jöfn\" þýðir í raun \"we could not tell\". Að lesa það sem leyfi til að nota t nemenda er hvernig skimun greinir frá mismun sem er ekki til staðar. Fyrir neðan :data:`MIN_N_FOR_ASSUMPTIONS` skráir þessi eining ávísunina sem Óupplýsandi og velur t-próf ​​Welch eða Mann-Whitney, sem kostar smá kraft þegar forsendan stóðst og verndar niðurstöðuna þegar hún gerði það ekki. Sú ósamhverfa er öll rökin: önnur stefnan missir dálítið næmni, hin birtir falskt jákvætt."
+      "translation": "**Forsendaprófin ERU SJÁLF PRÓF.** Á n = 3 hefur Levene nánast ekkert vald, þannig að \"p = 0,7, frávik eru jöfn\" þýðir í raun \"we could not tell\". Að lesa það sem leyfi til að nota t nemenda er hvernig skimun greinir frá mismun sem er ekki til staðar. Fyrir neðan :data:`MIN_N_FOR_ASSUMPTIONS` skráir þessi eining ávísunina sem Óupplýsandi og velur t-próf ​​Welch eða Mann-Whitney, sem kostar smá kraft þegar forsendan stóðst og verndar niðurstöðuna þegar hún gerði það ekki. Sú ósamhverfa er öll rökin: önnur stefnan missir dálítið næmni, hin birtir falskt jákvætt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**The unit of replication.** spaCR measures thousands of cells across a handful of microplate sample positions. A test across CELLS when the replicate is the Microplate sample position is pseudoreplication and will return p < 1e-10 on pure noise, because n is inflated by a factor of a thousand. Every result here states what n counted, and :func:`compare` takes a ``unit`` so a caller can aggregate first.",
       "label": "spacr.figures.stats#5",
       "source": "**THE UNIT OF REPLICATION.** spaCR measures thousands of cells across a handful of wells. A test across CELLS when the replicate is the WELL is pseudoreplication and will return p < 1e-10 on pure noise, because n is inflated by a factor of a thousand. Every result here states what n counted, and :func:`compare` takes a ``unit`` so a caller can aggregate first.",
       "source_sha256": "ff293d2fa55d390532f800b46e12dd36a780aa6d0f2abf5e25acf2d81b9d045f",
-      "translation": "**EINHVERJUNAREININGIN.** spaCR mælir þúsundir frumna yfir handfylli af örplötusýnastöðum. Próf yfir FRUM þegar endurtekningin er staðsetning örplötusýnis er gerviföldun og mun skila p < 1e-10 á hreinum hávaða, vegna þess að n er blásið upp um þúsund. Sérhver niðurstaða hér segir til um hvað n taldi, og :func:`compare` tekur ``unit`` svo að sá sem hringir geti safnað saman fyrst."
+      "translation": "**EINHVERJUNAREININGIN.** spaCR mælir þúsundir frumna yfir handfylli af örplötusýnastöðum. Próf yfir FRUM þegar endurtekningin er staðsetning örplötusýnis er gerviföldun og mun skila p < 1e-10 á hreinum hávaða, vegna þess að n er blásið upp um þúsund. Sérhver niðurstaða hér segir til um hvað n taldi, og :func:`compare` tekur ``unit`` svo að sá sem hringir geti safnað saman fyrst.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Data-selection boundary Editor can write a strategy to a path and read one back, but only through a file chooser, which makes reuse depend on remembering where it was saved. A screen is gated the same way over and over -- \"live singlets\", \"infected cells\", \"the debris filter I always apply\" -- and those reusable strategies form a library.",
@@ -134,7 +142,9 @@
       "label": "spacr.gene_measurement_sweep.plot_measurement_hits#1",
       "source": "The grid read down its other axis. A measurement moved by half the library is not a discriminating readout: it is a plate effect, a focus drift or a confluence artefact wearing a measurement's name, and it will put a hit on every gene in the screen. Ranking measurements by how many genes move them is how you find those before trusting any of them.",
       "source_sha256": "e16bdd2c9e8ebe555a11f06f1dbbaaa60c3457715583a48576f59b7a3c40fd06",
-      "translation": "Riðlin las niður hinn ásinn. Mæling sem færð er um hálft safnið er ekki mismunandi aflestur: hún er plötuáhrif, fókusrek eða samrennslisgripur sem ber nafn mælingar, og það mun setja niðurstöður á hvert gen í skimunartilrauninni. Að flokka mælingar eftir því hversu mörg gen hreyfa þau er hvernig þú finnur þau áður en þú treystir einhverju þeirra."
+      "translation": "Riðlin las niður hinn ásinn. Mæling sem færð er um hálft safnið er ekki mismunandi aflestur: hún er plötuáhrif, fókusrek eða samrennslisgripur sem ber nafn mælingar, og það mun setja niðurstöður á hvert gen í skimunartilrauninni. Að flokka mælingar eftir því hversu mörg gen hreyfa þau er hvernig þú finnur þau áður en þú treystir einhverju þeirra.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The :func:`gene_tile` function combines a regression feature with optional coefficient, gRNA-reference, annotation, and localisation data. It returns a :class:`GeneTile` that can be rendered by the GUI or used independently.",
@@ -169,7 +179,9 @@
       "label": "spacr.io.migrate_unescaped_plate_names#2",
       "source": "Nothing in the measurement database needs migrating, because there is none: every frame of such a plate was refused. What DOES need moving is everything upstream of the measurement -- ``stack/``, ``norm_channel_stack/``, ``merged/`` and, above all, ``masks/``, which is hours to days of segmentation. Renaming those makes the plate measurable without re-segmenting it, which is the whole reason this exists rather than a note saying \"re-run the plate\".",
       "source_sha256": "c36b29818f87842b5d13c9c50ff83d309649882af32a8a64c963781250ca0891",
-      "translation": "Ekkert í mælingagagnagrunninum þarf að flytja, því það er enginn: hverjum ramma slíkrar plötu var hafnað. Það sem þarf að færa til er allt fyrir framan mælinguna -- ``stack/``, ``norm_channel_stack/``, ``merged/`` og umfram allt ``masks/``, sem er klst til daga skiptingar. Með því að endurnefna þær gerir það plötuna mælanlega án þess að skipta henni aftur, sem er öll ástæðan fyrir því að þetta er til frekar en athugasemd sem segir \"re-run the plate\"."
+      "translation": "Ekkert í mælingagagnagrunninum þarf að flytja, því það er enginn: hverjum ramma slíkrar plötu var hafnað. Það sem þarf að færa til er allt fyrir framan mælinguna -- ``stack/``, ``norm_channel_stack/``, ``merged/`` og umfram allt ``masks/``, sem er klst til daga skiptingar. Með því að endurnefna þær gerir það plötuna mælanlega án þess að skipta henni aftur, sem er öll ástæðan fyrir því að þetta er til frekar en athugasemd sem segir \"re-run the plate\".",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The exception message reports the active start method, underlying error, and practical remedies. No fields are measured after this error.",
@@ -232,7 +244,9 @@
       "label": "spacr.plate_measurements#9",
       "source": "The roll-up keys are the load-bearing detail. They are the identity columns PLUS ``screenID`` PLUS ``source_database`` PLUS the child's anchor column. Leave ``screenID`` out and two screens that legitimately share ``plate1`` (which :func:`~spacr.multi_database.describe_merge` deliberately permits) collapse into one parent -- reintroducing, one layer up, exactly the pooling ``multi_database`` exists to prevent.",
       "source_sha256": "0098a679c23082afd2475dd48e3abc4c18fa081c4e6ac4c5bce33586b56b9212",
-      "translation": "Samanlögðu nöfnin á skipulögðum gögnum eru álagsberandi smáatriðin. Þeir eru auðkennisdálkarnir PLÚS ``screenID`` PLÚS ``source_database`` PLÚS akkerisdálkur barnsins. Skildu ``screenID`` út og tvö forritaskoðanir sem deila með lögmætum hætti ``plate1`` (sem :func:`~spacr.multi_database.describe_merge` leyfir vísvitandi) hrynja saman í eitt foreldri -- innleiðing aftur, einu lagi upp, nákvæmlega sameiningin ``multi_database`` er til til að koma í veg fyrir."
+      "translation": "Samanlögðu nöfnin á skipulögðum gögnum eru álagsberandi smáatriðin. Þeir eru auðkennisdálkarnir PLÚS ``screenID`` PLÚS ``source_database`` PLÚS akkerisdálkur barnsins. Skildu ``screenID`` út og tvö forritaskoðanir sem deila með lögmætum hætti ``plate1`` (sem :func:`~spacr.multi_database.describe_merge` leyfir vísvitandi) hrynja saman í eitt foreldri -- innleiðing aftur, einu lagi upp, nákvæmlega sameiningin ``multi_database`` er til til að koma í veg fyrir.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.",
@@ -248,14 +262,18 @@
       "label": "spacr.portable_paths.RerootReport.partial#1",
       "source": "THE DISTINCTION THAT DECIDES WHETHER TO SHOUT. A column where nothing resolved and nothing existed is a ROUTE THAT IS NOT ON THIS MACHINE -- a screen with PNG crops and no ``merged/`` folder has 60,816 unplaceable ``path_name`` values and is completely healthy. A column where most paths resolved and a few did not is the actionable partial-failure case.",
       "source_sha256": "c005f057e4f0d91e251a8364dd15e99436a20445a54ac2040ae5d2802e28990c",
-      "translation": "AÐMIÐURINN SEM ÁKVÆÐUR HVOR Á AÐ HROPA. Dálkur þar sem ekkert leystist og ekkert var til er LEIÐ SEM ER EKKI Á ÞESSARI VÉL -- forritasýn með PNG útdregnum myndsvæðum og engin ``merged/`` möppu hefur 60.816 óstaðhæfanleg ``path_name`` gildi og er fullkomlega heilbrigð. Dálkur þar sem flestar leiðir leystust og nokkrar ekki er aðgerðatilvikið að hluta til."
+      "translation": "AÐMIÐURINN SEM ÁKVÆÐUR HVOR Á AÐ HROPA. Dálkur þar sem ekkert leystist og ekkert var til er LEIÐ SEM ER EKKI Á ÞESSARI VÉL -- forritasýn með PNG útdregnum myndsvæðum og engin ``merged/`` möppu hefur 60.816 óstaðhæfanleg ``path_name`` gildi og er fullkomlega heilbrigð. Dálkur þar sem flestar leiðir leystust og nokkrar ekki er aðgerðatilvikið að hluta til.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the screening experiment takes its inputs one row per laboratory microplate -- today only Regression, through the ``paired_data`` table -- the database is attached to a laboratory microplate row instead of setting ``src``. That is not an app-structured-data name special case: it follows the shape of the screening experiment, so any panel that grows a per-laboratory microplate input table gets it without a registry edit.",
       "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler#1",
       "source": "Where the screen takes its inputs ONE ROW PER PLATE -- today only Regression, through the ``paired_data`` table -- the database is attached to a plate row instead of setting ``src``. That is not an app-key special case: it follows the shape of the screen, so any panel that grows a per-plate input table gets it without a registry edit.",
       "source_sha256": "45acbb5f3ed867c3a1f54ae95d9e1df1b66d223ceee128d28aee2ea26b7ffb50",
-      "translation": "Þar sem skimunartilraunin tekur aðföng sín EIN RÍÐ Á HVERN rannsóknarstofu örplötu -- í dag aðeins afturför, í gegnum ``paired_data`` töfluna -- er gagnagrunnurinn festur við röð rannsóknarstofu örplötu í stað þess að stilla ``src``. Þetta er ekki sérstakt tilfelli af nafni forritsuppbyggðra gagna: það fylgir lögun skimunartilraunarinnar, þannig að hvaða spjald sem ræktar inntakstöflu fyrir hverja rannsóknarstofu fær það án skrásetningarbreytingar."
+      "translation": "Þar sem skimunartilraunin tekur aðföng sín EIN RÍÐ Á HVERN rannsóknarstofu örplötu -- í dag aðeins afturför, í gegnum ``paired_data`` töfluna -- er gagnagrunnurinn festur við röð rannsóknarstofu örplötu í stað þess að stilla ``src``. Þetta er ekki sérstakt tilfelli af nafni forritsuppbyggðra gagna: það fylgir lögun skimunartilraunarinnar, þannig að hvaða spjald sem ræktar inntakstöflu fyrir hverja rannsóknarstofu fær það án skrásetningarbreytingar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Figures panel used to hold a pixmap per figure and a Figure for every one of them, unbounded. The pixmap is what it displayed, so nothing could be restyled from a picture; the Figures were retained but never capped, so a long run accumulated all of them.",
@@ -334,7 +352,9 @@
       "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.open_for#1",
       "source": "The row that would normally carry this help is disabled, so it cannot be tabbed to and nothing can be inherited from it. A caller wires this to a key on the control that IS focusable -- the combo itself -- and the panel takes it from there: Tab moves between **API** and **Install**, Enter presses one, Up/Down move to the next unavailable entry, Escape closes and hands focus back.",
       "source_sha256": "588843bba5638192b252141e37ea92bf089b4bf50a1c94c7ae14ffe169b61e7e",
-      "translation": "Röðin sem venjulega myndi bera þessa hjálp er óvirk, þannig að ekki er hægt að flipa hana og ekkert erft frá henni. Sá sem hringir tengir þetta við takka á stýringu sem ER fókusinn -- samsetningin sjálf -- og spjaldið tekur það þaðan: Tab færist á milli **API** og **Install**, Enter ýtir á einn, Upp/Niður færist í næstu ófáanlega færslu, Escape lokar og hendur fókusa aftur."
+      "translation": "Röðin sem venjulega myndi bera þessa hjálp er óvirk, þannig að ekki er hægt að flipa hana og ekkert erft frá henni. Sá sem hringir tengir þetta við takka á stýringu sem ER fókusinn -- samsetningin sjálf -- og spjaldið tekur það þaðan: Tab færist á milli **API** og **Install**, Enter ýtir á einn, Upp/Niður færist í næstu ófáanlega færslu, Escape lokar og hendur fókusa aftur.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":mod:`spacr.cell_montage` selects the objects and records the selection reason; this module resolves and displays their extracted image regions beside the processing session's figures. Each attached database resolves its own exported-PNG or ``merged/<fov>.npy`` source so multi-plate montages can combine experiments with different storage layouts. The extracted image region mask image layer and image data channels come from :class:`spacr.crops.CropSpec` or, by default, the processing session's ``measurements.db`` metadata.",
@@ -348,7 +368,9 @@
       "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.picked_groups#1",
       "source": "THE PICKER'S OWN ANSWER, read off the plans rather than recomputed -- `montage_candidate` is the column `select_montage` marks, so whichever mode is in force (rank, attributed, assigned, multivariate) this is what the montage actually drew.",
       "source_sha256": "6a378fa725f34f90ec54b02a6b75a54d5a3c6942a210a15542de05389117b7e3",
-      "translation": "EIGIÐ SVAR VELJARANNAR, lesið af áætlanirnar frekar en endurreiknað -- `montage_candidate` er dálkurinn `select_montage` merkið, þannig að hvaða háttur sem er í gildi (röðun, eignuð, ​​úthlutað, margbreytilegt) þetta er það sem uppsetningin teiknaði í raun."
+      "translation": "EIGIÐ SVAR VELJARANNAR, lesið af áætlanirnar frekar en endurreiknað -- `montage_candidate` er dálkurinn `select_montage` merkið, þannig að hvaða háttur sem er í gildi (röðun, eignuð, ​​úthlutað, margbreytilegt) þetta er það sem uppsetningin teiknaði í raun.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "key-value mapping Mapping of each updated database path to its matched-row count. Returns an empty mapping when no inputs are available, the user declines, or no database can be updated.",
@@ -376,35 +398,45 @@
       "label": "spacr.qt.widgets.fast_plots.ControlSeparation.set_groups#3",
       "source": "THE GROUPS ARE THE SECOND FORM OF THE SORT TRAP. These arrays are slices of the table taken by condition, so a dot's position within its own group is not its row -- and the negative controls are drawn before the screen, so it is not its position on the plot either. Rows are therefore laid out in one flat sequence up front and carried into each scatter, rather than being inferred from the drawing order.",
       "source_sha256": "30356d66f1d814b3152c99a3159715397be20dd20a59cef42bfa13a84e45602c",
-      "translation": "HÓPARNIR ERU ANNAÐ FORM FLOKKARFALLARINNAR. Þessar fylki eru sneiðar af töflunni teknar af ástandi, þannig að staðsetning punkts innan eigin hóps er ekki röð hans -- og neikvæðu stýringarnar eru teiknaðar fyrir skjáinn, svo það er ekki staðsetning hans á söguþræðinum heldur. Raðir eru því lagðar í einni flatri röð framan á og borið inn í hverja dreifingu, frekar en að þær séu ályktaðar út frá teikningaröðinni."
+      "translation": "HÓPARNIR ERU ANNAÐ FORM FLOKKARFALLARINNAR. Þessar fylki eru sneiðar af töflunni teknar af ástandi, þannig að staðsetning punkts innan eigin hóps er ekki röð hans -- og neikvæðu stýringarnar eru teiknaðar fyrir skjáinn, svo það er ekki staðsetning hans á söguþræðinum heldur. Raðir eru því lagðar í einni flatri röð framan á og borið inn í hverja dreifingu, frekar en að þær séu ályktaðar út frá teikningaröðinni.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The interactive twin of :func:`spacr.figures.panels.effect_distribution`. The volcano says which coefficients are extreme; this says what \"extreme\" is worth on THIS screening experiment, which is the number a reader needs before they believe any of them. A screening experiment whose effects are a tight bell with nothing in the tails has no hits however small its p-values are.",
       "label": "spacr.qt.widgets.fast_plots.EffectDistribution#1",
       "source": "The interactive twin of :func:`spacr.figures.panels.effect_distribution`. The volcano says which coefficients are extreme; this says what \"extreme\" is worth on THIS screen, which is the number a reader needs before they believe any of them. A screen whose effects are a tight bell with nothing in the tails has no hits however small its p-values are.",
       "source_sha256": "25ff572989ea2d17028abc28cf4c12207157c4ea159572cae2f904551c85b93a",
-      "translation": "Gagnvirki tvíburi :func:`spacr.figures.panels.effect_distribution`. Eldfjallið segir hvaða stuðlar eru öfgafullir; þetta segir hvers virði \"extreme\" er í ÞESSARI skimunartilraun, sem er númerið sem lesandi þarf áður en þeir trúa einhverjum þeirra. Skimunartilraun þar sem áhrifin eru þétt bjalla með ekkert í skottinu hefur engin niðurstöður þó p-gildin séu lítil."
+      "translation": "Gagnvirki tvíburi :func:`spacr.figures.panels.effect_distribution`. Eldfjallið segir hvaða stuðlar eru öfgafullir; þetta segir hvers virði \"extreme\" er í ÞESSARI skimunartilraun, sem er númerið sem lesandi þarf áður en þeir trúa einhverjum þeirra. Skimunartilraun þar sem áhrifin eru þétt bjalla með ekkert í skottinu hefur engin niðurstöður þó p-gildin séu lítil.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The range is the data's own, unlike the p-value histogram's. An effect size has no fixed domain, and pinning one would invent a scale the fit never produced.",
       "label": "spacr.qt.widgets.fast_plots.EffectDistribution.set_effects#6",
       "source": "THE RANGE IS THE DATA'S OWN, unlike the p-value histogram's. An effect size has no fixed domain, and pinning one would invent a scale the fit never produced.",
       "source_sha256": "857c3f5ea75d9aa3fe209b88333861bac1b53d1af29ff7c097d1853d336ffb6e",
-      "translation": "SVIÐIN ER EIGIN GÖGN, ólíkt p-gildi súluritinu. Áhrifastærð hefur ekkert fast lén og að festa einn myndi finna upp mælikvarða sem passaði aldrei."
+      "translation": "SVIÐIN ER EIGIN GÖGN, ólíkt p-gildi súluritinu. Áhrifastærð hefur ekkert fast lén og að festa einn myndi finna upp mælikvarða sem passaði aldrei.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The interactive twin of :func:`spacr.figures.panels.effect_rank`, and the panel that answers what a volcano structurally cannot: HOW BIG, and how sure. A volcano ranks by significance, so an effect of 0.02 measured on six hundred microplate sample positions outranks one of 2.0 measured on four; ranking by the effect itself puts them the other way round, and the interval drawn through each dot is what says which of the two to believe.",
       "label": "spacr.qt.widgets.fast_plots.EffectRankPlot#1",
       "source": "The interactive twin of :func:`spacr.figures.panels.effect_rank`, and the panel that answers what a volcano structurally cannot: HOW BIG, and how sure. A volcano ranks by significance, so an effect of 0.02 measured on six hundred wells outranks one of 2.0 measured on four; ranking by the effect itself puts them the other way round, and the interval drawn through each dot is what says which of the two to believe.",
       "source_sha256": "8bbebe29dc1555563446fb003a94e39fc31808e96bf1a3a36edaa58415d6e8dd",
-      "translation": "Gagnvirki tvíburinn af :func:`spacr.figures.panels.effect_rank` og spjaldið sem svarar því sem eldfjall getur ekki skipulagt: HVERSU STÓRT og hversu öruggt. Eldfjall er raðað eftir marktækni, þannig að áhrif upp á 0,02 mæld á sex hundruð míkróplötusýnastöður eru meiri en 2,0 mæld á fjórum; röðun eftir áhrifunum sjálfum snýr þeim á hinn veginn og bilið sem dregið er í gegnum hvern punkt er það sem segir hverju þeirra tveggja á að trúa."
+      "translation": "Gagnvirki tvíburinn af :func:`spacr.figures.panels.effect_rank` og spjaldið sem svarar því sem eldfjall getur ekki skipulagt: HVERSU STÓRT og hversu öruggt. Eldfjall er raðað eftir marktækni, þannig að áhrif upp á 0,02 mæld á sex hundruð míkróplötusýnastöður eru meiri en 2,0 mæld á fjórum; röðun eftir áhrifunum sjálfum snýr þeim á hinn veginn og bilið sem dregið er í gegnum hvern punkt er það sem segir hverju þeirra tveggja á að trúa.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The data is transformed, not only the axis. ``PlotItem.setLogMode`` relabels the axis and then walks its items asking each to re-transform itself -- and ``ScatterPlotItem`` HAS NO ``setLogMode``, while every point on every plot in this module is one. The axis therefore claimed a log scale and the dots did not move: a reader took p-values off a ruler that did not describe the marks beside it, with nothing on application view to say so. That is a wrong figure, not an inert control.",
       "label": "spacr.qt.widgets.fast_plots.FastPlot.set_log_axes#1",
       "source": "THE DATA IS TRANSFORMED, NOT ONLY THE AXIS. ``PlotItem.setLogMode`` relabels the axis and then walks its items asking each to re-transform itself -- and ``ScatterPlotItem`` HAS NO ``setLogMode``, while every point on every plot in this module is one. The axis therefore claimed a log scale and the dots did not move: a reader took p-values off a ruler that did not describe the marks beside it, with nothing on screen to say so. That is a wrong figure, not an inert control.",
       "source_sha256": "3dd7de056fbb49ac9a09f6662db9e36c187f5518d51e74fbf43e0f8021d1dd26",
-      "translation": "GÖGNIN ER UMBREYT, EKKI AÐEINS ÁSINN. ``PlotItem.setLogMode`` endurmerkir ásinn og gengur síðan um hluti hans og biður hvern um að umbreyta sjálfum sér aftur -- og ``ScatterPlotItem`` HEFUR ENGAN ``setLogMode``, á meðan hver punktur á hverju plotti í þessari einingu er einn. Ásinn gerði því tilkall til logskala og punktarnir hreyfðust ekki: lesandi tók p-gildi af reglustiku sem lýsti ekki merkjunum við hliðina á henni, án þess að neitt á sjónarhorni forritsins sagði það. Það er röng tala, ekki óvirk stjórn."
+      "translation": "GÖGNIN ER UMBREYT, EKKI AÐEINS ÁSINN. ``PlotItem.setLogMode`` endurmerkir ásinn og gengur síðan um hluti hans og biður hvern um að umbreyta sjálfum sér aftur -- og ``ScatterPlotItem`` HEFUR ENGAN ``setLogMode``, á meðan hver punktur á hverju plotti í þessari einingu er einn. Ásinn gerði því tilkall til logskala og punktarnir hreyfðust ekki: lesandi tók p-gildi af reglustiku sem lýsti ekki merkjunum við hliðina á henni, án þess að neitt á sjónarhorni forritsins sagði það. Það er röng tala, ekki óvirk stjórn.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The split uses a piecewise-linear display transform while retaining the original data values in tick labels. It is refused when a plotted point lies inside the proposed interval, either boundary is non-finite, ``high <= low``, or a logarithmic y-axis would receive a non-positive lower boundary.",
@@ -425,7 +457,9 @@
       "label": "spacr.qt.widgets.fast_plots.GuideAgreementPlot.set_support#3",
       "source": "THE KEY IS THE GENE-LEVEL TERM, NOT THE GENE ID. A gene appears in the coefficient table as ``gene_fraction:gene[244480]``, and that is what the volcano, the table and the gene tile all join on. Handing this plot the bare ``244480`` would make a second key space that nothing else can resolve, so the caller passes the term and clicking a gene here selects exactly the row clicking its dot on the volcano would.",
       "source_sha256": "a370e64f6d0865476d361cbde6bdca79f99a24804f7090814cf041ccede2b558",
-      "translation": "Heiti uppbyggðra gagna ER GENA-STIGI HUGMYNDIN, EKKI GENAIKIÐ. Gen kemur fyrir í stuðlatöflunni sem ``gene_fraction:gene[244480]`` og það er það sem eldfjallið, taflan og genaflísinn sameinast um. Með því að gefa þessum söguþræði berum ``244480`` myndum verður annað skipulögð gagnanafnarými sem ekkert annað getur leyst, þannig að sá sem hringir stenst hugtakið og smellir á gen hér velur nákvæmlega þá röð sem smellir punktinum á eldfjallið."
+      "translation": "Heiti uppbyggðra gagna ER GENA-STIGI HUGMYNDIN, EKKI GENAIKIÐ. Gen kemur fyrir í stuðlatöflunni sem ``gene_fraction:gene[244480]`` og það er það sem eldfjallið, taflan og genaflísinn sameinast um. Með því að gefa þessum söguþræði berum ``244480`` myndum verður annað skipulögð gagnanafnarými sem ekkert annað getur leyst, þannig að sá sem hringir stenst hugtakið og smellir á gen hér velur nákvæmlega þá röð sem smellir punktinum á eldfjallið.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The interactive twin of :func:`spacr.regression_qc._panel_scale_location`, used as the variance-homogeneity panel. A residual-vs-fitted plot shows the mean and the variance at once and a reader has to separate them by eye; taking the square root of the absolute standardised residual removes the sign, so what is left is only the spread. A rising trend means the standard errors -- and therefore every p-value on the volcano -- are wrong in a direction that depends on the fitted value.",
@@ -439,14 +473,18 @@
       "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.local_fdr_values#1",
       "source": "LAZY ON PURPOSE. The beta-uniform fit is 25 ms on the real screen's 1,215 coefficients -- more than drawing the whole plot -- and the default axis does not use it. Computing it on every redraw would put the lag back that this module's whole first half exists to remove.",
       "source_sha256": "6d99dd5caa5f7c1cfc46c42022a87a9d5b5f981ba4a263d4025b2f22cdf533e7",
-      "translation": "LATUR Í TILGANGI. Beta-samræmda passa er 25 ms á 1.215 stuðlum raunverulegs skjás -- meira en að teikna allt plottið -- og sjálfgefinn ás notar það ekki. Að reikna það út í hverri endurteikningu myndi setja seinkunina aftur sem allur fyrri helmingur þessarar einingar er til að fjarlægja."
+      "translation": "LATUR Í TILGANGI. Beta-samræmda passa er 25 ms á 1.215 stuðlum raunverulegs skjás -- meira en að teikna allt plottið -- og sjálfgefinn ás notar það ekki. Að reikna það út í hverri endurteikningu myndi setja seinkunina aftur sem allur fyrri helmingur þessarar einingar er til að fjarlægja.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The current value is in the label for everything but a flag, which shows its state as a tick. A menu of settings that does not say what they are set to is one the user has to open each entry to read.",
       "label": "spacr.qt.widgets.fast_plots.style_field_label#1",
       "source": "The CURRENT VALUE is in the label for everything but a flag, which shows its state as a tick. A menu of settings that does not say what they are set to is one the user has to open each entry to read.",
       "source_sha256": "7c67326165083784ce83de8fcc7fbcc1e3abf7453cee711a20164faa4c85b98b",
-      "translation": "NÚVERANDI er í merkimiðanum fyrir allt nema fána, sem sýnir ástand þess sem hak. Valmynd með stillingum sem segir ekki hvað þær eru stilltar á er valmynd sem notandinn þarf að opna hverja færslu til að lesa."
+      "translation": "NÚVERANDI er í merkimiðanum fyrir allt nema fána, sem sýnir ástand þess sem hak. Valmynd með stillingum sem segir ekki hvað þær eru stilltar á er valmynd sem notandinn þarf að opna hverja færslu til að lesa.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``[(key, title, widget)]`` -- the live panels, in the order they should appear. The widget only has to answer ``snapshot()``.",
@@ -532,28 +570,36 @@
       "label": "spacr.qt.widgets.measurement_scan_panel.ColumnRegressionPanel.refresh#2",
       "source": "THE SELECTION SURVIVES A REFRESH where the column survives with it. Re-merging with one more database must not silently empty a queue the user has just built.",
       "source_sha256": "32159dd65d2f44bee7cb596f907fc1a8408a2dbdcce29be0d3c3c55ba49d0858",
-      "translation": "ÚRVALIÐ LEFUR FRÆSLU þar sem súlan lifir af með því. Sameining aftur við einn gagnagrunn til viðbótar má ekki tæma verklista sem notandinn hefur nýbúið að búa til hljóðlaust."
+      "translation": "ÚRVALIÐ LEFUR FRÆSLU þar sem súlan lifir af með því. Sameining aftur við einn gagnagrunn til viðbótar má ekki tæma verklista sem notandinn hefur nýbúið að búa til hljóðlaust.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The merge runs off the main GUI execution path, and it did not used to. Four databases, 226,467 cell rows and three joined tables ran inside the button's own click handler, so Qt could not paint, could not show a spinner and could not accept a cancel until it returned. The application was not hung; it was working, and had no way to say so -- which is the design in full. :class:`~spacr.qt.job_runner.JobRunner` is the idiom every other long job here already uses, and this panel was the one that did not.",
       "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel#3",
       "source": "THE MERGE RUNS OFF THE GUI THREAD, and it did not used to. Four databases, 226,467 cell rows and three joined tables ran inside the button's own click handler, so Qt could not paint, could not show a spinner and could not accept a cancel until it returned. The application was not hung; it was working, and had no way to say so -- which is the design in full. :class:`~spacr.qt.job_runner.JobRunner` is the idiom every other long job here already uses, and this panel was the one that did not.",
       "source_sha256": "6930ba0a926c325753fe39736867f4a870a9bc87fd3caac56e7bd47cde125de9",
-      "translation": "SAMANNINGURINN HLUTUR AF aðalframkvæmdarleiðinni GUI og það var ekki vant. Fjórir gagnagrunnar, 226.467 frumaraðir og þrjár sameinaðar töflur keyrðu inni í eigin smellimeðferð hnappsins, þannig að Qt gat ekki mála, gat ekki sýnt snúning og gat ekki samþykkt afturköllun fyrr en hann kom aftur. Umsóknin var ekki hengd; það var að virka og það var engin leið að segja það -- sem er hönnunin í heild sinni. :class:`~spacr.qt.job_runner.JobRunner` er orðatiltækið sem hvert annað langt starf notar nú þegar, og þetta spjald var það sem gerði það ekki."
+      "translation": "SAMANNINGURINN HLUTUR AF aðalframkvæmdarleiðinni GUI og það var ekki vant. Fjórir gagnagrunnar, 226.467 frumaraðir og þrjár sameinaðar töflur keyrðu inni í eigin smellimeðferð hnappsins, þannig að Qt gat ekki mála, gat ekki sýnt snúning og gat ekki samþykkt afturköllun fyrr en hann kom aftur. Umsóknin var ekki hengd; það var að virka og það var engin leið að segja það -- sem er hönnunin í heild sinni. :class:`~spacr.qt.job_runner.JobRunner` er orðatiltækið sem hvert annað langt starf notar nú þegar, og þetta spjald var það sem gerði það ekki.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The composition of the two merges that already exist, and deliberately nothing else. :func:`spacr.multi_database.read_merged` is *many databases, one table*; :func:`spacr.merge_tables.merge_tables` is *one database, many tables* and takes a path, so it cannot be handed a frame that already spans databases. This runs the first per chosen table and then joins them with the second's own :func:`~spacr.merge_tables.roll_up` and :meth:`~spacr.merge_tables.MergePolicy.how_for`. There is no sum and no mean written here; every number comes from the rules.",
       "label": "spacr.qt.widgets.measurement_scan_panel.merge_across_databases#1",
       "source": "THE COMPOSITION OF THE TWO MERGES THAT ALREADY EXIST, and deliberately nothing else. :func:`spacr.multi_database.read_merged` is *many databases, one table*; :func:`spacr.merge_tables.merge_tables` is *one database, many tables* and takes a path, so it cannot be handed a frame that already spans databases. This runs the first per chosen table and then joins them with the second's own :func:`~spacr.merge_tables.roll_up` and :meth:`~spacr.merge_tables.MergePolicy.how_for`. There is no sum and no mean written here; every number comes from the rules.",
       "source_sha256": "b501a55b7d2b5697d4317ae073b29340c63b210b718a05c88e4d9c2dd7bc033a",
-      "translation": "SAMsetning þessara tveggja sameinast sem þegar eru til, og vísvitandi ekkert annað. :func:`spacr.multi_database.read_merged` er *margir gagnagrunnar, ein tafla*; :func:`spacr.merge_tables.merge_tables` er *einn gagnagrunnur, margar töflur* og tekur slóð, þannig að það er ekki hægt að afhenda honum ramma sem nær nú þegar yfir gagnagrunna. Þetta keyrir fyrstu á hverja valda töflu og sameinar þá með eigin :func:`~spacr.merge_tables.roll_up` og :meth:`~spacr.merge_tables.MergePolicy.how_for` seinni. Hér er engin summa og engin meining skrifað; hver tala kemur úr reglunum."
+      "translation": "SAMsetning þessara tveggja sameinast sem þegar eru til, og vísvitandi ekkert annað. :func:`spacr.multi_database.read_merged` er *margir gagnagrunnar, ein tafla*; :func:`spacr.merge_tables.merge_tables` er *einn gagnagrunnur, margar töflur* og tekur slóð, þannig að það er ekki hægt að afhenda honum ramma sem nær nú þegar yfir gagnagrunna. Þetta keyrir fyrstu á hverja valda töflu og sameinar þá með eigin :func:`~spacr.merge_tables.roll_up` og :meth:`~spacr.merge_tables.MergePolicy.how_for` seinni. Hér er engin summa og engin meining skrifað; hver tala kemur úr reglunum.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The roll-up keys carry the screen and the source. Omit them and two screens legitimately sharing ``plate1`` -- the case :func:`~spacr.multi_database.describe_merge` deliberately permits -- would collapse into one parent, reintroducing one layer up the exact pooling :mod:`spacr.multi_database` exists to prevent.",
       "label": "spacr.qt.widgets.measurement_scan_panel.merge_across_databases#2",
       "source": "THE ROLL-UP KEYS CARRY THE SCREEN AND THE SOURCE. Omit them and two screens legitimately sharing ``plate1`` -- the case :func:`~spacr.multi_database.describe_merge` deliberately permits -- would collapse into one parent, reintroducing one layer up the exact pooling :mod:`spacr.multi_database` exists to prevent.",
       "source_sha256": "ad0159f0f124f9a597ad96519c2f9f672ead1fe84d1c81d695fd8c8eaf8b11dd",
-      "translation": "RULLUPLYKLARNIR BARA SKJÁRN OG UPPRITIÐ. Slepptu þeim og tveir skimanir sem deila með lögmætum hætti ``plate1`` -- málið sem :func:`~spacr.multi_database.describe_merge` leyfir vísvitandi -- myndu hrynja niður í eitt foreldri og setja aftur upp eitt lag upp á nákvæmlega sama hóp :mod:`spacr.multi_database` sem er til til að koma í veg fyrir."
+      "translation": "RULLUPLYKLARNIR BARA SKJÁRN OG UPPRITIÐ. Slepptu þeim og tveir skimanir sem deila með lögmætum hætti ``plate1`` -- málið sem :func:`~spacr.multi_database.describe_merge` leyfir vísvitandi -- myndu hrynja niður í eitt foreldri og setja aftur upp eitt lag upp á nákvæmlega sama hóp :mod:`spacr.multi_database` sem er til til að koma í veg fyrir.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "list of ColumnFit One result for every attempted column. A failed fit does not prevent later columns from executing.",
@@ -574,28 +620,36 @@
       "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.both_levels_note#1",
       "source": "THE RUN FITS TWICE AND THE PANEL SHOWS ONE. The design splits `level='both'` into a guide fit and a gene fit -- two tables, two multiple-testing families -- and the panel opens on guides so a gene is not drawn once per guide. Both of those are right.",
       "source_sha256": "e42bb2f5481903b1d988969012e52a7f6b05ca69ab27b94b48f6e478ee4af623",
-      "translation": "HLAUPURINN PASSAR TVISVAR OG SPILLIÐ SÝNIR EINN. Hönnunin skiptist `level='both'` í leiðbeiningapassa og genapassa -- tvær töflur, tvær fjölprófunarfjölskyldur -- og spjaldið opnast á leiðbeiningum þannig að gen er ekki teiknað einu sinni á leiðarvísi. Hvort tveggja er rétt."
+      "translation": "HLAUPURINN PASSAR TVISVAR OG SPILLIÐ SÝNIR EINN. Hönnunin skiptist `level='both'` í leiðbeiningapassa og genapassa -- tvær töflur, tvær fjölprófunarfjölskyldur -- og spjaldið opnast á leiðbeiningum þannig að gen er ekki teiknað einu sinni á leiðarvísi. Hvort tveggja er rétt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Draw EVERY tab from the coefficient table at the chosen level.",
       "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.refresh_views#0",
       "source": "Draw EVERY tab from the coefficient table at the chosen level.",
       "source_sha256": "17e74f323b59ef3cb0c026c04ad5016ee2b8d98eeacf4a83780ca5f10cd6461a",
-      "translation": "Teiknaðu HVER flipa úr stuðlatöflunni á völdu stigi."
+      "translation": "Teiknaðu HVER flipa úr stuðlatöflunni á völdu stigi.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A filter on the panel, not a mode of the processing session. The coefficient table already carries both -- `feature` is `gene_fraction:gene[...]` or `fraction:grna[...]` -- so this needs no re-fit and no second table, which is why it is better here than in the settings where it used to live.",
       "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_level#1",
       "source": "A FILTER ON THE PANEL, not a mode of the run. The coefficient table already carries both -- `feature` is `gene_fraction:gene[...]` or `fraction:grna[...]` -- so this needs no re-fit and no second table, which is why it is better here than in the settings where it used to live.",
       "source_sha256": "27bb852c01987ce4f05324d98904cf544b0aab6ff4124b98f0d3607e9fed24e8",
-      "translation": "SÍA Á PÁLIÐI, ekki háttur vinnslulotunnar. Stuðlatöflurnar bera nú þegar bæði -- `feature` er `gene_fraction:gene[...]` eða `fraction:grna[...]` -- þannig að þetta þarf ekki að endurstilla og enga aðra töflu, þess vegna er hún betri hér en í þeim stillingum þar sem hún var áður."
+      "translation": "SÍA Á PÁLIÐI, ekki háttur vinnslulotunnar. Stuðlatöflurnar bera nú þegar bæði -- `feature` er `gene_fraction:gene[...]` eða `fraction:grna[...]` -- þannig að þetta þarf ekki að endurstilla og enga aðra töflu, þess vegna er hún betri hér en í þeim stillingum þar sem hún var áður.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A window rather than a pane, because the Measurements tab is already four sections in a side panel -- \"there are to many elements in the measurements tab\" -- and a heatmap of forty measurements needs more width than that column has.",
       "label": "spacr.qt.widgets.sweep_panel.SweepPanel.show_picture#1",
       "source": "A WINDOW RATHER THAN A PANE, because the Measurements tab is already four sections in a side panel -- \"there are to many elements in the measurements tab\" -- and a heatmap of forty measurements needs more width than that column has.",
       "source_sha256": "3b4a1d8e9ab00a7ca5948b0ad0940ffed16b7f3a5d78c82b6933f73b22fa4068",
-      "translation": "GLUGGI EN RÚÐA, vegna þess að Mælingar flipinn er nú þegar fjórir hlutar í hliðarborði -- \"það eru of margir þættir í mælingaflipanum\" -- og hitakort með fjörutíu mælingum þarf meiri breidd en sá dálkur hefur."
+      "translation": "GLUGGI EN RÚÐA, vegna þess að Mælingar flipinn er nú þegar fjórir hlutar í hliðarborði -- \"það eru of margir þættir í mælingaflipanum\" -- og hitakort með fjörutíu mælingum þarf meiri breidd en sá dálkur hefur.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Read back through the FRAME, not off the table's cells: the table holds display strings, and a trial re-run from `\"0.05\"` instead of 0.05 is not the trial that was recorded.",
@@ -637,7 +691,9 @@
       "label": "spacr.regression_backends.describe_backends#6",
       "source": "THE SETTINGS PANEL IS ONE PAGE and the full text is 3,101 characters -- about ninety wrapped lines in a settings field, which is not a description, it is a document that happens to be in a combo box's neighbourhood. Compact keeps every backend and every API link and drops what a reader does not need about the seven they did NOT pick: the measured cost of each, and the second and later sentences of each summary. The one they DID pick is written out in full, cost and caveat included, because that is the run they are about to start.",
       "source_sha256": "6123114d20d64c0e237a9ef25c2eea94ccc90f0056e9e7d7438d723fc5965be4",
-      "translation": "STILLINGASPÁÐURINN ER EIN SÍÐA og allur textinn er 3.101 stafur -- um níutíu vafðar línur í stillingareit, sem er ekki lýsing, það er skjal sem tilviljun er í hverfi combo box. Samningur heldur öllum bakenda og hverjum API hlekk og sleppir því sem lesandi þarf ekki um þá sjö sem þeir valdu EKKI: mældan kostnað hvers og eins og seinni og síðari setningar hverrar samantektar. Sú sem þeir völdu er skrifuð út að fullu, kostnaður og fyrirvari innifalinn, því það er vinnslulotan sem þeir eru að fara að hefja."
+      "translation": "STILLINGASPÁÐURINN ER EIN SÍÐA og allur textinn er 3.101 stafur -- um níutíu vafðar línur í stillingareit, sem er ekki lýsing, það er skjal sem tilviljun er í hverfi combo box. Samningur heldur öllum bakenda og hverjum API hlekk og sleppir því sem lesandi þarf ekki um þá sjö sem þeir valdu EKKI: mældan kostnað hvers og eins og seinni og síðari setningar hverrar samantektar. Sú sem þeir völdu er skrifuð út að fullu, kostnaður og fyrirvari innifalinn, því það er vinnslulotan sem þeir eru að fara að hefja.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The canonical backend name for whatever a panel or a CSV posted.",
@@ -651,7 +707,9 @@
       "label": "spacr.regression_qc.worst_verdict#2",
       "source": "THE WORST ONE, not the commonest and not an average. Nineteen panels passing and one saying the design is rank deficient is a run whose coefficients are one of infinitely many solutions, and a summary that reports \"95% passed\" is a summary that hides exactly the panel the suite was run for.",
       "source_sha256": "2717cb8aa519d7bf96071ef77bacb1288d718de75df1d95d1adae5d5f6f6ea14",
-      "translation": "ÞAÐ VERSTA, ekki sá algengasti og ekki meðaltal. Nítján spjöld fara framhjá og einn sem segir að hönnunin sé ábótavant er keyrsla þar sem stuðlarnir eru ein af óendanlega mörgum lausnum, og samantekt sem segir að \"95% standist\" er samantekt sem felur nákvæmlega það spjald sem föruneytið var keyrt fyrir."
+      "translation": "ÞAÐ VERSTA, ekki sá algengasti og ekki meðaltal. Nítján spjöld fara framhjá og einn sem segir að hönnunin sé ábótavant er keyrsla þar sem stuðlarnir eru ein af óendanlega mörgum lausnum, og samantekt sem segir að \"95% standist\" er samantekt sem felur nákvæmlega það spjald sem föruneytið var keyrt fyrir.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The alias emits one :class:`DeprecationWarning` per import. New code should import :mod:`spacr.parameter_sweep` and use ``SweepSpace``, ``run_sweep``, and ``summarise_sweep`` directly.",
@@ -674,7 +732,9 @@
       "label": "spacr.regression_summary.format_run_summary#1",
       "source": "THE WARNING GOES FIRST, where the Summary tab already puts it: a rank-deficient fit prints a full table of standard errors regardless, and it looks exactly like a summary of a well-posed one.",
       "source_sha256": "a2f643f6ab084877efabce60171f30c7f843f24ba66f996d0014fb839c0649aa",
-      "translation": "VIÐVÖRUNIN ER FYRST, þar sem Samantekt flipinn setur það nú þegar: staða sem skortir hæfni prentar út heila töflu yfir staðlaðar villur óháð því, og það lítur nákvæmlega út eins og samantekt á örplötusýni sem er staðsett í stöðu."
+      "translation": "VIÐVÖRUNIN ER FYRST, þar sem Samantekt flipinn setur það nú þegar: staða sem skortir hæfni prentar út heila töflu yfir staðlaðar villur óháð því, og það lítur nákvæmlega út eins og samantekt á örplötusýni sem er staðsett í stöðu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**The frame has one and ``screen`` was given.** The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
@@ -697,21 +757,27 @@
       "label": "spacr.schema.canonical_plate_id#2",
       "source": "This lives here, and not in :mod:`spacr.multi_database` where it was written, because there must be **one** normaliser: ``utils.correct_metadata`` had the rule for frames, ``multi_database`` had it for scalars and for database reads, and the pair had to be pinned against each other by test precisely because they were two. Both now call this. :mod:`spacr.multi_database` re-exports the name, so no caller moved.",
       "source_sha256": "455d4be6ef9ac19f7979ce1a0936b8d350482dcb29f683fb1ad74991491a4be1",
-      "translation": "Þetta býr hér, og ekki í :mod:`spacr.multi_database` þar sem það var skrifað, því það verður að vera **einn** normaliser: ``utils.correct_metadata`` hafði regluna fyrir ramma, ``multi_database`` hafði hana fyrir scalars og fyrir gagnagrunnslestur, og parið þurfti að festa hvort við annað með prófi einmitt vegna þess að þeir voru tveir. Báðir kalla þetta nú. :mod:`spacr.multi_database` flytur nafnið út aftur, svo enginn hringir færðist til."
+      "translation": "Þetta býr hér, og ekki í :mod:`spacr.multi_database` þar sem það var skrifað, því það verður að vera **einn** normaliser: ``utils.correct_metadata`` hafði regluna fyrir ramma, ``multi_database`` hafði hana fyrir scalars og fyrir gagnagrunnslestur, og parið þurfti að festa hvort við annað með prófi einmitt vegna þess að þeir voru tveir. Báðir kalla þetta nú. :mod:`spacr.multi_database` flytur nafnið út aftur, svo enginn hringir færðist til.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``1``, ``1.0``, ``'01'`` and ``' 1 '`` are the same well. A dtype difference is **not** a disagreement, and this is the whole reason the comparison is not ``Series.equals``: a naive equality warns on every file that stored one copy of the well as text and the other as a number, and a warning that fires every time teaches the user to ignore the one that matters.",
       "label": "spacr.schema.comparable_key_value#1",
       "source": "``1``, ``1.0``, ``'01'`` and ``' 1 '`` are the same well. A dtype difference is **not** a disagreement, and this is the whole reason the comparison is not ``Series.equals``: a naive equality warns on every file that stored one copy of the well as text and the other as a number, and a warning that fires every time teaches the user to ignore the one that matters.",
       "source_sha256": "0dc3c87f1cb054d045e7d21cd0ed4d21af7d67a1569ac8045e774707b9ec6a1d",
-      "translation": "``1``, ``1.0``, ``'01'`` og ``' 1 '`` eru eins vel. Mismunur á dtype er **ekki** ágreiningur og þetta er öll ástæðan fyrir því að samanburðurinn er ekki ``Series.equals``: barnalegt jafnræði varar við hverri skrá sem geymdi eitt eintak af brunninum ásamt texta og hitt sem númer, og viðvörun sem kviknar í hvert skipti kennir notandanum að hunsa þá sem skiptir máli."
+      "translation": "``1``, ``1.0``, ``'01'`` og ``' 1 '`` eru eins vel. Mismunur á dtype er **ekki** ágreiningur og þetta er öll ástæðan fyrir því að samanburðurinn er ekki ``Series.equals``: barnalegt jafnræði varar við hverri skrá sem geymdi eitt eintak af brunninum ásamt texta og hitt sem númer, og viðvörun sem kviknar í hvert skipti kennir notandanum að hunsa þá sem skiptir máli.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Free-form text, like the laboratory microplate id, because it is the name a user gave an experiment. It is **not** prefixed and **not** parsed back apart: the whole point of :data:`SCREEN_KEY` is that it is a dimension you block on, facet by and colour with as it stands.",
       "label": "spacr.schema.screen_id#1",
       "source": "Free-form text, like the plate id, because it is the name a user gave an experiment. It is **not** prefixed and **not** parsed back apart: the whole point of :data:`SCREEN_KEY` is that it is a dimension you block on, facet by and colour with as it stands.",
       "source_sha256": "6eec9e99214021448d283e517364a11f18d8c9a5db1616423e52cef9dffd71ac",
-      "translation": "Texti í frjálsu formi, eins og auðkenni rannsóknarstofu örplötu, vegna þess að það er nafnið sem notandi gaf tilraun. Það er **ekki** með forskeyti og **ekki** greint aftur í sundur: allur tilgangurinn með :data:`SCREEN_KEY` er að það er vídd sem þú blokkar á, flötur eftir og litar með eins og hún stendur."
+      "translation": "Texti í frjálsu formi, eins og auðkenni rannsóknarstofu örplötu, vegna þess að það er nafnið sem notandi gaf tilraun. Það er **ekki** með forskeyti og **ekki** greint aftur í sundur: allur tilgangurinn með :data:`SCREEN_KEY` er að það er vídd sem þú blokkar á, flötur eftir og litar með eins og hún stendur.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**Not the generator's own ``touches`` flag.** That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The microplate sample position edge is recovered from the drawn pixels.",
