@@ -479,3 +479,45 @@ Verified live: the home card and nav show Timepose; /projects/timepose/
 serves the StatiCrypt password form; the password decrypts the live copy
 into the Timepose page (4 sections, schematic present); the deployed tree
 has no live_cell, cellposeTIME or TimePose text.
+
+2026-10-12 (claude-site-flip) Home page and Models tab, site-src 8217b75, bced68d, a57a690:
+- Home page: ParaScape is the project card, nav entry and page; no former
+  name remains in the source, the build output, build.json keys, the
+  release check or links. The map images moved to
+  /assets/img/parascape/ (the page pointed there; the old folder 404s).
+- PyPI has no parascape project yet. The hourly release check now keeps
+  the deployed ParaScape version when PyPI has none, so it no longer
+  rebuilds every hour; the build falls back from PyPI to the deployed
+  build.json, then to pyproject.toml on parascape nightly or main.
+- Models tab: one row per model, its score card beside its mask slider
+  (stacked under 760 px). Eight rows in this order: Parasite vacuoles,
+  Plaques, Plaque wells, Live cells, Vacuoles from cell mask, Nuclei
+  from cell mask, Cells from Hoechst, Vacuoles from Hoechst. The alpha
+  colony detector is not on the tab.
+- Card face follows scorecard_design.json from the README card work:
+  388 x 252 slots scaled with the card width, GitHub dark neutrals
+  (#161b22, edge #30363d, track #21262d), teal only for this model's
+  bars, the positive chip and the version tag, Open Sans 300/400,
+  headline number with metric and held-out size, delta chip against
+  the recorded baseline, three bar rows (F1/AJI/Dice, F1/Precision/
+  Recall, or mAP50/mAP50-95/Recall), em dash for unrecorded rows.
+- Clicking the card turns it over (rotateY with perspective, 560 ms,
+  instant with prefers-reduced-motion). The front is a button with
+  aria-expanded; Enter, Space and touch flip it, Escape and the Scores
+  button flip back, and the hidden face is inert. The back shows the
+  held-out set, baseline, base model, every metric against the
+  baseline and the model card link. More opens a panel under the row
+  with motivation, the full held-out description, notes, by-source
+  scores, other versions, the example image's facts and How to read
+  these scores.
+- Numbers come from data/models.json (collect.py), unchanged. New UI
+  strings are keys in tools/i18n.mjs (English; other locales fall
+  back); check_i18n passes.
+- New examples (CPU): well detector v3 on Cabral et al. 2024 Fig. 3 H-I
+  (CC BY 4.0, not in its training list), 12 of 12 wells; live-cell-v1
+  on BBBC030 field cho07 (CC BY 3.0, held-out test field), 21 cells,
+  F1 0.872 at IoU 0.5 against the reference mask.
+- Deploy run 38298444948 succeeded; Pages run 38299091944 (queued 42 min
+  behind the Actions incident) succeeded at 20:21 UTC. Live build.json
+  built 19:39:23Z with a parascape key; curls show 8 rows, 8 card
+  fronts and backs, the new example images, and no former-name text.
