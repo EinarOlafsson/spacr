@@ -1,7 +1,5 @@
 |Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Issues| |Conda| |PyPI| |Docker| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
-Sitio web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
-
 .. |Website| image:: https://img.shields.io/badge/Website-spaCR-0A7BBB
    :target: https://einarolafsson.github.io/projects/spacr/
    :alt: Sitio web de spaCR
@@ -86,7 +84,7 @@ Make Masks corrige máscaras de segmentación y anota rectángulos independiente
 
 Consulte la `guía de funciones <../../source/features.rst>`_ para conocer cada herramienta.
 
-Imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo residen en un único proyecto SQLite.
+Las imágenes, máscaras y recortes son archivos en disco. Las mediciones, anotaciones y predicciones del modelo son tablas de la base de datos SQLite ``measurements.db`` del proyecto.
 
 Se ejecuta como una aplicación de escritorio o sin interfaz gráfica en una estación de trabajo, servidor o clúster.
 
@@ -147,6 +145,20 @@ soportado (estable)  implementado (beta) CPU soporte solamente
 
 Instalar spaCR
 ~~~~~~~~~~~~~~
+
+Elija una vía de instalación:
+
+- **Aplicación de escritorio**: un instalador para Linux, macOS o Windows con su propio Python.
+- **pip**: ``python -m pip install spacr`` en un entorno de Conda.
+- **conda-forge**: ``conda install conda-forge::spacr`` en un entorno de Conda.
+- **Docker**: los flujos de procesamiento de línea de comandos en un contenedor Linux, con la imagen para CPU o la imagen para GPU NVIDIA:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
+
+La `guía de Docker <../../source/installer_guide.rst#container-images>`_ explica la configuración de la GPU, el montaje de datos y los comandos de los flujos de procesamiento.
 
 Aplicación de escritorio
 ------------------------
@@ -223,17 +235,6 @@ El paquete oficial de conda-forge instala spaCR y sus dependencias de escritorio
    conda install conda-forge::spacr
    spacr
 
-Instalación con Docker
-----------------------
-
-Ejecute los flujos de procesamiento de línea de comandos de spaCR en un contenedor con las `imágenes de Docker publicadas en GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_. Instale `Docker <https://docs.docker.com/get-started/get-docker/>`_ y, a continuación, enumere los flujos disponibles con esta imagen publicada para CPU:
-
-.. code-block:: bash
-
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
-
-La imagen correspondiente para GPU NVIDIA es ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Ambas imágenes están destinadas a contenedores Linux x86-64. Consulte la `guía de instalación con Docker <../../source/installer_guide.rst#container-images>`_ para conocer los requisitos de GPU, los montajes de datos y modelos, los archivos de configuración y los comandos completos de los flujos de procesamiento.
-
 Instalación desde el código fuente
 ----------------------------------
 
@@ -276,7 +277,7 @@ Los colaboradores necesitan el historial de versiones; para ejecutar spaCR, elij
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none`` al clon superficial no reduce el tamaño de la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Las descargas silenciosas bajo demanda impiden medir todo el volumen transferido. Los archivos versionados de nightly ocupan 3416 MB en la copia de trabajo (medidos el 2026-10-08), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama.
+El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none`` al clon superficial no reduce la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Git no informa de las descargas diferidas de objetos, por lo que no se midió un total de descarga. Los archivos versionados de nightly ocupan 3416 MB en la copia de trabajo (medidos el 2026-10-08), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama.
 
 
 Comandos de línea de comandos
@@ -493,82 +494,44 @@ spaCR envía un catálogo de modelos entrenados y los trae a pedido. Abra **Mode
    * - Model
      - Training data
      - Hold-out performance
-   * - ``toxoplasma_pv_v1``
-       (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
-     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
-   * - ``toxoplasma_plaque_v1``
-       (Cellpose-SAM (cpsam))
-     - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
-     - F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)
-   * - ``toxoplasma_plaque_v2``
-       (Cellpose-SAM (cpsam_v2))
-     - 488 curated fields across four domains -- 298 wells cropped from published figures, 96 phone-camera wells, 67 PFA and 27 methanol-fixed whole-well microscope scans; 27,582 plaques
-     - not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)
-   * - ``toxoplasma_well_detector_v1``
-       (YOLO11n)
-     - whole-plate and multi-well crystal violet images; 562 images from 1 dataset, 190 of them with no well in them
-     - mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457
-   * - ``toxoplasma_well_detector_v2``
-       (YOLO26n (ultralytics 8.4.155))
-     - plate images and literature figures; 1,070 train / 254 val / 129 test, split by PMC article so no paper is in two sets; training data at einarolafsson/toxoplasma-plaque-well-detector-dataset
-     - mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline
-   * - ``toxoplasma_from_cellmask_v1``
-       (Cellpose-SAM (cpsam_v2))
-     - Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
-     - F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
-   * - ``toxoplasma_pv_v2``
-       (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated images accumulated over five rounds
-     - F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells
-   * - ``toxoplasma_pv_v3``
-       (Cellpose-SAM (cpsam_v2))
-     - the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset
-     - F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505
-   * - ``toxoplasma_pv_v4``
+   * - `toxoplasma_pv_v4 <../../models/toxoplasma_pv_v4.md>`__
        (Cellpose-SAM (cpsam_v2))
      - round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7
      - F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505
-   * - ``live_cell_v1``
+   * - `toxoplasma_plaque_v4 <../../models/toxoplasma_plaque_v4.md>`__
+       (Cellpose-SAM (cpsam_v2, Cellpose 4.0.9))
+     - 663 curated plaque fields from four domains (published-figure wells, Gel Doc wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 validation / 263 test
+     - F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer
+   * - `toxoplasma_well_detector_v2 <../../models/toxoplasma_well_detector_v2.md>`__
+       (YOLO26n (ultralytics 8.4.155))
+     - plate images and literature figures; 1,070 train / 254 val / 129 test, split by PMC article so no paper is in two sets; training data at einarolafsson/toxoplasma-plaque-well-detector-dataset
+     - mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline
+   * - `toxoplasma_from_cellmask_v1 <../../models/toxoplasma_from_cellmask_v1.md>`__
+       (Cellpose-SAM (cpsam_v2))
+     - Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
+     - F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+   * - `live_cell_v1 <../../models/live_cell_v1.md>`__
        (Cellpose-SAM (cpsam_v2))
      - 11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset
      - on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell
-   * - ``nuclei_from_cellmask_v1``
+   * - `nuclei_from_cellmask_v1 <../../models/nuclei_from_cellmask_v1.md>`__
        (Cellpose-SAM (cpsam_v2))
      - nuclei predicted from the HOST CELL MASK channel alone; 453 well-grouped held-out fields, hosts HFF/HeLa/THP1
      - F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5
-   * - ``cell_from_hoechst_v1``
+   * - `cell_from_hoechst_v1 <../../models/cell_from_hoechst_v1.md>`__
        (Cellpose-SAM (cpsam_v2))
      - the HOST CELL outline predicted from the Hoechst (nuclear) channel alone; 2,578 training fields and 451 held-out test fields, split by well so no well is on both sides
      - F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569
-   * - ``toxoplasma_from_hoechst_v1``
+   * - `toxoplasma_from_hoechst_v1 <../../models/toxoplasma_from_hoechst_v1.md>`__
        (Cellpose-SAM (cpsam_v2))
      - Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
      - F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
-   * - ``toxoplasma_plaque_v3``
-       (Cellpose-SAM (cpsam, Cellpose 4.0.9))
-     - 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups
-     - Stock was not evaluated in this run; see the named incumbent comparison on the model card
-   * - ``toxoplasma_well_detector_v3``
-       (YOLO11n (fine-tuned from detector v3))
-     - 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization
-     - Stock was not evaluated in this run; see the named incumbent comparison on the model card
+
+Older models: `toxoplasma_pv_v3 <../../models/toxoplasma_pv_v3.md>`__, `toxoplasma_pv_v2 <../../models/toxoplasma_pv_v2.md>`__, `toxoplasma_pv_v1 <../../models/toxoplasma_pv_v1.md>`__, `toxoplasma_plaque_v2 <../../models/toxoplasma_plaque_v2.md>`__, `toxoplasma_plaque_v1 <../../models/toxoplasma_plaque_v1.md>`__, `toxoplasma_well_detector_v1 <../../models/toxoplasma_well_detector_v1.md>`__
+
+Alternatives: `toxoplasma_pv_v5 <../../models/toxoplasma_pv_v5.md>`__, `toxoplasma_plaque_v3 <../../models/toxoplasma_plaque_v3.md>`__, `toxoplasma_well_detector_v3 <../../models/toxoplasma_well_detector_v3.md>`__ (candidate)
 
 .. spacr-model-zoo-end
-
-Cada figura de arriba se mide en imágenes que el modelo nunca vio en el entrenamiento.
-
-**Precisión** es cuántos de los objetos reportados por un modelo son reales; **recordar** es cuantos de los verdaderos objetos que encontró. Fallan en direcciones opuestas: la mala precisión inventa placas, la mala memoria los echa en falta.
-
-**F1** son los dos combinados, y se cita porque cada uno es trivialmente gamed -- reporta una placa inconfundible para la precisión casi perfecta, o cada mancha oscura para la memoria casi perfecta. Lo que preferirías perder depende del ensayo, y el conteo es generalmente mejor servido por sobrellamada: el modelo de placa fue aceptado con precisión 0,858 con memoria 0,811 sobre una ronda anterior en 0,939 y 0,631.
-
-**IoU** (intersección sobre unión) divide el área de solapamiento entre el objeto predicho y el de referencia por el área de su unión. Lea las puntuaciones junto con su umbral: «F1 0.864 con IoU 0.5» cuenta una vacuola como detectada cuando el solapamiento alcanza al menos la mitad del área de la unión.
-
-**mAP50** y **m AP50-95** pertenecen al detector. El primero pregunta si se encontraron los pozos; el segundo lo repite a través de diez umbrales de 0,5 a 0,95, por lo que también pregunta qué tan firmemente dibuja cada caja. La brecha entre ellos es la colocación, no la detección.
-
-**Cross-validated**, con un **SD**, significa que la puntuación es la media de tres ejecuciones en diferentes divisiones y el SD es lo lejos que se alejaron. Una división puede tener suerte: la cifra de literatura de este modelo es 0,834 en una sola división de 19 pocillos y 0,806 en los tres.
-
-Los modelos se alojan en la cuenta de Hugging Face de cada autor; ``spacr.model_zoo.publish_model`` sube un modelo e imprime la fila que se debe añadir al catálogo.
 
 
 Diagnóstico del rendimiento
@@ -596,8 +559,6 @@ Lanzamiento de la aplicación
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
 
-``spacr-qt`` y ``spacr-nightly`` son alias de ``spacr``.
-
 Cuando spaCR no se iniciará
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -606,9 +567,9 @@ Cuando spaCR no se iniciará
    spacr-doctor       # diagnose the installation and say how to fix it
    safespacr          # the least spaCR that can still change a setting
 
-``spacr-doctor`` imprime una línea por cheque, con un comando para ejecutar por cada fallo. También informa que ``spacr`` está en la ruta, que es lo que una vieja instalación editable sombras.
+``spacr-doctor`` imprime una línea por cheque, con un comando para ejecutar por cada fallo. También informa qué ``spacr`` está en la ruta.
 
-``safespacr`` lee cada preferencia como por defecto y fuerza el telón de fondo, animaciones, registro verboso y precargar. Utilícela cuando una preferencia guardada rompa el lanzamiento. No cambia nada de forma permanente.
+``safespacr`` lee cada preferencia con su valor predeterminado y desactiva el fondo, las animaciones, el registro detallado y la precarga. Úselo cuando una preferencia guardada impide el inicio. Las preferencias guardadas en modo seguro se escriben normalmente y se conservan.
 
 Módulos de ejecución sin interfaz gráfica
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -624,10 +585,10 @@ No Qt, no display — para clusters, servidores e IC.
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-``validate`` lee los mismos ajustes que la ejecución haría e informa de lo que falta, contradictorio o apuntando a nada.
+``validate`` lee la misma configuración que leería la ejecución y enumera cada problema, como un ajuste ausente o una ruta que no existe, junto con una solución.
 
-Inspeccionar una carrera después
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Inspeccionar una ejecución
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Cada ejecución se lleva a cabo a ``~/.spacr/runs`` con sus ajustes, entradas de hashed, salidas, advertencias, versiones y semillas.
 
@@ -689,6 +650,7 @@ Otros trabajos citando spaCR
 * `Adaptabilidad metabólica y recolección de nutrientes en Toxoplasma gondii: percepciones de mutantes deficientes en la vía de ingestión. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
 * `IRE1α promueve el flujo de calcio fagosomal para mejorar la actividad fungicida de los macrófagos. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
 * `El toxoplasma GRA8 activa la proteína accesoria ESCRT ALG-2 y es necesario para la integridad metabólica del parásito. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `Hydrogen sulfide dynamically upregulates copper uptake and localization. <https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1>`_
 * `spaCR: Análisis espacial del fenotipo de cribados CRISPR-Cas9 (versión preliminar 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
