@@ -221,7 +221,7 @@ from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
 from PySide6.QtGui import (QBrush, QColor, QCursor, QImage,
                            QLinearGradient, QPainter, QPainterPath, QPen,
                            QPicture, QPixmap, QPolygonF, QRadialGradient,
-                           QTransform)
+                           QRegion, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QAbstractSlider, QAbstractSpinBox, QApplication,
                                QComboBox, QFrame, QGraphicsView, QLabel,
@@ -9220,12 +9220,20 @@ class _CardPlan(NamedTuple):
     Built on the GUI thread by :class:`_CardTints` from the
     widgets' current geometry and style, and read-only after that, so the
     shading thread can paint from it without touching a widget.
+
+    ``origin`` is the backdrop's top left in its window. The composite is
+    painted at that place in an image the window's size up to the
+    backdrop's far edge (``base`` is that image's page), so every layer
+    is drawn at the device coordinates Qt draws it at in the window: a
+    gradient (the Glass theme's card bodies) is sampled from its device
+    position and differs by one level here and there when drawn elsewhere.
     """
 
     width: int
     height: int
     base: QImage
     items: tuple
+    origin: QPoint = QPoint()
 
 
 #: Events that can move, resize, show, hide or restyle a composited card.
@@ -9323,12 +9331,13 @@ def _draw_cards(painter: QPainter, plan: _CardPlan, which: int) -> None:
 
     :param which: 0 for the shading thread's pictures, 1 for the GUI's.
     """
+    origin = painter.transform()
     for item in plan.items:
         x, y, clip = item[2:]
         painter.setClipRect(clip)
         painter.translate(x, y)
         item[which].play(painter)
-        painter.resetTransform()
+        painter.setTransform(origin)
     painter.setClipping(False)
 
 
@@ -9340,11 +9349,13 @@ def _compose_cards(engine, frame: QImage, plan: _CardPlan):
     engine's composition mode.
 
     :returns: ``(plan, image, frame)``, which is what a paint checks
-        against the plan and frame it is showing.
+        against the plan and frame it is showing; ``image`` is laid out as
+        ``plan.base``, with the backdrop at ``plan.origin``.
     """
     image = plan.base.copy()
     painter = QPainter(image)
     try:
+        painter.translate(plan.origin.x(), plan.origin.y())
         engine.blit(painter, frame, plan.width, plan.height)
         _draw_cards(painter, plan, 0)
     finally:
@@ -9361,10 +9372,16 @@ def _static_part(widget):
     offers them as a picture through ``_spacr_static_picture`` (the settings
     switch, :class:`spacr.qt.widgets.toggle.Toggle`).
 
+    None under the spaceout dressing: both are painted from the palette of
+    the moment, which the spaceout drift re-hues as the clock runs, with no
+    event a plan could watch.
+
     :returns: ``(thread player, GUI player)``, or ``None``.
     """
     from .field_fade import _chrome_image
 
+    if spaceout_enabled():
+        return None
     image = _chrome_image(widget)
     if image is not None:
         return _ImagePlay(image), _ImagePlay(image.copy())
@@ -9501,7 +9518,8 @@ class _CardTints(QObject):
         """Whether a widget being shown could be or hold a new card."""
         host = self.parent().parentWidget()
         return bool(host is not None and widget.isWidgetType()
-                    and widget.testAttribute(Qt.WA_StyledBackground)
+                    and (widget.testAttribute(Qt.WA_StyledBackground)
+                         or self._paints_over(widget))
                     and host.isAncestorOf(widget))
 
     def invalidate(self) -> None:
@@ -9530,6 +9548,9 @@ class _CardTints(QObject):
             self._producer = producer
         if not usable:
             return
+        if self.plan is not None and self.plan.origin != backdrop.mapTo(
+                backdrop.window(), QPoint(0, 0)):
+            self.invalidate()
         if self.plan is None:
             self._quiet += 1
             if self._quiet > _CARD_SETTLE_TICKS:
@@ -9554,14 +9575,18 @@ class _CardTints(QObject):
         items, cards, parts, images = [], [], [], {}
         watched = {backdrop, host}
         self._walk(host, backdrop, -backdrop.pos(), QRect(0, 0, width, height),
-                   (), (items, cards, parts, watched, images))
-        base = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+                   (), (items, cards, parts, watched, images, [QRegion()]))
+        origin = backdrop.mapTo(backdrop.window(), QPoint(0, 0))
+        base = QImage(origin.x() + width, origin.y() + height,
+                      QImage.Format_ARGB32_Premultiplied)
+        base.fill(0)
         painter = QPainter(base)
         try:
-            backdrop._paint_base(painter, base.rect())
+            painter.translate(origin.x(), origin.y())
+            backdrop._paint_base(painter, QRect(0, 0, width, height))
         finally:
             painter.end()
-        self.plan = _CardPlan(width, height, base, tuple(items))
+        self.plan = _CardPlan(width, height, base, tuple(items), origin)
         self._cards = cards
         self._parts = parts
         self._watched = frozenset(watched)
@@ -9569,8 +9594,16 @@ class _CardTints(QObject):
         producer.cards = self.plan if items else None
 
     def _walk(self, parent, backdrop, offset, clip, lineage, out) -> None:
-        """Collect the cards under ``parent`` in the order Qt paints them."""
-        items, cards, parts, watched, images = out
+        """Collect the cards under ``parent`` in the order Qt paints them.
+
+        ``out[5]`` holds the region, in backdrop coordinates, that something
+        painted on the GUI thread already covers at this point of the paint
+        order: a widget that paints its whole area (:meth:`_paints_over`,
+        such as the DNA rain), or a background left classic. Nothing that
+        overlaps it is composited, since the field is under it and the
+        composite would land below what Qt paints first.
+        """
+        items, cards, parts, watched, images, covered = out
         for child in parent.children():
             if (not child.isWidgetType() or child is backdrop
                     or child.isWindow() or not child.isVisible()):
@@ -9578,15 +9611,23 @@ class _CardTints(QObject):
             rect = child.geometry().translated(offset)
             visible = clip.intersected(rect)
             below = lineage + (child,)
+            if self._paints_over(child):
+                covered[0] = covered[0].united(visible)
+                watched.update(below)
+                continue
             if visible.width() * visible.height() < _CARD_MIN_AREA:
                 if not visible.isEmpty():
                     self._add_part(child, rect, visible, below, out)
                 continue
             image = self._background_of(child, rect.width(), rect.height(),
                                         images)
-            if image is False:
-                continue
-            if image is not None:
+            if image is not None and (image is False
+                                      or covered[0].intersects(visible)):
+                covered[0] = covered[0].united(visible)
+                watched.update(below)
+                if image is False:
+                    continue
+            elif image is not None:
                 items.append((_own_picture(image), _own_picture(image),
                               rect.x(), rect.y(), visible))
                 cards.append(child)
@@ -9594,36 +9635,53 @@ class _CardTints(QObject):
             self._add_part(child, rect, visible, below, out, image)
             self._walk(child, backdrop, rect.topLeft(), visible, below, out)
 
+    @staticmethod
+    def _paints_over(widget) -> bool:
+        """Whether ``widget`` paints its whole area itself, hiding the field
+        and everything planned before it there.
+
+        A widget that fills its background or claims opaque painting does;
+        so does one that says so with ``_spacr_covers_its_area``, which the
+        DNA rain does because it clears every rect it paints whether or not
+        Qt sees it as opaque. A masked widget is counted too, being
+        unknown.
+        """
+        return bool(widget.autoFillBackground()
+                    or widget.testAttribute(Qt.WA_OpaquePaintEvent)
+                    or not widget.mask().isEmpty()
+                    or getattr(widget, "_spacr_covers_its_area", False))
+
     def _add_part(self, widget, rect, visible, lineage, out,
                   background=None) -> None:
         """Plan ``widget``'s static part (:func:`_static_part`), if it has
-        one and nothing of its own is painted under it.
+        one, nothing of its own is painted under it and nothing painted
+        before it covers it.
 
         :param background: its background as :meth:`_background_of` answered,
             or ``None`` to ask here.
         """
-        items, _cards, parts, watched, images = out
+        items, _cards, parts, watched, images, covered = out
         part = _static_part(widget)
         if part is None:
             return
-        if background is None and self._background_of(
-                widget, rect.width(), rect.height(), images) is not None:
+        if covered[0].intersects(visible) or (
+                background is None and self._background_of(
+                    widget, rect.width(), rect.height(), images) is not None):
+            covered[0] = covered[0].united(visible)
+            watched.update(lineage)
             return
         items.append(part + (rect.x(), rect.y(), visible))
         parts.append(widget)
         watched.update(lineage)
 
     def _background_of(self, widget, width: int, height: int, images):
-        """The background to composite for ``widget``.
+        """The background to composite for ``widget``, which does not
+        :meth:`_paints_over`.
 
         :returns: its ``QPicture``; ``None`` when it paints no background;
             ``False`` when it paints one that cannot be composited, which
             also keeps everything inside it classic.
         """
-        if (widget.autoFillBackground()
-                or widget.testAttribute(Qt.WA_OpaquePaintEvent)
-                or not widget.mask().isEmpty()):
-            return False
         if (not widget.testAttribute(Qt.WA_StyledBackground)
                 or widget.testAttribute(Qt.WA_NoSystemBackground)):
             return None
@@ -11281,10 +11339,13 @@ class AmbientWidget(QWidget):
                     self.repeated_frames += 1
                 shown = self._last_composed
                 if (tints.active and shown is not None
-                        and shown[0] is tints.plan):
+                        and shown[0] is tints.plan
+                        and shown[0].origin == self.mapTo(self.window(),
+                                                          QPoint(0, 0))):
                     painter.setCompositionMode(
                         QPainter.CompositionMode_Source)
-                    painter.drawImage(0, 0, shown[1])
+                    painter.drawImage(QPoint(0, 0), shown[1],
+                                      QRect(shown[0].origin, rect.size()))
                     return
 
             self._paint_base(painter, rect)

@@ -30562,6 +30562,119 @@
       "source_sha256": "bad56361ff2e0fc2f5c138a3b41bb8a6dd51569b8c62a1e6767169ebdbc213e4",
       "text": "Write a pyqtgraph plot out and announce it, like ``publish`` does.\n\nThe counterpart of :func:`spacr.figure_sink.publish` for a scene rather\nthan a matplotlib figure: the format follows the user's preference, the\nfile name follows the format, and the written file reaches the gallery,\nbecause saved and visible are the same event.\n\n``None`` writes nothing, announces nothing and returns None -- a plot\nthat could not be built must not take the run down after the model has\nbeen fitted and every object scored.\n\n:param plot: a ``FastPlot``, or None.\n:param path: where to write it; the extension may be rewritten.\n:param title: the name the gallery tile carries.\n:returns: the path written, or None."
     },
+    "spacr.model_cards": {
+      "source_blocks_sha256": [
+        "171c1c38c652fe6fb87e2a0b8bf9875986d035cbf90594fb59bfae2479654863",
+        "5ac049613eab9e18ab4708132f31d94dd45549506dc9ee4b6f42b5440780a31d",
+        "9e9b9d3e15ab1409b94c2601e397cbf19d196ca28574deacb17e6647a343f03b"
+      ],
+      "source_sha256": "5f3af02fc849e4f1dbe5093e6089e1c18625ca5037b8db21656d5a09721ae358",
+      "text": "The 3-page model cards of the Model Zoo: data, repository mapping, images.\n\nEach published segmentation model has three card pages on Hugging Face\n(``cards/page1.png`` to ``page3.png``): its scores against the stock base, its\ntraining facts, and an about-and-links page. The same data ships with spaCR as\n``resources/model_cards/<repo>.json``, so a card can be shown as text when the\nimages cannot be fetched.\n\nNothing here imports Qt; the viewer lives in\n:mod:`spacr.qt.widgets.model_card_viewer`."
+    },
+    "spacr.model_cards.about_lines": {
+      "source_blocks_sha256": [
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+      ],
+      "source_sha256": "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
+      "text": "Page 3 as plain sentences, without the empty fields."
+    },
+    "spacr.model_cards.cache_dir": {
+      "source_blocks_sha256": [
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+      ],
+      "source_sha256": "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
+      "text": "Where the page images of ``repo`` are cached, under the spaCR home."
+    },
+    "spacr.model_cards.cached_pages": {
+      "source_blocks_sha256": [
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+      ],
+      "source_sha256": "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
+      "text": "The cached image of each page, ``None`` where it is not cached."
+    },
+    "spacr.model_cards.card_for_entry": {
+      "source_blocks_sha256": [
+        "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+      ],
+      "source_sha256": "4d5f9290e79d20daa927814dcbd90d676e709ad489f24a6da3fb00cd96c6185b",
+      "text": "The card data of a :class:`~spacr.model_zoo.ModelEntry`, or ``None``.\n\nMatched on the zoo key, then on the repository the entry is fetched from."
+    },
+    "spacr.model_cards.card_keys": {
+      "source_blocks_sha256": [
+        "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b"
+      ],
+      "source_sha256": "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b",
+      "text": "The zoo keys that have a 3-page card."
+    },
+    "spacr.model_cards.clear_cache": {
+      "source_blocks_sha256": [
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+      ],
+      "source_sha256": "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
+      "text": "Remove the cached images of ``repo``."
+    },
+    "spacr.model_cards.fact_rows": {
+      "source_blocks_sha256": [
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+      ],
+      "source_sha256": "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
+      "text": "Page 2 as ``(fact, value)`` pairs."
+    },
+    "spacr.model_cards.fetch_pages": {
+      "source_blocks_sha256": [
+        "d32927fe27961a9f8838b53c414466e2dbd81a48be1ca4a84e2b959d1196d1d3",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "b51767176968e553bb42e3ed8d545f1c5c7ec0a2ae0ef6ba5e0e00dba2262b4b",
+        "58ed12568ee4e336997435933a436c8b20df97d253b2dcc91a0772e2b2d20d7d",
+        "ac64f3a117c41c7ede5f464199810b6963ea80a439d86c2a8cfc6ec83621a08e"
+      ],
+      "source_sha256": "94b51e3e4a3f62916c8029ea78557940b485a13a0eeecc0ad36a7bd0f63ab738",
+      "text": "Download the missing page images of ``repo`` into the cache.\n\n:param repo: ``owner/repo``.\n:param fetch: byte source taking a URL; defaults to ``urlopen``.\n:returns: the three cached paths.\n:raises OSError: when a page cannot be fetched or is not a PNG. Pages\n    fetched before the failure stay cached."
+    },
+    "spacr.model_cards.model_link": {
+      "source_blocks_sha256": [
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+      ],
+      "source_sha256": "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
+      "text": "The Hugging Face URL of the model the card describes."
+    },
+    "spacr.model_cards.page_html": {
+      "source_blocks_sha256": [
+        "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
+      ],
+      "source_sha256": "9c42ea7e68c5e36d93f078d5c07fd6bed075feee45968945b6e3a5df9bcb24bc",
+      "text": "The text fallback of one card page (1-based) as a small HTML body.\n\n:param headers: the already translated column headings for the scores\n    and facts tables."
+    },
+    "spacr.model_cards.page_url": {
+      "source_blocks_sha256": [
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+      ],
+      "source_sha256": "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
+      "text": "The Hugging Face URL of card page ``page`` (1-based) of ``repo``."
+    },
+    "spacr.model_cards.repo_of_key": {
+      "source_blocks_sha256": [
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+      ],
+      "source_sha256": "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
+      "text": "The ``owner/repo`` of a zoo key that has a card, else ``''``."
+    },
+    "spacr.model_cards.repo_url": {
+      "source_blocks_sha256": [
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+      ],
+      "source_sha256": "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
+      "text": "The Hugging Face page of a model repository."
+    },
+    "spacr.model_cards.score_rows": {
+      "source_blocks_sha256": [
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+      ],
+      "source_sha256": "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
+      "text": "Page 1 as ``(metric, \"this (stock x)\")`` pairs."
+    },
     "spacr.model_check": {
       "source_blocks_sha256": [
         "cb82190bc6a7740864406b7ce3eada5f96fa44f5738406aec729863da2e9e385",
@@ -83173,6 +83286,14 @@
       "source_sha256": "b919676797ea59623a71bec889a723f53fe5153aeecb939932ba6aea8b3b734d",
       "text": "The colour painted behind the rain.\n\nA COPY, so a caller cannot recolour this widget by mutating what it\nwas handed.\n\n:returns: the background colour."
     },
+    "spacr.qt.widgets.dna_rain.DnaRainWidget.changeEvent": {
+      "source_blocks_sha256": [
+        "c631721baf56c369c65666c018194cf36fd4efeb62e9c282bd45f3ed5ad7bdb8",
+        "497f289bd31aecf3585d90c7101f457ff35f7a048247e405c6f6c9de64c8b5b7"
+      ],
+      "source_sha256": "f15894a8438a9a9588c34d9ab8743d5ab0b56a6d13fb49dc8717d3490efa4f1c",
+      "text": "Claim opaque painting again after a restyle.\n\n:param event: the change event, passed to the base class first."
+    },
     "spacr.qt.widgets.dna_rain.DnaRainWidget.color": {
       "source_blocks_sha256": [
         "9c39a824ab1dc30cd4f314c5ee88e1bb08fbb05c52857e69a8b3edb254dc4a99"
@@ -83366,10 +83487,11 @@
     "spacr.qt.widgets.dna_rain.DnaRainWidget.showEvent": {
       "source_blocks_sha256": [
         "52522f631b6fe8619e1e06d811cb063b55678b47109553519a3defa06e393509",
+        "0c715416595901f297bdc408d236af6b6d10ae70a62b7284da2612dbff2b4965",
         "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
       ],
-      "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
-      "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
+      "source_sha256": "1fa57ba5e487d5b78a5784c00af666190e2327b1adbc1cb4e4b478477f94118c",
+      "text": "Start animating, and follow the window this widget belongs to.\n\nIt is polished by then, so opaque painting is claimed again\n(:meth:`_claim_opaque_paint`).\n\n:param event: the Qt show event."
     },
     "spacr.qt.widgets.dna_rain.DnaRainWidget.speed": {
       "source_blocks_sha256": [
@@ -100574,6 +100696,95 @@
       ],
       "source_sha256": "1ae96c3b3b264f903e1ccb6b3bd48a567c394cdbc95d2e6a5ce7d3f9d0f154da",
       "text": "Write the current rows to ``dst`` as a ``filename_map.csv``.\n\n:param dst: path of the CSV to write, converted to\n    :class:`~pathlib.Path`; its parent folders are created.\n:returns: the path written."
+    },
+    "spacr.qt.widgets.model_card_viewer": {
+      "source_blocks_sha256": [
+        "3772cd726848c278c71b0aa5745115a35afbc0745b6e5abfc79c01e2ef8fbe3f",
+        "bd2a015dfe526df7ad5d32b4f18ca950970b064380d449f0bb1656618682e662"
+      ],
+      "source_sha256": "1550409a23fb1965c63c055785bd5eb465fa0f8afb01fd6cf99bad7f62eded49",
+      "text": "Viewer for the 3-page model cards of the Model Zoo.\n\nShows the page image of a card scaled to fit, with Previous and Next, a\n\"1 / 3\" counter, Left and Right keys and a link to the model on Hugging Face.\nThe images are fetched on first view in a worker thread and cached; without\nthem the viewer shows the same three pages as text from the card data that\nships with spaCR. Clicking the image opens it larger in a dialog."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer": {
+      "source_blocks_sha256": [
+        "60f02d459892608d039e6bb9dccba7e8a594a34d7d191f49fc7f2fac00e4e4ca",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "c39090a0b02c6fe99f216c8a5ffb87c333e35810230d7b36f8dbe944c67c71b3",
+        "f7f0215ce85d01974e54f34c21a5cc0128ce5a0bbe3286a352bcf443d084a145",
+        "bcb7f0c15e66824ac8ad6087ecc76af136d28856f95392049c3683247e03c073"
+      ],
+      "source_sha256": "48639fae83dcb5c68735d84c51e8d73aa08c86037c52210c96667fed7c60a542",
+      "text": "Page through the card of one model.\n\n:param parent: parent widget.\n:param threaded: fetch the images on a worker thread; ``False`` fetches\n    inline, for tests.\n:param fetch: byte source taking a URL, handed to\n    :func:`spacr.model_cards.fetch_pages`; ``None`` uses the network.\n:param enlargeable: clicking the image opens a larger dialog."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.card": {
+      "source_blocks_sha256": [
+        "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d"
+      ],
+      "source_sha256": "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d",
+      "text": "The card data being shown, or ``None``."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.counter_text": {
+      "source_blocks_sha256": [
+        "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7"
+      ],
+      "source_sha256": "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7",
+      "text": "The \"1 / 3\" text."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.go_to": {
+      "source_blocks_sha256": [
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+      ],
+      "source_sha256": "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
+      "text": "Show page ``page`` (zero-based), clamped to the pages."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.keyPressEvent": {
+      "source_blocks_sha256": [
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+      ],
+      "source_sha256": "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
+      "text": "Left and Right turn the page."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.next_page": {
+      "source_blocks_sha256": [
+        "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c"
+      ],
+      "source_sha256": "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c",
+      "text": "Show the next page; stays on the last."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.page": {
+      "source_blocks_sha256": [
+        "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb"
+      ],
+      "source_sha256": "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb",
+      "text": "The zero-based current page."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.previous_page": {
+      "source_blocks_sha256": [
+        "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1"
+      ],
+      "source_sha256": "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1",
+      "text": "Show the previous page; stays on the first."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.set_card": {
+      "source_blocks_sha256": [
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+      ],
+      "source_sha256": "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
+      "text": "Show ``card`` from page 1, fetching its images when not cached."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.showing_image": {
+      "source_blocks_sha256": [
+        "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd"
+      ],
+      "source_sha256": "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd",
+      "text": "True when the current page is the picture, not the text."
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.status_text": {
+      "source_blocks_sha256": [
+        "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d"
+      ],
+      "source_sha256": "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d",
+      "text": "The line under the page."
     },
     "spacr.qt.widgets.model_share": {
       "source_blocks_sha256": [

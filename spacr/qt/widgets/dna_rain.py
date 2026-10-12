@@ -352,6 +352,14 @@ def _as_pixmap(value) -> Optional[QPixmap]:
     return None if pixmap.isNull() else pixmap
 
 
+def _covers_opaquely(pixmap: Optional[QPixmap]) -> bool:
+    """Whether a backdrop leaves nothing under the rain showing through;
+    see :func:`spacr.qt.widgets.ambient._covers_opaquely`."""
+    from .ambient import _covers_opaquely as covers
+
+    return covers(pixmap)
+
+
 def _region_rects(region, fallback: QRect) -> List[QRect]:
     """The individual rectangles of a paint region.
 
@@ -737,6 +745,11 @@ class DnaRainWidget(QWidget):
         effective theme.
     """
 
+    #: Every rect this widget paints is cleared first, so it hides the
+    #: window's field and anything the field composites under it; see
+    #: :meth:`spacr.qt.widgets.ambient._CardTints._paints_over`.
+    _spacr_covers_its_area = True
+
     def __init__(self, parent: Optional[QWidget] = None, *,
                  seed: Optional[int] = None,
                  font_size: int = DEFAULT_FONT_PX,
@@ -770,9 +783,10 @@ class DnaRainWidget(QWidget):
         self._opacity = max(0.0, min(1.0, float(opacity)))
         self._random_colors = bool(random_colors)
         self._backdrop: Optional[QPixmap] = _as_pixmap(backdrop)
+        self._opaque_backdrop = _covers_opaquely(self._backdrop)
 
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, True)
+        self._claim_opaque_paint()
         self.setFocusPolicy(Qt.NoFocus)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
@@ -942,8 +956,32 @@ class DnaRainWidget(QWidget):
         :param source: a path, a ``QPixmap``, a ``QImage`` or ``None``.
         """
         self._backdrop = _as_pixmap(source)
+        self._opaque_backdrop = _covers_opaquely(self._backdrop)
+        self._claim_opaque_paint()
         self._invalidate_strips()
         self.update()
+
+    def _claim_opaque_paint(self) -> None:
+        """Tell Qt this widget paints every pixel of itself, when it does.
+
+        Every paint clears its rects to the flat colour or the backdrop
+        first (:meth:`_clear`), so with ``WA_OpaquePaintEvent`` the window
+        and the field under the rain are left out of its frames. The
+        application stylesheet's polish clears the attribute, so it is
+        claimed again after every polish and restyle, as
+        :meth:`spacr.qt.widgets.ambient.AmbientWidget._claim_opaque_paint`
+        does. Claimed only while the backdrop has no translucent pixel.
+        """
+        self.setAttribute(Qt.WA_OpaquePaintEvent, self._opaque_backdrop)
+
+    def changeEvent(self, event) -> None:
+        """Claim opaque painting again after a restyle.
+
+        :param event: the change event, passed to the base class first.
+        """
+        super().changeEvent(event)
+        if event.type() == QEvent.StyleChange:
+            self._claim_opaque_paint()
 
     def _backdrop_origin(self) -> QPoint:
         """Top-left of the backdrop in this widget's own coordinates.
@@ -1116,9 +1154,13 @@ class DnaRainWidget(QWidget):
     def showEvent(self, event):
         """Start animating, and follow the window this widget belongs to.
 
+        It is polished by then, so opaque painting is claimed again
+        (:meth:`_claim_opaque_paint`).
+
         :param event: the Qt show event.
         """
         super().showEvent(event)
+        self._claim_opaque_paint()
         window = self.window()
         watched = self._watched() if self._watched is not None else None
         if window is not None and window is not watched:

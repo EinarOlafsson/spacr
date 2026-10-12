@@ -58,6 +58,14 @@
       "source_sha256": "69005d582b0bc65cab72695c80e6a368943aee0cc0b0bc66ecb6a7b8edc8257e",
       "text": "Full-window cover shown until the pipeline modules are imported.\n\n:param total: how many steps will be reported. Zero or negative means\n    \"unknown\", and the phases stay dim rather than dividing by it.\n:param parent: the window this fills. It is sized to the parent and\n    resizes with it, rather than being a separate top-level -- a second\n    window would earn its own taskbar entry and could be dragged off the\n    thing it is supposed to be covering.\nBuild the splash that covers the window while it is being assembled.\n\nOpaque by construction: it covers a partly-built window, and any\ntransparency would show the thing it exists to hide.\n\n:param total: how many steps the progress bar counts to; ``0`` shows no\n    proportion.\n:param parent: the window to cover; its geometry is adopted."
     },
+    "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715": {
+      "source_blocks_sha256": [
+        "52522f631b6fe8619e1e06d811cb063b55678b47109553519a3defa06e393509",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ],
+      "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
+      "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
+    },
     "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293": {
       "source_blocks_sha256": [
         "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
