@@ -1213,6 +1213,279 @@ def _answering_stop(model):
     return model
 
 
+_MIXED_MODEL_FULL = 'gene fixed; guides nested in genes, random'
+_MIXED_MODEL_GENE_ONLY = ('gene fixed; random gene intercept only '
+                         '(guide variance component dropped)')
+
+_MIXED_WAY_OUT = (
+    "Ways out: set inference='nonparametric' (each guide is a permutation "
+    "test, so there is no model to fail to fit); or choose a fixed-effects "
+    "regression_type such as 'ols' with level='gene' or level='grna'; or "
+    "give the model more to work with by lowering min_cells_per_well or "
+    "keeping analysis_unit='well' so that more wells survive the filters.")
+
+_MIXED_OPTIMISERS = (
+    ('statsmodels default (bfgs, then lbfgs)', {}),
+    ('lbfgs', {'method': 'lbfgs', 'reml': True}),
+    ('powell', {'method': 'powell', 'reml': True}),
+    ('cg', {'method': 'cg', 'reml': True}),
+)
+
+
+def _check_mixed_design(df, formula, response, gene_column, guide_column):
+    """Refuse a nested mixed-model design that cannot be fitted, and say why.
+
+    Count genes, guides per gene, rows per guide and the rank of the
+    fixed-effects matrix on the rows the fit will use, before any optimiser
+    runs, and raise a ``ValueError`` that names the dataset's problem and the
+    setting that changes it. A dataset that passes is described in the returned
+    dictionary, which :func:`fit_mixed_model` stores with the fit.
+
+    :param df: Model frame.
+    :param formula: Fixed-effects formula.
+    :param response: Name of the response column on the formula's left side.
+    :param gene_column: Outer grouping column.
+    :param guide_column: Column of guides nested in genes.
+    :returns: Counts describing the design, JSON-serialisable.
+    :raises ValueError: for a response that is missing, non-finite or
+        constant, missing group labels, fewer than two genes, no gene with two
+        guides, guides that are never replicated, more fixed-effect columns
+        than rows, or linearly dependent fixed-effect columns.
+    """
+    from scipy.linalg import qr
+
+    way_out = _MIXED_WAY_OUT
+    if response in df.columns:
+        values = pd.to_numeric(df[response], errors='coerce')
+        usable = np.isfinite(values.to_numpy(dtype=float))
+        if int(usable.sum()) == 0:
+            raise ValueError(
+                f"the response {response!r} has no finite value in this "
+                f"frame ({len(df)} rows), so there is nothing for the mixed "
+                f"model to fit. Check dependent_variable and transform. "
+                f"{way_out}")
+        if int(usable.sum()) < len(df):
+            print(f"Mixed model: {int((~usable).sum())} of {len(df)} rows "
+                  f"have no finite {response!r} and are left out of the fit.")
+        if values[usable].nunique() < 2:
+            raise ValueError(
+                f"the response {response!r} is the same number in every "
+                f"usable row, so its variance is zero and no variance "
+                f"component can be estimated. Check dependent_variable and "
+                f"transform, and whether min_cells_per_well removed all but "
+                f"one kind of well. {way_out}")
+        used = df.loc[usable]
+    else:
+        used = df
+
+    labels = used[[gene_column, guide_column]]
+    missing_labels = int(labels.isna().any(axis=1).sum())
+    if missing_labels:
+        raise ValueError(
+            f"{missing_labels} rows have no {gene_column!r} or "
+            f"{guide_column!r} label, so they cannot be placed in the "
+            f"gene/guide nesting. Remove them, or set exclude_grnas so that "
+            f"the unlabelled guides are dropped before the fit.")
+
+    n_rows = int(len(used))
+    n_genes = int(used[gene_column].nunique())
+    if n_genes < 2:
+        raise ValueError(
+            f"a mixed model needs at least two clusters and the rows with a "
+            f"usable response carry {n_genes} {gene_column}. {way_out}")
+
+    guides_per_gene = used.groupby(gene_column, observed=True)[
+        guide_column].nunique()
+    if int((guides_per_gene > 1).sum()) == 0:
+        raise ValueError(
+            f"the mixed model nests guides inside genes, and no gene in this "
+            f"frame has more than one guide ({len(guides_per_gene)} genes, "
+            f"one guide each). The guide variance component would be exactly "
+            f"confounded with the residual and would come back as zero. Use a "
+            f"fixed-effects regression_type with level='gene' -- with one "
+            f"guide per gene the two levels are the same model anyway.")
+
+    rows_per_guide = used.groupby(
+        [gene_column, guide_column], observed=True).size()
+    if int(rows_per_guide.max()) < 2:
+        raise ValueError(
+            f"every guide appears in exactly one row ({len(rows_per_guide)} "
+            f"guides, {n_rows} rows). A guide effect measured once is "
+            f"indistinguishable from the residual, so the guide variance "
+            f"cannot be estimated. Each guide needs several wells: lower "
+            f"min_cells_per_well so that fewer wells are discarded, or fit a "
+            f"fixed-effects regression_type with level='gene'.")
+
+    rhs = str(formula).split('~', 1)[1] if '~' in str(formula) else ''
+    try:
+        from patsy import dmatrix
+
+        fixed = dmatrix(rhs, used, return_type='dataframe')
+    except Exception as error:
+        raise ValueError(
+            f"the fixed-effects part of the model ({rhs.strip()!r}) could "
+            f"not be built from this frame: {type(error).__name__}: {error}. "
+            f"{way_out}") from error
+    n_fixed = int(fixed.shape[1])
+    if len(fixed) <= n_fixed:
+        raise ValueError(
+            f"the fixed effects have {n_fixed} columns (one slope per gene "
+            f"plus plate, row and column terms) and the fit has only "
+            f"{len(fixed)} rows, so the model has no residual degrees of "
+            f"freedom. The nesting needs more wells than genes. Add wells, "
+            f"lower min_cells_per_well, or set model_plate_position=False "
+            f"to drop the plate, row and column terms. {way_out}")
+    matrix = fixed.to_numpy(dtype=float)
+    gram = matrix.T @ matrix
+    norms = np.sqrt(np.diag(gram))
+    norms[norms == 0] = 1.0
+    _, triangle, pivots = qr(gram / np.outer(norms, norms), pivoting=True)
+    diagonal = np.abs(np.diag(triangle))
+    rank = int((diagonal > diagonal[0] * 1e-9 * n_fixed).sum())
+    if rank < n_fixed:
+        dependent = [str(fixed.columns[i]) for i in pivots[rank:]]
+        raise ValueError(
+            f"the fixed-effects matrix has {n_fixed} columns but rank "
+            f"{rank}: {', '.join(dependent[:6])}"
+            f"{' and more' if len(dependent) > 6 else ''} are linear "
+            f"combinations of the other columns, so their coefficients are "
+            f"not identified. Usual causes are a gene whose fraction is zero "
+            f"in every well, plate, row and column terms that repeat one "
+            f"another, or one plate. Set model_plate_position=False, or "
+            f"exclude those genes with exclude_grnas. {way_out}")
+
+    return {'n_rows': n_rows, 'n_genes': n_genes,
+            'n_guides': int(rows_per_guide.size),
+            'genes_with_several_guides': int((guides_per_gene > 1).sum()),
+            'genes_with_one_guide': int((guides_per_gene == 1).sum()),
+            'min_rows_per_guide': int(rows_per_guide.min()),
+            'fixed_columns': n_fixed, 'fixed_rank': rank}
+
+
+def _fit_nested_mixedlm(formula, df, groups, vc_formula, guide_column, design):
+    """Fit the nested statsmodels MixedLM, falling back and recording how.
+
+    Try the statsmodels default optimiser first, so a fit that works today is
+    byte-for-byte what it was. Only if that raises or does not converge, retry
+    with REML under ``lbfgs``, ``powell`` and ``cg``. A converged fit ends the
+    search. Only if every optimiser raised on the full model is the guide
+    variance component dropped and the gene random intercept refitted; that
+    changes the statistics, so the returned record names the model that was
+    fitted, the reason, and what the reduction does to the gene intervals.
+
+    :param formula: Fixed-effects formula.
+    :param df: Model frame.
+    :param groups: Outer random-intercept grouping, one gene per row.
+    :param vc_formula: Variance-component formulas of the full model.
+    :param guide_column: Key of the guide component in ``vc_formula``.
+    :param design: Counts from :func:`_check_mixed_design`, stored in the
+        record.
+    :returns: ``(result, record)``.
+    :raises ValueError: when no model could be fitted, listing each attempt.
+    """
+    from .cancellation import PipelineCancelled
+
+    record = {'model': _MIXED_MODEL_FULL, 'attempts': [], 'fallbacks': [],
+              'design': design}
+    reduced = {key: value for key, value in vc_formula.items()
+               if key != guide_column}
+    stages = ((_MIXED_MODEL_FULL, vc_formula),
+              (_MIXED_MODEL_GENE_ONLY, reduced))
+    last_error = None
+    for stage, (label, vc) in enumerate(stages):
+        unconverged = None
+        for name, options in _MIXED_OPTIMISERS:
+            try:
+                model = smf.mixedlm(formula, data=df, groups=groups,
+                                    re_formula='1', vc_formula=vc or None)
+                result = _answering_stop(model).fit(**options)
+            except PipelineCancelled:
+                raise
+            except Exception as error:
+                last_error = error
+                record['attempts'].append(
+                    f"{label}: {name} failed: "
+                    f"{type(error).__name__}: {error}")
+                continue
+            converged = bool(getattr(result, 'converged', True))
+            record['attempts'].append(
+                f"{label}: {name} "
+                f"{'converged' if converged else 'did not converge'}")
+            if not converged:
+                if unconverged is None:
+                    unconverged = (name, result)
+                continue
+            return result, _mixed_record(record, label, name, vc, stage)
+        if unconverged is not None:
+            name, result = unconverged
+            return result, _mixed_record(record, label, name, vc, stage)
+    raise ValueError(
+        "no optimiser could fit the nested model, with or without the guide "
+        "variance component. Attempts: " + '; '.join(record['attempts'])
+    ) from last_error
+
+
+def _mixed_record(record, label, optimiser, vc, stage):
+    """Complete the fit record once a model has been chosen.
+
+    :param record: Record under construction.
+    :param label: The model that was fitted.
+    :param optimiser: Name of the optimiser that produced it.
+    :param vc: Variance-component formulas of that model.
+    :param stage: ``0`` for the full model, ``1`` for the reduced one.
+    :returns: The completed record.
+    """
+    record['model'] = label
+    record['optimiser'] = optimiser
+    record['variance_components'] = list(vc)
+    if optimiser != _MIXED_OPTIMISERS[0][0]:
+        record['fallbacks'].append(
+            f"the default optimiser did not give a converged fit; {optimiser} "
+            f"with REML was used instead")
+    if stage:
+        record['fallbacks'].append(
+            "every optimiser failed on the full model, so the guide variance "
+            "component was dropped and only the random gene intercept was "
+            "fitted. Guides that disagree no longer widen their gene's "
+            "interval, so gene intervals and p values here are narrower than "
+            "the full model would give if the guides differ. Treat them as "
+            "provisional, and prefer inference='nonparametric' or a "
+            "fixed-effects regression_type for the final claim")
+    return record
+
+
+def _mixed_variances_at_zero(model, names):
+    """Name the variance components a fitted mixed model put on the boundary.
+
+    :param model: Fitted mixed-model result.
+    :param names: Names of the components in ``model.vcomp`` order.
+    :returns: List of names whose estimate is zero to numerical precision.
+    """
+    values = getattr(model, 'vcomp', None)
+    if values is None:
+        return []
+    values = np.atleast_1d(np.asarray(values, dtype=float))
+    return [str(name) for name, value in zip(names, values) if value < 1e-8]
+
+
+def _describe_mixed_fit(record):
+    """One paragraph saying which mixed model was fitted and how.
+
+    :param record: The fit record.
+    :returns: Text for the log.
+    """
+    lines = [f"Mixed model fitted: {record['model']}; optimiser "
+             f"{record.get('optimiser', 'unknown')}, REML."]
+    lines.extend(f"  Fallback: {note}." for note in record['fallbacks'])
+    if record['variances_at_zero']:
+        lines.append(
+            f"  Variance estimated at zero for "
+            f"{', '.join(record['variances_at_zero'])}: those components "
+            f"add nothing beyond the residual here, so the fixed-effect "
+            f"intervals equal those of a model without them.")
+    return '\n'.join(lines)
+
+
 def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
                     gene_column='gene', guide_column='grna',
                     regression_backend=DEFAULT_REGRESSION_BACKEND):
@@ -1257,13 +1530,30 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     coef_df : pandas.DataFrame
         Fixed effects, variance components, and guide BLUPs. Variance
         components and BLUPs have ``NaN`` p-values because they are not
-        fixed-effect hypothesis tests.
+        fixed-effect hypothesis tests. ``coef_df.attrs['mixed_fit']`` records
+        which model was fitted, the optimiser that produced it, every
+        fallback taken, whether it converged and which variances sit at zero.
 
     Raises
     ------
     ValueError
-        If required grouping columns are missing, no gene has multiple
-        guides, or the backend cannot fit the nested design.
+        If required grouping columns are missing, or the design is checked
+        before any fit and refused with the setting to change: a constant or
+        non-finite response, fewer than two genes, no gene with multiple
+        guides, guides never replicated, more fixed-effect columns than rows,
+        or linearly dependent fixed-effect columns. Also if no optimiser can
+        fit the nested design.
+    spacr.cancellation.PipelineCancelled
+        If the run was stopped; it propagates unchanged and is never reported
+        as a fitting failure.
+
+    Notes
+    -----
+    The statsmodels default optimiser runs first. If it raises or does not
+    converge, REML fits under ``lbfgs``, ``powell`` and ``cg`` follow. Only if
+    every optimiser raises on the full model is the guide variance component
+    dropped and a gene-only random intercept fitted; the record and the log say
+    so, because guides that disagree then no longer widen the gene interval.
     MixedBackendUnavailable
         If the selected mixed-model backend is unavailable.
     """
@@ -1280,16 +1570,8 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     groups = _mixed_model_groups(df, response, df.index,
                                  gene_column=gene_column)
 
-    guides_per_gene = df.groupby(gene_column, observed=True)[
-        guide_column].nunique()
-    if int((guides_per_gene > 1).sum()) == 0:
-        raise ValueError(
-            f"the mixed model nests guides inside genes, and no gene in this "
-            f"frame has more than one guide ({len(guides_per_gene)} genes, "
-            f"one guide each). The guide variance component would be exactly "
-            f"confounded with the residual and would come back as zero. Use a "
-            f"fixed-effects regression_type with level='gene' -- with one "
-            f"guide per gene the two levels are the same model anyway.")
+    design = _check_mixed_design(df, formula, response, gene_column,
+                                 guide_column)
 
     vc_formula = {guide_column: f'0 + C({guide_column})'}
     if random_row_column_effects:
@@ -1298,6 +1580,10 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
 
     backend = _require_backend('mixed', regression_backend)
     _say_what_a_mixed_fit_will_cost(backend, df)
+    from .cancellation import PipelineCancelled
+
+    fit_record = {'model': _MIXED_MODEL_FULL, 'attempts': [],
+                  'fallbacks': [], 'design': design}
     try:
         if backend == 'torch':
             from .mixed_gpu import mixedlm_torch
@@ -1305,11 +1591,12 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
             mixed_model = mixedlm_torch(formula, df, groups,
                                         vc_formula=vc_formula)
             print(mixed_model.summary_line())
+            fit_record['optimiser'] = 'torch nested REML'
+            fit_record['variance_components'] = list(vc_formula)
         else:
-            model = smf.mixedlm(formula, data=df, groups=groups,
-                                re_formula='1', vc_formula=vc_formula)
-            mixed_model = _answering_stop(model).fit()
-    except MixedBackendUnavailable:
+            mixed_model, fit_record = _fit_nested_mixedlm(
+                formula, df, groups, vc_formula, guide_column, design)
+    except (MixedBackendUnavailable, PipelineCancelled):
         raise
     except Exception as error:
         raise ValueError(
@@ -1317,9 +1604,7 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
             f"{gene_column}/{guide_column}) on this frame: "
             f"{type(error).__name__}: {error}. The nesting needs several "
             f"genes, several guides inside at least some of them, and more "
-            f"wells than genes. Choose a fixed-effects regression_type with "
-            f"level='gene' or level='grna' if this screen cannot support "
-            f"it.") from error
+            f"wells than genes. {_MIXED_WAY_OUT}") from error
 
     df['residuals'] = mixed_model.resid
     plot_histogram(df, 'residuals', dst=dst)
@@ -1363,11 +1648,17 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
           f"A BLUP has no p-value, so results_grna.csv from a mixed run is a "
           f"shrunken prediction per guide and carries no q value.")
 
-    if not bool(getattr(mixed_model, 'converged', True)):
+    fit_record['converged'] = bool(getattr(mixed_model, 'converged', True))
+    fit_record['variances_at_zero'] = _mixed_variances_at_zero(
+        mixed_model, fit_record.get('variance_components', []))
+    print(_describe_mixed_fit(fit_record))
+    coef_df.attrs['mixed_fit'] = fit_record
+
+    if not fit_record['converged']:
         variances = ', '.join(
             f"{name}={value:.3g}" for name, value in
-            zip(vc_formula, np.atleast_1d(np.asarray(mixed_model.vcomp,
-                                                     dtype=float))))
+            zip(fit_record.get('variance_components', []),
+                np.atleast_1d(np.asarray(mixed_model.vcomp, dtype=float))))
         print("\n"
               "  ###############################################################\n"
               "  #  WARNING: the mixed model did not converge.                 #\n"
@@ -4572,6 +4863,14 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         elif getattr(model, 'k_fe', None) is not None:
             fit_counts['n_design_columns'] = int(model.k_fe)
         fit_counts['layout'] = 'long'
+        mixed_fit = coef_df.attrs.get('mixed_fit')
+        if mixed_fit:
+            fit_counts['mixed_model_fitted'] = mixed_fit['model']
+            fit_counts['mixed_model_optimiser'] = mixed_fit.get('optimiser')
+            fit_counts['mixed_model_converged'] = mixed_fit['converged']
+            fit_counts['mixed_model_fallbacks'] = list(mixed_fit['fallbacks'])
+            fit_counts['mixed_model_variances_at_zero'] = list(
+                mixed_fit['variances_at_zero'])
     else:
         formula = prepare_formula(dependent_variable,
                                   random_row_column_effects=False,
