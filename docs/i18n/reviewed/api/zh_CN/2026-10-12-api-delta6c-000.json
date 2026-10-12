@@ -370,7 +370,9 @@
       "source_sha256": "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
       "context": "Open a z-stack or volume in the 3-D mask editor.",
       "translation": "在 3D 掩码编辑器中打开 z 堆栈或体积。",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#1",
@@ -378,7 +380,9 @@
       "source_sha256": "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
       "context": "Masks are drawn and erased slice by slice on XY, XZ or YZ sections, interpolated between drawn slices, assigned to 3-D objects and edited with the shared anchors. TIFF stacks, OME-TIFF and MRC volumes open; time/image data channel/RGB TIFFs are refused rather than interpreted as depth. The existing 2-D image, mask tools and YOLO annotations stay separate.",
       "translation": "掩码在 XY、XZ 或 YZ 截面上逐切片绘制和擦除，在已绘制的切片之间插值，分配给 3D 对象，并用共享锚点进行编辑。TIFF 堆栈、OME-TIFF 和 MRC 体积可以打开；时间/通道/RGB 的 TIFF 会被拒绝，而不会被解释为深度。现有的 2D 图像、掩码工具和 YOLO 标注保持独立。",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#2",

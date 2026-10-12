@@ -4861,7 +4861,7 @@
       "review_basis": "written from the English"
     },
     {
-      "label": "spacr.qt.widgets.usage_bar.UsageBar.set_value#1",
+      "label": "spacr.qt.widgets.usage_bar.UsageBar.set_value#3",
       "source": "value in ``0.0``-``100.0``; out-of-range values clamp.",
       "source_sha256": "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899",
       "context": "value in ``0.0``-``100.0``; out-of-range values clamp.",

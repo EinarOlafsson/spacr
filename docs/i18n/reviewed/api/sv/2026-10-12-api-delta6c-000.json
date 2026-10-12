@@ -370,7 +370,9 @@
       "source_sha256": "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
       "context": "Open a z-stack or volume in the 3-D mask editor.",
       "translation": "Öppna en Z-stapel eller en volym i 3D-maskredigeraren.",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#1",
@@ -378,7 +380,9 @@
       "source_sha256": "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
       "context": "Masks are drawn and erased slice by slice on XY, XZ or YZ sections, interpolated between drawn slices, assigned to 3-D objects and edited with the shared anchors. TIFF stacks, OME-TIFF and MRC volumes open; time/image data channel/RGB TIFFs are refused rather than interpreted as depth. The existing 2-D image, mask tools and YOLO annotations stay separate.",
       "translation": "Masker ritas och raderas snitt för snitt på XY-, XZ- eller YZ-snitt, interpoleras mellan ritade snitt, tilldelas 3D-objekt och redigeras med de delade ankarna. TIFF-staplar, OME-TIFF och MRC-volymer öppnas; tids-/kanal-/RGB-TIFF avvisas i stället för att tolkas som djup. Den befintliga 2D-bilden, maskverktygen och YOLO-annoteringarna förblir åtskilda.",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#2",

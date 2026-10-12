@@ -12698,6 +12698,28 @@
         "e49222ee9fe453c54c3f170052755f092e28d42a0072a5e44e9e5bb9be218bf3"
       ]
     },
+    "spacr.cli.write_settings_file": {
+      "source_blocks_sha256": [
+        "d4ad906ee8f76b4c869676960c30691129055163b9c898adb8a6341f02d81c33",
+        "ead4e18e73bcea9a24a6024c3ffb71a8fad0383e4f74f4ef735c1ffa59206671",
+        "8ab64ba1f98d624c8178d6ea086e1baf6c6224481b58b4500fe3fe162c0816a5",
+        "cf9178f87bb80a6a0d26319f9f7fb6b2e992889b19481c22b9a16dc722606465",
+        "370b66dfaa7bcb2b866779a8bd3a3129f39c18b489dfad769f470a425e61fb18",
+        "39ebc8ed05d2ae69ed8ae0f64b9ff6d25fe3f2cd8d4a9607da08fd296dfae2cb",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ],
+      "source_sha256": "d7ce4ef41a27b0c42eac08ff6b1beea5fcd4f4cc13ab6c7f98d7235b07153d62",
+      "text": "Schreibt ein Einstellungs-Dict in eine CSV, die die GUI und ``spacr-run`` wieder einlesen.\n\nDie Umkehrung von :func:`load_settings_file` und die Datei, die die Schaltfläche \"Export settings…\" der GUI schreibt. Das Layout ist dasselbe, das :func:`spacr.utils.save_settings` neben jedem Lauf schreibt: eine Kopfzeile ``Key,Value``, eine Zeile pro Einstellung in der Reihenfolge des Dicts, ``None`` als leere Zelle, Wahrheitswerte als ``True`` / ``False`` sowie Listen, Tupel und Dicts in Python-Literalform. Die Einstellungen werden so geschrieben, wie sie übergeben werden: Anders als bei ``save_settings`` werden ``test_mode`` und ``plot`` nicht abgeschaltet, und außer den geschriebenen Dateien wird nichts aufgelistet, durchsucht oder geöffnet.\n\nNeben der CSV wird eine ``.json``-Kopie geschrieben, wie ``save_settings`` sie schreibt, damit die Typen exakt erhalten bleiben; ``spacr-run --settings`` liest beide.\n\n:param settings: die zu schreibenden Einstellungen.\n:param path: die zu schreibende CSV; ``~`` und ``$VARS`` werden aufgelöst und der Ordner wird angelegt.\n:returns: die geschriebenen CSV- und JSON-Pfade in dieser Reihenfolge.\n\nBeispiel:\n    .. code-block:: python\n\n        from spacr.cli import load_settings_file, write_settings_file\n        write_settings_file({\"src\": \"/data/plate1\", \"channels\": [0, 1]},\n                            \"measure_settings.csv\")\n        load_settings_file(\"measure_settings.csv\")",
+      "translation_source_blocks_sha256": [
+        "65881825c18ade612de317e3d3587dbd7fb1d3acf90e25114b6f82994ce4a177",
+        "59d199a22a2896f745b4fa886ca13b3809f7d7a489dbb53798ae6a91e7f4edaa",
+        "8ab64ba1f98d624c8178d6ea086e1baf6c6224481b58b4500fe3fe162c0816a5",
+        "cf9178f87bb80a6a0d26319f9f7fb6b2e992889b19481c22b9a16dc722606465",
+        "370b66dfaa7bcb2b866779a8bd3a3129f39c18b489dfad769f470a425e61fb18",
+        "39ebc8ed05d2ae69ed8ae0f64b9ff6d25fe3f2cd8d4a9607da08fd296dfae2cb",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ]
+    },
     "spacr.cli_database": {
       "source_blocks_sha256": [
         "5f3f416486e5633b344e7e34f5b6c59ae40bfda4d7628fcfb9e41f626c07c995"
@@ -13530,6 +13552,44 @@
       "translation_source_blocks_sha256": [
         "57cec9e0b7a4efaba2be0af9106ff1507375e026fbf70fe5f9feaa484f81aad0",
         "3a5d93c979aa40a2a0e0f9985f6899c13a125532047baf260fe1547904c4931b"
+      ]
+    },
+    "spacr.columns.numeric_headers": {
+      "source_blocks_sha256": [
+        "08a98d515de70f0559aec982b5a7943c79bdd109ef93992c7fc23109007afa96",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+        "722e753e8ed3afba3886f88824fb5e32cdf30f34f74ac66870dc78dd9cc3c6c9",
+        "89f60c00ead8478c285235bda42277a20100c27a51f839d635b14dfe94480bbc"
+      ],
+      "source_sha256": "2820526ad6e87b74214f353616befffa6ba0c4c4cb4536f5723177e24d16dc83",
+      "text": "``{path: [column, ...]}`` der numerischen Spalten, die als Antwortvariable infrage kommen.\n\n:param paths: ein Pfad, eine Folge davon oder None.\n:param rows: wie viele Zeilen gelesen werden, um eine Zahl von einer Bezeichnung zu unterscheiden. Die Kopfzeile bestimmt die Namen und eine kurze Stichprobe den Typ, sodass der Aufwand für eine Score-Datei beliebiger Größe gleich bleibt.\n:returns: ein Dict in der angegebenen Reihenfolge. Bezeichnerspalten (:data:`RESPONSE_EXCLUDED`) werden ausgelassen; eine nicht lesbare Datei fehlt.",
+      "translation_source_blocks_sha256": [
+        "08a98d515de70f0559aec982b5a7943c79bdd109ef93992c7fc23109007afa96",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+        "722e753e8ed3afba3886f88824fb5e32cdf30f34f74ac66870dc78dd9cc3c6c9",
+        "1dff70177bd3fffdb2ea9f162a436a186afd329797cbefe5590d9411309bbe85"
+      ]
+    },
+    "spacr.columns.pred_guidance": {
+      "source_blocks_sha256": [
+        "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef"
+      ],
+      "source_sha256": "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef",
+      "text": "Der Satz, der sagt, woher eine Spalte ``pred`` stammt.",
+      "translation_source_blocks_sha256": [
+        "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef"
+      ]
+    },
+    "spacr.columns.pred_missing": {
+      "source_blocks_sha256": [
+        "ecb8ae620f4efc95d24ea72009c622c7c42463aa89d3e977449588dc428cb83c",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd"
+      ],
+      "source_sha256": "18142ad16a5695335acdafe55d1f1a1ba8bf9aeae7509e107fe1f0a90044c384",
+      "text": "Die lesbaren Dateien unter ``paths``, die keine Spalte ``pred`` haben.\n\n:param paths: ein Pfad, eine Folge davon oder None.",
+      "translation_source_blocks_sha256": [
+        "ecb8ae620f4efc95d24ea72009c622c7c42463aa89d3e977449588dc428cb83c",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd"
       ]
     },
     "spacr.columns.resolve": {
@@ -49290,6 +49350,172 @@
         "39996c56b59b07b7cf47fd9559aac916ec01dd8c38ae0fc03f6365f8f8001a68"
       ]
     },
+    "spacr.model_cards": {
+      "source_blocks_sha256": [
+        "171c1c38c652fe6fb87e2a0b8bf9875986d035cbf90594fb59bfae2479654863",
+        "5ac049613eab9e18ab4708132f31d94dd45549506dc9ee4b6f42b5440780a31d",
+        "9e9b9d3e15ab1409b94c2601e397cbf19d196ca28574deacb17e6647a343f03b"
+      ],
+      "source_sha256": "5f3af02fc849e4f1dbe5093e6089e1c18625ca5037b8db21656d5a09721ae358",
+      "text": "Die dreiseitigen Modellkarten des Model Zoo: Daten, Zuordnung zum Repository, Bilder.\n\nJedes veröffentlichte Segmentierungsmodell hat drei Kartenseiten auf Hugging Face (``cards/page1.png`` bis ``page3.png``): seine Scores gegenüber der Standardbasis, seine Trainingsdaten und eine Seite mit Beschreibung und Links. Dieselben Daten werden mit spaCR als ``resources/model_cards/<repo>.json`` ausgeliefert, sodass eine Karte als Text angezeigt werden kann, wenn sich die Bilder nicht abrufen lassen.\n\nHier wird Qt nicht importiert; der Viewer befindet sich in :mod:`spacr.qt.widgets.model_card_viewer`.",
+      "translation_source_blocks_sha256": [
+        "171c1c38c652fe6fb87e2a0b8bf9875986d035cbf90594fb59bfae2479654863",
+        "5ac049613eab9e18ab4708132f31d94dd45549506dc9ee4b6f42b5440780a31d",
+        "9e9b9d3e15ab1409b94c2601e397cbf19d196ca28574deacb17e6647a343f03b"
+      ]
+    },
+    "spacr.model_cards.about_lines": {
+      "source_blocks_sha256": [
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+      ],
+      "source_sha256": "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
+      "text": "Seite 3 als einfache Sätze, ohne die leeren Felder.",
+      "translation_source_blocks_sha256": [
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+      ]
+    },
+    "spacr.model_cards.cache_dir": {
+      "source_blocks_sha256": [
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+      ],
+      "source_sha256": "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
+      "text": "Wo die Seitenbilder von ``repo`` zwischengespeichert werden, unterhalb des spaCR-Home-Verzeichnisses.",
+      "translation_source_blocks_sha256": [
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+      ]
+    },
+    "spacr.model_cards.cached_pages": {
+      "source_blocks_sha256": [
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+      ],
+      "source_sha256": "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
+      "text": "Das zwischengespeicherte Bild jeder Seite, ``None`` wo es nicht zwischengespeichert ist.",
+      "translation_source_blocks_sha256": [
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+      ]
+    },
+    "spacr.model_cards.card_for_entry": {
+      "source_blocks_sha256": [
+        "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+      ],
+      "source_sha256": "4d5f9290e79d20daa927814dcbd90d676e709ad489f24a6da3fb00cd96c6185b",
+      "text": "Die Kartendaten eines :class:`~spacr.model_zoo.ModelEntry` oder ``None``.\n\nZuerst nach dem Zoo-Schlüssel, dann nach dem Repository abgeglichen, aus dem der Eintrag abgerufen wird.",
+      "translation_source_blocks_sha256": [
+        "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+      ]
+    },
+    "spacr.model_cards.card_keys": {
+      "source_blocks_sha256": [
+        "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b"
+      ],
+      "source_sha256": "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b",
+      "text": "Die Zoo-Schlüssel, die eine dreiseitige Karte haben.",
+      "translation_source_blocks_sha256": [
+        "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b"
+      ]
+    },
+    "spacr.model_cards.clear_cache": {
+      "source_blocks_sha256": [
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+      ],
+      "source_sha256": "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
+      "text": "Die zwischengespeicherten Bilder von ``repo`` entfernen.",
+      "translation_source_blocks_sha256": [
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+      ]
+    },
+    "spacr.model_cards.fact_rows": {
+      "source_blocks_sha256": [
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+      ],
+      "source_sha256": "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
+      "text": "Seite 2 als Paare ``(fact, value)``.",
+      "translation_source_blocks_sha256": [
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+      ]
+    },
+    "spacr.model_cards.fetch_pages": {
+      "source_blocks_sha256": [
+        "d32927fe27961a9f8838b53c414466e2dbd81a48be1ca4a84e2b959d1196d1d3",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "b51767176968e553bb42e3ed8d545f1c5c7ec0a2ae0ef6ba5e0e00dba2262b4b",
+        "58ed12568ee4e336997435933a436c8b20df97d253b2dcc91a0772e2b2d20d7d",
+        "ac64f3a117c41c7ede5f464199810b6963ea80a439d86c2a8cfc6ec83621a08e"
+      ],
+      "source_sha256": "94b51e3e4a3f62916c8029ea78557940b485a13a0eeecc0ad36a7bd0f63ab738",
+      "text": "Die fehlenden Seitenbilder von ``repo`` in den Cache herunterladen.\n\n:param repo: ``owner/repo``.\n:param fetch: Byte-Quelle, die eine URL entgegennimmt; Standard ist ``urlopen``.\n:returns: die drei zwischengespeicherten Pfade.\n:raises OSError: wenn eine Seite nicht abgerufen werden kann oder kein PNG ist. Vor dem Fehler abgerufene Seiten bleiben im Cache.",
+      "translation_source_blocks_sha256": [
+        "d32927fe27961a9f8838b53c414466e2dbd81a48be1ca4a84e2b959d1196d1d3",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "b51767176968e553bb42e3ed8d545f1c5c7ec0a2ae0ef6ba5e0e00dba2262b4b",
+        "58ed12568ee4e336997435933a436c8b20df97d253b2dcc91a0772e2b2d20d7d",
+        "ac64f3a117c41c7ede5f464199810b6963ea80a439d86c2a8cfc6ec83621a08e"
+      ]
+    },
+    "spacr.model_cards.model_link": {
+      "source_blocks_sha256": [
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+      ],
+      "source_sha256": "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
+      "text": "Die Hugging Face URL des Modells, das die Karte beschreibt.",
+      "translation_source_blocks_sha256": [
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+      ]
+    },
+    "spacr.model_cards.page_html": {
+      "source_blocks_sha256": [
+        "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
+      ],
+      "source_sha256": "9c42ea7e68c5e36d93f078d5c07fd6bed075feee45968945b6e3a5df9bcb24bc",
+      "text": "Der Textersatz einer Kartenseite (ab 1 gezählt) als kleiner HTML-Körper.\n\n:param headers: die bereits übersetzten Spaltenüberschriften für die Tabellen der Scores und Fakten.",
+      "translation_source_blocks_sha256": [
+        "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
+      ]
+    },
+    "spacr.model_cards.page_url": {
+      "source_blocks_sha256": [
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+      ],
+      "source_sha256": "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
+      "text": "Die Hugging Face URL der Kartenseite ``page`` (ab 1 gezählt) von ``repo``.",
+      "translation_source_blocks_sha256": [
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+      ]
+    },
+    "spacr.model_cards.repo_of_key": {
+      "source_blocks_sha256": [
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+      ],
+      "source_sha256": "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
+      "text": "Das ``owner/repo`` eines Zoo-Schlüssels, der eine Karte hat, sonst ``''``.",
+      "translation_source_blocks_sha256": [
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+      ]
+    },
+    "spacr.model_cards.repo_url": {
+      "source_blocks_sha256": [
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+      ],
+      "source_sha256": "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
+      "text": "Die Hugging Face Seite eines Modell-Repositories.",
+      "translation_source_blocks_sha256": [
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+      ]
+    },
+    "spacr.model_cards.score_rows": {
+      "source_blocks_sha256": [
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+      ],
+      "source_sha256": "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
+      "text": "Seite 1 als Paare ``(metric, \"this (stock x)\")``.",
+      "translation_source_blocks_sha256": [
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+      ]
+    },
     "spacr.model_check": {
       "source_blocks_sha256": [
         "cb82190bc6a7740864406b7ce3eada5f96fa44f5738406aec729863da2e9e385",
@@ -50803,17 +51029,17 @@
     "spacr.model_zoo.default_version_index": {
       "source_blocks_sha256": [
         "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
-        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "ebb6d5ec08a09842718f8bbc718dc03a6513434cfda9bf45b9aabdfd4a196a88",
         "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
-        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+        "3fe71bdf2c3838540c829c4f44b27ee079ecf04f7d24e0d5be4fec0fb64c2e64"
       ],
-      "source_sha256": "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293",
-      "text": "Auf welcher Version die Zeile einer Modellfamilie geöffnet wird.\n\nDie neueste Version, die keine Alternative ist, sodass die Veröffentlichung einer Alternative nie ändert, was die Zeile einer Familie standardmäßig ausgibt.\n\n:param pairs: ``(label, entry)``-Paare, neueste zuerst.\n:returns: ein Index in ``pairs``; 0, wenn jede Version eine Alternative ist oder es keine gibt.",
+      "source_sha256": "bbd58c52c7edc902e9f2717617390e9b1e9f4e51452d5bc6157f613767e37521",
+      "text": "Auf welcher Version die Zeile einer Modellfamilie geöffnet wird.\n\nDie neueste Version, die weder eine Alternative noch ein Kandidat ist, damit das Veröffentlichen einer von beiden nie ändert, was die Zeile einer Familie standardmäßig ausgibt. Das README und die Modellkarten der Website verwenden dieselbe Regel.\n\n:param pairs: ``(label, entry)``-Paare, neueste zuerst.\n:returns: ein Index in ``pairs``; 0, wenn jede Version eine Alternative oder ein Kandidat ist oder es keine gibt.",
       "translation_source_blocks_sha256": [
         "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
-        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "ebb6d5ec08a09842718f8bbc718dc03a6513434cfda9bf45b9aabdfd4a196a88",
         "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
-        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+        "3fe71bdf2c3838540c829c4f44b27ee079ecf04f7d24e0d5be4fec0fb64c2e64"
       ]
     },
     "spacr.model_zoo.discover_local": {
@@ -82430,7 +82656,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "a56ee4ce986b07ae1424b2400563e8ef5a1b983248318af8b9a095175f6ac030",
-      "text": "Zeichne jede sichtbare Ebene durch das aktuelle Weltfenster.\n\n:param event: das Farbereignis Qt.",
+      "text": "Zeichne jede sichtbare Ebene durch das aktuelle Weltfenster.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
         "8b4b8293f3673167bd762b87f5a4e94459c6b2d0e64f05749d37b320d2f9dc66",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -84632,6 +84858,20 @@
         "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.delete_label": {
+      "source_blocks_sha256": [
+        "6757527de2a3afcb8d57f45ff91800b55b9484dce0b1b92edf83990724023eb7",
+        "18662fcb4057687a8c82acdd189a63bb2d75843f792b163d43b8128ee5902762",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "d8aa49e97cca56def653e4a77df0acc6a70077e0073a8ceb39f51b04556d81d1",
+      "text": "Ein Objekt in allen Schnitten als einen einzigen Rückgängig-Schritt entfernen.\n\n:param label: die ID des zu entfernenden Objekts.\n:returns: Anzahl der geänderten Voxel.",
+      "translation_source_blocks_sha256": [
+        "6757527de2a3afcb8d57f45ff91800b55b9484dce0b1b92edf83990724023eb7",
+        "18662fcb4057687a8c82acdd189a63bb2d75843f792b163d43b8128ee5902762",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
       "source_blocks_sha256": [
         "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
@@ -84734,6 +84974,28 @@
       "text": "Das zuletzt rückgängig gemachte Voxel-Delta und die Geometrie erneut anwenden.",
       "translation_source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.replace_plane": {
+      "source_blocks_sha256": [
+        "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
+        "424cc65b58d6346d59adeb03f7f5903849870d302acce442981bf3b3b83b235a",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "076cf7d46317fcf2e7f28d74ebb8252709ae40845143e04af533d1a7b90f43f9",
+        "80684ea15eabed5e31c1ffc55bc06536b1ef1feeb82d0c44cb1a3755658b621c",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "2cf0e511d9e90c1c121f08a1674a2f10838d51d64a060b205b75e559975979a3",
+      "text": "Einen bearbeiteten Schnitt als einen einzigen Rückgängig-Schritt zurückschreiben.\n\nSo bearbeiten die zweidimensionalen Make Masks Werkzeuge ein Volumen: Sie ändern einen Schnitt, und der Schnitt wird als Ganzes zurückgeschrieben. Ein Objekt, das schon auf diesem Schnitt liegt, behält seine ID, ebenso jede ID in ``keep`` (das Objekt, das gerade gezeichnet wird). Eine für diesen Schnitt neue ID, die zu einem anderen Objekt an anderer Stelle im Volumen gehört, erhält stattdessen die nächste unbenutzte ID, sodass ein Werkzeug, das seine eigenen Objekte nummerierte, sie nie mit einem entfernten 3-D-Objekt verbindet.\n\n:param axis: die feste Achse, wie bei :meth:`plane`.\n:param index: der Index des Schnitts entlang ``axis``.\n:param labels: der bearbeitete Schnitt in der Form, die :meth:`plane` zurückgibt.\n:param keep: Objekt-IDs, die unverändert in den Schnitt gelangen dürfen.\n:returns: Anzahl der geänderten Voxel.",
+      "translation_source_blocks_sha256": [
+        "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
+        "424cc65b58d6346d59adeb03f7f5903849870d302acce442981bf3b3b83b235a",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "076cf7d46317fcf2e7f28d74ebb8252709ae40845143e04af533d1a7b90f43f9",
+        "80684ea15eabed5e31c1ffc55bc06536b1ef1feeb82d0c44cb1a3755658b621c",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.section_count": {
@@ -87852,7 +88114,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "f82448f5e6b58336475b8d8e7bb0ce3cbfdd2375ab61230829b33e9a57764a70",
-      "text": "Zeichne diese orthogonale Scheibe.\n\n:param event: das Farbereignis Qt.",
+      "text": "Zeichne diese orthogonale Scheibe.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
         "fea0de4b71c4a6e1113f08c4a558af437708828c32c9d20ae14a226a50781206",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -88620,6 +88882,16 @@
         "e7871d5e68c7007075ea859ad59fa543140cff70733bbb8b237d05cc821b3376"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._contrast_follows_the_theme": {
+      "source_blocks_sha256": [
+        "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0"
+      ],
+      "source_sha256": "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0",
+      "text": "High contrast genau dann anhaken, wenn das Steuerelement Design es anzeigt.",
+      "translation_source_blocks_sha256": [
+        "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._debug_follows_verbose": {
       "source_blocks_sha256": [
         "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
@@ -88642,6 +88914,18 @@
         "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._exact_motion": {
+      "source_blocks_sha256": [
+        "6a66e862030761189140b65a8ae6c60adea63c8cc35fc6a80850d4745521647a",
+        "7d090888e8ef75ed82be076601a4664a1f6dc21d9a6757fe4817a85661770990"
+      ],
+      "source_sha256": "d47ad516b5371ebd753df5381ff2b3a7daac8464d1db7c2a33cc5df869c5e366",
+      "text": "Die gespeicherten Werte hinter dem, was die Steuerelemente zeigen, wenn bekannt.\n\nEin Schieberegler hält ganze Prozent, sodass das Angezeigte nicht immer das Gespeicherte ist; würde man das Angezeigte zurückgeben, würden die eigenen Werte des Benutzers gerundet.",
+      "translation_source_blocks_sha256": [
+        "6a66e862030761189140b65a8ae6c60adea63c8cc35fc6a80850d4745521647a",
+        "7d090888e8ef75ed82be076601a4664a1f6dc21d9a6757fe4817a85661770990"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says": {
       "source_blocks_sha256": [
         "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
@@ -88652,6 +88936,26 @@
         "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_follows_the_switch": {
+      "source_blocks_sha256": [
+        "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b"
+      ],
+      "source_sha256": "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b",
+      "text": "Die Bewegungssteuerungen anhalten oder zurückgeben, was sie hatten.",
+      "translation_source_blocks_sha256": [
+        "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_shown": {
+      "source_blocks_sha256": [
+        "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee"
+      ],
+      "source_sha256": "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee",
+      "text": "Die Bewegungswerte, die die Steuerelemente von Animation jetzt zeigen.",
+      "translation_source_blocks_sha256": [
+        "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers": {
       "source_blocks_sha256": [
         "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
@@ -88660,6 +88964,16 @@
       "text": "Öffnet den Installations-/Anmeldedialog und listet dann die Anbieter neu auf.",
       "translation_source_blocks_sha256": [
         "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {
+      "source_blocks_sha256": [
+        "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf"
+      ],
+      "source_sha256": "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf",
+      "text": "Den Editor für Tastenkürzel über Preferences öffnen und zurückgeben.",
+      "translation_source_blocks_sha256": [
+        "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._page": {
@@ -88850,12 +89164,24 @@
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._settle_unless_dragging": {
       "source_blocks_sha256": [
-        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+        "6695c23caa5a90761a060615877ae5d9e5e707d90baaa23f56d7e1e7bc110462"
       ],
-      "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
-      "text": "Ein Ziehen wirkt beim Loslassen; ein Klick oder eine Taste wirkt sofort.",
+      "source_sha256": "0ed7543b627b36735b6e61eed81352ae3673b3ac8c7bcc8934028d628685c8c9",
+      "text": "Ein Ziehen wirkt beim Loslassen; ein Klick oder eine Taste wirkt sofort.\n\nTextgröße unter Barrierefreiheit bewegt Schriftskalierung mit, sodass ein Ziehen an einem von beiden ein Ziehen ist.",
       "translation_source_blocks_sha256": [
-        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+        "6695c23caa5a90761a060615877ae5d9e5e707d90baaa23f56d7e1e7bc110462"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._show_motion": {
+      "source_blocks_sha256": [
+        "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e"
+      ],
+      "source_sha256": "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e",
+      "text": "Einen Satz Bewegungswerte auf die Steuerelemente von Animation setzen.",
+      "translation_source_blocks_sha256": [
+        "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._steering_only_matters_when_guided": {
@@ -88984,6 +89310,16 @@
         "6579363ef03d04dc27330aa70c6c53f208f58fb0d5d594ecd44522cc6f4f9864",
         "32f894afe2ac77e56a9fb1b20823cdc61d999a0649d6803d1b983e9c43ef288a",
         "232af6a79ef8aa55da3431d162d04a44f90cb86b46bc70efcd441582893f2feb"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._theme_follows_contrast": {
+      "source_blocks_sha256": [
+        "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6"
+      ],
+      "source_sha256": "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6",
+      "text": "High contrast wählen oder das Design, das es ersetzt hat.",
+      "translation_source_blocks_sha256": [
+        "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_opacity_lbl": {
@@ -90126,6 +90462,18 @@
         "c315c2c98c0453a9a4f18c8a8c189e5b5b1756028f7d2afe52bd33388cf96441"
       ]
     },
+    "spacr.qt.preferences.get_high_contrast": {
+      "source_blocks_sha256": [
+        "6b4c01028f49a57def170567d9e1968585e65d00ee10e6fd8277a7687d368e38",
+        "08e28ba4bc78ed62d1354044bfbcc78ae0112b091a3a8903c71c150fe27e55ca"
+      ],
+      "source_sha256": "1a1e7de437bb6bb6894c5da81bfe44502fcdb9942d2409d6623eabdee2244642",
+      "text": "Ob das Design High contrast das gewählte Design ist.\n\n:returns: ``True``, wenn Preferences > Darstellung > Design High contrast anzeigt.",
+      "translation_source_blocks_sha256": [
+        "6b4c01028f49a57def170567d9e1968585e65d00ee10e6fd8277a7687d368e38",
+        "08e28ba4bc78ed62d1354044bfbcc78ae0112b091a3a8903c71c150fe27e55ca"
+      ]
+    },
     "spacr.qt.preferences.get_idle_minutes": {
       "source_blocks_sha256": [
         "990f38412e880238acbd97192c6f552e899adb7e908dd9f04d487a89f1e2a087",
@@ -90310,6 +90658,20 @@
       "text": "Wann torch und der Rest importiert werden sollen. 'on_demand' oder 'eager'.",
       "translation_source_blocks_sha256": [
         "8d6379188f60f4ffdeea6b4e93cda8478c130a9fc7abe4d7d0f7f213e8de08ed"
+      ]
+    },
+    "spacr.qt.preferences.get_reduce_motion": {
+      "source_blocks_sha256": [
+        "e50f51fe89d622cab13d601ed8b69b5b3960e319fc98b2d50c1461171cc8b59a",
+        "c0d745aef4fb30187ea11e959cc92fd244dec68c607b178bc176df828e9d5e0c",
+        "b2c203a04c70b5682b1e25bb9e11804b53c354d34da2bfdeacf50b1d66ddaa6b"
+      ],
+      "source_sha256": "9c30210a0a8b2039a1ef5799ba17533a1f55929e6c2a0b5a119f10a69b81b413",
+      "text": "Ob Bewegung reduzieren jeden animierten Hintergrund anhält.\n\nSolange es eingeschaltet ist, zeichnen die Hintergründe ein Standbild und laufen nicht weiter, und Wellen, Klickwellen, Popup-Wellen und Mausgravitation sind aus.\n\n:returns: ``True``, wenn Bewegung reduzieren eingeschaltet ist; standardmäßig aus.",
+      "translation_source_blocks_sha256": [
+        "e50f51fe89d622cab13d601ed8b69b5b3960e319fc98b2d50c1461171cc8b59a",
+        "c0d745aef4fb30187ea11e959cc92fd244dec68c607b178bc176df828e9d5e0c",
+        "b2c203a04c70b5682b1e25bb9e11804b53c354d34da2bfdeacf50b1d66ddaa6b"
       ]
     },
     "spacr.qt.preferences.get_refresh_news": {
@@ -90574,6 +90936,32 @@
         "335daa9119d3e05c524dcb06d121cbdb78de3774abcc1d29d1274c9b7f0d4675",
         "79dd838a098ee11b0df6661e8cf3427a10182bc0927718ea208eea1f474ec93a",
         "d891076c5add28657292a78dde6f41a5eb1e695cff201cf583964807b7b26476"
+      ]
+    },
+    "spacr.qt.preferences.get_startup_animation": {
+      "source_blocks_sha256": [
+        "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
+        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
+      ],
+      "source_sha256": "d314346cbd17e4651aecd9cae83fb2d300d15d18e3160419f9f5b5bfbb3ba42d",
+      "text": "Ob das Startfoto-Mosaik weggeblasen wird, wenn spaCR bereit ist.\n\nPreferences > Animation > Startanimation. Bewegung reduzieren hat Vorrang.\n\n:returns: ``True``, sofern der Schalter nicht ausgeschaltet wurde; standardmäßig an.",
+      "translation_source_blocks_sha256": [
+        "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
+        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
+      ]
+    },
+    "spacr.qt.preferences.get_strong_focus": {
+      "source_blocks_sha256": [
+        "1e1e3e6f48f6aaf52322e8f936b67c19647a9c4eaabc818bf11154045a757861",
+        "d138af1f20420f74d6776c2b24435b9b6a4ec5a3b1fc996d6dddeaefe9d32d6d"
+      ],
+      "source_sha256": "c04220e0d4ba0ba91783ed616ac12073989c5e156004f96a3bf430beac3c4e04",
+      "text": "Ob das Steuerelement mit dem Tastaturfokus einen dicken Fokusring trägt.\n\n:returns: ``True``, wenn Stärkere Fokusrahmen eingeschaltet ist; standardmäßig aus.",
+      "translation_source_blocks_sha256": [
+        "1e1e3e6f48f6aaf52322e8f936b67c19647a9c4eaabc818bf11154045a757861",
+        "d138af1f20420f74d6776c2b24435b9b6a4ec5a3b1fc996d6dddeaefe9d32d6d"
       ]
     },
     "spacr.qt.preferences.get_theme": {
@@ -91382,6 +91770,22 @@
         "e021eb52fd1c7cbc7f367154d5763ff3bdb6c30c9d798cfe094013be229704ed"
       ]
     },
+    "spacr.qt.preferences.set_high_contrast": {
+      "source_blocks_sha256": [
+        "7a8ee2899451dea14e16adf8dce0c9d45496cd1521d7ba5e1b0a84dbab32bc7e",
+        "66d21713b81af7e8b452ce4111c33e140c707a46f712167e3e8fe0b1a47fe25b",
+        "0a3d8a7db10ae0fd395e5e29d5fafd6704e68979bdd0269de928978cce135d25",
+        "0ef9b95594e39de8e9098d353e85bdcddc424d95ab007d907e5fa51e9dc19cd9"
+      ],
+      "source_sha256": "603abc439cb9b46748448e4f01be6a2d8e5eec3b788d2f49021d91e85bff479a",
+      "text": "High contrast wählen oder zu dem Design zurückkehren, das es ersetzt hat.\n\nDas ersetzte Design wird im Einstellungsspeicher aufbewahrt und übersteht daher einen Neustart.\n\n:param on: true, um High contrast zu wählen, false, um es zu verlassen.\n:returns: die danach geltende Designwahl.",
+      "translation_source_blocks_sha256": [
+        "7a8ee2899451dea14e16adf8dce0c9d45496cd1521d7ba5e1b0a84dbab32bc7e",
+        "66d21713b81af7e8b452ce4111c33e140c707a46f712167e3e8fe0b1a47fe25b",
+        "0a3d8a7db10ae0fd395e5e29d5fafd6704e68979bdd0269de928978cce135d25",
+        "0ef9b95594e39de8e9098d353e85bdcddc424d95ab007d907e5fa51e9dc19cd9"
+      ]
+    },
     "spacr.qt.preferences.set_idle_minutes": {
       "source_blocks_sha256": [
         "ba929b8317f0b11dfc56312aa5b520c321134b1805b8f24bc8d98ada12225239",
@@ -91574,6 +91978,20 @@
         "254e5073a004a0afac39d354c30ff161e8c0ecf3bc36ac7784d0e36abc5823c9",
         "a502f3c7ccf43feb11707125813a9c969c51bc5e9afd56b33d19c4bbc0f3c00c",
         "16293c11a5b81a7e46090ff468e76eb1c6887f3cf8131a2e62bb90f857ebe557"
+      ]
+    },
+    "spacr.qt.preferences.set_reduce_motion": {
+      "source_blocks_sha256": [
+        "e9a9b8e4b229d01ae9491e9b301c5cff4dfe22fcfaeb86206e4d43e0bc831fb9",
+        "8438099a202aa8b74a4862d6e14777545f384175b6b854ff045832da7f15d550",
+        "e112e381bb7e461321afb2ca55340695167c2793cb8877e1a222a1a82b5c6f38"
+      ],
+      "source_sha256": "63ab1f7cb37d04fb121a86f32d30d9e9828ea2f90e6c622a4f2f96efe25a26e1",
+      "text": "Bewegung reduzieren ein- oder ausschalten.\n\nEingeschaltet speichert es die geltenden Werte für Welle, Klickwelle, Popup-Welle und Mausgravitation und setzt jeden auf null oder aus. Ausgeschaltet stellt es die gespeicherten Werte genau wieder her. Rufen Sie :func:`apply_ambient_preferences` auf, um die laufenden Hintergründe nachzuziehen.\n\n:param on: true, um die Hintergründe anzuhalten.",
+      "translation_source_blocks_sha256": [
+        "e9a9b8e4b229d01ae9491e9b301c5cff4dfe22fcfaeb86206e4d43e0bc831fb9",
+        "8438099a202aa8b74a4862d6e14777545f384175b6b854ff045832da7f15d550",
+        "e112e381bb7e461321afb2ca55340695167c2793cb8877e1a222a1a82b5c6f38"
       ]
     },
     "spacr.qt.preferences.set_refresh_news": {
@@ -91844,6 +92262,32 @@
       "translation_source_blocks_sha256": [
         "e0384e72d07c180fd1c2a84c97eb50bb80f0320a63a7b251f2589ba746b616da",
         "e584661e8d1938837587eba40d5d57af6e74f6c3fa740c02796af0b4dc3efc5c"
+      ]
+    },
+    "spacr.qt.preferences.set_startup_animation": {
+      "source_blocks_sha256": [
+        "0280dbc13056cf3d2d7f2f29072a843659f9b8e6de9d45c963c71c6dc69ce102",
+        "31e18835346243e982348f2097f36e60f4ef8219b3c073dd24ba3e349b6dcc0b"
+      ],
+      "source_sha256": "cb0587829f10a40a01c6dadc20ace49796b58575eb23776746c8c0370888c718",
+      "text": "Die Startanimation ein- oder ausschalten.\n\n:param on: ob das Foto-Mosaik beim Start weggeblasen wird.",
+      "translation_source_blocks_sha256": [
+        "0280dbc13056cf3d2d7f2f29072a843659f9b8e6de9d45c963c71c6dc69ce102",
+        "31e18835346243e982348f2097f36e60f4ef8219b3c073dd24ba3e349b6dcc0b"
+      ]
+    },
+    "spacr.qt.preferences.set_strong_focus": {
+      "source_blocks_sha256": [
+        "879b384771f08044251e4313b1f801ea251dd327569afc63afb592c123a3dcbc",
+        "92fb1f9b5c37c586121eba47ff500ee5996a67fb95d9b6be6ddf4d07ca00fe87",
+        "e102942987b756eb40f825e1192a2ca75d308f1521af85dc03b5d349543c3cbc"
+      ],
+      "source_sha256": "2446a06ddd7b70570d9419384071b6c29f40fffae5d04558dbc26d8ca15369e3",
+      "text": "Den dicken Fokusring ein- oder ausschalten.\n\nDer Ring ist eine Regel von :func:`spacr.qt.theme.stylesheet` (:func:`spacr.qt.theme.focus_ring_qss`); rufen Sie :func:`apply_preferences_to_app` auf, um ihn auf die Fenster zu legen.\n\n:param on: true für den dicken Ring.",
+      "translation_source_blocks_sha256": [
+        "879b384771f08044251e4313b1f801ea251dd327569afc63afb592c123a3dcbc",
+        "92fb1f9b5c37c586121eba47ff500ee5996a67fb95d9b6be6ddf4d07ca00fe87",
+        "e102942987b756eb40f825e1192a2ca75d308f1521af85dc03b5d349543c3cbc"
       ]
     },
     "spacr.qt.preferences.set_theme": {
@@ -96794,6 +97238,24 @@
         "fb5876c773669c2894cc3f04ebdf8843e3c61f48e58b048396b3a5f8d4d990a0"
       ]
     },
+    "spacr.qt.screens.app_screen.default_settings_csv_path": {
+      "source_blocks_sha256": [
+        "fe690a2956aac8acf9bf9b0eeb2a2d92a69332fc553101d217c6ffd03455efaa",
+        "5f90e9d02f9105dfa237f94fe9ab38b0ce28e2330239bea872b282b07d95994e",
+        "2221aae575b1fc7fa2c9d91a748c3e8ce4e6c70af8c00e11e1a46e810d3f3299",
+        "a097aebba093064b67a6f77c644fa48ec682c7196f8612b2ad159f782877888d",
+        "3860ce8374fa2c904ebd5d3de4eadafa2030750e6894a8bbdc944d271e63a01f"
+      ],
+      "source_sha256": "b3e3651572e271f2bf24ee789ac635a7f3f3d4e1a69df3c7062cf8a8c5b8a687",
+      "text": "Der Pfad, den Export settings… anbietet: ``<module>_settings.csv``.\n\nEr liegt im Quellordner, den das Formular nennt, sonst in dem Ordner, aus dem die letzte Einstellungs-CSV importiert oder in den sie exportiert wurde, sonst im Home-Verzeichnis. Der Ordner wird nur benannt, nie aufgelistet oder geprüft, sodass eine langsame oder fehlende Netzfreigabe den Dialog nicht aufhalten kann.\n\n:param module: der Schlüssel des Moduls, etwa ``measure``.\n:param src: der Quellordner des Formulars; bei einer Liste wird der erste Eintrag angeboten.\n:returns: der vorgeschlagene CSV-Pfad.",
+      "translation_source_blocks_sha256": [
+        "fe690a2956aac8acf9bf9b0eeb2a2d92a69332fc553101d217c6ffd03455efaa",
+        "5f90e9d02f9105dfa237f94fe9ab38b0ce28e2330239bea872b282b07d95994e",
+        "2221aae575b1fc7fa2c9d91a748c3e8ce4e6c70af8c00e11e1a46e810d3f3299",
+        "a097aebba093064b67a6f77c644fa48ec682c7196f8612b2ad159f782877888d",
+        "3860ce8374fa2c904ebd5d3de4eadafa2030750e6894a8bbdc944d271e63a01f"
+      ]
+    },
     "spacr.qt.screens.app_screen.dimension_settings": {
       "source_blocks_sha256": [
         "1b27a83ed2953a975a517837d5a1ab51b884e82974a51eeab1a78dc27f07d7ae",
@@ -96814,6 +97276,28 @@
         "e9098e630052d951acce9af167ff6eaa16d2edc19cd56697ad3707fe5e5b54ca",
         "db28c9bdf98648541afc804443bea2f38c91e6514094f8b073a35d697231690f",
         "aec757ded32d42143654711e46408042bc3c01b83567e2f731135dedbe37e8a6"
+      ]
+    },
+    "spacr.qt.screens.app_screen.export_settings_csv": {
+      "source_blocks_sha256": [
+        "04640b88a31ac82d1a26d54cb0ca17a576f2bf8832d0f80a95cb7e32154469a4",
+        "ff72d9a82c520b395ad4bcd825f1fe48db9f93f8b08f1ebfd1f6a9d8c5241435",
+        "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+        "62cd4ceab9383e49e8a9a662b55ed0dd21c6e43553d58cd0e49c11a72dc4baab",
+        "4e3e8ec5918a5e20924fc36c438de8621c73a2c05ec6277001818eb5d6200400",
+        "d3b78b97ad706ebdf0cb2cc235616f67f1da85f540d5fdbfc1e0b32a614c659a",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
+      ],
+      "source_sha256": "9b166ca9ac2419860b6336ec9d1a8ca456dcf5c6d0478c39fea6ea7fc9b17063",
+      "text": "Fragt, wo ``settings`` als Einstellungs-CSV gespeichert werden soll, und schreibt sie dorthin.\n\nDie eine Implementierung hinter jeder Schaltfläche Export settings… und dem Schnappschuss der Distributed Jobs. Die Datei ist das, was :func:`spacr.cli.write_settings_file` schreibt und was Import settings… und ``spacr-run --settings`` beide lesen.\n\n:param parent: das übergeordnete Widget des Dialogs.\n:param settings: die zu schreibenden Einstellungen, genau wie übergeben.\n:param default_path: der Pfad, den der Dialog zuerst anbietet.\n:returns: die geschriebenen CSV- und JSON-Pfade oder eine leere Liste, wenn der Dialog abgebrochen wurde.\n:raises OSError: wenn die Datei nicht geschrieben werden kann.",
+      "translation_source_blocks_sha256": [
+        "04640b88a31ac82d1a26d54cb0ca17a576f2bf8832d0f80a95cb7e32154469a4",
+        "ff72d9a82c520b395ad4bcd825f1fe48db9f93f8b08f1ebfd1f6a9d8c5241435",
+        "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+        "62cd4ceab9383e49e8a9a662b55ed0dd21c6e43553d58cd0e49c11a72dc4baab",
+        "4e3e8ec5918a5e20924fc36c438de8621c73a2c05ec6277001818eb5d6200400",
+        "d3b78b97ad706ebdf0cb2cc235616f67f1da85f540d5fdbfc1e0b32a614c659a",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ]
     },
     "spacr.qt.screens.app_screen.module_maturity": {
@@ -104890,7 +105374,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "b9a74863eb1a30e4ff52741b350f006d80cdace5e11778e3e9a9c9fd1b74af33",
-      "text": "Zeichne die Punkte und das schwebende Thumbnail.\n\n:param event: das Farbereignis Qt.",
+      "text": "Zeichne die Punkte und das schwebende Thumbnail.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
         "d7c1db87124a3837a4883ded69ad4dbecca54bc0e7bd3fb5fa19403a64a9d417",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -105740,18 +106224,18 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
       "source_blocks_sha256": [
-        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
-        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+        "76e53240b31de97857883e47a8db1d3f9e2a8cd97f79b7dfb341e389f801702b",
+        "4a0313fb9023404c9e07485502853439caed64b9ea55fddb491040331c412da7",
         "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
-        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+        "b317cc3382ee51e288ab9dfc410a0a079e356dd809caa6127f3e254b91b2e092"
       ],
-      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
-      "text": "Einen Z-Stack oder ein Volumen im 3D-Maskeneditor öffnen.\n\nMasken werden Schnitt für Schnitt auf XY-, XZ- oder YZ-Schnitten gezeichnet und gelöscht, zwischen gezeichneten Schnitten interpoliert, 3D-Objekten zugewiesen und mit den gemeinsamen Ankern bearbeitet. TIFF-Stapel, OME-TIFF und MRC-Volumen lassen sich öffnen; Zeit-/Kanal-/RGB-TIFFs werden abgelehnt, statt als Tiefe gedeutet zu werden. Das vorhandene 2D-Bild, die Maskenwerkzeuge und die YOLO-Annotationen bleiben getrennt.\n\n:param path: optionaler Volumenpfad; andernfalls wird ein Dateiauswahldialog geöffnet.\n:returns: der native Volumendialog oder None bei Abbruch/Ablehnung.",
+      "source_sha256": "dd4fd1c0adac15b7e1ea3dcc6677d33f0ae62992666d4d5f9ba98c8becc90005",
+      "text": "Einen Z-Stapel oder ein Volumen in der Ansicht Mask öffnen, in der 2-D-Felder geöffnet werden.\n\nEin Schieberegler links geht durch die Schnitte; jedes 2-D-Werkzeug zeichnet auf den angezeigten Schnitt. Die Liste Ansicht neben dem Reiter Mask fügt die Seitenansichten XZ und YZ hinzu (Orthogonal) oder zeigt das Volumen und seine Objekte in 3D, wo sie mit Ankerpunkten gezeichnet und umgeformt werden (True 3D). TIFF-Stapel, OME-TIFF und MRC-Volumen lassen sich öffnen; Zeit-, Kanal- und RGB-TIFFs werden abgelehnt, statt als Tiefe gedeutet zu werden.\n\n:param path: optionaler Volumenpfad; andernfalls wird ein Dateiauswahldialog geöffnet.\n:returns: die Volumenstufe der Mask-Ansicht oder None bei Abbruch oder Ablehnung.",
       "translation_source_blocks_sha256": [
-        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
-        "dd8337393063df88b68ff4b8a82ee7b42999a0c8cd3149406613f7a647baf363",
+        "dfc44a44bdf114c4cd7503ab70e076657067f908717a0728e2c0636b1bc7ff86",
+        "c818c4a4abd62bdc4c78695844fb925813827c1e7ab2dd089362b914320ed0f9",
         "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
-        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+        "b317cc3382ee51e288ab9dfc410a0a079e356dd809caa6127f3e254b91b2e092"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
@@ -110374,7 +110858,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "54c592e4a807aabfa9695ee690e1bd125776446f8cb3814dabaa82ea336c64d7",
-      "text": "Zeichne die Labor-Mikroplatte: eine Zelle pro Mikroplatte Probeposition, gefärbt durch ihren Wert.\n\n:param event: das Farbereignis Qt.",
+      "text": "Zeichne die Labor-Mikroplatte: eine Zelle pro Mikroplatte Probeposition, gefärbt durch ihren Wert.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
         "978f252987eef99db6452fb5197cfdbf12bfd6cfee993f70af6a7bb8ae0124f7",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -110884,7 +111368,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "bb017604b602acd47517ab66a72735b9db5c5c6cf6158801de16fe608d586929",
-      "text": "Zeichnen Sie die statistische Erkennungsempfindlichkeitskurve.\n\n:param event: das Farbereignis Qt.",
+      "text": "Zeichnen Sie die statistische Erkennungsempfindlichkeitskurve.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
         "d8de268d3cb47d04d02cad13e0df1f33d3c9855621a97bc710d922d91d7c1b65",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -119338,6 +119822,38 @@
         "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
       ]
     },
+    "spacr.qt.theme.focus_ring_colour": {
+      "source_blocks_sha256": [
+        "e40b2877895df99578064c3f07f461c8d1092652e882a378b3e4bbf6fec775ab",
+        "e7d4e9e4d135e1c9ff9e7093ca381bf1656c11cbcc7dbcc21416e5889166dfb8",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "0a7bf58bcd2bae87ce29bdac0f675b89e540f6e840e465d8e3c9873d6fc05b5e"
+      ],
+      "source_sha256": "e8642ee49143742b251c230a326dc6296563f81d57a7d0c042f192216954ab93",
+      "text": "Die Farbe des dicken Fokusrings für ``theme``.\n\nDie Akzentfarbe des Designs, die auch sein eigener dünner Fokusrand schon verwendet, solange der Akzent :data:`FOCUS_RING_MIN_CONTRAST` gegenüber der Seite und der Feldfläche erreicht; andernfalls die Schriftfarbe des Designs.\n\n:param theme: ein Eintrag aus :data:`THEMES`.\n:returns: eine ``#rrggbb``-Farbe.",
+      "translation_source_blocks_sha256": [
+        "e40b2877895df99578064c3f07f461c8d1092652e882a378b3e4bbf6fec775ab",
+        "e7d4e9e4d135e1c9ff9e7093ca381bf1656c11cbcc7dbcc21416e5889166dfb8",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "0a7bf58bcd2bae87ce29bdac0f675b89e540f6e840e465d8e3c9873d6fc05b5e"
+      ]
+    },
+    "spacr.qt.theme.focus_ring_qss": {
+      "source_blocks_sha256": [
+        "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
+        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
+      ],
+      "source_sha256": "f9736dec835b6f030d2649c6a0321eee80b6ef9feaa4e07fd1ee119906cdf718",
+      "text": "Die Regeln, die einen dicken Ring um das Steuerelement mit Tastaturfokus legen.\n\nPreferences > Darstellung > Barrierefreiheit > Stärkere Fokusrahmen. Ein 1 px breiter Akzentrand ist die einzige Fokusmarkierung, die die Designs zeichnen, und auf einem unruhigen Hintergrund ist er leicht zu übersehen; dieser hier ist :data:`FOCUS_RING_PX` breit in :func:`focus_ring_colour`.\n\n:param theme: ein Eintrag aus :data:`THEMES`.\n:returns: QSS, von :func:`stylesheet` zuletzt angehängt, solange die Einstellung eingeschaltet ist.",
+      "translation_source_blocks_sha256": [
+        "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
+        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
+      ]
+    },
     "spacr.qt.theme.font_px": {
       "source_blocks_sha256": [
         "23e9c1faa3c98b6962d348fa5067b9832494d128cab02c3c5ccd8f8f9edef465",
@@ -120982,14 +121498,32 @@
       "source_blocks_sha256": [
         "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",
         "afa4b72571ecdd2394451f4522970faed5a21aaf0a054b9fb4bf7e98321b30d0",
-        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53"
+        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53",
+        "194565fdca4014dac5e2b08531c895a6fe0c9540aa90ab723dcc1125e43ef905"
       ],
-      "source_sha256": "742c1cfbb9cb41e686ff0f44ebedfd6b634d1cf47853f85e845b4842a822f103",
-      "text": "Welche veröffentlichte Lektion lehrt ein Modul und die URL, die es öffnet.\n\nDie Lektionsbibliothek bei ``<docs>/tutorials/`` deep-links mit ``#lesson=<id>``, so zeigt ein Leser auf die Lektion für das Modul, das sie schweben, ist ein Lookup und eine Zeichenfolge. Die Lookup-Tabelle ist ``spacr/resources/tutorial_index.json``, geschrieben von ``tools/build_tutorial_index.py`` aus dem eigenen Lektionskatalog der docs build -- siehe dort, warum es nicht der Katalog selbst ist.\n\nKein Netzwerkzugriff und keine schweren Importe: Dies wird auf dem Hover-Pfad, von Home und vom Dock gelesen, so dass die Tabelle bei der ersten Verwendung zwischengespeichert wird und ``\"\"`` für alles, was sie nicht lösen kann. Ein Modul ohne Lektion erhält keinen Link, und keine Ausnahme wird in einem Hover Handler angehoben.",
+      "source_sha256": "db5b3e1306984c5e645f06c9d853864556308e26f7d46f4127c84121400fad68",
+      "text": "Welche veröffentlichte Lektion ein Modul lehrt, und die URL, die sie öffnet.\n\nDie Lektionsbibliothek unter ``<docs>/tutorials/`` verlinkt per ``#lesson=<id>`` direkt, sodass es eine Nachschlage- und eine Zeichenkettenoperation ist, die Lesenden zur Lektion für das Modul zu führen, über dem sie schweben. Die Nachschlagetabelle ist ``spacr/resources/tutorial_index.json``, geschrieben von ``tools/build_tutorial_index.py`` aus dem eigenen Lektionskatalog des Docs-Builds -- dort steht, warum es nicht der Katalog selbst ist.\n\nKein Netzwerkzugriff und keine schweren Importe: Dies wird auf dem Hover-Pfad gelesen, von Home und vom Dock, daher wird die Tabelle beim ersten Gebrauch zwischengespeichert und bei allem, was sich nicht auflösen lässt, ``\"\"`` zurückgegeben. Ein Modul ohne Lektion erhält keinen Link, und in einem Hover-Handler wird keine Ausnahme ausgelöst.\n\nDieselbe Tabelle enthält die ganze Lektionsliste, die ``spacr-tutorial`` ausgibt und gegen die es eine Lektionsnummer, einen Slug oder einen Bildschirmnamen auflöst; siehe :func:`lessons` und :func:`find_lesson`.",
       "translation_source_blocks_sha256": [
         "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",
         "afa4b72571ecdd2394451f4522970faed5a21aaf0a054b9fb4bf7e98321b30d0",
-        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53"
+        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53",
+        "194565fdca4014dac5e2b08531c895a6fe0c9540aa90ab723dcc1125e43ef905"
+      ]
+    },
+    "spacr.qt.tutorials.find_lesson": {
+      "source_blocks_sha256": [
+        "3aa5efa51349bc09a7d8f05874ed10dd6c6047e8e53281d83239d889de4ba5a6",
+        "9c6376a0d5f62091a13ef86c9cb4862ef7711a7f76189036feaa2fdd756fe5f1",
+        "6fb7a889244185587ebcf0cacaa1156764a09f0f4b61920ee5a95fc8cfee65d3",
+        "a323095f1702386396c07c3af4f200502f78cef0f609bd8ea36117d1e9a698e6"
+      ],
+      "source_sha256": "03898a0209cb66574cc37cf12e7ed90c2cefffc344c246bab9895035f8cfe50c",
+      "text": "Die Lektion, die ``name`` nennt, oder die ähnlichsten Namen.\n\n``name`` kann eine Lektionsnummer (``7`` oder ``07``), eine Lektions-ID (``07_mask``), der Schlüssel des Bildschirms, den eine Lektion behandelt (``measure``), oder ein Slug (``plaque-assay``) sein. Groß- und Kleinschreibung, Bindestriche und Leerzeichen spielen keine Rolle. Antworten zwei Lektionen auf einen Namen, gewinnt die frühere Art in dieser Aufzählung, und unter Lektionen derselben Art die mit der niedrigsten Nummer.\n\n:param name: was die lesende Person getippt hat.\n:returns: ``(lesson, [])``, wie :func:`lessons` sie liefert, oder ``(None, suggestions)``, wenn nichts passt: bis zu fünf Slugs und Bildschirmnamen, zuerst die ähnlichsten Schreibweisen, dann die, die ``name`` enthalten.",
+      "translation_source_blocks_sha256": [
+        "3aa5efa51349bc09a7d8f05874ed10dd6c6047e8e53281d83239d889de4ba5a6",
+        "9c6376a0d5f62091a13ef86c9cb4862ef7711a7f76189036feaa2fdd756fe5f1",
+        "6fb7a889244185587ebcf0cacaa1156764a09f0f4b61920ee5a95fc8cfee65d3",
+        "a323095f1702386396c07c3af4f200502f78cef0f609bd8ea36117d1e9a698e6"
       ]
     },
     "spacr.qt.tutorials.has_tutorial": {
@@ -121026,6 +121560,34 @@
       "translation_source_blocks_sha256": [
         "a41ce64adc1a5fae6f67cbf7abb03510803cba7245fac5fecf159f987f25d3e8",
         "856449baa5480d2a7928d70223dfe0a88a0699125f7d355e93b9ea3fb0b7d99c"
+      ]
+    },
+    "spacr.qt.tutorials.lesson_url": {
+      "source_blocks_sha256": [
+        "f7dde7fb07731c7d1bf5f8e8fee716d7b71f60ad5a7f66e812ecddde9bc2e301",
+        "d19fd9e9aae240c8f510197badc842745fa020ef3a7c6732b0b067574ae994ec",
+        "0967d3fec8f62e57a8269830ecf05474c72bc4e732b2f4e1f898599baeb87037"
+      ],
+      "source_sha256": "5257fd85954d841530ebb6455f69994eddc93b3e3161742fb00a71b275b9b50c",
+      "text": "Die URL, die eine Lektion der Bibliothek öffnet.\n\n:param lesson: die Lektions-ID, etwa ``07_mask``.\n:returns: die Bibliotheks-URL mit dem Fragment ``#lesson=``, das sie liest.",
+      "translation_source_blocks_sha256": [
+        "f7dde7fb07731c7d1bf5f8e8fee716d7b71f60ad5a7f66e812ecddde9bc2e301",
+        "d19fd9e9aae240c8f510197badc842745fa020ef3a7c6732b0b067574ae994ec",
+        "0967d3fec8f62e57a8269830ecf05474c72bc4e732b2f4e1f898599baeb87037"
+      ]
+    },
+    "spacr.qt.tutorials.lessons": {
+      "source_blocks_sha256": [
+        "8a731457e881988c7b735aea903e3ca7d859faa7cabd8f8c45d0ed059198cfc4",
+        "c570a7c59da920182fc47b5224edd8aaf18d226082354644b2e539f08c9dc087",
+        "e2d3eff8dc794d47f7cbe81eec4255d56caf6b726c16cd6f6eb088f63d897b95"
+      ],
+      "source_sha256": "808be786b3f63f8478b760240b4862631ef0ddd018fd39d09c43c14a1d98258d",
+      "text": "Jede Lektion der Bibliothek in der Reihenfolge der Lektionsnummern.\n\nEinmal aus der mitgelieferten Tabelle gelesen und zwischengespeichert; eine nicht lesbare Tabelle ergibt eine leere Liste, so wie die Modul-Nachschlagungen ``\"\"`` ergeben.\n\n:returns: ein Dict pro Lektion mit ``number`` (int), ``lesson`` (ihre ID, etwa ``07_mask``), ``slug``, ``title`` und ``app_key`` (der Bildschirm, den sie behandelt, ``\"\"`` für eine Lektion über keinen einzelnen Bildschirm).",
+      "translation_source_blocks_sha256": [
+        "8a731457e881988c7b735aea903e3ca7d859faa7cabd8f8c45d0ed059198cfc4",
+        "c570a7c59da920182fc47b5224edd8aaf18d226082354644b2e539f08c9dc087",
+        "33a5a71eb6387f28d314813db1c4fd1943f103a8b3b8a7d63d6eec10d2b8a1e6"
       ]
     },
     "spacr.qt.tutorials.tutorial_url": {
@@ -132232,7 +132794,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "220a82364b38a13b51e092dfed5607c6a008c8ba0496eb5d9fe7644d66096506",
-      "text": "Zeichne den aktuellen Rahmen.\n\n:param event: das Farbereignis Qt.",
+      "text": "Zeichne den aktuellen Rahmen.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
         "194033ae6482c2a0de7d0e7cdcc9da7a4ea6326f3ed583b9ba7d11dee008310b",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -142403,7 +142965,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "0710df7f403cb5357c20a1a67e2adef7afa3df16a3285a504f523da0e3227a92",
-      "text": "Zeichne die Ikone des gefalteten Moduls und seine Reife als Felgenfarbe.\n\nDie Farbe trägt Informationen, also wird sie eher gezeichnet als einem Stylesheet überlassen: Alpha- und Beta-Module sind markiert, und ein Leser, der die Farbtöne nicht unterscheiden kann, bekommt immer noch den Tooltip.\n\n:param event: das Farbereignis Qt.",
+      "text": "Zeichne die Ikone des gefalteten Moduls und seine Reife als Felgenfarbe.\n\nDie Farbe trägt Informationen, also wird sie eher gezeichnet als einem Stylesheet überlassen: Alpha- und Beta-Module sind markiert, und ein Leser, der die Farbtöne nicht unterscheiden kann, bekommt immer noch den Tooltip.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
         "50e972271dea387c5fba81151e0a4585ac58f85597d60adb36a8ef8e5fe02857",
         "33df2767f5b4c7dc50824bff9cb8aaf8994abe9400c2ca9d811bec9df095cdfd",
@@ -155726,9 +156288,86 @@
         "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
       ]
     },
+    "spacr.qt.widgets.loading_screen.BlowAway": {
+      "source_blocks_sha256": [
+        "87df8aa6a9199c7e0b60c0f2b7e94ef39b70151f339a55ffc3aa51ecceff7a3e",
+        "5996ceac6f9ef17944a0da9485b4dd1dedea8c9a131fed0c91b37a52f2652483",
+        "20e14e029b03c7e11ff57aaa8731cdf4f57c59a2789aa48da7f6c59faa875407",
+        "694113f5af6cf07ba62112223e066c0938b40a67062e765ff6cc5a467722486c",
+        "edfb90e1f2228b13070d7665d21681551a78ad5ca1bc3a74595298b47d3f3cfa",
+        "501e1f909e5270fa51c64e6b3620b1e9c7515a9445a626c0f64ef71939fbcce3",
+        "9e254181e413ee820b6af962d3f46d59a119aded363936e4f91865c5992cbcd0",
+        "2b3d68dd20c2c3440766c280753840e2b26434e4f8c52ab383ebcefeb97da69c",
+        "56117aac5ebe0055f82cf0281cdc86ac6e6feaf0938fdd65e752ff7c3c118565",
+        "dcda49772c3163a8f3127ab83551bf40e60c26dc6b3941d80a8934e15e664d71",
+        "379c7bb97f00aa031ac2c535729b6846158b3622f0c0c240fe0d12ced87053f7"
+      ],
+      "source_sha256": "190c7c6b0817aa6e89a028b06f849ce3726113c3a3e39de66a85fc8d664fe23c",
+      "text": "Die Bewegung der Kacheln des Foto-Mosaiks, während eine Windfront sie wegbläst.\n\nReine Arithmetik auf Arrays, ohne Qt: Startzeit und Flug jeder Kachel werden einmal aus einem Zufallsgenerator mit Startwert gezogen, und :meth:`frame` wertet den ganzen Schwarm zu einem Zeitpunkt aus, sodass die Bewegung nur von der verstrichenen Zeit abhängt und nie davon, wie viele Bilder gezeichnet wurden.\n\nDie Front zieht entlang ``wind`` über das Mosaik. Erreicht sie eine Kachel, hebt sich die Kachel dem Betrachter entgegen, dreht sich wie eine Karte um (eine Achse skaliert mit dem Kosinus ihres Drehwinkels, mit einer Scherung und etwas Verkürzung für die Perspektive), rotiert und fliegt mit zufälliger Turbulenz und leichter Schwerkraft windabwärts, während sie verblasst. Hintergrundkacheln fliegen nicht; sie verschwinden mit der Front.\n\n:param occupied: ``grid x grid`` Wahrheitswerte; ``True``-Kacheln fliegen.\n:param origin: die linke obere Ecke des Mosaiks in Widget-Koordinaten.\n:param side: die Seitenlänge des Mosaiks in denselben Einheiten.\n:param seed: Startwert der Zufallszahlen.\n:param wind: Richtung, in die der Wind weht, ``(x, y)``; nach unten auf dem Bildschirm ist ``+y``.\n:param start: Sekunden, bis die Front die erste Kachel erreicht.\n:param sweep: Sekunden, die die Front braucht, um das Mosaik zu überqueren.\nStart und Flug jeder Kachel zeichnen; siehe den Klassen-Docstring.",
+      "translation_source_blocks_sha256": [
+        "87df8aa6a9199c7e0b60c0f2b7e94ef39b70151f339a55ffc3aa51ecceff7a3e",
+        "5996ceac6f9ef17944a0da9485b4dd1dedea8c9a131fed0c91b37a52f2652483",
+        "20e14e029b03c7e11ff57aaa8731cdf4f57c59a2789aa48da7f6c59faa875407",
+        "694113f5af6cf07ba62112223e066c0938b40a67062e765ff6cc5a467722486c",
+        "b98454ca7b2a02daf7fecb6ff243f683f7eb697431c1f21b6f672b61fed5faf2",
+        "097f867643420fb4fbb4f9ad37058a77fa73a705fae2235f5438380f92873509",
+        "9e254181e413ee820b6af962d3f46d59a119aded363936e4f91865c5992cbcd0",
+        "2b3d68dd20c2c3440766c280753840e2b26434e4f8c52ab383ebcefeb97da69c",
+        "56117aac5ebe0055f82cf0281cdc86ac6e6feaf0938fdd65e752ff7c3c118565",
+        "5e782f6e2e1cf4e6799a8d3862b5cc343005ff1c85d57d2a148c0c5c310e5675",
+        "379c7bb97f00aa031ac2c535729b6846158b3622f0c0c240fe0d12ced87053f7"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.BlowAway.backdrop": {
+      "source_blocks_sha256": [
+        "4cd12e167f488c28f6882d8928fca4e531959a69622ac3ec11e00abd64812db4",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "27a68c541c6717d4df3473424a96aaaac12d97ecf69f5b4311964e79187d3c70"
+      ],
+      "source_sha256": "ff513918ecc9a0d568362df29272b6b6534b451c6135f31a4fec1380be6d2748",
+      "text": "Wie deckend der Grund der Abdeckung hinter und vor der Front ist.\n\n:param t: Sekunden seit Beginn des Wegblasens.\n:returns: ``(front, behind, ahead)``: die Position der Front entlang des Windes als Anteil des Mosaiks (0 an seinem Luvrand, 1 am Leerand) und die Deckkraft des Grundes, 0..1, auf beiden Seiten.",
+      "translation_source_blocks_sha256": [
+        "4cd12e167f488c28f6882d8928fca4e531959a69622ac3ec11e00abd64812db4",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "1c3423091e47184009d3ab0f68ee9a2875d1206e7b72fab0eceeee08c20f2d72"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.BlowAway.frame": {
+      "source_blocks_sha256": [
+        "efc9f936f28056f46f86ece7a27eaf679a4239f3328c31e5be441c5d00a9303c",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "45e5eadac619e27e448b3d7dc8d549885fcfd471154751ad0462bb5fe6845945",
+        "430475f7a74d3c17ca4b2af41acca330da8a6ef9f084da9415d2018345d7f9c8",
+        "bbcfe5c115c216321164e195e4d5e6e91e37baa748a6b1e83d83617f69210d62"
+      ],
+      "source_sha256": "748edc75c3f98c00fbaf9a74d1dfd7e17850f4b021bd757fc194f8a2f32f74fe",
+      "text": "Wo sich jede fliegende Kachel zum Zeitpunkt ``t`` befindet.\n\n:param t: Sekunden seit Beginn des Wegblasens.\n:param bounds: ``(x0, y0, x1, y1)``; Kacheln, deren Mittelpunkt es um mehr als zwei Rastermaße verlassen hat, werden verworfen. ``None`` behält alle.\n:param floor: Kacheln, die schwächer sind als dies, werden verworfen.\n:returns: ``(index, m11, m12, m21, m22, dx, dy, opacity)``: Indizes der fliegenden Kacheln und für jede die affine Matrix, die eine um den Ursprung zentriert gezeichnete Kachel platziert, sowie ihre Deckkraft.",
+      "translation_source_blocks_sha256": [
+        "efc9f936f28056f46f86ece7a27eaf679a4239f3328c31e5be441c5d00a9303c",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "45e5eadac619e27e448b3d7dc8d549885fcfd471154751ad0462bb5fe6845945",
+        "430475f7a74d3c17ca4b2af41acca330da8a6ef9f084da9415d2018345d7f9c8",
+        "bbcfe5c115c216321164e195e4d5e6e91e37baa748a6b1e83d83617f69210d62"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.BlowAway.launched": {
+      "source_blocks_sha256": [
+        "20489f4b13634ca8b58bba7d42f7bfb02d3417b5f5c58f1c0c9ec37835121bbb",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "6592cae316087969f8abfd795d851a5d47303933a15282d9ac41a6489c378d5d"
+      ],
+      "source_sha256": "b454a81c709122f74999ad947c31e1ffe978627cadd8152fff43d526073a3f5e",
+      "text": "Indizes jeder Kachel, ob fliegend oder nicht, die die Front erreicht hat.\n\n:param t: Sekunden seit Beginn des Wegblasens.\n:returns: zeilenweise Kachelindizes.",
+      "translation_source_blocks_sha256": [
+        "20489f4b13634ca8b58bba7d42f7bfb02d3417b5f5c58f1c0c9ec37835121bbb",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "6592cae316087969f8abfd795d851a5d47303933a15282d9ac41a6489c378d5d"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.LoadingScreen": {
       "source_blocks_sha256": [
         "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+        "9d0d992e12b6e5e79e85c2827c3390f0eb05da130f8bf3bc38b208ebff8ebc91",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
         "79a32a90fbb1078f7a69a7402e50b25d76dfd4a31922faf40102561791b6fcb7",
@@ -155736,10 +156375,11 @@
         "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
         "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
       ],
-      "source_sha256": "69005d582b0bc65cab72695c80e6a368943aee0cc0b0bc66ecb6a7b8edc8257e",
-      "text": "Volle Fensterabdeckung angezeigt, bis die Workflow-Module importiert werden.\n\n:param total: wie viele Schritte gemeldet werden. Null oder negativ bedeutet \"unknown\", und die Phasen bleiben trüb, anstatt sich durch sie zu teilen.\n:param parent: das Fenster, das dies füllt. Es ist auf den Eltern dimensioniert und ändert die Größe mit ihm, anstatt ein separates Top-Level zu sein - ein zweites Fenster würde seinen eigenen Taskleiste Eintrag verdienen und könnte von dem Ding, das es abdecken soll, weggeschleppt werden.\nBauen Sie den Spritzer, der das Fenster bedeckt, während es zusammengebaut wird.\n\nOpaque by construction: Es deckt ein teilgebautes Fenster ab, und jede Transparenz würde zeigen, was es zu verbergen gibt.\n\n:param total: wie viele Schritte der Fortschrittsbalken zählt; ``0`` zeigt keinen Anteil.\n:param parent: das zu deckende Fenster; seine Geometrie wird übernommen.",
+      "source_sha256": "1d965b9967f591349b138e79a49421d86f7d7527cd5563369b7913d264bc2172",
+      "text": "Vollfenster-Abdeckung, die angezeigt wird, bis die Pipeline-Module importiert sind.\n\nStandardmäßig zeigt sie die weiße Marke neben der Zeile mit dem Leitspruch. Sobald :meth:`show_mosaic` aufgerufen wird, zeigt sie stattdessen das spaCR Foto-Mosaik über dem Leitspruch, und :meth:`blow_away` beendet sie, indem die Kacheln des Mosaiks vom Fenster geblasen werden und das darunterliegende Fenster freigeben.\n\n:param total: wie viele Schritte gemeldet werden. Null oder negativ bedeutet \"unknown\", und die Phasen bleiben gedimmt, statt dadurch zu teilen.\n:param parent: das Fenster, das sie ausfüllt. Sie hat die Größe des Elternfensters und ändert sich mit ihm, statt ein eigenes Top-Level-Fenster zu sein -- ein zweites Fenster bekäme einen eigenen Eintrag in der Taskleiste und ließe sich von dem wegziehen, was es abdecken soll.\nDie Startabdeckung aufbauen, die das Fenster verdeckt, während es zusammengesetzt wird.\n\nVon Konstruktion an deckend: Sie verdeckt ein halb gebautes Fenster, und jede Transparenz würde zeigen, was sie verbergen soll.\n\n:param total: bis zu wie vielen Schritten der Fortschrittsbalken zählt; ``0`` zeigt keinen Anteil.\n:param parent: das zu verdeckende Fenster; seine Geometrie wird übernommen.",
       "translation_source_blocks_sha256": [
         "29b9e3edb2706230d69db8eeb56c8f1fa1d9caf170992e142d3c1dd6c2c59218",
+        "d4ff49473441a5a3c33659ad0a6791ccd540d74c21b916a9f8095e96aa609b73",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
         "79a32a90fbb1078f7a69a7402e50b25d76dfd4a31922faf40102561791b6fcb7",
@@ -155758,6 +156398,34 @@
         "7cc7178e711884e303aa3b66dcd91c8e0b9761195f0228c8911455aa5d9cefcb"
       ]
     },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away": {
+      "source_blocks_sha256": [
+        "903498dd3cdf7fb3c626e6a8a5d3b153a31328727171a8aeb633758feb59b553",
+        "d50552237cc81b8dc8c5a374666f4da237036bc659a258964bf14929865dd7ea",
+        "916fdd1de872f030cd3a28082a14e730768f44c38ac08e8d442d36832643fdd4",
+        "7750ec9708425d1b5f32973d22ce6be9c59cf00b214fb745e3e37de65dae5ed8",
+        "dd3d1f3709e1b67c4e617ff070b83694f8596fc1527fabeb1f7a93e3e2446995"
+      ],
+      "source_sha256": "cb685442d95ef15fa039d142d4c7d7023ac81ae23b55cb75f47973a5a5b34a50",
+      "text": "Die Abdeckung beenden, indem die Kacheln des Mosaiks vom Fenster geblasen werden.\n\nBeginnt frühestens 0.6 s, nachdem die Abdeckung zum ersten Mal gezeichnet wurde. Die Abdeckung löscht sich selbst, wenn die letzte Kachel weg ist.\n\n:param on_finished: wird einmal aufgerufen, wenn die Abdeckung verschwunden ist.\n:param force: auch abspielen, wo :func:`startup_animation_allowed` nein sagt; für Tests und Vorschauen.\n:returns: ``True``, wenn das Wegblasen abgespielt wird und die Abdeckung sich selbst abbaut; ``False``, wenn nicht -- kein Mosaik, die Animation ist aus oder ein Klick hat schon um Überspringen gebeten -- und der Aufrufer die Abdeckung wie bisher abbaut.",
+      "translation_source_blocks_sha256": [
+        "723d4e7f016d1f9303b4dc46ccba6a1f13422d8501d88b1e5ce0aea0807468b0",
+        "d50552237cc81b8dc8c5a374666f4da237036bc659a258964bf14929865dd7ea",
+        "916fdd1de872f030cd3a28082a14e730768f44c38ac08e8d442d36832643fdd4",
+        "7750ec9708425d1b5f32973d22ce6be9c59cf00b214fb745e3e37de65dae5ed8",
+        "2281f46e9580cfaf8c1490703636d68500f9f08a6bccd077c405af186c07631b"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.elapsed": {
+      "source_blocks_sha256": [
+        "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17"
+      ],
+      "source_sha256": "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17",
+      "text": "Sekunden seit Beginn des Wegblasens; ``0.0`` davor.",
+      "translation_source_blocks_sha256": [
+        "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.LoadingScreen.fraction": {
       "source_blocks_sha256": [
         "07378f5d9d6edc2e19122a95e82cd04b5dc3ed0b72ddbde401e0f4cb8b554bf6"
@@ -155766,6 +156434,30 @@
       "text": "Abgeschlossene Aktie, 0.0 bis 1.0. Null, wenn die Summe unbekannt ist.",
       "translation_source_blocks_sha256": [
         "07378f5d9d6edc2e19122a95e82cd04b5dc3ed0b72ddbde401e0f4cb8b554bf6"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats": {
+      "source_blocks_sha256": [
+        "c762d6e2ec3c5618c2419b4dd931e7c5d31edec45e668eee71b926ab174a01b6",
+        "4961353d2c74a0a052bcc98ac559eb5b3993c093bca2cb7481a9b13975a9e75f"
+      ],
+      "source_sha256": "cc69808fed0ece9ad875c409a5e503482e9490562567ad7e51c36816094311bb",
+      "text": "Was das Zeichnen des Wegblasens gekostet hat, zum Messen.\n\n:returns: ``frames``, die mittlere und die langsamste Zeichenzeit eines Bildes in Millisekunden und die meisten Kacheln, die in einem Bild gezeichnet wurden.",
+      "translation_source_blocks_sha256": [
+        "c762d6e2ec3c5618c2419b4dd931e7c5d31edec45e668eee71b926ab174a01b6",
+        "4961353d2c74a0a052bcc98ac559eb5b3993c093bca2cb7481a9b13975a9e75f"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.keyPressEvent": {
+      "source_blocks_sha256": [
+        "45254445acb7ebb941c5dcecc16e49bd17636e711a1434938acf2cf0f1f321fa",
+        "237b44bdbdcf26986658f8774c0ba49fd39c09856b8ca5f5012039e4ec5659f5"
+      ],
+      "source_sha256": "eb2a1ef09a6cc44153c89e0c76460fdd0bada13dcb8101d9bf825e5dec13c8e1",
+      "text": "Eine Taste überspringt das Wegblasen, solange es läuft.\n\n:param event: das Qt-Tastenereignis; akzeptiert, sodass die Taste nicht weitergereicht wird.",
+      "translation_source_blocks_sha256": [
+        "45254445acb7ebb941c5dcecc16e49bd17636e711a1434938acf2cf0f1f321fa",
+        "237b44bdbdcf26986658f8774c0ba49fd39c09856b8ca5f5012039e4ec5659f5"
       ]
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen.lit_phases": {
@@ -155780,16 +156472,48 @@
         "11f62417bd587b520a0248d6aa77860e5a899c237eccbe054dcbe74b22c29d70"
       ]
     },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.mosaic_shown": {
+      "source_blocks_sha256": [
+        "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637"
+      ],
+      "source_sha256": "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637",
+      "text": "Ob die Abdeckung das Foto-Mosaik zeigt.",
+      "translation_source_blocks_sha256": [
+        "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.mousePressEvent": {
+      "source_blocks_sha256": [
+        "dc8a526c53d020fac69efe0b3c724b1bbb4aa0c9551ed1abdbc164cd98649a48",
+        "bc37429b28868add62764ae4c85ebecc580f4ceef5c2580d30e02d5ea8c96c47"
+      ],
+      "source_sha256": "3f8db9a75b3ad8ff00f6ead3be59a14c0e2276d8089a5af71005a7a7151e5b3d",
+      "text": "Ein Klick auf die Abdeckung bittet darum, das Wegblasen zu überspringen.\n\n:param event: das Qt-Mausereignis; akzeptiert, sodass der Klick nicht über die Abdeckung hinausgeht.",
+      "translation_source_blocks_sha256": [
+        "dc8a526c53d020fac69efe0b3c724b1bbb4aa0c9551ed1abdbc164cd98649a48",
+        "bc37429b28868add62764ae4c85ebecc580f4ceef5c2580d30e02d5ea8c96c47"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.LoadingScreen.paintEvent": {
       "source_blocks_sha256": [
-        "b30fdd4132f494c60cfd5ef1c87a4e27c480a1651c81bc269b134558dc63d7b1",
+        "6cb79a68f7e02f9058e6dc0866ccd859269ab28bc584c752cb806ddf431f5a9b",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
-      "source_sha256": "219811605a7a8578e78714185cd616585a8e9ec4cb3e86f07c19c31a6b8717c1",
-      "text": "Zeichne den Ladezustand.\n\n:param event: das Farbereignis Qt.",
+      "source_sha256": "831b5fb8bcc63288f0d8089929150b2bed4e72e29ae14d002552f943664b55a3",
+      "text": "Den Ladezustand zeichnen oder ein Bild des Wegblasens.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
-        "b30fdd4132f494c60cfd5ef1c87a4e27c480a1651c81bc269b134558dc63d7b1",
+        "6cb79a68f7e02f9058e6dc0866ccd859269ab28bc584c752cb806ddf431f5a9b",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.playing": {
+      "source_blocks_sha256": [
+        "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0"
+      ],
+      "source_sha256": "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0",
+      "text": "Ob das Wegblasen auf den Start wartet oder läuft.",
+      "translation_source_blocks_sha256": [
+        "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0"
       ]
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen.resizeEvent": {
@@ -155816,6 +156540,106 @@
         "8373f836a20241ead86c353c5ad5b41b9f94c4d44c3deae327dbb404a3d6f29f"
       ]
     },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.show_mosaic": {
+      "source_blocks_sha256": [
+        "7adabce5a499ea162d3661b1baef82e48c51753bf407c4cf57a9fefd077f3bc6",
+        "edf336b1a86e6f784e55397915be9eece6561038123cd9260e85054ccece0a35",
+        "4ff99945b6c40ce8b598c306e6a3c8fd54cbfc14f53b1bd5cfef908f5e3d97cd"
+      ],
+      "source_sha256": "54053e7c96a1ad23a30fdee98aca6bdbf38f39fbfb67c2a7b570ac4d6905ba71",
+      "text": "Das Foto-Mosaik statt der Marke zeigen.\n\n:param mosaic: die anzuzeigende Karte; standardmäßig die mitgelieferte.\n:returns: ob das Mosaik jetzt angezeigt wird. ``False``, wenn seine Dateien fehlen, und die Abdeckung behält die Marke.",
+      "translation_source_blocks_sha256": [
+        "7adabce5a499ea162d3661b1baef82e48c51753bf407c4cf57a9fefd077f3bc6",
+        "edf336b1a86e6f784e55397915be9eece6561038123cd9260e85054ccece0a35",
+        "e9db84b7640d863a2680b382e0edd1ad587c4882b3c369de74d158dde98bc068"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.skip": {
+      "source_blocks_sha256": [
+        "af5b549c9b101208e4eb885eeb8cd446aa404b15e32557bd4daa1d5852af42b8",
+        "0f18b06d9c56c476ed7f507f9757475863c3af60f39ad5784dfc547546af98cf"
+      ],
+      "source_sha256": "807b5e500181c75a8db58648c408754a6b2c941fb3e9614d329d3ab64f922085",
+      "text": "Zum Ende springen: die Abdeckung sofort abbauen oder sobald es erlaubt ist.\n\nVor :meth:`blow_away` wird es vorgemerkt, und die Abdeckung verschwindet dann ohne die Animation, wenn das Laden endet.",
+      "translation_source_blocks_sha256": [
+        "af5b549c9b101208e4eb885eeb8cd446aa404b15e32557bd4daa1d5852af42b8",
+        "0f18b06d9c56c476ed7f507f9757475863c3af60f39ad5784dfc547546af98cf"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.MosaicMap": {
+      "source_blocks_sha256": [
+        "4691bdc9c4b9f17a1c188b0e187a1901e2e70ea4c6001d0cf6396832fb4b0da1",
+        "b02e8dc828b855822fb4e96bb2c8bdf3d3c56074ca7220cd41a6bc1ffddd7dc6",
+        "ea159e48395cb65220720b35be3faab7b6a4af540927d1575b7afef7dd6de32f",
+        "00a30801646f69de6fe6a5003615809643c3fb023767ca7cbd8609947e61587a",
+        "1091d556a1c6413eda3c820ebf50b32d741d5b190887a16cb37dd34d5b1d2a33",
+        "fdd243effc6182bb00167f255dd26966257abf6b5f89a36aa5066d28086796a9"
+      ],
+      "source_sha256": "63f36d5fa9e94b9448f0d7549636c27939d96eef833898884bec61873b92b614",
+      "text": "Das Bild des Start-Foto-Mosaiks und welche seiner Kacheln das Logo enthalten.\n\n:param image_path: das Bild, ``grid * tile_px`` Pixel im Quadrat.\n:param grid: Kacheln pro Seite.\n:param tile_px: Pixel pro Kachel im Bild.\n:param occupied: ``grid x grid`` Wahrheitswerte, zeilenweise; ``True``, wo die Kachel das Bild enthält und fliegt, ``False`` für den gedimmten Hintergrund.\nDie Karte halten; die Parameter stehen im Klassen-Docstring.",
+      "translation_source_blocks_sha256": [
+        "4691bdc9c4b9f17a1c188b0e187a1901e2e70ea4c6001d0cf6396832fb4b0da1",
+        "b02e8dc828b855822fb4e96bb2c8bdf3d3c56074ca7220cd41a6bc1ffddd7dc6",
+        "ea159e48395cb65220720b35be3faab7b6a4af540927d1575b7afef7dd6de32f",
+        "00a30801646f69de6fe6a5003615809643c3fb023767ca7cbd8609947e61587a",
+        "1091d556a1c6413eda3c820ebf50b32d741d5b190887a16cb37dd34d5b1d2a33",
+        "fdd243effc6182bb00167f255dd26966257abf6b5f89a36aa5066d28086796a9"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.MosaicMap.load": {
+      "source_blocks_sha256": [
+        "3405be5aba83d659e83fc81d68783e5fe56dc2168176ece7b76d79e750bcac90",
+        "e42b66b71ffedc2a9da23eb220f23a3c5a1b66c739a15db68fc3043a08e14039",
+        "4cad70e624e2da617a90f35a7444544c1c3a753fa42e47ce78a55faf1b75972d"
+      ],
+      "source_sha256": "b5d1977e9c97f15b8f881647125c90afc840f85756c5f7d9ab477f63e7bc137a",
+      "text": "Die Kachelkarte lesen und prüfen, ob ihr Bild vorhanden ist.\n\n:param directory: wo die Karte und das Bild liegen; standardmäßig das mitgelieferte ``spacr/resources/splash``.\n:returns: die Karte oder ``None``, wenn eine der beiden Dateien fehlt oder die Karte nicht gelesen werden kann -- die Ladeabdeckung behält dann ihr schlichtes Aussehen.",
+      "translation_source_blocks_sha256": [
+        "3405be5aba83d659e83fc81d68783e5fe56dc2168176ece7b76d79e750bcac90",
+        "e42b66b71ffedc2a9da23eb220f23a3c5a1b66c739a15db68fc3043a08e14039",
+        "4cad70e624e2da617a90f35a7444544c1c3a753fa42e47ce78a55faf1b75972d"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.blow_away_running": {
+      "source_blocks_sha256": [
+        "8fad79e73e907936949c5551e2a6a086c629cd77a47f2db12b7edddb736003de",
+        "e4291692ef3e4d863d92ffcb612fb7a31f0a62ec992d0ac52b42d27b5dafa18f",
+        "eb60638264717bb6c4ed04b0738e4703931cb4afec82e4631e37e9f6564bbd83"
+      ],
+      "source_sha256": "af23a423eab62e25dfbfee7551a8f606598f432ccd7f069d32e919557cb2dbb7",
+      "text": "Ob ein Start-Wegblasen auf den Beginn wartet oder läuft.\n\nDas Aufwärmen in Leerlaufzeiten fragt dies ab und wartet, damit seine Scheiben der Animation in den zwei Sekunden, in denen sie läuft, keine Bilder wegnehmen.\n\n:returns: ``True``, solange irgendeine noch existierende Abdeckung abspielt; eine mitten drin mit ihrem Fenster gelöschte zählt nicht mehr.",
+      "translation_source_blocks_sha256": [
+        "8fad79e73e907936949c5551e2a6a086c629cd77a47f2db12b7edddb736003de",
+        "e4291692ef3e4d863d92ffcb612fb7a31f0a62ec992d0ac52b42d27b5dafa18f",
+        "eb60638264717bb6c4ed04b0738e4703931cb4afec82e4631e37e9f6564bbd83"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.mosaic_splash_wanted": {
+      "source_blocks_sha256": [
+        "4f4eb18b479c7099e8a4864a39192d6f759a5d0504cd9b5fd0b4ee319c2f5406",
+        "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
+      ],
+      "source_sha256": "3ab5d607f9fde8940e0ae0f3d923ec2572e6fd98ab108e142b50565d4fda4317",
+      "text": "Ob die Ladeabdeckung das Foto-Mosaik zeigt.\n\n:returns: ``False``, wenn :data:`NO_SPLASH_ENV` gesetzt ist, sonst ``True``.",
+      "translation_source_blocks_sha256": [
+        "4f4eb18b479c7099e8a4864a39192d6f759a5d0504cd9b5fd0b4ee319c2f5406",
+        "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.startup_animation_allowed": {
+      "source_blocks_sha256": [
+        "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
+        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
+      ],
+      "source_sha256": "b35789d2caef389c9ad17926c01fa3bc02ec4ef87a68a45d6fff29b695dee4fb",
+      "text": "Ob das Foto-Mosaik wegblasen darf, wenn das Fenster bereit ist.\n\nNein, wenn :data:`NO_SPLASH_ENV` gesetzt ist, auf der Offscreen-Plattform, solange Barrierefreiheit > Bewegung reduzieren eingeschaltet ist oder wenn Preferences > Animation > Startanimation aus ist. Eine nicht lesbare Einstellung zählt als Nein: Eine ruhige Abdeckung ist immer sicher.\n\n:returns: ``True``, wenn das Wegblasen abgespielt werden soll.",
+      "translation_source_blocks_sha256": [
+        "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
+        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.strap_line": {
       "source_blocks_sha256": [
         "a3abd9ddee7b401c4105748468be6723d87ef7ea7db02fa4338f88b37880aa65"
@@ -155836,6 +156660,20 @@
       "translation_source_blocks_sha256": [
         "869fafb3375824bccdf8648a3358b752c9dd5a72acbbf927623c16be291e09c2",
         "bb290a1692f9b52986d02138b1e713e444cc1e42ad3c5a6281fdb843a47f43a8"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.will_blow_away": {
+      "source_blocks_sha256": [
+        "e79d959cc2c293cb0c13b0f1292b046347ac52bec7c04306bde12465916626af",
+        "6c8659c165fda364d889724cd5937dd29814f52ae20361268274a93aeb9f9b5d",
+        "6fbcb199b4c6a82639532e54656d21bb0cd4b1d23baaa07a1ab265a7d35767d0"
+      ],
+      "source_sha256": "f12de30007a1d4c000dd196e0844a139e59716ad31c24e4551f983d39f365f6e",
+      "text": "Ob ``screen`` mit dem Wegblasen endet, statt zu verschwinden.\n\n:param screen: die Ladeabdeckung des Fensters oder etwas, das sie vertritt.\n:returns: ``True`` für einen :class:`LoadingScreen`, der das Mosaik zeigt, noch nicht um Überspringen gebeten wurde und für den :func:`startup_animation_allowed` ja sagt.",
+      "translation_source_blocks_sha256": [
+        "e79d959cc2c293cb0c13b0f1292b046347ac52bec7c04306bde12465916626af",
+        "6c8659c165fda364d889724cd5937dd29814f52ae20361268274a93aeb9f9b5d",
+        "8d7501f2d5f9e0dade4a2388f4ff8537f29af237068fff5891f4febcfa0f5c5d"
       ]
     },
     "spacr.qt.widgets.make_masks_help": {
@@ -159028,6 +159866,136 @@
         "195fe159b86715f4300ad73c7d255e2fe6d71da753ea5262567ab498c2dd9810",
         "68de095a089b186d9bedc19e98c606f5e6541a12eda2fabcdca113a505533d1e",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer": {
+      "source_blocks_sha256": [
+        "3772cd726848c278c71b0aa5745115a35afbc0745b6e5abfc79c01e2ef8fbe3f",
+        "bd2a015dfe526df7ad5d32b4f18ca950970b064380d449f0bb1656618682e662"
+      ],
+      "source_sha256": "1550409a23fb1965c63c055785bd5eb465fa0f8afb01fd6cf99bad7f62eded49",
+      "text": "Viewer für die dreiseitigen Modellkarten des Model Zoo.\n\nZeigt das Seitenbild einer Karte, auf Fenstergröße skaliert, mit Zurück und Weiter, einem Zähler \"1 / 3\", den Tasten Links und Rechts und einem Link zum Modell auf Hugging Face. Die Bilder werden bei der ersten Ansicht in einem Worker-Thread abgerufen und zwischengespeichert; ohne sie zeigt der Viewer dieselben drei Seiten als Text aus den Kartendaten, die mit spaCR ausgeliefert werden. Ein Klick auf das Bild öffnet es größer in einem Dialog.",
+      "translation_source_blocks_sha256": [
+        "3772cd726848c278c71b0aa5745115a35afbc0745b6e5abfc79c01e2ef8fbe3f",
+        "e28e895653f6d22470596005d37be017c7bf9df21cedf155b657b851ca6151e4"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer": {
+      "source_blocks_sha256": [
+        "60f02d459892608d039e6bb9dccba7e8a594a34d7d191f49fc7f2fac00e4e4ca",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "c39090a0b02c6fe99f216c8a5ffb87c333e35810230d7b36f8dbe944c67c71b3",
+        "f7f0215ce85d01974e54f34c21a5cc0128ce5a0bbe3286a352bcf443d084a145",
+        "bcb7f0c15e66824ac8ad6087ecc76af136d28856f95392049c3683247e03c073"
+      ],
+      "source_sha256": "48639fae83dcb5c68735d84c51e8d73aa08c86037c52210c96667fed7c60a542",
+      "text": "Durch die Karte eines Modells blättern.\n\n:param parent: übergeordnetes Widget.\n:param threaded: die Bilder in einem Worker-Thread abrufen; ``False`` ruft sie inline ab, für Tests.\n:param fetch: Byte-Quelle, die eine URL entgegennimmt und an :func:`spacr.model_cards.fetch_pages` übergeben wird; ``None`` verwendet das Netzwerk.\n:param enlargeable: ein Klick auf das Bild öffnet einen größeren Dialog.",
+      "translation_source_blocks_sha256": [
+        "60f02d459892608d039e6bb9dccba7e8a594a34d7d191f49fc7f2fac00e4e4ca",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "9f35e70b1c83a60a412d62ad8270aeb0bde3caca48c66f03227f9dc05a0850fb",
+        "f7f0215ce85d01974e54f34c21a5cc0128ce5a0bbe3286a352bcf443d084a145",
+        "bcb7f0c15e66824ac8ad6087ecc76af136d28856f95392049c3683247e03c073"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.card": {
+      "source_blocks_sha256": [
+        "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d"
+      ],
+      "source_sha256": "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d",
+      "text": "Die gerade angezeigten Kartendaten oder ``None``.",
+      "translation_source_blocks_sha256": [
+        "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.counter_text": {
+      "source_blocks_sha256": [
+        "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7"
+      ],
+      "source_sha256": "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7",
+      "text": "Der Text \"1 / 3\".",
+      "translation_source_blocks_sha256": [
+        "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.go_to": {
+      "source_blocks_sha256": [
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+      ],
+      "source_sha256": "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
+      "text": "Seite ``page`` (nullbasiert) anzeigen, auf die vorhandenen Seiten begrenzt.",
+      "translation_source_blocks_sha256": [
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.keyPressEvent": {
+      "source_blocks_sha256": [
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+      ],
+      "source_sha256": "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
+      "text": "Links und Rechts blättern die Seite um.",
+      "translation_source_blocks_sha256": [
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.next_page": {
+      "source_blocks_sha256": [
+        "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c"
+      ],
+      "source_sha256": "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c",
+      "text": "Die nächste Seite anzeigen; bleibt auf der letzten.",
+      "translation_source_blocks_sha256": [
+        "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.page": {
+      "source_blocks_sha256": [
+        "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb"
+      ],
+      "source_sha256": "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb",
+      "text": "Die nullbasierte aktuelle Seite.",
+      "translation_source_blocks_sha256": [
+        "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.previous_page": {
+      "source_blocks_sha256": [
+        "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1"
+      ],
+      "source_sha256": "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1",
+      "text": "Die vorherige Seite anzeigen; bleibt auf der ersten.",
+      "translation_source_blocks_sha256": [
+        "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.set_card": {
+      "source_blocks_sha256": [
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+      ],
+      "source_sha256": "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
+      "text": "``card`` ab Seite 1 anzeigen und die Bilder abrufen, wenn sie nicht zwischengespeichert sind.",
+      "translation_source_blocks_sha256": [
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.showing_image": {
+      "source_blocks_sha256": [
+        "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd"
+      ],
+      "source_sha256": "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd",
+      "text": "True, wenn die aktuelle Seite das Bild ist, nicht der Text.",
+      "translation_source_blocks_sha256": [
+        "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.status_text": {
+      "source_blocks_sha256": [
+        "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d"
+      ],
+      "source_sha256": "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d",
+      "text": "Die Zeile unter der Seite.",
+      "translation_source_blocks_sha256": [
+        "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d"
       ]
     },
     "spacr.qt.widgets.model_share": {
@@ -168630,7 +169598,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "5c20bd17d4878fa0b73cabf82b9516fc2858c5b88ac51d66b78ec190fab1e975",
-      "text": "Zeichne das Zeichen des Anbieters.\n\n:param event: das Farbereignis Qt.",
+      "text": "Zeichne das Zeichen des Anbieters.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
         "a67979484e45af1bfc69813fffd6d95850c58a1adacae3c053dd35a532b34f72",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -172032,7 +173000,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "1b966c6f2cb5b7dcf16fa0ea01e483510439f7982f60f7b6b771805b52ed69c5",
-      "text": "Zeichne die Karte und ihren animierten Rand.\n\n:param event: das Farbereignis Qt.",
+      "text": "Zeichne die Karte und ihren animierten Rand.\n\n:param event: das Qt-Zeichenereignis.",
       "translation_source_blocks_sha256": [
         "d792655cf96d17c9b03b7f1e173260fef60935603627c1ddf8be5648266f14b3",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -176801,12 +177769,16 @@
     "spacr.qt.widgets.usage_bar.UsageBar.set_value": {
       "source_blocks_sha256": [
         "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
+        "4963009cf255a2b2d6fac269746a5829fdb84a909225285336434ac937ba1416",
+        "19a61d66c48b97c91d878118af8378d8454c389bd618a2e81b85b71494d0adc5",
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
       ],
-      "source_sha256": "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9",
-      "text": "Den Wert der Leiste setzen, auf 0-100 begrenzt, und bei 75/90 % neu einfärben.\n\n:param pct: Wert in ``0.0``-``100.0``; Werte außerhalb des Bereichs werden begrenzt.",
+      "source_sha256": "3fa39b9fa9c38f10c8f1b06084962fc9ec457e3ad379819d1b112900f171c098",
+      "text": "Den Wert der Leiste setzen, auf 0-100 begrenzt, und bei 75/90 % neu einfärben.\n\nDer neue Wert wird für die nächste Darstellung vorgemerkt, statt sofort gezeichnet zu werden. ``QProgressBar.setValue`` zeichnet synchron neu, sobald die Änderung ein Pixel bewegt, und der Balken ist durchscheinend über dem Feld des Fensters, sodass jeder Aufruf das Feld darunter zeichnete und das Fenster auf der Stelle ausgab: vier synchrone Ausgaben alle zwei Sekunden auf jedem Modulbildschirm, die auf einem komponierten GPU-Desktop jeweils auf die Anzeige warten. Mit angehaltenen Aktualisierungen für den Aufruf wird der Balken stattdessen als schmutzig markiert und mit dem nächsten Feldbild gezeichnet.\n\nDer Balken wird nur neu poliert, wenn die Anzeige in ein anderes Band wechselt. Ein Polieren löst das Anwendungs-Stylesheet für den Balken neu auf, und die Nutzungsabfrage ruft dies alle zwei Sekunden für jeden Balken auf, fast immer mit unveränderter Farbe.\n\n:param pct: Wert in ``0.0``-``100.0``; Werte außerhalb des Bereichs werden begrenzt.",
       "translation_source_blocks_sha256": [
         "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
+        "0f6075122652ab581e85537f9fea311c35c01a2cede4b388cd2c22fd7396d104",
+        "19a61d66c48b97c91d878118af8378d8454c389bd618a2e81b85b71494d0adc5",
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
       ]
     },

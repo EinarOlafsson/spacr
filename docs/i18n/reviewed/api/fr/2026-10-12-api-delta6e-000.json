@@ -1,0 +1,1664 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Sonnet 5.5), no native-speaker signoff",
+  "note": "Reviewed API translations (AI review, same method as delta6c/6d) for the evening batch: accessibility preferences, export settings CSV, startup animation, spacr-tutorial CLI and tutorials module, 3D in the Make Masks container, regression score-file guidance, model cards and the model card viewer, and docstrings changed since b12440063.",
+  "records": [
+    {
+      "label": "spacr.cli.write_settings_file#0",
+      "source": "Write a settings dict to a CSV that the GUI and ``spacr-run`` read back.",
+      "source_sha256": "d4ad906ee8f76b4c869676960c30691129055163b9c898adb8a6341f02d81c33",
+      "context": "Write a settings key-value mapping to a CSV that the GUI and ``spacr-run`` read back.",
+      "translation": "Écrit un dict de paramètres dans un CSV que la GUI et ``spacr-run`` relisent.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.cli.write_settings_file#1",
+      "source": "The inverse of :func:`load_settings_file`, and the file the GUI's \"Export settings…\" button writes. The layout is the one :func:`spacr.utils.save_settings` writes next to every run: a ``Key,Value`` header, one row per setting in the dict's order, ``None`` as an empty cell, booleans as ``True`` / ``False``, and lists, tuples and dicts in Python literal form. The settings are written as given: unlike ``save_settings``, ``test_mode`` and ``plot`` are not turned off, and nothing is listed, scanned or opened except the files written.",
+      "source_sha256": "ead4e18e73bcea9a24a6024c3ffb71a8fad0383e4f74f4ef735c1ffa59206671",
+      "context": "The inverse of :func:`load_settings_file`, and the file the GUI's \"Export settings…\" button writes. The layout is the one :func:`spacr.utils.save_settings` writes next to every processing session: a ``Key,Value`` header, one row per setting in the key-value mapping's order, ``None`` as an empty cell, booleans as ``True`` / ``False``, and lists, tuples and key-value mappings in Python literal form. The settings are written as given: unlike ``save_settings``, ``test_mode`` and ``plot`` are not turned off, and nothing is listed, scanned or opened except the files written.",
+      "translation": "L’inverse de :func:`load_settings_file`, et le fichier qu’écrit le bouton \"Export settings…\" de la GUI. La disposition est celle que :func:`spacr.utils.save_settings` écrit à côté de chaque exécution : un en-tête ``Key,Value``, une ligne par paramètre dans l’ordre du dict, ``None`` comme cellule vide, les booléens sous la forme ``True`` / ``False``, et les listes, tuples et dicts sous forme de littéral Python. Les paramètres sont écrits tels que fournis : contrairement à ``save_settings``, ``test_mode`` et ``plot`` ne sont pas désactivés, et rien n’est listé, parcouru ni ouvert hormis les fichiers écrits.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.cli.write_settings_file#2",
+      "source": "A ``.json`` copy is written beside the CSV, as ``save_settings`` writes one, so the types survive exactly; ``spacr-run --settings`` reads either.",
+      "source_sha256": "8ab64ba1f98d624c8178d6ea086e1baf6c6224481b58b4500fe3fe162c0816a5",
+      "context": "A ``.json`` copy is written beside the CSV, as ``save_settings`` writes one, so the types survive exactly; ``spacr-run --settings`` reads either.",
+      "translation": "Une copie ``.json`` est écrite à côté du CSV, comme ``save_settings`` en écrit une, afin que les types soient conservés exactement ; ``spacr-run --settings`` lit l’un ou l’autre.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.cli.write_settings_file#3",
+      "source": "the settings to write.",
+      "source_sha256": "cf9178f87bb80a6a0d26319f9f7fb6b2e992889b19481c22b9a16dc722606465",
+      "context": "the settings to write.",
+      "translation": "les paramètres à écrire.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.cli.write_settings_file#4",
+      "source": "the CSV to write; ``~`` and ``$VARS`` are expanded and the folder is created.",
+      "source_sha256": "370b66dfaa7bcb2b866779a8bd3a3129f39c18b489dfad769f470a425e61fb18",
+      "context": "the CSV to write; ``~`` and ``$VARS`` are expanded and the folder is created.",
+      "translation": "le CSV à écrire ; ``~`` et ``$VARS`` sont développés et le dossier est créé.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.cli.write_settings_file#5",
+      "source": "the CSV and JSON paths written, in that order.",
+      "source_sha256": "39ebc8ed05d2ae69ed8ae0f64b9ff6d25fe3f2cd8d4a9607da08fd296dfae2cb",
+      "context": "the CSV and JSON paths written, in that order.",
+      "translation": "les chemins du CSV et du JSON écrits, dans cet ordre.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.cli.write_settings_file#6",
+      "source": "Example:",
+      "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+      "context": "Example:",
+      "translation": "Exemple :",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.columns.numeric_headers#0",
+      "source": "``{path: [column, ...]}`` of the numeric columns that can be a response.",
+      "source_sha256": "08a98d515de70f0559aec982b5a7943c79bdd109ef93992c7fc23109007afa96",
+      "context": "``{path: [column, ...]}`` of the numeric columns that can be a response.",
+      "translation": "``{path: [column, ...]}`` des colonnes numériques pouvant servir de réponse.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.columns.numeric_headers#1",
+      "source": "one path, a sequence of them, or None.",
+      "source_sha256": "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+      "context": "one path, a sequence of them, or None.",
+      "translation": "un chemin, une séquence de chemins ou None.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.columns.numeric_headers#2",
+      "source": "how many rows are read to tell a number from a label. The header decides the names and a short sample decides the type, so the cost stays the same for a score file of any size.",
+      "source_sha256": "722e753e8ed3afba3886f88824fb5e32cdf30f34f74ac66870dc78dd9cc3c6c9",
+      "context": "how many rows are read to tell a number from a label. The header decides the names and a short sample decides the type, so the cost stays the same for a score file of any size.",
+      "translation": "combien de lignes sont lues pour distinguer un nombre d’une étiquette. L’en-tête décide des noms et un court échantillon décide du type, de sorte que le coût reste le même pour un fichier de scores de n’importe quelle taille.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.columns.numeric_headers#3",
+      "source": "a dict in the order given. Identifier columns (:data:`RESPONSE_EXCLUDED`) are left out; an unreadable file is absent.",
+      "source_sha256": "89f60c00ead8478c285235bda42277a20100c27a51f839d635b14dfe94480bbc",
+      "context": "a key-value mapping in the order given. Identifier columns (:data:`RESPONSE_EXCLUDED`) are left out; an unreadable file is absent.",
+      "translation": "un dict dans l’ordre donné. Les colonnes d’identifiants (:data:`RESPONSE_EXCLUDED`) sont omises ; un fichier illisible est absent.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.columns.pred_guidance#0",
+      "source": "The sentence that says where a ``pred`` column comes from.",
+      "source_sha256": "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef",
+      "context": "The sentence that says where a ``pred`` column comes from.",
+      "translation": "La phrase qui dit d’où vient une colonne ``pred``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.columns.pred_missing#0",
+      "source": "The readable files among ``paths`` that have no ``pred`` column.",
+      "source_sha256": "ecb8ae620f4efc95d24ea72009c622c7c42463aa89d3e977449588dc428cb83c",
+      "context": "The readable files among ``paths`` that have no ``pred`` column.",
+      "translation": "Les fichiers lisibles parmi ``paths`` qui n’ont pas de colonne ``pred``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.columns.pred_missing#1",
+      "source": "one path, a sequence of them, or None.",
+      "source_sha256": "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+      "context": "one path, a sequence of them, or None.",
+      "translation": "un chemin, une séquence de chemins ou None.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards#0",
+      "source": "The 3-page model cards of the Model Zoo: data, repository mapping, images.",
+      "source_sha256": "171c1c38c652fe6fb87e2a0b8bf9875986d035cbf90594fb59bfae2479654863",
+      "context": "The 3-page model cards of the Model Zoo: data, repository mapping, images.",
+      "translation": "Les fiches de modèle de 3 pages du Model Zoo : données, correspondance avec le dépôt, images.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards#1",
+      "source": "Each published segmentation model has three card pages on Hugging Face (``cards/page1.png`` to ``page3.png``): its scores against the stock base, its training facts, and an about-and-links page. The same data ships with spaCR as ``resources/model_cards/<repo>.json``, so a card can be shown as text when the images cannot be fetched.",
+      "source_sha256": "5ac049613eab9e18ab4708132f31d94dd45549506dc9ee4b6f42b5440780a31d",
+      "context": "Each published segmentation model has three card pages on Hugging Face (``cards/page1.png`` to ``page3.png``): its scores against the stock base, its training facts, and an about-and-links page. The same data ships with spaCR as ``resources/model_cards/<repo>.json``, so a card can be shown as text when the images cannot be fetched.",
+      "translation": "Chaque modèle de segmentation publié a trois pages de fiche sur Hugging Face (``cards/page1.png`` à ``page3.png``) : ses scores face au modèle de base d’origine, ses données d’entraînement, et une page de présentation et de liens. Les mêmes données sont livrées avec spaCR sous la forme ``resources/model_cards/<repo>.json``, de sorte qu’une fiche peut être affichée en texte lorsque les images ne peuvent pas être récupérées.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards#2",
+      "source": "Nothing here imports Qt; the viewer lives in :mod:`spacr.qt.widgets.model_card_viewer`.",
+      "source_sha256": "9e9b9d3e15ab1409b94c2601e397cbf19d196ca28574deacb17e6647a343f03b",
+      "context": "Nothing here imports Qt; the viewer lives in :mod:`spacr.qt.widgets.model_card_viewer`.",
+      "translation": "Rien ici n’importe Qt ; la visionneuse se trouve dans :mod:`spacr.qt.widgets.model_card_viewer`.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.about_lines#0",
+      "source": "Page 3 as plain sentences, without the empty fields.",
+      "source_sha256": "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
+      "context": "Page 3 as plain sentences, without the empty fields.",
+      "translation": "La page 3 sous forme de phrases simples, sans les champs vides.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.cache_dir#0",
+      "source": "Where the page images of ``repo`` are cached, under the spaCR home.",
+      "source_sha256": "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
+      "context": "Where the page images of ``repo`` are cached, under the spaCR home.",
+      "translation": "L’endroit où les images de page de ``repo`` sont mises en cache, sous le dossier personnel de spaCR.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.cached_pages#0",
+      "source": "The cached image of each page, ``None`` where it is not cached.",
+      "source_sha256": "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
+      "context": "The cached image of each page, ``None`` where it is not cached.",
+      "translation": "L’image en cache de chaque page, ``None`` là où elle n’est pas en cache.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.card_for_entry#0",
+      "source": "The card data of a :class:`~spacr.model_zoo.ModelEntry`, or ``None``.",
+      "source_sha256": "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
+      "context": "The card data of a :class:`~spacr.model_zoo.ModelEntry`, or ``None``.",
+      "translation": "Les données de fiche d’un :class:`~spacr.model_zoo.ModelEntry`, ou ``None``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.card_for_entry#1",
+      "source": "Matched on the zoo key, then on the repository the entry is fetched from.",
+      "source_sha256": "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87",
+      "context": "Matched on the zoo key, then on the repository the entry is fetched from.",
+      "translation": "Recherché d’abord par la clé du zoo, puis par le dépôt d’où l’entrée est récupérée.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.card_keys#0",
+      "source": "The zoo keys that have a 3-page card.",
+      "source_sha256": "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b",
+      "context": "The zoo keys that have a 3-page card.",
+      "translation": "Les clés du zoo qui ont une fiche de 3 pages.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.clear_cache#0",
+      "source": "Remove the cached images of ``repo``.",
+      "source_sha256": "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
+      "context": "Remove the cached images of ``repo``.",
+      "translation": "Supprimer les images en cache de ``repo``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.fact_rows#0",
+      "source": "Page 2 as ``(fact, value)`` pairs.",
+      "source_sha256": "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
+      "context": "Page 2 as ``(fact, value)`` pairs.",
+      "translation": "La page 2 sous forme de paires ``(fact, value)``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.fetch_pages#0",
+      "source": "Download the missing page images of ``repo`` into the cache.",
+      "source_sha256": "d32927fe27961a9f8838b53c414466e2dbd81a48be1ca4a84e2b959d1196d1d3",
+      "context": "Download the missing page images of ``repo`` into the cache.",
+      "translation": "Télécharger dans le cache les images de page manquantes de ``repo``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.fetch_pages#1",
+      "source": "``owner/repo``.",
+      "source_sha256": "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+      "context": "``owner/repo``.",
+      "translation": "``owner/repo``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.fetch_pages#2",
+      "source": "byte source taking a URL; defaults to ``urlopen``.",
+      "source_sha256": "b51767176968e553bb42e3ed8d545f1c5c7ec0a2ae0ef6ba5e0e00dba2262b4b",
+      "context": "byte source taking a URL; defaults to ``urlopen``.",
+      "translation": "source d’octets prenant une URL ; ``urlopen`` par défaut.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.fetch_pages#3",
+      "source": "the three cached paths.",
+      "source_sha256": "58ed12568ee4e336997435933a436c8b20df97d253b2dcc91a0772e2b2d20d7d",
+      "context": "the three cached paths.",
+      "translation": "les trois chemins en cache.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.fetch_pages#4",
+      "source": "when a page cannot be fetched or is not a PNG. Pages fetched before the failure stay cached.",
+      "source_sha256": "ac64f3a117c41c7ede5f464199810b6963ea80a439d86c2a8cfc6ec83621a08e",
+      "context": "when a page cannot be fetched or is not a PNG. Pages fetched before the failure stay cached.",
+      "translation": "quand une page ne peut pas être récupérée ou n’est pas un PNG. Les pages récupérées avant l’échec restent en cache.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.model_link#0",
+      "source": "The Hugging Face URL of the model the card describes.",
+      "source_sha256": "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
+      "context": "The Hugging Face URL of the model the card describes.",
+      "translation": "L’URL Hugging Face du modèle que décrit la fiche.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.page_html#0",
+      "source": "The text fallback of one card page (1-based) as a small HTML body.",
+      "source_sha256": "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+      "context": "The text fallback of one card page (1-based) as a small HTML body.",
+      "translation": "Le texte de repli d’une page de fiche (numérotée à partir de 1) sous forme d’un petit corps HTML.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.page_html#1",
+      "source": "the already translated column headings for the scores and facts tables.",
+      "source_sha256": "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e",
+      "context": "the already translated column headings for the scores and facts tables.",
+      "translation": "les en-têtes de colonnes déjà traduits pour les tableaux des scores et des faits.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.page_url#0",
+      "source": "The Hugging Face URL of card page ``page`` (1-based) of ``repo``.",
+      "source_sha256": "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
+      "context": "The Hugging Face URL of card page ``page`` (1-based) of ``repo``.",
+      "translation": "L’URL Hugging Face de la page de fiche ``page`` (numérotée à partir de 1) de ``repo``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.repo_of_key#0",
+      "source": "The ``owner/repo`` of a zoo key that has a card, else ``''``.",
+      "source_sha256": "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
+      "context": "The ``owner/repo`` of a zoo key that has a card, else ``''``.",
+      "translation": "Le ``owner/repo`` d’une clé du zoo qui a une fiche, sinon ``''``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.repo_url#0",
+      "source": "The Hugging Face page of a model repository.",
+      "source_sha256": "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
+      "context": "The Hugging Face page of a model repository.",
+      "translation": "La page Hugging Face d’un dépôt de modèle.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_cards.score_rows#0",
+      "source": "Page 1 as ``(metric, \"this (stock x)\")`` pairs.",
+      "source_sha256": "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
+      "context": "Page 1 as ``(metric, \"this (stock x)\")`` pairs.",
+      "translation": "La page 1 sous forme de paires ``(metric, \"this (stock x)\")``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_zoo.default_version_index#1",
+      "source": "The newest version that is neither an alternative nor a candidate, so publishing either never changes what a family's row hands out by default. The README and the website's model cards use the same rule.",
+      "source_sha256": "ebb6d5ec08a09842718f8bbc718dc03a6513434cfda9bf45b9aabdfd4a196a88",
+      "context": "The newest version that is neither an alternative nor a candidate, so publishing either never changes what a family's row hands out by default. The README and the website's model cards use the same rule.",
+      "translation": "La version la plus récente qui n’est ni une alternative ni une candidate, de sorte que publier l’une ou l’autre ne change jamais ce que la ligne d’une famille remet par défaut. Le README et les fiches de modèle du site web utilisent la même règle.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.model_zoo.default_version_index#3",
+      "source": "an index into ``pairs``; 0 when every version is an alternative or a candidate, or there are none.",
+      "source_sha256": "3fe71bdf2c3838540c829c4f44b27ee079ecf04f7d24e0d5be4fec0fb64c2e64",
+      "context": "an index into ``pairs``; 0 when every version is an alternative or a candidate, or there are none.",
+      "translation": "un indice dans ``pairs`` ; 0 quand toute version est une alternative ou une candidate, ou qu’il n’y en a aucune.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.delete_label#0",
+      "source": "Remove one object from every section as a single undo step.",
+      "source_sha256": "6757527de2a3afcb8d57f45ff91800b55b9484dce0b1b92edf83990724023eb7",
+      "context": "Remove one object from every section as a single undo step.",
+      "translation": "Retirer un objet de toutes les coupes en une seule étape d’annulation.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.delete_label#1",
+      "source": "the object ID to remove.",
+      "source_sha256": "18662fcb4057687a8c82acdd189a63bb2d75843f792b163d43b8128ee5902762",
+      "context": "the object ID to remove.",
+      "translation": "l’ID de l’objet à retirer.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.delete_label#2",
+      "source": "number of changed voxels.",
+      "source_sha256": "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+      "context": "number of changed voxels.",
+      "translation": "nombre de voxels modifiés.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.replace_plane#0",
+      "source": "Write one edited section back as a single undo step.",
+      "source_sha256": "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
+      "context": "Write one edited section back as a single undo step.",
+      "translation": "Réécrire une coupe modifiée en une seule étape d’annulation.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.replace_plane#1",
+      "source": "This is how the two-dimensional Make Masks tools edit a volume: they change a section, and the section is written back whole. An object already on this section keeps its ID, and so does any ID in ``keep`` (the object being drawn). An ID new to this section that belongs to another object elsewhere in the volume is given the next unused ID instead, so a tool that numbered its own objects never joins them to a distant 3-D object.",
+      "source_sha256": "424cc65b58d6346d59adeb03f7f5903849870d302acce442981bf3b3b83b235a",
+      "context": "This is how the two-dimensional Make Masks tools edit a volume: they change a section, and the section is written back whole. An object already on this section keeps its ID, and so does any ID in ``keep`` (the object being drawn). An ID new to this section that belongs to another object elsewhere in the volume is given the next unused ID instead, so a tool that numbered its own objects never joins them to a distant 3-D object.",
+      "translation": "C’est ainsi que les outils bidimensionnels de Make Masks modifient un volume : ils changent une coupe, et la coupe est réécrite en entier. Un objet déjà présent sur cette coupe garde son ID, de même que tout ID de ``keep`` (l’objet en cours de dessin). Un ID nouveau pour cette coupe mais appartenant à un autre objet ailleurs dans le volume reçoit à la place le prochain ID inutilisé, de sorte qu’un outil qui a numéroté ses propres objets ne les joint jamais à un objet 3-D éloigné.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.replace_plane#2",
+      "source": "the axis held fixed, as for :meth:`plane`.",
+      "source_sha256": "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+      "context": "the axis held fixed, as for :meth:`plane`.",
+      "translation": "l’axe maintenu fixe, comme pour :meth:`plane`.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.replace_plane#3",
+      "source": "the section's index along ``axis``.",
+      "source_sha256": "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+      "context": "the section's index along ``axis``.",
+      "translation": "l’indice de la coupe le long de ``axis``.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.replace_plane#4",
+      "source": "the edited section, shaped as :meth:`plane` returns it.",
+      "source_sha256": "076cf7d46317fcf2e7f28d74ebb8252709ae40845143e04af533d1a7b90f43f9",
+      "context": "the edited section, shaped as :meth:`plane` returns it.",
+      "translation": "la coupe modifiée, de la forme que renvoie :meth:`plane`.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.replace_plane#5",
+      "source": "object IDs that may enter the section unchanged.",
+      "source_sha256": "80684ea15eabed5e31c1ffc55bc06536b1ef1feeb82d0c44cb1a3755658b621c",
+      "context": "object IDs that may enter the section unchanged.",
+      "translation": "ID d’objets qui peuvent entrer dans la coupe sans changement.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.mask_engine.VolumeMaskSession.replace_plane#6",
+      "source": "number of changed voxels.",
+      "source_sha256": "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+      "context": "number of changed voxels.",
+      "translation": "nombre de voxels modifiés.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._contrast_follows_the_theme#0",
+      "source": "Tick High contrast exactly while the Theme control shows it.",
+      "source_sha256": "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0",
+      "context": "Tick High contrast exactly while the Theme control shows it.",
+      "translation": "Cocher High contrast exactement tant que le contrôle Thème l’affiche.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._exact_motion#0",
+      "source": "The stored values behind what the controls show, when known.",
+      "source_sha256": "6a66e862030761189140b65a8ae6c60adea63c8cc35fc6a80850d4745521647a",
+      "context": "The stored values behind what the controls show, when known.",
+      "translation": "Les valeurs stockées derrière ce que montrent les contrôles, lorsqu’elles sont connues.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._exact_motion#1",
+      "source": "A slider holds whole percents, so what it shows is not always what is stored; giving back what it shows would round the user's own values.",
+      "source_sha256": "7d090888e8ef75ed82be076601a4664a1f6dc21d9a6757fe4817a85661770990",
+      "context": "A slider holds whole percents, so what it shows is not always what is stored; giving back what it shows would round the user's own values.",
+      "translation": "Un curseur contient des pourcentages entiers, de sorte que ce qu’il affiche n’est pas toujours ce qui est stocké ; rendre ce qu’il affiche arrondirait les propres valeurs de l’utilisateur.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_follows_the_switch#0",
+      "source": "Hold the motion controls still, or give back what they had.",
+      "source_sha256": "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b",
+      "context": "Hold the motion controls still, or give back what they had.",
+      "translation": "Immobiliser les contrôles de mouvement, ou rendre ce qu’ils avaient.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_shown#0",
+      "source": "The motion values the Animation controls show now.",
+      "source_sha256": "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee",
+      "context": "The motion values the Animation controls show now.",
+      "translation": "Les valeurs de mouvement que montrent maintenant les contrôles d’Animation.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor#0",
+      "source": "Open the shortcut editor above Preferences and return it.",
+      "source_sha256": "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf",
+      "context": "Open the shortcut editor above Preferences and return it.",
+      "translation": "Ouvrir l’éditeur de raccourcis au-dessus de Preferences et le renvoyer.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._settle_unless_dragging#1",
+      "source": "Text size under Accessibility moves Font scale with it, so a drag of either is a drag.",
+      "source_sha256": "6695c23caa5a90761a060615877ae5d9e5e707d90baaa23f56d7e1e7bc110462",
+      "context": "Text size under Accessibility moves Font scale with it, so a drag of either is a drag.",
+      "translation": "Taille du texte sous Accessibilité déplace Échelle de police avec elle, de sorte que le glissement de l’un ou de l’autre est un glissement.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._show_motion#0",
+      "source": "Put a set of motion values on the Animation controls.",
+      "source_sha256": "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e",
+      "context": "Put a set of motion values on the Animation controls.",
+      "translation": "Mettre un jeu de valeurs de mouvement sur les contrôles d’Animation.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._theme_follows_contrast#0",
+      "source": "Choose High contrast, or the theme it replaced.",
+      "source_sha256": "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6",
+      "context": "Choose High contrast, or the theme it replaced.",
+      "translation": "Choisir High contrast, ou le thème qu’il a remplacé.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_high_contrast#0",
+      "source": "Whether the High contrast theme is the chosen theme.",
+      "source_sha256": "6b4c01028f49a57def170567d9e1968585e65d00ee10e6fd8277a7687d368e38",
+      "context": "Whether the High contrast theme is the chosen theme.",
+      "translation": "Indique si le thème High contrast est le thème choisi.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_high_contrast#1",
+      "source": "``True`` when Preferences > Appearance > Theme reads High contrast.",
+      "source_sha256": "08e28ba4bc78ed62d1354044bfbcc78ae0112b091a3a8903c71c150fe27e55ca",
+      "context": "``True`` when Preferences > Appearance > Theme reads High contrast.",
+      "translation": "``True`` quand Preferences > Apparence > Thème indique High contrast.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_reduce_motion#0",
+      "source": "Whether Reduce motion holds every animated backdrop still.",
+      "source_sha256": "e50f51fe89d622cab13d601ed8b69b5b3960e319fc98b2d50c1461171cc8b59a",
+      "context": "Whether Reduce motion holds every animated backdrop still.",
+      "translation": "Indique si Réduire les animations immobilise tous les arrière-plans animés.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_reduce_motion#1",
+      "source": "While it is on, the backdrops draw one still frame and do not tick, and ripples, click ripples, popup waves and mouse gravity are off.",
+      "source_sha256": "c0d745aef4fb30187ea11e959cc92fd244dec68c607b178bc176df828e9d5e0c",
+      "context": "While it is on, the backdrops draw one still frame and do not tick, and ripples, click ripples, popup waves and mouse gravity are off.",
+      "translation": "Tant qu’il est activé, les arrière-plans dessinent une image fixe et n’avancent pas, et les ondulations, les ondulations de clic, les vagues des fenêtres contextuelles et la gravité de la souris sont désactivées.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_reduce_motion#2",
+      "source": "``True`` when Reduce motion is on; off by default.",
+      "source_sha256": "b2c203a04c70b5682b1e25bb9e11804b53c354d34da2bfdeacf50b1d66ddaa6b",
+      "context": "``True`` when Reduce motion is on; off by default.",
+      "translation": "``True`` quand Réduire les animations est activé ; désactivé par défaut.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_startup_animation#0",
+      "source": "Whether the startup photomosaic blows away when spaCR is ready.",
+      "source_sha256": "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
+      "context": "Whether the startup photomosaic blows away when spaCR is ready.",
+      "translation": "Indique si la photomosaïque de démarrage s’envole quand spaCR est prêt.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_startup_animation#1",
+      "source": "Preferences > Animation > Startup animation. Reduce motion overrides it.",
+      "source_sha256": "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+      "context": "Preferences > Animation > Startup animation. Reduce motion overrides it.",
+      "translation": "Preferences > Animation > Animation de démarrage. Réduire les animations l’emporte sur elle.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_startup_animation#2",
+      "source": "``True`` unless the switch was turned off; on by default.",
+      "source_sha256": "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857",
+      "context": "``True`` unless the switch was turned off; on by default.",
+      "translation": "``True`` sauf si l’interrupteur a été désactivé ; activé par défaut.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_strong_focus#0",
+      "source": "Whether the keyboard-focused control wears a thick focus ring.",
+      "source_sha256": "1e1e3e6f48f6aaf52322e8f936b67c19647a9c4eaabc818bf11154045a757861",
+      "context": "Whether the keyboard-focused control wears a thick focus ring.",
+      "translation": "Indique si le contrôle qui a le focus clavier porte un anneau de focus épais.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_strong_focus#1",
+      "source": "``True`` when Stronger focus outlines is on; off by default.",
+      "source_sha256": "d138af1f20420f74d6776c2b24435b9b6a4ec5a3b1fc996d6dddeaefe9d32d6d",
+      "context": "``True`` when Stronger focus outlines is on; off by default.",
+      "translation": "``True`` quand Contours de focus renforcés est activé ; désactivé par défaut.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_high_contrast#0",
+      "source": "Choose High contrast, or go back to the theme it replaced.",
+      "source_sha256": "7a8ee2899451dea14e16adf8dce0c9d45496cd1521d7ba5e1b0a84dbab32bc7e",
+      "context": "Choose High contrast, or go back to the theme it replaced.",
+      "translation": "Choisir High contrast, ou revenir au thème qu’il a remplacé.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_high_contrast#1",
+      "source": "The replaced theme is kept in the preference store, so it survives a restart.",
+      "source_sha256": "66d21713b81af7e8b452ce4111c33e140c707a46f712167e3e8fe0b1a47fe25b",
+      "context": "The replaced theme is kept in the preference store, so it survives a restart.",
+      "translation": "Le thème remplacé est conservé dans le magasin de préférences, de sorte qu’il survit à un redémarrage.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_high_contrast#2",
+      "source": "true to choose High contrast, false to leave it.",
+      "source_sha256": "0a3d8a7db10ae0fd395e5e29d5fafd6704e68979bdd0269de928978cce135d25",
+      "context": "true to choose High contrast, false to leave it.",
+      "translation": "true pour choisir High contrast, false pour le quitter.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_high_contrast#3",
+      "source": "the theme choice in force afterwards.",
+      "source_sha256": "0ef9b95594e39de8e9098d353e85bdcddc424d95ab007d907e5fa51e9dc19cd9",
+      "context": "the theme choice in force afterwards.",
+      "translation": "le choix de thème en vigueur ensuite.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_reduce_motion#0",
+      "source": "Turn Reduce motion on or off.",
+      "source_sha256": "e9a9b8e4b229d01ae9491e9b301c5cff4dfe22fcfaeb86206e4d43e0bc831fb9",
+      "context": "Turn Reduce motion on or off.",
+      "translation": "Activer ou désactiver Réduire les animations.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_reduce_motion#1",
+      "source": "On, it stores the ripple, click ripple, popup wave and mouse gravity values in force and sets each of them to zero or off. Off, it puts the stored values back exactly. Call :func:`apply_ambient_preferences` to bring the running backdrops along.",
+      "source_sha256": "8438099a202aa8b74a4862d6e14777545f384175b6b854ff045832da7f15d550",
+      "context": "On, it stores the ripple, click ripple, popup wave and mouse gravity values in force and sets each of them to zero or off. Off, it puts the stored values back exactly. Call :func:`apply_ambient_preferences` to bring the running backdrops along.",
+      "translation": "Activé, il stocke les valeurs en vigueur de l’ondulation, de l’ondulation de clic, de la vague des fenêtres contextuelles et de la gravité de la souris, et met chacune à zéro ou désactivée. Désactivé, il remet exactement les valeurs stockées. Appelez :func:`apply_ambient_preferences` pour mettre à jour les arrière-plans en cours d’exécution.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_reduce_motion#2",
+      "source": "true to hold the backdrops still.",
+      "source_sha256": "e112e381bb7e461321afb2ca55340695167c2793cb8877e1a222a1a82b5c6f38",
+      "context": "true to hold the backdrops still.",
+      "translation": "true pour immobiliser les arrière-plans.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_startup_animation#0",
+      "source": "Turn the startup animation on or off.",
+      "source_sha256": "0280dbc13056cf3d2d7f2f29072a843659f9b8e6de9d45c963c71c6dc69ce102",
+      "context": "Turn the startup animation on or off.",
+      "translation": "Activer ou désactiver l’animation de démarrage.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_startup_animation#1",
+      "source": "whether the photomosaic blows away at startup.",
+      "source_sha256": "31e18835346243e982348f2097f36e60f4ef8219b3c073dd24ba3e349b6dcc0b",
+      "context": "whether the photomosaic blows away at startup.",
+      "translation": "si la photomosaïque s’envole au démarrage.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_strong_focus#0",
+      "source": "Turn the thick focus ring on or off.",
+      "source_sha256": "879b384771f08044251e4313b1f801ea251dd327569afc63afb592c123a3dcbc",
+      "context": "Turn the thick focus ring on or off.",
+      "translation": "Activer ou désactiver l’anneau de focus épais.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_strong_focus#1",
+      "source": "The ring is a rule of :func:`spacr.qt.theme.stylesheet` (:func:`spacr.qt.theme.focus_ring_qss`); call :func:`apply_preferences_to_app` to put it on the windows.",
+      "source_sha256": "92fb1f9b5c37c586121eba47ff500ee5996a67fb95d9b6be6ddf4d07ca00fe87",
+      "context": "The ring is a rule of :func:`spacr.qt.theme.stylesheet` (:func:`spacr.qt.theme.focus_ring_qss`); call :func:`apply_preferences_to_app` to put it on the windows.",
+      "translation": "L’anneau est une règle de :func:`spacr.qt.theme.stylesheet` (:func:`spacr.qt.theme.focus_ring_qss`) ; appelez :func:`apply_preferences_to_app` pour le poser sur les fenêtres.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_strong_focus#2",
+      "source": "true for the thick ring.",
+      "source_sha256": "e102942987b756eb40f825e1192a2ca75d308f1521af85dc03b5d349543c3cbc",
+      "context": "true for the thick ring.",
+      "translation": "true pour l’anneau épais.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.default_settings_csv_path#0",
+      "source": "The path Export settings… offers: ``<module>_settings.csv``.",
+      "source_sha256": "fe690a2956aac8acf9bf9b0eeb2a2d92a69332fc553101d217c6ffd03455efaa",
+      "context": "The path Export settings… offers: ``<module>_settings.csv``.",
+      "translation": "Le chemin qu’offre Export settings… : ``<module>_settings.csv``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.default_settings_csv_path#1",
+      "source": "It goes in the source folder the form names, else the folder the last settings CSV was imported from or exported to, else the home folder. The folder is only named, never listed or checked, so a slow or missing network share cannot hold the dialog up.",
+      "source_sha256": "5f90e9d02f9105dfa237f94fe9ab38b0ce28e2330239bea872b282b07d95994e",
+      "context": "It goes in the source folder the form names, else the folder the last settings CSV was imported from or exported to, else the home folder. The folder is only named, never listed or checked, so a slow or missing network share cannot hold the dialog up.",
+      "translation": "Il va dans le dossier source que nomme le formulaire, sinon dans le dossier d’où le dernier CSV de paramètres a été importé ou vers lequel il a été exporté, sinon dans le dossier personnel. Le dossier est seulement nommé, jamais listé ni vérifié, de sorte qu’un partage réseau lent ou absent ne peut pas retenir la boîte de dialogue.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.default_settings_csv_path#2",
+      "source": "the module's key, such as ``measure``.",
+      "source_sha256": "2221aae575b1fc7fa2c9d91a748c3e8ce4e6c70af8c00e11e1a46e810d3f3299",
+      "context": "the module's key, such as ``measure``.",
+      "translation": "la clé du module, par exemple ``measure``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.default_settings_csv_path#3",
+      "source": "the form's source folder; a list offers its first entry.",
+      "source_sha256": "a097aebba093064b67a6f77c644fa48ec682c7196f8612b2ad159f782877888d",
+      "context": "the form's source folder; a list offers its first entry.",
+      "translation": "le dossier source du formulaire ; pour une liste, sa première entrée est proposée.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.default_settings_csv_path#4",
+      "source": "the suggested CSV path.",
+      "source_sha256": "3860ce8374fa2c904ebd5d3de4eadafa2030750e6894a8bbdc944d271e63a01f",
+      "context": "the suggested CSV path.",
+      "translation": "le chemin de CSV suggéré.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.export_settings_csv#0",
+      "source": "Ask where to save ``settings`` as a settings CSV, and write it there.",
+      "source_sha256": "04640b88a31ac82d1a26d54cb0ca17a576f2bf8832d0f80a95cb7e32154469a4",
+      "context": "Ask where to save ``settings`` as a settings CSV, and write it there.",
+      "translation": "Demander où enregistrer ``settings`` sous forme de CSV de paramètres, et l’écrire à cet endroit.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.export_settings_csv#1",
+      "source": "The one implementation behind every Export settings… button and the Distributed Jobs snapshot. The file is what :func:`spacr.cli.write_settings_file` writes, which Import settings… and ``spacr-run --settings`` both read.",
+      "source_sha256": "ff72d9a82c520b395ad4bcd825f1fe48db9f93f8b08f1ebfd1f6a9d8c5241435",
+      "context": "The one implementation behind every Export settings… button and the Distributed Jobs snapshot. The file is what :func:`spacr.cli.write_settings_file` writes, which Import settings… and ``spacr-run --settings`` both read.",
+      "translation": "L’unique implémentation derrière chaque bouton Export settings… et l’instantané de Distributed Jobs. Le fichier est ce qu’écrit :func:`spacr.cli.write_settings_file`, que Import settings… et ``spacr-run --settings`` lisent tous deux.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.export_settings_csv#2",
+      "source": "the dialog's parent widget.",
+      "source_sha256": "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+      "context": "the dialog's parent widget.",
+      "translation": "le widget parent de la boîte de dialogue.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.export_settings_csv#3",
+      "source": "the settings to write, exactly as given.",
+      "source_sha256": "62cd4ceab9383e49e8a9a662b55ed0dd21c6e43553d58cd0e49c11a72dc4baab",
+      "context": "the settings to write, exactly as given.",
+      "translation": "les paramètres à écrire, exactement tels que fournis.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.export_settings_csv#4",
+      "source": "the path the dialog offers first.",
+      "source_sha256": "4e3e8ec5918a5e20924fc36c438de8621c73a2c05ec6277001818eb5d6200400",
+      "context": "the path the dialog offers first.",
+      "translation": "le chemin que la boîte de dialogue propose en premier.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.export_settings_csv#5",
+      "source": "the CSV and JSON paths written, or an empty list when the dialog was cancelled.",
+      "source_sha256": "d3b78b97ad706ebdf0cb2cc235616f67f1da85f540d5fdbfc1e0b32a614c659a",
+      "context": "the CSV and JSON paths written, or an empty list when the dialog was cancelled.",
+      "translation": "les chemins du CSV et du JSON écrits, ou une liste vide si la boîte de dialogue a été annulée.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.export_settings_csv#6",
+      "source": "when the file cannot be written.",
+      "source_sha256": "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439",
+      "context": "when the file cannot be written.",
+      "translation": "quand le fichier ne peut pas être écrit.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#0",
+      "source": "Open a z-stack or volume in the Mask view, where 2-D fields open.",
+      "source_sha256": "76e53240b31de97857883e47a8db1d3f9e2a8cd97f79b7dfb341e389f801702b",
+      "context": "Open a z-stack or volume in the Mask view, where 2-D microscope fields of view open.",
+      "translation": "Ouvrir une pile z ou un volume dans la vue Mask, où s’ouvrent les champs 2-D.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#1",
+      "source": "A slider on the left steps through the slices; every 2-D tool draws on the slice on screen. The View list beside the Mask tab adds the XZ and YZ side views (Orthogonal) or shows the volume and its objects in 3D, where they are drawn and reshaped with anchors (True 3D). TIFF stacks, OME-TIFF and MRC volumes open; time/channel/RGB TIFFs are refused rather than interpreted as depth.",
+      "source_sha256": "4a0313fb9023404c9e07485502853439caed64b9ea55fddb491040331c412da7",
+      "context": "A slider on the left steps through the slices; every 2-D tool draws on the slice on application view. The View list beside the Mask tab adds the XZ and YZ side views (Orthogonal) or shows the volume and its objects in 3D, where they are drawn and reshaped with anchors (True 3D). TIFF stacks, OME-TIFF and MRC volumes open; time/image data channel/RGB TIFFs are refused rather than interpreted as depth.",
+      "translation": "Un curseur à gauche parcourt les coupes ; chaque outil 2-D dessine sur la coupe affichée. La liste Vue à côté de l’onglet Mask ajoute les vues latérales XZ et YZ (Orthogonal) ou montre le volume et ses objets en 3D, où ils sont dessinés et remodelés avec des points d’ancrage (True 3D). Les piles TIFF, OME-TIFF et les volumes MRC s’ouvrent ; les TIFF de temps, de canal ou RGB sont refusés plutôt qu’interprétés comme de la profondeur.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#3",
+      "source": "the Mask view's volume stage, or None on cancellation or refusal.",
+      "source_sha256": "b317cc3382ee51e288ab9dfc410a0a079e356dd809caa6127f3e254b91b2e092",
+      "context": "the Mask view's volume stage, or None on cancellation or refusal.",
+      "translation": "l’étape de volume de la vue Mask, ou None en cas d’annulation ou de refus.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_colour#0",
+      "source": "The colour of the thick focus ring for ``theme``.",
+      "source_sha256": "e40b2877895df99578064c3f07f461c8d1092652e882a378b3e4bbf6fec775ab",
+      "context": "The colour of the thick focus ring for ``theme``.",
+      "translation": "La couleur de l’anneau de focus épais pour ``theme``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_colour#1",
+      "source": "The theme's accent, which is what its own thin focus border already uses, while the accent clears :data:`FOCUS_RING_MIN_CONTRAST` against the page and the field surface; otherwise the theme's ink.",
+      "source_sha256": "e7d4e9e4d135e1c9ff9e7093ca381bf1656c11cbcc7dbcc21416e5889166dfb8",
+      "context": "The theme's accent, which is what its own thin focus border already uses, while the accent clears :data:`FOCUS_RING_MIN_CONTRAST` against the page and the field surface; otherwise the theme's ink.",
+      "translation": "L’accent du thème, que son propre fin contour de focus utilise déjà, tant que l’accent dépasse :data:`FOCUS_RING_MIN_CONTRAST` face à la page et à la surface du champ ; sinon l’encre du thème.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_colour#2",
+      "source": "one of :data:`THEMES`.",
+      "source_sha256": "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+      "context": "one of :data:`THEMES`.",
+      "translation": "l’un des :data:`THEMES`.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_colour#3",
+      "source": "a ``#rrggbb`` colour.",
+      "source_sha256": "0a7bf58bcd2bae87ce29bdac0f675b89e540f6e840e465d8e3c9873d6fc05b5e",
+      "context": "a ``#rrggbb`` colour.",
+      "translation": "une couleur ``#rrggbb``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_qss#0",
+      "source": "The rules that put a thick ring round the keyboard-focused control.",
+      "source_sha256": "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
+      "context": "The rules that put a thick ring round the keyboard-focused control.",
+      "translation": "Les règles qui posent un anneau épais autour du contrôle ayant le focus clavier.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_qss#1",
+      "source": "Preferences > Appearance > Accessibility > Stronger focus outlines. A 1 px accent border is the only focus mark the themes draw, and on a busy backdrop it is easy to lose; this one is :data:`FOCUS_RING_PX` wide in :func:`focus_ring_colour`.",
+      "source_sha256": "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+      "context": "Preferences > Appearance > Accessibility > Stronger focus outlines. A 1 px accent border is the only focus mark the themes draw, and on a busy backdrop it is easy to lose; this one is :data:`FOCUS_RING_PX` wide in :func:`focus_ring_colour`.",
+      "translation": "Preferences > Apparence > Accessibilité > Contours de focus renforcés. Un contour d’accent de 1 px est la seule marque de focus que dessinent les thèmes, et sur un arrière-plan chargé il est facile à perdre ; celui-ci a une largeur de :data:`FOCUS_RING_PX` dans :func:`focus_ring_colour`.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_qss#2",
+      "source": "one of :data:`THEMES`.",
+      "source_sha256": "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+      "context": "one of :data:`THEMES`.",
+      "translation": "l’un des :data:`THEMES`.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_qss#3",
+      "source": "QSS, appended last by :func:`stylesheet` while the preference is on.",
+      "source_sha256": "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0",
+      "context": "QSS, appended last by :func:`stylesheet` while the preference is on.",
+      "translation": "QSS, ajouté en dernier par :func:`stylesheet` tant que la préférence est activée.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials#0",
+      "source": "Which published lesson teaches a module, and the URL that opens it.",
+      "source_sha256": "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",
+      "context": "Which published lesson teaches a module, and the URL that opens it.",
+      "translation": "Quelle leçon publiée enseigne un module, et l’URL qui l’ouvre.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials#1",
+      "source": "The lesson library at ``<docs>/tutorials/`` deep-links with ``#lesson=<id>``, so pointing a reader at the lesson for the module they are hovering is a lookup and a string. The lookup table is ``spacr/resources/tutorial_index.json``, written by ``tools/build_tutorial_index.py`` from the docs build's own lesson catalog -- see there for why it is not the catalog itself.",
+      "source_sha256": "afa4b72571ecdd2394451f4522970faed5a21aaf0a054b9fb4bf7e98321b30d0",
+      "context": "The lesson library at ``<docs>/tutorials/`` deep-links with ``#lesson=<id>``, so pointing a reader at the lesson for the module they are hovering is a lookup and a string. The lookup table is ``spacr/resources/tutorial_index.json``, written by ``tools/build_tutorial_index.py`` from the docs build's own lesson catalog -- see there for why it is not the catalog itself.",
+      "translation": "La bibliothèque de leçons à ``<docs>/tutorials/`` renvoie directement par ``#lesson=<id>``, de sorte que diriger le lecteur vers la leçon du module qu’il survole est une recherche et une chaîne. La table de recherche est ``spacr/resources/tutorial_index.json``, écrite par ``tools/build_tutorial_index.py`` à partir du propre catalogue de leçons de la compilation de la documentation -- voir là pourquoi ce n’est pas le catalogue lui-même.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials#2",
+      "source": "No network access and no heavy imports: this is read on the hover path, from Home and from the dock, so it caches the table on first use and answers ``\"\"`` for anything it cannot resolve. A module with no lesson gets no link, and no exception is raised in a hover handler.",
+      "source_sha256": "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53",
+      "context": "No network access and no heavy imports: this is read on the hover path, from Home and from the dock, so it caches the table on first use and answers ``\"\"`` for anything it cannot resolve. A module with no lesson gets no link, and no exception is raised in a hover handler.",
+      "translation": "Aucun accès au réseau ni importation lourde : ceci est lu sur le chemin du survol, depuis Home et depuis le dock, de sorte que la table est mise en cache à la première utilisation et que ``\"\"`` est renvoyé pour tout ce qui ne peut pas être résolu. Un module sans leçon n’obtient pas de lien, et aucune exception n’est levée dans un gestionnaire de survol.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials#3",
+      "source": "The same table carries the whole lesson list, which ``spacr-tutorial`` prints and resolves a lesson number, slug or screen name against; see :func:`lessons` and :func:`find_lesson`.",
+      "source_sha256": "194565fdca4014dac5e2b08531c895a6fe0c9540aa90ab723dcc1125e43ef905",
+      "context": "The same table carries the whole lesson list, which ``spacr-tutorial`` prints and resolves a lesson number, slug or screen name against; see :func:`lessons` and :func:`find_lesson`.",
+      "translation": "La même table contient toute la liste des leçons, que ``spacr-tutorial`` affiche et par rapport à laquelle il résout un numéro de leçon, un slug ou un nom d’écran ; voir :func:`lessons` et :func:`find_lesson`.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.find_lesson#0",
+      "source": "The lesson ``name`` names, or the names closest to it.",
+      "source_sha256": "3aa5efa51349bc09a7d8f05874ed10dd6c6047e8e53281d83239d889de4ba5a6",
+      "context": "The lesson ``name`` names, or the names closest to it.",
+      "translation": "La leçon que nomme ``name``, ou les noms les plus proches.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.find_lesson#1",
+      "source": "``name`` may be a lesson number (``7`` or ``07``), a lesson id (``07_mask``), the key of the screen a lesson covers (``measure``) or a slug (``plaque-assay``). Case, hyphens and spaces do not matter. When two lessons answer to one name, the earlier kind in that list wins, and among lessons of one kind the lowest-numbered.",
+      "source_sha256": "9c6376a0d5f62091a13ef86c9cb4862ef7711a7f76189036feaa2fdd756fe5f1",
+      "context": "``name`` may be a lesson number (``7`` or ``07``), a lesson id (``07_mask``), the key of the screen a lesson covers (``measure``) or a slug (``plaque-assay``). Case, hyphens and spaces do not matter. When two lessons answer to one name, the earlier kind in that list wins, and among lessons of one kind the lowest-numbered.",
+      "translation": "``name`` peut être un numéro de leçon (``7`` ou ``07``), un identifiant de leçon (``07_mask``), la clé de l’écran qu’une leçon couvre (``measure``) ou un slug (``plaque-assay``). La casse, les traits d’union et les espaces n’ont pas d’importance. Quand deux leçons répondent à un même nom, le genre le plus tôt dans cette liste l’emporte, et parmi les leçons d’un même genre la plus petite numérotée.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.find_lesson#2",
+      "source": "what the reader typed.",
+      "source_sha256": "6fb7a889244185587ebcf0cacaa1156764a09f0f4b61920ee5a95fc8cfee65d3",
+      "context": "what the reader typed.",
+      "translation": "ce que le lecteur a saisi.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.find_lesson#3",
+      "source": "``(lesson, [])`` as :func:`lessons` gives it, or ``(None, suggestions)`` when nothing matches: up to five slugs and screen names, the closest spellings first, then those containing ``name``.",
+      "source_sha256": "a323095f1702386396c07c3af4f200502f78cef0f609bd8ea36117d1e9a698e6",
+      "context": "``(lesson, [])`` as :func:`lessons` gives it, or ``(None, suggestions)`` when nothing matches: up to five slugs and screen names, the closest spellings first, then those containing ``name``.",
+      "translation": "``(lesson, [])`` tel que :func:`lessons` le donne, ou ``(None, suggestions)`` quand rien ne correspond : jusqu’à cinq slugs et noms d’écran, les orthographes les plus proches d’abord, puis ceux qui contiennent ``name``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.lesson_url#0",
+      "source": "The URL that opens one lesson of the library.",
+      "source_sha256": "f7dde7fb07731c7d1bf5f8e8fee716d7b71f60ad5a7f66e812ecddde9bc2e301",
+      "context": "The URL that opens one lesson of the library.",
+      "translation": "L’URL qui ouvre une leçon de la bibliothèque.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.lesson_url#1",
+      "source": "the lesson id, such as ``07_mask``.",
+      "source_sha256": "d19fd9e9aae240c8f510197badc842745fa020ef3a7c6732b0b067574ae994ec",
+      "context": "the lesson id, such as ``07_mask``.",
+      "translation": "l’identifiant de la leçon, tel que ``07_mask``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.lesson_url#2",
+      "source": "the library URL with the ``#lesson=`` fragment it reads.",
+      "source_sha256": "0967d3fec8f62e57a8269830ecf05474c72bc4e732b2f4e1f898599baeb87037",
+      "context": "the library URL with the ``#lesson=`` fragment it reads.",
+      "translation": "l’URL de la bibliothèque avec le fragment ``#lesson=`` qu’elle lit.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.lessons#0",
+      "source": "Every lesson in the library, in lesson-number order.",
+      "source_sha256": "8a731457e881988c7b735aea903e3ca7d859faa7cabd8f8c45d0ed059198cfc4",
+      "context": "Every lesson in the library, in lesson-number order.",
+      "translation": "Chaque leçon de la bibliothèque, dans l’ordre des numéros de leçon.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.lessons#1",
+      "source": "Read once from the bundled table and cached; an unreadable table gives an empty list, as the module lookups give ``\"\"``.",
+      "source_sha256": "c570a7c59da920182fc47b5224edd8aaf18d226082354644b2e539f08c9dc087",
+      "context": "Read once from the bundled table and cached; an unreadable table gives an empty list, as the module lookups give ``\"\"``.",
+      "translation": "Lue une fois dans la table fournie puis mise en cache ; une table illisible donne une liste vide, comme les recherches par module donnent ``\"\"``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.tutorials.lessons#2",
+      "source": "one dict per lesson with ``number`` (int), ``lesson`` (its id, such as ``07_mask``), ``slug``, ``title`` and ``app_key`` (the screen it covers, ``\"\"`` for a lesson about no single screen).",
+      "source_sha256": "e2d3eff8dc794d47f7cbe81eec4255d56caf6b726c16cd6f6eb088f63d897b95",
+      "context": "one key-value mapping per lesson with ``number`` (int), ``lesson`` (its id, such as ``07_mask``), ``slug``, ``title`` and ``app_key`` (the screen it covers, ``\"\"`` for a lesson about no single screen).",
+      "translation": "un dict par leçon avec ``number`` (int), ``lesson`` (son identifiant, tel que ``07_mask``), ``slug``, ``title`` et ``app_key`` (l’écran qu’elle couvre, ``\"\"`` pour une leçon qui ne porte sur aucun écran en particulier).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#0",
+      "source": "The motion of the photomosaic's tiles as a wind front blows them away.",
+      "source_sha256": "87df8aa6a9199c7e0b60c0f2b7e94ef39b70151f339a55ffc3aa51ecceff7a3e",
+      "context": "The motion of the photomosaic's tiles as a wind front blows them away.",
+      "translation": "Le mouvement des tuiles de la photomosaïque lorsqu’un front de vent les emporte.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#1",
+      "source": "Pure arithmetic on arrays, with no Qt: every tile's launch time and flight are drawn once from a seeded generator, and :meth:`frame` evaluates the whole flock at one moment, so the motion depends on elapsed time only and never on how many frames were drawn.",
+      "source_sha256": "5996ceac6f9ef17944a0da9485b4dd1dedea8c9a131fed0c91b37a52f2652483",
+      "context": "Pure arithmetic on arrays, with no Qt: every tile's launch time and flight are drawn once from a seeded generator, and :meth:`frame` evaluates the whole flock at one moment, so the motion depends on elapsed time only and never on how many frames were drawn.",
+      "translation": "De l’arithmétique pure sur des tableaux, sans Qt : l’instant de lancement et le vol de chaque tuile sont tirés une fois par un générateur à graine, et :meth:`frame` évalue toute la volée à un instant donné, de sorte que le mouvement ne dépend que du temps écoulé et jamais du nombre d’images dessinées.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#2",
+      "source": "The front sweeps across the mosaic along ``wind``. As it reaches a tile, the tile lifts towards the viewer, turns over like a card (one axis scaled through the cosine of its flip angle, with a skew and a little foreshortening for perspective), spins, and flies downwind with random turbulence and slight gravity while it fades. Background tiles do not fly; they leave with the front.",
+      "source_sha256": "20e14e029b03c7e11ff57aaa8731cdf4f57c59a2789aa48da7f6c59faa875407",
+      "context": "The front sweeps across the mosaic along ``wind``. As it reaches a tile, the tile lifts towards the viewer, turns over like a card (one axis scaled through the cosine of its flip angle, with a skew and a little foreshortening for perspective), spins, and flies downwind with random turbulence and slight gravity while it fades. Background tiles do not fly; they leave with the front.",
+      "translation": "Le front balaie la mosaïque le long de ``wind``. Quand il atteint une tuile, celle-ci se soulève vers le spectateur, se retourne comme une carte (un axe mis à l’échelle par le cosinus de son angle de retournement, avec une inclinaison et un peu de raccourci pour la perspective), tourne sur elle-même et vole sous le vent avec une turbulence aléatoire et une légère gravité en s’effaçant. Les tuiles d’arrière-plan ne volent pas ; elles partent avec le front.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#3",
+      "source": "``grid x grid`` booleans; ``True`` tiles fly.",
+      "source_sha256": "694113f5af6cf07ba62112223e066c0938b40a67062e765ff6cc5a467722486c",
+      "context": "``grid x grid`` booleans; ``True`` tiles fly.",
+      "translation": "``grid x grid`` booléens ; les tuiles ``True`` volent.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#4",
+      "source": "the mosaic's top-left corner, in widget coordinates.",
+      "source_sha256": "edfb90e1f2228b13070d7665d21681551a78ad5ca1bc3a74595298b47d3f3cfa",
+      "context": "the stitched image grid's top-left corner, in widget coordinates.",
+      "translation": "le coin supérieur gauche de la mosaïque, en coordonnées du widget.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#5",
+      "source": "the mosaic's side, in the same units.",
+      "source_sha256": "501e1f909e5270fa51c64e6b3620b1e9c7515a9445a626c0f64ef71939fbcce3",
+      "context": "the stitched image grid's side, in the same units.",
+      "translation": "le côté de la mosaïque, dans les mêmes unités.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#6",
+      "source": "seed of the randomness.",
+      "source_sha256": "9e254181e413ee820b6af962d3f46d59a119aded363936e4f91865c5992cbcd0",
+      "context": "seed of the randomness.",
+      "translation": "graine du hasard.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#7",
+      "source": "direction the wind blows, ``(x, y)``; down-screen is ``+y``.",
+      "source_sha256": "2b3d68dd20c2c3440766c280753840e2b26434e4f8c52ab383ebcefeb97da69c",
+      "context": "direction the wind blows, ``(x, y)``; down-screen is ``+y``.",
+      "translation": "direction dans laquelle souffle le vent, ``(x, y)`` ; vers le bas de l’écran est ``+y``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#8",
+      "source": "seconds before the front reaches the first tile.",
+      "source_sha256": "56117aac5ebe0055f82cf0281cdc86ac6e6feaf0938fdd65e752ff7c3c118565",
+      "context": "seconds before the front reaches the first tile.",
+      "translation": "secondes avant que le front atteigne la première tuile.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#9",
+      "source": "seconds the front takes to cross the mosaic.",
+      "source_sha256": "dcda49772c3163a8f3127ab83551bf40e60c26dc6b3941d80a8934e15e664d71",
+      "context": "seconds the front takes to cross the stitched image grid.",
+      "translation": "secondes que met le front pour traverser la mosaïque.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#10",
+      "source": "Draw every tile's launch and flight; see the class docstring.",
+      "source_sha256": "379c7bb97f00aa031ac2c535729b6846158b3622f0c0c240fe0d12ced87053f7",
+      "context": "Draw every tile's launch and flight; see the class docstring.",
+      "translation": "Dessiner le lancement et le vol de chaque tuile ; voir la docstring de la classe.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.backdrop#0",
+      "source": "How opaque the cover's ground is behind and ahead of the front.",
+      "source_sha256": "4cd12e167f488c28f6882d8928fca4e531959a69622ac3ec11e00abd64812db4",
+      "context": "How opaque the cover's ground is behind and ahead of the front.",
+      "translation": "Opacité du fond de la couverture derrière et devant le front.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.backdrop#1",
+      "source": "seconds since the blow-away began.",
+      "source_sha256": "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+      "context": "seconds since the blow-away began.",
+      "translation": "secondes depuis le début de l’envol.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.backdrop#2",
+      "source": "``(front, behind, ahead)``: the front's position along the wind as a share of the mosaic (0 at its upwind edge, 1 at the downwind one), and the ground's opacity, 0..1, on either side.",
+      "source_sha256": "27a68c541c6717d4df3473424a96aaaac12d97ecf69f5b4311964e79187d3c70",
+      "context": "``(front, behind, ahead)``: the front's position along the wind as a share of the stitched image grid (0 at its upwind edge, 1 at the downwind one), and the ground's opacity, 0..1, on either side.",
+      "translation": "``(front, behind, ahead)`` : la position du front le long du vent en part de la mosaïque (0 à son bord au vent, 1 à son bord sous le vent) et l’opacité du fond, 0..1, de chaque côté.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.frame#0",
+      "source": "Where every flying tile is at ``t``.",
+      "source_sha256": "efc9f936f28056f46f86ece7a27eaf679a4239f3328c31e5be441c5d00a9303c",
+      "context": "Where every flying tile is at ``t``.",
+      "translation": "Où se trouve chaque tuile en vol à l’instant ``t``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.frame#1",
+      "source": "seconds since the blow-away began.",
+      "source_sha256": "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+      "context": "seconds since the blow-away began.",
+      "translation": "secondes depuis le début de l’envol.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.frame#2",
+      "source": "``(x0, y0, x1, y1)``; tiles whose centre has left it by more than two pitches are dropped. ``None`` keeps them all.",
+      "source_sha256": "45e5eadac619e27e448b3d7dc8d549885fcfd471154751ad0462bb5fe6845945",
+      "context": "``(x0, y0, x1, y1)``; tiles whose centre has left it by more than two pitches are dropped. ``None`` keeps them all.",
+      "translation": "``(x0, y0, x1, y1)`` ; les tuiles dont le centre l’a quitté de plus de deux pas sont abandonnées. ``None`` les garde toutes.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.frame#3",
+      "source": "tiles fainter than this are dropped.",
+      "source_sha256": "430475f7a74d3c17ca4b2af41acca330da8a6ef9f084da9415d2018345d7f9c8",
+      "context": "tiles fainter than this are dropped.",
+      "translation": "les tuiles plus pâles que cela sont abandonnées.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.frame#4",
+      "source": "``(index, m11, m12, m21, m22, dx, dy, opacity)``: indices into the flying tiles and, for each, the affine matrix that places a tile drawn centred on the origin, and its opacity.",
+      "source_sha256": "bbcfe5c115c216321164e195e4d5e6e91e37baa748a6b1e83d83617f69210d62",
+      "context": "``(index, m11, m12, m21, m22, dx, dy, opacity)``: indices into the flying tiles and, for each, the affine matrix that places a tile drawn centred on the origin, and its opacity.",
+      "translation": "``(index, m11, m12, m21, m22, dx, dy, opacity)`` : indices dans les tuiles en vol et, pour chacune, la matrice affine qui place une tuile dessinée centrée sur l’origine, et son opacité.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.launched#0",
+      "source": "Indices of every tile, flying or not, the front has reached.",
+      "source_sha256": "20489f4b13634ca8b58bba7d42f7bfb02d3417b5f5c58f1c0c9ec37835121bbb",
+      "context": "Indices of every tile, flying or not, the front has reached.",
+      "translation": "Indices de chaque tuile, en vol ou non, que le front a atteinte.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.launched#1",
+      "source": "seconds since the blow-away began.",
+      "source_sha256": "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+      "context": "seconds since the blow-away began.",
+      "translation": "secondes depuis le début de l’envol.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway.launched#2",
+      "source": "row-major tile indices.",
+      "source_sha256": "6592cae316087969f8abfd795d851a5d47303933a15282d9ac41a6489c378d5d",
+      "context": "row-major tile indices.",
+      "translation": "indices de tuiles par lignes.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#0",
+      "source": "Full-window cover shown until the pipeline modules are imported.",
+      "source_sha256": "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+      "context": "Full-window cover shown until the workflow modules are imported.",
+      "translation": "Couverture pleine fenêtre affichée jusqu’à ce que les modules du pipeline soient importés.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#1",
+      "source": "By default it shows the white mark beside the strap line. Once :meth:`show_mosaic` is called it shows the spaCR photomosaic above the strap line instead, and :meth:`blow_away` ends it by blowing the mosaic's tiles off the window to reveal the window underneath.",
+      "source_sha256": "9d0d992e12b6e5e79e85c2827c3390f0eb05da130f8bf3bc38b208ebff8ebc91",
+      "context": "By default it shows the white mark beside the strap line. Once :meth:`show_mosaic` is called it shows the spaCR photomosaic above the strap line instead, and :meth:`blow_away` ends it by blowing the stitched image grid's microscope image fields off the window to reveal the window underneath.",
+      "translation": "Par défaut elle affiche la marque blanche à côté de la ligne d’accroche. Une fois :meth:`show_mosaic` appelée, elle affiche à la place la photomosaïque de spaCR au-dessus de la ligne d’accroche, et :meth:`blow_away` y met fin en soufflant les tuiles de la mosaïque hors de la fenêtre pour révéler la fenêtre en dessous.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#2",
+      "source": "how many steps will be reported. Zero or negative means \"unknown\", and the phases stay dim rather than dividing by it.",
+      "source_sha256": "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
+      "context": "how many steps will be reported. Zero or negative means \"unknown\", and the phases stay dim rather than dividing by it.",
+      "translation": "combien d’étapes seront signalées. Zéro ou négatif signifie \"unknown\", et les phases restent atténuées plutôt que de diviser par cette valeur.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#3",
+      "source": "the window this fills. It is sized to the parent and resizes with it, rather than being a separate top-level -- a second window would earn its own taskbar entry and could be dragged off the thing it is supposed to be covering.",
+      "source_sha256": "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
+      "context": "the window this fills. It is sized to the parent and resizes with it, rather than being a separate top-level -- a second window would earn its own taskbar entry and could be dragged off the thing it is supposed to be covering.",
+      "translation": "la fenêtre qu’elle remplit. Elle est dimensionnée sur le parent et redimensionnée avec lui, plutôt que d’être une fenêtre de niveau supérieur séparée -- une seconde fenêtre aurait sa propre entrée dans la barre des tâches et pourrait être entraînée loin de ce qu’elle doit couvrir.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#4",
+      "source": "Build the splash that covers the window while it is being assembled.",
+      "source_sha256": "79a32a90fbb1078f7a69a7402e50b25d76dfd4a31922faf40102561791b6fcb7",
+      "context": "Build the splash that covers the window while it is being assembled.",
+      "translation": "Construire l’écran d’accueil qui couvre la fenêtre pendant son assemblage.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#5",
+      "source": "Opaque by construction: it covers a partly-built window, and any transparency would show the thing it exists to hide.",
+      "source_sha256": "76c607b35e253840185db1a67af7dbca99a26207c67d0cd74e014109a565012b",
+      "context": "Opaque by construction: it covers a partly-built window, and any transparency would show the thing it exists to hide.",
+      "translation": "Opaque par construction : elle couvre une fenêtre à moitié construite, et toute transparence montrerait ce qu’elle existe pour cacher.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#6",
+      "source": "how many steps the progress bar counts to; ``0`` shows no proportion.",
+      "source_sha256": "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
+      "context": "how many steps the progress bar counts to; ``0`` shows no proportion.",
+      "translation": "jusqu’à combien d’étapes compte la barre de progression ; ``0`` n’affiche aucune proportion.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#7",
+      "source": "the window to cover; its geometry is adopted.",
+      "source_sha256": "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f",
+      "context": "the window to cover; its geometry is adopted.",
+      "translation": "la fenêtre à couvrir ; sa géométrie est reprise.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#0",
+      "source": "End the cover by blowing the mosaic's tiles off the window.",
+      "source_sha256": "903498dd3cdf7fb3c626e6a8a5d3b153a31328727171a8aeb633758feb59b553",
+      "context": "End the cover by blowing the stitched image grid's microscope image fields off the window.",
+      "translation": "Mettre fin à la couverture en soufflant les tuiles de la mosaïque hors de la fenêtre.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#1",
+      "source": "Starts no sooner than 0.6 s after the cover first painted. The cover deletes itself when the last tile has gone.",
+      "source_sha256": "d50552237cc81b8dc8c5a374666f4da237036bc659a258964bf14929865dd7ea",
+      "context": "Starts no sooner than 0.6 s after the cover first painted. The cover deletes itself when the last tile has gone.",
+      "translation": "Ne démarre pas avant 0.6 s après la première peinture de la couverture. La couverture se supprime d’elle-même quand la dernière tuile est partie.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#2",
+      "source": "called once, when the cover has gone.",
+      "source_sha256": "916fdd1de872f030cd3a28082a14e730768f44c38ac08e8d442d36832643fdd4",
+      "context": "called once, when the cover has gone.",
+      "translation": "appelé une fois, quand la couverture a disparu.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#3",
+      "source": "play even where :func:`startup_animation_allowed` says no; for tests and previews.",
+      "source_sha256": "7750ec9708425d1b5f32973d22ce6be9c59cf00b214fb745e3e37de65dae5ed8",
+      "context": "play even where :func:`startup_animation_allowed` says no; for tests and previews.",
+      "translation": "jouer même là où :func:`startup_animation_allowed` dit non ; pour les tests et les aperçus.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#4",
+      "source": "``True`` when the blow-away will play and the cover will take itself down; ``False`` when it will not -- no mosaic, the animation is off, or a click already asked to skip -- and the caller takes the cover down as before.",
+      "source_sha256": "dd3d1f3709e1b67c4e617ff070b83694f8596fc1527fabeb1f7a93e3e2446995",
+      "context": "``True`` when the blow-away will play and the cover will take itself down; ``False`` when it will not -- no stitched image grid, the animation is off, or a click already asked to skip -- and the caller takes the cover down as before.",
+      "translation": "``True`` quand l’envol va se jouer et que la couverture se retirera d’elle-même ; ``False`` quand il ne le fera pas -- pas de mosaïque, l’animation est désactivée ou un clic a déjà demandé de passer -- et l’appelant retire la couverture comme avant.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.elapsed#0",
+      "source": "Seconds since the blow-away began; ``0.0`` before it has.",
+      "source_sha256": "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17",
+      "context": "Seconds since the blow-away began; ``0.0`` before it has.",
+      "translation": "Secondes depuis le début de l’envol ; ``0.0`` avant.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats#0",
+      "source": "What drawing the blow-away cost, for measuring it.",
+      "source_sha256": "c762d6e2ec3c5618c2419b4dd931e7c5d31edec45e668eee71b926ab174a01b6",
+      "context": "What drawing the blow-away cost, for measuring it.",
+      "translation": "Ce qu’a coûté le dessin de l’envol, pour le mesurer.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats#1",
+      "source": "``frames``, the mean and the slowest frame's paint time in milliseconds, and the most tiles drawn in one frame.",
+      "source_sha256": "4961353d2c74a0a052bcc98ac559eb5b3993c093bca2cb7481a9b13975a9e75f",
+      "context": "``frames``, the mean and the slowest frame's paint time in milliseconds, and the most tiles drawn in one frame.",
+      "translation": "``frames``, le temps moyen et celui de l’image la plus lente de peinture en millisecondes, et le plus grand nombre de tuiles dessinées dans une image.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.keyPressEvent#0",
+      "source": "A key while the blow-away runs skips it.",
+      "source_sha256": "45254445acb7ebb941c5dcecc16e49bd17636e711a1434938acf2cf0f1f321fa",
+      "context": "A key while the blow-away runs skips it.",
+      "translation": "Une touche pendant l’envol le saute.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.keyPressEvent#1",
+      "source": "the Qt key event; accepted, so the key goes no further.",
+      "source_sha256": "237b44bdbdcf26986658f8774c0ba49fd39c09856b8ca5f5012039e4ec5659f5",
+      "context": "the Qt key event; accepted, so the key goes no further.",
+      "translation": "l’événement clavier Qt ; accepté, de sorte que la touche ne va pas plus loin.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.mosaic_shown#0",
+      "source": "Whether the cover shows the photomosaic.",
+      "source_sha256": "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637",
+      "context": "Whether the cover shows the photomosaic.",
+      "translation": "Indique si la couverture affiche la photomosaïque.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.mousePressEvent#0",
+      "source": "A click on the cover asks to skip the blow-away.",
+      "source_sha256": "dc8a526c53d020fac69efe0b3c724b1bbb4aa0c9551ed1abdbc164cd98649a48",
+      "context": "A click on the cover asks to skip the blow-away.",
+      "translation": "Un clic sur la couverture demande de sauter l’envol.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.mousePressEvent#1",
+      "source": "the Qt mouse event; accepted, so the click goes no further than the cover.",
+      "source_sha256": "bc37429b28868add62764ae4c85ebecc580f4ceef5c2580d30e02d5ea8c96c47",
+      "context": "the Qt mouse event; accepted, so the click goes no further than the cover.",
+      "translation": "l’événement souris Qt ; accepté, de sorte que le clic ne va pas plus loin que la couverture.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.paintEvent#0",
+      "source": "Draw the loading state, or one frame of the blow-away.",
+      "source_sha256": "6cb79a68f7e02f9058e6dc0866ccd859269ab28bc584c752cb806ddf431f5a9b",
+      "context": "Draw the loading state, or one frame of the blow-away.",
+      "translation": "Dessiner l’état de chargement, ou une image de l’envol.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.paintEvent#1",
+      "source": "the Qt paint event.",
+      "source_sha256": "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623",
+      "context": "the Qt paint event.",
+      "translation": "l’événement de peinture Qt.",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.playing#0",
+      "source": "Whether the blow-away is waiting to start or under way.",
+      "source_sha256": "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0",
+      "context": "Whether the blow-away is waiting to start or under way.",
+      "translation": "Indique si l’envol attend de démarrer ou est en cours.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.show_mosaic#0",
+      "source": "Show the photomosaic instead of the mark.",
+      "source_sha256": "7adabce5a499ea162d3661b1baef82e48c51753bf407c4cf57a9fefd077f3bc6",
+      "context": "Show the photomosaic instead of the mark.",
+      "translation": "Afficher la photomosaïque au lieu de la marque.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.show_mosaic#1",
+      "source": "the map to show; the packaged one by default.",
+      "source_sha256": "edf336b1a86e6f784e55397915be9eece6561038123cd9260e85054ccece0a35",
+      "context": "the map to show; the packaged one by default.",
+      "translation": "la carte à afficher ; celle fournie par défaut.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.show_mosaic#2",
+      "source": "whether the mosaic is now shown. ``False`` when its files are missing, and the cover keeps the mark.",
+      "source_sha256": "4ff99945b6c40ce8b598c306e6a3c8fd54cbfc14f53b1bd5cfef908f5e3d97cd",
+      "context": "whether the stitched image grid is now shown. ``False`` when its files are missing, and the cover keeps the mark.",
+      "translation": "si la mosaïque est maintenant affichée. ``False`` quand ses fichiers manquent, et la couverture garde la marque.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.skip#0",
+      "source": "Skip to the end: take the cover down now, or as soon as allowed.",
+      "source_sha256": "af5b549c9b101208e4eb885eeb8cd446aa404b15e32557bd4daa1d5852af42b8",
+      "context": "Skip to the end: take the cover down now, or as soon as allowed.",
+      "translation": "Passer à la fin : retirer la couverture maintenant, ou dès que c’est permis.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.skip#1",
+      "source": "Before :meth:`blow_away` it is remembered, and the cover then comes down without the animation when loading ends.",
+      "source_sha256": "0f18b06d9c56c476ed7f507f9757475863c3af60f39ad5784dfc547546af98cf",
+      "context": "Before :meth:`blow_away` it is remembered, and the cover then comes down without the animation when loading ends.",
+      "translation": "Avant :meth:`blow_away` il est mémorisé, et la couverture descend alors sans l’animation à la fin du chargement.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.MosaicMap#0",
+      "source": "The startup photomosaic's picture and which of its tiles hold the logo.",
+      "source_sha256": "4691bdc9c4b9f17a1c188b0e187a1901e2e70ea4c6001d0cf6396832fb4b0da1",
+      "context": "The startup photomosaic's picture and which of its tiles hold the logo.",
+      "translation": "L’image de la photomosaïque de démarrage et celles de ses tuiles qui portent le logo.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.MosaicMap#1",
+      "source": "the picture, ``grid * tile_px`` pixels square.",
+      "source_sha256": "b02e8dc828b855822fb4e96bb2c8bdf3d3c56074ca7220cd41a6bc1ffddd7dc6",
+      "context": "the picture, ``grid * tile_px`` pixels square.",
+      "translation": "l’image, de ``grid * tile_px`` pixels de côté.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.MosaicMap#2",
+      "source": "tiles per side.",
+      "source_sha256": "ea159e48395cb65220720b35be3faab7b6a4af540927d1575b7afef7dd6de32f",
+      "context": "tiles per side.",
+      "translation": "tuiles par côté.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.MosaicMap#3",
+      "source": "pixels per tile in the picture.",
+      "source_sha256": "00a30801646f69de6fe6a5003615809643c3fb023767ca7cbd8609947e61587a",
+      "context": "pixels per tile in the picture.",
+      "translation": "pixels par tuile dans l’image.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.MosaicMap#4",
+      "source": "``grid x grid`` booleans, row-major; ``True`` where the tile holds the picture and flies, ``False`` for the dim background.",
+      "source_sha256": "1091d556a1c6413eda3c820ebf50b32d741d5b190887a16cb37dd34d5b1d2a33",
+      "context": "``grid x grid`` booleans, row-major; ``True`` where the tile holds the picture and flies, ``False`` for the dim background.",
+      "translation": "``grid x grid`` booléens, par lignes ; ``True`` là où la tuile contient l’image et vole, ``False`` pour l’arrière-plan atténué.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.MosaicMap#5",
+      "source": "Hold the map; see the class docstring for the parameters.",
+      "source_sha256": "fdd243effc6182bb00167f255dd26966257abf6b5f89a36aa5066d28086796a9",
+      "context": "Hold the map; see the class docstring for the parameters.",
+      "translation": "Conserver la carte ; voir la docstring de la classe pour les paramètres.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.MosaicMap.load#0",
+      "source": "Read the tile map and check its picture is there.",
+      "source_sha256": "3405be5aba83d659e83fc81d68783e5fe56dc2168176ece7b76d79e750bcac90",
+      "context": "Read the tile map and check its picture is there.",
+      "translation": "Lire la carte des tuiles et vérifier que son image est là.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.MosaicMap.load#1",
+      "source": "where the map and picture are; the packaged ``spacr/resources/splash`` by default.",
+      "source_sha256": "e42b66b71ffedc2a9da23eb220f23a3c5a1b66c739a15db68fc3043a08e14039",
+      "context": "where the map and picture are; the packaged ``spacr/resources/splash`` by default.",
+      "translation": "où se trouvent la carte et l’image ; le ``spacr/resources/splash`` fourni par défaut.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.MosaicMap.load#2",
+      "source": "the map, or ``None`` when either file is missing or the map cannot be read -- the loading cover then keeps its plain look.",
+      "source_sha256": "4cad70e624e2da617a90f35a7444544c1c3a753fa42e47ce78a55faf1b75972d",
+      "context": "the map, or ``None`` when either file is missing or the map cannot be read -- the loading cover then keeps its plain look.",
+      "translation": "la carte, ou ``None`` quand l’un des fichiers manque ou que la carte ne peut pas être lue -- la couverture de chargement garde alors son aspect simple.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#0",
+      "source": "Whether a startup blow-away is waiting to start or under way.",
+      "source_sha256": "8fad79e73e907936949c5551e2a6a086c629cd77a47f2db12b7edddb736003de",
+      "context": "Whether a startup blow-away is waiting to start or under way.",
+      "translation": "Indique si un envol de démarrage attend de démarrer ou est en cours.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#1",
+      "source": "Idle-time warming asks this and waits, so its slices do not take frames from the animation in the two seconds it runs.",
+      "source_sha256": "e4291692ef3e4d863d92ffcb612fb7a31f0a62ec992d0ac52b42d27b5dafa18f",
+      "context": "Idle-time warming asks this and waits, so its slices do not take frames from the animation in the two seconds it runs.",
+      "translation": "Le préchauffage en temps libre le demande et attend, pour que ses tranches ne prennent pas d’images à l’animation pendant les deux secondes qu’elle dure.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#2",
+      "source": "``True`` while any cover that still exists is playing; a cover deleted mid-way, with its window, no longer counts.",
+      "source_sha256": "eb60638264717bb6c4ed04b0738e4703931cb4afec82e4631e37e9f6564bbd83",
+      "context": "``True`` while any cover that still exists is playing; a cover deleted mid-way, with its window, no longer counts.",
+      "translation": "``True`` tant qu’une couverture existant encore est en cours de lecture ; une couverture supprimée en cours de route, avec sa fenêtre, ne compte plus.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.mosaic_splash_wanted#0",
+      "source": "Whether the loading cover shows the photomosaic.",
+      "source_sha256": "4f4eb18b479c7099e8a4864a39192d6f759a5d0504cd9b5fd0b4ee319c2f5406",
+      "context": "Whether the loading cover shows the photomosaic.",
+      "translation": "Indique si la couverture de chargement affiche la photomosaïque.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.mosaic_splash_wanted#1",
+      "source": "``False`` when :data:`NO_SPLASH_ENV` is set, otherwise ``True``.",
+      "source_sha256": "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156",
+      "context": "``False`` when :data:`NO_SPLASH_ENV` is set, otherwise ``True``.",
+      "translation": "``False`` quand :data:`NO_SPLASH_ENV` est défini, sinon ``True``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.startup_animation_allowed#0",
+      "source": "Whether the photomosaic may blow away when the window is ready.",
+      "source_sha256": "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
+      "context": "Whether the photomosaic may blow away when the window is ready.",
+      "translation": "Indique si la photomosaïque peut s’envoler quand la fenêtre est prête.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.startup_animation_allowed#1",
+      "source": "No when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while Accessibility > Reduce motion is on, or when Preferences > Animation > Startup animation is off. A preference that cannot be read counts as no: a still cover is always safe.",
+      "source_sha256": "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+      "context": "No when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while Accessibility > Reduce motion is on, or when Preferences > Animation > Startup animation is off. A preference that cannot be read counts as no: a still cover is always safe.",
+      "translation": "Non quand :data:`NO_SPLASH_ENV` est défini, sur la plateforme offscreen, tant qu’Accessibilité > Réduire les animations est activé, ou quand Preferences > Animation > Animation de démarrage est désactivé. Une préférence illisible compte pour non : une couverture immobile est toujours sans risque.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.startup_animation_allowed#2",
+      "source": "``True`` when the blow-away should play.",
+      "source_sha256": "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8",
+      "context": "``True`` when the blow-away should play.",
+      "translation": "``True`` quand l’envol doit se jouer.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.will_blow_away#0",
+      "source": "Whether ``screen`` will end with the blow-away rather than vanish.",
+      "source_sha256": "e79d959cc2c293cb0c13b0f1292b046347ac52bec7c04306bde12465916626af",
+      "context": "Whether ``screen`` will end with the blow-away rather than vanish.",
+      "translation": "Indique si ``screen`` se terminera par l’envol plutôt que de disparaître.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.will_blow_away#1",
+      "source": "the window's loading cover, or anything standing in for it.",
+      "source_sha256": "6c8659c165fda364d889724cd5937dd29814f52ae20361268274a93aeb9f9b5d",
+      "context": "the window's loading cover, or anything standing in for it.",
+      "translation": "la couverture de chargement de la fenêtre, ou tout ce qui en tient lieu.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.will_blow_away#2",
+      "source": "``True`` for a :class:`LoadingScreen` showing the mosaic, not yet asked to skip, where :func:`startup_animation_allowed` says yes.",
+      "source_sha256": "6fbcb199b4c6a82639532e54656d21bb0cd4b1d23baaa07a1ab265a7d35767d0",
+      "context": "``True`` for a :class:`LoadingScreen` showing the stitched image grid, not yet asked to skip, where :func:`startup_animation_allowed` says yes.",
+      "translation": "``True`` pour un :class:`LoadingScreen` qui affiche la mosaïque, auquel on n’a pas encore demandé de passer, là où :func:`startup_animation_allowed` dit oui.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer#0",
+      "source": "Viewer for the 3-page model cards of the Model Zoo.",
+      "source_sha256": "3772cd726848c278c71b0aa5745115a35afbc0745b6e5abfc79c01e2ef8fbe3f",
+      "context": "Viewer for the 3-page model cards of the Model Zoo.",
+      "translation": "Visionneuse des fiches de modèle de 3 pages du Model Zoo.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer#1",
+      "source": "Shows the page image of a card scaled to fit, with Previous and Next, a \"1 / 3\" counter, Left and Right keys and a link to the model on Hugging Face. The images are fetched on first view in a worker thread and cached; without them the viewer shows the same three pages as text from the card data that ships with spaCR. Clicking the image opens it larger in a dialog.",
+      "source_sha256": "bd2a015dfe526df7ad5d32b4f18ca950970b064380d449f0bb1656618682e662",
+      "context": "Shows the page image of a card scaled to fit, with Previous and Next, a \"1 / 3\" counter, Left and Right keys and a link to the model on Hugging Face. The images are fetched on first view in a background execution unit and cached; without them the viewer shows the same three pages as text from the card data that ships with spaCR. Clicking the image opens it larger in a dialog.",
+      "translation": "Affiche l’image de page d’une fiche mise à l’échelle, avec Précédent et Suivant, un compteur \"1 / 3\", les touches Gauche et Droite et un lien vers le modèle sur Hugging Face. Les images sont récupérées à la première vue dans un thread de travail et mises en cache ; sans elles la visionneuse montre les mêmes trois pages en texte à partir des données de fiche livrées avec spaCR. Un clic sur l’image l’ouvre en plus grand dans une boîte de dialogue.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer#0",
+      "source": "Page through the card of one model.",
+      "source_sha256": "60f02d459892608d039e6bb9dccba7e8a594a34d7d191f49fc7f2fac00e4e4ca",
+      "context": "Page through the card of one model.",
+      "translation": "Parcourir la fiche d’un modèle.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer#1",
+      "source": "parent widget.",
+      "source_sha256": "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+      "context": "parent widget.",
+      "translation": "widget parent.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer#2",
+      "source": "fetch the images on a worker thread; ``False`` fetches inline, for tests.",
+      "source_sha256": "c39090a0b02c6fe99f216c8a5ffb87c333e35810230d7b36f8dbe944c67c71b3",
+      "context": "fetch the images on a background execution unit; ``False`` fetches inline, for tests.",
+      "translation": "récupérer les images dans un thread de travail ; ``False`` les récupère en ligne, pour les tests.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer#3",
+      "source": "byte source taking a URL, handed to :func:`spacr.model_cards.fetch_pages`; ``None`` uses the network.",
+      "source_sha256": "f7f0215ce85d01974e54f34c21a5cc0128ce5a0bbe3286a352bcf443d084a145",
+      "context": "byte source taking a URL, handed to :func:`spacr.model_cards.fetch_pages`; ``None`` uses the network.",
+      "translation": "source d’octets prenant une URL, transmise à :func:`spacr.model_cards.fetch_pages` ; ``None`` utilise le réseau.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer#4",
+      "source": "clicking the image opens a larger dialog.",
+      "source_sha256": "bcb7f0c15e66824ac8ad6087ecc76af136d28856f95392049c3683247e03c073",
+      "context": "clicking the image opens a larger dialog.",
+      "translation": "un clic sur l’image ouvre une boîte de dialogue plus grande.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.card#0",
+      "source": "The card data being shown, or ``None``.",
+      "source_sha256": "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d",
+      "context": "The card data being shown, or ``None``.",
+      "translation": "Les données de fiche affichées, ou ``None``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.counter_text#0",
+      "source": "The \"1 / 3\" text.",
+      "source_sha256": "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7",
+      "context": "The \"1 / 3\" text.",
+      "translation": "Le texte \"1 / 3\".",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.go_to#0",
+      "source": "Show page ``page`` (zero-based), clamped to the pages.",
+      "source_sha256": "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
+      "context": "Show page ``page`` (zero-based), clamped to the pages.",
+      "translation": "Afficher la page ``page`` (numérotée à partir de zéro), bornée aux pages existantes.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.keyPressEvent#0",
+      "source": "Left and Right turn the page.",
+      "source_sha256": "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
+      "context": "Left and Right turn the page.",
+      "translation": "Gauche et Droite tournent la page.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.next_page#0",
+      "source": "Show the next page; stays on the last.",
+      "source_sha256": "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c",
+      "context": "Show the next page; stays on the last.",
+      "translation": "Afficher la page suivante ; reste sur la dernière.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.page#0",
+      "source": "The zero-based current page.",
+      "source_sha256": "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb",
+      "context": "The zero-based current page.",
+      "translation": "La page courante, numérotée à partir de zéro.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.previous_page#0",
+      "source": "Show the previous page; stays on the first.",
+      "source_sha256": "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1",
+      "context": "Show the previous page; stays on the first.",
+      "translation": "Afficher la page précédente ; reste sur la première.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.set_card#0",
+      "source": "Show ``card`` from page 1, fetching its images when not cached.",
+      "source_sha256": "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
+      "context": "Show ``card`` from page 1, fetching its images when not cached.",
+      "translation": "Afficher ``card`` à partir de la page 1, en récupérant ses images quand elles ne sont pas en cache.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.showing_image#0",
+      "source": "True when the current page is the picture, not the text.",
+      "source_sha256": "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd",
+      "context": "True when the current page is the picture, not the text.",
+      "translation": "True quand la page courante est l’image, pas le texte.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.model_card_viewer.ModelCardViewer.status_text#0",
+      "source": "The line under the page.",
+      "source_sha256": "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d",
+      "context": "The line under the page.",
+      "translation": "La ligne sous la page.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.usage_bar.UsageBar.set_value#1",
+      "source": "The new value is scheduled for the next paint rather than painted now. ``QProgressBar.setValue`` repaints synchronously whenever the change moves a pixel, and the bar is translucent over the window's field, so each call painted the field under it and flushed the window there and then: four synchronous flushes every two seconds on every module screen, which on a composited GPU desktop each wait for the display. With updates held off for the call, the bar is marked dirty instead and is drawn with the next field frame.",
+      "source_sha256": "4963009cf255a2b2d6fac269746a5829fdb84a909225285336434ac937ba1416",
+      "context": "The new value is scheduled for the next paint rather than painted now. ``QProgressBar.setValue`` repaints synchronously whenever the change moves a pixel, and the bar is translucent over the window's field, so each call painted the field under it and flushed the window there and then: four synchronous flushes every two seconds on every module application view, which on a composited GPU desktop each wait for the display. With updates held off for the call, the bar is marked dirty instead and is drawn with the next field frame.",
+      "translation": "La nouvelle valeur est planifiée pour la prochaine peinture au lieu d’être peinte maintenant. ``QProgressBar.setValue`` repeint de façon synchrone dès que le changement déplace un pixel, et la barre est translucide sur le champ de la fenêtre, si bien que chaque appel peignait le champ en dessous et vidait la fenêtre sur-le-champ : quatre vidages synchrones toutes les deux secondes sur chaque écran de module, qui sur un bureau GPU composité attendent chacun l’affichage. Avec les mises à jour suspendues pendant l’appel, la barre est marquée comme sale et dessinée avec la prochaine image du champ.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.usage_bar.UsageBar.set_value#2",
+      "source": "The bar is re-polished only when the reading crosses into another band. A polish re-resolves the application style sheet for the bar, and the usage poll calls this for every bar every two seconds, almost always with the colour unchanged.",
+      "source_sha256": "19a61d66c48b97c91d878118af8378d8454c389bd618a2e81b85b71494d0adc5",
+      "context": "The bar is re-polished only when the reading crosses into another band. A polish re-resolves the application style sheet for the bar, and the usage poll calls this for every bar every two seconds, almost always with the colour unchanged.",
+      "translation": "La barre n’est repolie que lorsque la lecture passe dans une autre bande. Un polissage résout de nouveau la feuille de style de l’application pour la barre, et l’interrogation de l’utilisation appelle ceci pour chaque barre toutes les deux secondes, presque toujours avec la couleur inchangée.",
+      "review_basis": "written from the English"
+    }
+  ]
+}

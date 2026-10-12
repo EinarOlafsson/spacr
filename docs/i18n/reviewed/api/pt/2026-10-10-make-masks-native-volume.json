@@ -298,7 +298,9 @@
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume#3",
       "source": "the native volume dialog, or None on cancellation/refusal.",
       "source_sha256": "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6",
-      "translation": "o diálogo de volume nativo, ou None em caso de cancelamento/recusa."
+      "translation": "o diálogo de volume nativo, ou None em caso de cancelamento/recusa.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

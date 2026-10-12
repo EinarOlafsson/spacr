@@ -20,7 +20,9 @@
       "label": "spacr.model_zoo.default_version_index#1",
       "source": "The newest version that is not an alternative, so publishing an alternative never changes what a family's row hands out by default.",
       "source_sha256": "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
-      "translation": "Nýjasta útgáfan sem er ekki valkostur, svo útgáfa valkosts breytir aldrei því sem röð fjölskyldu afhendir sjálfgefið."
+      "translation": "Nýjasta útgáfan sem er ekki valkostur, svo útgáfa valkosts breytir aldrei því sem röð fjölskyldu afhendir sjálfgefið.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(label, entry)`` pairs, newest first.",
@@ -34,7 +36,9 @@
       "label": "spacr.model_zoo.default_version_index#3",
       "source": "an index into ``pairs``; 0 when every version is an alternative or there are none.",
       "source_sha256": "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a",
-      "translation": "vísir inn í ``pairs``; 0 þegar allar útgáfur eru valkostir eða engar eru til."
+      "translation": "vísir inn í ``pairs``; 0 þegar allar útgáfur eru valkostir eða engar eru til.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The ``owner/repo`` a Hugging Face download URL points into, or ``''``.",

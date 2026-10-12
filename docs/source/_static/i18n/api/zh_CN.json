@@ -12699,6 +12699,28 @@
         "e49222ee9fe453c54c3f170052755f092e28d42a0072a5e44e9e5bb9be218bf3"
       ]
     },
+    "spacr.cli.write_settings_file": {
+      "source_blocks_sha256": [
+        "d4ad906ee8f76b4c869676960c30691129055163b9c898adb8a6341f02d81c33",
+        "ead4e18e73bcea9a24a6024c3ffb71a8fad0383e4f74f4ef735c1ffa59206671",
+        "8ab64ba1f98d624c8178d6ea086e1baf6c6224481b58b4500fe3fe162c0816a5",
+        "cf9178f87bb80a6a0d26319f9f7fb6b2e992889b19481c22b9a16dc722606465",
+        "370b66dfaa7bcb2b866779a8bd3a3129f39c18b489dfad769f470a425e61fb18",
+        "39ebc8ed05d2ae69ed8ae0f64b9ff6d25fe3f2cd8d4a9607da08fd296dfae2cb",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ],
+      "source_sha256": "d7ce4ef41a27b0c42eac08ff6b1beea5fcd4f4cc13ab6c7f98d7235b07153d62",
+      "text": "将设置 dict 写入 GUI 和 ``spacr-run`` 可读回的 CSV。\n\n:func:`load_settings_file` 的逆操作，也是 GUI 的 \"Export settings…\" 按钮所写入的文件。布局与 :func:`spacr.utils.save_settings` 写在每次运行旁边的相同：一个 ``Key,Value`` 表头，按 dict 的顺序每项设置一行，``None`` 为空单元格，布尔值写作 ``True`` / ``False``，列表、元组和 dict 采用 Python 字面量形式。设置按给定原样写入：与 ``save_settings`` 不同，``test_mode`` 和 ``plot`` 不会被关闭，除所写入的文件外，不会列出、扫描或打开任何内容。\n\nCSV 旁会写入一份 ``.json`` 副本，如同 ``save_settings`` 写入的那样，使类型得以精确保留；``spacr-run --settings`` 两者都能读取。\n\n:param settings: 要写入的设置。\n:param path: 要写入的 CSV；``~`` 和 ``$VARS`` 会被展开，文件夹会被创建。\n:returns: 所写入的 CSV 和 JSON 路径，按此顺序。\n\n示例：\n    .. code-block:: python\n\n        from spacr.cli import load_settings_file, write_settings_file\n        write_settings_file({\"src\": \"/data/plate1\", \"channels\": [0, 1]},\n                            \"measure_settings.csv\")\n        load_settings_file(\"measure_settings.csv\")",
+      "translation_source_blocks_sha256": [
+        "65881825c18ade612de317e3d3587dbd7fb1d3acf90e25114b6f82994ce4a177",
+        "59d199a22a2896f745b4fa886ca13b3809f7d7a489dbb53798ae6a91e7f4edaa",
+        "8ab64ba1f98d624c8178d6ea086e1baf6c6224481b58b4500fe3fe162c0816a5",
+        "cf9178f87bb80a6a0d26319f9f7fb6b2e992889b19481c22b9a16dc722606465",
+        "370b66dfaa7bcb2b866779a8bd3a3129f39c18b489dfad769f470a425e61fb18",
+        "39ebc8ed05d2ae69ed8ae0f64b9ff6d25fe3f2cd8d4a9607da08fd296dfae2cb",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ]
+    },
     "spacr.cli_database": {
       "source_blocks_sha256": [
         "5f3f416486e5633b344e7e34f5b6c59ae40bfda4d7628fcfb9e41f626c07c995"
@@ -13514,7 +13536,7 @@
         "b3c1ff62a1d66210497d1499892614af239c39a41d36f3341307c020592e6e48"
       ],
       "source_sha256": "e387409bfbeafec3481668a8e51eba75a4e976270eafbf164583cc5cd5c35af9",
-      "text": "``{path: [column, ...]}`` 对于每个可读的 CSV 在 ``paths`` 中。\n\n:param paths: 一个路径,一个序列,或 None。\n:returns: 一条不存在或不能被打破的路径不在结果中,而不是在空白列表中进行地图 - 参见规则 2. 使用 :func:`missing` 询问这些路径是什么。",
+      "text": "``{path: [column, ...]}`` 对于每个可读的 CSV 在 ``paths`` 中。\n\n:param paths: 一个路径、一组路径或 None。\n:returns: 一条不存在或不能被打破的路径不在结果中,而不是在空白列表中进行地图 - 参见规则 2. 使用 :func:`missing` 询问这些路径是什么。",
       "translation_source_blocks_sha256": [
         "951cd40733c46a3ee29856d0d82756484db80e248de76ae166288dbf242572b2",
         "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
@@ -13531,6 +13553,44 @@
       "translation_source_blocks_sha256": [
         "57cec9e0b7a4efaba2be0af9106ff1507375e026fbf70fe5f9feaa484f81aad0",
         "3a5d93c979aa40a2a0e0f9985f6899c13a125532047baf260fe1547904c4931b"
+      ]
+    },
+    "spacr.columns.numeric_headers": {
+      "source_blocks_sha256": [
+        "08a98d515de70f0559aec982b5a7943c79bdd109ef93992c7fc23109007afa96",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+        "722e753e8ed3afba3886f88824fb5e32cdf30f34f74ac66870dc78dd9cc3c6c9",
+        "89f60c00ead8478c285235bda42277a20100c27a51f839d635b14dfe94480bbc"
+      ],
+      "source_sha256": "2820526ad6e87b74214f353616befffa6ba0c4c4cb4536f5723177e24d16dc83",
+      "text": "可作为响应变量的数值列的 ``{path: [column, ...]}``。\n\n:param paths: 一个路径、一组路径或 None。\n:param rows: 读取多少行来区分数字与标签。表头决定名称，一个简短的样本决定类型，因此对任意大小的评分文件，开销都保持不变。\n:returns: 按给定顺序的 dict。标识符列（:data:`RESPONSE_EXCLUDED`）被省略；无法读取的文件不在其中。",
+      "translation_source_blocks_sha256": [
+        "08a98d515de70f0559aec982b5a7943c79bdd109ef93992c7fc23109007afa96",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+        "722e753e8ed3afba3886f88824fb5e32cdf30f34f74ac66870dc78dd9cc3c6c9",
+        "1dff70177bd3fffdb2ea9f162a436a186afd329797cbefe5590d9411309bbe85"
+      ]
+    },
+    "spacr.columns.pred_guidance": {
+      "source_blocks_sha256": [
+        "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef"
+      ],
+      "source_sha256": "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef",
+      "text": "说明 ``pred`` 列来源的那句话。",
+      "translation_source_blocks_sha256": [
+        "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef"
+      ]
+    },
+    "spacr.columns.pred_missing": {
+      "source_blocks_sha256": [
+        "ecb8ae620f4efc95d24ea72009c622c7c42463aa89d3e977449588dc428cb83c",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd"
+      ],
+      "source_sha256": "18142ad16a5695335acdafe55d1f1a1ba8bf9aeae7509e107fe1f0a90044c384",
+      "text": "``paths`` 中没有 ``pred`` 列的可读文件。\n\n:param paths: 一个路径、一组路径或 None。",
+      "translation_source_blocks_sha256": [
+        "ecb8ae620f4efc95d24ea72009c622c7c42463aa89d3e977449588dc428cb83c",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd"
       ]
     },
     "spacr.columns.resolve": {
@@ -19456,7 +19516,7 @@
         "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ],
       "source_sha256": "fa66c254675592456e81675da7729d170460f5801610586e4fdcb2b5a7c1ccc5",
-      "text": "写回复记录,原子和完整。\n\n每行都写下来,包括关于此文件夹中不存在的字符串的行列:库拉特可能在一台机器上重复,其中一部分组尚未到达,并将这些行列倒下,提供了已经在其他地方完成的工作。\n\n文件在机器之间同步,一个稳定的顺序保持一个同步DIF到实际上改变的行。\n\n:param folder: 队列文件夹。\n:param rows: ``{stem: StatusRow}``,如 :func:`read_status` 返回。\n:returns: 写入的路径。\n:raises StatusFileError: 当文件无法写下时",
+      "text": "写回复记录,原子和完整。\n\n每行都写下来,包括关于此文件夹中不存在的字符串的行列:库拉特可能在一台机器上重复,其中一部分组尚未到达,并将这些行列倒下,提供了已经在其他地方完成的工作。\n\n文件在机器之间同步,一个稳定的顺序保持一个同步DIF到实际上改变的行。\n\n:param folder: 队列文件夹。\n:param rows: ``{stem: StatusRow}``,如 :func:`read_status` 返回。\n:returns: 写入的路径。\n:raises StatusFileError: 当文件无法写入时。",
       "translation_source_blocks_sha256": [
         "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
         "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
@@ -49291,6 +49351,172 @@
         "39996c56b59b07b7cf47fd9559aac916ec01dd8c38ae0fc03f6365f8f8001a68"
       ]
     },
+    "spacr.model_cards": {
+      "source_blocks_sha256": [
+        "171c1c38c652fe6fb87e2a0b8bf9875986d035cbf90594fb59bfae2479654863",
+        "5ac049613eab9e18ab4708132f31d94dd45549506dc9ee4b6f42b5440780a31d",
+        "9e9b9d3e15ab1409b94c2601e397cbf19d196ca28574deacb17e6647a343f03b"
+      ],
+      "source_sha256": "5f3af02fc849e4f1dbe5093e6089e1c18625ca5037b8db21656d5a09721ae358",
+      "text": "Model Zoo 的 3 页模型卡片：数据、仓库映射、图像。\n\n每个已发布的分割模型在 Hugging Face 上有三页卡片（``cards/page1.png`` 到 ``page3.png``）：其相对于原始基础模型的评分、训练事实，以及一页简介和链接。相同的数据以 ``resources/model_cards/<repo>.json`` 随 spaCR 一同提供，因此在无法获取图像时可将卡片显示为文本。\n\n这里不导入 Qt；查看器位于 :mod:`spacr.qt.widgets.model_card_viewer`。",
+      "translation_source_blocks_sha256": [
+        "171c1c38c652fe6fb87e2a0b8bf9875986d035cbf90594fb59bfae2479654863",
+        "5ac049613eab9e18ab4708132f31d94dd45549506dc9ee4b6f42b5440780a31d",
+        "9e9b9d3e15ab1409b94c2601e397cbf19d196ca28574deacb17e6647a343f03b"
+      ]
+    },
+    "spacr.model_cards.about_lines": {
+      "source_blocks_sha256": [
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+      ],
+      "source_sha256": "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
+      "text": "第 3 页的朴素句子形式，不含空字段。",
+      "translation_source_blocks_sha256": [
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+      ]
+    },
+    "spacr.model_cards.cache_dir": {
+      "source_blocks_sha256": [
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+      ],
+      "source_sha256": "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
+      "text": "``repo`` 的页面图像缓存在 spaCR 主目录下的位置。",
+      "translation_source_blocks_sha256": [
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+      ]
+    },
+    "spacr.model_cards.cached_pages": {
+      "source_blocks_sha256": [
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+      ],
+      "source_sha256": "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
+      "text": "每一页的缓存图像，未缓存处为 ``None``。",
+      "translation_source_blocks_sha256": [
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+      ]
+    },
+    "spacr.model_cards.card_for_entry": {
+      "source_blocks_sha256": [
+        "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+      ],
+      "source_sha256": "4d5f9290e79d20daa927814dcbd90d676e709ad489f24a6da3fb00cd96c6185b",
+      "text": ":class:`~spacr.model_zoo.ModelEntry` 的卡片数据，或 ``None``。\n\n先按 zoo 键匹配，再按获取该条目的仓库匹配。",
+      "translation_source_blocks_sha256": [
+        "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+      ]
+    },
+    "spacr.model_cards.card_keys": {
+      "source_blocks_sha256": [
+        "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b"
+      ],
+      "source_sha256": "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b",
+      "text": "拥有 3 页卡片的 zoo 键。",
+      "translation_source_blocks_sha256": [
+        "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b"
+      ]
+    },
+    "spacr.model_cards.clear_cache": {
+      "source_blocks_sha256": [
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+      ],
+      "source_sha256": "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
+      "text": "删除 ``repo`` 的缓存图像。",
+      "translation_source_blocks_sha256": [
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+      ]
+    },
+    "spacr.model_cards.fact_rows": {
+      "source_blocks_sha256": [
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+      ],
+      "source_sha256": "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
+      "text": "作为 ``(fact, value)`` 对的第 2 页。",
+      "translation_source_blocks_sha256": [
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+      ]
+    },
+    "spacr.model_cards.fetch_pages": {
+      "source_blocks_sha256": [
+        "d32927fe27961a9f8838b53c414466e2dbd81a48be1ca4a84e2b959d1196d1d3",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "b51767176968e553bb42e3ed8d545f1c5c7ec0a2ae0ef6ba5e0e00dba2262b4b",
+        "58ed12568ee4e336997435933a436c8b20df97d253b2dcc91a0772e2b2d20d7d",
+        "ac64f3a117c41c7ede5f464199810b6963ea80a439d86c2a8cfc6ec83621a08e"
+      ],
+      "source_sha256": "94b51e3e4a3f62916c8029ea78557940b485a13a0eeecc0ad36a7bd0f63ab738",
+      "text": "将 ``repo`` 缺失的页面图像下载到缓存。\n\n:param repo: ``owner/repo``.\n:param fetch: 接受 URL 的字节源；默认为 ``urlopen``。\n:returns: 三个缓存路径。\n:raises OSError: 当某一页无法获取或不是 PNG 时。失败之前获取的页面仍留在缓存中。",
+      "translation_source_blocks_sha256": [
+        "d32927fe27961a9f8838b53c414466e2dbd81a48be1ca4a84e2b959d1196d1d3",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "b51767176968e553bb42e3ed8d545f1c5c7ec0a2ae0ef6ba5e0e00dba2262b4b",
+        "58ed12568ee4e336997435933a436c8b20df97d253b2dcc91a0772e2b2d20d7d",
+        "ac64f3a117c41c7ede5f464199810b6963ea80a439d86c2a8cfc6ec83621a08e"
+      ]
+    },
+    "spacr.model_cards.model_link": {
+      "source_blocks_sha256": [
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+      ],
+      "source_sha256": "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
+      "text": "卡片所描述模型的 Hugging Face URL。",
+      "translation_source_blocks_sha256": [
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+      ]
+    },
+    "spacr.model_cards.page_html": {
+      "source_blocks_sha256": [
+        "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
+      ],
+      "source_sha256": "9c42ea7e68c5e36d93f078d5c07fd6bed075feee45968945b6e3a5df9bcb24bc",
+      "text": "某一卡片页（从 1 计数）的文本后备，为一个小的 HTML 正文。\n\n:param headers: 评分表和事实表中已翻译的列标题。",
+      "translation_source_blocks_sha256": [
+        "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
+      ]
+    },
+    "spacr.model_cards.page_url": {
+      "source_blocks_sha256": [
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+      ],
+      "source_sha256": "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
+      "text": "卡片页 ``page``（从 1 计数）的 Hugging Face URL，针对 ``repo``。",
+      "translation_source_blocks_sha256": [
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+      ]
+    },
+    "spacr.model_cards.repo_of_key": {
+      "source_blocks_sha256": [
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+      ],
+      "source_sha256": "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
+      "text": "拥有卡片的 zoo 键的 ``owner/repo``，否则为 ``''``。",
+      "translation_source_blocks_sha256": [
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+      ]
+    },
+    "spacr.model_cards.repo_url": {
+      "source_blocks_sha256": [
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+      ],
+      "source_sha256": "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
+      "text": "模型仓库的 Hugging Face 页面。",
+      "translation_source_blocks_sha256": [
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+      ]
+    },
+    "spacr.model_cards.score_rows": {
+      "source_blocks_sha256": [
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+      ],
+      "source_sha256": "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
+      "text": "作为 ``(metric, \"this (stock x)\")`` 对的第 1 页。",
+      "translation_source_blocks_sha256": [
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+      ]
+    },
     "spacr.model_check": {
       "source_blocks_sha256": [
         "cb82190bc6a7740864406b7ce3eada5f96fa44f5738406aec729863da2e9e385",
@@ -50804,17 +51030,17 @@
     "spacr.model_zoo.default_version_index": {
       "source_blocks_sha256": [
         "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
-        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "ebb6d5ec08a09842718f8bbc718dc03a6513434cfda9bf45b9aabdfd4a196a88",
         "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
-        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+        "3fe71bdf2c3838540c829c4f44b27ee079ecf04f7d24e0d5be4fec0fb64c2e64"
       ],
-      "source_sha256": "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293",
-      "text": "模型系列所在行默认打开的版本。\n\n最新的非替代版本，因此发布替代版本永远不会改变一个系列所在行默认提供的内容。\n\n:param pairs: ``(label, entry)`` 对，最新的在前。\n:returns: ``pairs`` 中的索引；当所有版本都是替代版本或没有任何版本时为 0。",
+      "source_sha256": "bbd58c52c7edc902e9f2717617390e9b1e9f4e51452d5bc6157f613767e37521",
+      "text": "模型系列所在行默认打开的版本。\n\n既不是备选也不是候选的最新版本，因此发布其中任何一个都不会改变某个系列的行默认给出的内容。README 和网站的模型卡片使用同一规则。\n\n:param pairs: ``(label, entry)`` 对，最新的在前。\n:returns: ``pairs`` 中的索引；当每个版本都是备选或候选，或没有版本时为 0。",
       "translation_source_blocks_sha256": [
         "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
-        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "ebb6d5ec08a09842718f8bbc718dc03a6513434cfda9bf45b9aabdfd4a196a88",
         "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
-        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+        "3fe71bdf2c3838540c829c4f44b27ee079ecf04f7d24e0d5be4fec0fb64c2e64"
       ]
     },
     "spacr.model_zoo.discover_local": {
@@ -82431,7 +82657,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "a56ee4ce986b07ae1424b2400563e8ef5a1b983248318af8b9a095175f6ac030",
-      "text": "将每个可见的层切成当前世界窗口。\n\n:param event: Qt 绘画活动。",
+      "text": "将每个可见的层切成当前世界窗口。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
         "8b4b8293f3673167bd762b87f5a4e94459c6b2d0e64f05749d37b320d2f9dc66",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -84633,6 +84859,20 @@
         "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.delete_label": {
+      "source_blocks_sha256": [
+        "6757527de2a3afcb8d57f45ff91800b55b9484dce0b1b92edf83990724023eb7",
+        "18662fcb4057687a8c82acdd189a63bb2d75843f792b163d43b8128ee5902762",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "d8aa49e97cca56def653e4a77df0acc6a70077e0073a8ceb39f51b04556d81d1",
+      "text": "将一个对象作为单个撤销步骤从所有切片中删除。\n\n:param label: 要删除的对象 ID。\n:returns: 已更改的体素数量。",
+      "translation_source_blocks_sha256": [
+        "6757527de2a3afcb8d57f45ff91800b55b9484dce0b1b92edf83990724023eb7",
+        "18662fcb4057687a8c82acdd189a63bb2d75843f792b163d43b8128ee5902762",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
       "source_blocks_sha256": [
         "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
@@ -84735,6 +84975,28 @@
       "text": "重新应用最近一次撤销的体素增量和几何。",
       "translation_source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.replace_plane": {
+      "source_blocks_sha256": [
+        "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
+        "424cc65b58d6346d59adeb03f7f5903849870d302acce442981bf3b3b83b235a",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "076cf7d46317fcf2e7f28d74ebb8252709ae40845143e04af533d1a7b90f43f9",
+        "80684ea15eabed5e31c1ffc55bc06536b1ef1feeb82d0c44cb1a3755658b621c",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "2cf0e511d9e90c1c121f08a1674a2f10838d51d64a060b205b75e559975979a3",
+      "text": "将一个已编辑的切片作为单个撤销步骤写回。\n\n二维 Make Masks 工具就是这样编辑体数据的：它们修改一个切片，切片被整体写回。已在此切片上的对象保留其 ID，``keep`` 中的任何 ID（正在绘制的对象）也是如此。对此切片而言是新的、但属于体数据中其他位置另一个对象的 ID，会改为获得下一个未使用的 ID，这样为自己的对象编号的工具就绝不会把它们并入远处的 3-D 对象。\n\n:param axis: 保持固定的轴，与 :meth:`plane` 相同。\n:param index: 截面沿 ``axis`` 的索引。\n:param labels: 已编辑的切片，形状与 :meth:`plane` 返回的相同。\n:param keep: 可以原样进入该切片的对象 ID。\n:returns: 已更改的体素数量。",
+      "translation_source_blocks_sha256": [
+        "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
+        "424cc65b58d6346d59adeb03f7f5903849870d302acce442981bf3b3b83b235a",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "076cf7d46317fcf2e7f28d74ebb8252709ae40845143e04af533d1a7b90f43f9",
+        "80684ea15eabed5e31c1ffc55bc06536b1ef1feeb82d0c44cb1a3755658b621c",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.section_count": {
@@ -87853,7 +88115,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "f82448f5e6b58336475b8d8e7bb0ce3cbfdd2375ab61230829b33e9a57764a70",
-      "text": "把这个正角滑动。\n\n:param event: Qt 绘画活动。",
+      "text": "把这个正角滑动。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
         "fea0de4b71c4a6e1113f08c4a558af437708828c32c9d20ae14a226a50781206",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -88621,6 +88883,16 @@
         "e7871d5e68c7007075ea859ad59fa543140cff70733bbb8b237d05cc821b3376"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._contrast_follows_the_theme": {
+      "source_blocks_sha256": [
+        "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0"
+      ],
+      "source_sha256": "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0",
+      "text": "仅在主题控件显示 High contrast 的期间勾选 High contrast。",
+      "translation_source_blocks_sha256": [
+        "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._debug_follows_verbose": {
       "source_blocks_sha256": [
         "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
@@ -88643,6 +88915,18 @@
         "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._exact_motion": {
+      "source_blocks_sha256": [
+        "6a66e862030761189140b65a8ae6c60adea63c8cc35fc6a80850d4745521647a",
+        "7d090888e8ef75ed82be076601a4664a1f6dc21d9a6757fe4817a85661770990"
+      ],
+      "source_sha256": "d47ad516b5371ebd753df5381ff2b3a7daac8464d1db7c2a33cc5df869c5e366",
+      "text": "控件所显示内容背后存储的值（若已知）。\n\n滑块保存整数百分比，因此它显示的并不总是存储的值；把它显示的值交还回去会对用户自己的值做四舍五入。",
+      "translation_source_blocks_sha256": [
+        "6a66e862030761189140b65a8ae6c60adea63c8cc35fc6a80850d4745521647a",
+        "7d090888e8ef75ed82be076601a4664a1f6dc21d9a6757fe4817a85661770990"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says": {
       "source_blocks_sha256": [
         "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
@@ -88653,6 +88937,26 @@
         "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_follows_the_switch": {
+      "source_blocks_sha256": [
+        "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b"
+      ],
+      "source_sha256": "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b",
+      "text": "让动态控件保持静止，或交还它们原有的值。",
+      "translation_source_blocks_sha256": [
+        "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_shown": {
+      "source_blocks_sha256": [
+        "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee"
+      ],
+      "source_sha256": "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee",
+      "text": "动画控件现在显示的动态值。",
+      "translation_source_blocks_sha256": [
+        "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers": {
       "source_blocks_sha256": [
         "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
@@ -88661,6 +88965,16 @@
       "text": "打开安装/登录对话框，然后重新列出提供方。",
       "translation_source_blocks_sha256": [
         "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {
+      "source_blocks_sha256": [
+        "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf"
+      ],
+      "source_sha256": "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf",
+      "text": "在 Preferences 之上打开快捷键编辑器并返回它。",
+      "translation_source_blocks_sha256": [
+        "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._page": {
@@ -88851,12 +89165,24 @@
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._settle_unless_dragging": {
       "source_blocks_sha256": [
-        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+        "6695c23caa5a90761a060615877ae5d9e5e707d90baaa23f56d7e1e7bc110462"
       ],
-      "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
-      "text": "拖动在松开时生效；点击或按键立即生效。",
+      "source_sha256": "0ed7543b627b36735b6e61eed81352ae3673b3ac8c7bcc8934028d628685c8c9",
+      "text": "拖动在松开时生效；点击或按键立即生效。\n\n辅助功能下的文字大小会带动字体缩放，因此拖动其中任何一个都算是拖动。",
       "translation_source_blocks_sha256": [
-        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+        "6695c23caa5a90761a060615877ae5d9e5e707d90baaa23f56d7e1e7bc110462"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._show_motion": {
+      "source_blocks_sha256": [
+        "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e"
+      ],
+      "source_sha256": "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e",
+      "text": "将一组动态值应用到动画控件上。",
+      "translation_source_blocks_sha256": [
+        "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._steering_only_matters_when_guided": {
@@ -88985,6 +89311,16 @@
         "6579363ef03d04dc27330aa70c6c53f208f58fb0d5d594ecd44522cc6f4f9864",
         "32f894afe2ac77e56a9fb1b20823cdc61d999a0649d6803d1b983e9c43ef288a",
         "232af6a79ef8aa55da3431d162d04a44f90cb86b46bc70efcd441582893f2feb"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._theme_follows_contrast": {
+      "source_blocks_sha256": [
+        "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6"
+      ],
+      "source_sha256": "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6",
+      "text": "选择 High contrast，或其所取代的主题。",
+      "translation_source_blocks_sha256": [
+        "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_opacity_lbl": {
@@ -90127,6 +90463,18 @@
         "c315c2c98c0453a9a4f18c8a8c189e5b5b1756028f7d2afe52bd33388cf96441"
       ]
     },
+    "spacr.qt.preferences.get_high_contrast": {
+      "source_blocks_sha256": [
+        "6b4c01028f49a57def170567d9e1968585e65d00ee10e6fd8277a7687d368e38",
+        "08e28ba4bc78ed62d1354044bfbcc78ae0112b091a3a8903c71c150fe27e55ca"
+      ],
+      "source_sha256": "1a1e7de437bb6bb6894c5da81bfe44502fcdb9942d2409d6623eabdee2244642",
+      "text": "High contrast 主题是否为所选主题。\n\n:returns: 当 Preferences > 外观 > 主题显示 High contrast 时为 ``True``。",
+      "translation_source_blocks_sha256": [
+        "6b4c01028f49a57def170567d9e1968585e65d00ee10e6fd8277a7687d368e38",
+        "08e28ba4bc78ed62d1354044bfbcc78ae0112b091a3a8903c71c150fe27e55ca"
+      ]
+    },
     "spacr.qt.preferences.get_idle_minutes": {
       "source_blocks_sha256": [
         "990f38412e880238acbd97192c6f552e899adb7e908dd9f04d487a89f1e2a087",
@@ -90311,6 +90659,20 @@
       "text": "什么时候输入 torch 和其余. 'on_demand' 或 'eager'。",
       "translation_source_blocks_sha256": [
         "8d6379188f60f4ffdeea6b4e93cda8478c130a9fc7abe4d7d0f7f213e8de08ed"
+      ]
+    },
+    "spacr.qt.preferences.get_reduce_motion": {
+      "source_blocks_sha256": [
+        "e50f51fe89d622cab13d601ed8b69b5b3960e319fc98b2d50c1461171cc8b59a",
+        "c0d745aef4fb30187ea11e959cc92fd244dec68c607b178bc176df828e9d5e0c",
+        "b2c203a04c70b5682b1e25bb9e11804b53c354d34da2bfdeacf50b1d66ddaa6b"
+      ],
+      "source_sha256": "9c30210a0a8b2039a1ef5799ba17533a1f55929e6c2a0b5a119f10a69b81b413",
+      "text": "减少动态效果是否让每个动画背景保持静止。\n\n开启时，背景绘制一个静止帧而不再推进，涟漪、点击涟漪、弹出波纹和鼠标引力均关闭。\n\n:returns: 减少动态效果开启时为 ``True``；默认关闭。",
+      "translation_source_blocks_sha256": [
+        "e50f51fe89d622cab13d601ed8b69b5b3960e319fc98b2d50c1461171cc8b59a",
+        "c0d745aef4fb30187ea11e959cc92fd244dec68c607b178bc176df828e9d5e0c",
+        "b2c203a04c70b5682b1e25bb9e11804b53c354d34da2bfdeacf50b1d66ddaa6b"
       ]
     },
     "spacr.qt.preferences.get_refresh_news": {
@@ -90575,6 +90937,32 @@
         "335daa9119d3e05c524dcb06d121cbdb78de3774abcc1d29d1274c9b7f0d4675",
         "79dd838a098ee11b0df6661e8cf3427a10182bc0927718ea208eea1f474ec93a",
         "d891076c5add28657292a78dde6f41a5eb1e695cff201cf583964807b7b26476"
+      ]
+    },
+    "spacr.qt.preferences.get_startup_animation": {
+      "source_blocks_sha256": [
+        "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
+        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
+      ],
+      "source_sha256": "d314346cbd17e4651aecd9cae83fb2d300d15d18e3160419f9f5b5bfbb3ba42d",
+      "text": "spaCR 就绪时启动照片马赛克是否被吹散。\n\nPreferences > 动画 > 启动动画。减少动态效果会覆盖它。\n\n:returns: 除非开关被关闭，否则为 ``True``；默认开启。",
+      "translation_source_blocks_sha256": [
+        "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
+        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
+      ]
+    },
+    "spacr.qt.preferences.get_strong_focus": {
+      "source_blocks_sha256": [
+        "1e1e3e6f48f6aaf52322e8f936b67c19647a9c4eaabc818bf11154045a757861",
+        "d138af1f20420f74d6776c2b24435b9b6a4ec5a3b1fc996d6dddeaefe9d32d6d"
+      ],
+      "source_sha256": "c04220e0d4ba0ba91783ed616ac12073989c5e156004f96a3bf430beac3c4e04",
+      "text": "拥有键盘焦点的控件是否带有粗焦点环。\n\n:returns: 更强的焦点轮廓开启时为 ``True``；默认关闭。",
+      "translation_source_blocks_sha256": [
+        "1e1e3e6f48f6aaf52322e8f936b67c19647a9c4eaabc818bf11154045a757861",
+        "d138af1f20420f74d6776c2b24435b9b6a4ec5a3b1fc996d6dddeaefe9d32d6d"
       ]
     },
     "spacr.qt.preferences.get_theme": {
@@ -91383,6 +91771,22 @@
         "e021eb52fd1c7cbc7f367154d5763ff3bdb6c30c9d798cfe094013be229704ed"
       ]
     },
+    "spacr.qt.preferences.set_high_contrast": {
+      "source_blocks_sha256": [
+        "7a8ee2899451dea14e16adf8dce0c9d45496cd1521d7ba5e1b0a84dbab32bc7e",
+        "66d21713b81af7e8b452ce4111c33e140c707a46f712167e3e8fe0b1a47fe25b",
+        "0a3d8a7db10ae0fd395e5e29d5fafd6704e68979bdd0269de928978cce135d25",
+        "0ef9b95594e39de8e9098d353e85bdcddc424d95ab007d907e5fa51e9dc19cd9"
+      ],
+      "source_sha256": "603abc439cb9b46748448e4f01be6a2d8e5eec3b788d2f49021d91e85bff479a",
+      "text": "选择 High contrast，或回到其所取代的主题。\n\n被取代的主题保存在偏好设置存储中，因此重启后依然保留。\n\n:param on: 选择 High contrast 为 true，离开它为 false。\n:returns: 之后生效的主题选择。",
+      "translation_source_blocks_sha256": [
+        "7a8ee2899451dea14e16adf8dce0c9d45496cd1521d7ba5e1b0a84dbab32bc7e",
+        "66d21713b81af7e8b452ce4111c33e140c707a46f712167e3e8fe0b1a47fe25b",
+        "0a3d8a7db10ae0fd395e5e29d5fafd6704e68979bdd0269de928978cce135d25",
+        "0ef9b95594e39de8e9098d353e85bdcddc424d95ab007d907e5fa51e9dc19cd9"
+      ]
+    },
     "spacr.qt.preferences.set_idle_minutes": {
       "source_blocks_sha256": [
         "ba929b8317f0b11dfc56312aa5b520c321134b1805b8f24bc8d98ada12225239",
@@ -91575,6 +91979,20 @@
         "254e5073a004a0afac39d354c30ff161e8c0ecf3bc36ac7784d0e36abc5823c9",
         "a502f3c7ccf43feb11707125813a9c969c51bc5e9afd56b33d19c4bbc0f3c00c",
         "16293c11a5b81a7e46090ff468e76eb1c6887f3cf8131a2e62bb90f857ebe557"
+      ]
+    },
+    "spacr.qt.preferences.set_reduce_motion": {
+      "source_blocks_sha256": [
+        "e9a9b8e4b229d01ae9491e9b301c5cff4dfe22fcfaeb86206e4d43e0bc831fb9",
+        "8438099a202aa8b74a4862d6e14777545f384175b6b854ff045832da7f15d550",
+        "e112e381bb7e461321afb2ca55340695167c2793cb8877e1a222a1a82b5c6f38"
+      ],
+      "source_sha256": "63ab1f7cb37d04fb121a86f32d30d9e9828ea2f90e6c622a4f2f96efe25a26e1",
+      "text": "开启或关闭减少动态效果。\n\n开启时，它保存当前生效的涟漪、点击涟漪、弹出波纹和鼠标引力的值，并将每一项设为零或关闭。关闭时，它会原样还原所保存的值。调用 :func:`apply_ambient_preferences` 可让正在运行的背景跟上。\n\n:param on: true 表示让背景保持静止。",
+      "translation_source_blocks_sha256": [
+        "e9a9b8e4b229d01ae9491e9b301c5cff4dfe22fcfaeb86206e4d43e0bc831fb9",
+        "8438099a202aa8b74a4862d6e14777545f384175b6b854ff045832da7f15d550",
+        "e112e381bb7e461321afb2ca55340695167c2793cb8877e1a222a1a82b5c6f38"
       ]
     },
     "spacr.qt.preferences.set_refresh_news": {
@@ -91845,6 +92263,32 @@
       "translation_source_blocks_sha256": [
         "e0384e72d07c180fd1c2a84c97eb50bb80f0320a63a7b251f2589ba746b616da",
         "e584661e8d1938837587eba40d5d57af6e74f6c3fa740c02796af0b4dc3efc5c"
+      ]
+    },
+    "spacr.qt.preferences.set_startup_animation": {
+      "source_blocks_sha256": [
+        "0280dbc13056cf3d2d7f2f29072a843659f9b8e6de9d45c963c71c6dc69ce102",
+        "31e18835346243e982348f2097f36e60f4ef8219b3c073dd24ba3e349b6dcc0b"
+      ],
+      "source_sha256": "cb0587829f10a40a01c6dadc20ace49796b58575eb23776746c8c0370888c718",
+      "text": "开启或关闭启动动画。\n\n:param on: 启动时照片马赛克是否被吹散。",
+      "translation_source_blocks_sha256": [
+        "0280dbc13056cf3d2d7f2f29072a843659f9b8e6de9d45c963c71c6dc69ce102",
+        "31e18835346243e982348f2097f36e60f4ef8219b3c073dd24ba3e349b6dcc0b"
+      ]
+    },
+    "spacr.qt.preferences.set_strong_focus": {
+      "source_blocks_sha256": [
+        "879b384771f08044251e4313b1f801ea251dd327569afc63afb592c123a3dcbc",
+        "92fb1f9b5c37c586121eba47ff500ee5996a67fb95d9b6be6ddf4d07ca00fe87",
+        "e102942987b756eb40f825e1192a2ca75d308f1521af85dc03b5d349543c3cbc"
+      ],
+      "source_sha256": "2446a06ddd7b70570d9419384071b6c29f40fffae5d04558dbc26d8ca15369e3",
+      "text": "开启或关闭粗焦点环。\n\n该环是 :func:`spacr.qt.theme.stylesheet` 的一条规则（:func:`spacr.qt.theme.focus_ring_qss`）；调用 :func:`apply_preferences_to_app` 可将其应用到窗口上。\n\n:param on: true 表示粗环。",
+      "translation_source_blocks_sha256": [
+        "879b384771f08044251e4313b1f801ea251dd327569afc63afb592c123a3dcbc",
+        "92fb1f9b5c37c586121eba47ff500ee5996a67fb95d9b6be6ddf4d07ca00fe87",
+        "e102942987b756eb40f825e1192a2ca75d308f1521af85dc03b5d349543c3cbc"
       ]
     },
     "spacr.qt.preferences.set_theme": {
@@ -96795,6 +97239,24 @@
         "fb5876c773669c2894cc3f04ebdf8843e3c61f48e58b048396b3a5f8d4d990a0"
       ]
     },
+    "spacr.qt.screens.app_screen.default_settings_csv_path": {
+      "source_blocks_sha256": [
+        "fe690a2956aac8acf9bf9b0eeb2a2d92a69332fc553101d217c6ffd03455efaa",
+        "5f90e9d02f9105dfa237f94fe9ab38b0ce28e2330239bea872b282b07d95994e",
+        "2221aae575b1fc7fa2c9d91a748c3e8ce4e6c70af8c00e11e1a46e810d3f3299",
+        "a097aebba093064b67a6f77c644fa48ec682c7196f8612b2ad159f782877888d",
+        "3860ce8374fa2c904ebd5d3de4eadafa2030750e6894a8bbdc944d271e63a01f"
+      ],
+      "source_sha256": "b3e3651572e271f2bf24ee789ac635a7f3f3d4e1a69df3c7062cf8a8c5b8a687",
+      "text": "Export settings… 所提供的路径：``<module>_settings.csv``。\n\n它放在表单所指定的源文件夹中，否则放在上一次导入或导出设置 CSV 的文件夹中，再否则放在主文件夹中。该文件夹只是被指名，从不被列出或检查，因此缓慢或缺失的网络共享无法拖住对话框。\n\n:param module: 模块的键，例如 ``measure``。\n:param src: 表单的源文件夹；若是列表，则提供其第一项。\n:returns: 建议的 CSV 路径。",
+      "translation_source_blocks_sha256": [
+        "fe690a2956aac8acf9bf9b0eeb2a2d92a69332fc553101d217c6ffd03455efaa",
+        "5f90e9d02f9105dfa237f94fe9ab38b0ce28e2330239bea872b282b07d95994e",
+        "2221aae575b1fc7fa2c9d91a748c3e8ce4e6c70af8c00e11e1a46e810d3f3299",
+        "a097aebba093064b67a6f77c644fa48ec682c7196f8612b2ad159f782877888d",
+        "3860ce8374fa2c904ebd5d3de4eadafa2030750e6894a8bbdc944d271e63a01f"
+      ]
+    },
     "spacr.qt.screens.app_screen.dimension_settings": {
       "source_blocks_sha256": [
         "1b27a83ed2953a975a517837d5a1ab51b884e82974a51eeab1a78dc27f07d7ae",
@@ -96815,6 +97277,28 @@
         "e9098e630052d951acce9af167ff6eaa16d2edc19cd56697ad3707fe5e5b54ca",
         "db28c9bdf98648541afc804443bea2f38c91e6514094f8b073a35d697231690f",
         "aec757ded32d42143654711e46408042bc3c01b83567e2f731135dedbe37e8a6"
+      ]
+    },
+    "spacr.qt.screens.app_screen.export_settings_csv": {
+      "source_blocks_sha256": [
+        "04640b88a31ac82d1a26d54cb0ca17a576f2bf8832d0f80a95cb7e32154469a4",
+        "ff72d9a82c520b395ad4bcd825f1fe48db9f93f8b08f1ebfd1f6a9d8c5241435",
+        "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+        "62cd4ceab9383e49e8a9a662b55ed0dd21c6e43553d58cd0e49c11a72dc4baab",
+        "4e3e8ec5918a5e20924fc36c438de8621c73a2c05ec6277001818eb5d6200400",
+        "d3b78b97ad706ebdf0cb2cc235616f67f1da85f540d5fdbfc1e0b32a614c659a",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
+      ],
+      "source_sha256": "9b166ca9ac2419860b6336ec9d1a8ca456dcf5c6d0478c39fea6ea7fc9b17063",
+      "text": "询问将 ``settings`` 保存为设置 CSV 的位置，并写入那里。\n\n每个 Export settings… 按钮和 Distributed Jobs 快照背后的唯一实现。该文件就是 :func:`spacr.cli.write_settings_file` 所写入的文件，Import settings… 和 ``spacr-run --settings`` 都会读取它。\n\n:param parent: 该对话框的父控件。\n:param settings: 要写入的设置，与所给完全一致。\n:param default_path: 对话框首先提供的路径。\n:returns: 所写入的 CSV 和 JSON 路径；若对话框被取消则为空列表。\n:raises OSError: 当文件无法写入时。",
+      "translation_source_blocks_sha256": [
+        "04640b88a31ac82d1a26d54cb0ca17a576f2bf8832d0f80a95cb7e32154469a4",
+        "ff72d9a82c520b395ad4bcd825f1fe48db9f93f8b08f1ebfd1f6a9d8c5241435",
+        "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+        "62cd4ceab9383e49e8a9a662b55ed0dd21c6e43553d58cd0e49c11a72dc4baab",
+        "4e3e8ec5918a5e20924fc36c438de8621c73a2c05ec6277001818eb5d6200400",
+        "d3b78b97ad706ebdf0cb2cc235616f67f1da85f540d5fdbfc1e0b32a614c659a",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ]
     },
     "spacr.qt.screens.app_screen.module_maturity": {
@@ -104891,7 +105375,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "b9a74863eb1a30e4ff52741b350f006d80cdace5e11778e3e9a9c9fd1b74af33",
-      "text": "切割点和折叠小板。\n\n:param event: Qt 绘画活动。",
+      "text": "切割点和折叠小板。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
         "d7c1db87124a3837a4883ded69ad4dbecca54bc0e7bd3fb5fa19403a64a9d417",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -105741,18 +106225,18 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
       "source_blocks_sha256": [
-        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
-        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+        "76e53240b31de97857883e47a8db1d3f9e2a8cd97f79b7dfb341e389f801702b",
+        "4a0313fb9023404c9e07485502853439caed64b9ea55fddb491040331c412da7",
         "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
-        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+        "b317cc3382ee51e288ab9dfc410a0a079e356dd809caa6127f3e254b91b2e092"
       ],
-      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
-      "text": "在 3D 掩码编辑器中打开 z 堆栈或体积。\n\n掩码在 XY、XZ 或 YZ 截面上逐切片绘制和擦除，在已绘制的切片之间插值，分配给 3D 对象，并用共享锚点进行编辑。TIFF 堆栈、OME-TIFF 和 MRC 体积可以打开；时间/通道/RGB 的 TIFF 会被拒绝，而不会被解释为深度。现有的 2D 图像、掩码工具和 YOLO 标注保持独立。\n\n:param path: 可选的体积路径；否则打开文件选择器。\n:returns: 原生体积对话框；取消或拒绝时为 None。",
+      "source_sha256": "dd4fd1c0adac15b7e1ea3dcc6677d33f0ae62992666d4d5f9ba98c8becc90005",
+      "text": "在 Mask 视图中打开 z 堆栈或体数据，2-D 场就在这里打开。\n\n左侧的滑块逐个切片步进；每个 2-D 工具都在屏幕上显示的切片上绘制。Mask 选项卡旁的\"视图\"列表可增加 XZ 和 YZ 侧视图（Orthogonal），或以 3D 显示体数据及其对象，在其中用锚点绘制和重塑它们（True 3D）。TIFF 堆栈、OME-TIFF 和 MRC 体数据可以打开；时间/通道/RGB TIFF 会被拒绝，而不是被解释为深度。\n\n:param path: 可选的体积路径；否则打开文件选择器。\n:returns: Mask 视图的体数据阶段，取消或被拒绝时为 None。",
       "translation_source_blocks_sha256": [
-        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
-        "dd8337393063df88b68ff4b8a82ee7b42999a0c8cd3149406613f7a647baf363",
+        "dfc44a44bdf114c4cd7503ab70e076657067f908717a0728e2c0636b1bc7ff86",
+        "c818c4a4abd62bdc4c78695844fb925813827c1e7ab2dd089362b914320ed0f9",
         "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
-        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+        "b317cc3382ee51e288ab9dfc410a0a079e356dd809caa6127f3e254b91b2e092"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
@@ -110375,7 +110859,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "54c592e4a807aabfa9695ee690e1bd125776446f8cb3814dabaa82ea336c64d7",
-      "text": "绘制实验室微板:每个微板样本位置的单个细胞,颜色为其值。\n\n:param event: Qt 绘画活动。",
+      "text": "绘制实验室微板:每个微板样本位置的单个细胞,颜色为其值。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
         "978f252987eef99db6452fb5197cfdbf12bfd6cfee993f70af6a7bb8ae0124f7",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -110885,7 +111369,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "bb017604b602acd47517ab66a72735b9db5c5c6cf6158801de16fe608d586929",
-      "text": "绘制统计检测敏感度曲线。\n\n:param event: Qt 绘画活动。",
+      "text": "绘制统计检测敏感度曲线。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
         "d8de268d3cb47d04d02cad13e0df1f33d3c9855621a97bc710d922d91d7c1b65",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -119339,6 +119823,38 @@
         "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
       ]
     },
+    "spacr.qt.theme.focus_ring_colour": {
+      "source_blocks_sha256": [
+        "e40b2877895df99578064c3f07f461c8d1092652e882a378b3e4bbf6fec775ab",
+        "e7d4e9e4d135e1c9ff9e7093ca381bf1656c11cbcc7dbcc21416e5889166dfb8",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "0a7bf58bcd2bae87ce29bdac0f675b89e540f6e840e465d8e3c9873d6fc05b5e"
+      ],
+      "source_sha256": "e8642ee49143742b251c230a326dc6296563f81d57a7d0c042f192216954ab93",
+      "text": "``theme`` 的粗焦点环颜色。\n\n主题的强调色，它也是其自身细焦点边框已在使用的颜色，前提是强调色相对页面和字段表面达到 :data:`FOCUS_RING_MIN_CONTRAST`；否则使用主题的墨色。\n\n:param theme: :data:`THEMES` 之一。\n:returns: 一个 ``#rrggbb`` 颜色。",
+      "translation_source_blocks_sha256": [
+        "e40b2877895df99578064c3f07f461c8d1092652e882a378b3e4bbf6fec775ab",
+        "e7d4e9e4d135e1c9ff9e7093ca381bf1656c11cbcc7dbcc21416e5889166dfb8",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "0a7bf58bcd2bae87ce29bdac0f675b89e540f6e840e465d8e3c9873d6fc05b5e"
+      ]
+    },
+    "spacr.qt.theme.focus_ring_qss": {
+      "source_blocks_sha256": [
+        "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
+        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
+      ],
+      "source_sha256": "f9736dec835b6f030d2649c6a0321eee80b6ef9feaa4e07fd1ee119906cdf718",
+      "text": "在拥有键盘焦点的控件周围加粗环的规则。\n\nPreferences > 外观 > 辅助功能 > 更强的焦点轮廓。主题绘制的唯一焦点标记是 1 px 的强调色边框，在繁杂的背景上很容易看丢；这个环宽 :data:`FOCUS_RING_PX`，颜色取自 :func:`focus_ring_colour`。\n\n:param theme: :data:`THEMES` 之一。\n:returns: QSS，在该偏好设置开启期间由 :func:`stylesheet` 最后追加。",
+      "translation_source_blocks_sha256": [
+        "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
+        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
+      ]
+    },
     "spacr.qt.theme.font_px": {
       "source_blocks_sha256": [
         "23e9c1faa3c98b6962d348fa5067b9832494d128cab02c3c5ccd8f8f9edef465",
@@ -120983,14 +121499,32 @@
       "source_blocks_sha256": [
         "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",
         "afa4b72571ecdd2394451f4522970faed5a21aaf0a054b9fb4bf7e98321b30d0",
-        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53"
+        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53",
+        "194565fdca4014dac5e2b08531c895a6fe0c9540aa90ab723dcc1125e43ef905"
       ],
-      "source_sha256": "742c1cfbb9cb41e686ff0f44ebedfd6b634d1cf47853f85e845b4842a822f103",
-      "text": "出版的教训教导一个模块,并打开它的URL。\n\n教学图书馆在 ``<docs>/tutorials/`` 与 ``#lesson=<id>`` 深连结,所以指示一个读者在教学中为他们正在移动的模组是一个搜寻和一条线. 搜寻表是 ``spacr/resources/tutorial_index.json``,由 ``tools/build_tutorial_index.py`` 写的从教学家建立自己的教学目录 - 看看为什么它不是目录本身。\n\n没有网络接入,没有重量进口:这在路线上读到,从家和门口,所以它在第一次使用时隐藏了桌子,并为任何无法解决的答案``\"\"``。",
+      "source_sha256": "db5b3e1306984c5e645f06c9d853864556308e26f7d46f4127c84121400fad68",
+      "text": "哪一节已发布的课程讲授某个模块，以及打开它的 URL。\n\n位于 ``<docs>/tutorials/`` 的课程库通过 ``#lesson=<id>`` 直接链接，因此把读者引向其悬停模块的课程只是一次查找和一个字符串。查找表是 ``spacr/resources/tutorial_index.json``，由 ``tools/build_tutorial_index.py`` 根据文档构建自己的课程目录写出 -- 为何它不是目录本身，请见那里。\n\n无网络访问，也无繁重的导入：它在悬停路径上被读取，来自 Home 和停靠栏，因此首次使用时缓存该表，对任何无法解析的内容回答 ``\"\"``。没有课程的模块得不到链接，悬停处理程序中也不会抛出异常。\n\n同一个表包含完整的课程列表，``spacr-tutorial`` 打印它，并据以解析课程编号、slug 或界面名称；见 :func:`lessons` 和 :func:`find_lesson`。",
       "translation_source_blocks_sha256": [
         "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",
         "afa4b72571ecdd2394451f4522970faed5a21aaf0a054b9fb4bf7e98321b30d0",
-        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53"
+        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53",
+        "194565fdca4014dac5e2b08531c895a6fe0c9540aa90ab723dcc1125e43ef905"
+      ]
+    },
+    "spacr.qt.tutorials.find_lesson": {
+      "source_blocks_sha256": [
+        "3aa5efa51349bc09a7d8f05874ed10dd6c6047e8e53281d83239d889de4ba5a6",
+        "9c6376a0d5f62091a13ef86c9cb4862ef7711a7f76189036feaa2fdd756fe5f1",
+        "6fb7a889244185587ebcf0cacaa1156764a09f0f4b61920ee5a95fc8cfee65d3",
+        "a323095f1702386396c07c3af4f200502f78cef0f609bd8ea36117d1e9a698e6"
+      ],
+      "source_sha256": "03898a0209cb66574cc37cf12e7ed90c2cefffc344c246bab9895035f8cfe50c",
+      "text": "``name`` 所指的课程，或最接近的名称。\n\n``name`` 可以是课程编号（``7`` 或 ``07``）、课程 id（``07_mask``）、课程所涵盖界面的键（``measure``）或 slug（``plaque-assay``）。大小写、连字符和空格都无关紧要。当两节课程对应同一个名称时，该列表中靠前的类型获胜，同一类型的课程中编号最小的获胜。\n\n:param name: 读者所键入的内容。\n:returns: ``(lesson, [])``（如 :func:`lessons` 所给出），或在没有匹配时的 ``(None, suggestions)``：最多五个 slug 和界面名称，先是拼写最接近的，再是包含 ``name`` 的。",
+      "translation_source_blocks_sha256": [
+        "3aa5efa51349bc09a7d8f05874ed10dd6c6047e8e53281d83239d889de4ba5a6",
+        "9c6376a0d5f62091a13ef86c9cb4862ef7711a7f76189036feaa2fdd756fe5f1",
+        "6fb7a889244185587ebcf0cacaa1156764a09f0f4b61920ee5a95fc8cfee65d3",
+        "a323095f1702386396c07c3af4f200502f78cef0f609bd8ea36117d1e9a698e6"
       ]
     },
     "spacr.qt.tutorials.has_tutorial": {
@@ -121027,6 +121561,34 @@
       "translation_source_blocks_sha256": [
         "a41ce64adc1a5fae6f67cbf7abb03510803cba7245fac5fecf159f987f25d3e8",
         "856449baa5480d2a7928d70223dfe0a88a0699125f7d355e93b9ea3fb0b7d99c"
+      ]
+    },
+    "spacr.qt.tutorials.lesson_url": {
+      "source_blocks_sha256": [
+        "f7dde7fb07731c7d1bf5f8e8fee716d7b71f60ad5a7f66e812ecddde9bc2e301",
+        "d19fd9e9aae240c8f510197badc842745fa020ef3a7c6732b0b067574ae994ec",
+        "0967d3fec8f62e57a8269830ecf05474c72bc4e732b2f4e1f898599baeb87037"
+      ],
+      "source_sha256": "5257fd85954d841530ebb6455f69994eddc93b3e3161742fb00a71b275b9b50c",
+      "text": "打开课程库中某一节课程的 URL。\n\n:param lesson: 课程 id，例如 ``07_mask``。\n:returns: 带有其所读取的 ``#lesson=`` 片段的课程库 URL。",
+      "translation_source_blocks_sha256": [
+        "f7dde7fb07731c7d1bf5f8e8fee716d7b71f60ad5a7f66e812ecddde9bc2e301",
+        "d19fd9e9aae240c8f510197badc842745fa020ef3a7c6732b0b067574ae994ec",
+        "0967d3fec8f62e57a8269830ecf05474c72bc4e732b2f4e1f898599baeb87037"
+      ]
+    },
+    "spacr.qt.tutorials.lessons": {
+      "source_blocks_sha256": [
+        "8a731457e881988c7b735aea903e3ca7d859faa7cabd8f8c45d0ed059198cfc4",
+        "c570a7c59da920182fc47b5224edd8aaf18d226082354644b2e539f08c9dc087",
+        "e2d3eff8dc794d47f7cbe81eec4255d56caf6b726c16cd6f6eb088f63d897b95"
+      ],
+      "source_sha256": "808be786b3f63f8478b760240b4862631ef0ddd018fd39d09c43c14a1d98258d",
+      "text": "课程库中的每一节课程，按课程编号排序。\n\n从随附的表中读取一次并缓存；无法读取的表给出空列表，就像模块查找给出 ``\"\"`` 一样。\n\n:returns: 每节课程一个 dict，包含 ``number``（int）、``lesson``（其 id，例如 ``07_mask``）、``slug``、``title`` 和 ``app_key``（它所涵盖的界面，对于不专讲某一界面的课程为 ``\"\"``）。",
+      "translation_source_blocks_sha256": [
+        "8a731457e881988c7b735aea903e3ca7d859faa7cabd8f8c45d0ed059198cfc4",
+        "c570a7c59da920182fc47b5224edd8aaf18d226082354644b2e539f08c9dc087",
+        "33a5a71eb6387f28d314813db1c4fd1943f103a8b3b8a7d63d6eec10d2b8a1e6"
       ]
     },
     "spacr.qt.tutorials.tutorial_url": {
@@ -132233,7 +132795,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "220a82364b38a13b51e092dfed5607c6a008c8ba0496eb5d9fe7644d66096506",
-      "text": "将现行框架绘制。\n\n:param event: Qt 绘画活动。",
+      "text": "将现行框架绘制。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
         "194033ae6482c2a0de7d0e7cdcc9da7a4ea6326f3ed583b9ba7d11dee008310b",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -142404,7 +142966,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "0710df7f403cb5357c20a1a67e2adef7afa3df16a3285a504f523da0e3227a92",
-      "text": "绘制包装模块的图标,并将其成熟度作为雷姆颜色。\n\n颜色携带信息,所以它被拖到而不是留在风格表:阿尔法和贝塔模块被标记,而一个无法区分的读者仍然得到工具提示。\n\n:param event: Qt 绘画活动。",
+      "text": "绘制包装模块的图标,并将其成熟度作为雷姆颜色。\n\n颜色携带信息,所以它被拖到而不是留在风格表:阿尔法和贝塔模块被标记,而一个无法区分的读者仍然得到工具提示。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
         "50e972271dea387c5fba81151e0a4585ac58f85597d60adb36a8ef8e5fe02857",
         "33df2767f5b4c7dc50824bff9cb8aaf8994abe9400c2ca9d811bec9df095cdfd",
@@ -155727,9 +156289,86 @@
         "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
       ]
     },
+    "spacr.qt.widgets.loading_screen.BlowAway": {
+      "source_blocks_sha256": [
+        "87df8aa6a9199c7e0b60c0f2b7e94ef39b70151f339a55ffc3aa51ecceff7a3e",
+        "5996ceac6f9ef17944a0da9485b4dd1dedea8c9a131fed0c91b37a52f2652483",
+        "20e14e029b03c7e11ff57aaa8731cdf4f57c59a2789aa48da7f6c59faa875407",
+        "694113f5af6cf07ba62112223e066c0938b40a67062e765ff6cc5a467722486c",
+        "edfb90e1f2228b13070d7665d21681551a78ad5ca1bc3a74595298b47d3f3cfa",
+        "501e1f909e5270fa51c64e6b3620b1e9c7515a9445a626c0f64ef71939fbcce3",
+        "9e254181e413ee820b6af962d3f46d59a119aded363936e4f91865c5992cbcd0",
+        "2b3d68dd20c2c3440766c280753840e2b26434e4f8c52ab383ebcefeb97da69c",
+        "56117aac5ebe0055f82cf0281cdc86ac6e6feaf0938fdd65e752ff7c3c118565",
+        "dcda49772c3163a8f3127ab83551bf40e60c26dc6b3941d80a8934e15e664d71",
+        "379c7bb97f00aa031ac2c535729b6846158b3622f0c0c240fe0d12ced87053f7"
+      ],
+      "source_sha256": "190c7c6b0817aa6e89a028b06f849ce3726113c3a3e39de66a85fc8d664fe23c",
+      "text": "风锋将照片马赛克的图块吹走时图块的运动。\n\n对数组的纯算术，不涉及 Qt：每个图块的起飞时刻和飞行由带种子的生成器一次性抽取，:meth:`frame` 在某一时刻评估整个群体，因此运动只取决于经过的时间，而绝不取决于绘制了多少帧。\n\n风锋沿 ``wind`` 扫过马赛克。到达某个图块时，该图块向观察者升起，像卡片一样翻转（一个轴按其翻转角的余弦缩放，并带有倾斜和一点透视缩短），旋转，并在渐渐淡出的同时带着随机湍流和轻微重力顺风飞去。背景图块不会飞；它们随风锋一起离开。\n\n:param occupied: ``grid x grid`` 个布尔值；``True`` 的图块会飞。\n:param origin: 马赛克的左上角，以控件坐标表示。\n:param side: 马赛克的边长，使用相同的单位。\n:param seed: 随机性的种子。\n:param wind: 风吹的方向，``(x, y)``；屏幕向下为 ``+y``。\n:param start: 风锋到达第一个图块之前的秒数。\n:param sweep: 风锋穿过马赛克所需的秒数。\n绘制每个图块的起飞和飞行；见类的 docstring。",
+      "translation_source_blocks_sha256": [
+        "87df8aa6a9199c7e0b60c0f2b7e94ef39b70151f339a55ffc3aa51ecceff7a3e",
+        "5996ceac6f9ef17944a0da9485b4dd1dedea8c9a131fed0c91b37a52f2652483",
+        "20e14e029b03c7e11ff57aaa8731cdf4f57c59a2789aa48da7f6c59faa875407",
+        "694113f5af6cf07ba62112223e066c0938b40a67062e765ff6cc5a467722486c",
+        "b98454ca7b2a02daf7fecb6ff243f683f7eb697431c1f21b6f672b61fed5faf2",
+        "097f867643420fb4fbb4f9ad37058a77fa73a705fae2235f5438380f92873509",
+        "9e254181e413ee820b6af962d3f46d59a119aded363936e4f91865c5992cbcd0",
+        "2b3d68dd20c2c3440766c280753840e2b26434e4f8c52ab383ebcefeb97da69c",
+        "56117aac5ebe0055f82cf0281cdc86ac6e6feaf0938fdd65e752ff7c3c118565",
+        "5e782f6e2e1cf4e6799a8d3862b5cc343005ff1c85d57d2a148c0c5c310e5675",
+        "379c7bb97f00aa031ac2c535729b6846158b3622f0c0c240fe0d12ced87053f7"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.BlowAway.backdrop": {
+      "source_blocks_sha256": [
+        "4cd12e167f488c28f6882d8928fca4e531959a69622ac3ec11e00abd64812db4",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "27a68c541c6717d4df3473424a96aaaac12d97ecf69f5b4311964e79187d3c70"
+      ],
+      "source_sha256": "ff513918ecc9a0d568362df29272b6b6534b451c6135f31a4fec1380be6d2748",
+      "text": "在风锋之后和之前，覆盖层底色有多不透明。\n\n:param t: 吹散开始后的秒数。\n:returns: ``(front, behind, ahead)``：风锋沿风向的位置，以马赛克的比例表示（上风边缘为 0，下风边缘为 1），以及两侧底色的不透明度，0..1。",
+      "translation_source_blocks_sha256": [
+        "4cd12e167f488c28f6882d8928fca4e531959a69622ac3ec11e00abd64812db4",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "1c3423091e47184009d3ab0f68ee9a2875d1206e7b72fab0eceeee08c20f2d72"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.BlowAway.frame": {
+      "source_blocks_sha256": [
+        "efc9f936f28056f46f86ece7a27eaf679a4239f3328c31e5be441c5d00a9303c",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "45e5eadac619e27e448b3d7dc8d549885fcfd471154751ad0462bb5fe6845945",
+        "430475f7a74d3c17ca4b2af41acca330da8a6ef9f084da9415d2018345d7f9c8",
+        "bbcfe5c115c216321164e195e4d5e6e91e37baa748a6b1e83d83617f69210d62"
+      ],
+      "source_sha256": "748edc75c3f98c00fbaf9a74d1dfd7e17850f4b021bd757fc194f8a2f32f74fe",
+      "text": "每个飞行中的图块在 ``t`` 时所在的位置。\n\n:param t: 吹散开始后的秒数。\n:param bounds: ``(x0, y0, x1, y1)``；中心离开它超过两个间距的图块会被丢弃。``None`` 则全部保留。\n:param floor: 比此更淡的图块会被丢弃。\n:returns: ``(index, m11, m12, m21, m22, dx, dy, opacity)``：飞行中图块的索引，以及对每个图块，将以原点为中心绘制的图块定位的仿射矩阵，和它的不透明度。",
+      "translation_source_blocks_sha256": [
+        "efc9f936f28056f46f86ece7a27eaf679a4239f3328c31e5be441c5d00a9303c",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "45e5eadac619e27e448b3d7dc8d549885fcfd471154751ad0462bb5fe6845945",
+        "430475f7a74d3c17ca4b2af41acca330da8a6ef9f084da9415d2018345d7f9c8",
+        "bbcfe5c115c216321164e195e4d5e6e91e37baa748a6b1e83d83617f69210d62"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.BlowAway.launched": {
+      "source_blocks_sha256": [
+        "20489f4b13634ca8b58bba7d42f7bfb02d3417b5f5c58f1c0c9ec37835121bbb",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "6592cae316087969f8abfd795d851a5d47303933a15282d9ac41a6489c378d5d"
+      ],
+      "source_sha256": "b454a81c709122f74999ad947c31e1ffe978627cadd8152fff43d526073a3f5e",
+      "text": "风锋已到达的每个图块的索引，无论是否在飞。\n\n:param t: 吹散开始后的秒数。\n:returns: 按行优先的图块索引。",
+      "translation_source_blocks_sha256": [
+        "20489f4b13634ca8b58bba7d42f7bfb02d3417b5f5c58f1c0c9ec37835121bbb",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "6592cae316087969f8abfd795d851a5d47303933a15282d9ac41a6489c378d5d"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.LoadingScreen": {
       "source_blocks_sha256": [
         "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+        "9d0d992e12b6e5e79e85c2827c3390f0eb05da130f8bf3bc38b208ebff8ebc91",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
         "79a32a90fbb1078f7a69a7402e50b25d76dfd4a31922faf40102561791b6fcb7",
@@ -155737,10 +156376,11 @@
         "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
         "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
       ],
-      "source_sha256": "69005d582b0bc65cab72695c80e6a368943aee0cc0b0bc66ecb6a7b8edc8257e",
-      "text": "全窗覆盖显示,直到工作流模块被进口。\n\n:param total: 零或消极意味着 \"unknown\",而不是分裂的阶段则保持模糊。\n:param parent: 它尺寸为父母,并与它相处,而不是是一个单独的顶级 - 第二个窗口将获得自己的任务栏输入,并可以被拖出它应该覆盖的东西。\n建造在收集时覆盖窗口的插槽。\n\n建造包装:它覆盖了一个部分建造的窗口,任何透明度都会显示它存在的东西隐藏。\n\n:param total: 进展栏数到多少步; ``0`` 显示没有比例。\n:param parent: 窗口覆盖;它的地质被采用。",
+      "source_sha256": "1d965b9967f591349b138e79a49421d86f7d7527cd5563369b7913d264bc2172",
+      "text": "在流水线模块导入完成之前显示的全窗口覆盖层。\n\n默认情况下，它在标语行旁显示白色标志。调用 :meth:`show_mosaic` 后，它改为在标语行上方显示 spaCR 照片马赛克，而 :meth:`blow_away` 通过把马赛克的图块吹离窗口来结束它，露出下方的窗口。\n\n:param total: 将报告多少步。零或负数表示 \"unknown\" 。此时各阶段保持暗淡，而不是除以它。\n:param parent: 它所填充的窗口。它按父窗口调整大小并随之变化，而不是一个独立的顶层窗口 -- 第二个窗口会有自己的任务栏条目，还可能被拖离它本应覆盖的对象。\n构建在窗口组装期间覆盖它的启动画面。\n\n按构造不透明：它覆盖一个只建了一半的窗口，任何透明都会露出它本要隐藏的东西。\n\n:param total: 进度条数到多少步；``0`` 不显示比例。\n:param parent: 要覆盖的窗口；采用其几何尺寸。",
       "translation_source_blocks_sha256": [
         "29b9e3edb2706230d69db8eeb56c8f1fa1d9caf170992e142d3c1dd6c2c59218",
+        "d4ff49473441a5a3c33659ad0a6791ccd540d74c21b916a9f8095e96aa609b73",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
         "79a32a90fbb1078f7a69a7402e50b25d76dfd4a31922faf40102561791b6fcb7",
@@ -155759,6 +156399,34 @@
         "7cc7178e711884e303aa3b66dcd91c8e0b9761195f0228c8911455aa5d9cefcb"
       ]
     },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away": {
+      "source_blocks_sha256": [
+        "903498dd3cdf7fb3c626e6a8a5d3b153a31328727171a8aeb633758feb59b553",
+        "d50552237cc81b8dc8c5a374666f4da237036bc659a258964bf14929865dd7ea",
+        "916fdd1de872f030cd3a28082a14e730768f44c38ac08e8d442d36832643fdd4",
+        "7750ec9708425d1b5f32973d22ce6be9c59cf00b214fb745e3e37de65dae5ed8",
+        "dd3d1f3709e1b67c4e617ff070b83694f8596fc1527fabeb1f7a93e3e2446995"
+      ],
+      "source_sha256": "cb685442d95ef15fa039d142d4c7d7023ac81ae23b55cb75f47973a5a5b34a50",
+      "text": "通过把马赛克的图块吹离窗口来结束覆盖层。\n\n不早于覆盖层首次绘制后的 0.6 s 开始。最后一个图块离开后，覆盖层会自行删除。\n\n:param on_finished: 在覆盖层消失时调用一次。\n:param force: 即使 :func:`startup_animation_allowed` 说不行也播放；用于测试和预览。\n:returns: 当吹散将播放且覆盖层将自行撤下时为 ``True``；当不会时为 ``False`` -- 没有马赛克、动画已关闭或一次点击已要求跳过 -- 此时调用方像以前一样撤下覆盖层。",
+      "translation_source_blocks_sha256": [
+        "723d4e7f016d1f9303b4dc46ccba6a1f13422d8501d88b1e5ce0aea0807468b0",
+        "d50552237cc81b8dc8c5a374666f4da237036bc659a258964bf14929865dd7ea",
+        "916fdd1de872f030cd3a28082a14e730768f44c38ac08e8d442d36832643fdd4",
+        "7750ec9708425d1b5f32973d22ce6be9c59cf00b214fb745e3e37de65dae5ed8",
+        "2281f46e9580cfaf8c1490703636d68500f9f08a6bccd077c405af186c07631b"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.elapsed": {
+      "source_blocks_sha256": [
+        "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17"
+      ],
+      "source_sha256": "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17",
+      "text": "吹散开始后的秒数；开始之前为 ``0.0``。",
+      "translation_source_blocks_sha256": [
+        "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.LoadingScreen.fraction": {
       "source_blocks_sha256": [
         "07378f5d9d6edc2e19122a95e82cd04b5dc3ed0b72ddbde401e0f4cb8b554bf6"
@@ -155767,6 +156435,30 @@
       "text": "完成的份额, 0.0 到 1.0. 0 零,当总值不明时。",
       "translation_source_blocks_sha256": [
         "07378f5d9d6edc2e19122a95e82cd04b5dc3ed0b72ddbde401e0f4cb8b554bf6"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats": {
+      "source_blocks_sha256": [
+        "c762d6e2ec3c5618c2419b4dd931e7c5d31edec45e668eee71b926ab174a01b6",
+        "4961353d2c74a0a052bcc98ac559eb5b3993c093bca2cb7481a9b13975a9e75f"
+      ],
+      "source_sha256": "cc69808fed0ece9ad875c409a5e503482e9490562567ad7e51c36816094311bb",
+      "text": "绘制吹散所花的开销，用于测量。\n\n:returns: ``frames``、绘制时间的平均值和最慢一帧的绘制时间（毫秒），以及一帧中绘制的最多图块数。",
+      "translation_source_blocks_sha256": [
+        "c762d6e2ec3c5618c2419b4dd931e7c5d31edec45e668eee71b926ab174a01b6",
+        "4961353d2c74a0a052bcc98ac559eb5b3993c093bca2cb7481a9b13975a9e75f"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.keyPressEvent": {
+      "source_blocks_sha256": [
+        "45254445acb7ebb941c5dcecc16e49bd17636e711a1434938acf2cf0f1f321fa",
+        "237b44bdbdcf26986658f8774c0ba49fd39c09856b8ca5f5012039e4ec5659f5"
+      ],
+      "source_sha256": "eb2a1ef09a6cc44153c89e0c76460fdd0bada13dcb8101d9bf825e5dec13c8e1",
+      "text": "吹散运行期间按键会跳过它。\n\n:param event: Qt 按键事件；已接受，因此按键不会再向外传递。",
+      "translation_source_blocks_sha256": [
+        "45254445acb7ebb941c5dcecc16e49bd17636e711a1434938acf2cf0f1f321fa",
+        "237b44bdbdcf26986658f8774c0ba49fd39c09856b8ca5f5012039e4ec5659f5"
       ]
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen.lit_phases": {
@@ -155781,16 +156473,48 @@
         "11f62417bd587b520a0248d6aa77860e5a899c237eccbe054dcbe74b22c29d70"
       ]
     },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.mosaic_shown": {
+      "source_blocks_sha256": [
+        "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637"
+      ],
+      "source_sha256": "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637",
+      "text": "覆盖层是否显示照片马赛克。",
+      "translation_source_blocks_sha256": [
+        "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.mousePressEvent": {
+      "source_blocks_sha256": [
+        "dc8a526c53d020fac69efe0b3c724b1bbb4aa0c9551ed1abdbc164cd98649a48",
+        "bc37429b28868add62764ae4c85ebecc580f4ceef5c2580d30e02d5ea8c96c47"
+      ],
+      "source_sha256": "3f8db9a75b3ad8ff00f6ead3be59a14c0e2276d8089a5af71005a7a7151e5b3d",
+      "text": "点击覆盖层会请求跳过吹散。\n\n:param event: Qt 鼠标事件；已接受，因此点击不会越过覆盖层。",
+      "translation_source_blocks_sha256": [
+        "dc8a526c53d020fac69efe0b3c724b1bbb4aa0c9551ed1abdbc164cd98649a48",
+        "bc37429b28868add62764ae4c85ebecc580f4ceef5c2580d30e02d5ea8c96c47"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.LoadingScreen.paintEvent": {
       "source_blocks_sha256": [
-        "b30fdd4132f494c60cfd5ef1c87a4e27c480a1651c81bc269b134558dc63d7b1",
+        "6cb79a68f7e02f9058e6dc0866ccd859269ab28bc584c752cb806ddf431f5a9b",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
-      "source_sha256": "219811605a7a8578e78714185cd616585a8e9ec4cb3e86f07c19c31a6b8717c1",
-      "text": "打破负载状态。\n\n:param event: Qt 绘画活动。",
+      "source_sha256": "831b5fb8bcc63288f0d8089929150b2bed4e72e29ae14d002552f943664b55a3",
+      "text": "绘制加载状态，或吹散的一帧。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
-        "b30fdd4132f494c60cfd5ef1c87a4e27c480a1651c81bc269b134558dc63d7b1",
+        "6cb79a68f7e02f9058e6dc0866ccd859269ab28bc584c752cb806ddf431f5a9b",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.playing": {
+      "source_blocks_sha256": [
+        "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0"
+      ],
+      "source_sha256": "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0",
+      "text": "吹散是否在等待开始或正在进行。",
+      "translation_source_blocks_sha256": [
+        "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0"
       ]
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen.resizeEvent": {
@@ -155817,6 +156541,106 @@
         "8373f836a20241ead86c353c5ad5b41b9f94c4d44c3deae327dbb404a3d6f29f"
       ]
     },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.show_mosaic": {
+      "source_blocks_sha256": [
+        "7adabce5a499ea162d3661b1baef82e48c51753bf407c4cf57a9fefd077f3bc6",
+        "edf336b1a86e6f784e55397915be9eece6561038123cd9260e85054ccece0a35",
+        "4ff99945b6c40ce8b598c306e6a3c8fd54cbfc14f53b1bd5cfef908f5e3d97cd"
+      ],
+      "source_sha256": "54053e7c96a1ad23a30fdee98aca6bdbf38f39fbfb67c2a7b570ac4d6905ba71",
+      "text": "显示照片马赛克而不是标志。\n\n:param mosaic: 要显示的映射；默认为打包的那个。\n:returns: 马赛克现在是否已显示。其文件缺失时为 ``False``，覆盖层保留标志。",
+      "translation_source_blocks_sha256": [
+        "7adabce5a499ea162d3661b1baef82e48c51753bf407c4cf57a9fefd077f3bc6",
+        "edf336b1a86e6f784e55397915be9eece6561038123cd9260e85054ccece0a35",
+        "e9db84b7640d863a2680b382e0edd1ad587c4882b3c369de74d158dde98bc068"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.skip": {
+      "source_blocks_sha256": [
+        "af5b549c9b101208e4eb885eeb8cd446aa404b15e32557bd4daa1d5852af42b8",
+        "0f18b06d9c56c476ed7f507f9757475863c3af60f39ad5784dfc547546af98cf"
+      ],
+      "source_sha256": "807b5e500181c75a8db58648c408754a6b2c941fb3e9614d329d3ab64f922085",
+      "text": "跳到结尾：立即撤下覆盖层，或在允许时尽快撤下。\n\n在 :meth:`blow_away` 之前它被记住，加载结束时覆盖层随后不带动画地落下。",
+      "translation_source_blocks_sha256": [
+        "af5b549c9b101208e4eb885eeb8cd446aa404b15e32557bd4daa1d5852af42b8",
+        "0f18b06d9c56c476ed7f507f9757475863c3af60f39ad5784dfc547546af98cf"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.MosaicMap": {
+      "source_blocks_sha256": [
+        "4691bdc9c4b9f17a1c188b0e187a1901e2e70ea4c6001d0cf6396832fb4b0da1",
+        "b02e8dc828b855822fb4e96bb2c8bdf3d3c56074ca7220cd41a6bc1ffddd7dc6",
+        "ea159e48395cb65220720b35be3faab7b6a4af540927d1575b7afef7dd6de32f",
+        "00a30801646f69de6fe6a5003615809643c3fb023767ca7cbd8609947e61587a",
+        "1091d556a1c6413eda3c820ebf50b32d741d5b190887a16cb37dd34d5b1d2a33",
+        "fdd243effc6182bb00167f255dd26966257abf6b5f89a36aa5066d28086796a9"
+      ],
+      "source_sha256": "63f36d5fa9e94b9448f0d7549636c27939d96eef833898884bec61873b92b614",
+      "text": "启动照片马赛克的图片，以及它的哪些图块带有标志。\n\n:param image_path: 图片，边长为 ``grid * tile_px`` 像素的正方形。\n:param grid: 每边的图块数。\n:param tile_px: 图片中每个图块的像素数。\n:param occupied: 按行优先的 ``grid x grid`` 个布尔值；图块包含图片并会飞时为 ``True``，暗淡背景为 ``False``。\n保存映射；参数见类的 docstring。",
+      "translation_source_blocks_sha256": [
+        "4691bdc9c4b9f17a1c188b0e187a1901e2e70ea4c6001d0cf6396832fb4b0da1",
+        "b02e8dc828b855822fb4e96bb2c8bdf3d3c56074ca7220cd41a6bc1ffddd7dc6",
+        "ea159e48395cb65220720b35be3faab7b6a4af540927d1575b7afef7dd6de32f",
+        "00a30801646f69de6fe6a5003615809643c3fb023767ca7cbd8609947e61587a",
+        "1091d556a1c6413eda3c820ebf50b32d741d5b190887a16cb37dd34d5b1d2a33",
+        "fdd243effc6182bb00167f255dd26966257abf6b5f89a36aa5066d28086796a9"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.MosaicMap.load": {
+      "source_blocks_sha256": [
+        "3405be5aba83d659e83fc81d68783e5fe56dc2168176ece7b76d79e750bcac90",
+        "e42b66b71ffedc2a9da23eb220f23a3c5a1b66c739a15db68fc3043a08e14039",
+        "4cad70e624e2da617a90f35a7444544c1c3a753fa42e47ce78a55faf1b75972d"
+      ],
+      "source_sha256": "b5d1977e9c97f15b8f881647125c90afc840f85756c5f7d9ab477f63e7bc137a",
+      "text": "读取图块映射并检查其图片是否存在。\n\n:param directory: 映射和图片所在位置；默认为打包的 ``spacr/resources/splash``。\n:returns: 映射，或当任一文件缺失或映射无法读取时为 ``None`` -- 加载覆盖层随后保持其朴素外观。",
+      "translation_source_blocks_sha256": [
+        "3405be5aba83d659e83fc81d68783e5fe56dc2168176ece7b76d79e750bcac90",
+        "e42b66b71ffedc2a9da23eb220f23a3c5a1b66c739a15db68fc3043a08e14039",
+        "4cad70e624e2da617a90f35a7444544c1c3a753fa42e47ce78a55faf1b75972d"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.blow_away_running": {
+      "source_blocks_sha256": [
+        "8fad79e73e907936949c5551e2a6a086c629cd77a47f2db12b7edddb736003de",
+        "e4291692ef3e4d863d92ffcb612fb7a31f0a62ec992d0ac52b42d27b5dafa18f",
+        "eb60638264717bb6c4ed04b0738e4703931cb4afec82e4631e37e9f6564bbd83"
+      ],
+      "source_sha256": "af23a423eab62e25dfbfee7551a8f606598f432ccd7f069d32e919557cb2dbb7",
+      "text": "启动吹散是否在等待开始或正在进行。\n\n空闲时预热会询问这一点并等待，使其切片不会在动画运行的那两秒里抢占动画的帧。\n\n:returns: 只要仍存在的任一覆盖层正在播放就为 ``True``；中途连同其窗口被删除的覆盖层不再计入。",
+      "translation_source_blocks_sha256": [
+        "8fad79e73e907936949c5551e2a6a086c629cd77a47f2db12b7edddb736003de",
+        "e4291692ef3e4d863d92ffcb612fb7a31f0a62ec992d0ac52b42d27b5dafa18f",
+        "eb60638264717bb6c4ed04b0738e4703931cb4afec82e4631e37e9f6564bbd83"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.mosaic_splash_wanted": {
+      "source_blocks_sha256": [
+        "4f4eb18b479c7099e8a4864a39192d6f759a5d0504cd9b5fd0b4ee319c2f5406",
+        "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
+      ],
+      "source_sha256": "3ab5d607f9fde8940e0ae0f3d923ec2572e6fd98ab108e142b50565d4fda4317",
+      "text": "加载覆盖层是否显示照片马赛克。\n\n:returns: ``False`` 表示设置了 :data:`NO_SPLASH_ENV`，否则为 ``True``。",
+      "translation_source_blocks_sha256": [
+        "4f4eb18b479c7099e8a4864a39192d6f759a5d0504cd9b5fd0b4ee319c2f5406",
+        "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.startup_animation_allowed": {
+      "source_blocks_sha256": [
+        "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
+        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
+      ],
+      "source_sha256": "b35789d2caef389c9ad17926c01fa3bc02ec4ef87a68a45d6fff29b695dee4fb",
+      "text": "窗口就绪时照片马赛克是否可以被吹散。\n\n在设置了 :data:`NO_SPLASH_ENV`、处于 offscreen 平台、辅助功能 > 减少动态效果开启，或 Preferences > 动画 > 启动动画关闭时为否。无法读取的偏好设置按否计：静止的覆盖层始终是安全的。\n\n:returns: 当吹散应当播放时为 ``True``。",
+      "translation_source_blocks_sha256": [
+        "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
+        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.strap_line": {
       "source_blocks_sha256": [
         "a3abd9ddee7b401c4105748468be6723d87ef7ea7db02fa4338f88b37880aa65"
@@ -155837,6 +156661,20 @@
       "translation_source_blocks_sha256": [
         "869fafb3375824bccdf8648a3358b752c9dd5a72acbbf927623c16be291e09c2",
         "bb290a1692f9b52986d02138b1e713e444cc1e42ad3c5a6281fdb843a47f43a8"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.will_blow_away": {
+      "source_blocks_sha256": [
+        "e79d959cc2c293cb0c13b0f1292b046347ac52bec7c04306bde12465916626af",
+        "6c8659c165fda364d889724cd5937dd29814f52ae20361268274a93aeb9f9b5d",
+        "6fbcb199b4c6a82639532e54656d21bb0cd4b1d23baaa07a1ab265a7d35767d0"
+      ],
+      "source_sha256": "f12de30007a1d4c000dd196e0844a139e59716ad31c24e4551f983d39f365f6e",
+      "text": "``screen`` 是以吹散结束，还是直接消失。\n\n:param screen: 窗口的加载覆盖层，或任何代替它的东西。\n:returns: ``True`` 适用于 :class:`LoadingScreen`：显示马赛克、尚未被要求跳过，且 :func:`startup_animation_allowed` 说可以。",
+      "translation_source_blocks_sha256": [
+        "e79d959cc2c293cb0c13b0f1292b046347ac52bec7c04306bde12465916626af",
+        "6c8659c165fda364d889724cd5937dd29814f52ae20361268274a93aeb9f9b5d",
+        "8d7501f2d5f9e0dade4a2388f4ff8537f29af237068fff5891f4febcfa0f5c5d"
       ]
     },
     "spacr.qt.widgets.make_masks_help": {
@@ -159029,6 +159867,136 @@
         "195fe159b86715f4300ad73c7d255e2fe6d71da753ea5262567ab498c2dd9810",
         "68de095a089b186d9bedc19e98c606f5e6541a12eda2fabcdca113a505533d1e",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer": {
+      "source_blocks_sha256": [
+        "3772cd726848c278c71b0aa5745115a35afbc0745b6e5abfc79c01e2ef8fbe3f",
+        "bd2a015dfe526df7ad5d32b4f18ca950970b064380d449f0bb1656618682e662"
+      ],
+      "source_sha256": "1550409a23fb1965c63c055785bd5eb465fa0f8afb01fd6cf99bad7f62eded49",
+      "text": "Model Zoo 3 页模型卡片的查看器。\n\n显示按大小缩放的卡片页面图像，带有上一个和下一个、\"1 / 3\"计数器、左右方向键，以及指向 Hugging Face 上模型的链接。图像在首次查看时于工作线程中获取并缓存；没有图像时，查看器根据随 spaCR 提供的卡片数据把同样的三页显示为文本。点击图像会在对话框中放大打开。",
+      "translation_source_blocks_sha256": [
+        "3772cd726848c278c71b0aa5745115a35afbc0745b6e5abfc79c01e2ef8fbe3f",
+        "e28e895653f6d22470596005d37be017c7bf9df21cedf155b657b851ca6151e4"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer": {
+      "source_blocks_sha256": [
+        "60f02d459892608d039e6bb9dccba7e8a594a34d7d191f49fc7f2fac00e4e4ca",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "c39090a0b02c6fe99f216c8a5ffb87c333e35810230d7b36f8dbe944c67c71b3",
+        "f7f0215ce85d01974e54f34c21a5cc0128ce5a0bbe3286a352bcf443d084a145",
+        "bcb7f0c15e66824ac8ad6087ecc76af136d28856f95392049c3683247e03c073"
+      ],
+      "source_sha256": "48639fae83dcb5c68735d84c51e8d73aa08c86037c52210c96667fed7c60a542",
+      "text": "翻阅一个模型的卡片。\n\n:param parent: 父控件。\n:param threaded: 在工作线程中获取图像；``False`` 则为测试而内联获取。\n:param fetch: 接受 URL 的字节源，交给 :func:`spacr.model_cards.fetch_pages`；``None`` 使用网络。\n:param enlargeable: 点击图像会打开更大的对话框。",
+      "translation_source_blocks_sha256": [
+        "60f02d459892608d039e6bb9dccba7e8a594a34d7d191f49fc7f2fac00e4e4ca",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "9f35e70b1c83a60a412d62ad8270aeb0bde3caca48c66f03227f9dc05a0850fb",
+        "f7f0215ce85d01974e54f34c21a5cc0128ce5a0bbe3286a352bcf443d084a145",
+        "bcb7f0c15e66824ac8ad6087ecc76af136d28856f95392049c3683247e03c073"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.card": {
+      "source_blocks_sha256": [
+        "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d"
+      ],
+      "source_sha256": "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d",
+      "text": "正在显示的卡片数据，或 ``None``。",
+      "translation_source_blocks_sha256": [
+        "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.counter_text": {
+      "source_blocks_sha256": [
+        "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7"
+      ],
+      "source_sha256": "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7",
+      "text": "\"1 / 3\"文本。",
+      "translation_source_blocks_sha256": [
+        "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.go_to": {
+      "source_blocks_sha256": [
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+      ],
+      "source_sha256": "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
+      "text": "显示页 ``page``（从零计数），限制在现有页内。",
+      "translation_source_blocks_sha256": [
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.keyPressEvent": {
+      "source_blocks_sha256": [
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+      ],
+      "source_sha256": "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
+      "text": "左右方向键翻页。",
+      "translation_source_blocks_sha256": [
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.next_page": {
+      "source_blocks_sha256": [
+        "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c"
+      ],
+      "source_sha256": "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c",
+      "text": "显示下一页；停在最后一页。",
+      "translation_source_blocks_sha256": [
+        "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.page": {
+      "source_blocks_sha256": [
+        "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb"
+      ],
+      "source_sha256": "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb",
+      "text": "从零计数的当前页。",
+      "translation_source_blocks_sha256": [
+        "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.previous_page": {
+      "source_blocks_sha256": [
+        "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1"
+      ],
+      "source_sha256": "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1",
+      "text": "显示上一页；停在第一页。",
+      "translation_source_blocks_sha256": [
+        "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.set_card": {
+      "source_blocks_sha256": [
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+      ],
+      "source_sha256": "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
+      "text": "从第 1 页起显示 ``card``，在未缓存时获取其图像。",
+      "translation_source_blocks_sha256": [
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.showing_image": {
+      "source_blocks_sha256": [
+        "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd"
+      ],
+      "source_sha256": "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd",
+      "text": "当前页是图片而非文本时为 True。",
+      "translation_source_blocks_sha256": [
+        "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.status_text": {
+      "source_blocks_sha256": [
+        "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d"
+      ],
+      "source_sha256": "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d",
+      "text": "页面下方的那一行。",
+      "translation_source_blocks_sha256": [
+        "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d"
       ]
     },
     "spacr.qt.widgets.model_share": {
@@ -168631,7 +169599,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "5c20bd17d4878fa0b73cabf82b9516fc2858c5b88ac51d66b78ec190fab1e975",
-      "text": "打印供应商的标志。\n\n:param event: Qt 绘画活动。",
+      "text": "打印供应商的标志。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
         "a67979484e45af1bfc69813fffd6d95850c58a1adacae3c053dd35a532b34f72",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -172033,7 +173001,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "1b966c6f2cb5b7dcf16fa0ea01e483510439f7982f60f7b6b771805b52ed69c5",
-      "text": "绘制卡片及其动画雷姆。\n\n:param event: Qt 绘画活动。",
+      "text": "绘制卡片及其动画雷姆。\n\n:param event: Qt 绘制事件。",
       "translation_source_blocks_sha256": [
         "d792655cf96d17c9b03b7f1e173260fef60935603627c1ddf8be5648266f14b3",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -176802,12 +177770,16 @@
     "spacr.qt.widgets.usage_bar.UsageBar.set_value": {
       "source_blocks_sha256": [
         "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
+        "4963009cf255a2b2d6fac269746a5829fdb84a909225285336434ac937ba1416",
+        "19a61d66c48b97c91d878118af8378d8454c389bd618a2e81b85b71494d0adc5",
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
       ],
-      "source_sha256": "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9",
-      "text": "设置进度条的值，限制在 0-100，并在 75/90 % 处重新着色。\n\n:param pct: ``0.0``-``100.0`` 范围内的值；超出范围的值会被限制。",
+      "source_sha256": "3fa39b9fa9c38f10c8f1b06084962fc9ec457e3ad379819d1b112900f171c098",
+      "text": "设置进度条的值，限制在 0-100，并在 75/90 % 处重新着色。\n\n新值被安排在下一次绘制时处理，而不是立即绘制。``QProgressBar.setValue`` 只要变化移动了一个像素就会同步重绘，而进度条在窗口的字段上是半透明的，所以每次调用都会绘制其下的字段并当场刷新窗口：每个模块界面上每两秒四次同步刷新，在合成的 GPU 桌面上每次都要等待显示器。调用期间暂停更新时，进度条改为被标记为脏，并随下一个字段帧一起绘制。\n\n只有当读数进入另一个区间时，才会重新润色进度条。润色会为该进度条重新解析应用程序样式表，而用量轮询每两秒为每个进度条调用一次，颜色几乎总是不变。\n\n:param pct: ``0.0``-``100.0`` 范围内的值；超出范围的值会被限制。",
       "translation_source_blocks_sha256": [
         "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
+        "0f6075122652ab581e85537f9fea311c35c01a2cede4b388cd2c22fd7396d104",
+        "19a61d66c48b97c91d878118af8378d8454c389bd618a2e81b85b71494d0adc5",
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
       ]
     },

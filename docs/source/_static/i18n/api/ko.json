@@ -12698,6 +12698,28 @@
         "e49222ee9fe453c54c3f170052755f092e28d42a0072a5e44e9e5bb9be218bf3"
       ]
     },
+    "spacr.cli.write_settings_file": {
+      "source_blocks_sha256": [
+        "d4ad906ee8f76b4c869676960c30691129055163b9c898adb8a6341f02d81c33",
+        "ead4e18e73bcea9a24a6024c3ffb71a8fad0383e4f74f4ef735c1ffa59206671",
+        "8ab64ba1f98d624c8178d6ea086e1baf6c6224481b58b4500fe3fe162c0816a5",
+        "cf9178f87bb80a6a0d26319f9f7fb6b2e992889b19481c22b9a16dc722606465",
+        "370b66dfaa7bcb2b866779a8bd3a3129f39c18b489dfad769f470a425e61fb18",
+        "39ebc8ed05d2ae69ed8ae0f64b9ff6d25fe3f2cd8d4a9607da08fd296dfae2cb",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ],
+      "source_sha256": "d7ce4ef41a27b0c42eac08ff6b1beea5fcd4f4cc13ab6c7f98d7235b07153d62",
+      "text": "GUI와 ``spacr-run`` 이 다시 읽는 CSV에 설정 dict를 씁니다.\n\n:func:`load_settings_file` 의 반대이며, GUI의 \"Export settings…\" 버튼이 쓰는 파일입니다. 레이아웃은 :func:`spacr.utils.save_settings` 가 모든 실행 옆에 쓰는 것과 같습니다. ``Key,Value`` 머리글, dict 순서대로 설정당 한 행, 빈 셀로 표시되는 ``None``, ``True`` / ``False`` 로 쓰는 불리언, 그리고 Python 리터럴 형태의 리스트, 튜플, dict입니다. 설정은 주어진 그대로 쓰입니다. ``save_settings`` 와 달리 ``test_mode`` 와 ``plot`` 은 꺼지지 않으며, 쓰는 파일 외에는 아무것도 나열하거나 스캔하거나 열지 않습니다.\n\nCSV 옆에 ``.json`` 사본이 쓰이며, ``save_settings`` 가 하나 쓰는 것과 같아서 자료형이 정확히 보존됩니다. ``spacr-run --settings`` 는 둘 중 어느 쪽이든 읽습니다.\n\n:param settings: 쓸 설정.\n:param path: 쓸 CSV. ``~`` 와 ``$VARS`` 는 확장되고 폴더가 만들어집니다.\n:returns: 쓴 CSV와 JSON 경로, 이 순서대로.\n\n예시:\n    .. code-block:: python\n\n        from spacr.cli import load_settings_file, write_settings_file\n        write_settings_file({\"src\": \"/data/plate1\", \"channels\": [0, 1]},\n                            \"measure_settings.csv\")\n        load_settings_file(\"measure_settings.csv\")",
+      "translation_source_blocks_sha256": [
+        "65881825c18ade612de317e3d3587dbd7fb1d3acf90e25114b6f82994ce4a177",
+        "59d199a22a2896f745b4fa886ca13b3809f7d7a489dbb53798ae6a91e7f4edaa",
+        "8ab64ba1f98d624c8178d6ea086e1baf6c6224481b58b4500fe3fe162c0816a5",
+        "cf9178f87bb80a6a0d26319f9f7fb6b2e992889b19481c22b9a16dc722606465",
+        "370b66dfaa7bcb2b866779a8bd3a3129f39c18b489dfad769f470a425e61fb18",
+        "39ebc8ed05d2ae69ed8ae0f64b9ff6d25fe3f2cd8d4a9607da08fd296dfae2cb",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ]
+    },
     "spacr.cli_database": {
       "source_blocks_sha256": [
         "5f3f416486e5633b344e7e34f5b6c59ae40bfda4d7628fcfb9e41f626c07c995"
@@ -13513,7 +13535,7 @@
         "b3c1ff62a1d66210497d1499892614af239c39a41d36f3341307c020592e6e48"
       ],
       "source_sha256": "e387409bfbeafec3481668a8e51eba75a4e976270eafbf164583cc5cd5c35af9",
-      "text": "``{path: [column, ...]}`` ``paths``에서 읽을 수 있는 각 CSV.\n\n:param paths: 하나의 경로, 그들의 순서, 또는 None.\n:returns: 지정된 순서로 키 값을 맵링합니다. 존재하지 않거나 파스팅 할 수없는 경로는 빈 목록으로 맵링하는 대신 결과에서 부족합니다. - 규칙 2 참조. :func:`missing`을 사용하여 그들이 무엇인지 물어보십시오.",
+      "text": "``{path: [column, ...]}`` ``paths``에서 읽을 수 있는 각 CSV.\n\n:param paths: 경로 하나, 경로의 시퀀스 또는 None.\n:returns: 지정된 순서로 키 값을 맵링합니다. 존재하지 않거나 파스팅 할 수없는 경로는 빈 목록으로 맵링하는 대신 결과에서 부족합니다. - 규칙 2 참조. :func:`missing`을 사용하여 그들이 무엇인지 물어보십시오.",
       "translation_source_blocks_sha256": [
         "951cd40733c46a3ee29856d0d82756484db80e248de76ae166288dbf242572b2",
         "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
@@ -13530,6 +13552,44 @@
       "translation_source_blocks_sha256": [
         "57cec9e0b7a4efaba2be0af9106ff1507375e026fbf70fe5f9feaa484f81aad0",
         "3a5d93c979aa40a2a0e0f9985f6899c13a125532047baf260fe1547904c4931b"
+      ]
+    },
+    "spacr.columns.numeric_headers": {
+      "source_blocks_sha256": [
+        "08a98d515de70f0559aec982b5a7943c79bdd109ef93992c7fc23109007afa96",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+        "722e753e8ed3afba3886f88824fb5e32cdf30f34f74ac66870dc78dd9cc3c6c9",
+        "89f60c00ead8478c285235bda42277a20100c27a51f839d635b14dfe94480bbc"
+      ],
+      "source_sha256": "2820526ad6e87b74214f353616befffa6ba0c4c4cb4536f5723177e24d16dc83",
+      "text": "응답 변수가 될 수 있는 숫자 열의 ``{path: [column, ...]}``.\n\n:param paths: 경로 하나, 경로의 시퀀스 또는 None.\n:param rows: 숫자와 레이블을 구별하기 위해 읽는 행의 수. 머리글이 이름을 정하고 짧은 표본이 자료형을 정하므로, 점수 파일의 크기와 상관없이 비용은 같습니다.\n:returns: 주어진 순서의 dict. 식별자 열(:data:`RESPONSE_EXCLUDED`)은 제외되며, 읽을 수 없는 파일은 없습니다.",
+      "translation_source_blocks_sha256": [
+        "08a98d515de70f0559aec982b5a7943c79bdd109ef93992c7fc23109007afa96",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+        "722e753e8ed3afba3886f88824fb5e32cdf30f34f74ac66870dc78dd9cc3c6c9",
+        "1dff70177bd3fffdb2ea9f162a436a186afd329797cbefe5590d9411309bbe85"
+      ]
+    },
+    "spacr.columns.pred_guidance": {
+      "source_blocks_sha256": [
+        "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef"
+      ],
+      "source_sha256": "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef",
+      "text": "``pred`` 열이 어디에서 오는지 알려 주는 문장.",
+      "translation_source_blocks_sha256": [
+        "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef"
+      ]
+    },
+    "spacr.columns.pred_missing": {
+      "source_blocks_sha256": [
+        "ecb8ae620f4efc95d24ea72009c622c7c42463aa89d3e977449588dc428cb83c",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd"
+      ],
+      "source_sha256": "18142ad16a5695335acdafe55d1f1a1ba8bf9aeae7509e107fe1f0a90044c384",
+      "text": "``paths`` 중 ``pred`` 열이 없는 읽을 수 있는 파일.\n\n:param paths: 경로 하나, 경로의 시퀀스 또는 None.",
+      "translation_source_blocks_sha256": [
+        "ecb8ae620f4efc95d24ea72009c622c7c42463aa89d3e977449588dc428cb83c",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd"
       ]
     },
     "spacr.columns.resolve": {
@@ -19455,7 +19515,7 @@
         "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ],
       "source_sha256": "fa66c254675592456e81675da7729d170460f5801610586e4fdcb2b5a7c1ccc5",
-      "text": "다시 기록을 작성하십시오, 원자 및 전체.\n\n각 라인은 이 폴더에 포함되지 않은 스탬프에 대한 라인을 포함하여 작성됩니다 : 코레이터는 세트의 일부가 도착하지 않은 기계에서 재생 될 수 있으며, 그 라인을 떨어 뜨리는 것은 이미 다른 곳에서 완료 된 작업을 제공합니다.\n\n파일은 기계 사이를 동기화하고 안정적인 순서가 실제로 변경 된 라인에 대한 동기화를 유지합니다.\n\n:param folder: 대기열 폴더입니다.\n:param rows: ``{stem: StatusRow}``, :func:`read_status`이 반환되는 경우.\n:returns: 기록된 경로입니다.\n:raises StatusFileError: 파일을 작성할 수 없을 때",
+      "text": "다시 기록을 작성하십시오, 원자 및 전체.\n\n각 라인은 이 폴더에 포함되지 않은 스탬프에 대한 라인을 포함하여 작성됩니다 : 코레이터는 세트의 일부가 도착하지 않은 기계에서 재생 될 수 있으며, 그 라인을 떨어 뜨리는 것은 이미 다른 곳에서 완료 된 작업을 제공합니다.\n\n파일은 기계 사이를 동기화하고 안정적인 순서가 실제로 변경 된 라인에 대한 동기화를 유지합니다.\n\n:param folder: 대기열 폴더입니다.\n:param rows: ``{stem: StatusRow}``, :func:`read_status`이 반환되는 경우.\n:returns: 기록된 경로입니다.\n:raises StatusFileError: 파일을 쓸 수 없을 때.",
       "translation_source_blocks_sha256": [
         "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
         "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
@@ -49290,6 +49350,172 @@
         "39996c56b59b07b7cf47fd9559aac916ec01dd8c38ae0fc03f6365f8f8001a68"
       ]
     },
+    "spacr.model_cards": {
+      "source_blocks_sha256": [
+        "171c1c38c652fe6fb87e2a0b8bf9875986d035cbf90594fb59bfae2479654863",
+        "5ac049613eab9e18ab4708132f31d94dd45549506dc9ee4b6f42b5440780a31d",
+        "9e9b9d3e15ab1409b94c2601e397cbf19d196ca28574deacb17e6647a343f03b"
+      ],
+      "source_sha256": "5f3af02fc849e4f1dbe5093e6089e1c18625ca5037b8db21656d5a09721ae358",
+      "text": "Model Zoo의 3페이지 모델 카드: 데이터, 저장소 매핑, 이미지.\n\n게시된 각 분할 모델은 Hugging Face에 세 장의 카드 페이지(``cards/page1.png`` 에서 ``page3.png``)를 가집니다. 기본 모델 대비 점수, 학습 사실, 그리고 소개와 링크 페이지입니다. 같은 데이터가 ``resources/model_cards/<repo>.json`` 으로 spaCR와 함께 제공되므로 이미지를 가져올 수 없을 때 카드를 텍스트로 보여 줄 수 있습니다.\n\n여기서는 Qt를 임포트하지 않습니다. 뷰어는 :mod:`spacr.qt.widgets.model_card_viewer` 에 있습니다.",
+      "translation_source_blocks_sha256": [
+        "171c1c38c652fe6fb87e2a0b8bf9875986d035cbf90594fb59bfae2479654863",
+        "5ac049613eab9e18ab4708132f31d94dd45549506dc9ee4b6f42b5440780a31d",
+        "9e9b9d3e15ab1409b94c2601e397cbf19d196ca28574deacb17e6647a343f03b"
+      ]
+    },
+    "spacr.model_cards.about_lines": {
+      "source_blocks_sha256": [
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+      ],
+      "source_sha256": "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41",
+      "text": "비어 있는 필드를 뺀 3페이지의 평범한 문장.",
+      "translation_source_blocks_sha256": [
+        "e18b7d15a09f74a5b787a5fa85b92543288bb701edfe66d9c5e2da23aad3dd41"
+      ]
+    },
+    "spacr.model_cards.cache_dir": {
+      "source_blocks_sha256": [
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+      ],
+      "source_sha256": "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d",
+      "text": "``repo`` 의 페이지 이미지가 spaCR 홈 아래 캐시되는 위치.",
+      "translation_source_blocks_sha256": [
+        "3e637e11861cc42fe61e6cf8396e7c8f77ac2a6da961cbd1adb8c964f040655d"
+      ]
+    },
+    "spacr.model_cards.cached_pages": {
+      "source_blocks_sha256": [
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+      ],
+      "source_sha256": "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5",
+      "text": "각 페이지의 캐시된 이미지. 캐시되지 않았으면 ``None``.",
+      "translation_source_blocks_sha256": [
+        "75691cdd96143e74cd55d692650d590b1efa1aff8bef234c70ab62057e53b8e5"
+      ]
+    },
+    "spacr.model_cards.card_for_entry": {
+      "source_blocks_sha256": [
+        "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+      ],
+      "source_sha256": "4d5f9290e79d20daa927814dcbd90d676e709ad489f24a6da3fb00cd96c6185b",
+      "text": ":class:`~spacr.model_zoo.ModelEntry` 의 카드 데이터, 없으면 ``None``.\n\nzoo 키로 먼저 찾고, 그다음 항목을 가져오는 저장소로 찾습니다.",
+      "translation_source_blocks_sha256": [
+        "b2041ba9f153e422be173d3f94b019580b5be78aae0e7154c27adfc65751f2d8",
+        "0626bcaae2718e887b3c78a4058bff812a9a081b46930d2fbb99903f67355e87"
+      ]
+    },
+    "spacr.model_cards.card_keys": {
+      "source_blocks_sha256": [
+        "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b"
+      ],
+      "source_sha256": "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b",
+      "text": "3페이지 카드가 있는 zoo 키.",
+      "translation_source_blocks_sha256": [
+        "375095f8e33f1d443f23dc4096000aeae595b06476b64101bc5d7bcbe3ccf10b"
+      ]
+    },
+    "spacr.model_cards.clear_cache": {
+      "source_blocks_sha256": [
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+      ],
+      "source_sha256": "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837",
+      "text": "``repo`` 의 캐시된 이미지를 제거합니다.",
+      "translation_source_blocks_sha256": [
+        "c103eb9ccedea0adb918b63d3143112fd39d4b7e03e9dce92347bdeb550c9837"
+      ]
+    },
+    "spacr.model_cards.fact_rows": {
+      "source_blocks_sha256": [
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+      ],
+      "source_sha256": "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b",
+      "text": "``(fact, value)`` 쌍으로 된 2페이지.",
+      "translation_source_blocks_sha256": [
+        "bf1c4207094c6989ae25e8a42a4c0451e6f3e434322d3a48fac31117486f152b"
+      ]
+    },
+    "spacr.model_cards.fetch_pages": {
+      "source_blocks_sha256": [
+        "d32927fe27961a9f8838b53c414466e2dbd81a48be1ca4a84e2b959d1196d1d3",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "b51767176968e553bb42e3ed8d545f1c5c7ec0a2ae0ef6ba5e0e00dba2262b4b",
+        "58ed12568ee4e336997435933a436c8b20df97d253b2dcc91a0772e2b2d20d7d",
+        "ac64f3a117c41c7ede5f464199810b6963ea80a439d86c2a8cfc6ec83621a08e"
+      ],
+      "source_sha256": "94b51e3e4a3f62916c8029ea78557940b485a13a0eeecc0ad36a7bd0f63ab738",
+      "text": "``repo`` 의 없는 페이지 이미지를 캐시로 내려받습니다.\n\n:param repo: ``owner/repo``.\n:param fetch: URL을 받는 바이트 소스. 기본값은 ``urlopen``.\n:returns: 캐시된 세 경로.\n:raises OSError: 페이지를 가져올 수 없거나 PNG가 아닐 때. 실패 전에 가져온 페이지는 캐시에 남습니다.",
+      "translation_source_blocks_sha256": [
+        "d32927fe27961a9f8838b53c414466e2dbd81a48be1ca4a84e2b959d1196d1d3",
+        "f7d7838e7b58baa7103c17b94f1ca1f3d5b000d4bbe5a1d468171bf47147cb4f",
+        "b51767176968e553bb42e3ed8d545f1c5c7ec0a2ae0ef6ba5e0e00dba2262b4b",
+        "58ed12568ee4e336997435933a436c8b20df97d253b2dcc91a0772e2b2d20d7d",
+        "ac64f3a117c41c7ede5f464199810b6963ea80a439d86c2a8cfc6ec83621a08e"
+      ]
+    },
+    "spacr.model_cards.model_link": {
+      "source_blocks_sha256": [
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+      ],
+      "source_sha256": "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4",
+      "text": "카드가 설명하는 모델의 Hugging Face URL.",
+      "translation_source_blocks_sha256": [
+        "8383d04b8a0c78dcca16e86801e195804a333b5717886c863f4e118f464076b4"
+      ]
+    },
+    "spacr.model_cards.page_html": {
+      "source_blocks_sha256": [
+        "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
+      ],
+      "source_sha256": "9c42ea7e68c5e36d93f078d5c07fd6bed075feee45968945b6e3a5df9bcb24bc",
+      "text": "카드 페이지 하나(1부터 셈)의 텍스트 대체본을 작은 HTML 본문으로.\n\n:param headers: 점수 표와 사실 표를 위해 이미 번역된 열 제목.",
+      "translation_source_blocks_sha256": [
+        "22cb7670525f8e2831d2bf82c930e55e05ae53814feb885fe75900359be3f126",
+        "9dcefbe8c470611783c3f750f1bf4c6b7d0d5aca14a93b2f0879449a6bd7a10e"
+      ]
+    },
+    "spacr.model_cards.page_url": {
+      "source_blocks_sha256": [
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+      ],
+      "source_sha256": "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720",
+      "text": "카드 페이지 ``page`` (1부터 셈)의, ``repo`` 의 Hugging Face URL.",
+      "translation_source_blocks_sha256": [
+        "abfb42c427a1215354f17d89d35c50a34abd472d9c653896fcb4857265633720"
+      ]
+    },
+    "spacr.model_cards.repo_of_key": {
+      "source_blocks_sha256": [
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+      ],
+      "source_sha256": "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837",
+      "text": "카드가 있는 zoo 키의 ``owner/repo``, 없으면 ``''``.",
+      "translation_source_blocks_sha256": [
+        "8b021d003ce626219252547b08c3a8bfc6db164fc1d4eb6477bdc0322baae837"
+      ]
+    },
+    "spacr.model_cards.repo_url": {
+      "source_blocks_sha256": [
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+      ],
+      "source_sha256": "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c",
+      "text": "모델 저장소의 Hugging Face 페이지.",
+      "translation_source_blocks_sha256": [
+        "048d194cd0a4caa57a88cdf92de52291003e77334d7c8241eb4c6fa7e4f3f33c"
+      ]
+    },
+    "spacr.model_cards.score_rows": {
+      "source_blocks_sha256": [
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+      ],
+      "source_sha256": "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd",
+      "text": "``(metric, \"this (stock x)\")`` 쌍으로 된 1페이지.",
+      "translation_source_blocks_sha256": [
+        "1ec2f4434f68aecb52b0d22bdd2fd4f9a297df3294e6b79097475da0c1c6b4cd"
+      ]
+    },
     "spacr.model_check": {
       "source_blocks_sha256": [
         "cb82190bc6a7740864406b7ce3eada5f96fa44f5738406aec729863da2e9e385",
@@ -50803,17 +51029,17 @@
     "spacr.model_zoo.default_version_index": {
       "source_blocks_sha256": [
         "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
-        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "ebb6d5ec08a09842718f8bbc718dc03a6513434cfda9bf45b9aabdfd4a196a88",
         "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
-        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+        "3fe71bdf2c3838540c829c4f44b27ee079ecf04f7d24e0d5be4fec0fb64c2e64"
       ],
-      "source_sha256": "70d61807a56e70e4552f44ca4d9212ba44a7b7ec0b287da0de3488f3cc791293",
-      "text": "모델 계열의 행이 처음 열 때 선택되는 버전입니다.\n\n대안이 아닌 가장 최신 버전이므로, 대안을 게시해도 계열의 행이 기본으로 제공하는 버전은 바뀌지 않습니다.\n\n:param pairs: 최신순으로 정렬된 ``(label, entry)`` 쌍입니다.\n:returns: ``pairs`` 에 대한 인덱스입니다. 모든 버전이 대안이거나 버전이 없으면 0입니다.",
+      "source_sha256": "bbd58c52c7edc902e9f2717617390e9b1e9f4e51452d5bc6157f613767e37521",
+      "text": "모델 계열의 행이 처음 열 때 선택되는 버전입니다.\n\n대안도 후보도 아닌 가장 최신 버전. 따라서 둘 중 무엇을 게시해도 한 계열의 행이 기본으로 내놓는 것이 바뀌지 않습니다. README와 웹사이트의 모델 카드도 같은 규칙을 씁니다.\n\n:param pairs: 최신순으로 정렬된 ``(label, entry)`` 쌍입니다.\n:returns: ``pairs`` 의 인덱스. 모든 버전이 대안이나 후보이거나 하나도 없으면 0.",
       "translation_source_blocks_sha256": [
         "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
-        "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+        "ebb6d5ec08a09842718f8bbc718dc03a6513434cfda9bf45b9aabdfd4a196a88",
         "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
-        "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a"
+        "3fe71bdf2c3838540c829c4f44b27ee079ecf04f7d24e0d5be4fec0fb64c2e64"
       ]
     },
     "spacr.model_zoo.discover_local": {
@@ -82430,7 +82656,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "a56ee4ce986b07ae1424b2400563e8ef5a1b983248318af8b9a095175f6ac030",
-      "text": "현재 세계 창을 통해 모든 눈에 띄는 레이어를 끌어 들이십시오.\n\n:param event: Qt 페인트 이벤트",
+      "text": "현재 세계 창을 통해 모든 눈에 띄는 레이어를 끌어 들이십시오.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
         "8b4b8293f3673167bd762b87f5a4e94459c6b2d0e64f05749d37b320d2f9dc66",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -84632,6 +84858,20 @@
         "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.delete_label": {
+      "source_blocks_sha256": [
+        "6757527de2a3afcb8d57f45ff91800b55b9484dce0b1b92edf83990724023eb7",
+        "18662fcb4057687a8c82acdd189a63bb2d75843f792b163d43b8128ee5902762",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "d8aa49e97cca56def653e4a77df0acc6a70077e0073a8ceb39f51b04556d81d1",
+      "text": "한 객체를 모든 섹션에서 하나의 실행 취소 단계로 제거합니다.\n\n:param label: 제거할 객체 ID.\n:returns: 변경된 복셀 수.",
+      "translation_source_blocks_sha256": [
+        "6757527de2a3afcb8d57f45ff91800b55b9484dce0b1b92edf83990724023eb7",
+        "18662fcb4057687a8c82acdd189a63bb2d75843f792b163d43b8128ee5902762",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
       "source_blocks_sha256": [
         "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
@@ -84734,6 +84974,28 @@
       "text": "가장 최근에 실행 취소한 복셀 델타와 기하 구조를 다시 적용합니다.",
       "translation_source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
+      ]
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.replace_plane": {
+      "source_blocks_sha256": [
+        "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
+        "424cc65b58d6346d59adeb03f7f5903849870d302acce442981bf3b3b83b235a",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "076cf7d46317fcf2e7f28d74ebb8252709ae40845143e04af533d1a7b90f43f9",
+        "80684ea15eabed5e31c1ffc55bc06536b1ef1feeb82d0c44cb1a3755658b621c",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "2cf0e511d9e90c1c121f08a1674a2f10838d51d64a060b205b75e559975979a3",
+      "text": "편집한 섹션 하나를 하나의 실행 취소 단계로 다시 씁니다.\n\n2차원 Make Masks 도구가 볼륨을 편집하는 방식입니다. 섹션을 바꾸면 섹션 전체가 다시 쓰입니다. 이 섹션에 이미 있는 객체는 ID를 유지하며, ``keep`` (그려지고 있는 객체)의 모든 ID도 마찬가지입니다. 이 섹션에는 새롭지만 볼륨의 다른 곳에 있는 다른 객체에 속하는 ID는 대신 다음 미사용 ID를 받으므로, 자체 객체에 번호를 매긴 도구가 그것을 멀리 있는 3-D 객체에 결코 합치지 않습니다.\n\n:param axis: :meth:`plane`과 같이 고정된 축.\n:param index: ``axis``를 따른 단면의 인덱스.\n:param labels: :meth:`plane` 이 반환하는 모양의 편집된 섹션.\n:param keep: 변경 없이 섹션에 들어올 수 있는 객체 ID.\n:returns: 변경된 복셀 수.",
+      "translation_source_blocks_sha256": [
+        "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
+        "424cc65b58d6346d59adeb03f7f5903849870d302acce442981bf3b3b83b235a",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "076cf7d46317fcf2e7f28d74ebb8252709ae40845143e04af533d1a7b90f43f9",
+        "80684ea15eabed5e31c1ffc55bc06536b1ef1feeb82d0c44cb1a3755658b621c",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
       ]
     },
     "spacr.qt.mask_engine.VolumeMaskSession.section_count": {
@@ -87852,7 +88114,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "f82448f5e6b58336475b8d8e7bb0ce3cbfdd2375ab61230829b33e9a57764a70",
-      "text": "이 orthogonal 슬라이드를 흔들어 놓으십시오.\n\n:param event: Qt 페인트 이벤트",
+      "text": "이 orthogonal 슬라이드를 흔들어 놓으십시오.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
         "fea0de4b71c4a6e1113f08c4a558af437708828c32c9d20ae14a226a50781206",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -88620,6 +88882,16 @@
         "e7871d5e68c7007075ea859ad59fa543140cff70733bbb8b237d05cc821b3376"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._contrast_follows_the_theme": {
+      "source_blocks_sha256": [
+        "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0"
+      ],
+      "source_sha256": "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0",
+      "text": "테마 컨트롤이 High contrast를 보여 주는 동안에만 High contrast를 선택합니다.",
+      "translation_source_blocks_sha256": [
+        "10ef176d1ba7bec353abca50988ddb2a6e1f00e3ff523226aafe45fc3ca029e0"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._debug_follows_verbose": {
       "source_blocks_sha256": [
         "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
@@ -88642,6 +88914,18 @@
         "ada4814a565d03363c812e12edb708a0b4cd89b770f3d6f46fc9f8d8f2f7105d"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._exact_motion": {
+      "source_blocks_sha256": [
+        "6a66e862030761189140b65a8ae6c60adea63c8cc35fc6a80850d4745521647a",
+        "7d090888e8ef75ed82be076601a4664a1f6dc21d9a6757fe4817a85661770990"
+      ],
+      "source_sha256": "d47ad516b5371ebd753df5381ff2b3a7daac8464d1db7c2a33cc5df869c5e366",
+      "text": "컨트롤이 보여 주는 값 뒤에 저장된 값(알려진 경우).\n\n슬라이더는 정수 퍼센트를 가지므로 보여 주는 값이 저장된 값과 항상 같지는 않습니다. 보여 주는 값을 돌려주면 사용자 자신의 값이 반올림됩니다.",
+      "translation_source_blocks_sha256": [
+        "6a66e862030761189140b65a8ae6c60adea63c8cc35fc6a80850d4745521647a",
+        "7d090888e8ef75ed82be076601a4664a1f6dc21d9a6757fe4817a85661770990"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says": {
       "source_blocks_sha256": [
         "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
@@ -88652,6 +88936,26 @@
         "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_follows_the_switch": {
+      "source_blocks_sha256": [
+        "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b"
+      ],
+      "source_sha256": "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b",
+      "text": "모션 컨트롤을 정지시키거나 원래 값을 돌려줍니다.",
+      "translation_source_blocks_sha256": [
+        "7ba9637db326937cca1c419e2feb848bea9f9411a0b09e8f12bb44380bd0f39b"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._motion_shown": {
+      "source_blocks_sha256": [
+        "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee"
+      ],
+      "source_sha256": "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee",
+      "text": "애니메이션 컨트롤이 지금 보여 주는 모션 값.",
+      "translation_source_blocks_sha256": [
+        "2640c3dbad40651f98f26903c4eed563adf432bdf86a23811910c2e909f440ee"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers": {
       "source_blocks_sha256": [
         "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
@@ -88660,6 +88964,16 @@
       "text": "설치/로그인 대화 상자를 열고 공급자 목록을 다시 표시합니다.",
       "translation_source_blocks_sha256": [
         "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {
+      "source_blocks_sha256": [
+        "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf"
+      ],
+      "source_sha256": "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf",
+      "text": "Preferences 위에 단축키 편집기를 열고 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "2aa66d69e33bcb7b6b67bc44b234a022afa21cc9685202bd101996dd907534bf"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._page": {
@@ -88850,12 +89164,24 @@
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._settle_unless_dragging": {
       "source_blocks_sha256": [
-        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+        "6695c23caa5a90761a060615877ae5d9e5e707d90baaa23f56d7e1e7bc110462"
       ],
-      "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
-      "text": "드래그는 놓을 때 적용되고, 클릭이나 키는 즉시 적용됩니다.",
+      "source_sha256": "0ed7543b627b36735b6e61eed81352ae3673b3ac8c7bcc8934028d628685c8c9",
+      "text": "드래그는 놓을 때 적용되고, 클릭이나 키는 즉시 적용됩니다.\n\n접근성 아래의 텍스트 크기는 글꼴 배율을 함께 움직이므로 둘 중 어느 쪽을 끌어도 끌기입니다.",
       "translation_source_blocks_sha256": [
-        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+        "6695c23caa5a90761a060615877ae5d9e5e707d90baaa23f56d7e1e7bc110462"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._show_motion": {
+      "source_blocks_sha256": [
+        "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e"
+      ],
+      "source_sha256": "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e",
+      "text": "모션 값 한 세트를 애니메이션 컨트롤에 적용합니다.",
+      "translation_source_blocks_sha256": [
+        "738938b389cf86f033f7cb7e798602eee46b2d0fe2f58971b268e92dd33d023e"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._steering_only_matters_when_guided": {
@@ -88984,6 +89310,16 @@
         "6579363ef03d04dc27330aa70c6c53f208f58fb0d5d594ecd44522cc6f4f9864",
         "32f894afe2ac77e56a9fb1b20823cdc61d999a0649d6803d1b983e9c43ef288a",
         "232af6a79ef8aa55da3431d162d04a44f90cb86b46bc70efcd441582893f2feb"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._theme_follows_contrast": {
+      "source_blocks_sha256": [
+        "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6"
+      ],
+      "source_sha256": "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6",
+      "text": "High contrast 또는 그것이 대체한 테마를 선택합니다.",
+      "translation_source_blocks_sha256": [
+        "b6114f91d13a347131458888139e52cae4b7fc747b365a03e9f1382cc1fb67c6"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_opacity_lbl": {
@@ -90126,6 +90462,18 @@
         "c315c2c98c0453a9a4f18c8a8c189e5b5b1756028f7d2afe52bd33388cf96441"
       ]
     },
+    "spacr.qt.preferences.get_high_contrast": {
+      "source_blocks_sha256": [
+        "6b4c01028f49a57def170567d9e1968585e65d00ee10e6fd8277a7687d368e38",
+        "08e28ba4bc78ed62d1354044bfbcc78ae0112b091a3a8903c71c150fe27e55ca"
+      ],
+      "source_sha256": "1a1e7de437bb6bb6894c5da81bfe44502fcdb9942d2409d6623eabdee2244642",
+      "text": "High contrast 테마가 선택된 테마인지 여부.\n\n:returns: Preferences > 모양 > 테마가 High contrast를 보여 주면 ``True``.",
+      "translation_source_blocks_sha256": [
+        "6b4c01028f49a57def170567d9e1968585e65d00ee10e6fd8277a7687d368e38",
+        "08e28ba4bc78ed62d1354044bfbcc78ae0112b091a3a8903c71c150fe27e55ca"
+      ]
+    },
     "spacr.qt.preferences.get_idle_minutes": {
       "source_blocks_sha256": [
         "990f38412e880238acbd97192c6f552e899adb7e908dd9f04d487a89f1e2a087",
@@ -90310,6 +90658,20 @@
       "text": "언제 torch 및 나머지 가져올 것인가. 'on_demand' 또는 'eager'",
       "translation_source_blocks_sha256": [
         "8d6379188f60f4ffdeea6b4e93cda8478c130a9fc7abe4d7d0f7f213e8de08ed"
+      ]
+    },
+    "spacr.qt.preferences.get_reduce_motion": {
+      "source_blocks_sha256": [
+        "e50f51fe89d622cab13d601ed8b69b5b3960e319fc98b2d50c1461171cc8b59a",
+        "c0d745aef4fb30187ea11e959cc92fd244dec68c607b178bc176df828e9d5e0c",
+        "b2c203a04c70b5682b1e25bb9e11804b53c354d34da2bfdeacf50b1d66ddaa6b"
+      ],
+      "source_sha256": "9c30210a0a8b2039a1ef5799ba17533a1f55929e6c2a0b5a119f10a69b81b413",
+      "text": "모션 줄이기가 모든 움직이는 배경을 정지시키는지 여부.\n\n켜져 있는 동안 배경은 정지 프레임 하나를 그리고 진행하지 않으며, 물결, 클릭 물결, 팝업 파동, 마우스 중력은 꺼집니다.\n\n:returns: 모션 줄이기가 켜져 있으면 ``True``. 기본값은 꺼짐.",
+      "translation_source_blocks_sha256": [
+        "e50f51fe89d622cab13d601ed8b69b5b3960e319fc98b2d50c1461171cc8b59a",
+        "c0d745aef4fb30187ea11e959cc92fd244dec68c607b178bc176df828e9d5e0c",
+        "b2c203a04c70b5682b1e25bb9e11804b53c354d34da2bfdeacf50b1d66ddaa6b"
       ]
     },
     "spacr.qt.preferences.get_refresh_news": {
@@ -90574,6 +90936,32 @@
         "335daa9119d3e05c524dcb06d121cbdb78de3774abcc1d29d1274c9b7f0d4675",
         "79dd838a098ee11b0df6661e8cf3427a10182bc0927718ea208eea1f474ec93a",
         "d891076c5add28657292a78dde6f41a5eb1e695cff201cf583964807b7b26476"
+      ]
+    },
+    "spacr.qt.preferences.get_startup_animation": {
+      "source_blocks_sha256": [
+        "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
+        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
+      ],
+      "source_sha256": "d314346cbd17e4651aecd9cae83fb2d300d15d18e3160419f9f5b5bfbb3ba42d",
+      "text": "spaCR가 준비되었을 때 시작 포토모자이크가 흩어지는지 여부.\n\nPreferences > 애니메이션 > 시작 애니메이션. 모션 줄이기가 이를 덮어씁니다.\n\n:returns: 스위치를 끄지 않았다면 ``True``. 기본값은 켜짐.",
+      "translation_source_blocks_sha256": [
+        "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
+        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
+      ]
+    },
+    "spacr.qt.preferences.get_strong_focus": {
+      "source_blocks_sha256": [
+        "1e1e3e6f48f6aaf52322e8f936b67c19647a9c4eaabc818bf11154045a757861",
+        "d138af1f20420f74d6776c2b24435b9b6a4ec5a3b1fc996d6dddeaefe9d32d6d"
+      ],
+      "source_sha256": "c04220e0d4ba0ba91783ed616ac12073989c5e156004f96a3bf430beac3c4e04",
+      "text": "키보드 포커스가 있는 컨트롤이 두꺼운 포커스 링을 두르는지 여부.\n\n:returns: 더 강한 포커스 윤곽선이 켜져 있으면 ``True``. 기본값은 꺼짐.",
+      "translation_source_blocks_sha256": [
+        "1e1e3e6f48f6aaf52322e8f936b67c19647a9c4eaabc818bf11154045a757861",
+        "d138af1f20420f74d6776c2b24435b9b6a4ec5a3b1fc996d6dddeaefe9d32d6d"
       ]
     },
     "spacr.qt.preferences.get_theme": {
@@ -91382,6 +91770,22 @@
         "e021eb52fd1c7cbc7f367154d5763ff3bdb6c30c9d798cfe094013be229704ed"
       ]
     },
+    "spacr.qt.preferences.set_high_contrast": {
+      "source_blocks_sha256": [
+        "7a8ee2899451dea14e16adf8dce0c9d45496cd1521d7ba5e1b0a84dbab32bc7e",
+        "66d21713b81af7e8b452ce4111c33e140c707a46f712167e3e8fe0b1a47fe25b",
+        "0a3d8a7db10ae0fd395e5e29d5fafd6704e68979bdd0269de928978cce135d25",
+        "0ef9b95594e39de8e9098d353e85bdcddc424d95ab007d907e5fa51e9dc19cd9"
+      ],
+      "source_sha256": "603abc439cb9b46748448e4f01be6a2d8e5eec3b788d2f49021d91e85bff479a",
+      "text": "High contrast 또는 그것이 대체한 테마로 돌아갑니다.\n\n대체된 테마는 환경설정 저장소에 보관되므로 재시작 후에도 유지됩니다.\n\n:param on: High contrast를 선택하려면 true, 떠나려면 false.\n:returns: 이후 적용되는 테마 선택.",
+      "translation_source_blocks_sha256": [
+        "7a8ee2899451dea14e16adf8dce0c9d45496cd1521d7ba5e1b0a84dbab32bc7e",
+        "66d21713b81af7e8b452ce4111c33e140c707a46f712167e3e8fe0b1a47fe25b",
+        "0a3d8a7db10ae0fd395e5e29d5fafd6704e68979bdd0269de928978cce135d25",
+        "0ef9b95594e39de8e9098d353e85bdcddc424d95ab007d907e5fa51e9dc19cd9"
+      ]
+    },
     "spacr.qt.preferences.set_idle_minutes": {
       "source_blocks_sha256": [
         "ba929b8317f0b11dfc56312aa5b520c321134b1805b8f24bc8d98ada12225239",
@@ -91574,6 +91978,20 @@
         "254e5073a004a0afac39d354c30ff161e8c0ecf3bc36ac7784d0e36abc5823c9",
         "a502f3c7ccf43feb11707125813a9c969c51bc5e9afd56b33d19c4bbc0f3c00c",
         "16293c11a5b81a7e46090ff468e76eb1c6887f3cf8131a2e62bb90f857ebe557"
+      ]
+    },
+    "spacr.qt.preferences.set_reduce_motion": {
+      "source_blocks_sha256": [
+        "e9a9b8e4b229d01ae9491e9b301c5cff4dfe22fcfaeb86206e4d43e0bc831fb9",
+        "8438099a202aa8b74a4862d6e14777545f384175b6b854ff045832da7f15d550",
+        "e112e381bb7e461321afb2ca55340695167c2793cb8877e1a222a1a82b5c6f38"
+      ],
+      "source_sha256": "63ab1f7cb37d04fb121a86f32d30d9e9828ea2f90e6c622a4f2f96efe25a26e1",
+      "text": "모션 줄이기를 켜거나 끕니다.\n\n켜면 현재 적용 중인 물결, 클릭 물결, 팝업 파동, 마우스 중력 값을 저장하고 각각을 0 또는 꺼짐으로 설정합니다. 끄면 저장된 값을 정확히 되돌려 놓습니다. 실행 중인 배경을 따라오게 하려면 :func:`apply_ambient_preferences` 를 호출하세요.\n\n:param on: 배경을 정지시키려면 true.",
+      "translation_source_blocks_sha256": [
+        "e9a9b8e4b229d01ae9491e9b301c5cff4dfe22fcfaeb86206e4d43e0bc831fb9",
+        "8438099a202aa8b74a4862d6e14777545f384175b6b854ff045832da7f15d550",
+        "e112e381bb7e461321afb2ca55340695167c2793cb8877e1a222a1a82b5c6f38"
       ]
     },
     "spacr.qt.preferences.set_refresh_news": {
@@ -91844,6 +92262,32 @@
       "translation_source_blocks_sha256": [
         "e0384e72d07c180fd1c2a84c97eb50bb80f0320a63a7b251f2589ba746b616da",
         "e584661e8d1938837587eba40d5d57af6e74f6c3fa740c02796af0b4dc3efc5c"
+      ]
+    },
+    "spacr.qt.preferences.set_startup_animation": {
+      "source_blocks_sha256": [
+        "0280dbc13056cf3d2d7f2f29072a843659f9b8e6de9d45c963c71c6dc69ce102",
+        "31e18835346243e982348f2097f36e60f4ef8219b3c073dd24ba3e349b6dcc0b"
+      ],
+      "source_sha256": "cb0587829f10a40a01c6dadc20ace49796b58575eb23776746c8c0370888c718",
+      "text": "시작 애니메이션을 켜거나 끕니다.\n\n:param on: 시작할 때 포토모자이크가 흩어지는지 여부.",
+      "translation_source_blocks_sha256": [
+        "0280dbc13056cf3d2d7f2f29072a843659f9b8e6de9d45c963c71c6dc69ce102",
+        "31e18835346243e982348f2097f36e60f4ef8219b3c073dd24ba3e349b6dcc0b"
+      ]
+    },
+    "spacr.qt.preferences.set_strong_focus": {
+      "source_blocks_sha256": [
+        "879b384771f08044251e4313b1f801ea251dd327569afc63afb592c123a3dcbc",
+        "92fb1f9b5c37c586121eba47ff500ee5996a67fb95d9b6be6ddf4d07ca00fe87",
+        "e102942987b756eb40f825e1192a2ca75d308f1521af85dc03b5d349543c3cbc"
+      ],
+      "source_sha256": "2446a06ddd7b70570d9419384071b6c29f40fffae5d04558dbc26d8ca15369e3",
+      "text": "두꺼운 포커스 링을 켜거나 끕니다.\n\n링은 :func:`spacr.qt.theme.stylesheet` 의 규칙(:func:`spacr.qt.theme.focus_ring_qss`)입니다. 창에 적용하려면 :func:`apply_preferences_to_app` 을 호출하세요.\n\n:param on: 두꺼운 링이면 true.",
+      "translation_source_blocks_sha256": [
+        "879b384771f08044251e4313b1f801ea251dd327569afc63afb592c123a3dcbc",
+        "92fb1f9b5c37c586121eba47ff500ee5996a67fb95d9b6be6ddf4d07ca00fe87",
+        "e102942987b756eb40f825e1192a2ca75d308f1521af85dc03b5d349543c3cbc"
       ]
     },
     "spacr.qt.preferences.set_theme": {
@@ -96794,6 +97238,24 @@
         "fb5876c773669c2894cc3f04ebdf8843e3c61f48e58b048396b3a5f8d4d990a0"
       ]
     },
+    "spacr.qt.screens.app_screen.default_settings_csv_path": {
+      "source_blocks_sha256": [
+        "fe690a2956aac8acf9bf9b0eeb2a2d92a69332fc553101d217c6ffd03455efaa",
+        "5f90e9d02f9105dfa237f94fe9ab38b0ce28e2330239bea872b282b07d95994e",
+        "2221aae575b1fc7fa2c9d91a748c3e8ce4e6c70af8c00e11e1a46e810d3f3299",
+        "a097aebba093064b67a6f77c644fa48ec682c7196f8612b2ad159f782877888d",
+        "3860ce8374fa2c904ebd5d3de4eadafa2030750e6894a8bbdc944d271e63a01f"
+      ],
+      "source_sha256": "b3e3651572e271f2bf24ee789ac635a7f3f3d4e1a69df3c7062cf8a8c5b8a687",
+      "text": "Export settings…가 제안하는 경로: ``<module>_settings.csv``.\n\n양식이 지정하는 소스 폴더에 놓이며, 없으면 마지막 설정 CSV를 가져오거나 내보낸 폴더, 그것도 없으면 홈 폴더에 놓입니다. 폴더는 이름만 지정될 뿐 나열되거나 확인되지 않으므로, 느리거나 없는 네트워크 공유가 대화 상자를 붙잡을 수 없습니다.\n\n:param module: 모듈의 키, 예: ``measure``.\n:param src: 양식의 소스 폴더. 리스트이면 첫 항목을 제안합니다.\n:returns: 제안되는 CSV 경로.",
+      "translation_source_blocks_sha256": [
+        "fe690a2956aac8acf9bf9b0eeb2a2d92a69332fc553101d217c6ffd03455efaa",
+        "5f90e9d02f9105dfa237f94fe9ab38b0ce28e2330239bea872b282b07d95994e",
+        "2221aae575b1fc7fa2c9d91a748c3e8ce4e6c70af8c00e11e1a46e810d3f3299",
+        "a097aebba093064b67a6f77c644fa48ec682c7196f8612b2ad159f782877888d",
+        "3860ce8374fa2c904ebd5d3de4eadafa2030750e6894a8bbdc944d271e63a01f"
+      ]
+    },
     "spacr.qt.screens.app_screen.dimension_settings": {
       "source_blocks_sha256": [
         "1b27a83ed2953a975a517837d5a1ab51b884e82974a51eeab1a78dc27f07d7ae",
@@ -96814,6 +97276,28 @@
         "e9098e630052d951acce9af167ff6eaa16d2edc19cd56697ad3707fe5e5b54ca",
         "db28c9bdf98648541afc804443bea2f38c91e6514094f8b073a35d697231690f",
         "aec757ded32d42143654711e46408042bc3c01b83567e2f731135dedbe37e8a6"
+      ]
+    },
+    "spacr.qt.screens.app_screen.export_settings_csv": {
+      "source_blocks_sha256": [
+        "04640b88a31ac82d1a26d54cb0ca17a576f2bf8832d0f80a95cb7e32154469a4",
+        "ff72d9a82c520b395ad4bcd825f1fe48db9f93f8b08f1ebfd1f6a9d8c5241435",
+        "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+        "62cd4ceab9383e49e8a9a662b55ed0dd21c6e43553d58cd0e49c11a72dc4baab",
+        "4e3e8ec5918a5e20924fc36c438de8621c73a2c05ec6277001818eb5d6200400",
+        "d3b78b97ad706ebdf0cb2cc235616f67f1da85f540d5fdbfc1e0b32a614c659a",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
+      ],
+      "source_sha256": "9b166ca9ac2419860b6336ec9d1a8ca456dcf5c6d0478c39fea6ea7fc9b17063",
+      "text": "``settings`` 를 설정 CSV로 저장할 위치를 묻고 그곳에 씁니다.\n\n모든 Export settings… 버튼과 Distributed Jobs 스냅샷 뒤에 있는 단일 구현입니다. 파일은 :func:`spacr.cli.write_settings_file` 이 쓰는 것이며, Import settings… 와 ``spacr-run --settings`` 둘 다 이를 읽습니다.\n\n:param parent: 대화 상자의 부모 위젯입니다.\n:param settings: 쓸 설정, 주어진 그대로.\n:param default_path: 대화 상자가 먼저 제안하는 경로.\n:returns: 쓴 CSV와 JSON 경로. 대화 상자가 취소되었으면 빈 리스트.\n:raises OSError: 파일을 쓸 수 없을 때.",
+      "translation_source_blocks_sha256": [
+        "04640b88a31ac82d1a26d54cb0ca17a576f2bf8832d0f80a95cb7e32154469a4",
+        "ff72d9a82c520b395ad4bcd825f1fe48db9f93f8b08f1ebfd1f6a9d8c5241435",
+        "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+        "62cd4ceab9383e49e8a9a662b55ed0dd21c6e43553d58cd0e49c11a72dc4baab",
+        "4e3e8ec5918a5e20924fc36c438de8621c73a2c05ec6277001818eb5d6200400",
+        "d3b78b97ad706ebdf0cb2cc235616f67f1da85f540d5fdbfc1e0b32a614c659a",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ]
     },
     "spacr.qt.screens.app_screen.module_maturity": {
@@ -104890,7 +105374,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "b9a74863eb1a30e4ff52741b350f006d80cdace5e11778e3e9a9c9fd1b74af33",
-      "text": "포인트와 굴곡 된 템플릿을 흔들어 놓으십시오.\n\n:param event: Qt 페인트 이벤트",
+      "text": "포인트와 굴곡 된 템플릿을 흔들어 놓으십시오.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
         "d7c1db87124a3837a4883ded69ad4dbecca54bc0e7bd3fb5fa19403a64a9d417",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -105740,18 +106224,18 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
       "source_blocks_sha256": [
-        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
-        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+        "76e53240b31de97857883e47a8db1d3f9e2a8cd97f79b7dfb341e389f801702b",
+        "4a0313fb9023404c9e07485502853439caed64b9ea55fddb491040331c412da7",
         "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
-        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+        "b317cc3382ee51e288ab9dfc410a0a079e356dd809caa6127f3e254b91b2e092"
       ],
-      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
-      "text": "z-스택 또는 볼륨을 3D 마스크 편집기에서 엽니다.\n\n마스크는 XY, XZ, YZ 단면에서 슬라이스별로 그리고 지우며, 그려진 슬라이스 사이를 보간하고, 3D 객체에 할당하며, 공유 앵커로 편집합니다. TIFF 스택, OME-TIFF, MRC 볼륨이 열리며, 시간/채널/RGB TIFF는 깊이로 해석되는 대신 거부됩니다. 기존 2D 이미지, 마스크 도구, YOLO 주석은 별도로 유지됩니다.\n\n:param path: 선택적 볼륨 경로. 없으면 파일 선택기를 엽니다.\n:returns: 기본 볼륨 대화 상자, 또는 취소/거부 시 None.",
+      "source_sha256": "dd4fd1c0adac15b7e1ea3dcc6677d33f0ae62992666d4d5f9ba98c8becc90005",
+      "text": "2-D 필드가 열리는 Mask 보기에서 z-스택이나 볼륨을 엽니다.\n\n왼쪽의 슬라이더가 슬라이스를 이동하며, 모든 2-D 도구는 화면에 보이는 슬라이스에 그립니다. Mask 탭 옆의 보기 목록은 XZ와 YZ 측면 보기(Orthogonal)를 추가하거나 볼륨과 그 객체를 3D로 보여 주어 앵커로 그리고 모양을 바꿀 수 있게 합니다(True 3D). TIFF 스택, OME-TIFF, MRC 볼륨이 열리며, 시간/채널/RGB TIFF는 깊이로 해석되지 않고 거부됩니다.\n\n:param path: 선택적 볼륨 경로. 없으면 파일 선택기를 엽니다.\n:returns: Mask 보기의 볼륨 단계, 취소되거나 거부되면 None.",
       "translation_source_blocks_sha256": [
-        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
-        "dd8337393063df88b68ff4b8a82ee7b42999a0c8cd3149406613f7a647baf363",
+        "dfc44a44bdf114c4cd7503ab70e076657067f908717a0728e2c0636b1bc7ff86",
+        "c818c4a4abd62bdc4c78695844fb925813827c1e7ab2dd089362b914320ed0f9",
         "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
-        "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
+        "b317cc3382ee51e288ab9dfc410a0a079e356dd809caa6127f3e254b91b2e092"
       ]
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
@@ -110374,7 +110858,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "54c592e4a807aabfa9695ee690e1bd125776446f8cb3814dabaa82ea336c64d7",
-      "text": "실험실 마이크로 플레이트를 그리십시오 : 마이크로는 샘플 위치에 한 개의 셀, 그것의 가치에 따라 색칠.\n\n:param event: Qt 페인트 이벤트",
+      "text": "실험실 마이크로 플레이트를 그리십시오 : 마이크로는 샘플 위치에 한 개의 셀, 그것의 가치에 따라 색칠.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
         "978f252987eef99db6452fb5197cfdbf12bfd6cfee993f70af6a7bb8ae0124f7",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -110884,7 +111368,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "bb017604b602acd47517ab66a72735b9db5c5c6cf6158801de16fe608d586929",
-      "text": "통계적 감지 민감성 곡선을 그리십시오.\n\n:param event: Qt 페인트 이벤트",
+      "text": "통계적 감지 민감성 곡선을 그리십시오.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
         "d8de268d3cb47d04d02cad13e0df1f33d3c9855621a97bc710d922d91d7c1b65",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -119338,6 +119822,38 @@
         "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
       ]
     },
+    "spacr.qt.theme.focus_ring_colour": {
+      "source_blocks_sha256": [
+        "e40b2877895df99578064c3f07f461c8d1092652e882a378b3e4bbf6fec775ab",
+        "e7d4e9e4d135e1c9ff9e7093ca381bf1656c11cbcc7dbcc21416e5889166dfb8",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "0a7bf58bcd2bae87ce29bdac0f675b89e540f6e840e465d8e3c9873d6fc05b5e"
+      ],
+      "source_sha256": "e8642ee49143742b251c230a326dc6296563f81d57a7d0c042f192216954ab93",
+      "text": "``theme`` 의 두꺼운 포커스 링 색.\n\n테마의 강조색. 자체 얇은 포커스 테두리가 이미 쓰는 색이며, 강조색이 페이지와 필드 표면에 대해 :data:`FOCUS_RING_MIN_CONTRAST` 를 만족하는 동안 쓰고, 그렇지 않으면 테마의 글자색을 씁니다.\n\n:param theme: :data:`THEMES` 중 하나입니다.\n:returns: ``#rrggbb`` 색.",
+      "translation_source_blocks_sha256": [
+        "e40b2877895df99578064c3f07f461c8d1092652e882a378b3e4bbf6fec775ab",
+        "e7d4e9e4d135e1c9ff9e7093ca381bf1656c11cbcc7dbcc21416e5889166dfb8",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "0a7bf58bcd2bae87ce29bdac0f675b89e540f6e840e465d8e3c9873d6fc05b5e"
+      ]
+    },
+    "spacr.qt.theme.focus_ring_qss": {
+      "source_blocks_sha256": [
+        "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
+        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
+      ],
+      "source_sha256": "f9736dec835b6f030d2649c6a0321eee80b6ef9feaa4e07fd1ee119906cdf718",
+      "text": "키보드 포커스가 있는 컨트롤 둘레에 두꺼운 링을 두르는 규칙.\n\nPreferences > 모양 > 접근성 > 더 강한 포커스 윤곽선. 1 px 강조 테두리는 테마가 그리는 유일한 포커스 표시이며, 복잡한 배경에서는 놓치기 쉽습니다. 이것은 :data:`FOCUS_RING_PX` 너비이고 :func:`focus_ring_colour` 의 색을 씁니다.\n\n:param theme: :data:`THEMES` 중 하나입니다.\n:returns: QSS. 설정이 켜져 있는 동안 :func:`stylesheet` 가 맨 마지막에 덧붙입니다.",
+      "translation_source_blocks_sha256": [
+        "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
+        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
+        "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
+      ]
+    },
     "spacr.qt.theme.font_px": {
       "source_blocks_sha256": [
         "23e9c1faa3c98b6962d348fa5067b9832494d128cab02c3c5ccd8f8f9edef465",
@@ -120982,14 +121498,32 @@
       "source_blocks_sha256": [
         "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",
         "afa4b72571ecdd2394451f4522970faed5a21aaf0a054b9fb4bf7e98321b30d0",
-        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53"
+        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53",
+        "194565fdca4014dac5e2b08531c895a6fe0c9540aa90ab723dcc1125e43ef905"
       ],
-      "source_sha256": "742c1cfbb9cb41e686ff0f44ebedfd6b634d1cf47853f85e845b4842a822f103",
-      "text": "어떤 게시된 수업은 모듈을 가르치고, 그것을 열어주는 URL을 가릅니다.\n\n수업 도서관은 ``<docs>/tutorials/`` 깊은 링크와 ``#lesson=<id>``이므로 그들이 움직이는 모듈에 대한 수업에서 독자를 지적하는 것은 검색 및 스트립입니다. 검색 테이블은 ``spacr/resources/tutorial_index.json``이며, 도크스 건물의 자신의 교훈 카탈로그에서 ``tools/build_tutorial_index.py``에 의해 작성되었습니다 - 왜 그것이 카탈로 자체가 아닌지 여기에 확인하십시오.\n\n네트워크 액세스 및 무거운 수입 없음: 이것은 호버 경로에서 읽혀집니다, 홈에서 그리고 도크에서, 그래서 그것은 첫 번째 사용에 테이블을 암호화하고 그것이 해결할 수없는 무언가에 대답 ``\"\"``.",
+      "source_sha256": "db5b3e1306984c5e645f06c9d853864556308e26f7d46f4127c84121400fad68",
+      "text": "어떤 게시된 수업이 모듈을 가르치는지, 그리고 그것을 여는 URL.\n\n``<docs>/tutorials/`` 의 수업 라이브러리는 ``#lesson=<id>`` 로 직접 연결되므로, 독자가 마우스를 올린 모듈의 수업을 가리키는 것은 조회와 문자열 하나입니다. 조회 표는 ``spacr/resources/tutorial_index.json`` 이며, 문서 빌드 자체의 수업 카탈로그에서 ``tools/build_tutorial_index.py`` 가 씁니다 -- 카탈로그 자체가 아닌 이유는 그곳을 보세요.\n\n네트워크 접근과 무거운 임포트가 없습니다. 이것은 Home과 도크에서 호버 경로로 읽히므로 처음 사용할 때 표를 캐시하고, 해결할 수 없는 것에는 ``\"\"`` 로 답합니다. 수업이 없는 모듈은 링크를 받지 않으며 호버 핸들러에서 예외가 발생하지 않습니다.\n\n같은 표가 전체 수업 목록을 담고 있으며, ``spacr-tutorial`` 이 이를 출력하고 수업 번호, 슬러그 또는 화면 이름을 이에 대해 해석합니다. :func:`lessons` 와 :func:`find_lesson` 을 보세요.",
       "translation_source_blocks_sha256": [
         "6d723cb892841ba3febeb589079c18f0b7144e65f4a0b3f683793a0b528f8980",
         "afa4b72571ecdd2394451f4522970faed5a21aaf0a054b9fb4bf7e98321b30d0",
-        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53"
+        "f32de4eec0c92cba1c05e06ffd75098723914a93dd7e1b62e145172be117ec53",
+        "194565fdca4014dac5e2b08531c895a6fe0c9540aa90ab723dcc1125e43ef905"
+      ]
+    },
+    "spacr.qt.tutorials.find_lesson": {
+      "source_blocks_sha256": [
+        "3aa5efa51349bc09a7d8f05874ed10dd6c6047e8e53281d83239d889de4ba5a6",
+        "9c6376a0d5f62091a13ef86c9cb4862ef7711a7f76189036feaa2fdd756fe5f1",
+        "6fb7a889244185587ebcf0cacaa1156764a09f0f4b61920ee5a95fc8cfee65d3",
+        "a323095f1702386396c07c3af4f200502f78cef0f609bd8ea36117d1e9a698e6"
+      ],
+      "source_sha256": "03898a0209cb66574cc37cf12e7ed90c2cefffc344c246bab9895035f8cfe50c",
+      "text": "``name`` 이 가리키는 수업, 또는 가장 가까운 이름.\n\n``name`` 은 수업 번호(``7`` 또는 ``07``), 수업 id(``07_mask``), 수업이 다루는 화면의 키(``measure``) 또는 슬러그(``plaque-assay``)일 수 있습니다. 대소문자, 하이픈, 공백은 상관없습니다. 두 수업이 한 이름에 답하면 그 목록에서 앞선 종류가 이기며, 같은 종류의 수업 중에서는 가장 낮은 번호가 이깁니다.\n\n:param name: 독자가 입력한 것.\n:returns: ``(lesson, [])`` (:func:`lessons` 가 주는 형태), 또는 일치하는 것이 없을 때 ``(None, suggestions)``: 최대 다섯 개의 슬러그와 화면 이름으로, 가장 가까운 철자가 먼저이고 그다음 ``name`` 을 포함하는 것입니다.",
+      "translation_source_blocks_sha256": [
+        "3aa5efa51349bc09a7d8f05874ed10dd6c6047e8e53281d83239d889de4ba5a6",
+        "9c6376a0d5f62091a13ef86c9cb4862ef7711a7f76189036feaa2fdd756fe5f1",
+        "6fb7a889244185587ebcf0cacaa1156764a09f0f4b61920ee5a95fc8cfee65d3",
+        "a323095f1702386396c07c3af4f200502f78cef0f609bd8ea36117d1e9a698e6"
       ]
     },
     "spacr.qt.tutorials.has_tutorial": {
@@ -121026,6 +121560,34 @@
       "translation_source_blocks_sha256": [
         "a41ce64adc1a5fae6f67cbf7abb03510803cba7245fac5fecf159f987f25d3e8",
         "856449baa5480d2a7928d70223dfe0a88a0699125f7d355e93b9ea3fb0b7d99c"
+      ]
+    },
+    "spacr.qt.tutorials.lesson_url": {
+      "source_blocks_sha256": [
+        "f7dde7fb07731c7d1bf5f8e8fee716d7b71f60ad5a7f66e812ecddde9bc2e301",
+        "d19fd9e9aae240c8f510197badc842745fa020ef3a7c6732b0b067574ae994ec",
+        "0967d3fec8f62e57a8269830ecf05474c72bc4e732b2f4e1f898599baeb87037"
+      ],
+      "source_sha256": "5257fd85954d841530ebb6455f69994eddc93b3e3161742fb00a71b275b9b50c",
+      "text": "라이브러리의 수업 하나를 여는 URL.\n\n:param lesson: 수업 id, 예: ``07_mask``.\n:returns: 라이브러리가 읽는 ``#lesson=`` 조각이 붙은 라이브러리 URL.",
+      "translation_source_blocks_sha256": [
+        "f7dde7fb07731c7d1bf5f8e8fee716d7b71f60ad5a7f66e812ecddde9bc2e301",
+        "d19fd9e9aae240c8f510197badc842745fa020ef3a7c6732b0b067574ae994ec",
+        "0967d3fec8f62e57a8269830ecf05474c72bc4e732b2f4e1f898599baeb87037"
+      ]
+    },
+    "spacr.qt.tutorials.lessons": {
+      "source_blocks_sha256": [
+        "8a731457e881988c7b735aea903e3ca7d859faa7cabd8f8c45d0ed059198cfc4",
+        "c570a7c59da920182fc47b5224edd8aaf18d226082354644b2e539f08c9dc087",
+        "e2d3eff8dc794d47f7cbe81eec4255d56caf6b726c16cd6f6eb088f63d897b95"
+      ],
+      "source_sha256": "808be786b3f63f8478b760240b4862631ef0ddd018fd39d09c43c14a1d98258d",
+      "text": "라이브러리의 모든 수업, 수업 번호 순.\n\n번들된 표에서 한 번 읽고 캐시합니다. 읽을 수 없는 표는 빈 리스트를 주며, 모듈 조회가 ``\"\"`` 를 주는 것과 같습니다.\n\n:returns: 수업당 dict 하나로, ``number`` (int), ``lesson`` (id, 예: ``07_mask``), ``slug``, ``title``, ``app_key`` (수업이 다루는 화면, 하나의 화면에 관한 것이 아닌 수업이면 ``\"\"``)를 담습니다.",
+      "translation_source_blocks_sha256": [
+        "8a731457e881988c7b735aea903e3ca7d859faa7cabd8f8c45d0ed059198cfc4",
+        "c570a7c59da920182fc47b5224edd8aaf18d226082354644b2e539f08c9dc087",
+        "33a5a71eb6387f28d314813db1c4fd1943f103a8b3b8a7d63d6eec10d2b8a1e6"
       ]
     },
     "spacr.qt.tutorials.tutorial_url": {
@@ -132232,7 +132794,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "220a82364b38a13b51e092dfed5607c6a008c8ba0496eb5d9fe7644d66096506",
-      "text": "현재 프레임을 삽입합니다.\n\n:param event: Qt 페인트 이벤트",
+      "text": "현재 프레임을 삽입합니다.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
         "194033ae6482c2a0de7d0e7cdcc9da7a4ea6326f3ed583b9ba7d11dee008310b",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -142403,7 +142965,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "0710df7f403cb5357c20a1a67e2adef7afa3df16a3285a504f523da0e3227a92",
-      "text": "포장 된 모듈의 아이콘과 그것의 성숙을 림 색상으로 그려 놓으십시오.\n\n색상은 정보를 가져옵니다, 그래서 그것은 스타일리스트에 남아있는 대신 끌려 : 알파와 베타 모듈이 표시되고, 구체를 구별 할 수없는 독자는 여전히 도구 팁을 얻습니다.\n\n:param event: Qt 페인트 이벤트",
+      "text": "포장 된 모듈의 아이콘과 그것의 성숙을 림 색상으로 그려 놓으십시오.\n\n색상은 정보를 가져옵니다, 그래서 그것은 스타일리스트에 남아있는 대신 끌려 : 알파와 베타 모듈이 표시되고, 구체를 구별 할 수없는 독자는 여전히 도구 팁을 얻습니다.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
         "50e972271dea387c5fba81151e0a4585ac58f85597d60adb36a8ef8e5fe02857",
         "33df2767f5b4c7dc50824bff9cb8aaf8994abe9400c2ca9d811bec9df095cdfd",
@@ -155726,9 +156288,86 @@
         "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
       ]
     },
+    "spacr.qt.widgets.loading_screen.BlowAway": {
+      "source_blocks_sha256": [
+        "87df8aa6a9199c7e0b60c0f2b7e94ef39b70151f339a55ffc3aa51ecceff7a3e",
+        "5996ceac6f9ef17944a0da9485b4dd1dedea8c9a131fed0c91b37a52f2652483",
+        "20e14e029b03c7e11ff57aaa8731cdf4f57c59a2789aa48da7f6c59faa875407",
+        "694113f5af6cf07ba62112223e066c0938b40a67062e765ff6cc5a467722486c",
+        "edfb90e1f2228b13070d7665d21681551a78ad5ca1bc3a74595298b47d3f3cfa",
+        "501e1f909e5270fa51c64e6b3620b1e9c7515a9445a626c0f64ef71939fbcce3",
+        "9e254181e413ee820b6af962d3f46d59a119aded363936e4f91865c5992cbcd0",
+        "2b3d68dd20c2c3440766c280753840e2b26434e4f8c52ab383ebcefeb97da69c",
+        "56117aac5ebe0055f82cf0281cdc86ac6e6feaf0938fdd65e752ff7c3c118565",
+        "dcda49772c3163a8f3127ab83551bf40e60c26dc6b3941d80a8934e15e664d71",
+        "379c7bb97f00aa031ac2c535729b6846158b3622f0c0c240fe0d12ced87053f7"
+      ],
+      "source_sha256": "190c7c6b0817aa6e89a028b06f849ce3726113c3a3e39de66a85fc8d664fe23c",
+      "text": "바람의 전선이 포토모자이크의 타일을 날려 보낼 때 타일의 움직임.\n\nQt 없이 배열에 대한 순수한 산술입니다. 각 타일의 출발 시각과 비행은 시드된 생성기에서 한 번 뽑히고, :meth:`frame` 이 한 순간의 무리 전체를 계산하므로 움직임은 경과 시간에만 의존하고 그려진 프레임 수에는 결코 의존하지 않습니다.\n\n전선은 ``wind`` 를 따라 모자이크를 쓸고 지나갑니다. 전선이 타일에 닿으면 타일은 관찰자 쪽으로 떠올라 카드처럼 뒤집히고(뒤집힘 각도의 코사인으로 한 축이 스케일되며, 원근을 위한 기울임과 약간의 단축이 있음), 회전하며, 사라지는 동안 무작위 난류와 약한 중력으로 바람 부는 쪽으로 날아갑니다. 배경 타일은 날지 않고 전선과 함께 사라집니다.\n\n:param occupied: ``grid x grid`` 불리언. ``True`` 타일이 납니다.\n:param origin: 위젯 좌표로 나타낸 모자이크의 왼쪽 위 모서리.\n:param side: 같은 단위로 나타낸 모자이크의 변.\n:param seed: 무작위성의 시드.\n:param wind: 바람이 부는 방향 ``(x, y)``. 화면 아래쪽이 ``+y`` 입니다.\n:param start: 전선이 첫 타일에 닿기 전의 초.\n:param sweep: 전선이 모자이크를 가로지르는 데 걸리는 초.\n모든 타일의 출발과 비행을 그립니다. 클래스 docstring을 보세요.",
+      "translation_source_blocks_sha256": [
+        "87df8aa6a9199c7e0b60c0f2b7e94ef39b70151f339a55ffc3aa51ecceff7a3e",
+        "5996ceac6f9ef17944a0da9485b4dd1dedea8c9a131fed0c91b37a52f2652483",
+        "20e14e029b03c7e11ff57aaa8731cdf4f57c59a2789aa48da7f6c59faa875407",
+        "694113f5af6cf07ba62112223e066c0938b40a67062e765ff6cc5a467722486c",
+        "b98454ca7b2a02daf7fecb6ff243f683f7eb697431c1f21b6f672b61fed5faf2",
+        "097f867643420fb4fbb4f9ad37058a77fa73a705fae2235f5438380f92873509",
+        "9e254181e413ee820b6af962d3f46d59a119aded363936e4f91865c5992cbcd0",
+        "2b3d68dd20c2c3440766c280753840e2b26434e4f8c52ab383ebcefeb97da69c",
+        "56117aac5ebe0055f82cf0281cdc86ac6e6feaf0938fdd65e752ff7c3c118565",
+        "5e782f6e2e1cf4e6799a8d3862b5cc343005ff1c85d57d2a148c0c5c310e5675",
+        "379c7bb97f00aa031ac2c535729b6846158b3622f0c0c240fe0d12ced87053f7"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.BlowAway.backdrop": {
+      "source_blocks_sha256": [
+        "4cd12e167f488c28f6882d8928fca4e531959a69622ac3ec11e00abd64812db4",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "27a68c541c6717d4df3473424a96aaaac12d97ecf69f5b4311964e79187d3c70"
+      ],
+      "source_sha256": "ff513918ecc9a0d568362df29272b6b6534b451c6135f31a4fec1380be6d2748",
+      "text": "전선의 뒤와 앞에서 커버의 바탕이 얼마나 불투명한지.\n\n:param t: 날려 보내기가 시작된 이후의 초.\n:returns: ``(front, behind, ahead)``: 바람을 따라 모자이크 대비 비율로 나타낸 전선의 위치(바람이 불어오는 쪽 가장자리가 0, 바람이 향하는 쪽이 1)와, 양쪽에서의 바탕 불투명도 0..1.",
+      "translation_source_blocks_sha256": [
+        "4cd12e167f488c28f6882d8928fca4e531959a69622ac3ec11e00abd64812db4",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "1c3423091e47184009d3ab0f68ee9a2875d1206e7b72fab0eceeee08c20f2d72"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.BlowAway.frame": {
+      "source_blocks_sha256": [
+        "efc9f936f28056f46f86ece7a27eaf679a4239f3328c31e5be441c5d00a9303c",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "45e5eadac619e27e448b3d7dc8d549885fcfd471154751ad0462bb5fe6845945",
+        "430475f7a74d3c17ca4b2af41acca330da8a6ef9f084da9415d2018345d7f9c8",
+        "bbcfe5c115c216321164e195e4d5e6e91e37baa748a6b1e83d83617f69210d62"
+      ],
+      "source_sha256": "748edc75c3f98c00fbaf9a74d1dfd7e17850f4b021bd757fc194f8a2f32f74fe",
+      "text": "``t`` 에서 날고 있는 모든 타일의 위치.\n\n:param t: 날려 보내기가 시작된 이후의 초.\n:param bounds: ``(x0, y0, x1, y1)``. 중심이 이를 두 칸 넘게 벗어난 타일은 버려집니다. ``None`` 이면 모두 유지합니다.\n:param floor: 이보다 흐린 타일은 버려집니다.\n:returns: ``(index, m11, m12, m21, m22, dx, dy, opacity)``: 날고 있는 타일의 인덱스와, 각각에 대해 원점을 중심으로 그려진 타일을 배치하는 아핀 행렬 및 그 불투명도.",
+      "translation_source_blocks_sha256": [
+        "efc9f936f28056f46f86ece7a27eaf679a4239f3328c31e5be441c5d00a9303c",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "45e5eadac619e27e448b3d7dc8d549885fcfd471154751ad0462bb5fe6845945",
+        "430475f7a74d3c17ca4b2af41acca330da8a6ef9f084da9415d2018345d7f9c8",
+        "bbcfe5c115c216321164e195e4d5e6e91e37baa748a6b1e83d83617f69210d62"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.BlowAway.launched": {
+      "source_blocks_sha256": [
+        "20489f4b13634ca8b58bba7d42f7bfb02d3417b5f5c58f1c0c9ec37835121bbb",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "6592cae316087969f8abfd795d851a5d47303933a15282d9ac41a6489c378d5d"
+      ],
+      "source_sha256": "b454a81c709122f74999ad947c31e1ffe978627cadd8152fff43d526073a3f5e",
+      "text": "날고 있든 아니든 전선이 도달한 모든 타일의 인덱스.\n\n:param t: 날려 보내기가 시작된 이후의 초.\n:returns: 행 우선 타일 인덱스.",
+      "translation_source_blocks_sha256": [
+        "20489f4b13634ca8b58bba7d42f7bfb02d3417b5f5c58f1c0c9ec37835121bbb",
+        "153a72c61ce806cea12034dfb7d7cfbca5d1395baf26060eedb03d5dad2cf613",
+        "6592cae316087969f8abfd795d851a5d47303933a15282d9ac41a6489c378d5d"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.LoadingScreen": {
       "source_blocks_sha256": [
         "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+        "9d0d992e12b6e5e79e85c2827c3390f0eb05da130f8bf3bc38b208ebff8ebc91",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
         "79a32a90fbb1078f7a69a7402e50b25d76dfd4a31922faf40102561791b6fcb7",
@@ -155736,10 +156375,11 @@
         "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
         "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
       ],
-      "source_sha256": "69005d582b0bc65cab72695c80e6a368943aee0cc0b0bc66ecb6a7b8edc8257e",
-      "text": "작업 흐름 모듈이 수입 될 때까지 전체 창 덮개가 표시됩니다.\n\n:param total: 0 또는 부정적인 의미 \"unknown\", 단계는 그것에 의해 분할 대신 빈 상태로 남아있다.\n:param parent: 그것은 부모에게 크고 그것과 함께 재생하는 대신 별도의 상단 수준이 될 것입니다 - 두 번째 창은 자신의 작업 바 입력을 얻고 그것이 덮을 것으로 예상되는 것을 끌 수 있습니다.\n창을 덮는 스플래시를 구축하는 동안 그것이 모여있다.\n\n건설에 따라 포장 : 그것은 부분적으로 구축 된 창을 커버하고, 모든 투명성은 그것이 존재하는 것을 숨길 것입니다.\n\n:param total: 진보 줄의 단계가 얼마나 되었는지; ``0``은 비율을 나타내지 않습니다.\n:param parent: 창이 덮여있다; 그것의 지질학이 채택됩니다.",
+      "source_sha256": "1d965b9967f591349b138e79a49421d86f7d7527cd5563369b7913d264bc2172",
+      "text": "파이프라인 모듈을 임포트할 때까지 표시되는 전체 창 커버.\n\n기본적으로 슬로건 줄 옆에 흰색 마크를 보여 줍니다. :meth:`show_mosaic` 이 호출되면 대신 슬로건 줄 위에 spaCR 포토모자이크를 보여 주며, :meth:`blow_away` 가 모자이크의 타일을 창에서 날려 보내 아래의 창을 드러내면서 이를 끝냅니다.\n\n:param total: 보고될 단계 수. 0 또는 음수는 \"unknown\"을 뜻하며, 단계는 그것으로 나누는 대신 흐리게 남습니다.\n:param parent: 채우는 창. 별도의 최상위 창이 아니라 부모 크기에 맞춰지고 함께 크기가 바뀝니다 -- 두 번째 창은 자체 작업 표시줄 항목을 얻고 덮어야 할 대상에서 끌려 나갈 수 있습니다.\n창이 조립되는 동안 창을 덮는 시작 화면을 만듭니다.\n\n구성상 불투명합니다. 반쯤 만들어진 창을 덮으며, 투명하면 숨기려는 것이 보일 것입니다.\n\n:param total: 진행률 표시줄이 세는 단계 수. ``0`` 이면 비율을 표시하지 않습니다.\n:param parent: 덮을 창. 그 지오메트리가 채택됩니다.",
       "translation_source_blocks_sha256": [
         "29b9e3edb2706230d69db8eeb56c8f1fa1d9caf170992e142d3c1dd6c2c59218",
+        "d4ff49473441a5a3c33659ad0a6791ccd540d74c21b916a9f8095e96aa609b73",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
         "79a32a90fbb1078f7a69a7402e50b25d76dfd4a31922faf40102561791b6fcb7",
@@ -155758,6 +156398,34 @@
         "7cc7178e711884e303aa3b66dcd91c8e0b9761195f0228c8911455aa5d9cefcb"
       ]
     },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away": {
+      "source_blocks_sha256": [
+        "903498dd3cdf7fb3c626e6a8a5d3b153a31328727171a8aeb633758feb59b553",
+        "d50552237cc81b8dc8c5a374666f4da237036bc659a258964bf14929865dd7ea",
+        "916fdd1de872f030cd3a28082a14e730768f44c38ac08e8d442d36832643fdd4",
+        "7750ec9708425d1b5f32973d22ce6be9c59cf00b214fb745e3e37de65dae5ed8",
+        "dd3d1f3709e1b67c4e617ff070b83694f8596fc1527fabeb1f7a93e3e2446995"
+      ],
+      "source_sha256": "cb685442d95ef15fa039d142d4c7d7023ac81ae23b55cb75f47973a5a5b34a50",
+      "text": "모자이크의 타일을 창에서 날려 보내 커버를 끝냅니다.\n\n커버가 처음 그려진 뒤 0.6 s 이전에는 시작하지 않습니다. 마지막 타일이 사라지면 커버는 스스로 삭제됩니다.\n\n:param on_finished: 커버가 사라졌을 때 한 번 호출됩니다.\n:param force: :func:`startup_animation_allowed` 가 안 된다고 하는 곳에서도 재생합니다. 테스트와 미리보기용.\n:returns: 날려 보내기가 재생되고 커버가 스스로 내려가면 ``True``. 그렇지 않으면 -- 모자이크가 없거나 애니메이션이 꺼져 있거나 클릭이 이미 건너뛰기를 요청한 경우 -- ``False`` 이며 호출자가 이전처럼 커버를 내립니다.",
+      "translation_source_blocks_sha256": [
+        "723d4e7f016d1f9303b4dc46ccba6a1f13422d8501d88b1e5ce0aea0807468b0",
+        "d50552237cc81b8dc8c5a374666f4da237036bc659a258964bf14929865dd7ea",
+        "916fdd1de872f030cd3a28082a14e730768f44c38ac08e8d442d36832643fdd4",
+        "7750ec9708425d1b5f32973d22ce6be9c59cf00b214fb745e3e37de65dae5ed8",
+        "2281f46e9580cfaf8c1490703636d68500f9f08a6bccd077c405af186c07631b"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.elapsed": {
+      "source_blocks_sha256": [
+        "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17"
+      ],
+      "source_sha256": "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17",
+      "text": "날려 보내기가 시작된 이후의 초. 시작 전에는 ``0.0``.",
+      "translation_source_blocks_sha256": [
+        "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.LoadingScreen.fraction": {
       "source_blocks_sha256": [
         "07378f5d9d6edc2e19122a95e82cd04b5dc3ed0b72ddbde401e0f4cb8b554bf6"
@@ -155766,6 +156434,30 @@
       "text": "완성된 부분, 0.0에서 1.0. 0까지, 총이 알려지지 않은 경우.",
       "translation_source_blocks_sha256": [
         "07378f5d9d6edc2e19122a95e82cd04b5dc3ed0b72ddbde401e0f4cb8b554bf6"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats": {
+      "source_blocks_sha256": [
+        "c762d6e2ec3c5618c2419b4dd931e7c5d31edec45e668eee71b926ab174a01b6",
+        "4961353d2c74a0a052bcc98ac559eb5b3993c093bca2cb7481a9b13975a9e75f"
+      ],
+      "source_sha256": "cc69808fed0ece9ad875c409a5e503482e9490562567ad7e51c36816094311bb",
+      "text": "날려 보내기를 그리는 데 든 비용, 측정용.\n\n:returns: ``frames``, 프레임 그리기 시간의 평균과 가장 느린 프레임의 시간(밀리초), 한 프레임에 그려진 최대 타일 수.",
+      "translation_source_blocks_sha256": [
+        "c762d6e2ec3c5618c2419b4dd931e7c5d31edec45e668eee71b926ab174a01b6",
+        "4961353d2c74a0a052bcc98ac559eb5b3993c093bca2cb7481a9b13975a9e75f"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.keyPressEvent": {
+      "source_blocks_sha256": [
+        "45254445acb7ebb941c5dcecc16e49bd17636e711a1434938acf2cf0f1f321fa",
+        "237b44bdbdcf26986658f8774c0ba49fd39c09856b8ca5f5012039e4ec5659f5"
+      ],
+      "source_sha256": "eb2a1ef09a6cc44153c89e0c76460fdd0bada13dcb8101d9bf825e5dec13c8e1",
+      "text": "날려 보내기가 진행되는 동안 키를 누르면 건너뜁니다.\n\n:param event: Qt 키 이벤트. 수락되어 키가 더 이상 전달되지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "45254445acb7ebb941c5dcecc16e49bd17636e711a1434938acf2cf0f1f321fa",
+        "237b44bdbdcf26986658f8774c0ba49fd39c09856b8ca5f5012039e4ec5659f5"
       ]
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen.lit_phases": {
@@ -155780,16 +156472,48 @@
         "11f62417bd587b520a0248d6aa77860e5a899c237eccbe054dcbe74b22c29d70"
       ]
     },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.mosaic_shown": {
+      "source_blocks_sha256": [
+        "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637"
+      ],
+      "source_sha256": "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637",
+      "text": "커버가 포토모자이크를 보여 주는지 여부.",
+      "translation_source_blocks_sha256": [
+        "d69ce6391bea6d777acf5f6261aab6940e0a6fe64755f6395088f64ca74e8637"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.mousePressEvent": {
+      "source_blocks_sha256": [
+        "dc8a526c53d020fac69efe0b3c724b1bbb4aa0c9551ed1abdbc164cd98649a48",
+        "bc37429b28868add62764ae4c85ebecc580f4ceef5c2580d30e02d5ea8c96c47"
+      ],
+      "source_sha256": "3f8db9a75b3ad8ff00f6ead3be59a14c0e2276d8089a5af71005a7a7151e5b3d",
+      "text": "커버를 클릭하면 날려 보내기를 건너뛰도록 요청합니다.\n\n:param event: Qt 마우스 이벤트. 수락되어 클릭이 커버를 넘어 전달되지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "dc8a526c53d020fac69efe0b3c724b1bbb4aa0c9551ed1abdbc164cd98649a48",
+        "bc37429b28868add62764ae4c85ebecc580f4ceef5c2580d30e02d5ea8c96c47"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.LoadingScreen.paintEvent": {
       "source_blocks_sha256": [
-        "b30fdd4132f494c60cfd5ef1c87a4e27c480a1651c81bc269b134558dc63d7b1",
+        "6cb79a68f7e02f9058e6dc0866ccd859269ab28bc584c752cb806ddf431f5a9b",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
-      "source_sha256": "219811605a7a8578e78714185cd616585a8e9ec4cb3e86f07c19c31a6b8717c1",
-      "text": "충전 상태를 흔들어 놓으십시오.\n\n:param event: Qt 페인트 이벤트",
+      "source_sha256": "831b5fb8bcc63288f0d8089929150b2bed4e72e29ae14d002552f943664b55a3",
+      "text": "로딩 상태 또는 날려 보내기의 한 프레임을 그립니다.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
-        "b30fdd4132f494c60cfd5ef1c87a4e27c480a1651c81bc269b134558dc63d7b1",
+        "6cb79a68f7e02f9058e6dc0866ccd859269ab28bc584c752cb806ddf431f5a9b",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.playing": {
+      "source_blocks_sha256": [
+        "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0"
+      ],
+      "source_sha256": "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0",
+      "text": "날려 보내기가 시작을 기다리고 있거나 진행 중인지 여부.",
+      "translation_source_blocks_sha256": [
+        "e070a865fab01dcec4caa4f04a32829387042d6ee21bff8af720c60234a60bd0"
       ]
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen.resizeEvent": {
@@ -155816,6 +156540,106 @@
         "8373f836a20241ead86c353c5ad5b41b9f94c4d44c3deae327dbb404a3d6f29f"
       ]
     },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.show_mosaic": {
+      "source_blocks_sha256": [
+        "7adabce5a499ea162d3661b1baef82e48c51753bf407c4cf57a9fefd077f3bc6",
+        "edf336b1a86e6f784e55397915be9eece6561038123cd9260e85054ccece0a35",
+        "4ff99945b6c40ce8b598c306e6a3c8fd54cbfc14f53b1bd5cfef908f5e3d97cd"
+      ],
+      "source_sha256": "54053e7c96a1ad23a30fdee98aca6bdbf38f39fbfb67c2a7b570ac4d6905ba71",
+      "text": "마크 대신 포토모자이크를 보여 줍니다.\n\n:param mosaic: 보여 줄 맵. 기본값은 패키지에 든 것.\n:returns: 이제 모자이크가 표시되는지 여부. 파일이 없으면 ``False`` 이며 커버는 마크를 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "7adabce5a499ea162d3661b1baef82e48c51753bf407c4cf57a9fefd077f3bc6",
+        "edf336b1a86e6f784e55397915be9eece6561038123cd9260e85054ccece0a35",
+        "e9db84b7640d863a2680b382e0edd1ad587c4882b3c369de74d158dde98bc068"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.skip": {
+      "source_blocks_sha256": [
+        "af5b549c9b101208e4eb885eeb8cd446aa404b15e32557bd4daa1d5852af42b8",
+        "0f18b06d9c56c476ed7f507f9757475863c3af60f39ad5784dfc547546af98cf"
+      ],
+      "source_sha256": "807b5e500181c75a8db58648c408754a6b2c941fb3e9614d329d3ab64f922085",
+      "text": "끝으로 건너뜁니다. 지금 또는 허용되는 즉시 커버를 내립니다.\n\n:meth:`blow_away` 이전에는 기억되며, 이후 로딩이 끝나면 커버가 애니메이션 없이 내려갑니다.",
+      "translation_source_blocks_sha256": [
+        "af5b549c9b101208e4eb885eeb8cd446aa404b15e32557bd4daa1d5852af42b8",
+        "0f18b06d9c56c476ed7f507f9757475863c3af60f39ad5784dfc547546af98cf"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.MosaicMap": {
+      "source_blocks_sha256": [
+        "4691bdc9c4b9f17a1c188b0e187a1901e2e70ea4c6001d0cf6396832fb4b0da1",
+        "b02e8dc828b855822fb4e96bb2c8bdf3d3c56074ca7220cd41a6bc1ffddd7dc6",
+        "ea159e48395cb65220720b35be3faab7b6a4af540927d1575b7afef7dd6de32f",
+        "00a30801646f69de6fe6a5003615809643c3fb023767ca7cbd8609947e61587a",
+        "1091d556a1c6413eda3c820ebf50b32d741d5b190887a16cb37dd34d5b1d2a33",
+        "fdd243effc6182bb00167f255dd26966257abf6b5f89a36aa5066d28086796a9"
+      ],
+      "source_sha256": "63f36d5fa9e94b9448f0d7549636c27939d96eef833898884bec61873b92b614",
+      "text": "시작 포토모자이크의 그림과 어떤 타일이 로고를 담고 있는지.\n\n:param image_path: 그림. 한 변이 ``grid * tile_px`` 픽셀인 정사각형.\n:param grid: 변당 타일 수.\n:param tile_px: 그림에서 타일당 픽셀 수.\n:param occupied: ``grid x grid`` 불리언, 행 우선. 타일이 그림을 담고 날면 ``True``, 흐린 배경이면 ``False``.\n맵을 보관합니다. 매개변수는 클래스 docstring을 보세요.",
+      "translation_source_blocks_sha256": [
+        "4691bdc9c4b9f17a1c188b0e187a1901e2e70ea4c6001d0cf6396832fb4b0da1",
+        "b02e8dc828b855822fb4e96bb2c8bdf3d3c56074ca7220cd41a6bc1ffddd7dc6",
+        "ea159e48395cb65220720b35be3faab7b6a4af540927d1575b7afef7dd6de32f",
+        "00a30801646f69de6fe6a5003615809643c3fb023767ca7cbd8609947e61587a",
+        "1091d556a1c6413eda3c820ebf50b32d741d5b190887a16cb37dd34d5b1d2a33",
+        "fdd243effc6182bb00167f255dd26966257abf6b5f89a36aa5066d28086796a9"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.MosaicMap.load": {
+      "source_blocks_sha256": [
+        "3405be5aba83d659e83fc81d68783e5fe56dc2168176ece7b76d79e750bcac90",
+        "e42b66b71ffedc2a9da23eb220f23a3c5a1b66c739a15db68fc3043a08e14039",
+        "4cad70e624e2da617a90f35a7444544c1c3a753fa42e47ce78a55faf1b75972d"
+      ],
+      "source_sha256": "b5d1977e9c97f15b8f881647125c90afc840f85756c5f7d9ab477f63e7bc137a",
+      "text": "타일 맵을 읽고 그림이 있는지 확인합니다.\n\n:param directory: 맵과 그림이 있는 곳. 기본값은 패키지에 든 ``spacr/resources/splash``.\n:returns: 맵, 또는 어느 한 파일이 없거나 맵을 읽을 수 없으면 ``None`` -- 그러면 로딩 커버는 단순한 모습을 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "3405be5aba83d659e83fc81d68783e5fe56dc2168176ece7b76d79e750bcac90",
+        "e42b66b71ffedc2a9da23eb220f23a3c5a1b66c739a15db68fc3043a08e14039",
+        "4cad70e624e2da617a90f35a7444544c1c3a753fa42e47ce78a55faf1b75972d"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.blow_away_running": {
+      "source_blocks_sha256": [
+        "8fad79e73e907936949c5551e2a6a086c629cd77a47f2db12b7edddb736003de",
+        "e4291692ef3e4d863d92ffcb612fb7a31f0a62ec992d0ac52b42d27b5dafa18f",
+        "eb60638264717bb6c4ed04b0738e4703931cb4afec82e4631e37e9f6564bbd83"
+      ],
+      "source_sha256": "af23a423eab62e25dfbfee7551a8f606598f432ccd7f069d32e919557cb2dbb7",
+      "text": "시작 날려 보내기가 시작을 기다리고 있거나 진행 중인지 여부.\n\n유휴 시간 워밍업이 이를 묻고 기다리므로, 그 조각이 애니메이션이 진행되는 2초 동안 프레임을 빼앗지 않습니다.\n\n:returns: 아직 존재하는 커버가 재생 중인 동안 ``True``. 창과 함께 도중에 삭제된 커버는 더 이상 세지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "8fad79e73e907936949c5551e2a6a086c629cd77a47f2db12b7edddb736003de",
+        "e4291692ef3e4d863d92ffcb612fb7a31f0a62ec992d0ac52b42d27b5dafa18f",
+        "eb60638264717bb6c4ed04b0738e4703931cb4afec82e4631e37e9f6564bbd83"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.mosaic_splash_wanted": {
+      "source_blocks_sha256": [
+        "4f4eb18b479c7099e8a4864a39192d6f759a5d0504cd9b5fd0b4ee319c2f5406",
+        "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
+      ],
+      "source_sha256": "3ab5d607f9fde8940e0ae0f3d923ec2572e6fd98ab108e142b50565d4fda4317",
+      "text": "로딩 커버가 포토모자이크를 보여 주는지 여부.\n\n:returns: ``False`` 는 :data:`NO_SPLASH_ENV` 가 설정되어 있을 때이고, 그렇지 않으면 ``True``.",
+      "translation_source_blocks_sha256": [
+        "4f4eb18b479c7099e8a4864a39192d6f759a5d0504cd9b5fd0b4ee319c2f5406",
+        "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.startup_animation_allowed": {
+      "source_blocks_sha256": [
+        "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
+        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
+      ],
+      "source_sha256": "b35789d2caef389c9ad17926c01fa3bc02ec4ef87a68a45d6fff29b695dee4fb",
+      "text": "창이 준비되었을 때 포토모자이크가 흩어질 수 있는지 여부.\n\n:data:`NO_SPLASH_ENV` 가 설정되어 있거나, offscreen 플랫폼이거나, 접근성 > 모션 줄이기가 켜져 있거나, Preferences > 애니메이션 > 시작 애니메이션이 꺼져 있으면 안 됩니다. 읽을 수 없는 환경설정은 안 됨으로 셉니다. 정지된 커버는 항상 안전합니다.\n\n:returns: 날려 보내기가 재생되어야 하면 ``True``.",
+      "translation_source_blocks_sha256": [
+        "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
+        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.strap_line": {
       "source_blocks_sha256": [
         "a3abd9ddee7b401c4105748468be6723d87ef7ea7db02fa4338f88b37880aa65"
@@ -155836,6 +156660,20 @@
       "translation_source_blocks_sha256": [
         "869fafb3375824bccdf8648a3358b752c9dd5a72acbbf927623c16be291e09c2",
         "bb290a1692f9b52986d02138b1e713e444cc1e42ad3c5a6281fdb843a47f43a8"
+      ]
+    },
+    "spacr.qt.widgets.loading_screen.will_blow_away": {
+      "source_blocks_sha256": [
+        "e79d959cc2c293cb0c13b0f1292b046347ac52bec7c04306bde12465916626af",
+        "6c8659c165fda364d889724cd5937dd29814f52ae20361268274a93aeb9f9b5d",
+        "6fbcb199b4c6a82639532e54656d21bb0cd4b1d23baaa07a1ab265a7d35767d0"
+      ],
+      "source_sha256": "f12de30007a1d4c000dd196e0844a139e59716ad31c24e4551f983d39f365f6e",
+      "text": "``screen`` 이 사라지는 대신 날려 보내기로 끝날지 여부.\n\n:param screen: 창의 로딩 커버, 또는 그것을 대신하는 무엇.\n:returns: ``True`` 는 모자이크를 보여 주는 :class:`LoadingScreen` 이 아직 건너뛰기를 요청받지 않았고 :func:`startup_animation_allowed` 가 된다고 할 때입니다.",
+      "translation_source_blocks_sha256": [
+        "e79d959cc2c293cb0c13b0f1292b046347ac52bec7c04306bde12465916626af",
+        "6c8659c165fda364d889724cd5937dd29814f52ae20361268274a93aeb9f9b5d",
+        "8d7501f2d5f9e0dade4a2388f4ff8537f29af237068fff5891f4febcfa0f5c5d"
       ]
     },
     "spacr.qt.widgets.make_masks_help": {
@@ -159028,6 +159866,136 @@
         "195fe159b86715f4300ad73c7d255e2fe6d71da753ea5262567ab498c2dd9810",
         "68de095a089b186d9bedc19e98c606f5e6541a12eda2fabcdca113a505533d1e",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer": {
+      "source_blocks_sha256": [
+        "3772cd726848c278c71b0aa5745115a35afbc0745b6e5abfc79c01e2ef8fbe3f",
+        "bd2a015dfe526df7ad5d32b4f18ca950970b064380d449f0bb1656618682e662"
+      ],
+      "source_sha256": "1550409a23fb1965c63c055785bd5eb465fa0f8afb01fd6cf99bad7f62eded49",
+      "text": "Model Zoo의 3페이지 모델 카드 뷰어.\n\n카드의 페이지 이미지를 크기에 맞춰 보여 주며, 이전과 다음, \"1 / 3\" 카운터, 왼쪽과 오른쪽 키, Hugging Face의 모델 링크를 제공합니다. 이미지는 처음 볼 때 작업 스레드에서 가져와 캐시되며, 없으면 뷰어는 spaCR와 함께 제공되는 카드 데이터로 같은 세 페이지를 텍스트로 보여 줍니다. 이미지를 클릭하면 대화 상자에서 더 크게 열립니다.",
+      "translation_source_blocks_sha256": [
+        "3772cd726848c278c71b0aa5745115a35afbc0745b6e5abfc79c01e2ef8fbe3f",
+        "e28e895653f6d22470596005d37be017c7bf9df21cedf155b657b851ca6151e4"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer": {
+      "source_blocks_sha256": [
+        "60f02d459892608d039e6bb9dccba7e8a594a34d7d191f49fc7f2fac00e4e4ca",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "c39090a0b02c6fe99f216c8a5ffb87c333e35810230d7b36f8dbe944c67c71b3",
+        "f7f0215ce85d01974e54f34c21a5cc0128ce5a0bbe3286a352bcf443d084a145",
+        "bcb7f0c15e66824ac8ad6087ecc76af136d28856f95392049c3683247e03c073"
+      ],
+      "source_sha256": "48639fae83dcb5c68735d84c51e8d73aa08c86037c52210c96667fed7c60a542",
+      "text": "한 모델의 카드를 넘겨 봅니다.\n\n:param parent: 상위 위젯입니다.\n:param threaded: 이미지를 작업 스레드에서 가져옵니다. ``False`` 이면 테스트를 위해 인라인으로 가져옵니다.\n:param fetch: URL을 받는 바이트 소스로 :func:`spacr.model_cards.fetch_pages` 에 전달됩니다. ``None`` 이면 네트워크를 사용합니다.\n:param enlargeable: 이미지를 클릭하면 더 큰 대화 상자가 열립니다.",
+      "translation_source_blocks_sha256": [
+        "60f02d459892608d039e6bb9dccba7e8a594a34d7d191f49fc7f2fac00e4e4ca",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "9f35e70b1c83a60a412d62ad8270aeb0bde3caca48c66f03227f9dc05a0850fb",
+        "f7f0215ce85d01974e54f34c21a5cc0128ce5a0bbe3286a352bcf443d084a145",
+        "bcb7f0c15e66824ac8ad6087ecc76af136d28856f95392049c3683247e03c073"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.card": {
+      "source_blocks_sha256": [
+        "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d"
+      ],
+      "source_sha256": "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d",
+      "text": "표시 중인 카드 데이터, 없으면 ``None``.",
+      "translation_source_blocks_sha256": [
+        "4d45359cbdba0e94eb46044920b9f9997c79e5feee3ca0fbab53f1fa59d5d33d"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.counter_text": {
+      "source_blocks_sha256": [
+        "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7"
+      ],
+      "source_sha256": "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7",
+      "text": "\"1 / 3\" 텍스트.",
+      "translation_source_blocks_sha256": [
+        "d62f32231afc96f2632c6e90a32970d1feec3e838cead63fe56c434c6e62bfd7"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.go_to": {
+      "source_blocks_sha256": [
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+      ],
+      "source_sha256": "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37",
+      "text": "``page`` 페이지(0부터 셈)를 보여 주며, 존재하는 페이지로 제한됩니다.",
+      "translation_source_blocks_sha256": [
+        "53ce35175c2465b465f5e66495d89d68694d38e24239439a0cbe6896c9bf4a37"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.keyPressEvent": {
+      "source_blocks_sha256": [
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+      ],
+      "source_sha256": "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0",
+      "text": "왼쪽과 오른쪽이 페이지를 넘깁니다.",
+      "translation_source_blocks_sha256": [
+        "459eb1a6285549ce9b3232e238f20a5f37de701cce1537aa63a1c74b963af6c0"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.next_page": {
+      "source_blocks_sha256": [
+        "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c"
+      ],
+      "source_sha256": "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c",
+      "text": "다음 페이지를 보여 줍니다. 마지막에서 멈춥니다.",
+      "translation_source_blocks_sha256": [
+        "83777a3b053dac34575972065d251a2ea46562776a96c6e2e0140ce5c270520c"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.page": {
+      "source_blocks_sha256": [
+        "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb"
+      ],
+      "source_sha256": "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb",
+      "text": "0부터 센 현재 페이지.",
+      "translation_source_blocks_sha256": [
+        "34cb77644f1452263211b6bc16a4f0fec10e877144f45e76a9d05871f8554ddb"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.previous_page": {
+      "source_blocks_sha256": [
+        "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1"
+      ],
+      "source_sha256": "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1",
+      "text": "이전 페이지를 보여 줍니다. 처음에서 멈춥니다.",
+      "translation_source_blocks_sha256": [
+        "1b12484addcf316d981c929a66489d59294c691c895a0d4883d41c95b6f6a9f1"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.set_card": {
+      "source_blocks_sha256": [
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+      ],
+      "source_sha256": "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd",
+      "text": "1페이지부터 ``card`` 를 보여 주며, 캐시되지 않은 이미지는 가져옵니다.",
+      "translation_source_blocks_sha256": [
+        "b0d79f4d06afd98e0954a22c84fda9350c96e36144bdb00e4237e3c1a70d80dd"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.showing_image": {
+      "source_blocks_sha256": [
+        "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd"
+      ],
+      "source_sha256": "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd",
+      "text": "현재 페이지가 텍스트가 아니라 그림이면 True.",
+      "translation_source_blocks_sha256": [
+        "ed34ae15922f5a3c93b1d3050f4ccbde524fb52c208bdea98c5d1623522c5bbd"
+      ]
+    },
+    "spacr.qt.widgets.model_card_viewer.ModelCardViewer.status_text": {
+      "source_blocks_sha256": [
+        "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d"
+      ],
+      "source_sha256": "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d",
+      "text": "페이지 아래의 줄.",
+      "translation_source_blocks_sha256": [
+        "6d442804f06eb4c66d841299af94783f03019ef5d26faf6bec44c9b862c8466d"
       ]
     },
     "spacr.qt.widgets.model_share": {
@@ -168630,7 +169598,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "5c20bd17d4878fa0b73cabf82b9516fc2858c5b88ac51d66b78ec190fab1e975",
-      "text": "공급자의 표지판을 표시합니다.\n\n:param event: Qt 페인트 이벤트",
+      "text": "공급자의 표지판을 표시합니다.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
         "a67979484e45af1bfc69813fffd6d95850c58a1adacae3c053dd35a532b34f72",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -172032,7 +173000,7 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ],
       "source_sha256": "1b966c6f2cb5b7dcf16fa0ea01e483510439f7982f60f7b6b771805b52ed69c5",
-      "text": "카드와 그것의 애니메이션 림을 그리십시오.\n\n:param event: Qt 페인트 이벤트",
+      "text": "카드와 그것의 애니메이션 림을 그리십시오.\n\n:param event: Qt 그리기 이벤트.",
       "translation_source_blocks_sha256": [
         "d792655cf96d17c9b03b7f1e173260fef60935603627c1ddf8be5648266f14b3",
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
@@ -176801,12 +177769,16 @@
     "spacr.qt.widgets.usage_bar.UsageBar.set_value": {
       "source_blocks_sha256": [
         "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
+        "4963009cf255a2b2d6fac269746a5829fdb84a909225285336434ac937ba1416",
+        "19a61d66c48b97c91d878118af8378d8454c389bd618a2e81b85b71494d0adc5",
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
       ],
-      "source_sha256": "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9",
-      "text": "막대 값을 0-100으로 제한하여 설정하고 75/90 %에서 색을 다시 입힙니다.\n\n:param pct: ``0.0``-``100.0`` 범위의 값. 범위를 벗어난 값은 제한됩니다.",
+      "source_sha256": "3fa39b9fa9c38f10c8f1b06084962fc9ec457e3ad379819d1b112900f171c098",
+      "text": "막대 값을 0-100으로 제한하여 설정하고 75/90 %에서 색을 다시 입힙니다.\n\n새 값은 지금 그려지는 대신 다음 그리기로 예약됩니다. ``QProgressBar.setValue`` 는 변화가 한 픽셀이라도 움직이면 동기적으로 다시 그리는데, 표시줄은 창의 필드 위에서 반투명하므로 호출할 때마다 그 아래의 필드를 그리고 창을 즉시 플러시했습니다. 모든 모듈 화면에서 2초마다 동기 플러시가 네 번 일어나며, 합성된 GPU 데스크톱에서는 각각이 디스플레이를 기다립니다. 호출 동안 업데이트를 막아 두면 표시줄은 대신 더럽혀진 것으로 표시되어 다음 필드 프레임과 함께 그려집니다.\n\n표시줄은 값이 다른 구간으로 넘어갈 때에만 다시 폴리시됩니다. 폴리시는 표시줄에 대해 애플리케이션 스타일 시트를 다시 해석하며, 사용량 폴링은 모든 표시줄에 대해 2초마다 이것을 호출하고 거의 항상 색이 바뀌지 않았습니다.\n\n:param pct: ``0.0``-``100.0`` 범위의 값. 범위를 벗어난 값은 제한됩니다.",
       "translation_source_blocks_sha256": [
         "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
+        "0f6075122652ab581e85537f9fea311c35c01a2cede4b388cd2c22fd7396d104",
+        "19a61d66c48b97c91d878118af8378d8454c389bd618a2e81b85b71494d0adc5",
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
       ]
     },
