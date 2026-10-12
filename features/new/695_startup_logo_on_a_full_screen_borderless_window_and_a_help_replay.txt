@@ -66,7 +66,14 @@ WHAT TO DO
    maintainer).
 4. Keep the existing switches: Preferences > Animation > Startup animation,
    Reduce motion, SPACR_NO_SPLASH=1 and offscreen disable the start-up run.
-5. Strings through tr(); new public docstrings into an API arrival contract.
+5. Main window (maintainer decision 2026-10-12): after the splash, the spaCR
+   MAIN window also opens borderless and sized to the screen available
+   geometry (frameless, not full-screen mode). It needs its own way to move,
+   minimise, restore and close without a title bar (for example the existing
+   top bar gains window controls and is draggable), and a way back to a
+   normal framed window (a View or Preferences switch; remember the choice).
+   The logo in the centre is the 694 photomosaic (maintainer decision).
+6. Strings through tr(); new public docstrings into an API arrival contract.
    WS translates and registers them.
 
 --------------------------------------------------------------------------------
@@ -75,7 +82,8 @@ HOW TO KNOW IT WORKED
 
 - A test drives the timeline with a fake clock and asserts: the splash
   window is frameless and its geometry equals the screen available geometry;
-  the window is not full-screen (windowState has no WindowFullScreen); no tile
+  the window is not full-screen (windowState has no WindowFullScreen); the
+  main window is frameless at the screen available geometry after the splash; no tile
   moves before 2.0 s; window opacity is 0 at 3.0 s, rises monotonically, is
   1.0 at 5.0 s; no tile is drawn after 6.0 s and the splash window is closed.
 - A test for the Help action: it exists in the Help menu, replays the
@@ -88,7 +96,4 @@ HOW TO KNOW IT WORKED
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-- Whether the MAIN window itself should also open borderless and screen-sized
-  after the splash (rather than at its remembered geometry) is not decided;
-  the request reads as the splash surface. Ask the maintainer before changing
-  the main window.
+- Nothing yet.
