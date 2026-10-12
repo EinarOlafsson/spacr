@@ -239,7 +239,7 @@ class AiToggleLabel(QLabel):
         color = on_color if self._on else palette["fg"]
         size = font_px("body")
         sheet = (
-            f"QLabel#AiToggleLabel {{"
+            f"QLabel {{"
             f"  color: {color};"
             f"  font-size: {size}px;"
             f"  font-weight: 600;"
