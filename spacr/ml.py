@@ -6992,11 +6992,18 @@ def _perform_regression(settings):
                                                'fieldID', 'objectID', 'count'}]
                         hint = (f"\n\nColumns that could be the response: "
                                 f"{numeric[:12]}") if numeric else ""
+                    from .columns import pred_guidance
+                    named = ", ".join(
+                        os.path.basename(os.fspath(one))
+                        for one in settings['score_data'])
+                    how = (f"\n\n{pred_guidance()}"
+                           if settings['dependent_variable'] == 'pred'
+                           else "")
                     raise ValueError(
                         f"dependent_variable="
                         f"{settings['dependent_variable']!r} is not a column "
-                        f"of the score table, which has "
-                        f"{list(score_data_df.columns)[:15]}.{hint}")
+                        f"of the score table read from {named}, which has "
+                        f"{list(score_data_df.columns)[:15]}.{hint}{how}")
 
             _reject_impossible_probabilities(settings)
             mode = str(settings.get('analysis_mode', 'regression')).strip().lower()

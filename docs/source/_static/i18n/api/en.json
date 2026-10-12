@@ -8372,6 +8372,31 @@
       "source_sha256": "f982fe0cf02f5b392975a251e329a4dc48f2a38e82198b8bd886fc835c09d940",
       "text": "Return the paths whose header could not be read by :func:`headers`.\n\n:param paths: one CSV path, a sequence of paths, or None."
     },
+    "spacr.columns.numeric_headers": {
+      "source_blocks_sha256": [
+        "08a98d515de70f0559aec982b5a7943c79bdd109ef93992c7fc23109007afa96",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+        "722e753e8ed3afba3886f88824fb5e32cdf30f34f74ac66870dc78dd9cc3c6c9",
+        "89f60c00ead8478c285235bda42277a20100c27a51f839d635b14dfe94480bbc"
+      ],
+      "source_sha256": "2820526ad6e87b74214f353616befffa6ba0c4c4cb4536f5723177e24d16dc83",
+      "text": "``{path: [column, ...]}`` of the numeric columns that can be a response.\n\n:param paths: one path, a sequence of them, or None.\n:param rows: how many rows are read to tell a number from a label. The\n    header decides the names and a short sample decides the type, so the\n    cost stays the same for a score file of any size.\n:returns: a dict in the order given. Identifier columns\n    (:data:`RESPONSE_EXCLUDED`) are left out; an unreadable file is absent."
+    },
+    "spacr.columns.pred_guidance": {
+      "source_blocks_sha256": [
+        "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef"
+      ],
+      "source_sha256": "dd288bf4cc4d624d02b17c5291566f87e03f896a02c37cb4b88b6e3bc7650aef",
+      "text": "The sentence that says where a ``pred`` column comes from."
+    },
+    "spacr.columns.pred_missing": {
+      "source_blocks_sha256": [
+        "ecb8ae620f4efc95d24ea72009c622c7c42463aa89d3e977449588dc428cb83c",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd"
+      ],
+      "source_sha256": "18142ad16a5695335acdafe55d1f1a1ba8bf9aeae7509e107fe1f0a90044c384",
+      "text": "The readable files among ``paths`` that have no ``pred`` column.\n\n:param paths: one path, a sequence of them, or None."
+    },
     "spacr.columns.resolve": {
       "source_blocks_sha256": [
         "8725fd83db926e783a85953dd5919ca8e7bed249718ae788f4488b38c59a22f2",

@@ -1037,10 +1037,13 @@ class PairedFileTableWidget(QWidget):
         else:
             title = (tr("Add score tables") if side == "score"
                      else tr("Add count tables"))
-            title, filters = (title,
-                              "Tables (*.csv *.tsv *.txt *.parquet *.feather "
-                              "*.xlsx *.db *.sqlite *.sqlite3 *.duckdb "
-                              "*.ddb);;All files (*)")
+            tables = ("Tables (*.csv *.tsv *.txt *.parquet *.feather "
+                      "*.xlsx *.db *.sqlite *.sqlite3 *.duckdb "
+                      "*.ddb);;All files (*)")
+            if side == "score":
+                tables = (tr("Classify and ML scores (*_result.csv "
+                             "*results.csv)") + ";;" + tables)
+            title, filters = title, tables
         paths, _ = QFileDialog.getOpenFileNames(self, title, "", filters)
         if not paths:
             return

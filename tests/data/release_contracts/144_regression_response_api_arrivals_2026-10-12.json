@@ -1,0 +1,5 @@
+{
+  "spacr.columns.numeric_headers": "``{path: [column, ...]}`` of the numeric columns that can be a response.\n\n:param paths: one path, a sequence of them, or None.\n:param rows: how many rows are read to tell a number from a label. The\n    header decides the names and a short sample decides the type, so the\n    cost stays the same for a score file of any size.\n:returns: a dict in the order given. Identifier columns\n    (:data:`RESPONSE_EXCLUDED`) are left out; an unreadable file is absent.",
+  "spacr.columns.pred_guidance": "The sentence that says where a ``pred`` column comes from.",
+  "spacr.columns.pred_missing": "The readable files among ``paths`` that have no ``pred`` column.\n\n:param paths: one path, a sequence of them, or None."
+}

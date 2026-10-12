@@ -19,6 +19,7 @@ import logging
 import os
 import sys
 import textwrap
+import threading
 import weakref
 from typing import (Any, Callable, Dict, List, NamedTuple, Optional, Sequence,
                     Tuple)
@@ -7378,6 +7379,44 @@ def _add_measurement_migration_action(edit: QLineEdit) -> Any:
     return action
 
 
+class _ColumnCombo(QComboBox):
+    """An editable drop-down that keeps the line-edit contract of a column box."""
+
+    textChanged = Signal(str)
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        """Make the box editable and re-announce its text as ``textChanged``."""
+        super().__init__(parent)
+        self.setEditable(True)
+        self.setInsertPolicy(QComboBox.NoInsert)
+        self.lineEdit().textChanged.connect(self.textChanged)
+
+    def get_value(self) -> Optional[str]:
+        """Return the current text, or ``None`` when the box is empty."""
+        return self.currentText() or None
+
+    def set_value(self, value: Any) -> None:
+        """Write the text; ``None`` clears it."""
+        self.setEditText("" if value is None else str(value))
+
+    def text(self) -> str:
+        """The raw text."""
+        return self.currentText()
+
+    def setText(self, value: str) -> None:
+        """Set the raw text."""
+        self.setEditText(value)
+
+    def set_choices(self, names: List[str]) -> None:
+        """Replace the drop-down entries and keep the typed text."""
+        keep = self.currentText()
+        self.blockSignals(True)
+        self.clear()
+        self.addItems(list(names))
+        self.setEditText(keep)
+        self.blockSignals(False)
+
+
 class _CsvColumnField(QWidget):
     """A column-name box with a CSV button that offers the columns that exist.
 
@@ -7410,9 +7449,12 @@ class _CsvColumnField(QWidget):
     #: not only on a keystroke.
     value_changed = Signal()
 
+    _loaded = Signal(object)
+
     def __init__(self, key: str = "", default: Any = None,
                  paths: Any = None, what: str = "column",
-                 parent: Optional[QWidget] = None):
+                 parent: Optional[QWidget] = None,
+                 response: bool = False):
         """
         :param key: the settings key, named in the not-found message.
         :param default: the column name to start with.
@@ -7422,18 +7464,33 @@ class _CsvColumnField(QWidget):
             construction is always the empty one.
         :param what: what kind of column, for the message.
         :param parent: parent widget; ownership only.
+        :param response: True for the response column. The drop-down then
+            lists only numeric columns, puts ``pred`` first, and a note says
+            where ``pred`` comes from when a score file lacks it.
         """
         super().__init__(parent)
         self._key = str(key or "")
         self._what = str(what or "column")
         self._paths = paths
+        self._response = bool(response)
         self._chooser: Optional[Callable[[List[str], Any], Any]] = None
         self._reporter: Optional[Callable[[str], None]] = None
+        self._read: Optional[dict] = None
+        self._generation = 0
+        self._requested = False
+        self._thread: Optional[threading.Thread] = None
 
-        self.edit = _ScalarEdit()
+        self.edit = _ColumnCombo()
         self.edit.set_value(default)
         self.edit.textChanged.connect(self._on_edited)
+        self._loaded.connect(self._apply_read)
         from ..i18n import tr
+
+        self.note = QLabel("", self)
+        self.note.setObjectName("CsvColumnNote")
+        self.note.setWordWrap(True)
+        self.note.setProperty("role", "hint")
+        self.note.hide()
 
         self.button = QPushButton(tr("Columns"), self)
         self.button.setObjectName("CsvColumnPicker")
@@ -7442,13 +7499,103 @@ class _CsvColumnField(QWidget):
             "Read input table column names and choose a column."))
         self.button.clicked.connect(self.pick)
 
-        row = QHBoxLayout(self)
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(2)
+        row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(4)
         row.addWidget(self.edit, 1)
         row.addWidget(self.button, 0)
+        column.addLayout(row)
+        column.addWidget(self.note)
         self.setFocusProxy(self.edit)
         QWidget.setTabOrder(self.edit, self.button)
+
+    def showEvent(self, event) -> None:
+        """Read the columns the first time the field is shown."""
+        super().showEvent(event)
+        if not self._requested:
+            self.refresh()
+
+    def refresh(self) -> threading.Thread:
+        """Read the selected files' columns on a worker thread.
+
+        :returns: the worker, so a caller can wait for it. A later call makes
+            the answer of an earlier, slower one stale and it is dropped.
+        """
+        self._requested = True
+        self._generation += 1
+        generation = self._generation
+        paths = self.input_paths()
+
+        self._thread = threading.Thread(
+            target=lambda: self._loaded.emit(
+                self._read_columns(paths, generation)),
+            daemon=True)
+        self._thread.start()
+        return self._thread
+
+    def _read_columns(self, paths: List[Any], generation: int) -> dict:
+        """What the files hold: the columns to offer and the files lacking pred."""
+        from spacr import columns as columns_module
+
+        plain = [path for path in paths if not isinstance(path, tuple)]
+        if self._response:
+            by_file = columns_module.numeric_headers(plain)
+            names = []
+            for found in by_file.values():
+                names.extend(name for name in found if name not in names)
+        else:
+            names = columns_module.available(plain)
+        stored, _errors = self._store_columns(paths)
+        names.extend(name for name in stored if name not in names)
+        lacking = [os.path.basename(path)
+                   for path in columns_module.pred_missing(plain)]
+        if "pred" in names:
+            names.remove("pred")
+            names.insert(0, "pred")
+        return {"generation": generation, "names": names,
+                "lacking": lacking, "read": bool(names or lacking)}
+
+    def _apply_read(self, result: dict) -> None:
+        """Fill the drop-down from a finished read, unless a newer one is due."""
+        if result["generation"] != self._generation:
+            return
+        self._read = result
+        self.edit.set_choices(result["names"])
+        self._update_note()
+
+    def _update_note(self) -> None:
+        """Say, before Run, what is wrong with the saved response column."""
+        from ..i18n import tr
+
+        text = ""
+        result = self._read
+        if self._response and result and result["read"]:
+            current = self.get_value()
+            shown = ", ".join(result["names"][:12])
+            files = ", ".join(result["lacking"])
+            if current == "pred" and result["lacking"]:
+                text = tr(
+                    "{files} has no 'pred' column. 'pred' is the classifier "
+                    "probability that Classify writes to "
+                    "<date>_<dataset>_<model>_result.csv next to the tar "
+                    "(ML scoring writes results/<model>/<features>/"
+                    "results.csv). Run Classify and point the score file at "
+                    "that output, or pick a response from the list. "
+                    "Columns you can use: {columns}.",
+                    files=files, columns=shown)
+            elif current and current not in result["names"]:
+                text = tr("{name!r} is not a numeric column of the score "
+                          "file. Columns you can use: {columns}.",
+                          name=current, columns=shown)
+        self.note.setText(text)
+        self.note.setVisible(bool(text))
+        self.edit.setToolTip(text)
+        self.edit.setProperty("flagged", bool(text))
+        self.edit.style().unpolish(self.edit)
+        self.edit.style().polish(self.edit)
 
 
     def get_value(self) -> Optional[str]:
@@ -7481,19 +7628,11 @@ class _CsvColumnField(QWidget):
         paths = self._paths() if callable(self._paths) else self._paths
         return [path for path in (paths or []) if path]
 
-    def pick(self) -> Optional[str]:
-        """Offer the columns the selected input tables have; return one.
-
-        :returns: the chosen name, or None when there was nothing to offer or
-            the user cancelled.
-        """
-        from spacr import columns as columns_module
-        from ..i18n import tr
-
-        paths = self.input_paths()
-        plain = [path for path in paths if not isinstance(path, tuple)]
-        choices = columns_module.available(plain)
-        errors = []
+    @staticmethod
+    def _store_columns(paths: List[Any]):
+        """``(names, errors)`` for the named tables among ``paths``."""
+        names: List[str] = []
+        errors: List[str] = []
         for path, table in (source for source in paths
                             if isinstance(source, tuple)):
             from spacr import tabular
@@ -7519,10 +7658,26 @@ class _CsvColumnField(QWidget):
                             os.path.expandvars(os.fspath(path))))):
                     raise FileNotFoundError(path)
                 for name in tabular.table_columns(path, table=table):
-                    if name not in choices:
-                        choices.append(name)
+                    if name not in names:
+                        names.append(name)
             except tuple(failures) as error:
                 errors.append(f"{path}: {error}")
+        return names, errors
+
+    def pick(self) -> Optional[str]:
+        """Offer the columns the selected input tables have; return one.
+
+        :returns: the chosen name, or None when there was nothing to offer or
+            the user cancelled.
+        """
+        from spacr import columns as columns_module
+        from ..i18n import tr
+
+        paths = self.input_paths()
+        plain = [path for path in paths if not isinstance(path, tuple)]
+        choices = columns_module.available(plain)
+        stored, errors = self._store_columns(paths)
+        choices.extend(name for name in stored if name not in choices)
         if not choices:
             if errors:
                 self.report(tr("Could not read columns from {sources}",
@@ -7583,6 +7738,7 @@ class _CsvColumnField(QWidget):
 
     def _on_edited(self, *_args) -> None:
         """Announce that the field changed, whatever changed it."""
+        self._update_note()
         self.value_changed.emit()
 
 
@@ -9599,6 +9755,7 @@ class SettingsWidgets:
                     break
 
         self._connect_setting_dependency_signals()
+        self._connect_column_fields()
 
         self._connect_object_visibility_signals()
 
@@ -10376,6 +10533,7 @@ class SettingsWidgets:
                 paths=partial(self._input_csv_paths, source.roles),
                 what=source.what,
                 parent=parent,
+                response=key == "dependent_variable",
             )
         if key == "regression_backend":
             return "special", lambda: _RegressionBackendField(
@@ -11335,6 +11493,17 @@ class SettingsWidgets:
             if widget is not None:
                 _connect_value_changed(widget,
                                        self._on_dependency_source_changed)
+
+    def _connect_column_fields(self) -> None:
+        """Re-read a column field's choices when the input files change."""
+        for key in CSV_COLUMN_SOURCES.get(self.app_key, {}):
+            field = self._widgets.get(key)
+            if not isinstance(field, _CsvColumnField):
+                continue
+            for source in ("paired_data", "score_data", "count_data"):
+                widget = self._widgets.get(source)
+                if widget is not None:
+                    _connect_value_changed(widget, field.refresh)
 
     def _on_dependency_source_changed(self, *_args) -> None:
         """Re-evaluate the dependency rules after a source setting changed.

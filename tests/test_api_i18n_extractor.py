@@ -1505,6 +1505,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in export_arrivals} == export_arrivals
     assert not export_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **export_arrivals}
+    response_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "144_regression_response_api_arrivals_2026-10-12.json").read_text())
+    assert len(response_arrivals) == 3
+    assert {key: docs[key] for key in response_arrivals} == response_arrivals
+    assert not response_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **response_arrivals}
     tutorial_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"]

@@ -203,5 +203,55 @@ def resolve(name, paths, *, what: str = "column", setting: str = "") -> str:
                          available=columns)
 
 
-__all__ = ["CUTOFF", "ColumnNotFound", "MAX_SUGGESTIONS", "available",
-           "describe", "headers", "missing", "resolve", "suggest"]
+RESPONSE_EXCLUDED = frozenset({"plateID", "rowID", "columnID", "fieldID",
+                               "objectID", "count"})
+
+
+def numeric_headers(paths, rows: int = 200) -> Dict[str, List[str]]:
+    """``{path: [column, ...]}`` of the numeric columns that can be a response.
+
+    :param paths: one path, a sequence of them, or None.
+    :param rows: how many rows are read to tell a number from a label. The
+        header decides the names and a short sample decides the type, so the
+        cost stays the same for a score file of any size.
+    :returns: a dict in the order given. Identifier columns
+        (:data:`RESPONSE_EXCLUDED`) are left out; an unreadable file is absent.
+    """
+    import pandas as pd
+
+    found: Dict[str, List[str]] = {}
+    for path in _as_paths(paths):
+        if not os.path.isfile(path):
+            continue
+        try:
+            sample = pd.read_csv(path, nrows=rows)
+        except Exception:                           # noqa: BLE001
+            continue
+        found[path] = [
+            column for column in sample.columns
+            if pd.api.types.is_numeric_dtype(sample[column])
+            and column not in RESPONSE_EXCLUDED]
+    return found
+
+
+def pred_guidance() -> str:
+    """The sentence that says where a ``pred`` column comes from."""
+    return ("'pred' is the probability a classifier writes. Classify saves "
+            "it as <date>_<dataset>_<model>_result.csv next to the tar, and "
+            "ML scoring saves it as results/<model>/<features>/results.csv. "
+            "Run Classify, then point the score file at that output.")
+
+
+def pred_missing(paths) -> List[str]:
+    """The readable files among ``paths`` that have no ``pred`` column.
+
+    :param paths: one path, a sequence of them, or None.
+    """
+    return [path for path, names in headers(paths).items()
+            if "pred" not in names]
+
+
+__all__ = ["CUTOFF", "ColumnNotFound", "MAX_SUGGESTIONS",
+           "RESPONSE_EXCLUDED", "available", "describe", "headers",
+           "missing", "numeric_headers", "pred_guidance", "pred_missing",
+           "resolve", "suggest"]

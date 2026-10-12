@@ -486,6 +486,33 @@ def test_missing_dependent_variable_raises(screen, stubs):
         perform_regression(settings)
 
 
+def test_missing_pred_names_the_file_and_says_how_to_get_it(screen, stubs):
+    """The error names the score file and points at Classify's output."""
+    from spacr.ml import perform_regression
+
+    table = pd.read_csv(screen["score"]).rename(columns={"pred": "measured"})
+    table.to_csv(screen["score"], index=False)
+    settings = base_settings(screen, dependent_variable="pred")
+    with pytest.raises(ValueError) as caught:
+        perform_regression(settings)
+    message = str(caught.value)
+    assert os.path.basename(screen["score"]) in message
+    assert "Run Classify" in message
+    assert "_result.csv" in message
+
+
+def test_other_missing_response_names_the_file_without_the_pred_advice(
+        screen, stubs):
+    """A misspelt response names the file but does not talk about Classify."""
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, dependent_variable="not_a_column")
+    with pytest.raises(ValueError) as caught:
+        perform_regression(settings)
+    assert os.path.basename(screen["score"]) in str(caught.value)
+    assert "Classify" not in str(caught.value)
+
+
 def test_shortest_distance_dependent_variable_is_exempt_from_the_check(screen, stubs):
     """'pathogen_nucleus_shortest_distance' skips the column check ...
 
