@@ -651,7 +651,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                "weights/cpsam_v2_toxo_r6",
         "sha256":
             "146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e",
-        "metrics": {'n_train': '437 fields', 'train_objects': '15,550', 'n_test': '11 anchor wells', 'test_objects': '683', 'cv': '5-fold, grouped by source', 'f1': '0.8602', 'aji': '0.8026', 'dice': '0.9059', 'stock_f1': '0.7648', 'stock_aji': '0.5050', 'stock_dice': '0.6431', 'train_loss': 'not recorded', 'val_loss': '0.0864', 'best_epoch': '20 / 100'},
+        "metrics": {'n_train': '437 fields', 'train_objects': '15,550', 'n_test': '11 anchor wells', 'test_objects': '683', 'cv': '5-fold, grouped by source', 'f1': '0.8602', 'aji': '0.8026', 'dice': '0.9059', 'stock_f1': '0.7648', 'stock_aji': '0.5050', 'stock_dice': '0.6431', 'train_loss': 'not recorded', 'val_loss': '0.0864', 'best_epoch': 'final epoch 100 / 100 (shipped weights; recorded 2026-10-12)'},
         "display_name": "Toxoplasma PV v3 (round 6)",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "the 556 curated PV fields of round 5, split 437 train / "
@@ -670,8 +670,9 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the "
             "anchor wells -- 0.8602 against 0.8648 -- and the PV project still "
             "promotes round 5",
-            "it is the first PV round whose checkpoint was chosen on a held-out "
-            "validation set (108 fields) instead of on the test wells",
+            "the shipped weights are the FINAL epoch 100, not a validation-chosen "
+            "checkpoint: the training records show no checkpoint selection "
+            "(recorded 2026-10-12)",
             "5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, "
             "AJI 0.7516, Dice 0.8424",
             "the 11 anchor wells have been held out since round 1, so they are "
@@ -711,7 +712,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
          'stock_dice': '0.6431',
          'train_loss': '0.0424',
          'val_loss': '0.0796',
-         'best_epoch': '55 / 100',
+         'best_epoch': 'final epoch 100 / 100 (shipped weights; recorded 2026-10-12)',
          'precision': {'finetuned': 0.8493, 'vanilla': 0.7539, 'delta': 0.09540000000000004},
          'recall': {'finetuned': 0.858, 'vanilla': 0.776, 'delta': 0.08199999999999996},
          'pixel_iou': {'finetuned': 0.8055, 'vanilla': 0.5239, 'delta': 0.28159999999999996},

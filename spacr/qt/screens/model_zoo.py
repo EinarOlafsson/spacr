@@ -89,7 +89,9 @@ from PySide6.QtWidgets import (
 from ..widgets.collapsible_splitter import (CollapsibleSplitter,
                                            FoldSection)
 from ..widgets.toggle import Toggle
+from ..widgets.model_card_viewer import ModelCardViewer
 
+from ... import model_cards
 from ... import model_zoo as zoo
 from ..bridge import make_thread
 from ..i18n import tr
@@ -529,7 +531,6 @@ class ModelZooScreen(QWidget):
         self._table.itemClicked.connect(self._row_clicked)
         self.models_section = FoldSection(
             self._table, "Models", self, persist_key=f"{FOLD_KEY}/Models")
-        outer.addWidget(self.models_section, 1)
 
         self._detail = QPlainTextEdit(self)
         self._detail.setObjectName(DETAIL_NAME)
@@ -538,7 +539,25 @@ class ModelZooScreen(QWidget):
         self._detail.setPlaceholderText(
             "Select a model to see where it came from and what it was trained "
             "on.")
-        outer.addWidget(self._detail)
+
+        # The list sits left of the card so the card can use the full height
+        # of its row and the list keeps its rows; the split is remembered.
+        listing = QWidget(self)
+        lv = QVBoxLayout(listing)
+        lv.setContentsMargins(0, 0, 0, 0)
+        lv.setSpacing(SPACING["sm"])
+        lv.addWidget(self.models_section, 1)
+        lv.addWidget(self._detail)
+        self._card_viewer = ModelCardViewer(self, threaded=self._threaded)
+        self._card_viewer.setMinimumHeight(420)
+        self._card_viewer.hide()
+        self._list_split = CollapsibleSplitter(
+            Qt.Horizontal, self, persist_key=f"{FOLD_KEY}::cards")
+        self._list_split.add_pane(listing, "Models", stretch=4, extent=560,
+                                  minimum=380)
+        self._list_split.add_pane(self._card_viewer, "Model card", stretch=5,
+                                  extent=720, minimum=360)
+        outer.addWidget(self._list_split, 6)
 
         download = QGroupBox("Download", self)
         download.setObjectName(GROUP_NAME)
@@ -820,7 +839,7 @@ class ModelZooScreen(QWidget):
         stem, pairs = self._groups[group]
         self._chosen[stem] = max(0, min(int(index), len(pairs) - 1))
         self._fill_row(group)
-        self._update_controls()
+        self._on_selection_changed()
 
     def chosen_entry(self, row: int):
         """The entry a row currently stands for, honouring its version pick.
@@ -1007,6 +1026,12 @@ class ModelZooScreen(QWidget):
                 "\n\n".join(e.describe() for e in chosen[:2]))
         else:
             self._detail.setPlainText("")
+        card = (model_cards.card_for_entry(chosen[0])
+                if len(chosen) == 1 else None)
+        self._detail.setVisible(card is None)
+        self._card_viewer.setVisible(card is not None)
+        if card is not None and card is not self._card_viewer.card():
+            self._card_viewer.set_card(card)
         self._update_controls()
 
 

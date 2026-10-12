@@ -157,3 +157,5 @@ prune docs/api
 prune docs/tutorial
 prune docs/resources
 exclude docs/*.html docs/*.js docs/*.inv docs/.buildinfo
+# The nine 3-page model cards (scores, facts, about), the offline fallback of the Model Zoo card viewer.
+include spacr/resources/model_cards/*.json

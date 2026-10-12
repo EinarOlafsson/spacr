@@ -1,0 +1,156 @@
+{
+ "schema": "spacr-model-card-v2",
+ "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5",
+ "key": "toxoplasma_plaque_v2",
+ "display_name": "Toxoplasma Plaque v2",
+ "family": "plaque",
+ "round": "round 5",
+ "status": "earlier version",
+ "date": "trained 2026-09-19",
+ "pages": [
+  "cards/page1.png",
+  "cards/page2.png",
+  "cards/page3.png"
+ ],
+ "scores": {
+  "rows": [
+   {
+    "key": "object_f1",
+    "label": "Object F1 (IoU ≥ 0.5)",
+    "this": 0.4548077568274844,
+    "stock": 0.18908191814691913
+   },
+   {
+    "key": "boundary_f1",
+    "label": "Boundary F1 (outline edges)",
+    "this": 0.5678996217189227,
+    "stock": 0.24465002477273834
+   },
+   {
+    "key": "precision",
+    "label": "Precision",
+    "this": 0.5003691126531817,
+    "stock": 0.20071833126122393
+   },
+   {
+    "key": "recall",
+    "label": "Recall",
+    "this": 0.41685116851168513,
+    "stock": 0.17872078720787207
+   },
+   {
+    "key": "aji",
+    "label": "AJI",
+    "this": 0.5144667946109783,
+    "stock": 0.18122514399163323
+   },
+   {
+    "key": "dice",
+    "label": "Dice",
+    "this": 0.6960703552974518,
+    "stock": 0.3140579570760985
+   }
+  ],
+  "this_model": "toxoplasma_plaque_v2",
+  "stock_model": "cpsam_v2",
+  "counts": {
+   "this": {
+    "tp": 3389,
+    "fp": 3384,
+    "fn": 4741,
+    "n_pred": 6773
+   },
+   "stock": {
+    "tp": 1453,
+    "fp": 5786,
+    "fn": 6677,
+    "n_pred": 7239
+   }
+  },
+  "holdout": {
+   "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+   "n_fields": 282,
+   "n_empty_fields": 39,
+   "n_objects": 8130,
+   "fields_by_source": {
+    "plaque_compare263_test": 1,
+    "plaque_gel_doc": 89,
+    "plaque_gel_doc_model_review": 55,
+    "plaque_gel_doc_model_review_heldout": 12,
+    "plaque_literature_holdout": 20,
+    "plaque_pmc_staged": 105
+   }
+  },
+  "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+ },
+ "facts": {
+  "rows": [
+   {
+    "key": "train_fov",
+    "label": "Training FOV",
+    "this": "332 + 75 val.",
+    "stock": "Cellpose-SAM v2 training set (public)"
+   },
+   {
+    "key": "test_fov",
+    "label": "Test FOV",
+    "this": "282",
+    "stock": "282"
+   },
+   {
+    "key": "train_obj",
+    "label": "Training objects",
+    "this": "18,532 + 4,756 val.",
+    "stock": "not applicable"
+   },
+   {
+    "key": "test_obj",
+    "label": "Test objects",
+    "this": "8,130",
+    "stock": "8,130"
+   },
+   {
+    "key": "domains",
+    "label": "Domains",
+    "this": "Published figures, phone-camera wells, lab microscope plates",
+    "stock": "General cell and nucleus images (Cellpose datasets)"
+   },
+   {
+    "key": "epochs",
+    "label": "Epochs",
+    "this": "100",
+    "stock": "not applicable"
+   },
+   {
+    "key": "base",
+    "label": "Base (stock) model",
+    "this": "cpsam_v2",
+    "stock": "is the stock model"
+   },
+   {
+    "key": "spacr",
+    "label": "spaCR version",
+    "this": "not recorded",
+    "stock": "not applicable"
+   },
+   {
+    "key": "cellpose",
+    "label": "Cellpose version",
+    "this": "4.2.1.1",
+    "stock": "4.2 and later"
+   }
+  ],
+  "evidence": "data/training_facts.json"
+ },
+ "about": {
+  "segments": "Toxoplasma gondii plaques in crystal-violet-stained plaque-assay wells.",
+  "trained_on": "332 fields from published figures, phone-camera wells and two lab microscope plate sets, grouped by figure and plate.",
+  "status": "Earlier default, kept so recorded runs reproduce. The default plaque model in spaCR is toxoplasma_plaque_v4.",
+  "leak_note": null,
+  "load_line": "Set `plaque_model` to `toxoplasma_plaque_v2`; spaCR downloads and checks the weights on first use.",
+  "links": {
+   "model": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5",
+   "stock": "https://huggingface.co/mouseland/cellpose-sam/blob/main/cpsam_v2"
+  }
+ }
+}
