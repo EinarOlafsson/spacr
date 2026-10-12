@@ -69,7 +69,8 @@ def test_the_tools_come_out_in_the_table_order(qtbot, qt_theme_applied):
     positions = [row.indexOf(screen._mode_buttons[m])
                  for m, _label, _icon in mm.TOOL_MODES]
     assert positions == sorted(positions)
-    assert positions[0] == 0, "the first tool is not the first thing in the row"
+    assert positions[0] == row.indexOf(screen._btn_save_on_navigation) + 1, (
+        "the first tool does not follow the Save and image navigation buttons")
 
 
 def test_a_new_mode_constant_reaches_the_row_by_existing(
@@ -395,3 +396,33 @@ def test_the_tools_still_drive_the_canvas_from_the_row(
     screen._mode_buttons[MODE_BRUSH].click()
     assert screen._canvas.mode == MODE_BRUSH
     assert not screen._mode_buttons[MODE_ZOOM].isChecked()
+
+
+@pytest.mark.parametrize("size", [(2560, 1440), (1920, 1080), (1366, 768)])
+def test_the_pin_never_covers_prev_and_next_image(
+        qtbot, qt_theme_applied, folder_2: Path, size):
+    """Prev and Next lead the scrolling row, so the pin cannot overlap them."""
+    from PySide6.QtCore import QRect
+
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    screen.resize(*size)
+    screen.show()
+    qtbot.waitExposed(screen)
+    screen._open_folder(str(folder_2))
+    qtbot.waitUntil(lambda: screen._tool_row.isVisible())
+    screen.layout().activate()
+    QApplication.processEvents()
+
+    def where(widget):
+        return QRect(widget.mapTo(screen, QPoint(0, 0)), widget.size())
+
+    pin = where(screen._tool_pin)
+    assert not where(screen._tool_scroll).intersects(pin)
+    row = screen._tool_row_layout
+    assert row.indexOf(screen._btn_prev) < row.indexOf(screen._btn_next) < 4
+    for button in (screen._btn_prev, screen._btn_next):
+        assert button.isVisible()
+        assert not where(button).intersects(pin), (
+            f"{button.text()} lies under the pin at {size}")
+        assert button.visibleRegion().boundingRect() == button.rect()

@@ -10262,10 +10262,11 @@ class MakeMasksScreen(QWidget):
         self._btn_save.setIcon(iconset.contrast_icon("save"))
         self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.clicked.connect(self._on_save)
-        for button in (self._btn_save, self._btn_prev, self._btn_next,
-                       self._btn_save_on_navigation):
+        for place, button in enumerate((
+                self._btn_save, self._btn_prev, self._btn_next,
+                self._btn_save_on_navigation)):
             button.setMinimumHeight(32)
-            self.add_toolbar_action(button)
+            self._tool_row_layout.insertWidget(place, button)
 
         self._btn_skip = QPushButton(tr("Skip"))
         self._btn_skip.setIcon(iconset.icon("next"))
