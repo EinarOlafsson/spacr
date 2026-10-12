@@ -3389,6 +3389,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in splash_arrivals} == splash_arrivals
     assert not splash_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **splash_arrivals}
+    sequence_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text())
+    assert len(sequence_arrivals) == 5
+    assert {key: docs[key] for key in sequence_arrivals} == sequence_arrivals
+    assert not sequence_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **sequence_arrivals}
     # 2026-10-12: spacr-tutorial opens the online lessons; the three
     # spacr.qt.tutorials arrivals are one named contract.
     tutorial_arrivals = json.loads((ROOT / "tests/data/release_contracts"

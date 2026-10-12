@@ -223,6 +223,7 @@ _KEY_FIELD_RIPPLE_INTENSITY = "prefs/field_ripple_intensity"
 _KEY_FIELD_RIPPLES_SLIDER = "prefs/field_ripples_slider_migrated"
 _KEY_FIELD_CLICK_RIPPLES = "prefs/field_click_ripples"
 _KEY_STARTUP_ANIMATION = "prefs/startup_animation"
+_KEY_BORDERLESS_WINDOW = "prefs/borderless_window"
 _KEY_ANIMATION_GPU = "prefs/animation_gpu"
 _KEY_DYNAMIC_ANIMATION = "prefs/dynamic_animation"
 #: Animation renderers in slider order; mirrors ``ambient.GRAPHICS_BACKENDS``.
@@ -2657,6 +2658,26 @@ def _field_click_ripples() -> bool:
 def _set_field_click_ripples(value: bool) -> None:
     """Persist the click-ripple switch independently of the ripple slider."""
     _settings().setValue(_KEY_FIELD_CLICK_RIPPLES, bool(value))
+    _settings().sync()
+
+
+def get_borderless_window() -> bool:
+    """Whether the main window is borderless, filling its screen's work area.
+
+    The Borderless window switch in the spaCR menu and in Help > Window. Off
+    gives the platform's own framed window, opened at the measured width.
+
+    :returns: ``True`` unless the switch was turned off; on by default.
+    """
+    return _as_bool(_settings().value(_KEY_BORDERLESS_WINDOW, True), True)
+
+
+def set_borderless_window(on: bool) -> None:
+    """Choose a borderless or a framed main window.
+
+    :param on: ``True`` for borderless.
+    """
+    _settings().setValue(_KEY_BORDERLESS_WINDOW, bool(on))
     _settings().sync()
 
 

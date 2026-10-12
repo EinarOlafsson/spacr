@@ -447,7 +447,8 @@ class _ResizeByEdge(QObject):
             if kind in (QEvent.Hide, QEvent.WindowDeactivate, QEvent.WindowStateChange):
                 self._grab = None
                 self._hint.show_edges(Qt.Edge(0))
-            if window.isFullScreen() or window.isMaximized():
+            if (window.isFullScreen() or window.isMaximized()
+                    or not getattr(window, "_borderless", True)):
                 self._grab = None
                 self._hint.show_edges(Qt.Edge(0))
                 return False

@@ -22,15 +22,16 @@ number of modules, which is known before the first one is imported.
 from __future__ import annotations
 
 import json
+import math
 import os
 import time
 import weakref
 from typing import Callable, Optional, Sequence
 
 import numpy as np
-from PySide6.QtCore import QPointF, QRect, QRectF, QSize, Qt, QTimer
+from PySide6.QtCore import QEvent, QPointF, QRect, QRectF, QSize, Qt, QTimer
 from PySide6.QtGui import (QColor, QFont, QImage, QImageReader,
-                           QLinearGradient, QPainter, QPixmap, QTransform)
+                           QPainter, QPixmap, QTransform)
 from PySide6.QtWidgets import QWidget
 
 from ..hidpi import logical_size, scaled_for
@@ -170,9 +171,29 @@ _MOSAIC_MAP_FILE = "photomosaic.json"
 #: tutorial captures and anything else that must not wait set it.
 NO_SPLASH_ENV = "SPACR_NO_SPLASH"
 
-#: The mosaic stays up at least this long after it first paints, so a fast
-#: start does not flash it.
-_MOSAIC_MIN_HOLD_S = 0.6
+#: The logo holds still this long after it first paints, and longer while
+#: the window is still loading (item 695: 0-2 s).
+_MOSAIC_MIN_HOLD_S = 2.0
+
+#: The blow-away's length: the last tile has gone this long after it began
+#: (item 695: 2-6 s).
+_BLOW_AWAY_S = 4.0
+
+#: Seconds into the blow-away the black container starts to fade and is
+#: gone: the window shows from 3 s and is fully visible at 5 s.
+_CONTAINER_FADE_S = (1.0, 3.0)
+
+#: Seconds the wind front takes to cross the logo, and how much slower than
+#: the 694 flight each tile flies, so the motion fills the four seconds.
+_SWEEP_S = 2.4
+_PACE = 1.8
+
+#: The strap line under the logo fades out over this much of the blow-away.
+_STRAP_FADE_S = 0.6
+
+#: Under Reduce motion the Help replay holds the logo, then cross-fades to
+#: the window over this long instead of blowing it away.
+_PLAIN_FADE_S = 1.0
 
 #: Frame interval of the blow-away, in milliseconds: 60 frames a second.
 _MOSAIC_FRAME_MS = 16
@@ -181,9 +202,12 @@ _MOSAIC_FRAME_MS = 16
 #: a test can reproduce a frame.
 _MOSAIC_SEED = 694
 
-#: Largest share of the window's height and width the mosaic takes.
-_MOSAIC_HEIGHT_SHARE = 0.62
-_MOSAIC_WIDTH_SHARE = 0.6
+#: Share of the screen's height the logo takes (item 695: half).
+_MOSAIC_SCREEN_SHARE = 0.5
+
+#: Most of the cover's width the logo may take, on a window narrower than
+#: half its screen's height.
+_MOSAIC_WIDTH_SHARE = 0.9
 
 
 def _env_says_no_splash() -> bool:
@@ -287,6 +311,21 @@ def _smoothstep(values):
     return x * x * (3.0 - 2.0 * x)
 
 
+def _container_opacity(t: float, plain: bool = False) -> float:
+    """How opaque the black container is ``t`` seconds into the blow-away.
+
+    :param t: seconds since the blow-away (or the plain cross-fade) began.
+    :param plain: the Reduce motion cross-fade, which fades over
+        :data:`_PLAIN_FADE_S` from its start.
+    :returns: 1.0 before :data:`_CONTAINER_FADE_S` starts, falling
+        monotonically (smoothstep) to 0.0 at its end.
+    """
+    if plain:
+        return 1.0 - float(_smoothstep(t / _PLAIN_FADE_S))
+    start, end = _CONTAINER_FADE_S
+    return 1.0 - float(_smoothstep((t - start) / (end - start)))
+
+
 class BlowAway:
     """The motion of the photomosaic's tiles as a wind front blows them away.
 
@@ -309,13 +348,18 @@ class BlowAway:
     :param wind: direction the wind blows, ``(x, y)``; down-screen is ``+y``.
     :param start: seconds before the front reaches the first tile.
     :param sweep: seconds the front takes to cross the mosaic.
+    :param pace: how many times slower than the 694 flight each tile flies
+        (lift, flip, spin, travel and fade are stretched alike).
+    :param end: when given, the last tile has gone by then: lives are cut
+        to end there and :attr:`duration` is ``end``.
     """
 
     LIFT_S = 0.14
 
     def __init__(self, occupied, origin, side: float, *,
                  seed: int = _MOSAIC_SEED, wind=(1.0, 0.3),
-                 start: float = 0.05, sweep: float = 1.1):
+                 start: float = 0.05, sweep: float = 1.1, pace: float = 1.0,
+                 end: Optional[float] = None):
         """Draw every tile's launch and flight; see the class docstring."""
         cells = np.asarray(occupied, dtype=bool)
         grid = cells.shape[0]
@@ -329,6 +373,7 @@ class BlowAway:
         self.wind = (float(direction[0]), float(direction[1]))
         self.start = float(start)
         self.sweep = float(sweep)
+        self.pace = float(pace)
         rows, cols = np.mgrid[0:grid, 0:grid]
         rows = rows.ravel().astype(float)
         cols = cols.ravel().astype(float)
@@ -346,7 +391,7 @@ class BlowAway:
         self.centre_x = self.origin[0] + (cols[self.flyers] + 0.5) * self.pitch
         self.centre_y = self.origin[1] + (rows[self.flyers] + 0.5) * self.pitch
         self.fly_launch = self.launch[self.flyers]
-        self.life = rng.uniform(0.5, 0.85, count)
+        self.life = rng.uniform(0.5, 0.85, count) * self.pace
         self.speed = rng.uniform(0.25, 0.6, count) * self.side
         self.gust = rng.uniform(1.2, 2.2, count) * self.side
         self.lift = rng.uniform(0.05, 0.3, count) * self.side
@@ -357,6 +402,11 @@ class BlowAway:
         self.flip_rate = (rng.uniform(1.2, 2.8, count) * 2.0 * np.pi
                           * rng.choice((-1.0, 1.0), count))
         self.spin_rate = np.radians(rng.uniform(-360.0, 360.0, count))
+        if end is not None:
+            self.life = np.minimum(self.life,
+                                   float(end) - 0.02 - self.fly_launch)
+            self.duration = float(end)
+            return
         last = float(np.max(self.fly_launch + self.life)) if count else 0.0
         self.duration = max(last, self.start + self.sweep + 0.5) + 0.02
 
@@ -396,7 +446,8 @@ class BlowAway:
         age = t - self.fly_launch
         live = (age >= 0.0) & (age < self.life)
         index = np.flatnonzero(live)
-        a = age[index]
+        lived = age[index]
+        a = lived / self.pace
         wind_x, wind_y = self.wind
         travel = self.speed[index] * a + 0.5 * self.gust[index] * a * a
         sway = self.turb_amp[index] * (
@@ -417,7 +468,7 @@ class BlowAway:
         m21 = (cos_s * skew - sin_s) * sy
         m12 = sin_s * sx
         m22 = (sin_s * skew + cos_s) * sy
-        fade = 1.0 - _smoothstep((a / self.life[index] - 0.35) / 0.65)
+        fade = 1.0 - _smoothstep((lived / self.life[index] - 0.35) / 0.65)
         opacity = fade * (0.72 + 0.28 * cos_f)
         keep = opacity > floor
         if bounds is not None:
@@ -470,6 +521,8 @@ class LoadingScreen(QWidget):
         self._first_paint_at: Optional[float] = None
         self._state = "idle"
         self._skip_requested = False
+        self._plain = False
+        self._duration = 0.0
         self._on_finished: Optional[Callable[[], None]] = None
         self._model: Optional[BlowAway] = None
         self._began_at = 0.0
@@ -491,6 +544,7 @@ class LoadingScreen(QWidget):
         self.setAttribute(Qt.WA_StyledBackground, True)
         if parent is not None:
             self.setGeometry(parent.rect())
+            parent.installEventFilter(self)
         self._load_logo()
 
     def set_total(self, total: int) -> None:
@@ -574,8 +628,11 @@ class LoadingScreen(QWidget):
     def _mosaic_layout(self):
         """Where the mosaic and the strap line go at the current size.
 
-        The mosaic is decoded at a whole number of device pixels per tile, so
-        its tiles can be cut out again exactly.
+        The logo is half its screen's height, centred on the cover, with the
+        strap line under it; a cover too small for that shrinks it to fit.
+        It is decoded at the whole number of device pixels per tile at or
+        just above that size, so its tiles can be cut out again exactly, and
+        drawn scaled down to the size, which keeps it sharp.
 
         :returns: ``(x, y, side, tile_device_px, ratio)``: the mosaic's
             top-left corner and side in logical pixels, its tile pitch in
@@ -584,14 +641,16 @@ class LoadingScreen(QWidget):
         mosaic = self._mosaic
         ratio = self._ratio()
         strap_room = scaled_px(15) + scaled_px(60)
-        wanted = min(self.height() * _MOSAIC_HEIGHT_SHARE,
-                     self.width() * _MOSAIC_WIDTH_SHARE,
-                     self.height() - strap_room)
-        tile = int(max(1.0, wanted) * ratio) // mosaic.grid
+        screen = self.screen()
+        tall = screen.geometry().height() if screen is not None \
+            else self.height()
+        side = max(1.0, min(tall * _MOSAIC_SCREEN_SHARE,
+                            self.width() * _MOSAIC_WIDTH_SHARE,
+                            self.height() - 2.0 * strap_room))
+        tile = math.ceil(side * ratio / mosaic.grid - 1e-9)
         tile = max(1, min(mosaic.tile_px, tile))
-        side = tile * mosaic.grid / ratio
-        top = max(0.0, (self.height() - side - strap_room) / 2.0)
-        return (self.width() - side) / 2.0, top, side, tile, ratio
+        return ((self.width() - side) / 2.0, (self.height() - side) / 2.0,
+                side, tile, ratio)
 
     def _mosaic_picture(self, tile: int, ratio: float) -> Optional[QPixmap]:
         """The mosaic decoded at ``tile`` device pixels per tile, cached.
@@ -621,6 +680,21 @@ class LoadingScreen(QWidget):
         self._mosaic_pixmap = pixmap
         self._mosaic_key = key
         return pixmap
+
+    def eventFilter(self, watched, event) -> bool:
+        """Keep covering the window as it resizes.
+
+        A window that opens maximised is resized after the cover is put
+        over it, and by then the window may have handed the cover to the
+        blow-away and stopped sizing it.
+
+        :param watched: the window this covers.
+        :param event: the event; only a resize is acted on.
+        :returns: ``False``, so the window still sees every event.
+        """
+        if event.type() == QEvent.Type.Resize and watched is self.parent():
+            self.setGeometry(watched.rect())
+        return False
 
     def resizeEvent(self, event) -> None:
         """Re-centre the message for the new size.
@@ -737,23 +811,39 @@ class LoadingScreen(QWidget):
         picture = self._mosaic_picture(tile, ratio)
         if picture is None:
             return False
-        painter.drawPixmap(QPointF(x, y), picture)
-        strap = self._strap_metrics(painter)
-        metrics = painter.fontMetrics()
-        baseline = y + side + scaled_px(28) + metrics.ascent()
-        self._paint_strap(painter, (self.width() - strap[3]) / 2.0,
-                          baseline, strap)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        target = QRectF(x, y, side, side)
+        painter.drawPixmap(target, picture, QRectF(picture.rect()))
+        self._paint_strap_under(painter, target)
         return True
 
+    def _paint_strap_under(self, painter: QPainter, target: QRectF) -> None:
+        """Draw the strap line centred under the logo at ``target``.
+
+        :param painter: an active painter on this widget; its opacity is
+            the strap line's.
+        :param target: where the logo is drawn, in logical pixels.
+        """
+        strap = self._strap_metrics(painter)
+        metrics = painter.fontMetrics()
+        baseline = target.bottom() + scaled_px(28) + metrics.ascent()
+        self._paint_strap(painter, (self.width() - strap[3]) / 2.0,
+                          baseline, strap)
+
     def blow_away(self, on_finished: Optional[Callable[[], None]] = None,
-                  *, force: bool = False) -> bool:
+                  *, force: bool = False, plain: bool = False) -> bool:
         """End the cover by blowing the mosaic's tiles off the window.
 
-        Starts no sooner than 0.6 s after the cover first painted. The cover deletes itself when the last tile has gone.
+        The logo holds until two seconds after the cover first painted (at
+        once when called later than that), then blows away over four
+        seconds: the black container fades from one to three seconds in and
+        the last tile has gone at four. The cover deletes itself then.
 
         :param on_finished: called once, when the cover has gone.
         :param force: play even where :func:`startup_animation_allowed` says
-            no; for tests and previews.
+            no; for the Help replay, tests and previews.
+        :param plain: hold the logo, then cross-fade it and the container
+            away in one second instead of blowing it away (Reduce motion).
         :returns: ``True`` when the blow-away will play and the cover will
             take itself down; ``False`` when it will not -- no mosaic, the
             animation is off, or a click already asked to skip -- and the
@@ -766,6 +856,7 @@ class LoadingScreen(QWidget):
         if not (force or startup_animation_allowed()):
             return False
         self._on_finished = on_finished
+        self._plain = bool(plain)
         self._take_the_keys()
         _PLAYING.add(self)
         self._state = "waiting"
@@ -776,44 +867,35 @@ class LoadingScreen(QWidget):
         return True
 
     def _hold_then_begin(self) -> None:
-        """Begin once the mosaic has been up for the minimum hold."""
+        """Begin once the mosaic has been up for the hold."""
         from .. import _after
 
         self._state = "holding"
         held = self._clock() - self._first_paint_at
-        wait_ms = max(0, int(round((_MOSAIC_MIN_HOLD_S - held) * 1000.0)))
+        wait_ms = max(0, int(math.ceil((_MOSAIC_MIN_HOLD_S - held) * 1000.0)))
         _after(wait_ms, self, self._begin)
 
     def _begin(self) -> None:
-        """Cut the mosaic into its tiles and start the frames."""
+        """Cut the mosaic into its tiles and start the frames.
+
+        Called before the hold is over -- a timer that fired a moment early
+        -- it waits out the rest of the hold instead.
+        """
         if self._state != "holding":
+            return
+        if self._clock() - self._first_paint_at < _MOSAIC_MIN_HOLD_S:
+            self._hold_then_begin()
             return
         x, y, side, tile, ratio = self._mosaic_layout()
         picture = self._mosaic_picture(tile, ratio)
         if picture is None:
             self._finish()
             return
-        grid = self._mosaic.grid
-        model = BlowAway(self._mosaic.occupied, (x, y), side)
-        rest = picture.toImage().convertToFormat(
-            QImage.Format.Format_ARGB32_Premultiplied)
-        rest.setDevicePixelRatio(1.0)
-        tiles = []
-        for flat in model.flyers.tolist():
-            row, col = divmod(flat, grid)
-            piece = QPixmap.fromImage(
-                rest.copy(QRect(col * tile, row * tile, tile, tile)))
-            piece.setDevicePixelRatio(ratio)
-            tiles.append(piece)
-        self._model = model
-        self._tiles = tiles
-        self._rest = rest
-        self._rest_tile = tile
         self._rest_target = QRectF(x, y, side, side)
-        self._rest_order = np.argsort(model.launch, kind="stable")
-        self._rest_launch = model.launch[self._rest_order]
-        self._rest_cleared = 0
-        self._anchor = QPointF(-side / grid / 2.0, -side / grid / 2.0)
+        if self._plain:
+            self._duration = _PLAIN_FADE_S
+        else:
+            self._cut_tiles(picture, x, y, side, tile)
         self.setAutoFillBackground(False)
         self.setAttribute(Qt.WA_OpaquePaintEvent, False)
         self.setAttribute(Qt.WA_StyledBackground, False)
@@ -827,15 +909,60 @@ class LoadingScreen(QWidget):
         self._tick_timer = timer
         self.update()
 
+    def _cut_tiles(self, picture: QPixmap, x: float, y: float, side: float,
+                   tile: int) -> None:
+        """Lay out the flight and cut the logo into the tiles that fly.
+
+        :param picture: the logo, decoded at ``tile`` device pixels per tile.
+        :param x: the logo's left edge, in logical pixels.
+        :param y: its top edge.
+        :param side: its side.
+        :param tile: device pixels per tile in ``picture``.
+        """
+        grid = self._mosaic.grid
+        pitch = side / grid
+        model = BlowAway(self._mosaic.occupied, (x, y), side, sweep=_SWEEP_S,
+                         pace=_PACE, end=_BLOW_AWAY_S)
+        rest = picture.toImage().convertToFormat(
+            QImage.Format.Format_ARGB32_Premultiplied)
+        rest.setDevicePixelRatio(1.0)
+        tiles = []
+        for flat in model.flyers.tolist():
+            row, col = divmod(flat, grid)
+            piece = QPixmap.fromImage(
+                rest.copy(QRect(col * tile, row * tile, tile, tile)))
+            piece.setDevicePixelRatio(tile / pitch)
+            tiles.append(piece)
+        self._model = model
+        self._duration = model.duration
+        self._tiles = tiles
+        self._rest = rest
+        self._rest_tile = tile
+        self._rest_order = np.argsort(model.launch, kind="stable")
+        self._rest_launch = model.launch[self._rest_order]
+        self._rest_cleared = 0
+        self._anchor = QPointF(-pitch / 2.0, -pitch / 2.0)
+
     def elapsed(self) -> float:
         """Seconds since the blow-away began; ``0.0`` before it has."""
         if self._state != "playing":
             return 0.0
         return self._clock() - self._began_at
 
+    def container_opacity(self) -> float:
+        """How opaque the black container behind the logo is now.
+
+        :returns: 1.0 until a second into the blow-away, then falling
+            monotonically to 0.0 three seconds in (over the one second of the
+            plain cross-fade under Reduce motion); 0.0 once the cover is done.
+        """
+        if self._state == "done":
+            return 0.0
+        return _container_opacity(self.elapsed(), self._plain)
+
     def _tick(self) -> None:
         """Ask for the next frame, or finish when the last tile has gone."""
-        if self.elapsed() >= self._model.duration:
+        if self.elapsed() >= self._duration:
             self._finish()
             return
         self.update()
@@ -862,65 +989,65 @@ class LoadingScreen(QWidget):
             painter.end()
         self._rest_cleared = reached
 
-    def _ground_gradient(self, t: float) -> QLinearGradient:
-        """The cover's ground at ``t``: clear behind the front, dark ahead.
-
-        :param t: seconds since the blow-away began.
-        :returns: a gradient along the wind across the front.
-        """
-        model = self._model
-        front, behind, ahead = model.backdrop(t)
-        ground = _role_color("splash_bg")
-        near, far = QColor(ground), QColor(ground)
-        near.setAlphaF(behind)
-        far.setAlphaF(ahead)
-        wind_x, wind_y = model.wind
-        span = model.side * (abs(wind_x) + abs(wind_y))
-        base_x = model.origin[0] + (model.side if wind_x < 0 else 0.0)
-        base_y = model.origin[1] + (model.side if wind_y < 0 else 0.0)
-        gradient = QLinearGradient(
-            base_x + wind_x * span * (front - 0.05),
-            base_y + wind_y * span * (front - 0.05),
-            base_x + wind_x * span * (front + 0.45),
-            base_y + wind_y * span * (front + 0.45))
-        gradient.setColorAt(0.0, near)
-        gradient.setColorAt(1.0, far)
-        return gradient
-
     def _paint_blow_away(self) -> None:
-        """Draw one frame of the blow-away at the current time."""
+        """Draw one frame of the blow-away, or of the plain cross-fade."""
         began = time.perf_counter()
-        model = self._model
         t = self.elapsed()
-        self._clear_launched(t)
+        drawn = 0
         painter = QPainter(self)
         try:
-            painter.fillRect(self.rect(), self._ground_gradient(t))
-            painter.drawImage(self._rest_target, self._rest)
+            ground = _role_color("splash_bg")
+            ground.setAlphaF(self.container_opacity())
+            painter.fillRect(self.rect(), ground)
             painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-            index, m11, m12, m21, m22, dx, dy, alpha = model.frame(
-                t, (0.0, 0.0, float(self.width()), float(self.height())),
-                self._floor)
-            tiles = self._tiles
-            anchor = self._anchor
-            matrix = QTransform()
-            set_matrix = matrix.setMatrix
-            set_transform = painter.setTransform
-            set_opacity = painter.setOpacity
-            draw = painter.drawPixmap
-            for i, a, b, c, d, e, f, o in zip(
-                    index.tolist(), m11.tolist(), m12.tolist(), m21.tolist(),
-                    m22.tolist(), dx.tolist(), dy.tolist(), alpha.tolist()):
-                set_matrix(a, b, 0.0, c, d, 0.0, e, f, 1.0)
-                set_transform(matrix)
-                set_opacity(o)
-                draw(anchor, tiles[i])
+            fade = _PLAIN_FADE_S if self._plain else _STRAP_FADE_S
+            strap = 1.0 - float(_smoothstep(t / fade))
+            if strap > 0.0:
+                painter.setOpacity(strap)
+                self._paint_strap_under(painter, self._rest_target)
+            if self._plain:
+                picture = self._mosaic_pixmap
+                painter.setOpacity(self.container_opacity())
+                painter.drawPixmap(self._rest_target, picture,
+                                   QRectF(picture.rect()))
+            else:
+                drawn = self._paint_tiles(painter, t)
         finally:
             painter.end()
         spent = (time.perf_counter() - began) * 1000.0
         self._frame_ms.append(spent)
-        self._drawn.append(int(index.size))
+        self._drawn.append(drawn)
         self._adapt(spent)
+
+    def _paint_tiles(self, painter: QPainter, t: float) -> int:
+        """Draw the tiles still at rest and every tile in flight at ``t``.
+
+        :param painter: an active painter on this widget.
+        :param t: seconds since the blow-away began.
+        :returns: how many flying tiles were drawn.
+        """
+        model = self._model
+        self._clear_launched(t)
+        painter.setOpacity(1.0)
+        painter.drawImage(self._rest_target, self._rest)
+        index, m11, m12, m21, m22, dx, dy, alpha = model.frame(
+            t, (0.0, 0.0, float(self.width()), float(self.height())),
+            self._floor)
+        tiles = self._tiles
+        anchor = self._anchor
+        matrix = QTransform()
+        set_matrix = matrix.setMatrix
+        set_transform = painter.setTransform
+        set_opacity = painter.setOpacity
+        draw = painter.drawPixmap
+        for i, a, b, c, d, e, f, o in zip(
+                index.tolist(), m11.tolist(), m12.tolist(), m21.tolist(),
+                m22.tolist(), dx.tolist(), dy.tolist(), alpha.tolist()):
+            set_matrix(a, b, 0.0, c, d, 0.0, e, f, 1.0)
+            set_transform(matrix)
+            set_opacity(o)
+            draw(anchor, tiles[i])
+        return int(index.size)
 
     def _adapt(self, spent_ms: float) -> None:
         """Drop the faintest tiles while frames are slow, and take them back.
@@ -1036,20 +1163,22 @@ _PLAYING: "weakref.WeakSet" = weakref.WeakSet()
 
 
 def blow_away_running() -> bool:
-    """Whether a startup blow-away is waiting to start or under way.
+    """Whether a blow-away is drawing its frames.
 
     Idle-time warming asks this and waits, so its slices do not take frames
-    from the animation in the two seconds it runs.
+    from the animation in the four seconds it runs. While the logo only
+    holds, the window keeps loading underneath it.
 
-    :returns: ``True`` while any cover that still exists is playing; a cover
-        deleted mid-way, with its window, no longer counts.
+    :returns: ``True`` while any cover that still exists is past its hold
+        and drawing; a cover deleted mid-way, with its window, no longer
+        counts.
     """
     from shiboken6 import isValid
 
     for screen in list(_PLAYING):
         if not isValid(screen):
             _PLAYING.discard(screen)
-        elif screen.playing():
+        elif screen._state == "playing":
             return True
     return False
 
@@ -1081,3 +1210,39 @@ def strap_phrases() -> Sequence[str]:
 def strap_line() -> str:
     """The whole strap line as one translated string."""
     return "  →  ".join(strap_phrases())
+
+
+def replay_startup_animation(window: QWidget) -> Optional[LoadingScreen]:
+    """Play the startup sequence again inside ``window``.
+
+    Help > Show startup animation. The black container with the logo comes
+    back over the window, holds for two seconds and blows away as it does
+    at startup. It plays even when Preferences > Animation > Startup
+    animation is off; under Accessibility > Reduce motion the logo holds and
+    then cross-fades away in one second. A click or a key skips it. The
+    window's size, state and keyboard focus are left as they were.
+
+    :param window: the window to play it in.
+    :returns: the cover now playing, or ``None`` when the logo cannot be
+        read or a cover is already over the window.
+    """
+    if any(not cover.isHidden() and cover._state != "done"
+           for cover in window.findChildren(
+               LoadingScreen, options=Qt.FindChildOption.FindDirectChildrenOnly)):
+        return None
+    cover = LoadingScreen(total=1, parent=window)
+    if not cover.show_mosaic():
+        cover.deleteLater()
+        return None
+    cover.advance(1)
+    cover.setGeometry(window.rect())
+    cover.raise_()
+    cover.show()
+    try:
+        from ..preferences import get_reduce_motion
+
+        plain = bool(get_reduce_motion())
+    except Exception:
+        plain = True
+    cover.blow_away(force=True, plain=plain)
+    return cover

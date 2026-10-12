@@ -195,6 +195,28 @@ def _open_at_the_measured_width(window) -> bool:
         return False
 
 
+def _show_at_launch(window) -> None:
+    """Show the main window the way it opens at startup.
+
+    Borderless (the default, item 695) it is maximised: it fills the work
+    area of its screen -- the available geometry, without the taskbar, dock
+    or panels -- in one window that is not in full-screen mode, and Restore
+    returns it to the size it opened at. A minimum size larger than that
+    work area is lowered to fit it. Framed, it is shown at the size it
+    opened at, as before.
+
+    :param window: the main window, built and not yet shown.
+    """
+    if not window._borderless:
+        window.show()
+        return
+    screen = window.screen()
+    if screen is not None:
+        window.setMinimumSize(window.minimumSize().boundedTo(
+            screen.availableGeometry().size()))
+    window.showMaximized()
+
+
 def install_the_spaceout_fractal(screen) -> bool:
     """Put the spaceout fractal behind ``screen``, if this is spaceout.
 
@@ -327,6 +349,8 @@ class _DragsTheWindowByTheMenuBar(QObject):
         if event.type() != QEvent.Type.MouseButtonPress:
             return False
         if event.button() != Qt.MouseButton.LeftButton:
+            return False
+        if not getattr(self._window, "_borderless", True):
             return False
         try:
             if watched.actionAt(event.position().toPoint()) is not None:
@@ -1925,6 +1949,7 @@ CHROME_PAD = 0.18
 CHROME_HOVER = {
     "CloseWindow": "#DC3C3C",
     "FullScreenToggle": "#3C82DC",
+    "MaximiseWindow": "#3C82DC",
     "MinimiseWindow": "#3C82DC",
 }
 
@@ -2866,10 +2891,16 @@ class MainWindow(QMainWindow):
         self.setAutoFillBackground(True)
         self.setWindowTitle("spaCR")
         self.setMinimumSize(1200, 720)
-        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, True)
+        from .preferences import get_borderless_window
+
+        self._borderless = get_borderless_window()
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, self._borderless)
 
         self._build_menu_bar()
         self._install_fullscreen_button()
+        if not self._borderless:
+            for button in self._frame_marks():
+                button.hide()
 
         self._stack = QStackedWidget()
         self._stack.currentChanged.connect(
@@ -3142,6 +3173,14 @@ class MainWindow(QMainWindow):
         row.addWidget(minimise)
         self._minimise_button = minimise
 
+        maximise = _ChromeButton(corner, self._maximise_mark,
+                                 CHROME_HOVER["MaximiseWindow"])
+        maximise.setObjectName("MaximiseWindow")
+        maximise.setToolTip(tr("Maximise, or restore the size before"))
+        maximise.clicked.connect(self._toggle_maximised)
+        row.addWidget(maximise)
+        self._maximise_button = maximise
+
         button = _ChromeButton(corner, self._fullscreen_icon,
                                CHROME_HOVER["FullScreenToggle"])
         button.setObjectName("FullScreenToggle")
@@ -3236,6 +3275,80 @@ class MainWindow(QMainWindow):
         return QIcon(pixmap)
 
     @staticmethod
+    def _maximise_icon(size: int = CHROME_ICON_PX, colour=None,
+                       restore: bool = False):
+        """A square, or two overlapping squares when it restores.
+
+        :param size: the box, in pixels.
+        :param colour: the mark's colour; grey when ``None``.
+        :param restore: draw the restore mark, for a maximised window.
+        """
+        from PySide6.QtCore import QPointF, QRectF
+        from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
+
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
+        pen.setWidthF(size * CHROME_PEN)
+        painter.setPen(pen)
+        pad = size * CHROME_PAD
+        span = size - 2.0 * pad
+        if restore:
+            step = span * 0.25
+            painter.drawPolyline([QPointF(pad + step, pad + step),
+                                  QPointF(pad + step, pad),
+                                  QPointF(pad + span, pad),
+                                  QPointF(pad + span, pad + span - step),
+                                  QPointF(pad + span - step, pad + span - step)])
+            painter.drawRect(QRectF(pad, pad + step, span - step, span - step))
+        else:
+            painter.drawRect(QRectF(pad, pad, span, span))
+        painter.end()
+        return QIcon(pixmap)
+
+    def _maximise_mark(self, size: int = CHROME_ICON_PX, colour=None):
+        """The maximise mark for the window's state now.
+
+        :param size: the box, in pixels.
+        :param colour: the mark's colour; grey when ``None``.
+        :returns: the restore mark while the window is maximised.
+        """
+        return self._maximise_icon(size, colour, restore=self.isMaximized())
+
+    def _frame_marks(self):
+        """The marks a platform frame also has: minimise, maximise, close."""
+        return (self._minimise_button, self._maximise_button,
+                self._close_button)
+
+    def _set_borderless(self, on: bool) -> None:
+        """Switch between the borderless window and a framed one; remembered.
+
+        Borderless, the menu bar is the title bar and its marks minimise,
+        maximise and close the window. Framed, the platform's frame does
+        that, so those marks are hidden and the bar no longer drags or
+        resizes; the full-screen mark stays. The window keeps its state.
+
+        :param on: ``True`` for borderless.
+        """
+        from .preferences import set_borderless_window
+
+        on = bool(on)
+        set_borderless_window(on)
+        self._borderless = on
+        for button in self._frame_marks():
+            button.setVisible(on)
+        if bool(self.windowFlags() & Qt.WindowType.FramelessWindowHint) == on:
+            return
+        state = self.windowState()
+        shown = self.isVisible()
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, on)
+        if shown:
+            self.setWindowState(state)
+            self.show()
+
+    @staticmethod
     def _fullscreen_icon(size: int = CHROME_ICON_PX, colour=None):
         """The four-corner expand mark, drawn rather than shipped."""
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
@@ -3269,7 +3382,8 @@ class MainWindow(QMainWindow):
             otherwise ``False``.
         """
         try:
-            bar = self.menuBar() if not self.isFullScreen() else None
+            bar = (self.menuBar() if not self.isFullScreen()
+                   and getattr(self, "_borderless", True) else None)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the menu bar could not be asked for during an event",
                       exc_info=True)
@@ -3502,6 +3616,9 @@ class MainWindow(QMainWindow):
         try:
             from PySide6.QtCore import QTimer
 
+            mark = getattr(self, "_maximise_button", None)
+            if mark is not None:
+                mark._show(mark._lit)
             QTimer.singleShot(0, self._relay_the_menu_bar)
             current = self.windowState()
             previous = event.oldState() if hasattr(event, "oldState") else current
@@ -3797,6 +3914,18 @@ class MainWindow(QMainWindow):
         act_about = QAction("About spaCR", self)
         act_about.triggered.connect(self._show_about)
         help_menu.addAction(act_about)
+        from .widgets.loading_screen import replay_startup_animation
+
+        act_replay = QAction(tr("Show startup animation"), self)
+        act_replay.setObjectName("ShowStartupAnimationAction")
+        act_replay.setStatusTip(tr(
+            "Play the spaCR logo and its blow-away again, inside this "
+            "window, as at startup. A click or a key skips it."))
+        act_replay.setMenuRole(QAction.MenuRole.NoRole)
+        act_replay.triggered.connect(
+            lambda _checked=False: replay_startup_animation(self))
+        help_menu.addAction(act_replay)
+        self._act_replay_startup = act_replay
         help_menu.addSeparator()
         act_update = QAction("Check for updates…", self)
         act_update.triggered.connect(self._check_for_updates)
@@ -3918,6 +4047,7 @@ class MainWindow(QMainWindow):
             return
         app_menu.insertAction(quit_action, minimise)
         app_menu.insertAction(quit_action, maximise)
+        app_menu.insertAction(quit_action, self._act_borderless)
         app_menu.insertSeparator(quit_action)
 
     def _build_window_menu(self, bar):
@@ -3978,6 +4108,19 @@ class MainWindow(QMainWindow):
         act_full.triggered.connect(self.toggle_fullscreen)
         self._act_fullscreen = act_full
         menu.addAction(act_full)
+
+        act_borderless = QAction(tr("Borderless window"), self)
+        act_borderless.setObjectName("BorderlessWindowAction")
+        act_borderless.setCheckable(True)
+        act_borderless.setChecked(getattr(self, "_borderless", True))
+        act_borderless.setStatusTip(tr(
+            "On: no title bar; spaCR opens filling the screen, and the menu "
+            "bar moves the window while its marks minimise, maximise and "
+            "close it. Off: the platform's own framed window. Remembered."))
+        act_borderless.setMenuRole(QAction.MenuRole.NoRole)
+        act_borderless.toggled.connect(self._set_borderless)
+        menu.addAction(act_borderless)
+        self._act_borderless = act_borderless
 
         snaps = (("left", tr("Snap left"), "SnapLeftAction",
                   tr("Fill the left half of this screen's work area.")),
@@ -7710,7 +7853,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
         )
     win._startup_benchmark_controller = benchmark_controller
     _open_at_the_measured_width(win)
-    win.show()
+    _show_at_launch(win)
 
     install_the_dialog_filters(app)
 

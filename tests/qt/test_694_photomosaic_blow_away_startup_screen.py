@@ -5,6 +5,11 @@ while the window loads; when the window is ready the tiles lift, turn over,
 spin and fly off downwind, revealing the window. These tests drive the cover
 with a fake clock, so every frame is reproducible and no test waits for the
 animation in real time.
+
+Item 695 changed the timing (a 2 s hold, a 4 s blow-away, the container
+fading from 1 to 3 s into it), the logo's size (half the screen height) and
+its resource (2160 px from the 17920 px picture); these tests follow it, and
+tests/qt/test_695_startup_sequence_and_borderless_window.py tests the rest.
 """
 from __future__ import annotations
 
@@ -60,7 +65,7 @@ def _played(screen, *, painted=True):
     if painted:
         screen.grab()
     assert screen.blow_away(force=True)
-    screen.clock.now += 1.0
+    screen.clock.now += ls._MOSAIC_MIN_HOLD_S
     screen._begin()
     assert screen._state == "playing"
     return screen
@@ -69,7 +74,7 @@ def _played(screen, *, painted=True):
 # --- the resource ---------------------------------------------------------
 
 def test_the_packaged_mosaic_is_the_80_by_80_grid_of_the_generator():
-    """color_final_v1: G = 80 tiles of T = 41 px, resampled to tile_px."""
+    """color_final_v1: G = 80 tiles, each resampled on its own to tile_px."""
     mosaic = ls.MosaicMap.load()
     assert mosaic is not None
     assert mosaic.grid == 80
@@ -190,7 +195,7 @@ def test_without_permission_the_cover_is_left_to_its_owner(cover):
 def test_the_mosaic_is_painted_centred_above_the_strap_line(cover):
     shot = cover.grab().toImage()
     x, y, side, tile, ratio = cover._mosaic_layout()
-    assert tile * 80 == round(side * ratio)
+    assert side * ratio <= tile * 80 < side * ratio + 80
     assert abs((x + side / 2.0) - cover.width() / 2.0) < 1.0
     def green_share(x0, y0, x1, y1):
         hits = total = 0
@@ -200,7 +205,7 @@ def test_the_mosaic_is_painted_centred_above_the_strap_line(cover):
                 hits += shot.pixelColor(px, py).green() > 80
         return hits / max(1, total)
 
-    assert green_share(x, y, x + side, y + side) > 0.05
+    assert green_share(x, y, x + side, y + side) > 0.03
     assert green_share(0, y, x - 2, y + side) == 0.0
     assert cover._first_paint_at == cover.clock.now
     picture = cover._mosaic_picture(tile, ratio)
@@ -323,7 +328,10 @@ def test_the_blow_away_waits_for_the_hold_then_plays_and_finishes(
     assert cover.playing()
     assert cover.blow_away(force=True) is False, "only once"
     cover._begin()
-    assert cover._state == "playing", "the hold is real time, not skipped"
+    assert cover._state == "holding", "the hold is not skipped"
+    cover.clock.now += ls._MOSAIC_MIN_HOLD_S
+    cover._begin()
+    assert cover._state == "playing"
     assert cover.elapsed() == 0.0
     assert not cover.testAttribute(Qt.WA_OpaquePaintEvent)
     assert not cover.autoFillBackground()
@@ -380,6 +388,7 @@ def test_a_picture_that_vanishes_before_the_start_ends_the_cover(
     assert cover.blow_away(force=True)
     cover._mosaic_key = None
     cover._mosaic.image_path = str(tmp_path / "missing.jpg")
+    cover.clock.now += ls._MOSAIC_MIN_HOLD_S
     cover._begin()
     assert cover._state == "done"
 
@@ -447,6 +456,9 @@ def test_a_cover_deleted_while_playing_stops_counting(host):
     screen._clock = screen.clock = _Clock()
     screen.grab()
     assert screen.blow_away(force=True)
+    assert not ls.blow_away_running(), "the window loads while it holds"
+    screen.clock.now += ls._MOSAIC_MIN_HOLD_S
+    screen._begin()
     assert ls.blow_away_running()
     delete(screen)
     assert not ls.blow_away_running()
@@ -538,18 +550,6 @@ def test_slow_frames_shed_faint_tiles_and_fast_ones_take_them_back(cover):
     for _ in range(40):
         cover._adapt(1.0)
     assert cover._floor == 0.02
-
-
-def test_the_ground_follows_a_wind_from_either_side(cover):
-    _played(cover)
-    gradient = cover._ground_gradient(0.5)
-    assert gradient.start().x() < gradient.finalStop().x()
-    x, y, side, tile, ratio = cover._mosaic_layout()
-    cover._model = ls.BlowAway(cover._mosaic.occupied, (x, y), side,
-                               wind=(-1.0, -0.3))
-    gradient = cover._ground_gradient(0.5)
-    assert gradient.start().x() > gradient.finalStop().x()
-    cover._finish()
 
 
 def test_clearing_twice_at_one_moment_does_nothing_new(cover):

@@ -91,3 +91,9 @@ shows the mosaic without the animation. Reduce motion also turns it off. A
 click or a key skips it."
 
 2026-10-12 — built and pushed to nightly (Home).
+
+2026-10-12 — item 695 (Home) changes this screen's timing and size: the logo
+is drawn at half the screen height from a 2160 px resource (27 px tiles, built
+from the 17920 px picture), holds 2.0 s after it first paints (longer while
+loading), blows away over 4.0 s with the black container fading 3.0-5.0 s, and
+Help > Show startup animation replays it. See item 695's note.

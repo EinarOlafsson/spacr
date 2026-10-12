@@ -25,7 +25,8 @@ pytest.importorskip("PySide6")
 
 from spacr.qt import app as app_mod
 
-CHROME = ("MinimiseWindow", "FullScreenToggle", "CloseWindow")
+CHROME = ("MinimiseWindow", "MaximiseWindow", "FullScreenToggle",
+          "CloseWindow")
 
 
 def _chrome_qss() -> str:

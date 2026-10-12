@@ -2,7 +2,8 @@
 STARTUP LOGO ON A FULL-SCREEN BORDERLESS WINDOW, A 2 + 4 S TIMELINE, AND A HELP REPLAY
 ================================================================================
 
-Status:    not started
+Status:    built 2026-10-12 (Home); translations of the new strings and the
+           WS capture (SPACR_NO_SPLASH unset) pending
 Requested: maintainer, 2026-10-12 (clarified the same day: "the spacr window
            and the logo blow away window are the same window not seperate the
            spacr log mosaic on a black background is the first thing loaded
@@ -108,4 +109,78 @@ HOW TO KNOW IT WORKED
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-- Nothing yet.
+- Preferences carries no borderless switch: the switch is a remembered
+  checkable entry, "Borderless window", in Help > Window and in the spaCR
+  menu beside Minimise and Maximise (spaCR has no View menu).
+- Dragging keeps N684's accepted behaviour: QWindow.startSystemMove() on
+  Wayland (required there); on X11, Windows and macOS the bar keeps its own
+  move, so drag-to-edge snapping and its ripple stay as accepted. Resize
+  edges stay off while maximised or framed.
+- A What's new or first-run consent dialog that is due at startup still
+  opens on its own timer (1.5 s / 0.25 s), over the logo if it is still up.
+- The logo is color_final_v1 (the 694 mosaic), as this item says; the
+  invading-parasites version chosen for the website and deck is not used.
+
+2026-10-12 — built (Home). One window: MainWindow opens borderless and
+maximised (spacr.qt.app._show_at_launch), which is the screen's available
+geometry and not full-screen mode; Restore returns to the measured width, and
+a minimum size larger than the work area is lowered to fit it. The loading
+cover is the first thing painted in it (black, logo centred at half the
+screen height, strap line under it) and now follows the window's size itself
+(LoadingScreen.eventFilter), so a window maximised after the cover was handed
+to the blow-away is still covered.
+Timeline (spacr/qt/widgets/loading_screen.py): hold 2.0 s from the first
+paint, longer until the window is ready (an early timer waits out the rest);
+blow-away 4.0 s: the 694 wind front crosses in 2.4 s and every flight is the
+694 one slowed 1.8x (BlowAway(pace=, end=)), lives cut so the last tile has
+gone at 4.0 s (6.0 s); the black container fades by smoothstep from 1.0 to
+3.0 s into it (3.0 -> 5.0 s); the strap line fades over its first 0.6 s. A
+click or a key skips. blow_away_running() is now true only while frames are
+drawn, so screen prewarm and Preferences warming run under the hold.
+Resource: tools/build_splash_mosaic.py reads the tile size from the picture
+and now builds from color_final_v1_highres_17920px.png (80 x 80 tiles of
+224 px) at 27 px tiles: photomosaic.jpg 2160 px, 813 KB (was 1600 px,
+510 KB), 3,999 occupied tiles (4,004 from the 3280 px picture; 9 differ at
+the cut). Half of a 4K screen is 1080 device px (14 px tiles), so 2160 px
+stays sharp to a 4320 px tall screen (8K, or 4K at 2x of a 2160 logical
+height). The logo is decoded at the whole number of device px per tile at or
+above its size and drawn scaled down (JPEG scaled decode 13 ms at 560 px,
+25 ms at 1120 px, 36 ms at 2160 px).
+Help > Show startup animation (spacr.qt.widgets.loading_screen.
+replay_startup_animation) puts the same container and logo over the window,
+holds 2 s and blows away; it plays with the Startup animation switch off;
+Reduce motion holds then cross-fades in 1 s; the window's geometry, state,
+flags and focus are unchanged after it; one replay at a time.
+Window controls: the top bar gains a maximise/restore mark (square, or two
+squares while maximised; blue hover) between minimise and full screen; the
+bar drags (see above), double-click maximises, edges resize. "Borderless
+window" off gives the platform frame: the minimise, maximise and close marks
+hide, the bar no longer drags, edges no longer resize; full screen stays.
+The choice is remembered (prefs/borderless_window, default on) and a framed
+choice opens framed at the measured width as before.
+Switches unchanged: Startup animation off, Reduce motion, SPACR_NO_SPLASH=1
+and the offscreen platform skip the start-up run (tools/tutorials/
+run_native_capture.py still sets SPACR_NO_SPLASH=1; WS records this item
+with it unset).
+Measured on the offscreen platform (CPU raster): whole window plus
+cover per frame through the 4 s blow-away, 1920 x 1080: mean 13.4 ms, median
+12.2 ms (75 fps mean), cover paint alone 6.1 ms mean, up to 3,184 tiles in
+flight; 3840 x 2160: mean 19.1 ms (52 fps), cover paint 7.7 ms mean.
+Preview: /mnt/wd4tb/scratch/splash695/preview_695_startup_sequence_1080p60.mp4.
+Tests: tests/qt/test_695_startup_sequence_and_borderless_window.py (fake-clock
+timeline on one maximised frameless window: logo at half the screen height,
+centred, decoded at or above its size, no tile moving before 2.0 s, container
+1.0 to 3.0 s then strictly falling to 0 at 5.0 s and pixel-checked, no tile
+after 6.0 s; longer hold while loading; Help replay and window unchanged;
+Reduce motion cross-fade; window controls; framed switch remembered); 694
+tests follow the new timing. loading_screen.py at 100 % statement and branch.
+New public API in tests/data/release_contracts/
+695_startup_sequence_api_arrivals_2026-10-12.json (5); the three 694 entries
+whose docstrings changed (BlowAway, LoadingScreen.blow_away,
+blow_away_running) updated in the 694 contract.
+New English strings for WS: "Show startup animation"; "Play the spaCR logo
+and its blow-away again, inside this window, as at startup. A click or a key
+skips it."; "Borderless window"; "On: no title bar; spaCR opens filling the
+screen, and the menu bar moves the window while its marks minimise, maximise
+and close it. Off: the platform's own framed window. Remembered."; "Maximise,
+or restore the size before".

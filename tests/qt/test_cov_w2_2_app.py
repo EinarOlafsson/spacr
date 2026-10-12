@@ -554,7 +554,7 @@ def test_a_chrome_button_lights_its_mark_on_hover_and_on_press(qapp):
 def test_every_chrome_mark_has_a_hover_colour():
     """Red ends the session; blue is the accent every live control uses."""
     assert set(app_mod.CHROME_HOVER) == {"CloseWindow", "FullScreenToggle",
-                                         "MinimiseWindow"}
+                                         "MaximiseWindow", "MinimiseWindow"}
     assert app_mod.CHROME_HOVER["CloseWindow"] != \
         app_mod.CHROME_HOVER["MinimiseWindow"]
 

@@ -55933,6 +55933,15 @@
       "source_sha256": "fd36d72179cd587e926605d28d7f49e56b7afd78d60a753caa71f13603de5e24",
       "text": "Which animation screens paint in the active launch mode.\n\nValidated on read: a value written by a newer spaCR (or by hand)\nthat this build does not know about falls back to the default theme\nrather than propagating an unpaintable name into the widget."
     },
+    "spacr.qt.preferences.get_borderless_window": {
+      "source_blocks_sha256": [
+        "6696d9463f84d759bd511101da97bcc98e37e471d0c8148b568a544fb80c0559",
+        "7babea5116d9784edfa61dc59be402dc6fe7a70e5975897d19b56e15f69a99f9",
+        "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
+      ],
+      "source_sha256": "9f3cc2daf0db351b892c8993cf923005619d5f578caa2b517beaa6ccd46ed1b1",
+      "text": "Whether the main window is borderless, filling its screen's work area.\n\nThe Borderless window switch in the spaCR menu and in Help > Window. Off\ngives the platform's own framed window, opened at the measured width.\n\n:returns: ``True`` unless the switch was turned off; on by default."
+    },
     "spacr.qt.preferences.get_cache_ceiling_mb": {
       "source_blocks_sha256": [
         "a594221f0e1f9c0b82eadb132fc351ea0adcd75eee4d7a621172ab9fdb9813f0"
@@ -56820,6 +56829,14 @@
       ],
       "source_sha256": "7c0215b8bc4f0b12b9a1a01668caa421a02e4523e429895c1bd9bf8e6314a770",
       "text": "Persist an animation offered in the active launch mode.\n\nPalettes belong to a theme, so switching themes can strand the\nstored palette. Rather than raise — the user picked a theme, not a\nbroken pair — the stored palette is repaired in the same write: it\nis kept if the new theme also offers it, and otherwise replaced with\nthat theme's default (see :func:`ambient_default_palette`).\n\n:param name: an animation offered in the current launcher's menu.\n:raises ValueError: if ``name`` is not a known ambient theme."
+    },
+    "spacr.qt.preferences.set_borderless_window": {
+      "source_blocks_sha256": [
+        "dd37fe43655dda8492c04f5e5075f2e7f4f0cb93bb72fef976c86fb2053998e4",
+        "fa862288b574333fb21abcd51bc0c637fe970e7015c40064f1024b2b5f34c179"
+      ],
+      "source_sha256": "93d6fd126643a16f29c5beacf49a4724c7bc477d290f5acafbe098390299239a",
+      "text": "Choose a borderless or a framed main window.\n\n:param on: ``True`` for borderless."
     },
     "spacr.qt.preferences.set_cache_ceiling_mb": {
       "source_blocks_sha256": [
@@ -98415,10 +98432,12 @@
         "2b3d68dd20c2c3440766c280753840e2b26434e4f8c52ab383ebcefeb97da69c",
         "56117aac5ebe0055f82cf0281cdc86ac6e6feaf0938fdd65e752ff7c3c118565",
         "dcda49772c3163a8f3127ab83551bf40e60c26dc6b3941d80a8934e15e664d71",
+        "c85ce426df60be8aa7904bd784bde2d80f61d256000226a99fcd63aa78e97bbb",
+        "5584f91e8ebc8f359f1bcd8d5c35599d5ecb2e2d69ada108dc89d9b0982eaf40",
         "379c7bb97f00aa031ac2c535729b6846158b3622f0c0c240fe0d12ced87053f7"
       ],
-      "source_sha256": "190c7c6b0817aa6e89a028b06f849ce3726113c3a3e39de66a85fc8d664fe23c",
-      "text": "The motion of the photomosaic's tiles as a wind front blows them away.\n\nPure arithmetic on arrays, with no Qt: every tile's launch time and flight\nare drawn once from a seeded generator, and :meth:`frame` evaluates the\nwhole flock at one moment, so the motion depends on elapsed time only and\nnever on how many frames were drawn.\n\nThe front sweeps across the mosaic along ``wind``. As it reaches a tile,\nthe tile lifts towards the viewer, turns over like a card (one axis scaled\nthrough the cosine of its flip angle, with a skew and a little\nforeshortening for perspective), spins, and flies downwind with random\nturbulence and slight gravity while it fades. Background tiles do not\nfly; they leave with the front.\n\n:param occupied: ``grid x grid`` booleans; ``True`` tiles fly.\n:param origin: the mosaic's top-left corner, in widget coordinates.\n:param side: the mosaic's side, in the same units.\n:param seed: seed of the randomness.\n:param wind: direction the wind blows, ``(x, y)``; down-screen is ``+y``.\n:param start: seconds before the front reaches the first tile.\n:param sweep: seconds the front takes to cross the mosaic.\nDraw every tile's launch and flight; see the class docstring."
+      "source_sha256": "e3f67c6b035a600284d11ee49530f7c3d69e11236ff8a232bea6b37d8b6ec205",
+      "text": "The motion of the photomosaic's tiles as a wind front blows them away.\n\nPure arithmetic on arrays, with no Qt: every tile's launch time and flight\nare drawn once from a seeded generator, and :meth:`frame` evaluates the\nwhole flock at one moment, so the motion depends on elapsed time only and\nnever on how many frames were drawn.\n\nThe front sweeps across the mosaic along ``wind``. As it reaches a tile,\nthe tile lifts towards the viewer, turns over like a card (one axis scaled\nthrough the cosine of its flip angle, with a skew and a little\nforeshortening for perspective), spins, and flies downwind with random\nturbulence and slight gravity while it fades. Background tiles do not\nfly; they leave with the front.\n\n:param occupied: ``grid x grid`` booleans; ``True`` tiles fly.\n:param origin: the mosaic's top-left corner, in widget coordinates.\n:param side: the mosaic's side, in the same units.\n:param seed: seed of the randomness.\n:param wind: direction the wind blows, ``(x, y)``; down-screen is ``+y``.\n:param start: seconds before the front reaches the first tile.\n:param sweep: seconds the front takes to cross the mosaic.\n:param pace: how many times slower than the 694 flight each tile flies\n    (lift, flip, spin, travel and fade are stretched alike).\n:param end: when given, the last tile has gone by then: lives are cut\n    to end there and :attr:`duration` is ``end``.\nDraw every tile's launch and flight; see the class docstring."
     },
     "spacr.qt.widgets.loading_screen.BlowAway.backdrop": {
       "source_blocks_sha256": [
@@ -98473,13 +98492,22 @@
     "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away": {
       "source_blocks_sha256": [
         "903498dd3cdf7fb3c626e6a8a5d3b153a31328727171a8aeb633758feb59b553",
-        "d50552237cc81b8dc8c5a374666f4da237036bc659a258964bf14929865dd7ea",
+        "6efefcdf4e85f61d1f97a90af92af73062ad47bb2158659a803945de350a2ce3",
         "916fdd1de872f030cd3a28082a14e730768f44c38ac08e8d442d36832643fdd4",
-        "7750ec9708425d1b5f32973d22ce6be9c59cf00b214fb745e3e37de65dae5ed8",
+        "ec5380f74a5384036fd4b2782649ecf274594c3e1ff229bdb93f7f21cfd73461",
+        "5a3404365eb8f1412ef14154c877341c9d2e76b7bb168aa59c816ffd70d94386",
         "dd3d1f3709e1b67c4e617ff070b83694f8596fc1527fabeb1f7a93e3e2446995"
       ],
-      "source_sha256": "cb685442d95ef15fa039d142d4c7d7023ac81ae23b55cb75f47973a5a5b34a50",
-      "text": "End the cover by blowing the mosaic's tiles off the window.\n\nStarts no sooner than 0.6 s after the cover first painted. The cover deletes itself when the last tile has gone.\n\n:param on_finished: called once, when the cover has gone.\n:param force: play even where :func:`startup_animation_allowed` says\n    no; for tests and previews.\n:returns: ``True`` when the blow-away will play and the cover will\n    take itself down; ``False`` when it will not -- no mosaic, the\n    animation is off, or a click already asked to skip -- and the\n    caller takes the cover down as before."
+      "source_sha256": "ae0a3c59ee4c215ea9e15fd570a825eb92aaa9afc857866ebc16f3228416a0f5",
+      "text": "End the cover by blowing the mosaic's tiles off the window.\n\nThe logo holds until two seconds after the cover first painted (at\nonce when called later than that), then blows away over four\nseconds: the black container fades from one to three seconds in and\nthe last tile has gone at four. The cover deletes itself then.\n\n:param on_finished: called once, when the cover has gone.\n:param force: play even where :func:`startup_animation_allowed` says\n    no; for the Help replay, tests and previews.\n:param plain: hold the logo, then cross-fade it and the container\n    away in one second instead of blowing it away (Reduce motion).\n:returns: ``True`` when the blow-away will play and the cover will\n    take itself down; ``False`` when it will not -- no mosaic, the\n    animation is off, or a click already asked to skip -- and the\n    caller takes the cover down as before."
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.container_opacity": {
+      "source_blocks_sha256": [
+        "e91e6b0da79dde9b6329bc20ec7b2dfea7b2985138efe7b1b1b70d45fb8954b2",
+        "783ca45f2efa090faad6ff940369432be46f4b9971c46a28423261cbeb5bc6cf"
+      ],
+      "source_sha256": "cfd8016abbfac85937c58650026b86747c6db90a8bc33154ba07785fd7c8ca72",
+      "text": "How opaque the black container behind the logo is now.\n\n:returns: 1.0 until a second into the blow-away, then falling\n    monotonically to 0.0 three seconds in (over the one second of the\n    plain cross-fade under Reduce motion); 0.0 once the cover is done."
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen.elapsed": {
       "source_blocks_sha256": [
@@ -98487,6 +98515,17 @@
       ],
       "source_sha256": "7a058ff3b3440137994590966eeaa7a0e14d46514dbc632d42fecf549faa7b17",
       "text": "Seconds since the blow-away began; ``0.0`` before it has."
+    },
+    "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter": {
+      "source_blocks_sha256": [
+        "e3908476e0189f8e05c8b2a3fe72cef3b2c461f2d85f5795ba1027d24df8861a",
+        "928fa536d3b3e02ccb3f9ccfba87e5df30f3e450f4370529a84429b3a24a768b",
+        "d8b4c87947dc5706b037fe6d478e3b06c816b8f51263600de99985df02d04d1c",
+        "784c858a3afe115edea340cceee5f0650707ec7a7ceef26311eef17c89574d34",
+        "f875ef6e96d7862b203196a9897f64ba5ac6f59bc4fd81d94f0cd3ed628ae6df"
+      ],
+      "source_sha256": "6bee6729b380fb303f7b27bde1d7f0175b0530553a0883ae2568a53b64276f9e",
+      "text": "Keep covering the window as it resizes.\n\nA window that opens maximised is resized after the cover is put\nover it, and by then the window may have handed the cover to the\nblow-away and stopped sizing it.\n\n:param watched: the window this covers.\n:param event: the event; only a resize is acted on.\n:returns: ``False``, so the window still sees every event."
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen.fraction": {
       "source_blocks_sha256": [
@@ -98605,12 +98644,12 @@
     },
     "spacr.qt.widgets.loading_screen.blow_away_running": {
       "source_blocks_sha256": [
-        "8fad79e73e907936949c5551e2a6a086c629cd77a47f2db12b7edddb736003de",
-        "e4291692ef3e4d863d92ffcb612fb7a31f0a62ec992d0ac52b42d27b5dafa18f",
-        "eb60638264717bb6c4ed04b0738e4703931cb4afec82e4631e37e9f6564bbd83"
+        "4f147dc3159d9379023f03408fc94b1c007df2f2a4e12af5afeb62e5fb65f0ec",
+        "1d44a287cb158f90eff57bac59c06d910b7126dc6e13ed09117420892ea04bc6",
+        "dcd0b4a50b13145cede04bd05c397d960d9c795f87a8116c3644e117793ac1c0"
       ],
-      "source_sha256": "af23a423eab62e25dfbfee7551a8f606598f432ccd7f069d32e919557cb2dbb7",
-      "text": "Whether a startup blow-away is waiting to start or under way.\n\nIdle-time warming asks this and waits, so its slices do not take frames\nfrom the animation in the two seconds it runs.\n\n:returns: ``True`` while any cover that still exists is playing; a cover\n    deleted mid-way, with its window, no longer counts."
+      "source_sha256": "39365caa80f40e4c92a97c8913e9e97d58624c0a267238608585b6e22dc19d53",
+      "text": "Whether a blow-away is drawing its frames.\n\nIdle-time warming asks this and waits, so its slices do not take frames\nfrom the animation in the four seconds it runs. While the logo only\nholds, the window keeps loading underneath it.\n\n:returns: ``True`` while any cover that still exists is past its hold\n    and drawing; a cover deleted mid-way, with its window, no longer\n    counts."
     },
     "spacr.qt.widgets.loading_screen.mosaic_splash_wanted": {
       "source_blocks_sha256": [
@@ -98619,6 +98658,16 @@
       ],
       "source_sha256": "3ab5d607f9fde8940e0ae0f3d923ec2572e6fd98ab108e142b50565d4fda4317",
       "text": "Whether the loading cover shows the photomosaic.\n\n:returns: ``False`` when :data:`NO_SPLASH_ENV` is set, otherwise ``True``."
+    },
+    "spacr.qt.widgets.loading_screen.replay_startup_animation": {
+      "source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "0350ef88141c735ace8678c421e2e361c469611ae549bcccd338f51bbe0a8cc7",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ],
+      "source_sha256": "88130e5f0782b49181e0ee84ec9edf91ddb5807be7c1c774e5a20c02e381d96b",
+      "text": "Play the startup sequence again inside ``window``.\n\nHelp > Show startup animation. The black container with the logo comes\nback over the window, holds for two seconds and blows away as it does\nat startup. It plays even when Preferences > Animation > Startup\nanimation is off; under Accessibility > Reduce motion the logo holds and\nthen cross-fades away in one second. A click or a key skips it. The\nwindow's size, state and keyboard focus are left as they were.\n\n:param window: the window to play it in.\n:returns: the cover now playing, or ``None`` when the logo cannot be\n    read or a cover is already over the window."
     },
     "spacr.qt.widgets.loading_screen.startup_animation_allowed": {
       "source_blocks_sha256": [
