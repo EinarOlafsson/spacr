@@ -60,11 +60,33 @@ Images are hard links when the source is on the output's filesystem, else
 copies; seg-bundle-only sources are written out as TIFF. Nothing under the
 source folders is written.
 
-Run (CPU only, RAM-capped)::
+The Gel Doc set-aside wells (plates 13 and above, Dia_Plate18 included) are
+queued since 2026-10-12 by the maintainer's decision; ``--exclude-set-aside``
+leaves them out. The build also writes ``drafts_request.csv`` (stem, image
+path relative to af3, sha256, shape): every field still waiting for a human.
+
+Three modes
+-----------
+1. Merged build (Home, CPU only, RAM-capped)::
 
     CUDA_VISIBLE_DEVICES='' tools/run_capped.sh 6G python tools/build_plaque_all_queue.py \\
         --out /mnt/wd4tb/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12 \\
         --work /mnt/wd4tb/scratch/plaque_all_20261012/work
+
+2. Drafts (workstation, GPU, through the shared queue): one label TIFF per
+   requested field, ``<dir>/<stem>.tif``, plus ``drafts_run.json`` (model,
+   checkpoint sha256, settings, Cellpose version). Resumable::
+
+    tools/gpu_turn.sh plaque-all-v4 python tools/build_plaque_all_queue.py \\
+        --out <merged folder> --make-drafts <dir> --request <merged folder>/drafts_request.csv \\
+        --af3-root /media/carruthers/mnt1/af3 --model toxoplasma_plaque_v4 \\
+        --diameter 30 --flow-threshold 0.4 --cellprob-threshold 0
+
+3. Variant: ``<out>_<name>`` beside the merged folder, with the same images
+   (hard links), the same decided fields (rows and masks copied verbatim) and
+   the drafts from ``--drafts-from`` for everything else::
+
+    python tools/build_plaque_all_queue.py --out <merged folder> --variant v4 --drafts-from <dir>
 """
 from __future__ import annotations
 
@@ -98,6 +120,8 @@ WS_PREFIXES = (("/media/carruthers/mnt1/af3/", "/mnt/wd4tb/af3/"),
 IMAGE_EXTS = (".png", ".tif", ".tiff", ".jpg", ".jpeg", ".bmp")
 SEG = "_seg.npy"
 DRAFT_V3 = "toxoplasma_plaque_v3"
+DRAFT_V4 = "toxoplasma_plaque_v4"
+AF3_ROOT = Path("/mnt/wd4tb/af3")
 SIMILAR_BITS = 4
 ASPECT_TOL = 0.03
 CONFIRM_ANY = 0.95
@@ -404,12 +428,37 @@ def mr_inventory(work: Path):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--work", type=Path, required=True)
+    ap.add_argument("--out", type=Path, required=True,
+                    help="the merged queue folder (the base folder in --variant mode)")
+    ap.add_argument("--work", type=Path, help="cache folder for the merged build")
     ap.add_argument("--plan-only", action="store_true", help="write the plan and counts, not the folder")
-    ap.add_argument("--include-set-aside", action="store_true",
-                    help="also queue the Gel Doc plate 13+ set-aside wells (off: the earlier decision stands)")
+    ap.add_argument("--exclude-set-aside", action="store_true",
+                    help="leave out the Gel Doc plate 13+ set-aside wells (queued by default since 2026-10-12)")
+    ap.add_argument("--variant", metavar="NAME",
+                    help="build <out>_<NAME>: the same images and curated fields, drafts from --drafts-from")
+    ap.add_argument("--drafts-from", type=Path, metavar="DIR", help="draft masks named <stem>.tif (variant mode)")
+    ap.add_argument("--draft-model", default=DRAFT_V4, help="model that drew --drafts-from (variant mode)")
+    ap.add_argument("--draft-settings", default="", help="settings it ran with (variant mode)")
+    ap.add_argument("--make-drafts", type=Path, metavar="DIR",
+                    help="WORKSTATION ONLY (GPU): draw a draft for every row of --request into DIR")
+    ap.add_argument("--request", type=Path, help="drafts_request.csv (with --make-drafts)")
+    ap.add_argument("--af3-root", type=Path, default=Path("/mnt/wd4tb/af3"),
+                    help="where af3 is on this machine (/media/carruthers/mnt1/af3 on the workstation)")
+    ap.add_argument("--model", default=DRAFT_V4, help="plaque model key or checkpoint (with --make-drafts)")
+    ap.add_argument("--diameter", type=float, default=30.0)
+    ap.add_argument("--flow-threshold", type=float, default=0.4)
+    ap.add_argument("--cellprob-threshold", type=float, default=0.0)
     args = ap.parse_args(argv)
+    if args.make_drafts:
+        if not args.request:
+            ap.error("--make-drafts needs --request")
+        return make_drafts(args)
+    if args.variant:
+        if not args.drafts_from:
+            ap.error("--variant needs --drafts-from")
+        return build_variant(args)
+    if not args.work:
+        ap.error("--work is required for the merged build")
     args.work.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
 
@@ -609,7 +658,7 @@ def main(argv=None):
 
     excluded = {}
     for e in entries:
-        if e["ledger"] == "gel_doc_set_aside_plate13" and not args.include_set_aside:
+        if e["ledger"] == "gel_doc_set_aside_plate13" and args.exclude_set_aside:
             excluded[e["id"]] = SET_ASIDE_EXCLUDED
     for fid in lit_discards:
         excluded[fid] = LIT_DISCARD_EXCLUDED
@@ -752,7 +801,7 @@ def main(argv=None):
             mask_src, origin, model, when, n = Path(f["draft"]), "draft:model_review_2026-10-08", DRAFT_V3, f["draft_when"], f["draft_n"]
         else:
             for e in entries_by_id.get(fid, ()):
-                if e["mask"] is not None and Path(e["mask"]).exists():
+                if e["mask"] is not None and Path(e["mask"]).exists() and n_objects(read_mask(Path(e["mask"]))) > 0:
                     mask_src, origin, model = Path(e["mask"]), f"draft:{e['ledger']}", e["mask_kind"]
                     when = mtime_iso(Path(e["mask"]))
                     break
@@ -898,9 +947,222 @@ def main(argv=None):
     by_source = collections.Counter()
     for e in entries:
         by_source[e["ledger"]] += 1
+    write_drafts_request(out, manifest_rows)
     write_readme(out, summary, by_source, len(fields))
     say(json.dumps(summary, indent=1))
     return 0
+
+
+def file_sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def write_drafts_request(out: Path, manifest_rows) -> Path:
+    """Every field still waiting for a human, for the workstation to draft."""
+    status = {}
+    if (out / "curate_status.csv").exists():
+        for row in csv.DictReader(open(out / "curate_status.csv", newline="")):
+            status[row["stem"]] = (row.get("state") or "").strip().lower()
+    path = out / "drafts_request.csv"
+    tmp = path.with_suffix(".tmp")
+    with open(tmp, "w", newline="") as handle:
+        w = csv.writer(handle)
+        w.writerow(["stem", "image", "sha256", "shape"])
+        for r in manifest_rows:
+            if status.get(r["stem"]) in ("done", "skip", "recropped"):
+                continue
+            image = out / r["image"]
+            w.writerow([r["stem"], str(image.relative_to(AF3_ROOT)), file_sha256(image), r["shape"]])
+    os.replace(tmp, path)
+    return path
+
+
+DRAFT_NAMES = ("{stem}.tif", "masks/{stem}.tif", "{stem}_cp_masks.tif", "{stem}_cp_masks.png",
+               "{stem}_seg.npy", "{stem}.npy", "{stem}.png")
+
+
+def find_draft(folder: Path, stem: str):
+    for pattern in DRAFT_NAMES:
+        p = folder / pattern.format(stem=stem)
+        if p.is_file():
+            return p
+    return None
+
+
+def build_variant(args) -> int:
+    """A sibling of the merged queue: same images, same decided fields, other drafts.
+
+    Decided fields (done or skip in the base folder's curate_status.csv) keep
+    their row and their mask, copied verbatim. Every other field takes its
+    mask from --drafts-from. A field already decided inside the variant keeps
+    its own mask and row: nothing curated anywhere is overwritten.
+    """
+    base = args.out
+    variant = base.parent / f"{base.name}_{args.variant}"
+    (variant / "masks").mkdir(parents=True, exist_ok=True)
+    rows = list(csv.DictReader(open(base / "manifest.csv", newline="", encoding="utf-8")))
+    base_status = {r["stem"]: r for r in csv.DictReader(open(base / "curate_status.csv", newline=""))}
+    var_status = {}
+    if (variant / "curate_status.csv").exists():
+        var_status = {r["stem"]: r for r in csv.DictReader(open(variant / "curate_status.csv", newline=""))}
+    run_info = {}
+    for name in ("drafts_run.json",):
+        if (args.drafts_from / name).exists():
+            run_info = json.loads((args.drafts_from / name).read_text())
+    model = run_info.get("model") or args.draft_model
+    settings = run_info.get("settings_text") or args.draft_settings
+    decided = {"done", "skip", "recropped"}
+    status_out, drafts_out, manifest_out, missing = {}, [], [], []
+    for i, r in enumerate(rows):
+        if i % 1000 == 0:
+            wait_for_ram(8)
+            say(f"  variant {args.variant}: {i}/{len(rows)}")
+        stem = r["stem"]
+        src_img = base / r["image"]
+        dst_img = variant / r["image"]
+        if not dst_img.exists():
+            if src_img.stat().st_dev == variant.stat().st_dev:
+                os.link(src_img, dst_img)
+            else:
+                shutil.copy2(src_img, dst_img)
+        dst_mask = variant / "masks" / f"{stem}.tif"
+        own = var_status.get(stem)
+        theirs = base_status.get(stem)
+        row = dict(r)
+        if own and (own.get("state") or "").lower() in decided:
+            status_out[stem] = own
+            origin, mmodel = "curated in this variant", "human"
+        elif theirs and (theirs.get("state") or "").lower() in decided:
+            src_mask = base / "masks" / f"{stem}.tif"
+            if src_mask.exists():
+                shutil.copyfile(src_mask, dst_mask)
+            status_out[stem] = theirs
+            origin, mmodel = r["mask_origin"] if r["curated"] == "yes" else f"base folder ({theirs['state']})", r["mask_model"]
+        else:
+            if own:
+                status_out[stem] = own
+            draft = find_draft(args.drafts_from, stem)
+            origin, mmodel = "none", ""
+            if dst_mask.exists():
+                origin, mmodel = f"draft:{args.variant}", model
+            elif draft is not None:
+                m = read_mask(draft)
+                h, w = (int(v) for v in r["shape"].split("x")[:2])
+                if m.shape[:2] != (h, w):
+                    say(f"  draft {draft} shape {m.shape} != image {r['shape']}; skipped")
+                elif draft.suffix == ".tif":
+                    shutil.copyfile(draft, dst_mask)
+                    origin, mmodel = f"draft:{args.variant}", model
+                else:
+                    tifffile.imwrite(dst_mask, m.astype(np.uint16 if m.max() < 65535 else np.uint32), compression="zlib")
+                    origin, mmodel = f"draft:{args.variant}", model
+            if origin == "none":
+                missing.append(dict(stem=stem, image=r["image"], domain=r["domain"], source=r["source_path"]))
+        n = n_objects(tifffile.imread(dst_mask)) if dst_mask.exists() else 0
+        drafts_out.append(dict(stem=stem, n_objects=n, model=mmodel, settings=settings if mmodel == model else "",
+                               mask_origin=origin))
+        row.update(mask_origin=origin, mask_model=mmodel, n_objects=n,
+                   mask_source=str(base / "masks" / f"{stem}.tif") if mmodel == "human" or origin.startswith("curated") else str(args.drafts_from))
+        manifest_out.append(row)
+
+    def write(name, data, fieldnames):
+        with open(variant / name, "w", newline="", encoding="utf-8") as handle:
+            w = csv.DictWriter(handle, fieldnames=fieldnames)
+            w.writeheader()
+            w.writerows(data)
+    write("curate_status.csv", sorted(status_out.values(), key=lambda x: x["stem"]), ["stem", "state", "n_objects", "updated"])
+    write("curate_drafts.csv", drafts_out, ["stem", "n_objects", "model", "settings", "mask_origin"])
+    write("manifest.csv", manifest_out, list(manifest_out[0]))
+    write("missing_drafts.csv", missing, ["stem", "image", "domain", "source"])
+    shutil.copyfile(base / "curate_scores.csv", variant / "curate_scores.csv")
+    for name in ("duplicates.csv", "excluded.csv"):
+        if (base / name).exists():
+            shutil.copyfile(base / name, variant / name)
+    summary = dict(variant=args.variant, base=str(base), drafts_from=str(args.drafts_from), model=model,
+                   settings=settings, total=len(manifest_out),
+                   decided=collections.Counter((x.get("state") or "").lower() for x in status_out.values()),
+                   with_variant_draft=sum(d["mask_origin"].startswith("draft:") for d in drafts_out),
+                   without_mask=len(missing), drafts_run=run_info)
+    (variant / "build_summary.json").write_text(json.dumps(summary, indent=1, default=str))
+    (variant / "README.txt").write_text(f"""PLAQUE ALL, {args.variant} drafts (built {dt.date.today().isoformat()})
+
+The same {len(manifest_out)} images as {base.name} (hard links on Home; Syncthing
+stores them as separate copies on the workstation), the same decided fields
+(done/skip rows and their masks copied verbatim from {base.name}), and for every
+other field a draft drawn by {model} with: {settings or 'see drafts_run.json'}.
+
+OPEN IT
+  spacr-make-masks --folder {variant}
+
+  decided fields          {sum(summary['decided'].values())} ({dict(summary['decided'])})
+  fields with this draft  {summary['with_variant_draft']}
+  fields with no mask     {summary['without_mask']}   (missing_drafts.csv)
+
+Curate in ONE version at a time. Rebuilding this variant (same command) carries
+over everything decided in {base.name} since; a field decided here keeps its own
+mask and row. curate_drafts.csv records the model and settings of every draft;
+manifest.csv is {base.name}'s with the mask columns of this variant.
+
+Rebuild: python tools/build_plaque_all_queue.py --out {base} --variant {args.variant} \\
+    --drafts-from {args.drafts_from}
+""", encoding="utf-8")
+    say(json.dumps(summary, indent=1, default=str))
+    return 0
+
+
+def make_drafts(args) -> int:
+    """Workstation only: draw one plaque draft per requested field, on the GPU.
+
+    Resumable: a field whose draft already exists is not drawn again. Each
+    image is checked against the sha256 in the request before it is used.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from spacr import plaque, submodules
+
+    out = args.make_drafts
+    out.mkdir(parents=True, exist_ok=True)
+    rows = list(csv.DictReader(open(args.request, newline="")))
+    checkpoint = submodules._resolve_plaque_model({"plaque_model": args.model})
+    model = submodules._plaque_cellpose_model(checkpoint)
+    settings = {"diameter": args.diameter, "flow_threshold": args.flow_threshold, "CP_prob": args.cellprob_threshold}
+    settings_text = (f"diameter={args.diameter:g}, flow_threshold={args.flow_threshold:g}, "
+                     f"cellprob_threshold={args.cellprob_threshold:g} (spacr.plaque.segment_plaque_image)")
+    try:
+        import cellpose
+        cp_version = getattr(cellpose, "__version__", "")
+    except Exception:
+        cp_version = ""
+    info = dict(model=args.model, checkpoint=str(checkpoint), checkpoint_sha256=file_sha256(Path(checkpoint)),
+                settings=settings, settings_text=settings_text, cellpose=cp_version, request=str(args.request),
+                started=dt.datetime.now().isoformat(timespec="seconds"), drawn=0, skipped_existing=0, errors=[])
+    for i, r in enumerate(rows):
+        dest = out / f"{r['stem']}.tif"
+        if dest.exists():
+            info["skipped_existing"] += 1
+            continue
+        image_path = args.af3_root / r["image"]
+        try:
+            if r.get("sha256") and file_sha256(image_path) != r["sha256"]:
+                raise ValueError("image sha256 differs from the request")
+            labels = plaque.segment_plaque_image(model, submodules._plaque_imread(str(image_path)), settings)
+            labels = np.asarray(labels)
+            tmp = dest.with_suffix(".tmp.tif")
+            tifffile.imwrite(tmp, labels.astype(np.uint16 if labels.max() < 65535 else np.uint32), compression="zlib")
+            os.replace(tmp, dest)
+            info["drawn"] += 1
+        except Exception as exc:
+            info["errors"].append(dict(stem=r["stem"], error=repr(exc)))
+        if i % 200 == 0:
+            say(f"  drafts {i}/{len(rows)}: {info['drawn']} drawn, {len(info['errors'])} errors")
+            (out / "drafts_run.json").write_text(json.dumps(info, indent=1))
+    info["finished"] = dt.datetime.now().isoformat(timespec="seconds")
+    (out / "drafts_run.json").write_text(json.dumps(info, indent=1))
+    say(f"drafts done: {info['drawn']} drawn, {info['skipped_existing']} already there, {len(info['errors'])} errors")
+    return 0 if not info["errors"] else 1
 
 
 def write_readme(out: Path, s: dict, by_source, n_inventory: int) -> None:
