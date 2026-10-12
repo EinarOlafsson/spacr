@@ -2043,7 +2043,7 @@
         "fb168f6a05f3e2d384b0e585c2ac72adcb49e6ffaa123640ba3fc8560e8dc260"
       ],
       "source_sha256": "ead354cf0bbb4b42b16ce471cae15760d4faad61644af493ccd0b38bf0ff7a75",
-      "text": "将科恩的 κ 为 ``a`` 与 ``b`` 计算和混淆矩阵。\n\n只有两位标记的列进入计算,其中一个被拒绝的列被计算为 :attr:`PairAgreement.n_abstained`;它们是 *没有* 分歧。\n\n:param a: 第一个登记者的标签(``None``/NaN/\" = 放弃)。\n:param b: 第二个标签的标签,顺序与 ``a`` 相匹配。\n:param labels: 标签宇宙;从比较行中得出的,当被忽视时。通过它保持混乱的矩阵在各对之间相似。\n:param missing_values: 额外的值,计算为偏见,例如 ``(0,)`` 0 意思的遗产数据库 \"not looked at\".\n:param name_a: 记录第一列的名称。\n:param name_b: 记录第二列的名称。\n:returns: a :class:`PairAgreement`.\n:raises ValueError: 当两个序列在长度上有所不同时。",
+      "text": "将科恩的 κ 为 ``a`` 与 ``b`` 计算和混淆矩阵。\n\n只有两位标记的列进入计算,其中一个被拒绝的列被计算为 :attr:`PairAgreement.n_abstained`;它们是 *没有* 分歧。\n\n:param a: 第一个登记者的标签(``None``/NaN/\" = 放弃)。\n:param b: 第二个标签的标签,顺序与 ``a`` 相匹配。\n:param labels: 标签宇宙;从比较行中得出的,当被忽视时。通过它保持混乱的矩阵在各对之间相似。\n:param missing_values: 额外的值,计算为偏见,例如 ``(0,)`` 0 意思的遗产数据库 \"not looked at\".\n:param name_a: 记录第一列的名称。\n:param name_b: 记录第二列的名称。\n:returns: a :class:`PairAgreement`.\n:raises ValueError: 当两个序列的长度不同时。",
       "translation_source_blocks_sha256": [
         "cc74b0ee4bffe32a0286415388a35cf638862c9c63d9c946b3e12b15dfac159b",
         "5119b7eb24d9af697dbc84ea5842fc7389a294768f7ec0ce2fba99974dcccaea",
@@ -4787,7 +4787,7 @@
         "263930fb34161fdb34c5390ea06e130e2d16b191357b801674a4027669bfc4da"
       ],
       "source_sha256": "40a0cf7e4e67f51d312907d2029bc85718705f32616888d7874d3e09c31fbdd6",
-      "text": "授权地图为训练有素的机器学习分类模型,并检查其有效性。\n\nspaCR 此前已经能绘制 Grad-CAM 和显著性图（``spacr.utils.GradCAMGenerator``、``spacr.utils.SaliencyMapGenerator``、``spacr.utils.IntegratedGradients``）。本模块是一个方法库，上述两者只是其中最早的条目：CAM 家族（Grad-CAM、Grad-CAM++、Score-CAM、XGrad-CAM、Layer-CAM、Eigen-CAM、HiRes-CAM、Ablation-CAM），梯度家族（显著性、积分梯度、引导反向传播、输入×梯度、DeepLIFT，以及可套在其中任意一种之外的 SmoothGrad），SHAP 家族（GradientSHAP、DeepSHAP），扰动家族（遮挡、特征消融），以及面向 Vision Transformers 的注意力展开（attention rollout）加上 Chefer et al. 的类别特异性相关性传播。\n\n并非每种方法都适用于每个主干网络。:func:`method_applicability` 针对一个模型或一个 ``model_type`` 名称说明哪些方法适用、其他方法为何不适用，这样方法选择器就可以将某个条目置灰并附上原因，而不是在运行中途失败。\n\n大多数方法是由其他图书馆实施的. CAM 变量来自可选的 **torchcam** 额外的分配,而格拉迪安和干扰方法来自核心 **captum** 依赖性. 该模块添加了适配器,给每个方法一个输出形状,处理 spaCR的两个机器学习分类模型的头形状和评估分析在下半场。\n\n**一个分配地图不是一个解释.** 它是由一个程序产生的像素数. 它不显示什么模型 \"looked at\",它不确定突出像素导致预测,它将为一个模型随机重量的可靠视图。\n\n* :func:`deletion_curve` / :func:`insertion_curve` - 删除(或添加)地图排名的像素,并观看得分。\n* :func:`pointing_game` - 地图的顶峰是否在对象内部? spaCR 已经有对象掩膜(``merged/*.npy``),所以这不需要任何代价。\n* :func:`randomization_sanity_check` — Adebayo et al. 2018 随机测量模型的重量层层层,并重新定义。 有几种流行方法为随机模型返回一个非常相同的地图,这意味着它们是边缘检测器,发生在机器学习分类模型上进行排序。\n* :func:`method_agreement` - 同一图像中的方法之间的分类相似之处. 协议是弱的证据. 不一致是强大的证据,没有一个地图应该被信任。\n\n每个标准都测量一个 *不同的* 属性,并且他们常常不同意. None 是基本真理,因为没有分配。\n\n**两个头形状,一个合同.** A spaCR 机械学习分类模型的头发出一个标志(二进制; 等级 1 当日志是正确的) 或 ``C`` 日志。 假设一个形式的代码对另一个是错误的,静静地这样:将单一标志头的原始标志归分总是解释为*类1*,所以对于一个图像,称为0类的模型,你得到的地图是它拒绝的类的图 - 否认你要求的。 每个方法都通过 :class:`ClassScoreModel`,这是一个单一的Logit ``z`` 作为两列显示 ``[-z, +z]``. 两个阶级有真正的格拉迪安,``target``意味著两个头部形状相同,没有召唤者必须知道它有哪个头。\n\n:author: spaCR",
+      "text": "针对已训练分类器的归因图及其有效性检查。\n\nspaCR 此前已经能绘制 Grad-CAM 和显著性图（``spacr.utils.GradCAMGenerator``、``spacr.utils.SaliencyMapGenerator``、``spacr.utils.IntegratedGradients``）。本模块是一个方法库，上述两者只是其中最早的条目：CAM 家族（Grad-CAM、Grad-CAM++、Score-CAM、XGrad-CAM、Layer-CAM、Eigen-CAM、HiRes-CAM、Ablation-CAM），梯度家族（显著性、积分梯度、引导反向传播、输入×梯度、DeepLIFT，以及可套在其中任意一种之外的 SmoothGrad），SHAP 家族（GradientSHAP、DeepSHAP），扰动家族（遮挡、特征消融），以及面向 Vision Transformers 的注意力展开（attention rollout）加上 Chefer et al. 的类别特异性相关性传播。\n\n并非每种方法都适用于每个主干网络。:func:`method_applicability` 针对一个模型或一个 ``model_type`` 名称说明哪些方法适用、其他方法为何不适用，这样方法选择器就可以将某个条目置灰并附上原因，而不是在运行中途失败。\n\n大多数方法由其他库实现。CAM 变体来自可选的归因附加包 **torchcam**，梯度和扰动方法来自核心依赖 **captum**。本模块添加了使每种方法具有统一输出形状的适配器、对 spaCR 两种分类器头形状的处理，以及后半部分的评估分析。\n\n**归因图不是解释。** 它只是某个过程产生的逐像素数值。它不能显示模型 \"looked at\" 了什么，不能证明被突出显示的像素导致了预测，而且对于权重随机的模型它同样会生成看似合理的图。本模块提供四种检查，用于判断一张图是否反映了模型：\n\n* :func:`deletion_curve` / :func:`insertion_curve` — 移除（或添加）图中排名最高的像素并观察得分。删除曲线平坦的图并未描述模型所用的内容，无论它看起来多么好。\n* :func:`pointing_game` — 图的峰值究竟是否落在对象内部？spaCR 已经有对象掩码（``merged/*.npy``），因此这不需要额外成本。\n* :func:`randomization_sanity_check` — Adebayo et al. 2018。逐层随机化模型权重并重新归因。许多流行方法对随机化后的模型返回几乎相同的图，这意味着它们只是恰好画在分类器之上的边缘检测器。这是这里信息量最大的一项检查，也是最常被跳过的一项。\n* :func:`method_agreement` — 同一图像上各方法之间的秩相关。一致只是弱证据。不一致则是强证据，说明不应信任任何单独一张图。\n\n每个标准测量的都是 *不同* 的属性，它们通常并不一致。它们中没有一个（None of them）是基准真值，因为对于归因而言根本不存在基准真值。\n\n**两种头形状，一份约定。** spaCR 分类器的头要么输出一个 logit（二分类；logit 为正时为类别 1），要么输出 ``C`` 个 logit。假定其中一种形状的代码对另一种是错误的，而且是悄无声息地错误：对单 logit 头的原始 logit 做归因总是在解释 *类别 1*，因此对于模型判为类别 0 的图像，得到的图是它所拒绝的那个类别的图——与你所要求的正好相反。这里的每种方法都经过 :class:`ClassScoreModel`，它把单个 logit ``z`` 呈现为两列视图 ``[-z, +z]``。这样两个类别都有真实的梯度，``target`` 对两种头形状含义相同，调用者也无需知道自己使用的是哪种头。\n\n:author: spaCR",
       "translation_source_blocks_sha256": [
         "b982efb717391e1d1e32f286ad1e732bfb7b0ca243215c0253008f4740c6b757",
         "bd25ba36d2c706436f4c95da77c7a72a491cbec2b1da4341da2305fab4322864",
@@ -4814,7 +4814,7 @@
         "c789f2f44c124a98d6e6bae579dfbd52f68858607be439037d138b625c78763b"
       ],
       "source_sha256": "4cf5b64f4c4535ff8636d8b2110873456638dd894ecd3d7149bd1a6743ac3132",
-      "text": "双重排序相同图像的多个方法之间的相互关系。\n\n:param methods: 属性方法名称在矩阵序列和列顺序中。\n:param matrix: 对这些方法的交响式Spearman排序相关性矩阵。\n:param mean: 最终的离神间相似之处。\n:param minimum: 最小的终端离线相匹配。\n:param pairs: ``(method_a, method_b, rho)`` 从最大分歧向上订购的比较。\n:param notes: 判决和解释,伴随协议的结果。",
+      "text": "同一图像上若干方法之间的成对秩相关。\n\n:param methods: 按矩阵行和列顺序排列的归因方法名称。\n:param matrix: 这些方法的对称 Spearman 秩相关矩阵。\n:param mean: 有限的非对角相关值的平均值。\n:param minimum: 有限的非对角相关值中的最小值。\n:param pairs: 按分歧从大到小排序的 ``(method_a, method_b, rho)`` 比较。\n:param notes: 伴随一致性结果的判定和解释性注意事项。",
       "translation_source_blocks_sha256": [
         "250d07ff31f8fbee93ab147367b0f553e926284185c323e79aa68e5b81bbbf6e",
         "45e211c83b512c055b5e97728d9280e327ff9b74f98d391deb106ac2b5284c15",
@@ -4830,7 +4830,7 @@
         "04e73b26c5f42b01e0dfe3b3c55feaa48d0fa45f1bad6a6a52eca6ebcde55d22"
       ],
       "source_sha256": "04e73b26c5f42b01e0dfe3b3c55feaa48d0fa45f1bad6a6a52eca6ebcde55d22",
-      "text": "返回协议价值观的单一解释。",
+      "text": "返回对一致性数值的一句话解释。",
       "translation_source_blocks_sha256": [
         "04e73b26c5f42b01e0dfe3b3c55feaa48d0fa45f1bad6a6a52eca6ebcde55d22"
       ]
@@ -4852,7 +4852,7 @@
         "761ef700b882e7897d9282e717eb4862750c5574811445c909e0d70ed6bca73e"
       ],
       "source_sha256": "fe4566f53e1b3fbaa94ebcd45f9bc82b13874cfa9e1129f9f5f2545e6ca59d51",
-      "text": "一个定位地图,其目标、预测和预测。\n\n:param method: 所需的分配方法名称;通常是 :data:`ATTRIBUTION_METHODS` 的密钥,并保留了在滑落失败的位置持有者上的字符。\n:param map: 完成 2-D float32 地图在输入空间分辨率;更大的值排名像素更高,而一个滑落的失败携带一个全零的位置持有者。\n:param target: 这个地图的分类指数被要求解释。\n:param n_classes: 由正常化头部曝光的类数量,其中包括单轮二进制头2个。\n:param single_logit: 是否基于模型头发出一个二进制标志。\n:param predicted: 由模型预测的分类为所分配的输入。\n:param raw: 签署的每频道分配,以曝光的方式保留,或者 ``None`` 如果没有这样的代表性。\n:param layer: 已解决的 CAM 目标层名称,呼叫者要求的层在滑落的故障上,或 ``None`` 当没有层适用时。\n:param family: 注册家庭(``\"cam\"``,``\"gradient\"``, ``\"perturbation\"``,或``\"attention\"``),或一个空行未注册的失败。\n:param backend: 注册实施提供商(``\"torchcam\"``,``\"captum\"``,或``\"spacr\"``),或一个空行未注册失败。\n:param params: 记录的通话选项,包括已解决的层和SmoothGrad旗为注册表传输的方法;这不是每个有效的故障的完整扩展。\n:param notes: 用户面向的漏洞,平板地图或单登录背景,或者一个位置持有者方法失败的原因。",
+      "text": "一张归因图及其目标、预测和注意事项。\n\n:param method: 请求的归因方法名称；通常是 :data:`ATTRIBUTION_METHODS` 的键，在被跳过的失败占位项中原样保留。\n:param map: 输入空间分辨率下的有限 2-D float32 图；数值越大的像素排名越高，而被跳过的失败则携带全零占位图。\n:param target: 要求这张图解释的类别索引。\n:param n_classes: 归一化后的头所暴露的类别数，对于单 logit 二分类头包含两个类别。\n:param single_logit: 底层模型头是否输出了一个二分类 logit。\n:param predicted: 模型对被归因输入所预测的类别。\n:param raw: 支持该功能的方法所保留的带符号逐通道归因，如果不存在这种表示则为 ``None``。\n:param layer: 解析后的 CAM 目标层名称，在被跳过的失败中为调用者请求的层，没有适用的层时为 ``None``。\n:param family: 已注册的族（``\"cam\"``、``\"gradient\"``、``\"perturbation\"`` 或 ``\"attention\"``），对于未注册且被跳过的失败则为空字符串。\n:param backend: 已注册的实现提供方（``\"torchcam\"``、``\"captum\"`` 或 ``\"spacr\"``），对于未注册且被跳过的失败则为空字符串。\n:param params: 记录的调用选项，包括经注册表分派的方法所解析的层和 SmoothGrad 标志；这并不是对每个有效默认值的完整展开。\n:param notes: 面向用户的注意事项、平坦图或单 logit 的情形，或占位方法失败的原因。",
       "translation_source_blocks_sha256": [
         "c8569b2a123657b030db31fa4a1fd251dd813a9c5821f73df0a0b7c3c5fc9d48",
         "1884d9fded3ae4adff675ce0dfc2e558faddf55f8b86406f5f43bfec21b58532",
@@ -4874,7 +4874,7 @@
         "121577b953e4bd6bbd7091c717696bae54a3b71074564b0c30c14802d39943b2"
       ],
       "source_sha256": "121577b953e4bd6bbd7091c717696bae54a3b71074564b0c30c14802d39943b2",
-      "text": "True 如果地图没有变量,因此没有排序。",
+      "text": "当图没有变化因而不产生任何排序时为 True。",
       "translation_source_blocks_sha256": [
         "121577b953e4bd6bbd7091c717696bae54a3b71074564b0c30c14802d39943b2"
       ]
@@ -4885,7 +4885,7 @@
         "67124fd0814a4c740fbcd202b10be1a94f4969834e44dae5b6dfff3a917f7982"
       ],
       "source_sha256": "d1b731f2f4669db31a7be583e462af54636d3c2b50f8ee3110402fdff1a2395d",
-      "text": "地图重新定位为 ``[0, 1]``;当地图平时,全零。\n\n平板地图正是一个完全压缩的CAM所产生的,而一个的精油 min-max 折叠是 ``0/0``。",
+      "text": "重新缩放到 ``[0, 1]`` 的图；图平坦时全为零。\n\n平坦图正是被完全抑制的 CAM 所产生的结果，而对它做无保护的 min-max 重新缩放得到 ``0/0``。",
       "translation_source_blocks_sha256": [
         "936026abf10f97503975100f8bb588743c031daa278db6911a40c67c73a823ef",
         "67124fd0814a4c740fbcd202b10be1a94f4969834e44dae5b6dfff3a917f7982"
@@ -4896,7 +4896,7 @@
         "0574d04fe6edd6fac8131216b3e35462f63fa1e8f423158ae556c74cd988db03"
       ],
       "source_sha256": "0574d04fe6edd6fac8131216b3e35462f63fa1e8f423158ae556c74cd988db03",
-      "text": "单一高级像素的 ``(row, col)``。",
+      "text": "排名最高的单个像素的 ``(row, col)``。",
       "translation_source_blocks_sha256": [
         "0574d04fe6edd6fac8131216b3e35462f63fa1e8f423158ae556c74cd988db03"
       ]
@@ -4906,7 +4906,7 @@
         "ed57f6e0699ca8130f98755afe1fb3710c64fa9ebee2161ed5b6b0bae0a774c4"
       ],
       "source_sha256": "ed57f6e0699ca8130f98755afe1fb3710c64fa9ebee2161ed5b6b0bae0a774c4",
-      "text": "地图的空间形状。",
+      "text": "图的空间形状。",
       "translation_source_blocks_sha256": [
         "ed57f6e0699ca8130f98755afe1fb3710c64fa9ebee2161ed5b6b0bae0a774c4"
       ]
@@ -4916,7 +4916,7 @@
         "1781a657dcab3ef303d76a0d637f3b22b21764ca9dde74fc17d4cc4d117ba947"
       ],
       "source_sha256": "1781a657dcab3ef303d76a0d637f3b22b21764ca9dde74fc17d4cc4d117ba947",
-      "text": "基类为此模块所引发的错误。",
+      "text": "本模块所引发错误的基类。",
       "translation_source_blocks_sha256": [
         "1781a657dcab3ef303d76a0d637f3b22b21764ca9dde74fc17d4cc4d117ba947"
       ]
@@ -4936,7 +4936,7 @@
         "82f3e9c03187ec7a421fe61a5712774317a3d6ef21710ac4705ee8b83e779bee"
       ],
       "source_sha256": "39f789124caa05b5b9c86a0e34f74fdf428a4d89373d505a34cdea8423f16f10",
-      "text": "已使用的 ``generate_activation_map`` 接口的 Batch 适配器。\n\n:class:`spacr.utils.GradCAMGenerator` 和 :class:`spacr.utils.SaliencyMapGenerator` 曝光 ``compute_*_and_predictions(X)`` 加上 ``plot_activation_grid``. 此提供相同的两个呼叫,每个方法在 :data:`ATTRIBUTION_METHODS`,因此现有包管可以使用任何注册的方法,而不改变形状。\n\n:param model: 培训机械学习分类模型。\n:param method: :data:`ATTRIBUTION_METHODS` 的一个键。\n:param target_layer: CAM 目标层,或 None 为最后的转换。\n:param model_type: 建筑名称,用于错误消息。\n:param smoothgrad_samples: 当上1时,每个地图都是SmoothGrad平均。\n:param smoothgrad_sigma: SmoothGrad 噪音作为输入范围的一部分。\n:param kw: 转向方法。\n:raises UnknownMethodError: 如果 ``method`` 不在 :data:`ATTRIBUTION_METHODS` 中注册。\n验证方法命名前,而不是中间战斗。",
+      "text": "带有 ``generate_activation_map`` 已在使用的接口的批处理适配器。\n\n:class:`spacr.utils.GradCAMGenerator` 和 :class:`spacr.utils.SaliencyMapGenerator` 提供 ``compute_*_and_predictions(X)`` 以及 ``plot_activation_grid``。这为 :data:`ATTRIBUTION_METHODS` 中的每种方法提供了同样的两个调用，因此现有的批处理循环无需改变形状即可使用任何已注册的方法。\n\n:param model: 已训练的分类器。\n:param method: :data:`ATTRIBUTION_METHODS` 的一个键。\n:param target_layer: CAM 目标层，最后一个卷积层则为 None。\n:param model_type: 架构名称，用于错误信息中。\n:param smoothgrad_samples: 大于 1 时，对每张图做 SmoothGrad 平均。\n:param smoothgrad_sigma: SmoothGrad 噪声，表示为输入范围的比例。\n:param kw: 转发给该方法。\n:raises UnknownMethodError: 如果 ``method`` 未在 :data:`ATTRIBUTION_METHODS` 中注册。\n在开始时而不是批处理中途验证方法名称。",
       "translation_source_blocks_sha256": [
         "6e5ceebcd53422dd4941aeabdcca7fbd25a12c019e76ed8d95731dff8de03960",
         "024c7b8a51a39bb527dd7c5ae6c3a3382ce7bb0580e213f685c147406d496d5e",
@@ -4958,7 +4958,7 @@
         "c37217e5978c86b0fab03ee515480430adfedd06a331836dacb06fd40c18866c"
       ],
       "source_sha256": "4b11431ec27f160fa8c379e8f68ef75bf1c06c9f667627890f3975874873c483",
-      "text": "将每个图像分配到一个集合中。\n\n:param X: 电压器 ``(N, C, H, W)``。\n:returns: ``(maps, predictions)`` — 地图为 ``(N, H, W)`` float32,预测为 ``(N,)`` 长,对任何头形都正确。",
+      "text": "对一批中的每张图像做归因。\n\n:param X: 批张量 ``(N, C, H, W)``。\n:returns: ``(maps, predictions)`` — maps 为 ``(N, H, W)`` float32，predictions 为 ``(N,)`` long，对两种头形状都正确。",
       "translation_source_blocks_sha256": [
         "2bfe8f0b90575053cfade5204f472d93fa0c73fc84186d6b7329d857e2fc2c15",
         "0c6e855958b183797c8ee37dc4a75e35b918bafed11a5091635eadd33d97d8c1",
@@ -4976,7 +4976,7 @@
         "4d6a43d1649d8eeb2d6e2405db67d50bbe9e0a336dbe985d2effbd28a0c86d58"
       ],
       "source_sha256": "13f8c407e371db8f6fe8ad85d5fa2eea359f995e6738a3ed2406110b6dc9dfc6",
-      "text": "重新使用现有 spaCR 配置,将集网转换为集网。\n\n:param X: 输入包。\n:param maps: 归分地图。\n:param predictions: 按图像预测的类别。\n:param overlay: 将地图绘制在图像上。\n:param normalize: 百分比地切断图像在表面下方。\n:returns: 该 matplotlib Figure 对象。",
+      "text": "绘制批网格，并复用 spaCR 现有的布局。\n\n:param X: 输入批。\n:param maps: 归因图。\n:param predictions: 每张图像的预测类别。\n:param overlay: 把图绘制在图像之上。\n:param normalize: 对叠加层下面的图像做百分位拉伸。\n:returns: 该 matplotlib Figure 对象。",
       "translation_source_blocks_sha256": [
         "978381d4441978c2a14697ce62edabf90f0cb1f55759910b9a1151597fe89e4e",
         "a2a56949cad6ef3ecbaaf3adffba08291324cdd32b08c3768b30044ee8a87b17",
@@ -5000,7 +5000,7 @@
         "c1d0572fdaab97d84a784c16e78ca3f8d72820bf3f09e87678b3ff4df09129d3"
       ],
       "source_sha256": "77de1f2c17790db65a3a19d29e2ac146ca33d248df2ed176588659dbcfe39bbd",
-      "text": "将任何 spaCR 机器学习分类模型标题列为 ``C >= 2`` 每类分数。\n\n一个发行一个 logit ``z`` 的头被介绍为``[-z, +z]``: 列 1 是 1 级的证据,列 0 是 0 级的事据, 和 ``argmax`` 重复 ``z > 0`` 规则 spaCR 的二进制模型使用. 显而易见的替代品, ``[0, z]``,在 softmax 下正是相同的 但是有零级别为0级。, 因此,每个分数为0级将是一个全零地图 — 一个沉默的,可靠的错误的答案。\n\n发出 ``C > 1`` 记录的头通过无触摸。\n\n:param model: 机器学习分类模型要包装。\n:param n_out: 可选原产幅 如果被忽视,前进通道将从包装模型的输出中输出。\n:ivar n_out: 包装模型的原产宽(1或C)。\n:ivar n_classes: 加密器所曝光的类数(2或C)。\n:ivar single_logit: True 当被包围的头发出一个标志。\nWrap ``model``,记录它的头是否单标志。",
+      "text": "将任意 spaCR 分类器头呈现为逐类得分 ``C >= 2``。\n\n输出一个 logit ``z`` 的头被呈现为 ``[-z, +z]``：第 1 列是类别 1 的证据，第 0 列是类别 0 的证据，``argmax`` 重现了 spaCR 二分类模型所用的 ``z > 0`` 规则。显而易见的替代方案 ``[0, z]`` 在 softmax 下完全等价，但类别 0 的梯度为零，因此对类别 0 的每次归因都会是全零图——一个无声的、看似合理的错误答案。\n\n输出 ``C > 1`` 个 logit 的头原样传递。\n\n:param model: 要包装的分类器。\n:param n_out: 可选的原始输出宽度。如果省略，第一次前向传播会从被包装模型的输出推断它。\n:ivar n_out: 被包装模型的原始输出宽度（1 或 C）。\n:ivar n_classes: 包装器暴露的类别数（2 或 C）。\n:ivar single_logit: 当被包装的头输出一个 logit 时为 True。\n包装 ``model``，并记录其头是否为单 logit。",
       "translation_source_blocks_sha256": [
         "7122e4aac44c06acfe52c39508314fd7e1ee0d22095f6fb627788a14608d309b",
         "6e86687e0ea1def6553d45834460bb0167944434ef3f3dbad2915425aafcb4b7",
@@ -5019,7 +5019,7 @@
         "be77668e114238fdad994d9bffbc5debf6892d4e21e1d022d7a3a7ba598ff8ae"
       ],
       "source_sha256": "3f276f6f8d1940080797d5c4a2b9b9ff5d38cb26bb11f22b729d25ee7401e9f7",
-      "text": "返回 ``(B, n_classes)`` 分为 ``x``。\n\n:param x: 输入包转移到包装的机器学习分类模型。",
+      "text": "返回 ``(B, n_classes)`` 得分，对应 ``x``。\n\n:param x: 传给被包装分类器的输入批。",
       "translation_source_blocks_sha256": [
         "3ec240972e2266cedb4757c6b3a4ca18a1a44a4b7dee47423ca297a10106b821",
         "ee367f0a0ba490197389e1ba707d4de5f4b2995b191949542a9931c49e8b9879"
@@ -5030,7 +5030,7 @@
         "36b3c0e4ce3657e2c42c209329e6bdaf86858a5a65140fc950a62489feb6080f"
       ],
       "source_sha256": "36b3c0e4ce3657e2c42c209329e6bdaf86858a5a65140fc950a62489feb6080f",
-      "text": "的数是多少。",
+      "text": "包装器暴露了多少个类别。",
       "translation_source_blocks_sha256": [
         "36b3c0e4ce3657e2c42c209329e6bdaf86858a5a65140fc950a62489feb6080f"
       ]
@@ -5047,7 +5047,7 @@
         "21514322a739078db9499663dd5fd40e7b24dfdc1e0b295cbfd6f9384d2866c4"
       ],
       "source_sha256": "c9162952a1ee66e500d3287b28a5ac0e5f3138c34a1fb3a10b54e9d31cb5955b",
-      "text": "删除或插入曲线及其区域。\n\n:ivar kind: ``'deletion'`` 或 ``'insertion'``。\n:ivar fractions: 每步中删除/插入的像素的分数。\n:ivar scores: 目标类的概率在每个步骤。\n:ivar auc: 曲线下方的区域,在 ``fractions`` 上方是``[0, 1]`` 限制,因为分数是概率。\n:ivar baseline: 被删除的像素被取代了什么。\n:ivar target: 被追踪的可能性。\n:ivar notes: 卡瓦特",
+      "text": "删除或插入曲线及其面积。\n\n:ivar kind: ``'deletion'`` 或 ``'insertion'``。\n:ivar fractions: 每一步移除 / 插入的像素比例。\n:ivar scores: 每一步目标类别的概率。\n:ivar auc: 曲线下面积，在 ``fractions`` 上按梯形法计算。由于得分是概率，因此限制在 ``[0, 1]`` 内。\n:ivar baseline: 被移除的像素用什么替换。\n:ivar target: 被跟踪概率的类别。\n:ivar notes: 注意事项。",
       "translation_source_blocks_sha256": [
         "b72a54cb59ac25ce9cb665249ab0230335615d7596ea544aa8e7590b25e1d862",
         "9a66779b7096e81c996dda331127212cbf3ff46cfe10170f488b0901e82ea408",
@@ -5064,7 +5064,7 @@
         "1b1d85640663f0898fbb8217bcb8a22511861e9f6725ffe8f6dd7e3264614ebc"
       ],
       "source_sha256": "1b1d85640663f0898fbb8217bcb8a22511861e9f6725ffe8f6dd7e3264614ebc",
-      "text": "到何时,点数下降(失去)或玫瑰(插入),开始到结束。",
+      "text": "得分从开始到结束下降（删除）或上升（插入）了多少。",
       "translation_source_blocks_sha256": [
         "1b1d85640663f0898fbb8217bcb8a22511861e9f6725ffe8f6dd7e3264614ebc"
       ]
@@ -5074,7 +5074,7 @@
         "bd64d06db2a5862aed86666baf8f8b1899c2afc77b80ab2d581e3a66ce4980c7"
       ],
       "source_sha256": "bd64d06db2a5862aed86666baf8f8b1899c2afc77b80ab2d581e3a66ce4980c7",
-      "text": "无论AUC是否更大,对于这种曲线类型来说是最好的结果。",
+      "text": "对此类曲线而言，AUC 越大是否是更好的结果。",
       "translation_source_blocks_sha256": [
         "bd64d06db2a5862aed86666baf8f8b1899c2afc77b80ab2d581e3a66ce4980c7"
       ]
@@ -5091,7 +5091,7 @@
         "f2c34727cb7db7e6c22a664b8bcad2dad6719db2b93a999c3e3a425d9a5a0c4a"
       ],
       "source_sha256": "a9fdef943e4b9f84d6171196e27a3f5d8b897ee88fb85c053045439d05a77c63",
-      "text": "一个注册的授权方式。\n\n:param name: 注册表关键通话器通过为 ``method=``。\n:param family: 方法家族——``\"cam\"``、``\"gradient\"``、``\"shap\"``、``\"perturbation\"`` 或 ``\"attention\"``。\n:param backend: 实施提供商 — ``\"torchcam\"``, ``\"captum\"``,或 ``\"spacr\"``。\n:param fn: 适配器可召唤,计算该方法的分配。\n:param needs_layer: 该方法是否需要一个空间目标层。\n:param smoothed: 是否 Captum 适配器在 SmoothGrad 噪音隧道中插入基因属性。\n:param description: 简要的用户面向的解释适合方法选择者。",
+      "text": "一种已注册的归因方法。\n\n:param name: 调用者以 ``method=`` 传入的注册表键。\n:param family: 方法家族——``\"cam\"``、``\"gradient\"``、``\"shap\"``、``\"perturbation\"`` 或 ``\"attention\"``。\n:param backend: 实现提供方——``\"torchcam\"``、``\"captum\"`` 或 ``\"spacr\"``。\n:param fn: 计算该方法归因的可调用适配器。\n:param needs_layer: 该方法是否需要空间目标层。\n:param smoothed: Captum 适配器是否把基础归因器包装在 SmoothGrad 噪声通道中。\n:param description: 适合方法选择器的简洁的面向用户的说明。",
       "translation_source_blocks_sha256": [
         "b9691596771738efebce468ca7bc5793983570cc7a5dc65c135e6eddb01e1ebd",
         "d08dec6b9280add32b01688e42b96282754265b4c26c19181379f0c49b327efe",
@@ -5108,7 +5108,7 @@
         "ef89fefd843222f58a719235c5dd877dd4e2ffd32967c68c9c4597d009742d30"
       ],
       "source_sha256": "ef89fefd843222f58a719235c5dd877dd4e2ffd32967c68c9c4597d009742d30",
-      "text": "这种方法与SmoothGrad平均转动。",
+      "text": "开启 SmoothGrad 平均的该方法。",
       "translation_source_blocks_sha256": [
         "ef89fefd843222f58a719235c5dd877dd4e2ffd32967c68c9c4597d009742d30"
       ]
@@ -5119,7 +5119,7 @@
         "9aa7de5658e63947053142756b1094915e06095279fbcf657db46b371c8ecf71"
       ],
       "source_sha256": "db4b13dbaa497faf39a01e83ba3fc2dce6b7a286b9fc5d144734c007361be43d",
-      "text": "例外使用,当一个CAM被要求一个没有空间层的模型。\n\n一个CAM是一个转型层的功能地图的重量总和. 一个纯变形器没有这样的层,并在其插入插图中产生一个图像,这不是任何东西的CAM。 而不是返回这个图像的Cam适配器举起这一点,并命名模型,以便呼叫器可以转换为:func:`attention_rollout`或到一个格拉迪特 / 干扰方法,它在任何架构上工作。",
+      "text": "当向没有可挂接的空间层的模型请求 CAM 时引发。\n\nCAM 是某个卷积层特征图的加权和。纯 Transformer 没有这样的层，挂接其补丁嵌入会产生一张不是任何东西的 CAM 的图。CAM 适配器不返回那张图，而是引发此异常并指明模型，使调用者可以改用 :func:`attention_rollout` 或梯度 / 扰动方法，它们适用于任何架构。",
       "translation_source_blocks_sha256": [
         "ea5a4e4f70edbd274734783a28527cdda6a0b2254e5667462251e58c160c5322",
         "9aa7de5658e63947053142756b1094915e06095279fbcf657db46b371c8ecf71"
@@ -5139,7 +5139,7 @@
         "99d4fcf9df484daf98ad9fe78e62fc130a937e464a570c097356ecbddce9e64c"
       ],
       "source_sha256": "f11e640af77d98c127d313fd4e72ed7aab24912bc81bd89c9c93165ead60221e",
-      "text": "结果是随机化模型的重量,并重新归分。\n\n:ivar method: 测试中的方法。\n:ivar mode: ``'cascading'``(随机从输出向后,积累)或``'independent'``(一次性单层,从新鲜的复印件)。\n:ivar stages: ``(layer_name, similarity)`` 每次随机化步骤后,按所应用的顺序。\n:ivar final_similarity: 与训练模型的地图相似之处,一旦每个参数层都被随机排序。 ``passed`` 决定此值。\n:ivar max_similarity: 各阶段最相似的。\n:ivar threshold: 值 ``final_similarity`` 必须下降到下方。\n:ivar passed: 是否改变了方法的地图,当重量发生时。\n:ivar metric: 相似度的名称。\n:ivar notes: 判决在字中。",
+      "text": "随机化模型权重并重新归因的结果。\n\n:ivar method: 被测试的方法。\n:ivar mode: ``'cascading'``（从输出向后逐层随机化，累积进行）或 ``'independent'``（每次一层，从一份新副本开始）。\n:ivar stages: 每个随机化步骤之后的 ``(layer_name, similarity)``，按应用顺序排列。\n:ivar final_similarity: 所有带参数的层都被随机化之后与已训练模型的图的相似度。``passed`` 由此值决定。\n:ivar max_similarity: 所有阶段中的最大相似度。\n:ivar threshold: ``final_similarity`` 必须低于的值才能通过。\n:ivar passed: 权重改变时该方法的图是否发生了变化。\n:ivar metric: 相似度度量的名称。\n:ivar notes: 用文字表述的判定。",
       "translation_source_blocks_sha256": [
         "52a9dbc90c49522416c3001b40ce30b26f75347ddf12682e58a4153efed126e6",
         "bfccd8ae642b7b86080f5bd22a3d961e23bff595a1e0b45aea9d6678b4088075",
@@ -5159,7 +5159,7 @@
         "3d2df165a37a313ae67f26dbd92697661696b426ebe3ed61feea1d17fc70bc90"
       ],
       "source_sha256": "6f87315663a98d071e5ae0cd048034cde4e05e18217ccacbd5e9616a1fe4e379",
-      "text": "``1 - final_similarity``,点击为 ``[0, 1]``:更高是更好的。\n\n这是超级参数搜索排序的形式,所以每个标准都以相同的方式表示。",
+      "text": "``1 - final_similarity``，截断到 ``[0, 1]``：越高越好。\n\n这是超参数搜索用来排序的形式，使那里的每个标准都指向同一方向。",
       "translation_source_blocks_sha256": [
         "f0c8abdf5262e630201551574ba8f4bcbc569de372fe4b624289692a75924f2f",
         "3d2df165a37a313ae67f26dbd92697661696b426ebe3ed61feea1d17fc70bc90"
@@ -5170,7 +5170,7 @@
         "4f70e371b0d9eaba19490ce1632912cad7d9f86e2e07a2e61d51e871628a9b79"
       ],
       "source_sha256": "4f70e371b0d9eaba19490ce1632912cad7d9f86e2e07a2e61d51e871628a9b79",
-      "text": "返回一句单词过渡/错误声明进行检查。",
+      "text": "返回关于该检查通过 / 未通过的一句话说明。",
       "translation_source_blocks_sha256": [
         "4f70e371b0d9eaba19490ce1632912cad7d9f86e2e07a2e61d51e871628a9b79"
       ]
@@ -5180,7 +5180,7 @@
         "0386c36aafb0f46db9593d884d51ed57aa93cf0e349eda25b73b163d0a9a6ac7"
       ],
       "source_sha256": "0386c36aafb0f46db9593d884d51ed57aa93cf0e349eda25b73b163d0a9a6ac7",
-      "text": "提取未登记的方法名称。",
+      "text": "对未注册的方法名称引发。",
       "translation_source_blocks_sha256": [
         "0386c36aafb0f46db9593d884d51ed57aa93cf0e349eda25b73b163d0a9a6ac7"
       ]
@@ -5317,7 +5317,7 @@
         "3e1c7d74d207327827fc1cc87bef94c8eebdf4ef4ddeb76ec4fd96dd6b66a349"
       ],
       "source_sha256": "d58c9a22e56d9333eafbb0eda3b10e74d9b2d4eeeee68d353d43a58c4e73a92a",
-      "text": "注意轮盘(Abnar & Zuidema 2020)转换背部。\n\n一个CAM需要一个转型特性地图,一个纯粹的转换器没有一个,所以这是替代:每个层注意力矩阵在头上平均,与身份混合来计算剩余流量,顺序正常化和复制在一起,给出每个输入标志为类标志所贡献的数量。\n\n它阅读 spaCR 的 :class:`torch.nn.MultiheadAttention` 块,从 ``forward`` 返回注意力重量。 背骨的注意力是合并核心(通过 ``scaled_dot_product_attention`` 的时间 ViT ) 没有暴露重量,而这会增加而不是发明地图。\n\n**Rollout 不是类条件。** 结果是相同的每一个 ``target``:它描述了信息流动的地方,而不是模型完成了什么。\n\n:param model: transformer 分类器。\n:param image: 一张图像，``(C, H, W)`` 或 ``(1, C, H, W)``。\n:param target: 记录在结果上;不改变地图。\n:param head_fusion: ``'mean'``、``'max'``或``'min'``在注意力头上。\n:param discard_ratio: 最低的注意力重量分为零,在滚动之前,这将使地图变得更加清晰,并且是纯粹的化妆品。\n:param model_type: 用于错误消息的架构名称。\n:returns: :class:`Attribution` 对象。\n:raises NoSpatialLayerError: 当模型暴露没有注意力重量时。",
+      "text": "针对 Transformer 主干的注意力 rollout（Attention rollout，Abnar & Zuidema 2020）。\n\nCAM 需要卷积特征图。纯 Transformer 没有，所以这是替代方案：每层的注意力矩阵在各个头上取平均，与单位矩阵混合以考虑残差流，按行归一化后相乘，得到每个输入 token 对类别 token 的贡献大小。\n\n它读取 spaCR 的 :class:`torch.nn.MultiheadAttention` 块，这些块从 ``forward`` 返回其注意力权重。注意力为融合内核的主干（timm 的 ViT 通过 ``scaled_dot_product_attention``）不暴露权重，此时会引发异常，而不是臆造一张图。\n\n**Rollout 与类别无关。** 对每个 ``target`` 结果都相同：它描述的是信息流向了哪里，而不是模型得出了什么结论。它无法表明模型区分了你的类别；梯度或扰动方法可以。\n\n:param model: transformer 分类器。\n:param image: 一张图像，``(C, H, W)`` 或 ``(1, C, H, W)``。\n:param target: 记录在结果上；不会改变图。\n:param head_fusion: 对注意力头取 ``'mean'``、``'max'`` 或 ``'min'``。\n:param discard_ratio: rollout 之前每层中被置零的最低注意力权重的比例，这会使图更锐利，纯属外观处理。\n:param model_type: 用于错误消息的架构名称。\n:returns: :class:`Attribution` 对象。\n:raises NoSpatialLayerError: 当模型不暴露任何注意力权重时。",
       "translation_source_blocks_sha256": [
         "2dcf6dc643c18a9149759bbdd9a2622022cdec64d762e4bfd44cb7fa4c5e8102",
         "3d8255bddec87c5c2109b2479d66874d89192f5e44935486b9906fc6f8b54c7c",
@@ -5360,7 +5360,7 @@
         "56a2c4d52f25e1882fb89d5abb3981e95b97a14145791bf2a87578b628908805"
       ],
       "source_sha256": "5a0057d9d44902c4632f13199f78eea45e2d7c9857ea9cbc827cf8729b96f0f9",
-      "text": "用一个方法分配一个图像。\n\n每个注册方法都会返回相同的东西:在入口的解析度上完成的 ``(H, W)`` 地图,为 ``target`` 级名称,为头部形状。 不同的是数字意味着什么,这就是为什么:class:`Attribution`携带家庭和笔记的原因。\n\n:param model: 训练的机器学习分类模型 左不触摸 - 在此返回之前,拖拉机和尾巴被移除。\n:param image: 一个图像, ``(H, W)``、 ``(C, H, W)`` 或 ``(1, C, H, W)``。\n:param method: :data:`ATTRIBUTION_METHODS` 的一个键。\n:param target: 要解释的类指数;模型的预测默认。对于单标题头,0和1都是有效的,并提供相反地图。\n:param layer: 已定位为CAM家族的目标层名称;前进到最后一转变。\n:param model_type: 建筑名称,仅用于使错误可读。\n:param kw: 方法特定的选项 — ``n_steps``/``baseline``(集成格拉迪安,深度LIFT), ``window``/ ``stride``(封闭), ``block``(功能解除), ``head_fusion``/ ``discard_ratio``(滚动), ``n_samples``/``sigma``当通过 :func:`smoothgrad`召唤。\n:returns: :class:`Attribution` 对象。\n:raises UnknownMethodError: 用于未注册的方法名称。\n:raises NoSpatialLayerError: 当一个CAM被要求一个没有转型特性地图的模型,或没有注意力的模型的旋转。\n:raises AttributionError: 对一个坏目标,层或基线。",
+      "text": "用一种方法对一张图像做归因。\n\n每种已注册的方法返回的内容相同：输入分辨率下的有限 ``(H, W)`` 图，对应 ``target`` 所指定的类别，对两种头形状都适用。不同的是数值的含义，这就是 :class:`Attribution` 携带族和备注的原因。\n\n:param model: 已训练的分类器。保持不变——包装器和钩子在返回之前被移除。\n:param image: 一张图像，``(H, W)``、``(C, H, W)`` 或 ``(1, C, H, W)``。\n:param method: :data:`ATTRIBUTION_METHODS` 的一个键。\n:param target: 要解释的类别索引；默认为模型的预测。对于单 logit 头，0 和 1 都有效，并给出相反的图。\n:param layer: CAM 族的点分隔目标层名称；默认为最后一个卷积层。\n:param model_type: 架构名称，仅用于使错误可读。\n:param kw: 方法特定的选项——``n_steps``/``baseline``（积分梯度、DeepLIFT）、``window``/``stride``（遮挡）、``block``（特征消融）、``head_fusion``/``discard_ratio``（rollout）、``n_samples``/``sigma``（通过 :func:`smoothgrad` 调用时）。\n:returns: :class:`Attribution` 对象。\n:raises UnknownMethodError: 用于未注册的方法名称。\n:raises NoSpatialLayerError: 当向没有卷积特征图的模型请求 CAM，或对没有注意力的模型请求 rollout 时。\n:raises AttributionError: 当目标、层或基线无效时。",
       "translation_source_blocks_sha256": [
         "6939511e1210ae1dc37a0c0b17022b703607a8310b1d08e0f726d93c2b0b50ef",
         "677fdc70e92e71e3ee3ace59974a8264aeea0963245a42d6b70adbee4df1d316",
@@ -5454,7 +5454,7 @@
         "90d4de4d1c49985509fb288e1e47cf8d586d78a0586ebc5e2f9e7418d468badd"
       ],
       "source_sha256": "e6975c38469a1c950979d3361a113cac6bdcece309e452eced968ac73a118328",
-      "text": "每个级别的分数为 ``x``,对任何头形。\n\n:param model: 机械学习分类模型(拉或已经包装)。\n:param x: 输入包 ``(B, C, H, W)``。\n:param probability: 概率是删除 / 插入曲线跟踪,因为有限的数量使其区域在图像中相似。\n:returns: 点击“``(B, n_classes)``”网球",
+      "text": "``x`` 的逐类得分，对两种头形状都适用。\n\n:param model: 分类器（原始的或已被包装的）。\n:param x: 输入批 ``(B, C, H, W)``。\n:param probability: 返回 softmax 概率而不是原始得分。删除 / 插入曲线跟踪的是概率，因为有界的量使它们的面积在不同图像之间可比较。\n:returns: ``(B, n_classes)`` 张量。",
       "translation_source_blocks_sha256": [
         "8af5448f0ab3f821331ae90f6d8c52831fd52d5fcd7f8a8606dbbddcfd43e6cd",
         "3f9c71c205d63a1fb8ba0b1046dc6497a9013d437e22ca13c53048b1f7f55fff",
@@ -5478,7 +5478,7 @@
         "a6438e640b5c1cf805afb1d01c7e48a8bb6c78adad3193166bb5d18dcca05fee"
       ],
       "source_sha256": "5c3d9229b19469cb69593f84692196f7362b9ea249bd44c38bc91fdeadc7df16",
-      "text": "用多种方法分配一个图像,用于侧面阅读。\n\n可交付的是板块加上:func:`method_agreement`,而不是任何单一地图. 在这个架构上无法运行的方法(一个纯变形器上的CAM)与其记录的理由相处,而不被堕胎比较,除非``skip_failures``已关闭。\n\n:param model: 培训机械学习分类模型。\n:param image: 一张图像。\n:param methods: 方法名称;每个家庭的一个代表,在任何架构上工作,加上 Grad-CAM.\n:param target: 一个类来解释;解决一次,所以每个方法都解释相同的类。\n:param layer: 目标层CAM。\n:param model_type: 用于错误消息的架构名称。\n:param skip_failures: 记录并错过一个失败的方法而不是扔掉。\n:param kw: 转向每一种方法。\n:returns: 故障显示为平板地图的 :class:`Attribution` 对象,并且错误在 ``notes`` 只有当 ``skip_failures`` True 时。",
+      "text": "用多种方法对一张图像做归因，便于并排阅读。\n\n交付物是面板，加上在其上计算的 :func:`method_agreement`，而不是任何单独的一张图。无法在此架构上运行的方法（纯 Transformer 上的 CAM）会被跳过并记录原因，而不会中止比较，除非关闭了 ``skip_failures``。\n\n:param model: 已训练的分类器。\n:param image: 一张图像。\n:param methods: 方法名称；默认为每个能在任何架构上运行的族的一个代表，外加 Grad-CAM。\n:param target: 要解释的类别；只解析一次，使每种方法解释同一个类别。\n:param layer: CAM 目标层。\n:param model_type: 用于错误消息的架构名称。\n:param skip_failures: 记录并跳过失败的方法，而不是引发异常。\n:param kw: 转发给每种方法。\n:returns: 按请求顺序排列的归因。失败表现为 :class:`Attribution` 对象，带有平坦图，错误记录在 ``notes`` 中，且仅当 ``skip_failures`` 为 True 时才如此。",
       "translation_source_blocks_sha256": [
         "fbae1cc07606bbc410713c045dc093bc37b9eb2abb0ffd7ea1835a29ed49c024",
         "738a1dc928164d8ecd18cae0979bc9517d97b334a0e00aa07ee0b1b2c82df36f",
@@ -5500,7 +5500,7 @@
         "81414cd22eb63a720f15d04c5c145fa94197ef0a6edc6f406fc29262fd107f91"
       ],
       "source_sha256": "7ace857c17e0ae676c9fa77d759a5d8a01439c2e12329e8194b9bf283a0d6a0a",
-      "text": "每个 ``Conv2d`` 层名称在 ``model`` 中,定义顺序。\n\n:param model: 模型扫描。\n:returns: 被称为层名称;没有转变的模型空白。",
+      "text": "每个 ``Conv2d`` 层的名称（位于 ``model`` 中），按定义顺序排列。\n\n:param model: 要扫描的模型。\n:returns: 点分隔的层名称；没有卷积的模型则为空。",
       "translation_source_blocks_sha256": [
         "95965ee5a55646139264f33280ba19900df24d3e70737726b9a419ea5fbca01a",
         "9f730dabf31ee484410b08202441ffee19e98c258b30617a3c63ac5cb243a238",
@@ -5520,7 +5520,7 @@
         "bbbc8e5c8ebc667434c69b44d3334023bb2bc8d3a827d2a57afa0c08475bf18f"
       ],
       "source_sha256": "567191d5f0be7ce0e0fc8376ffad2db2ca074a182c37a4159f8286e005e2e41f",
-      "text": "首先,删除最高排名的像素并跟踪类的概率。\n\n一个忠实的地图将实际使用的像素移除,因此概率早就崩溃,曲线下的区域很小。 **平板删除曲线是发现**:地图排序的像头模型不使用,无论图像看起来如何。\n\n:param model: 培训机械学习分类模型。\n:param image: 图像地图解释了。\n:param amap: :class:`Attribution` 或原始 ``(H, W)`` 地图。\n:param target: 可追踪的类;不受预测的偏差,在未被打扰的图像上。\n:param n_steps: 干扰步骤在0%至100%之间被移除。\n:param baseline: 被删除的像素变成什么 — ``'blur'``(默认,最少出分配), ``'zero'``, ``'mean'``,``'uniform'``,一个数字或一个紧张器。\n:returns: 更低的 :class:`Curve`;更低 的 ``auc`` 是更好的。",
+      "text": "先移除排名最高的像素，并跟踪类别概率。\n\n忠实的图会移除模型实际使用的像素，因此概率很早就崩溃，曲线下面积很小。**平坦的删除曲线就是发现**：无论图像看起来如何，这张图排名的是模型并不使用的像素。\n\n:param model: 已训练的分类器。\n:param image: 这张图所解释的图像。\n:param amap: 一个 :class:`Attribution` 或原始 ``(H, W)`` 图。\n:param target: 被跟踪概率的类别；默认为对未受扰动图像的预测。\n:param n_steps: 移除 0 % 到 100 % 像素之间的扰动步骤。\n:param baseline: 被移除的像素变成什么——``'blur'``（默认，最不偏离分布）、``'zero'``、``'mean'``、``'uniform'``、一个数或一个张量。\n:returns: :class:`Curve`；``auc`` 越低越好。",
       "translation_source_blocks_sha256": [
         "4168b130bcba76469235202786823324bc13e1d4fa50ca6099e9c850c7d475ea",
         "a68cd9d7fe5433d94bbfdbd02f737b4d2d9f0f5f4fdbf7c50b6523ba31b07ee5",
@@ -5546,7 +5546,7 @@
         "50967fcbc58ed125ba7afda4abadec9e9c3ace12ee45eb7602a245e64c7c1bad"
       ],
       "source_sha256": "71b985df9a3df02f9227e9b2de1611a1983aee493a37163c65ab619a05e71d2f",
-      "text": "计算一个地图的删除、插入和点击游戏分数。\n\n:param model: 培训机械学习分类模型。\n:param image: 图像地图解释了。\n:param amap: :class:`Attribution` 或原始 ``(H, W)`` 地图。\n:param target: 班级得分。\n:param n_steps: 两条曲线的步骤。\n:param baseline: 二、排除两曲线的基线。\n:param mask: 可选的布莱恩对象掩膜,允许点击游戏。\n:returns: 关键值与 ``deletion_auc``、 ``insertion_auc``、``deletion`` 和 ``insertion`` :class:`Curve` 对象, ``pointing_game``(或 None)、 ``flat``和 ``notes`` 地图。",
+      "text": "为一张图计算删除、插入和 pointing game 得分。\n\n:param model: 已训练的分类器。\n:param image: 这张图所解释的图像。\n:param amap: 一个 :class:`Attribution` 或原始 ``(H, W)`` 图。\n:param target: 要评分的类别。\n:param n_steps: 两条曲线的步数。\n:param baseline: 两条曲线的移除基线。\n:param mask: 可选的布尔对象掩码，用于启用 pointing game。\n:returns: 带有 ``deletion_auc``、``insertion_auc``、``deletion`` 和 ``insertion``（:class:`Curve` 对象）、``pointing_game``（或 None）、``flat`` 和 ``notes`` 的 dict。",
       "translation_source_blocks_sha256": [
         "1b5e8aabbda62af893150bc60c44e8aed651929e91ff5411dfff07f58a445014",
         "df94d1396b76e152fc54f08327db9d98b722ea36042de807239ca85f393bd3a7",
@@ -5572,7 +5572,7 @@
         "c63b8bdd8f93b333eead6e332ca8d50d17516d4d86eec6ed953d70d52052ea17"
       ],
       "source_sha256": "905c54e2c169733186c94ad24d92044c041aa1dfbd047bd6ccc33ea94bd87b56",
-      "text": "从白色图像开始,然后先添加最高排名的像素。\n\n镜子是 :func:`deletion_curve`,它回答了一个不同的问题:删除问地图是否发现了像素是 *需要*,插入是否发现的像素是不 *足够*。\n\n:param model: 培训机械学习分类模型。\n:param image: 图像地图解释了。\n:param amap: :class:`Attribution` 或原始 ``(H, W)`` 地图。\n:param target: 其概率被追踪。\n:param n_steps: 插入步骤在 0 % 至 100 % 之间。\n:param baseline: 什么是未插入的像素。\n:returns: 更高的 :class:`Curve`;更高 ``auc`` 是更好的。",
+      "text": "从被清空的图像开始，先添加排名最高的像素。\n\n:func:`deletion_curve` 的镜像，它回答的是另一个问题：删除问的是图是否找到了 *必要* 的像素，插入问的是它是否找到了 *充分* 的像素。两者通常对方法的排序不同，这种分歧是信息，而不是错误。\n\n:param model: 已训练的分类器。\n:param image: 这张图所解释的图像。\n:param amap: 一个 :class:`Attribution` 或原始 ``(H, W)`` 图。\n:param target: 被跟踪概率的类别。\n:param n_steps: 插入 0 % 到 100 % 像素之间的插入步骤。\n:param baseline: 尚未插入的像素是什么。\n:returns: :class:`Curve`；``auc`` 越高越好。",
       "translation_source_blocks_sha256": [
         "cdd0c946d7775f1a4b682f31a3d145cd91698b540954a6626a98e38ba6b505e1",
         "96adfd7e90f9e815b4d434372ed2bb9d54c47e5141a0092e8a64adf8e9a2a1d5",
@@ -5590,7 +5590,7 @@
         "b4d65ec9a856caf4d25ce3976f156cb6086209b6fdf496ea3ffb1ea53883a5f9"
       ],
       "source_sha256": "b4d65ec9a856caf4d25ce3976f156cb6086209b6fdf496ea3ffb1ea53883a5f9",
-      "text": "注册方法名称,可选限于一个家庭。",
+      "text": "已注册的方法名称，可选择限定为一个族。",
       "translation_source_blocks_sha256": [
         "b4d65ec9a856caf4d25ce3976f156cb6086209b6fdf496ea3ffb1ea53883a5f9"
       ]
@@ -5604,7 +5604,7 @@
         "9b896f0d3bac63e01f34d19af3a9cfad58b5b51408043fb331f01ccb2d8aec88"
       ],
       "source_sha256": "1258ad128019acf80f7de23a10171d57c04aa922063476966cd61d2c96e85b4b",
-      "text": "排名相同图像的多个分配地图之间的相互关系。\n\n同意和分歧不是相同的证据. 同意的方法是弱的:格拉迪安家庭共享失败模式,因此其成员彼此同意是否其中一个是忠实的。\n\n:param attributions: :class:`Attribution` 对象或原始 ``(H, W)`` 地图;至少有两种,所有相同的形状。\n:returns: 是“:class:`Agreement`”。\n:raises AttributionError: 少于两张地图或形状不相匹配。",
+      "text": "同一图像的多张归因图之间的秩相关。\n\n一致和不一致并不是对称的证据。方法一致是弱证据：梯度族共享失效模式，因此无论其中任何一种是否忠实，它们的成员都会彼此一致。方法不一致是强证据：至多只有一种可能是正确的，所以不应单独引用任何一种。\n\n:param attributions: :class:`Attribution` 对象或原始 ``(H, W)`` 图；至少两个，形状全部相同。\n:returns: 是“:class:`Agreement`”。\n:raises AttributionError: 当少于两张图或形状不匹配时。",
       "translation_source_blocks_sha256": [
         "d1beac91dddd637d82c2b9cf3bdda8fd208605b0eb7eac56b5c7cc6dbf47c2ca",
         "61e70f189c0163e35eb826a42fc40769bcfa28681e003bdae4e85e65e76f8ab9",
@@ -5640,7 +5640,7 @@
         "c70dfd52d6592ba157741f5d200700cb5bd17cbc1988a94b9df1c057ba083a90"
       ],
       "source_sha256": "c70dfd52d6592ba157741f5d200700cb5bd17cbc1988a94b9df1c057ba083a90",
-      "text": "方法名称由家庭组成,家庭以稳定的顺序。",
+      "text": "按族分组的方法名称，族按稳定顺序排列。",
       "translation_source_blocks_sha256": [
         "c70dfd52d6592ba157741f5d200700cb5bd17cbc1988a94b9df1c057ba083a90"
       ]
@@ -5656,7 +5656,7 @@
         "9695c93570eff90a913550741afdb836b098d30fc548450c2c4368c17c5a3608"
       ],
       "source_sha256": "5c1cdde5d4215d0c6aadb7bfad73aa12ea14bc03f6065aa89d9b2e08a8c04be0",
-      "text": "测试地图的最高排名的像素是否位于对象内部。\n\n``merged/*.npy``存储标签掩膜图像层旁边的图像数据渠道,因此一个对象掩膜是没有额外输入的可用。\n\n:param amap: :class:`Attribution` 或 ``(H, W)`` 地图。\n:param mask: 对象掩膜,相同的空间形状 任何非零值都在对象内部,因此可以直接通过一个 spaCR 完整的标签图像层。\n:param tolerance: 通过测试前的许多像素扩展掩膜,原始点数游戏协议用于以比图像更强的分辨率计算的地图。\n:returns: 一个打击的0.0,一个失败的0。\n:raises AttributionError: 在形状不匹配或空掩膜上,一个空面罩会得分0.0,看起来像一种方法的失败而不是缺乏的标记。",
+      "text": "检验图中排名最高的像素是否位于对象内部。\n\n``merged/*.npy`` 把标签掩码平面存储在图像通道旁边，因此无需额外输入即可获得对象掩码。该检验把单个像素评为命中或未命中，不测量其他任何内容。\n\n:param amap: 一个 :class:`Attribution` 或 ``(H, W)`` 图。\n:param mask: 对象掩码，空间形状相同。任何非零值都在对象内部，因此可以直接传入 spaCR 的整数标签平面。\n:param tolerance: 在检验前把掩码膨胀这么多像素，这是原始 pointing game 协议对分辨率比图像更粗的图所用的容差。\n:returns: 命中为 1.0，未命中为 0.0。\n:raises AttributionError: 当形状不匹配或掩码为空时——空掩码会得到 0.0，看起来像是方法失败，而不是缺少标注。",
       "translation_source_blocks_sha256": [
         "c665b5628a68b66138c2bddde4b2559ff8a5cf284b320c06b04bf189eab7eca3",
         "4a4a43d72da2c242b97df1fe1755e6db9232328a85e05f2b0ed34093457b82b5",
@@ -5677,7 +5677,7 @@
         "fb168f6a05f3e2d384b0e585c2ac72adcb49e6ffaa123640ba3fc8560e8dc260"
       ],
       "source_sha256": "20aa2d698157932ab6a262a12e83a8a70f53a9d7ead63896dee2d10b3db116bd",
-      "text": "命中游戏在一组图像上打得比率。\n\n:param maps: 原料或原料地图。\n:param masks: 相匹配的对象掩膜。\n:param tolerance: 转到 :func:`pointing_game`。\n:returns: 关键值地图为 ``rate``, ``hits``, ``n``, ``skipped``(掩膜空白或不匹配的图像,这些图像被排除而不是被计算为错误)和 ``notes``。\n:raises AttributionError: 当两个序列在长度上有所不同时。",
+      "text": "一组图像上的 pointing game 命中率。\n\n:param maps: 归因或原始图。\n:param masks: 对应的对象掩码。\n:param tolerance: 传递给 :func:`pointing_game`。\n:returns: 带有 ``rate``、``hits``、``n``、``skipped``（掩码为空或不匹配的图像，它们被排除而不是计为未命中）和 ``notes`` 的 dict。\n:raises AttributionError: 当两个序列的长度不同时。",
       "translation_source_blocks_sha256": [
         "780a6b799f3490a72b1a7287900ab09dc4a908ff1676587d6cdf29ed65e25373",
         "4f24ef6adba731bd22fc85106c2f742c26e82e229162fd22311c9b0431e3cb5f",
@@ -5708,7 +5708,7 @@
         "ff54f165ea1b935f7acf58292f55bafbfe1f6af1229053b6305dc8500693451e"
       ],
       "source_sha256": "d028d37bcfc684354f29721c2d7f48ee2003e34bc749b9f9b72e196b65f8ac71",
-      "text": "测试是否在重量随机时改变地图(Adebayo 2018)。\n\n偶然的模型的参数层次,从输出向后,重新分配在每个阶段,并将每个地图与地图从训练模型相关联。 一个方法,取决于什么模型学习产生一个不相关的地图,一旦重量是噪音。 Grad-CAM 这是频道的失败,而一个失败的方法,这是一个边缘检测器被阅读为一个解释。\n\n**这是模块中最有信息的检查。** 通过删除和插入但失败的地图描述了图像;在这里失败的方法不能通过滑动,更好的颜色地图或不同的目标层来拯救。\n\n:param model: 深复制 - 原始从未修改。\n:param image: 一张图像。\n:param method: 注册方法名称,或任何可称之为 ``attribute_fn`` 未提供时。\n:param target: 要解释的班级,一次对训练模型进行解决,并保持固定,所以一个阶段的地图不沉默地为另一个班级。\n:param layer: 目标层CAM。\n:param model_type: 用于错误消息的架构名称。\n:param mode: ``'cascading'``(默认,纸张的)或``'independent'``。\n:param threshold: 排序的相似之处,该方法通过。\n:param seed: RNG种子为随机化,所以检查重复。\n:param max_stages: 查找随机的层数量,从输出向后。 最终阶段总是随机一切,无论如何。\n:param attribute_fn: ``fn(model, image, target=...) -> map or Attribution``,用于测试未登记的方法。\n:param kw: 转向招聘呼吁。\n:returns: 是“:class:`SanityCheck`”。\n:raises AttributionError: 对于未知模式,或没有参数的模型。",
+      "text": "检验权重被随机化时图是否发生变化（Adebayo 2018）。\n\n从输出向后逐层随机化模型的参数，在每个阶段重新归因，并把每张图与已训练模型的图做相关。依赖模型所学内容的方法，一旦权重变成噪声就会产生不相关的图。几种广泛使用的方法并非如此：guided backprop 和 guided Grad-CAM 是典型的失败案例，在此失败的方法是一个被当作解释来解读的边缘检测器。\n\n**这是本模块中信息量最大的检查。** 通过了删除和插入但在这一项上失败的图，描述的是图像本身；在此失败的方法无法通过平滑、更好的色彩映射或不同的目标层来挽救。\n\n:param model: 已训练的分类器。深拷贝——原件从不被修改。\n:param image: 一张图像。\n:param method: 已注册的方法名称，或在未给出 ``attribute_fn`` 时的任意可调用对象。\n:param target: 要解释的类别，针对已训练模型只解析一次并保持固定，因此某一阶段的图不会悄悄地属于另一个类别。\n:param layer: CAM 目标层。\n:param model_type: 用于错误消息的架构名称。\n:param mode: ``'cascading'``（默认，论文中的做法）或 ``'independent'``。\n:param threshold: 秩相关低于此值时该方法通过。\n:param seed: 用于随机化的 RNG 种子，使检查可重现。\n:param max_stages: 从输出向后计数、被随机化的层数上限。无论如何，最后一个阶段总是随机化全部内容。\n:param attribute_fn: ``fn(model, image, target=...) -> map or Attribution``，用于测试不在注册表中的方法。\n:param kw: 转发给归因调用。\n:returns: 是“:class:`SanityCheck`”。\n:raises AttributionError: 当模式未知，或模型没有可随机化的参数时。",
       "translation_source_blocks_sha256": [
         "ad713775261d631704c52dfd05e34395edd22ce928d00a6352deea7c55205c8e",
         "89b03f35c8d739f5e7cff1899fb056570901ac95b8804ce4ea45e2af537bbe02",
@@ -5746,7 +5746,7 @@
         "e12319d402199bf9935edfc5bb8b5c3b448eccc9b89eb474dc7b10eb029ccb65"
       ],
       "source_sha256": "dd6073e99b550d313a3e5b5c11599478d2b7af999d871bc8a0a193a9840185e4",
-      "text": "最后一个转型层 - 常见的CAM目标 - 或 None。\n\n:param model: 模型,其转型层被扫描。\n\n镜子 :func:`spacr.utils.recommend_target_layers`,但返回 None 为没有转变的模型而不是投射,因此CAM适配器可以用名称的架构投射 :class:`NoSpatialLayerError`。",
+      "text": "最后一个卷积层——通常的 CAM 目标——或 None。\n\n:param model: 要扫描其卷积层的模型。\n\n与 :func:`spacr.utils.recommend_target_layers` 相同，但对没有卷积的模型返回 None 而不是引发异常，使 CAM 适配器可以引发带有架构名称的 :class:`NoSpatialLayerError`。",
       "translation_source_blocks_sha256": [
         "21106094532adf875fea72dcef77d7f826e2499ac5976e8b1a376a19c894e24f",
         "f83e721e835c4d325f09f35120bff9c1449d20b9de726ce8c2ccd8877109167f",
@@ -5778,7 +5778,7 @@
         "62cf05091187a49dc9d38da5adf9707acca759a2a9504a4a8a66b6faf2d5b4ee"
       ],
       "source_sha256": "082ce04ed9c7a21fd3bd34b73eded7af1ee9380dfe3d1d886314906aa0bfba84",
-      "text": "解决一个被称为``model``的层名称。\n\n:param model: 模型要看。\n:param name: 模块路径,例如 ``'features.2'``。\n:returns: 是模块。\n:raises AttributionError: 错误的目标层是最常见的方式,一个CAM运行死亡,而一个纯``AttributeError: 'Sequential' object has no attribute 'conv_b'``不会告诉用户什么要输入。",
+      "text": "相对于 ``model`` 解析点分隔的层名称。\n\n:param model: 要在其中查找的模型。\n:param name: 点分隔的模块路径，例如 ``'features.2'``。\n:returns: 子模块。\n:raises AttributionError: 指出最接近的可用层。错误的目标层是 CAM 运行失败最常见的原因，而一个光秃秃的 ``AttributeError: 'Sequential' object has no attribute 'conv_b'`` 不会告诉用户该改输入什么。",
       "translation_source_blocks_sha256": [
         "5c353110b13ef79140c5a9902b64c71553de33a74bd2f078c52b2b9a31ffa0d7",
         "ab1da7ae77adfd550f387c5a413aeee74fdfe45bd6413ac484056c25c82da94a",
@@ -5807,7 +5807,7 @@
         "39162686ac99188db9977b92f1e970f8d228822b4fb52d5d04c9672425a45510"
       ],
       "source_sha256": "60930519dfead83ce348cc511517187040fe65cc7b9a59a7b068ddf07cd8b17f",
-      "text": "SmoothGrad:平均 ``base_method`` 超过 ``n_samples`` 噪音副本。\n\n格拉迪特地图是视觉噪音,因为ReLU网络的格拉丁在邻近输入之间急剧波动。 加西输入的平均干扰抑制这种波动为 ``1/sqrt(n)`` 同时保持生存结构的干扰。\n\n对于 captum 支持的方法,这就是 captum 自己的 ``NoiseTunnel``. CAM 家庭和 rollout 不是 captum 属性,因此对于这些人来说,平均值是在适配器的重新运行上进行的 - 相同的定义,适用于地图。\n\n放松使一个地图 *look* 更好,它不会使它更忠实,而一个顺利的地图仍然失败 :func:`randomization_sanity_check` 失败它同样糟糕。\n\n:param model: 培训机械学习分类模型。\n:param image: 一张图像。\n:param base_method: 任何 :data:`ATTRIBUTION_METHODS` 的密钥。\n:param n_samples: 噪音复制的数量平均为 ``1`` 是单个噪音样本, *不* 清洁地图 — 调用 :func:`attribute` 为此。\n:param sigma: 噪音标准偏差作为输入的动态范围的一部分(SmoothGrad纸 ``stdev_spread``)。\n:param target: 班级解释;在清洁图像上解决一次,所以噪音无法浮动哪个班级被解释样品到样品。\n:param layer: 目标层CAM。\n:param model_type: 用于错误消息的架构名称。\n:param seed: torch 种子,因此重复呼叫重复。\n:param kw: 转向基准方法。\n:returns: 平均值为 :class:`Attribution`。\n:raises AttributionError: 对于 ``n_samples`` 在 1 下方。",
+      "text": "SmoothGrad：计算 ``base_method`` 在 ``n_samples`` 份带噪声副本上的平均值。\n\n梯度图在视觉上有噪声，因为 ReLU 网络的梯度在相邻输入之间剧烈波动。对输入的高斯扰动取平均，会按 ``1/sqrt(n)`` 抑制这种波动，同时保留经得起扰动的结构。\n\n对基于 captum 的方法，这是 captum 自带的 ``NoiseTunnel``。CAM 族和 rollout 不是 captum 归因器，因此对它们而言，平均是在这里通过重新运行适配器完成的——定义相同，只是应用在图上。\n\n平滑让图 *看起来* 更好。它不会让图更忠实，而且一张仍然通不过 :func:`randomization_sanity_check` 的平滑图同样会失败得很彻底。\n\n:param model: 已训练的分类器。\n:param image: 一张图像。\n:param base_method: :data:`ATTRIBUTION_METHODS` 的任意键。\n:param n_samples: 要平均的带噪声副本数。``1`` 是单个带噪声的样本，*不是* 干净的图——要得到干净的图请调用 :func:`attribute`。\n:param sigma: 噪声标准差，表示为输入动态范围的比例（SmoothGrad 论文中的 ``stdev_spread``）。\n:param target: 要解释的类别；在干净图像上只解析一次，使噪声不会改变逐样本被解释的类别。\n:param layer: CAM 目标层。\n:param model_type: 用于错误消息的架构名称。\n:param seed: torch 种子，使重复调用可重现。\n:param kw: 转发给基础方法。\n:returns: 取平均后的 :class:`Attribution`。\n:raises AttributionError: 当 ``n_samples`` 小于 1 时。",
       "translation_source_blocks_sha256": [
         "b00d70d20a14be79d6cfb8455fd7690a28550edbf8ae1748f730798c34966e2c",
         "850e60b1bd03cd62cb9ab55fc585c5d1132f687df896772a5642d07978c14b67",
@@ -5948,7 +5948,7 @@
         "04e76aebfcc3ba1860f31b3b12fd106c7e1259525663dcea336d407c490db680"
       ],
       "source_sha256": "a5b6e33d708cfac8e7df491a06789e3d9358d71e8b86d4f007ac0a4724325ee5",
-      "text": "一个字符串在一个阅读中出现。\n\n它覆盖的伸展是这样给出的,以便一个显示器可以准确地突出这些基础,而颜色指数是条码本身而不是其表的稳定的数字,因此两个不同的条码相同的表被绘制为两个不同的颜色。\n\n:param start: 字符代码的第一个基础在阅读中指数。\n:param end: 指数一个超越其最后一个基础,所以 ``read[start:end]`` 是条码。\n:param table: 标签表的条码来自。\n:param role: 表填写的角色,或 None。\n:param barcode: 相匹配的序列本身。\n:param orientation: 它是否符合 ``AS_GIVEN`` 或 ``REVERSE_COMPLEMENT``。\n:param colour_index: 一个稳定的号码为条码,而不是它的表,所以两个条码的一个表被绘制在两个颜色。",
+      "text": "一次读段内部出现的一个条形码。\n\n给出它覆盖的区段，以便显示可以精确突出这些碱基；颜色索引是条形码本身而不是其表的稳定数值，因此同一张表的两个不同条形码会以两种不同的颜色绘制。\n\n:param start: 条形码的第一个碱基在读段内的索引。\n:param end: 其最后一个碱基之后一位的索引，因此 ``read[start:end]`` 就是条形码。\n:param table: 条形码来源表的标签。\n:param role: 该表承担的角色，或 None。\n:param barcode: 匹配到的序列本身。\n:param orientation: 它是以 ``AS_GIVEN`` 还是 ``REVERSE_COMPLEMENT`` 匹配的。\n:param colour_index: 条形码的稳定数值，而不是其表的，因此同一张表的两个条形码会以两种颜色绘制。",
       "translation_source_blocks_sha256": [
         "d34ea2ed012a61c3938dad92a89e2d612f397bf19ff89af952e26fcb23a9917d",
         "12c9f85d41b5894f9c2904c4f5674da9745988c61b5368c205e71d57adfb9dbe",
@@ -5971,7 +5971,7 @@
         "f325840ed23f6b346218637366f24a82ade39a3c612210d4a12b2dea29ec74bd"
       ],
       "source_sha256": "fc83c057b0639081f4c1008e26c7f9e614093020c76218ee88b2f5a98185c2ed",
-      "text": "查找一个条码搜索,每个文件检查的阅读。\n\n一份部分完成搜索的报告与完成搜索相同的形状,并旨在显示,因此直播显示器可以进行每个改进,而无需特别加密第一个。\n\n:param findings: 1 个 :class:`OrientationFinding` 按表、文件和导向进行审查。\n:param reads_by_file: 每个文件中有多少个阅读器被审查。\n:param read_length_by_file: 每个文件的中等阅读长度,即一个折扣 histogram 的尺寸。\n:param complete: 是否搜索完成. False 在部分报告上,直播显示器,而它仍然是精致的。",
+      "text": "一次条形码搜索的结果，以及每个文件中检查的读段。\n\n部分完成的搜索的报告与已完成的报告形状相同，并且旨在被显示，因此实时显示可以绘制每次细化，而不必对第一次特殊处理。\n\n:param findings: 每个被检查的表、文件和方向各对应一个 :class:`OrientationFinding`。\n:param reads_by_file: 每个文件中检查了多少个读段。\n:param read_length_by_file: 每个文件的平均读段长度，它决定偏移直方图的大小。\n:param complete: 搜索是否已完成。在实时显示于搜索仍在细化时绘制的部分报告中为 False。",
       "translation_source_blocks_sha256": [
         "7925d6fd2fe066cf0fd156f8a7d375a3af5e79022e82829930e6aaaaf7875921",
         "e8252c62c287a66dd56596b266dd14a4f7ed3453c195344ca3e88a56d775bc07",
@@ -6059,7 +6059,7 @@
         "a47f54a7ab26c347c3d8a7857e2cad471495f44bc859d3b4e53d27dc4b51162e"
       ],
       "source_sha256": "b4c731bed95a71365eec83d86038a90ea3868b0c62fe9b38fe405dbd55800f8a",
-      "text": "一个参考表称为条码序列。\n\n序列作为从序列到名称的地图,以便在没有第二次搜索的情况下可以命名一场比赛,而长度计算则被保留,因为机会率取决于每个长度的条码数量,而不是仅仅是桌面大小。\n\n:param name: 标签这个表是由其余的搜索所知道的,标签每一个发现它产生的指向回归。\n:param sequences: 从条码序列地图到该条码的名称,这样一个打击可以被命名,而不再搜索表。\n:param role: 筛选的哪个部分的身份图表的解码 -- 实验室微板行,实验室小板列,导游 -- 或 None 为一个没有搜索的桌子。\n:param path: 在图表被阅读的地方,保持,以便建议的地图可以命名文件而不是标签。",
+      "text": "一张由已命名条形码序列组成的参考表。\n\n序列以从序列到名称的映射形式保存，这样无需第二次搜索即可为匹配命名；并保留按长度的计数，因为偶然命中率取决于每种长度有多少条形码，而不仅仅取决于表的大小。\n\n:param name: 此表在搜索其余部分中所用的标签，也是它产生的每个结果回指的标签。\n:param sequences: 从条形码序列到该条形码名称的映射，使命中项无需再次搜索表即可命名。\n:param role: 该表解码筛选标识的哪一部分——孔板行、孔板列、向导——对于未指定角色而搜索的表则为 None。\n:param path: 表是从哪里读取的，保留下来以便提议的映射可以指出文件而不是标签。",
       "translation_source_blocks_sha256": [
         "c2b83513de3f9b710a57b948a831b751b3c083a28a1d8ab9c77499a38e24f792",
         "2fd1b8f8aac67729f7ef8b0f165036a1e480785fc50d2a2e8127b36744bd3d49",
@@ -6177,7 +6177,7 @@
         "e92e91ad279495186942c30faad2ae73996f7d20d6a27b191476ce40b6fdd8c1"
       ],
       "source_sha256": "e954ac3501e2350c72e85f923b8bb2a77f40a7ce09ebc18330fd9015321a146c",
-      "text": "搜索结果为一个参考表,阅读文件和导向。\n\n发现带来了偶然率和增强与观察的率相伴,因此呼叫者不必重新计算巧合率。\n\n:param table: 标签的参考表这个发现是关于。\n:param role: 表填写的角色,或者当它没有一个被搜索时 None。\n:param file_label: 图表的阅读文件被搜索反对。\n:param orientation: 表是否符合 ``AS_GIVEN`` 或 ``REVERSE_COMPLEMENT``。\n:param table_path: 在那里,图表被阅读,或 None 当它在线交付时。\n:param reads: 有多少读书被审查到达这个发现。\n:param hits: 这些阅读中有多少包含表中的条形码。\n:param observed_rate: ``hits`` 分为 ``reads``。\n:param expected_rate: 同一表的速度会随机达到,考虑到它在每个长度上持有多少条码;观察到的速度本身并不意味着什么;这就是它可读的。\n:param enrichment: ``observed_rate`` 分为 ``expected_rate``。\n:param offset_start: 最早的启动折扣被计算为条码的常见位置。\n:param offset_span: 这个位置覆盖了多少次。\n:param modal_offset: 最常见的单一开始折扣,或 None 当没有发现。\n:param barcode_lengths: 抽出窗口必须通过最长的,而不是模型一个。\n:param distinct_barcodes_seen: 表中的各个字符号实际上被观察到多少 一个与同一序列相匹配的表与其字符代码不同。\n:param table_size: 桌子里有多少个不同的序列。\n:param top_barcode_share: 最常见的单条码所带来的打击部分 几乎一个,以及一个低的``distinct_barcodes_seen``,是一个激动人心的比赛的签名,而不是一个真实的。\n:param verdict: ``PRESENT``、``ABSENT`` 或 ``INDETERMINATE``。\n:param reason: 为什么这个判决被达到,说要向一个用户显示。\n:param offset_counts: 每个开始的折扣,为 histogram。",
+      "text": "针对一张参考表、读段文件和方向的搜索结果。\n\n该结果除观测到的比率外，还携带偶然命中率和富集度，因此调用者无需重新计算巧合率。\n\n:param table: 此结果所涉及的参考表的标签。\n:param role: 该表承担的角色，或在未指定角色而搜索时为 None。\n:param file_label: 对其搜索该表的读段文件。\n:param orientation: 该表是以 ``AS_GIVEN`` 还是 ``REVERSE_COMPLEMENT`` 匹配的。\n:param table_path: 表是从哪里读取的，或在以内联方式提供时为 None。\n:param reads: 为得到该结果检查了多少个读段。\n:param hits: 其中有多少个读段包含该表中的条形码。\n:param observed_rate: ``hits`` 除以 ``reads``。\n:param expected_rate: 考虑到同一张表在每种长度上包含多少条形码，它偶然会达到的比率。观测到的比率本身没有意义；正是这个值使它可以解读。\n:param enrichment: ``observed_rate`` 除以 ``expected_rate``。\n:param offset_start: 被视为条形码通常位置的最早起始偏移。\n:param offset_span: 该位置覆盖多少个连续偏移。\n:param modal_offset: 最常见的单个起始偏移，没有发现任何内容时为 None。\n:param barcode_lengths: 表中存在的不同长度。提取窗口必须延伸到最长长度之外，而不是众数长度。\n:param distinct_barcodes_seen: 表中实际观测到多少个不同的条形码。一张总是匹配同一个序列的表，匹配的是其条形码之外的东西。\n:param table_size: 表中有多少个不同的序列。\n:param top_barcode_share: 最常见的单个条形码所占的命中比例。接近 1，同时 ``distinct_barcodes_seen`` 较低，是虚假匹配而非真实匹配的特征。\n:param verdict: ``PRESENT``、``ABSENT`` 或 ``INDETERMINATE``。\n:param reason: 为什么得出该判定，措辞适合展示给用户。\n:param offset_counts: 每个起始偏移处的命中计数，用于直方图。",
       "translation_source_blocks_sha256": [
         "cb291ccd6ceed88b0213bad9fd40da250336853f72fa89ef3501c05438597fb7",
         "b65b72951e54ff1419378814cca66722bcdfbdd64b25add091ec2efb0498c213",
@@ -6252,7 +6252,7 @@
         "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
       ],
       "source_sha256": "67bcd28e0812e675cef7b9a850b60ea8044bcf0db3d8cebdaf884c26fb172508",
-      "text": "提议的设置运行条码地图,支持细节。\n\n提议中的每一个结构化数据名称都是已经阅读的地图运行,运行可以随时采取提议。\n\n搜索中所学到的,没有匹配密钥,都被带到旁边。\n\n呼叫者必须应用方向以及设置;在错误方向地图中搜索表的处理会议没有任何内容。\n\n一个筛选在实验室微板列之外的条形码,引导 RNA和实验室小板列没有设置名称等待它。 因此,为每个角色选择的表列入参考表中,无论是否可以填写一个结构化数据名称。\n\n:param settings: 只有结构化数据名称,地图运行已经阅读,所以地图可以直接传递这个关键值地图。\n:param reference_file: 文件,其阅读的窗口外套是反对的,因为外套没有他们的框架意味着什么。\n:param source_files: 从角色到创建它的阅读文件的地图。\n:param orientations: 从表标签到运行方向的地图,应该搜索该表。\n:param reference_tables: 每个角色所选择的表列出是否存在设置名称来携带它,因此没有结构化数据名称的角色不会丢失。\n:param reverse_complement_needed: 行程的桌子必须逆转补充来识别,因为它们被发现在第二方存储。\n:param unresolved_roles: 命名而不是猜测,所以一个召唤者可以这样说,而不是开始一个将没有地图的运行。\n:param notes: 搜索者所知道的,在设置名称中没有家。",
+      "text": "为条形码映射运行提议的设置，以及支持性细节。\n\n提议中的每个键都是映射运行已经读取的键。运行可以原样采用该提议。\n\n搜索所了解到但没有对应键的内容会一并携带。\n\n调用者必须同时应用方向和设置；以错误方向搜索某张表的运行不会映射任何内容。\n\n解码孔板列、向导和孔板行之外的条形码的筛选，没有等待它的设置键。因此，为每个角色选定的表会列在参考表中，无论是否能为它填入键。\n\n:param settings: 仅包含映射运行已经读取的键，因此可以把这个字典直接交给映射。\n:param reference_file: 窗口偏移所参照的文件，因为偏移若无其参照系就没有意义。\n:param source_files: 从角色到确立该角色的读段文件的映射。\n:param orientations: 从表标签到运行应在其中搜索该表的方向的映射。\n:param reference_tables: 为每个角色选定的表，无论是否存在承载它的设置键都会列出，因此没有键的角色不会丢失。\n:param reverse_complement_needed: 运行必须以反向互补方式搜索才能识别的表，因为它们是以存储的形式在第二条读段中发现的。\n:param unresolved_roles: 没有确立任何表的角色。点名而不是猜测，因此调用者可以如实说明，而不是启动一个什么也映射不到的运行。\n:param notes: 搜索所了解到、但在设置键中没有位置的内容。",
       "translation_source_blocks_sha256": [
         "936f3dabd0e088fea4f6d734b1f32a5c73ab6436e81ce1792499babd8841b5dd",
         "f393bb6df3f2ad8134c7aac63d3ebb69434253fe29cd7fa4195fa484e3f06c64",
@@ -17106,7 +17106,7 @@
         "2e7dcd716c25e78dbdc6d2183631c29cb5aacf64017a3d42eb68c2067319e329"
       ],
       "source_sha256": "a2300c0f70b29829cfa2186d01c94fbcf09b4e88e4d0a84dc1a057ed6a4ceb5d",
-      "text": "将 RGB 图像转换为 ``primaries``. 显示器仅转换。\n\n查看 :data:`DISPLAY_PRIMARIES` 模式,以及为什么 ``cmy`` 作为出版协议而不是可用性模式提供。\n\n这不是 RGB->CMYK 转换。CMYK 是用于印刷的减色模型：在筛选上只会使图像变暗，不能提高可分辨性，而且其有损变换会改变用户以为自己看到的内容。这里的 ``cmy`` 是图像数据通道替换——每个图像层仍保留自身身份，结果仍采用加色方式，因此两种染色重叠时仍会变亮。\n\n:param image: ``(H, W, 3)`` 序列。\n:param primaries: 其中一个是:data:`DISPLAY_PRIMARIES`。\n:returns: 红色序列,或 ``image``本身为 ``'rgb'``。\n:raises CropError: 一个未知的模式,命名而不是被忽略。",
+      "text": "在 ``primaries`` 中重绘 RGB 图像。仅为显示变换。\n\n:data:`DISPLAY_PRIMARIES` 说明了各个模式，以及为何把 ``cmy`` 作为出版惯例而不是无障碍模式提供。\n\n这不是 RGB->CMYK 转换。CMYK 是用于印刷的减色模型：在筛选上只会使图像变暗，不能提高可分辨性，而且其有损变换会改变用户以为自己看到的内容。这里的 ``cmy`` 是图像数据通道替换——每个图像层仍保留自身身份，结果仍采用加色方式，因此两种染色重叠时仍会变亮。\n\n:param image: ``(H, W, 3)`` 数组。\n:param primaries: :data:`DISPLAY_PRIMARIES` 中的一个。\n:returns: 重绘后的数组，或 ``image`` 本身（对 ``'rgb'``）。\n:raises CropError: 未知的模式，会点名而不是被忽略。",
       "translation_source_blocks_sha256": [
         "cb2b28b331348f24cdc9bbe894920b637c5e60d92273ff01c28c9d035da99375",
         "92d0790aa73f9cc5a47cc684a302324ee65d753a4eaae0a258cca2f6d8115779",
@@ -20905,7 +20905,7 @@
         "abe3e1af9b36ef4a1ae1c18fb2036d727646a83d826fd3aebac02053f36e3355"
       ],
       "source_sha256": "5c0c74bcc4f8ecbb6896386f38c5ddeb10f95c62e18ca2c086161a8246cc5a40",
-      "text": "计算和评估一个或多个图像的分配地图。\n\n默认情况下,分析评估 ``gradcam``、 ``saliency``、``integrated_gradients``、和 ``occlusion``. 对于每个成功的分配,它计算删除和插入 AUC; 当提供对象掩膜时,它也评估了指标游戏。\n\n当 ``sanity_check`` 被启用时,第一个图像被重新分配,而模型参数是偶然层次的。 经过偶然化后保持相似的地图对学到的参数有不够的敏感性,并且不应该被解释为模型特定的解释。\n\n:param model: 培训机械学习分类模型。\n:param images: 图像发动机或具有 ``(C, H, W)`` 形状的发射机的不可分割。\n:param methods: 分配方法从 :data:`spacr.attribution.ATTRIBUTION_METHODS`。 ``None`` 使用 ``gradcam``, ``saliency``, ``integrated_gradients`` 和 ``occlusion``。\n:param masks: 可选的每张图像布莱恩对象掩膜,由指标游戏使用。\n:param target: ``None`` 使用每个图像的预测类。\n:param target_layer: CAM 目标层. ``None`` 选择最终转型层。\n:param model_type: 在诊断信息中使用的选项建筑名称。\n:param n_steps: 删除和插入曲线的干扰步骤数量。\n:param baseline: 用于删除像素的替代: ``\"blur\"``、 ``\"zero\"``、``\"mean\"``、或 ``\"uniform\"``。\n:param sanity_check: 是否在第一张图像上进行参数随机分析。\n:param sanity_threshold: 最多排名相似之处,随机地图被认为是相当不同的。\n:param verbose: 是否打印 per-method 验证结果。\n:returns: 地图与``table``,``attributions``,``agreement``,``sanity``和``notes``。",
+      "text": "为一张或多张图像计算并评估归因图。\n\n默认情况下，分析会评估 ``gradcam``、``saliency``、``integrated_gradients`` 和 ``occlusion``。对每个成功的归因，它计算删除和插入 AUC；提供对象掩码时，它还会评估 pointing game。秩相关汇总了第一张图像上各非平坦方法之间的一致程度。\n\n启用 ``sanity_check`` 时，会在逐层随机化模型参数的同时对第一张图像重新归因。随机化后仍然过于相似的图，对学到的参数不够敏感，不应被解释为针对该模型的解释。\n\n:param model: 已训练的分类器。\n:param images: 形状为 ``(C, H, W)`` 的图像张量，或张量的可迭代对象。\n:param methods: 来自 :data:`spacr.attribution.ATTRIBUTION_METHODS` 的归因方法。``None`` 使用 ``gradcam``、``saliency``、``integrated_gradients`` 和 ``occlusion``。\n:param masks: 可选的逐图像布尔对象掩码，供 pointing game 使用。\n:param target: 要解释的类别索引。``None`` 使用每张图像的预测类别。\n:param target_layer: CAM 目标层。``None`` 选择最后一个卷积层。\n:param model_type: 诊断信息中使用的可选架构名称。\n:param n_steps: 删除和插入曲线的扰动步数。\n:param baseline: 被移除像素所用的替代值：``\"blur\"``、``\"zero\"``、``\"mean\"`` 或 ``\"uniform\"``。\n:param sanity_check: 是否对第一张图像运行参数随机化分析。\n:param sanity_threshold: 随机化后的图被认为足够不同时的最大秩相关。\n:param verbose: 是否打印每种方法的验证结果。\n:returns: 带有 ``table``、``attributions``、``agreement``、``sanity`` 和 ``notes`` 的映射。",
       "translation_source_blocks_sha256": [
         "4045733fccb49b8d15e487096f3ae2feb01c5b7dd35653811548f13cca845297",
         "5529b7693062d57922bd4de9060da0cb1716a4ad828f979e5b306f5485f05104",
@@ -21786,7 +21786,7 @@
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ],
       "source_sha256": "12317e66ba5a3b71fdbfdcfb38644a34af69de11742048fe1f13f06e865cab3f",
-      "text": "显示一张合成的 0 和 1 级类视觉图像。\n\n路径硬编码到前两类,因此一个模型有超过两类只有这两个可视化。\n\n:param model: 培训机械学习分类模型。\n:param dtype: 使用的 Tensor dtype 为优化。\n:param class_names: 订购的类名称;至少需要两种,因为指数0和1都被视为上。\n:param kwargs: 添加关键字论点转移到 ``utils.class_visualization``。\n:returns: None",
+      "text": "显示一张合成的 0 和 1 级类视觉图像。\n\n路径硬编码到前两类,因此一个模型有超过两类只有这两个可视化。\n\n:param model: 已训练的分类器。\n:param dtype: 使用的 Tensor dtype 为优化。\n:param class_names: 订购的类名称;至少需要两种,因为指数0和1都被视为上。\n:param kwargs: 添加关键字论点转移到 ``utils.class_visualization``。\n:returns: None",
       "translation_source_blocks_sha256": [
         "f7cce5748a42de63185d5c26ee8639cf167c1deb9a1c6ca0eeff580a342228c4",
         "2c8ab6dab5c2a1a4a36a9585a563804caf34a1ccd71efdbe54078ae4fa48d97b",
@@ -34478,7 +34478,7 @@
         "0709a865e41cef1918b64bb4685110cbb965a96362320a0f15c194a0a3ed3005"
       ],
       "source_sha256": "9f1dfba55496b741198c3a8c6769917c35dfb1e426d9f40bf14aeef258c36bb9",
-      "text": "的模型和图像一个激活扫描得分。\n\n:ivar model: 训练的机器学习分类模型,已经在正确的设备上,并在 eval 模式下。\n:ivar images: 图像分数的列表 ``(C, H, W)``。\n:ivar masks: 可选的每张图像布莱恩对象掩膜,相同的空间形状,允许点击游戏。 None 当 spaCR 无法找到它们。\n:ivar filenames: 面板标签的图像来源。\n:ivar model_type: 建筑名称,用来使错误可读。\n:ivar notes: 出发和警告,呼叫者必须表面。",
+      "text": "对一次激活扫描进行评分所用的模型和图像。\n\n:ivar model: 已训练的分类器，已在正确的设备上并处于评估模式。\n:ivar images: 逐图像张量 ``(C, H, W)`` 的列表。\n:ivar masks: 可选的逐图像布尔对象掩码，空间形状相同，用于启用 pointing game。spaCR 找不到它们时为 None。\n:ivar filenames: 面板标签所用的逐图像来源。\n:ivar model_type: 架构名称，用于使错误可读。\n:ivar notes: 调用者必须呈现的来源和警告。",
       "translation_source_blocks_sha256": [
         "2efb6915aa8334146ac0c39b06153d431bc8542f2900da2f4037fa66a1412cfc",
         "85e87a778fe50819399ed2be6c07785bc1873a7df63180838e0e8378f46b781f",
@@ -34499,7 +34499,7 @@
         "0709a865e41cef1918b64bb4685110cbb965a96362320a0f15c194a0a3ed3005"
       ],
       "source_sha256": "28edc1a53887dadf057c0b89ab52227b39bd834f9a170f4ff9b4f0b9736f04e2",
-      "text": "函数矩阵(和,如果适用,标签和组)为一个搜索。\n\n:ivar features: 2D数值矩阵,对象一行。\n:ivar labels: per-row 类标签,或 None 为未经监督的搜索。\n:ivar groups: per-row 组 ID 将每个组保持在一个字段内,或 None。\n:ivar frame: 接收的测量表,从中产生的矩阵。\n:ivar notes: 出发和警告,呼叫者必须表面。",
+      "text": "函数矩阵(和,如果适用,标签和组)为一个搜索。\n\n:ivar features: 2D数值矩阵,对象一行。\n:ivar labels: per-row 类标签,或 None 为未经监督的搜索。\n:ivar groups: per-row 组 ID 将每个组保持在一个字段内,或 None。\n:ivar frame: 接收的测量表,从中产生的矩阵。\n:ivar notes: 调用者必须呈现的来源和警告。",
       "translation_source_blocks_sha256": [
         "648c0e0586dcecb6af0c79e9aead269b61f490134addc7254a889241b9de1f1c",
         "835d95f772c1508ab726febbbbace523ba5f7d176897a9c3f4b83c3b1b9778c3",
@@ -34883,7 +34883,7 @@
         "6dd8d4fc0ebb857b3a75f0233b12cc4913de5fa54f8e699c7053db09c2a5be1d"
       ],
       "source_sha256": "4c9db6813940bebc1076c421ebbc723b001ff503a4f183f2b9c11b456b2164bc",
-      "text": "创建一个“``fit_fn(params)``”的动作调节评估。\n\n每个试验将每个图像一次测量,然后测量地图四种方式 - 删除AUC,插入AUC、点击游戏(当掩膜存在时)和随机卫生检查 - 以便图表可以根据任何标准重新排序,而无需重新运行冲击。 **所有四种图表都被报告为每一次试验,因为它们可以不同意**;一个冲击,只有达到它排名的会隐藏分歧,这是信息部分。\n\n:param data: 模型和图像要点数。\n:param criterion: 哪个 :data:`ACTIVATION_CRITERIA` 驱动排行榜。\n:param n_steps: 干扰步骤在删除 / 插入曲线。\n:param baseline: 被删除的像素变成什么 — ``'blur'``(最少出分配), ``'zero'``, ``'mean'``或 ``'uniform'``。\n:param sanity_threshold: 排序相似之处,其中一个方法通过了随机检查。\n:param run_sanity_check: 只在第一张图像上进行检查,每层参数额外的分配费用,所以这是试验的昂贵部分;将其转移到这里取出最有价值的数字。\n:param keep_maps: 保持每个试验的第一张地图,以便面板可以绘制它。\n:param attribute_fn: 用于招聘呼叫的过度,用于测试。\n:returns: 合适的功能。\n:raises ValueError: 对于未知的标准或空图像集。",
+      "text": "构建一次激活扫描所评估的 ``fit_fn(params)``。\n\n每次试验对每张图像归因一次，然后用四种方式度量这张图——删除 AUC、插入 AUC、pointing game（有掩码时）和随机化合理性检查——这样无需重新运行扫描，就可以按任何标准对表重新排序。**每次试验都会报告全部四项，因为它们可能不一致**；如果扫描只报告它所用于排序的那一项，就会掩盖这种分歧，而这恰恰是有信息量的部分。\n\n:param data: 用于评分的模型和图像。\n:param criterion: :data:`ACTIVATION_CRITERIA` 中的哪一个决定排名。\n:param n_steps: 删除 / 插入曲线中的扰动步数。\n:param baseline: 被移除的像素变成什么——``'blur'``（最不偏离分布）、``'zero'``、``'mean'`` 或 ``'uniform'``。\n:param sanity_threshold: 秩相关低于此值时，方法通过随机化检查。\n:param run_sanity_check: 仅在第一张图像上运行检查。每个带参数的层都需要额外一次归因，因此它是一次试验中成本较高的部分；关闭它会去掉这里最有价值的数字。\n:param keep_maps: 保留每次试验的第一张图，以便面板可以绘制它。\n:param attribute_fn: 对归因调用的覆盖，测试时使用。\n:returns: 拟合函数。\n:raises ValueError: 当标准未知或图像集为空时。",
       "translation_source_blocks_sha256": [
         "9b4ff48650581cd078af31db3678cc2a8c33a9ccb76913d166552e3ce6b03e1e",
         "8ce29153866ded4b6bfc1032ae715a04c38901fc3ecbd3666bdd9903710ca50f",
@@ -34939,7 +34939,7 @@
         "7da313351819e421554b0603f5f30113f8592d465c0d50d7d57690f450cdb8a9"
       ],
       "source_sha256": "51493a050f168b25e67ffdb97d07dd2ea9231982a44830857252cff835c04e22",
-      "text": "的分配设置,每一个与忠诚检查。\n\n要审查的结果是地图板加上每次测试的四个分数,而不是顶级序列。, 因此,这个拒绝命名一个单一的 \"best\": :data:`ACTIVATION_NO_GROUND_TRUTH` 引导笔记,每个标准为每个测试计算, 常见的内心噪音的旗帜燃烧,当领导人是不可分割的。\n\n:param data: 模型 + 图像 (+ 可选掩膜) 以获分。\n:param space: 定位的分数(``cam_type``, ``target_layer``, ``smoothgrad_samples``, ``smoothgrad_sigma``, ``occlusion_window``, ``occlusion_stride``, ``ig_steps``, ``ig_baseline``).\n:param criterion: 什么标准排序审判。\n:param mode: ``'grid'`` 或 ``'random'``。\n:param n_trials: ``mode='random'`` 时可评估的配置;不用于 ``mode='grid'``。\n:param seed: 种子为随机样品。\n:param n_steps: 步骤在删除 / 插入曲线。\n:param baseline: 把这些曲线的基线移除。\n:param run_sanity_check: 按审查进行随机检查。\n:param attribute_fn: 用于招聘呼叫的过度,用于测试。\n:param on_trial: 进展呼叫回复 ``(trial, completed, total)``。\n:param should_stop: 每次审判前,都被问及。\n:returns: 是“:class:`SearchResult`”。\n:raises ValueError: 一个未知的标准或模式。",
+      "text": "扫描归因设置，用忠实度检查为每一项评分。\n\n要审阅的结果是图的面板加上每次试验的四项得分，而不是最上面一行。归因没有基准真值，因此这里拒绝指定唯一的 \"best\"：:data:`ACTIVATION_NO_GROUND_TRUTH` 位于备注的最前面，每个标准都为每次试验计算，并且当领先者无法区分时，会触发通常的噪声范围内标志。\n\n:param data: 用于评分的模型 + 图像（+ 可选掩码）。\n:param space: 要扫描的归因参数（``cam_type``、``target_layer``、``smoothgrad_samples``、``smoothgrad_sigma``、``occlusion_window``、``occlusion_stride``、``ig_steps``、``ig_baseline``）。\n:param criterion: 哪个标准对试验排序。\n:param mode: ``'grid'`` 或 ``'random'``。\n:param n_trials: ``mode='random'`` 时要评估的配置数；``mode='grid'`` 时不使用。\n:param seed: 随机采样的种子。\n:param n_steps: 删除 / 插入曲线中的步数。\n:param baseline: 这些曲线的移除基线。\n:param run_sanity_check: 对每次试验运行随机化检查。\n:param attribute_fn: 对归因调用的覆盖，测试时使用。\n:param on_trial: 进度回调 ``(trial, completed, total)``。\n:param should_stop: 在每次试验之前轮询。\n:returns: 是“:class:`SearchResult`”。\n:raises ValueError: 当标准或模式未知时。",
       "translation_source_blocks_sha256": [
         "dc9309ed8c677dd92e262a6d03dd56196eb494b4f2a7060348aa868a06b3f60b",
         "df44b6d66d878a50371af22ea4660af31cf2b2d1c7842921d753ef144a740d4a",
@@ -35029,7 +35029,7 @@
         "5394845c06d02b1223574dc706d88367483f0055d0b0587ce1afc4354400d09f"
       ],
       "source_sha256": "937ed0f39d3e280b6d8330f2362337865b077a315a18313fb63f0a6b34ca8d3d",
-      "text": "创建一个 ``fit_fn(params)`` 将每个字段的深模型列入一个。\n\nClassify (CV) 应用使用 Torch CNNs 进行训练，因此搜索不会自行实现交叉验证折叠：它把每项配置交给 :func:`spacr.deep_spacr. train_test_model`，强制 ``cross_validation_folds`` 至少为 2，并保持 ``cv_group_by`` 不变，随后读取该处理会话写出的逐折 CSV。这样，分组 k 折只有 spaCR 的一套实现，搜索拆分数据的方式也与训练处理会话完全一致。\n\n每个测试列车都有 ``n_folds`` 模型,因此一组 ``g`` 配置列车有 ``g × n_folds`` 型号。\n\n:param settings: 基层分类(CV)设置关键值地图;每个测试的参数被列在顶部。\n:param criterion: 以每分为 CSV 的字符串阅读。\n:param n_folds: 审判中有交叉证书;至少有2个。\n:param train_fn: 超级为 ``train_test_model`` (用于测试,以免真正的 CNN 被训练)。\n:param read_fold_csv: 对于 CSV 读者来说,它是过度的。\n:returns: 合适的功能。\n:raises ValueError: 当 ``n_folds`` < 2 时。",
+      "text": "创建一个 ``fit_fn(params)`` 将每个字段的深模型列入一个。\n\nClassify (CV) 应用使用 Torch CNNs 进行训练，因此搜索不会自行实现交叉验证折叠：它把每项配置交给 :func:`spacr.deep_spacr. train_test_model`，强制 ``cross_validation_folds`` 至少为 2，并保持 ``cv_group_by`` 不变，随后读取该处理会话写出的逐折 CSV。这样，分组 k 折只有 spaCR 的一套实现，搜索拆分数据的方式也与训练处理会话完全一致。\n\n每个测试列车都有 ``n_folds`` 模型,因此一组 ``g`` 配置列车有 ``g × n_folds`` 型号。\n\n:param settings: 基层分类(CV)设置关键值地图;每个测试的参数被列在顶部。\n:param criterion: 以每分为 CSV 的字符串阅读。\n:param n_folds: 审判中有交叉证书;至少有2个。\n:param train_fn: 超级为 ``train_test_model`` (用于测试,以免真正的 CNN 被训练)。\n:param read_fold_csv: 对于 CSV 读者来说,它是过度的。\n:returns: 拟合函数。\n:raises ValueError: 当 ``n_folds`` < 2 时。",
       "translation_source_blocks_sha256": [
         "9c6fb57346c89329fb7aaaa11b05d3ac1b5b8dad2237a3dbec329651c9f77a99",
         "790334d2a3d08721baf2227b6f05cb0de7e6466c8d96247bbb6a8014eafa2202",
@@ -35096,7 +35096,7 @@
         "c1c2e66b8d695c0ad191f0aa2a3bd1cbcee0d2763ffd1154be0f16b80f17a6c4"
       ],
       "source_sha256": "669d9405b56e35641c95090d4c2a962d08d94a1c0decaec7217502f09dc7f461",
-      "text": "通过跨验证搜索超级参数,从来没有通过测试中分数。\n\n每个配置都按字段设置一次,对该字段的训练指数进行分数,并在该字幕的验证指数上进行分类;测试分数是字段之间的平均值,而字段到字段标准偏差变成噪音字符。 :meth:`SearchResult.within_noise`指数列入 ``test_idx`` 被移除,直到板块被建造,并且从未交付到 ``fit_fn`` 选择对最终估计保留的数据进行配置,使该估计毫无意义。\n\n:param fit_fn: 被称为 ``fit_fn(params, train_idx, val_idx)``;返回验证分数,一个 ``(score, metrics)`` 对,或一个关键值地图与 ``score``。\n:param space: 要搜索的“:class:`SearchSpace`”\n:param labels: 各样品类标签(用于分裂字符)。\n:param groups: 具体的样品组ID。\n:param filenames: 提取图像区域名称到 parse 组 IDs 从。\n:param group_by: 按默认定位, ``'well'``。\n:param n_folds: 十字架验证文件的数量。\n:param seed: 种子为叶片和随机样品。\n:param test_idx: 持有外测试分裂的指标,从每个字段中排除。\n:param folds: 预设 ``(train_idx, val_idx)`` 对,超越 :func:`build_folds`. 对 ``test_idx`` 进行验证。\n:param metric: 返回的点数名称 ``fit_fn``。\n:param higher_is_better: 方向为 ``metric``。\n:param n_trials: 当给出时,随机样本这个许多配置而不是运行整个网络。\n:param on_trial: 进展呼叫回复 ``(trial, completed, total)``。\n:param should_stop: 每次审判前,都被问及。\n:returns: 是“:class:`SearchResult`”。\n:raises ValueError: 接入时 ``folds`` 触摸 ``test_idx``。",
+      "text": "通过跨验证搜索超级参数,从来没有通过测试中分数。\n\n每个配置都按字段设置一次,对该字段的训练指数进行分数,并在该字幕的验证指数上进行分类;测试分数是字段之间的平均值,而字段到字段标准偏差变成噪音字符。 :meth:`SearchResult.within_noise`指数列入 ``test_idx`` 被移除,直到板块被建造,并且从未交付到 ``fit_fn`` 选择对最终估计保留的数据进行配置,使该估计毫无意义。\n\n:param fit_fn: 被称为 ``fit_fn(params, train_idx, val_idx)``;返回验证分数,一个 ``(score, metrics)`` 对,或一个关键值地图与 ``score``。\n:param space: 要搜索的 :class:`SearchSpace`。\n:param labels: 各样品类标签(用于分裂字符)。\n:param groups: 具体的样品组ID。\n:param filenames: 提取图像区域名称到 parse 组 IDs 从。\n:param group_by: 按默认定位, ``'well'``。\n:param n_folds: 十字架验证文件的数量。\n:param seed: 种子为叶片和随机样品。\n:param test_idx: 持有外测试分裂的指标,从每个字段中排除。\n:param folds: 预设 ``(train_idx, val_idx)`` 对,超越 :func:`build_folds`. 对 ``test_idx`` 进行验证。\n:param metric: 返回的点数名称 ``fit_fn``。\n:param higher_is_better: 方向为 ``metric``。\n:param n_trials: 当给出时,随机样本这个许多配置而不是运行整个网络。\n:param on_trial: 进度回调 ``(trial, completed, total)``。\n:param should_stop: 在每次试验之前轮询。\n:returns: 是“:class:`SearchResult`”。\n:raises ValueError: 接入时 ``folds`` 触摸 ``test_idx``。",
       "translation_source_blocks_sha256": [
         "d38e46b69f5608170eb25dd28a5dead58c5375019dfd668419667db4b5d97b9b",
         "1ba9a6c670c0d2366e0cda6e5a799f5fa6913d8c22a648da96037fc345fe1a06",
@@ -35178,7 +35178,7 @@
         "d53e740730a347bbc8ca9f2cd609d38fdfde4f68a174d30b9b710fd0cbe3a4f4"
       ],
       "source_sha256": "913db7aa8330157a276fc4d3cc80c216d3be4748487db7ea328d51d3c75d719c",
-      "text": "每个配置都可在 ``space`` 中进行评估。\n\n:param fit_fn: 被称为 ``fit_fn(params)``;返回一个分数,一个 ``(score, metrics)`` 对,或一个关键值地图与一个结构化数据名称 ``score``。\n:param space: 要列出 :class:`SearchSpace`。\n:param metric: 指标的名称,代表得分。\n:param higher_is_better: 方向为 ``metric``。\n:param on_trial: 进展呼叫回复 ``(trial, completed, total)``。\n:param should_stop: 在每一次试验之前进行试验; True 打破了冲击,并标记了结果的部分。\n:param notes: 添加额外的插件。\n:returns: 是“:class:`SearchResult`”。",
+      "text": "每个配置都可在 ``space`` 中进行评估。\n\n:param fit_fn: 被称为 ``fit_fn(params)``;返回一个分数,一个 ``(score, metrics)`` 对,或一个关键值地图与一个结构化数据名称 ``score``。\n:param space: 要列出 :class:`SearchSpace`。\n:param metric: 指标的名称,代表得分。\n:param higher_is_better: 方向为 ``metric``。\n:param on_trial: 进度回调 ``(trial, completed, total)``。\n:param should_stop: 在每一次试验之前进行试验; True 打破了冲击,并标记了结果的部分。\n:param notes: 添加额外的插件。\n:returns: 是“:class:`SearchResult`”。",
       "translation_source_blocks_sha256": [
         "f9202a7a2c3ded85b79e77e3913baf3c22541caefd3d5d3122e19cc4f00ca14c",
         "f2c9916d3a087d8cb02f666716aa7630bf6efbd223c3070f738a670cb812b961",
@@ -35204,7 +35204,7 @@
         "aab9bf77ad9674e4a1bbace786f4fd898af63001ccd0b23b1d4ac1797b8e7f81"
       ],
       "source_sha256": "c2f4036c9b221c27edb6d0c21d6ac7f3a6f74c5789e920d4d2e3dac539752402",
-      "text": "加载模型和一小堆图像,一个激活的点数。\n\n二是优先的:\n\n* ``src``/``merged/*.npy`` 包含 spaCR 的合并数组。  一个文件包含两个图像通道*和*对象标签平面。 ,因为包含的对象掩码是完全对齐的,这样就可以执行指向任务。\n* ``dataset`` — 提取的图像区域 tar 启动运行本身阅读. 这些提取图像区不存在,所以指标游戏不可用,返回的笔记说,而不是沉默地放下标准。\n\n一个插图在每个图像上运行每个配置,所以``n_images``是小于目的:成本为``configurations × images × (2 curves + 1 sanity cascade)``前进。\n\n:param settings: 启用应用程序的设置 关键值地图。\n:param n_images: 要拍多少张图片\n:returns: 是“:class:`ActivationSearchData`”。\n:raises ValueError: 没有任何来源可用。",
+      "text": "加载模型和一小批图像，用于对一次激活扫描进行评分。\n\n两个来源，按优先顺序：\n\n* ``src``/``merged/*.npy`` — spaCR 自己的合并数组，它在一个文件中同时携带图像通道 *和* 对象标签平面。之所以优先使用，是因为对象掩码免费获得且完全对齐，这正是使 pointing game 得以进行的原因。\n* ``dataset`` — 激活运行本身读取的裁剪 tar。这些裁剪没有对齐的掩码，因此 pointing game 不可用，返回的备注会明确说明这一点，而不是悄悄丢掉该标准。\n\n扫描会对每张图像运行每种配置，因此 ``n_images`` 是有意取得较小的：成本是 ``configurations × images × (2 curves + 1 sanity cascade)`` 次前向传播。\n\n:param settings: 激活应用的设置 dict。\n:param n_images: 用多少张图像评分。\n:returns: 是“:class:`ActivationSearchData`”。\n:raises ValueError: 当两个来源都不可用时。",
       "translation_source_blocks_sha256": [
         "21db1484f5e5c8b06f061e80610a3fad50df1c6f4867a7c4b70cbe95bc5b9d38",
         "f43a7b7fdaff462c8ccad718657516459ef5a45d9c80f096126976b3b2b10b0e",
@@ -35293,7 +35293,7 @@
         "9c1cb4c0d24e84b1d1f7bb5de20b0a84d51391444018b8d610bc92171f773dc9"
       ],
       "source_sha256": "922f77c757071e1a5c383a624da46fdfb3c69e1fdfd91c84313f1b8b7aab5ee4",
-      "text": "评估 ``n_trials`` 配置,随机从 ``space`` 引导。\n\n可重复:相同的 ``seed`` 总是以相同顺序进行相同配置。\n\n:param fit_fn: 被称为“``fit_fn(params)``”。\n:param space: 以 :class:`SearchSpace` 向样品。\n:param n_trials: 要评估多少个配置;必须是积极的。\n:param seed: 种子RNG。\n:param metric: 指标的名称,代表得分。\n:param higher_is_better: 方向为 ``metric``。\n:param on_trial: 进展呼叫回复 ``(trial, completed, total)``。\n:param should_stop: 每次审判前,都被问及。\n:param notes: 添加额外的插件。\n:param allow_duplicates: 当 False(默认情况)相同的配置从未被评估两次时,如果空间小于 ``n_trials``,则会缩小到空间的尺寸。\n:returns: 是“:class:`SearchResult`”。\n:raises ValueError: 但是,如果 ``n_trials`` 不是积极的整体。",
+      "text": "评估 ``n_trials`` 配置,随机从 ``space`` 引导。\n\n可重复:相同的 ``seed`` 总是以相同顺序进行相同配置。\n\n:param fit_fn: 被称为“``fit_fn(params)``”。\n:param space: 以 :class:`SearchSpace` 向样品。\n:param n_trials: 要评估多少个配置;必须是积极的。\n:param seed: 种子RNG。\n:param metric: 指标的名称,代表得分。\n:param higher_is_better: 方向为 ``metric``。\n:param on_trial: 进度回调 ``(trial, completed, total)``。\n:param should_stop: 在每次试验之前轮询。\n:param notes: 添加额外的插件。\n:param allow_duplicates: 当 False(默认情况)相同的配置从未被评估两次时,如果空间小于 ``n_trials``,则会缩小到空间的尺寸。\n:returns: 是“:class:`SearchResult`”。\n:raises ValueError: 但是,如果 ``n_trials`` 不是积极的整体。",
       "translation_source_blocks_sha256": [
         "d5401de284275fe8e7ab5a31370aeb57ea2d0567b4e13a663d1a3cb33f5adacc",
         "27551fe0c68ce0e2f7b4d118c01654288855ab0cb869b52f2670e4347a674553",
@@ -35348,7 +35348,7 @@
         "c5eca1e7395baa65409d279eaedb254d6a5752b8126fb7ff6fc2a6f2e219b8c2"
       ],
       "source_sha256": "90f64cae8aa63e3636d7bfb9223b08e7b7b573d658642f1a4373089cf35e1401",
-      "text": "运行与 ``app_key`` 相匹配的搜索;这是 GUI 的输入点。\n\n* ``umap`` - 每次配置一次内置测量功能,并以命名标准排序它们(参见 :func:`umap_search`)。\n* ``ml_analyze`` — 集成跨验证的经典ML超级参数搜索(见 :func:`cv_search`)。\n* ``classify`` — 每个配置每次经过验证的深度培训处理会议(参见 :func:`classify_cv_fit_fn`)。\n* ``activation`` - 图像分为每个配置,分为删除 AUC、插入 AUC 、点击游戏和随机卫生检查(参见 :func:`activation_search`)。\n\n:param app_key: 哪个应用程序需要\n:param settings: 该应用程序的设置关键值地图。\n:param space: 要搜索的“:class:`SearchSpace`”\n:param criterion: 测量名称;默认情况下,应用程序的第一个 :data:`APP_CRITERIA` 输入。\n:param mode: ``'grid'`` 或 ``'random'``。\n:param n_trials: 要评估的设置,当 ``mode='random'``。\n:param adaptive: 只为 UMAP,从一个起点运行步行。\n:param walk_parameters: 其中 UMAP 参数是 Walk 搜索;默认情况为 n_neighbors 和 min_dist. 任何子组为 :data:`UMAP_WALK_PARAMETERS`。\n:param walk_resolutions: 路径网分辨率为 ``{name: n}``。\n:param walk_steps: 步行步行超级, ``{name: size}``。\n:param n_neighbors_step: 走路整合邻居增幅。\n:param min_dist_step: 步行 min_dist 增加。\n:param min_improvement: 步行得分,停止限制。\n:param stability_repeats: 重复种植的组合,按多对象 UMAP 配置。\n:param objective_weights: 重量为邻居维护、稳定和集群结构,多目标 UMAP 模式。\n:param umap_backend: ``'cpu'`` 或明确要求的 ``'cuml'``。\n:param cluster_during_search: 每次 UMAP 试验按完成。\n:param cluster_sizes: HDBSCAN 尺寸为每个 UMAP 试验搜索。\n:param umap_components: 固定 2D 或 3D 输出为 UMAP 测试。\n:param seed: 种子用于样品、叶片和缩小剂。\n:param n_folds: 对监督的应用程序进行跨验证文件夹。\n:param on_trial: 进展呼叫回复 ``(trial, completed, total)``。\n:param should_stop: 每次审判前,都被问及。\n:param data: 预载 :class:`SearchData`(或 :class:`ActivationSearchData` 为 ``'activation'``),转到数据库 / 模型阅读。\n:param checkpoint_path: UMAP 检查点路径;如果错过了 UMAP 项目路径,则由 :func:`umap_checkpoint_path` 衍生。\n:param resume: 继续使用兼容的 UMAP 搜索点。\n:returns: 是“:class:`SearchResult`”。\n:raises ValueError: 对于未知的 ``app_key`` 或 ``mode``。",
+      "text": "运行与 ``app_key`` 相匹配的搜索；这是 GUI 的入口。\n\n* ``umap`` — 每种配置对测量特征做一次嵌入，并用一个命名标准对它们排序（参见 :func:`umap_search`）。\n* ``ml_analyze`` — 在经典 ML 超参数上进行分组交叉验证搜索（参见 :func:`cv_search`）。\n* ``classify`` — 每种配置一次交叉验证的深度训练运行（参见 :func:`classify_cv_fit_fn`）。\n* ``activation`` — 每种配置对每张图像做一次归因，以删除 AUC、插入 AUC、pointing game 和随机化合理性检查评分（参见 :func:`activation_search`）。\n\n:param app_key: 发出请求的应用。\n:param settings: 该应用的设置 dict。\n:param space: 要搜索的 :class:`SearchSpace`。\n:param criterion: 指标名称；默认为该应用的第一个 :data:`APP_CRITERIA` 条目。\n:param mode: ``'grid'`` 或 ``'random'``。\n:param n_trials: ``mode='random'`` 时要评估的配置数。\n:param adaptive: 仅对 UMAP，从一个起点运行 Walk。\n:param walk_parameters: Walk 搜索哪些 UMAP 参数；默认为 n_neighbors 和 min_dist。:data:`UMAP_WALK_PARAMETERS` 的任意子集。\n:param walk_resolutions: 逐轴的 Walk 网格分辨率，``{name: n}``。\n:param walk_steps: 逐轴的 Walk 步长覆盖，``{name: size}``。\n:param n_neighbors_step: Walk 的整数邻域增量。\n:param min_dist_step: Walk 的 min_dist 增量。\n:param min_improvement: Walk 的得分增益停止阈值。\n:param stability_repeats: 每种多目标 UMAP 配置重复的带种子嵌入。\n:param objective_weights: 多目标 UMAP 模式下邻域保持、稳定性和聚类结构的权重。\n:param umap_backend: ``'cpu'`` 或明确请求的 ``'cuml'``。\n:param cluster_during_search: 每次 UMAP 试验一完成就进行聚类。\n:param cluster_sizes: 每次 UMAP 试验所搜索的 HDBSCAN 尺度。\n:param umap_components: UMAP 试验的固定 2-D 或 3-D 输出。\n:param seed: 采样、折和降维器的种子。\n:param n_folds: 有监督应用的交叉验证折数。\n:param on_trial: 进度回调 ``(trial, completed, total)``。\n:param should_stop: 在每次试验之前轮询。\n:param data: 预先加载的 :class:`SearchData`（或 :class:`ActivationSearchData`，对 ``'activation'``），跳过数据库 / 模型的读取。\n:param checkpoint_path: UMAP 检查点路径；省略时，UMAP 项目路径由 :func:`umap_checkpoint_path` 推导。\n:param resume: 继续一个兼容的 UMAP 搜索检查点。\n:returns: 是“:class:`SearchResult`”。\n:raises ValueError: 当 ``app_key`` 或 ``mode`` 未知时。",
       "translation_source_blocks_sha256": [
         "142c95b39c2bddd67288e265f81c236cc626c8c73e63f1957c5204c746197b9d",
         "07954f7ee03eac217d7222c76d94a163d25ba5404bae473644a5d47400f43f60",
@@ -35398,7 +35398,7 @@
         "fd4fae4361d3e2b5bfe1ea272bc1e16394adfd29b3a68f9b33cbbcafdc5c10cb"
       ],
       "source_sha256": "7f8efaead937b8fe88a886d34828794abf04699345b628dab74a3e4f1cc8b2d2",
-      "text": "要想的 ``fit_fn(params, train_idx, val_idx)`` :func:`cv_search` 是。\n\n估计器是安装在板的训练指数,并在板上的验证指数上得分 - 函数从未给予任何其他指数 - 因此它不能结构性地在持有测试分数上进行分数。\n\n:param features: 2D数值矩阵。\n:param labels: 路德的字符串。\n:param model_type: 什么机器学习分类模型要构建(参见 :func:`build_sklearn_model`)。\n:param criterion: ``'accuracy'``、``'roc_auc'`` 或 ``'f1'``。\n:param seed: 对于估计器的``random_state``。\n:param n_jobs: 工作者在支持的地方计算。\n:returns: 合适的功能。",
+      "text": "要想的 ``fit_fn(params, train_idx, val_idx)`` :func:`cv_search` 是。\n\n估计器是安装在板的训练指数,并在板上的验证指数上得分 - 函数从未给予任何其他指数 - 因此它不能结构性地在持有测试分数上进行分数。\n\n:param features: 2D数值矩阵。\n:param labels: 路德的字符串。\n:param model_type: 什么机器学习分类模型要构建(参见 :func:`build_sklearn_model`)。\n:param criterion: ``'accuracy'``、``'roc_auc'`` 或 ``'f1'``。\n:param seed: 对于估计器的``random_state``。\n:param n_jobs: 工作者在支持的地方计算。\n:returns: 拟合函数。",
       "translation_source_blocks_sha256": [
         "2dcf164dddc77c6e96ed5298f9f83859d9ff86edaac76f3e2d2f8727de214546",
         "f8d76b85b12ac230f026b365235defe60c28bfd6970aa2c77208574887ca4117",
@@ -35521,7 +35521,7 @@
         "3952958e220e01f07c1914a835c7454d202aa23161653f676d48b2e14487f053"
       ],
       "source_sha256": "4334e93f510f5b7c5d2a5906ede05ed6c60181cc4966399068272e943f4ddc1b",
-      "text": "按 UMAP 参数,每个组合都以一个命名标准进行分数。\n\n每个测试保持其插入(除非 ``keep_embeddings`` 关闭),所以呼叫器可以绘制小数,每个标准为每个测试计算,以便呼叫者可以看到在标准时如何改变排名。\n\n:param features: 2D数值矩阵, ``(n_samples, n_features)``。\n:param space: UMAP 参数为``n_neighbors``, ``min_dist``,``metric``, ...)。\n:param metric: 哪个标准驱动排名;一个为 :data:`UMAP_CRITERIA`。\n:param labels: 可选的类标签;需要 ``'silhouette'``。\n:param seed: ``random_state`` 对于缩小器,所以泡沫重复。\n:param n_components: 固定显示尺寸, 2 或 3. 它保留在每个行,即使它不是一个搜索的轴。\n:param neighbourhood_k: 附近大小可靠性/连续性。\n:param adaptive: 运行一个行走 - 从一个起点进行异常的本地优化 - 而不是网络。 看:func:`walk_search`。\n:param walk_parameters: 路径搜索的参数为 UMAP. 缺点为 n_neighbors 和 min_dist,它一直使用的两个; 任何子组 :data:`UMAP_WALK_PARAMETERS` 被接受。\n:param walk_resolutions: 每轴网分辨率, ``{name: n}``. 2 是经典 +/-step 对。\n:param walk_steps: 按轴步行,``{name: size}``。\n:param n_trials: 最多完整的步行旋转;白色或 None 意味着 100.\n:param n_neighbors_step: 沿着 n_neighbors 轴的地点步骤。\n:param min_dist_step: 沿着 min_dist 轴的地点步骤。\n:param min_improvement: 得分得分需要在一轮后继续。\n:param stability_repeats: 可重复的 UMAP 按配置匹配,当 ``metric='multi_objective'``;必须至少为 2。\n:param objective_weights: 可选重量为 ``neighborhood_preservation``、 ``stability`` 和 ``cluster_structure``. 值将正常化为总数为 1。\n:param embed_fn: ``embed_fn(features, params) -> embedding`` 过度;当被忽略时,使用 umap-learn。\n:param backend: ``'cpu'``为 umap - 学习或 ``'cuml'``为可选的 RAPIDS 实施. 每个成功的试验都记录了真正引导它的背景,因为两家图书馆制作不同的地图。\n:param cluster_during_search: 对每个完成的嵌入运行 HDBSCAN scale walk 并保留坐标旁边的最佳标签。\n:param cluster_sizes: ``min_cluster_size`` 值为此行走。\n:param keep_embeddings: 将每个试验的集成存储在其额外的测量中。\n:param on_trial: 进展呼叫回复 ``(trial, completed, total)``。\n:param should_stop: 每次审判前,都被问及。\n:param checkpoint_path: 可选的原子检查点 JSON. 插件在每次完成试验后将作为附近的``.npy`` 对象存储。\n:param resume: 输入功能、标签、搜索空间、标准、种子和材料搜索设置必须匹配。\n:returns: 是:class:`SearchResult`。 当 umap-learn 失踪并没有 ``embed_fn`` 被授予时,这将返回一个空白的结果,其笔记导致 :data:`UMAP_MISSING_MESSAGE` 而不是扔 ImportError。\n:raises ValueError: 如果 ``metric`` 不是已知的标准,或者 ``'silhouette'`` 被要求没有标签。",
+      "text": "按 UMAP 参数,每个组合都以一个命名标准进行分数。\n\n每个测试保持其插入(除非 ``keep_embeddings`` 关闭),所以呼叫器可以绘制小数,每个标准为每个测试计算,以便呼叫者可以看到在标准时如何改变排名。\n\n:param features: 2D数值矩阵, ``(n_samples, n_features)``。\n:param space: UMAP 参数为``n_neighbors``, ``min_dist``,``metric``, ...)。\n:param metric: 哪个标准驱动排名;一个为 :data:`UMAP_CRITERIA`。\n:param labels: 可选的类标签;需要 ``'silhouette'``。\n:param seed: ``random_state`` 对于缩小器,所以泡沫重复。\n:param n_components: 固定显示尺寸, 2 或 3. 它保留在每个行,即使它不是一个搜索的轴。\n:param neighbourhood_k: 附近大小可靠性/连续性。\n:param adaptive: 运行一个行走 - 从一个起点进行异常的本地优化 - 而不是网络。 看:func:`walk_search`。\n:param walk_parameters: 路径搜索的参数为 UMAP. 缺点为 n_neighbors 和 min_dist,它一直使用的两个; 任何子组 :data:`UMAP_WALK_PARAMETERS` 被接受。\n:param walk_resolutions: 每轴网分辨率, ``{name: n}``. 2 是经典 +/-step 对。\n:param walk_steps: 按轴步行,``{name: size}``。\n:param n_trials: 最多完整的步行旋转;白色或 None 意味着 100.\n:param n_neighbors_step: 沿着 n_neighbors 轴的地点步骤。\n:param min_dist_step: 沿着 min_dist 轴的地点步骤。\n:param min_improvement: 得分得分需要在一轮后继续。\n:param stability_repeats: 可重复的 UMAP 按配置匹配,当 ``metric='multi_objective'``;必须至少为 2。\n:param objective_weights: 可选重量为 ``neighborhood_preservation``、 ``stability`` 和 ``cluster_structure``. 值将正常化为总数为 1。\n:param embed_fn: ``embed_fn(features, params) -> embedding`` 过度;当被忽略时,使用 umap-learn。\n:param backend: ``'cpu'``为 umap - 学习或 ``'cuml'``为可选的 RAPIDS 实施. 每个成功的试验都记录了真正引导它的背景,因为两家图书馆制作不同的地图。\n:param cluster_during_search: 对每个完成的嵌入运行 HDBSCAN scale walk 并保留坐标旁边的最佳标签。\n:param cluster_sizes: ``min_cluster_size`` 值为此行走。\n:param keep_embeddings: 将每个试验的集成存储在其额外的测量中。\n:param on_trial: 进度回调 ``(trial, completed, total)``。\n:param should_stop: 在每次试验之前轮询。\n:param checkpoint_path: 可选的原子检查点 JSON. 插件在每次完成试验后将作为附近的``.npy`` 对象存储。\n:param resume: 输入功能、标签、搜索空间、标准、种子和材料搜索设置必须匹配。\n:returns: 是:class:`SearchResult`。 当 umap-learn 失踪并没有 ``embed_fn`` 被授予时,这将返回一个空白的结果,其笔记导致 :data:`UMAP_MISSING_MESSAGE` 而不是扔 ImportError。\n:raises ValueError: 如果 ``metric`` 不是已知的标准,或者 ``'silhouette'`` 被要求没有标签。",
       "translation_source_blocks_sha256": [
         "0ddc5a4010d38aae3275a2a36491f7f7d1c39dd40d060beeac57ad1d247724ec",
         "88802d9c67fa49f1534be93e455517134def9d60d98b3b40aa88f44d50679d43",
@@ -48390,7 +48390,7 @@
         "fdafafab1593af5d5d1e19413bef494addfec93348222d77104827f48778748e"
       ],
       "source_sha256": "39ff1d739b49bac80fcdc9bd335a9b05085b36e24d8cca0dc891eedcc8cb8e07",
-      "text": "练习对对象机器学习分类模型在积极/负控制微板样本位置,并评分输入的每个行 DataFrame。\n\n直接呼吁单端 ML 工作,内部由 :func:`generate_ml_scores`. 过滤频道的特性,下降低变量和高度相关的列,分裂(或简历)列 / 测试,匹配所需的模型,计算转换和本地特性重要性,调节最佳的决策边界,并写出预测 + 概率返回返回的 DataFrame。\n\n:param df: 每个对象的特性 DataFrame 如通过合并细胞/核/病原体/细胞板的 :func:`spacr.measure.measure_crop` 数据库所产生的。\n:param channel_of_interest: 频道指数用于选择功能。\n:param location_column: 列识别微板样本位置 / 实验室微板列 默认 ``'columnID'``。\n:param positive_control: 值(s)在 ``location_column`` 被视为积极的类. 默认 ``'c2'``。\n:param negative_control: 值(s)被视为负类。 默认 ``'c1'``。\n:param exclude: 列从功能空间中移除。\n:param n_repeats: 重复对转换的重要性. 默认 ``10``。\n:param top_features: 函数 cap 当 ``prune_features=True``。\n:param reg_alpha: XGBoost L1 罚款。\n:param reg_lambda: 二、XGBoost L2 罚款。\n:param learning_rate: 学习率 XGBoost。\n:param n_estimators: 木材计算为基于树的模型。\n:param test_size: 测试分裂分裂 默认 ``0.2``。\n:param model_type: ``'random_forest'``、``'logistic_regression'``、``'gradient_boosting'`` 或 ``'xgboost'``。\n:param n_jobs: 平行工作计算适当时. 默认 ``-1``。\n:param remove_low_variance_features: 放下低变量功能。\n:param remove_highly_correlated_features: 放弃高度相关的特性。\n:param prune_features: 如果 True,则在训练前使用 ``SelectKBest``。\n:param cross_validation: 如果 True,则运行5倍的分布式简历。\n:param verbose: 记录进展细节。\n:param split_by: 列车/测试分配的独立采购单位: ``'cell'``, ``'field'``, ``'well'``(默认),或``'plate'``。 Legacy ``'none'`` 是 ``'cell'`` 的名称。\n:param batch_correction: 板的修正方法从 :mod:`spacr.batch_correction`。\n:param batch_column: 标识实验室微板/微孔板的代数据列。\n:param batch_control_column: 包含 ``control_center`` 的参考控制标签的甲数据列。\n:param batch_control_values: 负/参考控制值(s)\n:param batch_min_samples: 每台实验室微板的最低行或控制。\n:param batch_covariate_column: 包含生物科瓦里亚特的甲数据列 ComBat 必须保留,如治疗,细胞线,或时间点。 ``batch_correction=\"combat\"``其因子保持在纠正的数据中,而估计的包效应被删除。\n:param batch_combat_mean_only: 如果 ``True``, ComBat 调整集合值,而不扩展集合变量。 这种情况可能适当,当分类主要因位置而异,或者对稳定变量估计的观察太少。 默认 ``False`` 可调整方法和变量。\n:param batch_missing_control: ``error`` 或 ``skip`` 缺少控制。\n:returns: 双 ``(output, figs)`` 在那里 ``output`` 是 ``(scored_df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, train_features)`` 的位置双,而 ``figs`` 则是 ``(permutation_fig, feature_importance_fig)``。\n:raises ValueError: 在未支持的 ``model_type`` 或当 积极 / 负控制行不能在 ``location_column`` 中找到。\n\n示例：\n    .. code-block:: python\n\n        from spacr.ml import ml_analysis\n        output, figs = ml_analysis(\n            df, channel_of_interest=3,\n            positive_control='c2', negative_control='c1',\n            model_type='xgboost',\n        )\n        scored_df = output[0]\n\n此外,请参见: :func:`generate_ml_scores` - 将此呼叫与 DB I/O 进行。",
+      "text": "在阳性 / 阴性对照孔上训练逐对象分类器，并为输入 DataFrame 的每一行评分。\n\n直接用于一次性的 ML 工作，也由 :func:`generate_ml_scores` 在内部调用。按通道过滤特征，丢弃低方差列和高度相关的列，划分（或交叉验证）训练 / 测试，拟合所请求的模型，计算置换重要性和原生特征重要性，调整最优决策阈值，并把预测和概率写回返回的 DataFrame。\n\n:param df: 逐对象的特征 DataFrame，由合并 :func:`spacr.measure.measure_crop` 数据库的细胞 / 细胞核 / 病原体 / 细胞质表而得。\n:param channel_of_interest: 用于选择特征的通道索引。\n:param location_column: 标识孔 / 孔板列的列。默认为 ``'columnID'``。\n:param positive_control: ``location_column`` 中被视为阳性类别的值。默认为 ``'c2'``。\n:param negative_control: 被视为阴性类别的值。默认为 ``'c1'``。\n:param exclude: 要从特征空间中移除的列。\n:param n_repeats: 置换重要性的重复次数。默认为 ``10``。\n:param top_features: ``prune_features=True`` 时的特征数量上限。\n:param reg_alpha: XGBoost 的 L1 惩罚。\n:param reg_lambda: XGBoost 的 L2 惩罚。\n:param learning_rate: XGBoost 的学习率。\n:param n_estimators: 基于树的模型的树数量。\n:param test_size: 测试集划分比例。默认为 ``0.2``。\n:param model_type: ``'random_forest'``、``'logistic_regression'``、``'gradient_boosting'`` 或 ``'xgboost'``。\n:param n_jobs: 适用时的并行作业数。默认为 ``-1``。\n:param remove_low_variance_features: 丢弃低方差特征。\n:param remove_highly_correlated_features: 丢弃高度相关的特征。\n:param prune_features: 若为 True，则在训练前应用 ``SelectKBest``。\n:param cross_validation: 若为 True，则运行 5 折分层交叉验证。\n:param verbose: 记录进度细节。\n:param split_by: 用于划分训练 / 测试的独立采集单元：``'cell'``、``'field'``、``'well'``（默认）或 ``'plate'``。旧值 ``'none'`` 是 ``'cell'`` 的别名。\n:param batch_correction: 来自 :mod:`spacr.batch_correction` 的孔板校正方法。\n:param batch_column: 标识孔板 / 批次的元数据列。\n:param batch_control_column: 保存 ``control_center`` 参考对照标签的元数据列。\n:param batch_control_values: 阴性 / 参考对照的值。\n:param batch_min_samples: 每块孔板的最少行数或对照数。\n:param batch_covariate_column: 包含 ComBat 必须保留的生物学协变量（例如处理、细胞系或时间点）的元数据列。``batch_correction=\"combat\"`` 时必需；在估计的批次效应被去除的同时，其系数保留在校正后的数据中。\n:param batch_combat_mean_only: 若为 ``True``，ComBat 调整批次均值而不缩放批次方差。当批次主要因位置而不同，或观测太少而无法稳定估计方差时，这可能是合适的。默认的 ``False`` 同时调整均值和方差。\n:param batch_missing_control: 缺少对照时的 ``error`` 或 ``skip``。\n:returns: 元组 ``(output, figs)``，其中 ``output`` 是 ``(scored_df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, train_features)`` 的位置元组，``figs`` 是 ``(permutation_fig, feature_importance_fig)``。\n:raises ValueError: 当 ``model_type`` 不受支持，或在 ``location_column`` 中找不到阳性 / 阴性对照行时。\n\n示例：\n    .. code-block:: python\n\n        from spacr.ml import ml_analysis\n        output, figs = ml_analysis(\n            df, channel_of_interest=3,\n            positive_control='c2', negative_control='c1',\n            model_type='xgboost',\n        )\n        scored_df = output[0]\n\n另请参阅：:func:`generate_ml_scores` — 用数据库 I/O 包装此调用。",
       "translation_source_blocks_sha256": [
         "eeca3fb34a7c5ded93f2579619446a135d4789f05517b4b66a5cf8fba14f30a8",
         "afe32767a5373ac5863cab9962e3c42304443709f00b8a651a615a6224e131fe",
@@ -56435,7 +56435,7 @@
         "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea"
       ],
       "source_sha256": "162c475a7d82e4be7c7f1e1f4659da4fe565e6a69c35c93727211c3fcae10c04",
-      "text": "先在每个循环内配准一个视野的各通道，再配准其各循环。\n\n每个碱基通道先依据各通道共有的截断细胞背景移到其循环的第一个通道上 -- 在实测板上它们相距可达 14 px，而循环之间的配准看不到这一点 -- 然后用 :func:`sbs_mean_target` 把每个循环移到参考上。以 ``None`` 或缺少平面的方式提供的循环记录在 :attr:`AlignedField.missing` 中，配准被拒绝的循环记录在 :attr:`AlignedField.refused` 中；其余循环照样对齐，因此丢失一个循环不会让整个视野作废。\n\n:param planes: ``cycle -> the base channels of that cycle``，每个平面都是同一形状的 2-D 图像。\n:param reference: 所有内容都移向的循环。None 则取有平面的最低循环。\n:param tolerance: 一个循环落在离参考多远之内仍被接受，以像素计。\n:param gpu: 允许阶段相互关系在 GPU 上运行。\n:returns: 对齐后的视野。\n:raises ValueError: 当没有任何循环有平面，或参考循环没有平面时。",
+      "text": "先在每个循环内配准一个视野的各通道，再配准其各循环。\n\n每个碱基通道先依据各通道共有的截断细胞背景移到其循环的第一个通道上 -- 在实测板上它们相距可达 14 px，而循环之间的配准看不到这一点 -- 然后用 :func:`sbs_mean_target` 把每个循环移到参考上。以 ``None`` 或缺少平面的方式提供的循环记录在 :attr:`AlignedField.missing` 中，配准被拒绝的循环记录在 :attr:`AlignedField.refused` 中；其余循环照样对齐，因此丢失一个循环不会让整个视野作废。\n\n:param planes: ``cycle -> the base channels of that cycle``，每个平面都是同一形状的 2-D 图像。\n:param reference: 所有内容都移向的循环。None 则取有平面的最低循环。\n:param tolerance: 一个循环落在离参考多远之内仍被接受，以像素计。\n:param gpu: 允许相位相关在 GPU 上运行。\n:returns: 对齐后的视野。\n:raises ValueError: 当没有任何循环有平面，或参考循环没有平面时。",
       "translation_source_blocks_sha256": [
         "f2bd6713f4006234347a17cf9b1bcde501a8e0a25e178f709762a748e8d3f7fc",
         "e60728203af2b09c945b009cf647dfaaf5815deb409513d518f6c1831a62e392",
@@ -56591,7 +56591,7 @@
         "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c"
       ],
       "source_sha256": "8c7ee33c12972978c54fbc287ee32e09379e9fda3888881c45cd5504f18452e3",
-      "text": "对一次测序采集中的各孔进行拼接、定位、分割和解码。\n\n:param settings: OPS 设置。此处读取：``genotype_source``，测序图块所在的文件夹，会被递归搜索；``phenotype_source``，高倍表型采集所在的文件夹，``phenotype`` 阶段会将其放置到拼接好的孔上，值为空时跳过；``dst_root``，``measurements.db`` 和每个孔的报告的存放位置，为空时使用源文件夹；``plate``，为空时使用源文件夹的名称；``ops_gpu``；``n_workers``，同时解码的视野数；``cellpose_model`` 和 ``cellpose_diameter``；``ops_library``，引导 RNA 文库 CSV，可被 ``library`` 关键字参数覆盖；以及五个实测数值 ``ops_base_channels``、``ops_read_threshold``、``ops_raster_overlap``、``ops_window_overlap`` 和 ``ops_footprint``，每个数值都会回退到此板经过验证时所用的值。``ops_store_reads`` 会写出 ``ops_reads``。\n\n    无论是文件夹都可以是两半的父母,每个设置都读到自己的: ``genotype_source`` 只指载一个循环的名称,而 ``phenotype_source`` 仅指载不行的名单,返回循环名称为携带它们的现象收购。 因此,在 ``20200202_6W-LaC024A`` 两个标记运行实验室微板,而不是输入 1,281 个现象微镜视野和 333 个序列作为一个收购 - 见 :func:`_index_tiles`。\n:param wells: 要运行哪些孔；为 None 时运行找到的每个孔。\n:param phases: ``\"stitch\"``、``\"phenotype\"``、``\"objects\"`` 和 ``\"decode\"`` 中的任意几个，按此顺序运行。被省略的阶段会从数据库中读取其所需内容，因此一个孔可以只拼接一次，然后再次解码。\n:param library: 引导 RNA 条形码，可以是一个序列，也可以是一个带有 ``prefix``、``barcode`` 或 ``sequence`` 列的 CSV 路径。给定时，每个条形码还会被映射到与之最接近的引导 RNA。会覆盖 ``ops_library`` 设置。\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: 当源中没有此处能识别的图块、请求了未知的阶段或孔，或某个阶段缺少输入时。",
+      "text": "对一次测序采集中的各孔进行拼接、定位、分割和解码。\n\n:param settings: OPS 设置。此处读取：``genotype_source``，测序图块所在的文件夹，会被递归搜索；``phenotype_source``，高倍表型采集所在的文件夹，``phenotype`` 阶段会将其放置到拼接好的孔上，值为空时跳过；``dst_root``，``measurements.db`` 和每个孔的报告的存放位置，为空时使用源文件夹；``plate``，为空时使用源文件夹的名称；``ops_gpu``；``n_workers``，同时解码的视野数；``cellpose_model`` 和 ``cellpose_diameter``；``ops_library``，引导 RNA 文库 CSV，可被 ``library`` 关键字参数覆盖；以及五个实测数值 ``ops_base_channels``、``ops_read_threshold``、``ops_raster_overlap``、``ops_window_overlap`` 和 ``ops_footprint``，每个数值都会回退到此板经过验证时所用的值。``ops_store_reads`` 会写出 ``ops_reads``。\n\n    任一文件夹都可以是两个部分的父文件夹，而每项设置仍只读取各自的部分：``genotype_source`` 只索引带循环的名称，``phenotype_source`` 只索引不带循环的名称，对于带有循环名称的表型采集则回退到带循环的名称。因此把两者都指向 ``20200202_6W-LaC024A`` 会处理该孔板，而不是把 1,281 个表型视野和 333 个测序视野作为一次采集归档 -- 参见 :func:`_index_tiles`。\n:param wells: 要运行哪些孔；为 None 时为发现的所有孔。\n:param phases: ``\"stitch\"``、``\"phenotype\"``、``\"objects\"`` 和 ``\"decode\"`` 中的任意几个，按此顺序运行。被省略的阶段会从数据库中读取其所需内容，因此一个孔可以只拼接一次，然后再次解码。\n:param library: 引导 RNA 条形码，可以是一个序列，也可以是一个带有 ``prefix``、``barcode`` 或 ``sequence`` 列的 CSV 路径。给定时，每个条形码还会被映射到与之最接近的引导 RNA。会覆盖 ``ops_library`` 设置。\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: 当数据源不包含此处能命名的任何图块、请求了未知的阶段或孔，或缺少某个阶段的输入时。",
       "translation_source_blocks_sha256": [
         "68204af3e84ca8766af6e87e9c546b7acb0dd2b0811974fd8697369efd200838",
         "c6bc911b575858913942cb2a050c56117005359b26684db63cb3187288fbef0f",
@@ -56672,7 +56672,7 @@
         "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384"
       ],
       "source_sha256": "b32713d84ddea6d3d9ff142b6fd41ffcbc4a7c7c77e5667ece918f2fc4927215",
-      "text": "圆孔的显微镜图像字段,由网站指数和网络位置处理。\n\n:ivar columns: 采购拉斯特有多少个显微镜字段的列。\n:ivar radius: 微板样本位置的射线,在网络单位(一个微镜图像字段 = 1)。\n:ivar centre: ``(column, row)`` 循环的中心. 行对测量良好是负的,因为位置 0 位于顶部,行向下增加。\n:ivar snake: 是否收购蛇 - 奇怪的列收集到底部到顶部. 微管理员的HCS插件,这就是为什么参考实施携带一个 `remap_snake` 总的来说。\n:ivar half_tile: 一个位置保留,当其整个显微镜图像字段位于圆圈内:在 ``(dx, dy)`` 从中心,当 ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. 零保留每个位置,其中心位于内部。\n\n必须容纳的是整个图块，而不只是它的中心。中心规则能得到 333 个视野的测序孔，却无论取什么半径都得不到 1,281 个视野的表型孔实测的列高。加入足迹项后，两者都与实测一致，而且每一列都以同一行为中心。",
+      "text": "圆形孔的图块，按位点索引和网格位置寻址。\n\n:ivar columns: 采集光栅有多少列视野。\n:ivar radius: 孔的半径，以网格单位表示（一个图块间距 = 1）。\n:ivar centre: 圆心的 ``(column, row)``。被测量孔的行为负，因为位点 0 在顶部，行向下增加。\n:ivar snake: 采集是否为蛇形——奇数列自下而上采集。Micro-Manager 的 HCS 插件就是这样，这就是参考实现中带有 `remap_snake` 的原因。\n:ivar half_tile: 图块边长的一半，以网格单位表示。当整个图块位于圆内时保留该位点：在距圆心 ``(dx, dy)`` 处，当 ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2`` 时。为零则保留圆心在圆内的每个位点。\n\n必须容纳的是整个图块，而不只是它的中心。中心规则能得到 333 个视野的测序孔，却无论取什么半径都得不到 1,281 个视野的表型孔实测的列高。加入足迹项后，两者都与实测一致，而且每一列都以同一行为中心。",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
@@ -56802,7 +56802,7 @@
         "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
       "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
-      "text": "一个列的 ``(first row, last row)`` 或 None 如果它是空的。\n\n:param column: 列索引。\n:returns: 整个图块位于圆内的位点所占的绝对行范围（含两端） -- 参见 :attr:`half_tile`。",
+      "text": "一列的 ``(first row, last row)``，为空时为 None。\n\n:param column: 列索引。\n:returns: 整个图块位于圆内的位点所占的绝对行范围（含两端） -- 参见 :attr:`half_tile`。",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
@@ -56821,7 +56821,7 @@
         "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2"
       ],
       "source_sha256": "ff84226ea3d1bf56a8bb2771306ddf579c8a6a68c6dcb9bdf18f15aa84d0563b",
-      "text": "它的配置,其循环保留正确的 ``site_count`` 字段。\n\n只要搜索落在实测孔的 333 个位点上，就原样返回实测孔，因此已确认的模型不会被重新推导。对于其他任何数量，都会搜索半径 -- 以不同放大倍数或不同板格式成像的孔，是同一个圆，只是其中视野数不同。\n\n:param site_count: 收购所持有多少微镜图像字段。\n:param columns: 列数,当它是已知的. 由循环不同。\n:param half_tile: 图块边长的一半，以图块间距计 -- 即图块尺寸除以两倍的配准间距。当一个视野的整个图块都在圆内时保留它；取零时，只要其中心在圆内就保留。默认值是表型采集实测的 0.5857。测序采集实测为 0.5840，而严格介于 0.5 和 2.0 之间的每个值，都能让两个孔 -- 333 和 1,281 个视野 -- 得到实测的列高。\n:returns: 是Layout。\n:raises ValueError: 当没有循环保持正确的许多显微镜的视野:一个计算,没有圆的良好产生意味着收购不是一个,并猜测最接近将放置每个显微镜的图像字段有点错误。 ``half_tile`` 是负数,或者不是数字。\n\n对给定的半个图块而言，数量决定了视野。圆内的视野数只随半径增长，因此每个恰好容纳 ``site_count`` 个视野的半径容纳的都是同一批视野。布局所带的半径只是其中之一，并非测量值。",
+      "text": "其圆恰好包含 ``site_count`` 个视野的布局。\n\n只要搜索落在实测孔的 333 个位点上，就原样返回实测孔，因此已确认的模型不会被重新推导。对于其他任何数量，都会搜索半径 -- 以不同放大倍数或不同板格式成像的孔，是同一个圆，只是其中视野数不同。\n\n:param site_count: 采集包含多少个图块。\n:param columns: 列数（已知时）。否则由圆推导。\n:param half_tile: 图块边长的一半，以图块间距计 -- 即图块尺寸除以两倍的配准间距。当一个视野的整个图块都在圆内时保留它；取零时，只要其中心在圆内就保留。默认值是表型采集实测的 0.5857。测序采集实测为 0.5840，而严格介于 0.5 和 2.0 之间的每个值，都能让两个孔 -- 333 和 1,281 个视野 -- 得到实测的列高。\n:returns: 该布局。\n:raises ValueError: 当没有任何圆恰好包含那么多视野时：任何圆形孔都不会产生的计数，意味着该采集不是圆形孔，猜测最接近的值会使每个图块都稍有偏差。当 ``half_tile`` 为负数或不是数字时同样如此。\n\n对给定的半个图块而言，数量决定了视野。圆内的视野数只随半径增长，因此每个恰好容纳 ``site_count`` 个视野的半径容纳的都是同一批视野。布局所带的半径只是其中之一，并非测量值。",
       "translation_source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
         "299d2ff5db36070256696fbaabdea0d8ae076c4a2d77122fd92dcfcc8efd1a69",
@@ -56845,7 +56845,7 @@
         "d4d8a6e566cdeff215297df74696c06d34071afbfa08304a3f72e4af3d9deb34"
       ],
       "source_sha256": "68754b9289c0912d0e7cdd34fba7591207fbcb0e678c109136d18e9e140e8b4e",
-      "text": "相匹配的细胞是由他们的安排,而不是他们的像素。\n\n光学集成扫描图像是相同的两次:一次在低大小阅读条码,一次在高大小测量现象型,每个细胞必须匹配两者之间,而显而易见的方法 - 相连图像 - 不工作。\n\n保存的是细胞的安排. 采取三个邻近的细胞,形成的三角形的形状是不可改变的扩展,旋转和翻译. 因此,细胞是三角,每个三角被缩小到一个描述器,只取决于它的形状,两组是匹配在这些描述。\n\n匹配是相互最接近的邻居与距离限制:一对只保留,当每个细胞是另一个最亲近的,而任何可疑的东西都落下,而不是分配。 错误匹配的细胞给了一个真实的现象错误的条码,这沉默地腐败了一个扫描实验; 一个落下的一个只花费统计检测敏感性,更多的细胞可以买回。\n\n准确度,测量在90个细胞超过500倍的字段相关的已知规模2.0,一个11度旋转和一个转变(137.5, -92.25):\n\n    中央细胞下降尺寸角度转换错误 无 无 2000 11.00 0.00 px 无 8 2.000 11.00 无 1.5 px 1.995 10.77 3.45 px 1.5 pX 8 1.993 10.71 4.45 无 4.0 px 25 2.050 8.83 41.29 px\n\n最后一行是失败,并被记录为一个。三角形是携带信号的,并在细胞上喷出几十个像素的变化,形成物质 - 因此,方法与中心噪音而不是细胞计算下降。如果一个真正的收购坐得比第四行更接近,答案是更好的分区中心,而不是宽容:宽容的扩展承认更偶然的形状相匹配,并将中间移动到它们。\n\n跟随布里流(Cheeseman实验室; github.com/cheeseman-lab/brieflow,MIT,版权2025 马萨诸塞技术研究所),其 `merge` 阶段被阅读为方法。",
+      "text": "按排列方式而不是像素，在两种放大倍率之间匹配细胞。\n\n光学混合筛选（optical pooled screening）对同一个孔成像两次：一次用低放大倍率读取条形码，一次用高放大倍率测量表型。每个细胞都必须在两者之间匹配，而显而易见的方法——对图像做相关——行不通。像素并不对应：尺度不同，染色不同，往往连显微镜也不同。\n\n被保留下来的是细胞的排列。取三个相邻细胞，它们构成的三角形的形状不会因放大、旋转和平移而改变。因此对细胞做三角剖分，把每个三角形归约为只取决于其形状的描述符，并按这些描述符匹配两个集合。两次采集之间的变换由匹配的三角形得出，细胞则在该变换下配对。\n\n匹配采用带距离限制的互为最近邻：只有当每个细胞都是对方的最近者时才保留这一对，任何可疑的都被丢弃而不是被分配。错误匹配的细胞会给真实表型赋予错误的条形码，从而悄悄破坏一次筛选；被丢弃的细胞只损失统计功效，而更多的细胞可以把它买回来。\n\n精度，在一个 500 px 视野中对 90 个细胞测得，该视野由已知尺度 2.0、11 度旋转和 (137.5, -92.25) 平移相关联：\n\n    质心抖动   丢弃的细胞   尺度     角度      平移误差 none              none            2.000     11.00      0.00 px none              8               2.000     11.00      0.00 px 1.5 px            none            1.995     10.77      3.45 px 1.5 px            8               1.993     10.71      4.45 px 4.0 px            25              2.050      8.83     41.29 px\n\n最后一行是一次失败，并被记录为失败。承载信号的是三角形的形状，而在几十像素宽的细胞上几个像素的抖动会实质性地改变该形状——因此这种方法随质心噪声而退化，而不是随细胞数量。如果某次真实采集更接近最后一行而不是第四行，答案是更好的分割质心，而不是更宽松的容差：放宽容差会放进更多巧合的形状匹配，并使中位数向它们移动。\n\n遵循 brieflow（Cheeseman 实验室；github.com/cheeseman-lab/brieflow，MIT，Copyright 2025 Massachusetts Institute of Technology），其 `merge` 阶段曾被阅读以了解该方法。",
       "translation_source_blocks_sha256": [
         "82b1a75c97d080ce74ad2a3119929bd6416cb85af4e190a3b38c184d29a30cb7",
         "e618c5a0c7d8cc915929eea943d257e15aecdd92298476b6290ca0da0de2977b",
@@ -56868,7 +56868,7 @@
         "7b98b9a15badb31b9d6cfc16809d0c7e8d67c88e1740d15746885bd1264fe79f"
       ],
       "source_sha256": "4c3291a4fc156645ce66dfa5ea33dbeb5329bf4001c1a5d6aeb176de64020061",
-      "text": "恢复两个细胞组之间的转变,从三角形单独。\n\n每个三角形在 ``source`` 相匹配的 ``target`` 三角形,其形状描述器是在 ``tolerance`` 中,每个比赛都提出了一个转换,而提议是混合的。\n\n:param source: ``(N, 2)`` 要移动的框架中的中心。\n:param target: ``(M, 2)``在框中转向中心。\n:param tolerance: 如何接近两个形状描述者必须考虑到相同的三角形。\n:param min_votes: 在转型完全返回之前需要多少匹配三角比赛,下面这个答案不是证据。\n:returns: ``(scale, rotation, translation)`` 或 None 如果太少的三角形同意。",
+      "text": "仅根据三角形的形状，恢复两个细胞集合之间的变换。\n\n``source`` 中的每个三角形都与 ``target`` 中形状描述符在 ``tolerance`` 之内的三角形匹配，每个匹配提出一个变换，这些提议被汇集。汇集使其稳健：单个巧合的形状匹配会提出错误的变换，但错误的提议彼此不一致，而正确的提议彼此一致，因此中位数得以保留而离群值不会。\n\n:param source: 待移动的坐标框架中的 ``(N, 2)`` 质心。\n:param target: 要移动到的坐标框架中的 ``(M, 2)`` 质心。\n:param tolerance: 两个形状描述符要多接近才被视为同一个三角形。\n:param min_votes: 在返回变换之前需要多少个一致的三角形匹配。低于此数，结果不构成证据。\n:returns: ``(scale, rotation, translation)``，如果一致的三角形太少则为 None。",
       "translation_source_blocks_sha256": [
         "599ccbfc83b1ddab125dd481c89b7063c6933ab6ccbc255beeaf4af562acf42b",
         "783029840de405f9ac7892781a7f1a4ba4494123dfc36913c7efc8877b6154f5",
@@ -56891,7 +56891,7 @@
         "ca32deedb124ace8a2a66aaa4162328d1b86d2e86865b34b99651436ce9fa6b4"
       ],
       "source_sha256": "f4cf852053b279986f82f2837da69a59c324fd99ba5c87d4476d59a31cada071",
-      "text": "双细胞一对一,只保持相互最接近的邻居。\n\n双重的夫妇被放弃,不被分配。 一对只有当每个细胞最接近另一个细胞时才能生存,并且它们在``threshold``内。 两个细胞为同一个伴侣竞争,两个失去。 一个错误匹配的细胞给了一个真实的现象错误的条形码,并破坏了从它计算的每一个统计数据,而一个落下的细胞只会花费更多的细胞可以恢复的统计检测敏感性。\n\n:param source: ``(N, 2)`` 中心。\n:param target: ``(M, 2)`` 中心。\n:param transform: ``(scale, rotation, translation)`` 从 :func:`align_by_triangles` 应用到 ``source`` 首先. ``None`` 意味着两个集已经在相同的框架。\n:param threshold: 最大的距离,在目标单位,仍然可以称为相同的细胞。\n:param gpu: 运行两个最接近的搜索在一个 GPU 当一个是可用的. 一个微板样本位置携带数万个核在每个侧面,搜索进行两次,一次在每个方向; `spacr.ops_accel.nearest_neighbours` 切割它,以便工作组不会与微板模型位置成长。\n:returns: ``(K, 2)`` 序列为 ``(source_index, target_index)`` 对。",
+      "text": "将细胞一对一配对，只保留互为最近邻的细胞。\n\n含糊的配对被丢弃，而不是被分配。只有当每个细胞都是对方的最近者且二者都在 ``threshold`` 之内时，这一对才得以保留。争夺同一个伙伴的两个细胞都会落选。错误匹配的细胞会给真实表型赋予错误的条形码，并破坏由此计算的每个统计量，而被丢弃的细胞只损失更多细胞可以恢复的统计功效。\n\n:param source: ``(N, 2)`` 质心。\n:param target: ``(M, 2)`` 质心。\n:param transform: ``(scale, rotation, translation)``，来自 :func:`align_by_triangles`，先应用于 ``source``。``None`` 表示两个集合已处于同一坐标框架中。\n:param threshold: 仍可称为同一个细胞的最大距离，以目标单位表示。\n:param gpu: 有可用的 GPU 时，在其上运行这两次最近邻搜索。一个孔每侧有数万个细胞核，搜索要做两次，每个方向一次；`spacr.ops_accel.nearest_neighbours` 将其分块，使工作集不随孔增大。\n:returns: ``(K, 2)`` 数组，由 ``(source_index, target_index)`` 对组成。",
       "translation_source_blocks_sha256": [
         "ea76f4753cbb1ab0a30c95c506413653696103702f264930677918dd065301b0",
         "6f7e8953558d11bebc299492c1be884ce2a5d56e82bcf64b87794baac5a04155",
@@ -56911,7 +56911,7 @@
         "dd39089ee08045932a92b6bc32262ebf428c6e4f890d7d9762fc48d489dacbb1"
       ],
       "source_sha256": "06d0a661b38fa1be8f3f38ec8985d5166a081f0899cf26ee772a0272431f6078",
-      "text": "Delaunay 三角形 ``points`` 并根据其形状描述每个三角形。\n\n描述器是两个数字:两个最短的边缘的比率到最长的三角形,按相同的因素增加每个边缘,所以比率不移动;旋转和翻译它根本不改变边缘长度。\n\n:param points: ``(N, 2)`` 细胞中心。\n:returns: ``(descriptors, vertex_indices)`` - 一个 ``(M, 2)`` 序列和每个三角形的垂直的 ``(M, 3)`` 指数,以便 vertex 0 与最短的侧面相反,而 vertex 2 相反的最长。",
+      "text": "对 ``points`` 做 Delaunay 三角剖分，并以形状描述每个三角形。\n\n描述符是两个数：较短的两条边与最长边之比。缩放三角形会把每条边乘以同一个因子，因此比值不变；旋转和平移则完全不改变边长。因此描述符忽略绝对大小和位置，而这两者正是两次采集之间不同的地方。\n\n:param points: ``(N, 2)`` 细胞质心。\n:returns: ``(descriptors, vertex_indices)`` -- 一个 ``(M, 2)`` 数组和每个三角形顶点的 ``(M, 3)`` 索引，排序使得顶点 0 与最短边相对，顶点 2 与最长边相对。正是这种顺序使两个匹配的描述符也给出匹配的点，没有它就无法求解变换。",
       "translation_source_blocks_sha256": [
         "791b5c4b0975320d22aade02374f63eddd6457aed32cc329179aebca2bd92da5",
         "9e7b220f5ab6803d19227ebc19aa12894972c2c96d08f57c97b968397d929ab9",
@@ -56932,7 +56932,7 @@
         "c33c09e9ab786a198b8db1b6b18e4dad12b05ecc5fad0d335d267d2b781acfaa"
       ],
       "source_sha256": "68962cc99e33b4c7ae7e0276229037f0cf461d75ce0ed8f50c2e606edce19b75",
-      "text": "一个对象列表为一个微板样本位置,在窗口的序列上排序,并一次编数。\n\n组成步骤给了一个紧张的图像网,建造了一个窗口在一个时刻,从来没有物质化整个;这就是分区和数字化在它的顶部做什么:\n\n* 分类一次,在组合上,窗口按窗口。\n* 把标签放在窗口的边缘上,一个围绕边界的对象是一个对象,在其良好的框架中匹配。\n* 微板样本位置框中的数字,而不是每个窗口的数字,将为两个窗口提供一个对象 #1 周围。\n\n复合步骤已经处理了一半的海域问题: :func:`spacr.ops_compose.windows_over` 微镜图像字段与一个超层,其合同是,超层超越最大的对象. 因此,一个核附近一个海域不分为两个窗户 - 它被视为整体至少一个,通常是两次。\n\n    重建两个部分掩膜的对象意味着决定如何将像素连接到一个掩膜上,这是可靠和无损的。\n\n一个失败仍然存在,并被报告:一个对象比上层更大,每个窗口都会剪辑。 :func:`number` 拒绝那些而不是发出碎片,因为一个碎片看起来像一个小核,并将被计算为处理部分的剩余。\n\nIDs 是一个合并结构数据名称,所以它们被分配的决定性 - 拉斯特命令在微板样本位置框中心 - 而不是由 iteration 命令上一个关键值地图或任何窗口发生第一次分区。",
+      "text": "一个孔的对象列表，跨窗口接缝缝合并只编号一次。\n\n分割、缝合、编号——合成图与对象表之间的三个步骤。合成步骤给出一个每次构建一个窗口、从不整体具现的镶嵌图；分割和编号在其之上进行：\n\n* 在合成图上逐窗口分割一次。\n* 跨窗口接缝缝合标签。跨越边界的对象是一个对象，按其在孔坐标系中的质心进行匹配。\n* 在孔坐标系中编号，而不是逐窗口编号。逐窗口编号会让两个窗口各有一个对象 #1。\n\n合成步骤已经处理了接缝问题的一半：:func:`spacr.ops_compose.windows_over` 以重叠方式分块，其约定是重叠大于最大的对象。因此接缝附近的细胞核不会被分到两个窗口——至少有一个窗口会完整地看到它，通常是两个。所以这里的工作是去重，而不是重建：找出属于同一个细胞核的观测，保留完整看到它的那一个。\n\n    从两个局部掩码重建一个对象，意味着要决定如何跨接缝合并像素，这既繁琐又有损。在两个完整的掩码之间选择则两者皆非。\n\n还剩一种失败并会被报告：比重叠更大的对象，每个窗口都会裁切它。:func:`number` 拒绝这些对象而不是发出碎片，因为碎片看起来恰如一个小细胞核，会在其余运行中被当作细胞核计数。\n\nid 是连接键，因此它们是确定性地分配的——按孔坐标系质心的光栅顺序——而不是按 dict 的迭代顺序，也不是按哪个窗口碰巧先被分割。约定是：\"This id, and the centroid beside it, is the join key for every later phase.\" 对相同数据的两次运行必须产生相同的编号，否则下游的一切都无法比较。",
       "translation_source_blocks_sha256": [
         "8c6d8513f13f9bdee29471aa28191262bead1149b24a1bdd2dd9bd006801d1c8",
         "df39fbb0212e6634c3d90378ebf3fb324de245af8a0e368fa4c21ef80c4265b3",
@@ -57029,7 +57029,7 @@
         "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ],
       "source_sha256": "bf681b100acbeeb7a299a667058326f984dd7485ee25a6a63449d8deb4aac0ee",
-      "text": "1个对象的ID,在微板样本位置框中分配,定义。\n\n拉斯特命令在微板样本位置框中 - 向上向下,然后向左向右 - 而不是命令窗口被分区到。\n\n零是每个标签图像的背景,这来自,一个数字为0的对象将是不可见的任何下流掩膜比较。\n\n:param groups: 从 :func:`sew`。\n:param strict: 拒绝没有完整观测的组。关闭后，这样的组会被丢弃而不编号 -- 不会输出任何面积被截断的对象 -- 并以警告记录丢弃了多少个。\n:raises ObjectsError: 当一个组只包含被裁剪的观测时：要么对象比窗口重叠区还大，要么它是一个碎片，与任何窗口对其细胞核的完整视图都不匹配。消息会给出对象的范围以及每种情况的解决办法。",
+      "text": "每个对象一个 id，在孔坐标系中确定性地分配。\n\n按孔坐标系质心的光栅顺序——自上而下，再自左而右——而不是窗口被分割的顺序。id 是连接键，所以对相同数据的两次运行必须产生相同的编号；按调度器可能改变的任何东西排序，都会悄悄地且只在结果中破坏这一点。\n\nid 从 1 开始。零是其来源的每张标签图像中的背景，编号为 0 的对象对任何下游的掩码比较都是不可见的。\n\n:param groups: 来自 :func:`sew`。\n:param strict: 拒绝没有完整观测的组。关闭后，这样的组会被丢弃而不编号 -- 不会输出任何面积被截断的对象 -- 并以警告记录丢弃了多少个。\n:raises ObjectsError: 当一个组只包含被裁剪的观测时：要么对象比窗口重叠区还大，要么它是一个碎片，与任何窗口对其细胞核的完整视图都不匹配。消息会给出对象的范围以及每种情况的解决办法。",
       "translation_source_blocks_sha256": [
         "e59d92411ab038dc0eae96f9b50e22d4e209ba7f09ad325f1685cd475ca1f438",
         "71dd785a95bf433424f8db8a069882a844b988679155e844d35c762c5bc4f10a",
@@ -57102,7 +57102,7 @@
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ],
       "source_sha256": "0279b9920ca0a831d177b5bcb4b3451b1346e167256f4a737e7e7630fb0d88d3",
-      "text": "集体观察是相同的核心。\n\n每个集体都是一个物理对象,一个窗口的核心由两个(或四个,在一个角落)的观察组成;一个在窗口内部形成一个集体。\n\n一个观察,其掩膜进入一个内部海洋,没有看到整个核,所以它的区域和中心是错误的。 它只保持足够长时间,以适应一个完整的观察相同的核,然后落在它的利益。 一个剪辑观察匹配什么都没有完整的意味着没有窗口看到这个核整体,这:func:`number`拒绝。\n\n同一窗口的两个标签绝不会是同一个对象，因为标签图不会给一个细胞核两个标签。来自不同窗口的两个完整观测，当它们的质心在每个轴上相差不超过 ``tolerance``，并且面积之比达到 ``area_ratio`` 或者质心位于较小者的等效半径之内时，就是同一个细胞核 -- 等效半径即与其面积相同的圆盘的半径。面积一致的对先合并，其余的按距离由近到远合并，而会让一个组含有同一窗口两个标签的合并会被拒绝。\n\n被裁剪的观测按包含关系匹配，而不是按固定距离：裁剪会把它的质心向内移动至多一个细胞核半径，因此固定容差恰恰会漏掉深度裁剪。当它的质心位于另一个窗口中某个完整观测的等效圆盘内，或者它的外接框在正负两个像素的误差内位于该观测的框内时，它就并入该完整观测。它只并入最近的这样一个观测，因此一个裁剪片段永远不会把两个细胞核合成一个对象。与任何完整观测都不匹配的裁剪观测，会在它们的框相互重叠处彼此归为一组。\n\n:param observations: 每个窗口的每一个对象的视图在一个洞,已经在良好的框架坐标。 顺序并不重要; 组合是由地质学,而不是到达。\n:returns: 各式各样的观察,在任何特定的顺序 - :func:`number` 都会执行所需的顺序。",
+      "text": "把属于同一个细胞核的观测分组。\n\n每个组是一个物理对象。窗口重叠区中的细胞核由两个（在角上为四个）观测分组而成；窗口内部的细胞核则构成只有一个观测的组。\n\n掩码触及内部接缝的观测没有看到整个细胞核，因此其面积和质心都是错的。它只被保留到足以与同一细胞核的完整观测匹配，然后被舍弃而采用后者。没有匹配任何完整观测的被裁切观测，意味着没有窗口完整地看到该细胞核，:func:`number` 会拒绝这种情况。\n\n同一窗口的两个标签绝不会是同一个对象，因为标签图不会给一个细胞核两个标签。来自不同窗口的两个完整观测，当它们的质心在每个轴上相差不超过 ``tolerance``，并且面积之比达到 ``area_ratio`` 或者质心位于较小者的等效半径之内时，就是同一个细胞核 -- 等效半径即与其面积相同的圆盘的半径。面积一致的对先合并，其余的按距离由近到远合并，而会让一个组含有同一窗口两个标签的合并会被拒绝。\n\n被裁剪的观测按包含关系匹配，而不是按固定距离：裁剪会把它的质心向内移动至多一个细胞核半径，因此固定容差恰恰会漏掉深度裁剪。当它的质心位于另一个窗口中某个完整观测的等效圆盘内，或者它的外接框在正负两个像素的误差内位于该观测的框内时，它就并入该完整观测。它只并入最近的这样一个观测，因此一个裁剪片段永远不会把两个细胞核合成一个对象。与任何完整观测都不匹配的裁剪观测，会在它们的框相互重叠处彼此归为一组。\n\n:param observations: 每个窗口对一个孔中每个对象的视图，已处于孔坐标系坐标中。顺序无关紧要；分组依据几何，而不是到达顺序。\n:returns: 组，每个组是观测的元组，没有特定顺序——:func:`number` 强加了重要的顺序。",
       "translation_source_blocks_sha256": [
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
@@ -57272,7 +57272,7 @@
         "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1"
       ],
       "source_sha256": "27b03b412e7276f02c04c3b0b2c1a812d78534da025cb0ea7fe3f06459c9d3a9",
-      "text": "预测视野的每个显微镜字段的良好框架中心从测量的轴承。\n\n:param layout: 表型采集的 :class:`spacr.ops_layout.WellLayout`，或它包含的视野数。\n:param anchors: ``{site: (y, x)}``，至少三个已对齐视野在孔坐标系中的中心，这些视野的网格位置不能全在一条直线上。该方法是用分布在全孔的六个视野验证的。\n:returns: ``{site: (y, x)}``，布局中每个视野一项，包括锚点 -- 给出的是拟合中心，而不是实测中心。\n:raises ValueError: 当锚点无法确定栅格时：少于三个、位于网格的同一直线上，或某个中心不是两个有限数。视野数不是任何圆形孔能容纳的数量时也会引发。\n:raises IndexError: 当某个锚点指定了布局中不存在的位点时。\n\n六个数就能定位整个孔。布局给出每个视野的网格位置，采集栅格通过一个原点、一个列步长和一个行步长把网格位置映射到孔坐标系中，每一项都是一个 ``(dy, dx)`` 对，承载着载物台几个像素的倾斜。在一个真实孔的六个视野上用最小二乘拟合后，它预测其余 472 个视野实测中心的中位误差为 1.2 px、最大 4.0 px，预测第二个孔的 451 个视野最大误差为 4.4 px。",
+      "text": "根据测得的锚点预测每个表型视野在孔坐标系中的中心。\n\n:param layout: 表型采集的 :class:`spacr.ops_layout.WellLayout`，或它包含的视野数。\n:param anchors: ``{site: (y, x)}``，至少三个已对齐视野在孔坐标系中的中心，这些视野的网格位置不能全在一条直线上。该方法是用分布在全孔的六个视野验证的。\n:returns: ``{site: (y, x)}``，布局中每个视野一项，包括锚点 -- 给出的是拟合中心，而不是实测中心。\n:raises ValueError: 当锚点无法确定栅格时：少于三个、位于网格的同一直线上，或某个中心不是两个有限数。视野数不是任何圆形孔能容纳的数量时也会引发。\n:raises IndexError: 当某个锚点指定了布局中不存在的位点时。\n\n六个数就能定位整个孔。布局给出每个视野的网格位置，采集栅格通过一个原点、一个列步长和一个行步长把网格位置映射到孔坐标系中，每一项都是一个 ``(dy, dx)`` 对，承载着载物台几个像素的倾斜。在一个真实孔的六个视野上用最小二乘拟合后，它预测其余 472 个视野实测中心的中位误差为 1.2 px、最大 4.0 px，预测第二个孔的 451 个视野最大误差为 4.4 px。",
       "translation_source_blocks_sha256": [
         "05d63f99f81d77605bcf7f542bd384ab13266ef7c5a180df569b0630b0a85154",
         "e6a41dea9a8ecb57c5e1ecd8211653925ccdf502c6d946a59e02da0f4c34a8e2",
@@ -57632,7 +57632,7 @@
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
       ],
       "source_sha256": "bf3364312d0da574171c4dfd29acd56696e7b3338711edcc70969b94d7be7a68",
-      "text": "``ops_barcodes`` 行:每对象一行,由周期组成。\n\n代表呼叫本身到 :func:`spacr.ops_sbs.call_reads`,这已经正常化了每个循环的频道,并报告质量为周期的最低 - “条码只有可靠的最糟糕的基础”。 重复说,这里将是一个第二个解码器保持步骤。\n\n:param objects: 数字化对象,以 ``values`` 的第一轴相同的顺序。\n:param values: ``(objects, cycles, channels)`` 强度,从未平均过周期 - 见 :func:`decode_input`,因为相同原因拒绝单个周期。\n:param library: 当提供时,每条条码都会通过 :func:`spacr.ops_sbs.correct_to_library` 向最接近的图书馆会员进行纠正,并且行将其地图所带到什么。",
+      "text": "``ops_barcodes`` 行：每个对象一行，跨循环汇集。\n\n把调用本身委托给 :func:`spacr.ops_sbs.call_reads`，它已经对每个循环的通道做归一化，并把质量报告为各循环中的最小值——\"a barcode is only as trustworthy as its worst base\"。在此重复就会多出需要保持同步的第二个解码器。\n\n:param objects: 已编号的对象，与 ``values`` 的第一个轴的顺序相同。\n:param values: ``(objects, cycles, channels)`` 强度，从不跨循环取平均——参见 :func:`decode_input`，它出于同样的原因拒绝单个循环。\n:param library: 给定时，每个条形码通过 :func:`spacr.ops_sbs.correct_to_library` 校正到最近的文库成员，且该行携带它所映射到的内容。",
       "translation_source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
         "d9b1fa876ad8dd269ca6bf72b3e6040e624caf1f878ae0b41b4462bf5267c849",
@@ -57713,7 +57713,7 @@
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ],
       "source_sha256": "1bdb6e24a3d558a8334943ff659a05572789672d36e3ee8f9e37564139584451",
-      "text": "测序条形码从图像堆栈中解码。\n\n目的及范围\n=================\n光学混池筛选直接从图像中读取向导条形码，即 OUT OF THE IMAGES。每个测序循环染色四个通道，每个碱基一个；在该循环中，一个斑点的碱基就是最亮的通道 -- 前提是各通道已被放到同一尺度上。在同一斑点上每个循环读一个碱基，这些循环便拼出条形码。\n\n:mod:`spacr.sequencing` 不是这一点的后半,并且不应该被指向它. 该模块从 NGS 运行中解码 FASTQ; 这里没有FASTQ 和没有序列,仅仅是像素。\n\n每个步骤的合理性\n=======================\n其中三个几乎承担了所有正确的风险,三者都是对直觉的足够,以便从工作流的描述而不是工作流中实施它们,产生了一些执行和错误的东西:\n\n* **阅读不是一个亮点.** 它是一个基因在周期之间变化的点,所以位置估计是周期之间的标准偏差,平均在频道上 - 每个周期中的一个点亮点是干燥或自我流动的泡沫,并且没有变化。\n\n* **最亮的原始通道并不是碱基。** 每个通道都有自己的增益和背景，在真实板上两者都会随循环漂移，因此原始 argmax 会偏向整体最亮的通道。每个循环的各通道先除以其在所有读段上的中位数。在此基础上还可以对染料串色进行解混；在第一块真实板上，它降低了文库匹配率。\n\n* **一个双重的阅读比一个失踪的更糟。**对引导 RNA图书馆的错误纠正只会永远纠正到一个最接近的对比。 一个与两个条码相同的阅读被排除,因为一个错误地分配的引导 RNA沉默地破坏筛选的结果,而一个失落的只会花费统计检测敏感性。\n\n这里的方法是布里弗洛(Cheeseman实验室; github.com/cheeseman-实验室/布利弗洛,MIT,版权2025马萨诸塞技术研究所),其来源被阅读为上述三个点而不是从其舞台名称重建。",
+      "text": "从图像栈中解码原位测序条形码。\n\n目的与范围\n=================\n光学混池筛选直接从图像中读取向导条形码，即 OUT OF THE IMAGES。每个测序循环染色四个通道，每个碱基一个；在该循环中，一个斑点的碱基就是最亮的通道 -- 前提是各通道已被放到同一尺度上。在同一斑点上每个循环读一个碱基，这些循环便拼出条形码。\n\n:mod:`spacr.sequencing` 不是其后半部分，也不得用于此。该模块解码来自 NGS 运行的 FASTQ 读段；这里既没有 FASTQ，也没有测序仪，只有像素。\n\n各步骤的理由\n=======================\n其中三项承担了几乎全部的正确性风险，而且这三项都违反直觉，以至于根据流水线的描述而不是根据一个可用的流水线来实现它们，会得到能运行但错误的东西：\n\n* **读段不是亮点。** 它是碱基在循环之间发生变化的点。因此位置估计是跨循环的标准差，再在通道上取平均——在每个循环中都很亮的点是一粒灰尘或自发荧光团块，不贡献方差。\n\n* **最亮的原始通道并不是碱基。** 每个通道都有自己的增益和背景，在真实板上两者都会随循环漂移，因此原始 argmax 会偏向整体最亮的通道。每个循环的各通道先除以其在所有读段上的中位数。在此基础上还可以对染料串色进行解混；在第一块真实板上，它降低了文库匹配率。\n\n* **含糊的读段比缺失的读段更糟。** 针对向导文库的纠错只会校正到唯一的最近匹配。与两个条形码距离相同的读段被丢弃，因为被错误分配的向导会悄悄破坏筛选的结果，而被丢弃的读段只损失统计功效。\n\n这里的方法遵循 brieflow（Cheeseman 实验室；github.com/cheeseman-lab/ brieflow，MIT，Copyright 2025 Massachusetts Institute of Technology），为上述三点阅读了其源代码，而不是根据其阶段名称重建。",
       "translation_source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "c725fbc78c232b78360beeaffcdce20dbe6a26b6e3faca889ff276f3fd241757",
@@ -57819,7 +57819,7 @@
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ],
       "source_sha256": "da28c745cb762feed4444140c2d50590f3fed6a06ee280f6c7fb0f72653a5cb2",
-      "text": "将每周的强度转换为字符串和每阅读的质量。\n\n质量是获胜频道和跑步者之间的边界,分为他们的总额,每周期 - 0 当两个基础是平等的可能性和1当呼叫是无可争议的。\n\n未测量的循环记为 ``N``。当某个读段在一个循环中的值为 NaN 时 -- 即该循环的文件无法读取，或其配准被拒绝 -- 该位置的字母为 ``N``，质量只在已测量的循环上计算；因此丢失一个循环只让每个读段损失一个碱基，而不会损失整个读段。\n\n:param values: ``(N, cycles, channels)``，来自 :func:`extract_bases`。\n:param bases: 每个通道对应的碱基字母，按通道顺序排列。\n:param compensate: 在归一化之后用 :func:`compensate_crosstalk` 消除串扰。默认关闭：在第一块真实板上它降低了文库匹配率。\n:param method: 传给 :func:`compensate_crosstalk`。\n:param normalise: 先将每个循环的各通道除以其在读段上的中位数，从而消除各通道在循环之间的增益和背景漂移。读段太少、无法求中位数时跳过。\n:param gpu: 让补偿中的矩阵乘法在显卡上运行。False 则让整个调用留在 CPU 上。\n:returns: ``(barcodes, quality)`` - 每读一条线和一条航线。",
+      "text": "把逐循环强度转换为条形码字符串和每个读段的质量。\n\n质量是每个循环中获胜通道与次优通道之差除以二者之和——两个碱基同样可能时为 0，判定无歧义时为 1。每个读段报告各循环中的最小值，因为条形码只有其最差碱基那样可信。\n\n未测量的循环记为 ``N``。当某个读段在一个循环中的值为 NaN 时 -- 即该循环的文件无法读取，或其配准被拒绝 -- 该位置的字母为 ``N``，质量只在已测量的循环上计算；因此丢失一个循环只让每个读段损失一个碱基，而不会损失整个读段。\n\n:param values: ``(N, cycles, channels)``，来自 :func:`extract_bases`。\n:param bases: 每个通道对应的碱基字母，按通道顺序排列。\n:param compensate: 在归一化之后用 :func:`compensate_crosstalk` 消除串扰。默认关闭：在第一块真实板上它降低了文库匹配率。\n:param method: 传给 :func:`compensate_crosstalk`。\n:param normalise: 先将每个循环的各通道除以其在读段上的中位数，从而消除各通道在循环之间的增益和背景漂移。读段太少、无法求中位数时跳过。\n:param gpu: 让补偿中的矩阵乘法在显卡上运行。False 则让整个调用留在 CPU 上。\n:returns: ``(barcodes, quality)`` — 每个读段一个字符串和一个浮点数。",
       "translation_source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
@@ -57897,7 +57897,7 @@
         "8e48d501f97b7b7d13ba4a8cd71ed79dbc65ae75bf0011b81c9c9d08d0b8efa5"
       ],
       "source_sha256": "7761badf113babde6386c1f7244099a3d7de85d752e9adf4d171a0a587270742",
-      "text": "修正每个阅读到其独特的最接近的图书馆条码,或 ``None``。\n\n阅读相当接近两个图书馆条码返回 ``None`` 而不是其中一个:一个错误引导 RNA将细胞的现象转移到错误的干扰,沉默地破坏每一个统计下流,而一个失落的阅读只会花费统计检测敏感性。\n\n一个准确的匹配短圈,所以一个干净的跑步不付出任何代价。\n\n``N`` 表示一个未被测量的碱基，而不是错配。它与任意字母匹配，也不计入 ``max_distance``；唯一性规则仍然适用，因此如果一个读段丢失的碱基恰好是区分两个向导的唯一位置，它不会映射到其中任何一个。\n\n:param barcodes: 被称为读书。\n:param library: 引导 RNA包含筛选的条形码。\n:param max_distance: 可以修正的最大哈姆林距离。\n:returns: 每读一张输入 - 图书馆条码,或 None。",
+      "text": "把每个读段校正到其唯一最近的文库条形码，否则为 ``None``。\n\n与两个文库条形码距离相同的读段会返回 ``None``，而不是其中之一：被错误分配的向导会把细胞的表型转移到错误的扰动上，并悄悄破坏下游的每一项统计，而被丢弃的读段只损失统计功效。\n\n精确匹配会短路，因此干净的运行不为此付出任何代价。\n\n``N`` 表示一个未被测量的碱基，而不是错配。它与任意字母匹配，也不计入 ``max_distance``；唯一性规则仍然适用，因此如果一个读段丢失的碱基恰好是区分两个向导的唯一位置，它不会映射到其中任何一个。\n\n:param barcodes: 被调用的读段。\n:param library: 筛选中实际包含的向导条形码。\n:param max_distance: 允许校正的最大 Hamming 距离。\n:returns: 每个读段一个条目 — 文库条形码，或 None。",
       "translation_source_blocks_sha256": [
         "e681ad825e521b010bc1a8aa5a743196073d796b022a5a2657ba1fab56cbb8cf",
         "7fc6f50e51870e5480f3261d21ef2e8c7a7e0b2b8a53e6f90b4ffa4fd1842ac6",
@@ -58388,7 +58388,7 @@
         "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ],
       "source_sha256": "bc31ebc0de59902141d55d6069e1b663853515b0ba6b8ad312bc6b2efd42b172",
-      "text": "写一个 OPS 表到 sqlite,如果它有一个,将其包装存储。\n\n两个通话,一个通话者写了资料库,然后崩溃将留下一页描述一个不同的行程,一个阅读者,谁喜欢密码会然后使用。\n\n:param db_path: 测量数据库。\n:param table: 其中一个是:data:`OPS_TABLES`。\n:param frame: a DataFrame.\n:returns: 字符串写。\n:raises StoreError: 遇到未知表时；刚写入的附属文件与数据库的行数不一致时；或者 ``ops_objects`` 或 ``ops_barcodes`` 会为同一个对象保存两行时，无论是在数据框内部，还是在数据框与其追加到的表之间。每个对象一行是模式中的 UNIQUE 约束，一旦会违反该约束，就不会写入任何内容。",
+      "text": "把一张 OPS 表写入 sqlite，如果有的话，同时写入其 parquet 缓存。\n\n两者在一次调用中写入，这样可以断言它们的行数相等。如果分成两次调用，写入数据库后崩溃的调用者会留下一个描述另一次运行的附属文件，而偏好缓存的读取者随后会使用它。\n\n:param db_path: 测量数据库。\n:param table: 其中一个是:data:`OPS_TABLES`。\n:param frame: a DataFrame.\n:returns: 已写入的行数。\n:raises StoreError: 遇到未知表时；刚写入的附属文件与数据库的行数不一致时；或者 ``ops_objects`` 或 ``ops_barcodes`` 会为同一个对象保存两行时，无论是在数据框内部，还是在数据框与其追加到的表之间。每个对象一行是模式中的 UNIQUE 约束，一旦会违反该约束，就不会写入任何内容。",
       "translation_source_blocks_sha256": [
         "cb1f48e23580df19e7c878ae38dcf4956f768f0583a4a0083c9796d0dad5db82",
         "aec89538dfc991a6c0a5f4b214a96b55a268d0ffb4758443036a2dfb9d23e1c5",
@@ -64161,7 +64161,7 @@
         "258b2c3959d0c9026f2c86ce64424e6155ad862dafb9106a3bda1a23e0590d99"
       ],
       "source_sha256": "1b8b5523cc3f762553244900c5f953029adaf17219fc9cb0e24f4ccdeeafa7ee",
-      "text": "写 ``fig`` 到 ``path``,以荣誉数字偏好。\n\n唯一的位置 A spaCR 使用者保留的图像得到写的. 在此存在之前,有六十-odd ``savefig`` 通话,每个人都有自己的硬编码格式和DPI,以及 \"Figure format\" 和 \"Resolution\" 偏好达到了两个 - 两者都写到一个 temp 目录. 一切一个工作流存储在其结果文件夹完全忽略了两个设置。\n\n在这里决定了三件事,而不是留给召唤者或 matplotlib。\n\n**格式跟随偏好**,文件名跟随格式:写为 ``figure.pdf`` 的 PNG 是一个没有浏览器打开的文件. 一个明确的 ``fmt=`` 仍然赢得,对于那些真正需要一个特定的格式的几个呼叫者。\n\n**字体被嵌入为 TrueType**(``pdf.fonttype = 42``)为保存的长度. matplotlib 的默认是 类型 3,它将每个格利夫作为其自己的内容流:文件仍然是 vector,但 Illustrator 和 Inkscape 打开文本作为不可选择的输出,选择这个路径的偏好标记为“PDF( vector,可编辑)”。 用 ``rc_context`` 进行,因此故意选择的呼叫器不被更改。\n\n**DPI 已通过**,总是。 一个 PDF 页面是分辨率独立的,但 spaCR 数字充满了 ``imshow`` 面板 - 细胞组装,掩膜上板,板温地图 - 这些数字在数字本身的 100 DPI 排序,除非另有说法。 没有它,100、300和600产生了比特类似的文件。 经过的是 :func:`deliverable_dpi`,当请求的数字在这里无法实现时,它会如此大声地说。\n\n**Chrome为纸**重新绘制,只为写作的长度. 从一个黑暗主题的会议中保存的图像是白色墨水在一个白页面上 - `spacr.qt.preferences.get_figure_colors` 双手在黑色主题上呈现一个白色前线,并且在出口时没有什么逆转,所以文件是一个白色的直角,其中有一些彩色点,而透明的 PNG 甚至在黑暗文件管理器中直观,当它被插入手稿时消失。 :func:`print_ready` 移动家具并将其放回; DATA 永远不会被触摸,因为白点变成黑色,在火山上,颜色为 \"not a hit\"。\n\n图形首先应用在首选项图形设置中修改的设置（:func:`spacr.figures.style._apply_user_style`）；当 \"Also save\" 指定另一种格式时，再写入第二份副本。\n\n:param fig: a matplotlib ``Figure``.\n:param path: 目的地;其扩展已修正到格式。\n:param fmt: 强制一个格式,超越偏好。\n:param dpi: 强制一个DPI,超越偏好。\n:param close: 关闭数字一旦写。\n:param save_mode: 强制一个:data:`spacr.figure_style.SAVE_MODES` - ``'print'``(光页,黑色Chrome),``'screen'``(具体是什么应用程序视图,旧行为)或``'transparent'``。 None 要求偏好,默认为 ``'print'``。\n:param announce_colours: 说什么时候数据颜色停止在光页上工作,它是名称,从来没有取代。\n:param integrity: 在写入前检查图中的图像面板 -- 用于比较的面板之间显示范围是否不同、是否有饱和或截断像素、重复面板、有损格式，以及写出像素数少于原有像素数的面板 -- 打印所有警告，将溯源信息（源文件、显示设置、处理步骤、spaCR 版本）嵌入 PNG 或 PDF 元数据，并写入图文件旁的 ``<file>.provenance.json`` 附属文件。None 先遵循 ``SPACR_FIGURE_INTEGRITY``，再遵循“偏好”中的开关，该开关默认关闭。没有图像面板的图在两种情况下均原样写出。\n:param kwargs: 通过到 ``savefig`` (``bbox_inches`` 等) 一个明确的 ``facecolor`` 仍然超过印刷地板。\n:returns: 路径实际上是写的,如``str``。",
+      "text": "在遵守图形偏好的前提下，把 ``fig`` 写入 ``path``。\n\n写出用户保留的 spaCR 图形的唯一位置。在它出现之前有六十来处 ``savefig`` 调用，各自带有硬编码的格式和 DPI，而 \"Figure format\" 和 \"Resolution\" 偏好只能作用到其中的两处——两处都是写入临时目录。流水线保存到其结果文件夹的所有内容都完全忽略了这两项设置。\n\n这里决定了三件事，而不是留给调用者或 matplotlib。\n\n**格式遵循偏好设置**，文件名遵循格式：写入 ``figure.pdf`` 的 PNG 是任何查看器都打不开的文件。显式的 ``fmt=`` 仍然优先，供少数确实需要特定格式的调用者使用。\n\n**字体在保存期间嵌入为 TrueType**（``pdf.fonttype = 42``）。matplotlib 的默认值是 Type 3，它把每个字形绘制为自己的内容流：文件仍是矢量，但 Illustrator 和 Inkscape 会把文本打开为不可选中的轮廓，而选择这条路径的偏好被标为 \"PDF（矢量，可编辑）\"。用 ``rc_context`` 限定范围，使已有意作出其他选择的调用者不受其影响。\n\n**DPI 始终会被传入。** PDF 页面与分辨率无关，但 spaCR 的图形里满是 ``imshow`` 面板——细胞拼图、掩码叠加、孔板热图——除非另行指定，它们都按图形自身的 100 DPI 栅格化。没有它，100、300 和 600 会生成逐字节相同的文件。传入的是 :func:`deliverable_dpi`，当请求的数值在此无法达到时，它会明确说出来。\n\n**界面元素为纸张重新着色**，且仅在写入期间。从深色主题会话保存的图形是白纸上的白色墨水——`spacr.qt.preferences.get_figure_colors` 在深色主题下给两个渲染器的是白色前景，而导出时没有任何东西把它反转，所以文件是一个带有几个彩色点的空白矩形；透明 PNG 在深色文件管理器中甚至看起来正确，粘贴到手稿里时却消失了。:func:`print_ready` 把这些陈设移开再放回；数据从不被触碰，因为变成黑色的白点在火山图上是 \"not a hit\" 的颜色。\n\n图形首先应用在首选项图形设置中修改的设置（:func:`spacr.figures.style._apply_user_style`）；当 \"Also save\" 指定另一种格式时，再写入第二份副本。\n\n:param fig: a matplotlib ``Figure``.\n:param path: 目标；其扩展名会被校正为该格式。\n:param fmt: 强制使用某种格式，绕过偏好设置。\n:param dpi: 强制使用某个 DPI，绕过偏好设置。\n:param close: 写入完成后关闭图形。\n:param save_mode: 强制使用 :data:`spacr.figure_style.SAVE_MODES` 之一——``'print'``（浅色页面，深色界面元素）、``'screen'``（与屏幕上完全一致，旧行为）或 ``'transparent'``。None 则询问偏好设置，其默认值为 ``'print'``。\n:param announce_colours: 当数据颜色在浅色页面上不再起作用时发出提示。它会被点名，绝不会被替换。\n:param integrity: 在写入前检查图中的图像面板 -- 用于比较的面板之间显示范围是否不同、是否有饱和或截断像素、重复面板、有损格式，以及写出像素数少于原有像素数的面板 -- 打印所有警告，将溯源信息（源文件、显示设置、处理步骤、spaCR 版本）嵌入 PNG 或 PDF 元数据，并写入图文件旁的 ``<file>.provenance.json`` 附属文件。None 先遵循 ``SPACR_FIGURE_INTEGRITY``，再遵循“偏好”中的开关，该开关默认关闭。没有图像面板的图在两种情况下均原样写出。\n:param kwargs: 传递给 ``savefig``（``bbox_inches`` 等）。显式的 ``facecolor`` 仍优先于打印底色。\n:returns: 实际写入的路径，类型为 ``str``。",
       "translation_source_blocks_sha256": [
         "a9929b09f770c49ffd3eb6de32c1b4274fe55a7e67d336b686ad267c2b8be8b3",
         "0ebc1772b811736642e4a24af5bd2f55500863d52ca160a6272adf6cf830b042",
@@ -72958,7 +72958,7 @@
         "88306fcdba83f08faf2dc439c2459a4508f4cb9e8c9ed06efb26c1b947e53f1a"
       ],
       "source_sha256": "6f0c1e9f55c4b1dfced8a33142fa1ab848d61450e3adf43365ff2865def28746",
-      "text": "取消每份活跃工作,等待到一个共享期限。\n\n回报值包含仍然活着的工作进程 **其生存是不能关闭的理由。** 看见 :attr:`RunHandle.blocks_shutdown`他们保持登记和强烈参考;呼叫者必须拒绝摧毁 GUI 而不是使用 ``QThread.terminate()`` 中间写作。\n\n只阅读 UI 家庭保养(``journal=False`` - 历史更新,模型扫描)被取消并等待,就像其他任何东西一样,但它从来没有出现在回报值中。 它没有写什么,所以没有半写的对象来保护,并且作为否决行为的召唤者将“处理会议历史列表仍然充电”转化为“应用程序不能关闭”。 ``MainWindow.closeEvent`` 回应一个不空的回报,拒绝关闭 *并显示一个模型*:在无图形界面的运行 - CI,一个测试片段 - 什么都不能放弃这个模型,而过程旋转在其无前进的事件中没有进展。\n\n``stop_on_quit`` 为假的任务句柄会继续运行，且不会等待它完成，例如不能在中途终止的安装。\n\n:param timeout_ms: 全额预算在所有活跃线上等待。\n:param reason: 取消因子,每个工作进程都记录了。\n:returns: 阻止关闭,并未停止在预算中。",
+      "text": "取消所有活动作业，并最多等待一个共享的期限。\n\n返回值包含仍然存活的工作线程，**并且它们的存活是不应关闭的理由**——参见 :attr:`RunHandle.blocks_shutdown`。它们保持注册并被强引用；调用者必须拒绝销毁 GUI，而不是在写入中途使用 ``QThread.terminate()``。\n\n只读的 UI 清理工作（``journal=False``——历史刷新、模型扫描）与其他所有工作一样被取消和等待，但它从不出现在返回值中。它不写入任何内容，因此没有写到一半的产物需要保护，而把它当作否决的调用者会把“运行历史列表仍在加载”变成“应用程序无法关闭”。``MainWindow.closeEvent`` 对非空返回值的回应是拒绝关闭 *并显示一个模态对话框*：在无头运行——CI、测试分片——中没有任何东西能关闭该模态对话框，进程就在其嵌套的事件循环中空转而没有进展。过去，一个比启动它的界面存活得更久的清理作业就足以触发这种情况。\n\n``stop_on_quit`` 为假的任务句柄会继续运行，且不会等待它完成，例如不能在中途终止的安装。\n\n:param timeout_ms: 所有活动线程的总等待预算。\n:param reason: 每个工作线程记录的取消原因。\n:returns: 阻止关闭且未在预算内停止的句柄。",
       "translation_source_blocks_sha256": [
         "923673695ac500176aa91e50374ec0f3f05a6f6f346208d96730ac9fbf12e644",
         "4406c3b5f71a9bda6527113c0734dbeaa6f1d60defba659c7ea6847bab9fa767",
@@ -74387,7 +74387,7 @@
         "b80e999a32aa2855c15d221c82ad4129abd977edffed3ce452594b95bf1bea7b"
       ],
       "source_sha256": "ea5a6ccc4102461eb46da9960aa007b77d9599d98651a853629eabbf89ab1621",
-      "text": "记住,这场比赛结束了正确,清理了计算。\n\n计算重新设置为零而不是减少:它计算连续不干净的输出,累积总额最终将阻止机器的背景,在那里它工作。",
+      "text": "记录本次运行已正常结束，并清除计数。\n\n计数被重置为零而不是递减：它统计连续的非正常退出，而累计总数最终会在一台能正常工作的机器上禁用背景。此窗口持有的每个实例锁和项目锁会先被释放。",
       "translation_source_blocks_sha256": [
         "c58170bf66e7670140f4dbdd7247dddca9e77063e8b63ab8ba24ce952ac4ff8e",
         "b80e999a32aa2855c15d221c82ad4129abd977edffed3ce452594b95bf1bea7b"
@@ -74400,7 +74400,7 @@
         "3a6410090bc562ed1b5b146b30ac852bf8041fcb78797e33a048fa41b03b119f"
       ],
       "source_sha256": "9a3a9a43af968a262f0792c336bce1b3eac5e91a77a429afdbfd6e67cfe359c7",
-      "text": "记录一个发射开始,并计算之前有多少人死亡。\n\n:returns: 连续不干净的输出数量,该发射的先驱包括。\n\n只调用一次，并在背景构建前尽早调用。它还会获取实例锁：仍在运行的窗口留下的标记不是崩溃，因此第二个窗口既不会计入它，也不会覆盖它。",
+      "text": "记录一次启动已开始，并统计在它之前有多少次异常结束。\n\n:returns: 连续非正常退出的次数，包括本次启动的前一次。\n\n只调用一次，并在背景构建前尽早调用。它还会获取实例锁：仍在运行的窗口留下的标记不是崩溃，因此第二个窗口既不会计入它，也不会覆盖它。",
       "translation_source_blocks_sha256": [
         "13a1440e40ae544c1b8beb1dc7a6b1ee3a9b44a3af27f12af80bb7d9b101bffe",
         "4a8839b7596b7fc01ea356769b7d3da3e4b7ca0385f073e73e8637618d19e412",
@@ -88311,7 +88311,7 @@
         "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
       ],
       "source_sha256": "c7ff6c7b818e2e0f134823ac564540eaee99e2aad05b60d6b2da3af81e2c58cf",
-      "text": "用户面向偏好 - 语言、主题、字体规模和可用性。\n\n持久设置由 :class:`PySide6.QtCore.QSettings` 支持,以便它们生存应用程序重新启动. 新的按钮可以在现有按钮旁边插入,而不会改变用户,因为小字符为 API(``get_theme()`` / ``set_theme(...)`` 等)。\n\nWire-up 的内容:\n\n* :func:`apply_preferences_to_app` - 每次设置更改时,在启动时一次呼叫,重新应用现有主题 + 字体规模的风格表。\n* :class:`PreferencesDialog` — 通过 Ctrl+P 打开的模型设置对话(参见 :mod:`spacr.qt.shortcuts`)。\n\n公开 API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_sound_music_file, set_sound_music_file,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_tooltips_enabled, set_tooltips_enabled,\n        get_font_scale, set_font_scale,\n        get_gui_scale, set_gui_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\n价值:\n\n* ``theme``: ``\"dark\"``  ``\"light\"``  ``\"cell\"``  ``\"glass\"``  ``\"high_contrast\"``  在 :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 的十个夜晚主题中,在 :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS`  ``\"system\"``(默认 ``\"dark\"``)的五个数据艺术前套中。 ``\"system\"`` 跟随操作系统颜色图,只有当有人选择了它:存储 ``\"system\"`` 写在黑暗之前变成默认(2026-09-21)是旧的默认,而不是选择,并被称为 ``\"dark\"``; 看:func:`get_theme`。 ``\"cell\"`` 使用光照图像, ``\"glass\"`` 使用中性层材料在内置的光场上。 夜间或数据艺术前置还包含一个背景和音频集,当它被选中时写为 :func:`apply_night_theme`. 空间不是一个可选择的主题. 退休的 ``space_variant`` 和 ``space_seed`` 值在主题首次阅读时从更老的商店中删除; 见 :func:`get_theme`。\n* ``font_scale``: float, 1.0 = 100 % (默认)。 粘贴到 [0.10, 2.0].\n* ``gui_scale``：浮点数，1.0 = 100 %（默认值）。限制在 [0.10, 2.0] 范围内。缩放界面的所有尺寸，而不仅仅是文字，并且实时生效。参见 :mod:`spacr.qt.gui_scale`。\n* ``figure_save_mode``: ``\"print\"````\"screen\"`` ``\"transparent\"``(默认 ``\"print\"``)。 控制用于保存的数字的页面和图数元素颜色. ``SPACR_FIGURE_SAVE_MODE`` 仍然是一个过程本地上线; 见 :func:`spacr.figure_style.figure_save_mode`。\n* ``color_blind_mode``: ``\"off\"````\"deuteranopia\"`` ``\"protanopia\"`` ``\"tritanopia\"``(默认 ``\"off\"``)。 交换 matplotlib 雨谷 / 红绿色板为感知统一 + 颜色盲安全的替代品(Viridis为连续, Okabe-Ito为类别)。\n* ``performance_logging``: ``\"off\"````\"summary\"`` ``\"detailed\"``(默认情况为 ``\"summary\"``)。记录过程树资源使用,独立于口头通话跟踪;见 :func:`get_performance_logging`和 :mod:`spacr.resource_log`。\n* ``db_browser_editable``: bool,初始值 ``False``. 允许 Database Browser 打开阅读写的连接. 详细信息: :func:`get_db_browser_editable`。\n* ``dock_mode``: ``\"locked\"`` ``\"hidden\"``(默认情况为 ``\"locked\"``)。无论左应用程序插槽显示在插槽上,则被打开为永久列,或者根本不存在。\n* ``pane_opacity``: int 百分比,初始值 ``60``. 控制玻璃中的共享表面或物质强度。 在绘画时间 :func:`spacr.qt.theme.pane_alpha_floor` 设置较低的界限:偏好是请求,而可读性是强制性的。\n* ``field_fade``:bool,默认情况下 ``True``. 无论输入字段的容器和输出字段从坚固的左侧到完全透明的右侧. 字段是 **从** ``pane_opacity`` 免除,而这一点是在 - 见 :func:`get_field_fade_enabled` 和 :mod:`spacr.qt.widgets.field_fade`。\n* ``show_alpha`` / ``show_beta``: bool,既定是 ``True``. 检查该成熟时是否显示模块和设置。\n* ``sound/music_file``：字符串，默认 ``\"\"``。用户自己的 WAV 文件，音乐背景会播放它而不是合成的音乐，Resonance 背景也由它驱动。参见 :func:`get_sound_music_file`。\n* ``ambient_enabled``: bool, 初始值 ``True``. 控制模块界面是否绘制动画背景. 禁用它是第一类选择; 细节: :func:`get_ambient_enabled`。 用户面部控制是动画列表中的 ``None`` 输入而不是另一个转换器:一个序列,一个含义. 选择动画允许它再次。\n* ``spacr_mode``: ``\"extra_performance\"`` ``\"performance\"`` ``\"balanced\"`` (默认情况下 ``\"balanced\"``)。 如何硬 spaCR 试图离开机器的路径 - 当它释放自己的缓存,以及它是否超越视觉设置. 平衡不行. 参见 :func:`set_spacr_mode` 和 :mod:`spacr.qt.resource_cleanup`,它拥有什么清洁器允许触摸(spaCR 自己的记忆,而没有其他 - 没有其他过程,从来)。\n* ``ambient_theme`` / ``ambient_palette``:什么动画,以及什么颜色。 ``ambient_theme`` 也持有 :data:`spacr.qt.widgets.ambient.NO_ANIMATION` - 用 :func:`get_ambient_animation` 阅读它,可以回答 ``\"none\"`` 或 :func:`get_ambient_theme`,答案总是可画的东西。 对 :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` 和 :func:`spacr.qt.widgets.ambient.palettes_for` 相应进行验证; 面板是 *per theme*,所以看看 :func:`get_ambient_palette` 为如何两个密钥保持一致。\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``:浮动; 速度、尺寸和细节默认为 ``1.0``,密度为 ``0.1``. 所有这些都是*multipliers*关于所选择的动画已经做了什么 - 它有多快,它的元素有多大,它的细节有多大以及它有多少元素。 点击阅读和写到发动机声明(:data:`spacr.qt.widgets.ambient.SPEED_RANGE`和朋友)的范围。\n* ``ambient_blur``:一个遗产浮动保留阅读旧偏好. 目前的动画 widgets 无此保存的 blur 设置播放. 图像细节由 ``ambient_resolution`` 控制。\n* ``ambient_drift_direction``: ``\"up\"`` ``\"down\"`` ``\"random\"``(默认情况下 ``\"up\"``)。 哪条路 spaCR 序列旅行? 在动画菜单中,一个偏好而不是三个输入; 请参见 :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` 为何。\n* ``spinner_delay``:浮动秒,默认情况下 ``2.0``.在活动旋转器出现之前,背景工作需要运行多少时间 — 见 :func:`get_spinner_delay`。\n* ``setting_animations``: bool, 默认情况下 ``False``. 设置工具提示是否自动播放动画. 关闭时, hover 只留下文本,直到用户在该工具提示的脚步中激活 **动画**; 见 :func:`get_setting_animations_enabled`。\n* ``language``:由 :mod:`spacr.qt.i18n` 组合的语言代码之一;默认为英语,并在持久值无效时安全返回。",
+      "text": "面向用户的偏好设置——语言、主题、字体缩放和无障碍。\n\n由 :class:`PySide6.QtCore.QSettings` 支持的持久设置，因此可在应用重启后保留。得益于小型的带类型 API（``get_theme()`` / ``set_theme(...)`` 等），可以在现有设置旁边添加新的设置而无需更改使用者。\n\n连接：\n\n* :func:`apply_preferences_to_app` — 启动时调用一次，此后每当设置改变时再次调用；用当前主题和字体缩放重新应用样式表。\n* :class:`PreferencesDialog` — 由 Ctrl+P 打开的模态设置对话框（参见 :mod:`spacr.qt.shortcuts`）。\n\n公开 API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_sound_music_file, set_sound_music_file,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_tooltips_enabled, set_tooltips_enabled,\n        get_font_scale, set_font_scale,\n        get_gui_scale, set_gui_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\n取值：\n\n* ``theme``：``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 中十个夜间主题之一 | :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` 中五个数据艺术预设之一 | ``\"system\"``（默认 ``\"dark\"``）。``\"system\"`` 跟随操作系统的配色方案，并且仅在有人选择它之后才生效：深色成为默认值（2026-09-21）之前写入的 ``\"system\"`` 是旧的默认值，而不是一个选择，会被读作 ``\"dark\"``；参见 :func:`get_theme`。``\"cell\"`` 使用荧光图像，``\"glass\"`` 在内置的浅色区域之上使用中性的分层材质。夜间或数据艺术预设还带有背景和一组声音，在选中时由 :func:`apply_night_theme` 写入。Space 不是可选主题。已弃用的 ``space_variant`` 和 ``space_seed`` 值会在首次读取主题时从旧的存储中移除；参见 :func:`get_theme`。\n* ``font_scale``：float，1.0 = 100 %（默认）。限制在 [0.10, 2.0]。\n* ``gui_scale``：浮点数，1.0 = 100 %（默认值）。限制在 [0.10, 2.0] 范围内。缩放界面的所有尺寸，而不仅仅是文字，并且实时生效。参见 :mod:`spacr.qt.gui_scale`。\n* ``figure_save_mode``：``\"print\"`` | ``\"screen\"`` | ``\"transparent\"``（默认 ``\"print\"``）。控制保存图形所用的页面和图形元素颜色。``SPACR_FIGURE_SAVE_MODE`` 仍然是进程本地的覆盖项；参见 :func:`spacr.figure_style.figure_save_mode`。\n* ``color_blind_mode``：``\"off\"`` | ``\"deuteranopia\"`` | ``\"protanopia\"`` | ``\"tritanopia\"``（默认 ``\"off\"``）。把 matplotlib 的彩虹 / 红绿色板换成感知均匀且对色盲安全的替代方案（连续数据用 viridis，分类数据用 Okabe-Ito）。\n* ``performance_logging``：``\"off\"`` | ``\"summary\"`` | ``\"detailed\"``（默认 ``\"summary\"``）。记录进程树的资源使用，独立于详细的调用跟踪；参见 :func:`get_performance_logging` 和 :mod:`spacr.resource_log`。\n* ``db_browser_editable``：bool，默认 ``False``。允许 Database Browser 打开读写连接；参见 :func:`get_db_browser_editable`。\n* ``dock_mode``：``\"locked\"`` | ``\"hidden\"``（默认 ``\"locked\"``）。左侧应用坞是在悬停时显示、作为永久列固定展开，还是完全不存在。\n* ``pane_opacity``：整数百分比，默认 ``60``。共享表面有多不透明，或 Glass 中材质的相对强度。绘制时会被提升到不低于 :func:`spacr.qt.theme.pane_alpha_floor`——偏好设置只是一个请求，可读性没有商量的余地。\n* ``field_fade``：bool，默认 ``True``。输入字段的容器和轮廓是否从左侧的实心渐变到右侧的完全透明。开启期间，字段 **不受 ``pane_opacity`` 影响**——参见 :func:`get_field_fade_enabled` 和 :mod:`spacr.qt.widgets.field_fade`。\n* ``show_alpha`` / ``show_beta``：bool，默认均为 ``True``。控制是否显示处于该成熟度的模块和设置。稳定功能始终可见。\n* ``sound/music_file``：字符串，默认 ``\"\"``。用户自己的 WAV 文件，音乐背景会播放它而不是合成的音乐，Resonance 背景也由它驱动。参见 :func:`get_sound_music_file`。\n* ``ambient_enabled``：bool，默认 ``True``。模块界面是否绘制动画背景。关闭它是一个正式的选择——参见 :func:`get_ambient_enabled`。面向用户的控件是 Animation 列表中的 ``None`` 条目，而不是第二个开关：一行，一个含义。选择某个动画会重新开启它。\n* ``spacr_mode``：``\"extra_performance\"`` | ``\"performance\"`` | ``\"balanced\"``（默认 ``\"balanced\"``）。spaCR 在多大程度上努力不妨碍机器——何时释放自己的缓存，以及是否覆盖视觉设置。Balanced 两者都不做。参见 :func:`set_spacr_mode` 以及 :mod:`spacr.qt.resource_cleanup`，后者规定了清理可以触碰什么（spaCR 自己的内存，仅此而已——绝不涉及任何其他进程）。\n* ``ambient_theme`` / ``ambient_palette``：使用哪种动画，以及用哪些颜色。``ambient_theme`` 也可以保存 :data:`spacr.qt.widgets.ambient.NO_ANIMATION`——用 :func:`get_ambient_animation` 读取它，它可以回答 ``\"none\"``，或用 :func:`get_ambient_theme` 读取，它的回答总是可以绘制的内容。分别针对 :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` 和 :func:`spacr.qt.widgets.ambient.palettes_for` 进行验证；调色板是 *按主题* 的，因此两个键如何保持彼此一致，请参见 :func:`get_ambient_palette`。\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``：float；速度、大小和细节的默认值为 ``1.0``，密度为 ``0.1``。它们都是对所选动画已有行为的 *倍数*——移动多快、元素多大、绘制多少细节以及有多少元素。读取和写入时都被限制在引擎声明的范围内（:data:`spacr.qt.widgets.ambient.SPEED_RANGE` 及其同类）。\n* ``ambient_blur``：为读取旧偏好设置而保留的遗留 float。当前的动画控件渲染时不使用这个已保存的模糊设置。图像细节由 ``ambient_resolution`` 控制。\n* ``ambient_drift_direction``：``\"up\"`` | ``\"down\"`` | ``\"random\"``（默认 ``\"up\"``）。分层的 spaCR 向哪个方向移动。这是一个偏好设置，而不是动画菜单里的三个条目；原因参见 :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`。\n* ``spinner_delay``：以秒为单位的 float，默认 ``2.0``。后台工作要运行多久，活动指示器才会出现——参见 :func:`get_spinner_delay`。\n* ``setting_animations``：bool，默认 ``False``。设置工具提示是否自动播放其动画。关闭时，悬停只显示文本，直到用户在该工具提示的页脚中启用 **Animation**；参见 :func:`get_setting_animations_enabled`。\n* ``language``：来自 :mod:`spacr.qt.i18n` 的内置语言代码之一；默认为英语，当保存的值无效时安全地回退到英语。",
       "translation_source_blocks_sha256": [
         "5b0b335614a237516d384603427cf70317d840b19cdfb21798991377604d621b",
         "66c34eee0d9f2711879c10d2717b8a26f00f8b45d872c760469b9e2ff26b96c6",
@@ -103558,7 +103558,7 @@
         "1a268b6756d88faf35288da7e0878f87f4a33d7a57f17fe92cfd4f5ebfd19be3"
       ],
       "source_sha256": "14be458cab70c7ab01ade8d37cf2bca6250141cd2409f903e351275faaab0ba5",
-      "text": "根据另一个标准重新排行时的报告,会选择另一个最佳测试。\n\n排名分配方法没有基本的真相,所以这报告是否顶层在另一个标准下保持在顶部。\n\n:param result: 到完成的扫描。\n:param criteria: 要重新排序的标准。\n:returns: 句子,或 None 每个标准同意(或没有足够的记录说)。",
+      "text": "当按另一个标准重新排序选出了不同的最佳试验时给出报告。\n\n对归因方法排序没有基准真值，因此这会报告最上面一行在另一个标准下是否仍然排在最上面。如果不是，这句话会显示在状态行上。\n\n:param result: 已完成的扫描。\n:param criteria: 用于重新排序的标准。\n:returns: 这句话，或者当所有标准都一致（或记录不足以判断）时为 None。",
       "translation_source_blocks_sha256": [
         "dd974792203db29c54a929ea2cac3980758437a25955ac504d13bb1d0ab048e1",
         "22b881be776f350753fd0780bc9d2841aa2f77294d94fbb6383b47daef9a0d92",
@@ -103602,7 +103602,7 @@
         "52ed0695af5add59be36b2524a224608cd48dd0ebf6c51d7b361c0b0642e58d9"
       ],
       "source_sha256": "1cdc556c500ee22038b809e932844f93bcf76f505130ea0b4c4e13f6c4e7729b",
-      "text": "每个标准都记录一个审判,一行。\n\nA Activation sweep 计算每个试验的四个标准,正是因为它们不同意,所以只显示排名标准的序列会隐藏这种不同意。\n\n:param trial: 审判要描述。\n:param keys: 要先显示的标准,顺序;任何其他事物记录的审判,即一个清晰的数字,都跟随。\n:returns: 多行文本(当审判记录什么都没有)。",
+      "text": "渲染一次试验记录的每个标准，每行一个。\n\n激活扫描对每次试验计算四个标准，正是因为它们不一致，所以只显示排序所用标准的一行会掩盖这种分歧。面板把这些放在该行的工具提示和图形标题中。\n\n:param trial: 要描述的试验。\n:param keys: 要先显示的标准，按顺序；之后是试验记录的其他任何简单数值。\n:returns: 多行文本（试验未记录任何内容时为空）。",
       "translation_source_blocks_sha256": [
         "9c40f966e27368344363a94f1093f4f1f65a52432fc00f0eb91aec08c115b854",
         "beb781b6575231285671050b23c6eaa72cdfc6f806b53b6bc7646f2e98e142ec",
@@ -118644,7 +118644,7 @@
         "87c75ccfb6edd2daf615c919fa940513515b60bad6301076ae7cf01aa249c80b"
       ],
       "source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
-      "text": "为 spaCR Qt 界面提供分区、地质标志和 QSS。\n\n使用 :func:`active_palette` 获取活动控件显示的颜色，使用 :func:`stylesheet` 获取应用的样式表。:data:`THEMES` 包含可选配色 ``\"dark\"``、``\"light\"``、``\"cell\"``、``\"glass\"``、``\"high_contrast\"``，以及 :mod:`spacr.qt.night_themes` 的夜间和数据艺术预设；查找配色之前，``\"system\"`` 首选项会解析为深色或浅色。仍可从持久化设置中读取旧的 ``\"space\"`` 配色，但它不可选。\n\n.. warning::\n\n   ``theme.PALETTE`` 是黑色板的折叠,仅阅读的标志,并且不跟随运行时间主题的变化. 使用 :func:`active_palette` 或 :data:`DARK_PALETTE` 只有当黑色颜色明确要求时。\n\n细胞和玻璃是 :data:`IMAGE_THEMES`. 它们的面板使用透明的脚印,以便背景保持可见,而不会牺牲文本对比。 :func:`contrast_failures` 验证在脚印上绘制的角色,而 :func:`image_contrast_failures` 确认在图像内容上直接绘画的角色. :func:`solve_scrim_alpha` 平衡这些对比限制对 :data:`MIN_PICTURE_CONTRAST`, :func:`scrim_report` 曝光结果。\n\n:func:`enable_spaceout` 装饰进程在雨泡板的 ``spaceout`` 输入点启动到. 它重新装饰任何主题是解决的,而不是添加一个第五个,所以 :data:`THEMES` 和光 / 黑暗处理是无触摸的; 它是进程状态,从来没有坚持。",
+      "text": "为 spaCR 的 Qt 界面提供调色板、几何令牌和 QSS。\n\n使用 :func:`active_palette` 获取活动控件显示的颜色，使用 :func:`stylesheet` 获取应用的样式表。:data:`THEMES` 包含可选配色 ``\"dark\"``、``\"light\"``、``\"cell\"``、``\"glass\"``、``\"high_contrast\"``，以及 :mod:`spacr.qt.night_themes` 的夜间和数据艺术预设；查找配色之前，``\"system\"`` 首选项会解析为深色或浅色。仍可从持久化设置中读取旧的 ``\"space\"`` 配色，但它不可选。\n\n.. warning::\n\n   ``theme.PALETTE`` 是深色调色板的已弃用只读别名，不跟随运行时的主题变化。请使用 :func:`active_palette`，或仅在明确需要深色时使用 :data:`DARK_PALETTE`。\n\nCell 和 Glass 是 :data:`IMAGE_THEMES`。它们的面板使用半透明的遮罩，使背景保持可见而不牺牲文本对比度。:func:`contrast_failures` 验证绘制在遮罩上的角色，而 :func:`image_contrast_failures` 验证直接绘制在图像内容上的角色。:func:`solve_scrim_alpha` 针对 :data:`MIN_PICTURE_CONTRAST` 平衡这些对比度约束，:func:`scrim_report` 则公开结果。\n\n:func:`enable_spaceout` 让进程换上 ``spaceout`` 入口点启动时使用的彩虹调色板。它给已解析的主题重新着色，而不是添加第五个主题，因此 :data:`THEMES` 和浅色 / 深色处理保持不变；它是进程状态，从不持久保存。",
       "translation_source_blocks_sha256": [
         "134d4f2d9905335c1842012a081f5c26383600121a84c05b805c1349cf52b9cd",
         "cca1167c2d2f6771567cd1e1b7e025b791ffd4126698b8c18cc4a409f61c1812",
@@ -154807,7 +154807,7 @@
         "584510f5f798fb2f56a6b4ead22ef991f7c5b9702d186e445257c21770dcadd1"
       ],
       "source_sha256": "ccee95a57e924bfdd302dd67afe1a25d1f0ec3a8950b8802a560712a5919ac6f",
-      "text": "取消正在进行的负载,而不是让它过度活在面板上。\n\n:param event: 关闭事件；在 :meth:`shutdown` 之后传递给基类。",
+      "text": "取消正在进行的加载，而不是让它比面板存活得更久。\n\n:param event: 关闭事件；在 :meth:`shutdown` 之后传递给基类。",
       "translation_source_blocks_sha256": [
         "921b0c29dcd2e30f38f0443438bcc9f33df9b4557713a29ca608fcda8fc115b2",
         "584510f5f798fb2f56a6b4ead22ef991f7c5b9702d186e445257c21770dcadd1"
@@ -154900,7 +154900,7 @@
         "ac604e9752a9cd6fb535a12896d6ea0dbe0303b8d95eccd3abb0ce4692e39451"
       ],
       "source_sha256": "173e420c02734067e4fdce69d7345bf5378f9aff41bf4384eeb41609df504bc5",
-      "text": "同时加载一张图像。\n\n适用于明确的编程呼叫和测试,并且仅适用于这些。 **每个** GUI 路径 - 滴操作器, FOV (显微镜视野) 下载和 选择图像对话 - 通过 :meth:`load_source_async`,因此,无论是解码还是 ``_refresh_source_selectors`` 背后的文件夹列表都无法阻止应用程序独立执行路径。\n\n:param path: 要显示的图像文件；开启 MIP 时，改为对其所在视野的堆栈进行最大强度投影。失败会在状态行中报告并返回 ``False``。",
+      "text": "同步加载一张图像。\n\n仅用于显式的编程调用和测试。**每一条** GUI 路径——拖放处理器、FOV 下拉列表和 Choose-image 对话框——都经过 :meth:`load_source_async`，因此 ``_refresh_source_selectors`` 背后的解码和文件夹枚举都不会阻塞应用线程。\n\n:param path: 要显示的图像文件；开启 MIP 时，改为对其所在视野的堆栈进行最大强度投影。失败会在状态行中报告并返回 ``False``。",
       "translation_source_blocks_sha256": [
         "a33e7d8521cba5f3d503e731f79d1b627ff030d3e150e9cd64f3d8427b97c99d",
         "f15569a191e635b7517b062a64ff36487cb7cbdf9fdbba163266af217ce813c7",
@@ -154917,7 +154917,7 @@
         "a4b1fc3cd90f8710369c1606d4284cb0a77930940aa1f232fe46b47b55260282"
       ],
       "source_sha256": "d1045f60e4979ba0aecfbe37611fd04d74d0f091f9b235e6ca4af3ae77e15a49",
-      "text": "在背景执行单元中发现和解密文件/文件源。\n\n新要求通过代码超过旧的,一个老的解码器可以安全完成,但结果被忽略。\n\n:param source: 直接支持的图像或包含图像的目录。\n:param enumerate_sets: ``False`` 重新使用样品器的隐藏列表而不是重新扫描。 :func:`load_source_payload`.\n:param display_plane: 表格所选的通道图像层（如果有）。\n:returns: ``True``当一个工作进程开始时。",
+      "text": "在工作线程上发现并解码文件 / 文件夹来源。\n\n新请求通过令牌取代旧请求。旧的解码器可以安全地完成，但其结果会被忽略。\n\n:param source: 直接受支持的图像，或包含图像的目录。\n:param enumerate_sets: ``False`` 重用采样器缓存的列表，而不是重新扫描。参见 :func:`load_source_payload`。\n:param display_plane: 表格所选的通道图像层（如果有）。\n:returns: 当工作线程已启动时为 ``True``。",
       "translation_source_blocks_sha256": [
         "11232e34a1b88c7266de73aaeff88f45ea5c4f4364214e6f1ad386ea9576eabd",
         "b31b743c551d59c3fc72d363e5165b3930798b39e8d245b253156fe88f0aae83",
@@ -155109,7 +155109,7 @@
         "3b479271e12e0cc22117fa2252305eded1396f53d622330c6f8b38c64b9a8464"
       ],
       "source_sha256": "5ce54176fb99df935d2c5e5cabe824f1c106828a7b14052bfdd70ebe41fd7452",
-      "text": "放弃任何负载在飞行中,不要离开 QThread 背后。\n\n从 :meth:`closeEvent` 呼叫,并安全地直接调用,当筛选被打破,没有一个。",
+      "text": "放弃任何进行中的加载，并且不留下任何 QThread。\n\n从 :meth:`closeEvent` 调用，在没有它的情况下拆除界面时也可以安全地直接调用。",
       "translation_source_blocks_sha256": [
         "15a4060c1aa5315383b16e3550f038ffa62a6ae4a5a58ec83d70cba6547c2bf7",
         "3b479271e12e0cc22117fa2252305eded1396f53d622330c6f8b38c64b9a8464"
@@ -155322,7 +155322,7 @@
         "9dc19e51717d3f57d35cb94e5802783998bb18252153da9163cadba5ae10ffaf"
       ],
       "source_sha256": "07e25130c610b0d63a9f7fcf0d8ca9bc8a0d89c2b5dfbae9bfa0095938a84d51",
-      "text": "发现,列出和解码一个预览来源. 数据在,数据外。\n\n这是一个预览负载的整体,写着它触摸 **没有 widget 和没有 Qt 对象** 因此可以直接传输到 :class:`spacr.qt.job_runner.JobRunner`. 两半都返回在一个关键值地图,所以呼叫者采用列表并安装图像在一个单一的主要 GUI 执行路径呼叫。\n\n枚举**只读取文件名**。解码会读取所选图像，在请求投影时还会读取其通道的 z 图像层。\n\n:param source: 图像文件或目录从下载预览。\n:param max_sets: 图为样品提取,当 ``source`` 是一个目录时。\n:param enumerate_sets: ``False`` 将文件夹完全扫描。 FOV(微镜视野)下载手从已经生产的样品集中取出一条路径,因此重新扫描它将重复一个完整的通道,在一个高达 98 000 个文件的板上,以便列出已经隐藏的列表。\n:param project: 在此工作线程上对所选通道的 z 堆栈进行投影。\n:param known_sets: 跳过枚举时使用的缓存图像集。\n:returns: ``{path, array, directory, sets, channels, error}``. ``sets`` 是 ``None`` 当没有列表完成或失败时,呼叫者将其称为 \"leave the sampler alone\"。",
+      "text": "发现、枚举并解码一个预览来源。数据进，数据出。\n\n这是预览加载的全部，其写法使它不触碰 **任何控件和任何 Qt 对象**，因此可以直接交给 :class:`spacr.qt.job_runner.JobRunner`。两部分在一个 dict 中返回，因此调用者在一次 GUI 线程调用中接收枚举结果并安装图像。\n\n枚举**只读取文件名**。解码会读取所选图像，在请求投影时还会读取其通道的 z 图像层。\n\n:param source: 要从中加载预览的图像文件或目录。\n:param max_sets: 当 ``source`` 是目录时抽取样本的上限。\n:param enumerate_sets: ``False`` 完全跳过文件夹扫描。FOV 下拉列表给出的路径来自采样器已经产生的集合，因此为此重新扫描会为已缓存的列表对一块最多 98 000 个文件的孔板重复一次完整遍历。\n:param project: 在此工作线程上对所选通道的 z 堆栈进行投影。\n:param known_sets: 跳过枚举时使用的缓存图像集。\n:returns: ``{path, array, directory, sets, channels, error}``。当没有进行枚举或枚举失败时，``sets`` 为 ``None``，调用者将其理解为 \"leave the sampler alone\"。",
       "translation_source_blocks_sha256": [
         "62c4de71e67a51f3d79da70c2e0f0353158cc751dd5cb5d9a015ddec91b21143",
         "da6f35f72931064e914a862b1b3213e65ed7f52e2d2d9cb6c98308edcc37c42e",
@@ -176515,7 +176515,7 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
       "source_sha256": "43a304a8c4f48ee1dc108b0dcb662788dbba3ee31cf10ff97f8fd81aad585406",
-      "text": "标记的薄进展栏,右侧调整的百分比回归。\n\n两个文本列都有固定宽度. 标签列比 \"RAM\" 需要,所以系统卡的四条线上; 重新输入列是固定的,以便栏不会移动侧路,因为 9% 变成 10 %. 宽度是从字体而不是写作为恒定的,所以它们保持在一个大字体规模:见 :meth:`_size_the_columns`。\n\n:param label: 字符串的左侧显示的文本(例如 \"RAM\", \"GPU\")。\n:param parent: 父控件；仅用于所有权。\n创建一个标记的资源计。\n\n行自身不应绘制任何内容：应用样式表的通用背景规则否则会在条形控件后放置不透明矩形，无论页面后是什么。主题样式表的 ``UsageBarRow`` 规则同时为所有行指定该行为，因此行不携带自己的样式表。\n\n:param label: 什么是被测量。\n:param parent: 父控件，或 ``None``。",
+      "text": "带标签的细进度条，右对齐显示百分比读数。\n\n两个文本列都有固定宽度。说明列比 \"RAM\" 所需的更宽，使系统卡片的四条进度条对齐；读数列是固定的，使进度条在 9 % 变成 10 % 时不会横向移动。宽度是根据字体测量出来的，而不是写成常量，因此在大字体缩放下也成立：参见 :meth:`_size_the_columns`。\n\n:param label: 显示在进度条左侧的文本（例如 \"RAM\"、\"GPU\"）。\n:param parent: 父控件；仅用于所有权。\n构建一个带标签的资源仪表。\n\n行自身不应绘制任何内容：应用样式表的通用背景规则否则会在条形控件后放置不透明矩形，无论页面后是什么。主题样式表的 ``UsageBarRow`` 规则同时为所有行指定该行为，因此行不携带自己的样式表。\n\n:param label: 正在测量的内容。\n:param parent: 父控件，或 ``None``。",
       "translation_source_blocks_sha256": [
         "c86db3231c0c3742cd90ed8635a217ec8bff925e619b3182601ac3cb4eaaa4ac",
         "4001db803f46d17449eb896f4c365fe2a8df094b56258373ce0188fe3737e652",
@@ -176534,7 +176534,7 @@
         "b31d80c507e7f74398c8a4004ff6236f47abe04b01dcdb0fc6d42f0ca6a9e2b8"
       ],
       "source_sha256": "889981b582b680066ddf5cb5b14993d104911ef9c779109900c7ac072d6110f9",
-      "text": "重新测量,当此行下的字体变更时。\n\n风格表是携带字体尺寸的,它安装在应用程序后这些 widgets 被构建 - 一个偏好保存重新安装它在一个现场窗口. 两者都作为字体变更的 widgets 的解决字体移动,所以列被重新测量在那里而不是仅是正确的表发生在建设时是流动的。\n\n:param event: 变更事件，会传递给基类；字体、应用程序字体或样式的更改会重新测量各列。",
+      "text": "当这一行下方的字体改变时重新测量。\n\n样式表是承载字体缩放的东西，它在这些控件构建之后才安装到应用上——保存偏好设置会把它重新安装到正在运行的窗口上。两者都以字体变化的形式到达已解析字体发生变化的控件，因此列在那里被重新测量，而不是只对构建时碰巧有效的那份样式表正确。\n\n:param event: 变更事件，会传递给基类；字体、应用程序字体或样式的更改会重新测量各列。",
       "translation_source_blocks_sha256": [
         "9a006996289f77b5697d286e576479f29c7a2c0ac2c5eb3d37ab73e7ddfc065e",
         "c53a1d61204020bb0df6b509723a51a5f3266e2a80387ddc2499232a58f33686",
@@ -176547,7 +176547,7 @@
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
       ],
       "source_sha256": "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9",
-      "text": "设置条值,粘贴到 0-100,并重新颜色为 75/90 %.\n\n:param pct: 值在 ``0.0``-``100.0``; 外界值粘贴。",
+      "text": "设置进度条的值，限制在 0-100，并在 75/90 % 处重新着色。\n\n:param pct: ``0.0``-``100.0`` 范围内的值；超出范围的值会被限制。",
       "translation_source_blocks_sha256": [
         "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
@@ -176560,7 +176560,7 @@
         "dd12b92312115f344d230a4a9e45de2924f77d673f9ce6c197df478964554b47"
       ],
       "source_sha256": "9952d6163d176a0aec85a18652442d1162e6a9843647e93960447b09e1526647",
-      "text": "重新测量在被看到的道路上。\n\n一个 widget 的 QSS 字体被解开,当它被粉碎时,这对于一个应用程序视图构成一个粘贴的页面发生在路上到第一个显示。 测量在这里以及字体变更是保持一个序列,从未发送过字体变化 - 因为它的字体本身是继承的整体 - 从由默认尺寸大小。\n\n:param event: 显示事件，在各列重新测量后传递给基类。",
+      "text": "在即将被看到的途中重新测量。\n\n控件的 QSS 字体在其被润色时解析，对于嵌入堆叠页面的界面，这发生在首次显示的途中。除了在字体变化时测量之外，这里也测量，可以防止从未收到字体变化的一行——因为它自己的字体是整体继承的——按默认度量来确定大小。\n\n:param event: 显示事件，在各列重新测量后传递给基类。",
       "translation_source_blocks_sha256": [
         "a716945170f7149e671d3df02c9406b7f87fef840dfb1573695ccdd7e8850ac9",
         "3f66df4f50038daa5f1750013fdd018e3a8a7a6d5868ffbc4becf1eecec5a5db",
@@ -181829,7 +181829,7 @@
         "d03f7ba38e19859d551eae5ca0ce116bac591c9527275fcd9d75be58a2d2e027"
       ],
       "source_sha256": "8d432e9c3f2948242e40713eb5942715992b805946267d30d9e20d6e2e2f9979",
-      "text": "坚持 GUI 状态在强制性 spaCR 重新启动。\n\n重新启动记录存储现有模块、其设置、活跃运行概述以及任何处理会议文件夹的位置。 :func:`save` 在当前过程输出之前验证记录,而 :func:`take` 在新过程启动时消耗它,以免重复恢复固体状态。\n\n只有接口配置才能恢复;在强制重新启动后,活跃计算不会重复;重启前写的输出将留在记录的处理会议文件夹中。\n\n另有两个记录保存在首选项存储中，而不是文件中。spaCR 运行时及关闭时都会写入最近会话的模块、设置和文件夹，使普通启动在任何退出或崩溃之后都能恢复用户之前的位置。设置草稿保存每个打开模块尚未保存的设置；正常退出时清除，因此启动时发现草稿表示上次会话未经关闭便结束。",
+      "text": "在强制重启 spaCR 之后保持 GUI 状态。\n\n重启记录存储当前模块、其设置、活动运行的摘要以及所有运行文件夹的位置。:func:`save` 在当前进程退出前验证该记录，:func:`take` 在新进程启动时消耗它，这样过期状态就不会被反复恢复。\n\n只恢复界面配置。强制重启后活动计算不会恢复；重启之前写入的输出保留在记录的运行文件夹中。\n\n另有两个记录保存在首选项存储中，而不是文件中。spaCR 运行时及关闭时都会写入最近会话的模块、设置和文件夹，使普通启动在任何退出或崩溃之后都能恢复用户之前的位置。设置草稿保存每个打开模块尚未保存的设置；正常退出时清除，因此启动时发现草稿表示上次会话未经关闭便结束。",
       "translation_source_blocks_sha256": [
         "eeed90fda745c2db58d682395312593b69b4224ffa54aa8faacd63cc55aecbe8",
         "02dbb72de07cbef3a87da020ece0914ef04332be5dcb2a256109fe84db6d1182",
@@ -186397,7 +186397,7 @@
         "82d8e48bf959f928fca5c1bf26a55bd734f44722bb0de231a8415db342e08cec"
       ],
       "source_sha256": "85388bbc4afe8815447edb3518016761334a9e5637a671e8af27ded672f8adc7",
-      "text": "返回 ``name`` 是身份、标记或运行来源。\n\n``original_*`` 列保存微孔板转换前的名称，属于来源信息，绝不属于测量特征。",
+      "text": "返回 ``name`` 是标识、注释还是运行来源。\n\n``original_*`` 列保存微孔板转换前的名称，属于来源信息，绝不属于测量特征。",
       "translation_source_blocks_sha256": [
         "bb70abc1890f5bf036422fd87ea8cb37c1d3533eb5a381a61ca5eb7135bb621c",
         "593e07f397ffc3500c1f8b19915b718df658820a72f4f9f55c74db09dbbb3a47"
