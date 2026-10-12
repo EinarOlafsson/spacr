@@ -64,7 +64,12 @@ def _engine(theme, **kwargs):
     ("data_art_impulse_lens", 8294400, 1.0, False),
     ("data_art_genetic_advection", 2073600, 0.1, False),
     ("data_art_genetic_advection", 8294400, 1.0, False),
-    ("data_art_point_atlas", 1920 * 1200, 0.9, False),
+    # 2026-10-11: 28c7b269e regenerated the table from the round-5 workstation
+    # audit (features/data/684_animation_gpu_audit_r5_2026-10-11). The nearest
+    # point-atlas row (2073600 px, density 1.0) went from cpu 1.913 / gpu 1.806 ms
+    # (gpu 0.94x cpu, a near tie, CPU) to cpu 2.236 / gpu 1.984 ms (0.89x, under
+    # the 0.9 _GRAPHICS_GAIN), so Automatic now measures a graphics win here.
+    ("data_art_point_atlas", 1920 * 1200, 0.9, True),
     ("data_art_point_atlas", 3840 * 2400, 0.9, True)])
 def test_the_nearest_measured_row_decides(theme, pixels, density, expected):
     assert ambient._measured_graphics_win(theme, pixels, density) is expected
