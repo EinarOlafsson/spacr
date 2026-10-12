@@ -285,7 +285,7 @@ screen edge. Its default is **15%**; set it to **0** to disable mouse influence.
 bounds its sampling work within the screen's pixel budget. Select **Random**
 in **Animation palette** for per-element colours. Fresh installations use
 **Dark**, **spaCR field** and the **spaCR** animation palette, with Density
-**10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity
+**10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity
 **60%**. **Dot blinking** controls the percentage of visible dots that flash white:
 **0** switches it off (the default), and nonzero values range from
 0.00001% to 10%. The setting applies to spaCR field, spaCR advection,

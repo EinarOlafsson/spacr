@@ -228,6 +228,9 @@ _KEY_DYNAMIC_ANIMATION = "prefs/dynamic_animation"
 GRAPHICS_BACKENDS = ("cpu", "auto", "gpu")
 DEFAULT_GRAPHICS_BACKEND = "gpu"
 _KEY_AMBIENT_GRAVITY_RADIUS = "prefs/ambient_gravity_radius"
+_KEY_AMBIENT_GRAVITY_CHOSEN = "prefs/ambient_gravity_radius_chosen"
+DEFAULT_AMBIENT_GRAVITY_RADIUS = 0.10
+_RETIRED_AMBIENT_GRAVITY_RADIUS = 0.15
 _KEY_AMBIENT_DRIFT_DIR = "prefs/ambient_drift_direction"
 #: Which generation of the motion keys the store was last written by. Only
 #: ``ambient_blur`` has ever changed meaning, and this is how a value written
@@ -2333,8 +2336,21 @@ def _ambient_gravity_radius() -> float:
     """Read a finite viewport-relative mouse radius; zero disables influence."""
     import math
 
+    settings = _settings()
+    stored = settings.value(_KEY_AMBIENT_GRAVITY_RADIUS, None)
+    if stored is not None and not _as_bool(
+            settings.value(_KEY_AMBIENT_GRAVITY_CHOSEN, False), False):
+        try:
+            retired = float(stored) == _RETIRED_AMBIENT_GRAVITY_RADIUS
+        except (TypeError, ValueError):
+            retired = False
+        if retired:
+            settings.remove(_KEY_AMBIENT_GRAVITY_RADIUS)
+            stored = None
+        settings.setValue(_KEY_AMBIENT_GRAVITY_CHOSEN, True)
     try:
-        value = float(_settings().value(_KEY_AMBIENT_GRAVITY_RADIUS, 0.15))
+        value = float(DEFAULT_AMBIENT_GRAVITY_RADIUS if stored is None
+                      else stored)
     except (TypeError, ValueError):
         return 0.0
     return max(0.0, min(1.0, value)) if math.isfinite(value) else 0.0
@@ -2352,6 +2368,7 @@ def _set_ambient_gravity_radius(value: float) -> None:
         radius = 0.0
     settings = _settings()
     settings.setValue(_KEY_AMBIENT_GRAVITY_RADIUS, max(0.0, min(1.0, radius)))
+    settings.setValue(_KEY_AMBIENT_GRAVITY_CHOSEN, True)
     settings.sync()
 
 

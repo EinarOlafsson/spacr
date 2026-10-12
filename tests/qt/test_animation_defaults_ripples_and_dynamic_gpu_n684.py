@@ -90,7 +90,7 @@ def test_fresh_defaults_field_density_25_and_dark_background_191919(store, monke
         assert ambient._default_density_for(theme) == ambient.DEFAULT_DENSITY
     assert prefs._ambient_background_choice() == "#191919"
     assert prefs._effective_ambient_background() == QColor(25, 25, 25)
-    assert prefs._ambient_gravity_radius() == pytest.approx(0.15)
+    assert prefs._ambient_gravity_radius() == pytest.approx(0.10)
 
 
 def test_saved_density_and_background_are_never_overwritten(store, monkeypatch):

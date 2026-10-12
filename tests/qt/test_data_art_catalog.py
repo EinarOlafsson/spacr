@@ -262,4 +262,4 @@ def test_requested_animation_order_and_default_reach_the_actual_dialog(
     assert tuple(combo.itemText(index) for index in range(5)) == labels
     assert combo.currentData() == "data_art_impulse_lens"
     assert combo.itemData(combo.count() - 1) == "none"
-    assert private_store._ambient_gravity_radius() == pytest.approx(0.15)
+    assert private_store._ambient_gravity_radius() == pytest.approx(0.10)
