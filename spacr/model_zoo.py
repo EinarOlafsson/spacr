@@ -370,6 +370,15 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "re-curation; on the current literature set, whose truth leans "
             "toward this model's lineage, it ties stock Cellpose-SAM on "
             "detection (F1 0.403 against 0.400)",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.793 at IoU 0.5 on n'
+            ' = 486 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.783 (95% bootstrap CI 0.710 to '
+            '0.830). Without the 98 paged round-3 fields (n = 65): F1 0.732. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. Default unchanged.',
         ),
     },
     {
@@ -404,6 +413,17 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "at precision 0.93 against 0.81. For mixed sources, or any phone-"
             "camera image, use toxoplasma_plaque_v2, which round 3 cannot "
             "handle at all (0.249 there)",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.707 at IoU 0.5 on n'
+            ' = 498 of 562 fields (n differs between models); common subset unseen '
+            'by every plaque model, n = 114, F1 0.402 (95% bootstrap CI 0.300 to '
+            '0.504). Without the v3-seeded Gel Doc truth (n = 81): F1 0.472. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 '
+            'Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 '
+            '(training data of v4). Default unchanged.',
         ),
     },
     {
@@ -457,6 +477,17 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "the extra curation alone",
             "training data: https://huggingface.co/datasets/einarolafsson/"
             "toxoplasma-plaque-dataset",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.455 at IoU 0.5 on n'
+            ' = 282 of 562 fields (n differs between models); common subset unseen '
+            'by every plaque model, n = 114, F1 0.360 (95% bootstrap CI 0.249 to '
+            '0.472). Without the v3-seeded Gel Doc truth (n = 81): F1 0.406. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 '
+            'Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 '
+            '(training data of v4). Default unchanged.',
         ),
     },
     {
@@ -598,6 +629,15 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "per-dataset variance is real -- F1 ranges ~0.74 to ~0.93 by screen",
             "accuracy falls above IoU 0.8 -- suited to counting and area rather "
             "than precise morphometry",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.713 at IoU 0.5 on n'
+            ' = 258 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.761 (95% bootstrap CI 0.691 to '
+            '0.806). Without the 98 paged round-3 fields (n = 65): F1 0.742. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. Default unchanged.',
         ),
     },
     {
@@ -636,6 +676,15 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "AJI 0.7516, Dice 0.8424",
             "the 11 anchor wells have been held out since round 1, so they are "
             "the only fields no PV round has ever trained on",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.750 at IoU 0.5 on n'
+            ' = 269 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.790 (95% bootstrap CI 0.726 to '
+            '0.835). Without the 98 paged round-3 fields (n = 65): F1 0.754. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. Default unchanged.',
         ),
     },
     {
@@ -698,6 +747,15 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "the drop on the new plate is under investigation: round 7 also "
             "under-fits that plate's own training fields, which points at how "
             "those fields entered training rather than at generalisation",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.761 at IoU 0.5 on n'
+            ' = 209 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.781 (95% bootstrap CI 0.725 to '
+            '0.817). Without the 98 paged round-3 fields (n = 65): F1 0.757. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. Default unchanged.',
         ),
     },
     {
@@ -754,6 +812,18 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "toxoplasma_pv_v4 and is not a fair test",
             "weak on published-figure crops (F1 0.440 on 14 literature fields), "
             "as is every PV model",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.733 at IoU 0.5 on n'
+            ' = 481 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.633 (95% bootstrap CI 0.544 to '
+            '0.695). Without the 98 paged round-3 fields (n = 65): F1 0.665. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. LEAKED: this model trained or validated on 29 of 39 curated '
+            'PV literature hold-out fields and 3 of 11 anchor wells, so its earlier'
+            ' hold-out scores are not hold-out scores; the re-score uses only the '
+            'fields it never saw. Default unchanged.',
         ),
     },
     {
@@ -994,7 +1064,18 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                'Its own release gate on independent literature crops did not pass at the time (literature F1 about 0.54 for every model).',
                'Gel Doc score requires min_size=0; min_size=150 gives F1 0.1041.',
                'Stock not measured; comparison baseline is incumbent r3.',
-               'Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2.']},
+               'Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2.',
+               'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+               'defaults; receipt '
+               'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+               'strict hold-out, fields this model never saw, F1 0.732 at IoU 0.5 on n'
+               ' = 232 of 562 fields (n differs between models); common subset unseen '
+               'by every plaque model, n = 114, F1 0.548 (95% bootstrap CI 0.449 to '
+               '0.645). Without the v3-seeded Gel Doc truth (n = 81): F1 0.444. '
+               'Earlier numbers in this row are superseded by this re-score where they'
+               ' differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 '
+               'Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 '
+               '(training data of v4). Default unchanged.']},
     {'key': 'toxoplasma_plaque_v4',
      'name': 'cpsam_plaque_r6',
      'remote_name': 'cpsam_plaque_r6',
@@ -1043,7 +1124,18 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                'fine-tuned from first-generation cpsam (sha256 00f4a86b...a0c171), which remain in '
                'the repository history.',
                'Above toxoplasma_plaque_v2 overall (0.799) and on Gel Doc wells, where v2 scores 0.013.',
-               'Published-figure literature crops stay hard (F1 0.530).']},
+               'Published-figure literature crops stay hard (F1 0.530).',
+               'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+               'defaults; receipt '
+               'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+               'strict hold-out, fields this model never saw, F1 0.765 at IoU 0.5 on n'
+               ' = 329 of 562 fields (n differs between models); common subset unseen '
+               'by every plaque model, n = 114, F1 0.534 (95% bootstrap CI 0.440 to '
+               '0.625). Without the v3-seeded Gel Doc truth (n = 81): F1 0.459. '
+               'Earlier numbers in this row are superseded by this re-score where they'
+               ' differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 '
+               'Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 '
+               '(training data of v4). Default unchanged.']},
     {'key': 'toxoplasma_well_detector_v3',
      'name': 'yolo_welldetect_v4_geldoc.pt',
      'remote_name': 'yolo_welldetect_v4_geldoc.pt',

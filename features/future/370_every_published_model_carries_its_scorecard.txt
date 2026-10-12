@@ -1450,3 +1450,31 @@ PV anchor scores average 10 nonempty fields from the 11-field split.
 This publication does not complete the older maintainer-held curation queues
 or the full matched-stock acceptance required by this item. Their gate and
 human decisions are unchanged. No new training or protected jobs were started.
+
+
+================================================================================
+RE-SCORE ON CURATED GROUND TRUTH, DRAFTED (2026-10-11)
+================================================================================
+
+All nine published PV and plaque models plus stock cpsam and cpsam_v2 were
+re-scored on the curated ground truth through the spaCR pipeline calls
+(spacr.model_zoo.benchmark for PV, spacr.plaque.segment_plaque_image for plaque).
+Receipt: features/data/model_rescore_curated_gt_2026-10-11/receipt.json (counts
+per source, manifest hashes, tables, decisions, caveats). Full tables and
+per-field results: /media/carruthers/mnt3/claude/gt_rescore_20261011/scores/.
+
+Maintainer decisions applied: the 98 round-3 PV fields with no ledger row are
+included (labelled, shown with and without); 3 plaque literature fields marked
+done and Discard and the 11 Gel Doc set-aside wells are excluded; PV v5 is
+marked as leaked (trained or validated on 29 of 39 curated PV literature
+hold-out fields and 3 of 11 anchor wells) and scored only on fields it never
+saw; defaults do not change (PV v4, plaque v4).
+
+Model card drafts exist for all nine repositories
+(/media/carruthers/mnt3/claude/gt_rescore_20261011/cards/<repo>/README.draft.md,
+next to the downloaded README.current.md). NOTHING HAS BEEN UPLOADED to Hugging
+Face and nothing was pushed. Zoo notes in spacr/model_zoo.py carry a dated
+re-score line per row; the metrics dicts are untouched.
+
+This supersedes the earlier hold-out numbers wherever they differ; the older
+scorecards stay on the cards, labelled with date and scorer.
