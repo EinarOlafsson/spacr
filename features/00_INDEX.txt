@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-601 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
+602 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -872,3 +872,4 @@ NEW FEATURES
   689  NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
   690  MAKE MASKS FOR TRANSMISSION ELECTRON MICROSCOPY (TEM) IMAGES
   691  MITONET AS AN ALPHA MAKE MASKS BACKEND FOR TEM
+  692  3D MASK DRAWING IN MAKE MASKS AND A FIB-SEM EXAMPLE VOLUME WITH MASKS

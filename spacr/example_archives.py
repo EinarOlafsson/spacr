@@ -164,6 +164,8 @@ READS_EXAMPLE_REPO = "einarolafsson/spacr-example-reads"
 #: ``tools/build_tem_example_dataset.py``.
 TEM_EXAMPLE_REPO = "einarolafsson/spacr-example-tem"
 
+FIBSEM_EXAMPLE_REPO = "einarolafsson/spacr-example-fibsem"
+
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
 
@@ -215,6 +217,7 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     HIT_EXAMPLE_REPO: "spacr-example-hit.tar",
     READS_EXAMPLE_REPO: "spacr-example-reads.tar",
     TEM_EXAMPLE_REPO: "spacr-example-tem.tar",
+    FIBSEM_EXAMPLE_REPO: "spacr-example-fibsem.tar",
 }
 
 
@@ -431,6 +434,18 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         bytes=31_508_480,
         markers=("manifest.csv", "tem_*.tif", "ground_truth_masks/tem_*.tif"),
         folder="make_masks_tem",
+        in_default=False,
+    ),
+    ExampleSet(
+        key="fibsem",
+        repo=FIBSEM_EXAMPLE_REPO,
+        summary="Make Masks FIB-SEM test data: one 128 x 256 x 256 HeLa "
+                "cell volume (15 nm) with 3-D mitochondria labels, from "
+                "EMPIAR-10982 (CC0).",
+        bytes=25_221_120,
+        markers=("manifest.csv", "hela_fibsem.tif",
+                 "ground_truth_masks/hela_fibsem.tif"),
+        folder="make_masks_fibsem",
         in_default=False,
     ),
 )

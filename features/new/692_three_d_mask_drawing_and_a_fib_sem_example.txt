@@ -1,0 +1,141 @@
+================================================================================
+3D MASK DRAWING IN MAKE MASKS AND A FIB-SEM EXAMPLE VOLUME WITH MASKS
+================================================================================
+
+Status:    built 2026-10-11 (not alpha); spacr/ commit held for the i18n freeze;
+           translations of the new strings and the tutorial pending (WS)
+Requested: 2026-10-11 by the maintainer: "I'd like to be able to draw 3D masks
+           and I'd like a TEM milling dataset with the option to load with
+           masks if possible." TEM milling = FIB-SEM volume EM.
+Owner:     Home (build); WS (translations, tutorial)
+Related:   N672/N673 (EditableVolumeGate, VolumeMaskSession, the 3D mask
+           editor); N690 (TEM readers, spacr-example-tem); N691 (MitoNet,
+           alpha).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+N673 put an "Open 3D image..." button in Make Masks' navigation row. It is not
+alpha. It opens a dialog in which a mask is a closed anchor mesh: one draws a
+box/cylinder gate in a rotating 3D point cloud (4,000 sampled points) and drags
+anchors and surfaces. There is no brush, no way to draw on a section, and the
+Z-slice image under the cloud is a picture that cannot be drawn on.
+
+Measured offscreen on nightly 07c132cfb (scratch probe):
+- a z-stack saved the ordinary way (tifffile.imwrite of a Z x Y x X array, as
+  Fiji "Save As TIFF" without hyperstack metadata and the EMPIAR benchmark
+  volumes are) reads as axes QYX and is REFUSED: "Choose a TIFF explicitly
+  declaring three spatial axes". Only ImageJ hyperstacks and OME-TIFF opened.
+- MRC volumes do not open at all (N690's read_mrc refuses more than one
+  section; the volume editor read TIFF only).
+So the maintainer could not draw 3D masks: the common files did not open, and
+when one did, there was nothing to draw with.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Open plain TIFF z-stacks, OME-TIFF and MRC volumes in the 3D editor.
+2. Draw and erase labels slice by slice on XY, and on XZ/YZ side views, with
+   the existing Make Masks canvas; interpolate between drawn slices; assign 3D
+   objects; save a 3-D label TIFF of the same shape with the voxel size.
+3. Publish a small licence-checked FIB-SEM volume WITH masks
+   (einarolafsson/spacr-example-fibsem), register it (spacr-download fibsem),
+   add its build tool, and put two entries on Load test data: the volume
+   alone, and the volume with its masks loaded for correction.
+No new module under spacr/.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Synthetic volume round trips (plain stack, OME, MRC) keep shape, labels, axes
+and voxel size; mouse strokes on the slice canvas change exactly that section;
+side views write the right voxels; interpolation fills only the gap;
+assignment splits unconnected parts; the FIB-SEM entries open the 3D editor
+without and with masks and never overwrite ground_truth_masks; a mocked
+download opens the set; spacr-download fibsem unpacks it. No GPU, no network.
+
+2026-10-11 — Built.
+
+Why 3D drawing failed: see WHAT THE STATE IS (plain stacks and MRC refused;
+anchor meshes only, no brush). 672/673 are not alpha, so neither is this.
+
+Engine (spacr/qt/mask_engine.py): VolumeMaskSession.plane, section_count,
+paint_plane (paints background and its own object only; erase clears all
+labels under the brush), interpolate (signed-distance blend between the drawn
+sections of one object, in physical units, background only), assign_objects
+(3-D 26-connected components; the largest part keeps its ID). All are single
+undo steps through one shared _commit, which apply_geometry now uses too; a
+label whose voxels a brush changes drops its saved anchor boundary.
+load_volume_image_and_mask reads a plain Q/I page stack as ZYX and MRC
+volumes (.mrc/.rec/.map, voxel size in nm, mrcfile from the tem extra).
+save_volume_mask also writes X/Y resolution tags.
+
+Make Masks (spacr/qt/screens/make_masks.py): the 3D editor opens on a new
+"Draw slices" tab: View (XY / XZ / YZ), Slice (Page Up / Page Down), Draw,
+Erase, Brush size, Interpolate slices, Assign 3D objects, on the same
+_MaskCanvas the 2-D editor uses (zoom, pan, readout). The anchor editor is the
+"3D anchors" tab, unchanged. "Open 3D image..." accepts *.tif *.tiff *.mrc
+*.rec *.map and its tooltip says what it does. open_volume keeps its
+signature; the demo uses the private _open_volume_with(path, masks_dir).
+
+Dataset: einarolafsson/spacr-example-fibsem (HF dataset repo, published
+2026-10-11, 25.2 MB tar). EMPIAR-10982 mito_benchmarks/hela_cell (FIB-SEM per
+EMPIAR, Narayan K and Conrad RW, NCI/FNLCR), CC0 1.0 as all EMPIAR entries:
+central 128 sections (Z 64-191) of the 256^3 volume, 8-bit image unchanged,
+43 mitochondria relabelled 1..n as uint16, both ImageJ ZYX hyperstacks at
+15 nm. EMPIAR records a 150 A pixel and no section thickness: 15 nm on Z is an
+assumption, stated on the card. Citation: Conrad and Narayan, Cell Systems
+14:58 (2023), doi:10.1016/j.cels.2022.12.006; EMPIAR doi:10.6019/EMPIAR-10982.
+Not chosen: the EPFL/Lucchi hippocampus volume (its licence was not
+confirmed; EMPIAR-10982's Lucchi++ copy is 124 MB + 248 MB of derived labels),
+MitoEM and the remaining CEM-MitoLab volumes (licences not checked once a CC0
+FIB-SEM set with masks was in hand), OpenOrganelle (CC BY 4.0, but a crop
+needs S3/zarr access and an attribution chain). The HeLa benchmark is the
+same lab's own FIB-SEM data, CC0, with 3-D instance labels.
+Build: tools/build_fibsem_example_dataset.py DEST [--source DIR] [--upload].
+Registered as example set "fibsem" (spacr/example_archives.py; not in the
+default spacr-download run). Menu: "FIB-SEM volume, 3D (test data)" opens it
+unsegmented (drafts in masks/); "FIB-SEM volume with masks, 3D (test data)"
+copies ground_truth_masks into corrected_masks/ once and opens that.
+
+API: tests/data/release_contracts/692_three_d_mask_drawing_api_arrivals_
+2026-10-11.json (8 symbols), subtracted in the four inventory tests; the
+672/673 contract's two pins (load_volume_image_and_mask, open_volume) carry
+their new docstrings. The rendered-callable total in
+test_callable_boundary_is_cross_checked_with_i18n_extractor now also subtracts
+the dated contracts (685, 534, 691, 692), as its sibling totals do.
+
+Tests: tests/test_692_fibsem_example_dataset.py (build tool, registry, 3D
+load with masks, mocked spacr-download fibsem: 5 pass);
+tests/qt/test_692_three_d_mask_drawing.py (12 pass); 148 Make Masks / volume /
+example-data test files 2,706 pass. Pre-existing on nightly, unchanged: the
+685 contract pins an old is_spacr_owned docstring (fails the API inventory
+tests before they reach later contracts; with it refreshed locally they pass),
+stale reviewed runtime sources (pt/sv/fr) and the EM preset tooltip catalog row.
+
+Freeze: the spacr/ engine, GUI and demo changes, the regenerated English
+sources (runtime en.py, API en.json, Help index, api_source_history) and the
+tests that need them are one HELD commit until the translation pass ends.
+Pushed now: the build tool, the "fibsem" example-set registration, its test,
+this item file and the index. New/changed runtime strings need translation;
+four reviewed 672/673 strings went stale ("Choose an object and drag its
+anchors...", the Open 3D image tooltip, "Spatial TIFF (*.tif *.tiff)",
+"Z slice (index)").
+
+Tutorial (not alpha; WS records it, current layout only):
+1. Make Masks > Load test data arrow > "FIB-SEM volume, 3D (test data)".
+2. The 3D mask editor opens on Draw slices, View XY, the middle slice.
+3. Object ID "New object"; Draw; brush a mitochondrion on this slice.
+4. Page Up ten times; brush the same mitochondrion; the Object ID shows 1.
+5. Interpolate slices; step back through the slices to show the fill.
+6. View XZ: show the object from the side; Erase a stray voxel.
+7. Brush two separate mitochondria with the same ID; Assign 3D objects
+   gives the second its own ID.
+8. Save 3D mask; show masks/hela_fibsem.tif (same shape, 15 nm).
+9. Load test data > "FIB-SEM volume with masks, 3D (test data)": the 43
+   mitochondria open for correction; erase one, undo, save (corrected_masks).
+10. Mention "Open 3D image..." opens TIFF stacks, OME-TIFF and MRC; the
+    3D anchors tab still drags surfaces.
