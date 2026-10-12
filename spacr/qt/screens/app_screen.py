@@ -12445,8 +12445,9 @@ class AppScreen(QWidget):
     def _refresh_usage(self):
         """Sample RAM/CPU/GPU on a worker; paint the bars when it returns.
 
-        ``GPUtil.getGPUs()`` spawns ``nvidia-smi`` and waits for it: **25 ms**,
-        measured, every single call. This runs on a 2 s timer and once more
+        The GPU is read through NVML (:func:`_nvml_gpu_usage`); the
+        ``GPUtil.getGPUs()`` fallback spawns ``nvidia-smi`` and waits for it:
+        **25 ms**, measured, every single call. This runs on a 2 s timer and once more
         during every screen build, so inline it was a guaranteed 25 ms hitch
         twice a minute per open module and a 25 ms tax on opening one. psutil
         is 0.13 ms and could have stayed, but sampling everything in one place
@@ -12530,6 +12531,10 @@ def _sample_usage(per_core: bool) -> dict:
     except Exception:
         pass
     if _nvidia_smi_available():
+        reading = _nvml_gpu_usage()
+        if reading is not None:
+            sample["gpu"], sample["vram"] = reading
+            return sample
         try:
             import GPUtil
             gpus = GPUtil.getGPUs()
@@ -12545,6 +12550,41 @@ def _sample_usage(per_core: bool) -> dict:
         sample["gpu"] = 0
         sample["vram"] = 0
     return sample
+
+
+def _nvml_gpu_usage() -> Optional[tuple]:
+    """Read the first card's load and memory use through NVML, in process.
+
+    The usage poll used to ask ``GPUtil``, which starts ``nvidia-smi`` and
+    waits for it. Each start opens the driver, enumerates the cards and
+    closes the driver again: 25-40 ms on a headless card, and on the
+    workstation whose card also drives the desktop the tutorial capture saw
+    every module screen stop painting for about 100 ms once every two
+    seconds, the period of this poll, while Home, which has no usage strip,
+    did not. NVML is opened once per process
+    (:func:`spacr.qt.widgets.home._nvml`, which Home's GPU readout already
+    keeps open) and a reading through it is a library call, with no process
+    and no driver open or close.
+
+    :returns: ``(load %, memory %)`` of card 0, ``(0, 0)`` when the driver
+        lists no card, or ``None`` when NVML is not there or a query fails,
+        so the caller can fall back to ``GPUtil``.
+    """
+    try:
+        from ..widgets.home import _nvml
+
+        nvml = _nvml()
+        if nvml is None:
+            return None
+        if nvml.nvmlDeviceGetCount() < 1:
+            return 0, 0
+        handle = nvml.nvmlDeviceGetHandleByIndex(0)
+        load = float(nvml.nvmlDeviceGetUtilizationRates(handle).gpu)
+        memory = nvml.nvmlDeviceGetMemoryInfo(handle)
+        total = float(memory.total)
+        return load, (float(memory.used) / total * 100 if total else 0.0)
+    except Exception:
+        return None
 
 
 def _nvidia_smi_available() -> bool:

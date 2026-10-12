@@ -136,16 +136,37 @@ class UsageBar(QWidget):
     def set_value(self, pct: float) -> None:
         """Set the bar value, clamped to 0-100, and re-color at 75/90 %.
 
+        The new value is scheduled for the next paint rather than painted
+        now. ``QProgressBar.setValue`` repaints synchronously whenever the
+        change moves a pixel, and the bar is translucent over the window's
+        field, so each call painted the field under it and flushed the
+        window there and then: four synchronous flushes every two seconds on
+        every module screen, which on a composited GPU desktop each wait for
+        the display. With updates held off for the call, the bar is marked
+        dirty instead and is drawn with the next field frame.
+
+        The bar is re-polished only when the reading crosses into another
+        band. A polish re-resolves the application style sheet for the bar,
+        and the usage poll calls this for every bar every two seconds, almost
+        always with the colour unchanged.
+
         :param pct: value in ``0.0``-``100.0``; out-of-range values clamp.
         """
         pct = max(0, min(100, int(round(pct))))
-        self._bar.setValue(pct)
+        self._bar.setUpdatesEnabled(False)
+        try:
+            self._bar.setValue(pct)
+        finally:
+            self._bar.setUpdatesEnabled(True)
         self._pct.setText(f"{pct}%")
         if pct >= 90:
-            self._bar.setObjectName("UsageBarError")
+            band = "UsageBarError"
         elif pct >= 75:
-            self._bar.setObjectName("UsageBarWarn")
+            band = "UsageBarWarn"
         else:
-            self._bar.setObjectName("UsageBar")
+            band = "UsageBar"
+        if band == self._bar.objectName():
+            return
+        self._bar.setObjectName(band)
         self._bar.style().unpolish(self._bar)
         self._bar.style().polish(self._bar)

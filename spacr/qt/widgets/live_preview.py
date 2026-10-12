@@ -58,7 +58,7 @@ import numpy as np
 from PySide6.QtCore import QPointF, QRectF, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
-    QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
+    QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsItem, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
     QHeaderView, QSizePolicy, QSpinBox, QTableWidget,
     QTableWidgetItem,
@@ -1423,11 +1423,19 @@ class _ZoomView(QGraphicsView):
     def set_pixmap(self, pixmap: QPixmap) -> None:
         """Show a new image, fitted, and forget any zoom the user had applied.
 
+        The picture is cached at the size it is shown. The window's field
+        repaints everything above it on every frame, this view included, and
+        drawing a 2048-pixel field scaled into the panel on each of those
+        frames cost about 3 ms a view at 2560x1440 against a blit of the
+        cached, already scaled picture. The cache is rebuilt when the zoom
+        changes.
+
         :param pixmap: the image to show. The zoom is reset so a new field
             starts at the whole canvas rather than inside the last one's crop.
         """
         self._scene.clear()
         self._pixmap_item = self._scene.addPixmap(pixmap)
+        self._pixmap_item.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
         self.setSceneRect(self._scene.sceneRect())
         self._user_zoomed = False

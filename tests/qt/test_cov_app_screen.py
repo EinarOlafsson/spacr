@@ -1950,6 +1950,8 @@ class TestUsage:
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
         monkeypatch.setattr(
             "spacr.qt.screens.app_screen._nvidia_smi_available", lambda: True)
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen._nvml_gpu_usage", lambda: None)
         scr = _make_screen(qtbot, "mask")
         _settle(qtbot, scr)
         scr._usage_gpu.set_value(55)
@@ -1971,6 +1973,8 @@ class TestUsage:
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
         monkeypatch.setattr(
             "spacr.qt.screens.app_screen._nvidia_smi_available", lambda: True)
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen._nvml_gpu_usage", lambda: None)
         scr = _make_screen(qtbot, "mask")
         _settle(qtbot, scr)
         scr._refresh_usage()

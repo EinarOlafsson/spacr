@@ -16,6 +16,14 @@
       "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
       "text": "Install ``sheet`` on every top-level window instead of on ``app``.\n\nWHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every\nwidget the process owns, and a session that has opened a few modules\nowns thousands it cannot see -- `MainWindow` builds a module screen on\nfirst navigation and keeps it in the stack afterwards. Measured on this\nbox, offscreen, four modules open, 9,045 live widgets of which 6,111 are\non screens nobody is looking at:\n\n    app.setStyleSheet            2,836 ms first, ~7,500 ms thereafter\n    every top-level window       1,684 ms first, ~1,900 ms thereafter\n    the visible screen alone       222 ms\n\nA QUARTER OF THE COST FOR THE SAME PICTURE. The floor is lower still --\n222 ms is what the visible screen costs on its own -- and reaching it\nmeans not sheeting the hidden screens either, which is a bigger change\nthan this one.\n\n:param app: the ``QApplication`` whose windows wear the sheet, and where\n    the sheet itself is parked so a window created later can find it.\n    ``None`` is accepted and does nothing, so a caller running without\n    an application does not have to check first.\n:param sheet: the complete application stylesheet, as\n    :func:`stylesheet` composes it.\n:returns: the number of windows the sheet was put on.\n\nA hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next\n``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before\nit paints: the Preferences window kept for the next open is ~750\nwidgets nobody can see.\n\nA settings category's body that is waiting off the page is parentless,\nso Qt lists it among the top-level widgets, but it is not a window: it\ngoes back under its page before anybody sees it and wears the page's\nsheet from there. Sheeting it here would leave it carrying a copy of\nthe sheet of the moment when it went back, which the next theme change\nwould not reach. See\n:meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`."
     },
+    "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9": {
+      "source_blocks_sha256": [
+        "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
+        "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
+      ],
+      "source_sha256": "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9",
+      "text": "Set the bar value, clamped to 0-100, and re-color at 75/90 %.\n\n:param pct: value in ``0.0``-``100.0``; out-of-range values clamp."
+    },
     "e56b3cedfdb711bf944af76b476e5547b5e74f21f138b6b4fc4c2fc48d6bc7a7": {
       "source_blocks_sha256": [
         "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",

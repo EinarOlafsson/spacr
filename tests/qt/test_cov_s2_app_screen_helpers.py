@@ -206,6 +206,7 @@ class TestSamplingTheMachine:
         fake.getGPUs = lambda: [card]
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
         monkeypatch.setattr(aps, "_nvidia_smi_available", lambda: True)
+        monkeypatch.setattr(aps, "_nvml_gpu_usage", lambda: None)
 
         sample = aps._sample_usage(per_core=False)
 
@@ -219,6 +220,7 @@ class TestSamplingTheMachine:
         fake.getGPUs = lambda: []
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
         monkeypatch.setattr(aps, "_nvidia_smi_available", lambda: True)
+        monkeypatch.setattr(aps, "_nvml_gpu_usage", lambda: None)
 
         sample = aps._sample_usage(per_core=False)
 

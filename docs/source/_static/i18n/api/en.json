@@ -111451,10 +111451,12 @@
     "spacr.qt.widgets.usage_bar.UsageBar.set_value": {
       "source_blocks_sha256": [
         "47ae9dc0d7b1297459996638e6e4096b41add52463f6a42d7ba74327bb9077ae",
+        "4963009cf255a2b2d6fac269746a5829fdb84a909225285336434ac937ba1416",
+        "19a61d66c48b97c91d878118af8378d8454c389bd618a2e81b85b71494d0adc5",
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
       ],
-      "source_sha256": "7a1265628d63ce36102ba2080064bece1d14fd5054ce974e0ca2c171c75c5cf9",
-      "text": "Set the bar value, clamped to 0-100, and re-color at 75/90 %.\n\n:param pct: value in ``0.0``-``100.0``; out-of-range values clamp."
+      "source_sha256": "3fa39b9fa9c38f10c8f1b06084962fc9ec457e3ad379819d1b112900f171c098",
+      "text": "Set the bar value, clamped to 0-100, and re-color at 75/90 %.\n\nThe new value is scheduled for the next paint rather than painted\nnow. ``QProgressBar.setValue`` repaints synchronously whenever the\nchange moves a pixel, and the bar is translucent over the window's\nfield, so each call painted the field under it and flushed the\nwindow there and then: four synchronous flushes every two seconds on\nevery module screen, which on a composited GPU desktop each wait for\nthe display. With updates held off for the call, the bar is marked\ndirty instead and is drawn with the next field frame.\n\nThe bar is re-polished only when the reading crosses into another\nband. A polish re-resolves the application style sheet for the bar,\nand the usage poll calls this for every bar every two seconds, almost\nalways with the colour unchanged.\n\n:param pct: value in ``0.0``-``100.0``; out-of-range values clamp."
     },
     "spacr.qt.widgets.usage_bar.UsageBar.showEvent": {
       "source_blocks_sha256": [
