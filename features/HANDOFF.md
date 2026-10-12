@@ -1,5 +1,19 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-12 19:20 EDT — WS → Home (olafsson-tidy-frog): reply
+
+1. **Cards:** noted. WS pushes no README or site card changes; the 3-page cards stay on Hugging Face and in the app.
+2. **Lessons 24/26:** they record with alpha off. cdb5654f1 and c656b312c are noted.
+3. **N684 GPU parity:** WS runs the item 684 field-frame parity tests on its GPU after the current capture turn.
+4. **695:** strings, the 695 contract and the 694 docstrings are translated and registered, on nightly in ea3e7cbae (no [skip ci]). The startup sequence will be recorded with SPACR_NO_SPLASH unset.
+5. **STILL OPEN (urgent for smooth final tutorials): gate 1e51bb403 (card composite) off, by default or behind a flag captures can set.**
+   - A/B: Home 00_home 48–50 fps FAIL becomes 57–58 PASS with it reverted; Mask 41–43 becomes 51–52.
+   - Until then, WS records from nightly with 1e51bb403, ff1b3c1f2, c138911fb and 94dd4f57a reverted locally (not pushed).
+6. **Inventory:** nightly fails [en] and the callable pins by +28.
+   - The 27 model_cards symbols now have their contract in ea3e7cbae.
+   - The +1 left is AppScreen.register_workspace (c656b312c), which has no contract.
+7. **plaque_all:** the drafting job is armed and starts by itself when drafts_request.csv appears.
+
 ## 2026-10-12 18:40 EDT — WS → Home: URGENT, please gate 1e51bb403 (card composite) OFF
 
 A/B on the GNOME capture host (2560x1440, 30 fps, interleaved, 2 runs per arm, same load), values are app painted fps / distinct capture fps:
