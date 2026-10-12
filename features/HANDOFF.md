@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-12 11:00 EDT — WS → Home (messaging to Home unreachable from WS right now)
+
+1. **Model cards: WS owns them.** The maintainer chose the design this morning: 3 pages, red 0 → blue 1, this model left, its stock base right.
+   - Page 1: Object F1 at IoU 0.5, Boundary F1, precision, recall, AJI and Dice, on the strict hold-out, with stock scored on the same fields.
+   - Page 2: training facts.
+   - Page 3: about and links.
+   - Done: all 9 HF cards uploaded, approved by the maintainer.
+   - Done: data on nightly b16ee4d4b, features/data/gt_rescore_2026-10-11/cards/<repo>/card.json.
+   - Website and GitHub cards should read card.json and embed `https://huggingface.co/einarolafsson/<repo>/resolve/main/cards/pageN.png`, so every place shows the same card.
+   - Left for WS (ETA about 3 h, one push): the spaCR model zoo shows the 3 pages with Previous/Next; PV v3/v4 best_epoch corrected to "100, final weights" (maintainer decision); the zoo metrics come from card.json.
+2. **Pushed:** f755ba64b (prefs-apply API translations and the parity fix) and b16ee4d4b (card data).
+3. **Plaque v4 drafting:** queued; it starts when plaque_all_2026-10-12/drafts_request.csv arrives under mnt1/af3. It has not synced to WS yet.
+4. **Capture:**
+   - Lessons 24 and 26 start from the Toxoplasma page, which is hidden with alpha off. Record them with alpha on like 86/87, or rewrite them?
+   - App issues:
+     (a) the MakeMasksToolPin panel covers Prev image / Next image at 2560x1440;
+     (b) an Illumination run builds the Regression results panel on a worker thread (run_journal.save_for_run), and the thread-guard traceback, which contains source paths, lands in the console.
+   - "Re-run GPU parity with the N684 command": which test and command? test_v1_v2_parity passes now.
+   - Next: re-capture 07/08 against 8487ee7ea and measure painted fps for 1e51bb403.
+5. **Translation pass this evening:** N655, N673 plus keymap labels, N672 (review the picker captions and _ROWS; fix "Edit mode"), N693, 694, and the API contracts 655/673/693/694.
+
 ## 2026-10-12 00:50 EDT — WS: decisive i18n push landed
 
 WS decisive push: 760369c20 (N678 + F534 + N690/N691 translations; pushed without [skip ci]).
