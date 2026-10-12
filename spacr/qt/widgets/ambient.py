@@ -653,6 +653,7 @@ def dressed(theme: str, palette: str) -> Tuple[str, str]:
 
 #: Frame-rate cap: 30, the rate the tutorial capture records the field at.
 DEFAULT_FPS = 30
+FIELD_FPS = 60
 _RUN_FPS = 4
 MIN_FPS = 1
 MAX_FPS = 60
@@ -699,6 +700,23 @@ BUFFER_EDGE_CEILING = 2048
 #: what an engine built with no widget behind it gets: the tests, the theme
 #: preview, and anything constructed before there is a window to ask.
 BUFFER_MAX_PIXELS = 1920 * 1080
+
+
+def _display_hz(widget: Optional[QWidget] = None, cap: float = FIELD_FPS) -> float:
+    """The highest rate at or below ``cap`` that divides the screen's refresh.
+
+    A whole number of refreshes per frame keeps every frame on screen for the
+    same time; 60 on a 75 Hz panel would hold one frame in four twice.
+    """
+    try:
+        from ..hidpi import screen_for_widget
+        screen = screen_for_widget(widget)
+        refresh = float(screen.refreshRate()) if screen is not None else 0.0
+    except Exception:
+        refresh = 0.0
+    if not math.isfinite(refresh) or refresh < 20.0 or refresh > 1000.0:
+        refresh = 60.0
+    return refresh / max(1, math.ceil(refresh / max(1.0, float(cap)) - 1e-6))
 
 
 def screen_pixels(widget: Optional[QWidget] = None) -> int:
@@ -5163,6 +5181,101 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
                     flat[destination] = color
 
 
+_SUBPIXEL_SCATTER = None
+_GRAIN_KNOTS = (0.0, 1.0, math.sqrt(2.0), 2.0)
+_GRAIN_WEIGHTS = (1.0, 0.68, 0.24, 0.0)
+_GRAIN_ENERGY = 1.0 + 4 * 0.68 + 4 * 0.24
+
+
+def _scatter_subpixel_grains(flat, xs, ys, values, lookup, width, height, dark,
+                             weights):
+    """Stamp round grains at fractional centres with a constant-energy 4x4 kernel.
+
+    A centre on a pixel centre reproduces the nine-sample grain; between
+    pixels the same radial profile is sampled and renormalised to the same
+    total, so a grain glides instead of hopping a whole pixel.
+    """
+    root2 = 1.4142135623730951
+    for i in range(xs.size):
+        fx = xs[i] - 0.5
+        fy = ys[i] - 0.5
+        jx = int(math.floor(fx))
+        jy = int(math.floor(fy))
+        ox = fx - jx
+        oy = fy - jy
+        total = 0.0
+        for a in range(4):
+            dy = (a - 1) - oy
+            for b in range(4):
+                dx = (b - 1) - ox
+                r = math.sqrt(dx * dx + dy * dy)
+                if r < 1.0:
+                    w = 1.0 - 0.32 * r
+                elif r < root2:
+                    w = 0.68 + (r - 1.0) * (0.24 - 0.68) / (root2 - 1.0)
+                elif r < 2.0:
+                    w = 0.24 + (r - root2) * (0.0 - 0.24) / (2.0 - root2)
+                else:
+                    w = 0.0
+                weights[a * 4 + b] = w
+                total += w
+        if total <= 0.0:
+            continue
+        scale = values[i] * 255.0 * 4.68 / total
+        for a in range(4):
+            ny = jy + a - 1
+            if ny < 0 or ny >= height:
+                continue
+            for b in range(4):
+                nx = jx + b - 1
+                if nx < 0 or nx >= width:
+                    continue
+                level = int(math.floor(weights[a * 4 + b] * scale + 0.5))
+                if level <= 0:
+                    continue
+                if level > 255:
+                    level = 255
+                color = lookup[level]
+                destination = ny * width + nx
+                if ((dark and color > flat[destination])
+                        or (not dark and color < flat[destination])):
+                    flat[destination] = color
+
+
+def _subpixel_grains_numpy(np, flat, xs, ys, values, lookup, width, height, dark):
+    """The NumPy twin of :func:`_scatter_subpixel_grains`, used until it compiles."""
+    if not len(xs):
+        return
+    fx = np.asarray(xs, dtype=np.float64) - 0.5
+    fy = np.asarray(ys, dtype=np.float64) - 0.5
+    jx, jy = np.floor(fx), np.floor(fy)
+    offsets = np.arange(-1.0, 3.0)
+    dx = offsets[None, :] - (fx - jx)[:, None]
+    dy = offsets[None, :] - (fy - jy)[:, None]
+    r = np.sqrt(dy[:, :, None] ** 2 + dx[:, None, :] ** 2)
+    weights = np.interp(r, _GRAIN_KNOTS, _GRAIN_WEIGHTS, right=0.0)
+    total = weights.sum(axis=(1, 2))
+    scale = np.where(total > 0.0, np.asarray(values, dtype=np.float64) * 255.0
+                     * _GRAIN_ENERGY / np.maximum(total, 1e-12), 0.0)
+    levels = np.minimum(np.floor(weights * scale[:, None, None] + 0.5), 255.0)
+    columns = (jx.astype(np.int64)[:, None] + offsets.astype(np.int64)[None, :])
+    rows = (jy.astype(np.int64)[:, None] + offsets.astype(np.int64)[None, :])
+    columns = np.broadcast_to(columns[:, None, :], levels.shape)
+    rows = np.broadcast_to(rows[:, :, None], levels.shape)
+    keep = ((levels > 0) & (columns >= 0) & (columns < width)
+            & (rows >= 0) & (rows < height))
+    destinations = rows[keep] * width + columns[keep]
+    colors = lookup[levels[keep].astype(np.int64)]
+    (np.maximum.at if dark else np.minimum.at)(flat, destinations, colors)
+
+
+def _ready_subpixel_scatter():
+    """The compiled fractional-grain kernel once the shared warmup has built it."""
+    if _SUBPIXEL_SCATTER is None:
+        _ready_packed_scatter()
+    return _SUBPIXEL_SCATTER
+
+
 def _warm_packed_scatter():
     """Compile once using tiny owned CPU arrays, without Qt or package writes.
 
@@ -5171,7 +5284,7 @@ def _warm_packed_scatter():
     import/compiler phases hold the GIL briefly; this is not a no-stall claim.
     """
     global _PACKED_SCATTER, _PACKED_SCATTER_FAILED, _PACKED_SCATTER_STARTED
-    global _COLORED_SCATTER, _COLORED_SCATTER_FAILED
+    global _COLORED_SCATTER, _COLORED_SCATTER_FAILED, _SUBPIXEL_SCATTER
     if not _AMBIENT_STARTUP_READY.is_set():
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER_STARTED = False
@@ -5191,6 +5304,16 @@ def _warm_packed_scatter():
             raise RuntimeError('Packed grain compiler did not produce a CPU kernel')
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER = kernel
+        try:
+            subpixel = njit(nogil=True, cache=False)(_scatter_subpixel_grains)
+            subpixel(flat, np.zeros(1, dtype=np.float32), np.zeros(1, dtype=np.float32),
+                     np.zeros(1, dtype=np.float32), lookup, 1, 1, True,
+                     np.zeros(16, dtype=np.float64))
+            if getattr(subpixel, 'nopython_signatures', ()):
+                with _PACKED_SCATTER_LOCK:
+                    _SUBPIXEL_SCATTER = subpixel
+        except Exception:
+            pass
         try:
             colored = njit(nogil=True, cache=False)(_scatter_colored_grains)
             table = lookup
@@ -6706,8 +6829,16 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             self._flicker_field_dots(image, x, y)
             return image
         np = _numpy()
-        px = np.asarray(x, dtype=np.int32)
-        py = np.asarray(y, dtype=np.int32)
+        subpixel = spread and self.family == "impulse_lens"
+        if subpixel:
+            fx = np.asarray(x, dtype=np.float32).reshape(-1)
+            fy = np.asarray(y, dtype=np.float32).reshape(-1)
+            px, py = np.floor(fx).astype(np.int32), np.floor(fy).astype(np.int32)
+            exact = np.clip(np.broadcast_to(np.asarray(light, dtype=np.float32)
+                                            * self.alpha_scale(), fx.shape), 0.0, 1.0)
+        else:
+            px = np.asarray(x, dtype=np.int32)
+            py = np.asarray(y, dtype=np.int32)
         values = np.clip(np.asarray(light, dtype=np.float32)
                          * self.alpha_scale(), 0.0, 1.0)
         inside = ((px >= 0) & (px < width) & (py >= 0) & (py < height))
@@ -6731,6 +6862,18 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         flat = np.frombuffer(image.bits(), dtype=np.uint32,
                              count=width * height)
         flat.fill(lookup[0])
+        if subpixel:
+            near = (fx > -2.0) & (fx < width + 2.0) & (fy > -2.0) & (fy < height + 2.0)
+            fx, fy, exact = fx[near], fy[near], np.ascontiguousarray(exact[near])
+            kernel = _ready_subpixel_scatter()
+            if kernel is not None:
+                kernel(flat, fx, fy, exact, lookup, width, height, self.dark,
+                       np.zeros(16, dtype=np.float64))
+            else:
+                _subpixel_grains_numpy(np, flat, fx, fy, exact, lookup,
+                                       width, height, self.dark)
+            self._flicker_field_dots(image, px, py)
+            return image
         if spread:
             kernel = _ready_packed_scatter()
             if kernel is not None:
@@ -8798,6 +8941,8 @@ class _FrameProducer:
         self._stop = threading.Event()
         self._wake = threading.Event()
         self.doorbell = None
+        self.tick_driven = False
+        self.urgent = False
         self._thread: Optional[threading.Thread] = None
 
     def start(self) -> None:
@@ -8871,6 +9016,7 @@ class _FrameProducer:
             woken, woken_at = False, -math.inf
             while not self._stop.is_set():
                 started = time.monotonic()
+                urgent, self.urgent = self.urgent, False
                 width, height = self.size
                 image = None
                 if width > 0 and height > 0:
@@ -8878,21 +9024,28 @@ class _FrameProducer:
                         if self._queued_input is not None:
                             self._queued_input._consume(self._engine)
                         image = self._engine.shade(width, height)
+                        if self.tick_driven and self._queued_input is not None:
+                            self._queued_input._consume(self._engine)
                 if image is not None:
                     self.publish(image)
                     self.frames_shaded += 1
-                    if woken and self.doorbell is not None:
+                    if (woken and self.doorbell is not None
+                            and (urgent or not self.tick_driven)):
                         try:
                             self.doorbell.objectNameChanged.emit("")
                         except RuntimeError:
                             pass
                 if woken:
                     woken_at = started
-                remaining = self._interval - (time.monotonic() - started)
-                woken = self._wake.wait(remaining if remaining > 0 else 0.0)
+                if self.tick_driven:
+                    woken = self._wake.wait(2.0 * self._interval)
+                else:
+                    remaining = self._interval - (time.monotonic() - started)
+                    woken = self._wake.wait(remaining if remaining > 0 else 0.0)
                 self._wake.clear()
                 if woken and not self._stop.is_set():
-                    spacing = 1.0 / MAX_FPS - (time.monotonic() - woken_at)
+                    gap = (0.75 if self.tick_driven else 1.0) / MAX_FPS
+                    spacing = gap - (time.monotonic() - woken_at)
                     if spacing > 0:
                         self._stop.wait(spacing)
         finally:
@@ -9123,11 +9276,15 @@ class AmbientWidget(QWidget):
         self.frames_painted = 0
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
         self._auto_art_fps = False
+        self._exact_fps = None
         self._run_paced = False
         self._clock = QElapsedTimer()
         self._timer = QTimer(self)
         self._timer.setTimerType(Qt.PreciseTimer)
         self._timer.setInterval(max(1, 1000 // self._fps))
+        self._tick_period_ms = 1000.0 / self._fps
+        self._tick_interval = self._timer.interval()
+        self._tick_due = None
         owner, timer = weakref.ref(self), self._timer
         self._timer.timeout.connect(
             lambda: owner()._on_tick()
@@ -9326,8 +9483,7 @@ class AmbientWidget(QWidget):
         self._field_grab = None
         self._sync_interaction_filter()
         if self._auto_art_fps:
-            self._fps = DEFAULT_FPS if self._theme.startswith("data_art_") else _INSTALLED_FPS
-            self._apply_rate()
+            self._choose_auto_rate()
         if running:
             self._start_producer()
         self.update()
@@ -9640,7 +9796,24 @@ class AmbientWidget(QWidget):
             :data:`MIN_FPS` to :data:`MAX_FPS`.
         """
         self._auto_art_fps = False
+        self._exact_fps = None
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
+        self._apply_rate()
+
+    def _choose_auto_rate(self) -> None:
+        """Pick the rate for a backdrop whose caller left the rate to it.
+
+        The field runs at a whole divisor of the screen refresh up to
+        :data:`FIELD_FPS`; other data art keeps :data:`DEFAULT_FPS` and the
+        classic themes the idle budget.
+        """
+        if self._theme in _FIELD_THEMES:
+            self._exact_fps = _display_hz(self, FIELD_FPS)
+            self._fps = _clamp_int(round(self._exact_fps), MIN_FPS, MAX_FPS)
+        else:
+            self._exact_fps = None
+            self._fps = (DEFAULT_FPS if self._theme.startswith("data_art_")
+                         else _INSTALLED_FPS)
         self._apply_rate()
 
     def _rate(self) -> int:
@@ -9657,10 +9830,37 @@ class AmbientWidget(QWidget):
     def _apply_rate(self) -> None:
         """Set the timer and the shading thread to :meth:`_rate`."""
         rate = self._rate()
-        self._timer.setInterval(max(1, 1000 // rate))
+        exact = getattr(self, "_exact_fps", None)
+        hz = exact if exact and not self._run_paced and rate == self._fps else rate
+        self._tick_period_ms = 1000.0 / hz
+        self._tick_due = None
+        self._tick_interval = max(1, int(self._tick_period_ms))
+        self._timer.setInterval(self._tick_interval)
         producer = self._producer_box[0]
         if producer is not None:
             producer.set_fps(rate)
+
+    def _schedule_next_tick(self) -> None:
+        """Hold the average tick period to the exact rate, not a whole millisecond.
+
+        ``QTimer`` takes whole milliseconds, so 60 Hz as 16 ms runs at 62.5 Hz
+        and slips a refresh every 0.4 s. Each tick sets the next interval from
+        a fractional deadline instead.
+        """
+        period = getattr(self, "_tick_period_ms", 0.0)
+        if (not period or not self._timer.isActive()
+                or self._timer.interval() != getattr(self, "_tick_interval", None)):
+            return
+        now = time.perf_counter() * 1000.0
+        due = self._tick_due
+        due = now + period if due is None else due + period
+        if due < now - period or due > now + 1.25 * period:
+            due = now + period
+        self._tick_due = due
+        interval = max(1, int(round(due - now)))
+        self._tick_interval = interval
+        if interval != self._timer.interval():
+            self._timer.setInterval(interval)
 
     def _follow_the_run(self) -> None:
         """Slow down when a run starts and speed up when it ends."""
@@ -9773,6 +9973,8 @@ class AmbientWidget(QWidget):
                 producer.publish(first)
         self._last_frame = None
         producer.doorbell = self.__dict__.get("_doorbell")
+        producer.tick_driven = (producer.doorbell is not None
+                                and self.__dict__.get("_art_input") is not None)
         self._producer_box[0] = producer
         producer.start()
 
@@ -10088,6 +10290,10 @@ class AmbientWidget(QWidget):
                         (local.y() + 0.5) / max(1, self.height()))
                        if self.rect().contains(local) else None)
             if pointer is not None and art._snapshot[2] != pointer:
+                if self._clock.isValid() and self._timer.isActive():
+                    step = min(MAX_DT, max(0.0, self._clock.restart() / 1000.0))
+                    art._elapsed += step
+                    advance_spaceout_drift(step)
                 art._serial += 1
                 art._popup_snapshot = (art._serial,) + tuple(art._popup_snapshot[1:])
                 art._snapshot = (art._serial, art._elapsed, pointer, art._clicks)
@@ -10098,6 +10304,7 @@ class AmbientWidget(QWidget):
                         self._engine_lock.release()
                 producer = self._producer_box[0]
                 if producer is not None:
+                    producer.urgent = True
                     producer._wake.set()
                 else:
                     self.update()
@@ -10293,7 +10500,15 @@ class AmbientWidget(QWidget):
                     self._pending_dt = 0.0
                 finally:
                     self._engine_lock.release()
-        self.update()
+        self._schedule_next_tick()
+        producer = self._producer_box[0]
+        if producer is not None and producer.tick_driven and producer.is_alive():
+            fresh = producer.latest()
+            if fresh is None or fresh is not self._last_frame:
+                self.repaint()
+            producer._wake.set()
+        else:
+            self.update()
 
     def advance_frame(self, dt: float) -> None:
         """Step the animation by ``dt`` seconds and schedule a repaint.
@@ -11243,6 +11458,8 @@ def install_ambient(host: QWidget, layout=None, *,
                            backdrop=backdrop, corner_radius=corner_radius,
                            **kwargs)
     widget._auto_art_fps = auto_art_fps
+    if auto_art_fps and theme in _FIELD_THEMES:
+        widget._choose_auto_rate()
     widget.follow_parent()
     widget.show()
     return widget
