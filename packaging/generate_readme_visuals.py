@@ -911,7 +911,8 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
     padding or row stripes. Each card is just under half the column wide,
     because GitHub's HTML leaves one space inside each image link and two
     exact halves plus that space would wrap; the rest of the gutter is the
-    card's own transparent margin. Each card links its Markdown card; there
+    card's own transparent margin. The heading strip is 99.5% wide, the
+    width of two cards and that space, so its edges line up with the grid. Each card links its Markdown card; there
     is no text under it. The image's alt text carries the record's own
     ``versus_stock`` sentence, so the numbers are readable without the
     picture. The other versions follow on one line each, older models and
@@ -936,7 +937,7 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
         f".. |zoo_heading| image:: {prefix}{scores.HEADING_NAME}",
         f"   :alt: {scores.HEADING_TEXT}",
         f"   :target: {prefix}{build_model_cards.INDEX_NAME}",
-        "   :width: 100%",
+        "   :width: 99.5%",
     ]
     width = f"{100 / per_row - 0.5:g}%"
     for start in range(0, len(defaults), per_row):

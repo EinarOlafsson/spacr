@@ -48,6 +48,10 @@ CARD_W = WIDTH - 2 * MARGIN_X
 CARD_H = 252
 HEIGHT = CARD_H + 2 * MARGIN_Y
 HEADING_H = 52
+#: Extra space under the heading strip: a line holding one image gets a
+#: shorter line box on GitHub than a line holding two, so without it the
+#: gap under the heading measured 10 px against 16 px between card rows.
+HEADING_GAP = 6
 PAD = 22
 ROWS = 3
 ROW_PITCH = 25
@@ -605,7 +609,7 @@ def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
 def render_heading() -> str:
     """The centred heading over the README grid, two cards wide."""
     width = 2 * WIDTH
-    height = HEADING_H + 2 * MARGIN_Y
+    height = HEADING_H + 2 * MARGIN_Y + HEADING_GAP
     parts = _frame("heading", MARGIN_X, MARGIN_Y, width - 2 * MARGIN_X,
                    HEADING_H)
     parts.append(f'<text x="{width / 2:.1f}" y="{MARGIN_Y + 33}" class="i1"'

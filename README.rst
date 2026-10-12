@@ -560,7 +560,7 @@ because a truncated or substituted checkpoint cannot be told from the real one.
 .. |zoo_heading| image:: docs/models/cards/heading.svg
    :alt: Default models · held-out scores
    :target: docs/models/README.md
-   :width: 100%
+   :width: 99.5%
 
 .. |zoo_card_toxoplasma_pv_v4| image:: docs/models/cards/toxoplasma_pv_v4.svg
    :alt: Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.854 on 11 held-out wells against 0.765 for stock cpsam_v2. F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505.
