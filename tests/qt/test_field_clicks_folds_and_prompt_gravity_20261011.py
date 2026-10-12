@@ -129,6 +129,11 @@ def test_spaceout_field_theme_also_ripples_on_click(qtbot):
     field._sync_run_state()
     qtbot.mouseClick(host, Qt.LeftButton, pos=QPoint(100, 100))
     qtbot.waitUntil(lambda: bool(_waves(field)), timeout=2000)
+    assert field.theme() == ambient.DEFAULT_SPACEOUT_THEME
+    origin = _waves(field)[-1][1]
+    expected = field.mapFromGlobal(host.mapToGlobal(QPoint(100, 100)))
+    assert origin == pytest.approx(((expected.x() + .5) / field.width(),
+                                    (expected.y() + .5) / field.height()), abs=.01)
 
 
 def test_folding_a_section_sends_several_rings_that_gather_the_dots(qtbot):

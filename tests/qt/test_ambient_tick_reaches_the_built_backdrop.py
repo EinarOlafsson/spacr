@@ -97,8 +97,16 @@ def test_a_collected_backdrop_leaves_no_ticking_timer(qapp, qtbot, monkeypatch):
     from spacr.qt.widgets.ambient import AmbientWidget
 
     monkeypatch.setattr(AmbientWidget, "_start_producer", lambda self: None)
+    import weakref
+
+    import shiboken6
+
     widget = AmbientWidget(theme=THEME, gravity_radius=0)
-    widget._timer.start(5)
+    timer = widget._timer
+    timer.start(5)
+    gone = weakref.ref(widget)
     del widget
     gc.collect()
     _pump(qapp, 60)
+    assert gone() is None
+    assert not shiboken6.isValid(timer) or not timer.isActive()
